@@ -10,17 +10,10 @@ import fr.inria.diversify.testRunner.JunitRunner;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
 import org.apache.commons.io.FileUtils;
-import spoon.compiler.Environment;
-import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.ModifierKind;
-import spoon.reflect.visitor.DefaultJavaPrettyPrinter;
-import spoon.reflect.visitor.Query;
-import spoon.reflect.visitor.filter.TypeFilter;
-import spoon.support.JavaOutputProcessor;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,21 +31,20 @@ public class Amplification {
     protected TestSelector testSelector;
     protected Map<Boolean, List<CtMethod>> testsStatus;
 
-    public Amplification(InputProgram inputProgram, DiversityCompiler compiler, Set<String> classLoaderFilter, List<AbstractAmp> amplifiers) {
+    public Amplification(InputProgram inputProgram, DiversityCompiler compiler, DiversifyClassLoader applicationClassLoader, List<AbstractAmp> amplifiers) {
         this.inputProgram = inputProgram;
         this.compiler = compiler;
-        testSelector = new TestSelector(inputProgram, 10);
-
+        this.applicationClassLoader = applicationClassLoader;
         this.amplifiers = amplifiers;
-        initClassLoader(classLoaderFilter);
-        initCompiler();
+
+        testSelector = new TestSelector(inputProgram, 10);
     }
 
-    public CtClass amplification(CtClass classTest, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
+    public  List<CtMethod> amplification(CtClass classTest, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
         return amplification(classTest, getAllTest(classTest), maxIteration);
     }
 
-    public CtClass amplification(CtClass classTest, List<CtMethod> methods, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
+    public  List<CtMethod> amplification(CtClass classTest, List<CtMethod> methods, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
         List<CtMethod> tests = methods.stream()
                 .filter(mth -> isTest(mth))
                 .collect(Collectors.toList());
@@ -73,7 +65,6 @@ public class Amplification {
         Log.info("amplification of {} ({} test)", classTest.getQualifiedName(), tests.size());
 
         List<CtMethod> ampTest = new ArrayList<>();
-        List<CtMethod> testsToRemove = new ArrayList<>();
         for(int i = 0; i < tests.size(); i++) {
             Log.debug("amp {} ({}/{})", tests.get(i).getSimpleName(), i+1, tests.size());
             testSelector.init();
@@ -92,15 +83,10 @@ public class Amplification {
                 ampTest.addAll(testSelector.selectedAmplifiedTests(testsStatus.get(true)));
 
                 Log.debug("total amp test: {}", ampTest.size());
-            } else {
-              testsToRemove.add(tests.get(i));
             }
         }
-        Log.debug("assert generation");
-        return makeDSpotClassTest(classTest, ampTest, testsToRemove);
+        return ampTest;
     }
-
-
 
     protected void amplification(CtClass originalClass, CtMethod test, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
         testsStatus();
@@ -175,27 +161,6 @@ public class Amplification {
         testsStatus.put(false, new ArrayList<>());
     }
 
-    protected void initCompiler() {
-        if(compiler.getBinaryOutputDirectory() == null) {
-            File classOutputDir = new File("tmpDir/tmpClasses_" + System.currentTimeMillis());
-            if (!classOutputDir.exists()) {
-                classOutputDir.mkdirs();
-            }
-            compiler.setBinaryOutputDirectory(classOutputDir);
-        }
-        if(compiler.getSourceOutputDirectory().toString().equals("spooned")) {
-            File sourceOutputDir = new File("tmpDir/tmpSrc_" + System.currentTimeMillis());
-            if (!sourceOutputDir.exists()) {
-                sourceOutputDir.mkdirs();
-            }
-            compiler.setSourceOutputDirectory(sourceOutputDir);
-        }
-
-        Environment env = compiler.getFactory().getEnvironment();
-        env.setDefaultFileGenerator(new JavaOutputProcessor(compiler.getSourceOutputDirectory(),
-                new DefaultJavaPrettyPrinter(env)));
-    }
-
     protected boolean writeAndCompile(CtClass classInstru) throws IOException {
         FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
         FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
@@ -240,14 +205,6 @@ public class Amplification {
                 .forEach(amp -> amp.reset(inputProgram, coverage, parentClass));
     }
 
-    protected void initClassLoader(Set<String> classLoaderFilter) {
-        List<String> classPaths = new ArrayList<>();
-        classPaths.add(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
-        classPaths.add(inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir());
-        applicationClassLoader = new DiversifyClassLoader(Thread.currentThread().getContextClassLoader(), classPaths);
-        applicationClassLoader.setClassFilter(classLoaderFilter);
-    }
-
     protected List<CtMethod> getAllTest(CtClass classTest) {
         Set<CtMethod> mths = classTest.getMethods();
         return mths.stream()
@@ -273,54 +230,5 @@ public class Amplification {
                 || candidate.getAnnotations().stream()
                     .map(annotation -> annotation.toString())
                     .anyMatch(annotation -> annotation.startsWith("@org.junit.Test"));
-    }
-
-    protected CtClass makeDSpotClassTest(CtClass originalClass, Collection<CtMethod> ampTests, Collection<CtMethod> testToRemove) throws IOException, ClassNotFoundException {
-        CtClass cloneClass = originalClass.getFactory().Core().clone(originalClass);
-        cloneClass.setParent(originalClass.getParent());
-
-        AssertGenerator ag = new AssertGenerator(originalClass, inputProgram, compiler, applicationClassLoader);
-        for(CtMethod test : ampTests) {
-            CtMethod ampTest = ag.generateAssert(test, findStatementToAssert(test));
-            if(ampTest != null) {
-                cloneClass.addMethod(ampTest);
-            }
-        }
-        PrintClassUtils.printJavaFile(compiler.getSourceOutputDirectory(), cloneClass);
-
-        return cloneClass;
-    }
-
-    protected List<Integer> findStatementToAssert(CtMethod test) {
-        CtMethod originalTest = getOriginalTest(test);
-        List<CtStatement> originalStmts = Query.getElements(originalTest, new TypeFilter(CtStatement.class));
-        List<String> originalStmtStrings = originalStmts.stream()
-                .map(stmt -> stmt.toString())
-                .collect(Collectors.toList());
-
-        List<CtStatement> ampStmts = Query.getElements(test, new TypeFilter(CtStatement.class));
-        List<String> ampStmtStrings = ampStmts.stream()
-                .map(stmt -> stmt.toString())
-                .collect(Collectors.toList());
-
-        List<Integer> indexs = new ArrayList<>();
-        for(int i = 0; i < ampStmtStrings.size(); i++) {
-            int index = originalStmtStrings.indexOf(ampStmtStrings.get(i));
-            if(index == -1) {
-                indexs.add(i);
-            } else {
-                originalStmtStrings.remove(index);
-            }
-        }
-
-        return indexs;
-    }
-
-    protected CtMethod getOriginalTest(CtMethod test) {
-        CtMethod parent = AbstractAmp.getAmpTestToParent().get(test);
-        while(AbstractAmp.getAmpTestToParent().get(parent) != null) {
-            parent = AbstractAmp.getAmpTestToParent().get(parent);
-        }
-        return parent;
     }
 }

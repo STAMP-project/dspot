@@ -15,9 +15,12 @@ import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.util.LoggerUtils;
 import fr.inria.diversify.util.PrintClassUtils;
 import org.apache.commons.io.FileUtils;
+import spoon.compiler.Environment;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
+import spoon.reflect.visitor.DefaultJavaPrettyPrinter;
+import spoon.support.JavaOutputProcessor;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,76 +33,50 @@ import java.util.stream.Collectors;
  * Time: 17:36
  */
 public class DSpot {
-    protected  Set<String> filter;
     protected DiversityCompiler compiler;
     protected InputProgram inputProgram;
+    protected DiversifyClassLoader applicationClassLoader;
+    protected AssertGenerator assertGenerator;
 
     protected static DiversifyClassLoader regressionClassLoader;
-
-    public DSpot(String propertiesFile) throws InvalidSdkException, Exception {
-        this(new InputConfiguration(propertiesFile));
-    }
-
 
     public DSpot(InputConfiguration inputConfiguration) throws InvalidSdkException, Exception {
         InitUtils.initLogLevel(inputConfiguration);
         inputProgram = InitUtils.initInputProgram(inputConfiguration);
 
-        initClassLoaderFilter(inputConfiguration);
         String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp_" + System.currentTimeMillis();
 
         FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
         inputProgram.setProgramDir(outputDirectory);
 
         InitUtils.initDependency(inputConfiguration);
+        initClassLoader(inputConfiguration);
+        initDiversityCompiler();
 
-        init();
+        assertGenerator = new AssertGenerator(inputProgram, compiler, applicationClassLoader);
+    }
+
+    public DSpot(String propertiesFile) throws InvalidSdkException, Exception {
+        this(new InputConfiguration(propertiesFile));
     }
 
     public DSpot(InputConfiguration inputConfiguration, DiversifyClassLoader classLoader) throws Exception, InvalidSdkException {
+        this(inputConfiguration);
         regressionClassLoader = classLoader;
-        InitUtils.initLogLevel(inputConfiguration);
-        inputProgram = InitUtils.initInputProgram(inputConfiguration);
-
-        initClassLoaderFilter(inputConfiguration);
-        String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp_" + System.currentTimeMillis();
-
-        FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
-        inputProgram.setProgramDir(outputDirectory);
-
-        InitUtils.initDependency(inputConfiguration);
-
-        init();
     }
 
-    public void generateTest() throws IOException, InterruptedException, ClassNotFoundException {
-        Amplification testAmplification = new Amplification(inputProgram, compiler, filter, initAmplifiers());
+    public CtClass generateTest(CtClass cl) throws IOException, InterruptedException, ClassNotFoundException {
+        Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, initAmplifiers());
 
-        for (CtClass cl : getAllTestClasses()) {
-            testAmplification.amplification(cl, 5);
-        }
+        List<CtMethod> ampTests = testAmplification.amplification(cl, 5);
+        return assertGenerator.makeDSpotClassTest(cl, ampTests);
     }
 
+    public CtClass  generateTest(List<CtMethod> tests, CtClass testClass) throws IOException, InterruptedException, ClassNotFoundException {
+        Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, initAmplifiers());
 
-    public CtClass generateTest(List<CtMethod> tests, CtClass testClass) throws IOException, InterruptedException, ClassNotFoundException {
-        Amplification testAmplification = new Amplification(inputProgram, compiler, filter, initAmplifiers());
-
-        return testAmplification.amplification(testClass, tests, 3);
-    }
-
-
-    public void generateTest(CtClass cl) throws IOException, InterruptedException, ClassNotFoundException {
-        init();
-        Amplification testAmplification = new Amplification(inputProgram, compiler, filter, initAmplifiers());
-
-        testAmplification.amplification(cl, 5);
-    }
-
-    protected void initClassLoaderFilter(InputConfiguration inputConfiguration) {
-        filter = new HashSet<>();
-        for(String s : inputConfiguration.getProperty("filter").split(";") ) {
-            filter.add(s);
-        }
+        List<CtMethod> ampTests = testAmplification.amplification(testClass, tests, 3);
+        return assertGenerator.makeDSpotClassTest(testClass, ampTests);
     }
 
     protected List<AbstractAmp> initAmplifiers() {
@@ -122,13 +99,32 @@ public class DSpot {
                 .collect(Collectors.toSet());
     }
 
-    protected void init() throws IOException, InterruptedException {
+    protected void initDiversityCompiler() throws IOException, InterruptedException {
         addBranchLogger();
         compiler = InitUtils.initSpoonCompiler(inputProgram, true);
-        initBuilder();
+        if(compiler.getBinaryOutputDirectory() == null) {
+            File classOutputDir = new File("tmpDir/tmpClasses_" + System.currentTimeMillis());
+            if (!classOutputDir.exists()) {
+                classOutputDir.mkdirs();
+            }
+            compiler.setBinaryOutputDirectory(classOutputDir);
+        }
+        if(compiler.getSourceOutputDirectory().toString().equals("spooned")) {
+            File sourceOutputDir = new File("tmpDir/tmpSrc_" + System.currentTimeMillis());
+            if (!sourceOutputDir.exists()) {
+                sourceOutputDir.mkdirs();
+            }
+            compiler.setSourceOutputDirectory(sourceOutputDir);
+        }
+
+        Environment env = compiler.getFactory().getEnvironment();
+        env.setDefaultFileGenerator(new JavaOutputProcessor(compiler.getSourceOutputDirectory(),
+                new DefaultJavaPrettyPrinter(env)));
+
+        compileTests();
 }
 
-    protected void initBuilder() throws InterruptedException, IOException {
+    protected void compileTests() throws InterruptedException, IOException {
         String[] phases  = new String[]{"clean", "test"};
         MavenBuilder builder = new MavenBuilder(inputProgram.getProgramDir());
 
@@ -136,6 +132,21 @@ public class DSpot {
         builder.initTimeOut();
         InitUtils.addApplicationClassesToClassPath(inputProgram);
     }
+
+    protected void initClassLoader(InputConfiguration inputConfiguration) {
+        Set<String> filter = new HashSet<>();
+        for(String s : inputConfiguration.getProperty("filter").split(";") ) {
+            filter.add(s);
+        }
+
+        List<String> classPaths = new ArrayList<>();
+        classPaths.add(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
+        classPaths.add(inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir());
+
+        applicationClassLoader = new DiversifyClassLoader(Thread.currentThread().getContextClassLoader(), classPaths);
+        applicationClassLoader.setClassFilter(filter);
+    }
+
 
     protected void addBranchLogger() throws IOException {
         Factory factory = InitUtils.initSpoon(inputProgram, false);
@@ -158,10 +169,10 @@ public class DSpot {
         ProcessorUtil.writeInfoFile(inputProgram.getProgramDir());
     }
 
-        public static void main(String[] args) throws Exception, InvalidSdkException {
-        DSpot sbse = new DSpot(args[0]);
-        sbse.generateTest();
-    }
+//    public static void main(String[] args) throws Exception, InvalidSdkException {
+//        DSpot sbse = new DSpot(args[0]);
+//        sbse.generateTest();
+//    }
 
     public void clean() throws IOException {
         FileUtils.forceDelete(compiler.getSourceOutputDirectory());

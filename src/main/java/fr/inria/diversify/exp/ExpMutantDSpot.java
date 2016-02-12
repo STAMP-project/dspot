@@ -3,7 +3,7 @@ package fr.inria.diversify.exp;
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.buildSystem.maven.MavenBuilder;
-import fr.inria.diversify.dspot.AssertGenerator;
+import fr.inria.diversify.dspot.MethodAssertGenerator;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.mutant.Mutant;
 import fr.inria.diversify.runner.InputConfiguration;
@@ -14,6 +14,7 @@ import fr.inria.diversify.util.PrintClassUtils;
 import org.apache.commons.io.FileUtils;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.factory.Factory;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -62,7 +63,7 @@ public class ExpMutantDSpot {
         for(int i = 0; i <= nbVersion; i++)
             try {
                 log.flush();
-                AssertGenerator.initLog(resultDir.getAbsolutePath(), i);
+//                MethodAssertGenerator.initLog(resultDir.getAbsolutePath(), i);
 
                 String mutantTestProject = mutant.checkout(inputConfiguration.getProperty("tmpDir") + "/mutantTestFT/", i, false, true);
                 String  mutantApplicationProject = mutant.checkout(inputConfiguration.getProperty("tmpDir") + "/mutantTestTF/", i, true, true);
@@ -169,7 +170,7 @@ public class ExpMutantDSpot {
     protected List<CtClass> run(DSpot dSpot, List<String> testsNameToExclude) {
         Set<CtClass> testClasses = testsNameToExclude.stream()
                 .map(failure -> failure.substring(0,failure.lastIndexOf(".")))
-                .map(className -> findClass(className,  dSpot.getInputProgram()))
+                .map(className -> findClass(className, dSpot.getInputProgram()))
                 .collect(Collectors.toSet());
 
         return testClasses.stream()
@@ -187,12 +188,7 @@ public class ExpMutantDSpot {
     }
 
     protected CtClass findClass(String className, InputProgram inputProgram) {
-        List<CtClass> classes = inputProgram.getAllElement(CtClass.class);
-
-        return classes.stream()
-                .filter(cl -> cl.getQualifiedName().equals(className))
-                .findFirst()
-                .get();
+        return (CtClass) inputProgram.getFactory().Type().get(className);
     }
 
     protected static void suicide() {

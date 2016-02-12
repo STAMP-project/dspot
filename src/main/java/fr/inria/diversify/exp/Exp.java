@@ -3,7 +3,7 @@ package fr.inria.diversify.exp;
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.buildSystem.maven.MavenBuilder;
-import fr.inria.diversify.dspot.AssertGenerator;
+import fr.inria.diversify.dspot.MethodAssertGenerator;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.exp.tool.Defect4J;
 import fr.inria.diversify.runner.InputConfiguration;
@@ -54,7 +54,7 @@ public class Exp {
         for(int i = 1; i <= nbVersion; i++) {
             try {
                 log.flush();
-                AssertGenerator.initLog(resultDir.getAbsolutePath(), i);
+//                MethodAssertGenerator.initLog(resultDir.getAbsolutePath(), i);
                 initRegressionClassLoader(i);
                 String dir = checkout(i, false);
 
