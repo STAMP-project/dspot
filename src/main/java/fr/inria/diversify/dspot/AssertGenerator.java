@@ -6,8 +6,8 @@ import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.PrintClassUtils;
 import spoon.reflect.code.CtStatement;
-import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
@@ -34,8 +34,8 @@ public class AssertGenerator {
         this.applicationClassLoader = applicationClassLoader;
     }
 
-    protected CtClass makeDSpotClassTest(CtClass originalClass, Collection<CtMethod> ampTests) throws IOException, ClassNotFoundException {
-        CtClass cloneClass = originalClass.getFactory().Core().clone(originalClass);
+    protected CtType makeDSpotClassTest(CtType originalClass, Collection<CtMethod> ampTests) throws IOException, ClassNotFoundException {
+        CtType cloneClass = originalClass.getFactory().Core().clone(originalClass);
         cloneClass.setParent(originalClass.getParent());
 
         MethodAssertGenerator ag = new MethodAssertGenerator(originalClass, inputProgram, compiler, applicationClassLoader);

@@ -13,8 +13,8 @@ import fr.inria.diversify.util.PrintClassUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.runner.notification.Failure;
 import spoon.reflect.code.*;
-import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.Query;
@@ -33,14 +33,14 @@ import java.util.stream.Collectors;
 public class MethodAssertGenerator {
     protected ClassLoader assertGeneratorClassLoader;
     protected CtMethod test;
-    protected CtClass originalClass;
+    protected CtType originalClass;
     protected DiversityCompiler compiler;
     protected InputProgram inputProgram;
     protected List<Integer> statementsIndexToAssert;
 
 
 
-    public MethodAssertGenerator(CtClass originalClass, InputProgram inputProgram, DiversityCompiler compiler, ClassLoader applicationClassLoader) throws IOException {
+    public MethodAssertGenerator(CtType originalClass, InputProgram inputProgram, DiversityCompiler compiler, ClassLoader applicationClassLoader) throws IOException {
         this.originalClass = originalClass;
         this.compiler = compiler;
         this.assertGeneratorClassLoader = applicationClassLoader;
@@ -122,7 +122,7 @@ public class MethodAssertGenerator {
 
     protected CtMethod generateAssert() throws IOException, ClassNotFoundException {
         List<CtMethod> testsToRun = new ArrayList<>();
-        CtClass cl = initTestClass();
+        CtType cl = initTestClass();
 
         CtMethod cloneTest = getFactory().Core().clone(test);
         cl.addMethod(cloneTest);
@@ -196,7 +196,7 @@ public class MethodAssertGenerator {
     }
 
     protected CtMethod buildNewAssert() throws IOException, ClassNotFoundException {
-        CtClass cl = initTestClass();
+        CtType cl = initTestClass();
         List<CtMethod> testsToRun = new ArrayList<>();
 
         for(int i = 0; i < 3; i++) {
@@ -262,7 +262,7 @@ public class MethodAssertGenerator {
             stmtIndex++;
         }
 
-        CtClass newClass = getFactory().Core().clone(originalClass);
+        CtType newClass = getFactory().Core().clone(originalClass);
         newClass.setParent(originalClass.getParent());
         for(int i = 0; i < assertIndex.size(); i++) {
             List<Integer> assertToKeep = new ArrayList<>();
@@ -298,9 +298,8 @@ public class MethodAssertGenerator {
     protected JunitResult runTests(List<CtMethod> testsToRun, ClassLoader classLoader) throws ClassNotFoundException {
         DiversifyClassLoader diversifyClassLoader = new DiversifyClassLoader(classLoader, compiler.getBinaryOutputDirectory().getAbsolutePath());
 
-        List<CtClass> classesToCompile = testsToRun.stream()
+        List<CtType> classesToCompile = testsToRun.stream()
                 .map(mth -> mth.getDeclaringType())
-                .map(type -> (CtClass) type)
                 .distinct()
                 .collect(Collectors.toList());
 
@@ -323,7 +322,7 @@ public class MethodAssertGenerator {
 
     protected JunitResult runSingleTest(CtMethod test, ClassLoader classLoader) throws ClassNotFoundException, IOException {
         List<CtMethod>testsToRun = new ArrayList<>();
-        CtClass newClass = initTestClass();
+        CtType newClass = initTestClass();
 
         CtMethod cloneTest = getFactory().Core().clone(test);
         newClass.addMethod(cloneTest);
@@ -332,7 +331,7 @@ public class MethodAssertGenerator {
         return runTests(testsToRun, classLoader);
     }
 
-    protected boolean writeAndCompile(CtClass cl) {
+    protected boolean writeAndCompile(CtType cl) {
         try {
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
             FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
@@ -347,8 +346,8 @@ public class MethodAssertGenerator {
         }
     }
 
-    protected CtClass initTestClass() {
-        CtClass newClass = getFactory().Core().clone(originalClass);
+    protected CtType initTestClass() {
+        CtType newClass = getFactory().Core().clone(originalClass);
         newClass.setParent(originalClass.getParent());
 
         return newClass;

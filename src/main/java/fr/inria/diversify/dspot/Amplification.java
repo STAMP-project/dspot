@@ -10,8 +10,8 @@ import fr.inria.diversify.testRunner.JunitRunner;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
 import org.apache.commons.io.FileUtils;
-import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 
 import java.io.IOException;
@@ -40,11 +40,11 @@ public class Amplification {
         testSelector = new TestSelector(inputProgram, 10);
     }
 
-    public  List<CtMethod> amplification(CtClass classTest, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
+    public  List<CtMethod> amplification(CtType classTest, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
         return amplification(classTest, getAllTest(classTest), maxIteration);
     }
 
-    public  List<CtMethod> amplification(CtClass classTest, List<CtMethod> methods, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
+    public  List<CtMethod> amplification(CtType classTest, List<CtMethod> methods, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
         List<CtMethod> tests = methods.stream()
                 .filter(mth -> isTest(mth))
                 .collect(Collectors.toList());
@@ -52,7 +52,7 @@ public class Amplification {
         if(tests.isEmpty()) {
             return null;
         }
-        CtClass classWithLogger = testSelector.buildClassWithLogger(classTest, tests);
+        CtType classWithLogger = testSelector.buildClassWithLogger(classTest, tests);
         boolean status = writeAndCompile(classWithLogger);
         if(!status) {
             Log.info("error whit Logger in class {}", classTest);
@@ -88,7 +88,7 @@ public class Amplification {
         return ampTest;
     }
 
-    protected void amplification(CtClass originalClass, CtMethod test, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
+    protected void amplification(CtType originalClass, CtMethod test, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
         testsStatus();
         List<CtMethod> newTests = new ArrayList<>();
         Collection<CtMethod> ampTests = new ArrayList<>();
@@ -108,7 +108,7 @@ public class Amplification {
 
             newTests = reduce(newTests);
 
-            CtClass classWithLogger = testSelector.buildClassWithLogger(originalClass, newTests);
+            CtType classWithLogger = testSelector.buildClassWithLogger(originalClass, newTests);
             boolean status = writeAndCompile(classWithLogger);
             if(!status) {
                 break;
@@ -161,7 +161,7 @@ public class Amplification {
         testsStatus.put(false, new ArrayList<>());
     }
 
-    protected boolean writeAndCompile(CtClass classInstru) throws IOException {
+    protected boolean writeAndCompile(CtType classInstru) throws IOException {
         FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
         FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
         try {
@@ -174,13 +174,13 @@ public class Amplification {
         }
     }
 
-    protected JunitResult runTest(CtClass testClass, CtMethod test) throws ClassNotFoundException {
+    protected JunitResult runTest(CtType testClass, CtMethod test) throws ClassNotFoundException {
         List<CtMethod> tests = new ArrayList<>(1);
         tests.add(test);
         return runTests(testClass, tests);
     }
 
-    protected JunitResult runTests(CtClass testClass, Collection<CtMethod> tests) throws ClassNotFoundException {
+    protected JunitResult runTests(CtType testClass, Collection<CtMethod> tests) throws ClassNotFoundException {
         JunitRunner junitRunner = new JunitRunner(inputProgram, new DiversifyClassLoader(applicationClassLoader, compiler.getBinaryOutputDirectory().getAbsolutePath()));
 
         return junitRunner.runTestClass(testClass.getQualifiedName(), tests.stream()
@@ -200,12 +200,12 @@ public class Amplification {
                 .collect(Collectors.toList());
     }
 
-    protected void resetAmplifiers(CtClass parentClass, Coverage coverage) {
+    protected void resetAmplifiers(CtType parentClass, Coverage coverage) {
         amplifiers.stream()
                 .forEach(amp -> amp.reset(inputProgram, coverage, parentClass));
     }
 
-    protected List<CtMethod> getAllTest(CtClass classTest) {
+    protected List<CtMethod> getAllTest(CtType classTest) {
         Set<CtMethod> mths = classTest.getMethods();
         return mths.stream()
                 .filter(mth -> isTest(mth))

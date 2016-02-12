@@ -1,9 +1,6 @@
 package fr.inria.diversify.dspot.processor;
 
-import fr.inria.diversify.profiling.coverage.Coverage;
-import fr.inria.diversify.runner.InputProgram;
 import spoon.reflect.code.*;
-import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
@@ -74,9 +71,5 @@ public class TestMethodCallRemover extends AbstractAmp {
             b.removeStatement(stmt);
 
             return cloned_method;
-    }
-
-    public void reset(InputProgram inputProgram, Coverage coverage, CtClass testClass) {
-        super.reset(inputProgram, coverage, testClass);
     }
 }

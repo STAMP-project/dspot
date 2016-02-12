@@ -16,8 +16,8 @@ import fr.inria.diversify.util.LoggerUtils;
 import fr.inria.diversify.util.PrintClassUtils;
 import org.apache.commons.io.FileUtils;
 import spoon.compiler.Environment;
-import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.DefaultJavaPrettyPrinter;
 import spoon.support.JavaOutputProcessor;
@@ -56,23 +56,19 @@ public class DSpot {
         assertGenerator = new AssertGenerator(inputProgram, compiler, applicationClassLoader);
     }
 
-    public DSpot(String propertiesFile) throws InvalidSdkException, Exception {
-        this(new InputConfiguration(propertiesFile));
-    }
-
     public DSpot(InputConfiguration inputConfiguration, DiversifyClassLoader classLoader) throws Exception, InvalidSdkException {
         this(inputConfiguration);
         regressionClassLoader = classLoader;
     }
 
-    public CtClass generateTest(CtClass cl) throws IOException, InterruptedException, ClassNotFoundException {
+    public CtType generateTest(CtType test) throws IOException, InterruptedException, ClassNotFoundException {
         Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, initAmplifiers());
 
-        List<CtMethod> ampTests = testAmplification.amplification(cl, 5);
-        return assertGenerator.makeDSpotClassTest(cl, ampTests);
+        List<CtMethod> ampTests = testAmplification.amplification(test, 5);
+        return assertGenerator.makeDSpotClassTest(test, ampTests);
     }
 
-    public CtClass  generateTest(List<CtMethod> tests, CtClass testClass) throws IOException, InterruptedException, ClassNotFoundException {
+    public CtType generateTest(List<CtMethod> tests, CtType testClass) throws IOException, InterruptedException, ClassNotFoundException {
         Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, initAmplifiers());
 
         List<CtMethod> ampTests = testAmplification.amplification(testClass, tests, 3);
@@ -90,9 +86,9 @@ public class DSpot {
         return amplifiers;
     }
 
-    protected Collection<CtClass> getAllTestClasses() {
+    protected Collection<CtType> getAllTestClasses() {
         String testDir = inputProgram.getRelativeTestSourceCodeDir();
-        List<CtClass> allClasses = inputProgram.getAllElement(CtClass.class);
+        List<CtType> allClasses = inputProgram.getAllElement(CtType.class);
         return allClasses.stream()
                 .filter(cl -> cl.getSimpleName().contains("Test"))
                 .filter(cl -> cl.getPosition().getFile().toString().contains(testDir))
@@ -169,11 +165,6 @@ public class DSpot {
         ProcessorUtil.writeInfoFile(inputProgram.getProgramDir());
     }
 
-//    public static void main(String[] args) throws Exception, InvalidSdkException {
-//        DSpot sbse = new DSpot(args[0]);
-//        sbse.generateTest();
-//    }
-
     public void clean() throws IOException {
         FileUtils.forceDelete(compiler.getSourceOutputDirectory());
         FileUtils.forceDelete(compiler.getBinaryOutputDirectory());
@@ -183,4 +174,13 @@ public class DSpot {
     public InputProgram getInputProgram() {
         return inputProgram;
     }
+
+    public static void main(String[] args) throws Exception, InvalidSdkException {
+        InputConfiguration inputConfiguration = new InputConfiguration(args[0]);
+        String testClass = inputConfiguration.getProperty("testClass");
+
+        DSpot dspot = new DSpot(inputConfiguration);
+        dspot.generateTest(dspot.inputProgram.getFactory().Type().get(testClass));
+    }
+
 }

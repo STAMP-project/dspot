@@ -11,7 +11,7 @@ import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
-import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.CtMethod;
 
 import java.io.BufferedWriter;
@@ -61,7 +61,7 @@ public class Exp {
                 DSpot sbse = new DSpot(inputConfiguration, regressionClassLoader);
 
                 Set<String> testsNameToExclude = defect4J.triggerTests(projectId, i);
-                List<CtClass> classes = run(sbse, testsNameToExclude);
+                List<CtType> classes = run(sbse, testsNameToExclude);
                 printClasses(classes, resultDir.getAbsolutePath() + "/testSource/" + projectId + "/" + i + "/" + inputConfiguration.getRelativeTestSourceCodeDir());
 
                 printClasses(classes, dir + "/" + inputConfiguration.getRelativeTestSourceCodeDir());
@@ -121,12 +121,12 @@ public class Exp {
         builder.initTimeOut();
     }
 
-    protected void printClasses(List<CtClass> classes, String dir) {
+    protected void printClasses(List<CtType> classes, String dir) {
         File dirFile = new File(dir);
         if(!dirFile.exists()) {
             dirFile.mkdirs();
         }
-        for(CtClass cl : classes) {
+        for(CtType cl : classes) {
             try {
                 PrintClassUtils.printJavaFile(new File(dir), cl);
             } catch (IOException e) {
@@ -135,8 +135,8 @@ public class Exp {
         }
     }
 
-    protected List<CtClass> run(DSpot dSpot, Set<String> testsNameToExclude) {
-        Map<CtClass, List<String[]>> testByClass = testsNameToExclude.stream()
+    protected List<CtType> run(DSpot dSpot, Set<String> testsNameToExclude) {
+        Map<CtType, List<String[]>> testByClass = testsNameToExclude.stream()
                 .map(testName -> testName.split("::"))
                 .collect(Collectors.groupingBy(split -> findClass(split[0],  dSpot.getInputProgram())));
 
@@ -168,8 +168,8 @@ public class Exp {
     }
 
 
-    protected CtClass findClass(String className, InputProgram inputProgram) {
-        List<CtClass> classes = inputProgram.getAllElement(CtClass.class);
+    protected CtType findClass(String className, InputProgram inputProgram) {
+        List<CtType> classes = inputProgram.getAllElement(CtType.class);
 
         return classes.stream()
                 .filter(cl -> cl.getQualifiedName().equals(className))
@@ -177,7 +177,7 @@ public class Exp {
                 .get();
     }
 
-    protected CtMethod findMethod(CtClass cl, String mthSimpleName) {
+    protected CtMethod findMethod(CtType cl, String mthSimpleName) {
         Set<CtMethod> mths = cl.getMethods();
         return mths.stream()
                 .filter(mth -> mth.getSimpleName().contains(mthSimpleName))

@@ -4,7 +4,6 @@ import fr.inria.diversify.ReplaceHelper;
 import fr.inria.diversify.profiling.coverage.Coverage;
 import fr.inria.diversify.runner.InputProgram;
 import spoon.reflect.code.*;
-import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -227,7 +226,7 @@ public class TestDataMutator extends AbstractAmp {
                 .collect(Collectors.toSet());
     }
 
-    public void reset(InputProgram inputProgram, Coverage coverage, CtClass testClass) {
+    public void reset(InputProgram inputProgram, Coverage coverage, CtType testClass) {
         super.reset(inputProgram, coverage, testClass);
 
         Set<CtType> codeFragmentsProvide = computeClassProvider(testClass);

@@ -9,8 +9,8 @@ import fr.inria.diversify.profiling.processor.test.TestLoggingInstrumenter;
 import fr.inria.diversify.runner.InputProgram;
 import org.apache.commons.io.FileUtils;
 import spoon.reflect.declaration.CtAnnotation;
-import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.io.IOException;
@@ -197,14 +197,14 @@ public class TestSelector {
         return null;
     }
 
-    protected CtClass buildClassWithLogger(CtClass originalClass, CtMethod test) {
+    protected CtType buildClassWithLogger(CtType originalClass, CtMethod test) {
         List<CtMethod> tests = new ArrayList<>(1);
         tests.add(test);
         return buildClassWithLogger(originalClass, tests);
     }
 
-    protected CtClass buildClassWithLogger(CtClass originalClass, Collection<CtMethod> tests) {
-        CtClass cloneClass = originalClass.getFactory().Core().clone(originalClass);
+    protected CtType buildClassWithLogger(CtType originalClass, Collection<CtMethod> tests) {
+        CtType cloneClass = originalClass.getFactory().Core().clone(originalClass);
         cloneClass.setParent(originalClass.getParent());
         tests.stream()
                 .map(test -> buildMethodWithLogger(cloneClass, test))
@@ -215,7 +215,7 @@ public class TestSelector {
         return cloneClass;
     }
 
-    protected CtMethod buildMethodWithLogger(CtClass parentClass, CtMethod method) {
+    protected CtMethod buildMethodWithLogger(CtType parentClass, CtMethod method) {
         CtMethod clone = cloneMethod(method);
         clone.setParent(parentClass);
         AssertionRemover testCase = new AssertionRemover(inputProgram.getAbsoluteTestSourceCodeDir(), false);

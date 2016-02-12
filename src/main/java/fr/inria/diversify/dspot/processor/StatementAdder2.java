@@ -254,7 +254,7 @@ public class StatementAdder2 extends AbstractAmp {
         return varRead;
     }
 
-    protected CtType findClassUnderTest(CtClass testClass) {
+    protected CtType findClassUnderTest(CtType testClass) {
         return computeClassProvider(testClass).stream()
                 .filter(cl -> testClass.getQualifiedName().contains(cl.getQualifiedName()) && cl != testClass)
                 .findFirst()
@@ -314,7 +314,7 @@ public class StatementAdder2 extends AbstractAmp {
         return literalsByMethod.get(method);
     }
 
-    public void reset(InputProgram inputProgram, Coverage coverage, CtClass testClass) {
+    public void reset(InputProgram inputProgram, Coverage coverage, CtType testClass) {
         super.reset(inputProgram, coverage, testClass);
         literalsByMethod = new HashMap<>();
 

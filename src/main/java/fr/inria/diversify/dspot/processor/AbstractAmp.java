@@ -30,7 +30,7 @@ public abstract class AbstractAmp {
     public abstract List<CtMethod> apply(CtMethod method);
     public abstract CtMethod applyRandom(CtMethod method);
 
-    public void reset(InputProgram inputProgram, Coverage coverage, CtClass testClass) {
+    public void reset(InputProgram inputProgram, Coverage coverage, CtType testClass) {
         cloneNumber = 1;
         previousTestAmp = new HashSet<>();
         ampTestToParent = new HashMap<>();
@@ -150,13 +150,13 @@ public abstract class AbstractAmp {
         return cloned_method;
     }
 
-    protected Set<CtType> computeClassProvider(CtClass testClass) {
+    protected Set<CtType> computeClassProvider(CtType testClass) {
         List<CtType> types = Query.getElements(testClass.getParent(CtPackage.class), new TypeFilter(CtType.class));
         types = types.stream()
                 .filter(type -> type.getPackage() != null)
                 .filter(type -> type.getPackage().getQualifiedName().equals(testClass.getPackage().getQualifiedName()))
                 .collect(Collectors.toList());
-        types.add(testClass.getParent(CtClass.class));
+        types.add(testClass.getParent(CtType.class));
 
         ImportScanner importScanner = new ImportScannerImpl();
         types.addAll(types.stream()

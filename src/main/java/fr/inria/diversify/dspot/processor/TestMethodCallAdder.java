@@ -1,10 +1,7 @@
 package fr.inria.diversify.dspot.processor;
 
-import fr.inria.diversify.profiling.coverage.Coverage;
-import fr.inria.diversify.runner.InputProgram;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtInvocation;
-import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
@@ -67,9 +64,4 @@ public class TestMethodCallAdder extends AbstractAmp {
         return !invocation.toString().startsWith("super(")
                 && invocation.getParent() instanceof CtBlock;
     }
-
-    public void reset(InputProgram inputProgram, Coverage coverage, CtClass testClass) {
-        super.reset(inputProgram, coverage, testClass);
-    }
-
 }

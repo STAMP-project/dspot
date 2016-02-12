@@ -12,9 +12,7 @@ import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
 import org.apache.commons.io.FileUtils;
-import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.factory.Factory;
+import spoon.reflect.declaration.CtType;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -74,7 +72,7 @@ public class ExpMutantDSpot {
                 DSpot dSpot = new DSpot(inputConfiguration, regressionClassLoader);
 
                 List<String> testsNameToExclude = mutant.triggerTests(i);
-                List<CtClass> testClasses = run(dSpot, testsNameToExclude);
+                List<CtType> testClasses = run(dSpot, testsNameToExclude);
                 printClasses(testClasses, resultDir.getAbsolutePath() + "/DSpotTests/" + i + "/" + inputConfiguration.getRelativeTestSourceCodeDir());
                 if(verify(i, testClasses)) {
                     List<String> failures = findBug(i, testClasses);
@@ -98,7 +96,7 @@ public class ExpMutantDSpot {
         suicide();
     }
 
-    protected boolean verify(int version, List<CtClass> testClasses) throws Exception {
+    protected boolean verify(int version, List<CtType> testClasses) throws Exception {
         String  mutantApplicationProject = mutant.checkout(inputConfiguration.getProperty("tmpDir") +"/tmp"+ System.currentTimeMillis(), version, false, true);
         printClasses(testClasses, mutantApplicationProject + "/" + inputConfiguration.getRelativeTestSourceCodeDir());
 
@@ -109,7 +107,7 @@ public class ExpMutantDSpot {
         return failure != null && failure.isEmpty();
     }
 
-    protected List<String> findBug(int version, List<CtClass> testClasses) throws Exception {
+    protected List<String> findBug(int version, List<CtType> testClasses) throws Exception {
         String  mutantApplicationProject = mutant.checkout(inputConfiguration.getProperty("tmpDir") +"/tmp"+ System.currentTimeMillis(), version, true, true);
         printClasses(testClasses, mutantApplicationProject + "/" + inputConfiguration.getRelativeTestSourceCodeDir());
 
@@ -153,12 +151,12 @@ public class ExpMutantDSpot {
         return builder.getFailedTests();
     }
 
-    protected void printClasses(List<CtClass> classes, String dir) {
+    protected void printClasses(List<CtType> classes, String dir) {
         File dirFile = new File(dir);
         if(!dirFile.exists()) {
             dirFile.mkdirs();
         }
-        for(CtClass cl : classes) {
+        for(CtType cl : classes) {
             try {
                 PrintClassUtils.printJavaFile(new File(dir), cl);
             } catch (IOException e) {
@@ -167,17 +165,20 @@ public class ExpMutantDSpot {
         }
     }
 
-    protected List<CtClass> run(DSpot dSpot, List<String> testsNameToExclude) {
-        Set<CtClass> testClasses = testsNameToExclude.stream()
-                .map(failure -> failure.substring(0,failure.lastIndexOf(".")))
-                .map(className -> findClass(className, dSpot.getInputProgram()))
-                .collect(Collectors.toSet());
+    protected List<CtType> run(DSpot dSpot, List<String> testsNameToExclude) {
+//        Set<CtType> testClasses = testsNameToExclude.stream()
+//                .map(failure -> failure.substring(0,failure.lastIndexOf(".")))
+//                .map(className -> findClass(className, dSpot.getInputProgram()))
+//                .collect(Collectors.toSet());
 
-        return testClasses.stream()
+        return testsNameToExclude.stream()
+                .map(failure -> failure.substring(0,failure.lastIndexOf(".")))
+                .distinct()
+                .map(cl -> dSpot.getInputProgram().getFactory().Type().get(cl))
                 .map(cl -> {
-                    List<CtMethod> methods = new LinkedList<>(cl.getMethods());
+//                    List<CtMethod> methods = new LinkedList<>(cl.getMethods());
                     try {
-                        return dSpot.generateTest(methods, cl);
+                         return dSpot.generateTest(cl);
                     } catch (Exception e) {
                         e.printStackTrace();
                         return null;
@@ -187,8 +188,8 @@ public class ExpMutantDSpot {
                 .collect(Collectors.toList());
     }
 
-    protected CtClass findClass(String className, InputProgram inputProgram) {
-        return (CtClass) inputProgram.getFactory().Type().get(className);
+    protected CtType findClass(String className, InputProgram inputProgram) {
+        return inputProgram.getFactory().Type().get(className);
     }
 
     protected static void suicide() {
