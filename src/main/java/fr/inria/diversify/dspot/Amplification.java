@@ -55,7 +55,7 @@ public class Amplification {
         CtType classWithLogger = testSelector.buildClassWithLogger(classTest, tests);
         boolean status = writeAndCompile(classWithLogger);
         if(!status) {
-            Log.info("error whit Logger in class {}", classTest);
+            Log.info("error with Logger in class {}", classTest);
             return null;
         }
         runTests(classWithLogger, tests);

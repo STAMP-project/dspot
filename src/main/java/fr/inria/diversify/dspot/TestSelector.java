@@ -13,6 +13,7 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,7 +28,7 @@ public class TestSelector {
     protected Map<String, Integer> testAges;
     protected List<TestCoverage> ampCoverage;
     protected String logger;
-    protected  int maxNumberOfTest;
+    protected int maxNumberOfTest;
 
     public TestSelector(InputProgram inputProgram,  int maxNumberOfTest) {
         this.inputProgram = inputProgram;
@@ -139,7 +140,15 @@ public class TestSelector {
                 }
             }
         }
-        return reduceSelectedTest(amplifiedTests);
+        Collection<CtMethod> selectedTests = reduceSelectedTest(amplifiedTests);
+
+        try {
+            writeReport(selectedTests);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return selectedTests;
     }
 
     protected Collection<CtMethod> reduceSelectedTest(Map<CtMethod, Set<String>> selected) {
@@ -254,7 +263,6 @@ public class TestSelector {
         }
     }
 
-
     public Coverage getGlobalCoverage() {
         Coverage coverage = new Coverage();
 
@@ -263,5 +271,27 @@ public class TestSelector {
         }
 
         return coverage;
+    }
+
+    public static String reportFile;
+    protected void writeReport(Collection<CtMethod> tests) throws IOException {
+        FileWriter report = new FileWriter(reportFile);
+        Set<String> branches = new HashSet<>();
+        for(CtMethod test : tests) {
+            Set<String> b = getTestCoverageFor(test).stream()
+                    .map(TestCoverage::getCoveredBranch)
+                    .flatMap(set -> set.stream())
+                    .collect(Collectors.toSet());
+
+            report.write(test.getSignature() + ": ");
+            report.write(b.size() + ", ");
+            report.write(b.toString() + "\n");
+            branches.addAll(b);
+        }
+        report.write("all : ");
+        report.write(branches.size() + ", ");
+        report.write(branches.toString());
+        report.close();
+
     }
 }

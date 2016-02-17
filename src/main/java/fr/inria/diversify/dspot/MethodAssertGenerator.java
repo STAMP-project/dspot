@@ -227,11 +227,13 @@ public class MethodAssertGenerator {
                             + stmt.toString();
                     CtStatement localVarStmt = getFactory().Code().createCodeSnippetStatement(localVarSnippet);
                     stmt.replace(localVarStmt);
+                    statements.set(id, localVarStmt);
                     localVarStmt.setParent(stmt.getParent());
                     localVarStmt.insertAfter(assertStmt);
                 } else {
                     stmt.insertAfter(assertStmt);
                 }
+
             }
         }
 
@@ -525,7 +527,7 @@ public class MethodAssertGenerator {
         String comparePackage = Compare.class.getPackage().getName().replace(".", "/");
         File srcDir = new File(System.getProperty("user.dir") + "/src/main/java/" + comparePackage);
 
-        File destDir = new File(compiler.getSourceOutputDirectory() + comparePackage);
+        File destDir = new File(compiler.getSourceOutputDirectory() + "/" + comparePackage);
         FileUtils.forceMkdir(destDir);
 
         FileUtils.copyDirectory(srcDir, destDir);

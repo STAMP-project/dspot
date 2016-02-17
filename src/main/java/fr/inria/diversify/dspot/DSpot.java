@@ -24,8 +24,8 @@ import spoon.support.JavaOutputProcessor;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * User: Simon
@@ -64,7 +64,7 @@ public class DSpot {
     public CtType generateTest(CtType test) throws IOException, InterruptedException, ClassNotFoundException {
         Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, initAmplifiers());
 
-        List<CtMethod> ampTests = testAmplification.amplification(test, 5);
+        List<CtMethod> ampTests = testAmplification.amplification(test, 3);
         return assertGenerator.makeDSpotClassTest(test, ampTests);
     }
 
@@ -84,15 +84,6 @@ public class DSpot {
         amplifiers.add(new StatementAdder2());
 
         return amplifiers;
-    }
-
-    protected Collection<CtType> getAllTestClasses() {
-        String testDir = inputProgram.getRelativeTestSourceCodeDir();
-        List<CtType> allClasses = inputProgram.getAllElement(CtType.class);
-        return allClasses.stream()
-                .filter(cl -> cl.getSimpleName().contains("Test"))
-                .filter(cl -> cl.getPosition().getFile().toString().contains(testDir))
-                .collect(Collectors.toSet());
     }
 
     protected void initDiversityCompiler() throws IOException, InterruptedException {
@@ -175,12 +166,19 @@ public class DSpot {
         return inputProgram;
     }
 
+    protected static void kill() throws IOException {
+        String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
+        Runtime r = Runtime.getRuntime();
+        r.exec("kill "+pid);
+    }
+
     public static void main(String[] args) throws Exception, InvalidSdkException {
         InputConfiguration inputConfiguration = new InputConfiguration(args[0]);
         String testClass = inputConfiguration.getProperty("testClass");
 
         DSpot dspot = new DSpot(inputConfiguration);
         dspot.generateTest(dspot.inputProgram.getFactory().Type().get(testClass));
+        dspot.kill();
     }
 
 }

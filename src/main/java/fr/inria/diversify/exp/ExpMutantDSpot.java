@@ -5,6 +5,7 @@ import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.buildSystem.maven.MavenBuilder;
 import fr.inria.diversify.dspot.MethodAssertGenerator;
 import fr.inria.diversify.dspot.DSpot;
+import fr.inria.diversify.dspot.TestSelector;
 import fr.inria.diversify.mutant.Mutant;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
@@ -62,9 +63,9 @@ public class ExpMutantDSpot {
             try {
                 log.flush();
 //                MethodAssertGenerator.initLog(resultDir.getAbsolutePath(), i);
-
+                TestSelector.reportFile = resultDir.getAbsolutePath() + "/testAmpReport_" + i;
                 String mutantTestProject = mutant.checkout(inputConfiguration.getProperty("tmpDir") + "/mutantTestFT/", i, false, true);
-                String  mutantApplicationProject = mutant.checkout(inputConfiguration.getProperty("tmpDir") + "/mutantTestTF/", i, true, true);
+                String mutantApplicationProject = mutant.checkout(inputConfiguration.getProperty("tmpDir") + "/mutantTestTF/", i, true, true);
 
                 initRegressionClassLoader(mutantApplicationProject);
 

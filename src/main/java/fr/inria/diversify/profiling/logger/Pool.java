@@ -19,17 +19,26 @@ public class Pool {
             new HashMap<Object,Object>(20000);
 
     public static String get(String str) {
-        String canon = StringPool.putIfAbsent(str, str);
-        return (canon == null) ? str : canon;
+        String v = StringPool.get(str);
+        if (v == null) {
+            v = StringPool.put(str, str);
+        }
+        return (v == null) ? str : v;
     }
 
     public static Integer get(Integer str) {
-        Integer canon = IntegerPool.putIfAbsent(str, str);
-        return (canon == null) ? str : canon;
+        Integer v = IntegerPool.get(str);
+        if (v == null) {
+            v = IntegerPool.put(str, str);
+        }
+        return (v == null) ? str : v;
     }
     public static Object get(Object str) {
-        Object canon = ObjectPool.putIfAbsent(str, str);
-        return (canon == null) ? str : canon;
+        Object v = ObjectPool.get(str);
+        if (v == null) {
+            v = ObjectPool.put(str, str);
+        }
+        return (v == null) ? str : v;
     }
 
     public static void reset() {
