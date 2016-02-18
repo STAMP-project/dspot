@@ -133,7 +133,7 @@ public class MethodAssertGenerator {
         cl.addMethod(testWithoutAssert);
 
         JunitResult result = runTests(testsToRun, assertGeneratorClassLoader);
-        if(result == null) {
+        if(result == null || result.getTestRuns().size() != testsToRun.size()) {
             return null;
         }
         try {
@@ -316,7 +316,6 @@ public class MethodAssertGenerator {
                 .map(cl -> cl.getQualifiedName())
                 .distinct()
                 .collect(Collectors.toList());
-
         diversifyClassLoader.setClassFilter(ClassName);
         JunitRunner junitRunner = new JunitRunner(inputProgram, diversifyClassLoader);
         return junitRunner.runTestClasses(ClassName, testsToRun.stream().map(test -> test.getSimpleName()).collect(Collectors.toList()));

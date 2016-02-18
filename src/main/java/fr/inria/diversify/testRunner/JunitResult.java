@@ -78,4 +78,10 @@ public class JunitResult extends RunListener {
     public List<Failure> getFailures() {
         return failures;
     }
+
+    public List<String> getTestRuns() {
+        return testRuns.stream()
+                .map(description -> description.getMethodName())
+                .collect(Collectors.toList());
+    }
 }

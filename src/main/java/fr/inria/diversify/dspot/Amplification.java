@@ -53,13 +53,14 @@ public class Amplification {
         if(tests.isEmpty()) {
             return null;
         }
+        testSelector.init();
         CtType classWithLogger = testSelector.buildClassWithLogger(classTest, tests);
         boolean status = writeAndCompile(classWithLogger);
         if(!status) {
             Log.info("error with Logger in class {}", classTest);
             return null;
         }
-        runTests(classWithLogger, tests);
+        JunitResult result = runTests(classWithLogger, tests);
         testSelector.updateLogInfo();
         LogResult.addCoverage(testSelector.getCoverage(), methods, true);
         resetAmplifiers(classTest, testSelector.getGlobalCoverage());
@@ -74,7 +75,7 @@ public class Amplification {
             classWithLogger = testSelector.buildClassWithLogger(classTest, tests.get(i));
             writeAndCompile(classWithLogger);
 
-            JunitResult result = runTest(classWithLogger, tests.get(i));
+             result = runTest(classWithLogger, tests.get(i));
             if(result != null
                     && result.getFailures().isEmpty()) {
                 testSelector.updateLogInfo();
