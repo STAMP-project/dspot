@@ -1,7 +1,7 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
-import fr.inria.diversify.dspot.processor.*;
+import fr.inria.diversify.dspot.amp.*;
 import fr.inria.diversify.exp.LogResult;
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.profiling.coverage.Coverage;

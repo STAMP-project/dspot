@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot.processor;
+package fr.inria.diversify.dspot.amp;
 
 import fr.inria.diversify.profiling.coverage.Coverage;
 import fr.inria.diversify.runner.InputProgram;

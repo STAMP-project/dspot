@@ -1,6 +1,6 @@
 package fr.inria.diversify.dspot;
 
-import fr.inria.diversify.dspot.processor.AbstractAmp;
+import fr.inria.diversify.dspot.amp.AbstractAmp;
 import fr.inria.diversify.profiling.coverage.Coverage;
 import fr.inria.diversify.profiling.coverage.CoverageReader;
 import fr.inria.diversify.profiling.coverage.TestCoverage;

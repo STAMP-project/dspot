@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot.processor;
+package fr.inria.diversify.dspot.amp;
 
 import fr.inria.diversify.codeFragment.*;
 import fr.inria.diversify.codeFragmentProcessor.StatementProcessor;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * Date: 02/12/15
  * Time: 14:55
  */
-public class StatementAdder2 extends AbstractAmp {
+public class StatementAdder extends AbstractAmp {
     protected List<Statement> localVars;
     protected Map<CtMethod, List<CtLiteral>> literalsByMethod;
     protected Map<Statement, Double> coverageBycodeFragments;

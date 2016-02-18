@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot.processor;
+package fr.inria.diversify.dspot.amp;
 
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;

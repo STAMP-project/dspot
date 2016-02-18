@@ -1,7 +1,7 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
-import fr.inria.diversify.dspot.processor.*;
+import fr.inria.diversify.dspot.amp.*;
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.buildSystem.maven.MavenBuilder;
@@ -85,7 +85,7 @@ public class DSpot {
         amplifiers.add(new TestDataMutator());
         amplifiers.add(new TestMethodCallAdder());
         amplifiers.add(new TestMethodCallRemover());
-        amplifiers.add(new StatementAdder2());
+        amplifiers.add(new StatementAdder());
 
         return amplifiers;
     }

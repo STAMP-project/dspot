@@ -1,7 +1,7 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
-import fr.inria.diversify.dspot.processor.AbstractAmp;
+import fr.inria.diversify.dspot.amp.AbstractAmp;
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.PrintClassUtils;

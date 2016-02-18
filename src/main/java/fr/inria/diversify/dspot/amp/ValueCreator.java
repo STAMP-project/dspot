@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot.processor;
+package fr.inria.diversify.dspot.amp;
 
 import fr.inria.diversify.util.Log;
 import spoon.reflect.code.CtExpression;
