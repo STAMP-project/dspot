@@ -35,14 +35,16 @@ public class StatementAdder2 extends AbstractAmp {
         List<CtMethod> newMethods = new ArrayList<>();
         if(!coverageBycodeFragments.isEmpty()) {
             List<InputContext> inputContexts = getInputContexts(method);
-            int index = inputContexts.size() - 1;
-            List<List<Statement>> statements = foo(inputContexts.get(index));
-            for(List<Statement> list : statements) {
-                try {
-                    newMethods.add(apply(method, list, index));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.debug("");
+            if (!inputContexts.isEmpty()) {
+                int index = inputContexts.size() - 1;
+                List<List<Statement>> statements = foo(inputContexts.get(index));
+                for (List<Statement> list : statements) {
+                    try {
+                        newMethods.add(apply(method, list, index));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Log.debug("");
+                    }
                 }
             }
         }

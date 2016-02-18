@@ -3,11 +3,13 @@ package fr.inria.diversify.testRunner;
 
 import fr.inria.diversify.profiling.logger.Logger;
 import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.util.Log;
 import org.junit.internal.requests.FilterRequest;
 import org.junit.runner.*;
 import org.junit.runner.notification.RunNotifier;
 
 import java.io.File;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -104,6 +106,21 @@ public class JunitRunner {
             task.get(timeout, timeUnit);
         }  finally {
             task.cancel(true);
+            killAllChildrenProcess();
         }
     }
+
+    protected void killAllChildrenProcess() {
+        String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
+        Runtime r = Runtime.getRuntime();
+        try {
+            r.exec("pkill -P " + pid);
+
+            Thread.sleep(1000);
+        } catch (Exception e) {
+            Log.error("killallchildren ", e);
+        }
+//        Log.debug("all children process kill (pid: {})", pid);
+    }
+
 }

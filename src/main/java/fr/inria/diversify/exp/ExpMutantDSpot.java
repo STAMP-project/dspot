@@ -3,9 +3,7 @@ package fr.inria.diversify.exp;
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.buildSystem.maven.MavenBuilder;
-import fr.inria.diversify.dspot.MethodAssertGenerator;
 import fr.inria.diversify.dspot.DSpot;
-import fr.inria.diversify.dspot.TestSelector;
 import fr.inria.diversify.mutant.Mutant;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
@@ -15,9 +13,7 @@ import fr.inria.diversify.util.PrintClassUtils;
 import org.apache.commons.io.FileUtils;
 import spoon.reflect.declaration.CtType;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.*;
@@ -35,7 +31,7 @@ public class ExpMutantDSpot {
     protected Mutant mutant;
     protected String mutantClass;
 
-    BufferedWriter log;
+    LogResult log;
     File resultDir;
 
     public ExpMutantDSpot(String propertiesFile, int nbVersion) throws Exception, InvalidSdkException {
@@ -61,9 +57,6 @@ public class ExpMutantDSpot {
     public void runExp() throws IOException {
         for(int i = 0; i <= nbVersion; i++)
             try {
-                log.flush();
-//                MethodAssertGenerator.initLog(resultDir.getAbsolutePath(), i);
-                TestSelector.reportFile = resultDir.getAbsolutePath() + "/testAmpReport_" + i;
                 String mutantTestProject = mutant.checkout(inputConfiguration.getProperty("tmpDir") + "/mutantTestFT/", i, false, true);
                 String mutantApplicationProject = mutant.checkout(inputConfiguration.getProperty("tmpDir") + "/mutantTestTF/", i, true, true);
 
@@ -77,24 +70,24 @@ public class ExpMutantDSpot {
                 printClasses(testClasses, resultDir.getAbsolutePath() + "/DSpotTests/" + i + "/" + inputConfiguration.getRelativeTestSourceCodeDir());
                 if(verify(i, testClasses)) {
                     List<String> failures = findBug(i, testClasses);
-                    if(!failures.isEmpty()) {
-                        log.write("mutant "+ i +": " + failures.size() +" test fail\n");
-                        for(String failure : failures) {
-                            log.write("\t"+failure+ "\n");
-                        }
-                    } else {
-                        log.write("mutant "+ i + ": all tests green\n");
-                    }
+                    LogResult.log(i, mutant, failures);
                 } else {
-                    log.write(i + ": failing tests on correct version\n");
+                    LogResult.log(i, mutant, null);
                 }
-                dSpot.clean();
+                clean(dSpot);
+
             } catch (Throwable e) {
                 e.printStackTrace();
                 Log.debug("");
             }
-        log.close();
+        LogResult.close();
         suicide();
+    }
+
+    protected void clean(DSpot dSpot) throws IOException {
+        dSpot.clean();
+        FileUtils.forceDelete(new File(inputConfiguration.getProperty("tmpDir") + "/mutantTestFT/"));
+        FileUtils.forceDelete(new File(inputConfiguration.getProperty("tmpDir") + "/mutantTestTF/"));
     }
 
     protected boolean verify(int version, List<CtType> testClasses) throws Exception {
@@ -120,8 +113,7 @@ public class ExpMutantDSpot {
     }
 
     protected void initLog(InputConfiguration inputConfiguration) throws IOException {
-        FileWriter fw = new FileWriter(resultDir + "/resultLog");
-        log = new BufferedWriter(fw);
+        log = new LogResult(resultDir.getAbsolutePath());
     }
 
     public static DiversifyClassLoader regressionClassLoader;
@@ -167,17 +159,10 @@ public class ExpMutantDSpot {
     }
 
     protected List<CtType> run(DSpot dSpot, List<String> testsNameToExclude) {
-//        Set<CtType> testClasses = testsNameToExclude.stream()
-//                .map(failure -> failure.substring(0,failure.lastIndexOf(".")))
-//                .map(className -> findClass(className, dSpot.getInputProgram()))
-//                .collect(Collectors.toSet());
-
         return testsNameToExclude.stream()
                 .map(failure -> failure.substring(0,failure.lastIndexOf(".")))
                 .distinct()
-                .map(cl -> dSpot.getInputProgram().getFactory().Type().get(cl))
                 .map(cl -> {
-//                    List<CtMethod> methods = new LinkedList<>(cl.getMethods());
                     try {
                          return dSpot.generateTest(cl);
                     } catch (Exception e) {
@@ -187,10 +172,6 @@ public class ExpMutantDSpot {
                 })
                 .filter(cl -> cl != null)
                 .collect(Collectors.toList());
-    }
-
-    protected CtType findClass(String className, InputProgram inputProgram) {
-        return inputProgram.getFactory().Type().get(className);
     }
 
     protected static void suicide() {

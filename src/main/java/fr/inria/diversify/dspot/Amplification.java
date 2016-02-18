@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.dspot.processor.*;
+import fr.inria.diversify.exp.LogResult;
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.profiling.coverage.Coverage;
 import fr.inria.diversify.runner.InputProgram;
@@ -60,6 +61,7 @@ public class Amplification {
         }
         runTests(classWithLogger, tests);
         testSelector.updateLogInfo();
+        LogResult.addCoverage(testSelector.getCoverage(), methods, true);
         resetAmplifiers(classTest, testSelector.getGlobalCoverage());
 
         Log.info("amplification of {} ({} test)", classTest.getQualifiedName(), tests.size());
@@ -83,6 +85,7 @@ public class Amplification {
                 ampTest.addAll(testSelector.selectedAmplifiedTests(testsStatus.get(true)));
 
                 Log.debug("total amp test: {}", ampTest.size());
+                LogResult.addCoverage(testSelector.getCoverage(), ampTest, false);
             }
         }
         return ampTest;

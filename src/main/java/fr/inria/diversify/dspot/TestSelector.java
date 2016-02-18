@@ -13,7 +13,6 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -142,12 +141,6 @@ public class TestSelector {
         }
         Collection<CtMethod> selectedTests = reduceSelectedTest(amplifiedTests);
 
-        try {
-            writeReport(selectedTests);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         return selectedTests;
     }
 
@@ -273,25 +266,7 @@ public class TestSelector {
         return coverage;
     }
 
-    public static String reportFile;
-    protected void writeReport(Collection<CtMethod> tests) throws IOException {
-        FileWriter report = new FileWriter(reportFile);
-        Set<String> branches = new HashSet<>();
-        for(CtMethod test : tests) {
-            Set<String> b = getTestCoverageFor(test).stream()
-                    .map(TestCoverage::getCoveredBranch)
-                    .flatMap(set -> set.stream())
-                    .collect(Collectors.toSet());
-
-            report.write(test.getSignature() + ": ");
-            report.write(b.size() + ", ");
-            report.write(b.toString() + "\n");
-            branches.addAll(b);
-        }
-        report.write("all : ");
-        report.write(branches.size() + ", ");
-        report.write(branches.toString());
-        report.close();
-
+    public List<TestCoverage> getCoverage() {
+        return ampCoverage;
     }
 }

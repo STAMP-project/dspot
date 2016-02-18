@@ -61,6 +61,10 @@ public class DSpot {
         regressionClassLoader = classLoader;
     }
 
+    public CtType generateTest(String fullName) throws InterruptedException, IOException, ClassNotFoundException {
+        return generateTest(inputProgram.getFactory().Type().get(fullName));
+    }
+
     public CtType generateTest(CtType test) throws IOException, InterruptedException, ClassNotFoundException {
         Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, initAmplifiers());
 
@@ -138,7 +142,7 @@ public class DSpot {
     protected void addBranchLogger() throws IOException {
         Factory factory = InitUtils.initSpoon(inputProgram, false);
 
-        BranchCoverageProcessor m = new BranchCoverageProcessor(inputProgram, inputProgram.getProgramDir() ,true);
+        BranchCoverageProcessor m = new BranchCoverageProcessor(inputProgram, inputProgram.getProgramDir(), true);
         m.setLogger(Logger.class.getCanonicalName());
         AbstractLoggingInstrumenter.reset();
         LoggerUtils.applyProcessor(factory, m);
