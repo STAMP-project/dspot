@@ -1,19 +1,16 @@
+package fr.inria.diversify.testRunner;
 
-        package fr.inria.diversify.testRunner;
 
+import fr.inria.diversify.profiling.logger.Logger;
+import fr.inria.diversify.runner.InputProgram;
+import org.junit.internal.requests.FilterRequest;
+import org.junit.runner.*;
+import org.junit.runner.notification.RunNotifier;
 
-        import fr.inria.diversify.profiling.logger.Logger;
-        import fr.inria.diversify.runner.InputProgram;
-        import fr.inria.diversify.util.Log;
-        import org.junit.internal.requests.FilterRequest;
-        import org.junit.runner.*;
-        import org.junit.runner.notification.RunNotifier;
-
-        import java.io.File;
-        import java.lang.management.ManagementFactory;
-        import java.util.ArrayList;
-        import java.util.List;
-        import java.util.concurrent.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
 
 /**
  * User: Simon
@@ -25,7 +22,7 @@ public class JunitRunner {
     protected InputProgram inputProgram;
     protected int classTimeOut = 120;
     protected int methodTimeOut = 5;
-    protected static final ExecutorService THREAD_POOL = Executors.newSingleThreadExecutor();
+    protected final ExecutorService THREAD_POOL = Executors.newSingleThreadExecutor();
 
     public JunitRunner(InputProgram inputProgram, ClassLoader classLoader) {
         this.inputProgram = inputProgram;
@@ -52,7 +49,7 @@ public class JunitRunner {
             int timeOut = computeTimeOut(methodsToRun);
 
             runRequest(result, buildRequest(testClasses, methodsToRun), timeOut);
-        } catch (Exception e) {
+        } catch (Throwable e) {
 //            Log.error("error in JunitRunner", e);
         }
         Logger.close();
@@ -86,7 +83,6 @@ public class JunitRunner {
 
                 fNotifier.fireTestRunStarted(runner.getDescription());
                 runner.run(fNotifier);
-//                fNotifier.fireTestRunFinished(result);
             }
         }, timeOut, TimeUnit.SECONDS);
     }
@@ -101,13 +97,13 @@ public class JunitRunner {
 
     protected void timedCall(Runnable runnable, long timeout, TimeUnit timeUnit)
             throws InterruptedException, ExecutionException, TimeoutException {
-        FixedFutureTask task = new FixedFutureTask(runnable, null);
+        FutureTask task = new FutureTask(runnable, null);
         try {
             THREAD_POOL.execute(task);
             task.get(timeout, timeUnit);
         }  finally {
             Logger.stopLogging();
-            task.cancelAndWait(true);
+            task.cancel(true);
         }
     }
 }
