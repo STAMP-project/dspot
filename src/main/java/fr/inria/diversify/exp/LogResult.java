@@ -74,11 +74,11 @@ public class LogResult {
         failuresLog.close();
     }
 
-    public static void addCoverage(List<TestCoverage> coverage, List<CtMethod> tests, boolean original) throws IOException, InterruptedException {
+    public static void addCoverage(List<TestCoverage> coverage, Collection<CtMethod> tests, boolean original) throws IOException, InterruptedException {
         tests.stream()
-                .forEach(test -> branchByMethod.put(test.getSimpleName(), getTestCoverageFor(coverage, test).stream()
-                        .flatMap(c -> c.getCoveredBranch().stream())
-                        .collect(Collectors.toSet())));
+                .filter(test -> getTestCoverageFor(coverage, test) != null)
+                .forEach(test -> branchByMethod.put(test.getSimpleName(),
+                        getTestCoverageFor(coverage, test).getCoveredBranch()));
 
         Set<String> branch = tests.stream()
                 .map(test -> test.getSimpleName())
@@ -94,12 +94,13 @@ public class LogResult {
         }
     }
 
-    protected static List<TestCoverage> getTestCoverageFor(List<TestCoverage> coverage, CtMethod test) {
+    protected static TestCoverage getTestCoverageFor(List<TestCoverage> coverage, CtMethod test) {
         String testName = test.getSimpleName();
 
         return coverage.stream()
                 .filter(c -> c.getTestName().endsWith(testName))
-                .collect(Collectors.toList());
+                .findFirst()
+                .orElse(null);
     }
 
     protected static void logFailure(int mutantId, List<String> failures) throws IOException {
@@ -122,9 +123,12 @@ public class LogResult {
         FileWriter report = new FileWriter(dir +"/branch_" + mutantId);
 
         for(String test : branchByMethod.keySet()) {
-            report.write(test + ": ");
+            report.write(test + ":");
             report.write(branchByMethod.get(test).size() + ", ");
-            report.write(branchByMethod.get(test) + "\n");
+            for(String branch : branchByMethod.get(test)) {
+                report.write("\t" + branch + "\n");
+            }
+            report.write("\n");
         }
         report.close();
     }

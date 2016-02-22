@@ -13,6 +13,8 @@ public class LogWriter {
 
     private Map<Class, ClassObserver> classesObservers;
 
+    private boolean log = true;
+
     private boolean isObserve = false;
 
     private boolean logMethodCall = true;
@@ -131,13 +133,13 @@ public class LogWriter {
     }
 
     public void branch(String id) {
-        if(!isObserve && inTest) {
+        if(log && !isObserve && inTest) {
             pathBuilder.addbranch(id);
         }
     }
 
     public void methodIn(String methodId) {
-        if(!isObserve && inTest) {
+        if(log && !isObserve && inTest) {
             deep++;
             if(logMethodCall) {
                 try {
@@ -157,7 +159,7 @@ public class LogWriter {
     }
 
     public void methodOut(String id) {
-        if(!isObserve && inTest) {
+        if(log && !isObserve && inTest) {
             try {
                 pathBuilder.printPath(id, deep, getFileWriter());
             } catch (Exception e) {}
@@ -167,7 +169,7 @@ public class LogWriter {
 
     public void writeTestStart(String testName, Object receiver) {
         inTest = true;
-        if(!isObserve) {
+        if(log && !isObserve) {
             try {
                 deep = 0;
                 PrintWriter fileWriter = getFileWriter();
@@ -184,7 +186,7 @@ public class LogWriter {
 
     public void writeTestStart(String testName) {
         inTest = true;
-        if(!isObserve) {
+        if(log && !isObserve) {
             try {
                 PrintWriter fileWriter = getFileWriter();
                 fileWriter.append(KeyWord.endLine);
@@ -196,7 +198,7 @@ public class LogWriter {
 
     public void writeTestFinish() {
         inTest = false;
-        if(!isObserve) {
+        if(log && !isObserve) {
             try {
                 pathBuilder.clear();
                 PrintWriter fileWriter = getFileWriter();
@@ -208,7 +210,7 @@ public class LogWriter {
     }
 
     public void writeVar(String  methodId, Object... var) {
-        if(!isObserve && writeVar) {
+        if(log && !isObserve && writeVar) {
             isObserve = true;
             try {
                 StringBuilder string = new StringBuilder();
@@ -253,28 +255,19 @@ public class LogWriter {
                 if(value.length() > 1000) {
                     value = vars[i + 1].getClass().getCanonicalName() + value.length();
                 }
-//                String varId = positionId + ":" + varName;
-//                String previousValue = previousVars.get(varId);
-//                if (!value.equals(previousValue)) {
-//                    previousVars.put(varId, value);
-                    varsString.append(KeyWord.separator);
-                    varsString.append(varName);
-                    varsString.append(KeyWord.separator);
-                    varsString.append(value);
-//                }
+                varsString.append(KeyWord.separator);
+                varsString.append(varName);
+                varsString.append(KeyWord.separator);
+                varsString.append(value);
             } catch (Exception e) {
             }
         }
         return KeyWord.simpleSeparator + varsString.substring(KeyWord.separator.length(), varsString.length());
     }
 
-    public void logAssertArgument(int idAssertTarget, Object target,  int idAssertInvocation, Object invocation) {
-        logAssertArgument(idAssertTarget, target);
-        logAssertArgument(idAssertInvocation, invocation);
-    }
 
     public void logAssertArgument(int idAssert, Object invocation) {
-        if(!isObserve) {
+        if(log && !isObserve) {
             isObserve = true;
             try {
                 StringBuilder string = new StringBuilder();
@@ -318,7 +311,7 @@ public class LogWriter {
     }
 
     public void writeCatch(String methodId, String localPositionId, Object exception) {
-        if(!isObserve) {
+        if(log && !isObserve) {
             isObserve = true;
             try {
                 PrintWriter fileWriter = getFileWriter();
@@ -344,7 +337,7 @@ public class LogWriter {
     }
 
     public void writeThrow(String methodId, String localPositionId, Object exception) {
-        if(!isObserve) {
+        if(log && !isObserve) {
             isObserve = true;
             try {
                 PrintWriter fileWriter = getFileWriter();
@@ -371,7 +364,7 @@ public class LogWriter {
     }
 
     public void logTransformation(String id) {
-        if (!isObserve) {
+        if (log && !isObserve) {
             try {
                 PrintWriter fileWriter = getFileWriter();
                 fileWriter.append(KeyWord.endLine);
@@ -383,5 +376,9 @@ public class LogWriter {
             } catch (Exception e) {
             }
         }
+    }
+    protected void startLogging() {log = true;}
+    protected void stopLogging() {
+        log = false;
     }
 }

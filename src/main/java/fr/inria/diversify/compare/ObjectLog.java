@@ -11,14 +11,14 @@ import java.util.Map;
  */
 public class ObjectLog {
     private static ObjectLog singleton ;
-    protected Map<Integer, Observation> observations;
+    protected Map<String, Observation> observations;
     protected MethodsHandler methodsHandler;
     protected Invocator invocator;
     protected int maxDeep = 2;
 
 
     private ObjectLog() {
-        this.observations = new HashMap<Integer, Observation>();
+        this.observations = new HashMap<String, Observation>();
         methodsHandler = new MethodsHandler(true, true);
         invocator = new Invocator(1);
     }
@@ -27,14 +27,14 @@ public class ObjectLog {
         singleton = new ObjectLog();
     }
 
-    public static void log(Object object, String stringObject, int positionId) {
+    public static void log(Object object, String stringObject, String positionId) {
         if(singleton == null) {
             singleton = new ObjectLog();
         }
         singleton.pLog(object, stringObject, positionId, 0);
     }
 
-    public void pLog(Object object, String stringObject, int positionId, int deep) {
+    public void pLog(Object object, String stringObject, String positionId, int deep) {
         if(deep < maxDeep) {
             if (object == null) {
                 addObservation(positionId, stringObject, null);
@@ -48,7 +48,7 @@ public class ObjectLog {
         }
     }
 
-    protected void addObservation(int positionId, String stringObject, Object value) {
+    protected void addObservation(String positionId, String stringObject, Object value) {
         if(!observations.containsKey(positionId)) {
             observations.put(positionId, new Observation());
         }
@@ -57,8 +57,8 @@ public class ObjectLog {
 
 
 
-    protected void observeNotNullObject(Object o,  String stringObject, int positionId, int deep) {
-        for(Method method :methodsHandler.getAllMethods(o)) {
+    protected void observeNotNullObject(Object o,  String stringObject, String positionId, int deep) {
+        for(Method method : methodsHandler.getAllMethods(o)) {
             Invocation invocation = new Invocation(o, method);
             invocator.invoke(invocation);
 
@@ -103,7 +103,7 @@ public class ObjectLog {
     }
 
 
-    public static Map<Integer, Observation> getObservations() {
+    public static Map<String, Observation> getObservations() {
         return singleton.observations;
     }
 }

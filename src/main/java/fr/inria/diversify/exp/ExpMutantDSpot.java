@@ -31,8 +31,8 @@ public class ExpMutantDSpot {
     protected Mutant mutant;
     protected String mutantClass;
 
-    LogResult log;
-    File resultDir;
+    protected LogResult log;
+    protected File resultDir;
 
     public ExpMutantDSpot(String propertiesFile, int nbVersion) throws Exception, InvalidSdkException {
         this.nbVersion = nbVersion;
@@ -51,14 +51,14 @@ public class ExpMutantDSpot {
         resultDir = new File(inputConfiguration.getProperty("tmpDir") + "/DSpot_mutant" + System.currentTimeMillis());
         resultDir.mkdirs();
 
-        initLog(inputConfiguration);
+        initLog();
     }
 
     public void runExp() throws IOException {
         for(int i = 0; i <= nbVersion; i++)
             try {
-                String mutantTestProject = mutant.checkout(inputConfiguration.getProperty("tmpDir") + "/mutantTestFT/", i, false, true);
-                String mutantApplicationProject = mutant.checkout(inputConfiguration.getProperty("tmpDir") + "/mutantTestTF/", i, true, true);
+                String mutantTestProject = mutant.checkout(inputConfiguration.getProperty("tmpDir") + "/mutantTestFT_ "+ System.currentTimeMillis() + "/", i, false, true);
+                String mutantApplicationProject = mutant.checkout(inputConfiguration.getProperty("tmpDir") + "/mutantTestFT_ "+ System.currentTimeMillis() + "/", i, true, true);
 
                 initRegressionClassLoader(mutantApplicationProject);
 
@@ -74,8 +74,7 @@ public class ExpMutantDSpot {
                 } else {
                     LogResult.log(i, mutant, null);
                 }
-                clean(dSpot);
-
+                clean(dSpot, mutantTestProject, mutantApplicationProject);
             } catch (Throwable e) {
                 e.printStackTrace();
                 Log.debug("");
@@ -84,10 +83,10 @@ public class ExpMutantDSpot {
         suicide();
     }
 
-    protected void clean(DSpot dSpot) throws IOException {
+    protected void clean(DSpot dSpot, String mutantTestProject, String mutantApplicationProject) throws IOException {
         dSpot.clean();
-        FileUtils.forceDelete(new File(inputConfiguration.getProperty("tmpDir") + "/mutantTestFT/"));
-        FileUtils.forceDelete(new File(inputConfiguration.getProperty("tmpDir") + "/mutantTestTF/"));
+        FileUtils.forceDelete(new File(mutantTestProject));
+        FileUtils.forceDelete(new File(mutantApplicationProject));
     }
 
     protected boolean verify(int version, List<CtType> testClasses) throws Exception {
@@ -112,7 +111,7 @@ public class ExpMutantDSpot {
         return failure;
     }
 
-    protected void initLog(InputConfiguration inputConfiguration) throws IOException {
+    protected void initLog() throws IOException {
         log = new LogResult(resultDir.getAbsolutePath());
     }
 

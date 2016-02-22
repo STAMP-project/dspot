@@ -33,10 +33,14 @@ public class Invocator {
     }
 
     protected <T> T timedCall(Callable<T> c, long timeout, TimeUnit timeUnit)
-            throws InterruptedException, ExecutionException, TimeoutException
-    {
+            throws InterruptedException, ExecutionException, TimeoutException {
+
         FutureTask<T> task = new FutureTask<T>(c);
-        THREAD_POOL.execute(task);
-        return task.get(timeout, timeUnit);
+        try {
+            THREAD_POOL.execute(task);
+            return task.get(timeout, timeUnit);
+        } finally {
+            task.cancel(true);
+        }
     }
 }

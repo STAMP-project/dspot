@@ -75,18 +75,20 @@ public class Amplification {
             classWithLogger = testSelector.buildClassWithLogger(classTest, tests.get(i));
             writeAndCompile(classWithLogger);
 
-             result = runTest(classWithLogger, tests.get(i));
+            result = runTest(classWithLogger, tests.get(i));
             if(result != null
-                    && result.getFailures().isEmpty()) {
+                    && result.getFailures().isEmpty()
+                    && !result.getTestRuns().isEmpty()) {
                 testSelector.updateLogInfo();
 
                 amplification(classTest, tests.get(i), maxIteration);
 
-                ampTest.addAll(testSelector.selectedAmplifiedTests(testsStatus.get(false)));
-                ampTest.addAll(testSelector.selectedAmplifiedTests(testsStatus.get(true)));
-
+                Set<CtMethod> selectedAmpTests = new HashSet<>();
+                selectedAmpTests.addAll(testSelector.selectedAmplifiedTests(testsStatus.get(false)));
+                selectedAmpTests.addAll(testSelector.selectedAmplifiedTests(testsStatus.get(true)));
+                ampTest.addAll(selectedAmpTests);
                 Log.debug("total amp test: {}", ampTest.size());
-                LogResult.addCoverage(testSelector.getCoverage(), ampTest, false);
+                LogResult.addCoverage(testSelector.getCoverage(), selectedAmpTests, false);
             }
         }
         return ampTest;

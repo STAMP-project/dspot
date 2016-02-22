@@ -1,18 +1,19 @@
-package fr.inria.diversify.testRunner;
+
+        package fr.inria.diversify.testRunner;
 
 
-import fr.inria.diversify.profiling.logger.Logger;
-import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.Log;
-import org.junit.internal.requests.FilterRequest;
-import org.junit.runner.*;
-import org.junit.runner.notification.RunNotifier;
+        import fr.inria.diversify.profiling.logger.Logger;
+        import fr.inria.diversify.runner.InputProgram;
+        import fr.inria.diversify.util.Log;
+        import org.junit.internal.requests.FilterRequest;
+        import org.junit.runner.*;
+        import org.junit.runner.notification.RunNotifier;
 
-import java.io.File;
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.*;
+        import java.io.File;
+        import java.lang.management.ManagementFactory;
+        import java.util.ArrayList;
+        import java.util.List;
+        import java.util.concurrent.*;
 
 /**
  * User: Simon
@@ -38,7 +39,7 @@ public class JunitRunner {
     }
 
     public JunitResult runTestClasses(List<String> tests) {
-       return runTestClasses(tests, new ArrayList<>(0));
+        return runTestClasses(tests, new ArrayList<>(0));
     }
 
     public JunitResult runTestClasses(List<String> tests, List<String> methodsToRun) {
@@ -68,7 +69,7 @@ public class JunitRunner {
 
     protected Request buildRequest(Class<?>[] testClasses, List<String> methodsToRun) {
         Request classesRequest = Request.classes(new Computer(), testClasses);
-       //Request.runner((new Computer()).getSuite(new JUnit4Builder(),testClasses))
+        //Request.runner((new Computer()).getSuite(new JUnit4Builder(),testClasses))
         if(methodsToRun.isEmpty()) {
             return classesRequest;
         } else {
@@ -100,27 +101,13 @@ public class JunitRunner {
 
     protected void timedCall(Runnable runnable, long timeout, TimeUnit timeUnit)
             throws InterruptedException, ExecutionException, TimeoutException {
-        FutureTask task = new FutureTask(runnable, null);
+        FixedFutureTask task = new FixedFutureTask(runnable, null);
         try {
             THREAD_POOL.execute(task);
             task.get(timeout, timeUnit);
         }  finally {
-            task.cancel(true);
-            killAllChildrenProcess();
+            Logger.stopLogging();
+            task.cancelAndWait(true);
         }
     }
-
-    protected void killAllChildrenProcess() {
-        String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
-        Runtime r = Runtime.getRuntime();
-        try {
-            r.exec("pkill -P " + pid);
-
-            Thread.sleep(1000);
-        } catch (Exception e) {
-            Log.error("killallchildren ", e);
-        }
-//        Log.debug("all children process kill (pid: {})", pid);
-    }
-
 }

@@ -3,7 +3,6 @@ package fr.inria.diversify.exp;
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.buildSystem.maven.MavenBuilder;
-import fr.inria.diversify.dspot.MethodAssertGenerator;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.exp.tool.Defect4J;
 import fr.inria.diversify.runner.InputConfiguration;
@@ -27,16 +26,16 @@ import java.util.stream.Collectors;
  * Date: 14/12/15
  * Time: 14:30
  */
-public class Exp {
+public class ExpMutantDefects4j {
     protected String projectId;
     protected int nbVersion;
     protected InputConfiguration inputConfiguration;
 
     protected Defect4J defect4J;
-    BufferedWriter log;
-    File resultDir;
+    protected LogResult log;
+    protected File resultDir;
 
-    public Exp(String projectId, int nbVersion, String defect4JHome) throws Exception, InvalidSdkException {
+    public ExpMutantDefects4j(String projectId, int nbVersion, String defect4JHome) throws Exception, InvalidSdkException {
         this.projectId = projectId;
         this.nbVersion = nbVersion;
 
@@ -47,14 +46,12 @@ public class Exp {
         resultDir.mkdirs();
 
         defect4J = new Defect4J(defect4JHome + "/framework", resultDir.getAbsolutePath());
-        initLog(inputConfiguration);
+        initLog();
     }
 
     public void runExp() throws IOException {
         for(int i = 1; i <= nbVersion; i++) {
             try {
-                log.flush();
-//                MethodAssertGenerator.initLog(resultDir.getAbsolutePath(), i);
                 initRegressionClassLoader(i);
                 String dir = checkout(i, false);
 
@@ -90,9 +87,9 @@ public class Exp {
 
     }
 
-    protected void initLog(InputConfiguration inputConfiguration) throws IOException {
+    protected void initLog() throws IOException {
         FileWriter fw = new FileWriter(resultDir + "/resultLog");
-        log = new BufferedWriter(fw);
+        log = new LogResult(resultDir.getAbsolutePath());
     }
 
     public static DiversifyClassLoader regressionClassLoader;
@@ -241,7 +238,7 @@ public class Exp {
     }
 
     public static void main(String[] args) throws Exception, InvalidSdkException {
-        Exp exp = new Exp(args[0], Integer.parseInt(args[1]), args[2]);
+        ExpMutantDefects4j exp = new ExpMutantDefects4j(args[0], Integer.parseInt(args[1]), args[2]);
         exp.runExp();
     }
 

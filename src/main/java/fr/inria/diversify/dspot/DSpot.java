@@ -54,6 +54,7 @@ public class DSpot {
         initDiversityCompiler();
 
         assertGenerator = new AssertGenerator(inputProgram, compiler, applicationClassLoader);
+        InitUtils.initLogLevel(inputConfiguration);
     }
 
     public DSpot(InputConfiguration inputConfiguration, DiversifyClassLoader classLoader) throws Exception, InvalidSdkException {
