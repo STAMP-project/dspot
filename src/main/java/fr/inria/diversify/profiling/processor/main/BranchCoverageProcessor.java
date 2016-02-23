@@ -157,14 +157,11 @@ public class BranchCoverageProcessor extends AbstractLoggingInstrumenter<CtExecu
 
         ctTry.getBody().insertBegin(beginStmt);
 
-
         CtCodeSnippetStatement stmt = factory.Core().createCodeSnippetStatement();
         stmt.setValue(getLogger() + ".methodOut(Thread.currentThread(),\"" + id + "\")");
 
         ctTry.getFinalizer().addStatement(stmt);
     }
-
-
 
     protected int idBranch(int methodId) {
         if(!blockIds.containsKey(methodId)) {

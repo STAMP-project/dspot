@@ -2,7 +2,7 @@ package fr.inria.diversify.dspot.amp;
 
 import fr.inria.diversify.codeFragment.*;
 import fr.inria.diversify.codeFragmentProcessor.StatementProcessor;
-import fr.inria.diversify.profiling.coverage.Coverage;
+import fr.inria.diversify.coverage.branch.Coverage;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.Log;
 import spoon.reflect.code.*;

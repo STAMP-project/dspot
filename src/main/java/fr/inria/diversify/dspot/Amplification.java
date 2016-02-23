@@ -4,7 +4,7 @@ import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.dspot.amp.*;
 import fr.inria.diversify.exp.LogResult;
 import fr.inria.diversify.factories.DiversityCompiler;
-import fr.inria.diversify.profiling.coverage.Coverage;
+import fr.inria.diversify.coverage.branch.Coverage;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.JunitRunner;
@@ -30,6 +30,7 @@ public class Amplification {
     protected List<AbstractAmp> amplifiers;
     protected DiversityCompiler compiler;
     protected TestSelector testSelector;
+    protected ClassWithLoggerBuilder classWithLoggerBuilder;
     protected Map<Boolean, List<CtMethod>> testsStatus;
 
     public Amplification(InputProgram inputProgram, DiversityCompiler compiler, DiversifyClassLoader applicationClassLoader, List<AbstractAmp> amplifiers) {
@@ -38,6 +39,7 @@ public class Amplification {
         this.applicationClassLoader = applicationClassLoader;
         this.amplifiers = amplifiers;
 
+        classWithLoggerBuilder = new ClassWithLoggerBuilder(inputProgram);
         testSelector = new TestSelector(inputProgram, 10);
     }
 
@@ -54,7 +56,7 @@ public class Amplification {
             return null;
         }
         testSelector.init();
-        CtType classWithLogger = testSelector.buildClassWithLogger(classTest, tests);
+        CtType classWithLogger = classWithLoggerBuilder.buildClassWithLogger(classTest, tests);
         boolean status = writeAndCompile(classWithLogger);
         if(!status) {
             Log.info("error with Logger in class {}", classTest);
@@ -72,7 +74,7 @@ public class Amplification {
             Log.debug("amp {} ({}/{})", tests.get(i).getSimpleName(), i+1, tests.size());
             testSelector.init();
 
-            classWithLogger = testSelector.buildClassWithLogger(classTest, tests.get(i));
+            classWithLogger = classWithLoggerBuilder.buildClassWithLogger(classTest, tests.get(i));
             writeAndCompile(classWithLogger);
 
             result = runTest(classWithLogger, tests.get(i));
@@ -114,7 +116,7 @@ public class Amplification {
 
             newTests = reduce(newTests);
 
-            CtType classWithLogger = testSelector.buildClassWithLogger(originalClass, newTests);
+            CtType classWithLogger = classWithLoggerBuilder.buildClassWithLogger(originalClass, newTests);
             boolean status = writeAndCompile(classWithLogger);
             if(!status) {
                 break;

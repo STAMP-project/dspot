@@ -1,4 +1,4 @@
-package fr.inria.diversify.profiling.coverage;
+package fr.inria.diversify.coverage.branch;
 
 import java.util.HashSet;
 import java.util.Set;

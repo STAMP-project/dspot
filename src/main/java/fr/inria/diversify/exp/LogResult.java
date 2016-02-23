@@ -1,7 +1,6 @@
 package fr.inria.diversify.exp;
 
-import fr.inria.diversify.mutant.Mutant;
-import fr.inria.diversify.profiling.coverage.TestCoverage;
+import fr.inria.diversify.coverage.branch.TestCoverage;
 import spoon.reflect.declaration.CtMethod;
 
 import java.io.FileWriter;

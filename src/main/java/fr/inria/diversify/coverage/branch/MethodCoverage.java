@@ -1,4 +1,4 @@
-package fr.inria.diversify.profiling.coverage;
+package fr.inria.diversify.coverage.branch;
 
 import fr.inria.diversify.util.Log;
 

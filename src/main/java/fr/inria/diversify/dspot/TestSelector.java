@@ -1,13 +1,12 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.dspot.amp.AbstractAmp;
-import fr.inria.diversify.profiling.coverage.Coverage;
-import fr.inria.diversify.profiling.coverage.CoverageReader;
-import fr.inria.diversify.profiling.coverage.TestCoverage;
+import fr.inria.diversify.coverage.branch.Coverage;
+import fr.inria.diversify.coverage.branch.CoverageReader;
+import fr.inria.diversify.coverage.branch.TestCoverage;
 import fr.inria.diversify.profiling.processor.test.AssertionRemover;
 import fr.inria.diversify.profiling.processor.test.TestLoggingInstrumenter;
 import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.Log;
 import org.apache.commons.io.FileUtils;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
@@ -28,15 +27,11 @@ public class TestSelector {
     protected Map<String, Integer> testAges;
     protected List<TestCoverage> ampCoverage;
 
-    protected AssertionRemover assertionRemoverProcessor;
-    protected TestLoggingInstrumenter loggingProcessor;
 
-    protected String logger;
     protected int maxNumberOfTest;
 
     public TestSelector(InputProgram inputProgram,  int maxNumberOfTest) {
         this.inputProgram = inputProgram;
-        this.logger = "fr.inria.diversify.profiling.logger";
         this.maxNumberOfTest = maxNumberOfTest;
     }
 
@@ -44,14 +39,6 @@ public class TestSelector {
         deleteLogFile();
         testAges = new HashMap<>();
         ampCoverage = null;
-
-        assertionRemoverProcessor = new AssertionRemover(inputProgram.getAbsoluteTestSourceCodeDir());
-        assertionRemoverProcessor.setLogger(logger + ".Logger");
-        assertionRemoverProcessor.setFactory(inputProgram.getFactory());
-
-        loggingProcessor = new TestLoggingInstrumenter();
-        loggingProcessor.setLogger(logger + ".Logger");
-        loggingProcessor.setFactory(inputProgram.getFactory());
     }
 
     protected void updateLogInfo() throws IOException {
@@ -215,47 +202,6 @@ public class TestSelector {
             }
         }
         return null;
-    }
-
-    protected CtType buildClassWithLogger(CtType originalClass, CtMethod test) {
-        List<CtMethod> tests = new ArrayList<>(1);
-        tests.add(test);
-        return buildClassWithLogger(originalClass, tests);
-    }
-
-    protected CtType buildClassWithLogger(CtType originalClass, Collection<CtMethod> tests) {
-        CtType cloneClass = originalClass.getFactory().Core().clone(originalClass);
-        cloneClass.setParent(originalClass.getParent());
-        tests.stream()
-                .map(test -> buildMethodWithLogger(cloneClass, test))
-                .forEach(instruTest -> {
-                    cloneClass.removeMethod(instruTest);
-                    cloneClass.addMethod(instruTest);
-                });
-        return cloneClass;
-    }
-
-    protected CtMethod buildMethodWithLogger(CtType parentClass, CtMethod method) {
-        CtMethod clone = cloneMethod(method);
-        clone.setParent(parentClass);
-
-        assertionRemoverProcessor.process(clone);
-        loggingProcessor.process(clone);
-
-        return clone;
-    }
-
-    protected CtMethod cloneMethod(CtMethod method) {
-        CtMethod cloned_method = method.getFactory().Core().clone(method);
-
-        CtAnnotation toRemove = cloned_method.getAnnotations().stream()
-                .filter(annotation -> annotation.toString().contains("Override"))
-                .findFirst().orElse(null);
-
-        if(toRemove != null) {
-            cloned_method.removeAnnotation(toRemove);
-        }
-        return cloned_method;
     }
 
     protected void deleteLogFile() throws IOException {

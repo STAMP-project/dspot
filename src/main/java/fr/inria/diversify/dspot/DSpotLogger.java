@@ -1,8 +1,8 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.profiling.logger.Pool;
-import fr.inria.diversify.profiling.coverage.MethodCoverage;
-import fr.inria.diversify.profiling.coverage.TestCoverage;
+import fr.inria.diversify.coverage.branch.MethodCoverage;
+import fr.inria.diversify.coverage.branch.TestCoverage;
 
 import java.io.BufferedReader;
 import java.io.File;

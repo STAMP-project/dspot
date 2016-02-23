@@ -1,7 +1,7 @@
 package fr.inria.diversify.dspot.amp;
 
 import fr.inria.diversify.ReplaceHelper;
-import fr.inria.diversify.profiling.coverage.Coverage;
+import fr.inria.diversify.coverage.branch.Coverage;
 import fr.inria.diversify.runner.InputProgram;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtElement;
