@@ -62,7 +62,7 @@ public class Amplification {
         }
         JunitResult result = runTests(classWithLogger, tests);
         testSelector.updateLogInfo();
-        LogResult.addCoverage(testSelector.getCoverage(), methods, true);
+        LogResult.addCoverage(testSelector.getCoverage(), tests, true);
         resetAmplifiers(classTest, testSelector.getGlobalCoverage());
 
         Log.info("amplification of {} ({} test)", classTest.getQualifiedName(), tests.size());

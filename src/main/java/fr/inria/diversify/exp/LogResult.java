@@ -44,14 +44,14 @@ public class LogResult {
         failuresLog = new FileWriter(dir + "/failures");
     }
 
-    public static void log(int mutantId, Mutant mutant, List<String> failures) throws Exception {
+    public static void log(int mutantId, List<String> triggerTests, List<String> failures) throws Exception {
         csv.write(mutantId + ";");
 
         csv.write(testOriginal.size() + ";");
         testAmp.removeAll(testOriginal);
         csv.write(testAmp.size() + ";");
 
-        csv.write(mutant.triggerTests(mutantId).size() + ";");
+        csv.write(triggerTests.size() + ";");
         if(failures != null) {
             csv.write(failures.size() + ";");
         } else {

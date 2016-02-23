@@ -15,15 +15,13 @@ import java.util.*;
  * Created by Simon on 03/12/14.
  */
 public abstract class TestProcessor extends AbstractProcessor<CtMethod> {
-    public static List<CtMethod> notHarmanTest = new LinkedList<>();
     protected static List<CtMethod> mutatedMethod = new LinkedList<>();
     protected static int count = 0;
 
-    protected String logName = "fr.inria.diversify.testamplification.logger.Logger";
+    protected String logName;
 
     public static Set<CtType> ampclasses = new HashSet<>();
 
-    protected boolean guavaTestlib = false;
 
     protected int cloneNumber = 1;
 
@@ -41,22 +39,11 @@ public abstract class TestProcessor extends AbstractProcessor<CtMethod> {
                 || candidate.getBody().getStatements().size() == 0) {
             return false;
         }
-        if(!guavaTestlib) {
-            return candidate.getSimpleName().contains("test")
-                    || candidate.getAnnotations().stream()
-                    .map(annotation -> annotation.toString())
-                    .anyMatch(annotation -> annotation.startsWith("@org.junit.Test"));
-        } else {
-            return  candidate.getDeclaringType().getSimpleName().endsWith("Tester")
-                    && (candidate.getSimpleName().contains("test")
-                    || candidate.getAnnotations().stream()
-                    .map(annotation -> annotation.toString())
-                    .anyMatch(annotation -> annotation.startsWith("@org.junit.Test")));
-        }
-    }
 
-    public void setGuavaTestlib(boolean guavaTestlib) {
-        this.guavaTestlib = guavaTestlib;
+        return candidate.getSimpleName().contains("test")
+                || candidate.getAnnotations().stream()
+                .map(annotation -> annotation.toString())
+                .anyMatch(annotation -> annotation.startsWith("@org.junit.Test"));
     }
 
     protected CtMethod cloneMethod(CtMethod method, String suffix) {
@@ -110,10 +97,12 @@ public abstract class TestProcessor extends AbstractProcessor<CtMethod> {
 
     protected boolean isAssert(CtInvocation invocation) {
         try {
+            String mthName = invocation.getExecutable().getSimpleName();
+            if(!(mthName.startsWith("assert") || mthName.startsWith("fail"))) {
+                return false;
+            }
             Class cl = invocation.getExecutable().getDeclaringType().getActualClass();
-            String signature = invocation.getSignature();
-            return (signature.contains("assert") || signature.contains("fail"))
-             && isAssertInstance(cl);
+            return isAssertInstance(cl);
         } catch (Exception e) {
             return false;
         }

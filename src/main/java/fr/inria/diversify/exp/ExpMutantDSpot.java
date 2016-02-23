@@ -70,9 +70,9 @@ public class ExpMutantDSpot {
                 printClasses(testClasses, resultDir.getAbsolutePath() + "/DSpotTests/" + i + "/" + inputConfiguration.getRelativeTestSourceCodeDir());
                 if(verify(i, testClasses)) {
                     List<String> failures = findBug(i, testClasses);
-                    LogResult.log(i, mutant, failures);
+                    LogResult.log(i, mutant.triggerTests(i), failures);
                 } else {
-                    LogResult.log(i, mutant, null);
+                    LogResult.log(i, mutant.triggerTests(i), null);
                 }
                 clean(dSpot, mutantTestProject, mutantApplicationProject);
             } catch (Throwable e) {

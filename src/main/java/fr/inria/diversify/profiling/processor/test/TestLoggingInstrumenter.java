@@ -7,7 +7,6 @@ import spoon.reflect.code.CtTry;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.factory.Factory;
-import spoon.support.reflect.code.CtCodeSnippetStatementImpl;
 
 /**
  * User: Simon
@@ -23,7 +22,7 @@ public class TestLoggingInstrumenter extends TestProcessor {
 
     @Override
     public void process(CtMethod element) {
-        Factory factory = element.getFactory();
+        Factory factory =  getFactory();
         CtTry ctTry = factory.Core().createTry();
         ctTry.setBody(element.getBody());
 
@@ -36,13 +35,11 @@ public class TestLoggingInstrumenter extends TestProcessor {
            snippet = getLogName() + ".writeTestStart(Thread.currentThread(),this, \"" + testName + "\")";
         }
 
-        CtCodeSnippetStatement snippetStatement = new CtCodeSnippetStatementImpl();
-        snippetStatement.setValue(snippet);
+        CtCodeSnippetStatement snippetStatement = factory.Code().createCodeSnippetStatement(snippet);
         element.getBody().insertBegin(snippetStatement);
 
         snippet = getLogName() + ".writeTestFinish(Thread.currentThread())";
-        CtCodeSnippetStatementImpl snippetFinish = new CtCodeSnippetStatementImpl();
-        snippetFinish.setValue(snippet);
+        CtCodeSnippetStatement snippetFinish = factory.Code().createCodeSnippetStatement(snippet);
 
         CtBlock finalizerBlock = factory.Core().createBlock();
         finalizerBlock.addStatement(snippetFinish);

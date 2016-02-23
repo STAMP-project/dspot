@@ -27,6 +27,10 @@ public class TestSelector {
     protected InputProgram inputProgram;
     protected Map<String, Integer> testAges;
     protected List<TestCoverage> ampCoverage;
+
+    protected AssertionRemover assertionRemoverProcessor;
+    protected TestLoggingInstrumenter loggingProcessor;
+
     protected String logger;
     protected int maxNumberOfTest;
 
@@ -40,6 +44,14 @@ public class TestSelector {
         deleteLogFile();
         testAges = new HashMap<>();
         ampCoverage = null;
+
+        assertionRemoverProcessor = new AssertionRemover(inputProgram.getAbsoluteTestSourceCodeDir());
+        assertionRemoverProcessor.setLogger(logger + ".Logger");
+        assertionRemoverProcessor.setFactory(inputProgram.getFactory());
+
+        loggingProcessor = new TestLoggingInstrumenter();
+        loggingProcessor.setLogger(logger + ".Logger");
+        loggingProcessor.setFactory(inputProgram.getFactory());
     }
 
     protected void updateLogInfo() throws IOException {
@@ -226,22 +238,15 @@ public class TestSelector {
     protected CtMethod buildMethodWithLogger(CtType parentClass, CtMethod method) {
         CtMethod clone = cloneMethod(method);
         clone.setParent(parentClass);
-        AssertionRemover testCase = new AssertionRemover(inputProgram.getAbsoluteTestSourceCodeDir(), false);
-        testCase.setLogger(logger + ".Logger");
-        testCase.setFactory(inputProgram.getFactory());
-        testCase.process(clone);
 
-        TestLoggingInstrumenter logging = new TestLoggingInstrumenter();
-        logging.setLogger(logger + ".Logger");
-        logging.setFactory(inputProgram.getFactory());
-        logging.process(clone);
+        assertionRemoverProcessor.process(clone);
+        loggingProcessor.process(clone);
 
         return clone;
     }
 
     protected CtMethod cloneMethod(CtMethod method) {
         CtMethod cloned_method = method.getFactory().Core().clone(method);
-//        cloned_method.setParent(method.getParent());
 
         CtAnnotation toRemove = cloned_method.getAnnotations().stream()
                 .filter(annotation -> annotation.toString().contains("Override"))

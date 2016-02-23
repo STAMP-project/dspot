@@ -3,7 +3,9 @@ package fr.inria.diversify.profiling.processor.main;
 import fr.inria.diversify.profiling.processor.ProcessorUtil;
 import fr.inria.diversify.runner.InputProgram;
 import spoon.reflect.code.*;
+import spoon.reflect.declaration.CtConstructor;
 import spoon.reflect.declaration.CtExecutable;
+import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
@@ -39,14 +41,15 @@ public class BranchCoverageProcessor extends AbstractLoggingInstrumenter<CtExecu
 
     @Override
     public boolean isToBeProcessed(CtExecutable method) {
-        return method.getBody() != null;
+        return method.getBody() != null
+                && (method instanceof CtMethod || method instanceof CtConstructor);
     }
 
     @Override
     public void process(CtExecutable method) {
-        int methodId = methodId(method);
-        String info = methodId + ";" + method.getReference().getDeclaringType().getQualifiedName() + "_" + method.getSignature().replace(" ", "_");
+        int methodId  = methodId(method);
 
+        String info = methodId + ";" + method.getReference().getDeclaringType().getQualifiedName() + "_" + method.getSignature().replace(" ", "_");
 
         if(addBodyBranch) {
             addBranchLogger(tryFinallyBody(method).getBody(),"b");

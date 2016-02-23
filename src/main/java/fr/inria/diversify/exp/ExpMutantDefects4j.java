@@ -71,13 +71,14 @@ public class ExpMutantDefects4j {
                 dir = defect4J.checkout(projectId, i, false);
                 boolean status2 = defect4J.runTest(dir, archive);
 
-//                 if (status) {
-//                    dir = defect4J.checkout(projectId, i, true);
-//                    status = defect4J.runTest(dir, archive);
-//                    log.write("Lang_" + i + ": test status on bug version : " + status + " (" +dir +")\n");
-//                } else {
+                 if (status) {
+                     dir = defect4J.checkout(projectId, i, true);
+                     status = defect4J.runTest(dir, archive);
+                     Log.info("");
+//                     LogResult.log(i, testsNameToExclude, failures);
+                } else {
 //                    log.write("Lang_" + i + ": failing tests on correct version (" +dir +")\n");
-//                }
+                }
             } catch (Throwable e)  {
                 e.printStackTrace();
                 Log.debug("");
