@@ -16,14 +16,23 @@ import java.util.stream.Collectors;
  * Time: 10:47
  */
 public class Coverage {
+    String name;
     Collection<MethodCoverage> methodCoverages;
 
 
-    public Coverage(Collection<MethodCoverage> methodCoverages) {
-       this.methodCoverages = methodCoverages;
+    public Coverage(String testName, Map<Integer, MethodCoverage> idToMethod) {
+        this.name = testName;
+        this.methodCoverages = new ArrayList<>();
+        for (Integer id : idToMethod.keySet()) {
+            MethodCoverage mc = idToMethod.get(id);
+            if (mc.allPath.size() != 0) {
+                methodCoverages.add(mc);
+            }
+        }
     }
 
-    public Coverage() {
+    public Coverage(String name) {
+        this.name = name;
         this.methodCoverages = new ArrayList<>();
     }
 
@@ -225,4 +234,27 @@ public class Coverage {
                    .findFirst()
                    .orElse(null);
     }
+
+    public Set<String> diff(Coverage other) {
+        Set<String> branchs = getCoverageBranch();
+        Set<String> otherBranchs = other.getCoverageBranch();
+
+        Set<String> diff = otherBranchs.stream()
+                .filter(branch -> !branch.contains(branch))
+                .collect(Collectors.toSet());
+        branchs.stream()
+                .filter(branch -> !otherBranchs.contains(branch))
+                .forEach(branch -> diff.add(branch));
+
+        return diff;
+    }
+
+    public boolean containsAllBranch(Coverage other) {
+        return getCoverageBranch().containsAll(other.getCoverageBranch());
+    }
+
+    public String getName() {
+        return name;
+    }
+
 }

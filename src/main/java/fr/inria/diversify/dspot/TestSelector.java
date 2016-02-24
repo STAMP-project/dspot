@@ -3,14 +3,9 @@ package fr.inria.diversify.dspot;
 import fr.inria.diversify.dspot.amp.AbstractAmp;
 import fr.inria.diversify.coverage.branch.Coverage;
 import fr.inria.diversify.coverage.branch.CoverageReader;
-import fr.inria.diversify.coverage.branch.TestCoverage;
-import fr.inria.diversify.profiling.processor.test.AssertionRemover;
-import fr.inria.diversify.profiling.processor.test.TestLoggingInstrumenter;
 import fr.inria.diversify.runner.InputProgram;
 import org.apache.commons.io.FileUtils;
-import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +20,8 @@ import java.util.stream.Collectors;
 public class TestSelector {
     protected InputProgram inputProgram;
     protected Map<String, Integer> testAges;
-    protected List<TestCoverage> ampCoverage;
+    protected List<Coverage> branchCoverage;
+
 
 
     protected int maxNumberOfTest;
@@ -38,24 +34,24 @@ public class TestSelector {
     protected void init() throws IOException {
         deleteLogFile();
         testAges = new HashMap<>();
-        ampCoverage = null;
+        branchCoverage = null;
     }
 
     protected void updateLogInfo() throws IOException {
         try {
             CoverageReader reader = new CoverageReader(inputProgram.getProgramDir() + "/log");
-            if (ampCoverage == null) {
-                ampCoverage = reader.loadTest();
+            if (branchCoverage == null) {
+                branchCoverage = reader.loadTest();
             } else {
-                for (TestCoverage coverage : reader.loadTest()) {
-                    TestCoverage previous = ampCoverage.stream()
-                            .filter(ac -> ac.getTestName().equals(coverage.getTestName()))
+                for (Coverage coverage : reader.loadTest()) {
+                    Coverage previous = branchCoverage.stream()
+                            .filter(ac -> ac.getName().equals(coverage.getName()))
                             .findFirst()
                             .orElse(null);
                     if (previous != null) {
-                        ampCoverage.remove(previous);
+                        branchCoverage.remove(previous);
                     }
-                    ampCoverage.add(coverage);
+                    branchCoverage.add(coverage);
                 }
             }
         } catch (Throwable e) {
@@ -68,9 +64,9 @@ public class TestSelector {
     protected Collection<CtMethod> selectTestToAmp(Collection<CtMethod> oldTests, Collection<CtMethod> newTests) {
         Map<CtMethod, Set<String>> selectedTest = new HashMap<>();
         for (CtMethod test : newTests) {
-            TestCoverage tc = getTestCoverageFor(test);
+            Coverage tc = getTestCoverageFor(test);
             if(tc != null) {
-                TestCoverage parentTc = getParentTestCoverageFor(test);
+                Coverage parentTc = getParentTestCoverageFor(test);
                 if (parentTc == null) {
                     selectedTest.put(test, new HashSet<>());
                 } else {
@@ -126,20 +122,11 @@ public class TestSelector {
     public Collection<CtMethod> selectedAmplifiedTests(Collection<CtMethod> tests) {
         Map<CtMethod, Set<String>> amplifiedTests = new HashMap<>();
         for (CtMethod test : tests) {
-            TestCoverage tc = getTestCoverageFor(test);
-            TestCoverage parentTc = getParentTestCoverageFor(test);
+            Coverage tc = getTestCoverageFor(test);
+            Coverage parentTc = getParentTestCoverageFor(test);
             if (tc != null && parentTc != null) {
-                if (!tc.getCoveredBranch().isEmpty()) {
-//                        if (tc.containsAllBranch(parentTc) && !parentTc.containsAllBranch(tc)) {
-//                            amplifiedTests.put(test, tc.diff(parentTc));
-//                            break;
-//                        }
-//                        if (!tc.containsAllBranch(parentTc) && !parentTc.containsAllBranch(tc)) {
-//                            amplifiedTests.put(test, tc.diff(parentTc));
-//                            break;
-//                        }
+                if (!tc.getCoverageBranch().isEmpty()) {
                     if (!parentTc.containsAllBranch(tc)) {
-//                        Log.debug("select test: {}, {}",test.getSimpleName(),tc.getCoveredBranch());
                         amplifiedTests.put(test, tc.diff(parentTc));
                     }
                 }
@@ -177,11 +164,11 @@ public class TestSelector {
         return methods;
     }
 
-    protected TestCoverage getTestCoverageFor(CtMethod ampTest) {
+    protected Coverage getTestCoverageFor(CtMethod ampTest) {
         String testName = ampTest.getSimpleName();
 
-        return ampCoverage.stream()
-                .filter(c -> c.getTestName().endsWith(testName))
+        return branchCoverage.stream()
+                .filter(c -> c.getName().endsWith(testName))
                 .findFirst()
                 .orElse(null);
     }
@@ -190,13 +177,13 @@ public class TestSelector {
         return AbstractAmp.getAmpTestToParent().get(test);
     }
 
-    protected TestCoverage getParentTestCoverageFor(CtMethod mth) {
+    protected Coverage getParentTestCoverageFor(CtMethod mth) {
         CtMethod parent = getParent(mth);
         if(parent != null) {
             String parentName = parent.getSimpleName();
             if (parentName != null) {
-                return ampCoverage.stream()
-                        .filter(c -> c.getTestName().endsWith(parentName))
+                return branchCoverage.stream()
+                        .filter(c -> c.getName().endsWith(parentName))
                         .findFirst()
                         .orElse(null);
             }
@@ -214,16 +201,16 @@ public class TestSelector {
     }
 
     public Coverage getGlobalCoverage() {
-        Coverage coverage = new Coverage();
+        Coverage coverage = new Coverage("global");
 
-        for(TestCoverage tc : ampCoverage) {
-            coverage.merge(tc.getCoverage());
+        for(Coverage tc : branchCoverage) {
+            coverage.merge(tc);
         }
 
         return coverage;
     }
 
-    public List<TestCoverage> getCoverage() {
-        return ampCoverage;
+    public List<Coverage> getCoverage() {
+        return branchCoverage;
     }
 }

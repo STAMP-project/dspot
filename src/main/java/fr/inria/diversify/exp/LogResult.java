@@ -1,6 +1,6 @@
 package fr.inria.diversify.exp;
 
-import fr.inria.diversify.coverage.branch.TestCoverage;
+import fr.inria.diversify.coverage.branch.Coverage;
 import spoon.reflect.declaration.CtMethod;
 
 import java.io.FileWriter;
@@ -73,11 +73,11 @@ public class LogResult {
         failuresLog.close();
     }
 
-    public static void addCoverage(List<TestCoverage> coverage, Collection<CtMethod> tests, boolean original) throws IOException, InterruptedException {
+    public static void addCoverage(List<Coverage> coverage, Collection<CtMethod> tests, boolean original) throws IOException, InterruptedException {
         tests.stream()
                 .filter(test -> getTestCoverageFor(coverage, test) != null)
                 .forEach(test -> branchByMethod.put(test.getSimpleName(),
-                        getTestCoverageFor(coverage, test).getCoveredBranch()));
+                        getTestCoverageFor(coverage, test).getCoverageBranch()));
 
         Set<String> branch = tests.stream()
                 .map(test -> test.getSimpleName())
@@ -93,11 +93,11 @@ public class LogResult {
         }
     }
 
-    protected static TestCoverage getTestCoverageFor(List<TestCoverage> coverage, CtMethod test) {
+    protected static Coverage getTestCoverageFor(List<Coverage> coverage, CtMethod test) {
         String testName = test.getSimpleName();
 
         return coverage.stream()
-                .filter(c -> c.getTestName().endsWith(testName))
+                .filter(c -> c.getName().endsWith(testName))
                 .findFirst()
                 .orElse(null);
     }

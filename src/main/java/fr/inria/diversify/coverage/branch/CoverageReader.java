@@ -23,24 +23,24 @@ public class CoverageReader {
     }
 
 
-    public Coverage load() throws IOException {
-        Map<Integer, MethodCoverage> idToMethod = loadInfo();
-        loadData(idToMethod);
-        return new Coverage(idToMethod.values());
-    }
+//    public Coverage load() throws IOException {
+//        Map<Integer, MethodCoverage> idToMethod = loadInfo();
+//        loadData(idToMethod);
+//        return new Coverage(idToMethod.values());
+//    }
 
-    public List<TestCoverage> loadTest() throws IOException {
+    public List<Coverage> loadTest() throws IOException {
         Map<Integer, MethodCoverage> idToMethod =  loadInfo();
         return loadTestData(idToMethod);
     }
 
-    protected List<TestCoverage> loadTestData(Map<Integer, MethodCoverage> idToMethod) throws IOException {
+    protected List<Coverage> loadTestData(Map<Integer, MethodCoverage> idToMethod) throws IOException {
         File dir = new File(directory);
-        List<TestCoverage> testCoverages = new ArrayList<>();
+        List<Coverage> testCoverages = new ArrayList<>();
 
         for(File file : dir.listFiles()) {
             if(file.isFile() && file.getName().startsWith("log")) {
-                List<TestCoverage> tmp = parseTestCoverageFile(file, idToMethod);
+                List<Coverage> tmp = parseTestCoverageFile(file, idToMethod);
                 testCoverages = mergeTestCoverageList(testCoverages, tmp);
             }
         }
@@ -48,10 +48,10 @@ public class CoverageReader {
         return testCoverages;
     }
 
-    protected List<TestCoverage> mergeTestCoverageList(List<TestCoverage> list1, List<TestCoverage> list2) {
-        for(TestCoverage tc : list2) {
-            TestCoverage find = list1.stream()
-                    .filter(t -> t.testName.equals(tc.testName))
+    protected List<Coverage> mergeTestCoverageList(List<Coverage> list1, List<Coverage> list2) {
+        for(Coverage tc : list2) {
+            Coverage find = list1.stream()
+                    .filter(t -> t.name.equals(tc.name))
                     .findFirst()
                     .orElse(null);
 
@@ -65,9 +65,9 @@ public class CoverageReader {
         return list1;
     }
 
-    protected List<TestCoverage> parseTestCoverageFile(File file, Map<Integer, MethodCoverage> idToMethod) throws IOException {
+    protected List<Coverage> parseTestCoverageFile(File file, Map<Integer, MethodCoverage> idToMethod) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(file));
-        List<TestCoverage> testCoverages = new ArrayList<>();
+        List<Coverage> testCoverages = new ArrayList<>();
         List<String> currentTestCoverage = new LinkedList<>();
         String currentTest = null;
 
@@ -88,7 +88,7 @@ public class CoverageReader {
                     case KeyWord.testEndObservation:
                         if (currentTest != null) {
                             parseCoverage(currentTestCoverage, idToMethod);
-                            testCoverages.add(new TestCoverage(currentTest, idToMethod));
+                            testCoverages.add(new Coverage(currentTest, idToMethod));
                             currentTest = null;
                             resetIdMethod(idToMethod);
                         }
@@ -103,7 +103,7 @@ public class CoverageReader {
             }
             if(logEntry.startsWith(KeyWord.testEndObservation) && currentTest != null) {
                 parseCoverage(currentTestCoverage, idToMethod);
-                testCoverages.add(new TestCoverage(currentTest, idToMethod));
+                testCoverages.add(new Coverage(currentTest, idToMethod));
                 currentTest = null;
                 resetIdMethod(idToMethod);
             }

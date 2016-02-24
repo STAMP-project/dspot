@@ -1,8 +1,8 @@
 package fr.inria.diversify.dspot;
 
+import fr.inria.diversify.coverage.branch.Coverage;
 import fr.inria.diversify.profiling.logger.Pool;
 import fr.inria.diversify.coverage.branch.MethodCoverage;
-import fr.inria.diversify.coverage.branch.TestCoverage;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,7 +17,7 @@ import java.util.*;
  */
 public class DSpotLogger {
     private static HashMap<Thread, DSpotLogger> logs = null;
-    protected static List<TestCoverage> testCoverages = new ArrayList<TestCoverage>();
+    protected static List<Coverage> testCoverages = new ArrayList<Coverage>();
     private static File directory;
 
     protected Map<Integer, MethodCoverage> idToMethod;
@@ -106,7 +106,7 @@ public class DSpotLogger {
     }
     public  void writeTestFinish() {
         if(currentTest != null) {
-            testCoverages.add(new TestCoverage(currentTest, idToMethod));
+            testCoverages.add(new Coverage(currentTest, idToMethod));
             resetIdMethod();
         }
 
