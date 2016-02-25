@@ -1,5 +1,7 @@
 package fr.inria.diversify.dspot;
 
+import fr.inria.diversify.coverage.graph.Graph;
+import fr.inria.diversify.coverage.graph.GraphReader;
 import fr.inria.diversify.dspot.amp.AbstractAmp;
 import fr.inria.diversify.coverage.branch.Coverage;
 import fr.inria.diversify.coverage.branch.CoverageReader;
@@ -22,6 +24,7 @@ public class TestSelector {
     protected Map<String, Integer> testAges;
     protected List<Coverage> branchCoverage;
 
+    protected List<Graph> graphCoverage;
 
 
     protected int maxNumberOfTest;
@@ -39,11 +42,11 @@ public class TestSelector {
 
     protected void updateLogInfo() throws IOException {
         try {
-            CoverageReader reader = new CoverageReader(inputProgram.getProgramDir() + "/log");
+            CoverageReader branchReader = new CoverageReader(inputProgram.getProgramDir() + "/log");
             if (branchCoverage == null) {
-                branchCoverage = reader.loadTest();
+                branchCoverage = branchReader.loadTest();
             } else {
-                for (Coverage coverage : reader.loadTest()) {
+                for (Coverage coverage : branchReader.loadTest()) {
                     Coverage previous = branchCoverage.stream()
                             .filter(ac -> ac.getName().equals(coverage.getName()))
                             .findFirst()
@@ -54,24 +57,38 @@ public class TestSelector {
                     branchCoverage.add(coverage);
                 }
             }
-        } catch (Throwable e) {
-            e.printStackTrace();
-            System.gc();
+        } catch (Throwable e) {}
+
+        GraphReader graphReader = new GraphReader(inputProgram.getProgramDir() + "/log");
+        if (graphCoverage == null) {
+            graphCoverage = graphReader.load();
+        } else {
+            for (Graph coverage : graphReader.load()) {
+                Graph previous = graphCoverage.stream()
+                        .filter(ac -> ac.getName().equals(coverage.getName()))
+                        .findFirst()
+                        .orElse(null);
+                if (previous != null) {
+                    graphCoverage.remove(previous);
+                }
+                graphCoverage.add(coverage);
+            }
         }
+
         deleteLogFile();
     }
 
     protected Collection<CtMethod> selectTestToAmp(Collection<CtMethod> oldTests, Collection<CtMethod> newTests) {
         Map<CtMethod, Set<String>> selectedTest = new HashMap<>();
         for (CtMethod test : newTests) {
-            Coverage tc = getTestCoverageFor(test);
-            if(tc != null) {
-                Coverage parentTc = getParentTestCoverageFor(test);
-                if (parentTc == null) {
+            Set<String> tc = getTestCoverageFor(test);
+            if(!tc.isEmpty()) {
+                Set<String> parentTc = getParentTestCoverageFor(test);
+                if (!parentTc.isEmpty()) {
                     selectedTest.put(test, new HashSet<>());
                 } else {
-                    if (!parentTc.containsAllBranch(tc)) {
-                        selectedTest.put(test, tc.diff(parentTc));
+                    if (!parentTc.containsAll(tc)) {
+                        selectedTest.put(test, diff(tc, parentTc));
                     }
                 }
             }
@@ -122,13 +139,11 @@ public class TestSelector {
     public Collection<CtMethod> selectedAmplifiedTests(Collection<CtMethod> tests) {
         Map<CtMethod, Set<String>> amplifiedTests = new HashMap<>();
         for (CtMethod test : tests) {
-            Coverage tc = getTestCoverageFor(test);
-            Coverage parentTc = getParentTestCoverageFor(test);
-            if (tc != null && parentTc != null) {
-                if (!tc.getCoverageBranch().isEmpty()) {
-                    if (!parentTc.containsAllBranch(tc)) {
-                        amplifiedTests.put(test, tc.diff(parentTc));
-                    }
+            Set<String> tc = getTestCoverageFor(test);
+            Set<String> parentTc = getParentTestCoverageFor(test);
+            if (!tc.isEmpty() && !parentTc.isEmpty()) {
+                if (!parentTc.containsAll(tc)) {
+                        amplifiedTests.put(test, diff(tc, parentTc));
                 }
             }
         }
@@ -164,31 +179,39 @@ public class TestSelector {
         return methods;
     }
 
-    protected Coverage getTestCoverageFor(CtMethod ampTest) {
-        String testName = ampTest.getSimpleName();
-
-        return branchCoverage.stream()
-                .filter(c -> c.getName().endsWith(testName))
-                .findFirst()
-                .orElse(null);
+    protected Set<String> getTestCoverageFor(CtMethod ampTest) {
+        return getCoverageFor(ampTest.getSimpleName());
     }
 
     protected CtMethod getParent(CtMethod test) {
         return AbstractAmp.getAmpTestToParent().get(test);
     }
 
-    protected Coverage getParentTestCoverageFor(CtMethod mth) {
+    protected Set<String> getParentTestCoverageFor(CtMethod mth) {
         CtMethod parent = getParent(mth);
         if(parent != null) {
             String parentName = parent.getSimpleName();
             if (parentName != null) {
-                return branchCoverage.stream()
-                        .filter(c -> c.getName().endsWith(parentName))
-                        .findFirst()
-                        .orElse(null);
+                return getCoverageFor(parentName);
             }
         }
-        return null;
+        return new HashSet<>();
+    }
+
+    protected Set<String> getCoverageFor(String mthName) {
+        Set<String> set = new HashSet<>();
+
+        branchCoverage.stream()
+                .filter(c -> c.getName().endsWith(mthName))
+                .findFirst()
+                .ifPresent(coverage -> set.addAll(coverage.getCoverageBranch()));
+
+        graphCoverage.stream()
+                .filter(c -> c.getName().endsWith(mthName))
+                .findFirst()
+                .ifPresent(graph -> set.addAll(graph.getEdges()));
+
+        return set;
     }
 
     protected void deleteLogFile() throws IOException {
@@ -198,6 +221,18 @@ public class TestSelector {
                 FileUtils.forceDelete(file);
             }
         }
+    }
+
+
+    protected Set<String> diff(Set<String> set1, Set<String> set2) {
+        Set<String> diff = set2.stream()
+                .filter(branch -> !branch.contains(branch))
+                .collect(Collectors.toSet());
+        set1.stream()
+                .filter(branch -> !set2.contains(branch))
+                .forEach(branch -> diff.add(branch));
+
+        return diff;
     }
 
     public Coverage getGlobalCoverage() {

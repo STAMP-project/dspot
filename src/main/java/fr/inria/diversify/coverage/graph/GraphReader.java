@@ -26,7 +26,7 @@ public class GraphReader {
 
     }
 
-    protected Collection<Graph> load() throws IOException {
+    public List<Graph> load() throws IOException {
         loadInfo();
         File dir = new File(directory);
 
@@ -35,7 +35,7 @@ public class GraphReader {
                 parseFile(file);
             }
         }
-        return graphByTest.values();
+        return new ArrayList<>(graphByTest.values());
     }
 
     protected void parseFile(File file) throws IOException {

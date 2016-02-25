@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * User: Simon
@@ -45,6 +47,12 @@ public class Graph {
         }
         writer.append("\n}");
         writer.close();
+    }
+
+    public Set<String> getEdges() {
+        return nodes.values().stream()
+                .flatMap(node -> node.getEdges().stream())
+                .collect(Collectors.toSet());
     }
 
     public String getName() {
