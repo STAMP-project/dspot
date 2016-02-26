@@ -43,11 +43,11 @@ public class Amplification {
         testSelector = new TestSelector(inputProgram, 10);
     }
 
-    public  List<CtMethod> amplification(CtType classTest, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
+    public List<CtMethod> amplification(CtType classTest, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
         return amplification(classTest, getAllTest(classTest), maxIteration);
     }
 
-    public  List<CtMethod> amplification(CtType classTest, List<CtMethod> methods, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
+    public List<CtMethod> amplification(CtType classTest, List<CtMethod> methods, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
         List<CtMethod> tests = methods.stream()
                 .filter(mth -> isTest(mth))
                 .collect(Collectors.toList());

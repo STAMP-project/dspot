@@ -18,24 +18,16 @@ public class LogResult {
     protected static FileWriter csv;
     protected static FileWriter failuresLog;
 
-    protected static Map<String, Set<String>> branchByMethod;
+    protected static Map<String, Set<String>> branchByMethod = new HashMap<>();
 
-    protected static Set<String> testOriginal;
-    protected static Set<String> testAmp;
+    protected static Set<String> testOriginal = new HashSet<>();
+    protected static Set<String> testAmp = new HashSet<>();
 
-    protected static Set<String> branchOriginal;
-    protected static Set<String> branchAmp;
+    protected static Set<String> branchOriginal = new HashSet<>();
+    protected static Set<String> branchAmp = new HashSet<>();
 
     public LogResult(String directory) throws IOException {
         dir = directory;
-
-        testOriginal = new HashSet<>();
-        testAmp = new HashSet<>();
-
-        branchOriginal = new HashSet<>();
-        branchAmp = new HashSet<>();
-
-        branchByMethod = new HashMap<>();
 
         csv = new FileWriter(dir +"/result.csv");
         csv.write("MutantId;TCOriginal;TCAmp;TCKillOriginal;TCKillAmp;BranchCovOriginal;BranchCovAmp;NewBranchCovAmp\n");

@@ -182,7 +182,8 @@ public class DSpot {
         String testClass = inputConfiguration.getProperty("testClass");
 
         DSpot dspot = new DSpot(inputConfiguration);
-        dspot.generateTest(dspot.inputProgram.getFactory().Type().get(testClass));
+        CtType ampTest = dspot.generateTest(dspot.inputProgram.getFactory().Type().get(testClass));
+        PrintClassUtils.printJavaFile(new File(inputConfiguration.getProperty("result")), ampTest);
         dspot.kill();
     }
 
