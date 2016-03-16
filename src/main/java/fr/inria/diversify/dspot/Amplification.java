@@ -233,7 +233,6 @@ public class Amplification {
         if(!candidate.getPosition().getFile().toString().contains(inputProgram.getRelativeTestSourceCodeDir())) {
             return false;
         }
-
         return candidate.getSimpleName().contains("test")
                 || candidate.getAnnotations().stream()
                     .map(annotation -> annotation.toString())

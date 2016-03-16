@@ -71,7 +71,6 @@ public class AssertGenerator {
                 originalStmtStrings.remove(index);
             }
         }
-
         return indexs;
     }
 

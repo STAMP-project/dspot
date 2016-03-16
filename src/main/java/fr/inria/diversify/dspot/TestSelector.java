@@ -98,7 +98,6 @@ public class TestSelector {
             mths.addAll(reduceSelectedTest(selectedTest));
         } else {
             mths.addAll(selectedTest.keySet());
-//            return selectedTest.keySet();
         }
         List<CtMethod> oldMths = new ArrayList<>();
         for (CtMethod test : oldTests) {
@@ -107,7 +106,6 @@ public class TestSelector {
                 testAges.put(testName, getAgesFor(test));
             }
             if (testAges.get(testName) > 0) {
-//                testAges.put(testName, testAges.get(testName) - 1);
                 oldMths.add(test);
             }
         }
@@ -120,7 +118,6 @@ public class TestSelector {
             String testName = oltMth.getSimpleName();
             testAges.put(testName, testAges.get(testName) - 1);
         }
-
         return mths;
     }
 
@@ -134,7 +131,6 @@ public class TestSelector {
         }
         return 0;
     }
-
 
     public Collection<CtMethod> selectedAmplifiedTests(Collection<CtMethod> tests) {
         Map<CtMethod, Set<String>> amplifiedTests = new HashMap<>();
@@ -175,7 +171,6 @@ public class TestSelector {
             map.keySet().stream()
                     .forEach(set -> set.removeAll(key));
         }
-
         return methods;
     }
 
@@ -222,7 +217,6 @@ public class TestSelector {
             }
         }
     }
-
 
     protected Set<String> diff(Set<String> set1, Set<String> set2) {
         Set<String> diff = set2.stream()

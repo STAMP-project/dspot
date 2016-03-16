@@ -139,7 +139,6 @@ public class DSpot {
         applicationClassLoader.setClassFilter(filter);
     }
 
-
     protected void addBranchLogger() throws IOException {
         Factory factory = InitUtils.initSpoon(inputProgram, false);
 
