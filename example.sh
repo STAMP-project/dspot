@@ -2,8 +2,7 @@
 
 mvn package
 
-mkdir example-commons-collections
 cd example-commons-collections
 git clone https://github.com/apache/commons-collections.git
-
-java -Xmx2g
+cd ..
+java -Xmx2g -cp target/dspot-1.0.0-jar-with-dependencies.jar fr.inria.diversify.dspot.DSpot example.properties
