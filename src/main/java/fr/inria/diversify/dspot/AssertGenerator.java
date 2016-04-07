@@ -1,10 +1,10 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
-import fr.inria.diversify.dspot.amp.AbstractAmp;
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.PrintClassUtils;
+import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -34,13 +35,17 @@ public class AssertGenerator {
         this.applicationClassLoader = applicationClassLoader;
     }
 
-    protected CtType makeDSpotClassTest(CtType originalClass, Collection<CtMethod> ampTests) throws IOException, ClassNotFoundException {
-        CtType cloneClass = originalClass.getFactory().Core().clone(originalClass);
-        cloneClass.setParent(originalClass.getParent());
+    public CtType generateAsserts(CtType testClass) throws IOException, ClassNotFoundException {
+        return generateAsserts(testClass, testClass.getMethods(), null);
+    }
 
-        MethodAssertGenerator ag = new MethodAssertGenerator(originalClass, inputProgram, compiler, applicationClassLoader);
-        for(CtMethod test : ampTests) {
-            CtMethod ampTest = ag.generateAssert(test, findStatementToAssert(test));
+    protected CtType generateAsserts(CtType testClass, Collection<CtMethod> tests, Map<CtMethod, CtMethod> parentTest) throws IOException, ClassNotFoundException {
+        CtType cloneClass = inputProgram.getFactory().Core().clone(testClass);
+        cloneClass.setParent(testClass.getParent());
+
+        MethodAssertGenerator ag = new MethodAssertGenerator(testClass, inputProgram, compiler, applicationClassLoader);
+        for(CtMethod test : tests) {
+            CtMethod ampTest = ag.generateAssert(test, findStatementToAssert(test, parentTest));
             if(ampTest != null) {
                 cloneClass.addMethod(ampTest);
             }
@@ -50,9 +55,31 @@ public class AssertGenerator {
         return cloneClass;
     }
 
-    protected List<Integer> findStatementToAssert(CtMethod test) {
-        CtMethod originalTest = getOriginalTest(test);
-        List<CtStatement> originalStmts = Query.getElements(originalTest, new TypeFilter(CtStatement.class));
+    protected List<Integer> findStatementToAssert(CtMethod test, Map<CtMethod, CtMethod> parentTest) {
+        if(parentTest != null) {
+            CtMethod parent = parentTest.get(test);
+            while(parentTest.get(parent) != null) {
+                parent = parentTest.get(parent);
+            }
+            return findStatementToAssertFromParent(test, parent);
+        } else {
+            return findStatementToAssertOnlyInvocation(test);
+        }
+    }
+
+    protected List<Integer> findStatementToAssertOnlyInvocation(CtMethod test) {
+        List<CtStatement> stmts = Query.getElements(test, new TypeFilter(CtStatement.class));
+        List<Integer> indexs = new ArrayList<>();
+        for(int i = 0; i < stmts.size(); i++) {
+            if(CtInvocation.class.isInstance(stmts.get(i))) {
+                indexs.add(i);
+            }
+        }
+        return indexs;
+    }
+
+    protected List<Integer> findStatementToAssertFromParent(CtMethod test, CtMethod parentTest) {
+        List<CtStatement> originalStmts = Query.getElements(parentTest, new TypeFilter(CtStatement.class));
         List<String> originalStmtStrings = originalStmts.stream()
                 .map(stmt -> stmt.toString())
                 .collect(Collectors.toList());
@@ -72,13 +99,5 @@ public class AssertGenerator {
             }
         }
         return indexs;
-    }
-
-    protected CtMethod getOriginalTest(CtMethod test) {
-        CtMethod parent = AbstractAmp.getAmpTestToParent().get(test);
-        while(AbstractAmp.getAmpTestToParent().get(parent) != null) {
-            parent = AbstractAmp.getAmpTestToParent().get(parent);
-        }
-        return parent;
     }
 }

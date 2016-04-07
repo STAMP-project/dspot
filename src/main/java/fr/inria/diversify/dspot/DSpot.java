@@ -70,14 +70,14 @@ public class DSpot {
         Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, initAmplifiers());
 
         List<CtMethod> ampTests = testAmplification.amplification(test, 3);
-        return assertGenerator.makeDSpotClassTest(test, ampTests);
+        return assertGenerator.generateAsserts(test, ampTests, AbstractAmp.getAmpTestToParent());
     }
 
     public CtType generateTest(List<CtMethod> tests, CtType testClass) throws IOException, InterruptedException, ClassNotFoundException {
         Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, initAmplifiers());
 
         List<CtMethod> ampTests = testAmplification.amplification(testClass, tests, 3);
-        return assertGenerator.makeDSpotClassTest(testClass, ampTests);
+        return assertGenerator.generateAsserts(testClass, ampTests, AbstractAmp.getAmpTestToParent());
     }
 
     protected List<AbstractAmp> initAmplifiers() {
@@ -91,6 +91,7 @@ public class DSpot {
         return amplifiers;
     }
 
+    //todo refactor
     protected void initDiversityCompiler() throws IOException, InterruptedException {
         addBranchLogger();
         compiler = InitUtils.initSpoonCompiler(inputProgram, true);
@@ -114,7 +115,7 @@ public class DSpot {
                 new DefaultJavaPrettyPrinter(env)));
 
         compileTests();
-}
+    }
 
     protected void compileTests() throws InterruptedException, IOException {
         String[] phases  = new String[]{"clean", "test"};
@@ -125,6 +126,7 @@ public class DSpot {
         InitUtils.addApplicationClassesToClassPath(inputProgram);
     }
 
+    //todo refactor
     protected void initClassLoader(InputConfiguration inputConfiguration) {
         Set<String> filter = new HashSet<>();
         for(String s : inputConfiguration.getProperty("filter").split(";") ) {

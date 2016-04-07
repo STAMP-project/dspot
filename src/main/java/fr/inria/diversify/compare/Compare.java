@@ -61,8 +61,6 @@ public class Compare {
             if(filter.get(i)) {
                 boolean result = compareAnything(list1.get(i), list2.get(i), maxCompare);
                 if(!result) {
-                    System.out.println(list1.get(i).getClass() + " " +list1.get(i) +"\n");
-                    System.out.println(list2.get(i).getClass() + " " +list2.get(i));
                     return result;
                 }
             }
@@ -248,9 +246,9 @@ public class Compare {
         return o != null && o instanceof Class;
     }
 
-    protected boolean isPrimitive(Object o) {
-        return o != null && o.getClass().isPrimitive();
-    }
+//    protected boolean isPrimitive(Object o) {
+//        return o != null && o.getClass().isPrimitive();
+//    }
 
     public static boolean isWrapperType(Object o) {
         return WRAPPER_TYPES.contains(o.getClass());

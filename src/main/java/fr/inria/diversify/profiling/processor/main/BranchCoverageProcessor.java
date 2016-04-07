@@ -150,16 +150,12 @@ public class BranchCoverageProcessor extends AbstractLoggingInstrumenter<CtExecu
 
     protected void addInOut(CtExecutable method, int id) {
         CtTry ctTry = tryFinallyBody(method);
-        Factory factory = method.getFactory();
+        Factory factory = getFactory();
 
-        String snippet = getLogger() + ".methodIn(Thread.currentThread(),\"" + id + "\")";
-        CtCodeSnippetStatement beginStmt = factory.Code().createCodeSnippetStatement(snippet);
-
+        CtCodeSnippetStatement beginStmt = factory.Code().createCodeSnippetStatement(getLogger() + ".methodIn(Thread.currentThread(),\"" + id + "\")");
         ctTry.getBody().insertBegin(beginStmt);
 
-        CtCodeSnippetStatement stmt = factory.Core().createCodeSnippetStatement();
-        stmt.setValue(getLogger() + ".methodOut(Thread.currentThread(),\"" + id + "\")");
-
+        CtCodeSnippetStatement stmt = factory.Code().createCodeSnippetStatement(getLogger() + ".methodOut(Thread.currentThread(),\"" + id + "\")");
         ctTry.getFinalizer().addStatement(stmt);
     }
 

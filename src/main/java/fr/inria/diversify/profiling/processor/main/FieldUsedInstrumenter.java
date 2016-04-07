@@ -1,73 +1,99 @@
 package fr.inria.diversify.profiling.processor.main;
 
-import fr.inria.diversify.profiling.processor.ProcessorUtil;
 import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.util.Log;
 import spoon.reflect.code.*;
-import spoon.reflect.declaration.CtExecutable;
-import spoon.reflect.reference.CtFieldReference;
-import spoon.reflect.visitor.QueryVisitor;
+import spoon.reflect.declaration.*;
+import spoon.reflect.reference.CtLocalVariableReference;
+import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.io.File;
-import java.util.HashSet;
-import java.util.List;
+import java.lang.reflect.Modifier;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by Simon on 16/07/14.
  */
 public class FieldUsedInstrumenter extends AbstractLoggingInstrumenter<CtExecutable> {
-    protected String methodObserve;
-    protected Map<CtFieldReference, String> alwaysObserve;
-    protected Set<Integer> alreadyInstrument;
-
-    public FieldUsedInstrumenter(InputProgram inputProgram, String outputDir) {
+    protected int localVarCount = 0;
+    public FieldUsedInstrumenter(InputProgram inputProgram) {
         super(inputProgram);
-        File file = new File(outputDir + "/log/");
-        if(!file.exists()) {
-            file.mkdirs();
-        }
-        alreadyInstrument = new HashSet<>();
     }
 
     public void process(CtExecutable mth) {
-        try {
-            if(alreadyInstrument.contains(methodId(mth))) {
-                return;
+        localVarCount = 0;
+        int methodId = methodId(mth);
+        FieldReferenceVisitor scanner = getFieldUsed(mth);
+
+        Map<CtFieldWrite,String> write = scanner.getFieldWrites();
+        for(CtFieldWrite field : write.keySet()) {
+            if(!(isSystemField(field) || isStaticAndInit(field))) {
+                instruAccessFields(field, false, methodId);
             }
-            alreadyInstrument.add(methodId(mth));
-            int methodId = methodId(mth);
-            FieldReferenceVisitor scanner = getFieldUsed(mth);
-            Map<CtFieldReference, String> fieldUsed = scanner.getFields();
-
-            addAlwayLog(fieldUsed);
-
-            String snippet = "";
-            for (CtFieldReference<?> var : fieldUsed.keySet()) {
-                if (!var.getSimpleName().equals("class")) {
-                    try {
-                        snippet += ";\n" + getLogger() + ".writeField(Thread.currentThread(),\"" +
-                                methodId + "\",\"" +
-                                ProcessorUtil.idFor(var.getSimpleName()) + "\"," +
-                                fieldUsed.get(var) + ")";
-
-                        if (fieldUsed.get(var).contains(".") && !fieldUsed.get(var).contains("this.")) {
-                            snippet = "try {\n\t" + snippet + ";} catch (Exception eeee) {}";
-                        }
-
-                    } catch (Exception e) {}
+        }
+        Map<CtFieldRead,String> read = scanner.getFieldReads();
+            for(CtFieldRead field : read.keySet()) {
+                if(!(isSystemField(field) || isStaticAndInit(field))) {
+                    instruAccessFields(field, true, methodId);
                 }
-            } if(fieldUsed.size() != 0) {
-                CtCodeSnippetStatement snippetStatement = getFactory().Code().createCodeSnippetStatement(snippet);
-                CtTry ctTry = tryFinallyBody(mth);
-                ctTry.getFinalizer().insertBegin(snippetStatement);
             }
-        } catch (Exception e) {}
     }
 
-    protected void addAlwayLog(Map<CtFieldReference, String> fieldUsed) {
+    protected void instruAccessFields(CtFieldAccess fieldAccess, boolean isRead, int methodId) {
+        try {
+            CtStatement stmt = getParentStatement(fieldAccess);
+            CtExpression target = fieldAccess.getTarget();
 
+            if(!CtThisAccess.class.isInstance(target) && !Query.getElements(target, new TypeFilter(CtInvocation.class)).isEmpty()) {
+                CtLocalVariable localVar = getFactory().Code().createLocalVariable(target.getType(), "spoon_var_"+localVarCount, target);
+                localVarCount++;
+                stmt.insertBefore(localVar);
+                fieldAccess.setTarget(getFactory().Code().createVariableRead(getFactory().Code().createLocalVariableReference(localVar), false));
+            }
+
+            String targetString = target.toString();
+            if(CtThisAccess.class.isInstance(target)) {
+                targetString = "this";
+            }
+            if(fieldAccess.getVariable().getModifiers().contains(ModifierKind.STATIC)) {
+                targetString = "\"static("+target.getType().getQualifiedName()+")\"";
+            }
+            String snippet;
+            if(isRead) {
+                snippet = getLogger() + ".readField(Thread.currentThread(),\"" +
+                        methodId + "\"," +
+                        targetString + ",\"" +
+                        fieldAccess.getVariable().getSimpleName() + "\")";
+            } else {
+                snippet = getLogger() + ".writeField(Thread.currentThread(),\"" +
+                        methodId + "\"," +
+                        targetString + ",\"" +
+                        fieldAccess.getVariable().getSimpleName() + "\")";
+            }
+            if(!targetDeclarationInLoopCondition(target)) {
+                if (!stmt.toString().startsWith("super(") && !stmt.toString().startsWith("this(")) {
+                    stmt.insertBefore(getFactory().Code().createCodeSnippetStatement(snippet));
+                } else {
+                    stmt.insertAfter(getFactory().Code().createCodeSnippetStatement(snippet));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.debug("");
+        }
+    }
+
+    protected boolean targetDeclarationInLoopCondition(CtExpression target) {
+        if(target.getParent(CtLoop.class) != null && CtVariableRead.class.isInstance(target)) {
+            CtVariableRead varRead = (CtVariableRead) target;
+            if(CtLocalVariableReference.class.isInstance(varRead.getVariable())) {
+                CtLoop loopParent = target.getParent(CtLoop.class);
+                if (!Query.getElements(loopParent.getBody(), new TypeFilter(CtElement.class)).contains(varRead.getVariable().getDeclaration())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     protected FieldReferenceVisitor getFieldUsed(CtExecutable mth) {
@@ -76,10 +102,32 @@ public class FieldUsedInstrumenter extends AbstractLoggingInstrumenter<CtExecuta
         return scanner;
     }
 
-    protected List<CtStatement> getSubStatement(CtStatement statement) {
-        QueryVisitor query = new QueryVisitor(new TypeFilter(CtStatement.class));
+    protected CtStatement getParentStatement(CtElement element) {
+        if(!(element.getParent() instanceof CtBlock)) {
+            return  getParentStatement(element.getParent(CtStatement.class));
+        }
+        return (CtStatement) element;
+    }
 
-        statement.accept(query);
-        return query.getResult();
+    protected boolean isSystemField(CtFieldAccess fieldAccess) {
+        if(fieldAccess.getVariable().getSimpleName().equals("class")
+                || fieldAccess.getTarget().toString().equals("System")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    protected boolean isStaticAndInit(CtFieldAccess fieldAccess) {
+        CtField field = fieldAccess.getVariable().getDeclaration();
+        try {
+            if (field != null) {
+                return field.getModifiers().contains(ModifierKind.STATIC) && field.getAssignment() != null;
+            } else {
+                return Modifier.isStatic(fieldAccess.getVariable().getActualField().getModifiers());
+            }
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

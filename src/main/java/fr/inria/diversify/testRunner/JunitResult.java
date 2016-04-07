@@ -1,6 +1,5 @@
 package fr.inria.diversify.testRunner;
 
-import fr.inria.diversify.util.Log;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
@@ -9,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -20,10 +18,12 @@ import java.util.stream.Collectors;
 public class JunitResult extends RunListener {
     Set<Description> testRuns;
     List<Failure> failures;
+    List<Failure> compileOrTimeOutError;
 
     public JunitResult() {
         testRuns = new HashSet<>();
         failures = new ArrayList<>();
+        compileOrTimeOutError = new ArrayList<>();
     }
 
     public void testFinished(Description description) throws Exception {
@@ -34,6 +34,8 @@ public class JunitResult extends RunListener {
         if(!isCompileOrTimeOutError(failure)) {
             testRuns.add(failure.getDescription());
             failures.add(failure);
+        } else {
+            compileOrTimeOutError.add(failure);
         }
     }
 
@@ -62,9 +64,18 @@ public class JunitResult extends RunListener {
 
     public List<String> goodTests() {
         List<String> failureTestNames = failureTests();
+        List<String> compileOrTimeOutTestName = compileOrTimeOutTestName();
         return testRuns.stream()
                 .map(description -> description.getMethodName())
                 .filter(testName -> !failureTestNames.contains(testName))
+                .filter(testName -> !compileOrTimeOutTestName.contains(testName))
+                .collect(Collectors.toList());
+    }
+
+    public List<String> compileOrTimeOutTestName() {
+        return compileOrTimeOutError.stream()
+                .map(failure -> failure.getDescription())
+                .map(description -> description.getMethodName())
                 .collect(Collectors.toList());
     }
 

@@ -49,20 +49,6 @@ public class MethodAssertGenerator {
         statementsIndexToAssert = new ArrayList<>();
     }
 
-//    protected static BufferedWriter log;
-//    protected static int version;
-//    protected static String resultDir;
-//    public static void initLog(String dir, int v) throws IOException {
-//        version = v;
-//        if(log == null) {
-//            resultDir = dir;
-//            FileWriter fw = new FileWriter(resultDir + "/assertGeneratorLog");
-//            log = new BufferedWriter(fw);
-//            File file = new File(resultDir + "/assertGenerationTestSource/");
-//            file.mkdirs();
-//        }
-//    }
-
     protected CtMethod generateAssert(CtMethod test) throws IOException, ClassNotFoundException {
         this.test = test;
         this.test = createTestWithoutAssert(new ArrayList<>(), false);
@@ -337,6 +323,7 @@ public class MethodAssertGenerator {
         return runTests(testsToRun, classLoader);
     }
 
+    //todo refactor
     protected boolean writeAndCompile(CtType cl) {
         try {
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
