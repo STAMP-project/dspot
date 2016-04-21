@@ -8,13 +8,6 @@
     <artifactId>dspot</artifactId>
     <version>1.0.0</version>
 
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>fr.inria.gforge.spoon</groupId>
@@ -23,11 +16,10 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.DIVERSIFY-project</groupId>
-            <artifactId>sosies-generator</artifactId>
-            <version>-SNAPSHOT</version>
+            <groupId>fr.inria.diversify.sosiefier</groupId>
+            <artifactId>generator</artifactId>
+            <version>1.0.0</version>
         </dependency>
-
 
         <dependency>
             <groupId>uk.com.robust-it</groupId>
