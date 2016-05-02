@@ -34,6 +34,7 @@ import java.util.*;
  */
 public class DSpot {
     protected DiversityCompiler compiler;
+    protected InputConfiguration inputConfiguration;
     protected InputProgram inputProgram;
     protected DiversifyClassLoader applicationClassLoader;
     protected AssertGenerator assertGenerator;
@@ -41,6 +42,7 @@ public class DSpot {
     protected static DiversifyClassLoader regressionClassLoader;
 
     public DSpot(InputConfiguration inputConfiguration) throws InvalidSdkException, Exception {
+        this.inputConfiguration = inputConfiguration;
         InitUtils.initLogLevel(inputConfiguration);
         inputProgram = InitUtils.initInputProgram(inputConfiguration);
 
@@ -120,6 +122,9 @@ public class DSpot {
     protected void compileTests() throws InterruptedException, IOException {
         String[] phases  = new String[]{"clean", "test"};
         MavenBuilder builder = new MavenBuilder(inputProgram.getProgramDir());
+
+        String builderPath = inputConfiguration.getProperty("mvnHome",null);
+        builder.setBuilderPath(builderPath);
 
         builder.setGoals(phases);
         builder.initTimeOut();

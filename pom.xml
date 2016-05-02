@@ -17,6 +17,12 @@
 
         <dependency>
             <groupId>fr.inria.diversify.sosiefier</groupId>
+            <artifactId>core</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>fr.inria.diversify.sosiefier</groupId>
             <artifactId>generator</artifactId>
             <version>1.0.0</version>
         </dependency>
