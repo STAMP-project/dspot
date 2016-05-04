@@ -1,30 +1,16 @@
 package fr.inria.diversify.info.logger;
 
 
-import fr.inria.diversify.profiling.logger.ClassObserver;
-import fr.inria.diversify.profiling.logger.KeyWord;
-import fr.inria.diversify.profiling.logger.PathBuilder;
-import fr.inria.diversify.profiling.logger.ShutdownHookLog;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 
 public class LogWriter {
-    private boolean fullPath = false;
     private PrintWriter fileWriter;
 
-    private Map<Class, ClassObserver> classesObservers;
 
     private boolean log = true;
-
-    private boolean isObserve = false;
-
-    private boolean logMethodCall = true;
-
-    private boolean writeVar = true;
 
     //Thread containing the test
     private final Thread thread;
@@ -32,13 +18,12 @@ public class LogWriter {
     //current deep in the heap
     private int deep;
 
-    private PathBuilder pathBuilder;
 
     ///Directory where the log is being stored
     protected File dir = null;
 
-    protected boolean inTest = false;
-
+    protected static Map<String, Set<String>> stmtTest = new HashMap<String, Set<String>>();
+    protected String currentTest;
     /**
      * Constructor for the logger
      */
@@ -48,8 +33,6 @@ public class LogWriter {
             initDir();
         }
         initOptions();
-        pathBuilder = new PathBuilder(fullPath);
-        classesObservers = new HashMap<Class, ClassObserver>();
 
         ShutdownHookLog shutdownHook = new ShutdownHookLog();
         Runtime.getRuntime().addShutdownHook(shutdownHook);
@@ -62,9 +45,7 @@ public class LogWriter {
             if(propertiesFile.exists()) {
                 Properties properties = new Properties();
                 properties.load(new FileInputStream(propertiesFile));
-                fullPath = Boolean.parseBoolean(propertiesOrGetDefault(properties,"fullPath", "false"));
-                logMethodCall = Boolean.parseBoolean(propertiesOrGetDefault(properties,"logMethodCall", "true"));
-                writeVar = Boolean.parseBoolean(propertiesOrGetDefault(properties,"writeVar", "true"));
+
             }
         } catch (IOException e) {
             System.err.println("fr.inria.logger: error with properties file");
@@ -77,7 +58,6 @@ public class LogWriter {
         } else {
             return defaultValue;
         }
-
     }
 
     /**
@@ -88,13 +68,6 @@ public class LogWriter {
      */
     public String getThreadLogFilePath(Thread thread) {
         return dir.getAbsolutePath() + "/" + getThreadFileName(thread);
-    }
-
-    public void close(){
-        if(fileWriter != null) {
-            fileWriter.append(KeyWord.endLine);
-            fileWriter.close();
-        }
     }
 
     /**
@@ -137,176 +110,6 @@ public class LogWriter {
         return thread;
     }
 
-    public void branch(String id) {
-        if(log && !isObserve && inTest) {
-            pathBuilder.addbranch(id);
-        }
-    }
-
-    public void methodIn(String methodId) {
-        if(log && !isObserve && inTest) {
-            deep++;
-            if(logMethodCall) {
-                try {
-                    PrintWriter fileWriter = getFileWriter();
-                    fileWriter.append(KeyWord.endLine);
-                    fileWriter.append(KeyWord.methodCallObservation);
-                    fileWriter.append(KeyWord.simpleSeparator);
-                    fileWriter.append(deep + "");
-                    fileWriter.append(KeyWord.simpleSeparator);
-                    fileWriter.append(methodId);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            pathBuilder.newPath();
-        }
-    }
-
-    public void methodOut(String id) {
-        if(log && !isObserve && inTest) {
-            try {
-                pathBuilder.printPath(id, deep, getFileWriter());
-            } catch (Exception e) {}
-            deep--;
-        }
-    }
-
-    public void writeTestStart(String testName, Object receiver) {
-        inTest = true;
-        if(log && !isObserve) {
-            try {
-                deep = 0;
-                PrintWriter fileWriter = getFileWriter();
-                fileWriter.append(KeyWord.endLine);
-                fileWriter.append(KeyWord.testStartObservation);
-                fileWriter.append(KeyWord.simpleSeparator);
-                fileWriter.append(receiver.getClass().getCanonicalName());
-                fileWriter.append(".");
-                fileWriter.append(testName);
-            } catch (Exception e) {
-            }
-        }
-    }
-
-    public void writeTestStart(String testName) {
-        inTest = true;
-        if(log && !isObserve) {
-            try {
-                PrintWriter fileWriter = getFileWriter();
-                fileWriter.append(KeyWord.endLine);
-                fileWriter.append(testName);
-            } catch (Exception e) {
-            }
-        }
-    }
-
-    public void writeTestFinish() {
-        inTest = false;
-        if(log && !isObserve) {
-            try {
-                pathBuilder.clear();
-                PrintWriter fileWriter = getFileWriter();
-                fileWriter.append(KeyWord.endLine);
-                fileWriter.append(KeyWord.testEndObservation);
-            } catch (Exception e) {
-            }
-        }
-    }
-
-    public void writeVar(String  methodId, Object... var) {
-        if(log && !isObserve && writeVar) {
-            isObserve = true;
-            try {
-                StringBuilder string = new StringBuilder();
-                string.append(KeyWord.endLine);
-                string.append(KeyWord.variableObservation);
-                string.append(KeyWord.simpleSeparator);
-                string.append(deep + "");
-                string.append(KeyWord.simpleSeparator);
-                string.append(methodId);
-//                string.append(KeyWord.simpleSeparator);
-//                string.append(localPositionId);
-
-                String varsString = buildVars(var);
-                if(varsString.isEmpty())
-                    return;
-
-                string.append(varsString);
-
-                PrintWriter fileWriter = getFileWriter();
-                fileWriter.append(string.toString());
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                isObserve = false;
-            }
-        }
-    }
-
-
-    protected String buildVars(Object[] vars) {
-        StringBuilder varsString = new StringBuilder();
-
-        for (int i = 0; i < vars.length / 2; i = i + 2) {
-            try {
-                String varName = vars[i].toString();
-                String value;
-                if (vars[i + 1] == null) {
-                    value = "null";
-                } else {
-                    value = vars[i + 1].toString();
-                }
-                if(value.length() > 1000) {
-                    value = vars[i + 1].getClass().getCanonicalName() + value.length();
-                }
-                varsString.append(KeyWord.separator);
-                varsString.append(varName);
-                varsString.append(KeyWord.separator);
-                varsString.append(value);
-            } catch (Exception e) {
-            }
-        }
-        return KeyWord.simpleSeparator + varsString.substring(KeyWord.separator.length(), varsString.length());
-    }
-
-
-    public void logAssertArgument(int idAssert, Object invocation) {
-        if(log && !isObserve) {
-            isObserve = true;
-            try {
-                StringBuilder string = new StringBuilder();
-                string.append(KeyWord.endLine);
-                string.append(KeyWord.assertObservation);
-                string.append(KeyWord.simpleSeparator);
-                string.append(idAssert + "");
-
-                PrintWriter fileWriter = getFileWriter();
-                string.append(KeyWord.simpleSeparator);
-                observe(invocation, fileWriter);
-
-                fileWriter.append(string.toString());
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                isObserve = false;
-            }
-        }
-    }
-
-    protected void observe(Object object, PrintWriter writer) throws IOException, InterruptedException {
-        Class objectClass;
-        if(object == null) {
-            objectClass = null;
-        } else {
-            objectClass = object.getClass();
-        }
-        if(!classesObservers.containsKey(objectClass)) {
-            classesObservers.put(objectClass, new ClassObserver(objectClass));
-        }
-        classesObservers.get(objectClass).observe(object,writer);
-    }
-
     protected synchronized PrintWriter getFileWriter() throws IOException, InterruptedException {
         if (fileWriter == null) {
             String fileName = getThreadLogFilePath(thread) + "_" + System.currentTimeMillis();
@@ -315,75 +118,32 @@ public class LogWriter {
         return fileWriter;
     }
 
-    public void writeCatch(String methodId, String localPositionId, Object exception) {
-        if(log && !isObserve) {
-            isObserve = true;
-            try {
-                PrintWriter fileWriter = getFileWriter();
 
-                fileWriter.append(KeyWord.endLine);
-                fileWriter.append(KeyWord.catchObservation);
-                fileWriter.append(KeyWord.simpleSeparator);
-                fileWriter.append(deep + "");
-                fileWriter.append(KeyWord.simpleSeparator);
-                fileWriter.append(methodId);
-                fileWriter.append(KeyWord.simpleSeparator);
-                fileWriter.append(localPositionId);
-                fileWriter.append(KeyWord.simpleSeparator);
-                fileWriter.append(exception.getClass().getCanonicalName());
-                fileWriter.append(KeyWord.simpleSeparator);
-                fileWriter.append(exception.toString());
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                isObserve = false;
-            }
-        }
-    }
-
-    public void writeThrow(String methodId, String localPositionId, Object exception) {
-        if(log && !isObserve) {
-            isObserve = true;
-            try {
-                PrintWriter fileWriter = getFileWriter();
-
-                fileWriter.append(KeyWord.endLine);
-                fileWriter.append(KeyWord.throwObservation);
-                fileWriter.append(KeyWord.simpleSeparator);
-                fileWriter.append(deep + "");
-                fileWriter.append(KeyWord.simpleSeparator);
-                fileWriter.append(methodId);
-                fileWriter.append(KeyWord.simpleSeparator);
-                fileWriter.append(localPositionId);
-                fileWriter.append(KeyWord.simpleSeparator);
-                fileWriter.append(exception.getClass().getCanonicalName());
-                fileWriter.append(KeyWord.simpleSeparator);
-                fileWriter.append(exception.toString());
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                isObserve = false;
-            }
-        }
-    }
-
-    public void logTransformation(String id) {
-        if (log && !isObserve) {
-            try {
-                PrintWriter fileWriter = getFileWriter();
-                fileWriter.append(KeyWord.endLine);
-                fileWriter.append(KeyWord.logTransformation);
-                fileWriter.append(KeyWord.simpleSeparator);
-                fileWriter.append(deep + "");
-                fileWriter.append(KeyWord.simpleSeparator);
-                fileWriter.append(id);
-            } catch (Exception e) {
-            }
-        }
-    }
     protected void startLogging() {log = true;}
     protected void stopLogging() {
         log = false;
+    }
+
+    public void close() {
+
+    }
+
+    public void logStmt(String stmtId) {
+        if(currentTest != null) {
+            synchronized (stmtTest) {
+                if (!stmtTest.containsKey(stmtId)) {
+                    stmtTest.put(stmtId, new HashSet<String>());
+                }
+                stmtTest.get(stmtId).add(currentTest);
+            }
+        }
+    }
+
+    public void writeTestStart(String testName) {
+        currentTest = testName;
+    }
+
+    public void writeTestFinish() {
+        currentTest = null;
     }
 }

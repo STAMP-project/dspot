@@ -1,6 +1,5 @@
 package fr.inria.diversify.info.logger;
 
-import fr.inria.diversify.profiling.logger.Logger;
 
 /**
  * User: Simon
