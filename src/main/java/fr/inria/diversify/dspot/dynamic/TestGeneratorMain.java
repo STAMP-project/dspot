@@ -3,7 +3,7 @@ package fr.inria.diversify.dspot.dynamic;
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AssertGenerator;
-import fr.inria.diversify.dspot.TestRunner;
+import fr.inria.diversify.testRunner.TestRunner;
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
@@ -12,7 +12,6 @@ import fr.inria.diversify.util.PrintClassUtils;
 import org.apache.commons.io.FileUtils;
 import spoon.compiler.Environment;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.DefaultJavaPrettyPrinter;
 import spoon.support.JavaOutputProcessor;
 
@@ -54,7 +53,6 @@ public class TestGeneratorMain {
         if(!resultDir.exists()) {
             resultDir.mkdirs();
         }
-
         for(CtType test : testClasses) {
             PrintClassUtils.printJavaFile(resultDir, test);
         }
@@ -115,6 +113,4 @@ public class TestGeneratorMain {
         testGeneratorMain.clean();
         kill();
     }
-
-
 }

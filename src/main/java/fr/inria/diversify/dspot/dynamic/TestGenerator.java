@@ -1,7 +1,7 @@
 package fr.inria.diversify.dspot.dynamic;
 
 import fr.inria.diversify.dspot.AssertGenerator;
-import fr.inria.diversify.dspot.TestRunner;
+import fr.inria.diversify.testRunner.TestRunner;
 import fr.inria.diversify.testRunner.JunitResult;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;

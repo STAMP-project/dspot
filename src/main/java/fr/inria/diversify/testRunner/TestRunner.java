@@ -3,8 +3,6 @@ package fr.inria.diversify.testRunner;
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.testRunner.JunitResult;
-import fr.inria.diversify.testRunner.JunitRunner;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
 import org.apache.commons.io.FileUtils;
@@ -48,18 +46,10 @@ public class TestRunner {
         }
 
         JunitRunner junitRunner = new JunitRunner(inputProgram, new DiversifyClassLoader(applicationClassLoader, compiler.getBinaryOutputDirectory().getAbsolutePath()));
-
         return junitRunner.runTestClass(testClass.getQualifiedName(), tests.stream()
                 .map(test-> test.getSimpleName())
                 .collect(Collectors.toList()));
     }
-
-//    public List<CtMethod> filterTest(Collection<CtMethod> tests, JunitResult result) {
-//        List<String> goodTests = result.goodTests();
-//        return tests.stream()
-//                .filter(test -> goodTests.contains(test.getSimpleName()))
-//                .collect(Collectors.toList());
-//    }
 
     protected boolean writeAndCompile(CtType classInstru) throws IOException {
         FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
@@ -73,6 +63,4 @@ public class TestRunner {
             return false;
         }
     }
-
-
 }

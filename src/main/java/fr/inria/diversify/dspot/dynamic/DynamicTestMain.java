@@ -24,18 +24,18 @@ import java.io.IOException;
 public class DynamicTestMain {
     InputProgram inputProgram;
 
-        public DynamicTestMain(InputConfiguration inputConfiguration) throws Exception, InvalidSdkException {
-            InitUtils.initLogLevel(inputConfiguration);
-            inputProgram = InitUtils.initInputProgram(inputConfiguration);
+    public DynamicTestMain(InputConfiguration inputConfiguration) throws Exception, InvalidSdkException {
+        InitUtils.initLogLevel(inputConfiguration);
+        inputProgram = InitUtils.initInputProgram(inputConfiguration);
 
-            String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp_" + System.currentTimeMillis();
+        String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp_" + System.currentTimeMillis();
 
-            FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
-            inputProgram.setProgramDir(outputDirectory);
+        FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
+        inputProgram.setProgramDir(outputDirectory);
 
-            InitUtils.initDependency(inputConfiguration);
-            addLogger();
-        }
+        InitUtils.initDependency(inputConfiguration);
+        addLogger();
+    }
 
 
     protected void addLogger() throws IOException {

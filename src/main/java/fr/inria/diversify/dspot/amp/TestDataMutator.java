@@ -1,6 +1,5 @@
 package fr.inria.diversify.dspot.amp;
 
-import fr.inria.diversify.ReplaceHelper;
 import fr.inria.diversify.coverage.branch.Coverage;
 import fr.inria.diversify.runner.InputProgram;
 import spoon.reflect.code.*;
@@ -49,7 +48,7 @@ public class TestDataMutator extends AbstractAmp {
                 toReplace = parent;
             }
         }
-        ReplaceHelper.replace(toReplace, newLiteral);
+        toReplace.replace(newLiteral);
 
         return cloned_method;
     }
