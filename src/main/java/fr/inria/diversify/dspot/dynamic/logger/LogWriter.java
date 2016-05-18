@@ -29,6 +29,9 @@ public class LogWriter {
         methodCallsLog = new HashSet<Integer>();
         currentMethods = new LinkedList<MethodCall>();
         environments = new LinkedList<Map<Object, Set<String>>>();
+
+        ShutdownHookLog shutdownHook = new ShutdownHookLog();
+        Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
 
     public void startLog(String methodId, Object... params) {
