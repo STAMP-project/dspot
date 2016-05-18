@@ -96,7 +96,6 @@ public class MethodAssertGenerator {
 //            } catch (Throwable e) {}
 //            log.flush();
 //        }
-
         return newTest;
     }
 
@@ -354,8 +353,8 @@ public class MethodAssertGenerator {
         List<CtStatement> stmts = Query.getElements(newTest, new TypeFilter(CtStatement.class));
         for(int i = 0; i < stmts.size(); i++) {
             CtStatement stmt = stmts.get(i);
-            if(statementsIndexToAssert.contains(i) && isStmtToLog(stmt)) {
-                addLogStmt(stmt, test.getSimpleName() + "__" + i);
+            if(isStmtToLog(stmt)) {
+                addLogStmt(stmt, test.getSimpleName() + "__" + i, statementsIndexToAssert.contains(i));
             }
         }
         return newTest;
@@ -375,24 +374,30 @@ public class MethodAssertGenerator {
                 || statement instanceof CtLocalVariable;
     }
 
-    protected void addLogStmt(CtStatement stmt, String id) {
-        String snippet = "";
+    protected void addLogStmt(CtStatement stmt, String id, boolean forAssert) {
+        String snippet;
+        if(forAssert) {
+            snippet = "fr.inria.diversify.compare.ObjectLog.log(";
+        } else {
+            snippet = "fr.inria.diversify.compare.ObjectLog.logObject(";
+        }
+
         CtStatement insertAfter = null;
         if(stmt instanceof CtVariableWrite) {
             CtVariableWrite varWrite = (CtVariableWrite) stmt;
-            snippet = "fr.inria.diversify.compare.ObjectLog.log(" + varWrite.getVariable()
+            snippet += varWrite.getVariable()
                     + ",\"" + varWrite.getVariable() + "\",\"" + id + "\")";
             insertAfter = stmt;
         }
         if(stmt instanceof CtLocalVariable) {
             CtLocalVariable localVar = (CtLocalVariable) stmt;
-            snippet = "fr.inria.diversify.compare.ObjectLog.log(" + localVar.getSimpleName()
+            snippet += localVar.getSimpleName()
                     + ",\"" + localVar.getSimpleName() + "\",\"" + id + "\")";
             insertAfter = stmt;
         }
         if(stmt instanceof CtAssignment) {
             CtAssignment localVar = (CtAssignment) stmt;
-            snippet = "fr.inria.diversify.compare.ObjectLog.log(" + localVar.getAssigned()
+            snippet += localVar.getAssigned()
                     + ",\"" + localVar.getAssigned() + "\",\"" + id + "\")";
             insertAfter = stmt;
         }
@@ -404,7 +409,7 @@ public class MethodAssertGenerator {
             stmt.replace(localVarSnippet);
             insertAfter = localVarSnippet;
 
-            snippet = "fr.inria.diversify.compare.ObjectLog.log(o_" + id
+            snippet += "o_" + id
                     + ",\"o_" + id + "\",\"" + id + "\")";
         }
         CtStatement logStmt = getFactory().Code().createCodeSnippetStatement(snippet);

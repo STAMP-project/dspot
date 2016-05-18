@@ -25,6 +25,8 @@ public class MethodsHandler {
         ignoredMethods.put("toString", cl);
         ignoredMethods.put("display", cl);
 
+        ignoredMethods.put("clone", cl);
+
         ignoredMethods.put("hasExtensions",cl);
     }
 

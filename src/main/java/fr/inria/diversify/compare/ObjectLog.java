@@ -15,12 +15,20 @@ public class ObjectLog {
     protected MethodsHandler methodsHandler;
     protected Invocator invocator;
     protected int maxDeep = 2;
-
+    protected Map<String, Object> objects;
 
     private ObjectLog() {
         this.observations = new HashMap<String, Observation>();
-        methodsHandler = new MethodsHandler(true, true);
-        invocator = new Invocator(1);
+        this.objects = new HashMap<String, Object>();
+        this.methodsHandler = new MethodsHandler(true, true);
+        this.invocator = new Invocator(1);
+    }
+
+    protected static ObjectLog getSingleton() {
+        if(singleton == null) {
+            singleton = new ObjectLog();
+        }
+        return singleton;
     }
 
     public static void reset() {
@@ -28,10 +36,12 @@ public class ObjectLog {
     }
 
     public static void log(Object object, String stringObject, String positionId) {
-        if(singleton == null) {
-            singleton = new ObjectLog();
-        }
-        singleton.pLog(object, stringObject, positionId, 0);
+        logObject(object, stringObject, positionId);
+        getSingleton().pLog(object, stringObject, positionId, 0);
+    }
+
+    public static void logObject(Object object, String stringObject, String positionId) {
+        getSingleton().objects.put(stringObject, object);
     }
 
     public void pLog(Object object, String stringObject, String positionId, int deep) {
@@ -43,6 +53,7 @@ public class ObjectLog {
             } else if (isPrimitiveArray(object)) {
                 addObservation(positionId, stringObject, object);
             } else {
+                compareWithPreviousObjects(object, stringObject, positionId);
                 observeNotNullObject(object, stringObject, positionId, deep);
             }
         }
@@ -55,7 +66,15 @@ public class ObjectLog {
         observations.get(positionId).add(stringObject, value);
     }
 
-
+    protected void compareWithPreviousObjects(Object object, String stringObject, String positionId) {
+        for(String key : objects.keySet()) {
+            if(!key.equals(stringObject)) {
+                if(objects.get(key).equals(object)) {
+                    addObservation(positionId, stringObject + ".equal("+ key +")", true);
+                }
+            }
+        }
+    }
 
     protected void observeNotNullObject(Object o,  String stringObject, String positionId, int deep) {
         for(Method method : methodsHandler.getAllMethods(o)) {
@@ -101,7 +120,6 @@ public class ObjectLog {
                         || type.equals("boolean[]")
                         || type.equals("char[]"));
     }
-
 
     public static Map<String, Observation> getObservations() {
         return singleton.observations;
