@@ -53,7 +53,6 @@ public class DSpotUtils {
     }
 
     public static DiversityCompiler initDiversityCompiler(InputProgram inputProgram, boolean withTest) throws IOException, InterruptedException {
-        DSpotUtils.addBranchLogger(inputProgram);
         DiversityCompiler compiler = InitUtils.initSpoonCompiler(inputProgram, withTest);
         if(compiler.getBinaryOutputDirectory() == null) {
             File classOutputDir = new File("tmpDir/tmpClasses_" + System.currentTimeMillis());

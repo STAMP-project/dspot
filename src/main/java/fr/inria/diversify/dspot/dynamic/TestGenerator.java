@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot.dynamic;
 
 import fr.inria.diversify.dspot.AssertGenerator;
+import fr.inria.diversify.dspot.ClassWithLoggerBuilder;
 import fr.inria.diversify.testRunner.TestRunner;
 import fr.inria.diversify.testRunner.JunitResult;
 import spoon.reflect.code.*;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class TestGenerator {
     protected TestMethodGenerator testMethodGenerator;
     protected TestRunner testRunner;
+    protected ClassWithLoggerBuilder classWithLoggerBuilder;
     protected AssertGenerator assertGenerator;
 
     protected Factory factory;
@@ -33,8 +35,9 @@ public class TestGenerator {
         this.testRunner = testRunner;
         this.assertGenerator = assertGenerator;
         this.factory = factory;
-        testClasses = new HashMap<>();
-        testMethodGenerator = new TestMethodGenerator(factory);
+        this.testClasses = new HashMap<>();
+        this.testMethodGenerator = new TestMethodGenerator(factory);
+        this.classWithLoggerBuilder = new ClassWithLoggerBuilder(factory);
     }
 
     public Collection<CtType> generateTestClasses(String logDir) throws IOException {
@@ -61,6 +64,7 @@ public class TestGenerator {
         List<CtType> tests = getTestClasses();
         return tests.stream()
                 .map(test -> {
+                    minimiseTests(test);
                     try {
                         return assertGenerator.generateAsserts(test);
                     } catch (Exception e) {
@@ -70,6 +74,10 @@ public class TestGenerator {
                 })
                 .filter(test -> test != null)
                 .collect(Collectors.toList());
+    }
+
+    protected CtType minimiseTests(CtType classTest) {
+        return classWithLoggerBuilder.buildClassWithLogger(classTest, classTest.getMethods());
     }
 
     protected List<CtType> getTestClasses() {

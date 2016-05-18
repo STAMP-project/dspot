@@ -35,8 +35,15 @@ public class TestGeneratorMain {
 
         resultDir = new File(inputConfiguration.getProperty("result"));
 
+        String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp_" + System.currentTimeMillis();
+
+        FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
+        inputProgram.setProgramDir(outputDirectory);
+
         InitUtils.initDependency(inputConfiguration);
         InitUtils.addApplicationClassesToClassPath(inputProgram);
+
+        DSpotUtils.addBranchLogger(inputProgram);
         compiler = DSpotUtils.initDiversityCompiler(inputProgram, false);
 
         applicationClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration);

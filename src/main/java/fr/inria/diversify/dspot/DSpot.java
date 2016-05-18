@@ -43,6 +43,7 @@ public class DSpot {
 
         InitUtils.initDependency(inputConfiguration);
         applicationClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
+        DSpotUtils.addBranchLogger(inputProgram);
         compiler = DSpotUtils.initDiversityCompiler(inputProgram, true);
         DSpotUtils.compileTests(inputProgram, inputConfiguration.getProperty("mvnHome",null));
 
