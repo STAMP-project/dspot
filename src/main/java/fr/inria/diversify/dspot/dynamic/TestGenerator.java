@@ -58,7 +58,7 @@ public class TestGenerator {
                 }
             }
         }
-        List<CtType> tests = filterTest();
+        List<CtType> tests = getTestClasses();
         return tests.stream()
                 .map(test -> {
                     try {
@@ -72,7 +72,7 @@ public class TestGenerator {
                 .collect(Collectors.toList());
     }
 
-    protected List<CtType> filterTest() {
+    protected List<CtType> getTestClasses() {
         return testClasses.values().stream()
                 .filter(testClass -> !testClass.getMethods().isEmpty())
                 .map(testClass -> {

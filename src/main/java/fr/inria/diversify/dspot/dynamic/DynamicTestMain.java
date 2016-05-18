@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot.dynamic;
 
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.profiling.processor.ProcessorUtil;
 import fr.inria.diversify.profiling.processor.main.AbstractLoggingInstrumenter;
 import fr.inria.diversify.profiling.processor.main.FieldUsedInstrumenter;
@@ -34,9 +35,9 @@ public class DynamicTestMain {
         inputProgram.setProgramDir(outputDirectory);
 
         InitUtils.initDependency(inputConfiguration);
+        DSpotUtils.compileTests(inputProgram, inputConfiguration.getProperty("mvnHome",null));
         addLogger();
     }
-
 
     protected void addLogger() throws IOException {
         Factory factory = InitUtils.initSpoon(inputProgram, false);

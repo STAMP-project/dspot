@@ -84,7 +84,7 @@ public class TestMethodGenerator {
         CtMethod newTest = factory.Method().create((CtClass<?>)testClass,
                 testModifier,
                 voidType,
-                "test_i_" + method.getSimpleName() + testId(testClass),
+                "test_" + method.getSimpleName() + testId(testClass),
                 emptyParametersList,
                 new HashSet<CtTypeReference<? extends Throwable>>(),
                 body);

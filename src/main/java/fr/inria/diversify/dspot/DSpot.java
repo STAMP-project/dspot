@@ -4,23 +4,13 @@ import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.dspot.amp.*;
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
-import fr.inria.diversify.buildSystem.maven.MavenBuilder;
-import fr.inria.diversify.profiling.logger.Logger;
-import fr.inria.diversify.profiling.processor.ProcessorUtil;
-import fr.inria.diversify.profiling.processor.main.AbstractLoggingInstrumenter;
-import fr.inria.diversify.profiling.processor.main.BranchCoverageProcessor;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.InitUtils;
-import fr.inria.diversify.util.LoggerUtils;
 import fr.inria.diversify.util.PrintClassUtils;
 import org.apache.commons.io.FileUtils;
-import spoon.compiler.Environment;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.factory.Factory;
-import spoon.reflect.visitor.DefaultJavaPrettyPrinter;
-import spoon.support.JavaOutputProcessor;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,8 +42,9 @@ public class DSpot {
         inputProgram.setProgramDir(outputDirectory);
 
         InitUtils.initDependency(inputConfiguration);
-        initClassLoader(inputConfiguration);
-        initDiversityCompiler();
+        applicationClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
+        compiler = DSpotUtils.initDiversityCompiler(inputProgram, true);
+        DSpotUtils.compileTests(inputProgram, inputConfiguration.getProperty("mvnHome",null));
 
         assertGenerator = new AssertGenerator(inputProgram, compiler, applicationClassLoader);
         InitUtils.initLogLevel(inputConfiguration);
@@ -91,80 +82,6 @@ public class DSpot {
         amplifiers.add(new StatementAdder());
 
         return amplifiers;
-    }
-
-    //todo refactor
-    protected void initDiversityCompiler() throws IOException, InterruptedException {
-        addBranchLogger();
-        compiler = InitUtils.initSpoonCompiler(inputProgram, true);
-        if(compiler.getBinaryOutputDirectory() == null) {
-            File classOutputDir = new File("tmpDir/tmpClasses_" + System.currentTimeMillis());
-            if (!classOutputDir.exists()) {
-                classOutputDir.mkdirs();
-            }
-            compiler.setBinaryOutputDirectory(classOutputDir);
-        }
-        if(compiler.getSourceOutputDirectory().toString().equals("spooned")) {
-            File sourceOutputDir = new File("tmpDir/tmpSrc_" + System.currentTimeMillis());
-            if (!sourceOutputDir.exists()) {
-                sourceOutputDir.mkdirs();
-            }
-            compiler.setSourceOutputDirectory(sourceOutputDir);
-        }
-
-        Environment env = compiler.getFactory().getEnvironment();
-        env.setDefaultFileGenerator(new JavaOutputProcessor(compiler.getSourceOutputDirectory(),
-                new DefaultJavaPrettyPrinter(env)));
-
-        compileTests();
-    }
-
-    protected void compileTests() throws InterruptedException, IOException {
-        String[] phases  = new String[]{"clean", "test"};
-        MavenBuilder builder = new MavenBuilder(inputProgram.getProgramDir());
-
-        String builderPath = inputConfiguration.getProperty("mvnHome",null);
-        builder.setBuilderPath(builderPath);
-
-        builder.setGoals(phases);
-        builder.initTimeOut();
-        InitUtils.addApplicationClassesToClassPath(inputProgram);
-    }
-
-    //todo refactor
-    protected void initClassLoader(InputConfiguration inputConfiguration) {
-        Set<String> filter = new HashSet<>();
-        for(String s : inputConfiguration.getProperty("filter").split(";") ) {
-            filter.add(s);
-        }
-
-        List<String> classPaths = new ArrayList<>();
-        classPaths.add(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
-        classPaths.add(inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir());
-
-        applicationClassLoader = new DiversifyClassLoader(Thread.currentThread().getContextClassLoader(), classPaths);
-        applicationClassLoader.setClassFilter(filter);
-    }
-
-    protected void addBranchLogger() throws IOException {
-        Factory factory = InitUtils.initSpoon(inputProgram, false);
-
-        BranchCoverageProcessor m = new BranchCoverageProcessor(inputProgram, inputProgram.getProgramDir(), true);
-        m.setLogger(Logger.class.getCanonicalName());
-        AbstractLoggingInstrumenter.reset();
-        LoggerUtils.applyProcessor(factory, m);
-
-        File fileFrom = new File(inputProgram.getAbsoluteSourceCodeDir());
-        PrintClassUtils.printAllClasses(factory, fileFrom, fileFrom);
-
-        String loggerPackage = Logger.class.getPackage().getName().replace(".", "/");
-        File destDir = new File(inputProgram.getAbsoluteSourceCodeDir() + "/" + loggerPackage);
-        File srcDir = new File(System.getProperty("user.dir") + "/src/main/java/" + loggerPackage);
-        FileUtils.forceMkdir(destDir);
-
-        FileUtils.copyDirectory(srcDir, destDir);
-
-        ProcessorUtil.writeInfoFile(inputProgram.getProgramDir());
     }
 
     public void clean() throws IOException {
