@@ -6,6 +6,7 @@ import fr.inria.diversify.runner.InputProgram;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.factory.Factory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,14 +19,12 @@ import java.util.List;
  */
 public class ClassWithLoggerBuilder {
     protected final String logger;
-    protected InputProgram inputProgram;
     protected AssertionRemover assertionRemoverProcessor;
     protected TestLoggingInstrumenter loggingProcessor;
 
 
     public ClassWithLoggerBuilder(InputProgram inputProgram) {
         this.logger = "fr.inria.diversify.profiling.logger";
-        this.inputProgram = inputProgram;
         assertionRemoverProcessor = new AssertionRemover(inputProgram.getAbsoluteTestSourceCodeDir());
         assertionRemoverProcessor.setLogger(logger + ".Logger");
         assertionRemoverProcessor.setFactory(inputProgram.getFactory());
@@ -35,13 +34,21 @@ public class ClassWithLoggerBuilder {
         loggingProcessor.setFactory(inputProgram.getFactory());
     }
 
+    public ClassWithLoggerBuilder(Factory factory) {
+        this.logger = "fr.inria.diversify.profiling.logger";
+
+        loggingProcessor = new TestLoggingInstrumenter();
+        loggingProcessor.setLogger(logger + ".Logger");
+        loggingProcessor.setFactory(factory);
+    }
+
     protected CtType buildClassWithLogger(CtType originalClass, CtMethod test) {
         List<CtMethod> tests = new ArrayList<>(1);
         tests.add(test);
         return buildClassWithLogger(originalClass, tests);
     }
 
-    protected CtType buildClassWithLogger(CtType originalClass, Collection<CtMethod> tests) {
+    public CtType buildClassWithLogger(CtType originalClass, Collection<CtMethod> tests) {
         CtType cloneClass = originalClass.getFactory().Core().clone(originalClass);
         cloneClass.setParent(originalClass.getParent());
         tests.stream()
@@ -57,7 +64,9 @@ public class ClassWithLoggerBuilder {
         CtMethod clone = cloneMethod(method);
         clone.setParent(parentClass);
 
-        assertionRemoverProcessor.process(clone);
+        if(assertionRemoverProcessor != null) {
+            assertionRemoverProcessor.process(clone);
+        }
         loggingProcessor.process(clone);
 
         return clone;
