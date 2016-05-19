@@ -63,22 +63,4 @@ public class Logger {
     public static void setLogDir(File dir) {
         logDir = dir;
     }
-
-//    public static void reset() {
-//        if(logs != null) {
-//            for(LogWriter logWriter: logs.values()) {
-//                logWriter.startLogging();
-//            }
-//            logs.clear();
-//        }
-//    }
-//
-//    public static void stopLogging() {
-//        if ( logs != null ) {
-//            for(LogWriter logWriter: logs.values()) {
-//                logWriter.stopLogging();
-//            }
-//        }
-//    }
-
 }

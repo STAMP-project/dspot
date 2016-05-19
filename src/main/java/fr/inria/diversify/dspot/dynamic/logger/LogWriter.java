@@ -117,7 +117,9 @@ public class LogWriter {
     }
 
     public void close() {
-        fileWriter.close();
+        if(fileWriter != null) {
+            fileWriter.close();
+        }
     }
 
     /**
