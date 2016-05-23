@@ -43,8 +43,8 @@ public class JunitRunner {
         JunitResult result = new JunitResult();
         try {
             Class<?>[] testClasses = loadClass(tests);
-            Logger.reset();
-            Logger.setLogDir(new File(inputProgram.getProgramDir() + "/log"));
+//            Logger.reset();
+//            Logger.setLogDir(new File(inputProgram.getProgramDir() + "/log"));
 
             int timeOut = computeTimeOut(methodsToRun);
 

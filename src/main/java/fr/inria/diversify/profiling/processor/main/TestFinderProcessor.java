@@ -124,12 +124,18 @@ public class TestFinderProcessor extends AbstractLoggingInstrumenter<CtMethod> {
                             return Modifier.isPublic(invocation.getExecutable().getActualMethod().getModifiers());
                         } catch (Exception e) {
                             CtExecutable exe = invocation.getExecutable().getDeclaration();
-                            if(exe instanceof CtMethod) {
-                                return  ((CtMethod)exe).getModifiers().contains(ModifierKind.PUBLIC);
+                            if(exe != null) {
+                                if (exe instanceof CtMethod) {
+                                    return ((CtMethod) exe).getModifiers().contains(ModifierKind.PUBLIC);
+                                } else {
+                                    return ((CtConstructor) exe).getModifiers() != null && ((CtConstructor) exe).getModifiers().contains(ModifierKind.PUBLIC);
+                                }
                             } else {
-                                return ((CtConstructor)exe).getModifiers().contains(ModifierKind.PUBLIC);
+                                return false;
                             }
+
                         }
+
                     });
 
         }

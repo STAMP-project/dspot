@@ -42,6 +42,7 @@ public class DSpot {
         inputProgram.setProgramDir(outputDirectory);
 
         InitUtils.initDependency(inputConfiguration);
+        DSpotUtils.compile(inputProgram, inputConfiguration.getProperty("mvnHome",null));
         applicationClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
         DSpotUtils.addBranchLogger(inputProgram);
         compiler = DSpotUtils.initDiversityCompiler(inputProgram, true);

@@ -22,15 +22,8 @@ public class CoverageReader {
         this.directory = directory;
     }
 
-
-//    public Coverage load() throws IOException {
-//        Map<Integer, MethodCoverage> idToMethod = loadInfo();
-//        loadData(idToMethod);
-//        return new Coverage(idToMethod.values());
-//    }
-
     public List<Coverage> loadTest() throws IOException {
-        Map<Integer, MethodCoverage> idToMethod =  loadInfo();
+        Map<Integer, MethodCoverage> idToMethod = loadInfo();
         return loadTestData(idToMethod);
     }
 

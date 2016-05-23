@@ -4,6 +4,7 @@ import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.compare.Compare;
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
+import fr.inria.diversify.profiling.logger.Logger;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.testRunner.JunitResult;
@@ -308,6 +309,10 @@ public class MethodAssertGenerator {
                 .collect(Collectors.toList());
         diversifyClassLoader.setClassFilter(ClassName);
         JunitRunner junitRunner = new JunitRunner(inputProgram, diversifyClassLoader);
+
+        Logger.reset();
+        Logger.setLogDir(new File(inputProgram.getProgramDir() + "/log"));
+
         return junitRunner.runTestClasses(ClassName, testsToRun.stream().map(test -> test.getSimpleName()).collect(Collectors.toList()));
     }
 

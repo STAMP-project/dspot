@@ -78,9 +78,17 @@ public class DSpotUtils {
 
     public static void compileTests(InputProgram inputProgram, String builderPath) throws InterruptedException, IOException {
         String[] phases  = new String[]{"clean", "test"};
+        pCompile(inputProgram, phases, builderPath);
+    }
+
+    public static void compile(InputProgram inputProgram, String builderPath) throws InterruptedException, IOException {
+        String[] phases  = new String[]{"clean", "compile"};
+        pCompile(inputProgram, phases, builderPath);
+    }
+
+    protected static void pCompile(InputProgram inputProgram,  String[] phases, String builderPath) throws InterruptedException, IOException {
         MavenBuilder builder = new MavenBuilder(inputProgram.getProgramDir());
 
-//        String builderPath =
         builder.setBuilderPath(builderPath);
 
         builder.setGoals(phases);

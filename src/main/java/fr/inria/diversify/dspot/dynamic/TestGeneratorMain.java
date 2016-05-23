@@ -26,8 +26,10 @@ import java.util.*;
 public class TestGeneratorMain {
     protected final InputProgram inputProgram;
     protected DiversityCompiler compiler;
-    DiversifyClassLoader applicationClassLoader;
-    File resultDir;
+    protected DiversifyClassLoader applicationClassLoader;
+    protected DiversifyClassLoader applicationWithBranchLoggerClassLoader;
+    protected String branchDir;
+    protected File resultDir;
 
     public TestGeneratorMain(InputConfiguration inputConfiguration) throws InvalidSdkException, Exception {
         InitUtils.initLogLevel(inputConfiguration);
@@ -40,19 +42,36 @@ public class TestGeneratorMain {
         FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
         inputProgram.setProgramDir(outputDirectory);
 
+        branchDir = addBranchLogger(inputConfiguration);
+
+
         InitUtils.initDependency(inputConfiguration);
         InitUtils.addApplicationClassesToClassPath(inputProgram);
-
-        DSpotUtils.addBranchLogger(inputProgram);
         compiler = DSpotUtils.initDiversityCompiler(inputProgram, false);
-
+        DSpotUtils.compile(inputProgram, inputConfiguration.getProperty("mvnHome",null));
         applicationClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
     }
 
+    protected String addBranchLogger(InputConfiguration inputConfiguration) throws IOException, InterruptedException {
+        String programDir = inputProgram.getProgramDir();
+        String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp_branchLogger" + System.currentTimeMillis();
+        FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
+        inputProgram.setProgramDir(outputDirectory);
+        DSpotUtils.addBranchLogger(inputProgram);
+        DSpotUtils.compileTests(inputProgram, inputConfiguration.getProperty("mvnHome",null));
+
+        applicationWithBranchLoggerClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
+        inputProgram.setProgramDir(programDir);
+
+        return outputDirectory;
+    }
+
     public void testGenerator(String logFile) throws IOException {
+        TestRunner testRunnerWithBranchLogger = new TestRunner(inputProgram, applicationWithBranchLoggerClassLoader, compiler);
         TestRunner testRunner = new TestRunner(inputProgram, applicationClassLoader, compiler);
 
-        TestGenerator testGenerator = new TestGenerator(inputProgram.getFactory(), testRunner, new AssertGenerator(inputProgram, compiler, applicationClassLoader));
+        TestGenerator testGenerator = new TestGenerator(inputProgram.getFactory(), testRunner, testRunnerWithBranchLogger,
+                new AssertGenerator(inputProgram, compiler, applicationClassLoader), branchDir);
         Collection<CtType> testClasses = testGenerator.generateTestClasses(logFile);
 
         if(!resultDir.exists()) {

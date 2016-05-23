@@ -1,9 +1,13 @@
 package fr.inria.diversify.dspot.dynamic;
 
+import fr.inria.diversify.coverage.branch.Coverage;
+import fr.inria.diversify.coverage.branch.CoverageReader;
 import fr.inria.diversify.dspot.AssertGenerator;
 import fr.inria.diversify.dspot.ClassWithLoggerBuilder;
 import fr.inria.diversify.testRunner.TestRunner;
 import fr.inria.diversify.testRunner.JunitResult;
+import fr.inria.diversify.util.Log;
+import org.apache.commons.io.FileUtils;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
@@ -16,6 +20,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * User: Simon
@@ -25,16 +30,20 @@ import java.util.stream.Collectors;
 public class TestGenerator {
     protected TestMethodGenerator testMethodGenerator;
     protected TestRunner testRunner;
+    protected TestRunner testRunnerWithBranchLogger;
     protected ClassWithLoggerBuilder classWithLoggerBuilder;
     protected AssertGenerator assertGenerator;
+    protected File branchDir;
 
     protected Factory factory;
     protected Map<CtType, CtType> testClasses;
 
-    public TestGenerator(Factory factory, TestRunner testRunner, AssertGenerator assertGenerator) {
+    public TestGenerator(Factory factory, TestRunner testRunner, TestRunner testRunnerWithBranchLogger, AssertGenerator assertGenerator, String branchDir) {
         this.testRunner = testRunner;
+        this.testRunnerWithBranchLogger = testRunnerWithBranchLogger;
         this.assertGenerator = assertGenerator;
         this.factory = factory;
+        this.branchDir = new File(branchDir + "/log");
         this.testClasses = new HashMap<>();
         this.testMethodGenerator = new TestMethodGenerator(factory);
         this.classWithLoggerBuilder = new ClassWithLoggerBuilder(factory);
@@ -52,7 +61,12 @@ public class TestGenerator {
                     if (!line.contains(":")) {
                         String method = line;
                         String targetType = br.readLine();
-                        generateTest(method, targetType.substring(12, targetType.length()), typesAndParameters);
+                        try {
+                            generateTest(method, targetType.substring(12, targetType.length()), typesAndParameters);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Log.debug("");
+                        }
                         typesAndParameters.clear();
                     } else {
                         typesAndParameters.add(line);
@@ -63,8 +77,8 @@ public class TestGenerator {
         }
         List<CtType> tests = getTestClasses();
         return tests.stream()
+                .map(test -> minimiseTests(test))
                 .map(test -> {
-                    minimiseTests(test);
                     try {
                         return assertGenerator.generateAsserts(test);
                     } catch (Exception e) {
@@ -76,11 +90,35 @@ public class TestGenerator {
                 .collect(Collectors.toList());
     }
 
+
     protected CtType minimiseTests(CtType classTest) {
-        return classWithLoggerBuilder.buildClassWithLogger(classTest, classTest.getMethods());
+        CtType cl = classWithLoggerBuilder.buildClassWithLogger(classTest, classTest.getMethods());
+        try {
+            fr.inria.diversify.profiling.logger.Logger.reset();
+            fr.inria.diversify.profiling.logger.Logger.setLogDir(branchDir);
+            testRunnerWithBranchLogger.runTests(cl, cl.getMethods());
+            List<Coverage> coverage = loadBranchCoverage(branchDir.getAbsolutePath());
+            Set<String> mthsSubSet = coverage.stream()
+                    .collect(Collectors.groupingBy(c -> c.getCoverageBranch()))
+                    .values().stream()
+                    .map(value -> value.stream().findAny().get())
+                    .map(c -> c.getName())
+                    .collect(Collectors.toSet());
+
+            Set<CtMethod> mths = new HashSet<>(classTest.getMethods());
+            mths.stream()
+                    .filter(mth -> !mthsSubSet.contains(classTest.getQualifiedName() + "." + mth.getSimpleName()))
+                    .forEach(mth -> classTest.removeMethod(mth));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.debug("");
+        }
+
+        return classTest;
     }
 
-    protected List<CtType> getTestClasses() {
+    protected List<CtType>  getTestClasses() {
         return testClasses.values().stream()
                 .filter(testClass -> !testClass.getMethods().isEmpty())
                 .map(testClass -> {
@@ -150,5 +188,27 @@ public class TestGenerator {
 
     protected boolean containsThis(CtMethod method) {
         return !Query.getElements(method, new TypeFilter(CtThisAccess.class)).isEmpty();
+    }
+
+    protected List<Coverage> loadBranchCoverage(String logDir) throws IOException {
+        List<Coverage> branchCoverage = null;
+        try {
+            CoverageReader branchReader = new CoverageReader(logDir);
+            branchCoverage = branchReader.loadTest();
+
+        } catch (Throwable e) {}
+
+        deleteLogFile(logDir);
+
+        return branchCoverage;
+    }
+
+    protected void deleteLogFile(String logDir) throws IOException {
+        File dir = new File(logDir);
+        for(File file : dir.listFiles()) {
+            if(!file.getName().equals("info")) {
+                FileUtils.forceDelete(file);
+            }
+        }
     }
 }

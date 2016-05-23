@@ -5,6 +5,7 @@ import fr.inria.diversify.dspot.amp.*;
 import fr.inria.diversify.exp.LogResult;
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.coverage.branch.Coverage;
+import fr.inria.diversify.profiling.logger.Logger;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.JunitRunner;
@@ -15,6 +16,7 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -182,6 +184,7 @@ public class Amplification {
         }
     }
 
+
     protected JunitResult runTest(CtType testClass, CtMethod test) throws ClassNotFoundException {
         List<CtMethod> tests = new ArrayList<>(1);
         tests.add(test);
@@ -190,6 +193,9 @@ public class Amplification {
 
     protected JunitResult runTests(CtType testClass, Collection<CtMethod> tests) throws ClassNotFoundException {
         JunitRunner junitRunner = new JunitRunner(inputProgram, new DiversifyClassLoader(applicationClassLoader, compiler.getBinaryOutputDirectory().getAbsolutePath()));
+
+        Logger.reset();
+        Logger.setLogDir(new File(inputProgram.getProgramDir() + "/log"));
 
         return junitRunner.runTestClass(testClass.getQualifiedName(), tests.stream()
                 .map(test-> test.getSimpleName())
