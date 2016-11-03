@@ -1,6 +1,6 @@
 package fr.inria.diversify.profiling.processor.main;
 
-import fr.inria.diversify.profiling.processor.ProcessorUtil;
+import fr.inria.diversify.processor.ProcessorUtil;
 import fr.inria.diversify.runner.InputProgram;
 import spoon.processing.AbstractProcessor;
 import spoon.reflect.code.*;
@@ -62,7 +62,6 @@ public abstract class AbstractLoggingInstrumenter<E extends CtElement> extends A
         else {
             localId.put(parent, 0);
         }
-//        String methodName = parent.getReference().getDeclaringType().getQualifiedName() + "." + parent.getSignature();
         return ProcessorUtil.idFor(stmtWithoutLog(stmt).replaceAll("\n", "").trim() + ":" + localId.get(parent));
     }
 
@@ -93,10 +92,6 @@ public abstract class AbstractLoggingInstrumenter<E extends CtElement> extends A
         return false;
     }
 
-    protected int methodId(CtExecutable method) {
-        return ProcessorUtil.idFor(method.getReference().getDeclaringType().getQualifiedName() + "." + method.getSignature());
-    }
-
     protected boolean blockNeed(CtStatement statement) {
         return statement.getParent() instanceof CtLoop
                 || statement.getParent() instanceof CtIf;
@@ -120,7 +115,7 @@ public abstract class AbstractLoggingInstrumenter<E extends CtElement> extends A
 
 
     protected CtTry tryFinallyBody(CtExecutable method) {
-        if(!tryBodyMethod.containsKey(methodId(method))) {
+        if(!tryBodyMethod.containsKey(ProcessorUtil.methodId(method))) {
             Factory factory = method.getFactory();
             CtStatement thisStatement = getThisOrSuperCall(method.getBody());
 
@@ -138,9 +133,9 @@ public abstract class AbstractLoggingInstrumenter<E extends CtElement> extends A
                 ctTry.getBody().removeStatement(thisStatement);
                 method.getBody().getStatements().add(0, thisStatement);
             }
-            tryBodyMethod.put(methodId(method), ctTry);
+            tryBodyMethod.put(ProcessorUtil.methodId(method), ctTry);
         }
-        return tryBodyMethod.get(methodId(method)) ;
+        return tryBodyMethod.get(ProcessorUtil.methodId(method)) ;
     }
 
     protected CtStatement getThisOrSuperCall(CtBlock block) {

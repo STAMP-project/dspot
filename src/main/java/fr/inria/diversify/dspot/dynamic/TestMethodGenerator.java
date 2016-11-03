@@ -1,6 +1,8 @@
 package fr.inria.diversify.dspot.dynamic;
 
-import fr.inria.diversify.util.Log;
+import fr.inria.diversify.dspot.value.MethodCall;
+import fr.inria.diversify.dspot.value.Value;
+import fr.inria.diversify.dspot.value.ValueFactory;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
@@ -19,8 +21,8 @@ import java.util.stream.Collectors;
  * Time: 11:00
  */
 public class TestMethodGenerator {
-    protected Map<CtType, Integer> testCount;
-    protected int testId;
+    protected ValueFactory valueFactory;
+    protected static Map<CtType, Integer> testCount = new HashMap<>();
     protected Factory factory;
     protected final static Set<ModifierKind> testModifier = new HashSet<>();
     protected final CtTypeReference  voidType;
@@ -29,68 +31,69 @@ public class TestMethodGenerator {
         testModifier.add(ModifierKind.PUBLIC);
     }
 
-    public TestMethodGenerator(Factory factory) {
+    public TestMethodGenerator(Factory factory, ValueFactory valueFactory) {
+        this.valueFactory = valueFactory;
         this.factory = factory;
-        testCount = new HashMap<>();
         voidType = factory.Type().VOID_PRIMITIVE;
     }
 
-    public CtMethod generateTestFromBody(CtMethod method, CtType testClass, List<String> typesAndParameters) {
-        CtBlock body = cloneAndRemoveReturn(method.getBody());
-        addParametersAsLocalVar(body, method.getParameters(), typesAndParameters);
+    public boolean generateTestFromBody(MethodCall methodCall, CtType testClass) {
+        CtBlock body = cloneAndRemoveReturn(methodCall.getMethod().getBody());
+        addParametersAsLocalVar(methodCall, body);
 
         CtMethod newTest = factory.Method().create((CtClass<?>)testClass,
                 testModifier,
                 voidType,
-                "test_" + method.getSimpleName() + testId(testClass),
+                "test_" + methodCall.getMethod().getSimpleName() + testId(testClass),
                 emptyParametersList,
                 new HashSet<CtTypeReference<? extends Throwable>>(),
                 body);
 
         newTest.addAnnotation(testAnnotation());
-        return newTest;
+        return true;
     }
-
-    public CtMethod generateTestFromInvocation(CtMethod method, CtType testClass, String targetType, List<String> typesAndParameters) {
+    public boolean generateTestFromInvocation(MethodCall methodCall, CtType testClass) {
         CtBlock body = factory.Core().createBlock();
-        List<CtLocalVariable> localVariables = addParametersAsLocalVar(body, method.getParameters(), typesAndParameters);
+        List<CtLocalVariable> localVariables = addParametersAsLocalVar(methodCall, body);
 
         CtExpression target = null;
-        if(targetType != null) {
-            if(!targetType.equals("static")) {
-                CtClass type = factory.Class().get(targetType);
-                CtLocalVariable targetCreation = factory.Code().createLocalVariable(factory.Type().createReference(type),
-                        "target",
-                        factory.Code().createConstructorCall(type.getReference()));
+        if(methodCall.getTarget() != null) {
+            CtExpression constructorCall = valueFactory.findConstructorCall(methodCall.getTarget());
+            if (constructorCall != null) {
+                CtLocalVariable targetCreation = factory.Code().createLocalVariable(factory.Type().createReference(methodCall.getTarget()),
+                        "target", constructorCall);
                 body.addStatement(targetCreation);
                 target = factory.Code().createVariableRead((CtLocalVariableReference) factory.Code().createLocalVariableReference(targetCreation), false);
-            } else {
-                target = factory.Code().createTypeAccess(method.getType());
             }
+        }  else {
+            target = factory.Code().createTypeAccess(methodCall.getMethod().getDeclaringType().getReference());
         }
 
-        List<CtExpression<?>> localVarRefs = (List<CtExpression<?>>)localVariables.stream()
-                .map(var -> factory.Code().createLocalVariableReference(var))
-                .map(varRef -> factory.Code().createVariableRead((CtLocalVariableReference)varRef, false))
-                .map( varRef -> (CtExpression<?>)varRef)
-                .collect(Collectors.toList());
+        if(target != null) {
+            List<CtExpression<?>> localVarRefs = (List<CtExpression<?>>) localVariables.stream()
+                    .map(var -> factory.Code().createLocalVariableReference(var))
+                    .map(varRef -> factory.Code().createVariableRead((CtLocalVariableReference) varRef, false))
+                    .map(varRef -> (CtExpression<?>) varRef)
+                    .collect(Collectors.toList());
 
-        CtInvocation call = factory.Code().createInvocation(target,
-                factory.Executable().createReference(method),
-                localVarRefs);
+            CtInvocation call = factory.Code().createInvocation(target,
+                    factory.Executable().createReference(methodCall.getMethod()),
+                    localVarRefs);
 
-        body.addStatement(call);
+            body.addStatement(call);
 
-        CtMethod newTest = factory.Method().create((CtClass<?>)testClass,
-                testModifier,
-                voidType,
-                "test_" + method.getSimpleName() + testId(testClass),
-                emptyParametersList,
-                new HashSet<CtTypeReference<? extends Throwable>>(),
-                body);
+            CtMethod newTest = factory.Method().create((CtClass<?>) testClass,
+                    testModifier,
+                    voidType,
+                    "test_" + methodCall.getMethod().getSimpleName() + testId(testClass),
+                    emptyParametersList,
+                    methodCall.getMethod().getThrownTypes(),
+                    body);
 
-        newTest.addAnnotation(testAnnotation());
-        return newTest;
+            newTest.addAnnotation(testAnnotation());
+            return true;
+        }
+        return false;
     }
 
     protected CtAnnotation testAnnotation(){
@@ -106,61 +109,27 @@ public class TestMethodGenerator {
         return annotation;
     }
 
-    protected List<CtLocalVariable> addParametersAsLocalVar(CtBlock body, List<CtParameter> parameters, List<String> typesAndParameters) {
-        List<CtLocalVariable> localVariables = new ArrayList<>(parameters.size()) ;
+    protected List<CtLocalVariable> addParametersAsLocalVar(MethodCall methodCall, CtBlock body) {
+        List<Value> parameterValues = methodCall.getParameterValues();
+        List<CtParameter> parameters = methodCall.getMethod().getParameters();
+        List<CtLocalVariable> localVariables = new ArrayList<>(parameterValues.size());
 
-        for(int i = 0; i < parameters.size(); i++) {
+        for(int i = 0; i < parameterValues.size(); i++) {
             try {
-                String[] split = typesAndParameters.get(i).split(":");
-                CtLocalVariable localVar;
-                if(split.length != 1) {
-                    localVar = addLocalVar(body, parameters.get(i), split[0], split[1]);
-                } else {
-                    localVar = addLocalVar(body, parameters.get(i), split[0], "");
-                }
+                CtParameter parameter = parameters.get(i);
+                Value value = parameterValues.get(i);
+                CtLocalVariable localVar = factory.Code().createLocalVariable(
+                        generateStaticType(parameter.getType(),value.getDynamicType()),
+                        parameter.getSimpleName(),
+                        null);
+                body.getStatements().add(0, localVar);
+                localVar.setParent(body);
                 localVariables.add(localVar);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.debug("");
-            }
+
+                parameterValues.get(i).initLocalVar(localVar);
+            } catch (Exception e) {}
         }
         return localVariables;
-    }
-
-    protected CtLocalVariable addLocalVar(CtBlock body, CtParameter parameter, String dynamicTypeName, String value) {
-        CtLocalVariable localVar = factory.Code().createLocalVariable(generateStaticType(parameter.getType(),dynamicTypeName),
-                parameter.getSimpleName(),
-                null);
-        body.getStatements().add(0, localVar);
-
-        if(value.startsWith("[") || value.startsWith("{")) {
-            String type;
-            if(dynamicTypeName.contains("<null")) {
-                int index = dynamicTypeName.indexOf("<");
-                type = dynamicTypeName.substring(0, index);
-            } else {
-                type = dynamicTypeName;
-            }
-            localVar.setDefaultExpression(factory.Code().createCodeSnippetExpression("new " + type +"()"));
-            List<CtStatement> statements = new ArrayList<>();
-            if(isCollection(type)) {
-                statements = generateCollectionAddStatement(value, dynamicTypeName, localVar.getSimpleName());
-            }
-            if(isMap(type)) {
-                statements = generateMapPutStatement(value, dynamicTypeName, localVar.getSimpleName());
-            }
-//            if(isArray(type)) {
-//
-//            }
-            int count = 1;
-            for (CtStatement addStmt : statements) {
-                body.getStatements().add(count, addStmt);
-                count++;
-            }
-        } else {
-            localVar.setDefaultExpression(createNewLiteral(dynamicTypeName, value));
-        }
-        return localVar;
     }
 
     protected CtTypeReference generateStaticType(CtTypeReference parameterType, String dynamicTypeName) {
@@ -177,120 +146,34 @@ public class TestMethodGenerator {
         return type;
     }
 
-    protected List<CtStatement> generateMapPutStatement(String values, String dynamicTypeName, String localVarName) {
-        String mapValues = values.substring(1, values.length() - 1);
-        if(mapValues.length() != 0) {
-            int index = dynamicTypeName.indexOf(",");
-            String keyGenericType = dynamicTypeName.substring(dynamicTypeName.indexOf("<") + 1, index );
-            String valueGenericType = dynamicTypeName.substring(index + 2, dynamicTypeName.length() - 1);
-
-            return Arrays.stream(mapValues.split(", "))
-                    .map(value -> {
-                        String[] split = value.split("=");
-                        return factory.Code().createCodeSnippetStatement(localVarName + ".put("
-                                + createNewLiteral(keyGenericType, split[0]) + ", "
-                                + createNewLiteral(valueGenericType, split[1]) +")");
-                    })
-                    .collect(Collectors.toList());
-        }
-        return new ArrayList<>();
-    }
-
-    protected List<CtStatement> generateCollectionAddStatement(String values, String dynamicTypeName, String localVarName) {
-        String collectionValues = values.substring(1, values.length() - 1);
-        if(collectionValues.length() != 0 ) {
-            String collectionGenericType = dynamicTypeName.substring(dynamicTypeName.indexOf("<") + 1, dynamicTypeName.length() - 1);
-
-            return Arrays.stream(collectionValues.split(", "))
-                    .map(value -> factory.Code().createCodeSnippetStatement(localVarName + ".add("
-                            + createNewLiteral(collectionGenericType, value) + ")"))
-                    .collect(Collectors.toList());
-        }
-        return new ArrayList<>();
-    }
-
-    protected boolean isMap(String className) {
-        try {
-            return Map.class.isAssignableFrom(Class.forName(removeGeneric(className)));
-        } catch (ClassNotFoundException e) {
-//            e.printStackTrace();
-            return false;
-        }
-    }
-
-    protected boolean isCollection(String className) {
-        try {
-            return Collection.class.isAssignableFrom(Class.forName(removeGeneric(className)));
-        } catch (ClassNotFoundException e) {
-//            e.printStackTrace();
-            return false;
-        }
-    }
-
-    protected String removeGeneric(String className) {
-        if(className.contains("<")) {
-            int index = className.indexOf("<");
-            return className.substring(0, index);
-        } else {
-            return className;
-        }
-    }
-
     protected CtBlock cloneAndRemoveReturn(CtBlock body) {
         CtBlock bodyWithoutReturn = factory.Core().clone(body);
         List<CtReturn> returns = Query.getElements(bodyWithoutReturn, new TypeFilter(CtReturn.class));
 
         returns.stream()
-                .peek(ret -> bodyWithoutReturn.removeStatement(ret))
+                .peek(ret -> {
+                    CtElement parent = ret.getParent();
+                    if(ret.getParent() instanceof CtIf) {
+                        CtIf ifStmt = (CtIf) parent;
+                        if (ifStmt.getThenStatement().equals(ret)) {
+                            ifStmt.setThenStatement(factory.Core().createBlock());
+                        } else {
+                            ifStmt.setElseStatement(factory.Core().createBlock());
+                        }
+                    } else if(ret.getParent() instanceof CtLoop) {
+                        CtLoop loopStmt = (CtLoop) parent;
+                        loopStmt.setBody(factory.Core().createBlock());
+                    } else {
+                        ret.getParent(CtStatementList.class).removeStatement(ret);
+                    }
+                })
                 .filter(ret -> ret.getReturnedExpression() != null)
                 .forEach(ret -> {
                     List<CtInvocation> invocations = Query.getElements(ret, new TypeFilter(CtInvocation.class));
                     invocations.stream()
-                            .forEach(invocation -> bodyWithoutReturn.addStatement(invocation));
+                            .forEach(invocation -> ret.getParent(CtStatementList.class).addStatement(invocation));
                 });
         return bodyWithoutReturn;
-    }
-
-    protected CtLiteral createNewLiteral(String typeName, String value)  {
-        if(typeName.equals("null")) {
-            return factory.Code().createLiteral(null);
-        }
-        Class<?> type = null;
-        try {
-            type = Class.forName(typeName);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        if(type == Boolean.class) {
-            return factory.Code().createLiteral(Boolean.parseBoolean(value));
-        }
-        if(type == Character.class) {
-            return factory.Code().createLiteral(value.charAt(0));
-        }
-        if(type == Byte.class) {
-            return factory.Code().createLiteral(Byte.parseByte(value));
-        }
-        if(type == Short.class) {
-            return factory.Code().createLiteral(Short.parseShort(value));
-        }
-        if(type == Integer.class) {
-            return factory.Code().createLiteral(Integer.parseInt(value));
-        }
-        if(type == Long.class) {
-            return factory.Code().createLiteral(Long.parseLong(value));
-        }
-        if(type == Float.class) {
-            return factory.Code().createLiteral(Float.parseFloat(value));
-        }
-        if(type == Double.class) {
-            return factory.Code().createLiteral(Double.parseDouble(value));
-        }
-        if(type == String.class) {
-            return factory.Code().createLiteral(value);
-        }
-
-        return factory.Code().createLiteral(value);
     }
 
     protected Integer testId(CtType declaringClass) {

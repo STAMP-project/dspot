@@ -8,9 +8,9 @@ import fr.inria.diversify.testRunner.TestRunner;
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.util.PrintClassUtils;
-import org.apache.commons.io.FileUtils;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
@@ -33,7 +33,9 @@ public class TestGeneratorMain {
 
     public TestGeneratorMain(InputConfiguration inputConfiguration) throws InvalidSdkException, Exception {
         InitUtils.initLogLevel(inputConfiguration);
+
         inputProgram = InitUtils.initInputProgram(inputConfiguration);
+        InitUtils.initDependency(inputConfiguration);
 
         resultDir = new File(inputConfiguration.getProperty("result"));
 
@@ -44,11 +46,11 @@ public class TestGeneratorMain {
 
         branchDir = addBranchLogger(inputConfiguration);
 
-
-        InitUtils.initDependency(inputConfiguration);
-        InitUtils.addApplicationClassesToClassPath(inputProgram);
         compiler = DSpotUtils.initDiversityCompiler(inputProgram, false);
-        DSpotUtils.compile(inputProgram, inputConfiguration.getProperty("mvnHome",null));
+
+        String mavenHome = inputConfiguration.getProperty("maven.home",null);
+        String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository",null);
+        DSpotUtils.compile(inputProgram, mavenHome, mavenLocalRepository);
         applicationClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
     }
 
@@ -58,7 +60,10 @@ public class TestGeneratorMain {
         FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
         inputProgram.setProgramDir(outputDirectory);
         DSpotUtils.addBranchLogger(inputProgram);
-        DSpotUtils.compileTests(inputProgram, inputConfiguration.getProperty("mvnHome",null));
+
+        String mavenHome = inputConfiguration.getProperty("maven.home",null);
+        String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository",null);
+        DSpotUtils.compileTests(inputProgram, mavenHome, mavenLocalRepository);
 
         applicationWithBranchLoggerClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
         inputProgram.setProgramDir(programDir);
@@ -70,7 +75,7 @@ public class TestGeneratorMain {
         TestRunner testRunnerWithBranchLogger = new TestRunner(inputProgram, applicationWithBranchLoggerClassLoader, compiler);
         TestRunner testRunner = new TestRunner(inputProgram, applicationClassLoader, compiler);
 
-        TestGenerator testGenerator = new TestGenerator(inputProgram.getFactory(), testRunner, testRunnerWithBranchLogger,
+        TestGenerator testGenerator = new TestGenerator(inputProgram, testRunner, testRunnerWithBranchLogger,
                 new AssertGenerator(inputProgram, compiler, applicationClassLoader), branchDir);
         Collection<CtType> testClasses = testGenerator.generateTestClasses(logFile);
 

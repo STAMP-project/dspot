@@ -41,7 +41,9 @@ public class ObjectLog {
     }
 
     public static void logObject(Object object, String stringObject, String positionId) {
-        getSingleton().objects.put(stringObject, object);
+        if(object != null) {
+            getSingleton().objects.put(stringObject, object);
+        }
     }
 
     public void pLog(Object object, String stringObject, String positionId, int deep) {
@@ -67,24 +69,28 @@ public class ObjectLog {
     }
 
     protected void compareWithPreviousObjects(Object object, String stringObject, String positionId) {
-        for(String key : objects.keySet()) {
-            if(!key.equals(stringObject)) {
-                if(objects.get(key).equals(object)) {
-                    addObservation(positionId, stringObject + ".equal("+ key +")", true);
+        try {
+            for (String key : objects.keySet()) {
+                if (!key.equals(stringObject)) {
+                    if (objects.get(key).equals(object)) {
+                        addObservation(positionId, stringObject + ".equals(" + key + ")", true);
+                    }
                 }
             }
-        }
+        } catch (Exception e) {}
     }
 
     protected void observeNotNullObject(Object o,  String stringObject, String positionId, int deep) {
-        for(Method method : methodsHandler.getAllMethods(o)) {
-            Invocation invocation = new Invocation(o, method);
-            invocator.invoke(invocation);
+        if(deep + 1 < maxDeep) {
+            for (Method method : methodsHandler.getAllMethods(o)) {
+                Invocation invocation = new Invocation(o, method);
+                invocator.invoke(invocation);
 
-            if(invocation.getError() == null) {
-                String castType = o.getClass().getCanonicalName();
-                pLog(invocation.getResult(),"((" + castType + ")"
-                        + stringObject + ")." + method.getName() + "()", positionId, deep + 1);
+                if (invocation.getError() == null) {
+                    String castType = o.getClass().getCanonicalName();
+                    pLog(invocation.getResult(), "((" + castType + ")"
+                            + stringObject + ")." + method.getName() + "()", positionId, deep + 1);
+                }
             }
         }
     }

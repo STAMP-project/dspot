@@ -6,9 +6,9 @@ import fr.inria.diversify.exp.tool.EvoSuite;
 import fr.inria.diversify.mutant.Mutant;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.util.Log;
-import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;

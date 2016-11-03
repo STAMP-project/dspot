@@ -1,5 +1,6 @@
 package fr.inria.diversify.dspot.dynamic.logger;
 
+
 import java.io.*;
 import java.util.*;
 
@@ -8,9 +9,9 @@ import java.util.*;
  * Date: 17/03/16
  * Time: 15:01
  */
-public class LogWriter {
+public class  LogWriter {
     protected List<MethodCall> currentMethods;
-    protected List<Map<Object, Set<String>>> environments;
+    protected List<Env> environments;
     protected Set<Integer> methodCallsLog;
     protected int deep;
 
@@ -18,7 +19,6 @@ public class LogWriter {
     protected File dir = null;
     protected PrintWriter fileWriter;
     protected Thread thread;
-
 
     public LogWriter(Thread thread, File logDir) {
         this.thread = thread;
@@ -28,24 +28,24 @@ public class LogWriter {
         }
         methodCallsLog = new HashSet<Integer>();
         currentMethods = new LinkedList<MethodCall>();
-        environments = new LinkedList<Map<Object, Set<String>>>();
+        environments = new LinkedList<Env>();
 
         ShutdownHookLog shutdownHook = new ShutdownHookLog();
         Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
 
     public void startLog(String methodId, Object... params) {
-        boolean startMethodLog = true;
-        for(Object param : params) {
-            if(!(param == null || TypeUtils.isPrimitive(param) || TypeUtils.isPrimitiveCollectionOrMap(param))) {
-                startMethodLog = false;
-                break;
-            }
+        MethodCall mc = new MethodCall(methodId, deep, params);
+
+        Map<Object, Set<Object>> env = new IdentityHashMap<Object, Set<Object>>();
+        for(Object object : mc.getObjectParameters()) {
+            Set<Object> set = new HashSet<Object>();
+            set.add(object);
+            env.put(object, set);
         }
-        if (startMethodLog) {
-            currentMethods.add(0, new MethodCall(methodId, deep, params));
-            environments.add(0, new IdentityHashMap<Object, Set<String>>());
-        }
+        currentMethods.add(0, mc);
+        environments.add(0, new Env());
+
         deep++;
     }
 
@@ -66,44 +66,90 @@ public class LogWriter {
 
     public void writeField(String methodId, Object receiver, String fieldId) {
         if(!currentMethods.isEmpty()) {
-            Map<Object, Set<String>> env = environments.get(0);
-            if (!env.containsKey(receiver)) {
-                env.put(receiver, new HashSet<String>());
-            }
-            env.get(receiver).add(fieldId);
+            Env env = environments.get(0);
+            env.add(receiver, fieldId);
+//            if (!env.containsKey(receiver)) {
+//                env.put(receiver, new HashSet<Object>());
+//            }
+//            env.get(receiver).add(fieldId);
         }
     }
 
     public void readField(String methodId, Object receiver, String fieldId) {
-        if(!currentMethods.isEmpty()) {
-            int count = 0;
-            for (Map<Object, Set<String>> env : environments) {
-                if (env.containsKey(receiver) && env.get(receiver).contains(fieldId)) {
-                    break;
-                }
-                count++;
-            }
-            if(count == currentMethods.size()) {
-                currentMethods.clear();
-                environments.clear();
-            } else {
-                for (int i = 0; i < count; i++) {
-                    currentMethods.remove(0);
-                    Map<Object, Set<String>> deleteEnv = environments.remove(0);
-                    if (!environments.isEmpty()) {
-                        Map<Object, Set<String>> env = environments.get(0);
-                        for (Object key : deleteEnv.keySet()) {
-                            if (env.containsKey(key)) {
-                                env.get(key).addAll(deleteEnv.get(key));
-                            } else {
-                                env.put(key, deleteEnv.get(key));
-                            }
-                        }
-                    }
+        try {
+            //cas ou le receiver est un parametre que l'on peut serializer, on ne cherche que l'objet dans dans environement
 
+            if (//receiver != null &&
+                    !currentMethods.isEmpty()) {
+                int count = 0;
+                for (Env env : environments) {
+                    if (env.contains(receiver, fieldId)) {
+                        break;
+                    }
+                    count++;
+                }
+                if (count == currentMethods.size()) {
+                    currentMethods.clear();
+                    environments.clear();
+                } else {
+                    Env env = environments.get(environments.size() - 1);
+                    for (int i = 0; i < count; i++) {
+                        currentMethods.remove(0);
+                        env.addSubEnv(environments.remove(0));
+
+//                        Map<Object, Set<Object>> deleteEnv = environments.remove(0);
+//                        if (!environments.isEmpty()) {
+//                            Map<Object, Set<Object>> env = environments.get(0);
+//                            for (Object key : deleteEnv.keySet()) {
+//                                if (env.containsKey(key)) {
+//                                    env.get(key).addAll(deleteEnv.get(key));
+//                                } else {
+//                                    env.put(key, deleteEnv.get(key));
+//                                }
+//                            }
+//                        }
+
+                    }
                 }
             }
+        } catch (Throwable e) {
+            currentMethods.clear();
+            environments.clear();
         }
+    }
+
+    protected PrimitiveCache primitiveCache;
+
+    public PrimitiveCache getPrimitiveCache() {
+        if(primitiveCache == null) {
+            primitiveCache = new PrimitiveCache();
+        }
+        return primitiveCache;
+    }
+
+    public void logPrimitive(int methodId, int constructorId, int argIndex, Object value) {
+        try {
+            if(!getPrimitiveCache().alreadyLog(constructorId, argIndex, value)) {
+                PrintWriter fileWriter = getFileWriter();
+                StringBuilder s = new StringBuilder();
+                s.append(KeyWord.primitiveKeyWord)
+                        .append(KeyWord.simpleSeparator)
+                        .append(methodId)
+                        .append(KeyWord.simpleSeparator)
+                        .append(constructorId)
+                        .append(KeyWord.simpleSeparator)
+                        .append(argIndex)
+                        .append(KeyWord.simpleSeparator)
+                        .append(value)
+                        .append(KeyWord.endLine);
+                fileWriter.append(s.toString());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
     }
 
     protected void writeCandidate(MethodCall methodCall) {
@@ -111,7 +157,6 @@ public class LogWriter {
             try {
                 PrintWriter fileWriter = getFileWriter();
                 fileWriter.write(methodCall.toString());
-                fileWriter.write("\n");
             } catch (Exception e) {}
         }
     }

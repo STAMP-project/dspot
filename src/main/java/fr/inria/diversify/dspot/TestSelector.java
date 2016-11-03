@@ -1,12 +1,13 @@
 package fr.inria.diversify.dspot;
 
-import fr.inria.diversify.coverage.graph.Graph;
-import fr.inria.diversify.coverage.graph.GraphReader;
+import fr.inria.diversify.log.LogReader;
+import fr.inria.diversify.log.TestCoverageParser;
+import fr.inria.diversify.log.TestGraphReader;
+import fr.inria.diversify.log.graph.Graph;
 import fr.inria.diversify.dspot.amp.AbstractAmp;
-import fr.inria.diversify.coverage.branch.Coverage;
-import fr.inria.diversify.coverage.branch.CoverageReader;
+import fr.inria.diversify.log.branch.Coverage;
 import fr.inria.diversify.runner.InputProgram;
-import org.apache.commons.io.FileUtils;
+import fr.inria.diversify.util.FileUtils;
 import spoon.reflect.declaration.CtMethod;
 
 import java.io.File;
@@ -41,12 +42,20 @@ public class TestSelector {
     }
 
     protected void updateLogInfo() throws IOException {
+        LogReader logReader = new LogReader(inputProgram.getProgramDir() + "/log");
+        TestCoverageParser coverageParser = new TestCoverageParser();
+        TestGraphReader graphReader = new TestGraphReader();
+
+        logReader.addParser(graphReader);
+        logReader.addParser(coverageParser);
+        logReader.readLogs();
         try {
-            CoverageReader branchReader = new CoverageReader(inputProgram.getProgramDir() + "/log");
+//            testCoverages = coverageParser.getResult();
+//            CoverageReader branchReader = new CoverageReader(inputProgram.getProgramDir() + "/log");
             if (branchCoverage == null) {
-                branchCoverage = branchReader.loadTest();
+                branchCoverage =coverageParser.getResult();
             } else {
-                for (Coverage coverage : branchReader.loadTest()) {
+                for (Coverage coverage : coverageParser.getResult()) {
                     Coverage previous = branchCoverage.stream()
                             .filter(ac -> ac.getName().equals(coverage.getName()))
                             .findFirst()
@@ -59,11 +68,11 @@ public class TestSelector {
             }
         } catch (Throwable e) {}
 
-        GraphReader graphReader = new GraphReader(inputProgram.getProgramDir() + "/log");
+//        GraphReader graphReader = new GraphReader(inputProgram.getProgramDir() + "/log");
         if (graphCoverage == null) {
-            graphCoverage = graphReader.load();
+            graphCoverage = graphReader.getResult();
         } else {
-            for (Graph coverage : graphReader.load()) {
+            for (Graph coverage : graphReader.getResult()) {
                 Graph previous = graphCoverage.stream()
                         .filter(ac -> ac.getName().equals(coverage.getName()))
                         .findFirst()

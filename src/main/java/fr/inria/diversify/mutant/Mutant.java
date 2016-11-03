@@ -1,7 +1,7 @@
 package fr.inria.diversify.mutant;
 
 import fr.inria.diversify.runner.InputProgram;
-import org.apache.commons.io.FileUtils;
+import fr.inria.diversify.util.FileUtils;
 
 import java.io.File;
 import java.io.IOException;

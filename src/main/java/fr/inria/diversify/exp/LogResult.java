@@ -1,6 +1,6 @@
 package fr.inria.diversify.exp;
 
-import fr.inria.diversify.coverage.branch.Coverage;
+import fr.inria.diversify.log.branch.Coverage;
 import spoon.reflect.declaration.CtMethod;
 
 import java.io.FileWriter;

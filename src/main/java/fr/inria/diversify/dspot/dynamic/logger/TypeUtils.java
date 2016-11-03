@@ -11,58 +11,70 @@ public class TypeUtils {
     protected static Set<Class<?>> WRAPPER_TYPES = getWrapperTypes();
 
     public static boolean isPrimitiveCollectionOrMap(Object collectionOrMap) {
-        if(Collection.class.isInstance(collectionOrMap)) {
-            Collection collection = (Collection) collectionOrMap;
-            if(collection.isEmpty()) {
-                return true;
-            } else {
-                Iterator iterator = collection.iterator();
-                while (iterator.hasNext()) {
-                    Object next = iterator.next();
-                    if(next != null) {
-                        return isPrimitive(next);
+        try {
+            if (Collection.class.isInstance(collectionOrMap)) {
+                Collection collection = (Collection) collectionOrMap;
+                if (collection.isEmpty()) {
+                    return true;
+                } else {
+                    Iterator iterator = collection.iterator();
+                    while (iterator.hasNext()) {
+                        Object next = iterator.next();
+                        if (next != null) {
+                            return isPrimitive(next);
+                        }
                     }
+                    return true;
                 }
-                return true;
-            }
-        } else {
-            Map map = (Map) collectionOrMap;
-            if(map.isEmpty()) {
-                return true;
             } else {
-                boolean isKeyPrimitive = false;
-                boolean isValuePrimitive = false;
-                Iterator keyIterator = map.keySet().iterator();
-                while (keyIterator.hasNext()) {
-                    Object next = keyIterator.next();
-                    if(next != null && isPrimitive(next)) {
-                        isKeyPrimitive = true;
-                        break;
-                    }
-                }
-                if(isKeyPrimitive) {
-                    Iterator valueIterator = map.keySet().iterator();
-                    while (valueIterator.hasNext()) {
-                        Object next = valueIterator.next();
+                Map map = (Map) collectionOrMap;
+                if (map.isEmpty()) {
+                    return true;
+                } else {
+                    boolean isKeyPrimitive = false;
+                    boolean isValuePrimitive = false;
+                    Iterator keyIterator = map.keySet().iterator();
+                    while (keyIterator.hasNext()) {
+                        Object next = keyIterator.next();
                         if (next != null && isPrimitive(next)) {
-                            isValuePrimitive = true;
+                            isKeyPrimitive = true;
                             break;
                         }
                     }
+                    if (isKeyPrimitive) {
+                        Iterator valueIterator = map.keySet().iterator();
+                        while (valueIterator.hasNext()) {
+                            Object next = valueIterator.next();
+                            if (next != null && isPrimitive(next)) {
+                                isValuePrimitive = true;
+                                break;
+                            }
+                        }
+                    }
+                    return isKeyPrimitive && isValuePrimitive;
                 }
-                return isKeyPrimitive && isValuePrimitive;
             }
+        } catch (Exception e) {
+            return false;
         }
     }
 
     public static boolean isPrimitive(Object object) {
-        return object.getClass().isPrimitive()
-                || isWrapperType(object)
-                || String.class.isInstance(object);
+        return isPrimitive(object.getClass());
     }
 
-    public static boolean isWrapperType(Object o) {
-        return WRAPPER_TYPES.contains(o.getClass());
+    public static boolean isPrimitive(Class cl) {
+        return cl.isPrimitive()
+                || isWrapperType(cl)
+                || String.class.equals(cl);
+    }
+
+//    public static boolean isWrapperType(Object o) {
+//        return WRAPPER_TYPES.contains(o.getClass());
+//    }
+
+    public static boolean isWrapperType(Class cl) {
+        return WRAPPER_TYPES.contains(cl);
     }
 
     protected static Set<Class<?>> getWrapperTypes() {

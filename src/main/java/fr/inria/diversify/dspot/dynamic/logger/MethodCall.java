@@ -1,9 +1,9 @@
 package fr.inria.diversify.dspot.dynamic.logger;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
+import fr.inria.diversify.dspot.dynamic.logger.KeyWord;
+import fr.inria.diversify.dspot.dynamic.logger.ObjectSerialiazer;
+
+import java.util.*;
 
 /**
  * User: Simon
@@ -13,13 +13,25 @@ import java.util.Map;
 public class MethodCall {
     protected String method;
     protected Object[] parameters;
+    protected char[] types;
     protected int deep;
     protected Object target;
 
-    public MethodCall(String method, int deep, Object[] parameters) {
+
+    public MethodCall(String method, int deep, Object[] params) {
         this.method = method;
-        this.parameters = parameters;
         this.deep = deep;
+
+        parameters = new Object[params.length/2];
+        types = new char[params.length/2];
+        for(int i = 0; i < params.length/2; i++) {
+            types[i] = (Character) params[(i*2) + 1];
+            if(types[i] == KeyWord.objectType) {
+                parameters[i] = new ObjectSerialiazer(params[i*2]);
+            } else {
+                parameters[i] = params[i*2];
+            }
+        }
     }
 
     public boolean sameMethod(String methodId, int deep) {
@@ -27,28 +39,61 @@ public class MethodCall {
     }
 
     public String toString() {
-        String ret = "";
-        for(Object param : parameters) {
-            ret +=  typeToString(param);
-            ret += ":" + param + "\n";
+        StringBuilder ret = new StringBuilder();
+        for(int i = 0; i < parameters.length; i++) {
+            if(types[i] == KeyWord.primitiveType) {
+                ret.append(KeyWord.methodCallPrimitiveParameter)
+                        .append(KeyWord.simpleSeparator)
+                        .append(primitiveToString(i));
+            } else {
+                ret.append(KeyWord.methodCallObjectParameter)
+                        .append(KeyWord.simpleSeparator)
+                        .append(parameters[i]);
+            }
+            ret.append(KeyWord.endLine);
         }
-         ret += method + "\ndynamicType:";
+        ret.append(KeyWord.methodCallMethod).append(KeyWord.simpleSeparator).append(method).append(KeyWord.endLine);
+        ret.append(KeyWord.methodCallReceiverType).append(KeyWord.simpleSeparator);
         if(target == null) {
-            ret += "static";
+            ret.append("static");
         } else {
-            ret += target.getClass().getCanonicalName();
+            ret.append(target.getClass().getCanonicalName());
         }
-        return ret;
+        return ret.append(KeyWord.endLine).toString();
     }
 
-    protected String typeToString(Object object) {
-        if(Collection.class.isInstance(object)) {
-            return getCollectionType((Collection)object);
-        }
-        if(Map.class.isInstance(object)) {
-            return getMapType((Map)object);
+    protected StringBuilder primitiveToString(int index) {
+        StringBuilder builder = new StringBuilder();
+
+        Object value = parameters[index];
+        char type = types[index];
+        if(type == KeyWord.collectionType) {
+            builder.append(getCollectionType((Collection) value));
+        } else if(type == KeyWord.mapType) {
+            builder.append(getMapType((Map) value));
         } else {
-            return object.getClass().getCanonicalName();
+            builder.append(value.getClass().getCanonicalName());
+        }
+
+        builder.append(KeyWord.simpleSeparator)
+                .append(value);
+
+        return builder;
+    }
+
+    protected String typeToString(int index) {
+        Object value = parameters[index];
+        char type = types[index];
+        if(type == KeyWord.collectionType) {
+            return getCollectionType((Collection) value);
+        }
+        if(type == KeyWord.mapType) {
+            return getMapType((Map) value);
+        }
+        if(type == KeyWord.objectType) {
+            return ((ObjectSerialiazer) value).toString();
+        } else {
+            return value.getClass().getCanonicalName();
         }
     }
 
@@ -93,5 +138,15 @@ public class MethodCall {
 
     public void setTarget(Object target) {
         this.target = target;
+    }
+
+    public List<Object> getObjectParameters() {
+        List<Object> list = new LinkedList<Object>();
+        for(int i = 0; i < parameters.length; i++) {
+            if(types[i] == KeyWord.objectType) {
+                list.add(((ObjectSerialiazer)parameters[i]).getObject());
+            }
+        }
+        return list;
     }
 }

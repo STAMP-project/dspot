@@ -4,14 +4,14 @@ import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.compare.Compare;
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
-import fr.inria.diversify.profiling.logger.Logger;
+import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.JunitRunner;
+import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
-import org.apache.commons.io.FileUtils;
 import org.junit.runner.notification.Failure;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
@@ -210,7 +210,7 @@ public class MethodAssertGenerator {
                 try {
                     CtStatement stmt = statements.get(line);
                     if (stmt instanceof CtInvocation) {
-                        String localVarSnippet = ((CtInvocation) stmt).getType().getQualifiedName()
+                        String localVarSnippet = ((CtInvocation) stmt).getType().toString()  //getQualifiedName()
                                 + " o_" + id + " = "
                                 + stmt.toString();
                         CtStatement localVarStmt = getFactory().Code().createCodeSnippetStatement(localVarSnippet);
@@ -221,7 +221,6 @@ public class MethodAssertGenerator {
                     } else {
                         stmt.insertAfter(assertStmt);
                     }
-
                 } catch (Exception e) {
                     Log.debug("");
                 }
@@ -336,9 +335,9 @@ public class MethodAssertGenerator {
             copyLoggerFile();
             PrintClassUtils.printJavaFile(compiler.getSourceOutputDirectory(), cl);
 
-            return compiler.compileFileIn(compiler.getSourceOutputDirectory(), false);
+            return compiler.compileFileIn(compiler.getSourceOutputDirectory(), true);
         } catch (Exception e) {
-            Log.warn("error during compilation", e);
+            Log.debug("error during compilation", e);
             return false;
         }
     }

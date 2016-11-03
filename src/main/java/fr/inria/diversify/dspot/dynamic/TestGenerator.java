@@ -1,26 +1,28 @@
 package fr.inria.diversify.dspot.dynamic;
 
-import fr.inria.diversify.coverage.branch.Coverage;
-import fr.inria.diversify.coverage.branch.CoverageReader;
+import fr.inria.diversify.dspot.value.MethodCall;
+import fr.inria.diversify.dspot.value.MethodCallReader;
+import fr.inria.diversify.dspot.value.ValueFactory;
+import fr.inria.diversify.log.LogReader;
+import fr.inria.diversify.log.TestCoverageParser;
+import fr.inria.diversify.log.branch.Coverage;
 import fr.inria.diversify.dspot.AssertGenerator;
 import fr.inria.diversify.dspot.ClassWithLoggerBuilder;
+import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.TestRunner;
 import fr.inria.diversify.testRunner.JunitResult;
+import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
-import org.apache.commons.io.FileUtils;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
-import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.stream.IntStream;
 
 /**
  * User: Simon
@@ -28,54 +30,56 @@ import java.util.stream.Stream;
  * Time: 15:36
  */
 public class TestGenerator {
-    protected TestMethodGenerator testMethodGenerator;
     protected TestRunner testRunner;
     protected TestRunner testRunnerWithBranchLogger;
     protected ClassWithLoggerBuilder classWithLoggerBuilder;
     protected AssertGenerator assertGenerator;
     protected File branchDir;
+    protected ValueFactory valueFactory;
 
-    protected Factory factory;
+    protected InputProgram inputProgram;
     protected Map<CtType, CtType> testClasses;
 
-    public TestGenerator(Factory factory, TestRunner testRunner, TestRunner testRunnerWithBranchLogger, AssertGenerator assertGenerator, String branchDir) {
+    public TestGenerator(InputProgram inputProgram, TestRunner testRunner, TestRunner testRunnerWithBranchLogger, AssertGenerator assertGenerator, String branchDir) {
         this.testRunner = testRunner;
         this.testRunnerWithBranchLogger = testRunnerWithBranchLogger;
         this.assertGenerator = assertGenerator;
-        this.factory = factory;
+        this.inputProgram = inputProgram;
         this.branchDir = new File(branchDir + "/log");
         this.testClasses = new HashMap<>();
-        this.testMethodGenerator = new TestMethodGenerator(factory);
-        this.classWithLoggerBuilder = new ClassWithLoggerBuilder(factory);
+        this.classWithLoggerBuilder = new ClassWithLoggerBuilder(inputProgram.getFactory());
     }
 
     public Collection<CtType> generateTestClasses(String logDir) throws IOException {
-        File dir = new File(logDir);
+        valueFactory = new ValueFactory(inputProgram, logDir);
 
-        for(File file : dir.listFiles()) {
-            if (!file.isDirectory() && file.getName().startsWith("log")) {
-                BufferedReader br = new BufferedReader(new FileReader(file));
-                List<String> typesAndParameters = new ArrayList<>();
-                String line = br.readLine();
-                while (line != null) {
-                    if (!line.contains(":")) {
-                        String method = line;
-                        String targetType = br.readLine();
-                        try {
-                            generateTest(method, targetType.substring(12, targetType.length()), typesAndParameters);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            Log.debug("");
-                        }
-                        typesAndParameters.clear();
+        LogReader logReader = new LogReader(logDir);
+        MethodCallReader reader = new MethodCallReader(inputProgram.getFactory(), valueFactory);
+        logReader.addParser(reader);
+        logReader.readLogs();
+
+
+
+        Map<CtMethod, List<MethodCall>> methodCalls = reader.getResult().stream()
+                .collect(Collectors.groupingBy(mc -> mc.getMethod()));
+
+        int maxSize = 50;
+        Random r = new Random();
+        methodCalls.values().stream()
+                .forEach(set -> {
+                    if(set.size() < maxSize) {
+                        set.stream()
+                                .forEach(mc -> generateTest(mc));
                     } else {
-                        typesAndParameters.add(line);
+                        IntStream.range(0, maxSize)
+                                .mapToObj(i -> set.remove(r.nextInt(set.size())))
+                                .forEach(mc -> generateTest(mc));
                     }
-                    line = br.readLine();
-                }
-            }
-        }
+                });
+
         List<CtType> tests = getTestClasses();
+
+        Log.debug("nb tests: {}", tests.stream().mapToInt(test -> test.getMethods().size()).sum());
         return tests.stream()
                 .map(test -> minimiseTests(test))
                 .map(test -> {
@@ -90,13 +94,14 @@ public class TestGenerator {
                 .collect(Collectors.toList());
     }
 
-
     protected CtType minimiseTests(CtType classTest) {
+        inputProgram.getFactory().Type().get(Runnable.class);
+
         CtType cl = classWithLoggerBuilder.buildClassWithLogger(classTest, classTest.getMethods());
         try {
-            fr.inria.diversify.profiling.logger.Logger.reset();
-            fr.inria.diversify.profiling.logger.Logger.setLogDir(branchDir);
-            testRunnerWithBranchLogger.runTests(cl, cl.getMethods());
+            fr.inria.diversify.logger.Logger.reset();
+            fr.inria.diversify.logger.Logger.setLogDir(branchDir);
+            JunitResult result = testRunnerWithBranchLogger.runTests(cl, cl.getMethods());
             List<Coverage> coverage = loadBranchCoverage(branchDir.getAbsolutePath());
             Set<String> mthsSubSet = coverage.stream()
                     .collect(Collectors.groupingBy(c -> c.getCoverageBranch()))
@@ -110,19 +115,15 @@ public class TestGenerator {
                     .filter(mth -> !mthsSubSet.contains(classTest.getQualifiedName() + "." + mth.getSimpleName()))
                     .forEach(mth -> classTest.removeMethod(mth));
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.debug("");
-        }
+        } catch (Exception e) {}
 
         return classTest;
     }
-
     protected List<CtType>  getTestClasses() {
         return testClasses.values().stream()
                 .filter(testClass -> !testClass.getMethods().isEmpty())
                 .map(testClass -> {
-                    CtType cl = factory.Core().clone(testClass);
+                    CtType cl = inputProgram.getFactory().Core().clone(testClass);
                     cl.setParent(testClass.getParent());
                     return cl;
                 })
@@ -132,7 +133,9 @@ public class TestGenerator {
                         Set<CtMethod> tests = new HashSet<CtMethod>(testClass.getMethods());
                                 tests.stream()
                                 .filter(test -> result.compileOrTimeOutTestName().contains(test.getSimpleName()))
-                                .forEach(test -> testClass.removeMethod((CtMethod) test));
+                                .forEach(test -> {
+                                    testClass.removeMethod(test);
+                                });
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -140,9 +143,12 @@ public class TestGenerator {
                 .filter(testClass -> !testClass.getMethods().isEmpty())
                 .collect(Collectors.toList());
     }
-
-    protected void generateTest(String methodString, String targetType, List<String> typesAndParameters) {
-        CtMethod method = findMethod(methodString, typesAndParameters.size());
+    static int count;
+    static int tryTest;
+    protected void generateTest(MethodCall methodCall) {
+        tryTest++;
+        TestMethodGenerator testMethodGenerator = new TestMethodGenerator(inputProgram.getFactory(), valueFactory);
+        CtMethod method = methodCall.getMethod();
         CtType declaringClass = method.getDeclaringType();
 
         if(!testClasses.containsKey(declaringClass)) {
@@ -150,37 +156,31 @@ public class TestGenerator {
         }
         CtType testClass = testClasses.get(declaringClass);
         try {
-            if(!containsThis(method)) {
-                testMethodGenerator.generateTestFromBody(method, testClass, typesAndParameters);
-            }
+            boolean result = false;
             if(!isPrivate(method)) {
-                testMethodGenerator.generateTestFromInvocation(method, testClass, targetType, typesAndParameters);
+                result = testMethodGenerator.generateTestFromInvocation(methodCall, testClass);
             }
-        } catch (Exception e) {}
+            if(!result && !containsThis(method) && !containsReferenceToPrivatElement(method) && containsCall(methodCall.getMethod(), "com.caucho")) {
+                result = testMethodGenerator.generateTestFromBody(methodCall, testClass);
+            }
+             if(result) {
+                 count++;
+             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.debug("");
+        }
+        Log.debug("test count: {}/{}", count, tryTest);
     }
 
     protected CtType generateNewTestClass(CtType classToTest) {
-        CtType test = factory.Class().create(classToTest.getPackage(), classToTest.getSimpleName()+"Test");
+        CtType test = inputProgram.getFactory().Class().create(classToTest.getPackage(), classToTest.getSimpleName()+"Test");
         Set<ModifierKind> modifierKinds = new HashSet<>(test.getModifiers());
         modifierKinds.add(ModifierKind.PUBLIC);
         test.setModifiers(modifierKinds);
         return test;
     }
 
-    protected CtMethod findMethod(String methodString, int nbParameters) {
-        int index = methodString.lastIndexOf(".");
-        String className = methodString.substring(0, index);
-        String methodName = methodString.substring(index + 1, methodString.length());
-
-        CtClass cl = factory.Class().get(className);
-
-        Set<CtMethod> methods = cl.getMethods();
-        return methods.stream()
-                .filter(mth -> mth.getSimpleName().equals(methodName))
-                .filter(mth -> mth.getParameters().size() == nbParameters)
-                .findFirst()
-                .orElse(null);
-    }
 
     protected boolean isPrivate(CtMethod method) {
         return method.getModifiers().contains(ModifierKind.PRIVATE);
@@ -190,11 +190,27 @@ public class TestGenerator {
         return !Query.getElements(method, new TypeFilter(CtThisAccess.class)).isEmpty();
     }
 
+    protected boolean containsReferenceToPrivatElement(CtMethod method) {
+        return Query.getElements(method.getBody(), new TypeFilter<CtModifiable>(CtModifiable.class)).stream()
+                .anyMatch(modifiable -> modifiable.hasModifier(ModifierKind.PRIVATE));
+    }
+
+    protected boolean containsCall(CtMethod method, String filter) {
+        List<CtInvocation> calls = Query.getElements(method, new TypeFilter(CtInvocation.class));
+        return calls.stream()
+                .map(call -> call.getType())
+                .anyMatch(type -> type.getQualifiedName().startsWith(filter));
+    }
+
     protected List<Coverage> loadBranchCoverage(String logDir) throws IOException {
         List<Coverage> branchCoverage = null;
         try {
-            CoverageReader branchReader = new CoverageReader(logDir);
-            branchCoverage = branchReader.loadTest();
+            LogReader logReader = new LogReader(logDir);
+            TestCoverageParser coverageParser = new TestCoverageParser();
+            logReader.addParser(coverageParser);
+            logReader.readLogs();
+
+            branchCoverage = coverageParser.getResult();
 
         } catch (Throwable e) {}
 

@@ -6,9 +6,9 @@ import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.util.PrintClassUtils;
-import org.apache.commons.io.FileUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -41,12 +41,16 @@ public class DSpot {
         FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
         inputProgram.setProgramDir(outputDirectory);
 
+
         InitUtils.initDependency(inputConfiguration);
-        DSpotUtils.compile(inputProgram, inputConfiguration.getProperty("mvnHome",null));
+
+        String mavenHome = inputConfiguration.getProperty("maven.home",null);
+        String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository",null);
+        DSpotUtils.compile(inputProgram, mavenHome, mavenLocalRepository);
         applicationClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
         DSpotUtils.addBranchLogger(inputProgram);
         compiler = DSpotUtils.initDiversityCompiler(inputProgram, true);
-        DSpotUtils.compileTests(inputProgram, inputConfiguration.getProperty("mvnHome",null));
+        DSpotUtils.compileTests(inputProgram, mavenHome, mavenLocalRepository);
 
         assertGenerator = new AssertGenerator(inputProgram, compiler, applicationClassLoader);
         InitUtils.initLogLevel(inputConfiguration);

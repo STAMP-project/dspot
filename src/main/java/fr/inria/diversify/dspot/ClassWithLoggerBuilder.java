@@ -1,7 +1,7 @@
 package fr.inria.diversify.dspot;
 
+import fr.inria.diversify.processor.test.TestLogProcessor;
 import fr.inria.diversify.profiling.processor.test.AssertionRemover;
-import fr.inria.diversify.profiling.processor.test.TestLoggingInstrumenter;
 import fr.inria.diversify.runner.InputProgram;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
@@ -20,24 +20,24 @@ import java.util.List;
 public class ClassWithLoggerBuilder {
     protected final String logger;
     protected AssertionRemover assertionRemoverProcessor;
-    protected TestLoggingInstrumenter loggingProcessor;
+    protected TestLogProcessor loggingProcessor;
 
 
     public ClassWithLoggerBuilder(InputProgram inputProgram) {
-        this.logger = "fr.inria.diversify.profiling.logger";
+        this.logger = "fr.inria.diversify.logger";
         assertionRemoverProcessor = new AssertionRemover(inputProgram.getAbsoluteTestSourceCodeDir());
         assertionRemoverProcessor.setLogger(logger + ".Logger");
         assertionRemoverProcessor.setFactory(inputProgram.getFactory());
 
-        loggingProcessor = new TestLoggingInstrumenter();
+        loggingProcessor = new TestLogProcessor();
         loggingProcessor.setLogger(logger + ".Logger");
         loggingProcessor.setFactory(inputProgram.getFactory());
     }
 
     public ClassWithLoggerBuilder(Factory factory) {
-        this.logger = "fr.inria.diversify.profiling.logger";
+        this.logger = "fr.inria.diversify.logger";
 
-        loggingProcessor = new TestLoggingInstrumenter();
+        loggingProcessor = new TestLogProcessor();
         loggingProcessor.setLogger(logger + ".Logger");
         loggingProcessor.setFactory(factory);
     }

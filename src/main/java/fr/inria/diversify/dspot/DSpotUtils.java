@@ -3,19 +3,22 @@ package fr.inria.diversify.dspot;
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.buildSystem.maven.MavenBuilder;
 import fr.inria.diversify.factories.DiversityCompiler;
-import fr.inria.diversify.profiling.logger.Logger;
-import fr.inria.diversify.profiling.processor.ProcessorUtil;
+import fr.inria.diversify.logger.Logger;
+import fr.inria.diversify.processor.ProcessorUtil;
+import fr.inria.diversify.processor.main.AddBlockEverywhereProcessor;
+import fr.inria.diversify.processor.main.BranchCoverageProcessor;
 import fr.inria.diversify.profiling.processor.main.AbstractLoggingInstrumenter;
-import fr.inria.diversify.profiling.processor.main.BranchCoverageProcessor;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.util.PrintClassUtils;
-import org.apache.commons.io.FileUtils;
 import spoon.compiler.Environment;
+import spoon.processing.Processor;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.DefaultJavaPrettyPrinter;
 import spoon.support.JavaOutputProcessor;
+import spoon.support.QueueProcessingManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,10 +37,12 @@ public class DSpotUtils {
     public static void addBranchLogger(InputProgram inputProgram) throws IOException {
         Factory factory = InitUtils.initSpoon(inputProgram, false);
 
+        applyProcessor(factory, new AddBlockEverywhereProcessor(inputProgram));
+
         BranchCoverageProcessor m = new BranchCoverageProcessor(inputProgram, inputProgram.getProgramDir(), true);
         m.setLogger(Logger.class.getCanonicalName());
         AbstractLoggingInstrumenter.reset();
-        fr.inria.diversify.util.LoggerUtils.applyProcessor(factory, m);
+        applyProcessor(factory, m);
 
         File fileFrom = new File(inputProgram.getAbsoluteSourceCodeDir());
         PrintClassUtils.printAllClasses(factory, fileFrom, fileFrom);
@@ -76,20 +81,23 @@ public class DSpotUtils {
         return compiler;
     }
 
-    public static void compileTests(InputProgram inputProgram, String builderPath) throws InterruptedException, IOException {
+    public static void compileTests(InputProgram inputProgram, String mavenHome, String mavenLocalRepository) throws InterruptedException, IOException {
         String[] phases  = new String[]{"clean", "test"};
-        pCompile(inputProgram, phases, builderPath);
+        pCompile(inputProgram, phases, mavenHome, mavenLocalRepository);
     }
 
-    public static void compile(InputProgram inputProgram, String builderPath) throws InterruptedException, IOException {
+    public static void compile(InputProgram inputProgram, String mavenHome, String mavenLocalRepository) throws InterruptedException, IOException {
         String[] phases  = new String[]{"clean", "compile"};
-        pCompile(inputProgram, phases, builderPath);
+        pCompile(inputProgram, phases, mavenHome, mavenLocalRepository);
     }
 
-    protected static void pCompile(InputProgram inputProgram,  String[] phases, String builderPath) throws InterruptedException, IOException {
+    protected static void pCompile(InputProgram inputProgram,  String[] phases, String mavenHome, String mavenLocalRepository) throws InterruptedException, IOException {
         MavenBuilder builder = new MavenBuilder(inputProgram.getProgramDir());
 
-        builder.setBuilderPath(builderPath);
+        builder.setBuilderPath(mavenHome);
+        if(mavenLocalRepository != null) {
+            builder.setSetting(new File(mavenLocalRepository));
+        }
 
         builder.setGoals(phases);
         builder.initTimeOut();
@@ -110,5 +118,11 @@ public class DSpotUtils {
         applicationClassLoader.setClassFilter(filter);
 
         return applicationClassLoader;
+    }
+
+    protected static void applyProcessor(Factory factory, Processor processor) {
+        QueueProcessingManager pm = new QueueProcessingManager(factory);
+        pm.addProcessor(processor);
+        pm.process(factory.Package().getRootPackage());
     }
 }

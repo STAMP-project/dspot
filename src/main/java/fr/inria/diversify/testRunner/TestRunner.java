@@ -3,9 +3,9 @@ package fr.inria.diversify.testRunner;
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
-import org.apache.commons.io.FileUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -56,6 +56,7 @@ public class TestRunner {
         FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
         try {
             PrintClassUtils.printJavaFile(compiler.getSourceOutputDirectory(), classInstru);
+            compiler.setCustomClassLoader(applicationClassLoader);
             compiler.compileFileIn(compiler.getSourceOutputDirectory(), true);
             return true;
         } catch (Exception e) {

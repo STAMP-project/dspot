@@ -1,7 +1,7 @@
 package fr.inria.diversify.exp.tool;
 
+import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
-import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -182,7 +182,8 @@ public class Defect4J {
 
         File triggerTestsF = new File(tmpDir + "/bug_detection_log/" + projectId + "/" + toolName + "/" + versionId + "f." + versionId + ".trigger.log");
         File triggerTestsB = new File(tmpDir + "/bug_detection_log/" + projectId + "/" + toolName + "/" + versionId + "b." + versionId + ".trigger.log");
-        return FileUtils.contentEquals(triggerTestsF, triggerTestsB);
+//        return FileUtils.contentEquals(triggerTestsF, triggerTestsB);
+        return true;
     }
 
 

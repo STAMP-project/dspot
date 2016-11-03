@@ -7,10 +7,10 @@ import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.mutant.Mutant;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
-import org.apache.commons.io.FileUtils;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;

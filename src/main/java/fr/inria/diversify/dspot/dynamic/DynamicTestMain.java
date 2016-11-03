@@ -2,16 +2,20 @@ package fr.inria.diversify.dspot.dynamic;
 
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.DSpotUtils;
-import fr.inria.diversify.profiling.processor.ProcessorUtil;
+import fr.inria.diversify.dspot.dynamic.objectInstanciationTree.ObjectInstantiationBuilder;
+import fr.inria.diversify.dspot.dynamic.processor.PrimitiveForNewProcessor;
+import fr.inria.diversify.dspot.dynamic.processor.StaticInstantiationProcessor;
+import fr.inria.diversify.processor.ProcessorUtil;
+import fr.inria.diversify.processor.main.AddBlockEverywhereProcessor;
 import fr.inria.diversify.profiling.processor.main.AbstractLoggingInstrumenter;
-import fr.inria.diversify.profiling.processor.main.FieldUsedInstrumenter;
-import fr.inria.diversify.profiling.processor.main.TestFinderProcessor;
+import fr.inria.diversify.dspot.dynamic.processor.FieldUsedInstrumenter;
+import fr.inria.diversify.dspot.dynamic.processor.TestFinderProcessor;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.util.LoggerUtils;
 import fr.inria.diversify.util.PrintClassUtils;
-import org.apache.commons.io.FileUtils;
 import spoon.reflect.factory.Factory;
 
 import java.io.File;
@@ -31,23 +35,38 @@ public class DynamicTestMain {
 
         String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp_" + System.currentTimeMillis();
 
-        FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
+        FileUtils.copyDirectory(inputProgram.getProgramDir(), outputDirectory);
         inputProgram.setProgramDir(outputDirectory);
 
-        InitUtils.initDependency(inputConfiguration);
-        DSpotUtils.compileTests(inputProgram, inputConfiguration.getProperty("mvnHome",null));
+
+        InitUtils.initDependency(inputConfiguration, false);
+        String mavenHome = inputConfiguration.getProperty("maven.home",null);
+        String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository",null);
+        DSpotUtils.compileTests(inputProgram, mavenHome, mavenLocalRepository);
         addLogger();
     }
 
     protected void addLogger() throws IOException {
         Factory factory = InitUtils.initSpoon(inputProgram, false);
 
+        LoggerUtils.applyProcessor(factory, new AddBlockEverywhereProcessor(inputProgram));
+
+        StaticInstantiationProcessor ip = new StaticInstantiationProcessor(inputProgram);
+        LoggerUtils.applyProcessor(factory, ip);
+
+        ObjectInstantiationBuilder objectInstantiationBuilder = new ObjectInstantiationBuilder(inputProgram);
+        objectInstantiationBuilder.init(null);
+
         FieldUsedInstrumenter m = new FieldUsedInstrumenter(inputProgram);
         m.setLogger(fr.inria.diversify.dspot.dynamic.logger.Logger.class.getCanonicalName());
         AbstractLoggingInstrumenter.reset();
         LoggerUtils.applyProcessor(factory, m);
 
-        TestFinderProcessor tfp = new TestFinderProcessor(inputProgram);
+        PrimitiveForNewProcessor pfnp = new PrimitiveForNewProcessor(inputProgram);
+        pfnp.setLogger(fr.inria.diversify.dspot.dynamic.logger.Logger.class.getCanonicalName());
+        LoggerUtils.applyProcessor(factory, pfnp);
+
+        TestFinderProcessor tfp = new TestFinderProcessor(inputProgram, objectInstantiationBuilder);
         tfp.setLogger(fr.inria.diversify.dspot.dynamic.logger.Logger.class.getCanonicalName());
         LoggerUtils.applyProcessor(factory, tfp);
 
@@ -60,9 +79,11 @@ public class DynamicTestMain {
         FileUtils.forceMkdir(destDir);
 
         FileUtils.copyDirectory(srcDir, destDir);
-
         ProcessorUtil.writeInfoFile(inputProgram.getProgramDir());
     }
+
+
+
 
     public static void main(String[] args) throws Exception, InvalidSdkException {
         InputConfiguration inputConfiguration = new InputConfiguration(args[0]);

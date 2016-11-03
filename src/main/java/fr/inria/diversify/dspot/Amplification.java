@@ -4,14 +4,14 @@ import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.dspot.amp.*;
 import fr.inria.diversify.exp.LogResult;
 import fr.inria.diversify.factories.DiversityCompiler;
-import fr.inria.diversify.coverage.branch.Coverage;
-import fr.inria.diversify.profiling.logger.Logger;
+import fr.inria.diversify.log.branch.Coverage;
+import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.JunitRunner;
+import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
-import org.apache.commons.io.FileUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
@@ -73,19 +73,20 @@ public class Amplification {
 
         List<CtMethod> ampTest = new ArrayList<>();
         for(int i = 0; i < tests.size(); i++) {
-            Log.debug("amp {} ({}/{})", tests.get(i).getSimpleName(), i+1, tests.size());
+            CtMethod test = tests.get(i);
+            Log.debug("amp {} ({}/{})", test.getSimpleName(), i+1, tests.size());
             testSelector.init();
 
             classWithLogger = classWithLoggerBuilder.buildClassWithLogger(classTest, tests.get(i));
             writeAndCompile(classWithLogger);
 
-            result = runTest(classWithLogger, tests.get(i));
+            result = runTest(classWithLogger, test);
             if(result != null
                     && result.getFailures().isEmpty()
                     && !result.getTestRuns().isEmpty()) {
                 testSelector.updateLogInfo();
 
-                amplification(classTest, tests.get(i), maxIteration);
+                amplification(classTest, test, maxIteration);
 
                 Set<CtMethod> selectedAmpTests = new HashSet<>();
                 selectedAmpTests.addAll(testSelector.selectedAmplifiedTests(testsStatus.get(false)));

@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot.dynamic.logger;
 
 
+
 import java.io.File;
 import java.util.HashMap;
 
@@ -51,6 +52,9 @@ public class Logger {
         getLog(thread).stopLog(methodId, receiver);
     }
 
+    public static void logPrimitive(Thread thread, int methodId, int constructorId, int argIndex, Object value) {
+        getLog(thread).logPrimitive(methodId, constructorId, argIndex, value);
+        }
 
     public static void close() {
         if(logs != null) {

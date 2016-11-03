@@ -1,7 +1,7 @@
 package fr.inria.diversify.testRunner;
 
 
-import fr.inria.diversify.profiling.logger.Logger;
+import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputProgram;
 import org.junit.internal.requests.FilterRequest;
 import org.junit.runner.*;
@@ -49,9 +49,7 @@ public class JunitRunner {
             int timeOut = computeTimeOut(methodsToRun);
 
             runRequest(result, buildRequest(testClasses, methodsToRun), timeOut);
-        } catch (Throwable e) {
-//            Log.error("error in JunitRunner", e);
-        }
+        } catch (Throwable e) {}
         Logger.close();
         return result;
     }
@@ -66,7 +64,6 @@ public class JunitRunner {
 
     protected Request buildRequest(Class<?>[] testClasses, List<String> methodsToRun) {
         Request classesRequest = Request.classes(new Computer(), testClasses);
-        //Request.runner((new Computer()).getSuite(new JUnit4Builder(),testClasses))
         if(methodsToRun.isEmpty()) {
             return classesRequest;
         } else {
