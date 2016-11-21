@@ -154,7 +154,7 @@ public class StatementAdderOnAssert extends AbstractAmp {
                 }
                 if(localVarFind) {
                     try {
-                        Statement cloneLocalVar = factory.Core().clone(localVar);
+                        Statement cloneLocalVar = localVar.clone();
                         for (CtVariableReference var : localVar.getInputContext().getVar()) {
                             CtVariableReference variable = cloneLocalVar.getInputContext().getVariableOrFieldNamed(var.getSimpleName());
                             cloneLocalVar.getInputContext().getVariableOrFieldNamed(var.getSimpleName()).replace(variable);

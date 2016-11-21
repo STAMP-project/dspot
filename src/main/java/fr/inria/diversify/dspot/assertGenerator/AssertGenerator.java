@@ -39,7 +39,7 @@ public class AssertGenerator {
         return generateAsserts(testClass, testClass.getMethods(), null);
     }
 
-    protected CtType generateAsserts(CtType testClass, Collection<CtMethod> tests, Map<CtMethod, CtMethod> parentTest) throws IOException, ClassNotFoundException {
+    public CtType generateAsserts(CtType testClass, Collection<CtMethod> tests, Map<CtMethod, CtMethod> parentTest) throws IOException, ClassNotFoundException {
         CtType cloneClass = inputProgram.getFactory().Core().clone(testClass);
         cloneClass.setParent(testClass.getParent());
 
