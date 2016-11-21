@@ -1,24 +1,19 @@
 package fr.inria.diversify.dspot.dynamic;
 
+import fr.inria.diversify.dspot.TestClassMinimisation;
 import fr.inria.diversify.dspot.value.MethodCall;
 import fr.inria.diversify.dspot.value.MethodCallReader;
 import fr.inria.diversify.dspot.value.ValueFactory;
 import fr.inria.diversify.log.LogReader;
-import fr.inria.diversify.log.TestCoverageParser;
-import fr.inria.diversify.log.branch.Coverage;
-import fr.inria.diversify.dspot.AssertGenerator;
-import fr.inria.diversify.dspot.ClassWithLoggerBuilder;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.TestRunner;
 import fr.inria.diversify.testRunner.JunitResult;
-import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,34 +26,25 @@ import java.util.stream.IntStream;
  */
 public class TestGenerator {
     protected TestRunner testRunner;
-    protected TestRunner testRunnerWithBranchLogger;
-    protected ClassWithLoggerBuilder classWithLoggerBuilder;
-    protected AssertGenerator assertGenerator;
-    protected File branchDir;
+    protected TestClassMinimisation testClassMinimisation;
     protected ValueFactory valueFactory;
 
     protected InputProgram inputProgram;
     protected Map<CtType, CtType> testClasses;
 
-    public TestGenerator(InputProgram inputProgram, TestRunner testRunner, TestRunner testRunnerWithBranchLogger, AssertGenerator assertGenerator, String branchDir) {
+    public TestGenerator(InputProgram inputProgram, TestRunner testRunner, ValueFactory valueFactory, TestClassMinimisation testClassMinimisation) {
         this.testRunner = testRunner;
-        this.testRunnerWithBranchLogger = testRunnerWithBranchLogger;
-        this.assertGenerator = assertGenerator;
+        this.valueFactory = valueFactory;
         this.inputProgram = inputProgram;
-        this.branchDir = new File(branchDir + "/log");
+        this.testClassMinimisation = testClassMinimisation;
         this.testClasses = new HashMap<>();
-        this.classWithLoggerBuilder = new ClassWithLoggerBuilder(inputProgram.getFactory());
     }
 
     public Collection<CtType> generateTestClasses(String logDir) throws IOException {
-        valueFactory = new ValueFactory(inputProgram, logDir);
-
         LogReader logReader = new LogReader(logDir);
         MethodCallReader reader = new MethodCallReader(inputProgram.getFactory(), valueFactory);
         logReader.addParser(reader);
         logReader.readLogs();
-
-
 
         Map<CtMethod, List<MethodCall>> methodCalls = reader.getResult().stream()
                 .collect(Collectors.groupingBy(mc -> mc.getMethod()));
@@ -79,46 +65,14 @@ public class TestGenerator {
 
         List<CtType> tests = getTestClasses();
 
-        Log.debug("nb tests: {}", tests.stream().mapToInt(test -> test.getMethods().size()).sum());
+        Log.debug("number of tests before minimisation: {}", tests.stream().mapToInt(test -> test.getMethods().size()).sum());
         return tests.stream()
-                .map(test -> minimiseTests(test))
-                .map(test -> {
-                    try {
-                        return assertGenerator.generateAsserts(test);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                })
+                .map(test -> testClassMinimisation.minimiseTests(test))
                 .filter(test -> test != null)
+                .filter(test -> !test.getMethods().isEmpty())
                 .collect(Collectors.toList());
     }
 
-    protected CtType minimiseTests(CtType classTest) {
-        inputProgram.getFactory().Type().get(Runnable.class);
-
-        CtType cl = classWithLoggerBuilder.buildClassWithLogger(classTest, classTest.getMethods());
-        try {
-            fr.inria.diversify.logger.Logger.reset();
-            fr.inria.diversify.logger.Logger.setLogDir(branchDir);
-            JunitResult result = testRunnerWithBranchLogger.runTests(cl, cl.getMethods());
-            List<Coverage> coverage = loadBranchCoverage(branchDir.getAbsolutePath());
-            Set<String> mthsSubSet = coverage.stream()
-                    .collect(Collectors.groupingBy(c -> c.getCoverageBranch()))
-                    .values().stream()
-                    .map(value -> value.stream().findAny().get())
-                    .map(c -> c.getName())
-                    .collect(Collectors.toSet());
-
-            Set<CtMethod> mths = new HashSet<>(classTest.getMethods());
-            mths.stream()
-                    .filter(mth -> !mthsSubSet.contains(classTest.getQualifiedName() + "." + mth.getSimpleName()))
-                    .forEach(mth -> classTest.removeMethod(mth));
-
-        } catch (Exception e) {}
-
-        return classTest;
-    }
     protected List<CtType>  getTestClasses() {
         return testClasses.values().stream()
                 .filter(testClass -> !testClass.getMethods().isEmpty())
@@ -178,9 +132,9 @@ public class TestGenerator {
         Set<ModifierKind> modifierKinds = new HashSet<>(test.getModifiers());
         modifierKinds.add(ModifierKind.PUBLIC);
         test.setModifiers(modifierKinds);
+
         return test;
     }
-
 
     protected boolean isPrivate(CtMethod method) {
         return method.getModifiers().contains(ModifierKind.PRIVATE);
@@ -200,31 +154,5 @@ public class TestGenerator {
         return calls.stream()
                 .map(call -> call.getType())
                 .anyMatch(type -> type.getQualifiedName().startsWith(filter));
-    }
-
-    protected List<Coverage> loadBranchCoverage(String logDir) throws IOException {
-        List<Coverage> branchCoverage = null;
-        try {
-            LogReader logReader = new LogReader(logDir);
-            TestCoverageParser coverageParser = new TestCoverageParser();
-            logReader.addParser(coverageParser);
-            logReader.readLogs();
-
-            branchCoverage = coverageParser.getResult();
-
-        } catch (Throwable e) {}
-
-        deleteLogFile(logDir);
-
-        return branchCoverage;
-    }
-
-    protected void deleteLogFile(String logDir) throws IOException {
-        File dir = new File(logDir);
-        for(File file : dir.listFiles()) {
-            if(!file.getName().equals("info")) {
-                FileUtils.forceDelete(file);
-            }
-        }
     }
 }

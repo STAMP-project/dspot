@@ -10,16 +10,19 @@ import java.util.*;
 public  class Observation {
     public static String junitAssertClassName = "junit.framework.Assert";
     protected Set<String> notDeterministValues;
-    protected Map<String, Object> observations;
+    protected Map<String, Object> observationValues;
+    protected Map<String, Class> observationTypes;
+
     public Observation() {
-        this.observations = new HashMap<String, Object>();
+        this.observationValues = new HashMap<String, Object>();
+        this.observationTypes = new HashMap<String, Class>();
         this.notDeterministValues = new HashSet<String>();
     }
 
     public boolean add(String stringObject, Object value) {
         if (!notDeterministValues.contains(stringObject)) {
-            if (observations.containsKey(stringObject)) {
-                Object oldValue = observations.get(stringObject);
+            if (observationValues.containsKey(stringObject)) {
+                Object oldValue = observationValues.get(stringObject);
                 if(oldValue == null) {
                     if (value == null) {
                         return true;
@@ -32,7 +35,12 @@ public  class Observation {
                     return false;
                 }
             } else {
-                observations.put(stringObject, value);
+                Class type = Object.class;
+                if(value != null) {
+                    type = value.getClass();
+                }
+                observationTypes.put(stringObject, type);
+                observationValues.put(stringObject, value);
             }
             return true;
         } else {
@@ -41,8 +49,8 @@ public  class Observation {
     }
 
     public List<String> buildAssert() {
-        List<String> asserts = new ArrayList<String>(observations.size());
-        for (Map.Entry<String, Object> entry : observations.entrySet()) {
+        List<String> asserts = new ArrayList<String>(observationValues.size());
+        for (Map.Entry<String, Object> entry : observationValues.entrySet()) {
             if(!notDeterministValues.contains(entry.getKey())) {
                 Object value = entry.getValue();
 

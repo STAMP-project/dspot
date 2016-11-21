@@ -2,12 +2,11 @@ package fr.inria.diversify.testRunner;
 
 
 import fr.inria.diversify.logger.Logger;
-import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.util.Log;
 import org.junit.internal.requests.FilterRequest;
 import org.junit.runner.*;
 import org.junit.runner.notification.RunNotifier;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -19,13 +18,11 @@ import java.util.concurrent.*;
  */
 public class JunitRunner {
     protected ClassLoader classLoader;
-    protected InputProgram inputProgram;
     protected int classTimeOut = 120;
     protected int methodTimeOut = 5;
     protected final ExecutorService THREAD_POOL = Executors.newSingleThreadExecutor();
 
-    public JunitRunner(InputProgram inputProgram, ClassLoader classLoader) {
-        this.inputProgram = inputProgram;
+    public JunitRunner(ClassLoader classLoader) {
         this.classLoader = classLoader;
     }
 
@@ -41,15 +38,15 @@ public class JunitRunner {
 
     public JunitResult runTestClasses(List<String> tests, List<String> methodsToRun) {
         JunitResult result = new JunitResult();
+
         try {
             Class<?>[] testClasses = loadClass(tests);
-//            Logger.reset();
-//            Logger.setLogDir(new File(inputProgram.getProgramDir() + "/log"));
-
             int timeOut = computeTimeOut(methodsToRun);
-
             runRequest(result, buildRequest(testClasses, methodsToRun), timeOut);
-        } catch (Throwable e) {}
+        } catch (Throwable e) {
+            Log.debug("");
+        }
+
         Logger.close();
         return result;
     }

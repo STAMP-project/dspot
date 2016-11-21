@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.dspot.amp.*;
+import fr.inria.diversify.dspot.assertGenerator.AssertGenerator;
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.runner.InputConfiguration;
@@ -66,14 +67,16 @@ public class DSpot {
     }
 
     public CtType generateTest(CtType test) throws IOException, InterruptedException, ClassNotFoundException {
-        Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, initAmplifiers());
+        File logDir = new File(inputProgram.getProgramDir() + "/log");
+        Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, initAmplifiers(), logDir);
 
         List<CtMethod> ampTests = testAmplification.amplification(test, 3);
         return assertGenerator.generateAsserts(test, ampTests, AbstractAmp.getAmpTestToParent());
     }
 
     public CtType generateTest(List<CtMethod> tests, CtType testClass) throws IOException, InterruptedException, ClassNotFoundException {
-        Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, initAmplifiers());
+        File logDir = new File(inputProgram.getProgramDir() + "/log");
+        Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, initAmplifiers(), logDir);
 
         List<CtMethod> ampTests = testAmplification.amplification(testClass, tests, 3);
         return assertGenerator.generateAsserts(testClass, ampTests, AbstractAmp.getAmpTestToParent());
@@ -85,7 +88,7 @@ public class DSpot {
         amplifiers.add(new TestDataMutator());
         amplifiers.add(new TestMethodCallAdder());
         amplifiers.add(new TestMethodCallRemover());
-        amplifiers.add(new StatementAdder());
+        amplifiers.add(new StatementAdderOnAssert());
 
         return amplifiers;
     }

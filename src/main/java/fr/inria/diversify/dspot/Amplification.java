@@ -29,20 +29,23 @@ import java.util.stream.Collectors;
 public class Amplification {
     protected DiversifyClassLoader applicationClassLoader;
     protected InputProgram inputProgram;
+    protected File logDir;
     protected List<AbstractAmp> amplifiers;
     protected DiversityCompiler compiler;
     protected TestSelector testSelector;
     protected ClassWithLoggerBuilder classWithLoggerBuilder;
     protected Map<Boolean, List<CtMethod>> testsStatus;
 
-    public Amplification(InputProgram inputProgram, DiversityCompiler compiler, DiversifyClassLoader applicationClassLoader, List<AbstractAmp> amplifiers) {
+    protected static int ampTestCount;
+
+    public Amplification(InputProgram inputProgram, DiversityCompiler compiler, DiversifyClassLoader applicationClassLoader, List<AbstractAmp> amplifiers, File logDir) {
         this.inputProgram = inputProgram;
         this.compiler = compiler;
         this.applicationClassLoader = applicationClassLoader;
         this.amplifiers = amplifiers;
-
+        this.logDir = logDir;
         classWithLoggerBuilder = new ClassWithLoggerBuilder(inputProgram);
-        testSelector = new TestSelector(inputProgram, 10);
+        testSelector = new TestSelector(logDir, 10);
     }
 
     public List<CtMethod> amplification(CtType classTest, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
@@ -66,7 +69,7 @@ public class Amplification {
         }
         JunitResult result = runTests(classWithLogger, tests);
         testSelector.updateLogInfo();
-        LogResult.addCoverage(testSelector.getCoverage(), tests, true);
+          LogResult.addCoverage(testSelector.getCoverage(), tests, true);
         resetAmplifiers(classTest, testSelector.getGlobalCoverage());
 
         Log.info("amplification of {} ({} test)", classTest.getQualifiedName(), tests.size());
@@ -92,7 +95,8 @@ public class Amplification {
                 selectedAmpTests.addAll(testSelector.selectedAmplifiedTests(testsStatus.get(false)));
                 selectedAmpTests.addAll(testSelector.selectedAmplifiedTests(testsStatus.get(true)));
                 ampTest.addAll(selectedAmpTests);
-                Log.debug("total amp test: {}", ampTest.size());
+                ampTestCount += ampTest.size();
+                Log.debug("total amp test: {}, global: {}", ampTest.size(), ampTestCount);
                 LogResult.addCoverage(testSelector.getCoverage(), selectedAmpTests, false);
             }
         }
@@ -193,19 +197,26 @@ public class Amplification {
     }
 
     protected JunitResult runTests(CtType testClass, Collection<CtMethod> tests) throws ClassNotFoundException {
-        JunitRunner junitRunner = new JunitRunner(inputProgram, new DiversifyClassLoader(applicationClassLoader, compiler.getBinaryOutputDirectory().getAbsolutePath()));
+        ClassLoader classLoader = new DiversifyClassLoader(applicationClassLoader, compiler.getBinaryOutputDirectory().getAbsolutePath());
+        JunitRunner junitRunner = new JunitRunner(classLoader);
 
         Logger.reset();
-        Logger.setLogDir(new File(inputProgram.getProgramDir() + "/log"));
+        Logger.setLogDir(new File(logDir.getAbsolutePath()));
 
-        return junitRunner.runTestClass(testClass.getQualifiedName(), tests.stream()
-                .map(test-> test.getSimpleName())
+        String currentUserDir = System.getProperty("user.dir");
+        System.setProperty("user.dir", inputProgram.getProgramDir());
+        JunitResult result = junitRunner.runTestClass(testClass.getQualifiedName(), tests.stream()
+                .map(test -> test.getSimpleName())
                 .collect(Collectors.toList()));
+        System.setProperty("user.dir", currentUserDir);
+
+        return result;
     }
 
     protected List<CtMethod> ampTest(Collection<CtMethod> tests) {
         return tests.stream()
                 .flatMap(test -> ampTest(test).stream())
+                .filter(test -> !test.getBody().getStatements().isEmpty())
                 .collect(Collectors.toList());
     }
 
@@ -229,16 +240,22 @@ public class Amplification {
     }
 
     protected boolean isTest(CtMethod candidate) {
-        if(candidate.isImplicit()
+        if (candidate.isImplicit()
                 || candidate.getVisibility() == null
                 || !candidate.getVisibility().equals(ModifierKind.PUBLIC)
                 || candidate.getBody() == null
                 || candidate.getBody().getStatements().size() == 0) {
             return false;
         }
+        try {
 
-        if(!candidate.getPosition().getFile().toString().contains(inputProgram.getRelativeTestSourceCodeDir())) {
+        if (candidate.getPosition() != null
+                && candidate.getPosition().getFile() != null
+                && !candidate.getPosition().getFile().toString().contains(inputProgram.getRelativeTestSourceCodeDir())) {
             return false;
+        }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return candidate.getSimpleName().contains("test")
                 || candidate.getAnnotations().stream()

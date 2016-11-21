@@ -2,15 +2,19 @@ package fr.inria.diversify.dspot.value;
 
 
 import fr.inria.diversify.dspot.value.objectInstanciationTree.ObjectInstantiation;
+import fr.inria.diversify.utils.TypeUtils;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtConstructor;
+import spoon.reflect.declaration.CtParameter;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
+import spoon.reflect.reference.CtReference;
 import spoon.reflect.reference.CtTypeReference;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * User: Simon
@@ -19,10 +23,9 @@ import java.util.Random;
  */
 public class ValueType {
     protected static Factory factory;
-    protected ValueFactory valueFactory;
+    protected static ValueFactory valueFactory;
     protected static Random random = new Random();
     protected String dynamicType;
-    protected CtTypeReference typeRef;
     protected List<Value> values;
 
 
@@ -113,8 +116,10 @@ public class ValueType {
             CtExecutableReference constructor = getEmptyConstructor();
             if(constructor != null) {
                 Value value = new ObjectInstantiation(this, constructor, valueFactory);
-                addValue(value);
-                return value;
+                if(value.isOk()) {
+                    addValue(value);
+                    return value;
+                }
             }
         }
         return null;
@@ -126,22 +131,43 @@ public class ValueType {
 
     protected CtExecutableReference getEmptyConstructor() {
         try {
-            if(typeRef.getDeclaration() != null) {
-                CtConstructor constructor = ((CtClass) typeRef.getDeclaration()).getConstructor();
-                return factory.Constructor().createReference(constructor);
+            CtClass cl = factory.Class().get(dynamicType);
+            if(cl != null) {
+                if(cl.getConstructor() != null) {
+                    return cl.getConstructor().getReference();
+                } else {
+                    Set<CtConstructor> constructors = cl.getConstructors();
+                    CtExecutableReference exeRef = constructors.stream()
+                            .filter(constructor -> {
+                                List<CtParameter> parameters = constructor.getParameters();
+                                return parameters.stream()
+                                        .allMatch(type -> TypeUtils.isSerializable(type.getType()));
+                            })
+                            .map(constructor -> constructor.getReference())
+                            .findFirst()
+                            .orElse(null);
+
+                    if(exeRef != null) {
+                        //todo
+                    }
+                    return exeRef;
+                }
             } else {
-                return factory.Constructor().createReference(typeRef.getActualClass().getConstructor());
+                Class type = Class.forName(dynamicType);
+//                factory.Executable().createReference("gc")
+                return null;
             }
-        } catch (Exception e) {
-            return null;
-        }
+
+        } catch (Exception e) {}
+        return null;
     }
 
     public Factory getSpoonFactory() {
         return factory;
     }
 
-    public static void setFactory(Factory factory) {
+    public static void setFactory(Factory factory, ValueFactory valueFactory) {
         ValueType.factory = factory;
+        ValueType.valueFactory = valueFactory;
     }
 }

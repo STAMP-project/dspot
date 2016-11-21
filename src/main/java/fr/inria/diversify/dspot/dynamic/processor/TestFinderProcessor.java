@@ -1,7 +1,7 @@
 package fr.inria.diversify.dspot.dynamic.processor;
 
 import fr.inria.diversify.dspot.dynamic.logger.KeyWord;
-import fr.inria.diversify.dspot.dynamic.objectInstanciationTree.ObjectInstantiationBuilder;
+import fr.inria.diversify.dspot.value.ValueFactory;
 import fr.inria.diversify.profiling.processor.main.AbstractLoggingInstrumenter;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.utils.TypeUtils;
@@ -26,11 +26,11 @@ import java.util.stream.Stream;
  */
 public class TestFinderProcessor extends AbstractLoggingInstrumenter<CtMethod> {
     protected Map<CtType, Boolean> hasConstructor;
-    protected ObjectInstantiationBuilder objectInstantiationBuilder;
+    protected ValueFactory valueFactory;
 
-    public TestFinderProcessor(InputProgram inputProgram, ObjectInstantiationBuilder objectInstantiationBuilder) {
+    public TestFinderProcessor(InputProgram inputProgram, ValueFactory valueFactory) {
         super(inputProgram);
-        this.objectInstantiationBuilder = objectInstantiationBuilder;
+        this.valueFactory = valueFactory;
         this.hasConstructor = new HashMap<>();
     }
 
@@ -113,7 +113,7 @@ public class TestFinderProcessor extends AbstractLoggingInstrumenter<CtMethod> {
             if(type.getDeclaration() instanceof CtClass) {
                 CtClass cl = (CtClass) type.getDeclaration();
                 hasConstructor.put(type.getDeclaration(),
-                        cl.isTopLevel() && objectInstantiationBuilder.findConstructorCall(cl, true) != null);
+                        cl.isTopLevel() && valueFactory.hasConstructorCall(cl, true));
             } else {
                 hasConstructor.put(type.getDeclaration(), false);
             }

@@ -23,7 +23,10 @@ import java.util.stream.Collectors;
 public abstract class AbstractAmp {
     protected Set<String> previousTestAmp;
     protected int cloneNumber;
+
     protected static Map<CtMethod,CtMethod> ampTestToParent;
+    protected static Map<CtType, Set<CtType>> importByClass = new HashMap<>();
+
 
     protected Random random;
 
@@ -38,23 +41,6 @@ public abstract class AbstractAmp {
 
 
     protected List<CtMethod> filterAmpTest(List<CtMethod> tests, CtMethod parentTest) {
-//        List<CtMethod> filterTests = tests.stream()
-//                .filter(test -> {
-//                    try {
-//                        return !previousTestAmp.contains(test.toString());
-//                    } catch (Exception e) {
-//                        return false;
-//                    }
-//                })
-//                .collect(Collectors.toList());
-//
-//        filterTests.stream()
-//                .forEach(test -> {
-//                        ampTestToParent.put(test,parentTest);
-//                        previousTestAmp.add(test.toString());
-//                });
-//
-//        return filterTests;
         tests.stream()
                 .forEach(test -> ampTestToParent.put(test,parentTest));
         return tests;
@@ -153,26 +139,38 @@ public abstract class AbstractAmp {
     protected Set<CtType> computeClassProvider(CtType testClass) {
         List<CtType> types = Query.getElements(testClass.getParent(CtPackage.class), new TypeFilter(CtType.class));
         types = types.stream()
+                .filter(type -> type != null)
                 .filter(type -> type.getPackage() != null)
                 .filter(type -> type.getPackage().getQualifiedName().equals(testClass.getPackage().getQualifiedName()))
                 .collect(Collectors.toList());
-        types.add(testClass.getParent(CtType.class));
 
-        ImportScanner importScanner = new ImportScannerImpl();
+        if(testClass.getParent(CtType.class) != null) {
+            types.add(testClass.getParent(CtType.class));
+        }
+
         types.addAll(types.stream()
-                .map(cl -> {
-                    try {
-                        return importScanner.computeImports(cl);
-                    } catch (Exception e) {
-                        return new ArrayList<CtTypeReference<?>>();
-                    }})
-                .flatMap(list -> list.stream())
-                .map(typeRef -> typeRef.getDeclaration())
+                .flatMap(type -> getImport(type).stream())
                 .collect(Collectors.toSet()));
 
         return types.stream()
-                .filter(type -> type != null)
                 .collect(Collectors.toSet());
+    }
+
+
+    protected Set<CtType> getImport(CtType type) {
+        if(!importByClass.containsKey(type)) {
+            ImportScanner importScanner = new ImportScannerImpl();
+            try {
+                Set<CtType> set = importScanner.computeImports(type).stream()
+                        .map(typeRef -> typeRef.getDeclaration())
+                        .filter(t -> t != null)
+                        .collect(Collectors.toSet());
+                importByClass.put(type,set);
+            } catch (Exception e) {
+                importByClass.put(type, new HashSet<>(0));
+            }
+        }
+        return importByClass.get(type);
     }
 
     protected Random getRandom() {

@@ -81,7 +81,7 @@ public class ObjectLog {
     }
 
     protected void observeNotNullObject(Object o,  String stringObject, String positionId, int deep) {
-        if(deep + 1 < maxDeep) {
+        if(deep < maxDeep) {
             for (Method method : methodsHandler.getAllMethods(o)) {
                 Invocation invocation = new Invocation(o, method);
                 invocator.invoke(invocation);

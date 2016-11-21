@@ -45,7 +45,7 @@ public class TestRunner {
             return null;
         }
 
-        JunitRunner junitRunner = new JunitRunner(inputProgram, new DiversifyClassLoader(applicationClassLoader, compiler.getBinaryOutputDirectory().getAbsolutePath()));
+        JunitRunner junitRunner = new JunitRunner(new DiversifyClassLoader(applicationClassLoader, compiler.getBinaryOutputDirectory().getAbsolutePath()));
         return junitRunner.runTestClass(testClass.getQualifiedName(), tests.stream()
                 .map(test-> test.getSimpleName())
                 .collect(Collectors.toList()));

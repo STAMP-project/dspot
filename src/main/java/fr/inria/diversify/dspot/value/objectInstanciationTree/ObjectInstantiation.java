@@ -5,6 +5,7 @@ import fr.inria.diversify.dspot.value.PrimitiveValue;
 import fr.inria.diversify.dspot.value.Value;
 import fr.inria.diversify.dspot.value.ValueFactory;
 import fr.inria.diversify.dspot.value.ValueType;
+import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtLocalVariable;
@@ -41,7 +42,7 @@ public class ObjectInstantiation extends Value {
 
     @Override
     public String getDynamicType() {
-        return null;
+        return type.getType();
     }
 
     public CtTypeReference getType() {
@@ -105,12 +106,11 @@ public class ObjectInstantiation extends Value {
     }
 
     @Override
-    public void initLocalVar(CtLocalVariable localVar) throws Exception {
-
+    public void initLocalVar(CtBlock body, CtLocalVariable localVar) throws Exception {
+        localVar.setDefaultExpression(getValue());
     }
 
-    public void addParameterValue(PrimitiveValue value, Integer paramIndex) {
-
+    public void addParameterValue(Value value, Integer paramIndex) {
         params.get(paramIndex).add(value);
     }
 

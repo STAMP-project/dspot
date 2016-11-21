@@ -126,7 +126,7 @@ public class TestMethodGenerator {
                 localVar.setParent(body);
                 localVariables.add(localVar);
 
-                parameterValues.get(i).initLocalVar(localVar);
+                parameterValues.get(i).initLocalVar(body, localVar);
             } catch (Exception e) {}
         }
         return localVariables;

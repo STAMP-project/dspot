@@ -52,8 +52,7 @@ public class ObjectWithSetter extends Value {
     }
 
     @Override
-    public void initLocalVar(CtLocalVariable localVar) throws Exception {
-        CtBlock body = localVar.getParent(CtBlock.class);
+    public void initLocalVar(CtBlock body, CtLocalVariable localVar) throws Exception {
         CtExpression constructorCall = valueFactory.findConstructorCall(factory.Class().get(dynamicType), true);
         if(constructorCall != null) {
             localVar.setAssignment(constructorCall);

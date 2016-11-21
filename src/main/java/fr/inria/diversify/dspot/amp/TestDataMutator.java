@@ -16,8 +16,9 @@ import java.util.stream.Collectors;
 /* This processor is meant to replace all literal values in test cases by other literal values
  * */
 public class TestDataMutator extends AbstractAmp {
+    protected static Map<CtType, Set<Object>> literalByClass = new HashMap<>();
     public static  int dataCount = 0;
-    protected Map<Class<?>, List<CtLiteral>> literals;
+    protected Map<Class<?>, List<Object>> literals;
 
     protected CtMethod createNumberMutant(CtMethod method, int original_lit_index, Number newValue) {
         dataCount++;
@@ -99,9 +100,11 @@ public class TestDataMutator extends AbstractAmp {
         } else {
             values.add("" + getRandomChar());
         }
-        List<CtLiteral> lits = literals.get(literal.getClass());
+        List<Object> lits = literals.get(literal.getClass());
         if(lits != null && !lits.isEmpty()) {
-            values.add((String) lits.get(getRandom().nextInt(lits.size())).getValue());
+            int index = getRandom().nextInt(lits.size());
+            String lit = (String) lits.get(index);
+            values.add(lit);
         }
 
         return values;
@@ -122,9 +125,11 @@ public class TestDataMutator extends AbstractAmp {
         values.add(value * 2);
 
 
-        List<CtLiteral> lits = literals.get(literal.getValue().getClass());
+        List<Object> lits = literals.get(literal.getValue().getClass());
         if(lits.size() != 0) {
-            values.add((Number) lits.get(getRandom().nextInt(lits.size())).getValue());
+            int index = getRandom().nextInt(lits.size());
+            Number lit = (Number) lits.get(index);
+            values.add(lit);
         }
 
         return values;
@@ -193,7 +198,7 @@ public class TestDataMutator extends AbstractAmp {
     public List<CtMethod> apply(CtMethod method) {
         List<CtMethod> methods = new ArrayList<>();
         //get the list of literals in the method
-        List<CtLiteral> literals = Query.getElements(method, new TypeFilter(CtLiteral.class));
+        List<CtLiteral> literals = Query.getElements(method.getBody(), new TypeFilter(CtLiteral.class));
         //this index serves to replace ith literal is replaced by zero in the ith clone of the method
         int lit_index = 0;
         for(CtLiteral lit : literals) {
@@ -214,23 +219,34 @@ public class TestDataMutator extends AbstractAmp {
         }
         return filterAmpTest(methods, method);
     }
-
-    protected Set<CtLiteral> getLiterals(Set<CtType> codeFragmentsProvide) {
+    protected Set<Object> getLiterals(Set<CtType> codeFragmentsProvide) {
         Factory factory = codeFragmentsProvide.stream().findFirst().get().getFactory();
-        return (Set<CtLiteral>) codeFragmentsProvide.stream()
-                .flatMap(cl -> Query.getElements(cl, new TypeFilter(CtLiteral.class)).stream())
-                .map(literal -> ((CtLiteral) literal).getValue())
-                .distinct()
-                .map(literal -> factory.Code().createLiteral(literal))
+
+        return codeFragmentsProvide.stream()
+                .flatMap(cl -> getLiterals(cl, factory).stream())
                 .collect(Collectors.toSet());
     }
 
-    public void reset(InputProgram inputProgram, Coverage coverage, CtType testClass) {
+
+    protected Set<Object> getLiterals(CtType type, Factory factory) {
+        if(!literalByClass.containsKey(type)) {
+            Set<Object> set = (Set<Object>) Query.getElements(type, new TypeFilter(CtLiteral.class)).stream()
+                    .map(literal -> ((CtLiteral) literal).getValue())
+                    .distinct()
+//                    .map(literal -> factory.Code().createLiteral(literal))
+                    .collect(Collectors.toSet());
+            literalByClass.put(type, set);
+        }
+
+        return literalByClass.get(type);
+    }
+
+        public void reset(InputProgram inputProgram, Coverage coverage, CtType testClass) {
         super.reset(inputProgram, coverage, testClass);
 
         Set<CtType> codeFragmentsProvide = computeClassProvider(testClass);
         literals = getLiterals(codeFragmentsProvide).stream()
-                .filter(lit -> lit.getValue() != null)
-                .collect(Collectors.groupingBy(lit -> lit.getValue().getClass()));
+                .filter(lit -> lit != null)
+                .collect(Collectors.groupingBy(lit -> lit.getClass()));
     }
 }

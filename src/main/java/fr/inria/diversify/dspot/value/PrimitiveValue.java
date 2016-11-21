@@ -41,9 +41,8 @@ public class PrimitiveValue extends Value {
         return createNewLiteral(type.getType(), value);
     }
 
-    public void initLocalVar(CtLocalVariable localVar) {
+    public void initLocalVar(CtBlock body, CtLocalVariable localVar) {
         Factory factory = localVar.getFactory();
-        CtBlock body = localVar.getParent(CtBlock.class);
 
         if(value.startsWith("[") || value.startsWith("{")) {
             String dynamicType;
@@ -154,7 +153,13 @@ public class PrimitiveValue extends Value {
             return factory.Code().createLiteral(value);
         }
         if(typeName.equals("int") || type == Integer.class) {
-            return factory.Code().createLiteral(Integer.parseInt(value));
+            try {
+                return factory.Code().createLiteral(Integer.parseInt(value));
+
+            }  catch (Exception e) {
+                e.printStackTrace();
+                return factory.Code().createLiteral(0);
+            }
         }
         if(typeName.equals("boolean") || type == Boolean.class) {
             return factory.Code().createLiteral(Boolean.parseBoolean(value));

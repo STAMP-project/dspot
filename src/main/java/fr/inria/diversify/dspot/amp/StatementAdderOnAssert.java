@@ -1,7 +1,6 @@
 package fr.inria.diversify.dspot.amp;
 
 import fr.inria.diversify.codeFragment.*;
-import fr.inria.diversify.codeFragmentProcessor.StatementProcessor;
 import fr.inria.diversify.log.branch.Coverage;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.Log;
@@ -23,7 +22,7 @@ import java.util.stream.Collectors;
  * Date: 02/12/15
  * Time: 14:55
  */
-public class StatementAdder extends AbstractAmp {
+public class StatementAdderOnAssert extends AbstractAmp {
     protected List<Statement> localVars;
     protected Map<CtMethod, List<CtLiteral>> literalsByMethod;
     protected Map<Statement, Double> coverageBycodeFragments;
@@ -37,7 +36,7 @@ public class StatementAdder extends AbstractAmp {
             List<InputContext> inputContexts = getInputContexts(method);
             if (!inputContexts.isEmpty()) {
                 int index = inputContexts.size() - 1;
-                List<List<Statement>> statements = foo(inputContexts.get(index));
+                List<List<Statement>> statements = buildStatements(inputContexts.get(index));
                 for (List<Statement> list : statements) {
                     try {
                         newMethods.add(apply(method, list, index));
@@ -85,7 +84,7 @@ public class StatementAdder extends AbstractAmp {
         return inputContexts;
     }
 
-    protected List<List<Statement>> foo(InputContext inputContext) {
+    protected List<List<Statement>> buildStatements(InputContext inputContext) {
         return coverageBycodeFragments.keySet().stream()
                 .map(cf -> {
                     List<Statement> list = new ArrayList<>(2);
@@ -161,10 +160,7 @@ public class StatementAdder extends AbstractAmp {
                             cloneLocalVar.getInputContext().getVariableOrFieldNamed(var.getSimpleName()).replace(variable);
                         }
                         return cloneLocalVar;
-                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                        Log.debug("");
-                    }
+                    } catch (Exception e) {}
                 }
             }
             return null;
@@ -257,8 +253,11 @@ public class StatementAdder extends AbstractAmp {
     }
 
     protected CtType findClassUnderTest(CtType testClass) {
+        String testClassName = testClass.getQualifiedName();
         return computeClassProvider(testClass).stream()
-                .filter(cl -> testClass.getQualifiedName().contains(cl.getQualifiedName()) && cl != testClass)
+                .filter(cl -> cl != null)
+                .filter(cl -> cl != testClass)
+                .filter(cl -> testClassName.contains(cl.getQualifiedName()))
                 .findFirst()
                 .orElse(null);
     }
@@ -322,16 +321,24 @@ public class StatementAdder extends AbstractAmp {
 
         Set<CtType> codeFragmentsProvide = computeClassProvider(testClass);
 
-        StatementProcessor codeFragmentProcessor = (StatementProcessor) inputProgram.getCodeFragmentProcessor();
-        codeFragmentsProvide.stream()
+        List<Statement> codeFragmentsByClass = codeFragmentsProvide.stream()
                 .flatMap(cl -> {
                     List<CtStatement> list = Query.getElements(cl, new TypeFilter(CtStatement.class));
                     return list.stream();
                 })
-                .filter(stmt -> codeFragmentProcessor.isToBeProcessed(stmt))
-                .forEach(stmt -> codeFragmentProcessor.process(stmt));
+                .filter(stmt -> {
+                    try {
+                        return stmt.getParent() != null;
+                    } catch (Exception e) {
+                        return false;
+                    }
+                })
+                .filter(stmt -> stmt.getParent() instanceof CtBlock)
+                .filter(stmt -> !stmt.toString().startsWith("super"))
+                .filter(stmt -> !stmt.toString().startsWith("this("))
+                .map(stmt -> new Statement(stmt))
+                .collect(Collectors.toList());
 
-        HashMap<String, CodeFragmentList> codeFragmentsByClass = codeFragmentProcessor.getCodeFragmentsByClass();
         if(findClassUnderTest(testClass) != null) {
             coverageBycodeFragments = buildCodeFragmentFor(findClassUnderTest(testClass), coverage);
         } else {
@@ -339,12 +346,8 @@ public class StatementAdder extends AbstractAmp {
         }
 
         Set<Integer> ids = new HashSet<>();
-        localVars = codeFragmentsProvide.stream()
-                .map(cl -> cl.getQualifiedName())
-                .filter(cl -> codeFragmentsByClass.containsKey(cl))
-                .flatMap(cl -> codeFragmentsByClass.get(cl).stream()
-                        .map(cf -> (Statement)cf)
-                        .filter(cf -> isValidCodeFragment(cf)))
+        localVars = codeFragmentsByClass.stream()
+                .filter(cf -> isValidCodeFragment(cf))
                 .filter(cf -> ids.add(cf.id()))
                 .collect(Collectors.toList());
     }

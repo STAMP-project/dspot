@@ -166,7 +166,7 @@ public class MutantGenerator {
     }
 
     protected JunitResult runTests(DiversifyClassLoader classLoader) throws ClassNotFoundException {
-        JunitRunner junitRunner = new JunitRunner(inputProgram, classLoader);
+        JunitRunner junitRunner = new JunitRunner(classLoader);
 
         List<String> testsName = getAllTest().stream()
                 .map(test -> test.getQualifiedName())

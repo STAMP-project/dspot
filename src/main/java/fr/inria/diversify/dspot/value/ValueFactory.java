@@ -27,19 +27,17 @@ public class ValueFactory {
     public ValueFactory(InputProgram inputProgram) {
         this.inputProgram = inputProgram;
         this.valueTypes = new HashMap<>();
-
+        ValueType.setFactory(inputProgram.getFactory(), this);
         buildObjectInstantiation();
     }
 
     public ValueFactory(InputProgram inputProgram, String logDir) throws IOException {
         this.inputProgram = inputProgram;
         this.valueTypes = new HashMap<>();
-        ValueType.setFactory(inputProgram.getFactory());
+        ValueType.setFactory(inputProgram.getFactory(), this);
 
         buildObjectInstantiation();
         buildPrimitiveValue(logDir);
-
-
     }
 
     public ValueType getValueType(String typeName) {
@@ -113,10 +111,35 @@ public class ValueFactory {
             ValueType valueType = getValueType(className);
             Value value = valueType.getRandomValue(true);
 
-            if(value != null) {
+             if(value != null) {
                 return value.getValue();
             }
         }
         return null;
+    }
+
+    public boolean hasConstructorCall(CtClass target, boolean withSubType) {
+        if(withSubType) {
+            CtTypeReference ref = target.getReference();
+            return target.getFactory().Class().getAll(false).stream()
+                    .filter(type -> type.getReference().isSubtypeOf(ref))
+                    .filter(type -> type instanceof CtClass)
+                    .map(cl -> hasConstructorCall((CtClass) cl))
+                    .anyMatch(expression -> expression != null);
+
+        } else {
+            return hasConstructorCall(target);
+        }
+    }
+
+    public boolean hasConstructorCall(CtClass target) {
+        if(target != null && target.isTopLevel() && !target.getModifiers().contains(ModifierKind.ABSTRACT)) {
+            String className = target.getQualifiedName();
+            ValueType valueType = getValueType(className);
+            Value value = valueType.getRandomValue(true);
+
+            return value != null;
+        }
+        return false;
     }
 }

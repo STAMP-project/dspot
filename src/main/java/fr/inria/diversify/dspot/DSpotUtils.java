@@ -114,6 +114,8 @@ public class DSpotUtils {
         classPaths.add(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
         classPaths.add(inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir());
 
+        classPaths.add(System.getProperty("user.dir") + "/target/classes/");
+
         DiversifyClassLoader applicationClassLoader = new DiversifyClassLoader(Thread.currentThread().getContextClassLoader(), classPaths);
         applicationClassLoader.setClassFilter(filter);
 

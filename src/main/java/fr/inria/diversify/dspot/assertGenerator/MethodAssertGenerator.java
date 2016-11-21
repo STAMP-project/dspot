@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot;
+package fr.inria.diversify.dspot.assertGenerator;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.compare.Compare;
@@ -186,11 +186,11 @@ public class MethodAssertGenerator {
         List<CtMethod> testsToRun = new ArrayList<>();
 
         for(int i = 0; i < 3; i++) {
-            CtMethod testWithLog = createTestWithLog();
-            testWithLog.setSimpleName(testWithLog.getSimpleName() + i);
-            cl.addMethod(testWithLog);
-            testsToRun.add(testWithLog);
-            cl.addMethod(testWithLog);
+                CtMethod testWithLog = createTestWithLog();
+                testWithLog.setSimpleName(testWithLog.getSimpleName() + i);
+                cl.addMethod(testWithLog);
+                testsToRun.add(testWithLog);
+                cl.addMethod(testWithLog);
         }
 
         ObjectLog.reset();
@@ -201,7 +201,7 @@ public class MethodAssertGenerator {
 
     protected CtMethod buildTestWithAssert(Map<String, Observation> observations) {
         CtMethod testWithAssert = getFactory().Core().clone(test);
-
+        // add throws
         List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter(CtStatement.class));
         for(String id : observations.keySet()) {
            int line = Integer.parseInt(id.split("__")[1]);
@@ -209,8 +209,8 @@ public class MethodAssertGenerator {
                 CtStatement assertStmt = getFactory().Code().createCodeSnippetStatement(snippet);
                 try {
                     CtStatement stmt = statements.get(line);
-                    if (stmt instanceof CtInvocation) {
-                        String localVarSnippet = ((CtInvocation) stmt).getType().toString()  //getQualifiedName()
+                    if (stmt instanceof CtInvocation && !isVoidReturn((CtInvocation) stmt)) {
+                        String localVarSnippet = ((CtInvocation) stmt).getType().toString()
                                 + " o_" + id + " = "
                                 + stmt.toString();
                         CtStatement localVarStmt = getFactory().Code().createCodeSnippetStatement(localVarSnippet);
@@ -307,12 +307,18 @@ public class MethodAssertGenerator {
                 .distinct()
                 .collect(Collectors.toList());
         diversifyClassLoader.setClassFilter(ClassName);
-        JunitRunner junitRunner = new JunitRunner(inputProgram, diversifyClassLoader);
 
+        JunitRunner junitRunner = new JunitRunner(diversifyClassLoader);
+
+        String currentUserDir = System.getProperty("user.dir");
+        System.setProperty("user.dir", inputProgram.getProgramDir());
         Logger.reset();
         Logger.setLogDir(new File(inputProgram.getProgramDir() + "/log"));
 
-        return junitRunner.runTestClasses(ClassName, testsToRun.stream().map(test -> test.getSimpleName()).collect(Collectors.toList()));
+        JunitResult result = junitRunner.runTestClasses(ClassName, testsToRun.stream().map(test -> test.getSimpleName()).collect(Collectors.toList()));
+        System.setProperty("user.dir", currentUserDir);
+
+        return result;
     }
 
     protected JunitResult runSingleTest(CtMethod test, ClassLoader classLoader) throws ClassNotFoundException, IOException {
@@ -370,12 +376,23 @@ public class MethodAssertGenerator {
         }
         if(statement instanceof CtInvocation) {
             CtInvocation invocation = (CtInvocation) statement;
-            String type = invocation.getType().toString();
-            return !(type.equals("void") || type.equals("void"));
+
+            //type tested by the test class
+            String targetType = "";
+            if(invocation.getTarget() != null) {
+                targetType = invocation.getTarget().getType().getSimpleName();
+            }
+            return originalClass.getSimpleName().startsWith(targetType)
+                || !isVoidReturn(invocation);
         }
         return statement instanceof CtVariableWrite
                 || statement instanceof CtAssignment
                 || statement instanceof CtLocalVariable;
+    }
+
+    protected boolean isVoidReturn(CtInvocation invocation) {
+        String returnType = invocation.getType().getSimpleName();
+        return returnType.equals("Void") || returnType.equals("void");
     }
 
     protected void addLogStmt(CtStatement stmt, String id, boolean forAssert) {
@@ -408,13 +425,20 @@ public class MethodAssertGenerator {
 
         if(stmt instanceof CtInvocation) {
             CtInvocation invocation = (CtInvocation) stmt;
-            String snippetStmt = "Object o_" + id + " = " + invocation.toString();
-            CtStatement localVarSnippet = getFactory().Code().createCodeSnippetStatement(snippetStmt);
-            stmt.replace(localVarSnippet);
-            insertAfter = localVarSnippet;
+            if (isVoidReturn(invocation)) {
+                insertAfter = invocation;
+                snippet += invocation.getTarget()
+                        + ",\"" + invocation.getTarget() + "\",\"" + id + "\")";
+            } else {
+                String snippetStmt = "Object o_" + id + " = " + invocation.toString();
+                CtStatement localVarSnippet = getFactory().Code().createCodeSnippetStatement(snippetStmt);
+                stmt.replace(localVarSnippet);
+                insertAfter = localVarSnippet;
 
-            snippet += "o_" + id
-                    + ",\"o_" + id + "\",\"" + id + "\")";
+                snippet += "o_" + id
+                        + ",\"o_" + id + "\",\"" + id + "\")";
+
+            }
         }
         CtStatement logStmt = getFactory().Code().createCodeSnippetStatement(snippet);
         insertAfter.insertAfter(logStmt);

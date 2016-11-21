@@ -85,4 +85,25 @@ public class ObjectSerialiazer {
     public Object getObject() {
         return object;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ObjectSerialiazer that = (ObjectSerialiazer) o;
+
+        if (type != null ? !type.equals(that.type) : that.type != null) return false;
+        if (fieldTypes != null ? !fieldTypes.equals(that.fieldTypes) : that.fieldTypes != null) return false;
+        return fieldValues != null ? fieldValues.equals(that.fieldValues) : that.fieldValues == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = type != null ? type.hashCode() : 0;
+        result = 31 * result + (fieldTypes != null ? fieldTypes.hashCode() : 0);
+        result = 31 * result + (fieldValues != null ? fieldValues.hashCode() : 0);
+        return result;
+    }
 }

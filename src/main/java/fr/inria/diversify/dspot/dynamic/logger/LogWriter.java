@@ -15,6 +15,7 @@ public class  LogWriter {
     protected Set<Integer> methodCallsLog;
     protected int deep;
 
+
     //Directory where the log is being stored
     protected File dir = null;
     protected PrintWriter fileWriter;
@@ -96,19 +97,6 @@ public class  LogWriter {
                     for (int i = 0; i < count; i++) {
                         currentMethods.remove(0);
                         env.addSubEnv(environments.remove(0));
-
-//                        Map<Object, Set<Object>> deleteEnv = environments.remove(0);
-//                        if (!environments.isEmpty()) {
-//                            Map<Object, Set<Object>> env = environments.get(0);
-//                            for (Object key : deleteEnv.keySet()) {
-//                                if (env.containsKey(key)) {
-//                                    env.get(key).addAll(deleteEnv.get(key));
-//                                } else {
-//                                    env.put(key, deleteEnv.get(key));
-//                                }
-//                            }
-//                        }
-
                     }
                 }
             }

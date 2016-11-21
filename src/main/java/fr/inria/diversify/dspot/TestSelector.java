@@ -6,7 +6,6 @@ import fr.inria.diversify.log.TestGraphReader;
 import fr.inria.diversify.log.graph.Graph;
 import fr.inria.diversify.dspot.amp.AbstractAmp;
 import fr.inria.diversify.log.branch.Coverage;
-import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import spoon.reflect.declaration.CtMethod;
 
@@ -21,17 +20,14 @@ import java.util.stream.Collectors;
  * Time: 14:09
  */
 public class TestSelector {
-    protected InputProgram inputProgram;
+    protected File logDir;
     protected Map<String, Integer> testAges;
     protected List<Coverage> branchCoverage;
-
     protected List<Graph> graphCoverage;
-
-
     protected int maxNumberOfTest;
 
-    public TestSelector(InputProgram inputProgram,  int maxNumberOfTest) {
-        this.inputProgram = inputProgram;
+    public TestSelector(File logDir,  int maxNumberOfTest) {
+        this.logDir = logDir;
         this.maxNumberOfTest = maxNumberOfTest;
     }
 
@@ -42,7 +38,7 @@ public class TestSelector {
     }
 
     protected void updateLogInfo() throws IOException {
-        LogReader logReader = new LogReader(inputProgram.getProgramDir() + "/log");
+        LogReader logReader = new LogReader(logDir.getAbsolutePath());
         TestCoverageParser coverageParser = new TestCoverageParser();
         TestGraphReader graphReader = new TestGraphReader();
 
@@ -50,10 +46,8 @@ public class TestSelector {
         logReader.addParser(coverageParser);
         logReader.readLogs();
         try {
-//            testCoverages = coverageParser.getResult();
-//            CoverageReader branchReader = new CoverageReader(inputProgram.getProgramDir() + "/log");
             if (branchCoverage == null) {
-                branchCoverage =coverageParser.getResult();
+                branchCoverage = coverageParser.getResult();
             } else {
                 for (Coverage coverage : coverageParser.getResult()) {
                     Coverage previous = branchCoverage.stream()
@@ -68,7 +62,6 @@ public class TestSelector {
             }
         } catch (Throwable e) {}
 
-//        GraphReader graphReader = new GraphReader(inputProgram.getProgramDir() + "/log");
         if (graphCoverage == null) {
             graphCoverage = graphReader.getResult();
         } else {
@@ -219,8 +212,7 @@ public class TestSelector {
     }
 
     protected void deleteLogFile() throws IOException {
-        File dir = new File(inputProgram.getProgramDir()+ "/log");
-        for(File file : dir.listFiles()) {
+        for(File file : logDir.listFiles()) {
             if(!file.getName().equals("info")) {
                 FileUtils.forceDelete(file);
             }

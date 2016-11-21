@@ -12,6 +12,14 @@ import java.util.Map;
  */
 public class TypeUtils {
 
+    public static boolean isSerializable(CtTypeReference type) {
+        return isPrimitive(type)
+                || isString(type)
+                || isPrimitiveArray(type)
+                || isPrimitiveCollection(type)
+                || isPrimitiveMap(type);
+    }
+
     public static boolean isPrimitive(CtTypeReference type) {
         try {
             return type.unbox().isPrimitive();

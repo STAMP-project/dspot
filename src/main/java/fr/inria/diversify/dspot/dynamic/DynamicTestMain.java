@@ -5,6 +5,7 @@ import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.dynamic.objectInstanciationTree.ObjectInstantiationBuilder;
 import fr.inria.diversify.dspot.dynamic.processor.PrimitiveForNewProcessor;
 import fr.inria.diversify.dspot.dynamic.processor.StaticInstantiationProcessor;
+import fr.inria.diversify.dspot.value.ValueFactory;
 import fr.inria.diversify.processor.ProcessorUtil;
 import fr.inria.diversify.processor.main.AddBlockEverywhereProcessor;
 import fr.inria.diversify.profiling.processor.main.AbstractLoggingInstrumenter;
@@ -54,8 +55,7 @@ public class DynamicTestMain {
         StaticInstantiationProcessor ip = new StaticInstantiationProcessor(inputProgram);
         LoggerUtils.applyProcessor(factory, ip);
 
-        ObjectInstantiationBuilder objectInstantiationBuilder = new ObjectInstantiationBuilder(inputProgram);
-        objectInstantiationBuilder.init(null);
+        ValueFactory valueFactory = new ValueFactory(inputProgram);
 
         FieldUsedInstrumenter m = new FieldUsedInstrumenter(inputProgram);
         m.setLogger(fr.inria.diversify.dspot.dynamic.logger.Logger.class.getCanonicalName());
@@ -66,7 +66,7 @@ public class DynamicTestMain {
         pfnp.setLogger(fr.inria.diversify.dspot.dynamic.logger.Logger.class.getCanonicalName());
         LoggerUtils.applyProcessor(factory, pfnp);
 
-        TestFinderProcessor tfp = new TestFinderProcessor(inputProgram, objectInstantiationBuilder);
+        TestFinderProcessor tfp = new TestFinderProcessor(inputProgram, valueFactory);
         tfp.setLogger(fr.inria.diversify.dspot.dynamic.logger.Logger.class.getCanonicalName());
         LoggerUtils.applyProcessor(factory, tfp);
 
