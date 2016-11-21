@@ -69,7 +69,7 @@ public class Amplification {
         }
         JunitResult result = runTests(classWithLogger, tests);
         testSelector.updateLogInfo();
-          LogResult.addCoverage(testSelector.getCoverage(), tests, true);
+//        LogResult.addCoverage(testSelector.getCoverage(), tests, true);
         resetAmplifiers(classTest, testSelector.getGlobalCoverage());
 
         Log.info("amplification of {} ({} test)", classTest.getQualifiedName(), tests.size());
@@ -97,7 +97,7 @@ public class Amplification {
                 ampTest.addAll(selectedAmpTests);
                 ampTestCount += ampTest.size();
                 Log.debug("total amp test: {}, global: {}", ampTest.size(), ampTestCount);
-                LogResult.addCoverage(testSelector.getCoverage(), selectedAmpTests, false);
+//                LogResult.addCoverage(testSelector.getCoverage(), selectedAmpTests, false);
             }
         }
         return ampTest;
