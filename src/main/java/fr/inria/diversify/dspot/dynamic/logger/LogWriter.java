@@ -14,6 +14,7 @@ public class  LogWriter {
     protected List<Env> environments;
     protected Set<Integer> methodCallsLog;
     protected int deep;
+    protected Map<String, Integer> methodCallCount;
 
 
     //Directory where the log is being stored
@@ -30,6 +31,7 @@ public class  LogWriter {
         methodCallsLog = new HashSet<Integer>();
         currentMethods = new LinkedList<MethodCall>();
         environments = new LinkedList<Env>();
+        methodCallCount = new HashMap<String, Integer>();
 
         ShutdownHookLog shutdownHook = new ShutdownHookLog();
         Runtime.getRuntime().addShutdownHook(shutdownHook);
@@ -69,10 +71,6 @@ public class  LogWriter {
         if(!currentMethods.isEmpty()) {
             Env env = environments.get(0);
             env.add(receiver, fieldId);
-//            if (!env.containsKey(receiver)) {
-//                env.put(receiver, new HashSet<Object>());
-//            }
-//            env.get(receiver).add(fieldId);
         }
     }
 
@@ -142,13 +140,20 @@ public class  LogWriter {
 
     protected void writeCandidate(MethodCall methodCall) {
         if(methodCallsLog.add(methodCall.hashCode())) {
-            try {
-                PrintWriter fileWriter = getFileWriter();
-                fileWriter.write(methodCall.toString());
-            } catch (Exception e) {}
+            if(methodCallCount.containsKey(methodCall.getMethod())) {
+                methodCallCount.put(methodCall.getMethod(), methodCallCount.get(methodCall.getMethod()) + 1);
+            } else {
+                methodCallCount.put(methodCall.getMethod(), 1);
+            }
+
+            if(methodCallCount.get(methodCall.getMethod()) < 50) {
+                try {
+                    PrintWriter fileWriter = getFileWriter();
+                    fileWriter.write(methodCall.toString());
+                } catch (Exception e) {}
+            }
         }
     }
-
     public void close() {
         if(fileWriter != null) {
             fileWriter.close();
@@ -187,7 +192,7 @@ public class  LogWriter {
      * @return Relative filename of the file where this thread's log is being stored
      */
     protected String getThreadFileName(Thread thread) {
-        return "log" + thread.getName();
+        return "log" + thread.getName().replace("/", ".");
     }
 
     /**

@@ -37,11 +37,11 @@ public class Logger {
     }
 
     public static void readField(Thread thread, String methodId, Object receiver, String fieldId) {
-        getLog(thread).readField(methodId, receiver, fieldId);
+//        getLog(thread).readField(methodId, receiver, fieldId);
     }
 
     public static void writeField(Thread thread, String methodId, Object receiver, String fieldId) {
-        getLog(thread).writeField(methodId, receiver, fieldId);
+//        getLog(thread).writeField(methodId, receiver, fieldId);
     }
 
     public static void startLog(Thread thread, String methodId, Object... params) {

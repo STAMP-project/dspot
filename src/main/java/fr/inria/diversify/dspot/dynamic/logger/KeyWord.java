@@ -8,6 +8,9 @@ package fr.inria.diversify.dspot.dynamic.logger;
 public class KeyWord {
 
     public static final String methodCallPrimitiveParameter = "MPP";
+    public static final String methodCallCollectionParameter = "MCP";
+    public static final String methodCallMapParameter = "MMP";
+
     public static final String methodCallObjectParameter = "MOP";
     public static final String ObjectParameterField = "OPF";
     public static final String methodCallMethod = "MM";

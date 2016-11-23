@@ -114,7 +114,7 @@ public class TestGenerator {
             if(!isPrivate(method)) {
                 result = testMethodGenerator.generateTestFromInvocation(methodCall, testClass);
             }
-            if(!result && !containsThis(method) && !containsReferenceToPrivatElement(method) && containsCall(methodCall.getMethod(), "com.caucho")) {
+            if(!result && !containsThis(method) && !containsReferenceToPrivatElement(method) && containsCall(methodCall.getMethod(), "org.grobid")) {
                 result = testMethodGenerator.generateTestFromBody(methodCall, testClass);
             }
              if(result) {

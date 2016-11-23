@@ -4,8 +4,10 @@ import spoon.reflect.code.*;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * User: Simon
@@ -44,7 +46,10 @@ public class PrimitiveValue extends Value {
     public void initLocalVar(CtBlock body, CtLocalVariable localVar) {
         Factory factory = localVar.getFactory();
 
-        if(value.startsWith("[") || value.startsWith("{")) {
+        if(type.getType().endsWith("[]")) {
+            localVar.setDefaultExpression(factory.Code().createCodeSnippetExpression(formatValueArray()));
+        }
+        else if(value.startsWith("[") || value.startsWith("{")) {
             String dynamicType;
             if(type.getType().contains("<null")) {
                 int index = type.getType().indexOf("<");
@@ -52,7 +57,7 @@ public class PrimitiveValue extends Value {
             } else {
                 dynamicType = type.getType();
             }
-            localVar.setDefaultExpression(factory.Code().createCodeSnippetExpression("new " + type +"()"));
+            localVar.setDefaultExpression(factory.Code().createCodeSnippetExpression("new " + dynamicType +"()"));
             List<CtStatement> statements = new ArrayList<>();
             if(isCollection(dynamicType)) {
                 statements = generateCollectionAddStatement(value, type.getType(), localVar.getSimpleName());
@@ -65,7 +70,6 @@ public class PrimitiveValue extends Value {
                     localVar.setDefaultExpression(factory.Code().createCodeSnippetExpression("\"" + value +"\".getBytes()"));
                 }
             }
-
             int count = 1;
             for (CtStatement addStmt : statements) {
                 body.getStatements().add(count, addStmt);
@@ -131,6 +135,32 @@ public class PrimitiveValue extends Value {
         } else {
             return className;
         }
+    }
+
+    protected String formatValueArray() {
+        String valueString = "";
+        if(value.length() > 2 ) {
+            valueString = value.substring(1, value.length() - 1);
+            if (type.getType().startsWith("char")) {
+                valueString = Stream.of(valueString.split(","))
+                        .map(c -> c.trim())
+                        .map(c -> {
+                            if((c+ "").length() == 0) {
+                                return ' ';
+                            } else {
+                                return c;
+                            }
+                        })
+                        .map(c -> "\'" + c + "\'")
+                        .collect(Collectors.joining(","));
+            }
+            if (type.getType().startsWith("String")) {
+                valueString = Stream.of(valueString.split(","))
+                        .map(c -> "\"" + c + "\"")
+                        .collect(Collectors.joining(","));
+            }
+        }
+        return "{" + valueString  + "}";
     }
 
     public String simplePrintValue() {

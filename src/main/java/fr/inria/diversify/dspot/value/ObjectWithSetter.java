@@ -4,6 +4,7 @@ import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtCodeSnippetStatement;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtLocalVariable;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
 
@@ -51,9 +52,12 @@ public class ObjectWithSetter extends Value {
         return null;
     }
 
+
     @Override
     public void initLocalVar(CtBlock body, CtLocalVariable localVar) throws Exception {
-        CtExpression constructorCall = valueFactory.findConstructorCall(factory.Class().get(dynamicType), true);
+
+        CtExpression constructorCall = findConstructor(localVar.getType());
+
         if(constructorCall != null) {
             localVar.setAssignment(constructorCall);
             int count = 1;
@@ -71,5 +75,15 @@ public class ObjectWithSetter extends Value {
         } else {
             throw new Exception();
         }
+    }
+
+    protected CtExpression findConstructor(CtTypeReference localVarType) {
+        CtClass cl = factory.Class().get(dynamicType);
+
+        if(cl == null) {
+            cl = (CtClass) localVarType.getDeclaration();
+        }
+
+        return valueFactory.findConstructorCall(cl, true);
     }
 }

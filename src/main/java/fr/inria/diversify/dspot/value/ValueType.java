@@ -2,10 +2,10 @@ package fr.inria.diversify.dspot.value;
 
 
 import fr.inria.diversify.dspot.value.objectInstanciationTree.ObjectInstantiation;
+import fr.inria.diversify.dspot.value.objectInstanciationTree.StaticMethodValue;
+import fr.inria.diversify.util.Log;
 import fr.inria.diversify.utils.TypeUtils;
-import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtConstructor;
-import spoon.reflect.declaration.CtParameter;
+import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtReference;
@@ -120,6 +120,13 @@ public class ValueType {
                     addValue(value);
                     return value;
                 }
+            } else {
+                CtExecutableReference mth = getSingletonMethodAccess();
+                if(mth != null) {
+                    Value value = new StaticMethodValue(this, mth, valueFactory);
+                    addValue(value);
+                    return value;
+                }
             }
         }
         return null;
@@ -129,21 +136,41 @@ public class ValueType {
         return !values.isEmpty();
     }
 
+    protected CtExecutableReference getSingletonMethodAccess() {
+        try {
+            CtClass cl = factory.Class().get(dynamicType);
+            if (cl != null) {
+                Set<CtMethod> methods = cl.getMethods();
+                return methods.stream()
+                        .filter(mth -> mth.getModifiers().contains(ModifierKind.PUBLIC))
+                        .filter(mth -> mth.getModifiers().contains(ModifierKind.STATIC))
+                        .filter(mth -> mth.getParameters().isEmpty())
+                        .filter(mth -> mth.getType().getQualifiedName().equals(dynamicType))
+                        .map(mth -> mth.getReference())
+                        .findAny()
+                        .orElse(null);
+            }
+        } catch (Exception e) {}
+        return null;
+    }
+
     protected CtExecutableReference getEmptyConstructor() {
         try {
             CtClass cl = factory.Class().get(dynamicType);
             if(cl != null) {
-                if(cl.getConstructor() != null) {
+                CtConstructor constructor = cl.getConstructor();
+                if(constructor != null && !isPrivate(constructor)) {
                     return cl.getConstructor().getReference();
                 } else {
                     Set<CtConstructor> constructors = cl.getConstructors();
                     CtExecutableReference exeRef = constructors.stream()
-                            .filter(constructor -> {
-                                List<CtParameter> parameters = constructor.getParameters();
+                            .filter(c -> !isPrivate(c))
+                            .filter(c -> {
+                                List<CtParameter> parameters = c.getParameters();
                                 return parameters.stream()
                                         .allMatch(type -> TypeUtils.isSerializable(type.getType()));
                             })
-                            .map(constructor -> constructor.getReference())
+                            .map(c -> c.getReference())
                             .findFirst()
                             .orElse(null);
 
@@ -160,6 +187,10 @@ public class ValueType {
 
         } catch (Exception e) {}
         return null;
+    }
+
+    private boolean isPrivate(CtConstructor constructor) {
+        return constructor.getModifiers().contains(ModifierKind.PRIVATE);
     }
 
     public Factory getSpoonFactory() {

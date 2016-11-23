@@ -3,6 +3,7 @@ package fr.inria.diversify.dspot.dynamic;
 import fr.inria.diversify.dspot.value.MethodCall;
 import fr.inria.diversify.dspot.value.Value;
 import fr.inria.diversify.dspot.value.ValueFactory;
+import fr.inria.diversify.util.Log;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
@@ -115,10 +116,11 @@ public class TestMethodGenerator {
         List<CtLocalVariable> localVariables = new ArrayList<>(parameterValues.size());
 
         for(int i = 0; i < parameterValues.size(); i++) {
+            CtLocalVariable localVar = null;
             try {
                 CtParameter parameter = parameters.get(i);
                 Value value = parameterValues.get(i);
-                CtLocalVariable localVar = factory.Code().createLocalVariable(
+                localVar = factory.Code().createLocalVariable(
                         generateStaticType(parameter.getType(),value.getDynamicType()),
                         parameter.getSimpleName(),
                         null);
@@ -127,7 +129,12 @@ public class TestMethodGenerator {
                 localVariables.add(localVar);
 
                 parameterValues.get(i).initLocalVar(body, localVar);
-            } catch (Exception e) {}
+                Log.debug("");
+            } catch (Exception e) {
+                e.printStackTrace();
+                localVar.setAssignment(factory.Code().createLiteral(null));
+                 Log.debug("");
+            }
         }
         return localVariables;
     }
