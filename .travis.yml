@@ -12,5 +12,4 @@ install:
   - ./.travis_install.sh
 
 script:
-  - chmod +x .travis_test.sh
-  - ./.travis_install.sh
+  - mvn clean install
