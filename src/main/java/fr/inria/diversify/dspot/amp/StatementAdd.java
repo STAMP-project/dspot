@@ -5,8 +5,7 @@ import fr.inria.diversify.dspot.value.Value;
 import fr.inria.diversify.dspot.value.ValueFactory;
 import fr.inria.diversify.log.branch.Coverage;
 import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.Log;
-import fr.inria.diversify.utils.TypeUtils;
+import fr.inria.diversify.utils.CtTypeUtils;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
@@ -52,7 +51,7 @@ public class StatementAdd extends AbstractAmp {
                 .collect(Collectors.toList());
 
         invocations.stream()
-                .filter(invocation -> !TypeUtils.isPrimitive(invocation.getType()))
+                .filter(invocation -> !CtTypeUtils.isPrimitive(invocation.getType()))
                 .flatMap(invocation -> {
                     List<CtMethod> methodsWithTargetType = findMethodsWithTargetType(invocation.getType());
                     if(methodsWithTargetType.isEmpty()) {
@@ -185,11 +184,11 @@ public class StatementAdd extends AbstractAmp {
                     List<CtParameter> parameters = mth.getParameters();
                     return parameters.stream()
                             .map(param -> param.getType())
-                            .allMatch(param -> TypeUtils.isPrimitive(param)
-                                    || TypeUtils.isString(param)
-                                    || TypeUtils.isPrimitiveArray(param)
-                                    || TypeUtils.isPrimitiveCollection(param)
-                                    || TypeUtils.isPrimitiveMap(param)
+                            .allMatch(param -> CtTypeUtils.isPrimitive(param)
+                                    || CtTypeUtils.isString(param)
+                                    || CtTypeUtils.isPrimitiveArray(param)
+                                    || CtTypeUtils.isPrimitiveCollection(param)
+                                    || CtTypeUtils.isPrimitiveMap(param)
                                     || isSerializable(param));
                 })
                 .collect(Collectors.toSet());

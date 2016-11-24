@@ -4,7 +4,7 @@ import fr.inria.diversify.dspot.dynamic.logger.KeyWord;
 import fr.inria.diversify.dspot.value.ValueFactory;
 import fr.inria.diversify.profiling.processor.main.AbstractLoggingInstrumenter;
 import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.utils.TypeUtils;
+import fr.inria.diversify.utils.CtTypeUtils;
 import spoon.reflect.code.CtCodeSnippetStatement;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtTry;
@@ -17,7 +17,6 @@ import spoon.reflect.visitor.filter.TypeFilter;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * User: Simon
@@ -42,11 +41,11 @@ public class TestFinderProcessor extends AbstractLoggingInstrumenter<CtMethod> {
         List<CtParameter> params = mth.getParameters();
         boolean condition = params.stream()
                 .map(param -> param.getType())
-                .allMatch(param -> TypeUtils.isPrimitive(param)
-                        || TypeUtils.isString(param)
-                        || TypeUtils.isPrimitiveArray(param)
-                        || TypeUtils.isPrimitiveCollection(param)
-                        || TypeUtils.isPrimitiveMap(param)
+                .allMatch(param -> CtTypeUtils.isPrimitive(param)
+                        || CtTypeUtils.isString(param)
+                        || CtTypeUtils.isPrimitiveArray(param)
+                        || CtTypeUtils.isPrimitiveCollection(param)
+                        || CtTypeUtils.isPrimitiveMap(param)
                         || isSerializable(param)
                 );
 
@@ -89,13 +88,13 @@ public class TestFinderProcessor extends AbstractLoggingInstrumenter<CtMethod> {
     }
 
     protected String paramType(CtTypeReference param) {
-        if(TypeUtils.isPrimitive(param)
-                || TypeUtils.isString(param)
-                || TypeUtils.isPrimitiveArray(param)) {
+        if(CtTypeUtils.isPrimitive(param)
+                || CtTypeUtils.isString(param)
+                || CtTypeUtils.isPrimitiveArray(param)) {
             return "\'" + KeyWord.primitiveType +"\'";
-        } else if(TypeUtils.isPrimitiveCollection(param)) {
+        } else if(CtTypeUtils.isPrimitiveCollection(param)) {
             return "\'" + KeyWord.collectionType +"\'";
-        } else if(TypeUtils.isPrimitiveMap(param)) {
+        } else if(CtTypeUtils.isPrimitiveMap(param)) {
             return "\'" + KeyWord.mapType +"\'";
         } else {
             return "\'" + KeyWord.objectType +"\'";

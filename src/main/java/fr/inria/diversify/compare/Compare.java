@@ -1,7 +1,6 @@
 package fr.inria.diversify.compare;
 
 
-//import com.rits.cloning.Cloner;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -20,7 +19,6 @@ public class Compare {
     protected int maxCompare;
     protected int nbSampleMethods;
     protected static Set<Class<?>> WRAPPER_TYPES = getWrapperTypes();
-//    protected Cloner cloner;
 
 
     public static Compare getSingleton() {

@@ -103,7 +103,7 @@ public class TestGeneratorMain {
         int count = testClasses.stream()
                 .mapToInt(test -> test.getMethods().size())
                 .sum();
-        Log.debug("nb test before amplification: {}", count);
+        Log.debug("test count before amplification: {}", count);
 
         testClasses.stream()
                 .forEach(test -> amplificationTestClass(test));
@@ -111,7 +111,7 @@ public class TestGeneratorMain {
         count = testClasses.stream()
                 .mapToInt(test -> test.getMethods().size())
                 .sum();
-        Log.debug("nb test after amplification: {}", count);
+        Log.debug("test count after amplification: {}", count);
 
         testClasses = addAssert(testClasses);
 
@@ -123,7 +123,7 @@ public class TestGeneratorMain {
                 .mapToInt(test -> test.getMethods().size())
                 .sum();
         Log.debug("nb test after assert generation: {}", count);
-
+        //591
         if(!resultDir.exists()) {
             resultDir.mkdirs();
         }
@@ -136,7 +136,7 @@ public class TestGeneratorMain {
         Amplification testAmplification = new Amplification(inputProgram, compiler, applicationWithBranchLoggerClassLoader, initAmplifiers(), new File(branchDir + "/log"));
 
         try {
-            List<CtMethod> amplification = testAmplification.amplification(testClass, 3);
+            List<CtMethod> amplification = testAmplification.amplification(testClass, 8);
             amplification.stream()
                     .forEach(test -> testClass.addMethod(test));
         } catch (Exception e) {

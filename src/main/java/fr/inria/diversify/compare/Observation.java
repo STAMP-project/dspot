@@ -1,6 +1,10 @@
 package fr.inria.diversify.compare;
 
+
+import fr.inria.diversify.dspot.dynamic.logger.TypeUtils;
+
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * User: Simon
@@ -62,10 +66,14 @@ public  class Observation {
                     } else {
                         asserts.add(junitAssertClassName + ".assertFalse(" + entry.getKey() + ")");
                     }
-                } else if (value.getClass().isArray()) {
+                } else if (TypeUtils.isArray(value)) {
                     asserts.add(buildAssertForArray(entry.getKey(), value));
+                } else if( TypeUtils.isPrimitiveCollection(value)) {
+                    asserts.add(buildSnippetAssertCollection(entry.getKey(), (Collection) value));
+                } else if(TypeUtils.isPrimitiveMap(value)) {
+                    asserts.add(buildSnippetAssertMap(entry.getKey(), (Map) value));
                 } else {
-                    asserts.add(junitAssertClassName + ".assertEquals(" + entry.getKey() + ", " + printString(value) + ")");
+                    asserts.add(junitAssertClassName + ".assertEquals(" + entry.getKey() + ", " + printPrimitiveString(value) + ")");
                 }
             }
         }
@@ -87,7 +95,39 @@ public  class Observation {
                 + forLoop;
     }
 
-    protected String printString(Object value) {
+    protected String buildSnippetAssertCollection(String expression, Collection value) {
+        Random r = new Random();
+        String type = value.getClass().getCanonicalName();
+        String localVar = "collection_" + Math.abs(r.nextInt());
+        String newCollection = type + " " + localVar + " = new " + type +"<Object>();\n";
+
+        for(Object v : value) {
+            newCollection += "\t" + localVar + ".add(" + printPrimitiveString(v) + ");\n";
+        }
+        newCollection += "\t" + junitAssertClassName +".assertEquals(" + localVar +", " + expression + ");";
+
+        return newCollection;
+    }
+
+    protected String buildSnippetAssertMap(String expression, Map value) {
+        Random r = new Random();
+        String type = value.getClass().getCanonicalName();
+        String localVar = "map_" + Math.abs(r.nextInt());
+        String newCollection = type + " " +localVar + " = new " + type +"<Object, Object>();";
+
+        Set<Map.Entry> set = value.entrySet();
+        for(Map.Entry v : set) {
+            newCollection += "\t" + localVar + ".put(" + printPrimitiveString(v.getKey())
+                    + ", " + printPrimitiveString(v.getValue()) + ");\n";
+        }
+        newCollection += "\t" + junitAssertClassName +".assertEquals(" + localVar +", " + expression + ");";
+
+        return newCollection;
+
+    }
+
+
+    protected String printPrimitiveString(Object value) {
         if(value instanceof Double) {
             return value.toString() + "D";
         }

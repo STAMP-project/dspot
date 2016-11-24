@@ -1,8 +1,10 @@
 package fr.inria.diversify.compare;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.Map;
+
+import fr.inria.diversify.dspot.dynamic.logger.TypeUtils;
 
 /**
  * User: Simon
@@ -14,7 +16,7 @@ public class ObjectLog {
     protected Map<String, Observation> observations;
     protected MethodsHandler methodsHandler;
     protected Invocator invocator;
-    protected int maxDeep = 2;
+    protected int maxDeep = 3;
     protected Map<String, Object> objects;
 
     private ObjectLog() {
@@ -50,9 +52,12 @@ public class ObjectLog {
         if(deep < maxDeep) {
             if (object == null) {
                 addObservation(positionId, stringObject, null);
-            } else if (isPrimitive(object)) {
+            } else if (TypeUtils.isPrimitive(object)) {
                 addObservation(positionId, stringObject, object);
-            } else if (isPrimitiveArray(object)) {
+            } else if (TypeUtils.isPrimitiveArray(object)) {
+                addObservation(positionId, stringObject, object);
+            } else if(TypeUtils.isPrimitiveCollectionOrMap(object)) {
+//                typeOfIterable(object);
                 addObservation(positionId, stringObject, object);
             } else {
                 compareWithPreviousObjects(object, stringObject, positionId);
@@ -93,38 +98,6 @@ public class ObjectLog {
                 }
             }
         }
-    }
-
-    protected boolean isPrimitive(Object o) {
-        String type = o.getClass().getCanonicalName();
-
-        return o != null &&
-                (o.getClass().isPrimitive()
-                || type.equals("java.lang.Byte")
-                || type.equals("java.lang.Short")
-                || type.equals("java.lang.Integer")
-                || type.equals("java.lang.Long")
-                || type.equals("java.lang.Float")
-                || type.equals("java.lang.Double")
-                || type.equals("java.lang.Boolean")
-                || type.equals("java.lang.Character"));
-    }
-
-    protected boolean isArray(Object o) {
-        return o != null && o.getClass().isArray();
-    }
-
-    protected boolean isPrimitiveArray(Object o) {
-        String type = o.getClass().getCanonicalName();
-        return type != null && isArray(o) &&
-                (type.equals("byte[]")
-                        || type.equals("short[]")
-                        || type.equals("int[]")
-                        || type.equals("long[]")
-                        || type.equals("float[]")
-                        || type.equals("double[]")
-                        || type.equals("boolean[]")
-                        || type.equals("char[]"));
     }
 
     public static Map<String, Observation> getObservations() {

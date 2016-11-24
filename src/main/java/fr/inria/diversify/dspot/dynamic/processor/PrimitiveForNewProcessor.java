@@ -3,7 +3,7 @@ package fr.inria.diversify.dspot.dynamic.processor;
 import fr.inria.diversify.processor.ProcessorUtil;
 import fr.inria.diversify.profiling.processor.main.AbstractLoggingInstrumenter;
 import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.utils.TypeUtils;
+import fr.inria.diversify.utils.CtTypeUtils;
 import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtLocalVariable;
@@ -28,7 +28,7 @@ public class PrimitiveForNewProcessor extends AbstractLoggingInstrumenter<CtCons
         List<CtTypeReference<?>> params = constructor.getExecutable().getParameters();
         return  getMethod(constructor) != null
                 && params.stream()
-                .anyMatch(param -> TypeUtils.isPrimitive(param) || TypeUtils.isString(param));
+                .anyMatch(param -> CtTypeUtils.isPrimitive(param) || CtTypeUtils.isString(param));
     }
 
     @Override
@@ -40,7 +40,7 @@ public class PrimitiveForNewProcessor extends AbstractLoggingInstrumenter<CtCons
         List<CtTypeReference<?>> params = constructor.getParameters();
         for(int i = 0; i < params.size(); i++) {
             CtTypeReference<?> param = params.get(i);
-            if(TypeUtils.isPrimitive(param) || TypeUtils.isString(param)) {
+            if(CtTypeUtils.isPrimitive(param) || CtTypeUtils.isString(param)) {
                 CtExpression arg = (CtExpression) constructorCall.getArguments().get(i);
                 int argId = ProcessorUtil.idFor(arg.toString());
 

@@ -2,7 +2,9 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.log.LogReader;
 import fr.inria.diversify.log.TestCoverageParser;
+import fr.inria.diversify.log.TestGraphReader;
 import fr.inria.diversify.log.branch.Coverage;
+import fr.inria.diversify.log.graph.Graph;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.TestRunner;
 import fr.inria.diversify.util.FileUtils;
@@ -27,6 +29,9 @@ public class TestClassMinimisation {
     protected File logDir;
     protected InputProgram inputProgram;
 
+    protected List<Coverage> currentBranchCoverage;
+    protected List<Graph> currentGraphsCoverage;
+
     public TestClassMinimisation(InputProgram inputProgram, TestRunner testRunnerWithBranchLogger, String logDir) {
         this.testRunnerWithBranchLogger = testRunnerWithBranchLogger;
         this.inputProgram = inputProgram;
@@ -42,14 +47,21 @@ public class TestClassMinimisation {
             fr.inria.diversify.logger.Logger.reset();
             fr.inria.diversify.logger.Logger.setLogDir(logDir);
             testRunnerWithBranchLogger.runTests(cl, cl.getMethods());
-            List<Coverage> coverage = loadBranchCoverage();
+            loadInfo();
 
-            Set<String> mthsSubSet = coverage.stream()
+            Set<String> mthsSubSet = currentBranchCoverage.stream()
                     .collect(Collectors.groupingBy(c -> c.getCoverageBranch()))
                     .values().stream()
                     .map(value -> value.stream().findAny().get())
                     .map(c -> c.getName())
                     .collect(Collectors.toSet());
+
+            mthsSubSet.addAll(currentGraphsCoverage.stream()
+                    .collect(Collectors.groupingBy(c -> c.getEdges()))
+                    .values().stream()
+                    .map(value -> value.stream().findAny().get())
+                    .map(c -> c.getName())
+                    .collect(Collectors.toSet()));
 
             Set<CtMethod> mths = new HashSet<>(classTest.getMethods());
             mths.stream()
@@ -61,16 +73,18 @@ public class TestClassMinimisation {
         return classTest;
     }
 
-    protected List<Coverage> loadBranchCoverage() throws IOException {
+    protected List<Coverage> loadInfo() throws IOException {
         List<Coverage> branchCoverage = null;
         try {
             LogReader logReader = new LogReader(logDir.getAbsolutePath());
             TestCoverageParser coverageParser = new TestCoverageParser();
+            TestGraphReader graphParser = new TestGraphReader();
+            logReader.addParser(graphParser);
             logReader.addParser(coverageParser);
             logReader.readLogs();
 
-            branchCoverage = coverageParser.getResult();
-
+            currentBranchCoverage = coverageParser.getResult();
+            currentGraphsCoverage = graphParser.getResult();
         } catch (Throwable e) {}
 
         deleteLogFile();

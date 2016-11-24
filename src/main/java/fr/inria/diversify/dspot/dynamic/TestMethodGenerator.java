@@ -129,11 +129,8 @@ public class TestMethodGenerator {
                 localVariables.add(localVar);
 
                 parameterValues.get(i).initLocalVar(body, localVar);
-                Log.debug("");
             } catch (Exception e) {
-                e.printStackTrace();
                 localVar.setAssignment(factory.Code().createLiteral(null));
-                 Log.debug("");
             }
         }
         return localVariables;

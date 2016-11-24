@@ -100,4 +100,12 @@ public class JunitRunner {
             task.cancel(true);
         }
     }
+
+    public void setMethodTimeOut(int methodTimeOut) {
+        this.methodTimeOut = methodTimeOut;
+    }
+
+    public void setClassTimeOut(int classTimeOut) {
+        this.classTimeOut = classTimeOut;
+    }
 }

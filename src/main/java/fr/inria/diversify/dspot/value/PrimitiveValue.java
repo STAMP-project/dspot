@@ -19,7 +19,11 @@ public class PrimitiveValue extends Value {
 
     public PrimitiveValue(ValueType type, String value) {
         this.type = type;
-        this.value = value;
+        if(type.getType().contains("String")) {
+            this.value = value.substring(0, Math.min(value.length(), 10000));
+        } else {
+            this.value = value;
+        }
     }
 
     @Override

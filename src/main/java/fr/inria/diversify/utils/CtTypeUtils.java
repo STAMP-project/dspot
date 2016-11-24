@@ -10,7 +10,7 @@ import java.util.Map;
  * User: Simon
  * Date: 23/08/16
  */
-public class TypeUtils {
+public class CtTypeUtils {
 
     public static boolean isSerializable(CtTypeReference type) {
         return isPrimitive(type)

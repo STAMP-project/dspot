@@ -1,7 +1,6 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
-import fr.inria.diversify.compare.Compare;
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
 import fr.inria.diversify.logger.Logger;
@@ -314,7 +313,8 @@ public class MethodAssertGenerator {
         System.setProperty("user.dir", inputProgram.getProgramDir());
         Logger.reset();
         Logger.setLogDir(new File(inputProgram.getProgramDir() + "/log"));
-
+        junitRunner.setClassTimeOut(240);
+        junitRunner.setMethodTimeOut(10);
         JunitResult result = junitRunner.runTestClasses(ClassName, testsToRun.stream().map(test -> test.getSimpleName()).collect(Collectors.toList()));
         System.setProperty("user.dir", currentUserDir);
 
@@ -548,7 +548,7 @@ public class MethodAssertGenerator {
     }
 
     protected void copyLoggerFile() throws IOException {
-        String comparePackage = Compare.class.getPackage().getName().replace(".", "/");
+        String comparePackage = ObjectLog.class.getPackage().getName().replace(".", "/");
         File srcDir = new File(System.getProperty("user.dir") + "/src/main/java/" + comparePackage);
 
         File destDir = new File(compiler.getSourceOutputDirectory() + "/" + comparePackage);

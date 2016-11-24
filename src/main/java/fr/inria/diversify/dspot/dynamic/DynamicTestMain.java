@@ -2,9 +2,7 @@ package fr.inria.diversify.dspot.dynamic;
 
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.DSpotUtils;
-import fr.inria.diversify.dspot.dynamic.objectInstanciationTree.ObjectInstantiationBuilder;
 import fr.inria.diversify.dspot.dynamic.processor.PrimitiveForNewProcessor;
-import fr.inria.diversify.dspot.dynamic.processor.StaticInstantiationProcessor;
 import fr.inria.diversify.dspot.value.ValueFactory;
 import fr.inria.diversify.processor.ProcessorUtil;
 import fr.inria.diversify.processor.main.AddBlockEverywhereProcessor;
@@ -51,9 +49,6 @@ public class DynamicTestMain {
         Factory factory = InitUtils.initSpoon(inputProgram, false);
 
         LoggerUtils.applyProcessor(factory, new AddBlockEverywhereProcessor(inputProgram));
-
-        StaticInstantiationProcessor ip = new StaticInstantiationProcessor(inputProgram);
-        LoggerUtils.applyProcessor(factory, ip);
 
         ValueFactory valueFactory = new ValueFactory(inputProgram);
 
