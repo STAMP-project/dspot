@@ -1,0 +1,16 @@
+language: java
+
+jdk:
+  -oraclejdk8
+
+cache:
+  directories:
+    - $HOME/.m2
+
+install:
+  - chmod +x .travis_install.sh
+  - ./.travis_install.sh
+
+script:
+  - chmod +x .travis_test.sh
+  - ./.travis_install.sh
