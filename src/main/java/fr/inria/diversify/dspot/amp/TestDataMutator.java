@@ -103,7 +103,7 @@ public class TestDataMutator extends AbstractAmp {
         List<Object> lits = literals.get(literal.getValue().getClass());
         int valuesCurrentSize = values.size();
         while(lits != null && !lits.isEmpty() && values.size() == valuesCurrentSize) {
-            int index = getRandom().nextInt(literals.size());
+            int index = getRandom().nextInt(lits.size());
             String lit = (String) lits.get(index);
             values.add(lit);
         }
@@ -127,10 +127,11 @@ public class TestDataMutator extends AbstractAmp {
         List<Object> lits = literals.get(literal.getValue().getClass());
         int valuesCurrentSize = values.size();
         while(lits != null && !lits.isEmpty() && values.size() == valuesCurrentSize) {
-            int index = getRandom().nextInt(literals.size());
+            int index = getRandom().nextInt(lits.size());
             Number lit = (Number) lits.get(index);
             values.add(lit);
         }
+
         return values;
     }
 
