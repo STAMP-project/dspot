@@ -6,7 +6,6 @@ import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
@@ -88,25 +87,26 @@ public class TestDataMutator extends AbstractAmp {
         Set<String> values = new HashSet<>();
         String string = ((String) literal.getValue());
         if(string.length() > 2) {
-            int index = getRandom().nextInt(string.length() - 2) + 1;
-            values.add(string.substring(0, index - 1) + getRandomChar() + string.substring(index, string.length()));
+            int length = string.length();
+            int index = getRandom().nextInt(length - 2) + 1;
+            values.add(string.substring(0, index - 1) + getRandomChar() + string.substring(index, length));
 
-            index = getRandom().nextInt(string.length() - 2) + 1;
-            values.add(string.substring(0, index) + getRandomChar() + string.substring(index, string.length()));
+            index = getRandom().nextInt(length - 2) + 1;
+            values.add(string.substring(0, index) + getRandomChar() + string.substring(index, length));
 
-            index = getRandom().nextInt(string.length() - 2) + 1;
-            values.add(string.substring(0, index) + string.substring(index + 1, string.length()));
-
+            index = getRandom().nextInt(length - 2) + 1;
+            values.add(string.substring(0, index) + string.substring(index + 1, length));
         } else {
             values.add("" + getRandomChar());
         }
-        List<Object> lits = literals.get(literal.getClass());
-        if(lits != null && !lits.isEmpty()) {
-            int index = getRandom().nextInt(lits.size());
+
+        List<Object> lits = literals.get(literal.getValue().getClass());
+        int valuesCurrentSize = values.size();
+        while(lits != null && !lits.isEmpty() && values.size() == valuesCurrentSize) {
+            int index = getRandom().nextInt(literals.size());
             String lit = (String) lits.get(index);
             values.add(lit);
         }
-
         return values;
     }
 
@@ -124,14 +124,13 @@ public class TestDataMutator extends AbstractAmp {
         values.add(value / 2);
         values.add(value * 2);
 
-
         List<Object> lits = literals.get(literal.getValue().getClass());
-        if(lits.size() != 0) {
-            int index = getRandom().nextInt(lits.size());
+        int valuesCurrentSize = values.size();
+        while(lits != null && !lits.isEmpty() && values.size() == valuesCurrentSize) {
+            int index = getRandom().nextInt(literals.size());
             Number lit = (Number) lits.get(index);
             values.add(lit);
         }
-
         return values;
     }
 
@@ -172,7 +171,6 @@ public class TestDataMutator extends AbstractAmp {
 	protected boolean isCase(CtLiteral literal) {
 		return literal.getParent(CtCase.class) != null;
 	}
-
 
     public CtMethod applyRandom(CtMethod method) {
         List<CtLiteral> literals = Query.getElements(method, new TypeFilter(CtLiteral.class));
@@ -220,24 +218,19 @@ public class TestDataMutator extends AbstractAmp {
         return filterAmpTest(methods, method);
     }
     protected Set<Object> getLiterals(Set<CtType> codeFragmentsProvide) {
-        Factory factory = codeFragmentsProvide.stream().findFirst().get().getFactory();
-
         return codeFragmentsProvide.stream()
-                .flatMap(cl -> getLiterals(cl, factory).stream())
+                .flatMap(cl -> getLiterals(cl).stream())
                 .collect(Collectors.toSet());
     }
 
-
-    protected Set<Object> getLiterals(CtType type, Factory factory) {
+    protected Set<Object> getLiterals(CtType type) {
         if(!literalByClass.containsKey(type)) {
             Set<Object> set = (Set<Object>) Query.getElements(type, new TypeFilter(CtLiteral.class)).stream()
                     .map(literal -> ((CtLiteral) literal).getValue())
                     .distinct()
-//                    .map(literal -> factory.Code().createLiteral(literal))
                     .collect(Collectors.toSet());
             literalByClass.put(type, set);
         }
-
         return literalByClass.get(type);
     }
 
