@@ -2,16 +2,20 @@ package mutation;
 
 public class LiteralMutation {
 
-        public void methodInt () {
-                int literalInt = 23;
-        }
+    public void methodInteger() {
+        int literalInt = 23;
+    }
 
-        public void methodString () {
-                String literalString = "MyStringLiteral";
-        }
+    public void methodDouble() {
+        double literalDouble = 23D;
+    }
 
-        public void methodBoolean () {
-                boolean literalBoolean = true;
-        }
+    public void methodString() {
+        String literalString = "MyStringLiteral";
+    }
+
+    public void methodBoolean() {
+        boolean literalBoolean = true;
+    }
 
 }
