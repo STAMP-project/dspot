@@ -3,6 +3,7 @@ package fr.inria.diversify.dspot.assertGenerator;
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
+import fr.inria.diversify.dspot.dynamic.logger.TypeUtils;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.factories.DiversityCompiler;
@@ -73,37 +74,8 @@ public class MethodAssertGenerator {
             return null;
         }
 
-//        JunitResult r1 = runSingleTest(newTest, assertGeneratorClassLoader);
-//        JunitResult r2 = runSingleTest(newTest, DSpot.regressionClassLoader);
-//
-//        if(!equalResult(r1, r2)) {
-//            try {
-//                r1 = runSingleTest(newTest, assertGeneratorClassLoader);
-//                r2 = runSingleTest(newTest, DSpot.regressionClassLoader);
-//                Thread.sleep(200);
-//                if(!equalResult(r1, r2)) {
-//                    Log.info("");
-//                    log.write("version: "+ version + ", " + test.getSignature()+ "\n");
-//                    File file = new File(resultDir + "/assertGenerationTestSource/"+ version + "/" + System.currentTimeMillis() + "/");
-//                    file.mkdirs();
-//
-//                    CtClass newClass = initTestClass();
-//
-//                    CtMethod cloneTest = getFactory().Core().clone(test);
-//                    newClass.addMethod(cloneTest);
-//                    PrintClassUtils.printJavaFile(file, newClass);
-//                }
-//            } catch (Throwable e) {}
-//            log.flush();
-//        }
         return newTest;
     }
-
-//    protected boolean equalResult(JunitResult r1, JunitResult r2) {
-//        return (r1 == null) == (r2 == null)
-//                && r1 == null
-//                || r1.getFailures().size() == r2.getFailures().size();
-//    }
 
     protected CtMethod generateAssert() throws IOException, ClassNotFoundException {
         List<CtMethod> testsToRun = new ArrayList<>();
@@ -117,7 +89,7 @@ public class MethodAssertGenerator {
         testsToRun.add(testWithoutAssert);
         cl.addMethod(testWithoutAssert);
 
-        JunitResult result = runTests(testsToRun, assertGeneratorClassLoader);
+        JunitResult result = runTests(testsToRun);
         if(result == null || result.getTestRuns().size() != testsToRun.size()) {
             return null;
         }
@@ -160,7 +132,7 @@ public class MethodAssertGenerator {
 
         CtTry tryBlock = factory.Core().createTry();
         tryBlock.setBody(testWithoutAssert.getBody());
-        String snippet = " junit.framework.TestCase.fail(\"" +test.getSimpleName()+" should have thrown " + exceptionClass.getSimpleName()+"\")";
+        String snippet = "junit.framework.TestCase.fail(\"" +test.getSimpleName()+" should have thrown " + exceptionClass.getSimpleName()+"\")";
         tryBlock.getBody().addStatement(factory.Code().createCodeSnippetStatement(snippet));
 
         CtCatch ctCatch = factory.Core().createCatch();
@@ -194,7 +166,7 @@ public class MethodAssertGenerator {
 
         ObjectLog.reset();
 
-        JunitResult result = runTests(testsToRun, assertGeneratorClassLoader);
+        JunitResult result = runTests(testsToRun);
         return buildTestWithAssert(ObjectLog.getObservations());
     }
 
@@ -230,15 +202,17 @@ public class MethodAssertGenerator {
     }
 
     protected boolean isCorrect(CtMethod test) throws IOException, ClassNotFoundException {
-        JunitResult result = runSingleTest(test, assertGeneratorClassLoader);
+        JunitResult result = runSingleTest(test);
         return result != null && result.getFailures().isEmpty();
     }
 
-    protected void removeFailAssert() throws IOException, ClassNotFoundException {
+    protected CtMethod removeFailAssert() throws IOException, ClassNotFoundException {
         List<Integer> goodAssert = findGoodAssert();
         String testName = test.getSimpleName();
         test = createTestWithoutAssert(goodAssert, true);
         test.setSimpleName(testName);
+
+        return test;
     }
 
     protected List<Integer> findGoodAssert() throws IOException, ClassNotFoundException {
@@ -264,7 +238,7 @@ public class MethodAssertGenerator {
             testsToRun.add(mth);
         }
         ObjectLog.reset();
-        JunitResult result = runTests(testsToRun, assertGeneratorClassLoader);
+        JunitResult result = runTests(testsToRun);
 
         List<Integer> goodAssertIndex = new ArrayList<>();
         for(int i = 0; i < testsToRun.size(); i++) {
@@ -286,8 +260,8 @@ public class MethodAssertGenerator {
         return getFailure(methodName, result) != null;
     }
 
-    protected JunitResult runTests(List<CtMethod> testsToRun, ClassLoader classLoader) throws ClassNotFoundException {
-        DiversifyClassLoader diversifyClassLoader = new DiversifyClassLoader(classLoader, compiler.getBinaryOutputDirectory().getAbsolutePath());
+    protected JunitResult runTests(List<CtMethod> testsToRun) throws ClassNotFoundException {
+        DiversifyClassLoader diversifyClassLoader = new DiversifyClassLoader(assertGeneratorClassLoader, compiler.getBinaryOutputDirectory().getAbsolutePath());
 
         List<CtType> classesToCompile = testsToRun.stream()
                 .map(mth -> mth.getDeclaringType())
@@ -321,7 +295,7 @@ public class MethodAssertGenerator {
         return result;
     }
 
-    protected JunitResult runSingleTest(CtMethod test, ClassLoader classLoader) throws ClassNotFoundException, IOException {
+    protected JunitResult runSingleTest(CtMethod test) throws ClassNotFoundException, IOException {
         List<CtMethod>testsToRun = new ArrayList<>();
         CtType newClass = initTestClass();
 
@@ -329,7 +303,7 @@ public class MethodAssertGenerator {
         newClass.addMethod(cloneTest);
         testsToRun.add(cloneTest);
 
-        return runTests(testsToRun, classLoader);
+        return runTests(testsToRun);
     }
 
     //todo refactor
@@ -555,5 +529,14 @@ public class MethodAssertGenerator {
         FileUtils.forceMkdir(destDir);
 
         FileUtils.copyDirectory(srcDir, destDir);
+
+        String typeUtilsPackage = TypeUtils.class.getPackage().getName().replace(".", "/");
+        File srcFile = new File(System.getProperty("user.dir") + "/src/main/java/" + typeUtilsPackage + "/TypeUtils.java");
+
+        destDir = new File(compiler.getSourceOutputDirectory() + "/" + typeUtilsPackage);
+        FileUtils.forceMkdir(destDir);
+
+        File destFile = new File(compiler.getSourceOutputDirectory() + "/" + typeUtilsPackage + "/TypeUtils.java");
+        FileUtils.copyFile(srcFile, destFile);
     }
 }

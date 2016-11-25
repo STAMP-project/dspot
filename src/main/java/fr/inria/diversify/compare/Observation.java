@@ -4,7 +4,6 @@ package fr.inria.diversify.compare;
 import fr.inria.diversify.dspot.dynamic.logger.TypeUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * User: Simon
