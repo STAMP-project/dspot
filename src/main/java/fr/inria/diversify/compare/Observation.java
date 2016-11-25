@@ -117,7 +117,7 @@ public  class Observation {
 
         Set<Map.Entry> set = value.entrySet();
         for(Map.Entry v : set) {
-            newCollection += "\t" + localVar + ".put(" + printPrimitiveString(v.getKey())
+            newCollection += "\n\t" + localVar + ".put(" + printPrimitiveString(v.getKey())
                     + ", " + printPrimitiveString(v.getValue()) + ");\n";
         }
         newCollection += "\t" + junitAssertClassName +".assertEquals(" + localVar +", " + expression + ");";

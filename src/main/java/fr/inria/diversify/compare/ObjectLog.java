@@ -16,7 +16,7 @@ public class ObjectLog {
     protected Map<String, Observation> observations;
     protected MethodsHandler methodsHandler;
     protected Invocator invocator;
-    protected int maxDeep = 3;
+    protected int maxDeep = 4;
     protected Map<String, Object> objects;
 
     private ObjectLog() {

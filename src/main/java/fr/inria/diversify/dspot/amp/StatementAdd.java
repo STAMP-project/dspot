@@ -42,7 +42,7 @@ public class StatementAdd extends AbstractAmp {
     public List<CtMethod> apply(CtMethod method) {
         count[0] = 0;
         List<CtInvocation> invocations = getInvocation(method);
-        List<CtMethod> ampMethods = invocations.stream()
+        final List<CtMethod> ampMethods = invocations.stream()
                 .filter(invocation -> !((CtMethod) invocation.getExecutable().getDeclaration()).getModifiers().contains(ModifierKind.STATIC))
                 .flatMap(invocation ->
                         findMethodsWithTargetType(invocation.getTarget().getType()).stream()
@@ -51,12 +51,10 @@ public class StatementAdd extends AbstractAmp {
                 .collect(Collectors.toList());
 
         invocations.stream()
-                .filter(invocation -> !CtTypeUtils.isPrimitive(invocation.getType()))
-                .flatMap(invocation -> {
+                .filter(invocation -> !CtTypeUtils.isPrimitive(invocation.getType()) || !CtTypeUtils.isString(invocation.getType()))
+                .forEach(invocation -> {
                     List<CtMethod> methodsWithTargetType = findMethodsWithTargetType(invocation.getType());
-                    if(methodsWithTargetType.isEmpty()) {
-                        return new ArrayList<>(0).stream();
-                    } else {
+                    if (!methodsWithTargetType.isEmpty()) {
                         CtLocalVariable localVar = factory.Code().createLocalVariable(
                                 invocation.getType(),
                                 "invoc_" + count[0]++,
@@ -65,12 +63,12 @@ public class StatementAdd extends AbstractAmp {
                         CtMethod methodClone = cloneMethod(method, "");
                         CtStatement stmt = findInvocationIn(methodClone, invocation);
                         stmt.replace(localVar);
-                        return methodsWithTargetType.stream()
+
+                        ampMethods.addAll(methodsWithTargetType.stream()
                                 .map(addMth -> addInvocation(methodClone, addMth, target, localVar, false))
-                                .collect(Collectors.toList()).stream();
+                                .collect(Collectors.toList()));
                     }
-                })
-                .collect(Collectors.toList());
+                });
 
         return ampMethods;
     }
