@@ -58,7 +58,6 @@ public class Utils {
         compiler = DSpotUtils.initDiversityCompiler(inputProgram, true);
         InitUtils.addApplicationClassesToClassPath(inputProgram);
         applicationClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
-
     }
 
     public static CtClass findClass(String className) throws InvalidSdkException, Exception {
