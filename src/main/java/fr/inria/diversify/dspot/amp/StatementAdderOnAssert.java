@@ -256,8 +256,8 @@ public class StatementAdderOnAssert implements Amplifier {
         return AmplifierHelper.computeClassProvider(testClass).stream()
                 .filter(cl -> cl != null)
                 .filter(cl -> cl != testClass)
-                .filter(cl -> testClassName.contains(cl.getQualifiedName()))
-                .findFirst()
+                //.filter(cl -> testClassName.contains(cl.getQualifiedName()))
+                .findFirst() // TODO
                 .orElse(null);
     }
 
