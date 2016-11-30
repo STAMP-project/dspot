@@ -129,7 +129,7 @@ public class TestDataMutator extends AbstractAmp {
         while(lits != null && !lits.isEmpty() && values.size() == valuesCurrentSize) {
             int index = getRandom().nextInt(lits.size());
             Number lit = (Number) lits.get(index);
-            values.add(lit);
+            values.add(lit);//TODO remove original value
         }
 
         return values;
