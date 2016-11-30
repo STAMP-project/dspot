@@ -25,10 +25,10 @@ import java.io.IOException;
  * Date: 18/03/16
  * Time: 11:54
  */
-public class DynamicTestMain {
+public class AddLoggerMain {
     InputProgram inputProgram;
 
-    public DynamicTestMain(InputConfiguration inputConfiguration) throws Exception, InvalidSdkException {
+    public AddLoggerMain(InputConfiguration inputConfiguration) throws Exception, InvalidSdkException {
         InitUtils.initLogLevel(inputConfiguration);
         inputProgram = InitUtils.initInputProgram(inputConfiguration);
 
@@ -82,6 +82,6 @@ public class DynamicTestMain {
 
     public static void main(String[] args) throws Exception, InvalidSdkException {
         InputConfiguration inputConfiguration = new InputConfiguration(args[0]);
-        new DynamicTestMain(inputConfiguration);
+        new AddLoggerMain(inputConfiguration);
     }
 }

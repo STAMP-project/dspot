@@ -50,14 +50,12 @@ public class TestGeneratorMain {
 
         resultDir = new File(inputConfiguration.getProperty("result"));
 
-//        String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp_" + System.currentTimeMillis();
-        String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp_grobid";
+        String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp_" + System.currentTimeMillis();
 
-//        FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
-//        inputProgram.setProgramDir(outputDirectory);
+        FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
+        inputProgram.setProgramDir(outputDirectory);
 
-//        branchDir = addBranchLogger(inputConfiguration);
-        branchDir = inputConfiguration.getProperty("tmpDir") + "/tmp_branch";
+        branchDir = addBranchLogger(inputConfiguration);
         inputProgram.setProgramDir(branchDir);
         InitUtils.addApplicationClassesToClassPath(inputProgram);
         applicationWithBranchLoggerClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
@@ -65,12 +63,11 @@ public class TestGeneratorMain {
         inputProgram.setProgramDir(outputDirectory);
         compiler = DSpotUtils.initDiversityCompiler(inputProgram, false);
 
-//        String mavenHome = inputConfiguration.getProperty("maven.home",null);
-//        String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository",null);
-//        DSpotUtils.compile(inputProgram, mavenHome, mavenLocalRepository);
+        String mavenHome = inputConfiguration.getProperty("maven.home",null);
+        String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository",null);
+        DSpotUtils.compile(inputProgram, mavenHome, mavenLocalRepository);
         InitUtils.addApplicationClassesToClassPath(inputProgram);
         applicationClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
-
     }
 
     protected String addBranchLogger(InputConfiguration inputConfiguration) throws IOException, InterruptedException {
@@ -123,7 +120,7 @@ public class TestGeneratorMain {
                 .mapToInt(test -> test.getMethods().size())
                 .sum();
         Log.debug("nb test after assert generation: {}", count);
-        //591
+
         if(!resultDir.exists()) {
             resultDir.mkdirs();
         }
@@ -131,6 +128,8 @@ public class TestGeneratorMain {
             PrintClassUtils.printJavaFile(resultDir, test);
         }
     }
+
+
 
     public void amplificationTestClass(CtType testClass) {
         Amplification testAmplification = new Amplification(inputProgram, compiler, applicationWithBranchLoggerClassLoader, initAmplifiers(), new File(branchDir + "/log"));
@@ -170,15 +169,12 @@ public class TestGeneratorMain {
                 .filter(test -> test != null)
                 .filter(test -> !test.getMethods().isEmpty())
                 .collect(Collectors.toList());
-
-//        for(CtType test : testClasses) {
-//            PrintClassUtils.printJavaFile(resultDir, test);
-//        }
     }
 
     public void clean() throws IOException {
-        FileUtils.forceDelete(compiler.getSourceOutputDirectory());
+        FileUtils.forceDelete(new File(inputProgram.getProgramDir()));
         FileUtils.forceDelete(compiler.getBinaryOutputDirectory());
+        FileUtils.forceDelete(compiler.getSourceOutputDirectory());
     }
 
     protected static void kill() throws IOException {
