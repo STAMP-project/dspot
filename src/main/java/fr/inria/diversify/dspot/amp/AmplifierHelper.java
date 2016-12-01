@@ -29,7 +29,7 @@ public class AmplifierHelper {
         random = new Random(seed);
     }
 
-    static Random getRandom() {
+    public static Random getRandom() {
         return random;
     }
 

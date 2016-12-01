@@ -18,6 +18,7 @@ import java.util.Set;
  * Date: 25/11/16
  * Time: 11:16
  */
+@Deprecated
 public class Utils {
     private static String confFile = "src/test/resources/sample.properties";
     private static InputProgram inputProgram;

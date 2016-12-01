@@ -49,6 +49,10 @@ public class StatementAdd implements Amplifier {
                                 .collect(Collectors.toList()).stream())
                 .collect(Collectors.toList());
 
+        // use the existing invocation to add new invocation
+
+        // use the potential parameters to generate new invocation
+
         invocations.stream()
                 .filter(invocation -> !CtTypeUtils.isPrimitive(invocation.getType()) || !CtTypeUtils.isString(invocation.getType()))
                 .forEach(invocation -> {
@@ -68,6 +72,8 @@ public class StatementAdd implements Amplifier {
                                 .collect(Collectors.toList()));
                     }
                 });
+
+        //  use the return value of the first generation to generate
 
         return ampMethods;
     }
@@ -161,7 +167,7 @@ public class StatementAdd implements Amplifier {
         List<CtInvocation> statements = Query.getElements(method, new TypeFilter(CtInvocation.class));
         return statements.stream()
                 .filter(invocation -> invocation.getParent() instanceof CtBlock)
-                .filter(stmt -> stmt.getExecutable().getDeclaringType().getQualifiedName().startsWith(filter))
+                .filter(stmt -> stmt.getExecutable().getDeclaringType().getQualifiedName().startsWith(filter)) // filter on the name for amplify a specific type
                 .collect(Collectors.toList());
     }
 
@@ -171,7 +177,7 @@ public class StatementAdd implements Amplifier {
                     Set<CtMethod> allMethods = cl.getAllMethods();
                     return allMethods.stream();
                 })
-                .filter(mth -> !mth.getModifiers().contains(ModifierKind.ABSTRACT))
+                .filter(mth -> !mth.getModifiers().contains(ModifierKind.ABSTRACT))//TODO abstract
                 .filter(mth -> !mth.getModifiers().contains(ModifierKind.PRIVATE))
                 .filter(mth -> mth.getBody() != null)
                 .filter(mth -> !mth.getBody().getStatements().isEmpty())

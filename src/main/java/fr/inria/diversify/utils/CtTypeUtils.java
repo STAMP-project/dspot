@@ -22,7 +22,8 @@ public class CtTypeUtils {
 
     public static boolean isPrimitive(CtTypeReference type) {
         try {
-            return type.unbox().isPrimitive();
+//            return type.unbox().isPrimitive();
+            return type.isPrimitive();
         } catch (Exception e) {
             e.printStackTrace();
             return false;
