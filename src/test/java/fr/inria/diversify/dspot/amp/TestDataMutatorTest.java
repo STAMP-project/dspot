@@ -27,6 +27,7 @@ public class TestDataMutatorTest {
         /*
             Test the amplification on numbers (integer) literal
                 4 operations: i+1, i−1, i×2, i÷2.
+                and 1 literals present that is different that the muted
          */
 
         final String nameMethod = "methodInteger";
@@ -34,11 +35,11 @@ public class TestDataMutatorTest {
         CtClass<Object> literalMutationClass = buildLiteralMutationCtClass();
         TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<Integer> expectedValues = Arrays.asList(22, 24, 46, (23 / 2));
+        List<Integer> expectedValues = Arrays.asList(22, 24, 46, (23 / 2), 32);
 
         List<CtMethod> mutantMethods = amplificator.apply(method);
 
-        assertEquals(4, mutantMethods.size());
+        assertEquals(5, mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {
             CtMethod mutantMethod = mutantMethods.get(i);
             assertEquals(nameMethod + SUFFIX_MUTATION + (i + 1), mutantMethod.getSimpleName());
@@ -53,18 +54,19 @@ public class TestDataMutatorTest {
 
         /*
             Test the amplification on numbers (double) literal
-                4 operations: i+1, i−1, i×2, i÷2.
+                4 operations: i+1, i−1, i×2, i÷2
+                and 1 literals present that is different that the muted
          */
         final String nameMethod = "methodDouble";
         final double originalValue = 23.0D;
         CtClass<Object> literalMutationClass = buildLiteralMutationCtClass();
         TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<Double> expectedValues = Arrays.asList(22.0D, 24.0D, 46.0D, (23.0D / 2.0D));
+        List<Double> expectedValues = Arrays.asList(22.0D, 24.0D, 46.0D, (23.0D / 2.0D), 32.0D);
 
         List<CtMethod> mutantMethods = amplificator.apply(method);
 
-        assertEquals(4, mutantMethods.size());
+        assertEquals(5, mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {
             CtMethod mutantMethod = mutantMethods.get(i);
             assertEquals(nameMethod + SUFFIX_MUTATION + (i + 1), mutantMethod.getSimpleName());
@@ -81,6 +83,7 @@ public class TestDataMutatorTest {
         /*
           Test the amplification on string literal
                 3 operations: remove 1 random char, replace 1 random char, add 1 random char
+                and 1 literals present that is different that the muted
         */
 
         final String nameMethod = "methodString";
@@ -90,7 +93,7 @@ public class TestDataMutatorTest {
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<CtMethod> mutantMethods = amplifcator.apply(method);
 
-        assertEquals(3, mutantMethods.size());
+        assertEquals(4, mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {
             CtMethod mutantMethod = mutantMethods.get(i);
             assertEquals(nameMethod + SUFFIX_MUTATION + (i + 1), mutantMethod.getSimpleName());
@@ -112,8 +115,8 @@ public class TestDataMutatorTest {
         boolean addCharAssertion = originalBytes.length == mutantBytes.length + 1;
         boolean removeCharAssertion = originalBytes.length == mutantBytes.length - 1;
 
-        boolean replaceCharAssertion = true;
-        boolean diffFound = true;
+        boolean replaceCharAssertion = false;
+        boolean diffFound = false;
         if (originalBytes.length == mutantBytes.length) {
             diffFound = false;
             for (int i = 0; i < originalBytes.length; i++) {
@@ -127,7 +130,7 @@ public class TestDataMutatorTest {
             }
         }
 
-        assertTrue(addCharAssertion || removeCharAssertion || (diffFound && replaceCharAssertion));
+        assertTrue(addCharAssertion || removeCharAssertion || (diffFound && replaceCharAssertion) || "MySecondStringLiteral".equals(mutant));
     }
 
     @Test
@@ -159,8 +162,8 @@ public class TestDataMutatorTest {
 
     private CtClass<Object> buildLiteralMutationCtClass() {
         Launcher launcher = new Launcher();
-        launcher.addInputResource("src/test/resources/mutation/LiteralMutation.java");
+        launcher.addInputResource("src/test/resources/amp/LiteralMutation.java");
         launcher.buildModel();
-        return launcher.getFactory().Class().get("mutation.LiteralMutation");
+        return launcher.getFactory().Class().get("amp.LiteralMutation");
     }
 }

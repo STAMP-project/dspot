@@ -130,7 +130,7 @@ public class TestDataMutator extends AbstractAmp {
         ).findAny();
 
         if (presentLiteral.isPresent()) {
-            values.add((Number) ((CtLiteral)presentLiteral.get()).getValue());
+            values.add((Number) presentLiteral.get());
         }
         return values;
     }
@@ -214,6 +214,7 @@ public class TestDataMutator extends AbstractAmp {
                     }
                 }
             } catch (Exception e) {
+                throw new RuntimeException(e);
             }
             lit_index++;
         }
