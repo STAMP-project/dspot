@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * */
 public class TestDataMutator extends AbstractAmp {
     protected static Map<CtType, Set<Object>> literalByClass = new HashMap<>();
-    public static  int dataCount = 0;
+    public static int dataCount = 0;
     protected Map<Class<?>, List<Object>> literals;
 
     protected CtMethod createNumberMutant(CtMethod method, int original_lit_index, Number newValue) {
@@ -29,22 +29,22 @@ public class TestDataMutator extends AbstractAmp {
 
         CtElement toReplace = newLiteral;
 
-        if(newLiteral.getValue() instanceof Integer) {
+        if (newLiteral.getValue() instanceof Integer) {
             newLiteral.setValue(newValue.intValue());
-        } else if(newLiteral.getValue() instanceof Long) {
+        } else if (newLiteral.getValue() instanceof Long) {
             newLiteral.setValue(newValue.longValue());
-        } else if(newLiteral.getValue() instanceof Double) {
+        } else if (newLiteral.getValue() instanceof Double) {
             newLiteral.setValue(newValue.doubleValue());
-        } else if(newLiteral.getValue() instanceof Short) {
+        } else if (newLiteral.getValue() instanceof Short) {
             newLiteral.setValue(newValue.shortValue());
-        } else if(newLiteral.getValue() instanceof Float) {
+        } else if (newLiteral.getValue() instanceof Float) {
             newLiteral.setValue(newValue.floatValue());
-        } else if(newLiteral.getValue() instanceof Byte) {
+        } else if (newLiteral.getValue() instanceof Byte) {
             newLiteral.setValue(newValue.byteValue());
         }
-        if(newLiteral.getParent() instanceof CtUnaryOperator) {
-            CtUnaryOperator parent = (CtUnaryOperator)newLiteral.getParent();
-            if(parent.getKind().equals(UnaryOperatorKind.NEG)) {
+        if (newLiteral.getParent() instanceof CtUnaryOperator) {
+            CtUnaryOperator parent = (CtUnaryOperator) newLiteral.getParent();
+            if (parent.getKind().equals(UnaryOperatorKind.NEG)) {
                 toReplace = parent;
             }
         }
@@ -55,7 +55,7 @@ public class TestDataMutator extends AbstractAmp {
 
     protected List<CtMethod> createAllNumberMutant(CtMethod method, CtLiteral literal, int lit_index) {
         List<CtMethod> mutants = new ArrayList<>();
-        for(Number newValue : numberMutated(literal)) {
+        for (Number newValue : numberMutated(literal)) {
             mutants.add(createNumberMutant(method, lit_index, newValue));
         }
         return mutants;
@@ -64,7 +64,7 @@ public class TestDataMutator extends AbstractAmp {
     protected List<CtMethod> createAllStringMutant(CtMethod method, CtLiteral literal, int original_lit_index) {
         List<CtMethod> mutants = new ArrayList<>();
 
-        for(String literalMutated : stringMutated(literal)) {
+        for (String literalMutated : stringMutated(literal)) {
             mutants.add(createStringMutant(method, original_lit_index, literalMutated));
         }
         return mutants;
@@ -85,28 +85,29 @@ public class TestDataMutator extends AbstractAmp {
 
     protected Set<String> stringMutated(CtLiteral literal) {
         Set<String> values = new HashSet<>();
-        String string = ((String) literal.getValue());
-        if(string.length() > 2) {
-            int length = string.length();
+        String value = ((String) literal.getValue());
+        if (value.length() > 2) {
+            int length = value.length();
             int index = getRandom().nextInt(length - 2) + 1;
-            values.add(string.substring(0, index - 1) + getRandomChar() + string.substring(index, length));
+            values.add(value.substring(0, index - 1) + getRandomChar() + value.substring(index, length));
 
             index = getRandom().nextInt(length - 2) + 1;
-            values.add(string.substring(0, index) + getRandomChar() + string.substring(index, length));
+            values.add(value.substring(0, index) + getRandomChar() + value.substring(index, length));
 
             index = getRandom().nextInt(length - 2) + 1;
-            values.add(string.substring(0, index) + string.substring(index + 1, length));
+            values.add(value.substring(0, index) + value.substring(index + 1, length));
         } else {
             values.add("" + getRandomChar());
         }
 
-        List<Object> lits = literals.get(literal.getValue().getClass());
-        int valuesCurrentSize = values.size();
-        while(lits != null && !lits.isEmpty() && values.size() == valuesCurrentSize) {
-            int index = getRandom().nextInt(lits.size());
-            String lit = (String) lits.get(index);
-            values.add(lit);
+        Optional<Object> presentString = literals.get(value.getClass()).stream().filter(string ->
+                !value.equals(string)
+        ).findAny();
+
+        if (presentString.isPresent()) {
+            values.add((String)presentString.get());
         }
+
         return values;
     }
 
@@ -124,27 +125,26 @@ public class TestDataMutator extends AbstractAmp {
         values.add(value / 2);
         values.add(value * 2);
 
-        List<Object> lits = literals.get(literal.getValue().getClass());
-        int valuesCurrentSize = values.size();
-        while(lits != null && !lits.isEmpty() && values.size() == valuesCurrentSize) {
-            int index = getRandom().nextInt(lits.size());
-            Number lit = (Number) lits.get(index);
-            values.add(lit);//TODO remove original value
-        }
+        Optional<Object> presentLiteral = this.literals.get(value.getClass()).stream().filter( number ->
+                !value.equals(number)
+        ).findAny();
 
+        if (presentLiteral.isPresent()) {
+            values.add((Number) ((CtLiteral)presentLiteral.get()).getValue());
+        }
         return values;
     }
 
     protected boolean literalInAssert(CtLiteral lit) {
 
-		CtInvocation invocation = lit.getParent(CtInvocation.class);
-		while (invocation != null && !(invocation.getParent() instanceof CtBlock)) {
-			invocation = invocation.getParent(CtInvocation.class);
-		}
-		if(invocation == null)
-			return false;
-		return isAssert(invocation);
-	}
+        CtInvocation invocation = lit.getParent(CtInvocation.class);
+        while (invocation != null && !(invocation.getParent() instanceof CtBlock)) {
+            invocation = invocation.getParent(CtInvocation.class);
+        }
+        if (invocation == null)
+            return false;
+        return isAssert(invocation);
+    }
 
     protected CtMethod createBooleanMutant(CtMethod test, int lit_index) {
         CtLiteral literal = Query.getElements(test, new TypeFilter<CtLiteral>(CtLiteral.class))
@@ -158,7 +158,7 @@ public class TestDataMutator extends AbstractAmp {
         CtLiteral newLiteral = test.getFactory().Core().createLiteral();
         newLiteral.setTypeCasts(literal.getTypeCasts());
 
-        if(value) {
+        if (value) {
             newLiteral.setValue(false);
         } else {
             newLiteral.setValue(true);
@@ -169,13 +169,13 @@ public class TestDataMutator extends AbstractAmp {
         return cloned_method;
     }
 
-	protected boolean isCase(CtLiteral literal) {
-		return literal.getParent(CtCase.class) != null;
-	}
+    protected boolean isCase(CtLiteral literal) {
+        return literal.getParent(CtCase.class) != null;
+    }
 
     public CtMethod applyRandom(CtMethod method) {
         List<CtLiteral> literals = Query.getElements(method, new TypeFilter(CtLiteral.class));
-        if(!literals.isEmpty()) {
+        if (!literals.isEmpty()) {
             int original_lit_index = getRandom().nextInt(literals.size());
             CtLiteral literal = literals.get(original_lit_index);
 
@@ -200,24 +200,26 @@ public class TestDataMutator extends AbstractAmp {
         List<CtLiteral> literals = Query.getElements(method.getBody(), new TypeFilter(CtLiteral.class));
         //this index serves to replace ith literal is replaced by zero in the ith clone of the method
         int lit_index = 0;
-        for(CtLiteral lit : literals) {
+        for (CtLiteral lit : literals) {
             try {
                 if (!literalInAssert(lit) && !isCase(lit) && lit.getValue() != null) {
                     if (lit.getValue() instanceof Number) {
                         methods.addAll(createAllNumberMutant(method, lit, lit_index));
                     }
-                    if (lit.getValue() instanceof String ) {
+                    if (lit.getValue() instanceof String) {
                         methods.addAll(createAllStringMutant(method, lit, lit_index));
                     }
                     if (lit.getValue() instanceof Boolean) {
                         methods.add(createBooleanMutant(method, lit_index));
                     }
                 }
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
             lit_index++;
         }
         return filterAmpTest(methods, method);
     }
+
     protected Set<Object> getLiterals(Set<CtType> codeFragmentsProvide) {
         return codeFragmentsProvide.stream()
                 .flatMap(cl -> getLiterals(cl).stream())
@@ -225,7 +227,7 @@ public class TestDataMutator extends AbstractAmp {
     }
 
     protected Set<Object> getLiterals(CtType type) {
-        if(!literalByClass.containsKey(type)) {
+        if (!literalByClass.containsKey(type)) {
             Set<Object> set = (Set<Object>) Query.getElements(type, new TypeFilter(CtLiteral.class)).stream()
                     .map(literal -> ((CtLiteral) literal).getValue())
                     .distinct()
@@ -235,7 +237,7 @@ public class TestDataMutator extends AbstractAmp {
         return literalByClass.get(type);
     }
 
-        public void reset(InputProgram inputProgram, Coverage coverage, CtType testClass) {
+    public void reset(InputProgram inputProgram, Coverage coverage, CtType testClass) {
         super.reset(inputProgram, coverage, testClass);
 
         Set<CtType> codeFragmentsProvide = computeClassProvider(testClass);

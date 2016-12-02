@@ -34,17 +34,16 @@ public class TestDataMutatorTest {
         CtClass<Object> literalMutationClass = buildLiteralMutationCtClass();
         TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<Integer> expectedValues = Arrays.asList(22, 24, 46, (23 / 2), originalValue /*IMHO should not be expected*/);
+        List<Integer> expectedValues = Arrays.asList(22, 24, 46, (23 / 2));
 
         List<CtMethod> mutantMethods = amplificator.apply(method);
 
-//        assertEquals(4, mutantMethods.size());
-        assertEquals(5, mutantMethods.size());
+        assertEquals(4, mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {
             CtMethod mutantMethod = mutantMethods.get(i);
             assertEquals(nameMethod + SUFFIX_MUTATION + (i + 1), mutantMethod.getSimpleName());
             CtLiteral mutantLiteral = mutantMethod.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
-//            assertNotEquals(originalValue, mutantLiteral.getValue());
+            assertNotEquals(originalValue, mutantLiteral.getValue());
             assertTrue(expectedValues.contains(mutantLiteral.getValue()));
         }
     }
@@ -61,17 +60,16 @@ public class TestDataMutatorTest {
         CtClass<Object> literalMutationClass = buildLiteralMutationCtClass();
         TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<Double> expectedValues = Arrays.asList(22.0D, 24.0D, 46.0D, (23.0D / 2.0D), originalValue /*IMHO should not be expected*/);
+        List<Double> expectedValues = Arrays.asList(22.0D, 24.0D, 46.0D, (23.0D / 2.0D));
 
         List<CtMethod> mutantMethods = amplificator.apply(method);
 
-//        assertEquals(4, mutantMethods.size());
-        assertEquals(5, mutantMethods.size());
+        assertEquals(4, mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {
             CtMethod mutantMethod = mutantMethods.get(i);
             assertEquals(nameMethod + SUFFIX_MUTATION + (i + 1), mutantMethod.getSimpleName());
             CtLiteral mutantLiteral = mutantMethod.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
-//            assertNotEquals(originalValue, mutantLiteral.getValue());
+            assertNotEquals(originalValue, mutantLiteral.getValue());
             assertTrue(expectedValues.contains(mutantLiteral.getValue()));
         }
     }
@@ -92,13 +90,12 @@ public class TestDataMutatorTest {
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<CtMethod> mutantMethods = amplifcator.apply(method);
 
-//        assertEquals(3, mutantMethods.size());
-        assertEquals(4, mutantMethods.size());
+        assertEquals(3, mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {
             CtMethod mutantMethod = mutantMethods.get(i);
             assertEquals(nameMethod + SUFFIX_MUTATION + (i + 1), mutantMethod.getSimpleName());
             CtLiteral mutantLiteral = mutantMethod.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
-//            assertNotEquals(originalValue, mutantLiteral.getValue());
+            assertNotEquals(originalValue, mutantLiteral.getValue());
             assertDistanceBetweenOriginalAndMuted(originalValue, (String) mutantLiteral.getValue());
         }
     }
@@ -130,7 +127,7 @@ public class TestDataMutatorTest {
             }
         }
 
-        assertTrue(addCharAssertion || removeCharAssertion || (diffFound && replaceCharAssertion) || original.equals(mutant) /*IMHO should not be expected*/);
+        assertTrue(addCharAssertion || removeCharAssertion || (diffFound && replaceCharAssertion));
     }
 
     @Test
