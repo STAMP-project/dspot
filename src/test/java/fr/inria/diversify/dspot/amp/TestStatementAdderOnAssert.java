@@ -43,6 +43,8 @@ public class TestStatementAdderOnAssert {
             }).size());
         });
 
+        amplifiedMethods.forEach(System.out::println);
+
         assertEquals(2 * 3, amplifiedMethods.size());
     }
 
