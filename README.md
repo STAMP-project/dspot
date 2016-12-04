@@ -1,5 +1,5 @@
-DSpot
-=====
+DSpot [![Build Status](https://travis-ci.org/DIVERSIFY-project/dspot.svg?branch=master)](https://travis-ci.org/DIVERSIFY-project/dspot)
+=====================================================================================================================
 DSpot automatically generates new JUnit tests from a existing test suites. For this, DSpot apply transformation operators on existing tests and selected the new tests  whit coverage criteria such as branch coverage or call graph coverage.
 
 
