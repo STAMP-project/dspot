@@ -4,7 +4,6 @@ package fr.inria.diversify.dspot.amp;
 import fr.inria.diversify.dspot.value.Value;
 import fr.inria.diversify.dspot.value.ValueFactory;
 import fr.inria.diversify.log.branch.Coverage;
-import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.utils.CtTypeUtils;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
@@ -22,7 +21,7 @@ import java.util.stream.Collectors;
  * Date: 18/11/16
  * Time: 10:40
  */
-public class StatementAdd extends AbstractAmp {
+public class StatementAdd implements Amplifier {
     protected String filter;
     protected Set<CtMethod> methods;
     protected Map<CtType, Boolean> hasConstructor;
@@ -46,7 +45,7 @@ public class StatementAdd extends AbstractAmp {
                 .filter(invocation -> !((CtMethod) invocation.getExecutable().getDeclaration()).getModifiers().contains(ModifierKind.STATIC))
                 .flatMap(invocation ->
                         findMethodsWithTargetType(invocation.getTarget().getType()).stream()
-                                .map(addMth -> addInvocation(method, addMth, invocation.getTarget(), invocation, getRandom().nextBoolean()))
+                                .map(addMth -> addInvocation(method, addMth, invocation.getTarget(), invocation, AmplifierHelper.getRandom().nextBoolean()))
                                 .collect(Collectors.toList()).stream())
                 .collect(Collectors.toList());
 
@@ -60,7 +59,7 @@ public class StatementAdd extends AbstractAmp {
                                 "invoc_" + count[0]++,
                                 invocation);
                         CtExpression<?> target = createLocalVarRef(localVar);
-                        CtMethod methodClone = cloneMethod(method, "");
+                        CtMethod methodClone = AmplifierHelper.cloneMethod(method, "");
                         CtStatement stmt = findInvocationIn(methodClone, invocation);
                         stmt.replace(localVar);
 
@@ -74,7 +73,7 @@ public class StatementAdd extends AbstractAmp {
     }
 
     private CtMethod addInvocation(CtMethod mth, CtMethod mthToAdd, CtExpression target, CtStatement position, boolean before) {
-        CtMethod methodClone = cloneMethod(mth, "_sd");
+        CtMethod methodClone = AmplifierHelper.cloneMethod(mth, "_sd");
         CtBlock body = methodClone.getBody();
 
         List<CtParameter> parameters = mthToAdd.getParameters();
@@ -143,10 +142,8 @@ public class StatementAdd extends AbstractAmp {
         return null;
     }
 
-    public void reset(InputProgram inputProgram, Coverage coverage, CtType testClass) {
-        cloneNumber = 1;
-        previousTestAmp = new HashSet<>();
-        ampTestToParent = new HashMap<>();
+    public void reset(Coverage coverage, CtType testClass) {
+        AmplifierHelper.reset();
         initMethods(testClass);
     }
 
@@ -169,7 +166,7 @@ public class StatementAdd extends AbstractAmp {
     }
 
     protected void initMethods(CtType testClass) {
-        methods = computeClassProvider(testClass).stream()
+        methods = AmplifierHelper.computeClassProvider(testClass).stream()
                 .flatMap(cl -> {
                     Set<CtMethod> allMethods = cl.getAllMethods();
                     return allMethods.stream();

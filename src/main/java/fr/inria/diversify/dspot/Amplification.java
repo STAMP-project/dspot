@@ -2,7 +2,6 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.dspot.amp.*;
-import fr.inria.diversify.exp.LogResult;
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.log.branch.Coverage;
 import fr.inria.diversify.logger.Logger;
@@ -30,7 +29,7 @@ public class Amplification {
     protected DiversifyClassLoader applicationClassLoader;
     protected InputProgram inputProgram;
     protected File logDir;
-    protected List<AbstractAmp> amplifiers;
+    protected List<Amplifier> amplifiers;
     protected DiversityCompiler compiler;
     protected TestSelector testSelector;
     protected ClassWithLoggerBuilder classWithLoggerBuilder;
@@ -38,7 +37,7 @@ public class Amplification {
 
     protected static int ampTestCount;
 
-    public Amplification(InputProgram inputProgram, DiversityCompiler compiler, DiversifyClassLoader applicationClassLoader, List<AbstractAmp> amplifiers, File logDir) {
+    public Amplification(InputProgram inputProgram, DiversityCompiler compiler, DiversifyClassLoader applicationClassLoader, List<Amplifier> amplifiers, File logDir) {
         this.inputProgram = inputProgram;
         this.compiler = compiler;
         this.applicationClassLoader = applicationClassLoader;
@@ -228,7 +227,7 @@ public class Amplification {
 
     protected void resetAmplifiers(CtType parentClass, Coverage coverage) {
         amplifiers.stream()
-                .forEach(amp -> amp.reset(inputProgram, coverage, parentClass));
+                .forEach(amp -> amp.reset(coverage, parentClass));
     }
 
     protected List<CtMethod> getAllTest(CtType classTest) {

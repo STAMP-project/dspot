@@ -2,7 +2,6 @@ package fr.inria.diversify.dspot.amp;
 
 import fr.inria.diversify.codeFragment.*;
 import fr.inria.diversify.log.branch.Coverage;
-import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.Log;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
@@ -22,7 +21,7 @@ import java.util.stream.Collectors;
  * Date: 02/12/15
  * Time: 14:55
  */
-public class StatementAdderOnAssert extends AbstractAmp {
+public class StatementAdderOnAssert implements Amplifier {
     protected List<Statement> localVars;
     protected Map<CtMethod, List<CtLiteral>> literalsByMethod;
     protected Map<Statement, Double> coverageBycodeFragments;
@@ -47,7 +46,7 @@ public class StatementAdderOnAssert extends AbstractAmp {
                 }
             }
         }
-        return filterAmpTest(newMethods, method);
+        return AmplifierHelper.updateAmpTestToParent(newMethods, method);
     }
 
     public CtMethod applyRandom(CtMethod method) {
@@ -55,7 +54,7 @@ public class StatementAdderOnAssert extends AbstractAmp {
     }
 
     protected CtMethod apply(CtMethod method,  List<Statement> statements, int index) {
-        CtMethod cloned_method = cloneMethodTest(method, "_cf", 1000);
+        CtMethod cloned_method = AmplifierHelper.cloneMethodTest(method, "_cf", 1000);
         CtStatement stmt = getAssertStatement(cloned_method)
                 .get(index);
         statements.stream()
@@ -108,7 +107,7 @@ public class StatementAdderOnAssert extends AbstractAmp {
 
             List<CtVariableReference> candidates = inputContext.allCandidate(var.getType(), true, false);
             if(!candidates.isEmpty()) {
-                varCartesianProduct.addReplaceVar(var, candidates.get(getRandom().nextInt(candidates.size())));
+                varCartesianProduct.addReplaceVar(var, candidates.get(AmplifierHelper.getRandom().nextInt(candidates.size())));
             }
 
             Statement cfLocalVar = getLocalVar(var.getType(), inputContext);
@@ -143,7 +142,7 @@ public class StatementAdderOnAssert extends AbstractAmp {
             Factory factory = type.getFactory();
             boolean localVarFind;
             while(!list.isEmpty()) {
-                Statement localVar = list.remove(getRandom().nextInt(list.size()));
+                Statement localVar = list.remove(AmplifierHelper.getRandom().nextInt(list.size()));
                 localVarFind = true;
                 for (CtVariableReference var : localVar.getInputContext().getVar()) {
                     CtVariableReference<?> candidate = inputContext.candidate(var.getType(), true);
@@ -171,7 +170,7 @@ public class StatementAdderOnAssert extends AbstractAmp {
         List<CtStatement> statements = Query.getElements(method, new TypeFilter(CtStatement.class));
         return statements.stream()
                 .filter(stmt -> stmt.getParent() instanceof CtBlock)
-                .filter(stmt -> isAssert(stmt))
+                .filter(stmt -> AmplifierChecker.isAssert(stmt))
                 .collect(Collectors.toList());
     }
 
@@ -254,7 +253,7 @@ public class StatementAdderOnAssert extends AbstractAmp {
 
     protected CtType findClassUnderTest(CtType testClass) {
         String testClassName = testClass.getQualifiedName();
-        return computeClassProvider(testClass).stream()
+        return AmplifierHelper.computeClassProvider(testClass).stream()
                 .filter(cl -> cl != null)
                 .filter(cl -> cl != testClass)
                 .filter(cl -> testClassName.contains(cl.getQualifiedName()))
@@ -304,7 +303,7 @@ public class StatementAdderOnAssert extends AbstractAmp {
             return null;
         }
 
-        CtLiteral lit = literals.get(getRandom().nextInt(literals.size()));
+        CtLiteral lit = literals.get(AmplifierHelper.getRandom().nextInt(literals.size()));
         return type.getFactory().Code().createLocalVariable(type, "vc_"+count++,lit);
     }
 
@@ -315,11 +314,11 @@ public class StatementAdderOnAssert extends AbstractAmp {
         return literalsByMethod.get(method);
     }
 
-    public void reset(InputProgram inputProgram, Coverage coverage, CtType testClass) {
-        super.reset(inputProgram, coverage, testClass);
+    public void reset(Coverage coverage, CtType testClass) {
+        AmplifierHelper.reset();
         literalsByMethod = new HashMap<>();
 
-        Set<CtType> codeFragmentsProvide = computeClassProvider(testClass);
+        Set<CtType> codeFragmentsProvide = AmplifierHelper.computeClassProvider(testClass);
 
         List<Statement> codeFragmentsByClass = codeFragmentsProvide.stream()
                 .flatMap(cl -> {

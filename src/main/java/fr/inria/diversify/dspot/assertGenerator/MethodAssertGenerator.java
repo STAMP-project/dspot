@@ -109,7 +109,6 @@ public class MethodAssertGenerator {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.debug("");
         }
         return null;
     }

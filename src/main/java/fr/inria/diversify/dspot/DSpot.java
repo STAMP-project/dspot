@@ -71,7 +71,7 @@ public class DSpot {
         Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, initAmplifiers(), logDir);
 
         List<CtMethod> ampTests = testAmplification.amplification(test, 3);
-        return assertGenerator.generateAsserts(test, ampTests, AbstractAmp.getAmpTestToParent());
+        return assertGenerator.generateAsserts(test, ampTests, AmplifierHelper.getAmpTestToParent());
     }
 
     public CtType generateTest(List<CtMethod> tests, CtType testClass) throws IOException, InterruptedException, ClassNotFoundException {
@@ -79,11 +79,11 @@ public class DSpot {
         Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, initAmplifiers(), logDir);
 
         List<CtMethod> ampTests = testAmplification.amplification(testClass, tests, 3);
-        return assertGenerator.generateAsserts(testClass, ampTests, AbstractAmp.getAmpTestToParent());
+        return assertGenerator.generateAsserts(testClass, ampTests, AmplifierHelper.getAmpTestToParent());
     }
 
-    protected List<AbstractAmp> initAmplifiers() {
-        List<AbstractAmp> amplifiers = new ArrayList<>();
+    protected List<Amplifier> initAmplifiers() {
+        List<Amplifier> amplifiers = new ArrayList<>();
 
         amplifiers.add(new TestDataMutator());
         amplifiers.add(new TestMethodCallAdder());

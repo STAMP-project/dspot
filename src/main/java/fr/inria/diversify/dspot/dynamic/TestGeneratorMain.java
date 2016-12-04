@@ -142,8 +142,8 @@ public class TestGeneratorMain {
         }
     }
 
-    protected List<AbstractAmp> initAmplifiers() {
-        List<AbstractAmp> amplifiers = new ArrayList<>();
+    protected List<Amplifier> initAmplifiers() {
+        List<Amplifier> amplifiers = new ArrayList<>();
 
         amplifiers.add(new TestDataMutator());
         amplifiers.add(new TestMethodCallAdder());
