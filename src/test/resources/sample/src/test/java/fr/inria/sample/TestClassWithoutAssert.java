@@ -7,7 +7,7 @@ import org.junit.Test;
  * Date: 25/11/16
  * Time: 13:39
  */
-public class TestCassWithoutAssert {
+public class TestClassWithoutAssert {
 
     @Test
     public void test1() {
@@ -19,12 +19,14 @@ public class TestCassWithoutAssert {
 
     @Test
     public void test1_withAssert() {
-        ClassWithBoolean cl = new ClassWithBoolean();
-        junit.framework.Assert.assertFalse(((ClassWithBoolean)cl).getFalse());
-        junit.framework.Assert.assertTrue(((ClassWithBoolean)cl).getTrue());
+        fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();
+        junit.framework.Assert.assertFalse(((fr.inria.sample.ClassWithBoolean)cl).getFalse());
+        junit.framework.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getTrue());
+        junit.framework.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getBoolean());
         boolean o_test1_withoutAssert__3 = cl.getFalse();
         junit.framework.Assert.assertFalse(o_test1_withoutAssert__3);
-        cl.getBoolean();
+        boolean o_test1_withoutAssert__4 = cl.getBoolean();
+        junit.framework.Assert.assertTrue(o_test1_withoutAssert__4);
         boolean var = cl.getTrue();
         junit.framework.Assert.assertTrue(var);
     }

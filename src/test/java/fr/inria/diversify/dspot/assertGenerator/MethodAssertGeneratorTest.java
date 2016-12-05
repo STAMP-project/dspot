@@ -4,9 +4,7 @@ import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.util.FileUtils;
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -69,14 +67,13 @@ public class MethodAssertGeneratorTest {
         assertBodyEquals(test_makeFailureTest, test_exceptionCatch);
     }
 
-    @Ignore
     @Test
     public void testBuildNewAssert() throws InvalidSdkException, Exception {
-        CtClass testClass = Utils.findClass("fr.inria.sample.TestCassWithoutAssert");
+        CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler(), Utils.getApplicationClassLoader());
 
-        CtMethod test1 = Utils.findMethod("fr.inria.sample.TestCassWithoutAssert", "test1");
-        CtMethod test1_withAssert = Utils.findMethod("fr.inria.sample.TestCassWithoutAssert", "test1_withAssert");
+        CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithoutAssert", "test1");
+        CtMethod test1_withAssert = Utils.findMethod("fr.inria.sample.TestClassWithoutAssert", "test1_withAssert");
         mag.test = test1;
         CtMethod test1_buildNewAssert = mag.generateAssert(test1);
         assertBodyEquals(test1_buildNewAssert, test1_withAssert);
