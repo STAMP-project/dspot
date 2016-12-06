@@ -23,7 +23,7 @@ public class AmplifierHelper {
     private static int cloneNumber;
     private static Map<CtMethod,CtMethod> ampTestToParent;
     private static Map<CtType, Set<CtType>> importByClass = new HashMap<>();
-    private static Random random;
+    private static Random random = new Random();
 
     static void setSeedRandom(long seed) {
         random = new Random(seed);
