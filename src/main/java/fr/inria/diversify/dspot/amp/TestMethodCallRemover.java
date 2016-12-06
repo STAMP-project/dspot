@@ -1,7 +1,9 @@
 package fr.inria.diversify.dspot.amp;
 
+import fr.inria.diversify.log.branch.Coverage;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
@@ -9,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class TestMethodCallRemover extends AbstractAmp {
+public class TestMethodCallRemover implements Amplifier {
 
 	protected boolean toRemove(CtInvocation invocation) {
 		return invocation.getParent() instanceof CtBlock
@@ -35,7 +37,7 @@ public class TestMethodCallRemover extends AbstractAmp {
             for(CtInvocation invocation : invocations){
                 try{
                     if(toRemove(invocation)
-                            && !isAssert(invocation)
+                            && !AmplifierChecker.isAssert(invocation)
                             && !inWhileLoop(invocation)
                             && !containsIteratorNext(invocation)) {
                      methods.add(apply(method, invocation_index));
@@ -44,7 +46,7 @@ public class TestMethodCallRemover extends AbstractAmp {
                 invocation_index++;
             }
         }
-        return filterAmpTest(methods, method);
+        return AmplifierHelper.updateAmpTestToParent(methods, method);
     }
 
     public CtMethod applyRandom(CtMethod method) {
@@ -53,7 +55,7 @@ public class TestMethodCallRemover extends AbstractAmp {
 
             while(!invocations.isEmpty()) {
                 try {
-                    int invocation_index = getRandom().nextInt(invocations.size());
+                    int invocation_index = AmplifierHelper.getRandom().nextInt(invocations.size());
                     return apply(method, invocation_index);
                 } catch (Exception e) {}
             }
@@ -61,9 +63,14 @@ public class TestMethodCallRemover extends AbstractAmp {
         return null;
     }
 
+    @Override
+    public void reset(Coverage coverage, CtType testClass) {
+        AmplifierHelper.reset();
+    }
+
     protected CtMethod apply(CtMethod method, int invocation_index) {
         //clone the method
-        CtMethod cloned_method = cloneMethodTest(method, "_remove",1000);
+        CtMethod cloned_method = AmplifierHelper.cloneMethodTest(method, "_remove",1000);
 
             //get the lit_indexth literal of the cloned method
             CtInvocation stmt = Query.getElements(cloned_method, new TypeFilter<CtInvocation>(CtInvocation.class)).get(invocation_index);

@@ -32,6 +32,7 @@ public class TestDataMutatorTest {
 
         final String nameMethod = "methodInteger";
         final int originalValue = 23;
+        AmplifierHelper.setSeedRandom(42L);
         CtClass<Object> literalMutationClass = buildLiteralMutationCtClass();
         TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
@@ -59,6 +60,7 @@ public class TestDataMutatorTest {
          */
         final String nameMethod = "methodDouble";
         final double originalValue = 23.0D;
+        AmplifierHelper.setSeedRandom(42L);
         CtClass<Object> literalMutationClass = buildLiteralMutationCtClass();
         TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
@@ -88,6 +90,7 @@ public class TestDataMutatorTest {
 
         final String nameMethod = "methodString";
         final String originalValue = "MyStringLiteral";
+        AmplifierHelper.setSeedRandom(42L);
         CtClass<Object> literalMutationClass = buildLiteralMutationCtClass();
         TestDataMutator amplifcator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
@@ -142,6 +145,7 @@ public class TestDataMutatorTest {
 
         final String nameMethod = "methodBoolean";
         final boolean originalValue = true;
+        AmplifierHelper.setSeedRandom(42L);
         CtClass<Object> literalMutationClass = buildLiteralMutationCtClass();
         TestDataMutator mutator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
@@ -156,7 +160,7 @@ public class TestDataMutatorTest {
 
     private TestDataMutator getTestDataMutator(CtClass<Object> literalMutationClass) {
         TestDataMutator amplificator = new TestDataMutator();
-        amplificator.reset(null, null, literalMutationClass);
+        amplificator.reset(null, literalMutationClass);
         return amplificator;
     }
 

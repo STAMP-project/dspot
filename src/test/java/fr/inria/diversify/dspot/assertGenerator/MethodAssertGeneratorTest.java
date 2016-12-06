@@ -79,7 +79,7 @@ public class MethodAssertGeneratorTest {
         CtMethod test1_withAssert = Utils.findMethod("fr.inria.sample.TestCassWithoutAssert", "test1_withAssert");
         mag.test = test1;
         CtMethod test1_buildNewAssert = mag.generateAssert(test1);
-         assertBodyEquals(test1_buildNewAssert, test1_withAssert);
+        assertBodyEquals(test1_buildNewAssert, test1_withAssert);
     }
 
     @AfterClass
