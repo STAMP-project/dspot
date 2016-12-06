@@ -7,6 +7,11 @@
     <groupId>fr.inria.diversify</groupId>
     <artifactId>dspot</artifactId>
     <version>1.0.0</version>
+             
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <default.encoding>UTF-8</default.encoding>
+    </properties>
 
     <dependencies>
         <dependency>
