@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
  * Date: 02/12/15
  * Time: 14:55
  */
-@Deprecated
 public class StatementAdderOnAssert implements Amplifier {
 
     protected List<Statement> localVars;
@@ -141,7 +140,6 @@ public class StatementAdderOnAssert implements Amplifier {
         if(list.isEmpty()) {
             return null;
         } else {
-            Factory factory = type.getFactory();
             boolean localVarFind;
             while(!list.isEmpty()) {
                 Statement localVar = list.remove(AmplifierHelper.getRandom().nextInt(list.size()));
@@ -161,7 +159,9 @@ public class StatementAdderOnAssert implements Amplifier {
                             cloneLocalVar.getInputContext().getVariableOrFieldNamed(var.getSimpleName()).replace(variable);
                         }
                         return cloneLocalVar;
-                    } catch (Exception e) {}
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
             return null;
@@ -196,7 +196,9 @@ public class StatementAdderOnAssert implements Amplifier {
                 vars.addAll(getLocalVarInScope(parentBlock));
 
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return vars;
     }
 
