@@ -6,6 +6,7 @@ import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.util.FileUtils;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -68,6 +69,7 @@ public class MethodAssertGeneratorTest {
         assertBodyEquals(test_makeFailureTest, test_exceptionCatch);
     }
 
+    @Ignore
     @Test
     public void testBuildNewAssert() throws InvalidSdkException, Exception {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestCassWithoutAssert");
