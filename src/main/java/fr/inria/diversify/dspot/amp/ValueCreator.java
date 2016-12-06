@@ -18,13 +18,13 @@ import java.util.stream.IntStream;
  * Time: 10:40
  */
 public class ValueCreator {
-    protected Random random;
+
     protected int maxArraySize = 5;
     protected static int count;
 
 
     public ValueCreator() {
-        random = new Random();
+
     }
 
     public CtLocalVariable createRandomLocalVar(CtTypeReference type) {
@@ -68,7 +68,7 @@ public class ValueCreator {
             CtTypeReference typeComponent = arrayType.getComponentType();
             snippet = "new " + typeComponent.getQualifiedName() + " []{";
 
-            snippet += IntStream.range(0, random.nextInt(maxArraySize))
+            snippet += IntStream.range(0, AmplifierHelper.getRandom().nextInt(maxArraySize))
                     .mapToObj(i -> createValue(typeComponent))
                     .map(value -> value.toString())
                     .collect(Collectors.joining(","))
@@ -101,21 +101,21 @@ public class ValueCreator {
 
         switch (typeName) {
             case "int" :
-                return factory.Code().createLiteral(random.nextInt());
+                return factory.Code().createLiteral(AmplifierHelper.getRandom().nextInt());
             case "long" :
-                return factory.Code().createLiteral(random.nextLong());
+                return factory.Code().createLiteral(AmplifierHelper.getRandom().nextLong());
             case "float" :
-                return factory.Code().createLiteral(random.nextFloat());
+                return factory.Code().createLiteral(AmplifierHelper.getRandom().nextFloat());
             case "double" :
-                return factory.Code().createLiteral(random.nextDouble());
+                return factory.Code().createLiteral(AmplifierHelper.getRandom().nextDouble());
             case "boolean" :
-                return factory.Code().createLiteral(random.nextBoolean());
+                return factory.Code().createLiteral(AmplifierHelper.getRandom().nextBoolean());
             case "short" :
-                return factory.Code().createLiteral(random.nextInt(Short.MAX_VALUE));
+                return factory.Code().createLiteral(AmplifierHelper.getRandom().nextInt(Short.MAX_VALUE));
             case "byte" :
-                return factory.Code().createLiteral(random.nextInt(Byte.MAX_VALUE));
+                return factory.Code().createLiteral(AmplifierHelper.getRandom().nextInt(Byte.MAX_VALUE));
             case "char" :
-                return factory.Code().createLiteral((char) ((byte)random.nextInt(Byte.MAX_VALUE)));
+                return factory.Code().createLiteral((char) ((byte)AmplifierHelper.getRandom().nextInt(Byte.MAX_VALUE)));
         }
         return null;
     }

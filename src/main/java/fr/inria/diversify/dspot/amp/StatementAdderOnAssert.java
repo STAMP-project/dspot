@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
  * Time: 14:55
  */
 public class StatementAdderOnAssert implements Amplifier {
+
     protected List<Statement> localVars;
     protected Map<CtMethod, List<CtLiteral>> literalsByMethod;
     protected Map<Statement, Double> coverageBycodeFragments;
@@ -139,7 +140,6 @@ public class StatementAdderOnAssert implements Amplifier {
         if(list.isEmpty()) {
             return null;
         } else {
-            Factory factory = type.getFactory();
             boolean localVarFind;
             while(!list.isEmpty()) {
                 Statement localVar = list.remove(AmplifierHelper.getRandom().nextInt(list.size()));
@@ -159,7 +159,9 @@ public class StatementAdderOnAssert implements Amplifier {
                             cloneLocalVar.getInputContext().getVariableOrFieldNamed(var.getSimpleName()).replace(variable);
                         }
                         return cloneLocalVar;
-                    } catch (Exception e) {}
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
             return null;
@@ -194,7 +196,9 @@ public class StatementAdderOnAssert implements Amplifier {
                 vars.addAll(getLocalVarInScope(parentBlock));
 
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return vars;
     }
 
@@ -256,7 +260,7 @@ public class StatementAdderOnAssert implements Amplifier {
         return AmplifierHelper.computeClassProvider(testClass).stream()
                 .filter(cl -> cl != null)
                 .filter(cl -> cl != testClass)
-                .filter(cl -> testClassName.contains(cl.getQualifiedName()))
+                .filter(cl -> testClassName.contains(cl.getSimpleName()))
                 .findFirst()
                 .orElse(null);
     }
