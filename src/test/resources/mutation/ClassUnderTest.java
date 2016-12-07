@@ -10,7 +10,7 @@ public class ClassUnderTest {
         return integer + 1;
     }
 
-    public int minueOne(int integer) {
+    public int minusOne(int integer) {
         return integer - 1;
     }
 

@@ -1,9 +1,6 @@
 package fr.inria.diversify.dspot.amp;
 
-import spoon.reflect.code.CtCase;
-import spoon.reflect.code.CtInvocation;
-import spoon.reflect.code.CtLiteral;
-import spoon.reflect.code.CtStatement;
+import spoon.reflect.code.*;
 
 /**
  * Created by Benjamin DANGLOT
@@ -36,5 +33,9 @@ class AmplifierChecker {
             return true;
         Class superCl = cl.getSuperclass();
         return superCl != null && isAssertInstance(superCl);
+    }
+
+    public static boolean canBeAdded(CtInvocation invocation) {
+        return !invocation.toString().startsWith("super(") && invocation.getParent() instanceof CtBlock;
     }
 }
