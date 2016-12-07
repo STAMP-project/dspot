@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
  */
 public class StatementAdderOnAssert implements Amplifier {
 
-    protected List<Statement> localVars;
-    protected Map<CtMethod, List<CtLiteral>> literalsByMethod;
-    protected Map<Statement, Double> coverageBycodeFragments;
-    protected CtMethod currentMethod;
+    private List<Statement> localVars;
+    private Map<CtMethod, List<CtLiteral>> literalsByMethod;
+    private Map<Statement, Double> coverageBycodeFragments;
+    private CtMethod currentMethod;
 
     @Override
     public List<CtMethod> apply(CtMethod method) {
@@ -51,7 +51,7 @@ public class StatementAdderOnAssert implements Amplifier {
     }
 
     public CtMethod applyRandom(CtMethod method) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     protected CtMethod apply(CtMethod method,  List<Statement> statements, int index) {
