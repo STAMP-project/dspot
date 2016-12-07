@@ -51,6 +51,42 @@ public class TestDataMutatorTest {
     }
 
     @Test
+    public void testIntMutationRandom() throws Exception {
+
+        /*
+            Test the amplification on numbers (integer) literal
+                4 operations: i+1, i−1, i×2, i÷2.
+                and 1 literals present that is different that the muted
+                One random amplification at the time
+         */
+
+        final String nameMethod = "methodInteger";
+        final int originalValue = 23;
+        AmplifierHelper.setSeedRandom(42L);
+        CtClass<Object> literalMutationClass = buildLiteralMutationCtClass();
+        TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
+        CtMethod method = literalMutationClass.getMethod(nameMethod);
+        List<Integer> expectedValues = Arrays.asList(22, 24, 46, (23 / 2), 32);
+
+        CtMethod mutantMethod = amplificator.applyRandom(method);
+
+        assertEquals(nameMethod + SUFFIX_MUTATION + 1, mutantMethod.getSimpleName());
+        CtLiteral mutantLiteral = mutantMethod.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
+        assertNotEquals(originalValue, mutantLiteral.getValue());
+        assertTrue(expectedValues.contains(mutantLiteral.getValue()));
+
+        CtMethod mutantMethod2 = amplificator.applyRandom(method);
+
+        assertEquals(nameMethod + SUFFIX_MUTATION + 2, mutantMethod2.getSimpleName());
+        CtLiteral mutantLiteral2 = mutantMethod2.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
+        assertNotEquals(originalValue, mutantLiteral2.getValue());
+        assertTrue(expectedValues.contains(mutantLiteral2.getValue()));
+
+        assertNotEquals(mutantLiteral.getValue(), mutantLiteral2.getValue());
+    }
+
+
+    @Test
     public void testDoubleMutation() throws Exception {
 
         /*
@@ -76,6 +112,40 @@ public class TestDataMutatorTest {
             assertNotEquals(originalValue, mutantLiteral.getValue());
             assertTrue(expectedValues.contains(mutantLiteral.getValue()));
         }
+    }
+
+    @Test
+    public void testDoubleMutationRandom() throws Exception {
+
+        /*
+            Test the amplification on numbers (double) literal
+                4 operations: i+1, i−1, i×2, i÷2
+                and 1 literals present that is different that the muted
+                One random amplification at the time
+         */
+        final String nameMethod = "methodDouble";
+        final double originalValue = 23.0D;
+        AmplifierHelper.setSeedRandom(42L);
+        CtClass<Object> literalMutationClass = buildLiteralMutationCtClass();
+        TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
+        CtMethod method = literalMutationClass.getMethod(nameMethod);
+        List<Double> expectedValues = Arrays.asList(22.0D, 24.0D, 46.0D, (23.0D / 2.0D), 32.0D);
+
+        CtMethod mutantMethod = amplificator.applyRandom(method);
+
+        assertEquals(nameMethod + SUFFIX_MUTATION + 1, mutantMethod.getSimpleName());
+        CtLiteral mutantLiteral = mutantMethod.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
+        assertNotEquals(originalValue, mutantLiteral.getValue());
+        assertTrue(expectedValues.contains(mutantLiteral.getValue()));
+
+        CtMethod mutantMethod2 = amplificator.applyRandom(method);
+
+        assertEquals(nameMethod + SUFFIX_MUTATION + 2, mutantMethod2.getSimpleName());
+        CtLiteral mutantLiteral2 = mutantMethod2.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
+        assertNotEquals(originalValue, mutantLiteral2.getValue());
+        assertTrue(expectedValues.contains(mutantLiteral2.getValue()));
+
+        assertNotEquals(mutantLiteral.getValue(), mutantLiteral2.getValue());
     }
 
 
@@ -104,6 +174,40 @@ public class TestDataMutatorTest {
             assertNotEquals(originalValue, mutantLiteral.getValue());
             assertDistanceBetweenOriginalAndMuted(originalValue, (String) mutantLiteral.getValue());
         }
+    }
+
+    @Test
+    public void testStringMutationRandom() throws Exception {
+
+        /*
+          Test the amplification on string literal
+                3 operations: remove 1 random char, replace 1 random char, add 1 random char
+                and 1 literals present that is different that the muted
+                One random amplification at the time
+        */
+
+        final String nameMethod = "methodString";
+        final String originalValue = "MyStringLiteral";
+        AmplifierHelper.setSeedRandom(42L);
+        CtClass<Object> literalMutationClass = buildLiteralMutationCtClass();
+        TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
+        CtMethod method = literalMutationClass.getMethod(nameMethod);
+
+        CtMethod mutantMethod = amplificator.applyRandom(method);
+
+        assertEquals(nameMethod + SUFFIX_MUTATION + 1, mutantMethod.getSimpleName());
+        CtLiteral mutantLiteral = mutantMethod.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
+        assertNotEquals(originalValue, mutantLiteral.getValue());
+        assertDistanceBetweenOriginalAndMuted(originalValue, (String) mutantLiteral.getValue());
+
+        CtMethod mutantMethod2 = amplificator.applyRandom(method);
+
+        assertEquals(nameMethod + SUFFIX_MUTATION + 2, mutantMethod2.getSimpleName());
+        CtLiteral mutantLiteral2 = mutantMethod2.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
+        assertNotEquals(originalValue, mutantLiteral2.getValue());
+        assertDistanceBetweenOriginalAndMuted(originalValue, (String) mutantLiteral.getValue());
+
+        assertNotEquals(mutantLiteral.getValue(), mutantLiteral2.getValue());
     }
 
     /**
@@ -155,7 +259,7 @@ public class TestDataMutatorTest {
         assertEquals(1, mutantMethods.size());
         assertEquals(nameMethod + SUFFIX_MUTATION + "1", mutantMethod.getSimpleName());
         CtLiteral mutantLiteral = mutantMethod.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
-        assertEquals(! (originalValue), mutantLiteral.getValue());
+        assertEquals(!(originalValue), mutantLiteral.getValue());
     }
 
     private TestDataMutator getTestDataMutator(CtClass<Object> literalMutationClass) {
