@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot.value;
 
 
+import fr.inria.diversify.dspot.amp.AmplifierHelper;
 import fr.inria.diversify.dspot.value.objectInstanciationTree.ObjectInstantiation;
 import fr.inria.diversify.dspot.value.objectInstanciationTree.StaticMethodValue;
 import fr.inria.diversify.utils.CtTypeUtils;
@@ -21,11 +22,8 @@ import java.util.Set;
 public class ValueType {
     protected static Factory factory;
     protected static ValueFactory valueFactory;
-    protected static Random random = new Random();
     protected String dynamicType;
     protected List<Value> values;
-
-
 
     public ValueType(String dynamicType) {
         this.dynamicType = dynamicType;
@@ -40,7 +38,7 @@ public class ValueType {
 
     public Value getRandomValue(boolean generateIsEmpty) {
         while (!values.isEmpty()) {
-            int index = random.nextInt(values.size());
+            int index = AmplifierHelper.getRandom().nextInt(values.size());
             Value value = values.get(index);
             if(value.isOk()) {
                 return value;
@@ -69,6 +67,8 @@ public class ValueType {
         return dynamicType;
     }
 
+
+    //TODO
     protected Value generateRandomValue() {
 //        if(dynamicType.equals("null")) {
 //        }
@@ -80,7 +80,7 @@ public class ValueType {
         }
         Object primitiveValue = null;
         if(type == Boolean.class) {
-            primitiveValue = random.nextBoolean();
+            primitiveValue = AmplifierHelper.getRandom().nextBoolean();
         }
         if(type == Character.class) {
             primitiveValue = '1';
@@ -89,19 +89,19 @@ public class ValueType {
 //            value = '1';
         }
         if(type == Short.class) {
-            primitiveValue = (short)random.nextInt(100);
+            primitiveValue = (short)AmplifierHelper.getRandom().nextInt(100);
         }
-        if(type == Integer.class) {
-            primitiveValue = random.nextInt(100);
+        if(type == Integer.class || type == int.class) {
+            primitiveValue = AmplifierHelper.getRandom().nextInt(100);
         }
         if(type == Long.class) {
-            primitiveValue = (long)random.nextInt(100);
+            primitiveValue = (long)AmplifierHelper.getRandom().nextInt(100);
         }
         if(type == Float.class) {
-            primitiveValue = (float)random.nextDouble();
+            primitiveValue = (float)AmplifierHelper.getRandom().nextDouble();
         }
         if(type == Double.class) {
-            primitiveValue = random.nextDouble();
+            primitiveValue = AmplifierHelper.getRandom().nextDouble();
         }
         if(type == String.class) {
             primitiveValue = "foo";
@@ -127,10 +127,6 @@ public class ValueType {
             }
         }
         return null;
-    }
-
-    public boolean hasValue() {
-        return !values.isEmpty();
     }
 
     protected CtExecutableReference getSingletonMethodAccess() {
@@ -182,8 +178,9 @@ public class ValueType {
                 return null;
             }
 
-        } catch (Exception e) {}
-        return null;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private boolean isPrivate(CtConstructor constructor) {
