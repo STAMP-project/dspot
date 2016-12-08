@@ -74,12 +74,5 @@ public class Utils {
                 .orElse(null);
     }
 
-    public static Launcher buildSpoon() {
-        Launcher launcher = new Launcher();
-        launcher.getEnvironment().setNoClasspath(true);
-        launcher.addInputResource("src/test/resources/mutation/ClassUnderTestTest.java");
-        launcher.addInputResource("src/test/resources/mutation/ClassUnderTest.java");
-        launcher.buildModel();
-        return launcher;
-    }
+
 }

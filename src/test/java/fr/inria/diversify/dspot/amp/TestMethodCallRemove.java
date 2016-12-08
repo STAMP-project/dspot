@@ -1,12 +1,13 @@
 package fr.inria.diversify.dspot.amp;
 
-import fr.inria.diversify.Utils;
+import fr.inria.diversify.dspot.Utils;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -27,7 +28,7 @@ public class TestMethodCallRemove {
                 3 method are called in the original test, we produce 3 test methods.
          */
 
-        Launcher launcher = Utils.buildSpoon();
+        Launcher launcher = Utils.buildSpoon(Arrays.asList("src/test/resources/mutation/ClassUnderTestTest.java", "src/test/resources/mutation/ClassUnderTest.java"));
         CtClass<Object> testClass = launcher.getFactory().Class().get("mutation.ClassUnderTestTest");
 
         TestMethodCallRemover methodCallRemove = new TestMethodCallRemover();
@@ -53,7 +54,7 @@ public class TestMethodCallRemove {
          */
 
         AmplifierHelper.setSeedRandom(23L);
-        Launcher launcher = Utils.buildSpoon();
+        Launcher launcher = Utils.buildSpoon(Arrays.asList("src/test/resources/mutation/ClassUnderTestTest.java", "src/test/resources/mutation/ClassUnderTest.java"));
         CtClass<Object> testClass = launcher.getFactory().Class().get("mutation.ClassUnderTestTest");
 
         TestMethodCallRemover methodCallRemove = new TestMethodCallRemover();

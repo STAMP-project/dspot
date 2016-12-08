@@ -27,6 +27,11 @@ public class StatementAdderOnAssert implements Amplifier {
     private Map<CtMethod, List<CtLiteral>> literalsByMethod;
     private Map<Statement, Double> coverageBycodeFragments;
     private CtMethod currentMethod;
+    private ValueCreator valueCreator;
+
+    public StatementAdderOnAssert() {
+        valueCreator = new ValueCreator();
+    }
 
     @Override
     public List<CtMethod> apply(CtMethod method) {
@@ -101,10 +106,10 @@ public class StatementAdderOnAssert implements Amplifier {
     protected List<List<Statement>> buildContext(InputContext inputContext, List<Statement> stmts , int targetIndex) {
         VarCartesianProduct varCartesianProduct = new VarCartesianProduct();
         Statement statement = stmts.get(targetIndex);
-        ValueCreator vc = new ValueCreator();
+
         for(CtVariableReference var : statement.getInputContext().getVar()) {
 
-            varCartesianProduct.addReplaceVar(var, vc.createNull(var.getType()));
+            varCartesianProduct.addReplaceVar(var, valueCreator.createNull(var.getType()));
 
             List<CtVariableReference> candidates = inputContext.allCandidate(var.getType(), true, false);
             if(!candidates.isEmpty()) {
@@ -121,7 +126,7 @@ public class StatementAdderOnAssert implements Amplifier {
                 varCartesianProduct.addReplaceVar(var, localVariable);
             }
 
-            CtLocalVariable randomVar = vc.createRandomLocalVar(var.getType());
+            CtLocalVariable randomVar = valueCreator.createRandomLocalVar(var.getType());
             if(randomVar != null) {
                 varCartesianProduct.addReplaceVar(var, randomVar);
             }

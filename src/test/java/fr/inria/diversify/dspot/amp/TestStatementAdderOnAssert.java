@@ -1,6 +1,6 @@
 package fr.inria.diversify.dspot.amp;
 
-import fr.inria.diversify.Utils;
+import fr.inria.diversify.dspot.Utils;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.code.CtInvocation;
@@ -9,6 +9,7 @@ import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -34,7 +35,7 @@ public class TestStatementAdderOnAssert {
         */
 
         AmplifierHelper.setSeedRandom(23L);
-        Launcher launcher = Utils.buildSpoon();
+        Launcher launcher = Utils.buildSpoon(Arrays.asList("src/test/resources/mutation/ClassUnderTestTest.java", "src/test/resources/mutation/ClassUnderTest.java"));
         CtClass<Object> ctClass = launcher.getFactory().Class().get("mutation.ClassUnderTestTest");
 
         StatementAdderOnAssert amplificator = new StatementAdderOnAssert();

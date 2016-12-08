@@ -31,7 +31,6 @@ public class StatementAddTest {
         amplificator.reset(null, factory.Class().get(packageName + ".ClassTargetAmplify"));
 
         CtMethod<?> ctMethod = Utils.getCtMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
-//        CtMethod<?> ctMethod = factory.Class().get(packageName + ".TestClassTargetAmplify").getMethods().stream().findAny().get();
         List<CtMethod> amplifiedMethods = amplificator.apply(ctMethod);
 
         assertEquals(4, amplifiedMethods.size());
