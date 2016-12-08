@@ -12,6 +12,7 @@ import spoon.reflect.declaration.CtMethod;
 import java.util.ArrayList;
 
 import static fr.inria.diversify.dspot.assertGenerator.AssertCt.assertBodyEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * User: Simon
@@ -72,11 +73,26 @@ public class MethodAssertGeneratorTest {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler(), Utils.getApplicationClassLoader());
 
+        String nl = System.getProperty("line.separator");
+
+        final String expectedBody = "{" + nl +
+                "    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl +
+                "    junit.framework.Assert.assertFalse(((fr.inria.sample.ClassWithBoolean)cl).getFalse());" + nl +
+                "    junit.framework.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getTrue());" + nl +
+                "    junit.framework.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getBoolean());" + nl +
+                "    boolean o_test1_withoutAssert__3 = cl.getFalse();" + nl +
+                "    junit.framework.Assert.assertFalse(o_test1_withoutAssert__3);" + nl +
+                "    boolean o_test1_withoutAssert__4 = cl.getBoolean();" + nl +
+                "    junit.framework.Assert.assertTrue(o_test1_withoutAssert__4);" + nl +
+                "    boolean var = cl.getTrue();" + nl +
+                "    junit.framework.Assert.assertTrue(var);" + nl +
+                "}";
+
         CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithoutAssert", "test1");
-        CtMethod test1_withAssert = Utils.findMethod("fr.inria.sample.TestClassWithoutAssert", "test1_withAssert");
+
         mag.test = test1;
         CtMethod test1_buildNewAssert = mag.generateAssert(test1);
-        assertBodyEquals(test1_buildNewAssert, test1_withAssert);
+        assertEquals(expectedBody, test1_buildNewAssert.getBody().toString());
     }
 
     @AfterClass
