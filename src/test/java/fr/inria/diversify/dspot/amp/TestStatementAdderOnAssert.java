@@ -1,6 +1,6 @@
 package fr.inria.diversify.dspot.amp;
 
-import fr.inria.diversify.Utils;
+import fr.inria.diversify.dspot.Utils;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.code.CtInvocation;
@@ -9,6 +9,7 @@ import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -30,11 +31,14 @@ public class TestStatementAdderOnAssert {
                 - null
                 - a simple value: 1
                 - a random value.
-             mutation.ClassUnderTestTest got 3 accessible methods. The amplification results with 9 new test methods.
+             mutation.ClassUnderTestTest got 2 accessible methods.
+             The amplification will use the existing ClassUnderTest in the test and will also instantiate a new one to
+             call the methods.
+             The amplification results with 12 methods.
         */
 
         AmplifierHelper.setSeedRandom(23L);
-        Launcher launcher = Utils.buildSpoon();
+        Launcher launcher = Utils.buildSpoon(Arrays.asList("src/test/resources/mutation/ClassUnderTestTest.java", "src/test/resources/mutation/ClassUnderTest.java"));
         CtClass<Object> ctClass = launcher.getFactory().Class().get("mutation.ClassUnderTestTest");
 
         StatementAdderOnAssert amplificator = new StatementAdderOnAssert();
@@ -52,28 +56,73 @@ public class TestStatementAdderOnAssert {
             }).size());
         });
 
-        assertEquals(3 * 3, amplifiedMethods.size());
+        assertEquals(2 * 3 * 2, amplifiedMethods.size());
 
-        assertEquals("(int)null", ((CtLocalVariable)(amplifiedMethods.get(0).getBody().getStatement(2))).getDefaultExpression().toString());
-        assertTrue(amplifiedMethods.get(0).getBody().getStatement(3) instanceof  CtInvocation);
-        assertEquals("0", ((CtLocalVariable)(amplifiedMethods.get(1).getBody().getStatement(2))).getDefaultExpression().toString());
-        assertTrue(amplifiedMethods.get(1).getBody().getStatement(3) instanceof  CtInvocation);
-        assertEquals("825130495", ((CtLocalVariable)(amplifiedMethods.get(2).getBody().getStatement(2))).getDefaultExpression().toString());
-        assertTrue(amplifiedMethods.get(2).getBody().getStatement(3) instanceof  CtInvocation);
+        CtMethod currentMethod = amplifiedMethods.get(0);
+        assertEquals("(int)null", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
+        assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtInvocation);
+        assertEquals("underTest.plusOne(vc_2)", currentMethod.getBody().getStatement(2).toString());
 
-        assertEquals("(int)null", ((CtLocalVariable)(amplifiedMethods.get(3).getBody().getStatement(2))).getDefaultExpression().toString());
-        assertTrue(amplifiedMethods.get(3).getBody().getStatement(3) instanceof  CtInvocation);
-        assertEquals("1", ((CtLocalVariable)(amplifiedMethods.get(4).getBody().getStatement(2))).getDefaultExpression().toString());
-        assertTrue(amplifiedMethods.get(4).getBody().getStatement(3) instanceof  CtInvocation);
-        assertEquals("312752620", ((CtLocalVariable)(amplifiedMethods.get(5).getBody().getStatement(2))).getDefaultExpression().toString());
-        assertTrue(amplifiedMethods.get(5).getBody().getStatement(3) instanceof  CtInvocation);
+        currentMethod = amplifiedMethods.get(1);
+        assertEquals("1", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
+        assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtInvocation);
+        assertEquals("underTest.plusOne(vc_0)", currentMethod.getBody().getStatement(2).toString());
 
-        assertEquals("(int)null", ((CtLocalVariable)(amplifiedMethods.get(6).getBody().getStatement(2))).getDefaultExpression().toString());
-        assertTrue(amplifiedMethods.get(6).getBody().getStatement(3) instanceof  CtInvocation);
-        assertEquals("0", ((CtLocalVariable)(amplifiedMethods.get(7).getBody().getStatement(2))).getDefaultExpression().toString());
-        assertTrue(amplifiedMethods.get(7).getBody().getStatement(3) instanceof  CtInvocation);
-        assertEquals("-1918579922", ((CtLocalVariable)(amplifiedMethods.get(8).getBody().getStatement(2))).getDefaultExpression().toString());
-        assertTrue(amplifiedMethods.get(8).getBody().getStatement(3) instanceof  CtInvocation);
+        currentMethod = amplifiedMethods.get(2);
+        assertEquals("825130495", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
+        assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtInvocation);
+        assertEquals("underTest.plusOne(vc_3)", currentMethod.getBody().getStatement(2).toString());
+
+        currentMethod = amplifiedMethods.get(3);
+        assertEquals("(int)null", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
+        assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtLocalVariable);
+        assertTrue(currentMethod.getBody().getStatement(3) instanceof  CtInvocation);
+        assertEquals("vc_1.plusOne(vc_2)", currentMethod.getBody().getStatement(3).toString());
+
+        currentMethod = amplifiedMethods.get(4);
+        assertEquals("1", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
+        assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtLocalVariable);
+        assertTrue(currentMethod.getBody().getStatement(3) instanceof  CtInvocation);
+        assertEquals("vc_1.plusOne(vc_0)", currentMethod.getBody().getStatement(3).toString());
+
+        currentMethod = amplifiedMethods.get(5);
+        assertEquals("825130495", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
+        assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtLocalVariable);
+        assertTrue(currentMethod.getBody().getStatement(3) instanceof  CtInvocation);
+        assertEquals("vc_1.plusOne(vc_3)", currentMethod.getBody().getStatement(3).toString());
+
+        currentMethod = amplifiedMethods.get(6);
+        assertEquals("(int)null", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
+        assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtInvocation);
+        assertEquals("underTest.minusOne(vc_6)", currentMethod.getBody().getStatement(2).toString());
+
+        currentMethod = amplifiedMethods.get(7);
+        assertEquals("0", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
+        assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtInvocation);
+        assertEquals("underTest.minusOne(vc_1)", currentMethod.getBody().getStatement(2).toString());
+
+        currentMethod = amplifiedMethods.get(8);
+        assertEquals("312752620", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
+        assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtInvocation);
+        assertEquals("underTest.minusOne(vc_7)", currentMethod.getBody().getStatement(2).toString());
+
+        currentMethod = amplifiedMethods.get(9);
+        assertEquals("(int)null", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
+        assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtLocalVariable);
+        assertTrue(currentMethod.getBody().getStatement(3) instanceof  CtInvocation);
+        assertEquals("vc_5.minusOne(vc_6)", currentMethod.getBody().getStatement(3).toString());
+
+        currentMethod = amplifiedMethods.get(10);
+        assertEquals("0", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
+        assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtLocalVariable);
+        assertTrue(currentMethod.getBody().getStatement(3) instanceof  CtInvocation);
+        assertEquals("vc_5.minusOne(vc_1)", currentMethod.getBody().getStatement(3).toString());
+
+        currentMethod = amplifiedMethods.get(11);
+        assertEquals("312752620", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
+        assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtLocalVariable);
+        assertTrue(currentMethod.getBody().getStatement(3) instanceof  CtInvocation);
+        assertEquals("vc_5.minusOne(vc_7)", currentMethod.getBody().getStatement(3).toString());
     }
 
 

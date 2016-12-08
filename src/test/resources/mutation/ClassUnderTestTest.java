@@ -11,7 +11,6 @@ public class ClassUnderTestTest {
     public void testLit() {
         ClassUnderTest underTest = new ClassUnderTest();
         assertEquals(1, underTest.plusOne(0));
-        assertEquals(0, underTest.minusOne(1));
     }
 
     @Test

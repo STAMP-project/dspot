@@ -1,6 +1,8 @@
 package fr.inria.diversify.dspot.amp;
 
 import spoon.reflect.code.*;
+import spoon.reflect.reference.CtTypeReference;
+import spoon.support.reflect.reference.SpoonClassNotFoundException;
 
 /**
  * Created by Benjamin DANGLOT
@@ -37,5 +39,17 @@ class AmplifierChecker {
 
     public static boolean canBeAdded(CtInvocation invocation) {
         return !invocation.toString().startsWith("super(") && invocation.getParent() instanceof CtBlock;
+    }
+
+    static boolean isArray(CtTypeReference type) {
+        return type.toString().contains("[]");
+    }
+
+    static boolean isPrimitive(CtTypeReference type) {
+        try {
+            return type.unbox().isPrimitive();
+        } catch (SpoonClassNotFoundException e) {
+            return false;
+        }
     }
 }

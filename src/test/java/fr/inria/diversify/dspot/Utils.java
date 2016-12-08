@@ -2,11 +2,13 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.runner.InputProgram;
+import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by Benjamin DANGLOT
@@ -34,5 +36,14 @@ public class Utils {
         inputProgram.setTransformationPerRun(1);
         inputProgram.setJavaVersion(8);
         return inputProgram;
+    }
+
+    public static Launcher buildSpoon(List<String> inputResources) {
+        Launcher launcher = new Launcher();
+        launcher.getEnvironment().setNoClasspath(true);
+        inputResources.forEach(launcher::addInputResource);
+
+        launcher.buildModel();
+        return launcher;
     }
 }

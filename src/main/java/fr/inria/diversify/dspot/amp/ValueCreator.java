@@ -1,6 +1,5 @@
 package fr.inria.diversify.dspot.amp;
 
-import fr.inria.diversify.util.Log;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
@@ -8,7 +7,6 @@ import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtArrayTypeReference;
 import spoon.reflect.reference.CtTypeReference;
 
-import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -19,80 +17,53 @@ import java.util.stream.IntStream;
  */
 public class ValueCreator {
 
-    protected int maxArraySize = 5;
-    protected static int count;
+    private static final int MAX_ARRAY_SIZE = 5;
+    private int count;
 
 
     public ValueCreator() {
-
+        this.count = 0;
     }
 
     public CtLocalVariable createRandomLocalVar(CtTypeReference type) {
         Factory factory = type.getFactory();
         CtExpression value = createValue(type);
-       try {
-
-
-           if (value != null) {
-               return factory.Code().createLocalVariable(type, "vc_" + count++, createValue(type));
-           } else {
-               return null;
-           }
-       } catch (Exception e) {
-           e.printStackTrace();
-           Log.debug("");
-       }
-        return null;
+        if (value != null) {
+            return factory.Code().createLocalVariable(type, "vc_" + count++, createValue(type));
+        } else {
+            return null;
+        }
     }
 
     public CtLocalVariable createNull(CtTypeReference type) {
         Factory factory = type.getFactory();
-        String snippet = "(" + type.getQualifiedName()+")null";
-
+        String snippet = "(" + type.getQualifiedName() + ")null";
         CtExpression expression = factory.Code().createCodeSnippetExpression(snippet);
         expression.setType(type);
-
-        return factory.Code().createLocalVariable(type, "vc_"+count++, expression);
+        return factory.Code().createLocalVariable(type, "vc_" + count++, expression);
     }
 
     public CtExpression createValue(CtTypeReference type) {
-        try {
-        if(isPrimitive(type)) {
-            return createRandomPrimitive(type);
-        }
-
         Factory factory = type.getFactory();
-        String snippet = null;
-        if(isArray(type)) {
+        String snippet;
+        if (AmplifierChecker.isPrimitive(type)) {
+            return createRandomPrimitive(type);
+        } else if (AmplifierChecker.isArray(type)) {
             CtArrayTypeReference arrayType = (CtArrayTypeReference) type;
             CtTypeReference typeComponent = arrayType.getComponentType();
             snippet = "new " + typeComponent.getQualifiedName() + " []{";
 
-            snippet += IntStream.range(0, AmplifierHelper.getRandom().nextInt(maxArraySize))
+            snippet += IntStream.range(0, AmplifierHelper.getRandom().nextInt(MAX_ARRAY_SIZE))
                     .mapToObj(i -> createValue(typeComponent))
                     .map(value -> value.toString())
                     .collect(Collectors.joining(","))
                     + "}";
         } else {
-            type.getActualClass().getConstructor(new Class[]{});
             snippet = "new " + type.getQualifiedName() + "()";
         }
-        if(snippet != null) {
-            CtExpression expression = factory.Code().createCodeSnippetExpression(snippet);
-            expression.setType(type);
-
-            return expression;
-        }
-        } catch (Exception e) {}
-        return null;
-    }
-
-    protected boolean isArray(CtTypeReference type) {
-        return type.toString().contains("[]");
-    }
-
-    protected boolean isPrimitive(CtTypeReference type) {
-        return type.unbox().isPrimitive();
+        CtExpression expression = factory.Code().createCodeSnippetExpression(snippet);
+        expression.setType(type);
+        return expression;
     }
 
     protected CtLiteral createRandomPrimitive(CtTypeReference type) {
@@ -100,22 +71,22 @@ public class ValueCreator {
         String typeName = type.unbox().getSimpleName();
 
         switch (typeName) {
-            case "int" :
+            case "int":
                 return factory.Code().createLiteral(AmplifierHelper.getRandom().nextInt());
-            case "long" :
+            case "long":
                 return factory.Code().createLiteral(AmplifierHelper.getRandom().nextLong());
-            case "float" :
+            case "float":
                 return factory.Code().createLiteral(AmplifierHelper.getRandom().nextFloat());
-            case "double" :
+            case "double":
                 return factory.Code().createLiteral(AmplifierHelper.getRandom().nextDouble());
-            case "boolean" :
+            case "boolean":
                 return factory.Code().createLiteral(AmplifierHelper.getRandom().nextBoolean());
-            case "short" :
+            case "short":
                 return factory.Code().createLiteral(AmplifierHelper.getRandom().nextInt(Short.MAX_VALUE));
-            case "byte" :
+            case "byte":
                 return factory.Code().createLiteral(AmplifierHelper.getRandom().nextInt(Byte.MAX_VALUE));
-            case "char" :
-                return factory.Code().createLiteral((char) ((byte)AmplifierHelper.getRandom().nextInt(Byte.MAX_VALUE)));
+            case "char":
+                return factory.Code().createLiteral((char) ((byte) AmplifierHelper.getRandom().nextInt(Byte.MAX_VALUE)));
         }
         return null;
     }

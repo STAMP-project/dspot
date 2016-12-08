@@ -10,13 +10,9 @@ public class ClassUnderTest {
         return integer + 1;
     }
 
+    /* not tested in ClassUnderTestTest */
     public int minusOne(int integer) {
         return integer - 1;
-    }
-
-    /* not tested in ClassUnderTestTest */
-    public int timesTwo(int integer) {
-        return integer * 2;
     }
 
 }
