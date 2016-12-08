@@ -160,7 +160,7 @@ public class MethodAssertGenerator {
                 testWithLog.setSimpleName(testWithLog.getSimpleName() + i);
                 cl.addMethod(testWithLog);
                 testsToRun.add(testWithLog);
-                cl.addMethod(testWithLog);
+//                cl.addMethod(testWithLog);
         }
 
         ObjectLog.reset();
@@ -175,7 +175,8 @@ public class MethodAssertGenerator {
         List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter(CtStatement.class));
         for(String id : observations.keySet()) {
            int line = Integer.parseInt(id.split("__")[1]);
-            for(String snippet : observations.get(id).buildAssert()) {
+            List<String> asserts = observations.get(id).buildAssert();
+            for(String snippet : asserts) {
                 CtStatement assertStmt = getFactory().Code().createCodeSnippetStatement(snippet);
                 try {
                     CtStatement stmt = statements.get(line);
@@ -192,7 +193,8 @@ public class MethodAssertGenerator {
                         stmt.insertAfter(assertStmt);
                     }
                 } catch (Exception e) {
-                    Log.debug("");
+                    e.printStackTrace();
+                    Log.debug("Exception has been thrown during generation of assertion");
                 }
             }
         }
@@ -441,7 +443,9 @@ public class MethodAssertGenerator {
                     }
                 }
                 stmtIndex++;
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
         return newTest;
     }
@@ -496,8 +500,7 @@ public class MethodAssertGenerator {
         if(statement instanceof CtInvocation) {
             CtInvocation invocation = (CtInvocation) statement;
             try {
-                Class cl = invocation.getExecutable().getDeclaringType().getActualClass();
-                String signature = invocation.getSignature();
+                String signature = invocation.getExecutable().getSimpleName();
                 return (signature.contains("assertTrue")
                         || signature.contains("assertFalse")
                         || signature.contains("assertSame")

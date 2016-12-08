@@ -19,7 +19,7 @@ public class ClassWithBoolean {
     }
 
     public boolean getBoolean() {
-        Random r = new Random();
+        Random r = new Random(23L);
         return r.nextBoolean();
     }
 }
