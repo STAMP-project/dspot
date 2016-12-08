@@ -33,7 +33,7 @@ public class AmplifierHelper {
         return random;
     }
 
-    static void reset() {
+    public static void reset() {
         cloneNumber = 1;
         ampTestToParent = new HashMap<>();
     }

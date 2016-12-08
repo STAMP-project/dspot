@@ -7,6 +7,7 @@ import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.InitUtils;
+import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
@@ -71,5 +72,14 @@ public class Utils {
                 .filter(mth -> mth.getSimpleName().endsWith(methodName))
                 .findFirst()
                 .orElse(null);
+    }
+
+    public static Launcher buildSpoon() {
+        Launcher launcher = new Launcher();
+        launcher.getEnvironment().setNoClasspath(true);
+        launcher.addInputResource("src/test/resources/mutation/ClassUnderTestTest.java");
+        launcher.addInputResource("src/test/resources/mutation/ClassUnderTest.java");
+        launcher.buildModel();
+        return launcher;
     }
 }

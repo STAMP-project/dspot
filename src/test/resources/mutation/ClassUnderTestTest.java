@@ -11,6 +11,14 @@ public class ClassUnderTestTest {
     public void testLit() {
         ClassUnderTest underTest = new ClassUnderTest();
         assertEquals(1, underTest.plusOne(0));
-        assertEquals(0, underTest.minueOne(1));
+        assertEquals(0, underTest.minusOne(1));
+    }
+
+    @Test
+    public void testAddCall() throws Exception {
+        ClassUnderTest underTest = new ClassUnderTest();
+        underTest.plusOne(0);
+        underTest.minusOne(1);
+        underTest.timesTwo(1);
     }
 }

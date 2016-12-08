@@ -1,11 +1,11 @@
 package fr.inria.diversify.dspot.amp;
 
+import fr.inria.diversify.Utils;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
 
@@ -34,13 +34,13 @@ public class TestStatementAdderOnAssert {
         */
 
         AmplifierHelper.setSeedRandom(23L);
-        Launcher launcher = buildSpoon();
+        Launcher launcher = Utils.buildSpoon();
         CtClass<Object> ctClass = launcher.getFactory().Class().get("mutation.ClassUnderTestTest");
 
         StatementAdderOnAssert amplificator = new StatementAdderOnAssert();
         amplificator.reset(null, ctClass);
 
-        CtMethod originalMethod = ctClass.getElements(new TypeFilter<>(CtMethod.class)).get(0);
+        CtMethod originalMethod = ctClass.getElements(new TypeFilter<>(CtMethod.class)).stream().filter(m -> "testLit".equals(m.getSimpleName())).findFirst().get();
         List<CtMethod> amplifiedMethods = amplificator.apply(originalMethod);
 
         amplifiedMethods.forEach(method -> {
@@ -76,12 +76,5 @@ public class TestStatementAdderOnAssert {
         assertTrue(amplifiedMethods.get(8).getBody().getStatement(3) instanceof  CtInvocation);
     }
 
-    private Launcher buildSpoon() {
-        Launcher launcher = new Launcher();
-        launcher.getEnvironment().setNoClasspath(true);
-        launcher.addInputResource("src/test/resources/mutation/ClassUnderTestTest.java");
-        launcher.addInputResource("src/test/resources/mutation/ClassUnderTest.java");
-        launcher.buildModel();
-        return launcher;
-    }
+
 }
