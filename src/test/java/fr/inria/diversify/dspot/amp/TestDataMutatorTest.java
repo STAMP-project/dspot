@@ -1,5 +1,9 @@
 package fr.inria.diversify.dspot.amp;
 
+import fr.inria.diversify.Utils;
+import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import fr.inria.diversify.util.FileUtils;
+import org.junit.AfterClass;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.code.CtLiteral;
@@ -15,14 +19,16 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Created by Benjamin DANGLOT (benjamin.danglot@inria.fr) on 11/23/16.
+ * Created by Benjamin DANGLOT
+ * benjamin.danglot@inria.fr
+ * on 11/23/16
  */
 public class TestDataMutatorTest {
 
     private static final String SUFFIX_MUTATION = "_literalMutation";
 
     @Test
-    public void testIntMutation() throws Exception {
+    public void testIntMutation() throws Exception, InvalidSdkException {
 
         /*
             Test the amplification on numbers (integer) literal
@@ -33,7 +39,7 @@ public class TestDataMutatorTest {
         final String nameMethod = "methodInteger";
         final int originalValue = 23;
         AmplifierHelper.setSeedRandom(42L);
-        CtClass<Object> literalMutationClass = buildLiteralMutationCtClass();
+        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<Integer> expectedValues = Arrays.asList(22, 24, 46, (23 / 2), 32);
@@ -51,7 +57,7 @@ public class TestDataMutatorTest {
     }
 
     @Test
-    public void testIntMutationRandom() throws Exception {
+    public void testIntMutationRandom() throws Exception, InvalidSdkException {
 
         /*
             Test the amplification on numbers (integer) literal
@@ -63,7 +69,7 @@ public class TestDataMutatorTest {
         final String nameMethod = "methodInteger";
         final int originalValue = 23;
         AmplifierHelper.setSeedRandom(42L);
-        CtClass<Object> literalMutationClass = buildLiteralMutationCtClass();
+        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<Integer> expectedValues = Arrays.asList(22, 24, 46, (23 / 2), 32);
@@ -87,7 +93,7 @@ public class TestDataMutatorTest {
 
 
     @Test
-    public void testDoubleMutation() throws Exception {
+    public void testDoubleMutation() throws Exception, InvalidSdkException {
 
         /*
             Test the amplification on numbers (double) literal
@@ -97,7 +103,7 @@ public class TestDataMutatorTest {
         final String nameMethod = "methodDouble";
         final double originalValue = 23.0D;
         AmplifierHelper.setSeedRandom(42L);
-        CtClass<Object> literalMutationClass = buildLiteralMutationCtClass();
+        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<Double> expectedValues = Arrays.asList(22.0D, 24.0D, 46.0D, (23.0D / 2.0D), 32.0D);
@@ -115,7 +121,7 @@ public class TestDataMutatorTest {
     }
 
     @Test
-    public void testDoubleMutationRandom() throws Exception {
+    public void testDoubleMutationRandom() throws Exception, InvalidSdkException {
 
         /*
             Test the amplification on numbers (double) literal
@@ -126,7 +132,7 @@ public class TestDataMutatorTest {
         final String nameMethod = "methodDouble";
         final double originalValue = 23.0D;
         AmplifierHelper.setSeedRandom(42L);
-        CtClass<Object> literalMutationClass = buildLiteralMutationCtClass();
+        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<Double> expectedValues = Arrays.asList(22.0D, 24.0D, 46.0D, (23.0D / 2.0D), 32.0D);
@@ -150,7 +156,7 @@ public class TestDataMutatorTest {
 
 
     @Test
-    public void testStringMutation() throws Exception {
+    public void testStringMutation() throws Exception, InvalidSdkException {
 
         /*
           Test the amplification on string literal
@@ -161,7 +167,7 @@ public class TestDataMutatorTest {
         final String nameMethod = "methodString";
         final String originalValue = "MyStringLiteral";
         AmplifierHelper.setSeedRandom(42L);
-        CtClass<Object> literalMutationClass = buildLiteralMutationCtClass();
+        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         TestDataMutator amplifcator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<CtMethod> mutantMethods = amplifcator.apply(method);
@@ -177,7 +183,7 @@ public class TestDataMutatorTest {
     }
 
     @Test
-    public void testStringMutationRandom() throws Exception {
+    public void testStringMutationRandom() throws Exception, InvalidSdkException {
 
         /*
           Test the amplification on string literal
@@ -189,7 +195,7 @@ public class TestDataMutatorTest {
         final String nameMethod = "methodString";
         final String originalValue = "MyStringLiteral";
         AmplifierHelper.setSeedRandom(42L);
-        CtClass<Object> literalMutationClass = buildLiteralMutationCtClass();
+        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
 
@@ -241,7 +247,7 @@ public class TestDataMutatorTest {
     }
 
     @Test
-    public void testBooleanMutation() throws Exception {
+    public void testBooleanMutation() throws Exception, InvalidSdkException {
 
         /*
             Test the amplification on boolean literal
@@ -250,7 +256,7 @@ public class TestDataMutatorTest {
         final String nameMethod = "methodBoolean";
         final boolean originalValue = true;
         AmplifierHelper.setSeedRandom(42L);
-        CtClass<Object> literalMutationClass = buildLiteralMutationCtClass();
+        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         TestDataMutator mutator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<CtMethod> mutantMethods = mutator.apply(method);
@@ -268,10 +274,11 @@ public class TestDataMutatorTest {
         return amplificator;
     }
 
-    private CtClass<Object> buildLiteralMutationCtClass() {
-        Launcher launcher = new Launcher();
-        launcher.addInputResource("src/test/resources/amp/LiteralMutation.java");
-        launcher.buildModel();
-        return launcher.getFactory().Class().get("amp.LiteralMutation");
+    @AfterClass
+    public static void tearDown() throws InvalidSdkException, Exception {
+        FileUtils.forceDelete(Utils.getCompiler().getBinaryOutputDirectory());
+        FileUtils.forceDelete(Utils.getCompiler().getSourceOutputDirectory());
+        Utils.reset();
     }
+
 }

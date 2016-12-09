@@ -10,6 +10,7 @@ import fr.inria.diversify.util.InitUtils;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.factory.Factory;
 
 import java.util.Set;
 
@@ -40,6 +41,7 @@ public class Utils {
     }
 
     public static void reset() throws InvalidSdkException, Exception {
+        applicationClassLoader = null;
         inputProgram = null;
         compiler = null;
     }
@@ -57,13 +59,21 @@ public class Utils {
         InitUtils.initDependency(inputConfiguration);
 
         compiler = DSpotUtils.initDiversityCompiler(inputProgram, true);
-        compiler.getFactory().getEnvironment().setLevel("OFF");
+
         InitUtils.addApplicationClassesToClassPath(inputProgram);
         applicationClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
     }
 
-    public static CtClass findClass(String className) throws InvalidSdkException, Exception {
-        return getInputProgram().getFactory().Class().get(className);
+    public static CtClass findClass(String fullQualifiedName) throws InvalidSdkException, Exception {
+        return getInputProgram().getFactory().Class().get(fullQualifiedName);
+    }
+
+    public static CtMethod findMethod(CtClass<?> ctClass, String methodName) throws InvalidSdkException, Exception {
+        Set<CtMethod<?>> mths = ctClass.getMethods();
+        return mths.stream()
+                .filter(mth -> mth.getSimpleName().endsWith(methodName))
+                .findFirst()
+                .orElse(null);
     }
 
     public static CtMethod findMethod(String className, String methodName) throws InvalidSdkException, Exception {
@@ -74,5 +84,7 @@ public class Utils {
                 .orElse(null);
     }
 
-
+    public static Factory getFactory() throws InvalidSdkException, Exception {
+        return getInputProgram().getFactory();
+    }
 }

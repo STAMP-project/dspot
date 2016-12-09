@@ -1,4 +1,4 @@
-package statementadd;
+package fr.inria.statementadd;
 
 /**
  * Created by bdanglot on 11/30/16.

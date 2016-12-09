@@ -1,4 +1,4 @@
-package statementadd;
+package fr.inria.statementadd;
 
 import org.junit.Test;
 

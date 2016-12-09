@@ -1,4 +1,4 @@
-package mutation;
+package fr.inria.mutation;
 
 import org.junit.Test;
 
@@ -18,6 +18,5 @@ public class ClassUnderTestTest {
         ClassUnderTest underTest = new ClassUnderTest();
         underTest.plusOne(0);
         underTest.minusOne(1);
-        underTest.timesTwo(1);
     }
 }

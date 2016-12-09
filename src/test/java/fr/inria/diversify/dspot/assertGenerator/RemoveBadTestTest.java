@@ -3,8 +3,10 @@ package fr.inria.diversify.dspot.assertGenerator;
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
 
+import org.junit.AfterClass;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -51,5 +53,11 @@ public class RemoveBadTestTest {
         assertEquals("testKeep", ((CtMethod)(ctTypes.get(0).getMethods().stream().findFirst().get())).getSimpleName());
     }
 
+    @AfterClass
+    public static void tearDown() throws InvalidSdkException, Exception {
+        FileUtils.forceDelete(Utils.getCompiler().getBinaryOutputDirectory());
+        FileUtils.forceDelete(Utils.getCompiler().getSourceOutputDirectory());
+        Utils.reset();
+    }
 
 }
