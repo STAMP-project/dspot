@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
  * Time: 09:36
  */
 public class RemoveBadTest {
+
     protected InputProgram inputProgram;
     protected String mvnHome;
 
@@ -54,7 +55,7 @@ public class RemoveBadTest {
                 .collect(Collectors.toList());
     }
 
-    protected List<String> findFailedTest(Collection<CtType> tests) throws IOException, InterruptedException {
+    private List<String> findFailedTest(Collection<CtType> tests) throws IOException, InterruptedException {
         File testDir = new File(inputProgram.getAbsoluteTestSourceCodeDir());
         if(!testDir.exists()) {
             testDir.mkdirs();
