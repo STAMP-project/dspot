@@ -50,5 +50,6 @@ public class AssertGeneratorTest {
     public static void tearDown() throws InvalidSdkException, Exception {
         FileUtils.forceDelete(Utils.getCompiler().getBinaryOutputDirectory());
         FileUtils.forceDelete(Utils.getCompiler().getSourceOutputDirectory());
+        Utils.reset();
     }
 }
