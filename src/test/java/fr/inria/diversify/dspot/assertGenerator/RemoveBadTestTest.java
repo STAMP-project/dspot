@@ -32,12 +32,9 @@ public class RemoveBadTestTest {
                 3 of them failed (on purpose), only one has to be keep.
          */
 
-        String mavenHome = System.getenv().get("MAVEN_HOME");
-        if (mavenHome == null) {
-            mavenHome = "/usr/share/maven/";
-            Log.warn("Using default installation of Maven : "  + mavenHome);
-        }
+        final String mavenHome = buildMavenHome();
 
+        Log.warn("Using default installation of Maven : "  + mavenHome);
         InputProgram inputProgram = Utils.getInputProgram();
         RemoveBadTest removeBadTest = new RemoveBadTest(inputProgram, mavenHome);
 
@@ -51,6 +48,11 @@ public class RemoveBadTestTest {
         assertEquals(1, ctTypes.size());
         assertEquals(1, ctTypes.get(0).getMethods().size());
         assertEquals("testKeep", ((CtMethod)(ctTypes.get(0).getMethods().stream().findFirst().get())).getSimpleName());
+    }
+
+    private String buildMavenHome() {
+        return System.getenv().get("MAVEN_HOME") != null ? System.getenv().get("MAVEN_HOME") :
+                System.getenv().get("M2_HOME") != null ? System.getenv().get("M2_HOME") : "/usr/share/maven/";
     }
 
     @AfterClass

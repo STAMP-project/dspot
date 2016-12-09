@@ -36,6 +36,7 @@ public class AmplifierHelper {
     public static void reset() {
         cloneNumber = 1;
         ampTestToParent = new HashMap<>();
+        importByClass = new HashMap<>();
     }
 
     public static Map<CtMethod, CtMethod> getAmpTestToParent() {
