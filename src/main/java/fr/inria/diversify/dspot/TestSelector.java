@@ -1,6 +1,5 @@
 package fr.inria.diversify.dspot;
 
-import fr.inria.diversify.dspot.amp.AmplifierHelper;
 import fr.inria.diversify.log.LogReader;
 import fr.inria.diversify.log.TestCoverageParser;
 import fr.inria.diversify.log.TestGraphReader;
@@ -128,7 +127,7 @@ public class TestSelector {
         if(testName.contains("_cf")) {
             return 2;
         }
-        if(!AmplifierHelper.getAmpTestToParent().containsKey(test)) {
+        if(!AmplificationHelper.getAmpTestToParent().containsKey(test)) {
             return 3;
         }
         return 0;
@@ -181,7 +180,7 @@ public class TestSelector {
     }
 
     protected CtMethod getParent(CtMethod test) {
-        return AmplifierHelper.getAmpTestToParent().get(test);
+        return AmplificationHelper.getAmpTestToParent().get(test);
     }
 
     protected Set<String> getParentTestCoverageFor(CtMethod mth) {
