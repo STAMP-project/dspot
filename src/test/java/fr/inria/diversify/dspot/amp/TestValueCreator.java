@@ -4,13 +4,11 @@ import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.util.FileUtils;
 import org.junit.AfterClass;
+import fr.inria.diversify.dspot.AmplificationHelper;
 import org.junit.Test;
-import spoon.Launcher;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.factory.Factory;
-
-import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
@@ -31,7 +29,7 @@ public class TestValueCreator {
                 - one object
          */
 
-        AmplifierHelper.setSeedRandom(23L);
+        AmplificationHelper.setSeedRandom(23L);
         final ValueCreator valueCreator = new ValueCreator();
         Factory factory = Utils.getFactory();
 
@@ -65,7 +63,7 @@ public class TestValueCreator {
                 - one object
          */
 
-        AmplifierHelper.setSeedRandom(23L);
+        AmplificationHelper.setSeedRandom(23L);
         final ValueCreator valueCreator = new ValueCreator();
         Factory factory = Utils.getFactory();
 

@@ -1,5 +1,6 @@
-package fr.inria.diversify.dspot.amp;
+package fr.inria.diversify.dspot;
 
+import fr.inria.diversify.testRunner.JunitResult;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtPackage;
@@ -18,14 +19,14 @@ import java.util.stream.Collectors;
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
  */
-public class AmplifierHelper {
+public class AmplificationHelper {
 
     private static int cloneNumber;
     private static Map<CtMethod,CtMethod> ampTestToParent;
     private static Map<CtType, Set<CtType>> importByClass = new HashMap<>();
     private static Random random = new Random();
 
-    static void setSeedRandom(long seed) {
+    public static void setSeedRandom(long seed) {
         random = new Random(seed);
     }
 
@@ -43,12 +44,12 @@ public class AmplifierHelper {
         return ampTestToParent;
     }
 
-    static List<CtMethod> updateAmpTestToParent(List<CtMethod> tests, CtMethod parentTest) {
+    public static List<CtMethod> updateAmpTestToParent(List<CtMethod> tests, CtMethod parentTest) {
         tests.forEach(test -> ampTestToParent.put(test, parentTest));
         return tests;
     }
 
-    static Set<CtType> computeClassProvider(CtType testClass) {
+    public static Set<CtType> computeClassProvider(CtType testClass) {
         List<CtType> types = Query.getElements(testClass.getParent(CtPackage.class), new TypeFilter(CtType.class));
         types = types.stream()
                 .filter(type -> type != null)
@@ -68,23 +69,23 @@ public class AmplifierHelper {
                 .collect(Collectors.toSet());
     }
 
-    private static Set<CtType> getImport(CtType type) {
-        if(!AmplifierHelper.importByClass.containsKey(type)) {
+    public static Set<CtType> getImport(CtType type) {
+        if(!AmplificationHelper.importByClass.containsKey(type)) {
             ImportScanner importScanner = new ImportScannerImpl();
             try {
                 Set<CtType> set = importScanner.computeImports(type).stream()
                         .map(CtTypeReference::getDeclaration)
                         .filter(t -> t != null)
                         .collect(Collectors.toSet());
-                AmplifierHelper.importByClass.put(type,set);
+                AmplificationHelper.importByClass.put(type,set);
             } catch (Exception e) {
-                AmplifierHelper.importByClass.put(type, new HashSet<>(0));
+                AmplificationHelper.importByClass.put(type, new HashSet<>(0));
             }
         }
-        return AmplifierHelper.importByClass.get(type);
+        return AmplificationHelper.importByClass.get(type);
     }
 
-    static CtMethod cloneMethod(CtMethod method, String suffix) {
+    public static CtMethod cloneMethod(CtMethod method, String suffix) {
         CtMethod cloned_method = method.getFactory().Core().clone(method);
         cloned_method.setParent(method.getParent());
         //rename the clone
@@ -101,7 +102,7 @@ public class AmplifierHelper {
         return cloned_method;
     }
 
-    static CtMethod cloneMethodTest(CtMethod method, String suffix, int timeOut) {
+    public static CtMethod cloneMethodTest(CtMethod method, String suffix, int timeOut) {
         CtMethod cloned_method = cloneMethod(method,suffix);
         CtAnnotation testAnnotation = cloned_method.getAnnotations().stream()
                 .filter(annotation -> annotation.toString().contains("Test"))
@@ -120,7 +121,6 @@ public class AmplifierHelper {
         ref.setPackage(refPackage);
         testAnnotation.setAnnotationType(ref);
 
-
         Map<String, Object> elementValue = new HashMap<>();
         elementValue.put("timeout", timeOut);
         testAnnotation.setElementValues(elementValue);
@@ -128,5 +128,12 @@ public class AmplifierHelper {
         cloned_method.addAnnotation(testAnnotation);
 
         return cloned_method;
+    }
+
+    public static List<CtMethod> filterTest(List<CtMethod> newTests, JunitResult result) {
+        final List<String> goodTests = result.goodTests();
+        return newTests.stream()
+                .filter(test -> goodTests.contains(test.getSimpleName()))
+                .collect(Collectors.toList());
     }
 }

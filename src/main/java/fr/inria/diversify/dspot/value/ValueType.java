@@ -1,7 +1,7 @@
 package fr.inria.diversify.dspot.value;
 
 
-import fr.inria.diversify.dspot.amp.AmplifierHelper;
+import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.value.objectInstanciationTree.ObjectInstantiation;
 import fr.inria.diversify.dspot.value.objectInstanciationTree.StaticMethodValue;
 import fr.inria.diversify.utils.CtTypeUtils;
@@ -11,7 +11,6 @@ import spoon.reflect.reference.CtExecutableReference;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 /**
@@ -38,7 +37,7 @@ public class ValueType {
 
     public Value getRandomValue(boolean generateIsEmpty) {
         while (!values.isEmpty()) {
-            int index = AmplifierHelper.getRandom().nextInt(values.size());
+            int index = AmplificationHelper.getRandom().nextInt(values.size());
             Value value = values.get(index);
             if(value.isOk()) {
                 return value;
@@ -80,7 +79,7 @@ public class ValueType {
         }
         Object primitiveValue = null;
         if(type == Boolean.class) {
-            primitiveValue = AmplifierHelper.getRandom().nextBoolean();
+            primitiveValue = AmplificationHelper.getRandom().nextBoolean();
         }
         if(type == Character.class) {
             primitiveValue = '1';
@@ -89,19 +88,19 @@ public class ValueType {
 //            value = '1';
         }
         if(type == Short.class) {
-            primitiveValue = (short)AmplifierHelper.getRandom().nextInt(100);
+            primitiveValue = (short) AmplificationHelper.getRandom().nextInt(100);
         }
         if(type == Integer.class || type == int.class) {
-            primitiveValue = AmplifierHelper.getRandom().nextInt(100);
+            primitiveValue = AmplificationHelper.getRandom().nextInt(100);
         }
         if(type == Long.class) {
-            primitiveValue = (long)AmplifierHelper.getRandom().nextInt(100);
+            primitiveValue = (long) AmplificationHelper.getRandom().nextInt(100);
         }
         if(type == Float.class) {
-            primitiveValue = (float)AmplifierHelper.getRandom().nextDouble();
+            primitiveValue = (float) AmplificationHelper.getRandom().nextDouble();
         }
         if(type == Double.class) {
-            primitiveValue = AmplifierHelper.getRandom().nextDouble();
+            primitiveValue = AmplificationHelper.getRandom().nextDouble();
         }
         if(type == String.class) {
             primitiveValue = "foo";

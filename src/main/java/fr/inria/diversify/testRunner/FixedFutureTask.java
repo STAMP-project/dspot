@@ -14,6 +14,7 @@ import java.util.concurrent.TimeoutException;
  *
  * @author Aleksandr Dubinsky
  */
+@Deprecated
 public class FixedFutureTask<T> extends FutureTask<T> {
 
     /**

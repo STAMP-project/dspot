@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot.amp;
 
 
+import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.value.Value;
 import fr.inria.diversify.dspot.value.ValueFactory;
 import fr.inria.diversify.log.branch.Coverage;
@@ -45,7 +46,7 @@ public class StatementAdd implements Amplifier {
                 .filter(invocation -> !((CtMethod) invocation.getExecutable().getDeclaration()).getModifiers().contains(ModifierKind.STATIC))
                 .flatMap(invocation ->
                         findMethodsWithTargetType(invocation.getTarget().getType()).stream()
-                                .map(addMth -> addInvocation(method, addMth, invocation.getTarget(), invocation, AmplifierHelper.getRandom().nextBoolean()))
+                                .map(addMth -> addInvocation(method, addMth, invocation.getTarget(), invocation, AmplificationHelper.getRandom().nextBoolean()))
                                 .collect(Collectors.toList()).stream())
                 .collect(Collectors.toList());
 
@@ -63,7 +64,7 @@ public class StatementAdd implements Amplifier {
                                 "invoc_" + count[0]++,
                                 invocation);
                         CtExpression<?> target = createLocalVarRef(localVar);
-                        CtMethod methodClone = AmplifierHelper.cloneMethod(method, "");
+                        CtMethod methodClone = AmplificationHelper.cloneMethod(method, "");
                         CtStatement stmt = findInvocationIn(methodClone, invocation);
                         stmt.replace(localVar);
 
@@ -79,7 +80,7 @@ public class StatementAdd implements Amplifier {
     }
 
     private CtMethod addInvocation(CtMethod mth, CtMethod mthToAdd, CtExpression target, CtStatement position, boolean before) {
-        CtMethod methodClone = AmplifierHelper.cloneMethod(mth, "_sd");
+        CtMethod methodClone = AmplificationHelper.cloneMethod(mth, "_sd");
         CtBlock body = methodClone.getBody();
 
         List<CtParameter> parameters = mthToAdd.getParameters();
@@ -149,7 +150,7 @@ public class StatementAdd implements Amplifier {
     }
 
     public void reset(Coverage coverage, CtType testClass) {
-        AmplifierHelper.reset();
+        AmplificationHelper.reset();
         initMethods(testClass);
     }
 
@@ -172,7 +173,7 @@ public class StatementAdd implements Amplifier {
     }
 
     protected void initMethods(CtType testClass) {
-        methods = AmplifierHelper.computeClassProvider(testClass).stream()
+        methods = AmplificationHelper.computeClassProvider(testClass).stream()
                 .flatMap(cl -> {
                     Set<CtMethod> allMethods = cl.getAllMethods();
                     return allMethods.stream();

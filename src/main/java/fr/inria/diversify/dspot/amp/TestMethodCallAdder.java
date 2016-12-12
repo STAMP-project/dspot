@@ -1,5 +1,7 @@
 package fr.inria.diversify.dspot.amp;
 
+import fr.inria.diversify.dspot.AmplificationChecker;
+import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.log.branch.Coverage;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtMethod;
@@ -24,7 +26,7 @@ public class TestMethodCallAdder implements Amplifier {
             int invocation_index = 0;
             for (CtInvocation invocation : invocations) {
                 try {
-                    if (AmplifierChecker.canBeAdded(invocation) && !AmplifierChecker.isAssert(invocation)) {
+                    if (AmplificationChecker.canBeAdded(invocation) && !AmplificationChecker.isAssert(invocation)) {
                         methods.add(apply(method, invocation_index));
                     }
                 } catch (Exception e) {
@@ -33,7 +35,7 @@ public class TestMethodCallAdder implements Amplifier {
                 invocation_index++;
             }
         }
-        return AmplifierHelper.updateAmpTestToParent(methods, method);
+        return AmplificationHelper.updateAmpTestToParent(methods, method);
     }
 
     public CtMethod applyRandom(CtMethod method) {
@@ -41,7 +43,7 @@ public class TestMethodCallAdder implements Amplifier {
             List<CtInvocation> invocations = Query.getElements(method, new TypeFilter(CtInvocation.class));
             while (!invocations.isEmpty()) {
                 try {
-                    int invocation_index = AmplifierHelper.getRandom().nextInt(invocations.size());
+                    int invocation_index = AmplificationHelper.getRandom().nextInt(invocations.size());
                     return apply(method, invocation_index);
                 } catch (Exception ignored) {
 
@@ -53,11 +55,11 @@ public class TestMethodCallAdder implements Amplifier {
 
     @Override
     public void reset(Coverage coverage, CtType testClass) {
-        AmplifierHelper.reset();
+        AmplificationHelper.reset();
     }
 
     private CtMethod apply(CtMethod method, int invocation_index) {
-        CtMethod cloned_method = AmplifierHelper.cloneMethodTest(method, "_add", 1000);
+        CtMethod cloned_method = AmplificationHelper.cloneMethodTest(method, "_add", 1000);
         //add the cloned method in the same class as the original method
         //get the lit_indexth literal of the cloned method
         CtInvocation stmt = Query.getElements(cloned_method, new TypeFilter<CtInvocation>(CtInvocation.class)).get(invocation_index);

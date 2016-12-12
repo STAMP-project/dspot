@@ -4,6 +4,7 @@ import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.util.FileUtils;
 import org.junit.AfterClass;
+import fr.inria.diversify.dspot.AmplificationHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLocalVariable;
@@ -39,10 +40,9 @@ public class TestStatementAdderOnAssert {
              The amplification results with 12 methods.
         */
 
-        AmplifierHelper.setSeedRandom(23L);
-
         Factory factory = Utils.getFactory();
         CtClass<Object> ctClass = factory.Class().get("fr.inria.mutation.ClassUnderTestTest");
+        AmplificationHelper.setSeedRandom(23L);
 
         StatementAdderOnAssert amplificator = new StatementAdderOnAssert();
         amplificator.reset(null, ctClass);

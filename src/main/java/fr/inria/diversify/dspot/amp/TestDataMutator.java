@@ -1,5 +1,7 @@
 package fr.inria.diversify.dspot.amp;
 
+import fr.inria.diversify.dspot.AmplificationChecker;
+import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.log.branch.Coverage;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtElement;
@@ -35,7 +37,7 @@ public class TestDataMutator implements Amplifier {
         int lit_index = 0;
         for (CtLiteral lit : literals) {
             try {
-                if (!literalInAssert(lit) && !AmplifierChecker.isCase(lit) && lit.getValue() != null) {
+                if (!AmplificationChecker.isInAssert(lit) && !AmplificationChecker.isCase(lit) && lit.getValue() != null) {
                     if (lit.getValue() instanceof Number) {
                         methods.addAll(createAllNumberMutant(method, lit, lit_index));
                     }
@@ -51,22 +53,22 @@ public class TestDataMutator implements Amplifier {
             }
             lit_index++;
         }
-        return AmplifierHelper.updateAmpTestToParent(methods, method);
+        return AmplificationHelper.updateAmpTestToParent(methods, method);
     }
 
     public CtMethod applyRandom(CtMethod method) {
         List<CtLiteral> literals = Query.getElements(method, new TypeFilter(CtLiteral.class));
         if (!literals.isEmpty()) {
-            int original_lit_index = AmplifierHelper.getRandom().nextInt(literals.size());
+            int original_lit_index = AmplificationHelper.getRandom().nextInt(literals.size());
             CtLiteral literal = literals.get(original_lit_index);
 
             if (literal.getValue() instanceof Number) {
                 List<? extends Number> mut = new ArrayList<>(numberMutated(literal));
-                return createNumberMutant(method, original_lit_index, mut.get(AmplifierHelper.getRandom().nextInt(mut.size())));
+                return createNumberMutant(method, original_lit_index, mut.get(AmplificationHelper.getRandom().nextInt(mut.size())));
             }
             if (literal.getValue() instanceof String) {
                 List<String> mut = new ArrayList<>(stringMutated(literal));
-                return createStringMutant(method, original_lit_index, mut.get(AmplifierHelper.getRandom().nextInt(mut.size())));
+                return createStringMutant(method, original_lit_index, mut.get(AmplificationHelper.getRandom().nextInt(mut.size())));
             }
             if (literal.getValue() instanceof Boolean) {
                 return createBooleanMutant(method, original_lit_index);
@@ -78,7 +80,7 @@ public class TestDataMutator implements Amplifier {
     protected CtMethod createNumberMutant(CtMethod method, int original_lit_index, Number newValue) {
         dataCount++;
         //clone the method
-        CtMethod cloned_method = AmplifierHelper.cloneMethod(method, "_literalMutation");
+        CtMethod cloned_method = AmplificationHelper.cloneMethod(method, "_literalMutation");
         //get the lit_indexth literal of the cloned method
         CtLiteral newLiteral = Query.getElements(cloned_method, new TypeFilter<CtLiteral>(CtLiteral.class))
                 .get(original_lit_index);
@@ -130,7 +132,7 @@ public class TestDataMutator implements Amplifier {
     protected CtMethod createStringMutant(CtMethod method, int original_lit_index, String newValue) {
         dataCount++;
         //clone the method
-        CtMethod cloned_method = AmplifierHelper.cloneMethod(method, "_literalMutation");
+        CtMethod cloned_method = AmplificationHelper.cloneMethod(method, "_literalMutation");
         //get the lit_indexth literal of the cloned method
         CtLiteral newLiteral = Query.getElements(cloned_method, new TypeFilter<CtLiteral>(CtLiteral.class))
                 .get(original_lit_index);
@@ -145,13 +147,13 @@ public class TestDataMutator implements Amplifier {
         String value = ((String) literal.getValue());
         if (value.length() > 2) {
             int length = value.length();
-            int index = AmplifierHelper.getRandom().nextInt(length - 2) + 1;
+            int index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
             values.add(value.substring(0, index - 1) + getRandomChar() + value.substring(index, length));
 
-            index = AmplifierHelper.getRandom().nextInt(length - 2) + 1;
+            index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
             values.add(value.substring(0, index) + getRandomChar() + value.substring(index, length));
 
-            index = AmplifierHelper.getRandom().nextInt(length - 2) + 1;
+            index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
             values.add(value.substring(0, index) + value.substring(index + 1, length));
         } else {
             values.add("" + getRandomChar());
@@ -169,7 +171,7 @@ public class TestDataMutator implements Amplifier {
     }
 
     protected char getRandomChar() {
-        return (char) (AmplifierHelper.getRandom().nextInt(94) + 32);
+        return (char) (AmplificationHelper.getRandom().nextInt(94) + 32);
     }
 
     protected Set<? extends Number> numberMutated(CtLiteral literal) {
@@ -181,25 +183,19 @@ public class TestDataMutator implements Amplifier {
         values.add(value / 2);
         values.add(value * 2);
 
-        Optional<Object> presentLiteral = this.literals.get(value.getClass()).stream().filter( number ->
-                !value.equals(number)
-        ).findAny();
+        if (this.literals.get(value.getClass()) != null) {
+            Optional<Object> presentLiteral = this.literals.get(value.getClass()).stream().filter(number ->
+                    !value.equals(number)
+            ).findAny();
 
-        if (presentLiteral.isPresent()) {
-            values.add((Number) presentLiteral.get());
+            if (presentLiteral.isPresent()) {
+                values.add((Number) presentLiteral.get());
+            }
         }
         return values;
     }
 
-    protected boolean literalInAssert(CtLiteral lit) {
 
-        CtInvocation invocation = lit.getParent(CtInvocation.class);
-        while (invocation != null && !(invocation.getParent() instanceof CtBlock)) {
-            invocation = invocation.getParent(CtInvocation.class);
-        }
-        return invocation != null && AmplifierChecker.isAssert(invocation);
-
-    }
 
     protected CtMethod createBooleanMutant(CtMethod test, int lit_index) {
         CtLiteral literal = Query.getElements(test, new TypeFilter<CtLiteral>(CtLiteral.class))
@@ -208,7 +204,7 @@ public class TestDataMutator implements Amplifier {
 
         dataCount++;
         //clone the method
-        CtMethod cloned_method = AmplifierHelper.cloneMethod(test, "_literalMutation");
+        CtMethod cloned_method = AmplificationHelper.cloneMethod(test, "_literalMutation");
 
         CtLiteral newLiteral = test.getFactory().Core().createLiteral();
         newLiteral.setTypeCasts(literal.getTypeCasts());
@@ -244,8 +240,8 @@ public class TestDataMutator implements Amplifier {
     }
 
     public void reset(Coverage coverage, CtType testClass) {
-        AmplifierHelper.reset();
-        Set<CtType> codeFragmentsProvide = AmplifierHelper.computeClassProvider(testClass);
+        AmplificationHelper.reset();
+        Set<CtType> codeFragmentsProvide = AmplificationHelper.computeClassProvider(testClass);
         literals = getLiterals(codeFragmentsProvide).stream()
                 .filter(lit -> lit != null)
                 .collect(Collectors.groupingBy(lit -> lit.getClass()));

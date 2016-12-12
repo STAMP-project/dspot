@@ -354,7 +354,8 @@ public class MethodAssertGenerator {
 
             //type tested by the test class
             String targetType = "";
-            if(invocation.getTarget() != null) {
+            if(invocation.getTarget() != null &&
+                    invocation.getTarget().getType() != null) {
                 targetType = invocation.getTarget().getType().getSimpleName();
             }
             return originalClass.getSimpleName().startsWith(targetType)

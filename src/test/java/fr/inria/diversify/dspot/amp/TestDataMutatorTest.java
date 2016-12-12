@@ -4,8 +4,8 @@ import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.util.FileUtils;
 import org.junit.AfterClass;
+import fr.inria.diversify.dspot.AmplificationHelper;
 import org.junit.Test;
-import spoon.Launcher;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -38,8 +38,8 @@ public class TestDataMutatorTest {
 
         final String nameMethod = "methodInteger";
         final int originalValue = 23;
-        AmplifierHelper.setSeedRandom(42L);
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        AmplificationHelper.setSeedRandom(42L);
         TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<Integer> expectedValues = Arrays.asList(22, 24, 46, (23 / 2), 32);
@@ -68,8 +68,8 @@ public class TestDataMutatorTest {
 
         final String nameMethod = "methodInteger";
         final int originalValue = 23;
-        AmplifierHelper.setSeedRandom(42L);
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        AmplificationHelper.setSeedRandom(42L);
         TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<Integer> expectedValues = Arrays.asList(22, 24, 46, (23 / 2), 32);
@@ -102,8 +102,8 @@ public class TestDataMutatorTest {
          */
         final String nameMethod = "methodDouble";
         final double originalValue = 23.0D;
-        AmplifierHelper.setSeedRandom(42L);
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        AmplificationHelper.setSeedRandom(42L);
         TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<Double> expectedValues = Arrays.asList(22.0D, 24.0D, 46.0D, (23.0D / 2.0D), 32.0D);
@@ -131,8 +131,8 @@ public class TestDataMutatorTest {
          */
         final String nameMethod = "methodDouble";
         final double originalValue = 23.0D;
-        AmplifierHelper.setSeedRandom(42L);
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        AmplificationHelper.setSeedRandom(42L);
         TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<Double> expectedValues = Arrays.asList(22.0D, 24.0D, 46.0D, (23.0D / 2.0D), 32.0D);
@@ -166,8 +166,8 @@ public class TestDataMutatorTest {
 
         final String nameMethod = "methodString";
         final String originalValue = "MyStringLiteral";
-        AmplifierHelper.setSeedRandom(42L);
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        AmplificationHelper.setSeedRandom(42L);
         TestDataMutator amplifcator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<CtMethod> mutantMethods = amplifcator.apply(method);
@@ -194,8 +194,8 @@ public class TestDataMutatorTest {
 
         final String nameMethod = "methodString";
         final String originalValue = "MyStringLiteral";
-        AmplifierHelper.setSeedRandom(42L);
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        AmplificationHelper.setSeedRandom(42L);
         TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
 
@@ -255,8 +255,8 @@ public class TestDataMutatorTest {
 
         final String nameMethod = "methodBoolean";
         final boolean originalValue = true;
-        AmplifierHelper.setSeedRandom(42L);
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        AmplificationHelper.setSeedRandom(42L);
         TestDataMutator mutator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<CtMethod> mutantMethods = mutator.apply(method);

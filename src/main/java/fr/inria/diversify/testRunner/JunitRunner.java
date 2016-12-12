@@ -5,9 +5,11 @@ import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.util.Log;
 import org.junit.internal.requests.FilterRequest;
 import org.junit.runner.*;
+import org.junit.runner.manipulation.Filter;
 import org.junit.runner.notification.RunNotifier;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -17,85 +19,102 @@ import java.util.concurrent.*;
  * Time: 19:43
  */
 public class JunitRunner {
-    protected ClassLoader classLoader;
-    protected int classTimeOut = 120;
-    protected int methodTimeOut = 5;
-    protected final ExecutorService THREAD_POOL = Executors.newSingleThreadExecutor();
+
+    private ClassLoader classLoader;
+    private int classTimeOut = 120;
+    private int methodTimeOut = 5;
+    private final ExecutorService THREAD_POOL = Executors.newSingleThreadExecutor();
 
     public JunitRunner(ClassLoader classLoader) {
         this.classLoader = classLoader;
     }
 
     public JunitResult runTestClass(String test, List<String> methodsToRun) {
-        List<String> list = new ArrayList<>(1);
-        list.add(test);
-        return runTestClasses(list, methodsToRun);
+        return runTestClasses(Collections.singletonList(test), methodsToRun);
     }
 
     public JunitResult runTestClasses(List<String> tests) {
-        return runTestClasses(tests, new ArrayList<>(0));
+        return runTestClasses(tests, new ArrayList<>());
     }
 
     public JunitResult runTestClasses(List<String> tests, List<String> methodsToRun) {
         JunitResult result = new JunitResult();
-
         try {
             Class<?>[] testClasses = loadClass(tests);
             int timeOut = computeTimeOut(methodsToRun);
             runRequest(result, buildRequest(testClasses, methodsToRun), timeOut);
         } catch (Throwable e) {
-            Log.debug("");
+            throw new RuntimeException(e);
         }
 
         Logger.close();
         return result;
     }
 
-    protected int computeTimeOut(List<String> methodsToRun) {
-        if(methodsToRun.isEmpty()) {
+    private int computeTimeOut(List<String> methodsToRun) {
+        if (methodsToRun.isEmpty()) {
             return classTimeOut;
         } else {
             return Math.min(methodsToRun.size() * methodTimeOut, classTimeOut);
         }
     }
 
-    protected Request buildRequest(Class<?>[] testClasses, List<String> methodsToRun) {
+    private Request buildRequest(Class<?>[] testClasses, List<String> methodsToRun) {
         Request classesRequest = Request.classes(new Computer(), testClasses);
-        if(methodsToRun.isEmpty()) {
+        if (methodsToRun.isEmpty()) {
             return classesRequest;
         } else {
-            return new FilterRequest(classesRequest, new MethodFilter(methodsToRun));
+            return new FilterRequest(classesRequest, new Filter() {
+                @Override
+                public boolean shouldRun(Description description) {
+                    if (description.isTest()) {
+                        return methodsToRun.contains(description.getMethodName());
+                    }
+                    // explicitly check if any children want to run
+                    for (Description each : description.getChildren()) {
+                        if (shouldRun(each)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+
+                @Override
+                public String describe() {
+                    return "MethodFilter";
+                }
+            }
+            );
         }
     }
 
-    protected void runRequest(final JunitResult result, Request request, int timeOut) throws InterruptedException, ExecutionException, TimeoutException {
+    private void runRequest(final JunitResult result, Request request, int timeOut) throws InterruptedException, ExecutionException, TimeoutException {
         timedCall(new Runnable() {
             public void run() {
                 Runner runner = request.getRunner();
                 RunNotifier fNotifier = new RunNotifier();
                 fNotifier.addFirstListener(result);
-
                 fNotifier.fireTestRunStarted(runner.getDescription());
                 runner.run(fNotifier);
             }
         }, timeOut, TimeUnit.SECONDS);
     }
 
-    protected Class<?>[] loadClass(List<String> tests) throws ClassNotFoundException {
+    private Class<?>[] loadClass(List<String> tests) throws ClassNotFoundException {
         Class<?>[] testClasses = new Class<?>[tests.size()];
-        for(int i = 0; i < tests.size(); i++) {
+        for (int i = 0; i < tests.size(); i++) {
             testClasses[i] = classLoader.loadClass(tests.get(i));
         }
         return testClasses;
     }
 
-    protected void timedCall(Runnable runnable, long timeout, TimeUnit timeUnit)
+    private void timedCall(Runnable runnable, long timeout, TimeUnit timeUnit)
             throws InterruptedException, ExecutionException, TimeoutException {
         FutureTask task = new FutureTask(runnable, null);
         try {
             THREAD_POOL.execute(task);
             task.get(timeout, timeUnit);
-        }  finally {
+        } finally {
             Logger.stopLogging();
             task.cancel(true);
         }

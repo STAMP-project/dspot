@@ -1,5 +1,7 @@
 package fr.inria.diversify.dspot.amp;
 
+import fr.inria.diversify.dspot.AmplificationChecker;
+import fr.inria.diversify.dspot.AmplificationHelper;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
@@ -46,14 +48,14 @@ public class ValueCreator {
     public CtExpression createValue(CtTypeReference type) {
         Factory factory = type.getFactory();
         String snippet;
-        if (AmplifierChecker.isPrimitive(type)) {
+        if (AmplificationChecker.isPrimitive(type)) {
             return createRandomPrimitive(type);
-        } else if (AmplifierChecker.isArray(type)) {
+        } else if (AmplificationChecker.isArray(type)) {
             CtArrayTypeReference arrayType = (CtArrayTypeReference) type;
             CtTypeReference typeComponent = arrayType.getComponentType();
             snippet = "new " + typeComponent.getQualifiedName() + " []{";
 
-            snippet += IntStream.range(0, AmplifierHelper.getRandom().nextInt(MAX_ARRAY_SIZE))
+            snippet += IntStream.range(0, AmplificationHelper.getRandom().nextInt(MAX_ARRAY_SIZE))
                     .mapToObj(i -> createValue(typeComponent))
                     .map(value -> value.toString())
                     .collect(Collectors.joining(","))
@@ -72,21 +74,21 @@ public class ValueCreator {
 
         switch (typeName) {
             case "int":
-                return factory.Code().createLiteral(AmplifierHelper.getRandom().nextInt());
+                return factory.Code().createLiteral(AmplificationHelper.getRandom().nextInt());
             case "long":
-                return factory.Code().createLiteral(AmplifierHelper.getRandom().nextLong());
+                return factory.Code().createLiteral(AmplificationHelper.getRandom().nextLong());
             case "float":
-                return factory.Code().createLiteral(AmplifierHelper.getRandom().nextFloat());
+                return factory.Code().createLiteral(AmplificationHelper.getRandom().nextFloat());
             case "double":
-                return factory.Code().createLiteral(AmplifierHelper.getRandom().nextDouble());
+                return factory.Code().createLiteral(AmplificationHelper.getRandom().nextDouble());
             case "boolean":
-                return factory.Code().createLiteral(AmplifierHelper.getRandom().nextBoolean());
+                return factory.Code().createLiteral(AmplificationHelper.getRandom().nextBoolean());
             case "short":
-                return factory.Code().createLiteral(AmplifierHelper.getRandom().nextInt(Short.MAX_VALUE));
+                return factory.Code().createLiteral(AmplificationHelper.getRandom().nextInt(Short.MAX_VALUE));
             case "byte":
-                return factory.Code().createLiteral(AmplifierHelper.getRandom().nextInt(Byte.MAX_VALUE));
+                return factory.Code().createLiteral(AmplificationHelper.getRandom().nextInt(Byte.MAX_VALUE));
             case "char":
-                return factory.Code().createLiteral((char) ((byte) AmplifierHelper.getRandom().nextInt(Byte.MAX_VALUE)));
+                return factory.Code().createLiteral((char) ((byte) AmplificationHelper.getRandom().nextInt(Byte.MAX_VALUE)));
         }
         return null;
     }
