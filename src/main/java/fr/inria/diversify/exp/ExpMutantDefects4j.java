@@ -55,7 +55,7 @@ public class ExpMutantDefects4j {
                 initRegressionClassLoader(i);
                 String dir = checkout(i, false);
 
-                DSpot sbse = new DSpot(inputConfiguration, regressionClassLoader);
+                DSpot sbse = new DSpot(inputConfiguration);
 
                 Set<String> testsNameToExclude = defect4J.triggerTests(projectId, i);
                 List<CtType> classes = run(sbse, testsNameToExclude);
@@ -150,7 +150,7 @@ public class ExpMutantDefects4j {
                     methods.removeAll(testsToExclude);
                     removeBody(testsToExclude);
                     try {
-                        return dSpot.generateTest(methods, cl);
+                        return dSpot.amplifyTest(methods, cl);
                     } catch (Exception e) {
                         e.printStackTrace();
                         return null;

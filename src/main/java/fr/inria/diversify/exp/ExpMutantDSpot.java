@@ -63,7 +63,7 @@ public class ExpMutantDSpot {
                 initRegressionClassLoader(mutantApplicationProject);
 
                 inputConfiguration.getProperties().setProperty("project", mutantTestProject);
-                DSpot dSpot = new DSpot(inputConfiguration, regressionClassLoader);
+                DSpot dSpot = new DSpot(inputConfiguration);
 
                 List<String> testsNameToExclude = mutant.triggerTests(i);
                 List<CtType> testClasses = run(dSpot, testsNameToExclude);
@@ -163,7 +163,7 @@ public class ExpMutantDSpot {
                 .distinct()
                 .map(cl -> {
                     try {
-                         return dSpot.generateTest(cl);
+                         return dSpot.amplifyTest(cl);
                     } catch (Exception e) {
                         e.printStackTrace();
                         return null;
