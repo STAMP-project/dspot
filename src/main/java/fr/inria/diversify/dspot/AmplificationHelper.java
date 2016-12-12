@@ -1,5 +1,6 @@
 package fr.inria.diversify.dspot;
 
+import fr.inria.diversify.testRunner.JunitResult;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtPackage;
@@ -120,7 +121,6 @@ public class AmplificationHelper {
         ref.setPackage(refPackage);
         testAnnotation.setAnnotationType(ref);
 
-
         Map<String, Object> elementValue = new HashMap<>();
         elementValue.put("timeout", timeOut);
         testAnnotation.setElementValues(elementValue);
@@ -128,5 +128,12 @@ public class AmplificationHelper {
         cloned_method.addAnnotation(testAnnotation);
 
         return cloned_method;
+    }
+
+    public static List<CtMethod> filterTest(List<CtMethod> newTests, JunitResult result) {
+        final List<String> goodTests = result.goodTests();
+        return newTests.stream()
+                .filter(test -> goodTests.contains(test.getSimpleName()))
+                .collect(Collectors.toList());
     }
 }

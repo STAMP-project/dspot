@@ -51,16 +51,16 @@ public class TestRunner {
                 .collect(Collectors.toList()));
     }
 
-    protected boolean writeAndCompile(CtType classInstru) throws IOException {
-        FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
-        FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
+    public boolean writeAndCompile(CtType classInstru) {
         try {
+            FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
+            FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
             PrintClassUtils.printJavaFile(compiler.getSourceOutputDirectory(), classInstru);
             compiler.setCustomClassLoader(applicationClassLoader);
             compiler.compileFileIn(compiler.getSourceOutputDirectory(), true);
             return true;
-        } catch (Exception e) {
-            Log.warn("error during compilation",e);
+        } catch (IOException e) {
+            Log.warn("error during compilation", e);
             return false;
         }
     }

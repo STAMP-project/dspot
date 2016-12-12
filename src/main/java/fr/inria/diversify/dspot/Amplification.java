@@ -8,6 +8,8 @@ import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.JunitRunner;
+import fr.inria.diversify.testRunner.TestRunner;
+import fr.inria.diversify.testRunner.TestStatus;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
@@ -36,8 +38,8 @@ public class Amplification {
 
     private static int ampTestCount;
 
-    @Deprecated
-    private Map<Boolean, List<CtMethod>> testsStatus;//should not be there
+    private TestStatus testStatus;
+//    private Map<Boolean, List<CtMethod>> testsStatus;//should not be there
 
     public Amplification(InputProgram inputProgram, DiversityCompiler compiler, DiversifyClassLoader applicationClassLoader, List<Amplifier> amplifiers, File logDir) {
         this.inputProgram = inputProgram;
@@ -47,6 +49,7 @@ public class Amplification {
         this.logDir = logDir;
         classWithLoggerBuilder = new ClassWithLoggerBuilder(inputProgram);
         testSelector = new TestSelector(logDir, 10);
+        this.testStatus = new TestStatus();
     }
 
     public List<CtMethod> amplification(CtType classTest, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
@@ -93,8 +96,8 @@ public class Amplification {
                 amplification(classTest, test, maxIteration);
 
                 Set<CtMethod> selectedAmpTests = new HashSet<>();
-                selectedAmpTests.addAll(testSelector.selectedAmplifiedTests(testsStatus.get(false)));
-                selectedAmpTests.addAll(testSelector.selectedAmplifiedTests(testsStatus.get(true)));
+                selectedAmpTests.addAll(testSelector.selectedAmplifiedTests(testStatus.get(false)));
+                selectedAmpTests.addAll(testSelector.selectedAmplifiedTests(testStatus.get(true)));
                 ampTest.addAll(selectedAmpTests);
                 ampTestCount += ampTest.size();
                 Log.debug("total amp test: {}, global: {}", ampTest.size(), ampTestCount);
@@ -105,7 +108,7 @@ public class Amplification {
     }
 
     private void amplification(CtType originalClass, CtMethod test, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
-        testsStatus();
+        testStatus.reset();
         List<CtMethod> newTests = new ArrayList<>();
         newTests.add(test);
 
@@ -137,9 +140,9 @@ public class Amplification {
             if(result == null) {
                 continue;
             }
-            newTests = filterTest(newTests, result);
+            newTests = AmplificationHelper.filterTest(newTests, result);
             ampTests.addAll(newTests);
-            saveTestStatus(newTests, result);
+            testStatus.updateTestStatus(newTests, result);
             Log.debug("update coverage info");
             testSelector.updateLogInfo();
         }
@@ -177,77 +180,26 @@ public class Amplification {
                 .collect(Collectors.toList());
     }
 
-    /*
-
-        Method following should be in testRunner package
-
-     */
-
-    protected void saveTestStatus(Collection<CtMethod> newTests, JunitResult result) {
-        List<String> runTests = result.runTests();
-        List<String> failedTests = result.failureTests();
-        newTests.stream()
-                .filter(test -> runTests.contains(test.getSimpleName()))
-                .forEach(test -> {
-                    if(failedTests.contains(test.getSimpleName())) {
-                        testsStatus.get(false).add(test);
-                    } else {
-                        testsStatus.get(true).add(test);
-                    }
-                });
+    private JunitResult runTest(CtType testClass, CtMethod test) throws ClassNotFoundException {
+        return runTests(testClass, Collections.singletonList(test));
     }
 
-    protected List<CtMethod> filterTest(List<CtMethod> newTests, JunitResult result) {
-        List<String> goodTests = result.goodTests();
-        return newTests.stream()
-                .filter(test -> goodTests.contains(test.getSimpleName()))
-                .collect(Collectors.toList());
-    }
-
-    protected void testsStatus()  {
-        testsStatus = new HashMap<>();
-        testsStatus.put(true, new ArrayList<>());
-        testsStatus.put(false, new ArrayList<>());
-    }
-
-    protected boolean writeAndCompile(CtType classInstru) throws IOException {
-        FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
-        FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
-        try {
-            PrintClassUtils.printJavaFile(compiler.getSourceOutputDirectory(), classInstru);
-            compiler.compileFileIn(compiler.getSourceOutputDirectory(), false);
-            return true;
-        } catch (Exception e) {
-            Log.warn("error during compilation",e);
-            return false;
-        }
-    }
-
-
-    protected JunitResult runTest(CtType testClass, CtMethod test) throws ClassNotFoundException {
-        List<CtMethod> tests = new ArrayList<>(1);
-        tests.add(test);
-        return runTests(testClass, tests);
-    }
-
-    protected JunitResult runTests(CtType testClass, Collection<CtMethod> tests) throws ClassNotFoundException {
+    private JunitResult runTests(CtType testClass, Collection<CtMethod> tests) throws ClassNotFoundException {
         ClassLoader classLoader = new DiversifyClassLoader(applicationClassLoader, compiler.getBinaryOutputDirectory().getAbsolutePath());
         JunitRunner junitRunner = new JunitRunner(classLoader);
-
         Logger.reset();
         Logger.setLogDir(new File(logDir.getAbsolutePath()));
-
         String currentUserDir = System.getProperty("user.dir");
         System.setProperty("user.dir", inputProgram.getProgramDir());
         JunitResult result = junitRunner.runTestClass(testClass.getQualifiedName(), tests.stream()
                 .map(test -> test.getSimpleName())
                 .collect(Collectors.toList()));
         System.setProperty("user.dir", currentUserDir);
-
         return result;
     }
 
-
-
+    private boolean writeAndCompile(CtType classInstru) {
+        return (new TestRunner(inputProgram, applicationClassLoader, compiler)).writeAndCompile(classInstru);
+    }
 
 }
