@@ -46,8 +46,7 @@ public class StatementAdderOnAssert implements Amplifier {
                     try {
                         newMethods.add(apply(method, list, index));
                     } catch (Exception e) {
-                        e.printStackTrace();
-                        Log.debug("");
+                        throw new RuntimeException(e);
                     }
                 }
             }
@@ -219,23 +218,16 @@ public class StatementAdderOnAssert implements Amplifier {
 
     protected Map<Statement, Double> buildCodeFragmentFor(CtType cl, Coverage coverage) {
         Factory factory = cl.getFactory();
-        Map<Statement, Double> codeFragments = new IdentityHashMap<>();
+        Map<Statement, Double> codeFragments = new LinkedHashMap<>();
 
-        for(CtMethod<?> mth : (Set<CtMethod>)cl.getAllMethods()) {
+        for(CtMethod<?> mth : (Set<CtMethod>)cl.getMethods()) {
             if(! mth.getModifiers().contains(ModifierKind.ABSTRACT)
                     && !mth.getModifiers().contains(ModifierKind.PRIVATE)) {
 //                    && getCoverageForMethod(coverage, cl, mth) != 1.0) {
 
                 CtExecutableReference executableRef = factory.Executable().createReference(mth);
-                CtInvocation invocation;
-                if (mth.getModifiers().contains(ModifierKind.STATIC)) {
-                    executableRef.setStatic(true);
-                    invocation = factory.Code().createInvocation(null, executableRef);
-                } else {
-                    executableRef.setStatic(false);
-                    invocation = factory.Code().createInvocation(null, executableRef);
-                    invocation.setTarget(buildVarRef(cl.getReference(), factory));
-                }
+                executableRef.setStatic(mth.getModifiers().contains(ModifierKind.STATIC));
+                CtInvocation invocation = factory.Code().createInvocation(buildVarRef(cl.getReference(), factory), executableRef);
                 invocation.setArguments(mth.getParameters().stream()
                                 .map(param -> buildVarRef(param.getType(), factory))
                         .collect(Collectors.toList()));

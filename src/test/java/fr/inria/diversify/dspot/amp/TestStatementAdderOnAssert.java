@@ -1,15 +1,17 @@
 package fr.inria.diversify.dspot.amp;
 
-import fr.inria.diversify.dspot.Utils;
+import fr.inria.diversify.Utils;
+import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import fr.inria.diversify.util.FileUtils;
+import org.junit.AfterClass;
 import org.junit.Test;
-import spoon.Launcher;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -24,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 public class TestStatementAdderOnAssert {
 
     @Test
-    public void testStatementAdderOnAssertLiteral() throws Exception {
+    public void testStatementAdderOnAssertLiteral() throws Exception, InvalidSdkException {
 
         /*
             The StatementAdderOnAssert will for each accessible method, try to build 3 kinds of parameters:
@@ -38,13 +40,14 @@ public class TestStatementAdderOnAssert {
         */
 
         AmplifierHelper.setSeedRandom(23L);
-        Launcher launcher = Utils.buildSpoon(Arrays.asList("src/test/resources/mutation/ClassUnderTestTest.java", "src/test/resources/mutation/ClassUnderTest.java"));
-        CtClass<Object> ctClass = launcher.getFactory().Class().get("mutation.ClassUnderTestTest");
+
+        Factory factory = Utils.getFactory();
+        CtClass<Object> ctClass = factory.Class().get("fr.inria.mutation.ClassUnderTestTest");
 
         StatementAdderOnAssert amplificator = new StatementAdderOnAssert();
         amplificator.reset(null, ctClass);
 
-        CtMethod originalMethod = ctClass.getElements(new TypeFilter<>(CtMethod.class)).stream().filter(m -> "testLit".equals(m.getSimpleName())).findFirst().get();
+        CtMethod originalMethod = Utils.findMethod(ctClass, "testLit");
         List<CtMethod> amplifiedMethods = amplificator.apply(originalMethod);
 
         amplifiedMethods.forEach(method -> {
@@ -61,69 +64,75 @@ public class TestStatementAdderOnAssert {
         CtMethod currentMethod = amplifiedMethods.get(0);
         assertEquals("(int)null", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
         assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtInvocation);
-        assertEquals("underTest.plusOne(vc_2)", currentMethod.getBody().getStatement(2).toString());
+        assertEquals("underTest.minusOne(vc_2)", currentMethod.getBody().getStatement(2).toString());
 
         currentMethod = amplifiedMethods.get(1);
         assertEquals("1", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
         assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtInvocation);
-        assertEquals("underTest.plusOne(vc_0)", currentMethod.getBody().getStatement(2).toString());
+        assertEquals("underTest.minusOne(vc_0)", currentMethod.getBody().getStatement(2).toString());
 
         currentMethod = amplifiedMethods.get(2);
         assertEquals("825130495", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
         assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtInvocation);
-        assertEquals("underTest.plusOne(vc_3)", currentMethod.getBody().getStatement(2).toString());
+        assertEquals("underTest.minusOne(vc_3)", currentMethod.getBody().getStatement(2).toString());
 
         currentMethod = amplifiedMethods.get(3);
         assertEquals("(int)null", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
         assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtLocalVariable);
         assertTrue(currentMethod.getBody().getStatement(3) instanceof  CtInvocation);
-        assertEquals("vc_1.plusOne(vc_2)", currentMethod.getBody().getStatement(3).toString());
+        assertEquals("vc_1.minusOne(vc_2)", currentMethod.getBody().getStatement(3).toString());
 
         currentMethod = amplifiedMethods.get(4);
         assertEquals("1", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
         assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtLocalVariable);
         assertTrue(currentMethod.getBody().getStatement(3) instanceof  CtInvocation);
-        assertEquals("vc_1.plusOne(vc_0)", currentMethod.getBody().getStatement(3).toString());
+        assertEquals("vc_1.minusOne(vc_0)", currentMethod.getBody().getStatement(3).toString());
 
         currentMethod = amplifiedMethods.get(5);
         assertEquals("825130495", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
         assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtLocalVariable);
         assertTrue(currentMethod.getBody().getStatement(3) instanceof  CtInvocation);
-        assertEquals("vc_1.plusOne(vc_3)", currentMethod.getBody().getStatement(3).toString());
+        assertEquals("vc_1.minusOne(vc_3)", currentMethod.getBody().getStatement(3).toString());
 
         currentMethod = amplifiedMethods.get(6);
         assertEquals("(int)null", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
         assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtInvocation);
-        assertEquals("underTest.minusOne(vc_6)", currentMethod.getBody().getStatement(2).toString());
+        assertEquals("underTest.plusOne(vc_6)", currentMethod.getBody().getStatement(2).toString());
 
         currentMethod = amplifiedMethods.get(7);
         assertEquals("0", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
         assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtInvocation);
-        assertEquals("underTest.minusOne(vc_1)", currentMethod.getBody().getStatement(2).toString());
+        assertEquals("underTest.plusOne(vc_1)", currentMethod.getBody().getStatement(2).toString());
 
         currentMethod = amplifiedMethods.get(8);
         assertEquals("312752620", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
         assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtInvocation);
-        assertEquals("underTest.minusOne(vc_7)", currentMethod.getBody().getStatement(2).toString());
+        assertEquals("underTest.plusOne(vc_7)", currentMethod.getBody().getStatement(2).toString());
 
         currentMethod = amplifiedMethods.get(9);
         assertEquals("(int)null", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
         assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtLocalVariable);
         assertTrue(currentMethod.getBody().getStatement(3) instanceof  CtInvocation);
-        assertEquals("vc_5.minusOne(vc_6)", currentMethod.getBody().getStatement(3).toString());
+        assertEquals("vc_5.plusOne(vc_6)", currentMethod.getBody().getStatement(3).toString());
 
         currentMethod = amplifiedMethods.get(10);
         assertEquals("0", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
         assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtLocalVariable);
         assertTrue(currentMethod.getBody().getStatement(3) instanceof  CtInvocation);
-        assertEquals("vc_5.minusOne(vc_1)", currentMethod.getBody().getStatement(3).toString());
+        assertEquals("vc_5.plusOne(vc_1)", currentMethod.getBody().getStatement(3).toString());
 
         currentMethod = amplifiedMethods.get(11);
         assertEquals("312752620", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
         assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtLocalVariable);
         assertTrue(currentMethod.getBody().getStatement(3) instanceof  CtInvocation);
-        assertEquals("vc_5.minusOne(vc_7)", currentMethod.getBody().getStatement(3).toString());
+        assertEquals("vc_5.plusOne(vc_7)", currentMethod.getBody().getStatement(3).toString());
     }
 
+    @AfterClass
+    public static void tearDown() throws InvalidSdkException, Exception {
+        FileUtils.forceDelete(Utils.getCompiler().getBinaryOutputDirectory());
+        FileUtils.forceDelete(Utils.getCompiler().getSourceOutputDirectory());
+        Utils.reset();
+    }
 
 }

@@ -1,4 +1,4 @@
-package mutation;
+package fr.inria.mutation;
 
 public class ClassUnderTest {
 

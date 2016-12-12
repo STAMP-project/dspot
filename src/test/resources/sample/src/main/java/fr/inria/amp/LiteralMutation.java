@@ -1,4 +1,4 @@
-package amp;
+package fr.inria.amp;
 
 public class LiteralMutation {
 

@@ -9,8 +9,7 @@ import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -19,6 +18,7 @@ import java.util.stream.Collectors;
  * Time: 09:36
  */
 public class RemoveBadTest {
+
     protected InputProgram inputProgram;
     protected String mvnHome;
 
@@ -54,7 +54,7 @@ public class RemoveBadTest {
                 .collect(Collectors.toList());
     }
 
-    protected List<String> findFailedTest(Collection<CtType> tests) throws IOException, InterruptedException {
+    private List<String> findFailedTest(Collection<CtType> tests) throws IOException, InterruptedException {
         File testDir = new File(inputProgram.getAbsoluteTestSourceCodeDir());
         if(!testDir.exists()) {
             testDir.mkdirs();
@@ -73,4 +73,5 @@ public class RemoveBadTest {
 
         return builder.getFailedTests();
     }
+
 }
