@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.amp;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.value.ValueFactory;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
@@ -27,7 +28,7 @@ public class StatementAddTest {
         InputProgram inputProgram = Utils.getInputProgram();
         final Factory factory = inputProgram.getFactory();
         inputProgram.setFactory(factory);
-        AmplifierHelper.setSeedRandom(23L);
+        AmplificationHelper.setSeedRandom(23L);
         ValueFactory valueFactory = new ValueFactory(inputProgram);
         StatementAdd amplificator = new StatementAdd(inputProgram.getFactory(), valueFactory, packageName);
         amplificator.reset(null, factory.Class().get(packageName + ".ClassTargetAmplify"));

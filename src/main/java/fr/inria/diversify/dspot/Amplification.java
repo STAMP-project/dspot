@@ -13,7 +13,6 @@ import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.declaration.ModifierKind;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,16 +25,19 @@ import java.util.stream.Collectors;
  * Time: 13:52
  */
 public class Amplification {
-    protected DiversifyClassLoader applicationClassLoader;
-    protected InputProgram inputProgram;
-    protected File logDir;
-    protected List<Amplifier> amplifiers;
-    protected DiversityCompiler compiler;
-    protected TestSelector testSelector;
-    protected ClassWithLoggerBuilder classWithLoggerBuilder;
-    protected Map<Boolean, List<CtMethod>> testsStatus;
 
-    protected static int ampTestCount;
+    private DiversifyClassLoader applicationClassLoader;
+    private InputProgram inputProgram;
+    private File logDir;
+    private List<Amplifier> amplifiers;
+    private DiversityCompiler compiler;
+    private TestSelector testSelector;
+    private ClassWithLoggerBuilder classWithLoggerBuilder;
+
+    private static int ampTestCount;
+
+    @Deprecated
+    private Map<Boolean, List<CtMethod>> testsStatus;//should not be there
 
     public Amplification(InputProgram inputProgram, DiversityCompiler compiler, DiversifyClassLoader applicationClassLoader, List<Amplifier> amplifiers, File logDir) {
         this.inputProgram = inputProgram;
@@ -53,7 +55,7 @@ public class Amplification {
 
     public List<CtMethod> amplification(CtType classTest, List<CtMethod> methods, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
         List<CtMethod> tests = methods.stream()
-                .filter(mth -> isTest(mth))
+                .filter(mth -> AmplificationChecker.isTest(mth, inputProgram.getRelativeTestSourceCodeDir()))
                 .collect(Collectors.toList());
 
         if(tests.isEmpty()) {
@@ -102,11 +104,13 @@ public class Amplification {
         return ampTest;
     }
 
-    protected void amplification(CtType originalClass, CtMethod test, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
+    private void amplification(CtType originalClass, CtMethod test, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
         testsStatus();
         List<CtMethod> newTests = new ArrayList<>();
-        Collection<CtMethod> ampTests = new ArrayList<>();
         newTests.add(test);
+
+        /* should not be there */
+        Collection<CtMethod> ampTests = new ArrayList<>();
         ampTests.add(test);
 
         for (int i = 0; i < maxIteration; i++) {
@@ -114,10 +118,10 @@ public class Amplification {
 
             Collection<CtMethod> testToAmp = testSelector.selectTestToAmp(ampTests, newTests);
             if(testToAmp.isEmpty()) {
-                break;
+                continue;
             }
             Log.debug("{} tests selected to be amplified", testToAmp.size());
-            newTests = ampTest(testToAmp);
+            newTests = ampTests(testToAmp);
             Log.debug("{} new tests generated", newTests.size());
 
             newTests = reduce(newTests);
@@ -129,8 +133,9 @@ public class Amplification {
             }
             Log.debug("run tests");
             JunitResult result = runTests(classWithLogger, newTests);
+
             if(result == null) {
-                break;
+                continue;
             }
             newTests = filterTest(newTests, result);
             ampTests.addAll(newTests);
@@ -140,13 +145,43 @@ public class Amplification {
         }
     }
 
-    protected List<CtMethod> reduce(List<CtMethod> newTests) {
-        Random r = new Random();
+    private List<CtMethod> ampTests(Collection<CtMethod> tests) {
+        return tests.stream()
+                .flatMap(test -> ampTest(test).stream())
+                .filter(test -> !test.getBody().getStatements().isEmpty())
+                .collect(Collectors.toList());
+    }
+
+    private List<CtMethod> ampTest(CtMethod test) {
+        return amplifiers.stream()
+                .flatMap(amplifier -> amplifier.apply(test).stream())
+                .collect(Collectors.toList());
+    }
+
+    private List<CtMethod> reduce(List<CtMethod> newTests) {
         while(newTests.size() > 6000) {
-            newTests.remove(r.nextInt(newTests.size()));
+            newTests.remove(AmplificationHelper.getRandom().nextInt(newTests.size()));
         }
         return newTests;
     }
+
+    private void resetAmplifiers(CtType parentClass, Coverage coverage) {
+        amplifiers.forEach(amp -> amp.reset(coverage, parentClass));
+    }
+
+    private List<CtMethod> getAllTest(CtType classTest) {
+        Set<CtMethod> mths = classTest.getMethods();
+        return mths.stream()
+                .filter(mth -> AmplificationChecker.isTest(mth, inputProgram.getRelativeTestSourceCodeDir()))
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    /*
+
+        Method following should be in testRunner package
+
+     */
 
     protected void saveTestStatus(Collection<CtMethod> newTests, JunitResult result) {
         List<String> runTests = result.runTests();
@@ -212,53 +247,7 @@ public class Amplification {
         return result;
     }
 
-    protected List<CtMethod> ampTest(Collection<CtMethod> tests) {
-        return tests.stream()
-                .flatMap(test -> ampTest(test).stream())
-                .filter(test -> !test.getBody().getStatements().isEmpty())
-                .collect(Collectors.toList());
-    }
 
-    protected List<CtMethod> ampTest(CtMethod test) {
-        return amplifiers.stream().
-                flatMap(amplifier -> amplifier.apply(test).stream())
-                .collect(Collectors.toList());
-    }
 
-    protected void resetAmplifiers(CtType parentClass, Coverage coverage) {
-        amplifiers.stream()
-                .forEach(amp -> amp.reset(coverage, parentClass));
-    }
 
-    protected List<CtMethod> getAllTest(CtType classTest) {
-        Set<CtMethod> mths = classTest.getMethods();
-        return mths.stream()
-                .filter(mth -> isTest(mth))
-                .distinct()
-                .collect(Collectors.toList());
-    }
-
-    protected boolean isTest(CtMethod candidate) {
-        if (candidate.isImplicit()
-                || candidate.getVisibility() == null
-                || !candidate.getVisibility().equals(ModifierKind.PUBLIC)
-                || candidate.getBody() == null
-                || candidate.getBody().getStatements().size() == 0) {
-            return false;
-        }
-        try {
-
-        if (candidate.getPosition() != null
-                && candidate.getPosition().getFile() != null
-                && !candidate.getPosition().getFile().toString().contains(inputProgram.getRelativeTestSourceCodeDir())) {
-            return false;
-        }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return candidate.getSimpleName().contains("test")
-                || candidate.getAnnotations().stream()
-                    .map(annotation -> annotation.toString())
-                    .anyMatch(annotation -> annotation.startsWith("@org.junit.Test"));
-    }
 }

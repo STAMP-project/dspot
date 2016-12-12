@@ -5,6 +5,8 @@ import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.util.FileUtils;
 import org.junit.AfterClass;
 import org.junit.Test;
+import fr.inria.diversify.dspot.AmplificationHelper;
+import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
@@ -52,8 +54,8 @@ public class TestMethodCallRemove {
                 2 method are called in the original test, we produce 2 test methods randomly among them.
          */
 
-        AmplifierHelper.setSeedRandom(23L);
         CtClass<Object> testClass = Utils.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
+        AmplificationHelper.setSeedRandom(23L);
 
         TestMethodCallRemover methodCallRemove = new TestMethodCallRemover();
         methodCallRemove.reset(null, null);

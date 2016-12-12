@@ -4,6 +4,7 @@ import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.util.FileUtils;
 import org.junit.AfterClass;
+import fr.inria.diversify.dspot.AmplificationHelper;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.code.CtStatement;
@@ -57,8 +58,8 @@ public class TestMethodCallAdderTest {
                 Here, we test the applyRandom feature that will build one method randomly by reusing an existing call.
           */
 
-        AmplifierHelper.setSeedRandom(23L);
         CtClass<Object> testClass = Utils.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
+        AmplificationHelper.setSeedRandom(23L);
 
         TestMethodCallAdder methodCallAdder = new TestMethodCallAdder();
         methodCallAdder.reset(null, null);
