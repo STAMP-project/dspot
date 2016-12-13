@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
  */
 public class AmplificationHelper {
 
-    private static int cloneNumber;
-    private static Map<CtMethod,CtMethod> ampTestToParent;
+    private static int cloneNumber = 1;
+    private static Map<CtMethod,CtMethod> ampTestToParent = new HashMap<>();
     private static Map<CtType, Set<CtType>> importByClass = new HashMap<>();
     private static Random random = new Random();
 

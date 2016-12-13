@@ -53,20 +53,20 @@ public class DSpot {
         numberOfIterations = 3;
 
         amplifiers = new ArrayList<>();
-    }
-
-    public DSpot(InputConfiguration configuration, int numberOfIterations) throws InvalidSdkException, Exception {
-        this(configuration);
         this.amplifiers.add(new TestDataMutator());
         this.amplifiers.add(new TestMethodCallAdder());
         this.amplifiers.add(new TestMethodCallRemover());
         this.amplifiers.add(new StatementAdderOnAssert());
+    }
+
+    public DSpot(InputConfiguration configuration, int numberOfIterations) throws InvalidSdkException, Exception {
+        this(configuration);
         this.numberOfIterations = numberOfIterations;
     }
 
     public DSpot(InputConfiguration configuration, int numberOfIterations, List<Amplifier> amplifiers) throws InvalidSdkException, Exception {
         this(configuration);
-        this.amplifiers.addAll(amplifiers);
+        this.amplifiers = amplifiers;
         this.numberOfIterations = numberOfIterations;
     }
 
