@@ -87,4 +87,9 @@ public class Utils {
     public static Factory getFactory() throws InvalidSdkException, Exception {
         return getInputProgram().getFactory();
     }
+
+    public static String buildMavenHome() {
+        return System.getenv().get("MAVEN_HOME") != null ? System.getenv().get("MAVEN_HOME") :
+                System.getenv().get("M2_HOME") != null ? System.getenv().get("M2_HOME") : "/usr/share/maven/";
+    }
 }
