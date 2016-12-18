@@ -129,16 +129,11 @@ public class TestDataMutator implements Amplifier {
     }
 
 
-    protected CtMethod createStringMutant(CtMethod method, int original_lit_index, String newValue) {
+    private CtMethod createStringMutant(CtMethod method, int original_lit_index, String newValue) {
         dataCount++;
-        //clone the method
         CtMethod cloned_method = AmplificationHelper.cloneMethod(method, "_literalMutation");
-        //get the lit_indexth literal of the cloned method
-        CtLiteral newLiteral = Query.getElements(cloned_method, new TypeFilter<CtLiteral>(CtLiteral.class))
-                .get(original_lit_index);
-
-        newLiteral.setValue(newValue);
-
+        Query.getElements(cloned_method, new TypeFilter<>(CtLiteral.class))
+                .get(original_lit_index).replace(cloned_method.getFactory().Code().createLiteral(newValue));
         return cloned_method;
     }
 
@@ -170,8 +165,10 @@ public class TestDataMutator implements Amplifier {
         return values;
     }
 
-    protected char getRandomChar() {
-        return (char) (AmplificationHelper.getRandom().nextInt(94) + 32);
+    private char getRandomChar() {
+        int value = AmplificationHelper.getRandom().nextInt(94) + 32;
+        char c = (char) ((value == 34 || value == 39) ? value + (AmplificationHelper.getRandom().nextBoolean() ? 1 : -1) : value);
+        return c;//excluding " and '
     }
 
     protected Set<? extends Number> numberMutated(CtLiteral literal) {

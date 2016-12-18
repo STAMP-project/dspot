@@ -8,11 +8,15 @@ import fr.inria.diversify.dspot.AmplificationHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.security.cert.CollectionCertStoreParameters;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -168,9 +172,9 @@ public class TestDataMutatorTest {
         final String originalValue = "MyStringLiteral";
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         AmplificationHelper.setSeedRandom(42L);
-        TestDataMutator amplifcator = getTestDataMutator(literalMutationClass);
+        TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<CtMethod> mutantMethods = amplifcator.apply(method);
+        List<CtMethod> mutantMethods = amplificator.apply(method);
 
         assertEquals(4, mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {
@@ -221,7 +225,8 @@ public class TestDataMutatorTest {
      * this distance is equals to 1, since we do not stack mutation.
      * 3 cases: one char less, one char more and one (and only one) different char.
      */
-    private void assertDistanceBetweenOriginalAndMuted(String original, String mutant) {
+    private void assertDistanceBetweenOriginalAndMuted(String original, String mutant) throws InvalidSdkException, Exception {
+
         byte[] originalBytes = original.getBytes();
         byte[] mutantBytes = mutant.getBytes();
 
@@ -243,7 +248,22 @@ public class TestDataMutatorTest {
             }
         }
 
-        assertTrue(addCharAssertion || removeCharAssertion || (diffFound && replaceCharAssertion) || "MySecondStringLiteral".equals(mutant));
+        List<String> existingStringLiterals = Utils.getFactory().Class().getAll()
+                .stream()
+                .flatMap(ctType ->
+                        ctType.getElements(new TypeFilter<CtLiteral>(CtLiteral.class) {
+                            @Override
+                            public boolean matches(CtLiteral literal) {
+                                try {
+                                    return Utils.getFactory().Type().STRING.equals(literal.getType()) && super.matches(literal);
+                                } catch (InvalidSdkException | Exception ignored) {
+                                }
+                                return false;
+                            }
+                        }).stream().map(ctLiteral -> (String) ctLiteral.getValue())
+                ).collect(Collectors.toList());
+
+        assertTrue(addCharAssertion || removeCharAssertion || (diffFound && replaceCharAssertion) || existingStringLiterals.contains(mutant));
     }
 
     @Test
