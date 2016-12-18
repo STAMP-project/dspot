@@ -39,7 +39,7 @@ public class StatementAdderOnAssert implements Amplifier {
     public List<CtMethod> apply(CtMethod method) {
         currentMethod = method;
         List<CtMethod> newMethods = new ArrayList<>();
-        if(!coverageBycodeFragments.isEmpty()) {
+        if (!coverageBycodeFragments.isEmpty()) {
             List<InputContext> inputContexts = getInputContexts(method);
             if (!inputContexts.isEmpty()) {
                 int index = inputContexts.size() - 1;
@@ -60,7 +60,7 @@ public class StatementAdderOnAssert implements Amplifier {
         throw new UnsupportedOperationException();
     }
 
-    protected CtMethod apply(CtMethod method,  List<Statement> statements, int index) {
+    protected CtMethod apply(CtMethod method, List<Statement> statements, int index) {
         CtMethod cloned_method = AmplificationHelper.cloneMethodTest(method, "_cf", 1000);
         CtStatement stmt = getAssertStatement(cloned_method)
                 .get(index);
@@ -78,9 +78,9 @@ public class StatementAdderOnAssert implements Amplifier {
         List<InputContext> inputContexts = new ArrayList<>();
 
         List<CtStatement> statements = getAssertStatement(method);
-        for(CtStatement stmt : statements) {
+        for (CtStatement stmt : statements) {
             Set<CtVariableReference> varRefs = new HashSet<>();
-            for(CtLocalVariable var : getLocalVarInScope(stmt)) {
+            for (CtLocalVariable var : getLocalVarInScope(stmt)) {
                 varRefs.add(method.getFactory().Code().createLocalVariableReference(var));
             }
 
@@ -99,21 +99,21 @@ public class StatementAdderOnAssert implements Amplifier {
                 })
                 .flatMap(list -> {
                     InputContext cloneInputContext = inputContext.clone();
-                    return buildContext(cloneInputContext, list, list.size() -1).stream();
+                    return buildContext(cloneInputContext, list, list.size() - 1).stream();
                 })
                 .collect(Collectors.toList());
     }
 
-    protected List<List<Statement>> buildContext(InputContext inputContext, List<Statement> stmts , int targetIndex) {
+    protected List<List<Statement>> buildContext(InputContext inputContext, List<Statement> stmts, int targetIndex) {
         VarCartesianProduct varCartesianProduct = new VarCartesianProduct();
         Statement statement = stmts.get(targetIndex);
 
-        for(CtVariableReference var : statement.getInputContext().getVar()) {
+        for (CtVariableReference var : statement.getInputContext().getVar()) {
 
             varCartesianProduct.addReplaceVar(var, valueCreator.createNull(var.getType()));
 
             List<CtVariableReference> candidates = inputContext.allCandidate(var.getType(), true, false);
-            if(!candidates.isEmpty()) {
+            if (!candidates.isEmpty()) {
                 varCartesianProduct.addReplaceVar(var, candidates.get(AmplificationHelper.getRandom().nextInt(candidates.size())));
             }
 
@@ -123,31 +123,31 @@ public class StatementAdderOnAssert implements Amplifier {
             }
 
             CtLocalVariable localVariable = createLocalVarFromMethodLiterals(currentMethod, var.getType());
-            if(localVariable != null) {
+            if (localVariable != null) {
                 varCartesianProduct.addReplaceVar(var, localVariable);
             }
 
             CtLocalVariable randomVar = valueCreator.createRandomLocalVar(var.getType());
-            if(randomVar != null) {
+            if (randomVar != null) {
                 varCartesianProduct.addReplaceVar(var, randomVar);
             }
         }
 
-       return varCartesianProduct.apply(stmts, targetIndex);
+        return varCartesianProduct.apply(stmts, targetIndex);
     }
 
     protected Statement getLocalVar(CtTypeReference type, InputContext inputContext) {
         List<Statement> list = localVars.stream()
                 .filter(var -> var.getCtCodeFragment() != null)
                 .filter(var -> type.equals(((CtLocalVariable) var.getCtCodeFragment()).getType()))
-                .filter(var -> inputContext.getVariableOrFieldNamed(((CtLocalVariable)var.getCtCodeFragment()).getSimpleName()) == null)
+                .filter(var -> inputContext.getVariableOrFieldNamed(((CtLocalVariable) var.getCtCodeFragment()).getSimpleName()) == null)
                 .collect(Collectors.toList());
 
-        if(list.isEmpty()) {
+        if (list.isEmpty()) {
             return null;
         } else {
             boolean localVarFind;
-            while(!list.isEmpty()) {
+            while (!list.isEmpty()) {
                 Statement localVar = list.remove(AmplificationHelper.getRandom().nextInt(list.size()));
                 localVarFind = true;
                 for (CtVariableReference var : localVar.getInputContext().getVar()) {
@@ -157,16 +157,16 @@ public class StatementAdderOnAssert implements Amplifier {
                         break;
                     }
                 }
-                if(localVarFind) {
-                    try {
-                        Statement cloneLocalVar = localVar.clone();
-                        for (CtVariableReference var : localVar.getInputContext().getVar()) {
+                if (localVarFind) {
+                    Statement cloneLocalVar = localVar.clone();
+                    for (CtVariableReference var : localVar.getInputContext().getVar()) {
+                        try {
                             CtVariableReference variable = cloneLocalVar.getInputContext().getVariableOrFieldNamed(var.getSimpleName());
                             cloneLocalVar.getInputContext().getVariableOrFieldNamed(var.getSimpleName()).replace(variable);
+                        } catch (Exception e) {
+                            continue;
                         }
                         return cloneLocalVar;
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
                     }
                 }
             }
@@ -174,7 +174,7 @@ public class StatementAdderOnAssert implements Amplifier {
         }
     }
 
-    protected  List<CtStatement> getAssertStatement(CtMethod method) {
+    protected List<CtStatement> getAssertStatement(CtMethod method) {
         List<CtStatement> statements = Query.getElements(method, new TypeFilter(CtStatement.class));
         return statements.stream()
                 .filter(stmt -> stmt.getParent() instanceof CtBlock)
@@ -211,7 +211,7 @@ public class StatementAdderOnAssert implements Amplifier {
     protected boolean isValidCodeFragment(Statement cf) {
         CtCodeElement codeElement = cf.getCtCodeFragment();
 
-        if(CtLocalVariable.class.isInstance(codeElement) ) {
+        if (CtLocalVariable.class.isInstance(codeElement)) {
             Object defaultExpression = ((CtLocalVariable) codeElement).getDefaultExpression();
             return defaultExpression != null;
         }
@@ -222,8 +222,8 @@ public class StatementAdderOnAssert implements Amplifier {
         Factory factory = cl.getFactory();
         Map<Statement, Double> codeFragments = new LinkedHashMap<>();
 
-        for(CtMethod<?> mth : (Set<CtMethod>)cl.getMethods()) {
-            if(! mth.getModifiers().contains(ModifierKind.ABSTRACT)
+        for (CtMethod<?> mth : (Set<CtMethod>) cl.getMethods()) {
+            if (!mth.getModifiers().contains(ModifierKind.ABSTRACT)
                     && !mth.getModifiers().contains(ModifierKind.PRIVATE)) {
 //                    && getCoverageForMethod(coverage, cl, mth) != 1.0) {
 
@@ -231,7 +231,7 @@ public class StatementAdderOnAssert implements Amplifier {
                 executableRef.setStatic(mth.getModifiers().contains(ModifierKind.STATIC));
                 CtInvocation invocation = factory.Code().createInvocation(buildVarRef(cl.getReference(), factory), executableRef);
                 invocation.setArguments(mth.getParameters().stream()
-                                .map(param -> buildVarRef(param.getType(), factory))
+                        .map(param -> buildVarRef(param.getType(), factory))
                         .collect(Collectors.toList()));
                 invocation.setType(mth.getType());
                 Statement stmt = new Statement(invocation);
@@ -265,29 +265,29 @@ public class StatementAdderOnAssert implements Amplifier {
     }
 
     protected double getCoverageForMethod(Coverage coverage, CtType cl, CtMethod mth) {
-        if(coverage == null) {
+        if (coverage == null) {
             return 0d;
         }
 
         String key = mth.getDeclaringType().getQualifiedName() + "_"
-                +  mth.getType().getQualifiedName()  + "_"
+                + mth.getType().getQualifiedName() + "_"
                 + mth.getSimpleName() + "("
                 + mth.getParameters().stream()
-                    .map(param -> ((CtParameter)param).getType().getQualifiedName())
-                    .collect(Collectors.joining(","))
+                .map(param -> ((CtParameter) param).getType().getQualifiedName())
+                .collect(Collectors.joining(","))
                 + ")";
 
-        if(coverage.getMethodCoverage(key) != null) {
-            return  coverage.getMethodCoverage(key).coverage();
+        if (coverage.getMethodCoverage(key) != null) {
+            return coverage.getMethodCoverage(key).coverage();
         } else {
             key = cl.getQualifiedName() + "_"
-                    +  mth.getType().getQualifiedName()  + "_"
+                    + mth.getType().getQualifiedName() + "_"
                     + mth.getSimpleName() + "("
                     + mth.getParameters().stream()
-                    .map(param -> ((CtParameter)param).getType().getQualifiedName())
+                    .map(param -> ((CtParameter) param).getType().getQualifiedName())
                     .collect(Collectors.joining(","))
                     + ")";
-            if(coverage.getMethodCoverage(key) != null) {
+            if (coverage.getMethodCoverage(key) != null) {
                 return coverage.getMethodCoverage(key).coverage();
             } else {
                 return 0d;
@@ -296,22 +296,23 @@ public class StatementAdderOnAssert implements Amplifier {
     }
 
     protected int count;
+
     protected CtLocalVariable createLocalVarFromMethodLiterals(CtMethod method, CtTypeReference type) {
         List<CtLiteral> literals = getLiterals(method).stream()
                 .filter(lit -> lit.getType() != null)
                 .filter(lit -> lit.getType().equals(type))
                 .collect(Collectors.toList());
 
-        if(literals.isEmpty()) {
+        if (literals.isEmpty()) {
             return null;
         }
 
         CtLiteral lit = literals.get(AmplificationHelper.getRandom().nextInt(literals.size()));
-        return type.getFactory().Code().createLocalVariable(type, "vc_"+count++,lit);
+        return type.getFactory().Code().createLocalVariable(type, "vc_" + count++, lit);
     }
 
     protected List<CtLiteral> getLiterals(CtMethod method) {
-        if(!literalsByMethod.containsKey(method)) {
+        if (!literalsByMethod.containsKey(method)) {
             literalsByMethod.put(method, Query.getElements(method, new TypeFilter<CtLiteral>(CtLiteral.class)));
         }
         return literalsByMethod.get(method);
@@ -341,7 +342,7 @@ public class StatementAdderOnAssert implements Amplifier {
                 .map(stmt -> new Statement(stmt))
                 .collect(Collectors.toList());
 
-        if(findClassUnderTest(testClass) != null) {
+        if (findClassUnderTest(testClass) != null) {
             coverageBycodeFragments = buildCodeFragmentFor(findClassUnderTest(testClass), coverage);
         } else {
             coverageBycodeFragments = new HashMap<>();
