@@ -25,7 +25,7 @@ public class TestSelector {
     protected List<Graph> graphCoverage;
     protected int maxNumberOfTest;
 
-    public TestSelector(File logDir,  int maxNumberOfTest) {
+    public TestSelector(File logDir, int maxNumberOfTest) {
         this.logDir = logDir;
         this.maxNumberOfTest = maxNumberOfTest;
     }
@@ -44,22 +44,21 @@ public class TestSelector {
         logReader.addParser(graphReader);
         logReader.addParser(coverageParser);
         logReader.readLogs();
-        try {
-            if (branchCoverage == null) {
-                branchCoverage = coverageParser.getResult();
-            } else {
-                for (Coverage coverage : coverageParser.getResult()) {
-                    Coverage previous = branchCoverage.stream()
-                            .filter(ac -> ac.getName().equals(coverage.getName()))
-                            .findFirst()
-                            .orElse(null);
-                    if (previous != null) {
-                        branchCoverage.remove(previous);
-                    }
-                    branchCoverage.add(coverage);
+
+        if (branchCoverage == null) {
+            branchCoverage = coverageParser.getResult();
+        } else {
+            for (Coverage coverage : coverageParser.getResult()) {
+                Coverage previous = branchCoverage.stream()
+                        .filter(ac -> ac.getName().equals(coverage.getName()))
+                        .findFirst()
+                        .orElse(null);
+                if (previous != null) {
+                    branchCoverage.remove(previous);
                 }
+                branchCoverage.add(coverage);
             }
-        } catch (Throwable e) {}
+        }
 
         if (graphCoverage == null) {
             graphCoverage = graphReader.getResult();
@@ -83,7 +82,7 @@ public class TestSelector {
         Map<CtMethod, Set<String>> selectedTest = new HashMap<>();
         for (CtMethod test : newTests) {
             Set<String> tc = getTestCoverageFor(test);
-            if(!tc.isEmpty()) {
+            if (!tc.isEmpty()) {
                 Set<String> parentTc = getParentTestCoverageFor(test);
                 if (!parentTc.isEmpty()) {
                     selectedTest.put(test, new HashSet<>());
@@ -95,7 +94,7 @@ public class TestSelector {
             }
         }
         Set<CtMethod> mths = new HashSet<>();
-        if(selectedTest.size() > maxNumberOfTest) {
+        if (selectedTest.size() > maxNumberOfTest) {
             mths.addAll(reduceSelectedTest(selectedTest));
         } else {
             mths.addAll(selectedTest.keySet());
@@ -112,10 +111,10 @@ public class TestSelector {
         }
 
         Random r = new Random();
-        while(oldMths.size() > maxNumberOfTest) {
+        while (oldMths.size() > maxNumberOfTest) {
             oldMths.remove(r.nextInt(oldMths.size()));
         }
-        for(CtMethod oltMth : oldMths) {
+        for (CtMethod oltMth : oldMths) {
             String testName = oltMth.getSimpleName();
             testAges.put(testName, testAges.get(testName) - 1);
         }
@@ -124,10 +123,10 @@ public class TestSelector {
 
     protected Integer getAgesFor(CtMethod test) {
         String testName = test.getSimpleName();
-        if(testName.contains("_cf")) {
+        if (testName.contains("_cf")) {
             return 2;
         }
-        if(!AmplificationHelper.getAmpTestToParent().containsKey(test)) {
+        if (!AmplificationHelper.getAmpTestToParent().containsKey(test)) {
             return 3;
         }
         return 0;
@@ -138,10 +137,8 @@ public class TestSelector {
         for (CtMethod test : tests) {
             Set<String> tc = getTestCoverageFor(test);
             Set<String> parentTc = getParentTestCoverageFor(test);
-            if (!tc.isEmpty() && !parentTc.isEmpty()) {
-                if (!parentTc.containsAll(tc)) {
-                        amplifiedTests.put(test, diff(tc, parentTc));
-                }
+            if (!tc.isEmpty() && !parentTc.containsAll(tc)) {
+                amplifiedTests.put(test, diff(tc, parentTc));
             }
         }
         return reduceSelectedTest(amplifiedTests);
@@ -156,21 +153,23 @@ public class TestSelector {
                 .collect(Collectors.toList());
 
         List<CtMethod> methods = new ArrayList<>();
-        while(!sortedKey.isEmpty()) {
+        while (!sortedKey.isEmpty()) {
             Set<String> key = new HashSet<>(sortedKey.remove(0));
 
-            if(map.containsKey(key)) {
+            if (map.containsKey(key)) {
                 methods.add(map.get(key).stream().findAny().get());
 
             }
             sortedKey = sortedKey.stream()
-                    .map(k -> {k.removeAll(key); return k;})
+                    .map(k -> {
+                        k.removeAll(key);
+                        return k;
+                    })
                     .filter(k -> !k.isEmpty())
                     .sorted((l1, l2) -> Integer.compare(l2.size(), l1.size()))
                     .collect(Collectors.toList());
 
-            map.keySet().stream()
-                    .forEach(set -> set.removeAll(key));
+            map.keySet().forEach(set -> set.removeAll(key));
         }
         return methods;
     }
@@ -185,7 +184,7 @@ public class TestSelector {
 
     protected Set<String> getParentTestCoverageFor(CtMethod mth) {
         CtMethod parent = getParent(mth);
-        if(parent != null) {
+        if (parent != null) {
             String parentName = parent.getSimpleName();
             if (parentName != null) {
                 return getCoverageFor(parentName);
@@ -211,8 +210,8 @@ public class TestSelector {
     }
 
     protected void deleteLogFile() throws IOException {
-        for(File file : logDir.listFiles()) {
-            if(!file.getName().equals("info")) {
+        for (File file : logDir.listFiles()) {
+            if (!file.getName().equals("info")) {
                 FileUtils.forceDelete(file);
             }
         }
@@ -232,7 +231,7 @@ public class TestSelector {
     public Coverage getGlobalCoverage() {
         Coverage coverage = new Coverage("global");
 
-        for(Coverage tc : branchCoverage) {
+        for (Coverage tc : branchCoverage) {
             coverage.merge(tc);
         }
 
