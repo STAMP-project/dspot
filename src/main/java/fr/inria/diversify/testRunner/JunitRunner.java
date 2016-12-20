@@ -3,14 +3,14 @@ package fr.inria.diversify.testRunner;
 
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.util.Log;
+import org.apache.maven.plugin.lifecycle.Execution;
 import org.junit.internal.requests.FilterRequest;
 import org.junit.runner.*;
 import org.junit.runner.manipulation.Filter;
 import org.junit.runner.notification.RunNotifier;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.lang.reflect.Modifier;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -23,7 +23,6 @@ public class JunitRunner {
     private ClassLoader classLoader;
     private int classTimeOut = 120;
     private int methodTimeOut = 5;
-    private final ExecutorService THREAD_POOL = Executors.newSingleThreadExecutor();
 
     public JunitRunner(ClassLoader classLoader) {
         this.classLoader = classLoader;
@@ -33,10 +32,6 @@ public class JunitRunner {
         return runTestClasses(Collections.singletonList(test), methodsToRun);
     }
 
-    public JunitResult runTestClasses(List<String> tests) {
-        return runTestClasses(tests, new ArrayList<>());
-    }
-
     public JunitResult runTestClasses(List<String> tests, List<String> methodsToRun) {
         JunitResult result = new JunitResult();
         try {
@@ -44,10 +39,8 @@ public class JunitRunner {
             int timeOut = computeTimeOut(methodsToRun);
             runRequest(result, buildRequest(testClasses, methodsToRun), timeOut);
         } catch (Throwable e) {
-            throw new RuntimeException(e);
+            Log.warn("Time out for running unit test cases");
         }
-
-        Logger.close();
         return result;
     }
 
@@ -110,13 +103,15 @@ public class JunitRunner {
 
     private void timedCall(Runnable runnable, long timeout, TimeUnit timeUnit)
             throws InterruptedException, ExecutionException, TimeoutException {
-        FutureTask task = new FutureTask(runnable, null);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future future = executor.submit(runnable);
         try {
-            THREAD_POOL.execute(task);
-            task.get(timeout, timeUnit);
+             future.get(timeout, timeUnit);
         } finally {
+            future.cancel(true);
+            executor.shutdownNow();
             Logger.stopLogging();
-            task.cancel(true);
+            Logger.close();
         }
     }
 

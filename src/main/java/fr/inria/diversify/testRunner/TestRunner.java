@@ -45,7 +45,7 @@ public class TestRunner {
             return null;
         }
 
-        JunitRunner junitRunner = new JunitRunner(new DiversifyClassLoader(applicationClassLoader, compiler.getBinaryOutputDirectory().getAbsolutePath()));
+        JunitRunner junitRunner = new JunitRunner(new DiversifyClassLoader(applicationClassLoader, compiler.getBinaryOutputDirectory().getAbsolutePath()));//incorrect classpath
         return junitRunner.runTestClass(testClass.getQualifiedName(), tests.stream()
                 .map(test-> test.getSimpleName())
                 .collect(Collectors.toList()));
@@ -58,10 +58,10 @@ public class TestRunner {
             PrintClassUtils.printJavaFile(compiler.getSourceOutputDirectory(), classInstru);
             compiler.setCustomClassLoader(applicationClassLoader);
             compiler.compileFileIn(compiler.getSourceOutputDirectory(), true);
-            return true;
-        } catch (IOException e) {
+        } catch (Exception e) {
             Log.warn("error during compilation", e);
             return false;
         }
+        return true;
     }
 }

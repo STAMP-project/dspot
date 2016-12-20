@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
  * Time: 10:34
  */
 public class JunitResult extends RunListener {
+
     Set<Description> testRuns;
     List<Failure> failures;
     List<Failure> compileOrTimeOutError;
@@ -26,11 +27,11 @@ public class JunitResult extends RunListener {
         compileOrTimeOutError = new ArrayList<>();
     }
 
-    public void testFinished(Description description) throws Exception {
+    public synchronized void testFinished(Description description) throws Exception {
         testRuns.add(description);
     }
 
-    public void testFailure(Failure failure) throws Exception {
+    public synchronized void testFailure(Failure failure) throws Exception {
         if(!isCompileOrTimeOutError(failure)) {
             testRuns.add(failure.getDescription());
             failures.add(failure);
@@ -39,14 +40,14 @@ public class JunitResult extends RunListener {
         }
     }
 
-    public void testAssumptionFailure(Failure failure) {
+    public synchronized void testAssumptionFailure(Failure failure) {
         if(!isCompileOrTimeOutError(failure)) {
             testRuns.add(failure.getDescription());
             failures.add(failure);
         }
     }
 
-    protected boolean isCompileOrTimeOutError(Failure failure) {
+    private synchronized boolean isCompileOrTimeOutError(Failure failure) {
         String exceptionMessage = failure.getException().getMessage();
         if(exceptionMessage == null) {
             return false;
@@ -56,41 +57,43 @@ public class JunitResult extends RunListener {
         }
     }
 
-    public List<String> runTests() {
-        return testRuns.stream()
+    public synchronized List<String> runTests() {
+        List<Description> descriptionsTestRuns = new ArrayList<>(testRuns);
+        return descriptionsTestRuns.stream()
                 .map(description -> description.getMethodName())
                 .collect(Collectors.toList());
     }
 
-    public List<String> goodTests() {
+    public synchronized List<String> goodTests() {
         List<String> failureTestNames = failureTests();
         List<String> compileOrTimeOutTestName = compileOrTimeOutTestName();
-        return testRuns.stream()
+        List<Description> descriptionsTestRuns = new ArrayList<>(testRuns);
+        return descriptionsTestRuns.stream()
                 .map(description -> description.getMethodName())
                 .filter(testName -> !failureTestNames.contains(testName))
                 .filter(testName -> !compileOrTimeOutTestName.contains(testName))
                 .collect(Collectors.toList());
     }
 
-    public List<String> compileOrTimeOutTestName() {
+    public synchronized List<String> compileOrTimeOutTestName() {
         return compileOrTimeOutError.stream()
                 .map(failure -> failure.getDescription())
                 .map(description -> description.getMethodName())
                 .collect(Collectors.toList());
     }
 
-    public List<String> failureTests() {
+    public synchronized List<String> failureTests() {
         return failures.stream()
                 .map(failure -> failure.getDescription())
                 .map(description -> description.getMethodName())
                 .collect(Collectors.toList());
     }
 
-    public List<Failure> getFailures() {
+    public synchronized List<Failure> getFailures() {
         return failures;
     }
 
-    public List<String> getTestRuns() {
+    public synchronized List<String> getTestRuns() {
         return testRuns.stream()
                 .map(description -> description.getMethodName())
                 .collect(Collectors.toList());
