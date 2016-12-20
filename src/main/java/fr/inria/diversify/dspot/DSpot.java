@@ -10,7 +10,6 @@ import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.util.PrintClassUtils;
-import spoon.Launcher;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -18,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * User: Simon
@@ -28,6 +28,11 @@ public class DSpot {
 
     private List<Amplifier> amplifiers;
     private int numberOfIterations;
+
+    public DiversityCompiler getCompiler() {
+        return compiler;
+    }
+
     private DiversityCompiler compiler;
     private InputProgram inputProgram;
     private DiversifyClassLoader applicationClassLoader;
@@ -71,31 +76,29 @@ public class DSpot {
     }
 
     public List<CtType> amplifiyAllTests() throws InterruptedException, IOException, ClassNotFoundException {
-        Launcher launcher = new Launcher();
-        launcher.addInputResource(this.inputProgram.getAbsoluteTestSourceCodeDir());
-        launcher.getEnvironment().setNoClasspath(true);
-        launcher.buildModel();
-        final List<CtType> amplifiedClassTest = new ArrayList<>();
-        launcher.getFactory().Class().getAll().forEach(classTest -> {
-                    try {
-                        amplifiedClassTest.add(amplifyTest(classTest.getQualifiedName()));
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-        );
-        return amplifiedClassTest;
+        return inputProgram.getFactory().Class().getAll().stream()
+                .filter(ctClass ->
+                        ctClass.getMethods().stream()
+                                .filter(method ->
+                                        AmplificationChecker.isTest(method, inputProgram.getRelativeTestSourceCodeDir()))
+                                .count() > 0)
+                .map(this::amplifyTest)
+                .collect(Collectors.toList());
     }
 
     public CtType amplifyTest(String fullName) throws InterruptedException, IOException, ClassNotFoundException {
         return amplifyTest(inputProgram.getFactory().Type().get(fullName));
     }
 
-    public CtType amplifyTest(CtType test) throws IOException, InterruptedException, ClassNotFoundException {
-        File logDir = new File(inputProgram.getProgramDir() + "/log");
-        Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, this.amplifiers, logDir);
-        List<CtMethod> ampTests = testAmplification.amplification(test, numberOfIterations);
-        return assertGenerator.generateAsserts(test, ampTests, AmplificationHelper.getAmpTestToParent());
+    public CtType amplifyTest(CtType test) {
+        try {
+            File logDir = new File(inputProgram.getProgramDir() + "/log");
+            Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, this.amplifiers, logDir);
+            List<CtMethod> ampTests = testAmplification.amplification(test, numberOfIterations);
+            return assertGenerator.generateAsserts(test, ampTests, AmplificationHelper.getAmpTestToParent());
+        } catch (IOException | InterruptedException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public CtType amplifyTest(List<CtMethod> tests, CtType testClass) throws IOException, InterruptedException, ClassNotFoundException {

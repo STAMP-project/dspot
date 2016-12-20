@@ -37,9 +37,12 @@ public class DSpotTest {
         DSpot dspot = new DSpot(configuration);
 
         CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample");
-        assertEquals(19, amplifiedTest.getMethods().size());
+        assertEquals(18, amplifiedTest.getMethods().size());
         assertEquals(originalTestBody, amplifiedTest.getMethod("test1").getBody().toString());
-        assertEquals(expectedAmplifiedBody, amplifiedTest.getMethod("test1_cf5_cf236").getBody().toString());
+
+        amplifiedTest.getMethods();
+
+        assertEquals(expectedAmplifiedBody, amplifiedTest.getMethod("test1_cf6_cf34_cf167").getBody().toString());
     }
 
     private final String pathToPropertiesFile = "src/test/resources/test-projects/test-projects.properties";
@@ -53,18 +56,20 @@ public class DSpotTest {
 
     private final String expectedAmplifiedBody = "{" + nl  +
             "    example.Example ex = new example.Example();" + nl  +
-            "    int vc_1 = 0;" + nl  +
-            "    junit.framework.Assert.assertEquals(vc_1, 0);" + nl  +
-            "    java.lang.String s = \"abcd\";" + nl  +
-            "    junit.framework.Assert.assertEquals(s, \"abcd\");" + nl  +
-            "    char o_test1_cf5_cf236__5 = ex.charAt(s, vc_1);" + nl  +
-            "    junit.framework.Assert.assertEquals(o_test1_cf5_cf236__5, 'a');" + nl  +
-            "    int vc_35 = 715956334;" + nl  +
-            "    junit.framework.Assert.assertEquals(vc_35, 715956334);" + nl  +
-            "    java.lang.String vc_10 = \"abcd\";" + nl  +
-            "    junit.framework.Assert.assertEquals(vc_10, \"abcd\");" + nl  +
-            "    char o_test1_cf5_cf236__8 = ex.charAt(vc_10, vc_35);" + nl  +
-            "    junit.framework.Assert.assertEquals(o_test1_cf5_cf236__8, 'd');" + nl  +
+            "    int vc_5 = -619987209;" + nl  +
+            "    junit.framework.Assert.assertEquals(vc_5, -619987209);" + nl  +
+            "    java.lang.String vc_0 = \"abcd\";" + nl  +
+            "    junit.framework.Assert.assertEquals(vc_0, \"abcd\");" + nl  +
+            "    char o_test1_cf6_cf34_cf167__5 = ex.charAt(vc_0, vc_5);" + nl  +
+            "    junit.framework.Assert.assertEquals(o_test1_cf6_cf34_cf167__5, 'a');" + nl  +
+            "    char o_test1_cf6_cf34_cf167__6 = ex.charAt(vc_0, vc_5);" + nl  +
+            "    junit.framework.Assert.assertEquals(o_test1_cf6_cf34_cf167__6, 'a');" + nl  +
+            "    int vc_29 = 995075168;" + nl  +
+            "    junit.framework.Assert.assertEquals(vc_29, 995075168);" + nl  +
+            "    java.lang.String vc_8 = \"abcd\";" + nl  +
+            "    junit.framework.Assert.assertEquals(vc_8, \"abcd\");" + nl  +
+            "    char o_test1_cf6_cf34_cf167__9 = ex.charAt(vc_8, vc_29);" + nl  +
+            "    junit.framework.Assert.assertEquals(o_test1_cf6_cf34_cf167__9, 'd');" + nl  +
             "    org.junit.Assert.assertEquals('a', ex.charAt(\"abcd\", 0));" + nl  +
             "}";
 
