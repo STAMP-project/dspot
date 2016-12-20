@@ -82,7 +82,7 @@ public class Logger {
         getLog(thread).afterAssert(methodId, idAssert);
     }
 
-    public static void close() {
+    public synchronized static void close() {
         if(logs != null) {
             for (LogWriter l : logs.values()) {
                 l.close();
