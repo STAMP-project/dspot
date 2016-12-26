@@ -65,7 +65,6 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
                 }
             }
         }
-
         String[] sourceClasspath = Arrays.stream(((URLClassLoader) Thread.currentThread().getContextClassLoader()).getURLs())
                 .map(url -> {
                     try {
@@ -175,6 +174,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
         return compiler.globalErrorsCount == 0;
     }
+
 
     private String[] getFinalClassPathAsStrings() {
         URL[] urls;

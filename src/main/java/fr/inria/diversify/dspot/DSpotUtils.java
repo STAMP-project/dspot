@@ -92,8 +92,6 @@ public class DSpotUtils {
         return list;
     }
 
-
-
     public static DSpotCompiler initDiversityCompiler(InputProgram inputProgram, boolean withTest) throws IOException, InterruptedException {
         DSpotCompiler compiler = DSpotCompiler.buildCompiler(inputProgram, withTest);
         if(compiler.getBinaryOutputDirectory() == null) {
