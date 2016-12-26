@@ -4,6 +4,7 @@ import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
 import fr.inria.diversify.dspot.dynamic.logger.TypeUtils;
+import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.factories.DiversityCompiler;
@@ -22,6 +23,7 @@ import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,13 +37,13 @@ public class MethodAssertGenerator {
     protected ClassLoader assertGeneratorClassLoader;
     protected CtMethod test;
     protected CtType originalClass;
-    protected DiversityCompiler compiler;
+    protected DSpotCompiler compiler;
     protected InputProgram inputProgram;
     protected List<Integer> statementsIndexToAssert;
 
 
 
-    public MethodAssertGenerator(CtType originalClass, InputProgram inputProgram, DiversityCompiler compiler, ClassLoader applicationClassLoader) throws IOException {
+    public MethodAssertGenerator(CtType originalClass, InputProgram inputProgram, DSpotCompiler compiler, ClassLoader applicationClassLoader) throws IOException {
         this.originalClass = originalClass;
         this.compiler = compiler;
         this.assertGeneratorClassLoader = applicationClassLoader;
@@ -81,7 +83,7 @@ public class MethodAssertGenerator {
         List<CtMethod> testsToRun = new ArrayList<>();
         CtType cl = initTestClass();
 
-        CtMethod cloneTest = getFactory().Core().clone(test);
+        CtMethod cloneTest = test.clone();
         cl.addMethod(cloneTest);
         testsToRun.add(cloneTest);
 
@@ -310,8 +312,13 @@ public class MethodAssertGenerator {
     //todo refactor
     protected boolean writeAndCompile(CtType cl) {
         try {
-            FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
-            FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
+            //TODO Ugly try-catch block but no time to waste.
+            try {
+                FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
+                FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
+            } catch (FileNotFoundException | IllegalArgumentException ignored) {
+                //ignored
+            }
 
             copyLoggerFile();
             PrintClassUtils.printJavaFile(compiler.getSourceOutputDirectory(), cl);
@@ -367,8 +374,7 @@ public class MethodAssertGenerator {
     }
 
     protected boolean isVoidReturn(CtInvocation invocation) {
-        String returnType = invocation.getType().getSimpleName();
-        return returnType.equals("Void") || returnType.equals("void");
+        return invocation.getType() != null && (invocation.getType().getSimpleName().equals("Void") || invocation.getType().getSimpleName().equals("void"));
     }
 
     protected void addLogStmt(CtStatement stmt, String id, boolean forAssert) {
@@ -440,7 +446,13 @@ public class MethodAssertGenerator {
                         ctCase.getStatements().add(index, block);
                         ctCase.getStatements().remove(statement);
                     } else {
-                        statement.replace(block);
+                        if (block.getStatements().size() == 0) {
+                            statement.delete();
+                        } else if (block.getStatements().size() == 1) {
+                            statement.replace(block.getStatement(0));
+                        } else {
+                            replaceStatementByListOfStatements(statement, block.getStatements());
+                        }
                     }
                 }
                 stmtIndex++;
@@ -449,6 +461,13 @@ public class MethodAssertGenerator {
             }
         }
         return newTest;
+    }
+
+    private void replaceStatementByListOfStatements(CtStatement statement, List<CtStatement> statements) {
+        statement.replace(statements.get(0));
+        for (int i = 1; i < statements.size(); i++) {
+            statement.insertAfter(statements.get(i));
+        }
     }
 
     protected void updateStatementsIndexToAssert(int stmtIndex, int update) {

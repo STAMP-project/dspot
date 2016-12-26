@@ -15,7 +15,7 @@ public class AssertionRemover extends TestProcessor {
     public static int monitorPointCount = 0;
 
 	/*
-	 * This processor removes all the assertions from a test case
+     * This processor removes all the assertions from a test case
 	 * For future version: 
 	 * - we should validate first whether the assertion contains a call to a method under test. If yes, we should extract it.
 	 * */
@@ -25,7 +25,7 @@ public class AssertionRemover extends TestProcessor {
         this.testDir = testDir;
     }
 
-	public boolean isToBeProcessed(CtMethod candidate) {
+    public boolean isToBeProcessed(CtMethod candidate) {
         return candidate.getPosition().toString().contains(testDir);
     }
 
@@ -33,32 +33,32 @@ public class AssertionRemover extends TestProcessor {
     public void process(CtMethod method) {
 
         List<CtInvocation> stmts = Query.getElements(method, new TypeFilter(CtInvocation.class));
-        for(CtInvocation invocation: stmts){
+        for (CtInvocation invocation : stmts) {
             try {
                 if (isAssert(invocation)) {
-                    if(invocation.getParent() instanceof CtCase) {
+                    if (invocation.getParent() instanceof CtCase) {
                         CtCase ctCase = (CtCase) invocation.getParent();
                         int index = ctCase.getStatements().indexOf(invocation);
-                        getArgs(invocation).stream()
-                                           .forEach(arg -> {
-                                               if(!(arg instanceof CtVariableAccess) && !(arg instanceof CtFieldAccess)) {
-                                                   ctCase.getStatements().add(index, buildVarStatement(arg));
-                                               }
-                                           });
+                        getArgs(invocation).forEach(arg -> {
+                            if (!(arg instanceof CtVariableAccess) && !(arg instanceof CtFieldAccess)) {
+                                ctCase.getStatements().add(index, buildVarStatement(arg));
+                            }
+                        });
                         ctCase.getStatements().remove(invocation);
                     } else {
-                        CtBlock block = (CtBlock) invocation.getParent();
-                        getArgs(invocation).stream()
-                                           .forEach(arg -> {
-                                               if(!(arg instanceof CtVariableAccess) && !(arg instanceof CtFieldAccess)) {
-                                                   invocation.insertBefore(buildVarStatement(arg));
-                                               }
-                                           });
-                        removeStatement(block, invocation);
-//                        block.removeStatement(invocation);
+                        CtBlock block = invocation.getParent(CtBlock.class);
+                        getArgs(invocation).forEach(arg -> {
+                            if (!(arg instanceof CtVariableAccess)) {
+                                invocation.insertBefore(buildVarStatement(arg));
+                            }
+                        });
+                        //removeStatement(block, invocation);
+                        block.removeStatement(invocation);
                     }
                 }
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
 
         }
     }
@@ -66,8 +66,8 @@ public class AssertionRemover extends TestProcessor {
     protected void removeStatement(CtBlock parent, CtStatement stmt) {
         int i = 0;
         List<CtStatement> stmts = parent.getStatements();
-        for(; i < stmts.size(); i++) {
-            if(stmts.get(i) == stmt) {
+        for (; i < stmts.size(); i++) {
+            if (stmts.get(i) == stmt) {
                 break;
             }
         }
@@ -76,19 +76,19 @@ public class AssertionRemover extends TestProcessor {
 
     protected CtCodeSnippetStatement buildVarStatement(CtElement arg) {
         CtCodeSnippetStatement stmt = new CtCodeSnippetStatementImpl();
-        stmt.setValue("Object o" + monitorPointCount +  " = " + arg.toString());
+        stmt.setValue("Object o" + monitorPointCount + " = " + arg.toString());
         monitorPointCount++;
         return stmt;
     }
 
-	protected List<CtElement> getArgs(CtInvocation invocation) {
-		List<CtElement> list = new ArrayList<>();
-		for(Object arg : invocation.getArguments()) {
-			if(!(arg instanceof CtLiteral)) {
-				CtElement i = (CtElement)arg;
-				list.add(i);
-			}
-		}
-		return list;
-	}
+    private List<CtElement> getArgs(CtInvocation invocation) {
+        List<CtElement> list = new ArrayList<>();
+        for (Object arg : invocation.getArguments()) {
+            if (!(arg instanceof CtLiteral)) {
+                CtElement i = (CtElement) arg;
+                list.add(i);
+            }
+        }
+        return list;
+    }
 }

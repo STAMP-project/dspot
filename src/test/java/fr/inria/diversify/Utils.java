@@ -3,6 +3,7 @@ package fr.inria.diversify;
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.DSpotUtils;
+import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
@@ -23,14 +24,14 @@ import java.util.Set;
 public class Utils {
     private static String confFile = "src/test/resources/sample.properties";
     private static InputProgram inputProgram;
-    private static DiversityCompiler compiler;
+    private static DSpotCompiler compiler;
     private static DiversifyClassLoader applicationClassLoader;
 
     public static DiversifyClassLoader getApplicationClassLoader() {
         return applicationClassLoader;
     }
 
-    public static DiversityCompiler getCompiler() throws InvalidSdkException, Exception {
+    public static DSpotCompiler getCompiler() throws InvalidSdkException, Exception {
         lazyInit();
         return compiler;
     }
@@ -48,6 +49,7 @@ public class Utils {
 
     private static void lazyInit() throws InvalidSdkException, Exception {
         if(inputProgram == null) {
+            System.out.println("init");
             loadSampleProject();
         }
     }

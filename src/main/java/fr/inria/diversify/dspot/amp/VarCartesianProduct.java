@@ -57,13 +57,13 @@ public class VarCartesianProduct {
     }
 
 
-    public List<List<Statement>> apply(List<Statement> stmts, int targetIndex) {
+    public List<List<Statement>> apply(List<Statement> statements, int targetIndex) {
         List<List<Statement>> codeFragmentsLists = new ArrayList<>();
 
         List<List<CtVariableReference>> cartesianProduct = cartesianProduct(newVarsRefs);
 
         for(List<CtVariableReference> list : cartesianProduct) {
-            List<Statement> cloneStmts = cloneStmts(stmts);
+            List<Statement> cloneStmts = cloneStatements(statements);
             codeFragmentsLists.add(cloneStmts);
             Statement stmt = cloneStmts.get(targetIndex);
 
@@ -80,9 +80,9 @@ public class VarCartesianProduct {
         return codeFragmentsLists;
     }
 
-    protected  List<Statement> cloneStmts(List<Statement> stmts) {
+    private List<Statement> cloneStatements(List<Statement> stmts) {
         return stmts.stream()
-                .map(stmt -> stmt.clone())
+                .map(stmt -> new Statement(stmt.getCtCodeFragment().clone()))
                 .collect(Collectors.toList());
     }
 

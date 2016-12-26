@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.amp;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import fr.inria.diversify.dspot.AbstractTest;
 import fr.inria.diversify.util.FileUtils;
 import org.junit.AfterClass;
 import fr.inria.diversify.dspot.AmplificationHelper;
@@ -21,7 +22,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 12/7/16
  */
-public class TestMethodCallAdderTest {
+public class TestMethodCallAdderTest extends AbstractTest {
 
     @Test
     public void testMethodCallAddAll() throws Exception, InvalidSdkException {
@@ -91,10 +92,4 @@ public class TestMethodCallAdderTest {
         assertEquals(originalMethod.getBody().getStatements().size() + 2, stackedAmplifiedMethod.getBody().getStatements().size());
     }
 
-    @AfterClass
-    public static void tearDown() throws InvalidSdkException, Exception {
-        FileUtils.forceDelete(Utils.getCompiler().getBinaryOutputDirectory());
-        FileUtils.forceDelete(Utils.getCompiler().getSourceOutputDirectory());
-        Utils.reset();
-    }
 }

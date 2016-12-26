@@ -1,6 +1,7 @@
 package fr.inria.diversify.testRunner;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
+import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
@@ -9,6 +10,7 @@ import fr.inria.diversify.util.PrintClassUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,9 +26,9 @@ public class TestRunner {
     protected InputProgram inputProgram;
 
     protected DiversifyClassLoader applicationClassLoader;
-    protected DiversityCompiler compiler;
+    protected DSpotCompiler compiler;
 
-    public TestRunner(InputProgram inputProgram, DiversifyClassLoader applicationClassLoader, DiversityCompiler compiler) {
+    public TestRunner(InputProgram inputProgram, DiversifyClassLoader applicationClassLoader, DSpotCompiler compiler) {
         this.applicationClassLoader = applicationClassLoader;
         this.inputProgram = inputProgram;
         this.compiler = compiler;
@@ -41,13 +43,13 @@ public class TestRunner {
     public JunitResult runTests(CtType testClass, Collection<CtMethod> tests) throws ClassNotFoundException, IOException {
         boolean status = writeAndCompile(testClass);
 
-        if(!status) {
+        if (!status) {
             return null;
         }
 
         JunitRunner junitRunner = new JunitRunner(new DiversifyClassLoader(applicationClassLoader, compiler.getBinaryOutputDirectory().getAbsolutePath()));//incorrect classpath
         return junitRunner.runTestClass(testClass.getQualifiedName(), tests.stream()
-                .map(test-> test.getSimpleName())
+                .map(test -> test.getSimpleName())
                 .collect(Collectors.toList()));
     }
 
@@ -55,6 +57,10 @@ public class TestRunner {
         try {
             FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
+        } catch (IOException | IllegalArgumentException ignored) {
+
+        }
+        try {
             PrintClassUtils.printJavaFile(compiler.getSourceOutputDirectory(), classInstru);
             compiler.setCustomClassLoader(applicationClassLoader);
             compiler.compileFileIn(compiler.getSourceOutputDirectory(), true);

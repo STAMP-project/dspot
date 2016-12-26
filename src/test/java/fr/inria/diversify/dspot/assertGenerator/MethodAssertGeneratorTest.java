@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.assertGenerator;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import fr.inria.diversify.dspot.AbstractTest;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.util.FileUtils;
 import org.junit.AfterClass;
@@ -10,6 +11,7 @@ import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static fr.inria.diversify.dspot.assertGenerator.AssertCt.assertBodyEquals;
 import static org.junit.Assert.assertEquals;
@@ -19,41 +21,46 @@ import static org.junit.Assert.assertEquals;
  * Date: 25/11/16
  * Time: 11:15
  */
-public class MethodAssertGeneratorTest {
+public class MethodAssertGeneratorTest extends AbstractTest {
 
     @Test
     public void testCreateTestWithoutAssert() throws InvalidSdkException, Exception {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
         MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler(), Utils.getApplicationClassLoader());
 
-        CtMethod testWithoutAssert = Utils.findMethod("fr.inria.sample.TestClassWithAssert", "test1_withoutAssert");
-
         mag.test = Utils.findMethod("fr.inria.sample.TestClassWithAssert", "test1");
-        CtMethod test1 = mag.createTestWithoutAssert(new ArrayList<>(), false);
-        assertBodyEquals(testWithoutAssert, test1);
-
-        mag.test = testWithoutAssert;
-        CtMethod test2 = mag.createTestWithoutAssert(new ArrayList<>(), false);
-        assertBodyEquals(testWithoutAssert, test2);
+        CtMethod test1 = mag.createTestWithoutAssert(Collections.EMPTY_LIST, false);
+        assertEquals(expectedBodyTest1, test1.getBody().toString());
     }
+
+    private static final String nl = System.lineSeparator();
+
+    private static final String expectedBodyTest1 = "{" + nl +
+            "    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl +
+            "    Object o_3_0 = cl.getTrue();" + nl +
+            "}";
 
     @Test
     public void testRemoveFailAssert() throws InvalidSdkException, Exception {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
         MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler(), Utils.getApplicationClassLoader());
 
-       CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithAssert", "test1");
+        CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithAssert", "test1");
         mag.test = test1;
 
         CtMethod test1_RFA = mag.removeFailAssert();
-        assertBodyEquals(test1_RFA, test1);
+        assertEquals(test1.getBody().toString(), test1_RFA.getBody().toString());
 
-        CtMethod test2_RemoveFailAssert = Utils.findMethod("fr.inria.sample.TestClassWithAssert", "test2_RemoveFailAssert");
         mag.test = Utils.findMethod("fr.inria.sample.TestClassWithAssert", "test2");
-
         CtMethod test2_RFA = mag.removeFailAssert();
-        assertBodyEquals(test2_RemoveFailAssert, test2_RFA);
+        assertEquals(expectedBodyTest2, test2_RFA.getBody().toString());
     }
+
+    private static final String expectedBodyTest2 = "{" + nl  +
+            "    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl  +
+            "    org.junit.Assert.assertTrue(cl.getTrue());" + nl  +
+            "    Object o_5_0 = cl.getFalse();" + nl  +
+            "}";
 
     @Test
     public void testMakeFailureTest() throws InvalidSdkException, Exception {
@@ -95,10 +102,4 @@ public class MethodAssertGeneratorTest {
         assertEquals(expectedBody, test1_buildNewAssert.getBody().toString());
     }
 
-    @AfterClass
-    public static void tearDown() throws InvalidSdkException, Exception {
-        FileUtils.forceDelete(Utils.getCompiler().getBinaryOutputDirectory());
-        FileUtils.forceDelete(Utils.getCompiler().getSourceOutputDirectory());
-        Utils.reset();
-    }
 }

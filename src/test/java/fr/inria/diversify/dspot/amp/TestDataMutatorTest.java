@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.amp;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import fr.inria.diversify.dspot.AbstractTest;
 import fr.inria.diversify.util.FileUtils;
 import org.junit.AfterClass;
 import fr.inria.diversify.dspot.AmplificationHelper;
@@ -27,7 +28,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 11/23/16
  */
-public class TestDataMutatorTest {
+public class TestDataMutatorTest extends AbstractTest {
 
     private static final String SUFFIX_MUTATION = "_literalMutation";
 
@@ -292,13 +293,6 @@ public class TestDataMutatorTest {
         TestDataMutator amplificator = new TestDataMutator();
         amplificator.reset(null, literalMutationClass);
         return amplificator;
-    }
-
-    @AfterClass
-    public static void tearDown() throws InvalidSdkException, Exception {
-        FileUtils.forceDelete(Utils.getCompiler().getBinaryOutputDirectory());
-        FileUtils.forceDelete(Utils.getCompiler().getSourceOutputDirectory());
-        Utils.reset();
     }
 
 }

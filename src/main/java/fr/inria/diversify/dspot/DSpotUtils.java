@@ -2,7 +2,7 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.buildSystem.maven.MavenBuilder;
-import fr.inria.diversify.factories.DiversityCompiler;
+import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.processor.ProcessorUtil;
 import fr.inria.diversify.processor.main.AddBlockEverywhereProcessor;
@@ -10,9 +10,7 @@ import fr.inria.diversify.processor.main.BranchCoverageProcessor;
 import fr.inria.diversify.profiling.processor.main.AbstractLoggingInstrumenter;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.FileUtils;
-import fr.inria.diversify.util.InitUtils;
-import fr.inria.diversify.util.PrintClassUtils;
+import fr.inria.diversify.util.*;
 import spoon.compiler.Environment;
 import spoon.processing.Processor;
 import spoon.reflect.factory.Factory;
@@ -22,10 +20,7 @@ import spoon.support.QueueProcessingManager;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * User: Simon
@@ -34,31 +29,73 @@ import java.util.Set;
  */
 public class DSpotUtils {
 
-    public static void addBranchLogger(InputProgram inputProgram) throws IOException {
-        Factory factory = InitUtils.initSpoon(inputProgram, false);
+    public static void addBranchLogger(InputProgram inputProgram) {
+        try {
+            Factory factory = DSpotCompiler.buildCompiler(inputProgram, false).getFactory();
 
-        applyProcessor(factory, new AddBlockEverywhereProcessor(inputProgram));
+            applyProcessor(factory, new AddBlockEverywhereProcessor(inputProgram));
 
-        BranchCoverageProcessor m = new BranchCoverageProcessor(inputProgram, inputProgram.getProgramDir(), true);
-        m.setLogger(Logger.class.getCanonicalName());
-        AbstractLoggingInstrumenter.reset();
-        applyProcessor(factory, m);
+            BranchCoverageProcessor branchCoverageProcessor = new BranchCoverageProcessor(inputProgram, inputProgram.getProgramDir(), true);
+            branchCoverageProcessor.setLogger(Logger.class.getCanonicalName());
+            AbstractLoggingInstrumenter.reset();
 
-        File fileFrom = new File(inputProgram.getAbsoluteSourceCodeDir());
-        PrintClassUtils.printAllClasses(factory, fileFrom, fileFrom);
+            applyProcessor(factory, branchCoverageProcessor);
 
-        String loggerPackage = Logger.class.getPackage().getName().replace(".", "/");
-        File destDir = new File(inputProgram.getAbsoluteSourceCodeDir() + "/" + loggerPackage);
-        File srcDir = new File(System.getProperty("user.dir") + "/src/main/java/" + loggerPackage);
-        FileUtils.forceMkdir(destDir);
+            File fileFrom = new File(inputProgram.getAbsoluteSourceCodeDir());
+            printAllClasses(factory, fileFrom, fileFrom);
 
-        FileUtils.copyDirectory(srcDir, destDir);
+            String loggerPackage = Logger.class.getPackage().getName().replace(".", "/");
+            File destDir = new File(inputProgram.getAbsoluteSourceCodeDir() + "/" + loggerPackage);
+            File srcDir = new File(System.getProperty("user.dir") + "/src/main/java/" + loggerPackage);
+            FileUtils.forceMkdir(destDir);
 
-        ProcessorUtil.writeInfoFile(inputProgram.getProgramDir());
+            FileUtils.copyDirectory(srcDir, destDir);
+
+            ProcessorUtil.writeInfoFile(inputProgram.getProgramDir());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static DiversityCompiler initDiversityCompiler(InputProgram inputProgram, boolean withTest) throws IOException, InterruptedException {
-        DiversityCompiler compiler = InitUtils.initSpoonCompiler(inputProgram, withTest);
+    public static void printAllClasses(Factory factory, File out, File fileFrom) {
+        //Environment env = factory.getEnvironment();
+        //JavaOutputProcessorWithFilter processor = new JavaOutputProcessorWithFilter(out, new DefaultJavaPrettyPrinter(env), allClassesName(fileFrom));
+
+        factory.Class().getAll().forEach(type -> {
+            try {
+                PrintClassUtils.printJavaFile(out, type);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Deprecated
+    private static List<String> allClassesName(File dir) {
+        ArrayList list = new ArrayList();
+        File[] var2 = dir.listFiles();
+        int var3 = var2.length;
+
+        for(int var4 = 0; var4 < var3; ++var4) {
+            File file = var2[var4];
+            if(file.isDirectory()) {
+                list.addAll(allClassesName(file));
+            } else {
+                String name = file.getName();
+                if(name.endsWith(".java")) {
+                    String[] tmp = name.substring(0, name.length() - 5).split("/");
+                    list.add(tmp[tmp.length - 1]);
+                }
+            }
+        }
+
+        return list;
+    }
+
+
+
+    public static DSpotCompiler initDiversityCompiler(InputProgram inputProgram, boolean withTest) throws IOException, InterruptedException {
+        DSpotCompiler compiler = DSpotCompiler.buildCompiler(inputProgram, withTest);
         if(compiler.getBinaryOutputDirectory() == null) {
             File classOutputDir = new File("tmpDir/tmpClasses_" + System.currentTimeMillis());
             if (!classOutputDir.exists()) {
