@@ -175,7 +175,10 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
         return compiler.globalErrorsCount == 0;
     }
 
+<<<<<<< b2c2cc03a2c66a1f8d8136c680781379d1c78a04
 
+=======
+>>>>>>> spoon version updated to 5.5.0
     private String[] getFinalClassPathAsStrings() {
         URL[] urls;
         if (customClassLoader != null) {
