@@ -21,9 +21,12 @@ import spoon.support.compiler.jdt.JDTBasedSpoonCompiler;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 /**
@@ -49,7 +52,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
         for (String s : buildSourceDirectoriesList(program, withTest)) {
             for (String dir : s.split(System.getProperty("path.separator"))) {
                 try {
-                    if(!dir.isEmpty()) {
+                    if (!dir.isEmpty()) {
                         Log.debug("add {} to classpath", dir);
                         File dirFile = new File(dir);
                         if (dirFile.isDirectory()) {
@@ -62,6 +65,20 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
                 }
             }
         }
+
+        String[] sourceClasspath = Arrays.stream(((URLClassLoader) Thread.currentThread().getContextClassLoader()).getURLs())
+                .map(url -> {
+                    try {
+                        return url.toURI();
+                    } catch (URISyntaxException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .filter(uri -> new File(uri).exists())
+                .map(URI::getPath)
+                .toArray(String[]::new);
+        compiler.setSourceClasspath(sourceClasspath);
+
         try {
             compiler.build();
         } catch (Exception e) {
@@ -73,14 +90,14 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
     }
 
     private void init() {
-        if(this.getBinaryOutputDirectory() == null) {
+        if (this.getBinaryOutputDirectory() == null) {
             File classOutputDir = new File("tmpDir/tmpClasses_" + System.currentTimeMillis());
             if (!classOutputDir.exists()) {
                 classOutputDir.mkdirs();
             }
             this.setBinaryOutputDirectory(classOutputDir);
         }
-        if(this.getSourceOutputDirectory().toString().equals("spooned")) {
+        if (this.getSourceOutputDirectory().toString().equals("spooned")) {
             File sourceOutputDir = new File("tmpDir/tmpSrc_" + System.currentTimeMillis());
             if (!sourceOutputDir.exists()) {
                 sourceOutputDir.mkdirs();
@@ -96,7 +113,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
     private static Collection<String> buildSourceDirectoriesList(InputProgram program, boolean withTest) {
         ArrayList<String> sourceDirectoryList = new ArrayList<String>();
         sourceDirectoryList.add(program.getAbsoluteSourceCodeDir());
-        if(withTest) {
+        if (withTest) {
             sourceDirectoryList.add(program.getAbsoluteTestSourceCodeDir());
         }
         sourceDirectoryList.add(program.getExternalSourceCodeDir());
@@ -128,19 +145,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
         sourcesOptions.sources((new FileSystemFolder(directory).getAllJavaFiles()));
 
 
-        URL[] urls;
-        if(customClassLoader != null) {
-            urls = customClassLoader.getURLs();
-        } else {
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            urls = ((URLClassLoader) classLoader).getURLs();
-
-        }
-        String[] finalClassPath = new String[urls.length];
-
-        for(int i = 0; i < urls.length; i++) {
-            finalClassPath[i] = urls[i].getFile();
-        }
+        String[] finalClassPath = getFinalClassPathAsStrings();
 
         final ClasspathOptions classpathOptions = new ClasspathOptions()
                 .encoding(this.encoding)
@@ -157,11 +162,11 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
         final String[] finalArgs = new String[args.length + 1];
         finalArgs[0] = "-proceedOnError";
-        for(int i = 0; i < args.length; i++) {
+        for (int i = 0; i < args.length; i++) {
             finalArgs[i + 1] = args[i];
         }
 
-        if(!withLog) {
+        if (!withLog) {
             compiler.logger = new Main.Logger(compiler, new PrintWriter(new NullWriter()), new PrintWriter(new NullWriter()));
         }
 
@@ -169,6 +174,22 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
         environment = compiler.getEnvironment();
 
         return compiler.globalErrorsCount == 0;
+    }
+
+    private String[] getFinalClassPathAsStrings() {
+        URL[] urls;
+        if (customClassLoader != null) {
+            urls = customClassLoader.getURLs();
+        } else {
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            urls = ((URLClassLoader) classLoader).getURLs();
+        }
+        String[] finalClassPath = new String[urls.length];
+
+        for (int i = 0; i < urls.length; i++) {
+            finalClassPath[i] = urls[i].getFile();
+        }
+        return finalClassPath;
     }
 
     protected void report(Environment environment, CategorizedProblem problem) {

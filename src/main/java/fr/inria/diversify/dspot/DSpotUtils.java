@@ -143,9 +143,7 @@ public class DSpotUtils {
 
     public static DiversifyClassLoader initClassLoader(InputProgram inputProgram, InputConfiguration inputConfiguration) {
         Set<String> filter = new HashSet<>();
-        for(String s : inputConfiguration.getProperty("filter").split(";") ) {
-            filter.add(s);
-        }
+        Collections.addAll(filter, inputConfiguration.getProperty("filter").split(";"));
 
         List<String> classPaths = new ArrayList<>();
         classPaths.add(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
