@@ -198,21 +198,15 @@ public class TestDataMutator implements Amplifier {
 
     protected CtMethod createBooleanMutant(CtMethod test, CtLiteral booleanLiteral) {
         Boolean value = (Boolean) booleanLiteral.getValue();
-
-        dataCount++;
-        //clone the method
         CtMethod cloned_method = AmplificationHelper.cloneMethod(test, "_literalMutation");
-
-        CtLiteral newLiteral = test.getFactory().Core().createLiteral();
-        newLiteral.setTypeCasts(booleanLiteral.getTypeCasts());
-
-        if (value) {
-            newLiteral.setValue(false);
-        } else {
-            newLiteral.setValue(true);
-        }
-
-        booleanLiteral.replace(newLiteral);
+        CtLiteral newValue = cloned_method.getElements(new TypeFilter<CtLiteral>(CtLiteral.class) {
+            @Override
+            public boolean matches(CtLiteral element) {
+                return element.equals(booleanLiteral);
+            }
+        }).get(0);
+        newValue.setValue(!value);
+        newValue.setTypeCasts(booleanLiteral.getTypeCasts());
         return cloned_method;
     }
 

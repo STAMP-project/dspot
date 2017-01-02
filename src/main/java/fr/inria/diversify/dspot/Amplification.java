@@ -3,7 +3,6 @@ package fr.inria.diversify.dspot;
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.dspot.amp.*;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.log.branch.Coverage;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputProgram;
@@ -11,9 +10,7 @@ import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.JunitRunner;
 import fr.inria.diversify.testRunner.TestRunner;
 import fr.inria.diversify.testRunner.TestStatus;
-import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
-import fr.inria.diversify.util.PrintClassUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 

@@ -1,5 +1,6 @@
 package fr.inria.diversify.utils;
 
+import fr.inria.diversify.util.Log;
 import spoon.reflect.reference.CtArrayTypeReference;
 import spoon.reflect.reference.CtTypeReference;
 
@@ -22,7 +23,6 @@ public class CtTypeUtils {
 
     public static boolean isPrimitive(CtTypeReference type) {
         try {
-//            return type.unbox().isPrimitive();
             return type.isPrimitive();
         } catch (Exception e) {
             e.printStackTrace();
@@ -33,28 +33,31 @@ public class CtTypeUtils {
     public static  boolean isString(CtTypeReference type) {
         try {
             return String.class.isAssignableFrom(type.getActualClass());
-        } catch (Exception e) {}
+        } catch (Exception ignored) {
+            Log.warn("Error during check isString on " + type);
+        }
         return false;
     }
 
     public static boolean isPrimitiveArray(CtTypeReference type) {
-        if(CtArrayTypeReference.class.isInstance(type)) {
-            return isPrimitive(((CtArrayTypeReference)type).getComponentType());
-        }
-        return false;
+        return CtArrayTypeReference.class.isInstance(type) && isPrimitive(((CtArrayTypeReference) type).getComponentType());
     }
 
     public static boolean isPrimitiveCollection(CtTypeReference type) {
         try {
             return Collection.class.isAssignableFrom(type.getActualClass());
-        } catch (Exception e) {}
+        } catch (Exception ignored) {
+            Log.warn("Error during check isPrimitiveCollection on " + type);
+        }
         return false;
     }
 
     public static boolean isPrimitiveMap(CtTypeReference type) {
         try {
             return Map.class.isAssignableFrom(type.getActualClass());
-        } catch (Exception e) {}
+        } catch (Exception ignored) {
+            Log.warn("Error during check isPrimitiveMap on " + type);
+        }
         return false;
     }
 }
