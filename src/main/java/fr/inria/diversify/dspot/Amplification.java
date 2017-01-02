@@ -123,6 +123,11 @@ public class Amplification {
             }
             Log.debug("{} tests selected to be amplified", testToAmp.size());
             newTests = ampTests(testToAmp);
+
+            if (newTests.isEmpty()) {
+                continue;
+            }
+
             Log.debug("{} new tests generated", newTests.size());
 
             newTests = reduce(newTests);
