@@ -26,7 +26,7 @@ public class CrossCheckingOracleBuilder {
 
         List<CtLocalVariable> localVar = findAllVariableDeclaration(test.getBody());
         boolean isOverride = test.getAnnotations().stream()
-                .anyMatch(annotation -> !annotation.getShortRepresentation().contains("Override"));
+                .anyMatch(annotation -> !annotation.getAnnotationType().getSimpleName().contains("Override"));
         if(localVar.isEmpty() && !isOverride) {
             return null;
         }
@@ -113,7 +113,7 @@ public class CrossCheckingOracleBuilder {
 
     protected boolean isExceptionTest(CtMethod test) {
         CtAnnotation<? extends Annotation> annotation = test.getAnnotations().stream()
-                .filter(anno -> anno.getShortRepresentation().contains("Test"))
+                .filter(anno -> anno.getAnnotationType().getSimpleName().contains("Test"))
                 .findFirst()
                 .orElse(null);
 
@@ -155,7 +155,7 @@ public class CrossCheckingOracleBuilder {
 
     protected List<CtAnnotation<? extends Annotation>> getAnnotations(CtMethod mth) {
         return mth.getAnnotations().stream()
-                .filter(annotation -> !annotation.getShortRepresentation().contains("Override"))
+                .filter(annotation -> !annotation.getAnnotationType().getSimpleName().contains("Override"))
                 .collect(Collectors.toList());
     }
 
@@ -212,7 +212,7 @@ public class CrossCheckingOracleBuilder {
     protected CtMethod findSetUpMethod(CtType<?> cl) {
         for(CtMethod mth : cl.getMethods()) {
             if(mth.getSimpleName().toLowerCase().equals("setup")
-                    || mth.getAnnotations().stream().anyMatch(anno -> anno.getShortRepresentation().toLowerCase().contains("before"))) {
+                    || mth.getAnnotations().stream().anyMatch(anno -> anno.getAnnotationType().getSimpleName().toLowerCase().contains("before"))) {
                 return mth;
             }
         }
@@ -228,7 +228,7 @@ public class CrossCheckingOracleBuilder {
     protected CtMethod findTeardownMethod(CtType<?> cl) {
         for(CtMethod mth : cl.getMethods()) {
             if(mth.getSimpleName().toLowerCase().equals("teardown")
-                    || mth.getAnnotations().stream().anyMatch(anno -> anno.getShortRepresentation().toLowerCase().contains("after"))) {
+                    || mth.getAnnotations().stream().anyMatch(anno -> anno.getAnnotationType().getSimpleName().toLowerCase().contains("after"))) {
                 return mth;
             }
         }
