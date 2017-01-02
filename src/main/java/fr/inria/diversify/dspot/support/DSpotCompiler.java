@@ -89,7 +89,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
     }
 
     private void init() {
-        if (this.getBinaryOutputDirectory() == null) {
+        if (this.getBinaryOutputDirectory().toString().equals("spooned-classes") || this.getBinaryOutputDirectory() == null) {
             File classOutputDir = new File("tmpDir/tmpClasses_" + System.currentTimeMillis());
             if (!classOutputDir.exists()) {
                 classOutputDir.mkdirs();
