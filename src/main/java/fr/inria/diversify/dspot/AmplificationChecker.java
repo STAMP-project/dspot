@@ -1,5 +1,6 @@
 package fr.inria.diversify.dspot;
 
+import fr.inria.diversify.util.Log;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.ModifierKind;
@@ -74,7 +75,8 @@ public class AmplificationChecker {
                 return false;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.warn("Error during check of position of " + candidate.getSimpleName());
+            return false;
         }
         return candidate.getSimpleName().contains("test")
                 || candidate.getAnnotations().stream()
