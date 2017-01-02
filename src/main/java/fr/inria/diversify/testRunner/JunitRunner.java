@@ -1,17 +1,19 @@
 package fr.inria.diversify.testRunner;
 
 
+import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.logger.Logger;
+import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.Log;
-import org.apache.maven.plugin.lifecycle.Execution;
 import org.junit.internal.requests.FilterRequest;
 import org.junit.runner.*;
 import org.junit.runner.manipulation.Filter;
 import org.junit.runner.notification.RunNotifier;
+import spoon.reflect.declaration.CtType;
 
-import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /**
  * User: Simon
@@ -26,6 +28,31 @@ public class JunitRunner {
 
     public JunitRunner(ClassLoader classLoader) {
         this.classLoader = classLoader;
+    }
+
+    public JunitResult runAllTestClasses(InputProgram program) {
+        return runTestClasses(program.getFactory().Class().getAll().stream()
+                        .filter(ctClass ->
+                                ctClass.getMethods().stream()
+                                        .filter(method ->
+                                                AmplificationChecker.isTest(method, program.getRelativeTestSourceCodeDir()))
+                                        .count() > 0)
+                        .map(CtType::getQualifiedName)
+                        .collect(Collectors.toList()),
+                Collections.EMPTY_LIST);
+    }
+
+    public JunitResult runTestForMutant(InputProgram program, String fullQualifiedName) {
+        return runTestClasses(program.getFactory().Class().getAll().stream()
+                        .filter(ctClass ->
+                                ctClass.getMethods().stream()
+                                        .filter(method ->
+                                                AmplificationChecker.isTest(method, program.getRelativeTestSourceCodeDir()))
+                                        .count() > 0)
+                        .filter(ctClass -> ctClass.getQualifiedName().contains(fullQualifiedName))
+                        .map(CtType::getQualifiedName)
+                        .collect(Collectors.toList()),
+                Collections.EMPTY_LIST);
     }
 
     public JunitResult runTestClass(String test, List<String> methodsToRun) {
@@ -106,7 +133,7 @@ public class JunitRunner {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future future = executor.submit(runnable);
         try {
-             future.get(timeout, timeUnit);
+            future.get(timeout, timeUnit);
         } finally {
             future.cancel(true);
             executor.shutdownNow();
