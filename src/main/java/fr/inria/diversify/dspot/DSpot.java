@@ -94,16 +94,13 @@ public class DSpot {
 
     public CtType amplifyTest(CtType test) {
         try {
-            File logDir = new File(inputProgram.getProgramDir() + "/log");
-            Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, this.amplifiers, logDir);
-            List<CtMethod> ampTests = testAmplification.amplification(test, numberOfIterations);
-            return assertGenerator.generateAsserts(test, ampTests, AmplificationHelper.getAmpTestToParent());
+            return this.amplifyTest(test.getMethods(), test);
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public CtType amplifyTest(List<CtMethod> tests, CtType testClass) throws IOException, InterruptedException, ClassNotFoundException {
+    public CtType amplifyTest(Set<CtMethod> tests, CtType testClass) throws IOException, InterruptedException, ClassNotFoundException {
         File logDir = new File(inputProgram.getProgramDir() + "/log");
         Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, this.amplifiers, logDir);
         List<CtMethod> ampTests = testAmplification.amplification(testClass, tests, numberOfIterations);

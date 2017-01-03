@@ -25,7 +25,7 @@ public class DSpotTest {
 
         /*
             Test the whole dspot procedure.
-                It results with 18 methods: 7 manual + 11 amplified.
+                It results with 18 methods: 7 manual + 13 amplified.
                 The test consist of assert that the manual test remains, and there is an amplified version
          */
 
@@ -37,7 +37,7 @@ public class DSpotTest {
         DSpot dspot = new DSpot(configuration);
 
         CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample");
-        assertEquals(18, amplifiedTest.getMethods().size());
+        assertEquals(20, amplifiedTest.getMethods().size());
         assertEquals(originalTestBody, amplifiedTest.getMethod("test1").getBody().toString());
         assertEquals(expectedAmplifiedBody, amplifiedTest.getMethod("test1_cf24").getBody().toString());
     }

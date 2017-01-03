@@ -40,8 +40,6 @@ public class MethodAssertGenerator {
     protected InputProgram inputProgram;
     protected List<Integer> statementsIndexToAssert;
 
-
-
     public MethodAssertGenerator(CtType originalClass, InputProgram inputProgram, DSpotCompiler compiler, ClassLoader applicationClassLoader) throws IOException {
         this.originalClass = originalClass;
         this.compiler = compiler;
