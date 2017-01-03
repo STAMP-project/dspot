@@ -7,10 +7,13 @@ import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
+import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * User: Simon
@@ -43,20 +46,19 @@ public class ClassWithLoggerBuilder {
     }
 
     protected CtType buildClassWithLogger(CtType originalClass, CtMethod test) {
-        List<CtMethod> tests = new ArrayList<>(1);
-        tests.add(test);
-        return buildClassWithLogger(originalClass, tests);
+        return buildClassWithLogger(originalClass, Collections.singletonList(test));
     }
 
     public CtType buildClassWithLogger(CtType originalClass, Collection<CtMethod> tests) {
-        CtType cloneClass = originalClass.getFactory().Core().clone(originalClass);
+        CtType cloneClass = originalClass.clone();
         cloneClass.setParent(originalClass.getParent());
-        tests.stream()
-                .map(test -> buildMethodWithLogger(cloneClass, test))
-                .forEach(instruTest -> {
-                    cloneClass.removeMethod(instruTest);
-                    cloneClass.addMethod(instruTest);
-                });
+        tests.forEach(cloneClass::removeMethod);
+        tests.forEach(test -> cloneClass.addMethod(buildMethodWithLogger(cloneClass, test)));
+//        methodsTestInstrumented
+//                .forEach(testWithLogger -> {
+//                    cloneClass.removeMethod(testWithLogger);
+//                    cloneClass.addMethod(testWithLogger);
+//                });
         return cloneClass;
     }
 
