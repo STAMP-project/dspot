@@ -4,36 +4,26 @@ import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.buildSystem.maven.MavenBuilder;
 import fr.inria.diversify.dspot.AmplificationChecker;
-import fr.inria.diversify.dspot.AmplificationHelper;
-import fr.inria.diversify.dspot.DSpot;
-import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.factories.DiversityCompiler;
-import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.mutant.transformation.MutationQuery;
 import fr.inria.diversify.mutant.transformation.MutationTransformation;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.JunitRunner;
-import fr.inria.diversify.testRunner.TestRunner;
 import fr.inria.diversify.transformation.Transformation;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.junit.runner.notification.Failure;
 import spoon.compiler.Environment;
 import spoon.reflect.declaration.*;
 import spoon.reflect.visitor.DefaultJavaPrettyPrinter;
 import spoon.support.JavaOutputProcessor;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * User: Simon
@@ -42,16 +32,18 @@ import java.util.stream.Collectors;
  */
 public class MutantGenerator {
 
-    protected final InputProgram inputProgram;
+    private final InputProgram inputProgram;
 
-    protected InputConfiguration inputConfiguration;
-    protected DSpotCompiler compiler;
-    protected Set<String> filter;
-    protected CtClass original;
+    private InputConfiguration inputConfiguration;
+    private DSpotCompiler compiler;
+    private Set<String> filter;
 
     private Map<String, CtClass> mutantsNotKilled;
 
+    @Deprecated
     private String currentQualifiedName;
+    @Deprecated
+    private CtClass currentOriginalClass;
 
     public MutantGenerator(InputProgram program, InputConfiguration configuration) {
         this.inputProgram = program;
@@ -111,16 +103,15 @@ public class MutantGenerator {
         }
 
         currentQualifiedName = fullQualifiedNameClass;
-        original = cl.clone();
+        currentOriginalClass = cl.clone();
 
         Map<String, CtClass> mutants = generateAllMutant(cl);
         this.mutantsNotKilled.putAll(runMutants(mutants));
     }
 
-    public List<CtClass>[] runTestsOnAliveMutant(InputConfiguration configuration) {
-        List<CtClass>[] results = new List[2];
-        results[0] = new ArrayList<>();
-        results[1] = new ArrayList<>();
+    //TODO change the array by a specific object
+    public MutantRunResults runTestsOnAliveMutant(InputConfiguration configuration) {
+        MutantRunResults results = new MutantRunResults();
         List<String> classpath = Arrays.asList(compiler.getBinaryOutputDirectory().getAbsolutePath(), inputProgram.getProgramDir() + "/" +  inputProgram.getTestClassesDir());
         try {
             final InputProgram amplifiedProgram = InitUtils.initInputProgram(configuration);
@@ -136,10 +127,10 @@ public class MutantGenerator {
                     JunitResult result = new JunitRunner(classLoader).runAllTestClasses(amplifiedProgram);
                     if (!result.failureTests().isEmpty()) {
                         Log.debug("{} has been killed", id);
-                        results[0].add(mutant);
+                        results.mutantKilled(mutant);
                     } else {
                         Log.debug("{} still alive", id);
-                        results[1].add(mutant);
+                        results.mutantRemainAlive(mutant);
                     }
                     amplifiedProgram.getFactory().Class().get(mutant.getQualifiedName()).replace(original);
                 }
@@ -171,7 +162,7 @@ public class MutantGenerator {
                 Log.debug("mutant {} can not be compiled", mutantId);
             }
         }
-        inputProgram.getFactory().Class().get(currentQualifiedName).replace(original);
+        inputProgram.getFactory().Class().get(currentQualifiedName).replace(currentOriginalClass);
         return mutantsNotKilled;
     }
 
@@ -258,8 +249,7 @@ public class MutantGenerator {
         }
     }
 
-    public static void main(String[] args) throws InvalidSdkException, Exception {
-        fr.inria.diversify.mutant.MutantGenerator mutantGenerator = new fr.inria.diversify.mutant.MutantGenerator(args[0]);
-        mutantGenerator.generateForAllClasses();
+    public Map<String, CtClass> getMutantsNotKilled() {
+        return mutantsNotKilled;
     }
 }
