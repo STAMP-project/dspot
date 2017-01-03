@@ -2,7 +2,7 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.dspot.amp.*;
-import fr.inria.diversify.factories.DiversityCompiler;
+import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.log.branch.Coverage;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputProgram;
@@ -10,9 +10,7 @@ import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.JunitRunner;
 import fr.inria.diversify.testRunner.TestRunner;
 import fr.inria.diversify.testRunner.TestStatus;
-import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
-import fr.inria.diversify.util.PrintClassUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -32,7 +30,7 @@ public class Amplification {
     private InputProgram inputProgram;
     private File logDir;
     private List<Amplifier> amplifiers;
-    private DiversityCompiler compiler;
+    private DSpotCompiler compiler;
     private TestSelector testSelector;
     private ClassWithLoggerBuilder classWithLoggerBuilder;
 
@@ -41,7 +39,7 @@ public class Amplification {
     private TestStatus testStatus;
 //    private Map<Boolean, List<CtMethod>> testsStatus;//should not be there
 
-    public Amplification(InputProgram inputProgram, DiversityCompiler compiler, DiversifyClassLoader applicationClassLoader, List<Amplifier> amplifiers, File logDir) {
+    public Amplification(InputProgram inputProgram, DSpotCompiler compiler, DiversifyClassLoader applicationClassLoader, List<Amplifier> amplifiers, File logDir) {
         this.inputProgram = inputProgram;
         this.compiler = compiler;
         this.applicationClassLoader = applicationClassLoader;
@@ -151,7 +149,7 @@ public class Amplification {
     private List<CtMethod> ampTests(Collection<CtMethod> tests) {
         return tests.stream()
                 .flatMap(test -> ampTest(test).stream())
-                .filter(test -> !test.getBody().getStatements().isEmpty())
+                 .filter(test -> test != null && !test.getBody().getStatements().isEmpty())
                 .collect(Collectors.toList());
     }
 

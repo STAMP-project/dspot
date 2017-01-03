@@ -1,3 +1,5 @@
+
+
 package fr.inria.diversify.dspot.amp;
 
 import fr.inria.diversify.dspot.AmplificationChecker;
@@ -45,7 +47,7 @@ public class TestDataMutator implements Amplifier {
                         methods.addAll(createAllStringMutant(method, lit, lit_index));
                     }
                     if (lit.getValue() instanceof Boolean) {
-                        methods.add(createBooleanMutant(method, lit_index));
+                        methods.add(createBooleanMutant(method, lit));
                     }
                 }
             } catch (Exception e) {
@@ -71,7 +73,7 @@ public class TestDataMutator implements Amplifier {
                 return createStringMutant(method, original_lit_index, mut.get(AmplificationHelper.getRandom().nextInt(mut.size())));
             }
             if (literal.getValue() instanceof Boolean) {
-                return createBooleanMutant(method, original_lit_index);
+                return createBooleanMutant(method, literal);
             }
         }
         return null;
@@ -194,26 +196,17 @@ public class TestDataMutator implements Amplifier {
 
 
 
-    protected CtMethod createBooleanMutant(CtMethod test, int lit_index) {
-        CtLiteral literal = Query.getElements(test, new TypeFilter<CtLiteral>(CtLiteral.class))
-                .get(lit_index);
-        Boolean value = (Boolean) literal.getValue();
-
-        dataCount++;
-        //clone the method
+    protected CtMethod createBooleanMutant(CtMethod test, CtLiteral booleanLiteral) {
+        Boolean value = (Boolean) booleanLiteral.getValue();
         CtMethod cloned_method = AmplificationHelper.cloneMethod(test, "_literalMutation");
-
-        CtLiteral newLiteral = test.getFactory().Core().createLiteral();
-        newLiteral.setTypeCasts(literal.getTypeCasts());
-
-        if (value) {
-            newLiteral.setValue(false);
-        } else {
-            newLiteral.setValue(true);
-        }
-
-        Query.getElements(cloned_method, new TypeFilter<CtLiteral>(CtLiteral.class))
-                .get(lit_index).replace(newLiteral);
+        CtLiteral newValue = cloned_method.getElements(new TypeFilter<CtLiteral>(CtLiteral.class) {
+            @Override
+            public boolean matches(CtLiteral element) {
+                return element.equals(booleanLiteral);
+            }
+        }).get(0);
+        newValue.setValue(!value);
+        newValue.setTypeCasts(booleanLiteral.getTypeCasts());
         return cloned_method;
     }
 

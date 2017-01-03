@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
+import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.PrintClassUtils;
@@ -26,10 +27,10 @@ import java.util.stream.Collectors;
 public class AssertGenerator {
     protected DiversifyClassLoader applicationClassLoader;
     protected InputProgram inputProgram;
-    protected DiversityCompiler compiler;
+    protected DSpotCompiler compiler;
 
 
-    public AssertGenerator(InputProgram inputProgram, DiversityCompiler compiler, DiversifyClassLoader applicationClassLoader) {
+    public AssertGenerator(InputProgram inputProgram, DSpotCompiler compiler, DiversifyClassLoader applicationClassLoader) {
         this.inputProgram = inputProgram;
         this.compiler = compiler;
         this.applicationClassLoader = applicationClassLoader;

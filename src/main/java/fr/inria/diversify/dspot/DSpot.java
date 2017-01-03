@@ -3,6 +3,7 @@ package fr.inria.diversify.dspot;
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.dspot.amp.*;
 import fr.inria.diversify.dspot.assertGenerator.AssertGenerator;
+import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.runner.InputConfiguration;
@@ -29,11 +30,11 @@ public class DSpot {
     private List<Amplifier> amplifiers;
     private int numberOfIterations;
 
-    public DiversityCompiler getCompiler() {
+    public DSpotCompiler getCompiler() {
         return compiler;
     }
 
-    private DiversityCompiler compiler;
+    private DSpotCompiler compiler;
     private InputProgram inputProgram;
     private DiversifyClassLoader applicationClassLoader;
     private AssertGenerator assertGenerator;
@@ -50,7 +51,8 @@ public class DSpot {
         DSpotUtils.compile(inputProgram, mavenHome, mavenLocalRepository);
         applicationClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
         DSpotUtils.addBranchLogger(inputProgram);
-        compiler = DSpotUtils.initDiversityCompiler(inputProgram, true);
+
+        compiler = DSpotCompiler.buildCompiler(inputProgram, true);
         DSpotUtils.compileTests(inputProgram, mavenHome, mavenLocalRepository);
 
         assertGenerator = new AssertGenerator(inputProgram, compiler, applicationClassLoader);

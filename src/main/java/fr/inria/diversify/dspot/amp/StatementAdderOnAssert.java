@@ -9,6 +9,7 @@ import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
+import spoon.reflect.reference.CtLocalVariableReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.reference.CtVariableReference;
 import spoon.reflect.visitor.Query;
@@ -62,19 +63,16 @@ public class StatementAdderOnAssert implements Amplifier {
 
     protected CtMethod apply(CtMethod method, List<Statement> statements, int index) {
         CtMethod cloned_method = AmplificationHelper.cloneMethodTest(method, "_cf", 1000);
-        CtStatement stmt = getAssertStatement(cloned_method)
-                .get(index);
-        statements.stream()
-                .forEach(c ->
-                {
-                    stmt.insertBefore((CtStatement) c.getCtCodeFragment());
+        CtStatement stmt = getAssertStatement(cloned_method).get(index);
+        statements.forEach(c -> {
+                    stmt.insertBefore(c.getCtCodeFragment());
                     c.getCtCodeFragment().setParent(stmt.getParent());
-                });
-
+                }
+        );
         return cloned_method;
     }
 
-    protected List<InputContext> getInputContexts(CtMethod method) {
+    private List<InputContext> getInputContexts(CtMethod method) {
         List<InputContext> inputContexts = new ArrayList<>();
 
         List<CtStatement> statements = getAssertStatement(method);
@@ -90,21 +88,14 @@ public class StatementAdderOnAssert implements Amplifier {
         return inputContexts;
     }
 
-    protected List<List<Statement>> buildStatements(InputContext inputContext) {
+    private List<List<Statement>> buildStatements(InputContext inputContext) {
         return coverageBycodeFragments.keySet().stream()
-                .map(cf -> {
-                    List<Statement> list = new ArrayList<>(2);
-                    list.add(cf.clone());
-                    return list;
-                })
-                .flatMap(list -> {
-                    InputContext cloneInputContext = inputContext.clone();
-                    return buildContext(cloneInputContext, list, list.size() - 1).stream();
-                })
+                .map(cf -> Collections.singletonList(new Statement(cf.getCtCodeFragment().clone())))
+                .flatMap(list -> buildContext(inputContext.clone(), list, list.size() - 1).stream())
                 .collect(Collectors.toList());
     }
 
-    protected List<List<Statement>> buildContext(InputContext inputContext, List<Statement> stmts, int targetIndex) {
+    private List<List<Statement>> buildContext(InputContext inputContext, List<Statement> stmts, int targetIndex) {
         VarCartesianProduct varCartesianProduct = new VarCartesianProduct();
         Statement statement = stmts.get(targetIndex);
 
@@ -158,7 +149,7 @@ public class StatementAdderOnAssert implements Amplifier {
                     }
                 }
                 if (localVarFind) {
-                    Statement cloneLocalVar = localVar.clone();
+                    Statement cloneLocalVar = new Statement(localVar.getCtCodeFragment().clone());
                     for (CtVariableReference var : localVar.getInputContext().getVar()) {
                         try {
                             CtVariableReference variable = cloneLocalVar.getInputContext().getVariableOrFieldNamed(var.getSimpleName());
@@ -218,7 +209,7 @@ public class StatementAdderOnAssert implements Amplifier {
         return false;
     }
 
-    protected Map<Statement, Double> buildCodeFragmentFor(CtType cl, Coverage coverage) {
+    private Map<Statement, Double> buildCodeFragmentFor(CtType cl, Coverage coverage) {
         Factory factory = cl.getFactory();
         Map<Statement, Double> codeFragments = new LinkedHashMap<>();
 
@@ -249,8 +240,11 @@ public class StatementAdderOnAssert implements Amplifier {
         localVar.setType(typeRef);
         localVar.setSimpleName("var_" + type.getSimpleName() + "_" + System.currentTimeMillis());
 
+        CtVariableReference localVariableReference = factory.Code().createLocalVariableReference(localVar);
+
         CtVariableReadImpl varRead = new CtVariableReadImpl();
-        varRead.setVariable(factory.Code().createLocalVariableReference(localVar));
+        varRead.setVariable(localVariableReference);
+        varRead.setFactory(factory);
         return varRead;
     }
 
@@ -351,7 +345,7 @@ public class StatementAdderOnAssert implements Amplifier {
         Set<Integer> ids = new HashSet<>();
         localVars = codeFragmentsByClass.stream()
                 .filter(cf -> isValidCodeFragment(cf))
-                .filter(cf -> ids.add(cf.id()))
+                .filter(cf -> ids.add(cf.toString().hashCode()))// TODO Warning this usage of HashCode
                 .collect(Collectors.toList());
     }
 }

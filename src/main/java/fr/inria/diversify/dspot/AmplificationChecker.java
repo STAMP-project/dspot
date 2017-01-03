@@ -4,7 +4,7 @@ import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.reference.CtTypeReference;
-import spoon.support.reflect.reference.SpoonClassNotFoundException;
+import spoon.support.SpoonClassNotFoundException;
 
 /**
  * Created by Benjamin DANGLOT

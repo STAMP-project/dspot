@@ -8,9 +8,9 @@ import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.TestClassMinimisation;
 import fr.inria.diversify.dspot.amp.*;
 import fr.inria.diversify.dspot.assertGenerator.RemoveBadTest;
+import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.dspot.value.ValueFactory;
 import fr.inria.diversify.testRunner.TestRunner;
-import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class TestGeneratorMain {
     protected InputConfiguration inputConfiguration;
     protected final InputProgram inputProgram;
-    protected DiversityCompiler compiler;
+    protected DSpotCompiler compiler;
     protected DiversifyClassLoader applicationClassLoader;
     protected DiversifyClassLoader applicationWithBranchLoggerClassLoader;
     protected ValueFactory valueFactory;
@@ -61,7 +61,7 @@ public class TestGeneratorMain {
         applicationWithBranchLoggerClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
 
         inputProgram.setProgramDir(outputDirectory);
-        compiler = DSpotUtils.initDiversityCompiler(inputProgram, false);
+        compiler = DSpotCompiler.buildCompiler(inputProgram, false);
 
         String mavenHome = inputConfiguration.getProperty("maven.home",null);
         String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository",null);

@@ -1,9 +1,7 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
-import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
-import fr.inria.diversify.util.FileUtils;
-import org.junit.AfterClass;
+import fr.inria.diversify.dspot.AbstractTest;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -17,7 +15,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 12/8/16
  */
-public class AssertGeneratorTest {
+public class AssertGeneratorTest extends AbstractTest {
 
     @Test
     public void testGenerateAssert() throws Exception, InvalidSdkException {
@@ -42,14 +40,9 @@ public class AssertGeneratorTest {
                 "    boolean var = cl.getTrue();"+ nl  +
                 "}";
 
+        System.out.println(((CtMethod)ctType.getMethods().stream().findFirst().get()).getBody().toString());
+
         assertEquals(expectedBody, ((CtMethod)ctType.getMethods().stream().findFirst().get()).getBody().toString());
     }
 
-
-    @AfterClass
-    public static void tearDown() throws InvalidSdkException, Exception {
-        FileUtils.forceDelete(Utils.getCompiler().getBinaryOutputDirectory());
-        FileUtils.forceDelete(Utils.getCompiler().getSourceOutputDirectory());
-        Utils.reset();
-    }
 }
