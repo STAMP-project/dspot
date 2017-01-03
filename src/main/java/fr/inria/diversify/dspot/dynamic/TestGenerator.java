@@ -1,6 +1,5 @@
 package fr.inria.diversify.dspot.dynamic;
 
-import fr.inria.diversify.dspot.TestClassMinimisation;
 import fr.inria.diversify.dspot.value.MethodCall;
 import fr.inria.diversify.dspot.value.MethodCallReader;
 import fr.inria.diversify.dspot.value.ValueFactory;

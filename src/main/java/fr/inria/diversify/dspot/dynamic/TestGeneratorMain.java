@@ -5,7 +5,6 @@ import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.Amplification;
 import fr.inria.diversify.dspot.assertGenerator.AssertGenerator;
 import fr.inria.diversify.dspot.DSpotUtils;
-import fr.inria.diversify.dspot.TestClassMinimisation;
 import fr.inria.diversify.dspot.amp.*;
 import fr.inria.diversify.dspot.assertGenerator.RemoveBadTest;
 import fr.inria.diversify.dspot.support.DSpotCompiler;

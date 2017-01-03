@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot.dynamic.logger;
+package fr.inria.diversify.dspot;
 
 import java.util.*;
 

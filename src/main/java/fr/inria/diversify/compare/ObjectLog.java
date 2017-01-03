@@ -4,7 +4,7 @@ import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import fr.inria.diversify.dspot.dynamic.logger.TypeUtils;
+import fr.inria.diversify.dspot.TypeUtils;
 
 /**
  * User: Simon
