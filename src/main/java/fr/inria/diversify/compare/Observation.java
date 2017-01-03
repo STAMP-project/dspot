@@ -1,7 +1,7 @@
 package fr.inria.diversify.compare;
 
 
-import fr.inria.diversify.dspot.dynamic.logger.TypeUtils;
+import fr.inria.diversify.dspot.TypeUtils;
 
 import java.util.*;
 

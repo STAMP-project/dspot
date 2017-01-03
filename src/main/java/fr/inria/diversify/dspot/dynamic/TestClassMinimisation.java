@@ -1,5 +1,6 @@
-package fr.inria.diversify.dspot;
+package fr.inria.diversify.dspot.dynamic;
 
+import fr.inria.diversify.dspot.ClassWithLoggerBuilder;
 import fr.inria.diversify.log.LogReader;
 import fr.inria.diversify.log.TestCoverageParser;
 import fr.inria.diversify.log.TestGraphReader;
