@@ -43,7 +43,7 @@ public class AssertGenerator {
 
     public CtType generateAsserts(CtType testClass, Collection<CtMethod> tests, Map<CtMethod, CtMethod> parentTest) throws IOException, ClassNotFoundException {
         int count = 0;
-        CtType cloneClass = inputProgram.getFactory().Core().clone(testClass);
+        CtType cloneClass = testClass.clone();
         cloneClass.setParent(testClass.getParent());
         MethodAssertGenerator ag = new MethodAssertGenerator(testClass, inputProgram, compiler, applicationClassLoader);
         for(CtMethod test : tests) {

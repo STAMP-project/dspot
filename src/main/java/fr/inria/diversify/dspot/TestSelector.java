@@ -2,8 +2,6 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.log.LogReader;
 import fr.inria.diversify.log.TestCoverageParser;
-import fr.inria.diversify.log.TestGraphReader;
-import fr.inria.diversify.log.graph.Graph;
 import fr.inria.diversify.log.branch.Coverage;
 import fr.inria.diversify.util.FileUtils;
 import spoon.reflect.declaration.CtMethod;
@@ -19,32 +17,31 @@ import java.util.stream.Collectors;
  * Time: 14:09
  */
 public class TestSelector {
-    protected File logDir;
-    protected Map<String, Integer> testAges;
-    protected List<Coverage> branchCoverage;
-    protected List<Graph> graphCoverage;
-    protected int maxNumberOfTest;
+
+    private File logDir;
+
+    private Map<String, Integer> testAges;
+
+    private List<Coverage> branchCoverage;
+
+    private int maxNumberOfTest;
 
     public TestSelector(File logDir, int maxNumberOfTest) {
         this.logDir = logDir;
         this.maxNumberOfTest = maxNumberOfTest;
     }
 
-    protected void init() throws IOException {
+    public void init() throws IOException {
         deleteLogFile();
         testAges = new HashMap<>();
         branchCoverage = null;
     }
 
-    protected void updateLogInfo() throws IOException {
+    public void update() throws IOException {
         LogReader logReader = new LogReader(logDir.getAbsolutePath());
         TestCoverageParser coverageParser = new TestCoverageParser();
-        TestGraphReader graphReader = new TestGraphReader();
-
-        logReader.addParser(graphReader);
         logReader.addParser(coverageParser);
         logReader.readLogs();
-
         if (branchCoverage == null) {
             branchCoverage = coverageParser.getResult();
         } else {
@@ -59,28 +56,16 @@ public class TestSelector {
                 branchCoverage.add(coverage);
             }
         }
-
-        if (graphCoverage == null) {
-            graphCoverage = graphReader.getResult();
-        } else {
-            for (Graph coverage : graphReader.getResult()) {
-                Graph previous = graphCoverage.stream()
-                        .filter(ac -> ac.getName().equals(coverage.getName()))
-                        .findFirst()
-                        .orElse(null);
-                if (previous != null) {
-                    graphCoverage.remove(previous);
-                }
-                graphCoverage.add(coverage);
-            }
-        }
-
         deleteLogFile();
     }
 
-    protected Collection<CtMethod> selectTestToAmp(Collection<CtMethod> oldTests, Collection<CtMethod> newTests) {
+    /**
+     * Tests are selected by the path they cover
+     * If a path is already covered, the old test is replaced by the new one with 0.5 of probability
+     */
+    public Collection<CtMethod> selectTests(Collection<CtMethod> oldTests, Collection<CtMethod> testToBeSelected) {
         Map<CtMethod, Set<String>> selectedTest = new HashMap<>();
-        for (CtMethod test : newTests) {
+        for (CtMethod test : testToBeSelected) {
             Set<String> tc = getTestCoverageFor(test);
             if (!tc.isEmpty()) {
                 Set<String> parentTc = getParentTestCoverageFor(test);
@@ -93,35 +78,38 @@ public class TestSelector {
                 }
             }
         }
-        Set<CtMethod> mths = new HashSet<>();
+        Set<CtMethod> testMethodsSelected = new HashSet<>();
         if (selectedTest.size() > maxNumberOfTest) {
-            mths.addAll(reduceSelectedTest(selectedTest));
+            testMethodsSelected.addAll(reduceSelectedTest(selectedTest));
         } else {
-            mths.addAll(selectedTest.keySet());
+            testMethodsSelected.addAll(selectedTest.keySet());
         }
-        List<CtMethod> oldMths = new ArrayList<>();
+        updateOldMethods(oldTests);
+        return testMethodsSelected;
+    }
+
+    private void updateOldMethods(Collection<CtMethod> oldTests) {
+        List<CtMethod> oldMethods = new ArrayList<>();
         for (CtMethod test : oldTests) {
             String testName = test.getSimpleName();
             if (!testAges.containsKey(testName)) {
                 testAges.put(testName, getAgesFor(test));
             }
             if (testAges.get(testName) > 0) {
-                oldMths.add(test);
+                oldMethods.add(test);
             }
         }
-
-        Random r = new Random();
-        while (oldMths.size() > maxNumberOfTest) {
-            oldMths.remove(r.nextInt(oldMths.size()));
+        while (oldMethods.size() > maxNumberOfTest) {
+            final Integer minAge = testAges.get(oldMethods.stream().min((m1, m2) -> testAges.get(m1.getSimpleName()) - testAges.get(m2.getSimpleName())).get().getSimpleName());
+            Optional<CtMethod> oldestMethod;
+            while ((oldestMethod = oldMethods.stream().filter(method -> testAges.get(method.getSimpleName()).equals(minAge)).findAny()).isPresent()) {
+                oldMethods.remove(oldestMethod.get());
+            }
         }
-        for (CtMethod oltMth : oldMths) {
-            String testName = oltMth.getSimpleName();
-            testAges.put(testName, testAges.get(testName) - 1);
-        }
-        return mths;
+        oldMethods.forEach(method -> testAges.put(method.getSimpleName(), testAges.get(method.getSimpleName()) - 1));
     }
 
-    protected Integer getAgesFor(CtMethod test) {
+    private Integer getAgesFor(CtMethod test) {
         String testName = test.getSimpleName();
         if (testName.contains("_cf")) {
             return 2;
@@ -144,7 +132,7 @@ public class TestSelector {
         return reduceSelectedTest(amplifiedTests);
     }
 
-    protected Collection<CtMethod> reduceSelectedTest(Map<CtMethod, Set<String>> selected) {
+    private Collection<CtMethod> reduceSelectedTest(Map<CtMethod, Set<String>> selected) {
         Map<Set<String>, List<CtMethod>> map = selected.keySet().stream()
                 .collect(Collectors.groupingBy(mth -> selected.get(mth)));
 
@@ -158,7 +146,6 @@ public class TestSelector {
 
             if (map.containsKey(key)) {
                 methods.add(map.get(key).stream().findAny().get());
-
             }
             sortedKey = sortedKey.stream()
                     .map(k -> {
@@ -174,15 +161,15 @@ public class TestSelector {
         return methods;
     }
 
-    protected Set<String> getTestCoverageFor(CtMethod ampTest) {
+    private Set<String> getTestCoverageFor(CtMethod ampTest) {
         return getCoverageFor(ampTest.getSimpleName());
     }
 
-    protected CtMethod getParent(CtMethod test) {
+    private CtMethod getParent(CtMethod test) {
         return AmplificationHelper.getAmpTestToParent().get(test);
     }
 
-    protected Set<String> getParentTestCoverageFor(CtMethod mth) {
+    private Set<String> getParentTestCoverageFor(CtMethod mth) {
         CtMethod parent = getParent(mth);
         if (parent != null) {
             String parentName = parent.getSimpleName();
@@ -193,23 +180,16 @@ public class TestSelector {
         return new HashSet<>();
     }
 
-    protected Set<String> getCoverageFor(String mthName) {
-        Set<String> set = new HashSet<>();
-
+    private Set<String> getCoverageFor(String mthName) {
+        Set<String> set = new LinkedHashSet<>();
         branchCoverage.stream()
                 .filter(c -> c.getName().endsWith(mthName))
                 .findFirst()
                 .ifPresent(coverage -> set.addAll(coverage.getCoverageBranch()));
-
-        graphCoverage.stream()
-                .filter(c -> c.getName().endsWith(mthName))
-                .findFirst()
-                .ifPresent(graph -> set.addAll(graph.getEdges()));
-
         return set;
     }
 
-    protected void deleteLogFile() throws IOException {
+    private void deleteLogFile() throws IOException {
         for (File file : logDir.listFiles()) {
             if (!file.getName().equals("info")) {
                 FileUtils.forceDelete(file);
@@ -217,24 +197,21 @@ public class TestSelector {
         }
     }
 
-    protected Set<String> diff(Set<String> set1, Set<String> set2) {
+    private Set<String> diff(Set<String> set1, Set<String> set2) {
         Set<String> diff = set2.stream()
                 .filter(branch -> !branch.contains(branch))
                 .collect(Collectors.toSet());
         set1.stream()
                 .filter(branch -> !set2.contains(branch))
                 .forEach(branch -> diff.add(branch));
-
         return diff;
     }
 
-    public Coverage getGlobalCoverage() {
+    Coverage getGlobalCoverage() {
         Coverage coverage = new Coverage("global");
-
         for (Coverage tc : branchCoverage) {
             coverage.merge(tc);
         }
-
         return coverage;
     }
 
