@@ -4,6 +4,7 @@ import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
@@ -41,18 +42,20 @@ public class AssertGenerator {
     }
 
     public CtType generateAsserts(CtType testClass, Collection<CtMethod> tests, Map<CtMethod, CtMethod> parentTest) throws IOException, ClassNotFoundException {
+        int count = 0;
         CtType cloneClass = inputProgram.getFactory().Core().clone(testClass);
         cloneClass.setParent(testClass.getParent());
-
         MethodAssertGenerator ag = new MethodAssertGenerator(testClass, inputProgram, compiler, applicationClassLoader);
         for(CtMethod test : tests) {
             CtMethod ampTest = ag.generateAssert(test, findStatementToAssert(test, parentTest));
             if(ampTest != null) {
                 cloneClass.addMethod(ampTest);
+                count++;
             }
         }
         PrintClassUtils.printJavaFile(compiler.getSourceOutputDirectory(), cloneClass);
 
+        Log.debug("{} test method(s) has been successfully generated", count);
         return cloneClass;
     }
 

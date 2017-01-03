@@ -120,20 +120,4 @@ public class DSpot {
         return inputProgram;
     }
 
-    protected static void kill() throws IOException {
-        String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
-        Runtime r = Runtime.getRuntime();
-        r.exec("kill " + pid);
-    }
-
-    public static void main(String[] args) throws Exception, InvalidSdkException {
-        InputConfiguration inputConfiguration = new InputConfiguration(args[0]);
-        String testClass = inputConfiguration.getProperty("testClass");
-
-        DSpot dspot = new DSpot(inputConfiguration);
-        CtType ampTest = dspot.amplifyTest(dspot.inputProgram.getFactory().Type().get(testClass));
-        PrintClassUtils.printJavaFile(new File(inputConfiguration.getProperty("result")), ampTest);
-        dspot.kill();
-    }
-
 }
