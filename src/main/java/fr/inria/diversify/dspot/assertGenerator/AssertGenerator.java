@@ -25,9 +25,9 @@ import java.util.stream.Collectors;
  */
 public class AssertGenerator {
 
-    protected DiversifyClassLoader applicationClassLoader;
-    protected InputProgram inputProgram;
-    protected DSpotCompiler compiler;
+    private DiversifyClassLoader applicationClassLoader;
+    private InputProgram inputProgram;
+    private DSpotCompiler compiler;
 
 
     public AssertGenerator(InputProgram inputProgram, DSpotCompiler compiler, DiversifyClassLoader applicationClassLoader) {
@@ -55,8 +55,8 @@ public class AssertGenerator {
         return amplifiedTestWithAssertion;
     }
 
-    protected List<Integer> findStatementToAssert(CtMethod test, Map<CtMethod, CtMethod> parentTest) {
-        if (parentTest != null) {
+    private List<Integer> findStatementToAssert(CtMethod test, Map<CtMethod, CtMethod> parentTest) {
+        if(!parentTest.isEmpty()) {
             CtMethod parent = parentTest.get(test);
             while (parentTest.get(parent) != null) {
                 parent = parentTest.get(parent);
@@ -67,7 +67,7 @@ public class AssertGenerator {
         }
     }
 
-    protected List<Integer> findStatementToAssertOnlyInvocation(CtMethod test) {
+    private List<Integer> findStatementToAssertOnlyInvocation(CtMethod test) {
         List<CtStatement> stmts = Query.getElements(test, new TypeFilter(CtStatement.class));
         List<Integer> indexs = new ArrayList<>();
         for (int i = 0; i < stmts.size(); i++) {
@@ -78,7 +78,7 @@ public class AssertGenerator {
         return indexs;
     }
 
-    protected List<Integer> findStatementToAssertFromParent(CtMethod test, CtMethod parentTest) {
+    private List<Integer> findStatementToAssertFromParent(CtMethod test, CtMethod parentTest) {
         List<CtStatement> originalStmts = Query.getElements(parentTest, new TypeFilter(CtStatement.class));
         List<String> originalStmtStrings = originalStmts.stream()
                 .map(stmt -> stmt.toString())

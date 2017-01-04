@@ -64,7 +64,7 @@ public class MethodAssertGenerator {
         return newTest;
     }
 
-    protected CtMethod generateAssert(CtMethod test, List<Integer> statementsIndexToAssert) throws IOException, ClassNotFoundException {
+    protected CtMethod  generateAssert(CtMethod test, List<Integer> statementsIndexToAssert) throws IOException, ClassNotFoundException {
         this.test = test;
         this.statementsIndexToAssert = statementsIndexToAssert;
         CtMethod newTest = generateAssert();
@@ -76,21 +76,17 @@ public class MethodAssertGenerator {
 
     protected CtMethod generateAssert() throws IOException, ClassNotFoundException {
         List<CtMethod> testsToRun = new ArrayList<>();
-        CtType testClass = initTestClass();
+        CtType classTest = initTestClass();
 
         CtMethod cloneTest = test.clone();
-        testClass.addMethod(cloneTest);
+        classTest.addMethod(cloneTest);
         testsToRun.add(cloneTest);
 
         CtMethod testWithoutAssert = createTestWithoutAssert(new ArrayList<>(), false);
         testsToRun.add(testWithoutAssert);
-        testClass.addMethod(testWithoutAssert);
+        classTest.addMethod(testWithoutAssert);
 
-        if (!writeAndCompile(testClass)) {
-            return null;
-        }
-
-        JunitResult result = runTests(testClass, testsToRun);
+        JunitResult result = runTests(classTest, testsToRun);
         if(result == null || result.getTestRuns().size() != testsToRun.size()) {
             return null;
         }
@@ -230,6 +226,7 @@ public class MethodAssertGenerator {
         }
 
         CtType newClass = originalClass.clone();
+        newClass.setParent(originalClass.getParent());
         for(int i = 0; i < assertIndex.size(); i++) {
             List<Integer> assertToKeep = new ArrayList<>();
             assertToKeep.add(assertIndex.get(i));
@@ -263,6 +260,9 @@ public class MethodAssertGenerator {
 
     protected JunitResult runTests(CtType testClass, List<CtMethod> testsToRun) throws ClassNotFoundException {
         DiversifyClassLoader diversifyClassLoader = new DiversifyClassLoader(assertGeneratorClassLoader, compiler.getBinaryOutputDirectory().getAbsolutePath());
+        if(!writeAndCompile(testClass)) {
+            return null;
+        }
         List<String> ClassName = Collections.singletonList(testClass.getQualifiedName());
         diversifyClassLoader.setClassFilter(ClassName);
         JunitRunner junitRunner = new JunitRunner(diversifyClassLoader);
