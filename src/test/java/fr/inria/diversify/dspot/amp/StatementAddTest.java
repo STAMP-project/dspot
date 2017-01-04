@@ -25,6 +25,13 @@ public class StatementAddTest extends AbstractTest {
 
     @Test
     public void testStatementAdd() throws Exception, InvalidSdkException {
+
+        /*
+            Test the StatementAdd amplifier. It reuse existing object to add method call of accessible method.
+            It uses only method without parameters. It can reuse return value to add method call.
+            It results here with 4 new test cases.
+         */
+
         final String packageName = "fr.inria.statementadd";
         InputProgram inputProgram = Utils.getInputProgram();
         final Factory factory = inputProgram.getFactory();
