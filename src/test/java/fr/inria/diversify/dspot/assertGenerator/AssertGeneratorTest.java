@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.assertGenerator;
 
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AbstractTest;
+import fr.inria.diversify.dspot.AmplificationHelper;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -27,7 +28,7 @@ public class AssertGeneratorTest extends AbstractTest {
         CtClass testClass = fr.inria.diversify.Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         AssertGenerator assertGenerator = new AssertGenerator(fr.inria.diversify.Utils.getInputProgram(), fr.inria.diversify.Utils.getCompiler(), fr.inria.diversify.Utils.getApplicationClassLoader());
 
-        CtType ctType = assertGenerator.generateAsserts(testClass);
+        CtType ctType = AmplificationHelper.addAmplifiedTestToClass(assertGenerator.generateAsserts(testClass), testClass);
 
         String nl = System.getProperty("line.separator");
 

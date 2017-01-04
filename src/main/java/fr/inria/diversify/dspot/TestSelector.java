@@ -63,7 +63,7 @@ public class TestSelector {
      * Tests are selected by the path they cover
      * If a path is already covered, the old test is replaced by the new one with 0.5 of probability
      */
-    public Collection<CtMethod> selectTests(Collection<CtMethod> oldTests, Collection<CtMethod> testToBeSelected) {
+    public List<CtMethod> selectTests(Collection<CtMethod> oldTests, Collection<CtMethod> testToBeSelected) {
         Map<CtMethod, Set<String>> selectedTest = new HashMap<>();
         for (CtMethod test : testToBeSelected) {
             Set<String> tc = getTestCoverageFor(test);
@@ -78,7 +78,7 @@ public class TestSelector {
                 }
             }
         }
-        Set<CtMethod> testMethodsSelected = new HashSet<>();
+        List<CtMethod> testMethodsSelected = new ArrayList<>();
         if (selectedTest.size() > maxNumberOfTest) {
             testMethodsSelected.addAll(reduceSelectedTest(selectedTest));
         } else {
