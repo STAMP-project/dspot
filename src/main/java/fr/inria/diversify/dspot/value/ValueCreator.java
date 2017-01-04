@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot.amp;
+package fr.inria.diversify.dspot.value;
 
 import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.dspot.AmplificationHelper;

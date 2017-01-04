@@ -1,5 +1,6 @@
 package fr.inria.diversify.mutant;
 
+import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
@@ -7,14 +8,17 @@ import fr.inria.diversify.dspot.amp.Amplifier;
 import fr.inria.diversify.dspot.amp.TestDataMutator;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.util.PrintClassUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtType;
 
-import java.io.File;
+import java.io.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -26,8 +30,6 @@ import static org.junit.Assert.assertTrue;
  * on 1/3/17
  */
 public class MutantGeneratorTest {
-
-    private final String pathToPropertiesFile = "src/test/resources/test-projects/test-projects.properties";
 
     @Test
     public void testMutantGenerator() throws Exception, InvalidSdkException {
@@ -65,5 +67,47 @@ public class MutantGeneratorTest {
             mutantResultsWithAmplifiedTests.getKilledMutants().size());
 
         PrintClassUtils.printJavaFile(outputDirectory, exampleOriginalTestClass);
+    }
+
+    private final String pathToPropertiesFile = "src/test/resources/test-projects/test-projects.properties";
+
+    private final String nl = System.getProperty("line.separator");
+
+    private static String originalProperties;
+
+    @Before
+    public void setUp() throws Exception {
+        addMavenHomeToPropertiesFile();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        removeHomFromPropertiesFile();
+    }
+
+    // hack to add maven.home to the properties automatically for travis. For local, the test will clean
+    private void addMavenHomeToPropertiesFile() {
+        try (BufferedReader buffer = new BufferedReader(new FileReader(pathToPropertiesFile))) {
+            originalProperties = buffer.lines().collect(Collectors.joining(nl));
+            System.out.println(originalProperties);
+        } catch (IOException ignored) {
+            //ignored
+        }
+        final String mavenHome = Utils.buildMavenHome();
+        if (mavenHome != null) {
+            try(FileWriter writer = new FileWriter(pathToPropertiesFile, true)) {
+                writer.write(nl + "maven.home=" + mavenHome + nl);
+            } catch (IOException ignored) {
+                //ignored
+            }
+        }
+    }
+
+    private void removeHomFromPropertiesFile() {
+        try(FileWriter writer = new FileWriter(pathToPropertiesFile, false)) {
+            writer.write(originalProperties);
+        } catch (IOException ignored) {
+            //ignored
+        }
     }
 }
