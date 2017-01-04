@@ -9,21 +9,42 @@ It automatically generates new JUnit tests by modifying existing  existing test 
 - Input: DSpot take as input a Java project with an existing test suite..
 - Output: DSpot produces a new test suite, containing both the existing tests and the new generated ones.
 
-** How does it work? ** DSpot applies transformation operators on existing tests in order to create new observation points on the state of the system. Those observation points are used to generate new assertion statements. The generated tests are then selected and ordered according to a specific criterion, such as the branch coverage or mutation score.
+**How does it work?** DSpot applies transformation operators on existing tests in order to create new observation points on the state of the system. Those observation points are used to generate new assertion statements. The generated tests are then selected and ordered according to a specific criterion, such as the branch coverage or mutation score.
 
-### Compile and Build
+### Compile DSpot
 
-Retrieve the project:
+1) Clone the project:
 ```
 git clone http://github.com/STAMP-project/dspot.git
+cd dspot
 ```
 
-Then, install dspot by running the provided script:
+2) Install the dependencies of dspot by running the provided script:
 ```
-cd dspot
+mvn dependency:resolve
+# dependencies not in Maven
 chmod +x install.sh
 ./install.sh
 ```
+
+3) Compile DSpot
+```
+mvn compile
+```
+
+4) Run the tests
+```
+mvn test
+```
+
+5) Create the jar (eg `target/dspot-1.0.0-jar-with-dependencies.jar`)
+```
+mvn package
+# check that this is successful
+ls target/dspot-*-jar-with-dependencies.jar
+java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.diversify.Main path/To/my.properties
+```
+
 
 ### Running example
 
@@ -56,7 +77,7 @@ result=dspot-out/
 
 You can run DSpot on your own project by running the `fr.inria.diversify.Main` and specifying the path to the properties file as first argument:
 ```
-java -jar dspot.jar fr.inria.diversify.Main path/To/my.properties
+java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.diversify.Main path/To/my.properties
 
 # or in maven
 mvn exec.java -Dexec.mainClass="fr.inria.diversify.Main" -Dexec.args="<pathToPropertiesFile>"
