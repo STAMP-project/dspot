@@ -98,8 +98,7 @@ public class StatementAdd implements Amplifier {
                 arg.add(createLocalVarRef(localVar));
                 value.initLocalVar(body, localVar);
             } catch (Exception e) {
-//                e.printStackTrace();
-//                Log.debug("");
+                throw new RuntimeException(e);
             }
         }
 
