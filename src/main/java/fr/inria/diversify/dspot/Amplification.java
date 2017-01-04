@@ -6,6 +6,8 @@ import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.logger.Logger;
+import fr.inria.diversify.mutant.pit.PitRunner;
+import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.JunitRunner;
@@ -27,8 +29,9 @@ import java.util.stream.Collectors;
  */
 public class Amplification {
 
-    private DiversifyClassLoader applicationClassLoader;
     private InputProgram inputProgram;
+    private InputConfiguration inputConfiguration;
+    private DiversifyClassLoader applicationClassLoader;
     private File logDir;
     private List<Amplifier> amplifiers;
     private DSpotCompiler compiler;
@@ -39,7 +42,7 @@ public class Amplification {
 
     private static int ampTestCount;
 
-    public Amplification(InputProgram inputProgram, DSpotCompiler compiler, DiversifyClassLoader applicationClassLoader, List<Amplifier> amplifiers, TestSelector testSelector, File logDir) {
+    public Amplification(InputProgram inputProgram, InputConfiguration inputConfiguration, DSpotCompiler compiler, DiversifyClassLoader applicationClassLoader, List<Amplifier> amplifiers, TestSelector testSelector, File logDir) {
         this.inputProgram = inputProgram;
         this.compiler = compiler;
         this.applicationClassLoader = applicationClassLoader;
@@ -49,6 +52,7 @@ public class Amplification {
         this.testSelector = testSelector;
         this.testStatus = new TestStatus();
         this.assertGenerator = new AssertGenerator(inputProgram, compiler, applicationClassLoader);
+        this.inputConfiguration = inputConfiguration;
     }
 
     public CtType amplification(CtType classTest, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
