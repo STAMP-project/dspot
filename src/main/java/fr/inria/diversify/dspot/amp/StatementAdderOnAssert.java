@@ -312,6 +312,7 @@ public class StatementAdderOnAssert implements Amplifier {
         return literalsByMethod.get(method);
     }
 
+    //TODO Remove dependencies to the Coverage???
     public void reset(Coverage coverage, CtType testClass) {
         AmplificationHelper.reset();
         literalsByMethod = new HashMap<>();
