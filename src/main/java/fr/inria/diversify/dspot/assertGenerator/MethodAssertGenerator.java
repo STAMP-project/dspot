@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
  * Time: 10:06
  */
 public class MethodAssertGenerator {
+
     protected ClassLoader assertGeneratorClassLoader;
     protected CtMethod test;
     protected CtType originalClass;
@@ -56,7 +57,6 @@ public class MethodAssertGenerator {
         for(int i = 0; i < Query.getElements(this.test, new TypeFilter(CtStatement.class)).size(); i++) {
             statementsIndexToAssert.add(i);
         }
-
         CtMethod newTest = generateAssert();
         if(newTest == null || !isCorrect(newTest)) {
             return null;
@@ -64,31 +64,33 @@ public class MethodAssertGenerator {
         return newTest;
     }
 
-    protected CtMethod  generateAssert(CtMethod test, List<Integer> statementsIndexToAssert) throws IOException, ClassNotFoundException {
+    protected CtMethod generateAssert(CtMethod test, List<Integer> statementsIndexToAssert) throws IOException, ClassNotFoundException {
         this.test = test;
         this.statementsIndexToAssert = statementsIndexToAssert;
-
         CtMethod newTest = generateAssert();
         if(newTest == null || !isCorrect(newTest)) {
             return null;
         }
-
         return newTest;
     }
 
     protected CtMethod generateAssert() throws IOException, ClassNotFoundException {
         List<CtMethod> testsToRun = new ArrayList<>();
-        CtType cl = initTestClass();
+        CtType testClass = initTestClass();
 
         CtMethod cloneTest = test.clone();
-        cl.addMethod(cloneTest);
+        testClass.addMethod(cloneTest);
         testsToRun.add(cloneTest);
 
         CtMethod testWithoutAssert = createTestWithoutAssert(new ArrayList<>(), false);
         testsToRun.add(testWithoutAssert);
-        cl.addMethod(testWithoutAssert);
+        testClass.addMethod(testWithoutAssert);
 
-        JunitResult result = runTests(testsToRun);
+        if (!writeAndCompile(testClass)) {
+            return null;
+        }
+
+        JunitResult result = runTests(testClass, testsToRun);
         if(result == null || result.getTestRuns().size() != testsToRun.size()) {
             return null;
         }
@@ -164,7 +166,7 @@ public class MethodAssertGenerator {
 
         ObjectLog.reset();
 
-        JunitResult result = runTests(testsToRun);
+        runTests(cl, testsToRun);
         return buildTestWithAssert(ObjectLog.getObservations());
     }
 
@@ -227,8 +229,7 @@ public class MethodAssertGenerator {
             stmtIndex++;
         }
 
-        CtType newClass = getFactory().Core().clone(originalClass);
-        newClass.setParent(originalClass.getParent());
+        CtType newClass = originalClass.clone();
         for(int i = 0; i < assertIndex.size(); i++) {
             List<Integer> assertToKeep = new ArrayList<>();
             assertToKeep.add(assertIndex.get(i));
@@ -238,7 +239,7 @@ public class MethodAssertGenerator {
             testsToRun.add(mth);
         }
         ObjectLog.reset();
-        JunitResult result = runTests(testsToRun);
+        JunitResult result = runTests(newClass, testsToRun);
 
         List<Integer> goodAssertIndex = new ArrayList<>();
         for(int i = 0; i < testsToRun.size(); i++) {
@@ -260,29 +261,11 @@ public class MethodAssertGenerator {
         return getFailure(methodName, result) != null;
     }
 
-    protected JunitResult runTests(List<CtMethod> testsToRun) throws ClassNotFoundException {
+    protected JunitResult runTests(CtType testClass, List<CtMethod> testsToRun) throws ClassNotFoundException {
         DiversifyClassLoader diversifyClassLoader = new DiversifyClassLoader(assertGeneratorClassLoader, compiler.getBinaryOutputDirectory().getAbsolutePath());
-
-        List<CtType> classesToCompile = testsToRun.stream()
-                .map(mth -> mth.getDeclaringType())
-                .distinct()
-                .collect(Collectors.toList());
-
-        boolean status = classesToCompile.stream()
-                .allMatch(cl -> writeAndCompile(cl));
-
-        if(!status) {
-            return null;
-        }
-
-        List<String> ClassName = classesToCompile.stream()
-                .map(cl -> cl.getQualifiedName())
-                .distinct()
-                .collect(Collectors.toList());
+        List<String> ClassName = Collections.singletonList(testClass.getQualifiedName());
         diversifyClassLoader.setClassFilter(ClassName);
-
         JunitRunner junitRunner = new JunitRunner(diversifyClassLoader);
-
         String currentUserDir = System.getProperty("user.dir");
         System.setProperty("user.dir", inputProgram.getProgramDir());
         Logger.reset();
@@ -303,7 +286,7 @@ public class MethodAssertGenerator {
         newClass.addMethod(cloneTest);
         testsToRun.add(cloneTest);
 
-        return runTests(testsToRun);
+        return runTests(newClass, testsToRun);
     }
 
     //todo refactor
@@ -316,10 +299,8 @@ public class MethodAssertGenerator {
             } catch (FileNotFoundException | IllegalArgumentException ignored) {
                 //ignored
             }
-
             copyLoggerFile();
             PrintClassUtils.printJavaFile(compiler.getSourceOutputDirectory(), cl);
-
             return compiler.compileFileIn(compiler.getSourceOutputDirectory(), true);
         } catch (Exception e) {
             Log.debug("error during compilation", e);
@@ -328,17 +309,14 @@ public class MethodAssertGenerator {
     }
 
     protected CtType initTestClass() {
-        CtType newClass = getFactory().Core().clone(originalClass);
-        newClass.setParent(originalClass.getParent());
-
-        return newClass;
+        CtType clone = originalClass.clone();
+        clone.setParent(originalClass.getParent());
+        return clone;
     }
 
     protected CtMethod createTestWithLog() {
-        CtMethod newTest = getFactory().Core().clone(test);
-        newTest.setParent(test.getParent());
+        CtMethod newTest = test.clone();
         newTest.setSimpleName(test.getSimpleName() + "_withlog");
-
         List<CtStatement> stmts = Query.getElements(newTest, new TypeFilter(CtStatement.class));
         for(int i = 0; i < stmts.size(); i++) {
             CtStatement stmt = stmts.get(i);
@@ -425,7 +403,6 @@ public class MethodAssertGenerator {
 
     protected CtMethod createTestWithoutAssert(List<Integer> assertIndexToKeep, boolean updateStatementsIndexToAssert) {
         CtMethod newTest = getFactory().Core().clone(test);
-        newTest.setParent(test.getParent());
         newTest.setSimpleName(test.getSimpleName() + "_withoutAssert");
 
         int stmtIndex = 0;

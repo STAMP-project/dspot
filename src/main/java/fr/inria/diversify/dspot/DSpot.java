@@ -37,7 +37,6 @@ public class DSpot {
     private DSpotCompiler compiler;
     private InputProgram inputProgram;
     private DiversifyClassLoader applicationClassLoader;
-    private AssertGenerator assertGenerator;
 
     public DSpot(InputConfiguration inputConfiguration) throws InvalidSdkException, Exception {
         InitUtils.initLogLevel(inputConfiguration);
@@ -55,7 +54,6 @@ public class DSpot {
         compiler = DSpotCompiler.buildCompiler(inputProgram, true);
         DSpotUtils.compileTests(inputProgram, mavenHome, mavenLocalRepository);
 
-        assertGenerator = new AssertGenerator(inputProgram, compiler, applicationClassLoader);
         InitUtils.initLogLevel(inputConfiguration);
         numberOfIterations = 3;
 
@@ -94,17 +92,12 @@ public class DSpot {
 
     public CtType amplifyTest(CtType test) {
         try {
-            return this.amplifyTest(test.getMethods(), test);
+            File logDir = new File(inputProgram.getProgramDir() + "/log");
+            Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, this.amplifiers, logDir);
+            return testAmplification.amplification(test, numberOfIterations);
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public CtType amplifyTest(Set<CtMethod> tests, CtType testClass) throws IOException, InterruptedException, ClassNotFoundException {
-        File logDir = new File(inputProgram.getProgramDir() + "/log");
-        Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, this.amplifiers, logDir);
-        List<CtMethod> ampTests = testAmplification.amplification(testClass, tests, numberOfIterations);
-        return assertGenerator.generateAsserts(testClass, ampTests, AmplificationHelper.getAmpTestToParent());
     }
 
     public void clean() throws IOException {

@@ -2,10 +2,8 @@ package fr.inria.diversify.dspot.assertGenerator;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.Log;
-import fr.inria.diversify.util.PrintClassUtils;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtMethod;
@@ -26,6 +24,7 @@ import java.util.stream.Collectors;
  * Time: 10:31
  */
 public class AssertGenerator {
+
     protected DiversifyClassLoader applicationClassLoader;
     protected InputProgram inputProgram;
     protected DSpotCompiler compiler;
@@ -37,32 +36,29 @@ public class AssertGenerator {
         this.applicationClassLoader = applicationClassLoader;
     }
 
-    public CtType generateAsserts(CtType testClass) throws IOException, ClassNotFoundException {
+    public List<CtMethod> generateAsserts(CtType testClass) throws IOException, ClassNotFoundException {
         return generateAsserts(testClass, testClass.getMethods(), null);
     }
 
-    public CtType generateAsserts(CtType testClass, Collection<CtMethod> tests, Map<CtMethod, CtMethod> parentTest) throws IOException, ClassNotFoundException {
-        int count = 0;
+    public List<CtMethod> generateAsserts(CtType testClass, Collection<CtMethod> tests, Map<CtMethod, CtMethod> parentTest) throws IOException, ClassNotFoundException {
         CtType cloneClass = testClass.clone();
         cloneClass.setParent(testClass.getParent());
-        MethodAssertGenerator ag = new MethodAssertGenerator(testClass, inputProgram, compiler, applicationClassLoader);
-        for(CtMethod test : tests) {
+        MethodAssertGenerator ag = new MethodAssertGenerator(cloneClass, inputProgram, compiler, applicationClassLoader);
+        List<CtMethod> amplifiedTestWithAssertion = new ArrayList<>();
+        for (CtMethod test : tests) {
             CtMethod ampTest = ag.generateAssert(test, findStatementToAssert(test, parentTest));
-            if(ampTest != null) {
-                cloneClass.addMethod(ampTest);
-                count++;
+            if (ampTest != null) {
+                amplifiedTestWithAssertion.add(ampTest);
             }
         }
-        PrintClassUtils.printJavaFile(compiler.getSourceOutputDirectory(), cloneClass);
-
-        Log.debug("{} test method(s) has been successfully generated", count);
-        return cloneClass;
+        Log.debug("{} test method(s) has been successfully generated", amplifiedTestWithAssertion.size());
+        return amplifiedTestWithAssertion;
     }
 
     protected List<Integer> findStatementToAssert(CtMethod test, Map<CtMethod, CtMethod> parentTest) {
-        if(parentTest != null) {
+        if (parentTest != null) {
             CtMethod parent = parentTest.get(test);
-            while(parentTest.get(parent) != null) {
+            while (parentTest.get(parent) != null) {
                 parent = parentTest.get(parent);
             }
             return findStatementToAssertFromParent(test, parent);
@@ -74,8 +70,8 @@ public class AssertGenerator {
     protected List<Integer> findStatementToAssertOnlyInvocation(CtMethod test) {
         List<CtStatement> stmts = Query.getElements(test, new TypeFilter(CtStatement.class));
         List<Integer> indexs = new ArrayList<>();
-        for(int i = 0; i < stmts.size(); i++) {
-            if(CtInvocation.class.isInstance(stmts.get(i))) {
+        for (int i = 0; i < stmts.size(); i++) {
+            if (CtInvocation.class.isInstance(stmts.get(i))) {
                 indexs.add(i);
             }
         }
@@ -94,9 +90,9 @@ public class AssertGenerator {
                 .collect(Collectors.toList());
 
         List<Integer> indexs = new ArrayList<>();
-        for(int i = 0; i < ampStmtStrings.size(); i++) {
+        for (int i = 0; i < ampStmtStrings.size(); i++) {
             int index = originalStmtStrings.indexOf(ampStmtStrings.get(i));
-            if(index == -1) {
+            if (index == -1) {
                 indexs.add(i);
             } else {
                 originalStmtStrings.remove(index);

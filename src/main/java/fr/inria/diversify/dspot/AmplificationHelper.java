@@ -40,6 +40,11 @@ public class AmplificationHelper {
         importByClass = new HashMap<>();
     }
 
+    public static CtType addAmplifiedTestToClass(List<CtMethod> ampTest, CtType classTest) {
+        ampTest.forEach(classTest::addMethod);
+        return classTest;
+    }
+
     public static Map<CtMethod, CtMethod> getAmpTestToParent() {
         return ampTestToParent;
     }
@@ -87,7 +92,6 @@ public class AmplificationHelper {
 
     public static CtMethod cloneMethod(CtMethod method, String suffix) {
         CtMethod cloned_method = method.clone();
-        cloned_method.setParent(method.getParent());
         //rename the clone
         cloned_method.setSimpleName(method.getSimpleName()+suffix+cloneNumber);
         cloneNumber++;
