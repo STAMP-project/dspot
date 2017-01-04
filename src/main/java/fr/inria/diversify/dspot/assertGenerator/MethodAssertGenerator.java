@@ -167,7 +167,7 @@ public class MethodAssertGenerator {
     }
 
     protected CtMethod buildTestWithAssert(Map<String, Observation> observations) {
-        CtMethod testWithAssert = getFactory().Core().clone(test);
+        CtMethod testWithAssert = test.clone();
         // add throws
         List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter(CtStatement.class));
         for(String id : observations.keySet()) {

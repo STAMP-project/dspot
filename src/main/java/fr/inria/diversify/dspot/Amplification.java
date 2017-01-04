@@ -115,7 +115,7 @@ public class Amplification {
         for (int i = 0; i < maxIteration; i++) {
             Log.debug("iteration {}:", i);
 
-            List<CtMethod> testToBeAmplified = testSelector.selectTests(ampTests, newTests);
+            List<CtMethod> testToBeAmplified = testSelector.selectTestToBeAmplified(ampTests, newTests);
             if (testToBeAmplified.isEmpty()) {
                 Log.debug("No test could be generated from selected test");
                 continue;
@@ -150,7 +150,7 @@ public class Amplification {
             testSelector.update();
 
             newTests = AmplificationHelper.filterTest(newTests, result);
-            amplifiedTests.addAll(testSelector.selectedAmplifiedTests(newTests));
+            amplifiedTests.addAll(testSelector.selectTestAmongAmplifiedTests(newTests));
             ampTests.addAll(newTests);
         }
         return amplifiedTests;

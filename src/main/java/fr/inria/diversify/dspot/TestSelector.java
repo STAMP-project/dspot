@@ -63,7 +63,7 @@ public class TestSelector {
      * Tests are selected by the path they cover
      * If a path is already covered, the old test is replaced by the new one with 0.5 of probability
      */
-    public List<CtMethod> selectTests(Collection<CtMethod> oldTests, Collection<CtMethod> testToBeSelected) {
+    public List<CtMethod> selectTestToBeAmplified(Collection<CtMethod> oldTests, Collection<CtMethod> testToBeSelected) {
         Map<CtMethod, Set<String>> selectedTest = new HashMap<>();
         for (CtMethod test : testToBeSelected) {
             Set<String> tc = getTestCoverageFor(test);
@@ -86,6 +86,18 @@ public class TestSelector {
         }
         updateOldMethods(oldTests);
         return testMethodsSelected;
+    }
+
+    public Collection<CtMethod> selectTestAmongAmplifiedTests(Collection<CtMethod> tests) {
+        Map<CtMethod, Set<String>> amplifiedTests = new HashMap<>();
+        for (CtMethod test : tests) {
+            Set<String> tc = getTestCoverageFor(test);
+            Set<String> parentTc = getParentTestCoverageFor(test);
+            if (!tc.isEmpty() && !parentTc.containsAll(tc)) {
+                amplifiedTests.put(test, diff(tc, parentTc));
+            }
+        }
+        return reduceSelectedTest(amplifiedTests);
     }
 
     private void updateOldMethods(Collection<CtMethod> oldTests) {
@@ -118,18 +130,6 @@ public class TestSelector {
             return 3;
         }
         return 0;
-    }
-
-    public Collection<CtMethod> selectedAmplifiedTests(Collection<CtMethod> tests) {
-        Map<CtMethod, Set<String>> amplifiedTests = new HashMap<>();
-        for (CtMethod test : tests) {
-            Set<String> tc = getTestCoverageFor(test);
-            Set<String> parentTc = getParentTestCoverageFor(test);
-            if (!tc.isEmpty() && !parentTc.containsAll(tc)) {
-                amplifiedTests.put(test, diff(tc, parentTc));
-            }
-        }
-        return reduceSelectedTest(amplifiedTests);
     }
 
     private Collection<CtMethod> reduceSelectedTest(Map<CtMethod, Set<String>> selected) {
