@@ -70,6 +70,7 @@ public class Amplification {
             Log.info("error with Logger in class {}", classTest);
             return null;
         }
+
         runTests(classWithLogger, tests);
         testSelector.update();
         resetAmplifiers(classTest, testSelector.getGlobalCoverage());
@@ -81,17 +82,20 @@ public class Amplification {
             CtMethod test = tests.get(i);
             Log.debug("amp {} ({}/{})", test.getSimpleName(), i + 1, tests.size());
             testSelector.init();
+
             classWithLogger = classWithLoggerBuilder.buildClassWithLogger(classTest, tests.get(i));
             writeAndCompile(classWithLogger);
+
             JunitResult result = runTest(classWithLogger, test);
             if (result != null
                     && result.getFailures().isEmpty()
                     && !result.getTestRuns().isEmpty()) {
                 testSelector.update();
+
                 List<CtMethod> amplification = amplification(classTest, test, maxIteration);
                 ampTest.addAll(amplification);
                 ampTestCount += amplification.size();
-                Log.debug("total amp test: {}, global: {}", ampTest.size(), ampTestCount);
+                Log.debug("total amp test: {}, global: {}", amplification.size(), ampTestCount);
             }
         }
         return AmplificationHelper.addAmplifiedTestToClass(ampTest, classTest);
@@ -103,7 +107,6 @@ public class Amplification {
         List<CtMethod> newTests = new ArrayList<>();
         newTests.add(test);
 
-        /* should not be there */
         Collection<CtMethod> ampTests = new ArrayList<>();
         ampTests.add(test);
 
@@ -111,34 +114,41 @@ public class Amplification {
 
         for (int i = 0; i < maxIteration; i++) {
             Log.debug("iteration {}:", i);
-            List<CtMethod> testToAmp = testSelector.selectTests(ampTests, newTests);
-            if (testToAmp.isEmpty()) {
+
+            List<CtMethod> testToBeAmplified = testSelector.selectTests(ampTests, newTests);
+            if (testToBeAmplified.isEmpty()) {
                 Log.debug("No test could be generated from selected test");
                 continue;
             }
-            Log.debug("{} tests selected to be amplified over {} available tests", testToAmp.size(), newTests.size());
-            newTests = reduce(testToAmp);
+            Log.debug("{} tests selected to be amplified over {} available tests", testToBeAmplified.size(), newTests.size());
+
+            newTests = reduce(amplifyTests(testToBeAmplified));
             Log.debug("{} new tests generated", newTests.size());
+
             List<CtMethod> testWithAssertions = assertGenerator.generateAsserts(classTest, newTests, AmplificationHelper.getAmpTestToParent());
-            if (testWithAssertions == null) {
+            if (testWithAssertions.isEmpty()) {
                 continue;
             } else {
                 newTests = testWithAssertions;
             }
             Log.debug("{} new tests with assertions generated", newTests.size());
+
             CtType classWithLogger = classWithLoggerBuilder.buildClassWithLogger(classTest, newTests);
             boolean status = writeAndCompile(classWithLogger);
             if (!status) {
                 break;
             }
+
             Log.debug("run tests");
             JunitResult result = runTests(classWithLogger, newTests);
             if (result == null) {
                 continue;
             }
+
             testStatus.updateTestStatus(newTests, result);
             Log.debug("update coverage info");
             testSelector.update();
+
             newTests = AmplificationHelper.filterTest(newTests, result);
             amplifiedTests.addAll(testSelector.selectedAmplifiedTests(newTests));
             ampTests.addAll(newTests);
