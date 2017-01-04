@@ -1,6 +1,6 @@
 package fr.inria.diversify.dspot.value.objectInstanciationTree;
 
-import fr.inria.diversify.dspot.dynamic.logger.KeyWord;
+import fr.inria.diversify.logger.KeyWord;
 import fr.inria.diversify.dspot.value.PrimitiveValue;
 import fr.inria.diversify.dspot.value.ValueFactory;
 import fr.inria.diversify.dspot.value.ValueType;
