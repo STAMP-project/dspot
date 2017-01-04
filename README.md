@@ -3,10 +3,13 @@ DSpot [![Build Status](https://travis-ci.org/STAMP-project/dspot.svg?branch=mast
 
 ### What is Dspot?
 
-DSpot automatically generates new JUnit tests from a existing test suites.
-- Input: DSpot take as input a project with an existing test suite.(JUnit test).
-- Output: DSpot produce new test suite, with existing test and generated test.
-- For this, DSpot apply transformation operators on existing tests in order to create new observation points of the state of the system. Those observation points are used to generate new assertion statement. Generated tests are then selected according a specific criteria, such as the branch coverage or mutation score.
+The goal of DSpot is to automatically improve existing JUnit test suites.
+It automatically generates new JUnit tests by modifying existing  existing test cases.
+
+- Input: DSpot take as input a Java project with an existing test suite..
+- Output: DSpot produces a new test suite, containing both the existing tests and the new generated ones.
+
+** How does it work? ** DSpot applies transformation operators on existing tests in order to create new observation points on the state of the system. Those observation points are used to generate new assertion statements. The generated tests are then selected and ordered according to a specific criterion, such as the branch coverage or mutation score.
 
 ### Compile and Build
 
@@ -29,10 +32,11 @@ You can run the provide example by running `fr.inria.diversify.Main` from your I
 mvn exec.java -Dexec.mainClass="fr.inria.diversify.Main"
 ```
 
-DSpot will be run on the example (see _src/test/resources/test-projects/_) with one amplifier (`TestDataMutator`, which change literals) and the generation of assertion.
-It will print on the standard output the class `example.TestSuiteExample` with amplified tests cases.
+DSpot will amplify an example test project (see `src/test/resources/test-projects/`) with one simple amplifier (`TestDataMutator`, which schange literals) and using the generation of assertions.
+It will print on the standard output the resulting amplified class `example.TestSuiteExample` containing the amplified tests cases.
 
-DSpot read information about the project from a properties file. Here the properties file used for the example: (see _src/test/resources/test-projects/test-projects.properties) 
+DSpot reads information about the project from a properties file. Here the properties file used for the example: (see `src/test/resources/test-projects/test-projects.properties`)
+
 ```properties
 #relative path to the project root from dspot project
 project=src/test/resources/test-projects
@@ -50,24 +54,26 @@ result=dspot-out/
 
 ### Running on your own project
 
-Such as the example you can run dspot on your own project by running the `fr.inria.diversify.Main` from you IDE by specifying the path to your properties file, or with:
+You can run DSpot on your own project by running the `fr.inria.diversify.Main` and specifying the path to the properties file as first argument:
 ```
+java -jar dspot.jar fr.inria.diversify.Main path/To/my.properties
+
+# or in maven
 mvn exec.java -Dexec.mainClass="fr.inria.diversify.Main" -Dexec.args="<pathToPropertiesFile>"
 ```
 
 ### API
 
-The whole procedure of amplification is done by the `fr.inria.diversify.dspot.DSpot` object. 
-You must at least provide the path to the properties file of your project at the construction.
-You can specify how many times each of amplifiers will be apply to test cases (default 3).
+The whole procedure of amplification is done by the `fr.inria.diversify.dspot.DSpot` class. 
+You must at least provide the path to the properties file of your project at the construction of the object.
+You can specify the number of times each amplifier will be applies to the test cases (default 3).
 You can specify which amplifiers (as a list) you want to use. By default, DSpot uses: 
 
-    * TestDataMutator: which transform literals.
-    * TestMethodCallAdder: which duplicate an existing method call in the test case.
-    * TestMethodCallRemover: which remove a method call in the test case.
-    * StatementAdderOnAssert: which will add call of accessible method on existing object and create new instance. The parameter for those method call
-     are: null, simple value such as 1 and a random one.
-    * StatementAdd: which reuse existing object and return value to add method call of accessible method.
+    * TestDataMutator: which transforms literals.
+    * TestMethodCallAdder: which duplicatse an existing method call in the test case.
+    * TestMethodCallRemover: which removes a method call in the test case.
+    * StatementAdderOnAssert: which adds calls to accessible methods on existing objects and creates new instances.
+    * StatementAdd: which reuses existing objects and return values to add method calls to accessible methods.
 
 ##### Amplifiers
 
