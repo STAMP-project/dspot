@@ -98,7 +98,7 @@ You can specify which amplifiers (as a list) you want to use. By default, DSpot 
 
 ##### Amplifiers
 
-You can implement you own amplifier by implementating the `fr.inria.diversify.dspot.amp.Amplifier` interface and giving it to DSpot.
+You can implement you own amplifier by implemening the `fr.inria.diversify.dspot.amp.Amplifier` interface and giving it to DSpot.
 
 
 ### Licence
