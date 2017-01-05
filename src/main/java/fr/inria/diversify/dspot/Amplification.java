@@ -1,13 +1,9 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
-<<<<<<< 02d09f7a66262901a5d2dd7ca279bc2c62bd9614
-import fr.inria.diversify.dspot.amp.*;
 import fr.inria.diversify.dspot.assertGenerator.AssertGenerator;
-=======
 import fr.inria.diversify.dspot.amplifier.*;
-import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
->>>>>>> refactor amplifier package
+import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputProgram;
@@ -36,23 +32,21 @@ public class Amplification {
     private File logDir;
     private List<Amplifier> amplifiers;
     private DSpotCompiler compiler;
-//    private TestSelector testSelector;
-    private fr.inria.diversify.dspot.selector.TestSelector testSelector;
+    private TestSelector testSelector;
     private ClassWithLoggerBuilder classWithLoggerBuilder;
     private AssertGenerator assertGenerator;
     private TestStatus testStatus;
 
     private static int ampTestCount;
 
-    public Amplification(InputProgram inputProgram, DSpotCompiler compiler, DiversifyClassLoader applicationClassLoader, List<Amplifier> amplifiers, File logDir) {
+    public Amplification(InputProgram inputProgram, DSpotCompiler compiler, DiversifyClassLoader applicationClassLoader, List<Amplifier> amplifiers, TestSelector testSelector, File logDir) {
         this.inputProgram = inputProgram;
         this.compiler = compiler;
         this.applicationClassLoader = applicationClassLoader;
         this.amplifiers = amplifiers;
         this.logDir = logDir;
         this.classWithLoggerBuilder = new ClassWithLoggerBuilder(inputProgram);
-//        this.testSelector = new TestSelector(logDir, 10);
-        this.testSelector = new BranchCoverageTestSelector(logDir, 10);
+        this.testSelector = testSelector;
         this.testStatus = new TestStatus();
         this.assertGenerator = new AssertGenerator(inputProgram, compiler, applicationClassLoader);
     }
@@ -121,7 +115,7 @@ public class Amplification {
         for (int i = 0; i < maxIteration; i++) {
             Log.debug("iteration {}:", i);
 
-            List<CtMethod> testToBeAmplified = testSelector.selectTestToBeAmplified(ampTests, newTests);
+            List<CtMethod> testToBeAmplified = testSelector.selectToAmplify(newTests);
             if (testToBeAmplified.isEmpty()) {
                 Log.debug("No test could be generated from selected test");
                 continue;
@@ -154,7 +148,7 @@ public class Amplification {
 
             newTests = AmplificationHelper.filterTest(newTests, result);
             Log.debug("{} test method(s) has been successfully generated", newTests.size());
-            amplifiedTests.addAll(testSelector.selectTestAmongAmplifiedTests(newTests));
+            amplifiedTests.addAll(testSelector.selectToKeep(newTests));
             ampTests.addAll(newTests);
         }
         return amplifiedTests;

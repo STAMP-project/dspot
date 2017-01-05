@@ -3,6 +3,8 @@ package fr.inria.diversify.dspot;
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.assertGenerator.AssertGenerator;
+import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
+import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.runner.InputConfiguration;
@@ -26,6 +28,7 @@ public class DSpot {
 
     private List<Amplifier> amplifiers;
     private int numberOfIterations;
+    private TestSelector testSelector;
 
     public DSpotCompiler getCompiler() {
         return compiler;
@@ -59,6 +62,7 @@ public class DSpot {
         this.amplifiers.add(new TestMethodCallAdder());
         this.amplifiers.add(new TestMethodCallRemover());
         this.amplifiers.add(new StatementAdderOnAssert());
+        this.testSelector = new BranchCoverageTestSelector(new File(inputProgram.getProgramDir() + "/log"), 10);
     }
 
     public DSpot(InputConfiguration configuration, int numberOfIterations) throws InvalidSdkException, Exception {
@@ -70,6 +74,13 @@ public class DSpot {
         this(configuration);
         this.amplifiers = amplifiers;
         this.numberOfIterations = numberOfIterations;
+    }
+
+    public DSpot(InputConfiguration configuration, int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws InvalidSdkException, Exception {
+        this(configuration);
+        this.amplifiers = amplifiers;
+        this.numberOfIterations = numberOfIterations;
+        this.testSelector = testSelector;
     }
 
     public List<CtType> amplifiyAllTests() throws InterruptedException, IOException, ClassNotFoundException {
@@ -92,7 +103,7 @@ public class DSpot {
     public CtType amplifyTest(CtType test) {
         try {
             File logDir = new File(inputProgram.getProgramDir() + "/log");
-            Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, this.amplifiers, logDir);
+            Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, this.amplifiers, this.testSelector, logDir);
             return testAmplification.amplification(test, numberOfIterations);
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
             throw new RuntimeException(e);
