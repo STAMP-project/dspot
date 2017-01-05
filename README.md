@@ -21,10 +21,11 @@ cd dspot
 
 2) Install the dependencies of dspot by running the provided script:
 ```
-mvn dependency:resolve
-# dependencies not in Maven
+# first, local install of dependencies not in Maven Central
 chmod +x install.sh
 ./install.sh
+# second, the other dependencies
+mvn dependency:resolve
 ```
 
 3) Compile DSpot
