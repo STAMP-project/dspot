@@ -2,7 +2,7 @@ package fr.inria.diversify;
 
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.DSpot;
-import fr.inria.diversify.dspot.amp.TestDataMutator;
+import fr.inria.diversify.dspot.amplifier.TestDataMutator;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;

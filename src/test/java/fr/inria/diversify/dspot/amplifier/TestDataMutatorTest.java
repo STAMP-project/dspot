@@ -1,20 +1,15 @@
-package fr.inria.diversify.dspot.amp;
+package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AbstractTest;
-import fr.inria.diversify.util.FileUtils;
-import org.junit.AfterClass;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.security.cert.CollectionCertStoreParameters;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -291,7 +286,7 @@ public class TestDataMutatorTest extends AbstractTest {
 
     private TestDataMutator getTestDataMutator(CtClass<Object> literalMutationClass) {
         TestDataMutator amplificator = new TestDataMutator();
-        amplificator.reset(null, literalMutationClass);
+        amplificator.reset(literalMutationClass);
         return amplificator;
     }
 

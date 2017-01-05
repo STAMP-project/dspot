@@ -1,10 +1,9 @@
-package fr.inria.diversify.dspot.amp;
+package fr.inria.diversify.dspot.amplifier;
 
 
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.value.Value;
 import fr.inria.diversify.dspot.value.ValueFactory;
-import fr.inria.diversify.log.branch.Coverage;
 import fr.inria.diversify.utils.CtTypeUtils;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
@@ -23,12 +22,13 @@ import java.util.stream.Collectors;
  * Time: 10:40
  */
 public class StatementAdd implements Amplifier {
-    protected String filter;
-    protected Set<CtMethod> methods;
-    protected Map<CtType, Boolean> hasConstructor;
-    protected ValueFactory valueFactory;
-    protected Factory factory;
-    protected final int[] count = {0};
+
+    private String filter;
+    private Set<CtMethod> methods;
+    private Map<CtType, Boolean> hasConstructor;
+    private ValueFactory valueFactory;
+    private Factory factory;
+    private final int[] count = {0};
 
     public StatementAdd(Factory factory, ValueFactory valueFactory, String filter) {
         this.valueFactory = valueFactory;
@@ -79,6 +79,17 @@ public class StatementAdd implements Amplifier {
         return ampMethods;
     }
 
+    @Override
+    public CtMethod applyRandom(CtMethod method) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void reset(CtType testClass) {
+        AmplificationHelper.reset();
+        initMethods(testClass);
+    }
+
     private CtMethod addInvocation(CtMethod mth, CtMethod mthToAdd, CtExpression target, CtStatement position, boolean before) {
         CtMethod methodClone = AmplificationHelper.cloneMethod(mth, "_sd");
         CtBlock body = methodClone.getBody();
@@ -102,7 +113,7 @@ public class StatementAdd implements Amplifier {
             }
         }
 
-        CtExpression targetClone = factory.Core().clone(target);
+        CtExpression targetClone = target.clone();
         CtInvocation newInvocation = factory.Code().createInvocation(targetClone, mthToAdd.getReference(), arg);
 
         CtStatement stmt = findInvocationIn(methodClone, position);
@@ -115,21 +126,21 @@ public class StatementAdd implements Amplifier {
         return methodClone;
     }
 
-    protected CtStatement findInvocationIn(CtMethod method, CtStatement invocation) {
+    private CtStatement findInvocationIn(CtMethod method, CtStatement invocation) {
         List<CtStatement> statements = Query.getElements(method, new TypeFilter(CtStatement.class));
         return statements.stream()
                 .filter(s -> s.toString().equals(invocation.toString()))
                 .findFirst().orElse(null);
     }
 
-    protected CtExpression<?> createLocalVarRef(CtLocalVariable var) {
+    private CtExpression<?> createLocalVarRef(CtLocalVariable var) {
         CtLocalVariableReference varRef = factory.Code().createLocalVariableReference(var);
         CtVariableAccess varRead = factory.Code().createVariableRead(varRef, false);
 
         return varRead;
     }
 
-    protected CtTypeReference generateStaticType(CtTypeReference parameterType, String dynamicTypeName) {
+    private CtTypeReference generateStaticType(CtTypeReference parameterType, String dynamicTypeName) {
         CtTypeReference type = factory.Core().clone(parameterType);
         type.getActualTypeArguments().clear();
 
@@ -143,17 +154,7 @@ public class StatementAdd implements Amplifier {
         return type;
     }
 
-    @Override
-    public CtMethod applyRandom(CtMethod method) {
-        return null;
-    }
-
-    public void reset(Coverage coverage, CtType testClass) {
-        AmplificationHelper.reset();
-        initMethods(testClass);
-    }
-
-    protected List<CtMethod> findMethodsWithTargetType(CtTypeReference type) {
+    private List<CtMethod> findMethodsWithTargetType(CtTypeReference type) {
         if(type == null) {
             return new ArrayList<>(0);
         } else {
@@ -163,7 +164,7 @@ public class StatementAdd implements Amplifier {
         }
     }
 
-    protected  List<CtInvocation> getInvocation(CtMethod method) {
+    private List<CtInvocation> getInvocation(CtMethod method) {
         List<CtInvocation> statements = Query.getElements(method, new TypeFilter(CtInvocation.class));
         return statements.stream()
                 .filter(invocation -> invocation.getParent() instanceof CtBlock)
@@ -171,7 +172,7 @@ public class StatementAdd implements Amplifier {
                 .collect(Collectors.toList());
     }
 
-    protected void initMethods(CtType testClass) {
+    private void initMethods(CtType testClass) {
         methods = AmplificationHelper.computeClassProvider(testClass).stream()
                 .flatMap(cl -> {
                     Set<CtMethod> allMethods = cl.getAllMethods();
@@ -195,7 +196,7 @@ public class StatementAdd implements Amplifier {
                 .collect(Collectors.toSet());
     }
 
-    protected boolean isSerializable(CtTypeReference type) {
+    private boolean isSerializable(CtTypeReference type) {
         if(!hasConstructor.containsKey(type.getDeclaration())) {
             if(type.getDeclaration() instanceof CtClass) {
                 CtClass cl = (CtClass) type.getDeclaration();

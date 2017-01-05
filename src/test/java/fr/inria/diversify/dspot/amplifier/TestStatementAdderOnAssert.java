@@ -1,10 +1,8 @@
-package fr.inria.diversify.dspot.amp;
+package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AbstractTest;
-import fr.inria.diversify.util.FileUtils;
-import org.junit.AfterClass;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
@@ -46,7 +44,7 @@ public class TestStatementAdderOnAssert extends AbstractTest {
         AmplificationHelper.setSeedRandom(23L);
 
         StatementAdderOnAssert amplificator = new StatementAdderOnAssert();
-        amplificator.reset(null, ctClass);
+        amplificator.reset(ctClass);
 
         CtMethod originalMethod = Utils.findMethod(ctClass, "testLit");
         List<CtMethod> amplifiedMethods = amplificator.apply(originalMethod);

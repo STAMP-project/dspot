@@ -1,10 +1,9 @@
 
 
-package fr.inria.diversify.dspot.amp;
+package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.dspot.AmplificationHelper;
-import fr.inria.diversify.log.branch.Coverage;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
@@ -19,8 +18,6 @@ import java.util.stream.Collectors;
  * */
 public class TestDataMutator implements Amplifier {
 
-    @Deprecated
-    private int dataCount = 0;
 
     private Map<CtType, Set<Object>> literalByClass;
 
@@ -28,7 +25,6 @@ public class TestDataMutator implements Amplifier {
 
     public TestDataMutator() {
         this.literalByClass = new HashMap<>();
-        this.dataCount = 0;
     }
 
     public List<CtMethod> apply(CtMethod method) {
@@ -79,8 +75,15 @@ public class TestDataMutator implements Amplifier {
         return null;
     }
 
-    protected CtMethod createNumberMutant(CtMethod method, int original_lit_index, Number newValue) {
-        dataCount++;
+    public void reset(CtType testClass) {
+        AmplificationHelper.reset();
+        Set<CtType> codeFragmentsProvide = AmplificationHelper.computeClassProvider(testClass);
+        literals = getLiterals(codeFragmentsProvide).stream()
+                .filter(lit -> lit != null)
+                .collect(Collectors.groupingBy(lit -> lit.getClass()));
+    }
+
+    private CtMethod createNumberMutant(CtMethod method, int original_lit_index, Number newValue) {
         //clone the method
         CtMethod cloned_method = AmplificationHelper.cloneMethod(method, "_literalMutation");
         //get the lit_indexth literal of the cloned method
@@ -113,7 +116,7 @@ public class TestDataMutator implements Amplifier {
         return cloned_method;
     }
 
-    protected List<CtMethod> createAllNumberMutant(CtMethod method, CtLiteral literal, int lit_index) {
+    private List<CtMethod> createAllNumberMutant(CtMethod method, CtLiteral literal, int lit_index) {
         List<CtMethod> mutants = new ArrayList<>();
         for (Number newValue : numberMutated(literal)) {
             mutants.add(createNumberMutant(method, lit_index, newValue));
@@ -121,7 +124,8 @@ public class TestDataMutator implements Amplifier {
         return mutants;
     }
 
-    protected List<CtMethod> createAllStringMutant(CtMethod method, CtLiteral literal, int original_lit_index) {
+
+    private List<CtMethod> createAllStringMutant(CtMethod method, CtLiteral literal, int original_lit_index) {
         List<CtMethod> mutants = new ArrayList<>();
 
         for (String literalMutated : stringMutated(literal)) {
@@ -130,16 +134,14 @@ public class TestDataMutator implements Amplifier {
         return mutants;
     }
 
-
     private CtMethod createStringMutant(CtMethod method, int original_lit_index, String newValue) {
-        dataCount++;
         CtMethod cloned_method = AmplificationHelper.cloneMethod(method, "_literalMutation");
         Query.getElements(cloned_method, new TypeFilter<>(CtLiteral.class))
                 .get(original_lit_index).replace(cloned_method.getFactory().Code().createLiteral(newValue));
         return cloned_method;
     }
 
-    protected Set<String> stringMutated(CtLiteral literal) {
+    private Set<String> stringMutated(CtLiteral literal) {
         Set<String> values = new HashSet<>();
         String value = ((String) literal.getValue());
         if (value.length() > 2) {
@@ -173,7 +175,9 @@ public class TestDataMutator implements Amplifier {
         return c;//excluding " and '
     }
 
-    protected Set<? extends Number> numberMutated(CtLiteral literal) {
+
+
+    private Set<? extends Number> numberMutated(CtLiteral literal) {
         Set<Number> values = new HashSet<>();
         Double value = ((Number) literal.getValue()).doubleValue();
         values.add(value + 1);
@@ -196,7 +200,7 @@ public class TestDataMutator implements Amplifier {
 
 
 
-    protected CtMethod createBooleanMutant(CtMethod test, CtLiteral booleanLiteral) {
+    private CtMethod createBooleanMutant(CtMethod test, CtLiteral booleanLiteral) {
         Boolean value = (Boolean) booleanLiteral.getValue();
         CtMethod cloned_method = AmplificationHelper.cloneMethod(test, "_literalMutation");
         CtLiteral newValue = cloned_method.getElements(new TypeFilter<CtLiteral>(CtLiteral.class) {
@@ -210,15 +214,13 @@ public class TestDataMutator implements Amplifier {
         return cloned_method;
     }
 
-
-
-    protected Set<Object> getLiterals(Set<CtType> codeFragmentsProvide) {
+    private Set<Object> getLiterals(Set<CtType> codeFragmentsProvide) {
         return codeFragmentsProvide.stream()
                 .flatMap(cl -> getLiterals(cl).stream())
                 .collect(Collectors.toSet());
     }
 
-    protected Set<Object> getLiterals(CtType type) {
+    private Set<Object> getLiterals(CtType type) {
         if (!literalByClass.containsKey(type)) {
             Set<Object> set = (Set<Object>) Query.getElements(type, new TypeFilter(CtLiteral.class)).stream()
                     .map(literal -> ((CtLiteral) literal).getValue())
@@ -227,13 +229,5 @@ public class TestDataMutator implements Amplifier {
             literalByClass.put(type, set);
         }
         return literalByClass.get(type);
-    }
-
-    public void reset(Coverage coverage, CtType testClass) {
-        AmplificationHelper.reset();
-        Set<CtType> codeFragmentsProvide = AmplificationHelper.computeClassProvider(testClass);
-        literals = getLiterals(codeFragmentsProvide).stream()
-                .filter(lit -> lit != null)
-                .collect(Collectors.groupingBy(lit -> lit.getClass()));
     }
 }

@@ -1,6 +1,5 @@
-package fr.inria.diversify.dspot.amp;
+package fr.inria.diversify.dspot.amplifier;
 
-import fr.inria.diversify.log.branch.Coverage;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -18,6 +17,6 @@ public interface Amplifier {
     List<CtMethod> apply(CtMethod testMethod);
     CtMethod applyRandom(CtMethod testMethod);
 
-    void reset(Coverage coverage, CtType testClass);
+    void reset(CtType testClass);
 
 }

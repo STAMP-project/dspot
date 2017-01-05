@@ -1,8 +1,7 @@
-package fr.inria.diversify.dspot.amp;
+package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.dspot.AmplificationHelper;
-import fr.inria.diversify.log.branch.Coverage;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -54,7 +53,7 @@ public class TestMethodCallAdder implements Amplifier {
     }
 
     @Override
-    public void reset(Coverage coverage, CtType testClass) {
+    public void reset(CtType testClass) {
         AmplificationHelper.reset();
     }
 

@@ -1,10 +1,14 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
+<<<<<<< 02d09f7a66262901a5d2dd7ca279bc2c62bd9614
 import fr.inria.diversify.dspot.amp.*;
 import fr.inria.diversify.dspot.assertGenerator.AssertGenerator;
+=======
+import fr.inria.diversify.dspot.amplifier.*;
+import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
+>>>>>>> refactor amplifier package
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.log.branch.Coverage;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
@@ -32,7 +36,8 @@ public class Amplification {
     private File logDir;
     private List<Amplifier> amplifiers;
     private DSpotCompiler compiler;
-    private TestSelector testSelector;
+//    private TestSelector testSelector;
+    private fr.inria.diversify.dspot.selector.TestSelector testSelector;
     private ClassWithLoggerBuilder classWithLoggerBuilder;
     private AssertGenerator assertGenerator;
     private TestStatus testStatus;
@@ -46,7 +51,8 @@ public class Amplification {
         this.amplifiers = amplifiers;
         this.logDir = logDir;
         this.classWithLoggerBuilder = new ClassWithLoggerBuilder(inputProgram);
-        this.testSelector = new TestSelector(logDir, 10);
+//        this.testSelector = new TestSelector(logDir, 10);
+        this.testSelector = new BranchCoverageTestSelector(logDir, 10);
         this.testStatus = new TestStatus();
         this.assertGenerator = new AssertGenerator(inputProgram, compiler, applicationClassLoader);
     }
@@ -73,7 +79,7 @@ public class Amplification {
 
         runTests(classWithLogger, tests);
         testSelector.update();
-        resetAmplifiers(classTest, testSelector.getGlobalCoverage());
+        resetAmplifiers(classTest);
 
         Log.info("amplification of {} ({} test)", classTest.getQualifiedName(), tests.size());
 
@@ -184,8 +190,8 @@ public class Amplification {
         }
     }
 
-    private void resetAmplifiers(CtType parentClass, Coverage coverage) {
-        amplifiers.forEach(amp -> amp.reset(coverage, parentClass));
+    private void resetAmplifiers(CtType parentClass) {
+        amplifiers.forEach(amp -> amp.reset(parentClass));
     }
 
     /*

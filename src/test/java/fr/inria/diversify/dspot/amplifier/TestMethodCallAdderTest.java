@@ -1,18 +1,14 @@
-package fr.inria.diversify.dspot.amp;
+package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AbstractTest;
-import fr.inria.diversify.util.FileUtils;
-import org.junit.AfterClass;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import org.junit.Test;
-import spoon.Launcher;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -35,7 +31,7 @@ public class TestMethodCallAdderTest extends AbstractTest {
         CtClass<Object> testClass = Utils.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
 
         TestMethodCallAdder methodCallAdder = new TestMethodCallAdder();
-        methodCallAdder.reset(null, null);
+        methodCallAdder.reset(null);
 
         final CtMethod<?> originalMethod = testClass.getMethods().stream().filter(m -> "testAddCall".equals(m.getSimpleName())).findFirst().get();
         List<CtMethod> amplifiedMethods = methodCallAdder.apply(originalMethod);
@@ -63,7 +59,7 @@ public class TestMethodCallAdderTest extends AbstractTest {
         AmplificationHelper.setSeedRandom(23L);
 
         TestMethodCallAdder methodCallAdder = new TestMethodCallAdder();
-        methodCallAdder.reset(null, null);
+        methodCallAdder.reset(null);
 
         final CtMethod<?> originalMethod = testClass.getMethods().stream().filter(m -> "testAddCall".equals(m.getSimpleName())).findFirst().get();
         CtMethod amplifiedMethod = originalMethod.clone();

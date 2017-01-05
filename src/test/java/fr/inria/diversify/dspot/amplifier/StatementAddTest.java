@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot.amp;
+package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
@@ -6,8 +6,6 @@ import fr.inria.diversify.dspot.AbstractTest;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.value.ValueFactory;
 import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.FileUtils;
-import org.junit.AfterClass;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
@@ -39,7 +37,7 @@ public class StatementAddTest extends AbstractTest {
         AmplificationHelper.setSeedRandom(23L);
         ValueFactory valueFactory = new ValueFactory(inputProgram);
         StatementAdd amplificator = new StatementAdd(inputProgram.getFactory(), valueFactory, packageName);
-        amplificator.reset(null, factory.Class().get(packageName + ".ClassTargetAmplify"));
+        amplificator.reset(factory.Class().get(packageName + ".ClassTargetAmplify"));
 
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
         List<CtMethod> amplifiedMethods = amplificator.apply(ctMethod);
