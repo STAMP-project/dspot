@@ -109,7 +109,6 @@ public class MutantGenerator {
         this.mutantsNotKilled.putAll(runMutants(mutants));
     }
 
-    //TODO change the array by a specific object
     public MutantRunResults runTestsOnAliveMutant(InputConfiguration configuration) {
         MutantRunResults results = new MutantRunResults();
         List<String> classpath = Arrays.asList(compiler.getBinaryOutputDirectory().getAbsolutePath(), inputProgram.getProgramDir() + "/" +  inputProgram.getTestClassesDir());

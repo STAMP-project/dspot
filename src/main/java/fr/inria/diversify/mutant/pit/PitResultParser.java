@@ -24,7 +24,9 @@ public class PitResultParser {
                 PitResult.State state = PitResult.State.valueOf(splittedLine[5]);
                 String fullQualifiedNameMutantOperator = splittedLine[2];
                 String fullQualifiedNameTestMethod = splittedLine[6];
-                results.add(new PitResult(state, fullQualifiedNameMutantOperator, fullQualifiedNameTestMethod));
+                int lineNumber = Integer.parseInt(splittedLine[4]);
+                String location = splittedLine[3];
+                results.add(new PitResult(state, fullQualifiedNameMutantOperator, fullQualifiedNameTestMethod, lineNumber, location));
             });
         } catch (IOException e) {
             Log.warn("Error during reading report file of pits.");

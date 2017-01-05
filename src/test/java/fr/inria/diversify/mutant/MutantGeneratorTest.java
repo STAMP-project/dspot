@@ -3,6 +3,7 @@ package fr.inria.diversify.mutant;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
+import fr.inria.diversify.dspot.MavenAbstractTest;
 import fr.inria.diversify.dspot.amplifier.Amplifier;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
 import fr.inria.diversify.runner.InputConfiguration;
@@ -27,7 +28,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 1/3/17
  */
-public class MutantGeneratorTest {
+public class MutantGeneratorTest extends MavenAbstractTest {
 
     @Test
     public void testMutantGenerator() throws Exception, InvalidSdkException {

@@ -30,8 +30,7 @@ public class PitRunner {
 
     private static final String CMD_PIT_MUTATION_COVERAGE = "org.pitest:pitest-maven:mutationCoverage";
 
-    public static void run(InputProgram program, InputConfiguration configuration, CtType testClass, List<CtMethod> newTests) {
-        CtClass<Object> originalClass = program.getFactory().Class().get(testClass.getQualifiedName());
+    public static List<PitResult> run(InputProgram program, InputConfiguration configuration, CtType testClass) {
         try {
             String mavenHome = configuration.getProperty("maven.home", null);
             MavenBuilder builder = new MavenBuilder(program.getProgramDir());
@@ -43,13 +42,12 @@ public class PitRunner {
                     OPT_TARGET_TESTS + testClass.getQualifiedName(), //
                     CMD_PIT_MUTATION_COVERAGE};
             builder.setGoals(phases);
-            long time = System.currentTimeMillis();
             builder.initTimeOut();
-            System.out.println(System.currentTimeMillis() - time);
             File directoryReportPit = new File(program.getProgramDir() + "/target/pit-reports").listFiles()[0];
-            PitResultParser.parse(new File(directoryReportPit.getPath() + "/mutations.csv")).forEach(System.out::println);
+            return PitResultParser.parse(new File(directoryReportPit.getPath() + "/mutations.csv"));
         } catch (Exception e) {
-            Log.warn("Error during running Pit-test-mutation on {}", testClass.getQualifiedName());
+            Log.warn("Error during running Pit-test-mutation");
+            return null;
         }
     }
 

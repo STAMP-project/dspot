@@ -15,10 +15,16 @@ public class PitResult {
 
     private final String fullQualifiedNameTestMethod;
 
-    public PitResult(State stateOfMutant, String fullQualifiedNameMutantOperator, String fullQualifiedNameTestMethod) {
+    private final int lineNumber;
+
+    private final String location;
+
+    public PitResult(State stateOfMutant, String fullQualifiedNameMutantOperator, String fullQualifiedNameTestMethod, int lineNumber, String nameOfLocalisation) {
         this.stateOfMutant = stateOfMutant;
         this.fullQualifiedNameMutantOperator = fullQualifiedNameMutantOperator;
         this.fullQualifiedNameTestMethod = fullQualifiedNameTestMethod;
+        this.lineNumber = lineNumber;
+        this.location = nameOfLocalisation;
     }
 
     public State getStateOfMutant() {
@@ -33,13 +39,11 @@ public class PitResult {
         return fullQualifiedNameTestMethod;
     }
 
-    //generated
-    @Override
-    public String toString() {
-        return "PitResult{" +
-                "stateOfMutant=" + stateOfMutant +
-                ", fullQualifiedNameMutantOperator='" + fullQualifiedNameMutantOperator + '\'' +
-                ", fullQualifiedNameTestMethod='" + fullQualifiedNameTestMethod + '\'' +
-                '}';
+    public int getLineNumber() {
+        return lineNumber;
+    }
+
+    public String getLocation() {
+        return location;
     }
 }
