@@ -1,10 +1,10 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
-import fr.inria.diversify.dspot.amp.*;
 import fr.inria.diversify.dspot.assertGenerator.AssertGenerator;
+import fr.inria.diversify.dspot.amplifier.*;
+import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.log.branch.Coverage;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
@@ -39,14 +39,14 @@ public class Amplification {
 
     private static int ampTestCount;
 
-    public Amplification(InputProgram inputProgram, DSpotCompiler compiler, DiversifyClassLoader applicationClassLoader, List<Amplifier> amplifiers, File logDir) {
+    public Amplification(InputProgram inputProgram, DSpotCompiler compiler, DiversifyClassLoader applicationClassLoader, List<Amplifier> amplifiers, TestSelector testSelector, File logDir) {
         this.inputProgram = inputProgram;
         this.compiler = compiler;
         this.applicationClassLoader = applicationClassLoader;
         this.amplifiers = amplifiers;
         this.logDir = logDir;
         this.classWithLoggerBuilder = new ClassWithLoggerBuilder(inputProgram);
-        this.testSelector = new TestSelector(logDir, 10);
+        this.testSelector = testSelector;
         this.testStatus = new TestStatus();
         this.assertGenerator = new AssertGenerator(inputProgram, compiler, applicationClassLoader);
     }
@@ -73,7 +73,7 @@ public class Amplification {
 
         runTests(classWithLogger, tests);
         testSelector.update();
-        resetAmplifiers(classTest, testSelector.getGlobalCoverage());
+        resetAmplifiers(classTest);
 
         Log.info("amplification of {} ({} test)", classTest.getQualifiedName(), tests.size());
 
@@ -115,7 +115,7 @@ public class Amplification {
         for (int i = 0; i < maxIteration; i++) {
             Log.debug("iteration {}:", i);
 
-            List<CtMethod> testToBeAmplified = testSelector.selectTestToBeAmplified(ampTests, newTests);
+            List<CtMethod> testToBeAmplified = testSelector.selectToAmplify(newTests);
             if (testToBeAmplified.isEmpty()) {
                 Log.debug("No test could be generated from selected test");
                 continue;
@@ -148,7 +148,7 @@ public class Amplification {
 
             newTests = AmplificationHelper.filterTest(newTests, result);
             Log.debug("{} test method(s) has been successfully generated", newTests.size());
-            amplifiedTests.addAll(testSelector.selectTestAmongAmplifiedTests(newTests));
+            amplifiedTests.addAll(testSelector.selectToKeep(newTests));
             ampTests.addAll(newTests);
         }
         return amplifiedTests;
@@ -184,8 +184,8 @@ public class Amplification {
         }
     }
 
-    private void resetAmplifiers(CtType parentClass, Coverage coverage) {
-        amplifiers.forEach(amp -> amp.reset(coverage, parentClass));
+    private void resetAmplifiers(CtType parentClass) {
+        amplifiers.forEach(amp -> amp.reset(parentClass));
     }
 
     /*

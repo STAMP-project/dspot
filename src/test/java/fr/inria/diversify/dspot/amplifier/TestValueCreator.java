@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot.amp;
+package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;

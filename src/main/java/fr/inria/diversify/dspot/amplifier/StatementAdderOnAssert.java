@@ -1,11 +1,10 @@
-package fr.inria.diversify.dspot.amp;
+package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.codeFragment.*;
 import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.value.ValueCreator;
 import fr.inria.diversify.dspot.value.VarCartesianProduct;
-import fr.inria.diversify.log.branch.Coverage;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
@@ -28,9 +27,10 @@ public class StatementAdderOnAssert implements Amplifier {
 
     private List<Statement> localVars;
     private Map<CtMethod, List<CtLiteral>> literalsByMethod;
-    private Map<Statement, Double> coverageBycodeFragments;
+    private List<Statement> codeFragments;
     private CtMethod currentMethod;
     private ValueCreator valueCreator;
+    private int count;
 
     public StatementAdderOnAssert() {
         valueCreator = new ValueCreator();
@@ -40,7 +40,7 @@ public class StatementAdderOnAssert implements Amplifier {
     public List<CtMethod> apply(CtMethod method) {
         currentMethod = method;
         List<CtMethod> newMethods = new ArrayList<>();
-        if (!coverageBycodeFragments.isEmpty()) {
+        if (!codeFragments.isEmpty()) {
             List<InputContext> inputContexts = getInputContexts(method);
             if (!inputContexts.isEmpty()) {
                 int index = inputContexts.size() - 1;
@@ -61,7 +61,44 @@ public class StatementAdderOnAssert implements Amplifier {
         throw new UnsupportedOperationException();
     }
 
-    protected CtMethod apply(CtMethod method, List<Statement> statements, int index) {
+    public void reset(CtType testClass) {
+        AmplificationHelper.reset();
+        literalsByMethod = new HashMap<>();
+
+        Set<CtType> codeFragmentsProvide = AmplificationHelper.computeClassProvider(testClass);
+
+        List<Statement> codeFragmentsByClass = codeFragmentsProvide.stream()
+                .flatMap(cl -> {
+                    List<CtStatement> list = Query.getElements(cl, new TypeFilter(CtStatement.class));
+                    return list.stream();
+                })
+                .filter(stmt -> {
+                    try {
+                        return stmt.getParent() != null;
+                    } catch (Exception e) {
+                        return false;
+                    }
+                })
+                .filter(stmt -> stmt.getParent() instanceof CtBlock)
+                .filter(stmt -> !stmt.toString().startsWith("super"))
+                .filter(stmt -> !stmt.toString().startsWith("this("))
+                .map(stmt -> new Statement(stmt))
+                .collect(Collectors.toList());
+
+        if (findClassUnderTest(testClass) != null) {
+            codeFragments = buildCodeFragmentFor(findClassUnderTest(testClass));
+        } else {
+            codeFragments = new ArrayList<>();
+        }
+
+        Set<Integer> ids = new HashSet<>();
+        localVars = codeFragmentsByClass.stream()
+                .filter(cf -> isValidCodeFragment(cf))
+                .filter(cf -> ids.add(cf.toString().hashCode()))// TODO Warning this usage of HashCode
+                .collect(Collectors.toList());
+    }
+
+    private CtMethod apply(CtMethod method, List<Statement> statements, int index) {
         CtMethod cloned_method = AmplificationHelper.cloneMethodTest(method, "_cf", 1000);
         CtStatement stmt = getAssertStatement(cloned_method).get(index);
         statements.forEach(c -> {
@@ -89,7 +126,7 @@ public class StatementAdderOnAssert implements Amplifier {
     }
 
     private List<List<Statement>> buildStatements(InputContext inputContext) {
-        return coverageBycodeFragments.keySet().stream()
+        return codeFragments.stream()
                 .map(cf -> Collections.singletonList(new Statement(cf.getCtCodeFragment().clone())))
                 .flatMap(list -> buildContext(inputContext.clone(), list, list.size() - 1).stream())
                 .collect(Collectors.toList());
@@ -127,7 +164,7 @@ public class StatementAdderOnAssert implements Amplifier {
         return varCartesianProduct.apply(stmts, targetIndex);
     }
 
-    protected Statement getLocalVar(CtTypeReference type, InputContext inputContext) {
+    private Statement getLocalVar(CtTypeReference type, InputContext inputContext) {
         List<Statement> list = localVars.stream()
                 .filter(var -> var.getCtCodeFragment() != null)
                 .filter(var -> type.equals(((CtLocalVariable) var.getCtCodeFragment()).getType()))
@@ -165,7 +202,7 @@ public class StatementAdderOnAssert implements Amplifier {
         }
     }
 
-    protected List<CtStatement> getAssertStatement(CtMethod method) {
+    private List<CtStatement> getAssertStatement(CtMethod method) {
         List<CtStatement> statements = Query.getElements(method, new TypeFilter(CtStatement.class));
         return statements.stream()
                 .filter(stmt -> stmt.getParent() instanceof CtBlock)
@@ -173,7 +210,7 @@ public class StatementAdderOnAssert implements Amplifier {
                 .collect(Collectors.toList());
     }
 
-    protected List<CtLocalVariable> getLocalVarInScope(CtStatement stmt) {
+    private List<CtLocalVariable> getLocalVarInScope(CtStatement stmt) {
         List<CtLocalVariable> vars = new ArrayList<>();
         try {
             CtBlock parentBlock = stmt.getParent(CtBlock.class);
@@ -199,7 +236,7 @@ public class StatementAdderOnAssert implements Amplifier {
         return vars;
     }
 
-    protected boolean isValidCodeFragment(Statement cf) {
+    private boolean isValidCodeFragment(Statement cf) {
         CtCodeElement codeElement = cf.getCtCodeFragment();
 
         if (CtLocalVariable.class.isInstance(codeElement)) {
@@ -209,14 +246,13 @@ public class StatementAdderOnAssert implements Amplifier {
         return false;
     }
 
-    private Map<Statement, Double> buildCodeFragmentFor(CtType cl, Coverage coverage) {
+    private List<Statement> buildCodeFragmentFor(CtType cl) {
         Factory factory = cl.getFactory();
-        Map<Statement, Double> codeFragments = new LinkedHashMap<>();
+        List<Statement> codeFragments = new ArrayList<>();
 
         for (CtMethod<?> mth : (Set<CtMethod>) cl.getMethods()) {
             if (!mth.getModifiers().contains(ModifierKind.ABSTRACT)
                     && !mth.getModifiers().contains(ModifierKind.PRIVATE)) {
-//                    && getCoverageForMethod(coverage, cl, mth) != 1.0) {
 
                 CtExecutableReference executableRef = factory.Executable().createReference(mth);
                 executableRef.setStatic(mth.getModifiers().contains(ModifierKind.STATIC));
@@ -226,15 +262,15 @@ public class StatementAdderOnAssert implements Amplifier {
                         .collect(Collectors.toList()));
                 invocation.setType(mth.getType());
                 Statement stmt = new Statement(invocation);
-                codeFragments.put(stmt, getCoverageForMethod(coverage, cl, mth));
+                codeFragments.add(stmt);
             }
 
         }
         return codeFragments;
     }
 
-    protected CtVariableRead buildVarRef(CtTypeReference type, Factory factory) {
-        CtTypeReference<Object> typeRef = factory.Core().clone(type);
+    private CtVariableRead buildVarRef(CtTypeReference type, Factory factory) {
+        CtTypeReference<Object> typeRef = type.clone();
 
         CtLocalVariable<Object> localVar = factory.Core().createLocalVariable();
         localVar.setType(typeRef);
@@ -248,7 +284,7 @@ public class StatementAdderOnAssert implements Amplifier {
         return varRead;
     }
 
-    protected CtType findClassUnderTest(CtType testClass) {
+    private CtType findClassUnderTest(CtType testClass) {
         String testClassName = testClass.getQualifiedName();
         return AmplificationHelper.computeClassProvider(testClass).stream()
                 .filter(cl -> cl != null)
@@ -257,39 +293,6 @@ public class StatementAdderOnAssert implements Amplifier {
                 .findFirst()
                 .orElse(null);
     }
-
-    protected double getCoverageForMethod(Coverage coverage, CtType cl, CtMethod mth) {
-        if (coverage == null) {
-            return 0d;
-        }
-
-        String key = mth.getDeclaringType().getQualifiedName() + "_"
-                + mth.getType().getQualifiedName() + "_"
-                + mth.getSimpleName() + "("
-                + mth.getParameters().stream()
-                .map(param -> ((CtParameter) param).getType().getQualifiedName())
-                .collect(Collectors.joining(","))
-                + ")";
-
-        if (coverage.getMethodCoverage(key) != null) {
-            return coverage.getMethodCoverage(key).coverage();
-        } else {
-            key = cl.getQualifiedName() + "_"
-                    + mth.getType().getQualifiedName() + "_"
-                    + mth.getSimpleName() + "("
-                    + mth.getParameters().stream()
-                    .map(param -> ((CtParameter) param).getType().getQualifiedName())
-                    .collect(Collectors.joining(","))
-                    + ")";
-            if (coverage.getMethodCoverage(key) != null) {
-                return coverage.getMethodCoverage(key).coverage();
-            } else {
-                return 0d;
-            }
-        }
-    }
-
-    protected int count;
 
     protected CtLocalVariable createLocalVarFromMethodLiterals(CtMethod method, CtTypeReference type) {
         List<CtLiteral> literals = getLiterals(method).stream()
@@ -305,48 +308,11 @@ public class StatementAdderOnAssert implements Amplifier {
         return type.getFactory().Code().createLocalVariable(type, "vc_" + count++, lit);
     }
 
-    protected List<CtLiteral> getLiterals(CtMethod method) {
+    private List<CtLiteral> getLiterals(CtMethod method) {
         if (!literalsByMethod.containsKey(method)) {
-            literalsByMethod.put(method, Query.getElements(method, new TypeFilter<CtLiteral>(CtLiteral.class)));
+            literalsByMethod.put(method, Query.getElements(method, new TypeFilter<>(CtLiteral.class)));
         }
         return literalsByMethod.get(method);
     }
 
-    //TODO Remove dependencies to the Coverage???
-    public void reset(Coverage coverage, CtType testClass) {
-        AmplificationHelper.reset();
-        literalsByMethod = new HashMap<>();
-
-        Set<CtType> codeFragmentsProvide = AmplificationHelper.computeClassProvider(testClass);
-
-        List<Statement> codeFragmentsByClass = codeFragmentsProvide.stream()
-                .flatMap(cl -> {
-                    List<CtStatement> list = Query.getElements(cl, new TypeFilter(CtStatement.class));
-                    return list.stream();
-                })
-                .filter(stmt -> {
-                    try {
-                        return stmt.getParent() != null;
-                    } catch (Exception e) {
-                        return false;
-                    }
-                })
-                .filter(stmt -> stmt.getParent() instanceof CtBlock)
-                .filter(stmt -> !stmt.toString().startsWith("super"))
-                .filter(stmt -> !stmt.toString().startsWith("this("))
-                .map(stmt -> new Statement(stmt))
-                .collect(Collectors.toList());
-
-        if (findClassUnderTest(testClass) != null) {
-            coverageBycodeFragments = buildCodeFragmentFor(findClassUnderTest(testClass), coverage);
-        } else {
-            coverageBycodeFragments = new HashMap<>();
-        }
-
-        Set<Integer> ids = new HashSet<>();
-        localVars = codeFragmentsByClass.stream()
-                .filter(cf -> isValidCodeFragment(cf))
-                .filter(cf -> ids.add(cf.toString().hashCode()))// TODO Warning this usage of HashCode
-                .collect(Collectors.toList());
-    }
 }

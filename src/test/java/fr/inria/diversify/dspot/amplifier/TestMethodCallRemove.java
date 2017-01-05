@@ -1,12 +1,10 @@
-package fr.inria.diversify.dspot.amp;
+package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
-import fr.inria.diversify.util.FileUtils;
 import org.junit.AfterClass;
 import org.junit.Test;
 import fr.inria.diversify.dspot.AmplificationHelper;
-import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
@@ -33,7 +31,7 @@ public class TestMethodCallRemove {
         CtClass<Object> testClass = Utils.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
 
         TestMethodCallRemover methodCallRemove = new TestMethodCallRemover();
-        methodCallRemove.reset(null, null);
+        methodCallRemove.reset(null);
 
         final CtMethod<?> originalMethod = testClass.getMethods().stream().filter(m -> "testAddCall".equals(m.getSimpleName())).findFirst().get();
         List<CtMethod> amplifiedMethods = methodCallRemove.apply(originalMethod);
@@ -58,7 +56,7 @@ public class TestMethodCallRemove {
         AmplificationHelper.setSeedRandom(23L);
 
         TestMethodCallRemover methodCallRemove = new TestMethodCallRemover();
-        methodCallRemove.reset(null, null);
+        methodCallRemove.reset(null);
 
         final CtMethod<?> originalMethod = testClass.getMethods().stream().filter(m -> "testAddCall".equals(m.getSimpleName())).findFirst().get();
         CtMethod amplifiedMethod = methodCallRemove.applyRandom(originalMethod);

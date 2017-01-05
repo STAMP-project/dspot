@@ -1,9 +1,11 @@
-package fr.inria.diversify.dspot;
+package fr.inria.diversify.dspot.selector;
 
+import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.log.LogReader;
 import fr.inria.diversify.log.TestCoverageParser;
 import fr.inria.diversify.log.branch.Coverage;
 import fr.inria.diversify.util.FileUtils;
+import fr.inria.diversify.util.Log;
 import spoon.reflect.declaration.CtMethod;
 
 import java.io.File;
@@ -12,11 +14,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * User: Simon
- * Date: 03/12/15
- * Time: 14:09
+ * Created by Benjamin DANGLOT
+ * benjamin.danglot@inria.fr
+ * on 1/5/17
  */
-public class TestSelector {
+public class BranchCoverageTestSelector implements TestSelector {
 
     private File logDir;
 
@@ -26,19 +28,71 @@ public class TestSelector {
 
     private int maxNumberOfTest;
 
-    public TestSelector(File logDir, int maxNumberOfTest) {
+    private List<CtMethod> oldTests;
+
+    public BranchCoverageTestSelector(File logDir, int maxNumberOfTest) {
         this.logDir = logDir;
         this.maxNumberOfTest = maxNumberOfTest;
+        this.oldTests = new ArrayList<>();
     }
 
-    public void init() throws IOException {
+    @Override
+    public void init() {
         deleteLogFile();
-        testAges = new HashMap<>();
-        branchCoverage = null;
+        this.testAges = new HashMap<>();
+        this.branchCoverage = null;
     }
 
-    public void update() throws IOException {
-        LogReader logReader = new LogReader(logDir.getAbsolutePath());
+    @Override
+    public List<CtMethod> selectToAmplify(List<CtMethod> testsToBeAmplified) {
+        if (this.oldTests.isEmpty()) {
+            this.oldTests.addAll(testsToBeAmplified);
+        }
+        Map<CtMethod, Set<String>> selectedTest = new HashMap<>();
+        for (CtMethod test : testsToBeAmplified) {
+            Set<String> tc = getTestCoverageFor(test);
+            if (!tc.isEmpty()) {
+                Set<String> parentTc = getParentTestCoverageFor(test);
+                if (!parentTc.isEmpty()) {
+                    selectedTest.put(test, new HashSet<>());
+                } else {
+                    if (!parentTc.containsAll(tc)) {
+                        selectedTest.put(test, diff(tc, parentTc));
+                    }
+                }
+            }
+        }
+        List<CtMethod> testMethodsSelected = new ArrayList<>();
+        if (selectedTest.size() > maxNumberOfTest) {
+            testMethodsSelected.addAll(reduceSelectedTest(selectedTest));
+        } else {
+            testMethodsSelected.addAll(selectedTest.keySet());
+        }
+        updateOldMethods();
+        return testMethodsSelected;
+    }
+
+    @Override
+    public List<CtMethod> selectToKeep(List<CtMethod> amplifiedTestToBeKept) {
+        Map<CtMethod, Set<String>> amplifiedTests = new HashMap<>();
+        for (CtMethod test : amplifiedTestToBeKept) {
+            Set<String> tc = getTestCoverageFor(test);
+            Set<String> parentTc = getParentTestCoverageFor(test);
+            if (!tc.isEmpty() && !parentTc.containsAll(tc)) {
+                amplifiedTests.put(test, diff(tc, parentTc));
+            }
+        }
+        return reduceSelectedTest(amplifiedTests);
+    }
+
+    @Override
+    public void update() {
+        LogReader logReader;
+        try {
+            logReader = new LogReader(logDir.getAbsolutePath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         TestCoverageParser coverageParser = new TestCoverageParser();
         logReader.addParser(coverageParser);
         logReader.readLogs();
@@ -59,48 +113,19 @@ public class TestSelector {
         deleteLogFile();
     }
 
-    /**
-     * Tests are selected by the path they cover
-     * If a path is already covered, the old test is replaced by the new one with 0.5 of probability
-     */
-    public List<CtMethod> selectTestToBeAmplified(Collection<CtMethod> oldTests, Collection<CtMethod> testToBeSelected) {
-        Map<CtMethod, Set<String>> selectedTest = new HashMap<>();
-        for (CtMethod test : testToBeSelected) {
-            Set<String> tc = getTestCoverageFor(test);
-            if (!tc.isEmpty()) {
-                Set<String> parentTc = getParentTestCoverageFor(test);
-                if (!parentTc.isEmpty()) {
-                    selectedTest.put(test, new HashSet<>());
-                } else {
-                    if (!parentTc.containsAll(tc)) {
-                        selectedTest.put(test, diff(tc, parentTc));
-                    }
+    private void deleteLogFile() {
+        for (File file : logDir.listFiles()) {
+            if (!file.getName().equals("info")) {
+                try {
+                    FileUtils.forceDelete(file);
+                } catch (IOException e) {
+                    Log.warn("Could not delete {}", file);
                 }
             }
         }
-        List<CtMethod> testMethodsSelected = new ArrayList<>();
-        if (selectedTest.size() > maxNumberOfTest) {
-            testMethodsSelected.addAll(reduceSelectedTest(selectedTest));
-        } else {
-            testMethodsSelected.addAll(selectedTest.keySet());
-        }
-        updateOldMethods(oldTests);
-        return testMethodsSelected;
     }
 
-    public Collection<CtMethod> selectTestAmongAmplifiedTests(Collection<CtMethod> tests) {
-        Map<CtMethod, Set<String>> amplifiedTests = new HashMap<>();
-        for (CtMethod test : tests) {
-            Set<String> tc = getTestCoverageFor(test);
-            Set<String> parentTc = getParentTestCoverageFor(test);
-            if (!tc.isEmpty() && !parentTc.containsAll(tc)) {
-                amplifiedTests.put(test, diff(tc, parentTc));
-            }
-        }
-        return reduceSelectedTest(amplifiedTests);
-    }
-
-    private void updateOldMethods(Collection<CtMethod> oldTests) {
+    private void updateOldMethods() {
         List<CtMethod> oldMethods = new ArrayList<>();
         for (CtMethod test : oldTests) {
             String testName = test.getSimpleName();
@@ -121,7 +146,7 @@ public class TestSelector {
         oldMethods.forEach(method -> testAges.put(method.getSimpleName(), testAges.get(method.getSimpleName()) - 1));
     }
 
-    private Integer getAgesFor(CtMethod test) {
+    private int getAgesFor(CtMethod test) {
         String testName = test.getSimpleName();
         if (testName.contains("_cf")) {
             return 2;
@@ -130,35 +155,6 @@ public class TestSelector {
             return 3;
         }
         return 0;
-    }
-
-    private Collection<CtMethod> reduceSelectedTest(Map<CtMethod, Set<String>> selected) {
-        Map<Set<String>, List<CtMethod>> map = selected.keySet().stream()
-                .collect(Collectors.groupingBy(mth -> selected.get(mth)));
-
-        List<Set<String>> sortedKey = map.keySet().stream()
-                .sorted((l1, l2) -> Integer.compare(l2.size(), l1.size()))
-                .collect(Collectors.toList());
-
-        List<CtMethod> methods = new ArrayList<>();
-        while (!sortedKey.isEmpty()) {
-            Set<String> key = new HashSet<>(sortedKey.remove(0));
-
-            if (map.containsKey(key)) {
-                methods.add(map.get(key).stream().findAny().get());
-            }
-            sortedKey = sortedKey.stream()
-                    .map(k -> {
-                        k.removeAll(key);
-                        return k;
-                    })
-                    .filter(k -> !k.isEmpty())
-                    .sorted((l1, l2) -> Integer.compare(l2.size(), l1.size()))
-                    .collect(Collectors.toList());
-
-            map.keySet().forEach(set -> set.removeAll(key));
-        }
-        return methods;
     }
 
     private Set<String> getTestCoverageFor(CtMethod ampTest) {
@@ -189,14 +185,6 @@ public class TestSelector {
         return set;
     }
 
-    private void deleteLogFile() throws IOException {
-        for (File file : logDir.listFiles()) {
-            if (!file.getName().equals("info")) {
-                FileUtils.forceDelete(file);
-            }
-        }
-    }
-
     private Set<String> diff(Set<String> set1, Set<String> set2) {
         Set<String> diff = set2.stream()
                 .filter(branch -> !branch.contains(branch))
@@ -207,15 +195,33 @@ public class TestSelector {
         return diff;
     }
 
-    Coverage getGlobalCoverage() {
-        Coverage coverage = new Coverage("global");
-        for (Coverage tc : branchCoverage) {
-            coverage.merge(tc);
+    private List<CtMethod> reduceSelectedTest(Map<CtMethod, Set<String>> selected) {
+        Map<Set<String>, List<CtMethod>> map = selected.keySet().stream()
+                .collect(Collectors.groupingBy(mth -> selected.get(mth)));
+
+        List<Set<String>> sortedKey = map.keySet().stream()
+                .sorted((l1, l2) -> Integer.compare(l2.size(), l1.size()))
+                .collect(Collectors.toList());
+
+        List<CtMethod> methods = new ArrayList<>();
+        while (!sortedKey.isEmpty()) {
+            Set<String> key = new HashSet<>(sortedKey.remove(0));
+
+            if (map.containsKey(key)) {
+                methods.add(map.get(key).stream().findAny().get());
+            }
+            sortedKey = sortedKey.stream()
+                    .map(k -> {
+                        k.removeAll(key);
+                        return k;
+                    })
+                    .filter(k -> !k.isEmpty())
+                    .sorted((l1, l2) -> Integer.compare(l2.size(), l1.size()))
+                    .collect(Collectors.toList());
+
+            map.keySet().forEach(set -> set.removeAll(key));
         }
-        return coverage;
+        return methods;
     }
 
-    public List<Coverage> getCoverage() {
-        return branchCoverage;
-    }
 }

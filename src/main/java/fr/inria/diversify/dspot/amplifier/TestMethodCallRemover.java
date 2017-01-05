@@ -1,8 +1,7 @@
-package fr.inria.diversify.dspot.amp;
+package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.dspot.AmplificationHelper;
-import fr.inria.diversify.log.branch.Coverage;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -15,19 +14,6 @@ import java.util.List;
 
 public class TestMethodCallRemover implements Amplifier {
 
-	protected boolean toRemove(CtInvocation invocation) {
-		return invocation.getParent() instanceof CtBlock
-				&& invocation.getParent(CtTry.class) == null;
-	}
-
-	protected boolean inWhileLoop(CtStatement stmt) {
-		return stmt.getParent(CtWhile.class) != null;
-	}
-
-	protected boolean containsIteratorNext(CtStatement stmt) {
-		return stmt.toString().contains(".next()");
-	}
-
     public List<CtMethod> apply(CtMethod method) {
         List<CtMethod> methods = new ArrayList<>();
 
@@ -36,15 +22,17 @@ public class TestMethodCallRemover implements Amplifier {
             List<CtInvocation> invocations = Query.getElements(method, new TypeFilter(CtInvocation.class));
             //this index serves to replace ith literal is replaced by zero in the ith clone of the method
             int invocation_index = 0;
-            for(CtInvocation invocation : invocations){
-                try{
-                    if(toRemove(invocation)
+            for (CtInvocation invocation : invocations) {
+                try {
+                    if (toRemove(invocation)
                             && !AmplificationChecker.isAssert(invocation)
                             && !inWhileLoop(invocation)
                             && !containsIteratorNext(invocation)) {
-                     methods.add(apply(method, invocation_index));
+                        methods.add(apply(method, invocation_index));
                     }
-                } catch(Exception e){}
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
                 invocation_index++;
             }
         }
@@ -54,31 +42,45 @@ public class TestMethodCallRemover implements Amplifier {
     public CtMethod applyRandom(CtMethod method) {
         if (method.getDeclaringType() != null) {
             List<CtInvocation> invocations = Query.getElements(method, new TypeFilter(CtInvocation.class));
-
-            while(!invocations.isEmpty()) {
+            if (!invocations.isEmpty()) {
                 try {
                     int invocation_index = AmplificationHelper.getRandom().nextInt(invocations.size());
                     return apply(method, invocation_index);
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
         return null;
     }
 
     @Override
-    public void reset(Coverage coverage, CtType testClass) {
+    public void reset(CtType testClass) {
         AmplificationHelper.reset();
     }
 
-    protected CtMethod apply(CtMethod method, int invocation_index) {
+    private CtMethod apply(CtMethod method, int invocation_index) {
         //clone the method
         CtMethod cloned_method = AmplificationHelper.cloneMethodTest(method, "_remove", 1000);
 
-            //get the lit_indexth literal of the cloned method
-            CtInvocation stmt = Query.getElements(cloned_method, new TypeFilter<CtInvocation>(CtInvocation.class)).get(invocation_index);
-            CtBlock b = ((CtBlock) stmt.getParent());
-            b.removeStatement(stmt);
+        //get the lit_indexth literal of the cloned method
+        CtInvocation stmt = Query.getElements(cloned_method, new TypeFilter<CtInvocation>(CtInvocation.class)).get(invocation_index);
+        CtBlock b = ((CtBlock) stmt.getParent());
+        b.removeStatement(stmt);
 
-            return cloned_method;
+        return cloned_method;
+    }
+
+    private boolean toRemove(CtInvocation invocation) {
+        return invocation.getParent() instanceof CtBlock
+                && invocation.getParent(CtTry.class) == null;
+    }
+
+    private boolean inWhileLoop(CtStatement stmt) {
+        return stmt.getParent(CtWhile.class) != null;
+    }
+
+    private boolean containsIteratorNext(CtStatement stmt) {
+        return stmt.toString().contains(".next()");
     }
 }
