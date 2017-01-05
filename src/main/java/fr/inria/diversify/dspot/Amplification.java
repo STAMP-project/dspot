@@ -123,7 +123,6 @@ public class Amplification {
             Log.debug("{} tests selected to be amplified over {} available tests", testToBeAmplified.size(), newTests.size());
 
             newTests = reduce(amplifyTests(testToBeAmplified));
-            Log.debug("{} new tests generated", newTests.size());
 
             List<CtMethod> testWithAssertions = assertGenerator.generateAsserts(classTest, newTests, AmplificationHelper.getAmpTestToParent());
             if (testWithAssertions.isEmpty()) {
@@ -131,7 +130,6 @@ public class Amplification {
             } else {
                 newTests = testWithAssertions;
             }
-            Log.debug("{} new tests with assertions generated", newTests.size());
 
             CtType classWithLogger = classWithLoggerBuilder.buildClassWithLogger(classTest, newTests);
             boolean status = writeAndCompile(classWithLogger);
@@ -139,7 +137,6 @@ public class Amplification {
                 break;
             }
 
-            Log.debug("run tests");
             JunitResult result = runTests(classWithLogger, newTests);
             if (result == null) {
                 continue;
@@ -150,6 +147,7 @@ public class Amplification {
             testSelector.update();
 
             newTests = AmplificationHelper.filterTest(newTests, result);
+            Log.debug("{} test method(s) has been successfully generated", newTests.size());
             amplifiedTests.addAll(testSelector.selectTestAmongAmplifiedTests(newTests));
             ampTests.addAll(newTests);
         }
@@ -157,10 +155,12 @@ public class Amplification {
     }
 
     private List<CtMethod> amplifyTests(Collection<CtMethod> tests) {
-        return tests.stream()
+        List<CtMethod> amplifiedTests = tests.stream()
                 .flatMap(test -> amplifyTest(test).stream())
                 .filter(test -> test != null && !test.getBody().getStatements().isEmpty())
                 .collect(Collectors.toList());
+        Log.debug("{} new tests generated", amplifiedTests.size());
+        return amplifiedTests;
     }
 
     private List<CtMethod> amplifyTest(CtMethod test) {
@@ -204,6 +204,7 @@ public class Amplification {
     }
 
     private JunitResult runTests(CtType testClass, Collection<CtMethod> tests) throws ClassNotFoundException {
+        Log.debug("run test class: {}", testClass.getQualifiedName());
         ClassLoader classLoader = new DiversifyClassLoader(applicationClassLoader, compiler.getBinaryOutputDirectory().getAbsolutePath());
         JunitRunner junitRunner = new JunitRunner(classLoader);
         Logger.reset();

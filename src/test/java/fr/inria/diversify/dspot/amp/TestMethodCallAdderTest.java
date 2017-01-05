@@ -66,7 +66,8 @@ public class TestMethodCallAdderTest extends AbstractTest {
         methodCallAdder.reset(null, null);
 
         final CtMethod<?> originalMethod = testClass.getMethods().stream().filter(m -> "testAddCall".equals(m.getSimpleName())).findFirst().get();
-        CtMethod amplifiedMethod = methodCallAdder.applyRandom(originalMethod);
+        CtMethod amplifiedMethod = originalMethod.clone();
+        amplifiedMethod = methodCallAdder.applyRandom(originalMethod);
 
         assertEquals(originalMethod.getBody().getStatements().size() + 1, amplifiedMethod.getBody().getStatements().size());
         CtStatement expectedStatement = originalMethod.getBody().getStatements().get(2);
@@ -87,6 +88,7 @@ public class TestMethodCallAdderTest extends AbstractTest {
         assertEquals(expectedStatement, amplifiedMethod.getBody().getStatements().get(2));
 
         // stack random amplification
+        amplifiedMethod.setParent(originalMethod.getParent());
         CtMethod stackedAmplifiedMethod = methodCallAdder.applyRandom(amplifiedMethod);
         assertEquals(amplifiedMethod.getBody().getStatements().size() + 1, stackedAmplifiedMethod.getBody().getStatements().size());
         assertEquals(originalMethod.getBody().getStatements().size() + 2, stackedAmplifiedMethod.getBody().getStatements().size());

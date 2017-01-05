@@ -37,7 +37,7 @@ public class DSpotTest {
         DSpot dspot = new DSpot(configuration);
 
         CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample");
-        assertEquals(20, amplifiedTest.getMethods().size());
+        assertEquals(28, amplifiedTest.getMethods().size());
         assertEquals(originalTestBody, amplifiedTest.getMethod("test1").getBody().toString());
         assertEquals(expectedAmplifiedBody, amplifiedTest.getMethod("test1_cf24").getBody().toString());
     }

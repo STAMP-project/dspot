@@ -51,7 +51,7 @@ public class AssertGenerator {
                 amplifiedTestWithAssertion.add(ampTest);
             }
         }
-        Log.debug("{} test method(s) has been successfully generated", amplifiedTestWithAssertion.size());
+        Log.debug("{} new tests with assertions generated", amplifiedTestWithAssertion.size());
         return amplifiedTestWithAssertion;
     }
 

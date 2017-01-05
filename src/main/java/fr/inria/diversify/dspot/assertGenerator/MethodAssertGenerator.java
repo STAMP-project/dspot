@@ -34,12 +34,12 @@ import java.util.stream.Collectors;
  */
 public class MethodAssertGenerator {
 
-    protected ClassLoader assertGeneratorClassLoader;
     protected CtMethod test;
-    protected CtType originalClass;
-    protected DSpotCompiler compiler;
-    protected InputProgram inputProgram;
-    protected List<Integer> statementsIndexToAssert;
+    private ClassLoader assertGeneratorClassLoader;
+    private CtType originalClass;
+    private DSpotCompiler compiler;
+    private InputProgram inputProgram;
+    private List<Integer> statementsIndexToAssert;
 
     public MethodAssertGenerator(CtType originalClass, InputProgram inputProgram, DSpotCompiler compiler, ClassLoader applicationClassLoader) throws IOException {
         this.originalClass = originalClass;
@@ -50,7 +50,7 @@ public class MethodAssertGenerator {
         statementsIndexToAssert = new ArrayList<>();
     }
 
-    protected CtMethod generateAssert(CtMethod test) throws IOException, ClassNotFoundException {
+    public CtMethod generateAssert(CtMethod test) throws IOException, ClassNotFoundException {
         this.test = test;
         this.test = createTestWithoutAssert(new ArrayList<>(), false);
         this.test.setParent(test.getParent());
@@ -64,7 +64,7 @@ public class MethodAssertGenerator {
         return newTest;
     }
 
-    protected CtMethod  generateAssert(CtMethod test, List<Integer> statementsIndexToAssert) throws IOException, ClassNotFoundException {
+    public CtMethod generateAssert(CtMethod test, List<Integer> statementsIndexToAssert) throws IOException, ClassNotFoundException {
         this.test = test;
         this.statementsIndexToAssert = statementsIndexToAssert;
         CtMethod newTest = generateAssert();
@@ -74,7 +74,7 @@ public class MethodAssertGenerator {
         return newTest;
     }
 
-    protected CtMethod generateAssert() throws IOException, ClassNotFoundException {
+    private CtMethod generateAssert() throws IOException, ClassNotFoundException {
         List<CtMethod> testsToRun = new ArrayList<>();
         CtType classTest = initTestClass();
 
@@ -148,16 +148,16 @@ public class MethodAssertGenerator {
         return testWithoutAssert;
     }
 
-    protected CtMethod buildNewAssert() throws IOException, ClassNotFoundException {
+    private CtMethod buildNewAssert() throws IOException, ClassNotFoundException {
         CtType cl = initTestClass();
         List<CtMethod> testsToRun = new ArrayList<>();
+
 
         for(int i = 0; i < 3; i++) {
                 CtMethod testWithLog = createTestWithLog();
                 testWithLog.setSimpleName(testWithLog.getSimpleName() + i);
                 cl.addMethod(testWithLog);
                 testsToRun.add(testWithLog);
-//                cl.addMethod(testWithLog);
         }
 
         ObjectLog.reset();
@@ -166,8 +166,9 @@ public class MethodAssertGenerator {
         return buildTestWithAssert(ObjectLog.getObservations());
     }
 
-    protected CtMethod buildTestWithAssert(Map<String, Observation> observations) {
+    private CtMethod buildTestWithAssert(Map<String, Observation> observations) {
         CtMethod testWithAssert = test.clone();
+//        testWithAssert.setParent(test.getParent());
         // add throws
         List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter(CtStatement.class));
         for(String id : observations.keySet()) {
@@ -199,7 +200,7 @@ public class MethodAssertGenerator {
         return testWithAssert;
     }
 
-    protected boolean isCorrect(CtMethod test) throws IOException, ClassNotFoundException {
+    private boolean isCorrect(CtMethod test) throws IOException, ClassNotFoundException {
         JunitResult result = runSingleTest(test);
         return result != null && result.getFailures().isEmpty();
     }
@@ -213,7 +214,7 @@ public class MethodAssertGenerator {
         return test;
     }
 
-    protected List<Integer> findGoodAssert() throws IOException, ClassNotFoundException {
+    private List<Integer> findGoodAssert() throws IOException, ClassNotFoundException {
         int stmtIndex = 0;
         List<CtMethod> testsToRun = new ArrayList<>();
         List<Integer> assertIndex = new ArrayList<>();
@@ -254,11 +255,11 @@ public class MethodAssertGenerator {
                 .orElse(null);
     }
 
-    protected boolean testFailed(String methodName, JunitResult result) {
+    private boolean testFailed(String methodName, JunitResult result) {
         return getFailure(methodName, result) != null;
     }
 
-    protected JunitResult runTests(CtType testClass, List<CtMethod> testsToRun) throws ClassNotFoundException {
+    private JunitResult runTests(CtType testClass, List<CtMethod> testsToRun) throws ClassNotFoundException {
         DiversifyClassLoader diversifyClassLoader = new DiversifyClassLoader(assertGeneratorClassLoader, compiler.getBinaryOutputDirectory().getAbsolutePath());
         if(!writeAndCompile(testClass)) {
             return null;
@@ -274,29 +275,25 @@ public class MethodAssertGenerator {
         junitRunner.setMethodTimeOut(10);
         JunitResult result = junitRunner.runTestClasses(ClassName, testsToRun.stream().map(test -> test.getSimpleName()).collect(Collectors.toList()));
         System.setProperty("user.dir", currentUserDir);
-
         return result;
     }
 
     protected JunitResult runSingleTest(CtMethod test) throws ClassNotFoundException, IOException {
-        List<CtMethod>testsToRun = new ArrayList<>();
-        CtType newClass = initTestClass();
-
-        CtMethod cloneTest = getFactory().Core().clone(test);
-        newClass.addMethod(cloneTest);
-        testsToRun.add(cloneTest);
-
-        return runTests(newClass, testsToRun);
+        CtType cloneClass = initTestClass();
+        CtMethod cloneTest = test.clone();
+        cloneClass.addMethod(cloneTest);
+        return runTests(cloneClass, Collections.singletonList(cloneTest));
     }
 
     //todo refactor
-    protected boolean writeAndCompile(CtType cl) {
+    private boolean writeAndCompile(CtType cl) {
         try {
             //TODO Ugly try-catch block but no time to waste.
             try {
                 FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
                 FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
             } catch (FileNotFoundException | IllegalArgumentException ignored) {
+                Log.warn("error during cleaning output directories");
                 //ignored
             }
             copyLoggerFile();
@@ -308,13 +305,13 @@ public class MethodAssertGenerator {
         }
     }
 
-    protected CtType initTestClass() {
+    private CtType initTestClass() {
         CtType clone = originalClass.clone();
         clone.setParent(originalClass.getParent());
         return clone;
     }
 
-    protected CtMethod createTestWithLog() {
+    private CtMethod createTestWithLog() {
         CtMethod newTest = test.clone();
         newTest.setSimpleName(test.getSimpleName() + "_withlog");
         List<CtStatement> stmts = Query.getElements(newTest, new TypeFilter(CtStatement.class));
@@ -327,7 +324,7 @@ public class MethodAssertGenerator {
         return newTest;
     }
 
-    protected boolean isStmtToLog(CtStatement statement) {
+    private boolean isStmtToLog(CtStatement statement) {
         if(!(statement.getParent() instanceof CtBlock)) {
             return false;
         }
@@ -348,11 +345,11 @@ public class MethodAssertGenerator {
                 || statement instanceof CtLocalVariable;
     }
 
-    protected boolean isVoidReturn(CtInvocation invocation) {
+    private boolean isVoidReturn(CtInvocation invocation) {
         return invocation.getType() != null && (invocation.getType().getSimpleName().equals("Void") || invocation.getType().getSimpleName().equals("void"));
     }
 
-    protected void addLogStmt(CtStatement stmt, String id, boolean forAssert) {
+    private void addLogStmt(CtStatement stmt, String id, boolean forAssert) {
         String snippet;
         if(forAssert) {
             snippet = "fr.inria.diversify.compare.ObjectLog.log(";
@@ -444,7 +441,7 @@ public class MethodAssertGenerator {
         }
     }
 
-    protected void updateStatementsIndexToAssert(int stmtIndex, int update) {
+    private void updateStatementsIndexToAssert(int stmtIndex, int update) {
         if(update != 0) {
             List<Integer> newList = new ArrayList<>(statementsIndexToAssert.size());
             for (Integer index : statementsIndexToAssert) {
@@ -458,7 +455,7 @@ public class MethodAssertGenerator {
         }
     }
 
-    protected CtBlock buildRemoveAssertBlock(CtInvocation assertInvocation, int blockId) {
+    private CtBlock buildRemoveAssertBlock(CtInvocation assertInvocation, int blockId) {
         CtBlock block = getFactory().Core().createBlock();
 
         int[] idx = { 0 };
@@ -471,14 +468,14 @@ public class MethodAssertGenerator {
         return block;
     }
 
-    protected List<CtExpression> getNotLiteralArgs(CtInvocation invocation) {
+    private List<CtExpression> getNotLiteralArgs(CtInvocation invocation) {
         List<CtExpression> args = invocation.getArguments();
         return args.stream()
                 .filter(arg -> !(arg instanceof CtLiteral))
                 .collect(Collectors.toList());
     }
 
-    protected CtLocalVariable<Object> buildVarStatement(CtExpression arg, String id) {
+    private CtLocalVariable<Object> buildVarStatement(CtExpression arg, String id) {
         CtTypeReference<Object> objectType = getFactory().Core().createTypeReference();
         objectType.setSimpleName("Object");
         CtLocalVariable<Object> localVar = getFactory().Code().createLocalVariable(objectType, "o_" + id, arg);
@@ -486,11 +483,11 @@ public class MethodAssertGenerator {
         return localVar;
     }
 
-    protected Factory getFactory() {
+    private Factory getFactory() {
         return test.getFactory();
     }
 
-    protected boolean isAssert(CtStatement statement) {
+    private boolean isAssert(CtStatement statement) {
         if(statement instanceof CtInvocation) {
             CtInvocation invocation = (CtInvocation) statement;
             try {
@@ -499,7 +496,6 @@ public class MethodAssertGenerator {
                         || signature.contains("assertFalse")
                         || signature.contains("assertSame")
                         || signature.contains("assertEquals"));
-//                    && isAssertInstance(cl);
             } catch (Exception e) {
                 return false;
             }
@@ -507,17 +503,7 @@ public class MethodAssertGenerator {
         return false;
     }
 
-    protected boolean isAssertInstance(Class cl) {
-        if (cl.equals(org.junit.Assert.class) || cl.equals(junit.framework.Assert.class))
-            return true;
-        Class superCl = cl.getSuperclass();
-        if(superCl != null) {
-            return isAssertInstance(superCl);
-        }
-        return false;
-    }
-
-    protected void copyLoggerFile() throws IOException {
+    private void copyLoggerFile() throws IOException {
         String comparePackage = ObjectLog.class.getPackage().getName().replace(".", "/");
         File srcDir = new File(System.getProperty("user.dir") + "/src/main/java/" + comparePackage);
 
