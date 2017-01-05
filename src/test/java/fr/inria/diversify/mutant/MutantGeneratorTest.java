@@ -7,6 +7,7 @@ import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.amp.Amplifier;
 import fr.inria.diversify.dspot.amp.TestDataMutator;
 import fr.inria.diversify.runner.InputConfiguration;
+import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -64,7 +65,7 @@ public class MutantGeneratorTest {
         MutantRunResults mutantResultsWithAmplifiedTests = mutantGenerator.runTestsOnAliveMutant(new InputConfiguration(pathToPropertiesFile));
         assertTrue(mutantsNotKilled.size() > mutantResultsWithAmplifiedTests.getRemainsAliveMutant().size());
         assertEquals(mutantsNotKilled.size(), mutantResultsWithAmplifiedTests.getRemainsAliveMutant().size() +
-            mutantResultsWithAmplifiedTests.getKilledMutants().size());
+                mutantResultsWithAmplifiedTests.getKilledMutants().size());
 
         PrintClassUtils.printJavaFile(outputDirectory, exampleOriginalTestClass);
     }
@@ -94,17 +95,22 @@ public class MutantGeneratorTest {
             //ignored
         }
         final String mavenHome = Utils.buildMavenHome();
-        if (mavenHome != null) {
-            try(FileWriter writer = new FileWriter(pathToPropertiesFile, true)) {
-                writer.write(nl + "maven.home=" + mavenHome + nl);
-            } catch (IOException ignored) {
-                //ignored
-            }
+        Log.debug("Maven Home: {}", mavenHome);
+        try (FileWriter writer = new FileWriter(pathToPropertiesFile, true)) {
+            writer.write(nl + "maven.home=" + mavenHome + nl);
+        } catch (IOException ignored) {
+            throw new RuntimeException(ignored);
+            //ignored
+        }
+        try (BufferedReader buffer = new BufferedReader(new FileReader(pathToPropertiesFile))) {
+            System.out.println(buffer.lines().collect(Collectors.joining(nl)));
+        } catch (IOException ignored) {
+            //ignored
         }
     }
 
     private void removeHomFromPropertiesFile() {
-        try(FileWriter writer = new FileWriter(pathToPropertiesFile, false)) {
+        try (FileWriter writer = new FileWriter(pathToPropertiesFile, false)) {
             writer.write(originalProperties);
         } catch (IOException ignored) {
             //ignored

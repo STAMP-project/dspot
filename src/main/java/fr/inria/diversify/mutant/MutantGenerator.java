@@ -234,6 +234,7 @@ public class MutantGenerator {
     private void compileClasses() throws InterruptedException, IOException {
         String[] phases = new String[]{"clean", "test-compile"};
         MavenBuilder builder = new MavenBuilder(inputProgram.getProgramDir());
+        builder.setBuilderPath(inputConfiguration.getProperty("maven.home", null));
         builder.setGoals(phases);
         builder.initTimeOut();
     }
