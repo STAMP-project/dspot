@@ -67,10 +67,10 @@ src=src/main/java/
 testSrc=src/test/java
 #java version used
 javaVersion=8
-#filter used to amplify specific test cases
-filter=example
-#path to the output folder
+# (optional) path to the output folder, default to "output_diversify"
 result=dspot-out/
+# (optional) filter on the package name containing tests to be amplified ("example" => "example.*"
+filter=example
 ```
 
 ### Running on your own project
