@@ -87,7 +87,9 @@ public class DSpot {
     }
 
     public CtType amplifyTest(String fullName) throws InterruptedException, IOException, ClassNotFoundException {
-        return amplifyTest(inputProgram.getFactory().Type().get(fullName));
+        CtType<Object> clone = inputProgram.getFactory().Type().get(fullName).clone();
+        clone.setParent(inputProgram.getFactory().Type().get(fullName).getParent());
+        return amplifyTest(clone);
     }
 
     public CtType amplifyTest(CtType test) {
