@@ -56,7 +56,7 @@ public class AssertGenerator {
     }
 
     private List<Integer> findStatementToAssert(CtMethod test, Map<CtMethod, CtMethod> parentTest) {
-        if(!parentTest.isEmpty() && parentTest.get(test) != null) {
+        if(parentTest != null && !parentTest.isEmpty() && parentTest.get(test) != null) {
             CtMethod parent = parentTest.get(test);
             while (parentTest.get(parent) != null) {
                 parent = parentTest.get(parent);
