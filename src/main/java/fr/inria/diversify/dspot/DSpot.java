@@ -34,6 +34,7 @@ public class DSpot {
         return compiler;
     }
 
+    private InputConfiguration inputConfiguration;
     private DSpotCompiler compiler;
     private InputProgram inputProgram;
     private DiversifyClassLoader applicationClassLoader;
@@ -63,6 +64,7 @@ public class DSpot {
         this.amplifiers.add(new TestMethodCallRemover());
         this.amplifiers.add(new StatementAdderOnAssert());
         this.testSelector = new BranchCoverageTestSelector(new File(inputProgram.getProgramDir() + "/log"), 10);
+        this.inputConfiguration = inputConfiguration;
     }
 
     public DSpot(InputConfiguration configuration, int numberOfIterations) throws InvalidSdkException, Exception {
@@ -103,7 +105,7 @@ public class DSpot {
     public CtType amplifyTest(CtType test) {
         try {
             File logDir = new File(inputProgram.getProgramDir() + "/log");
-            Amplification testAmplification = new Amplification(inputProgram, compiler, applicationClassLoader, this.amplifiers, this.testSelector, logDir);
+            Amplification testAmplification = new Amplification(inputProgram, this.inputConfiguration, compiler, applicationClassLoader, this.amplifiers, this.testSelector, logDir);
             return testAmplification.amplification(test, numberOfIterations);
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
             throw new RuntimeException(e);
