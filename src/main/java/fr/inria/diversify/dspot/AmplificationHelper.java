@@ -14,6 +14,8 @@ import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Created by Benjamin DANGLOT
@@ -139,5 +141,18 @@ public class AmplificationHelper {
         return newTests.stream()
                 .filter(test -> goodTests.contains(test.getSimpleName()))
                 .collect(Collectors.toList());
+    }
+
+    public static String getRandomString(int length) {
+        return IntStream.range(0, length)
+                .map(i -> getRandomChar())
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
+    }
+
+    public static char getRandomChar() {
+        int value = getRandom().nextInt(94) + 32;
+        char c = (char) ((value == 34 || value == 39) ? value + (getRandom().nextBoolean() ? 1 : -1) : value);
+        return c;//excluding " and '
     }
 }

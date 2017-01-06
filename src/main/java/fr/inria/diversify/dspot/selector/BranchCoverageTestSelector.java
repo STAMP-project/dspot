@@ -4,6 +4,7 @@ import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.log.LogReader;
 import fr.inria.diversify.log.TestCoverageParser;
 import fr.inria.diversify.log.branch.Coverage;
+import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
 import spoon.reflect.declaration.CtMethod;
@@ -30,17 +31,22 @@ public class BranchCoverageTestSelector implements TestSelector {
 
     private List<CtMethod> oldTests;
 
-    public BranchCoverageTestSelector(File logDir, int maxNumberOfTest) {
-        this.logDir = logDir;
+    public BranchCoverageTestSelector(int maxNumberOfTest) {
         this.maxNumberOfTest = maxNumberOfTest;
         this.oldTests = new ArrayList<>();
     }
 
     @Override
-    public void init() {
+    public void init(InputConfiguration configuration) {
+        this.logDir = new File(configuration.getInputProgram().getProgramDir() + "/log");
+    }
+
+    @Override
+    public void reset() {
         deleteLogFile();
         this.testAges = new HashMap<>();
         this.branchCoverage = null;
+        this.oldTests.clear();
     }
 
     @Override
@@ -222,6 +228,11 @@ public class BranchCoverageTestSelector implements TestSelector {
             map.keySet().forEach(set -> set.removeAll(key));
         }
         return methods;
+    }
+
+    @Override
+    public void report() {
+        //TODO
     }
 
 }

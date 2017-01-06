@@ -12,6 +12,8 @@ import spoon.reflect.reference.CtExecutableReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * User: Simon
@@ -19,6 +21,9 @@ import java.util.Set;
  * Time: 15:05
  */
 public class ValueType {
+
+    private static final int SIZE_MAX_STRING = 20;
+
     protected static Factory factory;
     protected static ValueFactory valueFactory;
     protected String dynamicType;
@@ -67,43 +72,41 @@ public class ValueType {
     }
 
 
-    //TODO
+    //TODO Refactor this
     protected Value generateRandomValue() {
-//        if(dynamicType.equals("null")) {
-//        }
         Class<?> type = null;
         try {
             type = Class.forName(dynamicType);
-        } catch (ClassNotFoundException e) {
-//            e.printStackTrace();
+        } catch (ClassNotFoundException ignored) {
+
         }
         Object primitiveValue = null;
-        if(type == Boolean.class) {
+        if(type == Boolean.class || dynamicType.equals("boolean")) {
             primitiveValue = AmplificationHelper.getRandom().nextBoolean();
         }
-        if(type == Character.class) {
+        if(type == Character.class || dynamicType.equals("char")) {
             primitiveValue = '1';
         }
-        if(type == Byte.class) {
-//            value = '1';
+        if(type == Byte.class || dynamicType.equals("char")) {
+            primitiveValue = (byte) AmplificationHelper.getRandom().nextInt(100);
         }
-        if(type == Short.class) {
+        if(type == Short.class || dynamicType.equals("short")) {
             primitiveValue = (short) AmplificationHelper.getRandom().nextInt(100);
         }
-        if(type == Integer.class || type == int.class) {
+        if(type == Integer.class || dynamicType.equals("int") || type == int.class) {
             primitiveValue = AmplificationHelper.getRandom().nextInt(100);
         }
-        if(type == Long.class) {
+        if(type == Long.class || dynamicType.equals("long")) {
             primitiveValue = (long) AmplificationHelper.getRandom().nextInt(100);
         }
-        if(type == Float.class) {
+        if(type == Float.class || dynamicType.equals("float")) {
             primitiveValue = (float) AmplificationHelper.getRandom().nextDouble();
         }
-        if(type == Double.class) {
+        if(type == Double.class || dynamicType.equals("double")) {
             primitiveValue = AmplificationHelper.getRandom().nextDouble();
         }
         if(type == String.class) {
-            primitiveValue = "foo";
+            primitiveValue = AmplificationHelper.getRandomString(SIZE_MAX_STRING);
         }
 
         if(primitiveValue != null) {
@@ -172,7 +175,7 @@ public class ValueType {
                     return exeRef;
                 }
             } else {
-                Class type = Class.forName(dynamicType);
+//                Class type = Class.forName(dynamicType);
 //                factory.Executable().createReference("gc")
                 return null;
             }

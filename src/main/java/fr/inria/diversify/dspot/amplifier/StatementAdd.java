@@ -4,6 +4,7 @@ package fr.inria.diversify.dspot.amplifier;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.value.Value;
 import fr.inria.diversify.dspot.value.ValueFactory;
+import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.utils.CtTypeUtils;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
@@ -30,6 +31,21 @@ public class StatementAdd implements Amplifier {
     private Factory factory;
     private final int[] count = {0};
 
+    @Deprecated //The fact that StatementAdd Amplifier need the input program is a conception issue IMHO
+    public StatementAdd(InputProgram program) {
+        this.valueFactory = new ValueFactory(program);
+        this.factory = program.getFactory();
+        this.filter = "";
+        this.hasConstructor = new HashMap<>();
+    }
+
+    public StatementAdd(InputProgram program, String filter) {
+        this.valueFactory = new ValueFactory(program);
+        this.factory = program.getFactory();
+        this.filter = filter;
+        this.hasConstructor = new HashMap<>();
+    }
+
     public StatementAdd(Factory factory, ValueFactory valueFactory, String filter) {
         this.valueFactory = valueFactory;
         this.factory = factory;
@@ -43,7 +59,8 @@ public class StatementAdd implements Amplifier {
         count[0] = 0;
         List<CtInvocation> invocations = getInvocation(method);
         final List<CtMethod> ampMethods = invocations.stream()
-                .filter(invocation -> !((CtMethod) invocation.getExecutable().getDeclaration()).getModifiers().contains(ModifierKind.STATIC))
+                .filter(invocation -> invocation.getExecutable().getDeclaration() != null &&
+                        !((CtMethod) invocation.getExecutable().getDeclaration()).getModifiers().contains(ModifierKind.STATIC))
                 .flatMap(invocation ->
                         findMethodsWithTargetType(invocation.getTarget().getType()).stream()
                                 .map(addMth -> addInvocation(method, addMth, invocation.getTarget(), invocation, AmplificationHelper.getRandom().nextBoolean()))
@@ -96,13 +113,13 @@ public class StatementAdd implements Amplifier {
 
         List<CtParameter> parameters = mthToAdd.getParameters();
         List<CtExpression<?>> arg = new ArrayList<>(parameters.size());
-        for(int i = 0; i < parameters.size(); i++) {
+        for (int i = 0; i < parameters.size(); i++) {
             try {
                 CtParameter parameter = parameters.get(i);
                 Value value = valueFactory.getValueType(parameter.getType()).getRandomValue(true);
                 CtLocalVariable localVar = factory.Code().createLocalVariable(
-                        generateStaticType(parameter.getType(),value.getDynamicType()),
-                        parameter.getSimpleName()+ "_" + count[0]++,
+                        generateStaticType(parameter.getType(), value.getDynamicType()),
+                        parameter.getSimpleName() + "_" + count[0]++,
                         null);
                 body.getStatements().add(0, localVar);
                 localVar.setParent(body);
@@ -117,7 +134,7 @@ public class StatementAdd implements Amplifier {
         CtInvocation newInvocation = factory.Code().createInvocation(targetClone, mthToAdd.getReference(), arg);
 
         CtStatement stmt = findInvocationIn(methodClone, position);
-        if(before) {
+        if (before) {
             stmt.insertBefore(newInvocation);
         } else {
             stmt.insertAfter(newInvocation);
@@ -144,7 +161,7 @@ public class StatementAdd implements Amplifier {
         CtTypeReference type = factory.Core().clone(parameterType);
         type.getActualTypeArguments().clear();
 
-        if((dynamicTypeName.contains("<") || dynamicTypeName.contains(">"))
+        if ((dynamicTypeName.contains("<") || dynamicTypeName.contains(">"))
                 && !(dynamicTypeName.contains("<null") || dynamicTypeName.contains("null>"))) {
 
             String[] genericTypes = dynamicTypeName.substring(dynamicTypeName.indexOf("<") + 1, dynamicTypeName.length() - 1).split(", ");
@@ -155,7 +172,7 @@ public class StatementAdd implements Amplifier {
     }
 
     private List<CtMethod> findMethodsWithTargetType(CtTypeReference type) {
-        if(type == null) {
+        if (type == null) {
             return new ArrayList<>(0);
         } else {
             return methods.stream()
@@ -197,8 +214,8 @@ public class StatementAdd implements Amplifier {
     }
 
     private boolean isSerializable(CtTypeReference type) {
-        if(!hasConstructor.containsKey(type.getDeclaration())) {
-            if(type.getDeclaration() instanceof CtClass) {
+        if (!hasConstructor.containsKey(type.getDeclaration())) {
+            if (type.getDeclaration() instanceof CtClass) {
                 CtClass cl = (CtClass) type.getDeclaration();
                 hasConstructor.put(type.getDeclaration(),
                         cl.isTopLevel() && valueFactory.hasConstructorCall(cl, true));

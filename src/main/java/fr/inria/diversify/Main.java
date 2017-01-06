@@ -30,7 +30,7 @@ public class Main {
                 InputConfiguration configuration = new InputConfiguration(args[0]);
                 DSpot dspot = new DSpot(configuration, 1, Collections.singletonList(new TestDataMutator()));
                 final File outputDirectory = new File(configuration.getOutputDirectory());
-                dspot.amplifiyAllTests().forEach(test -> {
+                dspot.amplifyAllTests().forEach(test -> {
                     try {
                         PrintClassUtils.printJavaFile(outputDirectory, test);
                     } catch (Exception e) {

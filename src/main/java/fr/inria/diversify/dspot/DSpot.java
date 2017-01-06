@@ -2,7 +2,6 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.dspot.amplifier.*;
-import fr.inria.diversify.dspot.assertGenerator.AssertGenerator;
 import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
@@ -11,7 +10,6 @@ import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
-import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
@@ -29,19 +27,50 @@ public class DSpot {
     private List<Amplifier> amplifiers;
     private int numberOfIterations;
     private TestSelector testSelector;
-
-    public DSpotCompiler getCompiler() {
-        return compiler;
-    }
-
     private InputConfiguration inputConfiguration;
     private DSpotCompiler compiler;
     private InputProgram inputProgram;
     private DiversifyClassLoader applicationClassLoader;
 
     public DSpot(InputConfiguration inputConfiguration) throws InvalidSdkException, Exception {
+        this(inputConfiguration, 3, Arrays.asList(
+                new TestDataMutator(),
+                new TestMethodCallAdder(),
+                new TestMethodCallRemover(),
+                new StatementAdderOnAssert()),
+                new BranchCoverageTestSelector(10));
+    }
+
+    public DSpot(InputConfiguration configuration, int numberOfIterations) throws InvalidSdkException, Exception {
+        this(configuration, numberOfIterations, Arrays.asList(
+                new TestDataMutator(),
+                new TestMethodCallAdder(),
+                new TestMethodCallRemover(),
+                new StatementAdderOnAssert())
+        );
+    }
+
+    public DSpot(InputConfiguration configuration, TestSelector testSelector) throws InvalidSdkException, Exception {
+        this(configuration, 3, Arrays.asList(
+                new TestDataMutator(),
+                new TestMethodCallAdder(),
+                new TestMethodCallRemover(),
+                new StatementAdderOnAssert()), testSelector
+        );
+    }
+
+    public DSpot(InputConfiguration configuration, List<Amplifier> amplifiers) throws InvalidSdkException, Exception {
+        this(configuration, 3, amplifiers);
+    }
+
+    public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers) throws InvalidSdkException, Exception {
+        this(inputConfiguration, numberOfIterations, amplifiers, new BranchCoverageTestSelector(10));
+    }
+
+    public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws InvalidSdkException, Exception {
         InitUtils.initLogLevel(inputConfiguration);
         inputProgram = InitUtils.initInputProgram(inputConfiguration);
+        inputConfiguration.setInputProgram(inputProgram);
         String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp_" + System.currentTimeMillis();
         FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
         inputProgram.setProgramDir(outputDirectory);
@@ -51,41 +80,23 @@ public class DSpot {
         DSpotUtils.compile(inputProgram, mavenHome, mavenLocalRepository);
         applicationClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
         DSpotUtils.addBranchLogger(inputProgram);
-
         compiler = DSpotCompiler.buildCompiler(inputProgram, true);
         DSpotUtils.compileTests(inputProgram, mavenHome, mavenLocalRepository);
 
         InitUtils.initLogLevel(inputConfiguration);
-        numberOfIterations = 3;
 
-        amplifiers = new ArrayList<>();
-        this.amplifiers.add(new TestDataMutator());
-        this.amplifiers.add(new TestMethodCallAdder());
-        this.amplifiers.add(new TestMethodCallRemover());
-        this.amplifiers.add(new StatementAdderOnAssert());
-        this.testSelector = new BranchCoverageTestSelector(new File(inputProgram.getProgramDir() + "/log"), 10);
         this.inputConfiguration = inputConfiguration;
-    }
-
-    public DSpot(InputConfiguration configuration, int numberOfIterations) throws InvalidSdkException, Exception {
-        this(configuration);
-        this.numberOfIterations = numberOfIterations;
-    }
-
-    public DSpot(InputConfiguration configuration, int numberOfIterations, List<Amplifier> amplifiers) throws InvalidSdkException, Exception {
-        this(configuration);
-        this.amplifiers = amplifiers;
-        this.numberOfIterations = numberOfIterations;
-    }
-
-    public DSpot(InputConfiguration configuration, int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws InvalidSdkException, Exception {
-        this(configuration);
-        this.amplifiers = amplifiers;
+        this.amplifiers = new ArrayList<>(amplifiers);
         this.numberOfIterations = numberOfIterations;
         this.testSelector = testSelector;
+        this.testSelector.init(this.inputConfiguration);
     }
 
-    public List<CtType> amplifiyAllTests() throws InterruptedException, IOException, ClassNotFoundException {
+    public void addAmplifier(Amplifier amplifier) {
+        this.amplifiers.add(amplifier);
+    }
+
+    public List<CtType> amplifyAllTests() throws InterruptedException, IOException, ClassNotFoundException {
         return inputProgram.getFactory().Class().getAll().stream()
                 .filter(ctClass ->
                         ctClass.getMethods().stream()
@@ -120,6 +131,14 @@ public class DSpot {
 
     public InputProgram getInputProgram() {
         return inputProgram;
+    }
+
+    public DSpotCompiler getCompiler() {
+        return compiler;
+    }
+
+    public InputConfiguration getInputConfiguration() {
+        return inputConfiguration;
     }
 
 }

@@ -6,7 +6,6 @@ import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.logger.Logger;
-import fr.inria.diversify.mutant.pit.PitRunner;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
@@ -63,99 +62,87 @@ public class Amplification {
         List<CtMethod> tests = methods.stream()
                 .filter(mth -> AmplificationChecker.isTest(mth, inputProgram.getRelativeTestSourceCodeDir()))
                 .collect(Collectors.toList());
-
         if (tests.isEmpty()) {
             return null;
         }
-        testSelector.init();
-        CtType classWithLogger = classWithLoggerBuilder.buildClassWithLogger(classTest, tests);
-        boolean status = writeAndCompile(classWithLogger);
-        if (!status) {
-            Log.info("error with Logger in class {}", classTest);
-            return null;
-        }
-
-        runTests(classWithLogger, tests);
-        testSelector.update();
-        resetAmplifiers(classTest);
-
         Log.info("amplification of {} ({} test)", classTest.getQualifiedName(), tests.size());
-
+        //testSelector = new PitMutantScoreSelector(this.inputProgram, this.inputConfiguration);
+        testSelector.reset();
         List<CtMethod> ampTest = new ArrayList<>();
+
+        List<CtMethod> preAmplification = preAmplification(classTest, tests);
+        updateAmplifiedTestList(ampTest, preAmplification);
+
         for (int i = 0; i < tests.size(); i++) {
             CtMethod test = tests.get(i);
             Log.debug("amp {} ({}/{})", test.getSimpleName(), i + 1, tests.size());
-            testSelector.init();
-
-            classWithLogger = classWithLoggerBuilder.buildClassWithLogger(classTest, tests.get(i));
-            writeAndCompile(classWithLogger);
-
-            JunitResult result = runTest(classWithLogger, test);
+            testSelector.reset();
+            JunitResult result = compileAndRunTests(classTest, Collections.singletonList(tests.get(i)));
             if (result != null
                     && result.getFailures().isEmpty()
                     && !result.getTestRuns().isEmpty()) {
-                testSelector.update();
-
                 List<CtMethod> amplification = amplification(classTest, test, maxIteration);
-                ampTest.addAll(amplification);
-                ampTestCount += amplification.size();
-                Log.debug("total amp test: {}, global: {}", amplification.size(), ampTestCount);
+                updateAmplifiedTestList(ampTest, amplification);
             }
         }
         return AmplificationHelper.addAmplifiedTestToClass(ampTest, classTest);
     }
 
-
     private List<CtMethod> amplification(CtType classTest, CtMethod test, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
         testStatus.reset();
-        List<CtMethod> newTests = new ArrayList<>();
-        newTests.add(test);
-
-        Collection<CtMethod> ampTests = new ArrayList<>();
-        ampTests.add(test);
+        List<CtMethod> currentTestList = new ArrayList<>();
+        currentTestList.add(test);
 
         List<CtMethod> amplifiedTests = new ArrayList<>();
 
         for (int i = 0; i < maxIteration; i++) {
             Log.debug("iteration {}:", i);
 
-            List<CtMethod> testToBeAmplified = testSelector.selectToAmplify(newTests);
+            List<CtMethod> testToBeAmplified = testSelector.selectToAmplify(currentTestList);
             if (testToBeAmplified.isEmpty()) {
                 Log.debug("No test could be generated from selected test");
                 continue;
             }
-            Log.debug("{} tests selected to be amplified over {} available tests", testToBeAmplified.size(), newTests.size());
+            Log.debug("{} tests selected to be amplified over {} available tests", testToBeAmplified.size(), currentTestList.size());
 
-            newTests = reduce(amplifyTests(testToBeAmplified));
+            currentTestList = reduce(amplifyTests(testToBeAmplified));
 
-            List<CtMethod> testWithAssertions = assertGenerator.generateAsserts(classTest, newTests, AmplificationHelper.getAmpTestToParent());
+            List<CtMethod> testWithAssertions = assertGenerator.generateAsserts(classTest, currentTestList, AmplificationHelper.getAmpTestToParent());
             if (testWithAssertions.isEmpty()) {
                 continue;
             } else {
-                newTests = testWithAssertions;
+                currentTestList = testWithAssertions;
             }
-
-            CtType classWithLogger = classWithLoggerBuilder.buildClassWithLogger(classTest, newTests);
-            boolean status = writeAndCompile(classWithLogger);
-            if (!status) {
-                break;
-            }
-
-            JunitResult result = runTests(classWithLogger, newTests);
-            if (result == null) {
-                continue;
-            }
-
-            testStatus.updateTestStatus(newTests, result);
-            Log.debug("update coverage info");
-            testSelector.update();
-
-            newTests = AmplificationHelper.filterTest(newTests, result);
-            Log.debug("{} test method(s) has been successfully generated", newTests.size());
-            amplifiedTests.addAll(testSelector.selectToKeep(newTests));
-            ampTests.addAll(newTests);
+            JunitResult result = compileAndRunTests(classTest, currentTestList);
+            testStatus.updateTestStatus(currentTestList, result);
+            currentTestList = AmplificationHelper.filterTest(currentTestList, result);
+            Log.debug("{} test method(s) has been successfully generated", currentTestList.size());
+            amplifiedTests.addAll(testSelector.selectToKeep(currentTestList));
         }
         return amplifiedTests;
+    }
+
+    private void updateAmplifiedTestList(List<CtMethod> ampTest, List<CtMethod> amplification) {
+        ampTest.addAll(amplification);
+        ampTestCount += amplification.size();
+        Log.debug("total amp test: {}, global: {}", amplification .size(), ampTestCount);
+    }
+
+    private List<CtMethod> preAmplification(CtType classTest, List<CtMethod> tests) throws IOException, ClassNotFoundException {
+        compileAndRunTests(classTest, tests);
+        testSelector.update();
+        resetAmplifiers(classTest);
+        Log.debug("Try to add assertions before amplification");
+        List<CtMethod> preAmplifiedMethods = testSelector.selectToKeep(
+                assertGenerator.generateAsserts(
+                        classTest, testSelector.selectToAmplify(tests), AmplificationHelper.getAmpTestToParent()
+                )
+        );
+        if (tests.containsAll(preAmplifiedMethods)) {
+            return new ArrayList<>();
+        } else {
+            return preAmplifiedMethods;
+        }
     }
 
     private List<CtMethod> amplifyTests(Collection<CtMethod> tests) {
@@ -192,6 +179,26 @@ public class Amplification {
         amplifiers.forEach(amp -> amp.reset(parentClass));
     }
 
+    private JunitResult compileAndRunTests(CtType classTest, List<CtMethod> currentTestList) {
+        CtType classWithLogger = classWithLoggerBuilder.buildClassWithLogger(classTest, currentTestList);
+        boolean status = writeAndCompile(classWithLogger);
+        if (!status) {
+            return null;
+        }
+        JunitResult result;
+        try {
+            result = runTests(classWithLogger, currentTestList);
+        } catch (ClassNotFoundException ignored) {
+            return null;
+        }
+        if (result == null) {
+            return null;
+        }
+        Log.debug("update test selector");
+        testSelector.update();
+        return result;
+    }
+
     /*
         TODO TO BE MOVED
      */
@@ -201,10 +208,6 @@ public class Amplification {
                 .filter(mth -> AmplificationChecker.isTest(mth, inputProgram.getRelativeTestSourceCodeDir()))
                 .distinct()
                 .collect(Collectors.toList());
-    }
-
-    private JunitResult runTest(CtType testClass, CtMethod test) throws ClassNotFoundException {
-        return runTests(testClass, Collections.singletonList(test));
     }
 
     private JunitResult runTests(CtType testClass, Collection<CtMethod> tests) throws ClassNotFoundException {

@@ -147,15 +147,17 @@ public class TestDataMutator implements Amplifier {
         if (value.length() > 2) {
             int length = value.length();
             int index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
-            values.add(value.substring(0, index - 1) + getRandomChar() + value.substring(index, length));
+            values.add(value.substring(0, index - 1) + AmplificationHelper.getRandomChar() + value.substring(index, length));
 
             index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
-            values.add(value.substring(0, index) + getRandomChar() + value.substring(index, length));
+            values.add(value.substring(0, index) + AmplificationHelper.getRandomChar() + value.substring(index, length));
 
             index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
             values.add(value.substring(0, index) + value.substring(index + 1, length));
+
+            values.add(AmplificationHelper.getRandomString(value.length()));
         } else {
-            values.add("" + getRandomChar());
+            values.add("" + AmplificationHelper.getRandomChar());
         }
 
         Optional<Object> presentString = literals.get(value.getClass()).stream().filter(string ->
@@ -168,14 +170,6 @@ public class TestDataMutator implements Amplifier {
 
         return values;
     }
-
-    private char getRandomChar() {
-        int value = AmplificationHelper.getRandom().nextInt(94) + 32;
-        char c = (char) ((value == 34 || value == 39) ? value + (AmplificationHelper.getRandom().nextBoolean() ? 1 : -1) : value);
-        return c;//excluding " and '
-    }
-
-
 
     private Set<? extends Number> numberMutated(CtLiteral literal) {
         Set<Number> values = new HashSet<>();
