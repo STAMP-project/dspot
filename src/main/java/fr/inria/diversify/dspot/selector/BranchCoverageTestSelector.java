@@ -31,8 +31,11 @@ public class BranchCoverageTestSelector implements TestSelector {
 
     private List<CtMethod> oldTests;
 
+    private Map<CtMethod, Coverage> coveragePerTestKept;
+
     public BranchCoverageTestSelector(int maxNumberOfTest) {
         this.maxNumberOfTest = maxNumberOfTest;
+        this.coveragePerTestKept = new HashMap<>();
         this.oldTests = new ArrayList<>();
     }
 
@@ -83,12 +86,18 @@ public class BranchCoverageTestSelector implements TestSelector {
         Map<CtMethod, Set<String>> amplifiedTests = new HashMap<>();
         for (CtMethod test : amplifiedTestToBeKept) {
             Set<String> tc = getTestCoverageFor(test);
-            Set<String> parentTc = getParentTestCoverageFor(test);
-            if (!tc.isEmpty() && !parentTc.containsAll(tc)) {
-                amplifiedTests.put(test, diff(tc, parentTc));
+            if (!tc.isEmpty()) {
+                Set<String> parentTc = getParentTestCoverageFor(test);
+                if (!parentTc.containsAll(tc)) {
+                    amplifiedTests.put(test, diff(tc, parentTc));
+                } else {
+                    amplifiedTests.put(test, tc);
+                }
             }
         }
-        return reduceSelectedTest(amplifiedTests);
+        List<CtMethod> amplifiedTestKept = reduceSelectedTest(amplifiedTests);
+
+        return amplifiedTestKept;
     }
 
     @Override
@@ -117,6 +126,15 @@ public class BranchCoverageTestSelector implements TestSelector {
             }
         }
         deleteLogFile();
+    }
+
+    @Override
+    public void report() {
+        final String nl = System.getProperty("line.separator");
+        StringBuilder string = new StringBuilder();
+        string.append("Branch Coverage Selector:").append(nl);
+        string.append("The amplification results with");
+
     }
 
     private void deleteLogFile() {
@@ -227,12 +245,8 @@ public class BranchCoverageTestSelector implements TestSelector {
 
             map.keySet().forEach(set -> set.removeAll(key));
         }
-        return methods;
-    }
 
-    @Override
-    public void report() {
-        //TODO
+        return methods;
     }
 
 }

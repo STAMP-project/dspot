@@ -117,7 +117,9 @@ public class DSpot {
         try {
             File logDir = new File(inputProgram.getProgramDir() + "/log");
             Amplification testAmplification = new Amplification(inputProgram, this.inputConfiguration, compiler, applicationClassLoader, this.amplifiers, this.testSelector, logDir);
-            return testAmplification.amplification(test, numberOfIterations);
+            CtType amplification = testAmplification.amplification(test, numberOfIterations);
+            testSelector.report();
+            return amplification;
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

@@ -66,7 +66,6 @@ public class Amplification {
             return null;
         }
         Log.info("amplification of {} ({} test)", classTest.getQualifiedName(), tests.size());
-        //testSelector = new PitMutantScoreSelector(this.inputProgram, this.inputConfiguration);
         testSelector.reset();
         List<CtMethod> ampTest = new ArrayList<>();
 
@@ -226,7 +225,7 @@ public class Amplification {
     }
 
     private boolean writeAndCompile(CtType classInstru) {
-        return (new TestRunner(inputProgram, applicationClassLoader, compiler)).writeAndCompile(classInstru);
+        return (new TestRunner(applicationClassLoader, compiler)).writeAndCompile(classInstru);
     }
 
 }

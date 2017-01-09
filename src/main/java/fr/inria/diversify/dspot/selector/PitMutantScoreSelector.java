@@ -32,14 +32,25 @@ public class PitMutantScoreSelector implements TestSelector {
 
     private CtType currentClassTestToBeAmplified;
 
-    private Map<CtMethod, List<PitResult>> mutantKilledPerTestCase;
+    private List<PitResult> originalPitResults;
+
+    private Map<CtMethod, List<PitResult>> currentMutantsKilledPerTestCase;
 
     private List<CtMethod> testAlreadyRun;
 
     private List<CtMethod> testAlreadyAdded;
 
-    public PitMutantScoreSelector() {
+    private Map<CtMethod, List<PitResult>> testThatKilledMutants;
 
+    private int nbOfTotalMutantKilled;
+
+    public PitMutantScoreSelector() {
+        this.nbOfTotalMutantKilled = 0;
+        this.testThatKilledMutants = new HashMap<>();
+        this.currentMutantsKilledPerTestCase = new HashMap<>();
+        this.testAlreadyRun = new ArrayList<>();
+        this.testAlreadyAdded = new ArrayList<>();
+        this.originalPitResults = new ArrayList<>();
     }
 
     //TODO That the configuration is well set up and well used.
@@ -47,9 +58,7 @@ public class PitMutantScoreSelector implements TestSelector {
     @Override
     public void init(InputConfiguration configuration) {
         this.configuration = configuration;
-        this.mutantKilledPerTestCase = new HashMap<>();
-        this.testAlreadyRun = new ArrayList<>();
-        this.testAlreadyAdded = new ArrayList<>();
+        this.reset();
         try {
             InitUtils.initLogLevel(configuration);
             this.program = InitUtils.initInputProgram(this.configuration);
@@ -64,6 +73,7 @@ public class PitMutantScoreSelector implements TestSelector {
             DSpotCompiler.buildCompiler(this.program, true);
             DSpotUtils.compileTests(this.program, mavenHome, mavenLocalRepository);
             InitUtils.initLogLevel(configuration);
+
         } catch (Exception | InvalidSdkException e) {
             throw new RuntimeException(e);
         }
@@ -72,19 +82,22 @@ public class PitMutantScoreSelector implements TestSelector {
     @Override
     public void reset() {
         this.currentClassTestToBeAmplified = null;
-        this.mutantKilledPerTestCase.clear();
+        this.currentMutantsKilledPerTestCase.clear();
         this.testAlreadyRun.clear();
         this.testAlreadyAdded.clear();
+        this.originalPitResults.clear();
     }
 
     @Override
     public List<CtMethod> selectToAmplify(List<CtMethod> testsToBeAmplified) {
         if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
             this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
+            this.originalPitResults = PitRunner.run(this.program, this.configuration, this.currentClassTestToBeAmplified)
+                    .stream()
+                    .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
+                    .collect(Collectors.toList());
         }
-        List<CtMethod> selectedTest = testsToBeAmplified.stream().filter(test -> !this.testAlreadyRun.contains(test)).collect(Collectors.toList());
-        this.testAlreadyRun.addAll(selectedTest);
-        return selectedTest;
+        return testsToBeAmplified;
     }
 
     @Override
@@ -95,7 +108,7 @@ public class PitMutantScoreSelector implements TestSelector {
         long time = System.currentTimeMillis();
         CtType clone = this.currentClassTestToBeAmplified.clone();
         clone.setParent(this.currentClassTestToBeAmplified.getParent());
-        ((Set<CtMethod>)this.currentClassTestToBeAmplified.getMethods()).forEach(clone::removeMethod);
+        ((Set<CtMethod>) this.currentClassTestToBeAmplified.getMethods()).forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
         try {
@@ -105,23 +118,19 @@ public class PitMutantScoreSelector implements TestSelector {
         }
 
         List<PitResult> results = PitRunner.run(this.program, this.configuration, clone);
+        List<CtMethod> selectedTests = new ArrayList<>();
 
-        Set<CtMethod> amplifiedTestToKeep = new HashSet<>();
         if (results != null) {
-            if (results.stream()
+            results.stream()
                     .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
-                    .count() > this.mutantKilledPerTestCase.size()) {
-                results.stream()
-                        .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
-                        .forEach(result -> amplifiedTestToKeep.add(result.getTestCaseMethod()));
-            }
-            results.forEach(result ->
-                    this.mutantKilledPerTestCase.put(result.getTestCaseMethod(), results.stream()
-                            .filter(filterResults ->
-                                    filterResults.getTestCaseMethod() != null &&
-                                            filterResults.getTestCaseMethod().equals(result.getTestCaseMethod()))
-                            .collect(Collectors.toList()))
-            );
+                    .filter(result -> !this.originalPitResults.contains(result))
+                    .forEach(result -> {
+                        if (!this.currentMutantsKilledPerTestCase.containsKey(result.getTestCaseMethod())) {
+                            this.currentMutantsKilledPerTestCase.put(result.getTestCaseMethod(), new ArrayList<>());
+                        }
+                        this.currentMutantsKilledPerTestCase.get(result.getTestCaseMethod()).add(result);
+                        selectedTests.add(result.getTestCaseMethod());
+                    });
         }
         Log.debug("Time to run pit mutation coverage {} ms", System.currentTimeMillis() - time);
 
@@ -131,19 +140,37 @@ public class PitMutantScoreSelector implements TestSelector {
             throw new RuntimeException(e);
         }
 
-        List<CtMethod> finalList = new ArrayList<>(amplifiedTestToKeep.stream().filter(test ->  !this.testAlreadyAdded.contains(test)).collect(Collectors.toList()));
-        this.testAlreadyAdded.addAll(finalList);
-        return finalList;
+        this.nbOfTotalMutantKilled += this.currentMutantsKilledPerTestCase.keySet()
+                .stream()
+                .map(this.currentMutantsKilledPerTestCase::get)
+                .reduce(0, (integer, pitResults) -> integer + pitResults.size(), Integer::sum);
+        this.testThatKilledMutants.putAll(this.currentMutantsKilledPerTestCase);
+
+        return selectedTests;
     }
 
     @Override
     public void update() {
-        //
+        // empty
     }
 
+    //TODO the report should be an object
     @Override
     public void report() {
-        //
+        StringBuilder string = new StringBuilder();
+        final String nl = System.getProperty("line.separator");
+        string.append("PitMutantScoreSelector: ").append(nl);
+        string.append("The original test suite kill ").append(this.originalPitResults.size()).append(" mutants").append(nl);
+        string.append("By amplifiying ").append(this.testThatKilledMutants.size()).append(" tests, it kill ").append(this.nbOfTotalMutantKilled).append(" mutants").append(nl);
+        System.out.println(string.toString());
+        //intermediate output
+        this.testThatKilledMutants.keySet().forEach(amplifiedTest -> {
+            string.append(amplifiedTest).append(nl);
+            string.append("Kill:").append(nl);
+            this.testThatKilledMutants.get(amplifiedTest).forEach(result ->
+                    string.append(result).append(nl)
+            );
+        });
     }
 
 }
