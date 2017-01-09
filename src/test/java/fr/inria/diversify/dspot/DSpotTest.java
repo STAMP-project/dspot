@@ -34,30 +34,10 @@ public class DSpotTest extends MavenAbstractTest {
         DSpot dspot = new DSpot(configuration);
 
         CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample");
-        assertEquals(29, amplifiedTest.getMethods().size());
+        assertEquals(28, amplifiedTest.getMethods().size());
         assertEquals(originalTestBody, amplifiedTest.getMethod("test1").getBody().toString());
         assertEquals(expectedAmplifiedBody, amplifiedTest.getMethod("test1_cf24").getBody().toString());
     }
-
-    @Test
-    public void testPitSelection() throws Exception, InvalidSdkException {
-
-        /*
-            Test the whole dspot procedure.
-                It results with 18 methods: 7 manual + 13 amplified.
-                The test consist of assert that the manual test remains, and there is an amplified version
-         */
-
-        AmplificationHelper.setSeedRandom(23L);
-        InputConfiguration configuration = new InputConfiguration(pathToPropertiesFile);
-        InputProgram program = new InputProgram();
-        configuration.setInputProgram(program);
-        DSpot dspot = new DSpot(configuration, new PitMutantScoreSelector());
-
-        CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample");
-        System.out.println(amplifiedTest);
-    }
-
 
     private final String originalTestBody = "{" + nl +
             "    example.Example ex = new example.Example();" + nl +

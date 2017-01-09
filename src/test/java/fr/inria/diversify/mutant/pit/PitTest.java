@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 1/5/17
  */
-public class PItTest extends MavenAbstractTest {
+public class PitTest extends MavenAbstractTest {
 
     private final String pathToPropertiesFile = "src/test/resources/test-projects/test-projects.properties";
 
