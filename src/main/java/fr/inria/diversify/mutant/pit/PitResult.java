@@ -50,6 +50,30 @@ public class PitResult {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PitResult result = (PitResult) o;
+
+        if (lineNumber != result.lineNumber) return false;
+        if (stateOfMutant != result.stateOfMutant) return false;
+        if (fullQualifiedNameMutantOperator != null ? !fullQualifiedNameMutantOperator.equals(result.fullQualifiedNameMutantOperator) : result.fullQualifiedNameMutantOperator != null)
+            return false;
+        return location != null ? location.equals(result.location) : result.location == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = stateOfMutant != null ? stateOfMutant.hashCode() : 0;
+        result = 31 * result + (fullQualifiedNameMutantOperator != null ? fullQualifiedNameMutantOperator.hashCode() : 0);
+        result = 31 * result + lineNumber;
+        result = 31 * result + (location != null ? location.hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public String toString() {
         return "PitResult{" +
                 "stateOfMutant=" + stateOfMutant +
