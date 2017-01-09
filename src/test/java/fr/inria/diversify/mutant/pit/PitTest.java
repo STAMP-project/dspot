@@ -1,19 +1,13 @@
 package fr.inria.diversify.mutant.pit;
 
-import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.*;
-import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.dspot.value.ValueFactory;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
-import fr.inria.diversify.util.PrintClassUtils;
 import org.junit.Test;
-import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.util.*;
@@ -56,22 +50,22 @@ public class PItTest extends MavenAbstractTest {
         List<PitResult> pitResults = PitRunner.run(inputProgram, inputConfiguration, inputProgram.getFactory().Class().get("example.TestSuiteExample"));
 
         assertTrue(null != pitResults);
-        assertEquals(3, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
+        assertEquals(9, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
         Optional<PitResult> OptResult = pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).findFirst();
         assertTrue(OptResult.isPresent());
         PitResult result = OptResult.get();
-        assertEquals("org.pitest.mutationtest.engine.gregor.mutators.MathMutator", result.getFullQualifiedNameMutantOperator());
+        assertEquals("org.pitest.mutationtest.engine.gregor.mutators.InlineConstantMutator", result.getFullQualifiedNameMutantOperator());
         assertEquals(null, result.getTestCaseMethod());
-        assertEquals(24, result.getLineNumber());
+        assertEquals(27, result.getLineNumber());
         assertEquals("<init>", result.getLocation());
 
-        assertEquals(6, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count());
+        assertEquals(16, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count());
         OptResult = pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).findFirst();
         assertTrue(OptResult.isPresent());
         result = OptResult.get();
-        assertEquals("org.pitest.mutationtest.engine.gregor.mutators.MathMutator", result.getFullQualifiedNameMutantOperator());
-        assertEquals("test4", result.getTestCaseMethod().getSimpleName());
-        assertEquals(18, result.getLineNumber());
+        assertEquals("org.pitest.mutationtest.engine.gregor.mutators.InlineConstantMutator", result.getFullQualifiedNameMutantOperator());
+        assertEquals("test1", result.getTestCaseMethod().getSimpleName());
+        assertEquals(13, result.getLineNumber());
         assertEquals("charAt", result.getLocation());
 
         assertEquals(0, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.NO_COVERAGE).count());
