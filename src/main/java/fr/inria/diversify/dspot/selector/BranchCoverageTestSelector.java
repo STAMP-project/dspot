@@ -4,13 +4,11 @@ import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.log.LogReader;
 import fr.inria.diversify.log.TestCoverageParser;
 import fr.inria.diversify.log.branch.Coverage;
-import fr.inria.diversify.log.branch.MethodCoverage;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-import sun.tools.asm.Cover;
 
 import java.io.File;
 import java.io.FileWriter;

@@ -4,6 +4,7 @@ import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.DSpotUtils;
+import fr.inria.diversify.dspot.MavenAbstractTest;
 import fr.inria.diversify.dspot.amplifier.StatementAdderOnAssert;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.mutant.pit.PitResult;
@@ -28,9 +29,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 1/9/17
  */
-public class PitScoreMutantSelectorTest {
-
-    public static final String pathToPropertiesFile = "src/test/resources/test-projects/test-projects.properties";
+public class PitScoreMutantSelectorTest extends MavenAbstractTest {
 
     @Test
     public void testSelection() throws Exception, InvalidSdkException {

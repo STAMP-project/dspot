@@ -15,6 +15,7 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -154,15 +155,18 @@ public class PitMutantScoreSelector implements TestSelector {
         // empty
     }
 
-    //TODO the report should be an object
     @Override
     public void report() {
         StringBuilder string = new StringBuilder();
         final String nl = System.getProperty("line.separator");
+
+        string.append(nl).append("======= REPORT =======").append(nl);
         string.append("PitMutantScoreSelector: ").append(nl);
         string.append("The original test suite kill ").append(this.originalPitResults.size()).append(" mutants").append(nl);
-        string.append("By amplifiying ").append(this.testThatKilledMutants.size()).append(" tests, it kill ").append(this.nbOfTotalMutantKilled).append(" mutants").append(nl);
+        string.append("The amplification results with ").append(this.testThatKilledMutants.size()).append(" new tests").append(nl);
+        string.append("By amplifying ").append(this.testThatKilledMutants.size()).append(" tests, it kill ").append(this.nbOfTotalMutantKilled).append(" more mutants").append(nl);
         System.out.println(string.toString());
+
         //intermediate output
         this.testThatKilledMutants.keySet().forEach(amplifiedTest -> {
             string.append(amplifiedTest).append(nl);
@@ -171,6 +175,14 @@ public class PitMutantScoreSelector implements TestSelector {
                     string.append(result).append(nl)
             );
         });
+        File reportDir = new File("dspot-report");
+        if (!reportDir.exists())
+            reportDir.mkdir();
+        try (FileWriter writer = new FileWriter("dspot-report/pit_mutant_score_selector_report.txt", false) ){
+            writer.write(string.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
