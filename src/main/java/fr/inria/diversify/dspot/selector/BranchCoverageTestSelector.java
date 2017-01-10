@@ -4,12 +4,16 @@ import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.log.LogReader;
 import fr.inria.diversify.log.TestCoverageParser;
 import fr.inria.diversify.log.branch.Coverage;
+import fr.inria.diversify.log.branch.MethodCoverage;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
+import sun.tools.asm.Cover;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,10 +37,17 @@ public class BranchCoverageTestSelector implements TestSelector {
 
     private Map<CtMethod, Coverage> coveragePerTestKept;
 
+    private CtType currentClassTestToBeAmplified;
+
+    private Double initialCoverage;
+
+    private int initialUniquePath;
+
     public BranchCoverageTestSelector(int maxNumberOfTest) {
         this.maxNumberOfTest = maxNumberOfTest;
         this.coveragePerTestKept = new HashMap<>();
         this.oldTests = new ArrayList<>();
+        this.initialCoverage = 0.0D;
     }
 
     @Override
@@ -54,6 +65,13 @@ public class BranchCoverageTestSelector implements TestSelector {
 
     @Override
     public List<CtMethod> selectToAmplify(List<CtMethod> testsToBeAmplified) {
+        if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
+            this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
+            Coverage global = new Coverage("global");
+            this.branchCoverage.forEach(global::merge);
+            this.initialCoverage = global.coverage();
+            this.initialUniquePath = Math.toIntExact(this.branchCoverage.stream().map(Coverage::getCoverageBranch).distinct().count());
+        }
         if (this.oldTests.isEmpty()) {
             this.oldTests.addAll(testsToBeAmplified);
         }
@@ -96,7 +114,13 @@ public class BranchCoverageTestSelector implements TestSelector {
             }
         }
         List<CtMethod> amplifiedTestKept = reduceSelectedTest(amplifiedTests);
-
+        amplifiedTestKept.forEach(test -> this.coveragePerTestKept.put(test,
+                branchCoverage.stream()
+                        .filter(coverage ->
+                                (coverage.getName()).equals(
+                                        this.currentClassTestToBeAmplified.getQualifiedName() + "." + test.getSimpleName()))
+                        .findAny()
+                        .get()));
         return amplifiedTestKept;
     }
 
@@ -132,9 +156,42 @@ public class BranchCoverageTestSelector implements TestSelector {
     public void report() {
         final String nl = System.getProperty("line.separator");
         StringBuilder string = new StringBuilder();
-        string.append("Branch Coverage Selector:").append(nl);
-        string.append("The amplification results with");
 
+        string.append(nl).append("======= REPORT =======").append(nl);
+        string.append("Branch Coverage Selector:").append(nl);
+        string.append("Initial coverage: ").append(String.format("%.2f", (100.0D * this.initialCoverage))).append("%")
+                .append(nl);
+        string.append("There is ").append(this.initialUniquePath).append(" unique path in the original test suite")
+                .append(nl);
+        string.append("The amplification results with ").append(this.coveragePerTestKept.size())
+                .append(" new tests").append(nl);
+        Coverage global = new Coverage("global");
+        this.coveragePerTestKept.keySet().forEach(test -> global.merge(this.coveragePerTestKept.get(test)));
+        string.append("The branch coverage obtained is: ").append(String.format("%.2f", 100.0D * global.coverage())).append("%")
+                .append(nl);
+        int newUniquePath = Math.toIntExact(this.coveragePerTestKept.keySet().stream()
+                .map(coveragePerTestKept::get)
+                .map(Coverage::getCoverageBranch)
+                .distinct()
+                .count());
+        string.append("There is ").append(newUniquePath).append(" new unique path").append(nl).append(nl);
+        System.out.println(string.toString());
+        //intermediate output
+        this.coveragePerTestKept.keySet().forEach(test ->
+                    string.append(test).append(" cover ").append(nl).append(
+                            this.coveragePerTestKept.get(test).getCoverageBranch().stream()
+                                    .reduce("", (acc, current) -> acc.concat(current +  ", " + nl))).append(nl)
+                            .append("length: ").append(this.coveragePerTestKept.get(test).getCoverageBranch().size()).append(nl)
+                            .append(nl));
+        File reportDir = new File("dspot-report");
+        if (!reportDir.exists())
+            reportDir.mkdir();
+
+        try (FileWriter writer = new FileWriter("dspot-report/branch_coverage_selector_report.txt", false)) {
+            writer.write(string.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void deleteLogFile() {
