@@ -3,6 +3,7 @@ package fr.inria.diversify.dspot.amplifier;
 import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.support.Counter;
+import fr.inria.diversify.dspot.DSpotUtils;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -67,6 +68,7 @@ public class TestMethodCallRemover implements Amplifier {
         //get the lit_indexth literal of the cloned method
         CtInvocation stmt = Query.getElements(cloned_method, new TypeFilter<CtInvocation>(CtInvocation.class)).get(invocation_index);
         CtBlock b = ((CtBlock) stmt.getParent());
+        DSpotUtils.addComment(b, "removed " + stmt.toString() + " at line " + stmt.getPosition().getLine(), CtComment.CommentType.INLINE);
         b.removeStatement(stmt);
 
         Counter.updateInputOf(cloned_method, 1);

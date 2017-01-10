@@ -4,6 +4,7 @@ import fr.inria.diversify.codeFragment.*;
 import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.support.Counter;
+import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.value.ValueCreator;
 import fr.inria.diversify.dspot.value.VarCartesianProduct;
 import spoon.reflect.code.*;
@@ -14,7 +15,9 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.reference.CtVariableReference;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
+import spoon.support.reflect.code.CtStatementImpl;
 import spoon.support.reflect.code.CtVariableReadImpl;
+import spoon.support.reflect.declaration.CtElementImpl;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -140,25 +143,32 @@ public class StatementAdderOnAssert implements Amplifier {
 
         for (CtVariableReference var : statement.getInputContext().getVar()) {
 
-            varCartesianProduct.addReplaceVar(var, valueCreator.createNull(var.getType()));
+            CtLocalVariable aNull = valueCreator.createNull(var.getType());
+            DSpotUtils.addComment(aNull, "StatementAdderOnAssert create null value", CtComment.CommentType.INLINE);
+            varCartesianProduct.addReplaceVar(var, aNull);
 
             List<CtVariableReference> candidates = inputContext.allCandidate(var.getType(), true, false);
             if (!candidates.isEmpty()) {
-                varCartesianProduct.addReplaceVar(var, candidates.get(AmplificationHelper.getRandom().nextInt(candidates.size())));
+                CtVariableReference replacement = candidates.get(AmplificationHelper.getRandom().nextInt(candidates.size()));
+                DSpotUtils.addComment(replacement, "StatementAdderOnAssert reuse existing variable", CtComment.CommentType.INLINE);
+                varCartesianProduct.addReplaceVar(var, replacement);
             }
 
             Statement cfLocalVar = getLocalVar(var.getType(), inputContext);
             if (cfLocalVar != null) {
+                DSpotUtils.addComment(cfLocalVar.getCtCodeFragment(), "StatementAddOnAssert local variable replacement", CtComment.CommentType.INLINE);
                 varCartesianProduct.addReplaceVar(var, cfLocalVar);
             }
 
             CtLocalVariable localVariable = createLocalVarFromMethodLiterals(currentMethod, var.getType());
             if (localVariable != null) {
+                DSpotUtils.addComment(localVariable, "StatementAdderOnAssert create literal from method", CtComment.CommentType.INLINE);
                 varCartesianProduct.addReplaceVar(var, localVariable);
             }
 
             CtLocalVariable randomVar = valueCreator.createRandomLocalVar(var.getType());
             if (randomVar != null) {
+                DSpotUtils.addComment(randomVar, "StatementAdderOnAssert create random local variable", CtComment.CommentType.INLINE);
                 varCartesianProduct.addReplaceVar(var, randomVar);
             }
         }
@@ -191,10 +201,12 @@ public class StatementAdderOnAssert implements Amplifier {
                     Statement cloneLocalVar = new Statement(localVar.getCtCodeFragment().clone());
                     for (CtVariableReference var : localVar.getInputContext().getVar()) {
                         try {
+                            //TODO
                             CtVariableReference variable = cloneLocalVar.getInputContext().getVariableOrFieldNamed(var.getSimpleName());
-                            cloneLocalVar.getInputContext().getVariableOrFieldNamed(var.getSimpleName()).replace(variable);
+                            var.replace(variable);
+//                            cloneLocalVar.getInputContext().getVariableOrFieldNamed(var.getSimpleName()).replace(variable);
                         } catch (Exception e) {
-                            continue;
+                            throw new RuntimeException(e);
                         }
                         return cloneLocalVar;
                     }
@@ -208,7 +220,7 @@ public class StatementAdderOnAssert implements Amplifier {
         List<CtStatement> statements = Query.getElements(method, new TypeFilter(CtStatement.class));
         return statements.stream()
                 .filter(stmt -> stmt.getParent() instanceof CtBlock)
-                .filter(stmt -> AmplificationChecker.isAssert(stmt))
+                .filter(AmplificationChecker::isAssert)
                 .collect(Collectors.toList());
     }
 
@@ -283,6 +295,7 @@ public class StatementAdderOnAssert implements Amplifier {
         CtVariableReadImpl varRead = new CtVariableReadImpl();
         varRead.setVariable(localVariableReference);
         varRead.setFactory(factory);
+
         return varRead;
     }
 
@@ -296,7 +309,7 @@ public class StatementAdderOnAssert implements Amplifier {
                 .orElse(null);
     }
 
-    protected CtLocalVariable createLocalVarFromMethodLiterals(CtMethod method, CtTypeReference type) {
+    private CtLocalVariable createLocalVarFromMethodLiterals(CtMethod method, CtTypeReference type) {
         List<CtLiteral> literals = getLiterals(method).stream()
                 .filter(lit -> lit.getType() != null)
                 .filter(lit -> lit.getType().equals(type))
@@ -307,7 +320,8 @@ public class StatementAdderOnAssert implements Amplifier {
         }
 
         CtLiteral lit = literals.get(AmplificationHelper.getRandom().nextInt(literals.size()));
-        return type.getFactory().Code().createLocalVariable(type, "vc_" + count++, lit);
+        CtLocalVariable localVariable = type.getFactory().Code().createLocalVariable(type, "vc_" + count++, lit);
+        return localVariable;
     }
 
     private List<CtLiteral> getLiterals(CtMethod method) {

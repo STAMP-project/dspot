@@ -158,11 +158,13 @@ public class AmplificationHelper {
     public static char getRandomChar() {
         int value = getRandom().nextInt(94) + 32;
         char c = (char) ((value == 34 || value == 39) ? value + (getRandom().nextBoolean() ? 1 : -1) : value);
-        return c;//excluding " and ';
+        return c;//excluding " and '
     }
 
     public static CtMethod addOriginInComment(CtMethod amplifiedTest, CtMethod topParent) {
-        DSpotUtils.addComment(amplifiedTest, "Build from " + topParent.getDeclaringType().getQualifiedName() + "#" + topParent.getSimpleName(), CtComment.CommentType.BLOCK);
+        DSpotUtils.addComment(amplifiedTest,
+                "amplification of " + topParent.getDeclaringType().getQualifiedName() + "#" + topParent.getSimpleName(),
+                CtComment.CommentType.BLOCK);
         return amplifiedTest;
     }
 

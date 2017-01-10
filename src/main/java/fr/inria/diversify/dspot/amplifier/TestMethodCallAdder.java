@@ -3,6 +3,8 @@ package fr.inria.diversify.dspot.amplifier;
 import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.support.Counter;
+import fr.inria.diversify.dspot.DSpotUtils;
+import spoon.reflect.code.CtComment;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -67,6 +69,7 @@ public class TestMethodCallAdder implements Amplifier {
         cloneStmt.setParent(stmt.getParent());
         stmt.insertBefore(cloneStmt);
         Counter.updateInputOf(cloned_method, 1);
+        DSpotUtils.addComment(cloneStmt, "MethodCallAdder", CtComment.CommentType.INLINE);
         return cloned_method;
     }
 

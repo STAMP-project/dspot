@@ -42,7 +42,7 @@ public class TestMethodCallAdderTest extends AbstractTest {
             CtMethod amplifiedMethod = amplifiedMethods.get(i);
             assertEquals(originalMethod.getBody().getStatements().size() + 1, amplifiedMethod.getBody().getStatements().size());
             CtStatement expectedStatement = originalMethod.getBody().getStatements().get(i + 1);//+1 to skip the construction statement.
-            assertEquals(expectedStatement.toString(),
+            assertEquals("// MethodCallAdder\n"+expectedStatement.toString(),
                     amplifiedMethod.getBody().getStatements().get(i + 1).toString());
             assertEquals(expectedStatement.toString(),
                     amplifiedMethod.getBody().getStatements().get(i + 2).toString());
@@ -69,20 +69,20 @@ public class TestMethodCallAdderTest extends AbstractTest {
 
         assertEquals(originalMethod.getBody().getStatements().size() + 1, amplifiedMethod.getBody().getStatements().size());
         CtStatement expectedStatement = originalMethod.getBody().getStatements().get(2);
-        assertEquals(expectedStatement.toString(), amplifiedMethod.getBody().getStatements().get(2).toString());
+        assertEquals("// MethodCallAdder\n"+expectedStatement.toString(), amplifiedMethod.getBody().getStatements().get(2).toString());
         assertEquals(expectedStatement.toString(), amplifiedMethod.getBody().getStatements().get(3).toString());
 
 
         amplifiedMethod = methodCallAdder.applyRandom(originalMethod);
         assertEquals(originalMethod.getBody().getStatements().size() + 1, amplifiedMethod.getBody().getStatements().size());
         expectedStatement = originalMethod.getBody().getStatements().get(1);
-        assertEquals(expectedStatement.toString(), amplifiedMethod.getBody().getStatements().get(1).toString());
+        assertEquals("// MethodCallAdder\n"+expectedStatement.toString(), amplifiedMethod.getBody().getStatements().get(1).toString());
         assertEquals(expectedStatement.toString(), amplifiedMethod.getBody().getStatements().get(2).toString());
 
         amplifiedMethod = methodCallAdder.applyRandom(originalMethod);
         assertEquals(originalMethod.getBody().getStatements().size() + 1, amplifiedMethod.getBody().getStatements().size());
         expectedStatement = originalMethod.getBody().getStatements().get(1);
-        assertEquals(expectedStatement.toString(), amplifiedMethod.getBody().getStatements().get(1).toString());
+        assertEquals("// MethodCallAdder\n"+expectedStatement.toString(), amplifiedMethod.getBody().getStatements().get(1).toString());
         assertEquals(expectedStatement.toString(), amplifiedMethod.getBody().getStatements().get(2).toString());
 
         // stack random amplification

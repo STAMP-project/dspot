@@ -98,6 +98,7 @@ public class DSpotUtils {
         }
 
         Environment env = compiler.getFactory().getEnvironment();
+        env.setCommentEnabled(true);
         env.setDefaultFileGenerator(new JavaOutputProcessor(compiler.getSourceOutputDirectory(),
                 new DefaultJavaPrettyPrinter(env)));
 
