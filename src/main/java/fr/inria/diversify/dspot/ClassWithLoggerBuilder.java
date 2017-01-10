@@ -29,7 +29,6 @@ public class ClassWithLoggerBuilder {
     public ClassWithLoggerBuilder(InputProgram inputProgram) {
         this.logger = "fr.inria.diversify.logger";
         assertionRemoverProcessor = new AssertionRemover(inputProgram.getAbsoluteTestSourceCodeDir());
-        assertionRemoverProcessor.setLogger(logger + ".Logger");
         assertionRemoverProcessor.setFactory(inputProgram.getFactory());
 
         loggingProcessor = new TestLogProcessor();

@@ -10,6 +10,8 @@ import spoon.support.reflect.code.CtCodeSnippetStatementImpl;
 import java.util.ArrayList;
 import java.util.List;
 
+import static fr.inria.diversify.dspot.AmplificationChecker.isAssert;
+
 public class AssertionRemover extends TestProcessor {
     protected String testDir;
     public static int monitorPointCount = 0;
@@ -63,7 +65,18 @@ public class AssertionRemover extends TestProcessor {
         }
     }
 
-    private CtCodeSnippetStatement buildVarStatement(CtElement arg) {
+    protected void removeStatement(CtBlock parent, CtStatement stmt) {
+        int i = 0;
+        List<CtStatement> stmts = parent.getStatements();
+        for (; i < stmts.size(); i++) {
+            if (stmts.get(i) == stmt) {
+                break;
+            }
+        }
+        stmts.remove(i);
+    }
+
+    protected CtCodeSnippetStatement buildVarStatement(CtElement arg) {
         CtCodeSnippetStatement stmt = new CtCodeSnippetStatementImpl();
         stmt.setValue("Object o" + monitorPointCount + " = " + arg.toString());
         monitorPointCount++;
