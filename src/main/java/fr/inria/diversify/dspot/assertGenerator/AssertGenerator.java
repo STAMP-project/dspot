@@ -30,7 +30,6 @@ public class AssertGenerator {
     private InputProgram inputProgram;
     private DSpotCompiler compiler;
 
-
     public AssertGenerator(InputProgram inputProgram, DSpotCompiler compiler, DiversifyClassLoader applicationClassLoader) {
         this.inputProgram = inputProgram;
         this.compiler = compiler;
