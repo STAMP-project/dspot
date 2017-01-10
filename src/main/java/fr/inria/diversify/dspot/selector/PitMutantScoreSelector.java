@@ -157,14 +157,15 @@ public class PitMutantScoreSelector implements TestSelector {
 
     @Override
     public void report() {
-        StringBuilder string = new StringBuilder();
+        final StringBuilder string = new StringBuilder();
         final String nl = System.getProperty("line.separator");
 
         string.append(nl).append("======= REPORT =======").append(nl);
         string.append("PitMutantScoreSelector: ").append(nl);
         string.append("The original test suite kill ").append(this.originalPitResults.size()).append(" mutants").append(nl);
         string.append("The amplification results with ").append(this.testThatKilledMutants.size()).append(" new tests").append(nl);
-        string.append("By amplifying ").append(this.testThatKilledMutants.size()).append(" tests, it kill ").append(this.nbOfTotalMutantKilled).append(" more mutants").append(nl);
+        string.append("By amplifying ").append(this.testThatKilledMutants.size()).append(" tests, it kill ")
+                .append(this.nbOfTotalMutantKilled).append(" more mutants").append(nl);
         System.out.println(string.toString());
 
         //intermediate output
@@ -175,14 +176,33 @@ public class PitMutantScoreSelector implements TestSelector {
                     string.append(result).append(nl)
             );
         });
+
         File reportDir = new File("dspot-report");
-        if (!reportDir.exists())
+        if (!reportDir.exists()) {
             reportDir.mkdir();
-        try (FileWriter writer = new FileWriter("dspot-report/pit_mutant_score_selector_report.txt", false) ){
+        }
+        try (FileWriter writer = new FileWriter("dspot-report/pit_mutant_score_selector_report.txt", false)) {
             writer.write(string.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        //report csv
+        reportCsv();
+    }
+
+    private void reportCsv() {
+        final String nl = System.getProperty("line.separator");
+        final String separator = ",";
+        final StringBuilder string = new StringBuilder();
+        string.append("AmplifiedTest").append(separator).append("#NewMutantKilled").append(separator)
+                .append("#AmplifiedInput").append(separator).append("#Assertions").append(nl);
+        this.testThatKilledMutants.keySet().forEach(amplifiedTest ->
+                string.append(amplifiedTest.getSimpleName()).append(separator)
+                        .append(this.testThatKilledMutants.get(amplifiedTest).size()).append(separator)
+                        .append("").append(separator)
+                        .append("").append(nl)
+        );
     }
 
 }
