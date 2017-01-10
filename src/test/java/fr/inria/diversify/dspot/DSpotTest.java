@@ -3,7 +3,6 @@ package fr.inria.diversify.dspot;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.PrintClassUtils;
 import org.junit.Test;
 import spoon.reflect.declaration.CtType;
 
@@ -34,10 +33,9 @@ public class DSpotTest extends MavenAbstractTest {
         DSpot dspot = new DSpot(configuration);
 
         CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample");
-        assertEquals(28, amplifiedTest.getMethods().size());
+        assertEquals(18, amplifiedTest.getMethods().size());
         assertEquals(originalTestBody, amplifiedTest.getMethod("test1").getBody().toString());
         assertEquals(expectedAmplifiedBody, amplifiedTest.getMethod("test1_cf24").getBody().toString());
-        PrintClassUtils.printJavaFile(new File("dspot-report"), amplifiedTest);
     }
 
     private final String originalTestBody = "{" + nl +

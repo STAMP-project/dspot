@@ -53,6 +53,7 @@ public class AssertGenerator {
                 if (parentTest != null) {
                     AmplificationHelper.getAmpTestToParent().put(ampTest, test);
                 }
+//                AmplificationHelper.getAmpTestToParent().put(ampTest, parentTest.get(test));
             }
         }
         Log.debug("{} new tests with assertions generated", amplifiedTestWithAssertion.size());

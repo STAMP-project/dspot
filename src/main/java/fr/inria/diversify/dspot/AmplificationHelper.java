@@ -162,9 +162,7 @@ public class AmplificationHelper {
     }
 
     public static CtMethod addOriginInComment(CtMethod amplifiedTest, CtMethod topParent) {
-        String content = "Build from " + topParent.getDeclaringType().getSimpleName() + "." + topParent.getSimpleName();
-        CtComment comment = amplifiedTest.getFactory().Code().createComment(content, CtComment.CommentType.BLOCK);
-        amplifiedTest.addComment(comment);
+        DSpotUtils.addComment(amplifiedTest, "Build from " + topParent.getDeclaringType().getSimpleName() + "." + topParent.getSimpleName(), CtComment.CommentType.BLOCK);
         return amplifiedTest;
     }
 

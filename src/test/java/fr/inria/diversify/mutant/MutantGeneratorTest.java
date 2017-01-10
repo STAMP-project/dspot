@@ -3,12 +3,11 @@ package fr.inria.diversify.mutant;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
+import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.MavenAbstractTest;
 import fr.inria.diversify.dspot.amplifier.Amplifier;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
 import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.util.Log;
-import fr.inria.diversify.util.PrintClassUtils;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtType;
@@ -18,7 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static fr.inria.diversify.dspot.MavenAbstractTest.pathToPropertiesFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
@@ -58,13 +56,13 @@ public class MutantGeneratorTest extends MavenAbstractTest {
 
         CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample");
 
-        PrintClassUtils.printJavaFile(outputDirectory, amplifiedTest);
+        DSpotUtils.printJavaFileWithComment(amplifiedTest, outputDirectory);
 
         MutantRunResults mutantResultsWithAmplifiedTests = mutantGenerator.runTestsOnAliveMutant(new InputConfiguration(pathToPropertiesFile));
         assertTrue(mutantsNotKilled.size() > mutantResultsWithAmplifiedTests.getRemainsAliveMutant().size());
         assertEquals(mutantsNotKilled.size(), mutantResultsWithAmplifiedTests.getRemainsAliveMutant().size() +
                 mutantResultsWithAmplifiedTests.getKilledMutants().size());
 
-        PrintClassUtils.printJavaFile(outputDirectory, exampleOriginalTestClass);
+        DSpotUtils.printJavaFileWithComment(exampleOriginalTestClass, outputDirectory);
     }
 }
