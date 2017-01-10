@@ -125,12 +125,6 @@ public class DSpot {
         }
     }
 
-    public void clean() throws IOException {
-        FileUtils.forceDelete(compiler.getSourceOutputDirectory());
-        FileUtils.forceDelete(compiler.getBinaryOutputDirectory());
-        FileUtils.forceDelete(new File(inputProgram.getProgramDir()));
-    }
-
     public InputProgram getInputProgram() {
         return inputProgram;
     }

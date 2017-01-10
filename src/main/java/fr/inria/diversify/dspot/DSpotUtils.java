@@ -75,7 +75,7 @@ public class DSpotUtils {
 
     public static void addComment(CtElement element, String content, CtComment.CommentType type) {
         CtComment comment = element.getFactory().createComment(content, type);
-        if (!element.getComments().contains(content)) {
+        if (!element.getComments().contains(comment)) {
             element.addComment(comment);
         }
     }
