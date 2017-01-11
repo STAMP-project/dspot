@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.selector;
 
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.DSpotUtils;
+import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitRunner;
@@ -11,6 +12,8 @@ import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -187,22 +190,69 @@ public class PitMutantScoreSelector implements TestSelector {
             e.printStackTrace();
         }
 
-        //report csv
-        reportCsv();
+        //report json
+        reportJSON();
     }
 
-    private void reportCsv() {
-        final String nl = System.getProperty("line.separator");
-        final String separator = ",";
+    private void reportJSON() {
         final StringBuilder string = new StringBuilder();
-        string.append("AmplifiedTest").append(separator).append("#NewMutantKilled").append(separator)
-                .append("#AmplifiedInput").append(separator).append("#Assertions").append(nl);
-        this.testThatKilledMutants.keySet().forEach(amplifiedTest ->
-                string.append(amplifiedTest.getSimpleName()).append(separator)
-                        .append(this.testThatKilledMutants.get(amplifiedTest).size()).append(separator)
-                        .append("").append(separator)
-                        .append("").append(nl)
+
+        string.append('{').append(nl);
+        List<CtMethod> keys = new ArrayList<>(this.testThatKilledMutants.keySet());
+
+        keys.forEach(amplifiedTest -> {
+                    string.append(tab)
+                            .append("\"").append(amplifiedTest.getSimpleName()).append("\":{").append(nl)
+                            .append(tab).append(tab)
+                            .append("\"#AssertionAdded\":").append(Counter.getAssertionOfSinceOrigin(amplifiedTest)).append(",").append(nl)
+                            .append(tab).append(tab)
+                            .append("\"#InputAdded\":").append(Counter.getInputOfSinceOrigin(amplifiedTest)).append(",").append(nl)
+                            .append(tab).append(tab)
+                            .append("\"#MutantKilled\":").append(this.testThatKilledMutants.get(amplifiedTest).size()).append(",").append(nl)
+                            .append(tab).append(tab)
+                            .append("\"MutantsKilled\":[").append(nl)
+                            .append(buildListOfIdMutantKilled(amplifiedTest))
+                            .append(tab).append(tab).append("]").append(nl)
+                            .append(tab).append("}");
+                    if (keys.indexOf(amplifiedTest) != keys.size() - 1)
+                        string.append(",");
+                    string.append(nl);
+                }
         );
+        string.append("}");
+
+        try (FileWriter writer = new FileWriter("dspot-report/out.json", false)) {
+            writer.write(string.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private StringBuilder buildListOfIdMutantKilled(CtMethod amplifiedTest) {
+        return this.testThatKilledMutants.get(amplifiedTest).stream()
+                .reduce(new StringBuilder(),
+                        (builder, element) -> {
+                            if (this.testThatKilledMutants.get(amplifiedTest).indexOf(element) ==
+                                    this.testThatKilledMutants.get(amplifiedTest).size() - 1) {
+                                return builder.append(getLineOfMutantKilled(element));
+                            } else {
+                                return builder.append(getLineOfMutantKilled(element)).append(",").append(nl);
+                            }
+                        }, StringBuilder::append);
+    }
+
+    private static final String nl = System.getProperty("line.separator");
+    private static final String tab = "\t";
+
+    private StringBuilder getLineOfMutantKilled(PitResult element) {
+        return new StringBuilder().append(tab).append(tab).append(tab).append("{").append(nl)
+                .append(tab).append(tab).append(tab).append(tab)
+                .append("\"ID\":").append("\"").append(element.getFullQualifiedNameMutantOperator()).append("\",").append(nl)
+                .append(tab).append(tab).append(tab).append(tab)
+                .append("\"lineNumber\":\"").append(element.getLineNumber()).append("\",").append(nl)
+                .append(tab).append(tab).append(tab).append(tab)
+                .append("\"location\":\"").append(element.getLocation()).append("\"").append(nl)
+                .append(tab).append(tab).append(tab).append("}").append(nl);
     }
 
 }
