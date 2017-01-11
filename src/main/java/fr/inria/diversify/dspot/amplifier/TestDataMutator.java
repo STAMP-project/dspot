@@ -4,6 +4,7 @@ package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.dspot.AmplificationHelper;
+import fr.inria.diversify.dspot.support.Counter;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
@@ -113,31 +114,29 @@ public class TestDataMutator implements Amplifier {
         }
         toReplace.replace(newLiteral);
 
+        Counter.updateInputOf(cloned_method, 1);
+
         return cloned_method;
     }
 
     private List<CtMethod> createAllNumberMutant(CtMethod method, CtLiteral literal, int lit_index) {
-        List<CtMethod> mutants = new ArrayList<>();
-        for (Number newValue : numberMutated(literal)) {
-            mutants.add(createNumberMutant(method, lit_index, newValue));
-        }
-        return mutants;
+        return numberMutated(literal).stream()
+                .map(newValue -> createNumberMutant(method, lit_index, newValue))
+                .collect(Collectors.toList());
     }
 
 
     private List<CtMethod> createAllStringMutant(CtMethod method, CtLiteral literal, int original_lit_index) {
-        List<CtMethod> mutants = new ArrayList<>();
-
-        for (String literalMutated : stringMutated(literal)) {
-            mutants.add(createStringMutant(method, original_lit_index, literalMutated));
-        }
-        return mutants;
+        return stringMutated(literal).stream()
+                .map(literalMutated -> createStringMutant(method, original_lit_index, literalMutated))
+                .collect(Collectors.toList());
     }
 
     private CtMethod createStringMutant(CtMethod method, int original_lit_index, String newValue) {
         CtMethod cloned_method = AmplificationHelper.cloneMethod(method, "_literalMutation");
         Query.getElements(cloned_method, new TypeFilter<>(CtLiteral.class))
                 .get(original_lit_index).replace(cloned_method.getFactory().Code().createLiteral(newValue));
+        Counter.updateInputOf(cloned_method, 1);
         return cloned_method;
     }
 
@@ -165,7 +164,7 @@ public class TestDataMutator implements Amplifier {
         ).findAny();
 
         if (presentString.isPresent()) {
-            values.add((String)presentString.get());
+            values.add((String) presentString.get());
         }
 
         return values;
@@ -193,7 +192,6 @@ public class TestDataMutator implements Amplifier {
     }
 
 
-
     private CtMethod createBooleanMutant(CtMethod test, CtLiteral booleanLiteral) {
         Boolean value = (Boolean) booleanLiteral.getValue();
         CtMethod cloned_method = AmplificationHelper.cloneMethod(test, "_literalMutation");
@@ -205,6 +203,7 @@ public class TestDataMutator implements Amplifier {
         }).get(0);
         newValue.setValue(!value);
         newValue.setTypeCasts(booleanLiteral.getTypeCasts());
+        Counter.updateInputOf(cloned_method, 1);
         return cloned_method;
     }
 
