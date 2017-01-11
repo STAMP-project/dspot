@@ -18,13 +18,17 @@ import java.util.List;
  */
 public class PitRunner {
 
+    private static final String PRE_GOAL_PIT = "clean test -DskipTests";
+
     private static final String OPT_WITH_HISTORY = "-DwithHistory";
 
     private static final String OPT_VALUE_REPORT_DIR = "-DreportsDirectory=target/pit-reports";
 
+    private static final String OPT_VALUE_MUTATORS = "-Dmutators=ALL";
+
     private static final String OPT_VALUE_FORMAT = "-DoutputFormats=CSV";
 
-    private static final String OPT_TARGET_CLASSES = "-DtargetClassses=";
+    private static final String OPT_TARGET_CLASSES = "-DtargetClasses=";
 
     private static final String OPT_TARGET_TESTS = "-DtargetTests=";
 
@@ -35,16 +39,17 @@ public class PitRunner {
             String mavenHome = configuration.getProperty("maven.home", null);
             MavenBuilder builder = new MavenBuilder(program.getProgramDir());
             builder.setBuilderPath(mavenHome);
-            String[] phases = new String[]{OPT_WITH_HISTORY, //
+            String[] phases = new String[]{PRE_GOAL_PIT, //
+                    OPT_WITH_HISTORY, //
+                    OPT_VALUE_MUTATORS, //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
-                    OPT_TARGET_CLASSES + testClass.getPackage().getQualifiedName() + ".*",//TODO checks if this is sufficient. Maybe we can run on the whole project.
+//                    OPT_TARGET_CLASSES + testClass.getPackage().getQualifiedName() + ".*",//TODO checks if this is sufficient. Maybe we can run on the whole project.
                     OPT_TARGET_TESTS + testClass.getQualifiedName(), //
                     CMD_PIT_MUTATION_COVERAGE};
-            builder.setGoals(phases);
-            builder.initTimeOut();
+            builder.runGoals(phases, false);
             File directoryReportPit = new File(program.getProgramDir() + "/target/pit-reports").listFiles()[0];
-            return PitResultParser.parse(new File(directoryReportPit.getPath() + "/mutations.csv"));
+            return PitResultParser.parse(new File(directoryReportPit.getPath() + "/mutations.csv"), testClass);
         } catch (Exception e) {
             Log.warn("Error during running Pit-test-mutation");
             return null;

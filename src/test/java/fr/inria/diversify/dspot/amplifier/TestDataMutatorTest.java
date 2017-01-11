@@ -161,7 +161,8 @@ public class TestDataMutatorTest extends AbstractTest {
         /*
           Test the amplification on string literal
                 3 operations: remove 1 random char, replace 1 random char, add 1 random char
-                and 1 literals present that is different that the muted
+                Additionally, it replace by totally random string with the same size than the original one,
+                and by 1 literals present that is different that the muted
         */
 
         final String nameMethod = "methodString";
@@ -172,7 +173,7 @@ public class TestDataMutatorTest extends AbstractTest {
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<CtMethod> mutantMethods = amplificator.apply(method);
 
-        assertEquals(4, mutantMethods.size());
+        assertEquals(5, mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {
             CtMethod mutantMethod = mutantMethods.get(i);
             assertEquals(nameMethod + SUFFIX_MUTATION + (i + 1), mutantMethod.getSimpleName());
@@ -188,7 +189,8 @@ public class TestDataMutatorTest extends AbstractTest {
         /*
           Test the amplification on string literal
                 3 operations: remove 1 random char, replace 1 random char, add 1 random char
-                and 1 literals present that is different that the muted
+                Additionally, it replace by totally random string with the same size than the original one,
+                and by 1 literals present that is different that the muted
                 One random amplification at the time
         */
 
@@ -259,7 +261,11 @@ public class TestDataMutatorTest extends AbstractTest {
                         }).stream().map(ctLiteral -> (String) ctLiteral.getValue())
                 ).collect(Collectors.toList());
 
-        assertTrue(addCharAssertion || removeCharAssertion || (diffFound && replaceCharAssertion) || existingStringLiterals.contains(mutant));
+        assertTrue(addCharAssertion ||
+                removeCharAssertion ||
+                (diffFound && replaceCharAssertion) ||
+                existingStringLiterals.contains(mutant) ||
+                "c!>ya,f,0(TDja_".equals(mutant));
     }
 
     @Test

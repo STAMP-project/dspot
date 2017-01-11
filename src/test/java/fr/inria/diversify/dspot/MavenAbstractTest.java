@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  * benjamin.danglot@inria.fr
  * on 1/5/17
  */
-public class MavenAbstractTest {
+public abstract class MavenAbstractTest {
 
     public static final String pathToPropertiesFile = "src/test/resources/test-projects/test-projects.properties";
 

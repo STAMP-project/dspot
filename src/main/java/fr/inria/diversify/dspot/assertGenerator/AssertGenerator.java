@@ -47,7 +47,7 @@ public class AssertGenerator {
         List<CtMethod> amplifiedTestWithAssertion = new ArrayList<>();
         for (CtMethod test : tests) {
             CtMethod ampTest = ag.generateAssert(test, findStatementToAssert(test, parentTest));
-            if (ampTest != null) {
+            if (ampTest != null && ! ampTest.equals(test)) {
                 amplifiedTestWithAssertion.add(ampTest);
             }
         }

@@ -1,5 +1,7 @@
 package fr.inria.diversify.dspot.selector;
 
+import fr.inria.diversify.runner.InputConfiguration;
+import fr.inria.diversify.runner.InputProgram;
 import spoon.reflect.declaration.CtMethod;
 
 import java.util.List;
@@ -11,12 +13,16 @@ import java.util.List;
  */
 public interface TestSelector {
 
-    void init();
+    void init(InputConfiguration configuration);
+
+    void reset();
 
     List<CtMethod> selectToAmplify(List<CtMethod> testsToBeAmplified);
 
     List<CtMethod> selectToKeep(List<CtMethod> amplifiedTestToBeKept);
 
     void update();
+
+    void report();
 
 }

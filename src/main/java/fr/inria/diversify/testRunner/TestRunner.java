@@ -2,20 +2,12 @@ package fr.inria.diversify.testRunner;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.factories.DiversityCompiler;
-import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
-import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * User: Simon
@@ -23,34 +15,13 @@ import java.util.stream.Collectors;
  * Time: 10:28
  */
 public class TestRunner {
-    protected InputProgram inputProgram;
 
-    protected DiversifyClassLoader applicationClassLoader;
-    protected DSpotCompiler compiler;
+    private DiversifyClassLoader applicationClassLoader;
+    private DSpotCompiler compiler;
 
-    public TestRunner(InputProgram inputProgram, DiversifyClassLoader applicationClassLoader, DSpotCompiler compiler) {
+    public TestRunner(DiversifyClassLoader applicationClassLoader, DSpotCompiler compiler) {
         this.applicationClassLoader = applicationClassLoader;
-        this.inputProgram = inputProgram;
         this.compiler = compiler;
-    }
-
-    public JunitResult runTest(CtType testClass, CtMethod test) throws ClassNotFoundException, IOException {
-        List<CtMethod> tests = new ArrayList<>(1);
-        tests.add(test);
-        return runTests(testClass, tests);
-    }
-
-    public JunitResult runTests(CtType testClass, Collection<CtMethod> tests) throws ClassNotFoundException, IOException {
-        boolean status = writeAndCompile(testClass);
-
-        if (!status) {
-            return null;
-        }
-
-        JunitRunner junitRunner = new JunitRunner(new DiversifyClassLoader(applicationClassLoader, compiler.getBinaryOutputDirectory().getAbsolutePath()));//incorrect classpath
-        return junitRunner.runTestClass(testClass.getQualifiedName(), tests.stream()
-                .map(test -> test.getSimpleName())
-                .collect(Collectors.toList()));
     }
 
     public boolean writeAndCompile(CtType classInstru) {
@@ -58,7 +29,8 @@ public class TestRunner {
             FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
         } catch (IOException | IllegalArgumentException ignored) {
-
+            Log.warn("error during cleaning output directories");
+            //ignored
         }
         try {
             PrintClassUtils.printJavaFile(compiler.getSourceOutputDirectory(), classInstru);

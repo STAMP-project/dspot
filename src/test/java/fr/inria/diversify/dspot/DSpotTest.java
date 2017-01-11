@@ -1,10 +1,13 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import fr.inria.diversify.dspot.selector.PitMutantScoreSelector;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import org.junit.Test;
 import spoon.reflect.declaration.CtType;
+
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
@@ -35,7 +38,6 @@ public class DSpotTest extends MavenAbstractTest {
         assertEquals(originalTestBody, amplifiedTest.getMethod("test1").getBody().toString());
         assertEquals(expectedAmplifiedBody, amplifiedTest.getMethod("test1_cf24").getBody().toString());
     }
-
 
     private final String originalTestBody = "{" + nl +
             "    example.Example ex = new example.Example();" + nl +

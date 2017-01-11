@@ -10,6 +10,8 @@ import spoon.support.reflect.code.CtCodeSnippetStatementImpl;
 import java.util.ArrayList;
 import java.util.List;
 
+import static fr.inria.diversify.dspot.AmplificationChecker.isAssert;
+
 public class AssertionRemover extends TestProcessor {
     protected String testDir;
     public static int monitorPointCount = 0;

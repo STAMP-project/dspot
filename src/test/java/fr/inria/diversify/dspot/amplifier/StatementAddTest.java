@@ -36,11 +36,11 @@ public class StatementAddTest extends AbstractTest {
         inputProgram.setFactory(factory);
         AmplificationHelper.setSeedRandom(23L);
         ValueFactory valueFactory = new ValueFactory(inputProgram);
-        StatementAdd amplificator = new StatementAdd(inputProgram.getFactory(), valueFactory, packageName);
-        amplificator.reset(factory.Class().get(packageName + ".ClassTargetAmplify"));
+        StatementAdd amplifier = new StatementAdd(inputProgram.getFactory(), valueFactory, packageName);
+        amplifier.reset(factory.Class().get(packageName + ".ClassTargetAmplify"));
 
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
-        List<CtMethod> amplifiedMethods = amplificator.apply(ctMethod);
+        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod);
 
         assertEquals(4, amplifiedMethods.size());
     }
