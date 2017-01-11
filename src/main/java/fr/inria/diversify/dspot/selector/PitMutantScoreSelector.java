@@ -194,11 +194,18 @@ public class PitMutantScoreSelector implements TestSelector {
         reportJSON();
     }
 
+    private double fitness(CtMethod test) {
+        return ((double) this.testThatKilledMutants.get(test).size() / (double)(Counter.getAssertionOfSinceOrigin(test) + Counter.getInputOfSinceOrigin(test)));
+    }
+
     private void reportJSON() {
         final StringBuilder string = new StringBuilder();
 
         string.append('{').append(nl);
-        List<CtMethod> keys = new ArrayList<>(this.testThatKilledMutants.keySet());
+
+        List<CtMethod> keys = this.testThatKilledMutants.keySet().stream()
+                .sorted((test1, test2) -> Double.compare(fitness(test2), fitness(test1)))
+                .collect(Collectors.toList());
 
         keys.forEach(amplifiedTest -> {
                     string.append(tab)
