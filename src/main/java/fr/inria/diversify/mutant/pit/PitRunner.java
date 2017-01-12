@@ -4,8 +4,6 @@ import fr.inria.diversify.buildSystem.maven.MavenBuilder;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.Log;
-import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
@@ -28,14 +26,13 @@ public class PitRunner {
 
     private static final String OPT_VALUE_FORMAT = "-DoutputFormats=CSV";
 
-    private static final String OPT_TARGET_CLASSES = "-DtargetClasses=";
-
     private static final String OPT_TARGET_TESTS = "-DtargetTests=";
 
     private static final String CMD_PIT_MUTATION_COVERAGE = "org.pitest:pitest-maven:mutationCoverage";
 
     public static List<PitResult> run(InputProgram program, InputConfiguration configuration, CtType testClass) {
         try {
+            long time = System.currentTimeMillis();
             String mavenHome = configuration.getProperty("maven.home", null);
             MavenBuilder builder = new MavenBuilder(program.getProgramDir());
             builder.setBuilderPath(mavenHome);
@@ -44,15 +41,15 @@ public class PitRunner {
                     OPT_VALUE_MUTATORS, //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
-//                    OPT_TARGET_CLASSES + testClass.getPackage().getQualifiedName() + ".*",//TODO checks if this is sufficient. Maybe we can run on the whole project.
                     OPT_TARGET_TESTS + testClass.getQualifiedName(), //
                     CMD_PIT_MUTATION_COVERAGE};
             builder.runGoals(phases, false);
             File directoryReportPit = new File(program.getProgramDir() + "/target/pit-reports").listFiles()[0];
-            return PitResultParser.parse(new File(directoryReportPit.getPath() + "/mutations.csv"), testClass);
+            List<PitResult> results = PitResultParser.parse(new File(directoryReportPit.getPath() + "/mutations.csv"), testClass);
+            Log.debug("Time to run pit mutation coverage {} ms", System.currentTimeMillis() - time);
+            return results;
         } catch (Exception e) {
-            Log.warn("Error during running Pit-test-mutation");
-            return null;
+            throw new RuntimeException(e);
         }
     }
 

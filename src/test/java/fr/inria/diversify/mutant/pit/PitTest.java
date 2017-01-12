@@ -14,6 +14,7 @@ import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Created by Benjamin DANGLOT
@@ -77,9 +78,11 @@ public class PitTest extends MavenAbstractTest {
         /*
             Run the PitRunner in wrong configuration.
          */
-
-        List<PitResult> pitResults = PitRunner.run(null, null, null);
-
-        assertTrue(null == pitResults);
+        try {
+            List<PitResult> pitResults = PitRunner.run(null, null, null);
+            fail("PirRunner.run() should throw : java.lang.NullPointerException");
+        } catch (Exception e) {
+            //catch the null pointer exception
+        }
     }
 }

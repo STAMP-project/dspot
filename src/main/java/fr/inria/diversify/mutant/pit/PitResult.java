@@ -9,7 +9,7 @@ import spoon.reflect.declaration.CtMethod;
  */
 public class PitResult {
 
-    public enum State {SURVIVED, KILLED, NO_COVERAGE}
+    public enum State {SURVIVED, KILLED, NO_COVERAGE, TIMED_OUT, NON_VIABLE}
 
     private final State stateOfMutant;
 

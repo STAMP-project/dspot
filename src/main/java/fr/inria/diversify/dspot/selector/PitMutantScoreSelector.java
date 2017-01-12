@@ -46,10 +46,7 @@ public class PitMutantScoreSelector implements TestSelector {
 
     private Map<CtMethod, List<PitResult>> testThatKilledMutants;
 
-    private int nbOfTotalMutantKilled;
-
     public PitMutantScoreSelector() {
-        this.nbOfTotalMutantKilled = 0;
         this.testThatKilledMutants = new HashMap<>();
         this.currentMutantsKilledPerTestCase = new HashMap<>();
         this.testAlreadyRun = new ArrayList<>();
@@ -77,7 +74,6 @@ public class PitMutantScoreSelector implements TestSelector {
             DSpotCompiler.buildCompiler(this.program, true);
             DSpotUtils.compileTests(this.program, mavenHome, mavenLocalRepository);
             InitUtils.initLogLevel(configuration);
-
         } catch (Exception | InvalidSdkException e) {
             throw new RuntimeException(e);
         }
@@ -109,7 +105,6 @@ public class PitMutantScoreSelector implements TestSelector {
         if (amplifiedTestToBeKept.isEmpty()) {
             return amplifiedTestToBeKept;
         }
-        long time = System.currentTimeMillis();
         CtType clone = this.currentClassTestToBeAmplified.clone();
         clone.setParent(this.currentClassTestToBeAmplified.getParent());
         ((Set<CtMethod>) this.currentClassTestToBeAmplified.getMethods()).forEach(clone::removeMethod);
@@ -122,8 +117,8 @@ public class PitMutantScoreSelector implements TestSelector {
         }
 
         List<PitResult> results = PitRunner.run(this.program, this.configuration, clone);
-        List<CtMethod> selectedTests = new ArrayList<>();
 
+        List<CtMethod> selectedTests = new ArrayList<>();
         if (results != null) {
             results.stream()
                     .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
@@ -136,7 +131,6 @@ public class PitMutantScoreSelector implements TestSelector {
                         selectedTests.add(result.getTestCaseMethod());
                     });
         }
-        Log.debug("Time to run pit mutation coverage {} ms", System.currentTimeMillis() - time);
 
         try {
             PrintClassUtils.printJavaFile(new File(this.program.getAbsoluteTestSourceCodeDir()), this.currentClassTestToBeAmplified);
@@ -144,10 +138,7 @@ public class PitMutantScoreSelector implements TestSelector {
             throw new RuntimeException(e);
         }
 
-        this.nbOfTotalMutantKilled += this.currentMutantsKilledPerTestCase.keySet()
-                .stream()
-                .map(this.currentMutantsKilledPerTestCase::get)
-                .reduce(0, (integer, pitResults) -> integer + pitResults.size(), Integer::sum);
+
         this.testThatKilledMutants.putAll(this.currentMutantsKilledPerTestCase);
 
         return selectedTests;
@@ -158,21 +149,36 @@ public class PitMutantScoreSelector implements TestSelector {
         // empty
     }
 
+    private static final String nl = System.getProperty("line.separator");
+    private static final String tab = "\t";
+
     @Override
     public void report() {
         final StringBuilder string = new StringBuilder();
         final String nl = System.getProperty("line.separator");
 
+        long nbOfTotalMutantKilled = this.testThatKilledMutants.keySet()
+                .stream()
+                .flatMap(method -> this.testThatKilledMutants.get(method).stream())
+                .map(PitResult::getFullQualifiedNameMutantOperator)
+                .distinct()
+                .count();
+
         string.append(nl).append("======= REPORT =======").append(nl);
         string.append("PitMutantScoreSelector: ").append(nl);
         string.append("The original test suite kill ").append(this.originalPitResults.size()).append(" mutants").append(nl);
-        string.append("The amplification results with ").append(this.testThatKilledMutants.size()).append(" new tests").append(nl);
+        string.append("The amplification results with ").append(
+                this.testThatKilledMutants.size()).append(" new tests").append(nl);
         string.append("By amplifying ").append(this.testThatKilledMutants.size()).append(" tests, it kill ")
-                .append(this.nbOfTotalMutantKilled).append(" more mutants").append(nl);
+                .append(nbOfTotalMutantKilled).append(" more mutants").append(nl);
         System.out.println(string.toString());
 
+        List<CtMethod> keys = this.testThatKilledMutants.keySet().stream()
+                .sorted((test1, test2) -> Double.compare(fitness(test2), fitness(test1)))
+                .collect(Collectors.toList());
+
         //intermediate output
-        this.testThatKilledMutants.keySet().forEach(amplifiedTest -> {
+        keys.forEach(amplifiedTest -> {
             string.append(amplifiedTest).append(nl);
             string.append("Kill:").append(nl);
             this.testThatKilledMutants.get(amplifiedTest).forEach(result ->
@@ -191,22 +197,16 @@ public class PitMutantScoreSelector implements TestSelector {
         }
 
         //report json
-        reportJSON();
+        reportJSON(keys);
     }
 
     private double fitness(CtMethod test) {
         return ((double) this.testThatKilledMutants.get(test).size() / (double)(Counter.getAssertionOfSinceOrigin(test) + Counter.getInputOfSinceOrigin(test)));
     }
 
-    private void reportJSON() {
+    private void reportJSON(List<CtMethod> keys) {
         final StringBuilder string = new StringBuilder();
-
         string.append('{').append(nl);
-
-        List<CtMethod> keys = this.testThatKilledMutants.keySet().stream()
-                .sorted((test1, test2) -> Double.compare(fitness(test2), fitness(test1)))
-                .collect(Collectors.toList());
-
         keys.forEach(amplifiedTest -> {
                     string.append(tab)
                             .append("\"").append(amplifiedTest.getSimpleName()).append("\":{").append(nl)
@@ -227,7 +227,6 @@ public class PitMutantScoreSelector implements TestSelector {
                 }
         );
         string.append("}");
-
         try (FileWriter writer = new FileWriter("dspot-report/out.json", false)) {
             writer.write(string.toString());
         } catch (IOException e) {
@@ -247,9 +246,6 @@ public class PitMutantScoreSelector implements TestSelector {
                             }
                         }, StringBuilder::append);
     }
-
-    private static final String nl = System.getProperty("line.separator");
-    private static final String tab = "\t";
 
     private StringBuilder getLineOfMutantKilled(PitResult element) {
         return new StringBuilder().append(tab).append(tab).append(tab).append("{").append(nl)

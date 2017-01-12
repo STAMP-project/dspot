@@ -7,7 +7,6 @@ import spoon.reflect.declaration.CtType;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,11 +30,10 @@ public class PitResultParser {
                 String location = splittedLine[3];
                 results.add(new PitResult(state, fullQualifiedNameMutantOperator, methodTest, lineNumber, location));
             });
-        } catch (IOException e) {
-            Log.warn("Error during reading report file of pits.");
+            Log.debug("Number Of Mutants generated : {}", results.size());
+            return results;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        return results;
     }
-
-
 }
