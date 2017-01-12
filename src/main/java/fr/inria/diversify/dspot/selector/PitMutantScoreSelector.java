@@ -10,9 +10,7 @@ import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
-import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
-import org.json.JSONException;
 import org.json.JSONObject;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -40,17 +38,11 @@ public class PitMutantScoreSelector implements TestSelector {
 
     private Map<CtMethod, List<PitResult>> currentMutantsKilledPerTestCase;
 
-    private List<CtMethod> testAlreadyRun;
-
-    private List<CtMethod> testAlreadyAdded;
-
     private Map<CtMethod, List<PitResult>> testThatKilledMutants;
 
     public PitMutantScoreSelector() {
         this.testThatKilledMutants = new HashMap<>();
         this.currentMutantsKilledPerTestCase = new HashMap<>();
-        this.testAlreadyRun = new ArrayList<>();
-        this.testAlreadyAdded = new ArrayList<>();
         this.originalPitResults = new ArrayList<>();
     }
 
@@ -59,7 +51,6 @@ public class PitMutantScoreSelector implements TestSelector {
     @Override
     public void init(InputConfiguration configuration) {
         this.configuration = configuration;
-        this.reset();
         try {
             InitUtils.initLogLevel(configuration);
             this.program = InitUtils.initInputProgram(this.configuration);
@@ -81,11 +72,7 @@ public class PitMutantScoreSelector implements TestSelector {
 
     @Override
     public void reset() {
-        this.currentClassTestToBeAmplified = null;
-        this.currentMutantsKilledPerTestCase.clear();
-        this.testAlreadyRun.clear();
-        this.testAlreadyAdded.clear();
-        this.originalPitResults.clear();
+        //empty
     }
 
     @Override
@@ -139,7 +126,13 @@ public class PitMutantScoreSelector implements TestSelector {
         }
 
 
-        this.testThatKilledMutants.putAll(this.currentMutantsKilledPerTestCase);
+        selectedTests.forEach(testMethod -> {
+            if (!this.testThatKilledMutants.containsKey(testMethod)) {
+                this.testThatKilledMutants.put(testMethod, this.currentMutantsKilledPerTestCase.get(testMethod));
+            } else {
+                this.testThatKilledMutants.get(testMethod).addAll(this.currentMutantsKilledPerTestCase.get(testMethod));
+            }
+        });
 
         return selectedTests;
     }
@@ -149,113 +142,102 @@ public class PitMutantScoreSelector implements TestSelector {
         // empty
     }
 
-    private static final String nl = System.getProperty("line.separator");
-    private static final String tab = "\t";
-
     @Override
     public void report() {
+        reportStdout();
+        reportJSONClass();
+        reportJSONMutants();
+        //clean up for the next class
+        this.currentClassTestToBeAmplified = null;
+        this.currentMutantsKilledPerTestCase.clear();
+        this.originalPitResults.clear();
+    }
+
+    private void reportStdout() {
         final StringBuilder string = new StringBuilder();
         final String nl = System.getProperty("line.separator");
-
-        long nbOfTotalMutantKilled = this.testThatKilledMutants.keySet()
-                .stream()
-                .flatMap(method -> this.testThatKilledMutants.get(method).stream())
-                .map(PitResult::getFullQualifiedNameMutantOperator)
-                .distinct()
-                .count();
-
+        long nbOfTotalMutantKilled = getNbTotalNewMutantKilled();
         string.append(nl).append("======= REPORT =======").append(nl);
         string.append("PitMutantScoreSelector: ").append(nl);
         string.append("The original test suite kill ").append(this.originalPitResults.size()).append(" mutants").append(nl);
         string.append("The amplification results with ").append(
                 this.testThatKilledMutants.size()).append(" new tests").append(nl);
-        string.append("By amplifying ").append(this.testThatKilledMutants.size()).append(" tests, it kill ")
+        string.append("it kill ")
                 .append(nbOfTotalMutantKilled).append(" more mutants").append(nl);
         System.out.println(string.toString());
-
-        List<CtMethod> keys = this.testThatKilledMutants.keySet().stream()
-                .sorted((test1, test2) -> Double.compare(fitness(test2), fitness(test1)))
-                .collect(Collectors.toList());
-
-        //intermediate output
-        keys.forEach(amplifiedTest -> {
-            string.append(amplifiedTest).append(nl);
-            string.append("Kill:").append(nl);
-            this.testThatKilledMutants.get(amplifiedTest).forEach(result ->
-                    string.append(result).append(nl)
-            );
-        });
 
         File reportDir = new File("dspot-report");
         if (!reportDir.exists()) {
             reportDir.mkdir();
         }
-        try (FileWriter writer = new FileWriter("dspot-report/pit_mutant_score_selector_report.txt", false)) {
+        try (FileWriter writer = new FileWriter("dspot-report/report.txt", false)) {
             writer.write(string.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        //report json
-        reportJSON(keys);
     }
 
+    private long getNbTotalNewMutantKilled() {
+        return this.testThatKilledMutants.keySet()
+                .stream()
+                .flatMap(method -> this.testThatKilledMutants.get(method).stream())
+                .map(PitResult::getFullQualifiedNameMutantOperator)
+                .distinct()
+                .count();
+    }
+
+    @Deprecated
     private double fitness(CtMethod test) {
-        return ((double) this.testThatKilledMutants.get(test).size() / (double)(Counter.getAssertionOfSinceOrigin(test) + Counter.getInputOfSinceOrigin(test)));
+        return ((double) this.testThatKilledMutants.get(test).size() / (double) (Counter.getAssertionOfSinceOrigin(test) + Counter.getInputOfSinceOrigin(test)));
     }
 
-    private void reportJSON(List<CtMethod> keys) {
-        final StringBuilder string = new StringBuilder();
-        string.append('{').append(nl);
-        keys.forEach(amplifiedTest -> {
-                    string.append(tab)
-                            .append("\"").append(amplifiedTest.getSimpleName()).append("\":{").append(nl)
-                            .append(tab).append(tab)
-                            .append("\"#AssertionAdded\":").append(Counter.getAssertionOfSinceOrigin(amplifiedTest)).append(",").append(nl)
-                            .append(tab).append(tab)
-                            .append("\"#InputAdded\":").append(Counter.getInputOfSinceOrigin(amplifiedTest)).append(",").append(nl)
-                            .append(tab).append(tab)
-                            .append("\"#MutantKilled\":").append(this.testThatKilledMutants.get(amplifiedTest).size()).append(",").append(nl)
-                            .append(tab).append(tab)
-                            .append("\"MutantsKilled\":[").append(nl)
-                            .append(buildListOfIdMutantKilled(amplifiedTest))
-                            .append(tab).append(tab).append("]").append(nl)
-                            .append(tab).append("}");
-                    if (keys.indexOf(amplifiedTest) != keys.size() - 1)
-                        string.append(",");
-                    string.append(nl);
-                }
+    private void reportJSONClass() {
+        final JSONObject json = new JSONObject();
+        this.testThatKilledMutants.keySet().forEach(amplifiedTest ->
+                json.accumulate(this.currentClassTestToBeAmplified.getQualifiedName(),
+                        new JSONObject().put(amplifiedTest.getSimpleName(), amplifiedTest.toString()))
         );
-        string.append("}");
-        try (FileWriter writer = new FileWriter("dspot-report/out.json", false)) {
-            writer.write(string.toString());
+        try (FileWriter writer = new FileWriter("dspot-report/generated_test_classes.json", false)) {
+            writer.write(json.toString(3));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void reportJSONMutants() {
+        final JSONObject json = new JSONObject();
+        this.testThatKilledMutants.keySet().forEach(amplifiedTest ->
+                json.accumulate(this.currentClassTestToBeAmplified.getQualifiedName(),
+                        new JSONObject().put(amplifiedTest.getSimpleName(),
+                                buildResultTest(amplifiedTest))
+                )
+        );
+        try (FileWriter writer = new FileWriter("dspot-report/mutants_killed.json", false)) {
+            writer.write(json.toString(3));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private StringBuilder buildListOfIdMutantKilled(CtMethod amplifiedTest) {
-        return this.testThatKilledMutants.get(amplifiedTest).stream()
-                .reduce(new StringBuilder(),
-                        (builder, element) -> {
-                            if (this.testThatKilledMutants.get(amplifiedTest).indexOf(element) ==
-                                    this.testThatKilledMutants.get(amplifiedTest).size() - 1) {
-                                return builder.append(getLineOfMutantKilled(element));
-                            } else {
-                                return builder.append(getLineOfMutantKilled(element)).append(",").append(nl);
-                            }
-                        }, StringBuilder::append);
+    private JSONObject buildResultTest(CtMethod amplifiedTest) {
+        JSONObject json = new JSONObject()
+                .put("#AssertionAdded",
+                        Counter.getAssertionOfSinceOrigin(amplifiedTest))
+                .put("#InputAdded",
+                        Counter.getInputOfSinceOrigin(amplifiedTest))
+                .put("#MutantKilled",
+                        this.testThatKilledMutants.get(amplifiedTest).size());
+        this.testThatKilledMutants.get(amplifiedTest).forEach(mutant ->
+                json.accumulate("MutantsKilled", getMutantKilled(mutant))
+        );
+        return json;
     }
 
-    private StringBuilder getLineOfMutantKilled(PitResult element) {
-        return new StringBuilder().append(tab).append(tab).append(tab).append("{").append(nl)
-                .append(tab).append(tab).append(tab).append(tab)
-                .append("\"ID\":").append("\"").append(element.getFullQualifiedNameMutantOperator()).append("\",").append(nl)
-                .append(tab).append(tab).append(tab).append(tab)
-                .append("\"lineNumber\":\"").append(element.getLineNumber()).append("\",").append(nl)
-                .append(tab).append(tab).append(tab).append(tab)
-                .append("\"location\":\"").append(element.getLocation()).append("\"").append(nl)
-                .append(tab).append(tab).append(tab).append("}").append(nl);
+    private JSONObject getMutantKilled(PitResult element) {
+        JSONObject mutant = new JSONObject();
+        return mutant.put("ID", element.getFullQualifiedNameMutantOperator())
+                .put("lineNumber", element.getLineNumber())
+                .put("location", element.getLocation());
     }
 
 }
