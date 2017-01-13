@@ -53,4 +53,26 @@ public class PitRunner {
         }
     }
 
+    public static List<PitResult> runAll(InputProgram program, InputConfiguration configuration) {
+        try {
+            long time = System.currentTimeMillis();
+            String mavenHome = configuration.getProperty("maven.home", null);
+            MavenBuilder builder = new MavenBuilder(program.getProgramDir());
+            builder.setBuilderPath(mavenHome);
+            String[] phases = new String[]{PRE_GOAL_PIT, //
+                    OPT_WITH_HISTORY, //
+                    OPT_VALUE_MUTATORS, //
+                    OPT_VALUE_REPORT_DIR, //
+                    OPT_VALUE_FORMAT, //
+                    CMD_PIT_MUTATION_COVERAGE};
+            builder.runGoals(phases, false);
+            File directoryReportPit = new File(program.getProgramDir() + "/target/pit-reports").listFiles()[0];
+            List<PitResult> results = PitResultParser.parseAll(new File(directoryReportPit.getPath() + "/mutations.csv"), program.getFactory());
+            Log.debug("Time to run pit mutation coverage {} ms", System.currentTimeMillis() - time);
+            return results;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

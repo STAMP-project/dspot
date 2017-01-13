@@ -10,8 +10,8 @@ import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
+import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
-import org.json.JSONObject;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -36,13 +36,10 @@ public class PitMutantScoreSelector implements TestSelector {
 
     private List<PitResult> originalPitResults;
 
-    private Map<CtMethod, List<PitResult>> currentMutantsKilledPerTestCase;
-
-    private Map<CtMethod, List<PitResult>> testThatKilledMutants;
+    private Map<CtMethod, Set<PitResult>> testThatKilledMutants;
 
     public PitMutantScoreSelector() {
         this.testThatKilledMutants = new HashMap<>();
-        this.currentMutantsKilledPerTestCase = new HashMap<>();
         this.originalPitResults = new ArrayList<>();
     }
 
@@ -65,6 +62,15 @@ public class PitMutantScoreSelector implements TestSelector {
             DSpotCompiler.buildCompiler(this.program, true);
             DSpotUtils.compileTests(this.program, mavenHome, mavenLocalRepository);
             InitUtils.initLogLevel(configuration);
+
+//            if (this.originalPitResults == null) {
+//                List<PitResult> pitResults = PitRunner.runAll(this.program, this.configuration);
+//                this.originalPitResults = pitResults.stream()
+//                        .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
+//                        .collect(Collectors.toList());
+//                Log.debug("The original test suite kill {} / {}", this.originalPitResults.size(), pitResults.size());
+//            }
+
         } catch (Exception | InvalidSdkException e) {
             throw new RuntimeException(e);
         }
@@ -79,10 +85,11 @@ public class PitMutantScoreSelector implements TestSelector {
     public List<CtMethod> selectToAmplify(List<CtMethod> testsToBeAmplified) {
         if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
             this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
-            this.originalPitResults = PitRunner.run(this.program, this.configuration, this.currentClassTestToBeAmplified)
-                    .stream()
+            List<PitResult> pitResults = PitRunner.run(this.program, this.configuration, this.currentClassTestToBeAmplified);
+            this.originalPitResults = pitResults.stream()
                     .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
                     .collect(Collectors.toList());
+            Log.debug("The original test suite kill {} / {}", this.originalPitResults.size(), pitResults.size());
         }
         return testsToBeAmplified;
     }
@@ -104,20 +111,23 @@ public class PitMutantScoreSelector implements TestSelector {
         }
 
         List<PitResult> results = PitRunner.run(this.program, this.configuration, clone);
-
-        List<CtMethod> selectedTests = new ArrayList<>();
+        Set<CtMethod> selectedTests = new HashSet<>();
         if (results != null) {
             results.stream()
                     .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
                     .filter(result -> !this.originalPitResults.contains(result))
                     .forEach(result -> {
-                        if (!this.currentMutantsKilledPerTestCase.containsKey(result.getTestCaseMethod())) {
-                            this.currentMutantsKilledPerTestCase.put(result.getTestCaseMethod(), new ArrayList<>());
+                        if (!testThatKilledMutants.containsKey(result.getTestCaseMethod())) {
+                            testThatKilledMutants.put(result.getTestCaseMethod(), new HashSet<>());
                         }
-                        this.currentMutantsKilledPerTestCase.get(result.getTestCaseMethod()).add(result);
+                        testThatKilledMutants.get(result.getTestCaseMethod()).add(result);
                         selectedTests.add(result.getTestCaseMethod());
                     });
         }
+
+        selectedTests.forEach(test ->
+                Log.debug("{} kills {} ", test.getSimpleName(), this.testThatKilledMutants.get(test).size())
+        );
 
         try {
             PrintClassUtils.printJavaFile(new File(this.program.getAbsoluteTestSourceCodeDir()), this.currentClassTestToBeAmplified);
@@ -125,16 +135,7 @@ public class PitMutantScoreSelector implements TestSelector {
             throw new RuntimeException(e);
         }
 
-
-        selectedTests.forEach(testMethod -> {
-            if (!this.testThatKilledMutants.containsKey(testMethod)) {
-                this.testThatKilledMutants.put(testMethod, this.currentMutantsKilledPerTestCase.get(testMethod));
-            } else {
-                this.testThatKilledMutants.get(testMethod).addAll(this.currentMutantsKilledPerTestCase.get(testMethod));
-            }
-        });
-
-        return selectedTests;
+        return new ArrayList<>(selectedTests);
     }
 
     @Override
@@ -145,11 +146,10 @@ public class PitMutantScoreSelector implements TestSelector {
     @Override
     public void report() {
         reportStdout();
-        reportJSONClass();
+//        createAmplifiedClass();
         reportJSONMutants();
         //clean up for the next class
         this.currentClassTestToBeAmplified = null;
-        this.currentMutantsKilledPerTestCase.clear();
         this.originalPitResults.clear();
     }
 
@@ -166,14 +166,15 @@ public class PitMutantScoreSelector implements TestSelector {
                 .append(nbOfTotalMutantKilled).append(" more mutants").append(nl);
         System.out.println(string.toString());
 
-        File reportDir = new File("dspot-report");
+        File reportDir = new File(this.configuration.getOutputDirectory());
         if (!reportDir.exists()) {
             reportDir.mkdir();
         }
-        try (FileWriter writer = new FileWriter("dspot-report/report.txt", false)) {
+        try (FileWriter writer = new FileWriter(this.configuration.getOutputDirectory() + "/"+
+                this.currentClassTestToBeAmplified.getQualifiedName() + "_mutants_report.txt", false)) {
             writer.write(string.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -191,53 +192,70 @@ public class PitMutantScoreSelector implements TestSelector {
         return ((double) this.testThatKilledMutants.get(test).size() / (double) (Counter.getAssertionOfSinceOrigin(test) + Counter.getInputOfSinceOrigin(test)));
     }
 
-    private void reportJSONClass() {
-        final JSONObject json = new JSONObject();
-        this.testThatKilledMutants.keySet().forEach(amplifiedTest ->
-                json.accumulate(this.currentClassTestToBeAmplified.getQualifiedName(),
-                        new JSONObject().put(amplifiedTest.getSimpleName(), amplifiedTest.toString()))
-        );
-        try (FileWriter writer = new FileWriter("dspot-report/generated_test_classes.json", false)) {
-            writer.write(json.toString(3));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    private static final String nl = System.getProperty("line.separator");
+    private static final String tab = "\t";
 
     private void reportJSONMutants() {
-        final JSONObject json = new JSONObject();
-        this.testThatKilledMutants.keySet().forEach(amplifiedTest ->
-                json.accumulate(this.currentClassTestToBeAmplified.getQualifiedName(),
-                        new JSONObject().put(amplifiedTest.getSimpleName(),
-                                buildResultTest(amplifiedTest))
-                )
-        );
-        try (FileWriter writer = new FileWriter("dspot-report/mutants_killed.json", false)) {
-            writer.write(json.toString(3));
+        try (FileWriter writer = new FileWriter(this.configuration.getOutputDirectory() + "/"+
+                this.currentClassTestToBeAmplified.getQualifiedName() + "_mutants_killed.json", false)) {
+            writer.write("{" + nl);
+            writer.write(tab + "\"" +
+                    this.currentClassTestToBeAmplified.getQualifiedName() + "\": {" + nl);
+            List<CtMethod> keys = new ArrayList<>(this.testThatKilledMutants.keySet());
+            keys.forEach(amplifiedTest -> {
+                        final StringBuilder string = new StringBuilder();
+                        string.append(tab).append(tab)
+                                .append("\"").append(amplifiedTest.getSimpleName()).append("\":{").append(nl)
+                                .append(tab).append(tab).append(tab)
+                                .append("\"#AssertionAdded\":").append(Counter.getAssertionOfSinceOrigin(amplifiedTest)).append(",").append(nl)
+                                .append(tab).append(tab).append(tab)
+                                .append("\"#InputAdded\":").append(Counter.getInputOfSinceOrigin(amplifiedTest)).append(",").append(nl)
+                                .append(tab).append(tab).append(tab)
+                                .append("\"#MutantKilled\":").append(this.testThatKilledMutants.get(amplifiedTest).size()).append(",").append(nl)
+                                .append(tab).append(tab).append(tab)
+                                .append("\"MutantsKilled\":[").append(nl)
+                                .append(buildListOfIdMutantKilled(amplifiedTest))
+                                .append(tab).append(tab).append(tab).append("]").append(nl)
+                                .append(tab).append(tab).append("}");
+                        if (keys.indexOf(amplifiedTest) != keys.size() - 1)
+                            string.append(",");
+                        string.append(nl);
+                        try {
+                            writer.write(string.toString());
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+            );
+            writer.write(nl + tab + "}");
+            writer.write(nl + "}");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private JSONObject buildResultTest(CtMethod amplifiedTest) {
-        JSONObject json = new JSONObject()
-                .put("#AssertionAdded",
-                        Counter.getAssertionOfSinceOrigin(amplifiedTest))
-                .put("#InputAdded",
-                        Counter.getInputOfSinceOrigin(amplifiedTest))
-                .put("#MutantKilled",
-                        this.testThatKilledMutants.get(amplifiedTest).size());
-        this.testThatKilledMutants.get(amplifiedTest).forEach(mutant ->
-                json.accumulate("MutantsKilled", getMutantKilled(mutant))
-        );
-        return json;
+    private StringBuilder buildListOfIdMutantKilled(CtMethod amplifiedTest) {
+        List<PitResult> pitResults = new ArrayList<>(this.testThatKilledMutants.get(amplifiedTest));
+        return pitResults.stream()
+                .reduce(new StringBuilder(),
+                        (builder, element) -> {
+                            if (pitResults.indexOf(element) ==
+                                    pitResults.size() - 1) {
+                                return builder.append(getLineOfMutantKilled(element));
+                            } else {
+                                return builder.append(getLineOfMutantKilled(element)).append(",").append(nl);
+                            }
+                        }, StringBuilder::append);
     }
 
-    private JSONObject getMutantKilled(PitResult element) {
-        JSONObject mutant = new JSONObject();
-        return mutant.put("ID", element.getFullQualifiedNameMutantOperator())
-                .put("lineNumber", element.getLineNumber())
-                .put("location", element.getLocation());
+    private StringBuilder getLineOfMutantKilled(PitResult element) {
+        return new StringBuilder().append(tab).append(tab).append(tab).append("{").append(nl)
+                .append(tab).append(tab).append(tab).append(tab)
+                .append("\"ID\":").append("\"").append(element.getFullQualifiedNameMutantOperator()).append("\",").append(nl)
+                .append(tab).append(tab).append(tab).append(tab)
+                .append("\"lineNumber\":\"").append(element.getLineNumber()).append("\",").append(nl)
+                .append(tab).append(tab).append(tab).append(tab)
+                .append("\"location\":\"").append(element.getLocation()).append("\"").append(nl)
+                .append(tab).append(tab).append(tab).append("}").append(nl);
     }
-
 }

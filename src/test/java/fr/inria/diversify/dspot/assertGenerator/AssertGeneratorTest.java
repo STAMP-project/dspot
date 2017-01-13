@@ -28,7 +28,7 @@ public class AssertGeneratorTest extends AbstractTest {
         CtClass testClass = fr.inria.diversify.Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         AssertGenerator assertGenerator = new AssertGenerator(fr.inria.diversify.Utils.getInputProgram(), fr.inria.diversify.Utils.getCompiler(), fr.inria.diversify.Utils.getApplicationClassLoader());
 
-        CtType ctType = AmplificationHelper.addAmplifiedTestToClass(assertGenerator.generateAsserts(testClass), testClass);
+        CtType ctType = AmplificationHelper.createAmplifiedTest(assertGenerator.generateAsserts(testClass), testClass);
 
         String nl = System.getProperty("line.separator");
 
