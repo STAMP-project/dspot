@@ -186,7 +186,7 @@ public class Amplification {
         JunitResult result;
         try {
             result = TestRunner.runTests(this.applicationClassLoader, this.compiler, logDir.getAbsolutePath(),
-                    inputProgram.getProgramDir(), classWithLogger, currentTestList, this.inputProgram);
+                    inputProgram.getProgramDir(), classWithLogger, currentTestList);
         } catch (ClassNotFoundException ignored) {
             return null;
         }

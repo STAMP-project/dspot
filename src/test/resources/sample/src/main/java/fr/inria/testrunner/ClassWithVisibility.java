@@ -1,6 +1,6 @@
 package fr.inria.testrunner;
 
-public class ClassToBeTested {
+public class ClassWithVisibility {
 
     private String summaryObjectStartText = "<";
 
