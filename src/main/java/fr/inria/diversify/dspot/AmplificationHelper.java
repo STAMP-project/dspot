@@ -1,5 +1,6 @@
 package fr.inria.diversify.dspot;
 
+import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
@@ -157,5 +158,13 @@ public class AmplificationHelper {
         int value = getRandom().nextInt(94) + 32;
         char c = (char) ((value == 34 || value == 39) ? value + (getRandom().nextBoolean() ? 1 : -1) : value);
         return c;//excluding " and '
+    }
+
+    public static List<CtMethod> getAllTest(InputProgram inputProgram, CtType classTest) {
+        Set<CtMethod> mths = classTest.getMethods();
+        return mths.stream()
+                .filter(mth -> AmplificationChecker.isTest(mth, inputProgram.getRelativeTestSourceCodeDir()))
+                .distinct()
+                .collect(Collectors.toList());
     }
 }
