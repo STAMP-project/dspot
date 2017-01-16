@@ -155,7 +155,9 @@ public class Amplification {
     private List<CtMethod> amplifyTest(CtMethod test) {
         return amplifiers.stream()
                 .flatMap(amplifier -> amplifier.apply(test).stream())
-                .collect(Collectors.toList());
+                .map(amplifiedTest ->
+                        AmplificationHelper.addOriginInComment(amplifiedTest, AmplificationHelper.getTopParent(test))
+                ).collect(Collectors.toList());
     }
 
     //empirically 200 seems to be enough

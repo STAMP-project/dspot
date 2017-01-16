@@ -3,6 +3,8 @@ package fr.inria.diversify.dspot.assertGenerator;
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
+import fr.inria.diversify.dspot.DSpotUtils;
+import fr.inria.diversify.dspot.TypeUtils;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.runner.InputProgram;
@@ -130,6 +132,7 @@ public class MethodAssertGenerator {
         tryBlock.setBody(testWithoutAssert.getBody());
         String snippet = "junit.framework.TestCase.fail(\"" + test.getSimpleName() + " should have thrown " + exceptionClass.getSimpleName() + "\")";
         tryBlock.getBody().addStatement(factory.Code().createCodeSnippetStatement(snippet));
+        DSpotUtils.addComment(tryBlock, "AssertGenerator generate try/catch block with fail statement", CtComment.CommentType.INLINE);
 
         CtCatch ctCatch = factory.Core().createCatch();
         CtTypeReference exceptionType = factory.Type().createReference(exceptionClass);
@@ -151,34 +154,27 @@ public class MethodAssertGenerator {
     private CtMethod buildNewAssert() throws IOException, ClassNotFoundException {
         CtType cl = initTestClass();
         List<CtMethod> testsToRun = new ArrayList<>();
-
-
         for (int i = 0; i < 3; i++) {
             CtMethod testWithLog = createTestWithLog();
             testWithLog.setSimpleName(testWithLog.getSimpleName() + i);
             cl.addMethod(testWithLog);
             testsToRun.add(testWithLog);
         }
-
         ObjectLog.reset();
-
         runTests(cl, testsToRun);
         return buildTestWithAssert(ObjectLog.getObservations());
     }
 
     private CtMethod buildTestWithAssert(Map<String, Observation> observations) {
         CtMethod testWithAssert = test.clone();
-//        testWithAssert.setParent(test.getParent());
-        // add throws
-
         int numberOfAddedAssertion = 0;
-
         List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter(CtStatement.class));
         for (String id : observations.keySet()) {
             int line = Integer.parseInt(id.split("__")[1]);
             List<String> asserts = observations.get(id).buildAssert();
             for (String snippet : asserts) {
                 CtStatement assertStmt = getFactory().Code().createCodeSnippetStatement(snippet);
+                DSpotUtils.addComment(assertStmt, "AssertGenerator add assertion", CtComment.CommentType.INLINE);
                 try {
                     CtStatement stmt = statements.get(line);
                     if (stmt instanceof CtInvocation && !isVoidReturn((CtInvocation) stmt)) {
@@ -188,6 +184,7 @@ public class MethodAssertGenerator {
                         CtStatement localVarStmt = getFactory().Code().createCodeSnippetStatement(localVarSnippet);
                         stmt.replace(localVarStmt);
                         statements.set(line, localVarStmt);
+                        DSpotUtils.addComment(localVarStmt, "AssertGenerator replace invocation", CtComment.CommentType.INLINE);
                         localVarStmt.setParent(stmt.getParent());
                         localVarStmt.insertAfter(assertStmt);
                     } else {
@@ -411,10 +408,12 @@ public class MethodAssertGenerator {
     }
 
     private void replaceStatementByListOfStatements(CtStatement statement, List<CtStatement> statements) {
+        String oldStatement = statement.toString();
         statement.replace(statements.get(0));
         for (int i = 1; i < statements.size(); i++) {
             statement.insertAfter(statements.get(i));
         }
+        DSpotUtils.addComment(statement, "MethodAssertion Generator replaced " + oldStatement, CtComment.CommentType.BLOCK);
     }
 
     private void updateStatementsIndexToAssert(int stmtIndex, int update) {
@@ -455,7 +454,7 @@ public class MethodAssertGenerator {
         CtTypeReference<Object> objectType = getFactory().Core().createTypeReference();
         objectType.setSimpleName("Object");
         CtLocalVariable<Object> localVar = getFactory().Code().createLocalVariable(objectType, "o_" + id, arg);
-
+        DSpotUtils.addComment(localVar, "MethodAssertGenerator build local variable", CtComment.CommentType.INLINE);
         return localVar;
     }
 

@@ -3,10 +3,10 @@ package fr.inria.diversify;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
+import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.util.Log;
-import fr.inria.diversify.util.PrintClassUtils;
 
 import java.io.File;
 import java.util.Collections;
@@ -33,7 +33,7 @@ public class Main {
                 final File outputDirectory = new File(configuration.getOutputDirectory());
                 dspot.amplifyAllTests().forEach(test -> {
                     try {
-                        PrintClassUtils.printJavaFile(outputDirectory, test);
+                        DSpotUtils.printJavaFileWithComment(test, outputDirectory);
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }

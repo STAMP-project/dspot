@@ -45,6 +45,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
         env.setVerbose(true);
         env.setDebug(true);
         env.setNoClasspath(false);
+        env.setCommentEnabled(true);
 
         DefaultCoreFactory f = new DefaultCoreFactory();
         Factory factory = new FactoryImpl(f, env);

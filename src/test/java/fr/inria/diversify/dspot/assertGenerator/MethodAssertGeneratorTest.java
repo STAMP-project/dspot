@@ -4,16 +4,12 @@ import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AbstractTest;
 import fr.inria.diversify.testRunner.JunitResult;
-import fr.inria.diversify.util.FileUtils;
-import org.junit.AfterClass;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
-import java.util.ArrayList;
 import java.util.Collections;
 
-import static fr.inria.diversify.dspot.assertGenerator.AssertCt.assertBodyEquals;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -37,6 +33,7 @@ public class MethodAssertGeneratorTest extends AbstractTest {
 
     private static final String expectedBodyTest1 = "{" + nl +
             "    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl +
+            "    // MethodAssertGenerator build local variable" + nl +
             "    Object o_3_0 = cl.getTrue();" + nl +
             "}";
 
@@ -56,10 +53,11 @@ public class MethodAssertGeneratorTest extends AbstractTest {
         assertEquals(expectedBodyTest2, test2_RFA.getBody().toString());
     }
 
-    private static final String expectedBodyTest2 = "{" + nl  +
-            "    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl  +
-            "    org.junit.Assert.assertTrue(cl.getTrue());" + nl  +
-            "    Object o_5_0 = cl.getFalse();" + nl  +
+    private static final String expectedBodyTest2 = "{" + nl +
+            "    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl +
+            "    org.junit.Assert.assertTrue(cl.getTrue());" + nl +
+            "    // MethodAssertGenerator build local variable" + nl +
+            "    Object o_5_0 = cl.getFalse();" + nl +
             "}";
 
     @Test
@@ -71,9 +69,18 @@ public class MethodAssertGeneratorTest extends AbstractTest {
         mag.test = test;
         JunitResult result = mag.runSingleTest(test);
         CtMethod test_makeFailureTest = mag.makeFailureTest(mag.getFailure("test3", result));
-        CtMethod test_exceptionCatch = Utils.findMethod("fr.inria.sample.TestClassWithAssert", "test3_exceptionCatch");
-        assertBodyEquals(test_makeFailureTest, test_exceptionCatch);
+        assertEquals(expectedBodyTest3, test_makeFailureTest.getBody().toString());
     }
+
+    private static final String expectedBodyTest3 = "{" + nl +
+            "    // AssertGenerator generate try/catch block with fail statement" + nl +
+            "    try {" + nl +
+            "        fr.inria.sample.ClassThrowException cl = new fr.inria.sample.ClassThrowException();" + nl +
+            "        cl.throwException();" + nl +
+            "        junit.framework.TestCase.fail(\"test3 should have thrown Exception\");" + nl +
+            "    } catch (java.lang.Exception eee) {" + nl +
+            "    }" + nl +
+            "}";
 
     @Test
     public void testBuildNewAssert() throws InvalidSdkException, Exception {
@@ -84,15 +91,23 @@ public class MethodAssertGeneratorTest extends AbstractTest {
 
         final String expectedBody = "{" + nl +
                 "    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl +
-                "    junit.framework.Assert.assertFalse(((fr.inria.sample.ClassWithBoolean)cl).getFalse());" + nl +
-                "    junit.framework.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getTrue());" + nl +
-                "    junit.framework.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getBoolean());" + nl +
+                "    // AssertGenerator add assertion" + nl +
+                "    org.junit.Assert.assertFalse(((fr.inria.sample.ClassWithBoolean)cl).getFalse());" + nl +
+                "    // AssertGenerator add assertion" + nl +
+                "    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getTrue());" + nl +
+                "    // AssertGenerator add assertion" + nl +
+                "    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getBoolean());" + nl +
+                "    // AssertGenerator replace invocation" + nl +
                 "    boolean o_test1_withoutAssert__3 = cl.getFalse();" + nl +
-                "    junit.framework.Assert.assertFalse(o_test1_withoutAssert__3);" + nl +
+                "    // AssertGenerator add assertion" + nl +
+                "    org.junit.Assert.assertFalse(o_test1_withoutAssert__3);" + nl +
+                "    // AssertGenerator replace invocation" + nl +
                 "    boolean o_test1_withoutAssert__4 = cl.getBoolean();" + nl +
-                "    junit.framework.Assert.assertTrue(o_test1_withoutAssert__4);" + nl +
+                "    // AssertGenerator add assertion" + nl +
+                "    org.junit.Assert.assertTrue(o_test1_withoutAssert__4);" + nl +
                 "    boolean var = cl.getTrue();" + nl +
-                "    junit.framework.Assert.assertTrue(var);" + nl +
+                "    // AssertGenerator add assertion" + nl +
+                "    org.junit.Assert.assertTrue(var);" + nl +
                 "}";
 
         CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithoutAssert", "test1");

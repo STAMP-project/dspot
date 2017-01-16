@@ -13,6 +13,9 @@ import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.*;
 import spoon.compiler.Environment;
 import spoon.processing.Processor;
+import spoon.reflect.code.CtComment;
+import spoon.reflect.declaration.CtElement;
+import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.DefaultJavaPrettyPrinter;
 import spoon.support.JavaOutputProcessor;
@@ -42,7 +45,7 @@ public class DSpotUtils {
             applyProcessor(factory, branchCoverageProcessor);
 
             File fileFrom = new File(inputProgram.getAbsoluteSourceCodeDir());
-            printAllClasses(factory, fileFrom, fileFrom);
+            printAllClasses(factory, fileFrom);
 
             String loggerPackage = Logger.class.getPackage().getName().replace(".", "/");
             File destDir = new File(inputProgram.getAbsoluteSourceCodeDir() + "/" + loggerPackage);
@@ -57,26 +60,36 @@ public class DSpotUtils {
         }
     }
 
-    public static void printAllClasses(Factory factory, File out, File fileFrom) {
-        factory.Class().getAll().forEach(type -> {
-            try {
-                PrintClassUtils.printJavaFile(out, type);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+    public static void printJavaFileWithComment(CtType type, File directory) {
+        Factory factory = type.getFactory();
+        Environment env = factory.getEnvironment();
+        env.setCommentEnabled(true);
+        JavaOutputProcessor processor = new JavaOutputProcessor(directory, new DefaultJavaPrettyPrinter(env));
+        processor.setFactory(factory);
+        processor.createJavaFile(type);
+    }
+
+    public static void printAllClasses(Factory factory, File out) {
+        factory.Class().getAll().forEach(type -> printJavaFileWithComment(type, out));
+    }
+
+    public static void addComment(CtElement element, String content, CtComment.CommentType type) {
+        CtComment comment = element.getFactory().createComment(content, type);
+        if (!element.getComments().contains(comment)) {
+            element.addComment(comment);
+        }
     }
 
     public static DSpotCompiler initDiversityCompiler(InputProgram inputProgram, boolean withTest) throws IOException, InterruptedException {
         DSpotCompiler compiler = DSpotCompiler.buildCompiler(inputProgram, withTest);
-        if(compiler.getBinaryOutputDirectory() == null) {
+        if (compiler.getBinaryOutputDirectory() == null) {
             File classOutputDir = new File("tmpDir/tmpClasses_" + System.currentTimeMillis());
             if (!classOutputDir.exists()) {
                 classOutputDir.mkdirs();
             }
             compiler.setBinaryOutputDirectory(classOutputDir);
         }
-        if(compiler.getSourceOutputDirectory().toString().equals("spooned")) {
+        if (compiler.getSourceOutputDirectory().toString().equals("spooned")) {
             File sourceOutputDir = new File("tmpDir/tmpSrc_" + System.currentTimeMillis());
             if (!sourceOutputDir.exists()) {
                 sourceOutputDir.mkdirs();
@@ -85,6 +98,7 @@ public class DSpotUtils {
         }
 
         Environment env = compiler.getFactory().getEnvironment();
+        env.setCommentEnabled(true);
         env.setDefaultFileGenerator(new JavaOutputProcessor(compiler.getSourceOutputDirectory(),
                 new DefaultJavaPrettyPrinter(env)));
 
@@ -92,20 +106,20 @@ public class DSpotUtils {
     }
 
     public static void compileTests(InputProgram inputProgram, String mavenHome, String mavenLocalRepository) throws InterruptedException, IOException {
-        String[] phases  = new String[]{"clean", "test"};
+        String[] phases = new String[]{"clean", "test"};
         pCompile(inputProgram, phases, mavenHome, mavenLocalRepository);
     }
 
     public static void compile(InputProgram inputProgram, String mavenHome, String mavenLocalRepository) throws InterruptedException, IOException {
-        String[] phases  = new String[]{"clean", "compile"};
+        String[] phases = new String[]{"clean", "compile"};
         pCompile(inputProgram, phases, mavenHome, mavenLocalRepository);
     }
 
-    protected static void pCompile(InputProgram inputProgram,  String[] phases, String mavenHome, String mavenLocalRepository) throws InterruptedException, IOException {
+    protected static void pCompile(InputProgram inputProgram, String[] phases, String mavenHome, String mavenLocalRepository) throws InterruptedException, IOException {
         MavenBuilder builder = new MavenBuilder(inputProgram.getProgramDir());
 
         builder.setBuilderPath(mavenHome);
-        if(mavenLocalRepository != null) {
+        if (mavenLocalRepository != null) {
             builder.setSetting(new File(mavenLocalRepository));
         }
 

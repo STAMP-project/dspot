@@ -4,6 +4,7 @@ import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.buildSystem.maven.MavenBuilder;
 import fr.inria.diversify.dspot.AmplificationChecker;
+import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.mutant.transformation.MutationQuery;
 import fr.inria.diversify.mutant.transformation.MutationTransformation;
@@ -15,7 +16,6 @@ import fr.inria.diversify.transformation.Transformation;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.util.Log;
-import fr.inria.diversify.util.PrintClassUtils;
 import spoon.compiler.Environment;
 import spoon.reflect.declaration.*;
 import spoon.reflect.visitor.DefaultJavaPrettyPrinter;
@@ -241,7 +241,7 @@ public class MutantGenerator {
     private boolean writeAndCompile(CtClass classInstru) {
         try {
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
-            PrintClassUtils.printJavaFile(compiler.getSourceOutputDirectory(), classInstru);
+            DSpotUtils.printJavaFileWithComment(classInstru, compiler.getSourceOutputDirectory());
             return compiler.compileFileIn(compiler.getSourceOutputDirectory(), true);
         } catch (Exception e) {
             Log.warn("error during compilation", e);

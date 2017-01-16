@@ -11,7 +11,7 @@ import java.util.*;
  * Time: 15:36
  */
 public  class Observation {
-    public static String junitAssertClassName = "junit.framework.Assert";
+    public static String junitAssertClassName = "org.junit.Assert";
     protected Set<String> notDeterministValues;
     protected Map<String, Object> observationValues;
     protected Map<String, Class> observationTypes;

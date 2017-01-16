@@ -6,6 +6,10 @@ import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputProgram;
 import spoon.reflect.declaration.CtMethod;
+import fr.inria.diversify.dspot.DSpotUtils;
+import fr.inria.diversify.dspot.support.DSpotCompiler;
+import fr.inria.diversify.util.FileUtils;
+import fr.inria.diversify.util.Log;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;

@@ -6,6 +6,8 @@ import fr.inria.diversify.runner.InputProgram;
 import org.junit.Test;
 import spoon.reflect.declaration.CtType;
 
+import java.io.File;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -31,9 +33,14 @@ public class DSpotTest extends MavenAbstractTest {
         DSpot dspot = new DSpot(configuration);
 
         CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample");
+
+        System.out.println(amplifiedTest.getMethod("test1_cf24").getBody().toString());
+
         assertEquals(28, amplifiedTest.getMethods().size());
         assertEquals(originalTestBody, amplifiedTest.getMethod("test1").getBody().toString());
         assertEquals(expectedAmplifiedBody, amplifiedTest.getMethod("test1_cf24").getBody().toString());
+
+        DSpotUtils.printJavaFileWithComment(amplifiedTest, new File("dspot-report"));
     }
 
     private final String originalTestBody = "{" + nl +
@@ -43,13 +50,21 @@ public class DSpotTest extends MavenAbstractTest {
 
     private final String expectedAmplifiedBody = "{" + nl +
             "    example.Example ex = new example.Example();" + nl +
+            "    // StatementAdderOnAssert create random local variable" + nl +
             "    int vc_5 = 1635508580;" + nl +
-            "    junit.framework.Assert.assertEquals(vc_5, 1635508580);" + nl +
+            "    // AssertGenerator add assertion" + nl +
+            "    org.junit.Assert.assertEquals(vc_5, 1635508580);" + nl +
+            "    // StatementAdderOnAssert create literal from method" + nl +
             "    java.lang.String vc_0 = \"abcd\";" + nl +
-            "    junit.framework.Assert.assertEquals(vc_0, \"abcd\");" + nl +
+            "    // AssertGenerator add assertion" + nl +
+            "    org.junit.Assert.assertEquals(vc_0, \"abcd\");" + nl +
+            "    // StatementAdderOnAssert create random local variable" + nl +
             "    example.Example vc_1 = new example.Example();" + nl +
-            "    char o_test1_cf24__6 = vc_1.charAt(vc_0, vc_5);" + nl +
-            "    junit.framework.Assert.assertEquals(o_test1_cf24__6, 'd');" + nl +
+            "    // AssertGenerator replace invocation" + nl +
+            "    char o_test1_cf24__9 = // StatementAdderMethod cloned existing statement" + nl +
+            "vc_1.charAt(vc_0, vc_5);" + nl +
+            "    // AssertGenerator add assertion" + nl +
+            "    org.junit.Assert.assertEquals(o_test1_cf24__9, 'd');" + nl +
             "    org.junit.Assert.assertEquals('a', ex.charAt(\"abcd\", 0));" + nl +
             "}";
 

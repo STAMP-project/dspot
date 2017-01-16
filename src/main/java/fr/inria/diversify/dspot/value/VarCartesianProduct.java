@@ -1,6 +1,8 @@
 package fr.inria.diversify.dspot.value;
 
 import fr.inria.diversify.codeFragment.Statement;
+import fr.inria.diversify.dspot.DSpotUtils;
+import spoon.reflect.code.CtComment;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.factory.Factory;
@@ -66,6 +68,7 @@ public class VarCartesianProduct {
             List<Statement> cloneStmts = cloneStatements(statements);
             codeFragmentsLists.add(cloneStmts);
             Statement stmt = cloneStmts.get(targetIndex);
+            DSpotUtils.addComment(stmt.getCtCodeFragment(), "StatementAdderMethod cloned existing statement", CtComment.CommentType.INLINE);
 
             for(int i = 0; i< oldVarRefs.size(); i++) {
                 CtVariableReference oldVarRef = stmt.getInputContext().getVariableOrFieldNamed(oldVarRefs.get(i).getSimpleName());
@@ -75,6 +78,7 @@ public class VarCartesianProduct {
                     cloneStmts.add(0,newLocalVar.get(newVarRef));
                 }
                 oldVarRef.replace(newVarRef);
+                DSpotUtils.addComment(newVarRef, "StatementAdderOnAssert replacement of variable reference", CtComment.CommentType.INLINE);
             }
         }
         return codeFragmentsLists;

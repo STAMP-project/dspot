@@ -1,9 +1,9 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
 import fr.inria.diversify.buildSystem.maven.MavenBuilder;
+import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
-import fr.inria.diversify.util.PrintClassUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -60,9 +60,7 @@ public class RemoveBadTest {
             testDir.mkdirs();
         }
 
-        for(CtType test : tests) {
-            PrintClassUtils.printJavaFile(testDir, test);
-        }
+        tests.forEach(test -> DSpotUtils.printJavaFileWithComment(test, testDir));
 
         MavenBuilder builder = new MavenBuilder(inputProgram.getProgramDir());
         builder.setBuilderPath(mvnHome);

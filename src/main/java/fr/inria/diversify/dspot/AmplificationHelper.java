@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
+import spoon.reflect.code.CtComment;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtPackage;
@@ -158,6 +159,22 @@ public class AmplificationHelper {
         int value = getRandom().nextInt(94) + 32;
         char c = (char) ((value == 34 || value == 39) ? value + (getRandom().nextBoolean() ? 1 : -1) : value);
         return c;//excluding " and '
+    }
+
+    public static CtMethod addOriginInComment(CtMethod amplifiedTest, CtMethod topParent) {
+        DSpotUtils.addComment(amplifiedTest,
+                "amplification of " + topParent.getDeclaringType().getQualifiedName() + "#" + topParent.getSimpleName(),
+                CtComment.CommentType.BLOCK);
+        return amplifiedTest;
+    }
+
+    public static CtMethod getTopParent(CtMethod test) {
+        CtMethod topParent;
+        CtMethod currentTest = test;
+        while ( (topParent = getAmpTestToParent().get(currentTest)) != null) {
+            currentTest = topParent;
+        }
+        return currentTest;
     }
 
     public static List<CtMethod> getAllTest(InputProgram inputProgram, CtType classTest) {

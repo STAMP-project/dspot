@@ -30,7 +30,6 @@ public class AssertGenerator {
     private InputProgram inputProgram;
     private DSpotCompiler compiler;
 
-
     public AssertGenerator(InputProgram inputProgram, DSpotCompiler compiler, DiversifyClassLoader applicationClassLoader) {
         this.inputProgram = inputProgram;
         this.compiler = compiler;
@@ -53,6 +52,7 @@ public class AssertGenerator {
                 if (parentTest != null) {
                     AmplificationHelper.getAmpTestToParent().put(ampTest, test);
                 }
+//                AmplificationHelper.getAmpTestToParent().put(ampTest, parentTest.get(test));
             }
         }
         Log.debug("{} new tests with assertions generated", amplifiedTestWithAssertion.size());
