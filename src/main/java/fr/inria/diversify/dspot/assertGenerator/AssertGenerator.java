@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
+import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.Log;
@@ -43,12 +44,15 @@ public class AssertGenerator {
     public List<CtMethod> generateAsserts(CtType testClass, Collection<CtMethod> tests, Map<CtMethod, CtMethod> parentTest) throws IOException, ClassNotFoundException {
         CtType cloneClass = testClass.clone();
         cloneClass.setParent(testClass.getParent());
-        MethodAssertGenerator ag = new MethodAssertGenerator(cloneClass, inputProgram, compiler, applicationClassLoader);
+        MethodAssertGenerator ag = new MethodAssertGenerator(testClass, inputProgram, compiler, applicationClassLoader);
         List<CtMethod> amplifiedTestWithAssertion = new ArrayList<>();
         for (CtMethod test : tests) {
             CtMethod ampTest = ag.generateAssert(test, findStatementToAssert(test, parentTest));
-            if (ampTest != null && ! ampTest.equals(test)) {
+            if (ampTest != null && !ampTest.equals(test)) {
                 amplifiedTestWithAssertion.add(ampTest);
+                if (parentTest != null) {
+                    AmplificationHelper.getAmpTestToParent().put(ampTest, test);
+                }
             }
         }
         Log.debug("{} new tests with assertions generated", amplifiedTestWithAssertion.size());
@@ -56,7 +60,7 @@ public class AssertGenerator {
     }
 
     private List<Integer> findStatementToAssert(CtMethod test, Map<CtMethod, CtMethod> parentTest) {
-        if(parentTest != null && !parentTest.isEmpty() && parentTest.get(test) != null) {
+        if (parentTest != null && !parentTest.isEmpty() && parentTest.get(test) != null) {
             CtMethod parent = parentTest.get(test);
             while (parentTest.get(parent) != null) {
                 parent = parentTest.get(parent);

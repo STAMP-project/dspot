@@ -3,6 +3,7 @@ package fr.inria.diversify.dspot.amplifier;
 import fr.inria.diversify.codeFragment.*;
 import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.dspot.AmplificationHelper;
+import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.value.ValueCreator;
 import fr.inria.diversify.dspot.value.VarCartesianProduct;
 import spoon.reflect.code.*;
@@ -106,6 +107,7 @@ public class StatementAdderOnAssert implements Amplifier {
                     c.getCtCodeFragment().setParent(stmt.getParent());
                 }
         );
+        Counter.updateInputOf(cloned_method, statements.size());
         return cloned_method;
     }
 

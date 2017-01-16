@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot.selector;
 
 import fr.inria.diversify.dspot.AmplificationHelper;
+import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.log.LogReader;
 import fr.inria.diversify.log.TestCoverageParser;
 import fr.inria.diversify.log.branch.Coverage;
@@ -41,6 +42,8 @@ public class BranchCoverageTestSelector implements TestSelector {
 
     private int initialUniquePath;
 
+    private String outputDirectory;
+
     public BranchCoverageTestSelector(int maxNumberOfTest) {
         this.maxNumberOfTest = maxNumberOfTest;
         this.coveragePerTestKept = new HashMap<>();
@@ -51,6 +54,9 @@ public class BranchCoverageTestSelector implements TestSelector {
     @Override
     public void init(InputConfiguration configuration) {
         this.logDir = new File(configuration.getInputProgram().getProgramDir() + "/log");
+        if (this.outputDirectory == null) {
+            this.outputDirectory = configuration.getOutputDirectory();
+        }
     }
 
     @Override
@@ -174,21 +180,54 @@ public class BranchCoverageTestSelector implements TestSelector {
                 .count());
         string.append("There is ").append(newUniquePath).append(" new unique path").append(nl).append(nl);
         System.out.println(string.toString());
-        //intermediate output
-        this.coveragePerTestKept.keySet().forEach(test ->
-                    string.append(test).append(" cover ").append(nl).append(
-                            this.coveragePerTestKept.get(test).getCoverageBranch().stream()
-                                    .reduce("", (acc, current) -> acc.concat(current +  ", " + nl))).append(nl)
-                            .append("length: ").append(this.coveragePerTestKept.get(test).getCoverageBranch().size()).append(nl)
-                            .append(nl));
-        File reportDir = new File("dspot-report");
-        if (!reportDir.exists())
-            reportDir.mkdir();
 
-        try (FileWriter writer = new FileWriter("dspot-report/branch_coverage_selector_report.txt", false)) {
+        File directory = new File(this.outputDirectory);
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
+
+        try (FileWriter writer = new FileWriter(this.outputDirectory + "/" + this.currentClassTestToBeAmplified.getQualifiedName()
+                + "_branch_coverage_report.txt", false)) {
             writer.write(string.toString());
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        reportJSON();
+    }
+
+    private void reportJSON() {
+        final String nl = System.getProperty("line.separator");
+        final String tab = "\t";
+        try (FileWriter writer = new FileWriter(this.outputDirectory + "/" + this.currentClassTestToBeAmplified.getQualifiedName()
+                + "_branch_coverage.json", false)) {
+            writer.write("{" + nl + tab + "\"" + this.currentClassTestToBeAmplified.getQualifiedName() + "\": {" + nl);
+            List<CtMethod> amplifiedTests = new ArrayList<>(this.coveragePerTestKept.keySet());
+            amplifiedTests.forEach(amplifiedTest -> {
+                final StringBuilder string = new StringBuilder();
+                string.append(tab).append(tab)
+                        .append("\"").append(amplifiedTest.getSimpleName()).append("\"")
+                        .append(": {").append(nl)
+                        .append(tab).append(tab).append(tab)
+                        .append("\"#AssertionAdded\":").append(Counter.getAssertionOfSinceOrigin(amplifiedTest)).append(",").append(nl)
+                        .append(tab).append(tab).append(tab)
+                        .append("\"#InputAdded\":").append(Counter.getInputOfSinceOrigin(amplifiedTest)).append(",").append(nl)
+                        .append(tab).append(tab).append(tab)
+                        .append("\"length\":").append(this.coveragePerTestKept.get(amplifiedTest).getCoverageBranch().size()).append(nl)
+                        .append(tab).append(tab)
+                        .append("}");
+                if (amplifiedTests.indexOf(amplifiedTest) != amplifiedTests.size() - 1) {
+                    string.append(",");
+                }
+                string.append(nl);
+                try {
+                    writer.write(string.toString());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            writer.write(tab + "}" + nl + "}");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

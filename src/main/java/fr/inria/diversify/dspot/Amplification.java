@@ -1,8 +1,8 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
+import fr.inria.diversify.dspot.amplifier.Amplifier;
 import fr.inria.diversify.dspot.assertGenerator.AssertGenerator;
-import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.logger.Logger;
@@ -11,7 +11,6 @@ import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.JunitRunner;
 import fr.inria.diversify.testRunner.TestRunner;
-import fr.inria.diversify.testRunner.TestStatus;
 import fr.inria.diversify.util.Log;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -37,7 +36,9 @@ public class Amplification {
     private TestSelector testSelector;
     private ClassWithLoggerBuilder classWithLoggerBuilder;
     private AssertGenerator assertGenerator;
-    private TestStatus testStatus;
+
+    @Deprecated
+//    private TestStatus testStatus;
 
     private static int ampTestCount;
 
@@ -49,7 +50,7 @@ public class Amplification {
         this.logDir = logDir;
         this.classWithLoggerBuilder = new ClassWithLoggerBuilder(inputProgram);
         this.testSelector = testSelector;
-        this.testStatus = new TestStatus();
+//        this.testStatus = new TestStatus();
         this.assertGenerator = new AssertGenerator(inputProgram, compiler, applicationClassLoader);
         this.inputConfiguration = inputConfiguration;
     }
@@ -69,8 +70,7 @@ public class Amplification {
         testSelector.reset();
         List<CtMethod> ampTest = new ArrayList<>();
 
-        List<CtMethod> preAmplification = preAmplification(classTest, tests);
-        updateAmplifiedTestList(ampTest, preAmplification);
+        updateAmplifiedTestList(ampTest, preAmplification(classTest, tests).stream().collect(Collectors.toList()));
 
         for (int i = 0; i < tests.size(); i++) {
             CtMethod test = tests.get(i);
@@ -80,15 +80,15 @@ public class Amplification {
             if (result != null
                     && result.getFailures().isEmpty()
                     && !result.getTestRuns().isEmpty()) {
-                List<CtMethod> amplification = amplification(classTest, test, maxIteration);
-                updateAmplifiedTestList(ampTest, amplification);
+                updateAmplifiedTestList(ampTest,
+                        amplification(classTest, test, maxIteration).stream().collect(Collectors.toList()));
             }
         }
-        return AmplificationHelper.addAmplifiedTestToClass(ampTest, classTest);
+        return AmplificationHelper.createAmplifiedTest(ampTest, classTest);
     }
 
     private List<CtMethod> amplification(CtType classTest, CtMethod test, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
-        testStatus.reset();
+//        testStatus.reset();
         List<CtMethod> currentTestList = new ArrayList<>();
         currentTestList.add(test);
 
@@ -113,7 +113,7 @@ public class Amplification {
                 currentTestList = testWithAssertions;
             }
             JunitResult result = compileAndRunTests(classTest, currentTestList);
-            testStatus.updateTestStatus(currentTestList, result);
+//            testStatus.updateTestStatus(currentTestList, result);
             currentTestList = AmplificationHelper.filterTest(currentTestList, result);
             Log.debug("{} test method(s) has been successfully generated", currentTestList.size());
             amplifiedTests.addAll(testSelector.selectToKeep(currentTestList));
@@ -124,7 +124,7 @@ public class Amplification {
     private void updateAmplifiedTestList(List<CtMethod> ampTest, List<CtMethod> amplification) {
         ampTest.addAll(amplification);
         ampTestCount += amplification.size();
-        Log.debug("total amp test: {}, global: {}", amplification .size(), ampTestCount);
+        Log.debug("total amp test: {}, global: {}", amplification.size(), ampTestCount);
     }
 
     private List<CtMethod> preAmplification(CtType classTest, List<CtMethod> tests) throws IOException, ClassNotFoundException {

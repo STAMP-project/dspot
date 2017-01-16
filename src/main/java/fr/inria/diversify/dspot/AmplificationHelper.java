@@ -15,7 +15,6 @@ import spoon.reflect.visitor.filter.TypeFilter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * Created by Benjamin DANGLOT
@@ -42,7 +41,11 @@ public class AmplificationHelper {
         importByClass = new HashMap<>();
     }
 
-    public static CtType addAmplifiedTestToClass(List<CtMethod> ampTest, CtType classTest) {
+    public static CtType createAmplifiedTest(List<CtMethod> ampTest, CtType classTest) {
+        CtType amplifiedTest = classTest.clone();
+        amplifiedTest.setParent(classTest.getParent());
+        amplifiedTest.setSimpleName(classTest.getSimpleName() + "Ampl");
+        classTest.getMethods().forEach(method -> amplifiedTest.removeMethod((CtMethod) method));
         ampTest.forEach(classTest::addMethod);
         return classTest;
     }

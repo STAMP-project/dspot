@@ -50,6 +50,7 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
         InitUtils.initLogLevel(inputConfiguration);
 
         List<PitResult> pitResults = PitRunner.run(inputProgram, inputConfiguration, inputProgram.getFactory().Class().get("example.TestSuiteExample"));
+        assertTrue(null != pitResults);
 
         /*
             Now Run DSpot and prove that the amplification allow to kill more mutants.

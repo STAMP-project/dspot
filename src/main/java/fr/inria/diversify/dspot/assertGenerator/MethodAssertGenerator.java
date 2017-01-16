@@ -4,6 +4,7 @@ import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
 import fr.inria.diversify.dspot.TypeUtils;
+import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputProgram;
@@ -170,6 +171,9 @@ public class MethodAssertGenerator {
         CtMethod testWithAssert = test.clone();
 //        testWithAssert.setParent(test.getParent());
         // add throws
+
+        int numberOfAddedAssertion = 0;
+
         List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter(CtStatement.class));
         for(String id : observations.keySet()) {
            int line = Integer.parseInt(id.split("__")[1]);
@@ -190,13 +194,14 @@ public class MethodAssertGenerator {
                     } else {
                         stmt.insertAfter(assertStmt);
                     }
+                    numberOfAddedAssertion++;
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.debug("Exception has been thrown during generation of assertion");
                 }
             }
         }
-
+        Counter.updateAssertionOf(testWithAssert, numberOfAddedAssertion);
         return testWithAssert;
     }
 
