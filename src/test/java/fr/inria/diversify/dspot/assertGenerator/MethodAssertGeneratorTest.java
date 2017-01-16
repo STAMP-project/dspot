@@ -77,7 +77,7 @@ public class MethodAssertGeneratorTest extends AbstractTest {
             "    try {" + nl +
             "        fr.inria.sample.ClassThrowException cl = new fr.inria.sample.ClassThrowException();" + nl +
             "        cl.throwException();" + nl +
-            "        junit.framework.TestCase.fail(\"test3 should have thrown Exception\");" + nl +
+            "        org.junit.Assert.fail(\"test3 should have thrown Exception\");" + nl +
             "    } catch (java.lang.Exception eee) {" + nl +
             "    }" + nl +
             "}";
