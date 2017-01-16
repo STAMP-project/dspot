@@ -9,7 +9,7 @@ public class Example {
 	 */
 	public char charAt(String s, int index){
 		
-		if ( index <= 0 ) // Fix index <= 0
+		if ( index <= 0 )
 			return s.charAt(0);
 		
 		if ( index < s.length() )
