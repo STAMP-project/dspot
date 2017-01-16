@@ -66,6 +66,7 @@ public class JunitRunner {
             int timeOut = computeTimeOut(methodsToRun);
             runRequest(result, buildRequest(testClasses, methodsToRun), timeOut);
         } catch (Throwable e) {
+            e.printStackTrace();
             Log.warn("Time out for running unit test cases");
         }
         return result;

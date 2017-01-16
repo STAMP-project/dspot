@@ -26,10 +26,20 @@ public class PitResultParser {
         try (BufferedReader buffer = new BufferedReader(new FileReader(fileResults))) {
             buffer.lines().forEach(line -> {
                 String[] splittedLine = line.split(",");
-                PitResult.State state = PitResult.State.valueOf(splittedLine[5]);
+                PitResult.State state;
+                try {
+                    state = PitResult.State.valueOf(splittedLine[5]);
+                } catch (Exception e) {
+                    state = PitResult.State.NO_COVERAGE;
+                }
                 String fullQualifiedNameMutantOperator = splittedLine[2];
-                String [] nameMethod = splittedLine[6].split("\\(")[0].split("\\.");
-                CtMethod methodTest = "none".equals(nameMethod[nameMethod.length-1]) ? null : (CtMethod) testClass.getMethodsByName(nameMethod[nameMethod.length-1]).get(0);
+                CtMethod methodTest;
+                try {
+                    String[] nameMethod = splittedLine[6].split("\\(")[0].split("\\.");
+                    methodTest = "none".equals(nameMethod[nameMethod.length - 1]) ? null : (CtMethod) testClass.getMethodsByName(nameMethod[nameMethod.length - 1]).get(0);
+                } catch (Exception e) {
+                    methodTest = null;
+                }
                 int lineNumber = Integer.parseInt(splittedLine[4]);
                 String location = splittedLine[3];
                 results.add(new PitResult(state, fullQualifiedNameMutantOperator, methodTest, lineNumber, location));

@@ -3,16 +3,13 @@ package fr.inria.diversify.dspot.assertGenerator;
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
-import fr.inria.diversify.dspot.TypeUtils;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
-import fr.inria.diversify.testRunner.JunitRunner;
-import fr.inria.diversify.util.FileUtils;
+import fr.inria.diversify.testRunner.TestCompiler;
+import fr.inria.diversify.testRunner.TestRunner;
 import fr.inria.diversify.util.Log;
-import fr.inria.diversify.util.PrintClassUtils;
 import org.junit.runner.notification.Failure;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
@@ -22,10 +19,11 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -36,17 +34,16 @@ import java.util.stream.Collectors;
 public class MethodAssertGenerator {
 
     protected CtMethod test;
-    private ClassLoader assertGeneratorClassLoader;
+    private DiversifyClassLoader assertGeneratorClassLoader;
     private CtType originalClass;
     private DSpotCompiler compiler;
     private InputProgram inputProgram;
     private List<Integer> statementsIndexToAssert;
 
-    public MethodAssertGenerator(CtType originalClass, InputProgram inputProgram, DSpotCompiler compiler, ClassLoader applicationClassLoader) throws IOException {
+    public MethodAssertGenerator(CtType originalClass, InputProgram inputProgram, DSpotCompiler compiler, DiversifyClassLoader applicationClassLoader) throws IOException {
         this.originalClass = originalClass;
         this.compiler = compiler;
         this.assertGeneratorClassLoader = applicationClassLoader;
-
         this.inputProgram = inputProgram;
         statementsIndexToAssert = new ArrayList<>();
     }
@@ -55,11 +52,11 @@ public class MethodAssertGenerator {
         this.test = test;
         this.test = createTestWithoutAssert(new ArrayList<>(), false);
         this.test.setParent(test.getParent());
-        for(int i = 0; i < Query.getElements(this.test, new TypeFilter(CtStatement.class)).size(); i++) {
+        for (int i = 0; i < Query.getElements(this.test, new TypeFilter(CtStatement.class)).size(); i++) {
             statementsIndexToAssert.add(i);
         }
         CtMethod newTest = generateAssert();
-        if(newTest == null || !isCorrect(newTest)) {
+        if (newTest == null || !isCorrect(newTest)) {
             return null;
         }
         return newTest;
@@ -69,7 +66,7 @@ public class MethodAssertGenerator {
         this.test = test;
         this.statementsIndexToAssert = statementsIndexToAssert;
         CtMethod newTest = generateAssert();
-        if(newTest == null || !isCorrect(newTest)) {
+        if (newTest == null || !isCorrect(newTest)) {
             return null;
         }
         return newTest;
@@ -88,20 +85,20 @@ public class MethodAssertGenerator {
         classTest.addMethod(testWithoutAssert);
 
         JunitResult result = runTests(classTest, testsToRun);
-        if(result == null || result.getTestRuns().size() != testsToRun.size()) {
+        if (result == null || result.getTestRuns().size() != testsToRun.size()) {
             return null;
         }
         try {
             String testWithoutAssertName = test.getSimpleName() + "_withoutAssert";
-            if(testFailed(testWithoutAssertName, result)) {
+            if (testFailed(testWithoutAssertName, result)) {
                 return makeFailureTest(getFailure(testWithoutAssertName, result));
-            } else if(!testFailed(test.getSimpleName(), result)) {
-                if(!statementsIndexToAssert.isEmpty()) {
+            } else if (!testFailed(test.getSimpleName(), result)) {
+                if (!statementsIndexToAssert.isEmpty()) {
                     return buildNewAssert();
                 }
             } else {
                 removeFailAssert();
-                if(!statementsIndexToAssert.isEmpty()) {
+                if (!statementsIndexToAssert.isEmpty()) {
                     return buildNewAssert();
                 }
             }
@@ -117,19 +114,21 @@ public class MethodAssertGenerator {
         Factory factory = testWithoutAssert.getFactory();
 
         Throwable exception = failure.getException();
-        if(exception instanceof  AssertionError)   {
+        if (exception instanceof AssertionError) {
             exception = exception.getCause();
         }
         Class exceptionClass;
-        if(exception == null) {
+        if (exception == null) {
             exceptionClass = Throwable.class;
+        } else if (exception instanceof IllegalAccessError) {
+            return null; // TODO see the issue about the visibility in the test runner
         } else {
             exceptionClass = exception.getClass();
         }
 
         CtTry tryBlock = factory.Core().createTry();
         tryBlock.setBody(testWithoutAssert.getBody());
-        String snippet = "junit.framework.TestCase.fail(\"" +test.getSimpleName()+" should have thrown " + exceptionClass.getSimpleName()+"\")";
+        String snippet = "junit.framework.TestCase.fail(\"" + test.getSimpleName() + " should have thrown " + exceptionClass.getSimpleName() + "\")";
         tryBlock.getBody().addStatement(factory.Code().createCodeSnippetStatement(snippet));
 
         CtCatch ctCatch = factory.Core().createCatch();
@@ -154,11 +153,11 @@ public class MethodAssertGenerator {
         List<CtMethod> testsToRun = new ArrayList<>();
 
 
-        for(int i = 0; i < 3; i++) {
-                CtMethod testWithLog = createTestWithLog();
-                testWithLog.setSimpleName(testWithLog.getSimpleName() + i);
-                cl.addMethod(testWithLog);
-                testsToRun.add(testWithLog);
+        for (int i = 0; i < 3; i++) {
+            CtMethod testWithLog = createTestWithLog();
+            testWithLog.setSimpleName(testWithLog.getSimpleName() + i);
+            cl.addMethod(testWithLog);
+            testsToRun.add(testWithLog);
         }
 
         ObjectLog.reset();
@@ -175,10 +174,10 @@ public class MethodAssertGenerator {
         int numberOfAddedAssertion = 0;
 
         List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter(CtStatement.class));
-        for(String id : observations.keySet()) {
-           int line = Integer.parseInt(id.split("__")[1]);
+        for (String id : observations.keySet()) {
+            int line = Integer.parseInt(id.split("__")[1]);
             List<String> asserts = observations.get(id).buildAssert();
-            for(String snippet : asserts) {
+            for (String snippet : asserts) {
                 CtStatement assertStmt = getFactory().Code().createCodeSnippetStatement(snippet);
                 try {
                     CtStatement stmt = statements.get(line);
@@ -224,7 +223,7 @@ public class MethodAssertGenerator {
         List<CtMethod> testsToRun = new ArrayList<>();
         List<Integer> assertIndex = new ArrayList<>();
         List<CtStatement> statements = Query.getElements(test, new TypeFilter(CtStatement.class));
-        for(CtStatement statement : statements) {
+        for (CtStatement statement : statements) {
             if (isAssert(statement)) {
                 assertIndex.add(stmtIndex);
             }
@@ -233,7 +232,7 @@ public class MethodAssertGenerator {
 
         CtType newClass = originalClass.clone();
         newClass.setParent(originalClass.getParent());
-        for(int i = 0; i < assertIndex.size(); i++) {
+        for (int i = 0; i < assertIndex.size(); i++) {
             List<Integer> assertToKeep = new ArrayList<>();
             assertToKeep.add(assertIndex.get(i));
             CtMethod mth = createTestWithoutAssert(assertToKeep, false);
@@ -245,8 +244,8 @@ public class MethodAssertGenerator {
         JunitResult result = runTests(newClass, testsToRun);
 
         List<Integer> goodAssertIndex = new ArrayList<>();
-        for(int i = 0; i < testsToRun.size(); i++) {
-            if(!testFailed(testsToRun.get(i).getSimpleName(), result)) {
+        for (int i = 0; i < testsToRun.size(); i++) {
+            if (!testFailed(testsToRun.get(i).getSimpleName(), result)) {
                 goodAssertIndex.add(assertIndex.get(i));
             }
         }
@@ -264,23 +263,15 @@ public class MethodAssertGenerator {
         return getFailure(methodName, result) != null;
     }
 
-    private JunitResult runTests(CtType testClass, List<CtMethod> testsToRun) throws ClassNotFoundException {
-        DiversifyClassLoader diversifyClassLoader = new DiversifyClassLoader(assertGeneratorClassLoader, compiler.getBinaryOutputDirectory().getAbsolutePath());
-        if(!writeAndCompile(testClass)) {
+    public JunitResult runTests(CtType testClass, List<CtMethod> testsToRun) throws ClassNotFoundException {
+        if (!TestCompiler.writeAndCompile(assertGeneratorClassLoader, compiler, testClass, true)) {
             return null;
+        } else {
+            JunitResult result = TestRunner.runTests(assertGeneratorClassLoader, compiler, inputProgram.getProgramDir() + "/log",
+                    this.inputProgram.getProgramDir(), testClass, testsToRun, Collections.singletonList(testClass.getPackage().getQualifiedName()),
+                    this.inputProgram);
+            return result;
         }
-        List<String> ClassName = Collections.singletonList(testClass.getQualifiedName());
-        diversifyClassLoader.setClassFilter(ClassName);
-        JunitRunner junitRunner = new JunitRunner(diversifyClassLoader);
-        String currentUserDir = System.getProperty("user.dir");
-        System.setProperty("user.dir", inputProgram.getProgramDir());
-        Logger.reset();
-        Logger.setLogDir(new File(inputProgram.getProgramDir() + "/log"));
-        junitRunner.setClassTimeOut(240);
-        junitRunner.setMethodTimeOut(10);
-        JunitResult result = junitRunner.runTestClasses(ClassName, testsToRun.stream().map(test -> test.getSimpleName()).collect(Collectors.toList()));
-        System.setProperty("user.dir", currentUserDir);
-        return result;
     }
 
     protected JunitResult runSingleTest(CtMethod test) throws ClassNotFoundException, IOException {
@@ -288,26 +279,6 @@ public class MethodAssertGenerator {
         CtMethod cloneTest = test.clone();
         cloneClass.addMethod(cloneTest);
         return runTests(cloneClass, Collections.singletonList(cloneTest));
-    }
-
-    //todo refactor
-    private boolean writeAndCompile(CtType cl) {
-        try {
-            //TODO Ugly try-catch block but no time to waste.
-            try {
-                FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
-                FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
-            } catch (FileNotFoundException | IllegalArgumentException ignored) {
-                Log.warn("error during cleaning output directories");
-                //ignored
-            }
-            copyLoggerFile();
-            PrintClassUtils.printJavaFile(compiler.getSourceOutputDirectory(), cl);
-            return compiler.compileFileIn(compiler.getSourceOutputDirectory(), true);
-        } catch (Exception e) {
-            Log.debug("error during compilation", e);
-            return false;
-        }
     }
 
     private CtType initTestClass() {
@@ -320,9 +291,9 @@ public class MethodAssertGenerator {
         CtMethod newTest = test.clone();
         newTest.setSimpleName(test.getSimpleName() + "_withlog");
         List<CtStatement> stmts = Query.getElements(newTest, new TypeFilter(CtStatement.class));
-        for(int i = 0; i < stmts.size(); i++) {
+        for (int i = 0; i < stmts.size(); i++) {
             CtStatement stmt = stmts.get(i);
-            if(isStmtToLog(stmt)) {
+            if (isStmtToLog(stmt)) {
                 addLogStmt(stmt, test.getSimpleName() + "__" + i, statementsIndexToAssert.contains(i));
             }
         }
@@ -330,20 +301,20 @@ public class MethodAssertGenerator {
     }
 
     private boolean isStmtToLog(CtStatement statement) {
-        if(!(statement.getParent() instanceof CtBlock)) {
+        if (!(statement.getParent() instanceof CtBlock)) {
             return false;
         }
-        if(statement instanceof CtInvocation) {
+        if (statement instanceof CtInvocation) {
             CtInvocation invocation = (CtInvocation) statement;
 
             //type tested by the test class
             String targetType = "";
-            if(invocation.getTarget() != null &&
+            if (invocation.getTarget() != null &&
                     invocation.getTarget().getType() != null) {
                 targetType = invocation.getTarget().getType().getSimpleName();
             }
             return originalClass.getSimpleName().startsWith(targetType)
-                || !isVoidReturn(invocation);
+                    || !isVoidReturn(invocation);
         }
         return statement instanceof CtVariableWrite
                 || statement instanceof CtAssignment
@@ -356,33 +327,33 @@ public class MethodAssertGenerator {
 
     private void addLogStmt(CtStatement stmt, String id, boolean forAssert) {
         String snippet;
-        if(forAssert) {
+        if (forAssert) {
             snippet = "fr.inria.diversify.compare.ObjectLog.log(";
         } else {
             snippet = "fr.inria.diversify.compare.ObjectLog.logObject(";
         }
 
         CtStatement insertAfter = null;
-        if(stmt instanceof CtVariableWrite) {
+        if (stmt instanceof CtVariableWrite) {
             CtVariableWrite varWrite = (CtVariableWrite) stmt;
             snippet += varWrite.getVariable()
                     + ",\"" + varWrite.getVariable() + "\",\"" + id + "\")";
             insertAfter = stmt;
         }
-        if(stmt instanceof CtLocalVariable) {
+        if (stmt instanceof CtLocalVariable) {
             CtLocalVariable localVar = (CtLocalVariable) stmt;
             snippet += localVar.getSimpleName()
                     + ",\"" + localVar.getSimpleName() + "\",\"" + id + "\")";
             insertAfter = stmt;
         }
-        if(stmt instanceof CtAssignment) {
+        if (stmt instanceof CtAssignment) {
             CtAssignment localVar = (CtAssignment) stmt;
             snippet += localVar.getAssigned()
                     + ",\"" + localVar.getAssigned() + "\",\"" + id + "\")";
             insertAfter = stmt;
         }
 
-        if(stmt instanceof CtInvocation) {
+        if (stmt instanceof CtInvocation) {
             CtInvocation invocation = (CtInvocation) stmt;
             if (isVoidReturn(invocation)) {
                 insertAfter = invocation;
@@ -409,14 +380,14 @@ public class MethodAssertGenerator {
 
         int stmtIndex = 0;
         List<CtStatement> statements = Query.getElements(newTest, new TypeFilter(CtStatement.class));
-        for(CtStatement statement : statements){
+        for (CtStatement statement : statements) {
             try {
                 if (!assertIndexToKeep.contains(stmtIndex) && isAssert(statement)) {
                     CtBlock block = buildRemoveAssertBlock((CtInvocation) statement, stmtIndex);
-                    if(updateStatementsIndexToAssert) {
+                    if (updateStatementsIndexToAssert) {
                         updateStatementsIndexToAssert(stmtIndex, block.getStatements().size() - 1);
                     }
-                    if(statement.getParent() instanceof CtCase) {
+                    if (statement.getParent() instanceof CtCase) {
                         CtCase ctCase = (CtCase) statement.getParent();
                         int index = ctCase.getStatements().indexOf(statement);
                         ctCase.getStatements().add(index, block);
@@ -447,10 +418,10 @@ public class MethodAssertGenerator {
     }
 
     private void updateStatementsIndexToAssert(int stmtIndex, int update) {
-        if(update != 0) {
+        if (update != 0) {
             List<Integer> newList = new ArrayList<>(statementsIndexToAssert.size());
             for (Integer index : statementsIndexToAssert) {
-                if(index > stmtIndex) {
+                if (index > stmtIndex) {
                     statementsIndexToAssert.add(index + update);
                 } else {
                     newList.add(index);
@@ -463,7 +434,7 @@ public class MethodAssertGenerator {
     private CtBlock buildRemoveAssertBlock(CtInvocation assertInvocation, int blockId) {
         CtBlock block = getFactory().Core().createBlock();
 
-        int[] idx = { 0 };
+        int[] idx = {0};
         getNotLiteralArgs(assertInvocation).stream()
                 .filter(arg -> !(arg instanceof CtVariableAccess))
                 .map(arg -> buildVarStatement(arg, blockId + "_" + (idx[0]++)))
@@ -493,7 +464,7 @@ public class MethodAssertGenerator {
     }
 
     private boolean isAssert(CtStatement statement) {
-        if(statement instanceof CtInvocation) {
+        if (statement instanceof CtInvocation) {
             CtInvocation invocation = (CtInvocation) statement;
             try {
                 String signature = invocation.getExecutable().getSimpleName();
@@ -506,24 +477,5 @@ public class MethodAssertGenerator {
             }
         }
         return false;
-    }
-
-    private void copyLoggerFile() throws IOException {
-        String comparePackage = ObjectLog.class.getPackage().getName().replace(".", "/");
-        File srcDir = new File(System.getProperty("user.dir") + "/src/main/java/" + comparePackage);
-
-        File destDir = new File(compiler.getSourceOutputDirectory() + "/" + comparePackage);
-        FileUtils.forceMkdir(destDir);
-
-        FileUtils.copyDirectory(srcDir, destDir);
-
-        String typeUtilsPackage = TypeUtils.class.getPackage().getName().replace(".", "/");
-        File srcFile = new File(System.getProperty("user.dir") + "/src/main/java/" + typeUtilsPackage + "/TypeUtils.java");
-
-        destDir = new File(compiler.getSourceOutputDirectory() + "/" + typeUtilsPackage);
-        FileUtils.forceMkdir(destDir);
-
-        File destFile = new File(compiler.getSourceOutputDirectory() + "/" + typeUtilsPackage + "/TypeUtils.java");
-        FileUtils.copyFile(srcFile, destFile);
     }
 }

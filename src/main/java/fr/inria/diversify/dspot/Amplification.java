@@ -5,11 +5,10 @@ import fr.inria.diversify.dspot.amplifier.Amplifier;
 import fr.inria.diversify.dspot.assertGenerator.AssertGenerator;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
-import fr.inria.diversify.testRunner.JunitRunner;
+import fr.inria.diversify.testRunner.TestCompiler;
 import fr.inria.diversify.testRunner.TestRunner;
 import fr.inria.diversify.util.Log;
 import spoon.reflect.declaration.CtMethod;
@@ -56,7 +55,7 @@ public class Amplification {
     }
 
     public CtType amplification(CtType classTest, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
-        return amplification(classTest, getAllTest(classTest), maxIteration);
+        return amplification(classTest, AmplificationHelper.getAllTest(this.inputProgram, classTest), maxIteration);
     }
 
     public CtType amplification(CtType classTest, List<CtMethod> methods, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
@@ -178,15 +177,16 @@ public class Amplification {
         amplifiers.forEach(amp -> amp.reset(parentClass));
     }
 
-    private JunitResult compileAndRunTests(CtType classTest, List<CtMethod> currentTestList) {
+    public JunitResult compileAndRunTests(CtType classTest, List<CtMethod> currentTestList) {
         CtType classWithLogger = classWithLoggerBuilder.buildClassWithLogger(classTest, currentTestList);
-        boolean status = writeAndCompile(classWithLogger);
+        boolean status = TestCompiler.writeAndCompile(applicationClassLoader, compiler, classWithLogger, false);
         if (!status) {
             return null;
         }
         JunitResult result;
         try {
-            result = runTests(classWithLogger, currentTestList);
+            result = TestRunner.runTests(this.applicationClassLoader, this.compiler, logDir.getAbsolutePath(),
+                    inputProgram.getProgramDir(), classWithLogger, currentTestList);
         } catch (ClassNotFoundException ignored) {
             return null;
         }
@@ -197,35 +197,4 @@ public class Amplification {
         testSelector.update();
         return result;
     }
-
-    /*
-        TODO TO BE MOVED
-     */
-    private List<CtMethod> getAllTest(CtType classTest) {
-        Set<CtMethod> mths = classTest.getMethods();
-        return mths.stream()
-                .filter(mth -> AmplificationChecker.isTest(mth, inputProgram.getRelativeTestSourceCodeDir()))
-                .distinct()
-                .collect(Collectors.toList());
-    }
-
-    private JunitResult runTests(CtType testClass, Collection<CtMethod> tests) throws ClassNotFoundException {
-        Log.debug("run test class: {}", testClass.getQualifiedName());
-        ClassLoader classLoader = new DiversifyClassLoader(applicationClassLoader, compiler.getBinaryOutputDirectory().getAbsolutePath());
-        JunitRunner junitRunner = new JunitRunner(classLoader);
-        Logger.reset();
-        Logger.setLogDir(new File(logDir.getAbsolutePath()));
-        String currentUserDir = System.getProperty("user.dir");
-        System.setProperty("user.dir", inputProgram.getProgramDir());
-        JunitResult result = junitRunner.runTestClass(testClass.getQualifiedName(), tests.stream()
-                .map(test -> test.getSimpleName())
-                .collect(Collectors.toList()));
-        System.setProperty("user.dir", currentUserDir);
-        return result;
-    }
-
-    private boolean writeAndCompile(CtType classInstru) {
-        return (new TestRunner(applicationClassLoader, compiler)).writeAndCompile(classInstru);
-    }
-
 }

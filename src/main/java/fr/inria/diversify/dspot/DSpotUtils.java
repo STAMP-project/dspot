@@ -58,9 +58,6 @@ public class DSpotUtils {
     }
 
     public static void printAllClasses(Factory factory, File out, File fileFrom) {
-        //Environment env = factory.getEnvironment();
-        //JavaOutputProcessorWithFilter processor = new JavaOutputProcessorWithFilter(out, new DefaultJavaPrettyPrinter(env), allClassesName(fileFrom));
-
         factory.Class().getAll().forEach(type -> {
             try {
                 PrintClassUtils.printJavaFile(out, type);
@@ -68,28 +65,6 @@ public class DSpotUtils {
                 e.printStackTrace();
             }
         });
-    }
-
-    @Deprecated
-    private static List<String> allClassesName(File dir) {
-        ArrayList list = new ArrayList();
-        File[] var2 = dir.listFiles();
-        int var3 = var2.length;
-
-        for(int var4 = 0; var4 < var3; ++var4) {
-            File file = var2[var4];
-            if(file.isDirectory()) {
-                list.addAll(allClassesName(file));
-            } else {
-                String name = file.getName();
-                if(name.endsWith(".java")) {
-                    String[] tmp = name.substring(0, name.length() - 5).split("/");
-                    list.add(tmp[tmp.length - 1]);
-                }
-            }
-        }
-
-        return list;
     }
 
     public static DSpotCompiler initDiversityCompiler(InputProgram inputProgram, boolean withTest) throws IOException, InterruptedException {
@@ -141,7 +116,9 @@ public class DSpotUtils {
 
     public static DiversifyClassLoader initClassLoader(InputProgram inputProgram, InputConfiguration inputConfiguration) {
         Set<String> filter = new HashSet<>();
-        Collections.addAll(filter, inputConfiguration.getProperty("filter").split(";"));
+        if (inputConfiguration.getProperty("filter") != null) {
+            Collections.addAll(filter, inputConfiguration.getProperty("filter").split(";"));
+        }
 
         List<String> classPaths = new ArrayList<>();
         classPaths.add(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());

@@ -4,11 +4,9 @@ import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.factories.DiversityCompiler;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.InitUtils;
-import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
@@ -22,8 +20,10 @@ import java.util.Set;
  * Time: 11:16
  */
 public class Utils {
+
     private static String confFile = "src/test/resources/sample.properties";
     private static InputProgram inputProgram;
+    private static InputConfiguration inputConfiguration;
     private static DSpotCompiler compiler;
     private static DiversifyClassLoader applicationClassLoader;
 
@@ -34,6 +34,11 @@ public class Utils {
     public static DSpotCompiler getCompiler() throws InvalidSdkException, Exception {
         lazyInit();
         return compiler;
+    }
+
+    public static InputConfiguration getInputConfiguration() throws InvalidSdkException, Exception {
+        lazyInit();
+        return inputConfiguration;
     }
 
     public static InputProgram getInputProgram() throws InvalidSdkException, Exception {
@@ -55,7 +60,7 @@ public class Utils {
     }
 
     private static void loadSampleProject() throws Exception, InvalidSdkException {
-        InputConfiguration inputConfiguration = new InputConfiguration(confFile);
+        inputConfiguration = new InputConfiguration(confFile);
 
         inputProgram = InitUtils.initInputProgram(inputConfiguration);
         InitUtils.initDependency(inputConfiguration);
