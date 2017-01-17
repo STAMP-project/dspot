@@ -76,11 +76,14 @@ public class Amplification {
             Log.debug("amp {} ({}/{})", test.getSimpleName(), i + 1, tests.size());
             testSelector.reset();
             JunitResult result = compileAndRunTests(classTest, Collections.singletonList(tests.get(i)));
-            if (result != null
-                    && result.getFailures().isEmpty()
-                    && !result.getTestRuns().isEmpty()) {
-                updateAmplifiedTestList(ampTest,
-                        amplification(classTest, test, maxIteration).stream().collect(Collectors.toList()));
+            if (result != null) {
+                if (result.getFailures().isEmpty()
+                        && !result.getTestRuns().isEmpty()) {
+                    updateAmplifiedTestList(ampTest,
+                            amplification(classTest, test, maxIteration).stream().collect(Collectors.toList()));
+                } else {
+                    Log.debug("{} / {} test cases failed!", result.getFailures().size(), result.getTestRuns().size());
+                }
             }
         }
         return AmplificationHelper.createAmplifiedTest(ampTest, classTest);
@@ -127,7 +130,15 @@ public class Amplification {
     }
 
     private List<CtMethod> preAmplification(CtType classTest, List<CtMethod> tests) throws IOException, ClassNotFoundException {
-        compileAndRunTests(classTest, tests);
+        JunitResult result = compileAndRunTests(classTest, tests);
+        if (!result.getFailures().isEmpty()) {
+            Log.debug("{} tests failed before the amplifications", result.getFailures().size());
+            Log.debug("{}", result.getFailures().stream().reduce("",
+                    (s, failure) -> s + failure.getTestHeader() + ":" + failure.getException() + System.getenv().get("line.separator"),
+                    String::concat)
+            );
+            throw new RuntimeException("Need a green test suite to run dspot");
+        }
         testSelector.update();
         resetAmplifiers(classTest);
         Log.debug("Try to add assertions before amplification");
@@ -183,16 +194,19 @@ public class Amplification {
         CtType classWithLogger = classWithLoggerBuilder.buildClassWithLogger(classTest, currentTestList);
         boolean status = TestCompiler.writeAndCompile(applicationClassLoader, compiler, classWithLogger, false);
         if (!status) {
+            Log.debug("Unable to compile " + classTest);
             return null;
         }
         JunitResult result;
         try {
             result = TestRunner.runTests(this.applicationClassLoader, this.compiler, logDir.getAbsolutePath(),
                     inputProgram.getProgramDir(), classWithLogger, currentTestList);
-        } catch (ClassNotFoundException ignored) {
+        } catch (Exception ignored) {
+            Log.debug("Error during running test");
             return null;
         }
         if (result == null) {
+            Log.debug("Error during running test");
             return null;
         }
         Log.debug("update test selector");
