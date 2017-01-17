@@ -39,13 +39,13 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
     private DiversifyClassLoader customClassLoader;
     private FileSystem environment;
 
-    public static DSpotCompiler buildCompiler(InputProgram program, boolean withTest) {
+    public static DSpotCompiler buildCompiler(InputProgram program, boolean withTest,
+                                              URLClassLoader classLoader) {
         StandardEnvironment env = new StandardEnvironment();
         env.setComplianceLevel(program.getJavaVersion());
         env.setVerbose(true);
         env.setDebug(true);
         env.setNoClasspath(false);
-        env.setCommentEnabled(true);
 
         DefaultCoreFactory f = new DefaultCoreFactory();
         Factory factory = new FactoryImpl(f, env);
@@ -66,7 +66,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
                 }
             }
         }
-        String[] sourceClasspath = Arrays.stream(((URLClassLoader) Thread.currentThread().getContextClassLoader()).getURLs())
+        String[] sourceClasspath = Arrays.stream(classLoader.getURLs())
                 .map(url -> {
                     try {
                         return url.toURI();
@@ -84,9 +84,15 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         program.setFactory(compiler.getFactory());
         compiler.init();
+        env.setCommentEnabled(true);
         return compiler;
+    }
+
+    public static DSpotCompiler buildCompiler(InputProgram program, boolean withTest) {
+        return buildCompiler(program, withTest, (URLClassLoader) Thread.currentThread().getContextClassLoader());
     }
 
     private void init() {
@@ -134,16 +140,10 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
     }
 
     public boolean compileFileIn(File directory, boolean withLog) {
-//        initInputClassLoader();
         javaCompliance = factory.getEnvironment().getComplianceLevel();
-        javaCompliance = 8;
-
-//        MainCompiler compiler = new MainCompiler(this, true, environment);
         DSpotJDTBatchCompiler compiler = new DSpotJDTBatchCompiler(this, true, environment);
-
         final SourceOptions sourcesOptions = new SourceOptions();
         sourcesOptions.sources((new FileSystemFolder(directory).getAllJavaFiles()));
-
 
         String[] finalClassPath = getFinalClassPathAsStrings();
 
@@ -193,16 +193,10 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
     }
 
     protected void report(Environment environment, CategorizedProblem problem) {
-        if (problem == null) {
-            throw new IllegalArgumentException("problem cannot be null");
-        }
-
         File file = new File(new String(problem.getOriginatingFileName()));
         String filename = file.getAbsolutePath();
-
         String message = problem.getMessage() + " at " + filename + ":"
                 + problem.getSourceLineNumber();
-
         if (problem.isError()) {
             if (!environment.getNoClasspath()) {
                 // by default, compilation errors are notified as exception

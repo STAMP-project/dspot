@@ -6,6 +6,7 @@ import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import fr.inria.diversify.dspot.support.MavenDependenciesResolver;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
@@ -14,6 +15,8 @@ import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -68,24 +71,27 @@ public class DSpot {
     }
 
     public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws InvalidSdkException, Exception {
+        this.inputConfiguration = inputConfiguration;
         InitUtils.initLogLevel(inputConfiguration);
         inputProgram = InitUtils.initInputProgram(inputConfiguration);
         inputConfiguration.setInputProgram(inputProgram);
         String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp_" + System.currentTimeMillis();
         FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
         inputProgram.setProgramDir(outputDirectory);
-        InitUtils.initDependency(inputConfiguration);
+
+//        InitUtils.initDependency(inputConfiguration);
         String mavenHome = inputConfiguration.getProperty("maven.home", null);
         String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
+        URL[] classpath = MavenDependenciesResolver.resolveDependencies(this.inputConfiguration, this.inputProgram);
         DSpotUtils.compile(inputProgram, mavenHome, mavenLocalRepository);
-        applicationClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
+        URLClassLoader classLoader = new URLClassLoader(classpath, Thread.currentThread().getContextClassLoader());
+        applicationClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration, classLoader);
         DSpotUtils.addBranchLogger(inputProgram);
-        compiler = DSpotCompiler.buildCompiler(inputProgram, true);
+        compiler = DSpotCompiler.buildCompiler(inputProgram, true, classLoader);
         DSpotUtils.compileTests(inputProgram, mavenHome, mavenLocalRepository);
 
         InitUtils.initLogLevel(inputConfiguration);
 
-        this.inputConfiguration = inputConfiguration;
         this.amplifiers = new ArrayList<>(amplifiers);
         this.numberOfIterations = numberOfIterations;
         this.testSelector = testSelector;
