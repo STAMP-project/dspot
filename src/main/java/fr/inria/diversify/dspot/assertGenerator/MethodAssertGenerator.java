@@ -4,7 +4,6 @@ import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
 import fr.inria.diversify.dspot.DSpotUtils;
-import fr.inria.diversify.dspot.TypeUtils;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.runner.InputProgram;
@@ -122,8 +121,6 @@ public class MethodAssertGenerator {
         Class exceptionClass;
         if (exception == null) {
             exceptionClass = Throwable.class;
-        } else if (exception instanceof IllegalAccessError) {
-            return null; // TODO see the issue about the visibility in the test runner
         } else {
             exceptionClass = exception.getClass();
         }

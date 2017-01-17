@@ -62,15 +62,13 @@ public class PitMutantScoreSelector implements TestSelector {
             DSpotCompiler.buildCompiler(this.program, true);
             DSpotUtils.compileTests(this.program, mavenHome, mavenLocalRepository);
             InitUtils.initLogLevel(configuration);
-
-//            if (this.originalPitResults == null) {
-//                List<PitResult> pitResults = PitRunner.runAll(this.program, this.configuration);
-//                this.originalPitResults = pitResults.stream()
-//                        .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
-//                        .collect(Collectors.toList());
-//                Log.debug("The original test suite kill {} / {}", this.originalPitResults.size(), pitResults.size());
-//            }
-
+            if (this.originalPitResults == null) {
+                List<PitResult> pitResults = PitRunner.runAll(this.program, this.configuration);
+                this.originalPitResults = pitResults.stream()
+                        .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
+                        .collect(Collectors.toList());
+                Log.debug("The original test suite kill {} / {}", this.originalPitResults.size(), pitResults.size());
+            }
         } catch (Exception | InvalidSdkException e) {
             throw new RuntimeException(e);
         }
@@ -85,11 +83,6 @@ public class PitMutantScoreSelector implements TestSelector {
     public List<CtMethod> selectToAmplify(List<CtMethod> testsToBeAmplified) {
         if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
             this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
-            List<PitResult> pitResults = PitRunner.run(this.program, this.configuration, this.currentClassTestToBeAmplified);
-            this.originalPitResults = pitResults.stream()
-                    .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
-                    .collect(Collectors.toList());
-            Log.debug("The original test suite kill {} / {}", this.originalPitResults.size(), pitResults.size());
         }
         return testsToBeAmplified;
     }
@@ -146,7 +139,6 @@ public class PitMutantScoreSelector implements TestSelector {
     @Override
     public void report() {
         reportStdout();
-//        createAmplifiedClass();
         reportJSONMutants();
         //clean up for the next class
         this.currentClassTestToBeAmplified = null;
