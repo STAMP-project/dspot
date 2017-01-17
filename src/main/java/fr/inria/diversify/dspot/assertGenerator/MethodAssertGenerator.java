@@ -11,7 +11,6 @@ import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.TestCompiler;
 import fr.inria.diversify.testRunner.TestRunner;
-import fr.inria.diversify.util.Log;
 import org.junit.runner.notification.Failure;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
@@ -35,7 +34,8 @@ import java.util.stream.Collectors;
  */
 public class MethodAssertGenerator {
 
-    protected CtMethod test;
+    private int numberOfFail = 0;
+    CtMethod test;
     private DiversifyClassLoader assertGeneratorClassLoader;
     private CtType originalClass;
     private DSpotCompiler compiler;
@@ -130,7 +130,7 @@ public class MethodAssertGenerator {
 
         CtTry tryBlock = factory.Core().createTry();
         tryBlock.setBody(testWithoutAssert.getBody());
-        String snippet = "junit.framework.TestCase.fail(\"" + test.getSimpleName() + " should have thrown " + exceptionClass.getSimpleName() + "\")";
+        String snippet = "org.junit.Assert.fail(\"" + test.getSimpleName() + " should have thrown " + exceptionClass.getSimpleName() + "\")";
         tryBlock.getBody().addStatement(factory.Code().createCodeSnippetStatement(snippet));
         DSpotUtils.addComment(tryBlock, "AssertGenerator generate try/catch block with fail statement", CtComment.CommentType.INLINE);
 
@@ -148,6 +148,11 @@ public class MethodAssertGenerator {
         body.addStatement(tryBlock);
 
         testWithoutAssert.setBody(body);
+
+        testWithoutAssert.setSimpleName(testWithoutAssert.getSimpleName() + "_failAssert"+ (numberOfFail++));
+
+        Counter.updateAssertionOf(testWithoutAssert, 1);
+
         return testWithoutAssert;
     }
 
@@ -192,8 +197,7 @@ public class MethodAssertGenerator {
                     }
                     numberOfAddedAssertion++;
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.debug("Exception has been thrown during generation of assertion");
+                    throw new RuntimeException(e);
                 }
             }
         }
