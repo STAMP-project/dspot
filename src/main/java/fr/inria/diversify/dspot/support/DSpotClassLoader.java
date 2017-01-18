@@ -53,6 +53,7 @@ public class DSpotClassLoader extends DiversifyClassLoader {
 
     @Override
     protected boolean update(String fullName) {
-        return this.classFilter.isEmpty() || super.update(fullName);
+        return (this.classFilter != null && this.classFilter.isEmpty())
+                || super.update(fullName);
     }
 }

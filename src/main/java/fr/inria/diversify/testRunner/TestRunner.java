@@ -6,10 +6,6 @@ import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputProgram;
 import spoon.reflect.declaration.CtMethod;
-import fr.inria.diversify.dspot.DSpotUtils;
-import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.util.FileUtils;
-import fr.inria.diversify.util.Log;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
@@ -27,7 +23,7 @@ public class TestRunner {
     public static JunitResult runTests(DiversifyClassLoader applicationClassLoader, DSpotCompiler compiler,
                                        String pathToLogDir, String programDir, CtType testClass,
                                        Collection<CtMethod> tests) throws ClassNotFoundException {
-        DiversifyClassLoader classLoader = new DiversifyClassLoader(applicationClassLoader,
+        DSpotClassLoader classLoader = new DSpotClassLoader(applicationClassLoader,
                 compiler.getBinaryOutputDirectory().getAbsolutePath());
         return run(classLoader, pathToLogDir, programDir, testClass, tests);
     }

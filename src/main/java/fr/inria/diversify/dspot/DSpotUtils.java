@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.buildSystem.maven.MavenBuilder;
+import fr.inria.diversify.dspot.support.DSpotClassLoader;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.processor.ProcessorUtil;
@@ -11,7 +12,6 @@ import fr.inria.diversify.profiling.processor.main.AbstractLoggingInstrumenter;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
-import fr.inria.diversify.util.InitUtils;
 import spoon.compiler.Environment;
 import spoon.processing.Processor;
 import spoon.reflect.code.CtComment;
@@ -128,11 +128,6 @@ public class DSpotUtils {
 
         builder.setGoals(phases);
         builder.initTimeOut();
-        InitUtils.addApplicationClassesToClassPath(inputProgram);
-    }
-
-    public static URL[] resolveDependencies() {
-        return new URL[0];
     }
 
     public static DiversifyClassLoader initClassLoader(InputProgram inputProgram, InputConfiguration inputConfiguration) {
@@ -152,7 +147,7 @@ public class DSpotUtils {
 
         classPaths.add(System.getProperty("user.dir") + "/target/classes/");
 
-        DiversifyClassLoader applicationClassLoader = new DiversifyClassLoader(classLoader, classPaths);
+        DSpotClassLoader applicationClassLoader = new DSpotClassLoader(classLoader, classPaths);
         applicationClassLoader.setClassFilter(filter);
 
         return applicationClassLoader;

@@ -1,12 +1,11 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
+import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
-import fr.inria.diversify.dspot.support.MavenDependenciesResolver;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
@@ -15,9 +14,9 @@ import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -82,12 +81,15 @@ public class DSpot {
 //        InitUtils.initDependency(inputConfiguration);
         String mavenHome = inputConfiguration.getProperty("maven.home", null);
         String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
-        URL[] classpath = MavenDependenciesResolver.resolveDependencies(this.inputConfiguration, this.inputProgram);
+
+        AmplificationHelper.initializeDependencies(this.inputConfiguration, this.inputProgram);
         DSpotUtils.compile(inputProgram, mavenHome, mavenLocalRepository);
-        URLClassLoader classLoader = new URLClassLoader(classpath, Thread.currentThread().getContextClassLoader());
-        applicationClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration, classLoader);
+        AmplificationHelper.addProgramUnderAmplificationToClassPasth(inputProgram);
+
+//        URLClassLoader classLoader = new URLClassLoader(classpath, Thread.currentThread().getContextClassLoader());
+        applicationClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
         DSpotUtils.addBranchLogger(inputProgram);
-        compiler = DSpotCompiler.buildCompiler(inputProgram, true, classLoader);
+        compiler = DSpotCompiler.buildCompiler(inputProgram, true);
         DSpotUtils.compileTests(inputProgram, mavenHome, mavenLocalRepository);
 
         InitUtils.initLogLevel(inputConfiguration);

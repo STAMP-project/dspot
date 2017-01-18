@@ -16,7 +16,10 @@ import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -36,9 +39,6 @@ public class Amplification {
     private ClassWithLoggerBuilder classWithLoggerBuilder;
     private AssertGenerator assertGenerator;
 
-    @Deprecated
-//    private TestStatus testStatus;
-
     private static int ampTestCount;
 
     public Amplification(InputProgram inputProgram, InputConfiguration inputConfiguration, DSpotCompiler compiler, DiversifyClassLoader applicationClassLoader, List<Amplifier> amplifiers, TestSelector testSelector, File logDir) {
@@ -49,7 +49,6 @@ public class Amplification {
         this.logDir = logDir;
         this.classWithLoggerBuilder = new ClassWithLoggerBuilder(inputProgram);
         this.testSelector = testSelector;
-//        this.testStatus = new TestStatus();
         this.assertGenerator = new AssertGenerator(inputProgram, compiler, applicationClassLoader);
         this.inputConfiguration = inputConfiguration;
     }
@@ -90,7 +89,6 @@ public class Amplification {
     }
 
     private List<CtMethod> amplification(CtType classTest, CtMethod test, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
-//        testStatus.reset();
         List<CtMethod> currentTestList = new ArrayList<>();
         currentTestList.add(test);
 
@@ -115,7 +113,6 @@ public class Amplification {
                 currentTestList = testWithAssertions;
             }
             JunitResult result = compileAndRunTests(classTest, currentTestList);
-//            testStatus.updateTestStatus(currentTestList, result);
             currentTestList = AmplificationHelper.filterTest(currentTestList, result);
             Log.debug("{} test method(s) has been successfully generated", currentTestList.size());
             amplifiedTests.addAll(testSelector.selectToKeep(currentTestList));
@@ -132,11 +129,15 @@ public class Amplification {
     private List<CtMethod> preAmplification(CtType classTest, List<CtMethod> tests) throws IOException, ClassNotFoundException {
         JunitResult result = compileAndRunTests(classTest, tests);
         if (!result.getFailures().isEmpty()) {
-            Log.debug("{} tests failed before the amplifications", result.getFailures().size());
-            Log.debug("{}", result.getFailures().stream().reduce("",
-                    (s, failure) -> s + failure.getTestHeader() + ":" + failure.getException() + System.getenv().get("line.separator"),
+            Log.warn("{} tests failed before the amplifications", result.getFailures().size());
+            Log.warn("{}", result.getFailures().stream().reduce("",
+                    (s, failure) -> s + failure.getTestHeader() + ":" + failure.getException() + System.getProperty("line.separator"),
                     String::concat)
             );
+            result.getFailures().forEach(failure -> {
+                String methodName = failure.getTestHeader().split("\\(")[0];
+                System.out.println(tests.stream().filter(m -> m.getSimpleName().equals(methodName)).collect(Collectors.toList()));
+            });
             throw new RuntimeException("Need a green test suite to run dspot");
         }
         testSelector.update();

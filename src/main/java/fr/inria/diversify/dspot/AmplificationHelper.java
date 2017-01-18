@@ -1,5 +1,7 @@
 package fr.inria.diversify.dspot;
 
+import fr.inria.diversify.dspot.support.MavenDependenciesResolver;
+import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
 import spoon.reflect.code.CtComment;
@@ -14,6 +16,10 @@ import spoon.reflect.visitor.ImportScannerImpl;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -183,5 +189,25 @@ public class AmplificationHelper {
                 .filter(mth -> AmplificationChecker.isTest(mth, inputProgram.getRelativeTestSourceCodeDir()))
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    public static void addProgramUnderAmplificationToClassPasth(InputProgram inputProgram) {
+        URL[] parentClassPath = ((URLClassLoader) Thread.currentThread().getContextClassLoader()).getURLs();
+        URL[] classPath = new URL[parentClassPath.length + 2];
+        try {
+            classPath[0] = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir()).toURI().toURL();
+            classPath[1] = new File(inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir()).toURI().toURL();
+            System.arraycopy(parentClassPath, 0, classPath, 2, parentClassPath.length);
+            URLClassLoader classLoader = new URLClassLoader(classPath, Thread.currentThread().getContextClassLoader().getParent());
+            Thread.currentThread().setContextClassLoader(classLoader);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void initializeDependencies(InputConfiguration inputConfiguration, InputProgram inputProgram) {
+        URL[] classpath = MavenDependenciesResolver.resolveDependencies(inputConfiguration, inputProgram);
+        URLClassLoader child = new URLClassLoader(classpath, Thread.currentThread().getContextClassLoader());
+        Thread.currentThread().setContextClassLoader(child);
     }
 }
