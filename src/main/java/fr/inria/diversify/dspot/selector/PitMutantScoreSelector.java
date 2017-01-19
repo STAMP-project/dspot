@@ -1,15 +1,10 @@
 package fr.inria.diversify.dspot.selector;
 
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
-import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.support.Counter;
-import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitRunner;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.FileUtils;
-import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
 import spoon.reflect.declaration.CtMethod;
@@ -40,39 +35,18 @@ public class PitMutantScoreSelector implements TestSelector {
 
     public PitMutantScoreSelector() {
         this.testThatKilledMutants = new HashMap<>();
-        this.originalPitResults = new ArrayList<>();
     }
 
-    //TODO That the configuration is well set up and well used.
-    //TODO maybe we can do it one time for the whole project.
     @Override
     public void init(InputConfiguration configuration) {
         this.configuration = configuration;
-        try {
-            InitUtils.initLogLevel(configuration);
-            this.program = InitUtils.initInputProgram(this.configuration);
-            String outputDirectory = configuration.getProperty("tmpDir") + "/tmp_pit_" + System.currentTimeMillis();
-            FileUtils.copyDirectory(new File(this.program.getProgramDir()), new File(outputDirectory));
-            this.program.setProgramDir(outputDirectory);
-            InitUtils.initDependency(configuration);
-            String mavenHome = configuration.getProperty("maven.home", null);
-            String mavenLocalRepository = configuration.getProperty("maven.localRepository", null);
-            DSpotUtils.compile(this.program, mavenHome, mavenLocalRepository);
-            DSpotUtils.initClassLoader(this.program, configuration);
-            DSpotCompiler.buildCompiler(this.program, true);
-            DSpotUtils.compileTests(this.program, mavenHome, mavenLocalRepository);
-            InitUtils.initLogLevel(configuration);
-
-//            if (this.originalPitResults == null) {
-//                List<PitResult> pitResults = PitRunner.runAll(this.program, this.configuration);
-//                this.originalPitResults = pitResults.stream()
-//                        .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
-//                        .collect(Collectors.toList());
-//                Log.debug("The original test suite kill {} / {}", this.originalPitResults.size(), pitResults.size());
-//            }
-
-        } catch (Exception | InvalidSdkException e) {
-            throw new RuntimeException(e);
+        this.program = this.configuration.getInputProgram();
+        if (this.originalPitResults == null) {
+            List<PitResult> pitResults = PitRunner.runAll(this.program, this.configuration);
+            this.originalPitResults = pitResults.stream()
+                    .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
+                    .collect(Collectors.toList());
+            Log.debug("The original test suite kill {} / {}", this.originalPitResults.size(), pitResults.size());
         }
     }
 
@@ -85,11 +59,6 @@ public class PitMutantScoreSelector implements TestSelector {
     public List<CtMethod> selectToAmplify(List<CtMethod> testsToBeAmplified) {
         if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
             this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
-            List<PitResult> pitResults = PitRunner.run(this.program, this.configuration, this.currentClassTestToBeAmplified);
-            this.originalPitResults = pitResults.stream()
-                    .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
-                    .collect(Collectors.toList());
-            Log.debug("The original test suite kill {} / {}", this.originalPitResults.size(), pitResults.size());
         }
         return testsToBeAmplified;
     }
@@ -146,7 +115,6 @@ public class PitMutantScoreSelector implements TestSelector {
     @Override
     public void report() {
         reportStdout();
-//        createAmplifiedClass();
         reportJSONMutants();
         //clean up for the next class
         this.currentClassTestToBeAmplified = null;
@@ -170,7 +138,7 @@ public class PitMutantScoreSelector implements TestSelector {
         if (!reportDir.exists()) {
             reportDir.mkdir();
         }
-        try (FileWriter writer = new FileWriter(this.configuration.getOutputDirectory() + "/"+
+        try (FileWriter writer = new FileWriter(this.configuration.getOutputDirectory() + "/" +
                 this.currentClassTestToBeAmplified.getQualifiedName() + "_mutants_report.txt", false)) {
             writer.write(string.toString());
         } catch (IOException e) {
@@ -196,7 +164,7 @@ public class PitMutantScoreSelector implements TestSelector {
     private static final String tab = "\t";
 
     private void reportJSONMutants() {
-        try (FileWriter writer = new FileWriter(this.configuration.getOutputDirectory() + "/"+
+        try (FileWriter writer = new FileWriter(this.configuration.getOutputDirectory() + "/" +
                 this.currentClassTestToBeAmplified.getQualifiedName() + "_mutants_killed.json", false)) {
             writer.write("{" + nl);
             writer.write(tab + "\"" +

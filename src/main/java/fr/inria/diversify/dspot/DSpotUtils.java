@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.buildSystem.maven.MavenBuilder;
+import fr.inria.diversify.dspot.support.DSpotClassLoader;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.processor.ProcessorUtil;
@@ -10,7 +11,7 @@ import fr.inria.diversify.processor.main.BranchCoverageProcessor;
 import fr.inria.diversify.profiling.processor.main.AbstractLoggingInstrumenter;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.*;
+import fr.inria.diversify.util.FileUtils;
 import spoon.compiler.Environment;
 import spoon.processing.Processor;
 import spoon.reflect.code.CtComment;
@@ -23,6 +24,8 @@ import spoon.support.QueueProcessingManager;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 
 /**
@@ -115,7 +118,7 @@ public class DSpotUtils {
         pCompile(inputProgram, phases, mavenHome, mavenLocalRepository);
     }
 
-    protected static void pCompile(InputProgram inputProgram, String[] phases, String mavenHome, String mavenLocalRepository) throws InterruptedException, IOException {
+    private static void pCompile(InputProgram inputProgram, String[] phases, String mavenHome, String mavenLocalRepository) throws InterruptedException, IOException {
         MavenBuilder builder = new MavenBuilder(inputProgram.getProgramDir());
 
         builder.setBuilderPath(mavenHome);
@@ -125,10 +128,14 @@ public class DSpotUtils {
 
         builder.setGoals(phases);
         builder.initTimeOut();
-        InitUtils.addApplicationClassesToClassPath(inputProgram);
     }
 
     public static DiversifyClassLoader initClassLoader(InputProgram inputProgram, InputConfiguration inputConfiguration) {
+        return initClassLoader(inputProgram, inputConfiguration, (URLClassLoader) Thread.currentThread().getContextClassLoader());
+    }
+
+    public static DiversifyClassLoader initClassLoader(InputProgram inputProgram, InputConfiguration inputConfiguration,
+                                                       URLClassLoader classLoader) {
         Set<String> filter = new HashSet<>();
         if (inputConfiguration.getProperty("filter") != null) {
             Collections.addAll(filter, inputConfiguration.getProperty("filter").split(";"));
@@ -140,13 +147,14 @@ public class DSpotUtils {
 
         classPaths.add(System.getProperty("user.dir") + "/target/classes/");
 
-        DiversifyClassLoader applicationClassLoader = new DiversifyClassLoader(Thread.currentThread().getContextClassLoader(), classPaths);
+        DSpotClassLoader applicationClassLoader = new DSpotClassLoader(classLoader, classPaths);
         applicationClassLoader.setClassFilter(filter);
 
         return applicationClassLoader;
     }
 
-    protected static void applyProcessor(Factory factory, Processor processor) {
+
+    private static void applyProcessor(Factory factory, Processor processor) {
         QueueProcessingManager pm = new QueueProcessingManager(factory);
         pm.addProcessor(processor);
         pm.process(factory.Package().getRootPackage());

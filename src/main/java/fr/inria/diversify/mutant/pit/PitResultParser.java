@@ -56,7 +56,12 @@ public class PitResultParser {
         try (BufferedReader buffer = new BufferedReader(new FileReader(fileResults))) {
             buffer.lines().forEach(line -> {
                 String[] splittedLine = line.split(",");
-                PitResult.State state = PitResult.State.valueOf(splittedLine[5]);
+                PitResult.State state;
+                try {
+                    state = PitResult.State.valueOf(splittedLine[5]);
+                } catch (Exception e) {
+                    state = PitResult.State.NO_COVERAGE;
+                }
                 String fullQualifiedNameMutantOperator = splittedLine[2];
                 CtMethod methodTest;
                 if ("none".equals(splittedLine[6])) {
@@ -67,8 +72,12 @@ public class PitResultParser {
                         Log.error("{} not found", splittedLine[6].split("\\(")[1].substring(0, splittedLine[6].split("\\(")[1].length() - 1));
                         throw new RuntimeException();
                     }
-                    String [] nameMethod = splittedLine[6].split("\\(")[0].split("\\.");
-                    methodTest = (CtMethod) testClass.getMethodsByName(nameMethod[nameMethod.length-1]).get(0);
+                    try {
+                        String[] nameMethod = splittedLine[6].split("\\(")[0].split("\\.");
+                        methodTest = "none".equals(nameMethod[nameMethod.length - 1]) ? null : (CtMethod) testClass.getMethodsByName(nameMethod[nameMethod.length - 1]).get(0);
+                    } catch (Exception e) {
+                        methodTest = null;
+                    }
                 }
                 int lineNumber = Integer.parseInt(splittedLine[4]);
                 String location = splittedLine[3];

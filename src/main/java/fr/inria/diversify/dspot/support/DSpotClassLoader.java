@@ -50,4 +50,10 @@ public class DSpotClassLoader extends DiversifyClassLoader {
         return defineClass(fullName,
                 classData, 0, classData.length);
     }
+
+    @Override
+    protected boolean update(String fullName) {
+        return (this.classFilter != null && this.classFilter.isEmpty())
+                || super.update(fullName);
+    }
 }
