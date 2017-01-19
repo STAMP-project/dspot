@@ -60,16 +60,16 @@ public class PitTest extends MavenAbstractTest {
         assertEquals(27, result.getLineNumber());
         assertEquals("<init>", result.getLocation());
 
-        assertEquals(16, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count());
+        assertEquals(13, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count());
         OptResult = pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).findFirst();
         assertTrue(OptResult.isPresent());
         result = OptResult.get();
         assertEquals("org.pitest.mutationtest.engine.gregor.mutators.InlineConstantMutator", result.getFullQualifiedNameMutantOperator());
-        assertEquals("test1", result.getTestCaseMethod().getSimpleName());
-        assertEquals(13, result.getLineNumber());
+        assertEquals("test4", result.getTestCaseMethod().getSimpleName());
+        assertEquals(18, result.getLineNumber());
         assertEquals("charAt", result.getLocation());
 
-        assertEquals(0, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.NO_COVERAGE).count());
+        assertEquals(3, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.NO_COVERAGE).count());
     }
 
     @Test

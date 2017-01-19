@@ -4,11 +4,6 @@ package example;
 
 
 public class TestSuiteExample {
-    @org.junit.Test
-    public void test1() {
-        example.Example ex = new example.Example();
-        org.junit.Assert.assertEquals('a', ex.charAt("abcd", 0));
-    }
 
     @org.junit.Test
     public void test2() {

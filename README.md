@@ -56,7 +56,7 @@ mvn exec:java -Dexec.mainClass="fr.inria.diversify.Main"
 
 This example is an implementation of the function `chartAt(s, i)` (in `src/test/resources/test-projects/`), which returns the char at the index _i_ in the String _s_.
 
-In this example, DSpot amplifies the tests of `chartAt(s, i)` with one amplifier `TestDataMutator`, which changes literals (add 1 to integer, remove one char in a string, etc...), and with generation of assertions.
+In this example, DSpot amplifies the tests of `chartAt(s, i)` with defaults amplifiers `TestDataMutator`, `TestMethodCallAdder`, `TestMethodCallRemover` and `StatementAdderOnAssert`, which changes literals (add 1 to integer, remove one char in a string, etc...), and with generation of assertions.
 
 DSpot first reads information about the project from the properties file `src/test/resources/test-projects/test-projects.properties`
 ```properties
@@ -74,16 +74,19 @@ outputDirectory=dspot-out/
 filter=example
 ```
 
-The result of the amplification of charAt consists of 21 new tests, as shown in the output below. Those new tests are written to the output folder specified by configuration property `outputDirectory` (`./dspot-out/`). 
+The result of the amplification of charAt consists of 6 new tests, as shown in the output below. Those new tests are written to the output folder specified by configuration property `outputDirectory` (`./dspot-out/`). 
 
 ```
 ======= REPORT =======
 Branch Coverage Selector:
-Initial coverage: 80.00%
-There are 3 unique paths in the original test suite
-The amplification results with 21 new tests
+Initial coverage: 83.33%
+There is 3 unique path in the original test suite
+The amplification results with 6 new tests
 The branch coverage obtained is: 100.00%
-There are 5 new unique paths.
+There is 4 new unique path
+
+
+Print TestSuiteExampleAmpl with 6 amplified test cases in dspot-out/
 ```
 
 
