@@ -47,19 +47,18 @@ java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.diversify.Main path/T
 ```
 
 
-### Running example
+### Getting Started Example
 
-You can run the provide example by running `fr.inria.diversify.Main` from your IDE, or with
+You can run the provided example by running `fr.inria.diversify.Main` from your IDE, or with
 ```
 mvn exec:java -Dexec.mainClass="fr.inria.diversify.Main"
 ```
 
-This example is an implementation of the function `chartAt(s, i)`, which return the char at the index _i_ in the String _s_.
+This example is an implementation of the function `chartAt(s, i)` (in `src/test/resources/test-projects/`), which returns the char at the index _i_ in the String _s_.
 
-DSpot will amplify it (see `src/test/resources/test-projects/`) with one simple amplifier (`TestDataMutator`, which change literals: add 1 to integer, remove one char in a string etc...)
-and using the generation of assertions.
+In this example, DSpot amplifies the tests of `chartAt(s, i)` with one amplifier `TestDataMutator`, which changes literals (add 1 to integer, remove one char in a string, etc...), and with generation of assertions.
 
-DSpot reads information about the project from a properties file. Here the properties file used for the example: (see `src/test/resources/test-projects/test-projects.properties`)
+DSpot first reads information about the project from the properties file `src/test/resources/test-projects/test-projects.properties`
 ```properties
 #relative path to the project root from dspot project
 project=src/test/resources/test-projects
@@ -75,18 +74,31 @@ outputDirectory=dspot-out/
 filter=example
 ```
 
-### Output
+The result of the amplification of charAt consists of 21 new tests, as shown in the output below. Those new tests are written to the output folder specified by configuration property `outputDirectory` (`./dspot-out/`). 
 
-DSpot will produce 3 outputs in the <outputDirectory> (default: output_diversify) specified in the properties file.
+```
+======= REPORT =======
+Branch Coverage Selector:
+Initial coverage: 80.00%
+There are 3 unique paths in the original test suite
+The amplification results with 21 new tests
+The branch coverage obtained is: 100.00%
+There are 5 new unique paths.
+```
 
-* report: a general report of the result of the amplification. It will print it on the standard output 
-* a json file (see Selector section for further information).
 
-The Main class uses the `DSpotUtils.printJavaFileWithComment()` to print the amplified test (without original test cases) in the <outputDirectory>. 
+### Output of DSpot
+
+DSpot produces 3 outputs in the <outputDirectory> (default: `output_diversify`) specified in the properties file.
+
+* a textual report of the result of the amplification also printed  on the standard output 
+* a json file summarizing the amplification 
+* the amplified tests augmented with comments (see `DSpotUtils.printJavaFileWithComment()`)
 
 ### Running on your own project
 
-You can run DSpot on your own project by running the `fr.inria.diversify.Main` and specifying the path to the properties file as first argument:
+You can run DSpot on your own project by running `fr.inria.diversify.Main` and specifying the path to the properties file as first argument:
+
 ```
 java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.diversify.Main path/To/my.properties
 
@@ -113,18 +125,17 @@ Need the initialized InputProgram if DSpot to be well constructed.
 
 You can implement you own amplifier by implementing the `fr.inria.diversify.dspot.amp.Amplifier` interface and giving it to DSpot.
 
-#### TestSelector
+#### Test Selectors
 
-There is two implementation of the TestSelector:
+A test selector is responsible the tests to be amplified in an amplification iteration.
+There are two test selectors:
 
-* BranchCoverageTestSelector: it selects generated tests that increase the coverage, or produce a new unique path (execution path, good for unit test).
-   * The BranchCoverageTestSelector produces a json which contains for the amplified class, the name of each generated test. For each, there is the number of input added, the assertions added and the length of the path covered (in method calls)
+* BranchCoverageTestSelector: it selects amplified tests that increase the coverage, or produce a new unique execution path. BranchCoverageTestSelector produces a json which contains for each amplified test class, the name of the generated tests. For each test, the json file gives the number of added inputs, added assertions and the coverage measured in \# of method calls
 
-* PitMutantScoreSelector: it selects generated tests that increase the mutant score, _i.e._ kills more mutants generated with [Pitest](http://pitest.org/). (It can take a while)
-    * PitMutantScoreSelector produces a json which contains for the amplified class, the name of of each generated test.  For each, there is the number of input added, the assertions added, the number of mutant that it kills and the list of the mutant killed with:
+* PitMutantScoreSelector: it selects amplified tests that increase the mutant score, _i.e._ kills more mutants than the original tests. The mutants are generated with [Pitest](http://pitest.org/). Warning, the selector takes more time than the first one. This selector produces a json which contains for the amplified classed, the name of of each generated test, the number of added inputs, of added assertions, and the number of newly killed mutants. For each newly killed  mutant killed, it gives:
         * the ID of the mutant operators (see [Mutator](http://pitest.org/quickstart/mutators/))
+        * the name of the method where the mutant is inserted.
         * the line where the mutant is inserted.
-        * the name of the method where it is inserted.
 
 #### Snippets
 
@@ -149,7 +160,7 @@ new DSpot(configuration, new PitMutantScoreSelector());//3 iterations, default a
 
 ###### Available Properties
 
-Find here, the list of available properties:
+Here is the list of configuration properties of DSpot:
 
 * required properties:
  * project: path to the project root directory.
@@ -164,15 +175,6 @@ Find here, the list of available properties:
 * optional properties:
  * filter: string to filter on package or classes.
  * maven.localRepository: path to the local repository of maven (.m2), if you need specific settings. 
-
-###### Printing
-
-In order to print, you can use the following snippets:
-```java
-DSpotUtils.printJavaFile(outputDirectory, testClass);
-```
-where _outputDirectory_ is a `java.io.File` pointing to the directory of the output(for instance in the test-projects example: `dspot-out/`)
-and where _testClass_ is a CtType (the type of object returned by DSpot). 
 
 ### Licence
 
