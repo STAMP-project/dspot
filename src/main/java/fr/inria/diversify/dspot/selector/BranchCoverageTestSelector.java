@@ -38,6 +38,8 @@ public class BranchCoverageTestSelector implements TestSelector {
 
     private CtType currentClassTestToBeAmplified;
 
+    private List<Coverage> initialBranchCoverages;
+
     private Double initialCoverage;
 
     private int initialUniquePath;
@@ -73,6 +75,7 @@ public class BranchCoverageTestSelector implements TestSelector {
             this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
             Coverage global = new Coverage("global");
             this.branchCoverage.forEach(global::merge);
+            this.initialBranchCoverages = this.branchCoverage;
             this.initialCoverage = global.coverage();
             this.initialUniquePath = Math.toIntExact(this.branchCoverage.stream().map(Coverage::getCoverageBranch).distinct().count());
         }
@@ -174,7 +177,8 @@ public class BranchCoverageTestSelector implements TestSelector {
         string.append("The branch coverage obtained is: ").append(String.format("%.2f", 100.0D * global.coverage())).append("%")
                 .append(nl);
         int newUniquePath = Math.toIntExact(this.coveragePerTestKept.keySet().stream()
-                .map(coveragePerTestKept::get)
+                .map(this.coveragePerTestKept::get)
+                .filter(coverage -> !this.initialBranchCoverages.contains(coverage))
                 .map(Coverage::getCoverageBranch)
                 .distinct()
                 .count());
@@ -193,6 +197,11 @@ public class BranchCoverageTestSelector implements TestSelector {
             e.printStackTrace();
         }
         reportJSON();
+    }
+
+    @Override
+    public int getNbAmplifiedTestCase() {
+        return this.coveragePerTestKept.size();
     }
 
     private void reportJSON() {

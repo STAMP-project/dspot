@@ -1,7 +1,6 @@
 package fr.inria.diversify.dspot.selector;
 
 import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
 import spoon.reflect.declaration.CtMethod;
 
 import java.util.List;
@@ -24,5 +23,7 @@ public interface TestSelector {
     void update();
 
     void report();
+
+    int getNbAmplifiedTestCase();
 
 }
