@@ -51,11 +51,11 @@ public class AmplificationHelper {
 
     public static CtType createAmplifiedTest(List<CtMethod> ampTest, CtType classTest) {
         CtType amplifiedTest = classTest.clone();
-        amplifiedTest.setParent(classTest.getParent());
         amplifiedTest.setSimpleName(classTest.getSimpleName() + "Ampl");
+        classTest.getPackage().addType(amplifiedTest);
         classTest.getMethods().forEach(method -> amplifiedTest.removeMethod((CtMethod) method));
-        ampTest.forEach(classTest::addMethod);
-        return classTest;
+        ampTest.forEach(amplifiedTest::addMethod);
+        return amplifiedTest;
     }
 
     public static Map<CtMethod, CtMethod> getAmpTestToParent() {

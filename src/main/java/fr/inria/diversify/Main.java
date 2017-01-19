@@ -1,7 +1,6 @@
 package fr.inria.diversify;
 
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
-import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
@@ -20,9 +19,10 @@ public class Main {
 
     public static void main(String[] args) throws Exception, InvalidSdkException {
         if (args.length == 0) {
-            System.out.println(
-                    new DSpot(new InputConfiguration("src/test/resources/test-projects/test-projects.properties"), 1, Collections.singletonList(new TestDataMutator()))
-                            .amplifyTest("example.TestSuiteExample"));
+            InputConfiguration configuration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
+            final File outputDirectory = new File(configuration.getOutputDirectory());
+            DSpot dSpot = new DSpot(configuration, 1);
+            dSpot.amplifyTest("example.TestSuiteExample");
         } else {
             if (!new File(args[0]).exists()) {
                 Log.error("Could not find {}", args[0]);

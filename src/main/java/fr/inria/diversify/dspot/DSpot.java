@@ -127,6 +127,9 @@ public class DSpot {
             Amplification testAmplification = new Amplification(inputProgram, this.inputConfiguration, compiler, applicationClassLoader, this.amplifiers, this.testSelector, logDir);
             CtType amplification = testAmplification.amplification(test, numberOfIterations);
             testSelector.report();
+            final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
+            System.out.println("Print " + amplification.getSimpleName() + " with " + testSelector.getNbAmplifiedTestCase() + " amplified test cases in " + this.inputConfiguration.getOutputDirectory());
+            DSpotUtils.printJavaFileWithComment(amplification, outputDirectory);
             return amplification;
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
             throw new RuntimeException(e);
