@@ -46,7 +46,7 @@ public class Utils {
         return inputProgram;
     }
 
-    public static void reset() throws InvalidSdkException, Exception {
+    public static void reset() {
         applicationClassLoader = null;
         inputProgram = null;
         compiler = null;

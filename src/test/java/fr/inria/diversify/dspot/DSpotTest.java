@@ -1,5 +1,6 @@
 package fr.inria.diversify.dspot;
 
+import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
@@ -18,9 +19,11 @@ public class DSpotTest extends MavenAbstractTest {
     @Test
     public void test() throws Exception, InvalidSdkException {
 
+        Utils.reset();
+
         /*
             Test the whole dspot procedure.
-                It results with 18 methods: 18 amplified tests.
+                It results with 24 methods: 18 amplified tests + 6 original tests.
          */
 
         AmplificationHelper.setSeedRandom(23L);
@@ -31,8 +34,9 @@ public class DSpotTest extends MavenAbstractTest {
 
         CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample");
 
-        assertEquals(18, amplifiedTest.getMethods().size());
+        assertEquals(24, amplifiedTest.getMethods().size());
         assertEquals(expectedAmplifiedBody, amplifiedTest.getMethod("test2_cf24").getBody().toString());
+
     }
 
     private final String expectedAmplifiedBody = "{\n" +
