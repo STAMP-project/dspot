@@ -134,24 +134,29 @@ public class Amplification {
                     (s, failure) -> s + failure.getTestHeader() + ":" + failure.getException() + System.getProperty("line.separator"),
                     String::concat)
             );
+            Log.warn("Discarding following test cases for the amplification");
+
             result.getFailures().forEach(failure -> {
                 String methodName = failure.getTestHeader().split("\\(")[0];
-                System.out.println(tests.stream().filter(m -> m.getSimpleName().equals(methodName)).collect(Collectors.toList()));
+                CtMethod testToRemove = tests.stream().filter(m -> m.getSimpleName().equals(methodName)).collect(Collectors.toList()).get(0);
+                tests.remove(tests.indexOf(testToRemove));
+                Log.warn("{}", testToRemove.getSimpleName());
             });
-            throw new RuntimeException("Need a green test suite to run dspot");
-        }
-        testSelector.update();
-        resetAmplifiers(classTest);
-        Log.debug("Try to add assertions before amplification");
-        List<CtMethod> preAmplifiedMethods = testSelector.selectToKeep(
-                assertGenerator.generateAsserts(
-                        classTest, testSelector.selectToAmplify(tests), AmplificationHelper.getAmpTestToParent()
-                )
-        );
-        if (tests.containsAll(preAmplifiedMethods)) {
-            return new ArrayList<>();
+            return preAmplification(classTest, tests);
         } else {
-            return preAmplifiedMethods;
+            testSelector.update();
+            resetAmplifiers(classTest);
+            Log.debug("Try to add assertions before amplification");
+            List<CtMethod> preAmplifiedMethods = testSelector.selectToKeep(
+                    assertGenerator.generateAsserts(
+                            classTest, testSelector.selectToAmplify(tests), AmplificationHelper.getAmpTestToParent()
+                    )
+            );
+            if (tests.containsAll(preAmplifiedMethods)) {
+                return new ArrayList<>();
+            } else {
+                return preAmplifiedMethods;
+            }
         }
     }
 
