@@ -3,7 +3,6 @@ package fr.inria.diversify.dspot.selector;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
-import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.MavenAbstractTest;
 import fr.inria.diversify.dspot.amplifier.StatementAdderOnAssert;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
@@ -34,20 +33,7 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
     @Test
     public void testSelection() throws Exception, InvalidSdkException {
         AmplificationHelper.setSeedRandom(23L);
-        InputConfiguration inputConfiguration = new InputConfiguration(pathToPropertiesFile);
-        InitUtils.initLogLevel(inputConfiguration);
-        InputProgram inputProgram = InitUtils.initInputProgram(inputConfiguration);
-        String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp_" + System.currentTimeMillis();
-        FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
-        inputProgram.setProgramDir(outputDirectory);
-        InitUtils.initDependency(inputConfiguration);
-        String mavenHome = inputConfiguration.getProperty("maven.home", null);
-        String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
-        DSpotUtils.compile(inputProgram, mavenHome, mavenLocalRepository);
-        DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
-        DSpotCompiler.buildCompiler(inputProgram, true);
-        DSpotUtils.compileTests(inputProgram, mavenHome, mavenLocalRepository);
-        InitUtils.initLogLevel(inputConfiguration);
+        init();
 
         List<PitResult> pitResults = PitRunner.run(inputProgram, inputConfiguration, inputProgram.getFactory().Class().get("example.TestSuiteExample"));
         assertTrue(null != pitResults);
@@ -65,7 +51,7 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
         final CtClass<Object> exampleOriginalTestClass = dspot.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
         CtType amplifiedTest = dspot.amplifyAllTests().get(0);
 
-        File directory = new File(outputDirectory + "/" + dspot.getInputProgram().getRelativeTestSourceCodeDir());
+        File directory = new File(dspot.getInputProgram().getProgramDir() + "/" + dspot.getInputProgram().getRelativeTestSourceCodeDir());
         PrintClassUtils.printJavaFile(directory, amplifiedTest);
 
         List<PitResult> pitResultsAmplified = PitRunner.run(inputProgram, inputConfiguration, amplifiedTest);
@@ -75,5 +61,31 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
                 pitResultsAmplified.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count());
 
         PrintClassUtils.printJavaFile(directory, exampleOriginalTestClass);
+    }
+
+    private final String pathToPropertiesFile = "src/test/resources/test-projects/test-projects.properties";
+    private InputConfiguration inputConfiguration;
+    private InputProgram inputProgram;
+    private DSpotCompiler compiler;
+
+    private void init() {
+        try {
+            inputConfiguration = new InputConfiguration(pathToPropertiesFile);
+            inputProgram = InitUtils.initInputProgram(inputConfiguration);
+            InitUtils.initLogLevel(inputConfiguration);
+            inputConfiguration.setInputProgram(inputProgram);
+            String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp";
+            FileUtils.cleanDirectory(new File("tmpDir"));
+            FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
+            inputProgram.setProgramDir(outputDirectory);
+            String dependencies = AmplificationHelper.getDependenciesOf(inputConfiguration, inputProgram);
+            File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
+            FileUtils.cleanDirectory(output);
+            DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
+            compiler = new DSpotCompiler(inputProgram, dependencies);
+            inputProgram.setFactory(compiler.getLauncher().getFactory());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

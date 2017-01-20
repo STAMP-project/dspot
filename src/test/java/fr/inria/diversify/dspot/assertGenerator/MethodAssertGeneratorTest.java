@@ -2,7 +2,6 @@ package fr.inria.diversify.dspot.assertGenerator;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
-import fr.inria.diversify.dspot.AbstractTest;
 import fr.inria.diversify.testRunner.JunitResult;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
@@ -17,12 +16,12 @@ import static org.junit.Assert.assertEquals;
  * Date: 25/11/16
  * Time: 11:15
  */
-public class MethodAssertGeneratorTest extends AbstractTest {
+public class MethodAssertGeneratorTest {
 
     @Test
     public void testCreateTestWithoutAssert() throws InvalidSdkException, Exception {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
-        MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler(), Utils.getApplicationClassLoader());
+        MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler());//, Utils.getCompiler(), Utils.getApplicationClassLoader());
 
         mag.test = Utils.findMethod("fr.inria.sample.TestClassWithAssert", "test1");
         CtMethod test1 = mag.createTestWithoutAssert(Collections.EMPTY_LIST, false);
@@ -40,7 +39,7 @@ public class MethodAssertGeneratorTest extends AbstractTest {
     @Test
     public void testRemoveFailAssert() throws InvalidSdkException, Exception {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
-        MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler(), Utils.getApplicationClassLoader());
+        MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler());//, Utils.getCompiler(), Utils.getApplicationClassLoader());
 
         CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithAssert", "test1");
         mag.test = test1;
@@ -63,7 +62,7 @@ public class MethodAssertGeneratorTest extends AbstractTest {
     @Test
     public void testMakeFailureTest() throws InvalidSdkException, Exception {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
-        MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler(), Utils.getApplicationClassLoader());
+        MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler());//, Utils.getCompiler(), Utils.getApplicationClassLoader());
 
         CtMethod test = Utils.findMethod("fr.inria.sample.TestClassWithAssert", "test3");
         mag.test = test;
@@ -85,7 +84,7 @@ public class MethodAssertGeneratorTest extends AbstractTest {
     @Test
     public void testBuildNewAssert() throws InvalidSdkException, Exception {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
-        MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler(), Utils.getApplicationClassLoader());
+        MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler());
 
         String nl = System.getProperty("line.separator");
 
@@ -98,13 +97,13 @@ public class MethodAssertGeneratorTest extends AbstractTest {
                 "    // AssertGenerator add assertion" + nl +
                 "    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getBoolean());" + nl +
                 "    // AssertGenerator replace invocation" + nl +
-                "    boolean o_test1_withoutAssert__3 = cl.getFalse();" + nl +
+                "    boolean o_test1__3 = cl.getFalse();" + nl +
                 "    // AssertGenerator add assertion" + nl +
-                "    org.junit.Assert.assertFalse(o_test1_withoutAssert__3);" + nl +
+                "    org.junit.Assert.assertFalse(o_test1__3);" + nl +
                 "    // AssertGenerator replace invocation" + nl +
-                "    boolean o_test1_withoutAssert__4 = cl.getBoolean();" + nl +
+                "    boolean o_test1__4 = cl.getBoolean();" + nl +
                 "    // AssertGenerator add assertion" + nl +
-                "    org.junit.Assert.assertTrue(o_test1_withoutAssert__4);" + nl +
+                "    org.junit.Assert.assertTrue(o_test1__4);" + nl +
                 "    boolean var = cl.getTrue();" + nl +
                 "    // AssertGenerator add assertion" + nl +
                 "    org.junit.Assert.assertTrue(var);" + nl +

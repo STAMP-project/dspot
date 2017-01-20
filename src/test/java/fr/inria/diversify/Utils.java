@@ -1,16 +1,18 @@
 package fr.inria.diversify;
 
-import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
-import fr.inria.diversify.dspot.DSpotUtils;
+import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
+import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 
+import java.io.File;
 import java.util.Set;
 
 
@@ -24,15 +26,10 @@ public class Utils {
     private static String confFile = "src/test/resources/sample.properties";
     private static InputProgram inputProgram;
     private static InputConfiguration inputConfiguration;
+    private static Launcher spoonModel;
     private static DSpotCompiler compiler;
-    private static DiversifyClassLoader applicationClassLoader;
 
-    public static DiversifyClassLoader getApplicationClassLoader() {
-        return applicationClassLoader;
-    }
-
-    public static DSpotCompiler getCompiler() throws InvalidSdkException, Exception {
-        lazyInit();
+    public static DSpotCompiler getCompiler() {
         return compiler;
     }
 
@@ -41,34 +38,40 @@ public class Utils {
         return inputConfiguration;
     }
 
+    private static void init() {
+        try {
+            inputConfiguration = new InputConfiguration(confFile);
+            inputProgram = InitUtils.initInputProgram(inputConfiguration);
+            InitUtils.initLogLevel(inputConfiguration);
+            inputConfiguration.setInputProgram(inputProgram);
+            String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp";
+            FileUtils.cleanDirectory(new File("tmpDir"));
+            FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
+            inputProgram.setProgramDir(outputDirectory);
+            String dependencies = AmplificationHelper.getDependenciesOf(inputConfiguration, inputProgram);
+            File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
+            FileUtils.cleanDirectory(output);
+            DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
+            compiler = new DSpotCompiler(inputProgram, dependencies);
+            inputProgram.setFactory(compiler.getLauncher().getFactory());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static InputProgram getInputProgram() throws InvalidSdkException, Exception {
         lazyInit();
         return inputProgram;
     }
 
     public static void reset() {
-        applicationClassLoader = null;
         inputProgram = null;
-        compiler = null;
     }
 
     private static void lazyInit() throws InvalidSdkException, Exception {
-        if(inputProgram == null) {
-            System.out.println("init");
-            loadSampleProject();
+        if (inputProgram == null) {
+            init();
         }
-    }
-
-    private static void loadSampleProject() throws Exception, InvalidSdkException {
-        inputConfiguration = new InputConfiguration(confFile);
-
-        inputProgram = InitUtils.initInputProgram(inputConfiguration);
-        InitUtils.initDependency(inputConfiguration);
-
-        compiler = DSpotUtils.initDiversityCompiler(inputProgram, true);
-
-        InitUtils.addApplicationClassesToClassPath(inputProgram);
-        applicationClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
     }
 
     public static CtClass findClass(String fullQualifiedName) throws InvalidSdkException, Exception {

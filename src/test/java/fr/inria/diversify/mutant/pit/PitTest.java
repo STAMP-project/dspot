@@ -24,6 +24,9 @@ import static org.junit.Assert.fail;
 public class PitTest extends MavenAbstractTest {
 
     private final String pathToPropertiesFile = "src/test/resources/test-projects/test-projects.properties";
+    private InputConfiguration inputConfiguration;
+    private InputProgram inputProgram;
+    private DSpotCompiler compiler;
 
     @Test
     public void testPit() throws Exception, InvalidSdkException {
@@ -33,21 +36,7 @@ public class PitTest extends MavenAbstractTest {
                 Checks that the PitRunner return well the results, and verify state of mutant.
          */
         AmplificationHelper.setSeedRandom(23L);
-        InputConfiguration inputConfiguration = new InputConfiguration(pathToPropertiesFile);
-        InitUtils.initLogLevel(inputConfiguration);
-        InputProgram inputProgram = InitUtils.initInputProgram(inputConfiguration);
-        String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp_" + System.currentTimeMillis();
-        FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
-        inputProgram.setProgramDir(outputDirectory);
-        InitUtils.initDependency(inputConfiguration);
-        String mavenHome = inputConfiguration.getProperty("maven.home", null);
-        String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
-        DSpotUtils.compile(inputProgram, mavenHome, mavenLocalRepository);
-        DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
-        DSpotCompiler.buildCompiler(inputProgram, true);
-        DSpotUtils.compileTests(inputProgram, mavenHome, mavenLocalRepository);
-        InitUtils.initLogLevel(inputConfiguration);
-
+        init();
         List<PitResult> pitResults = PitRunner.run(inputProgram, inputConfiguration, inputProgram.getFactory().Class().get("example.TestSuiteExample"));
 
         assertTrue(null != pitResults);
@@ -70,6 +59,27 @@ public class PitTest extends MavenAbstractTest {
         assertEquals("charAt", result.getLocation());
 
         assertEquals(3, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.NO_COVERAGE).count());
+    }
+
+    private void init() {
+        try {
+            inputConfiguration = new InputConfiguration(pathToPropertiesFile);
+            inputProgram = InitUtils.initInputProgram(inputConfiguration);
+            InitUtils.initLogLevel(inputConfiguration);
+            inputConfiguration.setInputProgram(inputProgram);
+            String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp";
+            FileUtils.cleanDirectory(new File("tmpDir"));
+            FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
+            inputProgram.setProgramDir(outputDirectory);
+            String dependencies = AmplificationHelper.getDependenciesOf(inputConfiguration, inputProgram);
+            File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
+            FileUtils.cleanDirectory(output);
+            DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
+            compiler = new DSpotCompiler(inputProgram, dependencies);
+            inputProgram.setFactory(compiler.getLauncher().getFactory());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
