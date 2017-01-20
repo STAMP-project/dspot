@@ -1,6 +1,5 @@
 package fr.inria.diversify.dspot;
 
-import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
@@ -10,6 +9,7 @@ import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
+import spoon.Launcher;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
@@ -29,10 +29,12 @@ public class DSpot {
     private List<Amplifier> amplifiers;
     private int numberOfIterations;
     private TestSelector testSelector;
+    public InputProgram inputProgram;
+
+    @Deprecated
     private InputConfiguration inputConfiguration;
+
     private DSpotCompiler compiler;
-    private InputProgram inputProgram;
-    private DiversifyClassLoader applicationClassLoader;
 
     public DSpot(InputConfiguration inputConfiguration) throws InvalidSdkException, Exception {
         this(inputConfiguration, 3, Arrays.asList(
@@ -57,8 +59,7 @@ public class DSpot {
                 new TestDataMutator(),
                 new TestMethodCallAdder(),
                 new TestMethodCallRemover(),
-                new StatementAdderOnAssert()), testSelector
-        );
+                new StatementAdderOnAssert()), testSelector);
     }
 
     public DSpot(InputConfiguration configuration, List<Amplifier> amplifiers) throws InvalidSdkException, Exception {
@@ -74,31 +75,36 @@ public class DSpot {
         InitUtils.initLogLevel(inputConfiguration);
         inputProgram = InitUtils.initInputProgram(inputConfiguration);
         inputConfiguration.setInputProgram(inputProgram);
-        String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp_" + System.currentTimeMillis();
+
+        String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp";
+
+        FileUtils.cleanDirectory(new File("tmpDir"));
         FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
         inputProgram.setProgramDir(outputDirectory);
+        String dependencies = AmplificationHelper.getDependenciesOf(this.inputConfiguration, inputProgram);
 
-//        InitUtils.initDependency(inputConfiguration);
-        String mavenHome = inputConfiguration.getProperty("maven.home", null);
-        String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
+        //We need to use separate factory here, because the BranchProcessor will process test also
+        //TODO this is used only with the BranchCoverageSelector
+        Launcher spoonModel = DSpotCompiler.getSpoonModelOf(inputProgram.getAbsoluteSourceCodeDir(), dependencies);
+        DSpotUtils.addBranchLogger(inputProgram, spoonModel.getFactory());
 
-        AmplificationHelper.initializeDependencies(this.inputConfiguration, this.inputProgram);
-        DSpotUtils.compile(inputProgram, mavenHome, mavenLocalRepository);
-        AmplificationHelper.addProgramUnderAmplificationToClassPasth(inputProgram);
+        File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
+        FileUtils.cleanDirectory(output);
+        boolean status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
+        if (!status) {
+            throw new RuntimeException("Error during compilation");
+        }
 
-//        URLClassLoader classLoader = new URLClassLoader(classpath, Thread.currentThread().getContextClassLoader());
-        applicationClassLoader = DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
-        DSpotUtils.addBranchLogger(inputProgram);
-        compiler = DSpotCompiler.buildCompiler(inputProgram, true);
-        DSpotUtils.compileTests(inputProgram, mavenHome, mavenLocalRepository);
+        this.compiler = new DSpotCompiler(inputProgram, dependencies);
 
-        InitUtils.initLogLevel(inputConfiguration);
+        this.inputProgram.setFactory(compiler.getLauncher().getFactory());
 
         this.amplifiers = new ArrayList<>(amplifiers);
         this.numberOfIterations = numberOfIterations;
         this.testSelector = testSelector;
         this.testSelector.init(this.inputConfiguration);
     }
+
 
     public void addAmplifier(Amplifier amplifier) {
         this.amplifiers.add(amplifier);
@@ -116,15 +122,14 @@ public class DSpot {
     }
 
     public CtType amplifyTest(String fullName) throws InterruptedException, IOException, ClassNotFoundException {
-        CtType<Object> clone = inputProgram.getFactory().Type().get(fullName).clone();
-        clone.setParent(inputProgram.getFactory().Type().get(fullName).getParent());
+        CtType<Object> clone = this.compiler.getLauncher().getFactory().Type().get(fullName).clone();
+        clone.setParent(this.compiler.getLauncher().getFactory().Type().get(fullName).getParent());
         return amplifyTest(clone);
     }
 
     public CtType amplifyTest(CtType test) {
         try {
-            File logDir = new File(inputProgram.getProgramDir() + "/log");
-            Amplification testAmplification = new Amplification(inputProgram, this.inputConfiguration, compiler, applicationClassLoader, this.amplifiers, this.testSelector, logDir);
+            Amplification testAmplification = new Amplification(this.inputProgram, this.amplifiers, this.testSelector, this.compiler);
             CtType amplification = testAmplification.amplification(test, numberOfIterations);
             testSelector.report();
             final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
@@ -138,14 +143,6 @@ public class DSpot {
 
     public InputProgram getInputProgram() {
         return inputProgram;
-    }
-
-    public DSpotCompiler getCompiler() {
-        return compiler;
-    }
-
-    public InputConfiguration getInputConfiguration() {
-        return inputConfiguration;
     }
 
 }

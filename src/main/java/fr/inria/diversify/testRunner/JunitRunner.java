@@ -1,19 +1,25 @@
 package fr.inria.diversify.testRunner;
 
 
-import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.logger.Logger;
-import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.Log;
 import org.junit.internal.requests.FilterRequest;
-import org.junit.runner.*;
+import org.junit.runner.Computer;
+import org.junit.runner.Description;
+import org.junit.runner.Request;
+import org.junit.runner.Runner;
 import org.junit.runner.manipulation.Filter;
 import org.junit.runner.notification.RunNotifier;
-import spoon.reflect.declaration.CtType;
 
-import java.util.*;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 /**
  * User: Simon
@@ -22,37 +28,21 @@ import java.util.stream.Collectors;
  */
 public class JunitRunner {
 
-    private ClassLoader classLoader;
     private int classTimeOut = 120;
     private int methodTimeOut = 5;
 
-    public JunitRunner(ClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
+    private ClassLoader classLoader;
 
-    public JunitResult runAllTestClasses(InputProgram program) {
-        return runTestClasses(program.getFactory().Class().getAll().stream()
-                        .filter(ctClass ->
-                                ctClass.getMethods().stream()
-                                        .filter(method ->
-                                                AmplificationChecker.isTest(method, program.getRelativeTestSourceCodeDir()))
-                                        .count() > 0)
-                        .map(CtType::getQualifiedName)
-                        .collect(Collectors.toList()),
-                Collections.EMPTY_LIST);
-    }
-
-    public JunitResult runTestForMutant(InputProgram program, String fullQualifiedName) {
-        return runTestClasses(program.getFactory().Class().getAll().stream()
-                        .filter(ctClass ->
-                                ctClass.getMethods().stream()
-                                        .filter(method ->
-                                                AmplificationChecker.isTest(method, program.getRelativeTestSourceCodeDir()))
-                                        .count() > 0)
-                        .filter(ctClass -> ctClass.getQualifiedName().contains(fullQualifiedName))
-                        .map(CtType::getQualifiedName)
-                        .collect(Collectors.toList()),
-                Collections.EMPTY_LIST);
+    public JunitRunner(String classpath) {
+        final List<URL> tmp = new ArrayList<>();
+        Arrays.stream(classpath.split(":")).map(File::new).map(file -> {
+            try {
+                return file.toURL();
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        }).forEach(tmp::add);
+        classLoader = new URLClassLoader(tmp.toArray(new URL[tmp.size()]));
     }
 
     public JunitResult runTestClass(String test, List<String> methodsToRun) {
@@ -110,21 +100,24 @@ public class JunitRunner {
     }
 
     private void runRequest(final JunitResult result, Request request, int timeOut) throws InterruptedException, ExecutionException, TimeoutException {
-        timedCall(new Runnable() {
-            public void run() {
-                Runner runner = request.getRunner();
-                RunNotifier fNotifier = new RunNotifier();
-                fNotifier.addFirstListener(result);
-                fNotifier.fireTestRunStarted(runner.getDescription());
-                runner.run(fNotifier);
-            }
+        timedCall(() -> {
+            Runner runner = request.getRunner();
+            RunNotifier fNotifier = new RunNotifier();
+            fNotifier.addFirstListener(result);
+            fNotifier.fireTestRunStarted(runner.getDescription());
+            runner.run(fNotifier);
         }, timeOut, TimeUnit.SECONDS);
     }
 
     private Class<?>[] loadClass(List<String> tests) throws ClassNotFoundException {
         Class<?>[] testClasses = new Class<?>[tests.size()];
         for (int i = 0; i < tests.size(); i++) {
+            try {
             testClasses[i] = classLoader.loadClass(tests.get(i));
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
         }
         return testClasses;
     }
@@ -143,11 +136,4 @@ public class JunitRunner {
         }
     }
 
-    public void setMethodTimeOut(int methodTimeOut) {
-        this.methodTimeOut = methodTimeOut;
-    }
-
-    public void setClassTimeOut(int classTimeOut) {
-        this.classTimeOut = classTimeOut;
-    }
 }

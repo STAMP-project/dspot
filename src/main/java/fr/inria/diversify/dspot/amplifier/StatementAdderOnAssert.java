@@ -143,9 +143,11 @@ public class StatementAdderOnAssert implements Amplifier {
 
         for (CtVariableReference var : statement.getInputContext().getVar()) {
 
-            CtLocalVariable aNull = valueCreator.createNull(var.getType());
-            DSpotUtils.addComment(aNull, "StatementAdderOnAssert create null value", CtComment.CommentType.INLINE);
-            varCartesianProduct.addReplaceVar(var, aNull);
+            if (!var.getType().isPrimitive()) {
+                CtLocalVariable aNull = valueCreator.createNull(var.getType());
+                DSpotUtils.addComment(aNull, "StatementAdderOnAssert create null value", CtComment.CommentType.INLINE);
+                varCartesianProduct.addReplaceVar(var, aNull);
+            }
 
             List<CtVariableReference> candidates = inputContext.allCandidate(var.getType(), true, false);
             if (!candidates.isEmpty()) {
@@ -320,7 +322,7 @@ public class StatementAdderOnAssert implements Amplifier {
         }
 
         CtLiteral lit = literals.get(AmplificationHelper.getRandom().nextInt(literals.size()));
-        CtLocalVariable localVariable = type.getFactory().Code().createLocalVariable(type, "vc_" + count++, lit);
+        CtLocalVariable localVariable = type.getFactory().Code().createLocalVariable(type, type.getSimpleName() + "_vc_" + count++, lit);
         return localVariable;
     }
 

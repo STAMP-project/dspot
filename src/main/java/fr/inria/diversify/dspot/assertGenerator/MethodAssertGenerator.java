@@ -1,8 +1,9 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
-import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
+import fr.inria.diversify.dspot.AmplificationHelper;
+import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
@@ -35,18 +36,16 @@ public class MethodAssertGenerator {
 
     private int numberOfFail = 0;
     CtMethod test;
-    private DiversifyClassLoader assertGeneratorClassLoader;
     private CtType originalClass;
-    private DSpotCompiler compiler;
     private InputProgram inputProgram;
     private List<Integer> statementsIndexToAssert;
+    private DSpotCompiler compiler;
 
-    public MethodAssertGenerator(CtType originalClass, InputProgram inputProgram, DSpotCompiler compiler, DiversifyClassLoader applicationClassLoader) throws IOException {
+    public MethodAssertGenerator(CtType originalClass, InputProgram inputProgram, DSpotCompiler compiler) throws IOException {
         this.originalClass = originalClass;
-        this.compiler = compiler;
-        this.assertGeneratorClassLoader = applicationClassLoader;
         this.inputProgram = inputProgram;
-        statementsIndexToAssert = new ArrayList<>();
+        this.statementsIndexToAssert = new ArrayList<>();
+        this.compiler = compiler;
     }
 
     public CtMethod generateAssert(CtMethod test) throws IOException, ClassNotFoundException {
@@ -146,7 +145,7 @@ public class MethodAssertGenerator {
 
         testWithoutAssert.setBody(body);
 
-        testWithoutAssert.setSimpleName(testWithoutAssert.getSimpleName() + "_failAssert"+ (numberOfFail++));
+        testWithoutAssert.setSimpleName(testWithoutAssert.getSimpleName() + "_failAssert" + (numberOfFail++));
 
         Counter.updateAssertionOf(testWithoutAssert, 1);
 
@@ -163,7 +162,10 @@ public class MethodAssertGenerator {
             testsToRun.add(testWithLog);
         }
         ObjectLog.reset();
-        runTests(cl, testsToRun);
+        JunitResult result = runTests(cl, testsToRun);
+        if (!result.getFailures().isEmpty() || result.getTestRuns().size() != testsToRun.size()) {
+            return null;
+        }
         return buildTestWithAssert(ObjectLog.getObservations());
     }
 
@@ -262,13 +264,14 @@ public class MethodAssertGenerator {
     }
 
     public JunitResult runTests(CtType testClass, List<CtMethod> testsToRun) throws ClassNotFoundException {
-        if (!TestCompiler.writeAndCompile(assertGeneratorClassLoader, compiler, testClass, true)) {
+        boolean statusCompilation = TestCompiler.writeAndCompile(this.compiler, testClass, true,
+                inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + ":" +
+                        inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir());
+        if (!statusCompilation) {
             return null;
         } else {
-            JunitResult result = TestRunner.runTests(assertGeneratorClassLoader, compiler, inputProgram.getProgramDir() + "/log",
-                    this.inputProgram.getProgramDir(), testClass, testsToRun, Collections.singletonList(testClass.getPackage().getQualifiedName()),
-                    this.inputProgram);
-            return result;
+            String classpath = AmplificationHelper.getClassPath(this.compiler, this.inputProgram);
+            return TestRunner.runTests(testClass, testsToRun, classpath, this.inputProgram);
         }
     }
 
@@ -281,7 +284,7 @@ public class MethodAssertGenerator {
 
     private CtType initTestClass() {
         CtType clone = originalClass.clone();
-        clone.setParent(originalClass.getParent());
+        this.originalClass.getPackage().addType(clone);
         return clone;
     }
 
@@ -324,6 +327,9 @@ public class MethodAssertGenerator {
     }
 
     private void addLogStmt(CtStatement stmt, String id, boolean forAssert) {
+        if (stmt instanceof CtLocalVariable && ((CtLocalVariable) stmt).getDefaultExpression() == null) {
+            return;
+        }
         String snippet;
         if (forAssert) {
             snippet = "fr.inria.diversify.compare.ObjectLog.log(";

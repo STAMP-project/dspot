@@ -1,6 +1,5 @@
 package fr.inria.diversify.dspot;
 
-import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.dspot.amplifier.Amplifier;
 import fr.inria.diversify.dspot.assertGenerator.AssertGenerator;
 import fr.inria.diversify.dspot.selector.TestSelector;
@@ -30,27 +29,21 @@ import java.util.stream.Collectors;
 public class Amplification {
 
     private InputProgram inputProgram;
-    private InputConfiguration inputConfiguration;
-    private DiversifyClassLoader applicationClassLoader;
-    private File logDir;
     private List<Amplifier> amplifiers;
-    private DSpotCompiler compiler;
     private TestSelector testSelector;
     private ClassWithLoggerBuilder classWithLoggerBuilder;
     private AssertGenerator assertGenerator;
+    private DSpotCompiler compiler;
 
     private static int ampTestCount;
 
-    public Amplification(InputProgram inputProgram, InputConfiguration inputConfiguration, DSpotCompiler compiler, DiversifyClassLoader applicationClassLoader, List<Amplifier> amplifiers, TestSelector testSelector, File logDir) {
+    public Amplification(InputProgram inputProgram, List<Amplifier> amplifiers, TestSelector testSelector, DSpotCompiler compiler) {
         this.inputProgram = inputProgram;
-        this.compiler = compiler;
-        this.applicationClassLoader = applicationClassLoader;
         this.amplifiers = amplifiers;
-        this.logDir = logDir;
-        this.classWithLoggerBuilder = new ClassWithLoggerBuilder(inputProgram);
+        this.classWithLoggerBuilder = new ClassWithLoggerBuilder(this.inputProgram);
         this.testSelector = testSelector;
-        this.assertGenerator = new AssertGenerator(inputProgram, compiler, applicationClassLoader);
-        this.inputConfiguration = inputConfiguration;
+        this.compiler = compiler;
+        this.assertGenerator = new AssertGenerator(this.inputProgram, this.compiler);
     }
 
     public CtType amplification(CtType classTest, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
@@ -113,6 +106,10 @@ public class Amplification {
                 currentTestList = testWithAssertions;
             }
             JunitResult result = compileAndRunTests(classTest, currentTestList);
+            if (result == null || !result.getFailures().isEmpty()
+                    || result.getTestRuns().size() != currentTestList.size()) {
+                continue;
+            }
             currentTestList = AmplificationHelper.filterTest(currentTestList, result);
             Log.debug("{} test method(s) has been successfully generated", currentTestList.size());
             amplifiedTests.addAll(testSelector.selectToKeep(currentTestList));
@@ -128,6 +125,9 @@ public class Amplification {
 
     private List<CtMethod> preAmplification(CtType classTest, List<CtMethod> tests) throws IOException, ClassNotFoundException {
         JunitResult result = compileAndRunTests(classTest, tests);
+        if (result == null) {
+            throw new RuntimeException("Need a green test suite to run dspot");
+        }
         if (!result.getFailures().isEmpty()) {
             Log.warn("{} tests failed before the amplifications", result.getFailures().size());
             Log.warn("{}", result.getFailures().stream().reduce("",
@@ -191,22 +191,24 @@ public class Amplification {
         amplifiers.forEach(amp -> amp.reset(parentClass));
     }
 
-    public JunitResult compileAndRunTests(CtType classTest, List<CtMethod> currentTestList) {
-        CtType classWithLogger = classWithLoggerBuilder.buildClassWithLogger(classTest, currentTestList);
-        boolean status = TestCompiler.writeAndCompile(applicationClassLoader, compiler, classWithLogger, false);
+    private JunitResult compileAndRunTests(CtType classTest, List<CtMethod> currentTestList) {
+        CtType classWithLogger = this.classWithLoggerBuilder.buildClassWithLogger(classTest, currentTestList);
+        boolean status = TestCompiler.writeAndCompile(this.compiler, classWithLogger, false,
+                this.inputProgram.getProgramDir() + "/" + this.inputProgram.getClassesDir() + ":" +
+                        this.inputProgram.getProgramDir() + "/" + this.inputProgram.getTestClassesDir());
         if (!status) {
             Log.debug("Unable to compile " + classTest);
             return null;
         }
         JunitResult result;
         try {
-            result = TestRunner.runTests(this.applicationClassLoader, this.compiler, logDir.getAbsolutePath(),
-                    inputProgram.getProgramDir(), classWithLogger, currentTestList);
+            String classpath = AmplificationHelper.getClassPath(this.compiler, this.inputProgram);
+            result = TestRunner.runTests(classWithLogger, currentTestList, classpath, this.inputProgram);
         } catch (Exception ignored) {
             Log.debug("Error during running test");
             return null;
         }
-        if (result == null) {
+        if (result == null || result.getTestRuns().size() != currentTestList.size()) {
             Log.debug("Error during running test");
             return null;
         }

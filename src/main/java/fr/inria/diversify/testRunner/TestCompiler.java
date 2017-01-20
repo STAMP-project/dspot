@@ -1,16 +1,17 @@
 package fr.inria.diversify.testRunner;
 
-import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.dspot.TypeUtils;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.util.FileUtils;
-import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
+
+import static org.codehaus.plexus.util.FileUtils.forceDelete;
 
 /**
  * User: Simon
@@ -19,23 +20,26 @@ import java.io.IOException;
  */
 public class TestCompiler {
 
-    public static boolean writeAndCompile(DiversifyClassLoader applicationClassLoader, DSpotCompiler compiler, CtType classInstru, boolean withLogger) {
-        try {
-            FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
-            FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
-        } catch (IOException | IllegalArgumentException ignored) {
-            Log.warn("error during cleaning output directories");
-            //ignored
-        }
+    public static boolean writeAndCompile(DSpotCompiler compiler, CtType classTest, boolean withLogger, String dependencies) {
         if (withLogger) {
             copyLoggerFile(compiler);
         }
         try {
-            PrintClassUtils.printJavaFile(compiler.getSourceOutputDirectory(), classInstru);
-            compiler.setCustomClassLoader(applicationClassLoader);
-            compiler.compileFileIn(compiler.getSourceOutputDirectory(), true);
+            PrintClassUtils.printJavaFile(compiler.getSourceOutputDirectory(), classTest);
         } catch (Exception e) {
-            Log.warn("error during compilation", e);
+            throw new RuntimeException(e);
+        }
+
+        try {
+            String pathToDotClass = compiler.getBinaryOutputDirectory().getAbsolutePath() + "/" + classTest.getQualifiedName().replaceAll("\\.", "/") + ".class";
+            forceDelete(pathToDotClass);
+        } catch (IOException ignored) {
+            //ignored
+        }
+
+        try {
+            compiler.compile(dependencies);
+        } catch (Exception e) {
             return false;
         }
         return true;
@@ -59,6 +63,8 @@ public class TestCompiler {
 
             File destFile = new File(compiler.getSourceOutputDirectory() + "/" + typeUtilsPackage + "/TypeUtils.java");
             FileUtils.copyFile(srcFile, destFile);
+        } catch (FileAlreadyExistsException ignored) {
+            //skip
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
