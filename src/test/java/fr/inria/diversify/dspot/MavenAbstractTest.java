@@ -1,7 +1,5 @@
 package fr.inria.diversify.dspot;
 
-import fr.inria.diversify.Utils;
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import org.junit.After;
 import org.junit.Before;
 
@@ -13,16 +11,19 @@ import java.util.stream.Collectors;
 
 /**
  * Created by Benjamin DANGLOT
- * benjamin.danglot@inria.fr
+ * benjamin.danglot@inriAVa.fr
  * on 1/5/17
  */
 public abstract class MavenAbstractTest {
 
-    public static final String pathToPropertiesFile = "src/test/resources/test-projects/test-projects.properties";
+    public final String pathToPropertiesFile = getPathToPropertiesFile();
 
     public static final String nl = System.getProperty("line.separator");
 
     private static String originalProperties;
+
+
+    public abstract String getPathToPropertiesFile();
 
     @Before
     public void setUp() throws Exception {
@@ -41,7 +42,7 @@ public abstract class MavenAbstractTest {
         } catch (IOException ignored) {
             //ignored
         }
-        final String mavenHome = Utils.buildMavenHome();
+        final String mavenHome = DSpotUtils.buildMavenHome();
         if (mavenHome != null) {
             try(FileWriter writer = new FileWriter(pathToPropertiesFile, true)) {
                 writer.write(nl + "maven.home=" + mavenHome + nl);

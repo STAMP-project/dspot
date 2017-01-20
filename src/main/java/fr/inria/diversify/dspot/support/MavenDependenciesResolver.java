@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot.support;
 
 import fr.inria.diversify.buildSystem.maven.MavenBuilder;
+import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.Log;
@@ -28,10 +29,14 @@ public class MavenDependenciesResolver {
 
     private static String pathToLocalMavenRepository = null;
 
-    public static URL[] resolveDependencies(InputConfiguration configuration, InputProgram program) {
-        if (pathToLocalMavenRepository == null)
+    private static String pathToMavenHome = null;
+
+    public static URL[] resolveDependencies(InputConfiguration configuration, InputProgram program, String mavenHome) {
+        if (pathToLocalMavenRepository == null) {
+            pathToMavenHome = mavenHome;
             pathToLocalMavenRepository = configuration.getProperty("maven.localRepository", System.getProperty("user.home") + "/.m2/repository");
-        runMavenGoals(configuration, program);
+        }
+        runMavenGoals(program);
         Set<URL> classpath = buildUrls(program.getProgramDir());
         return classpath.toArray(new URL[classpath.size()]);
     }
@@ -109,11 +114,10 @@ public class MavenDependenciesResolver {
         }
     }
 
-    private static void runMavenGoals(InputConfiguration configuration, InputProgram program) {
+    private static void runMavenGoals(InputProgram program) {
         try {
-            String mavenHome = configuration.getProperty("maven.home", null);
             MavenBuilder builder = new MavenBuilder(program.getProgramDir());
-            builder.setBuilderPath(mavenHome);
+            builder.setBuilderPath(pathToMavenHome);
             String[] phases = new String[]{"eclipse:eclipse"};
             builder.runGoals(phases, false);
         } catch (Exception e) {

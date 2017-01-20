@@ -23,6 +23,11 @@ import static org.junit.Assert.fail;
  */
 public class PitTest extends MavenAbstractTest {
 
+    @Override
+    public String getPathToPropertiesFile() {
+        return "src/test/resources/test-projects/test-projects.properties";
+    }
+
     private final String pathToPropertiesFile = "src/test/resources/test-projects/test-projects.properties";
     private InputConfiguration inputConfiguration;
     private InputProgram inputProgram;
@@ -30,6 +35,8 @@ public class PitTest extends MavenAbstractTest {
 
     @Test
     public void testPit() throws Exception, InvalidSdkException {
+
+        //TODO Should use Utils too (duplicated code)
 
         /*
             Run the PitRunner on the test-project example.
@@ -68,10 +75,18 @@ public class PitTest extends MavenAbstractTest {
             InitUtils.initLogLevel(inputConfiguration);
             inputConfiguration.setInputProgram(inputProgram);
             String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp";
-            FileUtils.cleanDirectory(new File("tmpDir"));
+            File tmpDir = new File(inputConfiguration.getProperty("tmpDir"));
+            if (!tmpDir.exists()) {
+                tmpDir.mkdir();
+            } else {
+                FileUtils.cleanDirectory(tmpDir);
+            }
+            String mavenHome = inputConfiguration.getProperty("maven.home", DSpotUtils.buildMavenHome());
+            String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
+            DSpotUtils.compileOriginalProject(this.inputProgram, mavenHome, mavenLocalRepository);
             FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
             inputProgram.setProgramDir(outputDirectory);
-            String dependencies = AmplificationHelper.getDependenciesOf(inputConfiguration, inputProgram);
+            String dependencies = AmplificationHelper.getDependenciesOf(inputConfiguration, inputProgram, mavenHome);
             File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
             FileUtils.cleanDirectory(output);
             DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);

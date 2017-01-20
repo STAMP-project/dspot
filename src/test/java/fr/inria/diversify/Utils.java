@@ -26,7 +26,6 @@ public class Utils {
     private static String confFile = "src/test/resources/sample.properties";
     private static InputProgram inputProgram;
     private static InputConfiguration inputConfiguration;
-    private static Launcher spoonModel;
     private static DSpotCompiler compiler;
 
     public static DSpotCompiler getCompiler() {
@@ -45,10 +44,19 @@ public class Utils {
             InitUtils.initLogLevel(inputConfiguration);
             inputConfiguration.setInputProgram(inputProgram);
             String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp";
-            FileUtils.cleanDirectory(new File("tmpDir"));
+            File tmpDir = new File(inputConfiguration.getProperty("tmpDir"));
+            if (!tmpDir.exists()) {
+                tmpDir.mkdir();
+            } else {
+                FileUtils.cleanDirectory(tmpDir);
+            }
+            String mavenHome = inputConfiguration.getProperty("maven.home", DSpotUtils.buildMavenHome());
+            System.out.println(mavenHome);
+            String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
+            DSpotUtils.compileOriginalProject(inputProgram, mavenHome, mavenLocalRepository);
             FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
             inputProgram.setProgramDir(outputDirectory);
-            String dependencies = AmplificationHelper.getDependenciesOf(inputConfiguration, inputProgram);
+            String dependencies = AmplificationHelper.getDependenciesOf(inputConfiguration, inputProgram, mavenHome);
             File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
             FileUtils.cleanDirectory(output);
             DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
@@ -96,10 +104,5 @@ public class Utils {
 
     public static Factory getFactory() throws InvalidSdkException, Exception {
         return getInputProgram().getFactory();
-    }
-
-    public static String buildMavenHome() {
-        return System.getenv().get("MAVEN_HOME") != null ? System.getenv().get("MAVEN_HOME") :
-                System.getenv().get("M2_HOME") != null ? System.getenv().get("M2_HOME") : "/usr/share/maven/";
     }
 }

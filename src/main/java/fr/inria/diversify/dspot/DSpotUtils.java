@@ -1,5 +1,6 @@
 package fr.inria.diversify.dspot;
 
+import fr.inria.diversify.buildSystem.maven.MavenBuilder;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.processor.ProcessorUtil;
 import fr.inria.diversify.processor.main.AddBlockEverywhereProcessor;
@@ -18,6 +19,7 @@ import spoon.support.JavaOutputProcessor;
 import spoon.support.QueueProcessingManager;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * User: Simon
@@ -25,6 +27,16 @@ import java.io.File;
  * Time: 16:10
  */
 public class DSpotUtils {
+
+    public static void compileOriginalProject(InputProgram inputProgram, String mavenHome, String mavenLocalRepository) throws InterruptedException, IOException {
+            MavenBuilder builder = new MavenBuilder(inputProgram.getProgramDir());
+            builder.setBuilderPath(mavenHome);
+            if (mavenLocalRepository != null) {
+                builder.setSetting(new File(mavenLocalRepository));
+            }
+            builder.setGoals(new String[] {"clean", "test", "-DskipTests"});
+            builder.initTimeOut();
+    }
 
     public static void addBranchLogger(InputProgram inputProgram, Factory factory) {
         try {
@@ -70,6 +82,11 @@ public class DSpotUtils {
         if (!element.getComments().contains(comment)) {
             element.addComment(comment);
         }
+    }
+
+    public static String buildMavenHome() {
+        return System.getenv().get("MAVEN_HOME") != null ? System.getenv().get("MAVEN_HOME") :
+                System.getenv().get("M2_HOME") != null ? System.getenv().get("M2_HOME") : "/usr/share/maven/";
     }
 
     private static void applyProcessor(Factory factory, Processor processor) {

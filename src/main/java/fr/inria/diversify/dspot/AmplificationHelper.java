@@ -195,8 +195,8 @@ public class AmplificationHelper {
                 .collect(Collectors.toList());
     }
 
-    public static String getDependenciesOf(InputConfiguration inputConfiguration, InputProgram inputProgram) {
-        URL[] dependencies = MavenDependenciesResolver.resolveDependencies(inputConfiguration, inputProgram);
+    public static String getDependenciesOf(InputConfiguration inputConfiguration, InputProgram inputProgram, String mavenHome) {
+        URL[] dependencies = MavenDependenciesResolver.resolveDependencies(inputConfiguration, inputProgram, mavenHome);
         String dependenciesAsString = Arrays.stream(dependencies).reduce("", (acc, url) -> {
             try {
                 return acc + new File(url.toURI()).getAbsolutePath() + ":";

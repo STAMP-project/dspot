@@ -72,16 +72,28 @@ public class DSpot {
 
     public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws InvalidSdkException, Exception {
         this.inputConfiguration = inputConfiguration;
+
+
         InitUtils.initLogLevel(inputConfiguration);
         inputProgram = InitUtils.initInputProgram(inputConfiguration);
         inputConfiguration.setInputProgram(inputProgram);
 
+
         String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp";
 
-        FileUtils.cleanDirectory(new File("tmpDir"));
+        File tmpDir = new File(inputConfiguration.getProperty("tmpDir"));
+        if (!tmpDir.exists()) {
+            tmpDir.mkdir();
+        } else {
+            FileUtils.cleanDirectory(tmpDir);
+        }
+        String mavenHome = inputConfiguration.getProperty("maven.home", DSpotUtils.buildMavenHome());
+        System.out.println(mavenHome);
+        String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
+        DSpotUtils.compileOriginalProject(this.inputProgram, mavenHome, mavenLocalRepository);
         FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
         inputProgram.setProgramDir(outputDirectory);
-        String dependencies = AmplificationHelper.getDependenciesOf(this.inputConfiguration, inputProgram);
+        String dependencies = AmplificationHelper.getDependenciesOf(this.inputConfiguration, inputProgram, mavenHome);
 
         //We need to use separate factory here, because the BranchProcessor will process test also
         //TODO this is used only with the BranchCoverageSelector

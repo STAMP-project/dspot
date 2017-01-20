@@ -37,6 +37,9 @@ public class DSpotTest extends MavenAbstractTest {
         assertEquals(24, amplifiedTest.getMethods().size());
         assertEquals(expectedAmplifiedBody, amplifiedTest.getMethod("test2_cf24").getBody().toString());
 
+        assertEquals(28, amplifiedTest.getMethods().size());
+        //assertEquals(originalTestBody, amplifiedTest.getMethod("test1").getBody().toString());
+        assertEquals(expectedAmplifiedBody, amplifiedTest.getMethod("test1_cf10").getBody().toString());
     }
 
     private final String expectedAmplifiedBody = "{\n" +
@@ -59,4 +62,8 @@ public class DSpotTest extends MavenAbstractTest {
             "    org.junit.Assert.assertEquals('d', ex.charAt(\"abcd\", 3));\n" +
             "}";
 
+    @Override
+    public String getPathToPropertiesFile() {
+        return "src/test/resources/test-projects/test-projects.properties";
+    }
 }

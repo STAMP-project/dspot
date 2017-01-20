@@ -3,6 +3,7 @@ package fr.inria.diversify.dspot.selector;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
+import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.MavenAbstractTest;
 import fr.inria.diversify.dspot.amplifier.StatementAdderOnAssert;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
@@ -29,6 +30,11 @@ import static org.junit.Assert.assertTrue;
  * on 1/9/17
  */
 public class PitScoreMutantSelectorTest extends MavenAbstractTest {
+
+    @Override
+    public String getPathToPropertiesFile() {
+        return "src/test/resources/test-projects/test-projects.properties";
+    }
 
     @Test
     public void testSelection() throws Exception, InvalidSdkException {
@@ -78,7 +84,8 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
             FileUtils.cleanDirectory(new File("tmpDir"));
             FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
             inputProgram.setProgramDir(outputDirectory);
-            String dependencies = AmplificationHelper.getDependenciesOf(inputConfiguration, inputProgram);
+            String mavenHome = inputConfiguration.getProperty("maven.home", DSpotUtils.buildMavenHome());
+            String dependencies = AmplificationHelper.getDependenciesOf(inputConfiguration, inputProgram, mavenHome);
             File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
             FileUtils.cleanDirectory(output);
             DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
