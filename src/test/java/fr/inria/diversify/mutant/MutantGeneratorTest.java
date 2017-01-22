@@ -8,6 +8,7 @@ import fr.inria.diversify.dspot.MavenAbstractTest;
 import fr.inria.diversify.dspot.amplifier.Amplifier;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
 import fr.inria.diversify.runner.InputConfiguration;
+import fr.inria.diversify.util.FileUtils;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtType;
@@ -44,7 +45,6 @@ public class MutantGeneratorTest extends MavenAbstractTest {
         DSpot dspot = new DSpot(configuration, 1, amplifiers);
 
         final CtClass<Object> exampleOriginalClass = dspot.getInputProgram().getFactory().Class().get("example.Example");
-        final CtClass<Object> exampleOriginalTestClass = dspot.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
 
         mutantGenerator.generateForAllClasses();
         Map<String, CtClass> mutantsNotKilled = mutantGenerator.getMutantsNotKilled();
@@ -63,6 +63,6 @@ public class MutantGeneratorTest extends MavenAbstractTest {
         assertEquals(mutantsNotKilled.size(), mutantResultsWithAmplifiedTests.getRemainsAliveMutant().size() +
                 mutantResultsWithAmplifiedTests.getKilledMutants().size());
 
-        DSpotUtils.printJavaFileWithComment(exampleOriginalTestClass, outputDirectory);
+        FileUtils.forceDelete(new File("src/test/resources/test-projects/src/test/java/example/TestSuiteExampleAmpl.java"));
     }
 }

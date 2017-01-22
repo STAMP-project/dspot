@@ -121,6 +121,11 @@ public class PitMutantScoreSelector implements TestSelector {
         this.originalPitResults.clear();
     }
 
+    @Override
+    public int getNbAmplifiedTestCase() {
+        return this.testThatKilledMutants.size();
+    }
+
     private void reportStdout() {
         final StringBuilder string = new StringBuilder();
         final String nl = System.getProperty("line.separator");

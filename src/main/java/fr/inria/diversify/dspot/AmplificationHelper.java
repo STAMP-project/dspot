@@ -31,7 +31,7 @@ import java.util.stream.IntStream;
 public class AmplificationHelper {
 
     private static int cloneNumber = 1;
-    private static Map<CtMethod,CtMethod> ampTestToParent = new HashMap<>();
+    private static Map<CtMethod, CtMethod> ampTestToParent = new HashMap<>();
     private static Map<CtType, Set<CtType>> importByClass = new HashMap<>();
     private static Random random = new Random();
 
@@ -51,11 +51,13 @@ public class AmplificationHelper {
 
     public static CtType createAmplifiedTest(List<CtMethod> ampTest, CtType classTest) {
         CtType amplifiedTest = classTest.clone();
-        amplifiedTest.setParent(classTest.getParent());
-        amplifiedTest.setSimpleName(classTest.getSimpleName() + "Ampl");
-        classTest.getMethods().forEach(method -> amplifiedTest.removeMethod((CtMethod) method));
-        ampTest.forEach(classTest::addMethod);
-        return classTest;
+        amplifiedTest.setSimpleName(classTest.getSimpleName().startsWith("Test") ?
+                classTest.getSimpleName() + "Ampl" :
+                "Ampl" + classTest.getSimpleName()
+        );
+        ampTest.forEach(amplifiedTest::addMethod);
+        classTest.getPackage().addType(amplifiedTest);
+        return amplifiedTest;
     }
 
     public static Map<CtMethod, CtMethod> getAmpTestToParent() {
@@ -75,7 +77,7 @@ public class AmplificationHelper {
                 .filter(type -> type.getPackage().getQualifiedName().equals(testClass.getPackage().getQualifiedName()))
                 .collect(Collectors.toList());
 
-        if(testClass.getParent(CtType.class) != null) {
+        if (testClass.getParent(CtType.class) != null) {
             types.add(testClass.getParent(CtType.class));
         }
 
@@ -88,14 +90,14 @@ public class AmplificationHelper {
     }
 
     public static Set<CtType> getImport(CtType type) {
-        if(!AmplificationHelper.importByClass.containsKey(type)) {
+        if (!AmplificationHelper.importByClass.containsKey(type)) {
             ImportScanner importScanner = new ImportScannerImpl();
             try {
                 Set<CtType> set = importScanner.computeImports(type).stream()
                         .map(CtTypeReference::getDeclaration)
                         .filter(t -> t != null)
                         .collect(Collectors.toSet());
-                AmplificationHelper.importByClass.put(type,set);
+                AmplificationHelper.importByClass.put(type, set);
             } catch (Exception e) {
                 AmplificationHelper.importByClass.put(type, new HashSet<>(0));
             }
@@ -106,26 +108,26 @@ public class AmplificationHelper {
     public static CtMethod cloneMethod(CtMethod method, String suffix) {
         CtMethod cloned_method = method.clone();
         //rename the clone
-        cloned_method.setSimpleName(method.getSimpleName()+suffix+cloneNumber);
+        cloned_method.setSimpleName(method.getSimpleName() + suffix + cloneNumber);
         cloneNumber++;
 
         CtAnnotation toRemove = cloned_method.getAnnotations().stream()
                 .filter(annotation -> annotation.toString().contains("Override"))
                 .findFirst().orElse(null);
 
-        if(toRemove != null) {
+        if (toRemove != null) {
             cloned_method.removeAnnotation(toRemove);
         }
         return cloned_method;
     }
 
     public static CtMethod cloneMethodTest(CtMethod method, String suffix, int timeOut) {
-        CtMethod cloned_method = cloneMethod(method,suffix);
+        CtMethod cloned_method = cloneMethod(method, suffix);
         CtAnnotation testAnnotation = cloned_method.getAnnotations().stream()
                 .filter(annotation -> annotation.toString().contains("Test"))
                 .findFirst().orElse(null);
 
-        if(testAnnotation != null) {
+        if (testAnnotation != null) {
             cloned_method.removeAnnotation(testAnnotation);
         }
 
@@ -177,7 +179,7 @@ public class AmplificationHelper {
     public static CtMethod getTopParent(CtMethod test) {
         CtMethod topParent;
         CtMethod currentTest = test;
-        while ( (topParent = getAmpTestToParent().get(currentTest)) != null) {
+        while ((topParent = getAmpTestToParent().get(currentTest)) != null) {
             currentTest = topParent;
         }
         return currentTest;
