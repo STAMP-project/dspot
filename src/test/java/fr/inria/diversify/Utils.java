@@ -2,12 +2,12 @@ package fr.inria.diversify;
 
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AmplificationHelper;
+import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
-import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;

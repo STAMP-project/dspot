@@ -39,11 +39,7 @@ public class TestRunnerTest {
             forceDelete(Utils.getCompiler().getSourceOutputDirectory());
         } catch (FileNotFoundException | IllegalArgumentException ignored) {
         }
-        try {
             Utils.reset();
-        } catch (InvalidSdkException e) {
-            e.printStackTrace();
-        }
     }
 
     @Test

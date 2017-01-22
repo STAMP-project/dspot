@@ -3,6 +3,9 @@ package fr.inria.diversify.dspot.support;
 import fr.inria.diversify.runner.InputProgram;
 import spoon.Launcher;
 import spoon.SpoonModelBuilder;
+import spoon.compiler.builder.*;
+import spoon.support.compiler.FileSystemFolder;
+import spoon.support.compiler.jdt.JDTBasedSpoonCompiler;
 
 import java.io.File;
 import java.util.Arrays;
@@ -12,9 +15,10 @@ import java.util.Arrays;
  * benjamin.danglot@inria.fr
  * on 1/19/17
  */
-public class DSpotCompiler {
+public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
     public DSpotCompiler(InputProgram program, String pathToDependencies) {
+        super(program.getFactory());
         String pathToSources = program.getAbsoluteSourceCodeDir() + ":" + program.getAbsoluteTestSourceCodeDir();
         this.dependencies = pathToDependencies;
         this.launcher = getSpoonModelOf(pathToSources, pathToDependencies);
@@ -28,18 +32,41 @@ public class DSpotCompiler {
     }
 
     public boolean compile(String pathToAdditionalDependencies) {
-        Launcher launcher = new Launcher();
-        launcher.getEnvironment().setNoClasspath(false);
-        launcher.getEnvironment().setCommentEnabled(true);
-        String[] sourcesArray = this.sourceOutputDirectory.getAbsolutePath().split(":");
-        Arrays.stream(sourcesArray).forEach(launcher::addInputResource);
-        String[] dependenciesArray = (this.dependencies + ":" + pathToAdditionalDependencies).split(":");
-        launcher.getModelBuilder().setSourceClasspath(dependenciesArray);
-        launcher.buildModel();
+        if (this.factory == null) {
+            this.factory = this.launcher.getFactory();
+        }
+        javaCompliance = factory.getEnvironment().getComplianceLevel();
+        DSpotJDTBatchCompiler compiler = new DSpotJDTBatchCompiler(this, true, null);//environment);
+        final SourceOptions sourcesOptions = new SourceOptions();
+        sourcesOptions.sources((new FileSystemFolder(this.sourceOutputDirectory).getAllJavaFiles()));
 
-        SpoonModelBuilder modelBuilder = launcher.getModelBuilder();
-        modelBuilder.setBinaryOutputDirectory(this.getBinaryOutputDirectory());
-        return modelBuilder.compile(SpoonModelBuilder.InputType.CTTYPES);
+        String[] sourcesArray = this.sourceOutputDirectory.getAbsolutePath().split(":");
+        String[] classpath = (this.dependencies + ":" + pathToAdditionalDependencies).split(":");
+        String[] finalClasspath = new String[sourcesArray.length + classpath.length];
+        System.arraycopy(sourcesArray, 0, finalClasspath, 0, sourcesArray.length);
+        System.arraycopy(classpath, 0, finalClasspath, sourcesArray.length, classpath.length);
+
+        final ClasspathOptions classpathOptions = new ClasspathOptions()
+                .encoding(this.encoding)
+                .classpath(finalClasspath)
+                .binaries(getBinaryOutputDirectory());
+
+        final String[] args = new JDTBuilderImpl() //
+                .classpathOptions(classpathOptions) //
+                .complianceOptions(new ComplianceOptions().compliance(javaCompliance)) //
+                .advancedOptions(new AdvancedOptions().preserveUnusedVars().continueExecution().enableJavadoc()) //
+                .annotationProcessingOptions(new AnnotationProcessingOptions().compileProcessors()) //
+                .sources(sourcesOptions) //
+                .build();
+
+        final String[] finalArgs = new String[args.length + 1];
+        finalArgs[0] = "-proceedOnError";
+        System.arraycopy(args, 0, finalArgs, 1, args.length);
+
+        compiler.compile(finalArgs);
+        environment = compiler.getEnvironment();
+
+        return compiler.globalErrorsCount == 0;
     }
 
     public static Launcher getSpoonModelOf(String pathToSources, String pathToDependencies) {
