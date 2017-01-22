@@ -19,8 +19,6 @@ public class DSpotTest extends MavenAbstractTest {
     @Test
     public void test() throws Exception, InvalidSdkException {
 
-        Utils.reset();
-
         /*
             Test the whole dspot procedure.
                 It results with 24 methods: 18 amplified tests + 6 original tests.

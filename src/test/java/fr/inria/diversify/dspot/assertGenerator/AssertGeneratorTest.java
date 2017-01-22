@@ -3,6 +3,7 @@ package fr.inria.diversify.dspot.assertGenerator;
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AmplificationHelper;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -17,6 +18,11 @@ import static org.junit.Assert.assertEquals;
  * on 12/8/16
  */
 public class AssertGeneratorTest {
+
+    @Before
+    public void setUp() throws Exception {
+        Utils.init("src/test/resources/sample.properties");
+    }
 
     @Test
     public void testGenerateAssert() throws Exception, InvalidSdkException {

@@ -3,6 +3,7 @@ package fr.inria.diversify.dspot.amplifier;
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AmplificationHelper;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLocalVariable;
@@ -23,6 +24,11 @@ import static org.junit.Assert.assertTrue;
  * on 11/24/16
  */
 public class TestStatementAdderOnAssert {
+
+    @Before
+    public void setUp() throws Exception {
+        Utils.init("src/test/resources/sample.properties");
+    }
 
     @Test
     public void testStatementAdderOnAssertLiteral() throws Exception, InvalidSdkException {

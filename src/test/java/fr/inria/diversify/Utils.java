@@ -23,23 +23,27 @@ import java.util.Set;
  */
 public class Utils {
 
-    private static String confFile = "src/test/resources/sample.properties";
     private static InputProgram inputProgram;
     private static InputConfiguration inputConfiguration;
     private static DSpotCompiler compiler;
+
+    private static String currentInputConfigurationLoaded = null;
 
     public static DSpotCompiler getCompiler() {
         return compiler;
     }
 
-    public static InputConfiguration getInputConfiguration() throws InvalidSdkException, Exception {
-        lazyInit();
+    public static InputConfiguration getInputConfiguration() {
         return inputConfiguration;
     }
 
-    private static void init() {
+    public static void init(String pathToConfFile) {
+        if (pathToConfFile.equals(currentInputConfigurationLoaded)) {
+            return;
+        }
         try {
-            inputConfiguration = new InputConfiguration(confFile);
+            currentInputConfigurationLoaded = pathToConfFile;
+            inputConfiguration = new InputConfiguration(pathToConfFile);
             inputProgram = InitUtils.initInputProgram(inputConfiguration);
             InitUtils.initLogLevel(inputConfiguration);
             inputConfiguration.setInputProgram(inputProgram);
@@ -50,13 +54,11 @@ public class Utils {
             } else {
                 FileUtils.cleanDirectory(tmpDir);
             }
-            String mavenHome = inputConfiguration.getProperty("maven.home", DSpotUtils.buildMavenHome());
-            System.out.println(mavenHome);
             String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
-            DSpotUtils.compileOriginalProject(inputProgram, mavenHome, mavenLocalRepository);
+            DSpotUtils.compileOriginalProject(inputProgram, inputConfiguration, mavenLocalRepository);
             FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
             inputProgram.setProgramDir(outputDirectory);
-            String dependencies = AmplificationHelper.getDependenciesOf(inputConfiguration, inputProgram, mavenHome);
+            String dependencies = AmplificationHelper.getDependenciesOf(inputConfiguration, inputProgram);
             File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
             FileUtils.cleanDirectory(output);
             DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
@@ -68,18 +70,7 @@ public class Utils {
     }
 
     public static InputProgram getInputProgram() throws InvalidSdkException, Exception {
-        lazyInit();
         return inputProgram;
-    }
-
-    public static void reset() {
-        inputProgram = null;
-    }
-
-    private static void lazyInit() throws InvalidSdkException, Exception {
-        if (inputProgram == null) {
-            init();
-        }
     }
 
     public static CtClass findClass(String fullQualifiedName) throws InvalidSdkException, Exception {

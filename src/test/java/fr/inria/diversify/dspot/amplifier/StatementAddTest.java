@@ -29,6 +29,7 @@ public class StatementAddTest {
             It results here with 4 new test cases.
          */
 
+        Utils.init("src/test/resources/sample.properties");
         final String packageName = "fr.inria.statementadd";
         InputProgram inputProgram = Utils.getInputProgram();
         final Factory factory = inputProgram.getFactory();

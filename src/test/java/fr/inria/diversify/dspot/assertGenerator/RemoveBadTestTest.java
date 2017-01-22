@@ -6,6 +6,7 @@ import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.MavenAbstractTest;
 import fr.inria.diversify.runner.InputProgram;
 
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -36,7 +37,7 @@ public class RemoveBadTestTest extends MavenAbstractTest {
                 3 of them failed (on purpose), only one has to be keep.
          */
 
-        final String mavenHome = DSpotUtils.buildMavenHome();
+        final String mavenHome = DSpotUtils.buildMavenHome(Utils.getInputConfiguration());
         InputProgram inputProgram = Utils.getInputProgram();
         RemoveBadTest removeBadTest = new RemoveBadTest(inputProgram, mavenHome);
 

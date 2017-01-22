@@ -1,5 +1,6 @@
 package fr.inria.diversify.dspot;
 
+import fr.inria.diversify.Utils;
 import org.junit.After;
 import org.junit.Before;
 
@@ -28,6 +29,7 @@ public abstract class MavenAbstractTest {
     @Before
     public void setUp() throws Exception {
         addMavenHomeToPropertiesFile();
+        Utils.init(getPathToPropertiesFile());
     }
 
     @After
@@ -37,17 +39,17 @@ public abstract class MavenAbstractTest {
 
     // hack to add maven.home to the properties automatically for travis. For local, the test will clean
     private void addMavenHomeToPropertiesFile() {
-        try (BufferedReader buffer = new BufferedReader(new FileReader(pathToPropertiesFile))) {
+        try (BufferedReader buffer = new BufferedReader(new FileReader(getPathToPropertiesFile()))) {
             originalProperties = buffer.lines().collect(Collectors.joining(nl));
-        } catch (IOException ignored) {
-            //ignored
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        final String mavenHome = DSpotUtils.buildMavenHome();
+        final String mavenHome = DSpotUtils.buildMavenHome(Utils.getInputConfiguration());
         if (mavenHome != null) {
-            try(FileWriter writer = new FileWriter(pathToPropertiesFile, true)) {
+            try(FileWriter writer = new FileWriter(getPathToPropertiesFile(), true)) {
                 writer.write(nl + "maven.home=" + mavenHome + nl);
-            } catch (IOException ignored) {
-                //ignored
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
     }
@@ -55,8 +57,8 @@ public abstract class MavenAbstractTest {
     private void removeHomFromPropertiesFile() {
         try(FileWriter writer = new FileWriter(pathToPropertiesFile, false)) {
             writer.write(originalProperties);
-        } catch (IOException ignored) {
-            //ignored
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

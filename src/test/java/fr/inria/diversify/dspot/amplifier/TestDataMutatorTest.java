@@ -3,6 +3,7 @@ package fr.inria.diversify.dspot.amplifier;
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AmplificationHelper;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtClass;
@@ -25,6 +26,11 @@ import static org.junit.Assert.assertTrue;
 public class TestDataMutatorTest {
 
     private static final String SUFFIX_MUTATION = "_literalMutation";
+
+    @Before
+    public void setUp() throws Exception {
+        Utils.init("src/test/resources/sample.properties");
+    }
 
     @Test
     public void testIntMutation() throws Exception, InvalidSdkException {

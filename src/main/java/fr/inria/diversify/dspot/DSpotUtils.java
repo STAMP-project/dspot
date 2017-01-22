@@ -6,6 +6,7 @@ import fr.inria.diversify.processor.ProcessorUtil;
 import fr.inria.diversify.processor.main.AddBlockEverywhereProcessor;
 import fr.inria.diversify.processor.main.BranchCoverageProcessor;
 import fr.inria.diversify.profiling.processor.main.AbstractLoggingInstrumenter;
+import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import spoon.compiler.Environment;
@@ -28,14 +29,14 @@ import java.io.IOException;
  */
 public class DSpotUtils {
 
-    public static void compileOriginalProject(InputProgram inputProgram, String mavenHome, String mavenLocalRepository) throws InterruptedException, IOException {
-            MavenBuilder builder = new MavenBuilder(inputProgram.getProgramDir());
-            builder.setBuilderPath(mavenHome);
-            if (mavenLocalRepository != null) {
-                builder.setSetting(new File(mavenLocalRepository));
-            }
-            builder.setGoals(new String[] {"clean", "test", "-DskipTests"});
-            builder.initTimeOut();
+    public static void compileOriginalProject(InputProgram inputProgram, InputConfiguration inputConfiguration, String mavenLocalRepository) throws InterruptedException, IOException {
+        MavenBuilder builder = new MavenBuilder(inputProgram.getProgramDir());
+        builder.setBuilderPath(buildMavenHome(inputConfiguration));
+        if (mavenLocalRepository != null) {
+            builder.setSetting(new File(mavenLocalRepository));
+        }
+        builder.setGoals(new String[]{"clean", "test", "-DskipTests"});
+        builder.initTimeOut();
     }
 
     public static void addBranchLogger(InputProgram inputProgram, Factory factory) {
@@ -84,9 +85,10 @@ public class DSpotUtils {
         }
     }
 
-    public static String buildMavenHome() {
-        return System.getenv().get("MAVEN_HOME") != null ? System.getenv().get("MAVEN_HOME") :
-                System.getenv().get("M2_HOME") != null ? System.getenv().get("M2_HOME") : "/usr/share/maven/";
+    public static String buildMavenHome(InputConfiguration inputConfiguration) {
+        return inputConfiguration != null && inputConfiguration.getProperty("maven.home") != null ? inputConfiguration.getProperty("maven.home") :
+                System.getenv().get("MAVEN_HOME") != null ? System.getenv().get("MAVEN_HOME") :
+                        System.getenv().get("M2_HOME") != null ? System.getenv().get("M2_HOME") : "/usr/share/maven/";
     }
 
     private static void applyProcessor(Factory factory, Processor processor) {

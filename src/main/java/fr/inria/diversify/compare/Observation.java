@@ -127,6 +127,9 @@ public  class Observation {
 
 
     protected String printPrimitiveString(Object value) {
+        if(value == null) {
+            return "null";
+        }
         if(value instanceof Double) {
             return value.toString() + "D";
         }

@@ -87,13 +87,11 @@ public class DSpot {
         } else {
             FileUtils.cleanDirectory(tmpDir);
         }
-        String mavenHome = inputConfiguration.getProperty("maven.home", DSpotUtils.buildMavenHome());
-        System.out.println(mavenHome);
         String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
-        DSpotUtils.compileOriginalProject(this.inputProgram, mavenHome, mavenLocalRepository);
+        DSpotUtils.compileOriginalProject(this.inputProgram, inputConfiguration, mavenLocalRepository);
         FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
         inputProgram.setProgramDir(outputDirectory);
-        String dependencies = AmplificationHelper.getDependenciesOf(this.inputConfiguration, inputProgram, mavenHome);
+        String dependencies = AmplificationHelper.getDependenciesOf(this.inputConfiguration, inputProgram);
 
         //We need to use separate factory here, because the BranchProcessor will process test also
         //TODO this is used only with the BranchCoverageSelector

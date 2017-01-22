@@ -1,5 +1,6 @@
 package fr.inria.diversify.mutant.pit;
 
+import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.*;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
@@ -28,23 +29,17 @@ public class PitTest extends MavenAbstractTest {
         return "src/test/resources/test-projects/test-projects.properties";
     }
 
-    private final String pathToPropertiesFile = "src/test/resources/test-projects/test-projects.properties";
-    private InputConfiguration inputConfiguration;
-    private InputProgram inputProgram;
-    private DSpotCompiler compiler;
-
     @Test
     public void testPit() throws Exception, InvalidSdkException {
-
-        //TODO Should use Utils too (duplicated code)
 
         /*
             Run the PitRunner on the test-project example.
                 Checks that the PitRunner return well the results, and verify state of mutant.
          */
         AmplificationHelper.setSeedRandom(23L);
-        init();
-        List<PitResult> pitResults = PitRunner.run(inputProgram, inputConfiguration, inputProgram.getFactory().Class().get("example.TestSuiteExample"));
+        Utils.init(this.getPathToPropertiesFile());
+        List<PitResult> pitResults = PitRunner.run(Utils.getInputProgram(), Utils.getInputConfiguration(),
+                Utils.getInputProgram().getFactory().Class().get("example.TestSuiteExample"));
 
         assertTrue(null != pitResults);
         assertEquals(9, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
@@ -66,35 +61,6 @@ public class PitTest extends MavenAbstractTest {
         assertEquals("charAt", result.getLocation());
 
         assertEquals(3, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.NO_COVERAGE).count());
-    }
-
-    private void init() {
-        try {
-            inputConfiguration = new InputConfiguration(pathToPropertiesFile);
-            inputProgram = InitUtils.initInputProgram(inputConfiguration);
-            InitUtils.initLogLevel(inputConfiguration);
-            inputConfiguration.setInputProgram(inputProgram);
-            String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp";
-            File tmpDir = new File(inputConfiguration.getProperty("tmpDir"));
-            if (!tmpDir.exists()) {
-                tmpDir.mkdir();
-            } else {
-                FileUtils.cleanDirectory(tmpDir);
-            }
-            String mavenHome = inputConfiguration.getProperty("maven.home", DSpotUtils.buildMavenHome());
-            String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
-            DSpotUtils.compileOriginalProject(this.inputProgram, mavenHome, mavenLocalRepository);
-            FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
-            inputProgram.setProgramDir(outputDirectory);
-            String dependencies = AmplificationHelper.getDependenciesOf(inputConfiguration, inputProgram, mavenHome);
-            File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
-            FileUtils.cleanDirectory(output);
-            DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
-            compiler = new DSpotCompiler(inputProgram, dependencies);
-            inputProgram.setFactory(compiler.getLauncher().getFactory());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Test

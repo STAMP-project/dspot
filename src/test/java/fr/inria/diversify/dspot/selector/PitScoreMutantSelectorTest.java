@@ -1,5 +1,6 @@
 package fr.inria.diversify.dspot.selector;
 
+import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
@@ -39,9 +40,10 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
     @Test
     public void testSelection() throws Exception, InvalidSdkException {
         AmplificationHelper.setSeedRandom(23L);
-        init();
 
-        List<PitResult> pitResults = PitRunner.run(inputProgram, inputConfiguration, inputProgram.getFactory().Class().get("example.TestSuiteExample"));
+        //Utils.reset();
+
+        List<PitResult> pitResults = PitRunner.run(Utils.getInputProgram(), Utils.getInputConfiguration(), Utils.getFactory().Class().get("example.TestSuiteExample"));
         assertTrue(null != pitResults);
 
         /*
@@ -60,7 +62,7 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
         File directory = new File(dspot.getInputProgram().getProgramDir() + "/" + dspot.getInputProgram().getRelativeTestSourceCodeDir());
         PrintClassUtils.printJavaFile(directory, amplifiedTest);
 
-        List<PitResult> pitResultsAmplified = PitRunner.run(inputProgram, inputConfiguration, amplifiedTest);
+        List<PitResult> pitResultsAmplified = PitRunner.run(Utils.getInputProgram(), Utils.getInputConfiguration(), amplifiedTest);
 
         assertTrue(null != pitResultsAmplified);
         assertTrue(pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count() <
@@ -69,30 +71,4 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
         PrintClassUtils.printJavaFile(directory, exampleOriginalTestClass);
     }
 
-    private final String pathToPropertiesFile = "src/test/resources/test-projects/test-projects.properties";
-    private InputConfiguration inputConfiguration;
-    private InputProgram inputProgram;
-    private DSpotCompiler compiler;
-
-    private void init() {
-        try {
-            inputConfiguration = new InputConfiguration(pathToPropertiesFile);
-            inputProgram = InitUtils.initInputProgram(inputConfiguration);
-            InitUtils.initLogLevel(inputConfiguration);
-            inputConfiguration.setInputProgram(inputProgram);
-            String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp";
-            FileUtils.cleanDirectory(new File("tmpDir"));
-            FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
-            inputProgram.setProgramDir(outputDirectory);
-            String mavenHome = inputConfiguration.getProperty("maven.home", DSpotUtils.buildMavenHome());
-            String dependencies = AmplificationHelper.getDependenciesOf(inputConfiguration, inputProgram, mavenHome);
-            File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
-            FileUtils.cleanDirectory(output);
-            DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
-            compiler = new DSpotCompiler(inputProgram, dependencies);
-            inputProgram.setFactory(compiler.getLauncher().getFactory());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

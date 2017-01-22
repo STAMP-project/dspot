@@ -34,7 +34,7 @@ public class PitRunner {
     public static List<PitResult> run(InputProgram program, InputConfiguration configuration, CtType testClass) {
         try {
             long time = System.currentTimeMillis();
-            String mavenHome = configuration.getProperty("maven.home", DSpotUtils.buildMavenHome());
+            String mavenHome = DSpotUtils.buildMavenHome(configuration);
             MavenBuilder builder = new MavenBuilder(program.getProgramDir());
             builder.setBuilderPath(mavenHome);
             String[] phases = new String[]{PRE_GOAL_PIT, //
@@ -57,7 +57,7 @@ public class PitRunner {
     public static List<PitResult> runAll(InputProgram program, InputConfiguration configuration) {
         try {
             long time = System.currentTimeMillis();
-            String mavenHome = configuration.getProperty("maven.home", null);
+            String mavenHome = DSpotUtils.buildMavenHome(configuration);
             MavenBuilder builder = new MavenBuilder(program.getProgramDir());
             builder.setBuilderPath(mavenHome);
             String[] phases = new String[]{PRE_GOAL_PIT, //
