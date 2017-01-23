@@ -1,9 +1,6 @@
 package fr.inria.diversify.dspot;
 
-import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.buildSystem.maven.MavenBuilder;
-import fr.inria.diversify.dspot.support.DSpotClassLoader;
-import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.processor.ProcessorUtil;
 import fr.inria.diversify.processor.main.AddBlockEverywhereProcessor;
@@ -24,9 +21,6 @@ import spoon.support.QueueProcessingManager;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.*;
 
 /**
  * User: Simon
@@ -35,10 +29,18 @@ import java.util.*;
  */
 public class DSpotUtils {
 
-    public static void addBranchLogger(InputProgram inputProgram) {
-        try {
-            Factory factory = DSpotCompiler.buildCompiler(inputProgram, false).getFactory();
+    public static void compileOriginalProject(InputProgram inputProgram, InputConfiguration inputConfiguration, String mavenLocalRepository) throws InterruptedException, IOException {
+        MavenBuilder builder = new MavenBuilder(inputProgram.getProgramDir());
+        builder.setBuilderPath(buildMavenHome(inputConfiguration));
+        if (mavenLocalRepository != null) {
+            builder.setSetting(new File(mavenLocalRepository));
+        }
+        builder.setGoals(new String[]{"clean", "test", "-DskipTests"});
+        builder.initTimeOut();
+    }
 
+    public static void addBranchLogger(InputProgram inputProgram, Factory factory) {
+        try {
             applyProcessor(factory, new AddBlockEverywhereProcessor(inputProgram));
 
             BranchCoverageProcessor branchCoverageProcessor = new BranchCoverageProcessor(inputProgram, inputProgram.getProgramDir(), true);
@@ -83,76 +85,11 @@ public class DSpotUtils {
         }
     }
 
-    public static DSpotCompiler initDiversityCompiler(InputProgram inputProgram, boolean withTest) throws IOException, InterruptedException {
-        DSpotCompiler compiler = DSpotCompiler.buildCompiler(inputProgram, withTest);
-        if (compiler.getBinaryOutputDirectory() == null) {
-            File classOutputDir = new File("tmpDir/tmpClasses_" + System.currentTimeMillis());
-            if (!classOutputDir.exists()) {
-                classOutputDir.mkdirs();
-            }
-            compiler.setBinaryOutputDirectory(classOutputDir);
-        }
-        if (compiler.getSourceOutputDirectory().toString().equals("spooned")) {
-            File sourceOutputDir = new File("tmpDir/tmpSrc_" + System.currentTimeMillis());
-            if (!sourceOutputDir.exists()) {
-                sourceOutputDir.mkdirs();
-            }
-            compiler.setSourceOutputDirectory(sourceOutputDir);
-        }
-
-        Environment env = compiler.getFactory().getEnvironment();
-        env.setCommentEnabled(true);
-        env.setDefaultFileGenerator(new JavaOutputProcessor(compiler.getSourceOutputDirectory(),
-                new DefaultJavaPrettyPrinter(env)));
-
-        return compiler;
+    public static String buildMavenHome(InputConfiguration inputConfiguration) {
+        return inputConfiguration != null && inputConfiguration.getProperty("maven.home") != null ? inputConfiguration.getProperty("maven.home") :
+                System.getenv().get("MAVEN_HOME") != null ? System.getenv().get("MAVEN_HOME") :
+                        System.getenv().get("M2_HOME") != null ? System.getenv().get("M2_HOME") : "/usr/share/maven/";
     }
-
-    public static void compileTests(InputProgram inputProgram, String mavenHome, String mavenLocalRepository) throws InterruptedException, IOException {
-        String[] phases = new String[]{"clean", "test"};
-        pCompile(inputProgram, phases, mavenHome, mavenLocalRepository);
-    }
-
-    public static void compile(InputProgram inputProgram, String mavenHome, String mavenLocalRepository) throws InterruptedException, IOException {
-        String[] phases = new String[]{"clean", "compile"};
-        pCompile(inputProgram, phases, mavenHome, mavenLocalRepository);
-    }
-
-    private static void pCompile(InputProgram inputProgram, String[] phases, String mavenHome, String mavenLocalRepository) throws InterruptedException, IOException {
-        MavenBuilder builder = new MavenBuilder(inputProgram.getProgramDir());
-
-        builder.setBuilderPath(mavenHome);
-        if (mavenLocalRepository != null) {
-            builder.setSetting(new File(mavenLocalRepository));
-        }
-
-        builder.setGoals(phases);
-        builder.initTimeOut();
-    }
-
-    public static DiversifyClassLoader initClassLoader(InputProgram inputProgram, InputConfiguration inputConfiguration) {
-        return initClassLoader(inputProgram, inputConfiguration, (URLClassLoader) Thread.currentThread().getContextClassLoader());
-    }
-
-    public static DiversifyClassLoader initClassLoader(InputProgram inputProgram, InputConfiguration inputConfiguration,
-                                                       URLClassLoader classLoader) {
-        Set<String> filter = new HashSet<>();
-        if (inputConfiguration.getProperty("filter") != null) {
-            Collections.addAll(filter, inputConfiguration.getProperty("filter").split(";"));
-        }
-
-        List<String> classPaths = new ArrayList<>();
-        classPaths.add(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
-        classPaths.add(inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir());
-
-        classPaths.add(System.getProperty("user.dir") + "/target/classes/");
-
-        DSpotClassLoader applicationClassLoader = new DSpotClassLoader(classLoader, classPaths);
-        applicationClassLoader.setClassFilter(filter);
-
-        return applicationClassLoader;
-    }
-
 
     private static void applyProcessor(Factory factory, Processor processor) {
         QueueProcessingManager pm = new QueueProcessingManager(factory);

@@ -2,18 +2,23 @@ package fr.inria.diversify.dspot.testrunner;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import fr.inria.diversify.dspot.AmplificationHelper;
+import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.assertGenerator.MethodAssertGenerator;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.TestCompiler;
 import fr.inria.diversify.testRunner.TestRunner;
+import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.code.CtTry;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.util.Collections;
+import java.io.FileNotFoundException;
 
+import static fr.inria.diversify.util.FileUtils.forceDelete;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -24,6 +29,19 @@ import static org.junit.Assert.assertTrue;
  */
 public class TestRunnerTest {
 
+    @Before
+    public void setUp() throws Exception {
+        Utils.init("src/test/resources/sample.properties");
+        try {
+            forceDelete(Utils.getCompiler().getBinaryOutputDirectory());
+        } catch (FileNotFoundException | IllegalArgumentException ignored) {
+        }
+        try {
+            forceDelete(Utils.getCompiler().getSourceOutputDirectory());
+        } catch (FileNotFoundException | IllegalArgumentException ignored) {
+        }
+    }
+
     @Test
     public void testVisibility() throws Exception, InvalidSdkException {
 
@@ -33,16 +51,19 @@ public class TestRunnerTest {
          */
 
         CtClass testClass = Utils.findClass("fr.inria.testrunner.TestClassWithVisibility");
-        TestCompiler.writeAndCompile(Utils.getApplicationClassLoader(), Utils.getCompiler(), testClass, false);
-        JunitResult result = TestRunner.runTests(Utils.getApplicationClassLoader(), Utils.getCompiler(),
-                Utils.getInputProgram().getProgramDir() + "/log", Utils.getInputProgram().getProgramDir(),
-                testClass, testClass.getMethodsByName("testFromCommonsLang"),
-                Collections.singleton("fr.inria.testrunner"),
-                Utils.getInputProgram());
+        String classpath = Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getClassesDir() + ":" +
+                Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getTestClassesDir();
+        boolean status = TestCompiler.writeAndCompile(Utils.getCompiler(), testClass, false, classpath);
+        if (!status) {
+            throw new RuntimeException("Error compilation");
+        }
+        classpath = AmplificationHelper.getClassPath(Utils.getCompiler(), Utils.getInputProgram());
+        JunitResult result = TestRunner.runTests(testClass, testClass.getMethodsByName("testFromCommonsLang"), classpath, Utils.getInputProgram());
+
         assertEquals(0, result.getFailures().size());
         assertEquals(1, result.getTestRuns().size());
 
-        MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler(), Utils.getApplicationClassLoader());
+        MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler());
         result = mag.runTests(testClass, testClass.getMethodsByName("testFromCommonsLang"));
         assertEquals(0, result.getFailures().size());
         assertEquals(1, result.getTestRuns().size());

@@ -2,8 +2,8 @@ package fr.inria.diversify.dspot.assertGenerator;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
-import fr.inria.diversify.dspot.AbstractTest;
 import fr.inria.diversify.testRunner.JunitResult;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -17,12 +17,17 @@ import static org.junit.Assert.assertEquals;
  * Date: 25/11/16
  * Time: 11:15
  */
-public class MethodAssertGeneratorTest extends AbstractTest {
+public class MethodAssertGeneratorTest {
+
+    @Before
+    public void setUp() throws Exception {
+        Utils.init("src/test/resources/sample.properties");
+    }
 
     @Test
     public void testCreateTestWithoutAssert() throws InvalidSdkException, Exception {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
-        MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler(), Utils.getApplicationClassLoader());
+        MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler());//, Utils.getCompiler(), Utils.getApplicationClassLoader());
 
         mag.test = Utils.findMethod("fr.inria.sample.TestClassWithAssert", "test1");
         CtMethod test1 = mag.createTestWithoutAssert(Collections.EMPTY_LIST, false);
@@ -40,7 +45,7 @@ public class MethodAssertGeneratorTest extends AbstractTest {
     @Test
     public void testRemoveFailAssert() throws InvalidSdkException, Exception {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
-        MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler(), Utils.getApplicationClassLoader());
+        MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler());//, Utils.getCompiler(), Utils.getApplicationClassLoader());
 
         CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithAssert", "test1");
         mag.test = test1;
@@ -63,7 +68,7 @@ public class MethodAssertGeneratorTest extends AbstractTest {
     @Test
     public void testMakeFailureTest() throws InvalidSdkException, Exception {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
-        MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler(), Utils.getApplicationClassLoader());
+        MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler());//, Utils.getCompiler(), Utils.getApplicationClassLoader());
 
         CtMethod test = Utils.findMethod("fr.inria.sample.TestClassWithAssert", "test3");
         mag.test = test;
@@ -85,7 +90,7 @@ public class MethodAssertGeneratorTest extends AbstractTest {
     @Test
     public void testBuildNewAssert() throws InvalidSdkException, Exception {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
-        MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler(), Utils.getApplicationClassLoader());
+        MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler());
 
         String nl = System.getProperty("line.separator");
 

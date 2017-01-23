@@ -1,8 +1,9 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
+import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
-import fr.inria.diversify.dspot.AbstractTest;
 import fr.inria.diversify.dspot.AmplificationHelper;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -16,7 +17,12 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 12/8/16
  */
-public class AssertGeneratorTest extends AbstractTest {
+public class AssertGeneratorTest {
+
+    @Before
+    public void setUp() throws Exception {
+        Utils.init("src/test/resources/sample.properties");
+    }
 
     @Test
     public void testGenerateAssert() throws Exception, InvalidSdkException {
@@ -25,11 +31,9 @@ public class AssertGeneratorTest extends AbstractTest {
             test the generation of assertion
          */
 
-        CtClass testClass = fr.inria.diversify.Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
-        System.out.println(testClass);
-        AssertGenerator assertGenerator = new AssertGenerator(fr.inria.diversify.Utils.getInputProgram(), fr.inria.diversify.Utils.getCompiler(), fr.inria.diversify.Utils.getApplicationClassLoader());
+        CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
+        AssertGenerator assertGenerator = new AssertGenerator(Utils.getInputProgram(), Utils.getCompiler());
         CtType ctType = AmplificationHelper.createAmplifiedTest(assertGenerator.generateAsserts(testClass), testClass);
-        System.out.println(((CtMethod)ctType.getMethods().stream().findFirst().get()).getBody().toString());
         assertEquals(expectedBody, ((CtMethod)ctType.getMethods().stream().findFirst().get()).getBody().toString());
     }
 

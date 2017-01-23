@@ -17,9 +17,9 @@ import java.util.stream.Collectors;
  */
 public class JunitResult extends RunListener {
 
-    Set<Description> testRuns;
-    List<Failure> failures;
-    List<Failure> compileOrTimeOutError;
+    private Set<Description> testRuns;
+    private List<Failure> failures;
+    private List<Failure> compileOrTimeOutError;
 
     public JunitResult() {
         testRuns = new HashSet<>();

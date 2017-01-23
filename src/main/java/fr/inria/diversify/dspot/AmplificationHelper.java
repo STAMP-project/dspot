@@ -1,5 +1,6 @@
 package fr.inria.diversify.dspot;
 
+import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.dspot.support.MavenDependenciesResolver;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
@@ -18,6 +19,7 @@ import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
@@ -193,23 +195,23 @@ public class AmplificationHelper {
                 .collect(Collectors.toList());
     }
 
-    public static void addProgramUnderAmplificationToClassPasth(InputProgram inputProgram) {
-        URL[] parentClassPath = ((URLClassLoader) Thread.currentThread().getContextClassLoader()).getURLs();
-        URL[] classPath = new URL[parentClassPath.length + 2];
-        try {
-            classPath[0] = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir()).toURI().toURL();
-            classPath[1] = new File(inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir()).toURI().toURL();
-            System.arraycopy(parentClassPath, 0, classPath, 2, parentClassPath.length);
-            URLClassLoader classLoader = new URLClassLoader(classPath, Thread.currentThread().getContextClassLoader().getParent());
-            Thread.currentThread().setContextClassLoader(classLoader);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
+    public static String getDependenciesOf(InputConfiguration inputConfiguration, InputProgram inputProgram) {
+        URL[] dependencies = MavenDependenciesResolver.resolveDependencies(inputConfiguration, inputProgram, DSpotUtils.buildMavenHome(inputConfiguration));
+        String dependenciesAsString = Arrays.stream(dependencies).reduce("", (acc, url) -> {
+            try {
+                return acc + new File(url.toURI()).getAbsolutePath() + ":";
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        }, String::concat);
+        return dependenciesAsString.substring(0, dependenciesAsString.length() - 1);
     }
 
-    public static void initializeDependencies(InputConfiguration inputConfiguration, InputProgram inputProgram) {
-        URL[] classpath = MavenDependenciesResolver.resolveDependencies(inputConfiguration, inputProgram);
-        URLClassLoader child = new URLClassLoader(classpath, Thread.currentThread().getContextClassLoader());
-        Thread.currentThread().setContextClassLoader(child);
+    public static String getClassPath(DSpotCompiler compiler, InputProgram inputProgram) {
+        String classpath = compiler.getBinaryOutputDirectory().getAbsolutePath();
+        classpath +=  ":" + inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir();
+        classpath += ":" + inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir();
+        classpath += ":" + compiler.getDependencies();
+        return classpath;
     }
 }

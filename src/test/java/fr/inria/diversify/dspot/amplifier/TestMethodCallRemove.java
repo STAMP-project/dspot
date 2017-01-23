@@ -3,6 +3,7 @@ package fr.inria.diversify.dspot.amplifier;
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.Test;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import spoon.reflect.declaration.CtClass;
@@ -19,6 +20,11 @@ import static org.junit.Assert.assertNotEquals;
  * on 12/7/16
  */
 public class TestMethodCallRemove {
+
+    @Before
+    public void setUp() throws Exception {
+        Utils.init("src/test/resources/sample.properties");
+    }
 
     @Test
     public void testMethodCallRemoveAll() throws Exception, InvalidSdkException {
@@ -69,6 +75,6 @@ public class TestMethodCallRemove {
 
     @AfterClass
     public static void tearDown() throws InvalidSdkException, Exception {
-        Utils.reset();
+        //Utils.reset();
     }
 }

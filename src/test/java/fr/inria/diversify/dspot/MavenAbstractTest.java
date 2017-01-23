@@ -1,7 +1,6 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.Utils;
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import org.junit.After;
 import org.junit.Before;
 
@@ -13,20 +12,24 @@ import java.util.stream.Collectors;
 
 /**
  * Created by Benjamin DANGLOT
- * benjamin.danglot@inria.fr
+ * benjamin.danglot@inriAVa.fr
  * on 1/5/17
  */
 public abstract class MavenAbstractTest {
 
-    public static final String pathToPropertiesFile = "src/test/resources/test-projects/test-projects.properties";
+    public final String pathToPropertiesFile = getPathToPropertiesFile();
 
     public static final String nl = System.getProperty("line.separator");
 
     private static String originalProperties;
 
+
+    public abstract String getPathToPropertiesFile();
+
     @Before
     public void setUp() throws Exception {
         addMavenHomeToPropertiesFile();
+        Utils.init(getPathToPropertiesFile());
     }
 
     @After
@@ -36,17 +39,17 @@ public abstract class MavenAbstractTest {
 
     // hack to add maven.home to the properties automatically for travis. For local, the test will clean
     private void addMavenHomeToPropertiesFile() {
-        try (BufferedReader buffer = new BufferedReader(new FileReader(pathToPropertiesFile))) {
+        try (BufferedReader buffer = new BufferedReader(new FileReader(getPathToPropertiesFile()))) {
             originalProperties = buffer.lines().collect(Collectors.joining(nl));
-        } catch (IOException ignored) {
-            //ignored
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        final String mavenHome = Utils.buildMavenHome();
+        final String mavenHome = DSpotUtils.buildMavenHome(Utils.getInputConfiguration());
         if (mavenHome != null) {
-            try(FileWriter writer = new FileWriter(pathToPropertiesFile, true)) {
+            try(FileWriter writer = new FileWriter(getPathToPropertiesFile(), true)) {
                 writer.write(nl + "maven.home=" + mavenHome + nl);
-            } catch (IOException ignored) {
-                //ignored
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
     }
@@ -54,8 +57,8 @@ public abstract class MavenAbstractTest {
     private void removeHomFromPropertiesFile() {
         try(FileWriter writer = new FileWriter(pathToPropertiesFile, false)) {
             writer.write(originalProperties);
-        } catch (IOException ignored) {
-            //ignored
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

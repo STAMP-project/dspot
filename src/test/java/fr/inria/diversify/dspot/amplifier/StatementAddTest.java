@@ -2,7 +2,6 @@ package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
-import fr.inria.diversify.dspot.AbstractTest;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.value.ValueFactory;
 import fr.inria.diversify.runner.InputProgram;
@@ -19,7 +18,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 11/30/16
  */
-public class StatementAddTest extends AbstractTest {
+public class StatementAddTest {
 
     @Test
     public void testStatementAdd() throws Exception, InvalidSdkException {
@@ -30,6 +29,7 @@ public class StatementAddTest extends AbstractTest {
             It results here with 4 new test cases.
          */
 
+        Utils.init("src/test/resources/sample.properties");
         final String packageName = "fr.inria.statementadd";
         InputProgram inputProgram = Utils.getInputProgram();
         final Factory factory = inputProgram.getFactory();

@@ -7,13 +7,9 @@ import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
-import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * User: Simon
@@ -21,47 +17,30 @@ import java.util.stream.Stream;
  * Time: 11:45
  */
 public class ClassWithLoggerBuilder {
-    protected final String logger;
-    protected AssertionRemover assertionRemoverProcessor;
-    protected TestLogProcessor loggingProcessor;
+
+    private final AssertionRemover assertionRemoverProcessor;
+    private final TestLogProcessor loggingProcessor;
 
 
     public ClassWithLoggerBuilder(InputProgram inputProgram) {
-        this.logger = "fr.inria.diversify.logger";
+        String logger = "fr.inria.diversify.logger";
+
         assertionRemoverProcessor = new AssertionRemover(inputProgram.getAbsoluteTestSourceCodeDir());
         assertionRemoverProcessor.setFactory(inputProgram.getFactory());
-
         loggingProcessor = new TestLogProcessor();
         loggingProcessor.setLogger(logger + ".Logger");
         loggingProcessor.setFactory(inputProgram.getFactory());
     }
 
-    public ClassWithLoggerBuilder(Factory factory) {
-        this.logger = "fr.inria.diversify.logger";
-
-        loggingProcessor = new TestLogProcessor();
-        loggingProcessor.setLogger(logger + ".Logger");
-        loggingProcessor.setFactory(factory);
-    }
-
-    protected CtType buildClassWithLogger(CtType originalClass, CtMethod test) {
-        return buildClassWithLogger(originalClass, Collections.singletonList(test));
-    }
-
     public CtType buildClassWithLogger(CtType originalClass, Collection<CtMethod> tests) {
         CtType cloneClass = originalClass.clone();
-        cloneClass.setParent(originalClass.getParent());
-        tests.forEach(cloneClass::removeMethod);
+        originalClass.getPackage().addType(cloneClass);
+//        tests.forEach(cloneClass::removeMethod);
         tests.forEach(test -> cloneClass.addMethod(buildMethodWithLogger(cloneClass, test)));
-//        methodsTestInstrumented
-//                .forEach(testWithLogger -> {
-//                    cloneClass.removeMethod(testWithLogger);
-//                    cloneClass.addMethod(testWithLogger);
-//                });
         return cloneClass;
     }
 
-    protected CtMethod buildMethodWithLogger(CtType parentClass, CtMethod method) {
+    private CtMethod buildMethodWithLogger(CtType parentClass, CtMethod method) {
         CtMethod clone = cloneMethod(method);
         clone.setParent(parentClass);
 
@@ -74,7 +53,7 @@ public class ClassWithLoggerBuilder {
     }
 
 
-    protected CtMethod cloneMethod(CtMethod method) {
+    private CtMethod cloneMethod(CtMethod method) {
         CtMethod cloned_method = method.getFactory().Core().clone(method);
 
         CtAnnotation toRemove = cloned_method.getAnnotations().stream()

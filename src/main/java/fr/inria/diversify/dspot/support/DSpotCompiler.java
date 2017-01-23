@@ -1,155 +1,54 @@
 package fr.inria.diversify.dspot.support;
 
-import fr.inria.diversify.buildSystem.DiversifyClassLoader;
 import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.Log;
-import org.apache.commons.io.output.NullWriter;
-import org.eclipse.jdt.core.compiler.CategorizedProblem;
-import org.eclipse.jdt.internal.compiler.batch.FileSystem;
-import org.eclipse.jdt.internal.compiler.batch.Main;
-import spoon.compiler.Environment;
-import spoon.compiler.ModelBuildingException;
+import spoon.Launcher;
+import spoon.SpoonModelBuilder;
 import spoon.compiler.builder.*;
-import spoon.reflect.factory.Factory;
-import spoon.reflect.factory.FactoryImpl;
-import spoon.reflect.visitor.DefaultJavaPrettyPrinter;
-import spoon.support.DefaultCoreFactory;
-import spoon.support.JavaOutputProcessor;
-import spoon.support.StandardEnvironment;
 import spoon.support.compiler.FileSystemFolder;
 import spoon.support.compiler.jdt.JDTBasedSpoonCompiler;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
- * on 12/22/16
+ * on 1/19/17
  */
 public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
-    private DiversifyClassLoader customClassLoader;
-    private FileSystem environment;
+    public DSpotCompiler(InputProgram program, String pathToDependencies) {
+        super(program.getFactory());
+        String pathToSources = program.getAbsoluteSourceCodeDir() + ":" + program.getAbsoluteTestSourceCodeDir();
+        this.dependencies = pathToDependencies;
+        this.launcher = getSpoonModelOf(pathToSources, pathToDependencies);
 
-    public static DSpotCompiler buildCompiler(InputProgram program, boolean withTest,
-                                              URLClassLoader classLoader) {
-        StandardEnvironment env = new StandardEnvironment();
-        env.setComplianceLevel(program.getJavaVersion());
-        env.setVerbose(true);
-        env.setDebug(true);
-        env.setNoClasspath(false);
+        this.binaryOutputDirectory = new File(program.getProgramDir() + "/" + program.getTestClassesDir());
 
-        DefaultCoreFactory f = new DefaultCoreFactory();
-        Factory factory = new FactoryImpl(f, env);
-        DSpotCompiler compiler = new DSpotCompiler(factory);
-        for (String s : buildSourceDirectoriesList(program, withTest)) {
-            for (String dir : s.split(System.getProperty("path.separator"))) {
-                try {
-                    if (!dir.isEmpty()) {
-                        Log.debug("add {} to classpath", dir);
-                        File dirFile = new File(dir);
-                        if (dirFile.isDirectory()) {
-                            compiler.addInputSource(dirFile);
-                        }
-                    }
-                } catch (Exception e) {
-                    Log.error("error in initSpoon", e);
-                    throw new RuntimeException(e);
-                }
-            }
+        this.sourceOutputDirectory = new File("tmpDir/tmpSrc_test");
+        if (!this.sourceOutputDirectory.exists()) {
+            this.sourceOutputDirectory.mkdir();
         }
-        String[] sourceClasspath = Arrays.stream(classLoader.getURLs())
-                .map(url -> {
-                    try {
-                        return url.toURI();
-                    } catch (URISyntaxException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .filter(uri -> new File(uri).exists())
-                .map(URI::getPath)
-                .toArray(String[]::new);
-        compiler.setSourceClasspath(sourceClasspath);
+    }
 
-        try {
-            compiler.build();
-        } catch (Exception e) {
-            e.printStackTrace();
+    public boolean compile(String pathToAdditionalDependencies) {
+        if (this.factory == null) {
+            this.factory = this.launcher.getFactory();
         }
-
-        program.setFactory(compiler.getFactory());
-        compiler.init();
-        env.setCommentEnabled(true);
-        return compiler;
-    }
-
-    public static DSpotCompiler buildCompiler(InputProgram program, boolean withTest) {
-        return buildCompiler(program, withTest, (URLClassLoader) Thread.currentThread().getContextClassLoader());
-    }
-
-    private void init() {
-        if (this.getBinaryOutputDirectory().toString().equals("spooned-classes") || this.getBinaryOutputDirectory() == null) {
-            File classOutputDir = new File("tmpDir/tmpClasses_" + System.currentTimeMillis());
-            if (!classOutputDir.exists()) {
-                classOutputDir.mkdirs();
-            }
-            this.setBinaryOutputDirectory(classOutputDir);
-        }
-        if (this.getSourceOutputDirectory().toString().equals("spooned")) {
-            File sourceOutputDir = new File("tmpDir/tmpSrc_" + System.currentTimeMillis());
-            if (!sourceOutputDir.exists()) {
-                sourceOutputDir.mkdirs();
-            }
-            this.setSourceOutputDirectory(sourceOutputDir);
-        }
-
-        Environment env = this.getFactory().getEnvironment();
-        env.setDefaultFileGenerator(new JavaOutputProcessor(this.getSourceOutputDirectory(),
-                new DefaultJavaPrettyPrinter(env)));
-    }
-
-    private static Collection<String> buildSourceDirectoriesList(InputProgram program, boolean withTest) {
-        ArrayList<String> sourceDirectoryList = new ArrayList<String>();
-        sourceDirectoryList.add(program.getAbsoluteSourceCodeDir());
-        if (withTest) {
-            sourceDirectoryList.add(program.getAbsoluteTestSourceCodeDir());
-        }
-        sourceDirectoryList.add(program.getExternalSourceCodeDir());
-        return sourceDirectoryList;
-    }
-
-    public DSpotCompiler(Factory factory) {
-        super(factory);
-    }
-
-    public DSpotCompiler(Factory factory, DiversifyClassLoader classLoader) {
-        super(factory);
-        this.customClassLoader = classLoader;
-    }
-
-    public void setCustomClassLoader(DiversifyClassLoader customClassLoader) {
-        this.customClassLoader = customClassLoader;
-    }
-
-    public boolean compileFileIn(File directory, boolean withLog) {
         javaCompliance = factory.getEnvironment().getComplianceLevel();
-        DSpotJDTBatchCompiler compiler = new DSpotJDTBatchCompiler(this, true, environment);
+        DSpotJDTBatchCompiler compiler = new DSpotJDTBatchCompiler(this, true, null);//environment);
         final SourceOptions sourcesOptions = new SourceOptions();
-        sourcesOptions.sources((new FileSystemFolder(directory).getAllJavaFiles()));
+        sourcesOptions.sources((new FileSystemFolder(this.sourceOutputDirectory).getAllJavaFiles()));
 
-        String[] finalClassPath = getFinalClassPathAsStrings();
+        String[] sourcesArray = this.sourceOutputDirectory.getAbsolutePath().split(":");
+        String[] classpath = (this.dependencies + ":" + pathToAdditionalDependencies).split(":");
+        String[] finalClasspath = new String[sourcesArray.length + classpath.length];
+        System.arraycopy(sourcesArray, 0, finalClasspath, 0, sourcesArray.length);
+        System.arraycopy(classpath, 0, finalClasspath, sourcesArray.length, classpath.length);
 
         final ClasspathOptions classpathOptions = new ClasspathOptions()
                 .encoding(this.encoding)
-                .classpath(finalClassPath)
+                .classpath(finalClasspath)
                 .binaries(getBinaryOutputDirectory());
 
         final String[] args = new JDTBuilderImpl() //
@@ -162,13 +61,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
         final String[] finalArgs = new String[args.length + 1];
         finalArgs[0] = "-proceedOnError";
-        for (int i = 0; i < args.length; i++) {
-            finalArgs[i + 1] = args[i];
-        }
-
-        if (!withLog) {
-            compiler.logger = new Main.Logger(compiler, new PrintWriter(new NullWriter()), new PrintWriter(new NullWriter()));
-        }
+        System.arraycopy(args, 0, finalArgs, 1, args.length);
 
         compiler.compile(finalArgs);
         environment = compiler.getEnvironment();
@@ -176,34 +69,56 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
         return compiler.globalErrorsCount == 0;
     }
 
-    private String[] getFinalClassPathAsStrings() {
-        URL[] urls;
-        if (customClassLoader != null) {
-            urls = customClassLoader.getURLs();
-        } else {
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            urls = ((URLClassLoader) classLoader).getURLs();
-        }
-        String[] finalClassPath = new String[urls.length];
+    public static Launcher getSpoonModelOf(String pathToSources, String pathToDependencies) {
+        Launcher launcher = new Launcher();
+        launcher.getEnvironment().setNoClasspath(false);
+        launcher.getEnvironment().setCommentEnabled(true);
+        String[] sourcesArray = pathToSources.split(":");
+        Arrays.stream(sourcesArray).forEach(launcher::addInputResource);
+        String[] dependenciesArray = pathToDependencies.split(":");
+        launcher.getModelBuilder().setSourceClasspath(dependenciesArray);
+        launcher.buildModel();
 
-        for (int i = 0; i < urls.length; i++) {
-            finalClassPath[i] = urls[i].getFile();
-        }
-        return finalClassPath;
+        return launcher;
     }
 
-    protected void report(Environment environment, CategorizedProblem problem) {
-        File file = new File(new String(problem.getOriginatingFileName()));
-        String filename = file.getAbsolutePath();
-        String message = problem.getMessage() + " at " + filename + ":"
-                + problem.getSourceLineNumber();
-        if (problem.isError()) {
-            if (!environment.getNoClasspath()) {
-                // by default, compilation errors are notified as exception
-                throw new ModelBuildingException(message);
-            }
-        }
+    public static boolean compile(String pathToSources, String dependencies, File binaryOutputDirectory) {
+        Launcher launcher = new Launcher();
+        launcher.getEnvironment().setNoClasspath(false);
+        launcher.getEnvironment().setCommentEnabled(true);
+        String[] sourcesArray = pathToSources.split(":");
+        Arrays.stream(sourcesArray).forEach(launcher::addInputResource);
+        String[] dependenciesArray = dependencies.split(":");
+        launcher.getModelBuilder().setSourceClasspath(dependenciesArray);
+        launcher.buildModel();
 
+        SpoonModelBuilder modelBuilder = launcher.getModelBuilder();
+        modelBuilder.setBinaryOutputDirectory(binaryOutputDirectory);
+        return modelBuilder.compile(SpoonModelBuilder.InputType.CTTYPES);
+    }
+
+    private Launcher launcher;
+
+    private File binaryOutputDirectory;
+
+    private String dependencies;
+
+    private File sourceOutputDirectory;
+
+    public File getBinaryOutputDirectory() {
+        return binaryOutputDirectory;
+    }
+
+    public File getSourceOutputDirectory() {
+        return sourceOutputDirectory;
+    }
+
+    public String getDependencies() {
+        return dependencies;
+    }
+
+    public Launcher getLauncher() {
+        return launcher;
     }
 
 }

@@ -1,5 +1,6 @@
 package fr.inria.diversify.dspot.selector;
 
+import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
@@ -31,25 +32,18 @@ import static org.junit.Assert.assertTrue;
  */
 public class PitScoreMutantSelectorTest extends MavenAbstractTest {
 
+    @Override
+    public String getPathToPropertiesFile() {
+        return "src/test/resources/test-projects/test-projects.properties";
+    }
+
     @Test
     public void testSelection() throws Exception, InvalidSdkException {
         AmplificationHelper.setSeedRandom(23L);
-        InputConfiguration inputConfiguration = new InputConfiguration(pathToPropertiesFile);
-        InitUtils.initLogLevel(inputConfiguration);
-        InputProgram inputProgram = InitUtils.initInputProgram(inputConfiguration);
-        String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp_" + System.currentTimeMillis();
-        FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
-        inputProgram.setProgramDir(outputDirectory);
-        InitUtils.initDependency(inputConfiguration);
-        String mavenHome = inputConfiguration.getProperty("maven.home", null);
-        String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
-        DSpotUtils.compile(inputProgram, mavenHome, mavenLocalRepository);
-        DSpotUtils.initClassLoader(inputProgram, inputConfiguration);
-        DSpotCompiler.buildCompiler(inputProgram, true);
-        DSpotUtils.compileTests(inputProgram, mavenHome, mavenLocalRepository);
-        InitUtils.initLogLevel(inputConfiguration);
 
-        List<PitResult> pitResults = PitRunner.run(inputProgram, inputConfiguration, inputProgram.getFactory().Class().get("example.TestSuiteExample"));
+        //Utils.reset();
+
+        List<PitResult> pitResults = PitRunner.run(Utils.getInputProgram(), Utils.getInputConfiguration(), Utils.getFactory().Class().get("example.TestSuiteExample"));
         assertTrue(null != pitResults);
 
         /*
@@ -65,10 +59,10 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
         final CtClass<Object> exampleOriginalTestClass = dspot.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
         CtType amplifiedTest = dspot.amplifyAllTests().get(0);
 
-        File directory = new File(outputDirectory + "/" + dspot.getInputProgram().getRelativeTestSourceCodeDir());
+        File directory = new File(dspot.getInputProgram().getProgramDir() + "/" + dspot.getInputProgram().getRelativeTestSourceCodeDir());
         PrintClassUtils.printJavaFile(directory, amplifiedTest);
 
-        List<PitResult> pitResultsAmplified = PitRunner.run(inputProgram, inputConfiguration, amplifiedTest);
+        List<PitResult> pitResultsAmplified = PitRunner.run(Utils.getInputProgram(), Utils.getInputConfiguration(), amplifiedTest);
 
         assertTrue(null != pitResultsAmplified);
         assertTrue(pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count() <
@@ -76,4 +70,5 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
 
         PrintClassUtils.printJavaFile(directory, exampleOriginalTestClass);
     }
+
 }
