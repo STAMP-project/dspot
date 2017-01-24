@@ -38,11 +38,10 @@ public class TestCompiler {
         }
 
         try {
-            compiler.compile(dependencies);
+            return compiler.compile(dependencies);
         } catch (Exception e) {
             return false;
         }
-        return true;
     }
 
     private static void copyLoggerFile(DSpotCompiler compiler) {

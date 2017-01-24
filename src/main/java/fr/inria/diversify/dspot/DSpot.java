@@ -72,15 +72,10 @@ public class DSpot {
 
     public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws InvalidSdkException, Exception {
         this.inputConfiguration = inputConfiguration;
-
-
         InitUtils.initLogLevel(inputConfiguration);
         inputProgram = InitUtils.initInputProgram(inputConfiguration);
         inputConfiguration.setInputProgram(inputProgram);
-
-
         String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp";
-
         File tmpDir = new File(inputConfiguration.getProperty("tmpDir"));
         if (!tmpDir.exists()) {
             tmpDir.mkdir();
@@ -145,6 +140,9 @@ public class DSpot {
             final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
             System.out.println("Print " + amplification.getSimpleName() + " with " + testSelector.getNbAmplifiedTestCase() + " amplified test cases in " + this.inputConfiguration.getOutputDirectory());
             DSpotUtils.printJavaFileWithComment(amplification, outputDirectory);
+            FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
+            FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
+            DSpotUtils.compileOriginalProject(this.inputProgram, inputConfiguration, inputConfiguration.getProperty("maven.localRepository", null));
             return amplification;
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
             throw new RuntimeException(e);
