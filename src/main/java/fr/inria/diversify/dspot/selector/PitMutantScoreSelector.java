@@ -1,5 +1,6 @@
 package fr.inria.diversify.dspot.selector;
 
+import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitRunner;
@@ -70,7 +71,9 @@ public class PitMutantScoreSelector implements TestSelector {
         }
         CtType clone = this.currentClassTestToBeAmplified.clone();
         clone.setParent(this.currentClassTestToBeAmplified.getParent());
-        ((Set<CtMethod>) this.currentClassTestToBeAmplified.getMethods()).forEach(clone::removeMethod);
+        ((Set<CtMethod>)this.currentClassTestToBeAmplified.getMethods()).stream()
+                .filter(method -> AmplificationChecker.isTest(method))
+                .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
         try {

@@ -60,7 +60,7 @@ public class AmplificationChecker {
         return lit.getParent() instanceof CtInvocation && !AmplificationChecker.isAssert((CtInvocation) lit.getParent());
     }
 
-    public static boolean isTest(CtMethod candidate, String relativePath) {
+    public static boolean isTest(CtMethod candidate) {
         if (candidate.isImplicit()
                 || candidate.getVisibility() == null
                 || !candidate.getVisibility().equals(ModifierKind.PUBLIC)
@@ -68,6 +68,13 @@ public class AmplificationChecker {
                 || candidate.getBody().getStatements().size() == 0) {
             return false;
         }
+        return candidate.getSimpleName().contains("test")
+                || candidate.getAnnotations().stream()
+                .map(annotation -> annotation.toString())
+                .anyMatch(annotation -> annotation.startsWith("@org.junit.Test"));
+    }
+
+    public static boolean isTest(CtMethod candidate, String relativePath) {
         try {
             if (candidate.getPosition() != null
                     && candidate.getPosition().getFile() != null
@@ -78,9 +85,6 @@ public class AmplificationChecker {
             Log.warn("Error during check of position of " + candidate.getSimpleName());
             return false;
         }
-        return candidate.getSimpleName().contains("test")
-                || candidate.getAnnotations().stream()
-                .map(annotation -> annotation.toString())
-                .anyMatch(annotation -> annotation.startsWith("@org.junit.Test"));
+        return isTest(candidate);
     }
 }

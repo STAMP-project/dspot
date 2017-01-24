@@ -44,9 +44,13 @@ public class PitRunner {
                     OPT_VALUE_FORMAT, //
                     OPT_TARGET_TESTS + testClass.getQualifiedName(), //
                     CMD_PIT_MUTATION_COVERAGE};
-            builder.runGoals(phases, false);
+            builder.runGoals(phases, true);
+            if (!new File(program.getProgramDir() + "/target/pit-reports").exists()) {
+                return null;
+            }
             File directoryReportPit = new File(program.getProgramDir() + "/target/pit-reports").listFiles()[0];
-            List<PitResult> results = PitResultParser.parse(new File(directoryReportPit.getPath() + "/mutations.csv"), testClass);
+            File fileResults = new File(directoryReportPit.getPath() + "/mutations.csv");
+            List<PitResult> results = PitResultParser.parse(fileResults, testClass);
             Log.debug("Time to run pit mutation coverage {} ms", System.currentTimeMillis() - time);
             return results;
         } catch (Exception e) {
@@ -66,7 +70,7 @@ public class PitRunner {
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
                     CMD_PIT_MUTATION_COVERAGE};
-            builder.runGoals(phases, false);
+            builder.runGoals(phases, true);
             File directoryReportPit = new File(program.getProgramDir() + "/target/pit-reports").listFiles()[0];
             List<PitResult> results = PitResultParser.parseAll(new File(directoryReportPit.getPath() + "/mutations.csv"), program.getFactory());
             Log.debug("Time to run pit mutation coverage {} ms", System.currentTimeMillis() - time);
