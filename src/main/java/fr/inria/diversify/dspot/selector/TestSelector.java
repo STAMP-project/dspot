@@ -1,7 +1,9 @@
 package fr.inria.diversify.dspot.selector;
 
 import fr.inria.diversify.runner.InputConfiguration;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
 
 import java.util.List;
 
@@ -25,5 +27,7 @@ public interface TestSelector {
     void report();
 
     int getNbAmplifiedTestCase();
+
+    CtType buildClassForSelection(CtType original, List<CtMethod> methods);
 
 }

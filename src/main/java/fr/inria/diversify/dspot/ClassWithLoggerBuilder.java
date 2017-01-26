@@ -32,6 +32,16 @@ public class ClassWithLoggerBuilder {
         loggingProcessor.setFactory(inputProgram.getFactory());
     }
 
+    public ClassWithLoggerBuilder(Factory factory, String absoluteTestSourceCodeDir) {
+        String logger = "fr.inria.diversify.logger";
+
+        assertionRemoverProcessor = new AssertionRemover(absoluteTestSourceCodeDir);
+        assertionRemoverProcessor.setFactory(factory);
+        loggingProcessor = new TestLogProcessor();
+        loggingProcessor.setLogger(logger + ".Logger");
+        loggingProcessor.setFactory(factory);
+    }
+
     public CtType buildClassWithLogger(CtType originalClass, Collection<CtMethod> tests) {
         CtType cloneClass = originalClass.clone();
         originalClass.getPackage().addType(cloneClass);

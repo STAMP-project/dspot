@@ -52,17 +52,20 @@ public class DSpotUtils {
             File fileFrom = new File(inputProgram.getAbsoluteSourceCodeDir());
             printAllClasses(factory, fileFrom);
 
-            String loggerPackage = Logger.class.getPackage().getName().replace(".", "/");
-            File destDir = new File(inputProgram.getAbsoluteSourceCodeDir() + "/" + loggerPackage);
-            File srcDir = new File(System.getProperty("user.dir") + "/src/main/java/" + loggerPackage);
-            FileUtils.forceMkdir(destDir);
-
-            FileUtils.copyDirectory(srcDir, destDir);
-
-            ProcessorUtil.writeInfoFile(inputProgram.getProgramDir());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void copyLoggerPackage(InputProgram inputProgram) throws IOException {
+        String loggerPackage = Logger.class.getPackage().getName().replace(".", "/");
+        File destDir = new File(inputProgram.getAbsoluteSourceCodeDir() + "/" + loggerPackage);
+        File srcDir = new File(System.getProperty("user.dir") + "/src/main/java/" + loggerPackage);
+        FileUtils.forceMkdir(destDir);
+
+        FileUtils.copyDirectory(srcDir, destDir);
+
+        ProcessorUtil.writeInfoFile(inputProgram.getProgramDir());
     }
 
     public static void printJavaFileWithComment(CtType type, File directory) {
@@ -88,7 +91,8 @@ public class DSpotUtils {
     public static String buildMavenHome(InputConfiguration inputConfiguration) {
         return inputConfiguration != null && inputConfiguration.getProperty("maven.home") != null ? inputConfiguration.getProperty("maven.home") :
                 System.getenv().get("MAVEN_HOME") != null ? System.getenv().get("MAVEN_HOME") :
-                        System.getenv().get("M2_HOME") != null ? System.getenv().get("M2_HOME") : "/usr/share/maven/";
+                        System.getenv().get("M2_HOME") != null ? System.getenv().get("M2_HOME") :
+                                new File("/usr/share/maven/").exists() ? "/usr/share/maven/" : "/usr/share/maven3/";
     }
 
     private static void applyProcessor(Factory factory, Processor processor) {

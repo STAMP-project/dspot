@@ -7,20 +7,24 @@ import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.MavenAbstractTest;
 import fr.inria.diversify.dspot.amplifier.StatementAdderOnAssert;
+import fr.inria.diversify.dspot.amplifier.TestDataMutator;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.mutant.pit.PitResult;
+import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.diversify.mutant.pit.PitRunner;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.util.PrintClassUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
@@ -41,9 +45,7 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
     public void testSelection() throws Exception, InvalidSdkException {
         AmplificationHelper.setSeedRandom(23L);
 
-        //Utils.reset();
-
-        List<PitResult> pitResults = PitRunner.run(Utils.getInputProgram(), Utils.getInputConfiguration(), Utils.getFactory().Class().get("example.TestSuiteExample"));
+        List<PitResult> pitResults = PitResultParser.parse(new File("src/test/resources/test-projects/originalpit/mutations.csv"));
         assertTrue(null != pitResults);
 
         /*
@@ -54,10 +56,13 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
         InputConfiguration configuration = new InputConfiguration(pathToPropertiesFile);
         InputProgram program = new InputProgram();
         configuration.setInputProgram(program);
-        DSpot dspot = new DSpot(configuration, 1, Arrays.asList(new StatementAdderOnAssert()), new PitMutantScoreSelector());
+        DSpot dspot = new DSpot(configuration, 1, Collections.singletonList(new StatementAdderOnAssert()),
+                new PitMutantScoreSelector("src/test/resources/test-projects/originalpit/mutations.csv"));//loading from existing pit-results
 
         final CtClass<Object> exampleOriginalTestClass = dspot.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
         CtType amplifiedTest = dspot.amplifyAllTests().get(0);
+
+        assertTrue(amplifiedTest.getMethods().size() > exampleOriginalTestClass.getMethods().size());
 
         File directory = new File(dspot.getInputProgram().getProgramDir() + "/" + dspot.getInputProgram().getRelativeTestSourceCodeDir());
         PrintClassUtils.printJavaFile(directory, amplifiedTest);

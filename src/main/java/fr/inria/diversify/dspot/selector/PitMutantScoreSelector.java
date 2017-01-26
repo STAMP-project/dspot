@@ -9,6 +9,7 @@ import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
  */
 public class PitMutantScoreSelector implements TestSelector {
 
-    private List<PitResult> originalResults;
+    private int numberOfMutant;
 
     private InputProgram program;
 
@@ -43,11 +44,7 @@ public class PitMutantScoreSelector implements TestSelector {
 
     public PitMutantScoreSelector(String pathToOriginalResultOfPit) {
         this();
-        this.originalResults = PitResultParser.parse(new File(pathToOriginalResultOfPit));
-        this.originalKilledMutants = originalResults.stream()
-                .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
-                .collect(Collectors.toList());
-        Log.debug("The original test suite kill {} / {}", this.originalKilledMutants.size(), originalResults.size());
+        initOriginalPitResult(PitResultParser.parse(new File(pathToOriginalResultOfPit)));
     }
 
     @Override
@@ -55,12 +52,16 @@ public class PitMutantScoreSelector implements TestSelector {
         this.configuration = configuration;
         this.program = this.configuration.getInputProgram();
         if (this.originalKilledMutants == null) {
-            this.originalResults = PitRunner.runAll(this.program, this.configuration);
-            this.originalKilledMutants = originalResults.stream()
-                    .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
-                    .collect(Collectors.toList());
-            Log.debug("The original test suite kill {} / {}", this.originalKilledMutants.size(), originalResults.size());
+            initOriginalPitResult(PitRunner.runAll(this.program, this.configuration));
         }
+    }
+
+    private void initOriginalPitResult(List<PitResult> results) {
+        this.numberOfMutant = results.size();
+        this.originalKilledMutants = results.stream()
+                .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
+                .collect(Collectors.toList());
+        Log.debug("The original test suite kill {} / {}", this.originalKilledMutants.size(), results.size());
     }
 
     @Override
@@ -97,9 +98,11 @@ public class PitMutantScoreSelector implements TestSelector {
         List<PitResult> results = PitRunner.run(this.program, this.configuration, clone);
         Set<CtMethod> selectedTests = new HashSet<>();
         if (results != null) {
-            Log.debug("{} mutants has been generated ({})", results.size(), this.originalResults.size());
+            Log.debug("{} mutants has been generated ({})", results.size(), this.numberOfMutant);
+            if (results.size() != this.numberOfMutant) {
+                Log.warn("Number of generated mutant is different than the original one.");
+            }
             results.stream()
-                    .filter(result -> this.originalResults.contains(result))
                     .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
                     .filter(result -> !this.originalKilledMutants.contains(result))
                     .forEach(result -> {
@@ -141,6 +144,14 @@ public class PitMutantScoreSelector implements TestSelector {
     @Override
     public int getNbAmplifiedTestCase() {
         return this.testThatKilledMutants.size();
+    }
+
+    @Override
+    public CtType buildClassForSelection(CtType original, List<CtMethod> methods) {
+        CtType clone = original.clone();
+        original.getPackage().addType(clone);
+        methods.forEach(clone::addMethod);
+        return clone;
     }
 
     private void reportStdout() {

@@ -10,6 +10,7 @@ import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.TestCompiler;
 import fr.inria.diversify.testRunner.TestRunner;
 import fr.inria.diversify.util.Log;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -31,7 +32,6 @@ public class Amplification {
     private InputProgram inputProgram;
     private List<Amplifier> amplifiers;
     private TestSelector testSelector;
-    private ClassWithLoggerBuilder classWithLoggerBuilder;
     private AssertGenerator assertGenerator;
     private DSpotCompiler compiler;
 
@@ -40,7 +40,6 @@ public class Amplification {
     public Amplification(InputProgram inputProgram, List<Amplifier> amplifiers, TestSelector testSelector, DSpotCompiler compiler) {
         this.inputProgram = inputProgram;
         this.amplifiers = amplifiers;
-        this.classWithLoggerBuilder = new ClassWithLoggerBuilder(this.inputProgram);
         this.testSelector = testSelector;
         this.compiler = compiler;
         this.assertGenerator = new AssertGenerator(this.inputProgram, this.compiler);
@@ -197,18 +196,18 @@ public class Amplification {
     }
 
     private JunitResult compileAndRunTests(CtType classTest, List<CtMethod> currentTestList) {
-        CtType classWithLogger = this.classWithLoggerBuilder.buildClassWithLogger(classTest, currentTestList);
-        boolean status = TestCompiler.writeAndCompile(this.compiler, classWithLogger, false,
+        CtType amplifiedTestClass = this.testSelector.buildClassForSelection(classTest, currentTestList);
+        boolean status = TestCompiler.writeAndCompile(this.compiler, amplifiedTestClass, false,
                 this.inputProgram.getProgramDir() + "/" + this.inputProgram.getClassesDir() + ":" +
                         this.inputProgram.getProgramDir() + "/" + this.inputProgram.getTestClassesDir());
         if (!status) {
-            Log.debug("Unable to compile " + classTest);
+            Log.debug("Unable to compile {}", amplifiedTestClass);
             return null;
         }
         JunitResult result;
         try {
             String classpath = AmplificationHelper.getClassPath(this.compiler, this.inputProgram);
-            result = TestRunner.runTests(classWithLogger, currentTestList, classpath, this.inputProgram);
+            result = TestRunner.runTests(amplifiedTestClass, currentTestList, classpath, this.inputProgram);
         } catch (Exception ignored) {
             Log.debug("Error during running test");
             return null;
