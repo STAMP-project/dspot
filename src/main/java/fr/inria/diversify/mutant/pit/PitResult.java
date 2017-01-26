@@ -1,6 +1,7 @@
 package fr.inria.diversify.mutant.pit;
 
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
 
 /**
  * Created by Benjamin DANGLOT
@@ -9,22 +10,23 @@ import spoon.reflect.declaration.CtMethod;
  */
 public class PitResult {
 
-    public enum State {SURVIVED, KILLED, NO_COVERAGE, TIMED_OUT, NON_VIABLE}
+    public enum State {SURVIVED, KILLED, NO_COVERAGE, TIMED_OUT, NON_VIABLE, MEMORY_ERROR}
 
     private final State stateOfMutant;
 
     private final String fullQualifiedNameMutantOperator;
 
-    private final CtMethod testCaseMethod;
-
     private final int lineNumber;
 
     private final String location;
 
-    public PitResult(State stateOfMutant, String fullQualifiedNameMutantOperator, CtMethod testCaseMethod, int lineNumber, String nameOfLocalisation) {
+    private final String simpleNameMethod;
+
+    public PitResult(State stateOfMutant, String fullQualifiedNameMutantOperator, String fullQualifiedNameMethod, int lineNumber, String nameOfLocalisation) {
         this.stateOfMutant = stateOfMutant;
         this.fullQualifiedNameMutantOperator = fullQualifiedNameMutantOperator;
-        this.testCaseMethod = testCaseMethod;
+        String[] split = fullQualifiedNameMethod.split("\\.");
+        this.simpleNameMethod = split[split.length - 1];
         this.lineNumber = lineNumber;
         this.location = nameOfLocalisation;
     }
@@ -37,16 +39,22 @@ public class PitResult {
         return fullQualifiedNameMutantOperator;
     }
 
-    public CtMethod getTestCaseMethod() {
-        return testCaseMethod;
-    }
-
     public int getLineNumber() {
         return lineNumber;
     }
 
     public String getLocation() {
         return location;
+    }
+
+    public CtMethod getMethod(CtType ctClass) {
+        if ("none".equals(this.simpleNameMethod)) {
+            return null;
+        } else {
+            String[] splittedQualifiedName = this.simpleNameMethod.split("\\.");
+            String simpleNameOfMethod = splittedQualifiedName[splittedQualifiedName.length - 1];
+            return (CtMethod) ctClass.getMethodsByName(simpleNameOfMethod).get(0);
+        }
     }
 
     @Override
@@ -57,10 +65,8 @@ public class PitResult {
         PitResult result = (PitResult) o;
 
         if (lineNumber != result.lineNumber) return false;
-        if (stateOfMutant != result.stateOfMutant) return false;
-        if (fullQualifiedNameMutantOperator != null ? !fullQualifiedNameMutantOperator.equals(result.fullQualifiedNameMutantOperator) : result.fullQualifiedNameMutantOperator != null)
-            return false;
-        return location != null ? location.equals(result.location) : result.location == null;
+        if (!location.equals(result.location)) return false;
+        return simpleNameMethod.equals(result.simpleNameMethod);
 
     }
 
@@ -78,9 +84,9 @@ public class PitResult {
         return "PitResult{" +
                 "stateOfMutant=" + stateOfMutant +
                 ", fullQualifiedNameMutantOperator='" + fullQualifiedNameMutantOperator + '\'' +
-                ", testCaseMethod='" + (testCaseMethod == null ? "none" : testCaseMethod.getSimpleName()) + '\'' +
                 ", lineNumber=" + lineNumber +
                 ", location='" + location + '\'' +
+                ", simpleNameMethod='" + simpleNameMethod + '\'' +
                 '}';
     }
 }
