@@ -61,6 +61,9 @@ public class AmplificationChecker {
     }
 
     public static boolean isTest(CtMethod candidate) {
+        if (candidate.getAnnotation(org.junit.Ignore.class) != null) {
+            return false;
+        }
         if (candidate.isImplicit()
                 || candidate.getVisibility() == null
                 || !candidate.getVisibility().equals(ModifierKind.PUBLIC)
