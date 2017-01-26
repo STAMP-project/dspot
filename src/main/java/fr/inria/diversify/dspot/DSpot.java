@@ -11,6 +11,7 @@ import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.declaration.ModifierKind;
 
 import java.io.File;
 import java.io.IOException;
@@ -117,6 +118,7 @@ public class DSpot {
 
     public List<CtType> amplifyAllTests() throws InterruptedException, IOException, ClassNotFoundException {
         return inputProgram.getFactory().Class().getAll().stream()
+                .filter(ctClass -> !ctClass.getModifiers().contains(ModifierKind.ABSTRACT))
                 .filter(ctClass ->
                         ctClass.getMethods().stream()
                                 .filter(method ->
