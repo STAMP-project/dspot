@@ -50,7 +50,7 @@ public class MethodAssertGenerator {
 
     public CtMethod generateAssert(CtMethod test) throws IOException, ClassNotFoundException {
         this.test = test;
-        this.test = createTestWithoutAssert(new ArrayList<>(), false);
+        this.test = createTestWithoutAssert(new ArrayList<>());
         this.test.setParent(test.getParent());
         for (int i = 0; i < Query.getElements(this.test, new TypeFilter(CtStatement.class)).size(); i++) {
             statementsIndexToAssert.add(i);
@@ -80,7 +80,7 @@ public class MethodAssertGenerator {
         classTest.addMethod(cloneTest);
         testsToRun.add(cloneTest);
 
-        CtMethod testWithoutAssert = createTestWithoutAssert(new ArrayList<>(), false);
+        CtMethod testWithoutAssert = createTestWithoutAssert(new ArrayList<>());
         testsToRun.add(testWithoutAssert);
         classTest.addMethod(testWithoutAssert);
 
@@ -109,7 +109,7 @@ public class MethodAssertGenerator {
     }
 
     protected CtMethod makeFailureTest(Failure failure) {
-        CtMethod testWithoutAssert = createTestWithoutAssert(new ArrayList<>(), false);
+        CtMethod testWithoutAssert = createTestWithoutAssert(new ArrayList<>());
         testWithoutAssert.setSimpleName(test.getSimpleName());
         Factory factory = testWithoutAssert.getFactory();
 
@@ -163,7 +163,7 @@ public class MethodAssertGenerator {
         }
         ObjectLog.reset();
         JunitResult result = runTests(cl, testsToRun);
-        if (!result.getFailures().isEmpty() || result.getTestRuns().size() != testsToRun.size()) {
+        if (result == null || !result.getFailures().isEmpty()) {// || result.getTestRuns().size() != testsToRun.size()) {
             return null;
         }
         return buildTestWithAssert(ObjectLog.getObservations());
@@ -212,7 +212,7 @@ public class MethodAssertGenerator {
     protected CtMethod removeFailAssert() throws IOException, ClassNotFoundException {
         List<Integer> goodAssert = findGoodAssert();
         String testName = test.getSimpleName();
-        test = createTestWithoutAssert(goodAssert, true);
+        test = createTestWithoutAssert(goodAssert);
         test.setSimpleName(testName);
 
         return test;
@@ -235,7 +235,7 @@ public class MethodAssertGenerator {
         for (int i = 0; i < assertIndex.size(); i++) {
             List<Integer> assertToKeep = new ArrayList<>();
             assertToKeep.add(assertIndex.get(i));
-            CtMethod mth = createTestWithoutAssert(assertToKeep, false);
+            CtMethod mth = createTestWithoutAssert(assertToKeep);
             mth.setSimpleName(mth.getSimpleName() + "_" + i);
             newClass.addMethod(mth);
             testsToRun.add(mth);
@@ -378,7 +378,7 @@ public class MethodAssertGenerator {
         insertAfter.insertAfter(logStmt);
     }
 
-    protected CtMethod createTestWithoutAssert(List<Integer> assertIndexToKeep, boolean updateStatementsIndexToAssert) {
+    protected CtMethod createTestWithoutAssert(List<Integer> assertIndexToKeep) {
         CtMethod newTest = getFactory().Core().clone(test);
         newTest.setSimpleName(test.getSimpleName() + "_withoutAssert");
 
@@ -388,9 +388,6 @@ public class MethodAssertGenerator {
             try {
                 if (!assertIndexToKeep.contains(stmtIndex) && isAssert(statement)) {
                     CtBlock block = buildRemoveAssertBlock((CtInvocation) statement, stmtIndex);
-                    if (updateStatementsIndexToAssert) {
-                        updateStatementsIndexToAssert(stmtIndex, block.getStatements().size() - 1);
-                    }
                     if (statement.getParent() instanceof CtCase) {
                         CtCase ctCase = (CtCase) statement.getParent();
                         int index = ctCase.getStatements().indexOf(statement);
@@ -421,20 +418,6 @@ public class MethodAssertGenerator {
             statement.insertAfter(statements.get(i));
         }
         DSpotUtils.addComment(statement, "MethodAssertion Generator replaced " + oldStatement, CtComment.CommentType.BLOCK);
-    }
-
-    private void updateStatementsIndexToAssert(int stmtIndex, int update) {
-        if (update != 0) {
-            List<Integer> newList = new ArrayList<>(statementsIndexToAssert.size());
-            for (Integer index : statementsIndexToAssert) {
-                if (index > stmtIndex) {
-                    statementsIndexToAssert.add(index + update);
-                } else {
-                    newList.add(index);
-                }
-            }
-            statementsIndexToAssert = newList;
-        }
     }
 
     private CtBlock buildRemoveAssertBlock(CtInvocation assertInvocation, int blockId) {
