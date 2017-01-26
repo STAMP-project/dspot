@@ -169,7 +169,7 @@ public class StatementAdderOnAssert implements Amplifier {
             }
 
             CtLocalVariable randomVar = valueCreator.createRandomLocalVar(var.getType());
-            if (randomVar != null) {
+                if (randomVar != null) {
                 DSpotUtils.addComment(randomVar, "StatementAdderOnAssert create random local variable", CtComment.CommentType.INLINE);
                 varCartesianProduct.addReplaceVar(var, randomVar);
             }
@@ -305,7 +305,7 @@ public class StatementAdderOnAssert implements Amplifier {
         String testClassName = testClass.getQualifiedName();
         return AmplificationHelper.computeClassProvider(testClass).stream()
                 .filter(cl -> cl != null)
-                .filter(cl -> cl != testClass)
+                .filter(cl -> !cl.equals(testClass))
                 .filter(cl -> testClassName.contains(cl.getSimpleName()))
                 .findFirst()
                 .orElse(null);
