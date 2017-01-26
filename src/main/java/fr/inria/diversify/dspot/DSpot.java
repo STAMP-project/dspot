@@ -91,8 +91,11 @@ public class DSpot {
 
         //We need to use separate factory here, because the BranchProcessor will process test also
         //TODO this is used only with the BranchCoverageSelector
-        Launcher spoonModel = DSpotCompiler.getSpoonModelOf(inputProgram.getAbsoluteSourceCodeDir(), dependencies);
-        DSpotUtils.addBranchLogger(inputProgram, spoonModel.getFactory());
+        if (testSelector instanceof BranchCoverageTestSelector) {
+            Launcher spoonModel = DSpotCompiler.getSpoonModelOf(inputProgram.getAbsoluteSourceCodeDir(), dependencies);
+            DSpotUtils.addBranchLogger(inputProgram, spoonModel.getFactory());
+            DSpotUtils.copyLoggerPackage(inputProgram);
+        }
 
         File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
         FileUtils.cleanDirectory(output);

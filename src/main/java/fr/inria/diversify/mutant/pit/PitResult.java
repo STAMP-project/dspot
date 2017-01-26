@@ -66,7 +66,7 @@ public class PitResult {
 
         if (lineNumber != result.lineNumber) return false;
         if (!location.equals(result.location)) return false;
-        return simpleNameMethod.equals(result.simpleNameMethod);
+        return fullQualifiedNameMutantOperator.equals(result.fullQualifiedNameMutantOperator);
 
     }
 

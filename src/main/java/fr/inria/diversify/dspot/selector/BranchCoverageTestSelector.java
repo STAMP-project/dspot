@@ -1,13 +1,16 @@
 package fr.inria.diversify.dspot.selector;
 
 import fr.inria.diversify.dspot.AmplificationHelper;
+import fr.inria.diversify.dspot.ClassWithLoggerBuilder;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.log.LogReader;
 import fr.inria.diversify.log.TestCoverageParser;
 import fr.inria.diversify.log.branch.Coverage;
 import fr.inria.diversify.runner.InputConfiguration;
+import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -46,6 +49,8 @@ public class BranchCoverageTestSelector implements TestSelector {
 
     private String outputDirectory;
 
+    private String absoluteTestSourceCodeDir;
+
     public BranchCoverageTestSelector(int maxNumberOfTest) {
         this.maxNumberOfTest = maxNumberOfTest;
         this.coveragePerTestKept = new HashMap<>();
@@ -55,6 +60,7 @@ public class BranchCoverageTestSelector implements TestSelector {
 
     @Override
     public void init(InputConfiguration configuration) {
+        this.absoluteTestSourceCodeDir = configuration.getInputProgram().getAbsoluteTestSourceCodeDir();
         this.logDir = new File(configuration.getInputProgram().getProgramDir() + "/log");
         if (this.outputDirectory == null) {
             this.outputDirectory = configuration.getOutputDirectory();
@@ -202,6 +208,12 @@ public class BranchCoverageTestSelector implements TestSelector {
     @Override
     public int getNbAmplifiedTestCase() {
         return this.coveragePerTestKept.size();
+    }
+
+    @Override
+    public CtType buildClassForSelection(CtType original, List<CtMethod> methods) {
+        ClassWithLoggerBuilder builder = new ClassWithLoggerBuilder(original.getFactory(), this.absoluteTestSourceCodeDir);
+        return builder.buildClassWithLogger(original, methods);
     }
 
     private void reportJSON() {
