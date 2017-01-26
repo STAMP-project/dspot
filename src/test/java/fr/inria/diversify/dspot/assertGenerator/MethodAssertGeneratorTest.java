@@ -30,7 +30,7 @@ public class MethodAssertGeneratorTest {
         MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler());//, Utils.getCompiler(), Utils.getApplicationClassLoader());
 
         mag.test = Utils.findMethod("fr.inria.sample.TestClassWithAssert", "test1");
-        CtMethod test1 = mag.createTestWithoutAssert(Collections.EMPTY_LIST, false);
+        CtMethod test1 = mag.createTestWithoutAssert(Collections.EMPTY_LIST);
         assertEquals(expectedBodyTest1, test1.getBody().toString());
     }
 

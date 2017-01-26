@@ -3,6 +3,7 @@ package fr.inria.diversify.dspot.selector;
 import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.mutant.pit.PitResult;
+import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.diversify.mutant.pit.PitRunner;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
@@ -24,13 +25,15 @@ import java.util.stream.Collectors;
  */
 public class PitMutantScoreSelector implements TestSelector {
 
+    private List<PitResult> originalResults;
+
     private InputProgram program;
 
     private InputConfiguration configuration;
 
     private CtType currentClassTestToBeAmplified;
 
-    private List<PitResult> originalPitResults;
+    private List<PitResult> originalKilledMutants;
 
     private Map<CtMethod, Set<PitResult>> testThatKilledMutants;
 
@@ -38,16 +41,25 @@ public class PitMutantScoreSelector implements TestSelector {
         this.testThatKilledMutants = new HashMap<>();
     }
 
+    public PitMutantScoreSelector(String pathToOriginalResultOfPit) {
+        this();
+        this.originalResults = PitResultParser.parse(new File(pathToOriginalResultOfPit));
+        this.originalKilledMutants = originalResults.stream()
+                .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
+                .collect(Collectors.toList());
+        Log.debug("The original test suite kill {} / {}", this.originalKilledMutants.size(), originalResults.size());
+    }
+
     @Override
     public void init(InputConfiguration configuration) {
         this.configuration = configuration;
         this.program = this.configuration.getInputProgram();
-        if (this.originalPitResults == null) {
-            List<PitResult> pitResults = PitRunner.runAll(this.program, this.configuration);
-            this.originalPitResults = pitResults.stream()
+        if (this.originalKilledMutants == null) {
+            this.originalResults = PitRunner.runAll(this.program, this.configuration);
+            this.originalKilledMutants = originalResults.stream()
                     .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
                     .collect(Collectors.toList());
-            Log.debug("The original test suite kill {} / {}", this.originalPitResults.size(), pitResults.size());
+            Log.debug("The original test suite kill {} / {}", this.originalKilledMutants.size(), originalResults.size());
         }
     }
 
@@ -71,8 +83,8 @@ public class PitMutantScoreSelector implements TestSelector {
         }
         CtType clone = this.currentClassTestToBeAmplified.clone();
         clone.setParent(this.currentClassTestToBeAmplified.getParent());
-        ((Set<CtMethod>)this.currentClassTestToBeAmplified.getMethods()).stream()
-                .filter(method -> AmplificationChecker.isTest(method))
+        ((Set<CtMethod>) this.currentClassTestToBeAmplified.getMethods()).stream()
+                .filter(AmplificationChecker::isTest)
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
@@ -85,20 +97,23 @@ public class PitMutantScoreSelector implements TestSelector {
         List<PitResult> results = PitRunner.run(this.program, this.configuration, clone);
         Set<CtMethod> selectedTests = new HashSet<>();
         if (results != null) {
+            Log.debug("{} mutants has been generated ({})", results.size(), this.originalResults.size());
             results.stream()
+                    .filter(result -> this.originalResults.contains(result))
                     .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
-                    .filter(result -> !this.originalPitResults.contains(result))
+                    .filter(result -> !this.originalKilledMutants.contains(result))
                     .forEach(result -> {
-                        if (!testThatKilledMutants.containsKey(result.getTestCaseMethod())) {
-                            testThatKilledMutants.put(result.getTestCaseMethod(), new HashSet<>());
+                        CtMethod method = result.getMethod(clone);
+                        if (!testThatKilledMutants.containsKey(method)) {
+                            testThatKilledMutants.put(method, new HashSet<>());
                         }
-                        testThatKilledMutants.get(result.getTestCaseMethod()).add(result);
-                        selectedTests.add(result.getTestCaseMethod());
+                        testThatKilledMutants.get(method).add(result);
+                        selectedTests.add(method);
                     });
         }
 
-        selectedTests.forEach(test ->
-                Log.debug("{} kills {} ", test.getSimpleName(), this.testThatKilledMutants.get(test).size())
+        selectedTests.forEach(selectedTest ->
+                Log.debug("{} kills {} more mutants", selectedTest.getSimpleName(), testThatKilledMutants.get(selectedTest).size())
         );
 
         try {
@@ -121,7 +136,6 @@ public class PitMutantScoreSelector implements TestSelector {
         reportJSONMutants();
         //clean up for the next class
         this.currentClassTestToBeAmplified = null;
-        this.originalPitResults.clear();
     }
 
     @Override
@@ -135,7 +149,7 @@ public class PitMutantScoreSelector implements TestSelector {
         long nbOfTotalMutantKilled = getNbTotalNewMutantKilled();
         string.append(nl).append("======= REPORT =======").append(nl);
         string.append("PitMutantScoreSelector: ").append(nl);
-        string.append("The original test suite kill ").append(this.originalPitResults.size()).append(" mutants").append(nl);
+        string.append("The original test suite kill ").append(this.originalKilledMutants.size()).append(" mutants").append(nl);
         string.append("The amplification results with ").append(
                 this.testThatKilledMutants.size()).append(" new tests").append(nl);
         string.append("it kill ")

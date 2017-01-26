@@ -9,6 +9,7 @@ import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
 import org.junit.Test;
+import spoon.reflect.declaration.CtClass;
 
 import java.io.File;
 import java.util.*;
@@ -38,8 +39,9 @@ public class PitTest extends MavenAbstractTest {
          */
         AmplificationHelper.setSeedRandom(23L);
         Utils.init(this.getPathToPropertiesFile());
+        CtClass<Object> testClass = Utils.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
         List<PitResult> pitResults = PitRunner.run(Utils.getInputProgram(), Utils.getInputConfiguration(),
-                Utils.getInputProgram().getFactory().Class().get("example.TestSuiteExample"));
+                testClass);
 
         assertTrue(null != pitResults);
         assertEquals(9, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
@@ -47,7 +49,7 @@ public class PitTest extends MavenAbstractTest {
         assertTrue(OptResult.isPresent());
         PitResult result = OptResult.get();
         assertEquals("org.pitest.mutationtest.engine.gregor.mutators.InlineConstantMutator", result.getFullQualifiedNameMutantOperator());
-        assertEquals(null, result.getTestCaseMethod());
+        assertEquals(null, result.getMethod(testClass));
         assertEquals(27, result.getLineNumber());
         assertEquals("<init>", result.getLocation());
 
@@ -56,7 +58,7 @@ public class PitTest extends MavenAbstractTest {
         assertTrue(OptResult.isPresent());
         result = OptResult.get();
         assertEquals("org.pitest.mutationtest.engine.gregor.mutators.InlineConstantMutator", result.getFullQualifiedNameMutantOperator());
-        assertEquals("test4", result.getTestCaseMethod().getSimpleName());
+        assertEquals("test4", result.getMethod(testClass).getSimpleName());
         assertEquals(18, result.getLineNumber());
         assertEquals("charAt", result.getLocation());
 
