@@ -38,6 +38,8 @@ public class PitMutantScoreSelector implements TestSelector {
 
     private Map<CtMethod, Set<PitResult>> testThatKilledMutants;
 
+    private List<PitResult> mutantNotTestedByOriginal;
+
     public PitMutantScoreSelector() {
         this.testThatKilledMutants = new HashMap<>();
     }
@@ -58,6 +60,11 @@ public class PitMutantScoreSelector implements TestSelector {
 
     private void initOriginalPitResult(List<PitResult> results) {
         this.numberOfMutant = results.size();
+        this.mutantNotTestedByOriginal = results.stream()
+                .filter(result -> result.getStateOfMutant() != PitResult.State.KILLED)
+                .filter(result -> result.getStateOfMutant() != PitResult.State.SURVIVED)
+                .filter(result -> result.getStateOfMutant() != PitResult.State.NO_COVERAGE)
+                .collect(Collectors.toList());
         this.originalKilledMutants = results.stream()
                 .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
                 .collect(Collectors.toList());
@@ -105,6 +112,7 @@ public class PitMutantScoreSelector implements TestSelector {
             results.stream()
                     .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
                     .filter(result -> !this.originalKilledMutants.contains(result))
+                    .filter(result -> !this.mutantNotTestedByOriginal.contains(result))
                     .forEach(result -> {
                         CtMethod method = result.getMethod(clone);
                         if (!testThatKilledMutants.containsKey(method)) {

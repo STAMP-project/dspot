@@ -257,11 +257,7 @@ public class TestDataMutatorTest {
                         ctType.getElements(new TypeFilter<CtLiteral>(CtLiteral.class) {
                             @Override
                             public boolean matches(CtLiteral literal) {
-                                try {
-                                    return Utils.getFactory().Type().STRING.equals(literal.getType()) && super.matches(literal);
-                                } catch (InvalidSdkException | Exception ignored) {
-                                }
-                                return false;
+                                return Utils.getFactory().Type().STRING.equals(literal.getType()) && super.matches(literal);
                             }
                         }).stream().map(ctLiteral -> (String) ctLiteral.getValue())
                 ).collect(Collectors.toList());

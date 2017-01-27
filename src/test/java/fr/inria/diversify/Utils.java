@@ -69,15 +69,15 @@ public class Utils {
         }
     }
 
-    public static InputProgram getInputProgram() throws InvalidSdkException, Exception {
+    public static InputProgram getInputProgram() {
         return inputProgram;
     }
 
-    public static CtClass findClass(String fullQualifiedName) throws InvalidSdkException, Exception {
+    public static CtClass findClass(String fullQualifiedName) {
         return getInputProgram().getFactory().Class().get(fullQualifiedName);
     }
 
-    public static CtMethod findMethod(CtClass<?> ctClass, String methodName) throws InvalidSdkException, Exception {
+    public static CtMethod findMethod(CtClass<?> ctClass, String methodName) {
         Set<CtMethod<?>> mths = ctClass.getMethods();
         return mths.stream()
                 .filter(mth -> mth.getSimpleName().endsWith(methodName))
@@ -85,7 +85,7 @@ public class Utils {
                 .orElse(null);
     }
 
-    public static CtMethod findMethod(String className, String methodName) throws InvalidSdkException, Exception {
+    public static CtMethod findMethod(String className, String methodName) {
         Set<CtMethod> mths = findClass(className).getMethods();
         return mths.stream()
                 .filter(mth -> mth.getSimpleName().endsWith(methodName))
@@ -93,7 +93,7 @@ public class Utils {
                 .orElse(null);
     }
 
-    public static Factory getFactory() throws InvalidSdkException, Exception {
+    public static Factory getFactory() {
         return getInputProgram().getFactory();
     }
 }
