@@ -53,11 +53,18 @@ public class AmplificationHelper {
 
     public static CtType createAmplifiedTest(List<CtMethod> ampTest, CtType classTest) {
         CtType amplifiedTest = classTest.clone();
-        amplifiedTest.setSimpleName(classTest.getSimpleName().startsWith("Test") ?
+        final String amplifiedName = classTest.getSimpleName().startsWith("Test") ?
                 classTest.getSimpleName() + "Ampl" :
-                "Ampl" + classTest.getSimpleName()
-        );
+                "Ampl" + classTest.getSimpleName();
+        amplifiedTest.setSimpleName(amplifiedName);
         ampTest.forEach(amplifiedTest::addMethod);
+        final CtTypeReference classTestReference = classTest.getReference();
+        amplifiedTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
+            @Override
+            public boolean matches(CtTypeReference element) {
+                return element.equals(classTestReference) && super.matches(element);
+            }
+        }).forEach(ctTypeReference -> ctTypeReference.setSimpleName(amplifiedName));
         classTest.getPackage().addType(amplifiedTest);
         return amplifiedTest;
     }
@@ -86,6 +93,7 @@ public class AmplificationHelper {
         types.addAll(types.stream()
                 .flatMap(type -> getImport(type).stream())
                 .collect(Collectors.toSet()));
+
 
         return types.stream()
                 .collect(Collectors.toSet());
@@ -209,7 +217,7 @@ public class AmplificationHelper {
 
     public static String getClassPath(DSpotCompiler compiler, InputProgram inputProgram) {
         String classpath = compiler.getBinaryOutputDirectory().getAbsolutePath();
-        classpath +=  ":" + inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir();
+        classpath += ":" + inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir();
         classpath += ":" + inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir();
         classpath += ":" + compiler.getDependencies();
         return classpath;

@@ -25,7 +25,7 @@ public class PitRunner {
 
     private static final String OPT_VALUE_MUTATORS = "-Dmutators=ALL";
 
-    private static final String OPT_VALUE_FORMAT = "-DoutputFormats=CSV";
+    private static final String OPT_VALUE_FORMAT = "-DoutputFormats=CSV,HTML";
 
     private static final String OPT_TARGET_TESTS = "-DtargetTests=";
 
