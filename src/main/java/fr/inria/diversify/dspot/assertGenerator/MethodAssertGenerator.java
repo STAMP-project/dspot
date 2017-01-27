@@ -50,7 +50,7 @@ public class MethodAssertGenerator {
 
     public CtMethod generateAssert(CtMethod test) throws IOException, ClassNotFoundException {
         this.test = test;
-        this.test = createTestWithoutAssert(new ArrayList<>());
+        this.test = createTestWithoutAssert(test, new ArrayList<>());
         this.test.setParent(test.getParent());
         for (int i = 0; i < Query.getElements(this.test, new TypeFilter(CtStatement.class)).size(); i++) {
             statementsIndexToAssert.add(i);
@@ -80,36 +80,26 @@ public class MethodAssertGenerator {
         classTest.addMethod(cloneTest);
         testsToRun.add(cloneTest);
 
-        CtMethod testWithoutAssert = createTestWithoutAssert(new ArrayList<>());
-        testsToRun.add(testWithoutAssert);
-        classTest.addMethod(testWithoutAssert);
-
         JunitResult result = runTests(classTest, testsToRun);
         if (result == null || result.getTestRuns().size() != testsToRun.size()) {
             return null;
         }
         try {
-            String testWithoutAssertName = test.getSimpleName() + "_withoutAssert";
-            if (testFailed(testWithoutAssertName, result)) {
-                return makeFailureTest(getFailure(testWithoutAssertName, result));
-            } else if (!testFailed(test.getSimpleName(), result)) {
+            if (!testFailed(cloneTest.getSimpleName(), result)) {
                 if (!statementsIndexToAssert.isEmpty()) {
                     return buildNewAssert();
                 }
             } else {
-                removeFailAssert();
-                if (!statementsIndexToAssert.isEmpty()) {
-                    return buildNewAssert();
-                }
+                return makeFailureTest(getFailure(cloneTest.getSimpleName(), result));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return null;
     }
 
     protected CtMethod makeFailureTest(Failure failure) {
-        CtMethod testWithoutAssert = createTestWithoutAssert(new ArrayList<>());
+        CtMethod testWithoutAssert = createTestWithoutAssert(test, new ArrayList<>());
         testWithoutAssert.setSimpleName(test.getSimpleName());
         Factory factory = testWithoutAssert.getFactory();
 
@@ -212,7 +202,7 @@ public class MethodAssertGenerator {
     protected CtMethod removeFailAssert() throws IOException, ClassNotFoundException {
         List<Integer> goodAssert = findGoodAssert();
         String testName = test.getSimpleName();
-        test = createTestWithoutAssert(goodAssert);
+        test = createTestWithoutAssert(test, goodAssert);
         test.setSimpleName(testName);
 
         return test;
@@ -235,7 +225,7 @@ public class MethodAssertGenerator {
         for (int i = 0; i < assertIndex.size(); i++) {
             List<Integer> assertToKeep = new ArrayList<>();
             assertToKeep.add(assertIndex.get(i));
-            CtMethod mth = createTestWithoutAssert(assertToKeep);
+            CtMethod mth = createTestWithoutAssert(test, assertToKeep);
             mth.setSimpleName(mth.getSimpleName() + "_" + i);
             newClass.addMethod(mth);
             testsToRun.add(mth);
@@ -378,8 +368,8 @@ public class MethodAssertGenerator {
         insertAfter.insertAfter(logStmt);
     }
 
-    protected CtMethod createTestWithoutAssert(List<Integer> assertIndexToKeep) {
-        CtMethod newTest = getFactory().Core().clone(test);
+    protected CtMethod createTestWithoutAssert(CtMethod test, List<Integer> assertIndexToKeep) {
+        CtMethod newTest = test.clone();
         newTest.setSimpleName(test.getSimpleName() + "_withoutAssert");
 
         int stmtIndex = 0;
