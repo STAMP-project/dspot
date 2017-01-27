@@ -7,9 +7,7 @@ import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.DSpotUtils;
 import spoon.reflect.code.*;
-import spoon.reflect.declaration.CtElement;
-import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.declaration.CtType;
+import spoon.reflect.declaration.*;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
@@ -32,7 +30,12 @@ public class TestDataMutator implements Amplifier {
     public List<CtMethod> apply(CtMethod method) {
         List<CtMethod> methods = new ArrayList<>();
         //get the list of literals in the method
-        List<CtLiteral> literals = Query.getElements(method.getBody(), new TypeFilter(CtLiteral.class));
+        List<CtLiteral> literals = Query.getElements(method.getBody(), new TypeFilter(CtLiteral.class) {
+            @Override
+            public boolean matches(CtElement element) {
+                return element.getParent(CtAnnotation.class) == null && super.matches(element);
+            }
+        });
         //this index serves to replace ith literal is replaced by zero in the ith clone of the method
         int lit_index = 0;
         for (CtLiteral lit : literals) {
