@@ -83,9 +83,9 @@ public class DSpot {
             FileUtils.cleanDirectory(tmpDir);
         }
         String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
-        DSpotUtils.compileOriginalProject(this.inputProgram, inputConfiguration, mavenLocalRepository);
         FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
         inputProgram.setProgramDir(outputDirectory);
+        DSpotUtils.compileOriginalProject(this.inputProgram, inputConfiguration, mavenLocalRepository);
         String dependencies = AmplificationHelper.getDependenciesOf(this.inputConfiguration, inputProgram);
 
         //We need to use separate factory here, because the BranchProcessor will process test also
