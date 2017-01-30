@@ -72,7 +72,7 @@ public class MethodAssertGeneratorTest {
 
         CtMethod test = Utils.findMethod("fr.inria.sample.TestClassWithAssert", "test3");
         mag.test = test;
-        JunitResult result = mag.runSingleTest(test);
+        JunitResult result = mag.runVersusRandomness(test);
         CtMethod test_makeFailureTest = mag.makeFailureTest(mag.getFailure("test3", result));
         assertEquals(expectedBodyTest3, test_makeFailureTest.getBody().toString());
     }

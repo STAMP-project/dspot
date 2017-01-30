@@ -3,7 +3,6 @@ package fr.inria.diversify.dspot.assertGenerator;
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
 import fr.inria.diversify.dspot.AmplificationHelper;
-import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
@@ -195,7 +194,7 @@ public class MethodAssertGenerator {
     }
 
     private boolean isCorrect(CtMethod test) throws IOException, ClassNotFoundException {
-        JunitResult result = runSingleTest(test);
+        JunitResult result = runVersusRandomness(test);
         return result != null && result.getFailures().isEmpty();
     }
 
@@ -265,10 +264,16 @@ public class MethodAssertGenerator {
         }
     }
 
-    protected JunitResult runSingleTest(CtMethod test) throws ClassNotFoundException, IOException {
+    protected JunitResult runVersusRandomness(CtMethod test) throws ClassNotFoundException, IOException {
         CtType cloneClass = initTestClass();
         CtMethod cloneTest = test.clone();
         cloneClass.addMethod(cloneTest);
+        for (int i = 0; i < 2; i++) {
+            JunitResult result = runTests(cloneClass, Collections.singletonList(cloneTest));
+            if (result == null || !result.getFailures().isEmpty()) {
+                return result;
+            }
+        }
         return runTests(cloneClass, Collections.singletonList(cloneTest));
     }
 
