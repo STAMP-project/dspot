@@ -55,9 +55,9 @@ public class Utils {
                 FileUtils.cleanDirectory(tmpDir);
             }
             String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
-            DSpotUtils.compileOriginalProject(inputProgram, inputConfiguration, mavenLocalRepository);
             FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
             inputProgram.setProgramDir(outputDirectory);
+            DSpotUtils.compileOriginalProject(inputProgram, inputConfiguration, mavenLocalRepository);
             String dependencies = AmplificationHelper.getDependenciesOf(inputConfiguration, inputProgram);
             File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
             FileUtils.cleanDirectory(output);
