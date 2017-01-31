@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 11/30/16
  */
-public class StatementAddTest {
+public class StatementAddTest extends AmplifierTest {
 
     @Test
     public void testStatementAdd() throws Exception, InvalidSdkException {
@@ -29,7 +29,6 @@ public class StatementAddTest {
             It results here with 4 new test cases.
          */
 
-        Utils.init("src/test/resources/sample.properties");
         final String packageName = "fr.inria.statementadd";
         InputProgram inputProgram = Utils.getInputProgram();
         final Factory factory = inputProgram.getFactory();

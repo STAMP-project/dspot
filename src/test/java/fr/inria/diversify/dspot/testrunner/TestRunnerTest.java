@@ -31,7 +31,7 @@ public class TestRunnerTest {
 
     @Before
     public void setUp() throws Exception {
-        Utils.init("src/test/resources/sample.properties");
+        Utils.init("src/test/resources/sample/sample.properties");
         try {
             forceDelete(Utils.getCompiler().getBinaryOutputDirectory());
         } catch (FileNotFoundException | IllegalArgumentException ignored) {

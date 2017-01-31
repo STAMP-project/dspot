@@ -18,12 +18,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 12/7/16
  */
-public class TestMethodCallAdderTest {
-
-    @Before
-    public void setUp() throws Exception {
-        Utils.init("src/test/resources/sample.properties");
-    }
+public class TestMethodCallAdderTest extends AmplifierTest {
 
     @Test
     public void testMethodCallAddAll() throws Exception, InvalidSdkException {

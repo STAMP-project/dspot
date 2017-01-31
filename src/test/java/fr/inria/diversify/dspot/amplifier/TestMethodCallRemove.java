@@ -19,12 +19,7 @@ import static org.junit.Assert.assertNotEquals;
  * benjamin.danglot@inria.fr
  * on 12/7/16
  */
-public class TestMethodCallRemove {
-
-    @Before
-    public void setUp() throws Exception {
-        Utils.init("src/test/resources/sample.properties");
-    }
+public class TestMethodCallRemove extends AmplifierTest {
 
     @Test
     public void testMethodCallRemoveAll() throws Exception, InvalidSdkException {

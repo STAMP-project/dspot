@@ -17,12 +17,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 12/8/16
  */
-public class TestValueCreator {
-
-    @Before
-    public void setUp() throws Exception {
-        Utils.init("src/test/resources/sample.properties");
-    }
+public class TestValueCreator extends AmplifierTest {
 
     @Test
     public void testCreateRandomLocalVar() throws Exception, InvalidSdkException {
