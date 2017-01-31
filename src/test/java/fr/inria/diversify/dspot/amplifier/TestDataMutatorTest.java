@@ -23,14 +23,9 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 11/23/16
  */
-public class TestDataMutatorTest {
+public class TestDataMutatorTest extends AmplifierTest{
 
     private static final String SUFFIX_MUTATION = "_literalMutation";
-
-    @Before
-    public void setUp() throws Exception {
-        Utils.init("src/test/resources/sample.properties");
-    }
 
     @Test
     public void testIntMutation() throws Exception, InvalidSdkException {

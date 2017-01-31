@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.assertGenerator;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import fr.inria.diversify.dspot.amplifier.AmplifierTest;
 import fr.inria.diversify.testRunner.JunitResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,12 +18,7 @@ import static org.junit.Assert.assertEquals;
  * Date: 25/11/16
  * Time: 11:15
  */
-public class MethodAssertGeneratorTest {
-
-    @Before
-    public void setUp() throws Exception {
-        Utils.init("src/test/resources/sample.properties");
-    }
+public class MethodAssertGeneratorTest extends AmplifierTest {
 
     @Test
     public void testCreateTestWithoutAssert() throws InvalidSdkException, Exception {

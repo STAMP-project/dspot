@@ -26,7 +26,7 @@ public class RemoveBadTestTest extends MavenAbstractTest {
 
     @Override
     public String getPathToPropertiesFile() {
-        return "src/test/resources/sample.properties";
+        return "src/test/resources/sample/sample.properties";
     }
 
     @Test

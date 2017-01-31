@@ -23,12 +23,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 11/24/16
  */
-public class TestStatementAdderOnAssert {
-
-    @Before
-    public void setUp() throws Exception {
-        Utils.init("src/test/resources/sample.properties");
-    }
+public class TestStatementAdderOnAssert extends AmplifierTest {
 
     @Test
     public void testStatementAdderOnAssertLiteral() throws Exception, InvalidSdkException {
