@@ -25,6 +25,8 @@ public class PitRunner {
 
     private static final String OPT_VALUE_MUTATORS = "-Dmutators=ALL";
 
+    private static final String OPT_TARGET_CLASSES = "-DtargetClasses=";
+
     private static final String OPT_VALUE_FORMAT = "-DoutputFormats=CSV,HTML";
 
     private static final String OPT_TARGET_TESTS = "-DtargetTests=";
@@ -33,6 +35,7 @@ public class PitRunner {
 
     public static List<PitResult> run(InputProgram program, InputConfiguration configuration, CtType testClass) {
         try {
+            ;
             long time = System.currentTimeMillis();
             String mavenHome = DSpotUtils.buildMavenHome(configuration);
             MavenBuilder builder = new MavenBuilder(program.getProgramDir());
@@ -40,6 +43,7 @@ public class PitRunner {
             String[] phases = new String[]{PRE_GOAL_PIT, //
                     OPT_WITH_HISTORY, //
                     OPT_VALUE_MUTATORS, //
+                    OPT_TARGET_CLASSES + configuration.getProperty("filter"), //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
                     OPT_TARGET_TESTS + testClass.getQualifiedName(), //
@@ -67,6 +71,7 @@ public class PitRunner {
             String[] phases = new String[]{PRE_GOAL_PIT, //
                     OPT_WITH_HISTORY, //
                     OPT_VALUE_MUTATORS, //
+                    OPT_TARGET_CLASSES + configuration.getProperty("filter"), //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
                     CMD_PIT_MUTATION_COVERAGE};

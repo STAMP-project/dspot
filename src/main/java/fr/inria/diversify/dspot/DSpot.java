@@ -10,6 +10,7 @@ import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
 import spoon.Launcher;
+import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 
@@ -153,6 +154,33 @@ public class DSpot {
             throw new RuntimeException(e);
         }
     }
+
+    public CtType amplifyTest(String fullName, List<String> methods) throws InterruptedException, IOException, ClassNotFoundException {
+        CtType<Object> clone = this.compiler.getLauncher().getFactory().Type().get(fullName).clone();
+        clone.setParent(this.compiler.getLauncher().getFactory().Type().get(fullName).getParent());
+        return amplifyTest(clone, methods.stream()
+                .map(methodName -> clone.getMethodsByName(methodName).get(0))
+                .collect(Collectors.toList()));
+    }
+
+    public CtType amplifyTest(CtType test, List<CtMethod> methods) {
+        try {
+            Amplification testAmplification = new Amplification(this.inputProgram, this.amplifiers, this.testSelector, this.compiler);
+            CtType amplification = testAmplification.amplification(test, methods, numberOfIterations);
+            testSelector.report();
+            final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
+            System.out.println("Print " + amplification.getSimpleName() + " with " + testSelector.getNbAmplifiedTestCase() + " amplified test cases in " + this.inputConfiguration.getOutputDirectory());
+            DSpotUtils.printJavaFileWithComment(amplification, outputDirectory);
+            FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
+            FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
+            DSpotUtils.compileOriginalProject(this.inputProgram, inputConfiguration, inputConfiguration.getProperty("maven.localRepository", null));
+            return amplification;
+        } catch (IOException | InterruptedException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 
     public InputProgram getInputProgram() {
         return inputProgram;

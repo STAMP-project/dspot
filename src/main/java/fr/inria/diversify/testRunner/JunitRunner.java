@@ -66,7 +66,7 @@ public class JunitRunner {
         if (methodsToRun.isEmpty()) {
             return classTimeOut;
         } else {
-            return Math.min(methodsToRun.size() * methodTimeOut, classTimeOut);
+            return Math.max(methodsToRun.size() * methodTimeOut, classTimeOut);
         }
     }
 
