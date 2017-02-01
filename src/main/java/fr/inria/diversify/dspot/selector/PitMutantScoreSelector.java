@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot.selector;
 
 import fr.inria.diversify.dspot.AmplificationChecker;
+import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
@@ -9,7 +10,6 @@ import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
-import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -115,11 +115,13 @@ public class PitMutantScoreSelector implements TestSelector {
                     .filter(result -> !this.mutantNotTestedByOriginal.contains(result))
                     .forEach(result -> {
                         CtMethod method = result.getMethod(clone);
-                        if (!testThatKilledMutants.containsKey(method)) {
-                            testThatKilledMutants.put(method, new HashSet<>());
+                        if (killsMoreMutantThanParents(method, result)) {
+                            if (!testThatKilledMutants.containsKey(method)) {
+                                testThatKilledMutants.put(method, new HashSet<>());
+                            }
+                            testThatKilledMutants.get(method).add(result);
+                            selectedTests.add(method);
                         }
-                        testThatKilledMutants.get(method).add(result);
-                        selectedTests.add(method);
                     });
         }
 
@@ -134,6 +136,18 @@ public class PitMutantScoreSelector implements TestSelector {
         }
 
         return new ArrayList<>(selectedTests);
+    }
+
+    private boolean killsMoreMutantThanParents(CtMethod test, PitResult result) {
+        CtMethod parent = AmplificationHelper.getAmpTestToParent().get(test);
+        while (parent != null) {
+            if (this.testThatKilledMutants.get(parent) != null &&
+                    this.testThatKilledMutants.get(parent).contains(result)) {
+                return false;
+            }
+            parent = AmplificationHelper.getAmpTestToParent().get(parent);
+        }
+        return true;
     }
 
     @Override
