@@ -77,7 +77,7 @@ public class DSpot {
         InitUtils.initLogLevel(inputConfiguration);
         inputProgram = InitUtils.initInputProgram(inputConfiguration);
         inputConfiguration.setInputProgram(inputProgram);
-        String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp";
+        String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp/";
         File tmpDir = new File(inputConfiguration.getProperty("tmpDir"));
         if (!tmpDir.exists()) {
             tmpDir.mkdir();

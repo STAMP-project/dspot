@@ -22,6 +22,8 @@ public class PitResult {
 
     private final String simpleNameMethod;
 
+    private CtMethod testCase = null;
+
     public PitResult(State stateOfMutant, String fullQualifiedNameMutantOperator, String fullQualifiedNameMethod, int lineNumber, String nameOfLocalisation) {
         this.stateOfMutant = stateOfMutant;
         this.fullQualifiedNameMutantOperator = fullQualifiedNameMutantOperator;
@@ -51,9 +53,12 @@ public class PitResult {
         if ("none".equals(this.simpleNameMethod)) {
             return null;
         } else {
-            String[] splittedQualifiedName = this.simpleNameMethod.split("\\.");
-            String simpleNameOfMethod = splittedQualifiedName[splittedQualifiedName.length - 1];
-            return (CtMethod) ctClass.getMethodsByName(simpleNameOfMethod).get(0);
+            if (this.testCase == null) {
+                String[] splittedQualifiedName = this.simpleNameMethod.split("\\.");
+                String simpleNameOfMethod = splittedQualifiedName[splittedQualifiedName.length - 1];
+                this.testCase = (CtMethod) ctClass.getMethodsByName(simpleNameOfMethod).get(0);
+            }
+            return this.testCase;
         }
     }
 
