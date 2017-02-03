@@ -15,7 +15,7 @@ It automatically generates new JUnit tests by modifying existing  existing test 
 
 1) Clone the project:
 ```
-git clone http://github.com/STAMP-project/dspot.git
+git clone https://github.com/STAMP-project/dspot.git
 cd dspot
 ```
 
@@ -126,7 +126,7 @@ Need the initialized InputProgram if DSpot to be well constructed.
 
 ##### Amplifiers
 
-You can implement you own amplifier by implementing the `fr.inria.diversify.dspot.amp.Amplifier` interface and giving it to DSpot.
+You can implement you own amplifier by implementing the `fr.inria.diversify.dspot.amplifier.Amplifier` interface and giving it to DSpot.
 
 #### Test Selectors
 
