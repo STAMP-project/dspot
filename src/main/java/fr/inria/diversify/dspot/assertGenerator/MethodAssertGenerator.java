@@ -72,7 +72,7 @@ public class MethodAssertGenerator {
     }
 
     private CtMethod generateAssert() throws IOException, ClassNotFoundException {
-        List<CtMethod> testsToRun = new ArrayList<>();
+        List<CtMethod<?>> testsToRun = new ArrayList<>();
         CtType classTest = initTestClass();
 
         CtMethod cloneTest = test.clone();
@@ -143,7 +143,7 @@ public class MethodAssertGenerator {
 
     private CtMethod buildNewAssert() throws IOException, ClassNotFoundException {
         CtType cl = initTestClass();
-        List<CtMethod> testsToRun = new ArrayList<>();
+        List<CtMethod<?>> testsToRun = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             CtMethod testWithLog = createTestWithLog();
             testWithLog.setSimpleName(testWithLog.getSimpleName() + i);
@@ -209,7 +209,7 @@ public class MethodAssertGenerator {
 
     private List<Integer> findGoodAssert() throws IOException, ClassNotFoundException {
         int stmtIndex = 0;
-        List<CtMethod> testsToRun = new ArrayList<>();
+        List<CtMethod<?>> testsToRun = new ArrayList<>();
         List<Integer> assertIndex = new ArrayList<>();
         List<CtStatement> statements = Query.getElements(test, new TypeFilter(CtStatement.class));
         for (CtStatement statement : statements) {
@@ -252,7 +252,7 @@ public class MethodAssertGenerator {
         return getFailure(methodName, result) != null;
     }
 
-    public JunitResult runTests(CtType testClass, List<CtMethod> testsToRun) throws ClassNotFoundException {
+    public JunitResult runTests(CtType testClass, List<CtMethod<?>> testsToRun) throws ClassNotFoundException {
         boolean statusCompilation = TestCompiler.writeAndCompile(this.compiler, testClass, true,
                 inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + ":" +
                         inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir());

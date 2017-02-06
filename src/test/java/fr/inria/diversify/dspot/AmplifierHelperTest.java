@@ -26,7 +26,7 @@ public class AmplifierHelperTest {
         Utils.init("src/test/resources/sample/sample.properties");
 
         CtClass<Object> classTest = Utils.getFactory().Class().get("fr.inria.helper.ClassWithInnerClass");
-        List<CtMethod> fakeAmplifiedMethod = classTest.getMethods()
+        List<CtMethod<?>> fakeAmplifiedMethod = classTest.getMethods()
                 .stream()
                 .map(CtMethod::clone)
                 .collect(Collectors.toList());

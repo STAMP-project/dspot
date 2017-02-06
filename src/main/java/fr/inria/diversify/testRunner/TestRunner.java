@@ -7,7 +7,7 @@ import spoon.reflect.declaration.CtNamedElement;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
-import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 public class TestRunner {
 
     public static JunitResult runTests(CtType testClass,
-                                      Collection<CtMethod> tests,
-                                      String classpath,
+                                       List<CtMethod<?>> tests,
+                                       String classpath,
                                        InputProgram program) {
         Logger.reset();
         Logger.setLogDir(new File(program.getProgramDir() + "/log"));

@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot.amplifier;
+package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.Utils;
 import org.junit.Before;
@@ -8,7 +8,7 @@ import org.junit.Before;
  * benjamin.danglot@inria.fr
  * on 1/31/17
  */
-public class AmplifierTest {
+public class AbstractTest {
 
     @Before
     public void setUp() throws Exception {
