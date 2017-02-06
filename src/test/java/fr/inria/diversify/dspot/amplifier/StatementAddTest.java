@@ -3,6 +3,7 @@ package fr.inria.diversify.dspot.amplifier;
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AmplificationHelper;
+import fr.inria.diversify.dspot.AbstractTest;
 import fr.inria.diversify.dspot.value.ValueFactory;
 import fr.inria.diversify.runner.InputProgram;
 import org.junit.Test;
@@ -18,7 +19,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 11/30/16
  */
-public class StatementAddTest extends AmplifierTest {
+public class StatementAddTest extends AbstractTest {
 
     @Test
     public void testStatementAdd() throws Exception, InvalidSdkException {

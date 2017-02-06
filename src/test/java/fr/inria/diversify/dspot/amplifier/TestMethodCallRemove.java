@@ -2,8 +2,8 @@ package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import fr.inria.diversify.dspot.AbstractTest;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.Test;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import spoon.reflect.declaration.CtClass;
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertNotEquals;
  * benjamin.danglot@inria.fr
  * on 12/7/16
  */
-public class TestMethodCallRemove extends AmplifierTest {
+public class TestMethodCallRemove extends AbstractTest {
 
     @Test
     public void testMethodCallRemoveAll() throws Exception, InvalidSdkException {
