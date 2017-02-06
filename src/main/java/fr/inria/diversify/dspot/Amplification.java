@@ -198,10 +198,10 @@ public class Amplification {
     private JunitResult compileAndRunTests(CtType classTest, List<CtMethod<?>> currentTestList) {
         CtType amplifiedTestClass = this.testSelector.buildClassForSelection(classTest, currentTestList);
         boolean status = TestCompiler.writeAndCompile(this.compiler, amplifiedTestClass, false,
-                this.inputProgram.getProgramDir() + "/" + this.inputProgram.getClassesDir() + ":" +
-                        this.inputProgram.getProgramDir() + "/" + this.inputProgram.getTestClassesDir());
+                this.inputProgram.getProgramDir() + this.inputProgram.getClassesDir() + "/:" +
+                        this.inputProgram.getProgramDir() + this.inputProgram.getTestClassesDir() + "/" );
         if (!status) {
-            Log.debug("Unable to compile {}", amplifiedTestClass);
+            Log.debug("Unable to compile {}", amplifiedTestClass.getSimpleName());
             return null;
         }
         JunitResult result;
@@ -212,7 +212,7 @@ public class Amplification {
             Log.debug("Error during running test");
             return null;
         }
-        if (result == null || result.getTestRuns().size() != currentTestList.size()) {
+        if (result == null || result.getTestRuns().size() < currentTestList.size()) {
             Log.debug("Error during running test");
             return null;
         }

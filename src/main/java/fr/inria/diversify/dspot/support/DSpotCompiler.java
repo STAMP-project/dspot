@@ -1,8 +1,11 @@
 package fr.inria.diversify.dspot.support;
 
 import fr.inria.diversify.runner.InputProgram;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import spoon.Launcher;
 import spoon.SpoonModelBuilder;
+import spoon.compiler.Environment;
+import spoon.compiler.ModelBuildingException;
 import spoon.compiler.builder.*;
 import spoon.support.compiler.FileSystemFolder;
 import spoon.support.compiler.jdt.JDTBasedSpoonCompiler;
@@ -40,6 +43,8 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
         final SourceOptions sourcesOptions = new SourceOptions();
         sourcesOptions.sources((new FileSystemFolder(this.sourceOutputDirectory).getAllJavaFiles()));
 
+        this.reportProblems(this.factory.getEnvironment());
+
         String[] sourcesArray = this.sourceOutputDirectory.getAbsolutePath().split(":");
         String[] classpath = (this.dependencies + ":" + pathToAdditionalDependencies).split(":");
         String[] finalClasspath = new String[sourcesArray.length + classpath.length];
@@ -65,6 +70,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
         compiler.compile(finalArgs);
         environment = compiler.getEnvironment();
+
 
         return compiler.globalErrorsCount == 0;
     }
@@ -95,6 +101,22 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
         SpoonModelBuilder modelBuilder = launcher.getModelBuilder();
         modelBuilder.setBinaryOutputDirectory(binaryOutputDirectory);
         return modelBuilder.compile(SpoonModelBuilder.InputType.CTTYPES);
+    }
+
+    protected void report(Environment environment, CategorizedProblem problem) {
+        File file = new File(new String(problem.getOriginatingFileName()));
+        String filename = file.getAbsolutePath();
+
+        String message = problem.getMessage() + " at " + filename + ":"
+                + problem.getSourceLineNumber();
+
+        if (problem.isError()) {
+            if (!environment.getNoClasspath()) {
+                // by default, compilation errors are notified as exception
+                throw new ModelBuildingException(message);
+            }
+        }
+
     }
 
     private Launcher launcher;
