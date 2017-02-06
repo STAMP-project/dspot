@@ -7,10 +7,8 @@ import fr.inria.diversify.log.LogReader;
 import fr.inria.diversify.log.TestCoverageParser;
 import fr.inria.diversify.log.branch.Coverage;
 import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
-import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -76,7 +74,7 @@ public class BranchCoverageTestSelector implements TestSelector {
     }
 
     @Override
-    public List<CtMethod> selectToAmplify(List<CtMethod> testsToBeAmplified) {
+    public List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified) {
         if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
             this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
             Coverage global = new Coverage("global");
@@ -88,7 +86,7 @@ public class BranchCoverageTestSelector implements TestSelector {
         if (this.oldTests.isEmpty()) {
             this.oldTests.addAll(testsToBeAmplified);
         }
-        Map<CtMethod, Set<String>> selectedTest = new HashMap<>();
+        Map<CtMethod<?>, Set<String>> selectedTest = new HashMap<>();
         for (CtMethod test : testsToBeAmplified) {
             Set<String> tc = getTestCoverageFor(test);
             if (!tc.isEmpty()) {
@@ -102,7 +100,7 @@ public class BranchCoverageTestSelector implements TestSelector {
                 }
             }
         }
-        List<CtMethod> testMethodsSelected = new ArrayList<>();
+        List<CtMethod<?>> testMethodsSelected = new ArrayList<>();
         if (selectedTest.size() > maxNumberOfTest) {
             testMethodsSelected.addAll(reduceSelectedTest(selectedTest));
         } else {
@@ -113,8 +111,8 @@ public class BranchCoverageTestSelector implements TestSelector {
     }
 
     @Override
-    public List<CtMethod> selectToKeep(List<CtMethod> amplifiedTestToBeKept) {
-        Map<CtMethod, Set<String>> amplifiedTests = new HashMap<>();
+    public List<CtMethod<?>> selectToKeep(List<CtMethod<?>> amplifiedTestToBeKept) {
+        Map<CtMethod<?>, Set<String>> amplifiedTests = new HashMap<>();
         for (CtMethod test : amplifiedTestToBeKept) {
             Set<String> tc = getTestCoverageFor(test);
             if (!tc.isEmpty()) {
@@ -126,14 +124,17 @@ public class BranchCoverageTestSelector implements TestSelector {
                 }
             }
         }
-        List<CtMethod> amplifiedTestKept = reduceSelectedTest(amplifiedTests);
-        amplifiedTestKept.forEach(test -> this.coveragePerTestKept.put(test,
-                branchCoverage.stream()
-                        .filter(coverage ->
-                                (coverage.getName()).equals(
-                                        this.currentClassTestToBeAmplified.getQualifiedName() + "." + test.getSimpleName()))
-                        .findAny()
-                        .get()));
+        List<CtMethod<?>> amplifiedTestKept = reduceSelectedTest(amplifiedTests);
+        amplifiedTestKept.forEach(test -> {
+            Optional<Coverage> testToKeep = branchCoverage.stream()
+                    .filter(coverage ->
+                            (coverage.getName()).equals(
+                                    this.currentClassTestToBeAmplified.getQualifiedName() + "." + test.getSimpleName()))
+                    .findAny();
+            if (testToKeep.isPresent()) {
+                this.coveragePerTestKept.put(test, testToKeep.get());
+            }
+        });
         return amplifiedTestKept;
     }
 
@@ -211,7 +212,7 @@ public class BranchCoverageTestSelector implements TestSelector {
     }
 
     @Override
-    public CtType buildClassForSelection(CtType original, List<CtMethod> methods) {
+    public CtType buildClassForSelection(CtType original, List<CtMethod<?>> methods) {
         ClassWithLoggerBuilder builder = new ClassWithLoggerBuilder(original.getFactory(), this.absoluteTestSourceCodeDir);
         return builder.buildClassWithLogger(original, methods);
     }
@@ -334,15 +335,15 @@ public class BranchCoverageTestSelector implements TestSelector {
         return diff;
     }
 
-    private List<CtMethod> reduceSelectedTest(Map<CtMethod, Set<String>> selected) {
-        Map<Set<String>, List<CtMethod>> map = selected.keySet().stream()
-                .collect(Collectors.groupingBy(mth -> selected.get(mth)));
+    private List<CtMethod<?>> reduceSelectedTest(Map<CtMethod<?>, Set<String>> selected) {
+        Map<Set<String>, List<CtMethod<?>>> map = selected.keySet().stream()
+                .collect(Collectors.groupingBy(selected::get));
 
         List<Set<String>> sortedKey = map.keySet().stream()
                 .sorted((l1, l2) -> Integer.compare(l2.size(), l1.size()))
                 .collect(Collectors.toList());
 
-        List<CtMethod> methods = new ArrayList<>();
+        List<CtMethod<?>> methods = new ArrayList<>();
         while (!sortedKey.isEmpty()) {
             Set<String> key = new HashSet<>(sortedKey.remove(0));
 
