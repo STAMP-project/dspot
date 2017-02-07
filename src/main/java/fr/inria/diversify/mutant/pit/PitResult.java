@@ -3,6 +3,8 @@ package fr.inria.diversify.mutant.pit;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
+import java.util.List;
+
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -56,7 +58,15 @@ public class PitResult {
             if (this.testCase == null) {
                 String[] splittedQualifiedName = this.simpleNameMethod.split("\\.");
                 String simpleNameOfMethod = splittedQualifiedName[splittedQualifiedName.length - 1];
-                this.testCase = (CtMethod) ctClass.getMethodsByName(simpleNameOfMethod).get(0);
+                List<CtMethod<?>> methodsByName = ctClass.getMethodsByName(simpleNameOfMethod);
+                if (methodsByName.isEmpty()) {
+                    if (ctClass.getSuperclass() != null) {
+                        return getMethod(ctClass.getSuperclass().getDeclaration());
+                    } else {
+                        return null;
+                    }
+                }
+                this.testCase = methodsByName.get(0);
             }
             return this.testCase;
         }
