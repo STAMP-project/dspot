@@ -10,6 +10,7 @@ import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.TestCompiler;
 import fr.inria.diversify.testRunner.TestRunner;
 import fr.inria.diversify.util.Log;
+import jdk.jfr.events.ExceptionThrownEvent;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -136,10 +137,14 @@ public class Amplification {
             Log.warn("Discarding following test cases for the amplification");
 
             result.getFailures().forEach(failure -> {
-                String methodName = failure.getTestHeader().split("\\(")[0];
-                CtMethod testToRemove = tests.stream().filter(m -> m.getSimpleName().equals(methodName)).collect(Collectors.toList()).get(0);
-                tests.remove(tests.indexOf(testToRemove));
-                Log.warn("{}", testToRemove.getSimpleName());
+                try {
+                    String methodName = failure.getTestHeader().split("\\(")[0];
+                    CtMethod testToRemove = tests.stream().filter(m -> m.getSimpleName().equals(methodName)).collect(Collectors.toList()).get(0);
+                    tests.remove(tests.indexOf(testToRemove));
+                    Log.warn("{}", testToRemove.getSimpleName());
+                } catch (Exception ignored) {
+                    //ignored
+                }
             });
             return preAmplification(classTest, tests);
         } else {
