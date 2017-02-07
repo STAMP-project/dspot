@@ -124,6 +124,9 @@ public class Amplification {
     }
 
     private List<CtMethod<?>> preAmplification(CtType classTest, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
+        if (tests.isEmpty()) {
+            return new ArrayList<>();
+        }
         JunitResult result = compileAndRunTests(classTest, tests);
         if (result == null) {
             throw new RuntimeException("Need a green test suite to run dspot");
