@@ -91,12 +91,10 @@ public class BranchCoverageTestSelector implements TestSelector {
             Set<String> tc = getTestCoverageFor(test);
             if (!tc.isEmpty()) {
                 Set<String> parentTc = getParentTestCoverageFor(test);
-                if (!parentTc.isEmpty()) {
+                if (parentTc.isEmpty()) {
                     selectedTest.put(test, new HashSet<>());
-                } else {
-                    if (!parentTc.containsAll(tc)) {
-                        selectedTest.put(test, diff(tc, parentTc));
-                    }
+                } else if (!parentTc.containsAll(tc)) {
+                    selectedTest.put(test, diff(tc, parentTc));
                 }
             }
         }
