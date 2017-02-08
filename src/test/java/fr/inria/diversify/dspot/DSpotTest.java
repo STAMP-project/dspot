@@ -32,7 +32,7 @@ public class DSpotTest extends MavenAbstractTest {
 
         CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample");
 
-        assertEquals(24, amplifiedTest.getMethods().size());
+        assertEquals(18, amplifiedTest.getMethods().size());
         assertEquals(expectedAmplifiedBody, amplifiedTest.getMethod("test2_cf16").getBody().toString());
     }
 

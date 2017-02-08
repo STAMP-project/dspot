@@ -27,15 +27,20 @@ public class TestDataMutator implements Amplifier {
         this.literalByClass = new HashMap<>();
     }
 
+    private class LiteralToBeMutedFilter extends TypeFilter<CtLiteral> {
+        public LiteralToBeMutedFilter() {
+            super(CtLiteral.class);
+        }
+        @Override
+        public boolean matches(CtLiteral literal) {
+            return literal.getParent(CtAnnotation.class) == null && super.matches(literal);
+        }
+    }
+
     public List<CtMethod> apply(CtMethod method) {
         List<CtMethod> methods = new ArrayList<>();
         //get the list of literals in the method
-        List<CtLiteral> literals = Query.getElements(method.getBody(), new TypeFilter(CtLiteral.class) {
-            @Override
-            public boolean matches(CtElement element) {
-                return element.getParent(CtAnnotation.class) == null && super.matches(element);
-            }
-        });
+        List<CtLiteral> literals = Query.getElements(method.getBody(), new LiteralToBeMutedFilter());
         //this index serves to replace ith literal is replaced by zero in the ith clone of the method
         int lit_index = 0;
         for (CtLiteral lit : literals) {
@@ -60,7 +65,7 @@ public class TestDataMutator implements Amplifier {
     }
 
     public CtMethod applyRandom(CtMethod method) {
-        List<CtLiteral> literals = Query.getElements(method, new TypeFilter(CtLiteral.class));
+        List<CtLiteral> literals = Query.getElements(method.getBody(), new LiteralToBeMutedFilter());
         if (!literals.isEmpty()) {
             int original_lit_index = AmplificationHelper.getRandom().nextInt(literals.size());
             CtLiteral literal = literals.get(original_lit_index);
@@ -92,7 +97,7 @@ public class TestDataMutator implements Amplifier {
         //clone the method
         CtMethod cloned_method = AmplificationHelper.cloneMethod(method, "_literalMutation");
         //get the lit_indexth literal of the cloned method
-        CtLiteral newLiteral = Query.getElements(cloned_method, new TypeFilter<CtLiteral>(CtLiteral.class))
+        CtLiteral newLiteral = Query.getElements(cloned_method.getBody(), new LiteralToBeMutedFilter())
                 .get(original_lit_index);
 
         CtElement toReplace = newLiteral;
@@ -138,7 +143,7 @@ public class TestDataMutator implements Amplifier {
     private CtMethod createStringMutant(CtMethod method, int original_lit_index, String newValue) {
         CtMethod cloned_method = AmplificationHelper.cloneMethod(method, "_literalMutation");
         Counter.updateInputOf(cloned_method, 1);
-        CtLiteral toReplace = Query.getElements(cloned_method, new TypeFilter<>(CtLiteral.class))
+        CtLiteral toReplace = Query.getElements(cloned_method.getBody(), new LiteralToBeMutedFilter())
                 .get(original_lit_index);
         toReplace.replace(cloned_method.getFactory().Code().createLiteral(newValue));
         DSpotUtils.addComment(toReplace, "TestDataMutator on strings", CtComment.CommentType.INLINE);
