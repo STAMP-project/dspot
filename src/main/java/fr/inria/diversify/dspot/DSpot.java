@@ -163,7 +163,7 @@ public class DSpot {
                 .collect(Collectors.toList()));
     }
 
-    public CtType amplifyTest(CtType test, List<CtMethod> methods) {
+    public CtType amplifyTest(CtType test, List<CtMethod<?>> methods) {
         try {
             Amplification testAmplification = new Amplification(this.inputProgram, this.amplifiers, this.testSelector, this.compiler);
             CtType amplification = testAmplification.amplification(test, methods, numberOfIterations);

@@ -27,6 +27,13 @@ public class JunitResult extends RunListener {
         compileOrTimeOutError = new ArrayList<>();
     }
 
+    public synchronized JunitResult add(JunitResult other) {
+        this.testRuns.addAll(other.testRuns);
+        this.failures.addAll(other.failures);
+        this.compileOrTimeOutError.addAll(other.compileOrTimeOutError);
+        return this;
+    }
+
     public synchronized void testFinished(Description description) throws Exception {
         testRuns.add(description);
     }

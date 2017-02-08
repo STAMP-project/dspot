@@ -2,9 +2,9 @@ package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import fr.inria.diversify.dspot.AbstractTest;
 import fr.inria.diversify.dspot.value.ValueCreator;
 import fr.inria.diversify.dspot.AmplificationHelper;
-import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 12/8/16
  */
-public class TestValueCreator extends AmplifierTest {
+public class TestValueCreator extends AbstractTest {
 
     @Test
     public void testCreateRandomLocalVar() throws Exception, InvalidSdkException {

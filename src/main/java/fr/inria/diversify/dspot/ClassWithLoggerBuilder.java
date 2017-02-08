@@ -10,6 +10,7 @@ import spoon.reflect.factory.Factory;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * User: Simon
@@ -42,7 +43,7 @@ public class ClassWithLoggerBuilder {
         loggingProcessor.setFactory(factory);
     }
 
-    public CtType buildClassWithLogger(CtType originalClass, Collection<CtMethod> tests) {
+    public CtType buildClassWithLogger(CtType originalClass, List<CtMethod<?>> tests) {
         CtType cloneClass = originalClass.clone();
         originalClass.getPackage().addType(cloneClass);
 //        tests.forEach(cloneClass::removeMethod);

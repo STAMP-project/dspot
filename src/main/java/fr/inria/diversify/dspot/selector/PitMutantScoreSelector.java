@@ -77,7 +77,7 @@ public class PitMutantScoreSelector implements TestSelector {
     }
 
     @Override
-    public List<CtMethod> selectToAmplify(List<CtMethod> testsToBeAmplified) {
+    public List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified) {
         if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
             this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
         }
@@ -85,7 +85,7 @@ public class PitMutantScoreSelector implements TestSelector {
     }
 
     @Override
-    public List<CtMethod> selectToKeep(List<CtMethod> amplifiedTestToBeKept) {
+    public List<CtMethod<?>> selectToKeep(List<CtMethod<?>> amplifiedTestToBeKept) {
         if (amplifiedTestToBeKept.isEmpty()) {
             return amplifiedTestToBeKept;
         }
@@ -103,7 +103,7 @@ public class PitMutantScoreSelector implements TestSelector {
         }
 
         List<PitResult> results = PitRunner.run(this.program, this.configuration, clone);
-        Set<CtMethod> selectedTests = new HashSet<>();
+        Set<CtMethod<?>> selectedTests = new HashSet<>();
         if (results != null) {
             Log.debug("{} mutants has been generated ({})", results.size(), this.numberOfMutant);
             if (results.size() != this.numberOfMutant) {
@@ -169,7 +169,7 @@ public class PitMutantScoreSelector implements TestSelector {
     }
 
     @Override
-    public CtType buildClassForSelection(CtType original, List<CtMethod> methods) {
+    public CtType buildClassForSelection(CtType original, List<CtMethod<?>> methods) {
         CtType clone = original.clone();
         original.getPackage().addType(clone);
         methods.forEach(clone::addMethod);

@@ -51,7 +51,7 @@ public class AmplificationHelper {
         importByClass = new HashMap<>();
     }
 
-    public static CtType createAmplifiedTest(List<CtMethod> ampTest, CtType classTest) {
+    public static CtType createAmplifiedTest(List<CtMethod<?>> ampTest, CtType classTest) {
         CtType amplifiedTest = classTest.clone();
         final String amplifiedName = classTest.getSimpleName().startsWith("Test") ?
                 classTest.getSimpleName() + "Ampl" :
@@ -159,7 +159,7 @@ public class AmplificationHelper {
         return cloned_method;
     }
 
-    public static List<CtMethod> filterTest(List<CtMethod> newTests, JunitResult result) {
+    public static List<CtMethod<?>> filterTest(List<CtMethod<?>> newTests, JunitResult result) {
         final List<String> goodTests = result.goodTests();
         return newTests.stream()
                 .filter(test -> goodTests.contains(test.getSimpleName()))
@@ -179,7 +179,7 @@ public class AmplificationHelper {
         return c;//excluding " and '
     }
 
-    public static CtMethod addOriginInComment(CtMethod amplifiedTest, CtMethod topParent) {
+    public static CtMethod<?> addOriginInComment(CtMethod<?> amplifiedTest, CtMethod<?> topParent) {
         DSpotUtils.addComment(amplifiedTest,
                 "amplification of " + topParent.getDeclaringType().getQualifiedName() + "#" + topParent.getSimpleName(),
                 CtComment.CommentType.BLOCK);
@@ -195,12 +195,16 @@ public class AmplificationHelper {
         return currentTest;
     }
 
-    public static List<CtMethod> getAllTest(InputProgram inputProgram, CtType classTest) {
-        Set<CtMethod> mths = classTest.getMethods();
-        return mths.stream()
+    public static List<CtMethod<?>> getAllTest(InputProgram inputProgram, CtType classTest) {
+        Set<CtMethod<?>> methods = classTest.getMethods();
+        List<CtMethod<?>> testMethods = methods.stream()
                 .filter(mth -> AmplificationChecker.isTest(mth, inputProgram.getRelativeTestSourceCodeDir()))
                 .distinct()
                 .collect(Collectors.toList());
+        if (classTest.getSuperclass() != null) {
+
+        }
+        return testMethods;
     }
 
     public static String getDependenciesOf(InputConfiguration inputConfiguration, InputProgram inputProgram) {

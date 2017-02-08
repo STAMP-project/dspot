@@ -34,15 +34,15 @@ public class AssertGenerator {
         this.compiler = compiler;
     }
 
-    public List<CtMethod> generateAsserts(CtType testClass) throws IOException, ClassNotFoundException {
+    public List<CtMethod<?>> generateAsserts(CtType testClass) throws IOException, ClassNotFoundException {
         return generateAsserts(testClass, testClass.getMethods(), null);
     }
 
-    public List<CtMethod> generateAsserts(CtType testClass, Collection<CtMethod> tests, Map<CtMethod, CtMethod> parentTest) throws IOException, ClassNotFoundException {
+    public List<CtMethod<?>> generateAsserts(CtType testClass, Collection<CtMethod<?>> tests, Map<CtMethod, CtMethod> parentTest) throws IOException, ClassNotFoundException {
         CtType cloneClass = testClass.clone();
         cloneClass.setParent(testClass.getParent());
         MethodAssertGenerator ag = new MethodAssertGenerator(testClass, inputProgram, compiler);
-        List<CtMethod> amplifiedTestWithAssertion = new ArrayList<>();
+        List<CtMethod<?>> amplifiedTestWithAssertion = new ArrayList<>();
         for (CtMethod test : tests) {
             CtMethod ampTest = ag.generateAssert(test, findStatementToAssert(test, parentTest));
             if (ampTest != null && !ampTest.equals(test)) {

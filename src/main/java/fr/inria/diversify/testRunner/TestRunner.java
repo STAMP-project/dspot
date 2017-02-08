@@ -2,12 +2,15 @@ package fr.inria.diversify.testRunner;
 
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputProgram;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.reference.CtTypeReference;
 
 import java.io.File;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -17,15 +20,42 @@ import java.util.stream.Collectors;
  */
 public class TestRunner {
 
+    private static List<String> blackListImplementation = new ArrayList<>();
+
     public static JunitResult runTests(CtType testClass,
-                                      Collection<CtMethod> tests,
-                                      String classpath,
+                                       List<CtMethod<?>> tests,
+                                       String classpath,
                                        InputProgram program) {
         Logger.reset();
         Logger.setLogDir(new File(program.getProgramDir() + "/log"));
-        JunitRunner junitRunner = new JunitRunner(classpath);
-        return junitRunner.runTestClass(testClass.getQualifiedName(), tests.stream()
-                .map(CtNamedElement::getSimpleName)
-                .collect(Collectors.toList()));
+        final JunitRunner junitRunner = new JunitRunner(classpath);
+        final CtTypeReference reference = testClass.getReference();
+
+        List<CtType<?>> subClasses = testClass.getFactory().Class().getAll()
+                .stream()
+                .filter(ctClass -> reference.equals(ctClass.getSuperclass()))
+                .filter(ctClass -> !blackListImplementation.contains(ctClass.getSimpleName()))
+                .collect(Collectors.toList());
+
+        if (subClasses.isEmpty()) {
+            return junitRunner.runTestClass(testClass.getQualifiedName(),
+                    tests.stream()
+                            .map(CtNamedElement::getSimpleName)
+                            .collect(Collectors.toList()));
+        } else {
+            List<String> fullNameSubClasses = subClasses.stream()
+                    .map(CtType::getQualifiedName)
+                    .collect(Collectors.toList());
+            JunitResult result = junitRunner.runTestClasses(
+                    fullNameSubClasses,
+                    tests.stream()
+                            .map(CtNamedElement::getSimpleName)
+                            .collect(Collectors.toList()));
+            blackListImplementation.addAll(result.getFailures().stream()
+                    .filter(failure -> fullNameSubClasses.contains(failure.getDescription().getDisplayName()))
+                    .map(failure -> failure.getDescription().getDisplayName())
+                    .collect(Collectors.toList()));
+            return result;
+        }
     }
 }

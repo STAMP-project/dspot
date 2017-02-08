@@ -18,9 +18,9 @@ public interface TestSelector {
 
     void reset();
 
-    List<CtMethod> selectToAmplify(List<CtMethod> testsToBeAmplified);
+    List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified);
 
-    List<CtMethod> selectToKeep(List<CtMethod> amplifiedTestToBeKept);
+    List<CtMethod<?>> selectToKeep(List<CtMethod<?>> amplifiedTestToBeKept);
 
     void update();
 
@@ -28,6 +28,6 @@ public interface TestSelector {
 
     int getNbAmplifiedTestCase();
 
-    CtType buildClassForSelection(CtType original, List<CtMethod> methods);
+    CtType buildClassForSelection(CtType original, List<CtMethod<?>> methods);
 
 }
