@@ -224,7 +224,7 @@ public class Amplification {
             Log.debug("Error during running test");
             return null;
         }
-        Log.debug("update test selector");
+        Log.debug("update test testCriterion");
         testSelector.update();
         return result;
     }
