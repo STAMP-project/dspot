@@ -46,12 +46,58 @@ ls target/dspot-*-jar-with-dependencies.jar
 java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.diversify.Main path/To/my.properties
 ```
 
+### Command Line Usage
+```
+Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
+                          [(-p|--path) <path>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--selector) <BranchCoverageTestSelector | PitMutantScoreSelector>] [(-t|--test) test1:test2:...:testN ] [(-o|--output) <output>] [(-m|--mutant) <mutant>] [-e|--example] [-h|--help]
+
+    [(-p|--path-to-propeties) <./path/to/myproject.properties>]
+            [mandatory] specify the path to the configuration file (format Java
+            properties) of the target project (e.g. ./foo.properties).
+    
+      [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ]
+            [optional] specify the list of amplifiers to use. Default with all
+            available amplifiers. Possible values:
+            MethodAdd|MethodRemove|StatementAdderOnAssert|TestDataMutator
+    
+      [(-i|--iteration) <iteration>]
+            [optional] specify the number of amplification iteration. A larger
+            number may help to improve the test criterion (eg a larger number of
+            iterations mah help to kill more mutants). This has an impact on the
+            execution time: the more iterations, the longer DSpot runs. (default: 3)
+    
+      [(-s|--test-criterion) <PitMutantScoreSelector | BranchCoverageTestSelector>]
+            [optional] specify the test adequacy criterion to be maximized with
+            amplification (default: PitMutantScoreSelector)
+    
+      [(-t|--test) my.package.MyClassTest1:my.package.MyClassTest2:...:my.package.MyClassTestN ]
+            [optional] fully qualified names of test classes to be amplified. If the
+            value is all, DSpot will amplify the whole test suite. (default: all)
+    
+      [(-o|--output-path) <output>]
+            [optional] specify the output folder (default: dspot-report)
+    
+      [(-m|--path-pit-result) <./path/to/mutations.csv>]
+            [optional, expert mode] specify the path to the .csv of the original
+            result of Pit Test. If you use this option the selector will be forced
+            to PitMutantScoreSelector
+    
+      [-e|--example]
+            run the example of DSpot and leave
+    
+      [-h|--help]
+            shows this help
+```
 
 ### Getting Started Example
 
 You can run the provided example by running `fr.inria.diversify.Main` from your IDE, or with
 ```
-mvn exec:java -Dexec.mainClass="fr.inria.diversify.Main"
+mvn exec:java -Dexec.mainClass="fr.inria.diversify.Main" -Dexec.args="--example"
+```
+or
+```
+java -jar target/dspot-1.0.0-jar-with-dependencies.jar --example
 ```
 
 This example is an implementation of the function `chartAt(s, i)` (in `src/test/resources/test-projects/`), which returns the char at the index _i_ in the String _s_.
