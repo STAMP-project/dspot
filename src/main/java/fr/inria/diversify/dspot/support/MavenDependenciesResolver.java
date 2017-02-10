@@ -37,19 +37,19 @@ public class MavenDependenciesResolver {
             pathToLocalMavenRepository = configuration.getProperty("maven.localRepository", System.getProperty("user.home") + "/.m2/repository");
         }
         runMavenGoals(program);
-        Set<URL> classpath = buildUrls(program.getProgramDir());
+        Set<URL> classpath = buildUrls(program.getProgramDir(), program.getProgramDir() + "/pom.xml");
         return classpath.toArray(new URL[classpath.size()]);
     }
 
-    private static Set<URL> buildUrls(String path) {
+    private static Set<URL> buildUrls(String path, String pathToPom) {
         File classPathFile = new File(path + "/.classpath");
         Set<URL> classpath = new HashSet<>();
         if (classPathFile.exists()) {
             classpath.addAll(resolveDependenciesInFile(classPathFile));
         }
-        MavenProject project = getMavenProject(path);
+        MavenProject project = getMavenProject(pathToPom);
         project.getModules().forEach(module ->
-                classpath.addAll(buildUrls(path + "/" + module))
+                classpath.addAll(buildUrls(path, path + module))
         );
         return classpath;
     }
@@ -87,12 +87,11 @@ public class MavenDependenciesResolver {
         }
     }
 
-    private static MavenProject getMavenProject(String baseDirectory) {
+    private static MavenProject getMavenProject(String pom) {
         FileReader reader = null;
         try {
             MavenProject mavenProject;
             MavenXpp3Reader mavenReader = new MavenXpp3Reader();
-            String pom = baseDirectory + "/pom.xml";
             File pomFile = new File(pom);
             Log.info("resolveURL dependencies of {}", pomFile);
             //Removed null and file exists protections that mask errors
