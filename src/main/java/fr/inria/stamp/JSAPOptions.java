@@ -29,8 +29,8 @@ public class JSAPOptions {
         public final String pathToOutput;
         public final TestSelector selector;
         public final List<String> namesOfTestCases;
-
-        public Configuration(String pathToConfigurationFile, List<Amplifier> amplifiers, int nbIteration, List<String> testCases, String pathToOutput, TestSelector selector, List<String> namesOfTestCases) {
+        public final long seed;
+        public Configuration(String pathToConfigurationFile, List<Amplifier> amplifiers, int nbIteration, List<String> testCases, String pathToOutput, TestSelector selector, List<String> namesOfTestCases, long seed) {
             this.pathToConfigurationFile = pathToConfigurationFile;
             this.amplifiers = amplifiers;
             this.nbIteration = nbIteration;
@@ -38,6 +38,7 @@ public class JSAPOptions {
             this.pathToOutput = pathToOutput;
             this.selector = selector;
             this.namesOfTestCases = namesOfTestCases;
+            this.seed = seed;
         }
     }
 
@@ -97,7 +98,8 @@ public class JSAPOptions {
                 Arrays.asList(jsapConfig.getStringArray("test")),
                 jsapConfig.getString("output"),
                 testCriterion,
-                Arrays.asList(jsapConfig.getStringArray("testCases")));
+                Arrays.asList(jsapConfig.getStringArray("testCases")),
+                jsapConfig.getLong("seed"));
     }
 
     private static Amplifier stringToAmplifier(String amplifier) {
@@ -147,7 +149,6 @@ public class JSAPOptions {
         pathToConfigFile.setStringParser(JSAP.STRING_PARSER);
         pathToConfigFile.setUsageName("./path/to/myproject.properties");
         pathToConfigFile.setHelp("[mandatory] specify the path to the configuration file (format Java properties) of the target project (e.g. ./foo.properties).");
-
 
         FlaggedOption amplifiers = new FlaggedOption("amplifiers");
         amplifiers.setList(true);
@@ -207,14 +208,24 @@ public class JSAPOptions {
         testCases.setStringParser(JSAP.STRING_PARSER);
         testCases.setHelp("specify the test cases to amplify");
 
+        FlaggedOption seed = new FlaggedOption("seed");
+        seed.setStringParser(JSAP.LONG_PARSER);
+        seed.setLongFlag("randomSeed");
+        seed.setShortFlag('r');
+        seed.setUsageName("long integer");
+        seed.setHelp("specify a seed for the random object (used for all randomized operation)");
+        seed.setDefault("23");
+
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
             jsap.registerParameter(iteration);
             jsap.registerParameter(selector);
             jsap.registerParameter(specificTestCase);
+            jsap.registerParameter(testCases);
             jsap.registerParameter(output);
             jsap.registerParameter(mutantScore);
+            jsap.registerParameter(seed);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {
