@@ -166,7 +166,7 @@ public class JSAPOptions {
         iteration.setAllowMultipleDeclarations(false);
         iteration.setHelp("[optional] specify the number of amplification iteration. A larger number may help to improve the test criterion (eg a larger number of iterations mah help to kill more mutants). This has an impact on the execution time: the more iterations, the longer DSpot runs.");
 
-        FlaggedOption selector = new FlaggedOption("testCriterion");
+        FlaggedOption selector = new FlaggedOption("test-criterion");
         selector.setAllowMultipleDeclarations(false);
         selector.setLongFlag("test-criterion");
         selector.setShortFlag('s');
