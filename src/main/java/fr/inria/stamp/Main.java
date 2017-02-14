@@ -46,6 +46,7 @@ public class Main {
                 }
             });
         }
+        dspot.cleanResources();
     }
 
     private static void createOutputDirectories(InputConfiguration inputConfiguration) {

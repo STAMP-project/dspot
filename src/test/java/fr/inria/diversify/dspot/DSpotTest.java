@@ -1,6 +1,5 @@
 package fr.inria.diversify.dspot;
 
-import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
@@ -36,7 +35,7 @@ public class DSpotTest extends MavenAbstractTest {
         assertEquals(expectedAmplifiedBody, amplifiedTest.getMethod("test2_cf16").getBody().toString());
     }
 
-    private final String expectedAmplifiedBody = "{" + nl + 
+    private final String expectedAmplifiedBody = "{" + nl +
             "    example.Example ex = new example.Example();" + nl + 
             "    // StatementAdderOnAssert create random local variable" + nl + 
             "    int vc_4 = 1635508580;" + nl + 
