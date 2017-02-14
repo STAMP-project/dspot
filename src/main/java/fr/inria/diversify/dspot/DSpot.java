@@ -216,14 +216,17 @@ public class DSpot {
     }
 
     public void cleanResources() {
-        this.testResources.stream()
-                .map(File::new)
-                .forEach(file -> {
-                    try {
-                        FileUtils.forceDelete(file);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+        if (this.testResources != null) {
+            this.testResources.stream()
+                    .map(File::new)
+                    .filter(File::exists)
+                    .forEach(file -> {
+                        try {
+                            FileUtils.forceDelete(file);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+        }
     }
 }
