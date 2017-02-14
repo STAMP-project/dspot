@@ -16,6 +16,7 @@ import spoon.reflect.declaration.ModifierKind;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +33,8 @@ public class DSpot {
     private int numberOfIterations;
     private TestSelector testSelector;
     public InputProgram inputProgram;
+
+    private List<String> testResources;
 
     @Deprecated
     private InputConfiguration inputConfiguration;
@@ -86,6 +89,10 @@ public class DSpot {
         }
         String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
         FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
+
+        //Ugly way to support usage of resources with relative path.
+        copyResourceOfTargetProjectIntoDspot();
+
         inputProgram.setProgramDir(outputDirectory);
         DSpotUtils.compileOriginalProject(this.inputProgram, inputConfiguration, mavenLocalRepository);
         String dependencies = AmplificationHelper.getDependenciesOf(this.inputConfiguration, inputProgram);
@@ -113,6 +120,30 @@ public class DSpot {
         this.numberOfIterations = numberOfIterations;
         this.testSelector = testSelector;
         this.testSelector.init(this.inputConfiguration);
+    }
+
+    private void copyResourceOfTargetProjectIntoDspot() {
+        if (inputConfiguration.getProperty("testResources") != null) {
+            try {
+                final File testResourcesDirectory = new File(inputProgram.getProgramDir() + "/" + inputConfiguration.getProperty("testResources"));
+                final File[] resources = testResourcesDirectory.listFiles();
+                if (resources != null) {
+                    this.testResources = Arrays.stream(resources)
+                            .map(this::relativePathFromListFile)
+                            .collect(Collectors.toList());
+                    FileUtils.copyDirectory(testResourcesDirectory,
+                            new File(inputConfiguration.getProperty("testResources")));
+                }
+            } catch (FileAlreadyExistsException ignored) {
+                //ignored
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private String relativePathFromListFile(File f) {
+        return f.getPath().substring((inputProgram.getProgramDir() + "/").length(), f.getPath().length());
     }
 
 
@@ -180,9 +211,19 @@ public class DSpot {
     }
 
 
-
     public InputProgram getInputProgram() {
         return inputProgram;
     }
 
+    public void cleanResources() {
+        this.testResources.stream()
+                .map(File::new)
+                .forEach(file -> {
+                    try {
+                        FileUtils.forceDelete(file);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+    }
 }
