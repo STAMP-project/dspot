@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.dspot.support.MavenDependenciesResolver;
+import fr.inria.diversify.mutant.pit.PitRunner;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
@@ -25,6 +26,8 @@ import java.net.URLClassLoader;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static fr.inria.diversify.mutant.pit.PitRunner.PROPERTY_ADDITIONAL_CP_ELEMENTS;
 
 /**
  * Created by Benjamin DANGLOT
@@ -209,7 +212,9 @@ public class AmplificationHelper {
 
     public static String getDependenciesOf(InputConfiguration inputConfiguration, InputProgram inputProgram) {
         URL[] dependencies = MavenDependenciesResolver.resolveDependencies(inputConfiguration, inputProgram, DSpotUtils.buildMavenHome(inputConfiguration));
-        String dependenciesAsString = Arrays.stream(dependencies).reduce("", (acc, url) -> {
+        String dependenciesAsString = inputConfiguration.getProperty(PitRunner.PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
+                inputConfiguration.getProperty(PitRunner.PROPERTY_ADDITIONAL_CP_ELEMENTS) : ""
+                + Arrays.stream(dependencies).reduce("", (acc, url) -> {
             try {
                 return acc + new File(url.toURI()).getAbsolutePath() + ":";
             } catch (URISyntaxException e) {

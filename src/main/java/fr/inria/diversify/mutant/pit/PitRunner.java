@@ -31,23 +31,37 @@ public class PitRunner {
 
     private static final String OPT_TARGET_TESTS = "-DtargetTests=";
 
+    public static final String PROPERTY_ADDITIONAL_CP_ELEMENTS = "additionalClasspathElements";
+
+    private static final String PROPERTY_EXCLUDED_CLASSES = "excludedClasses";
+
+    private static final String OPT_ADDITIONAL_CP_ELEMENTS = "-D" + PROPERTY_ADDITIONAL_CP_ELEMENTS + "=";
+
+    private static final String OPT_EXCLUDED_CLASSES = "-D" + PROPERTY_EXCLUDED_CLASSES + "=";
+
     private static final String CMD_PIT_MUTATION_COVERAGE = "org.pitest:pitest-maven:mutationCoverage";
 
     public static List<PitResult> run(InputProgram program, InputConfiguration configuration, CtType testClass) {
         try {
-            ;
             long time = System.currentTimeMillis();
             String mavenHome = DSpotUtils.buildMavenHome(configuration);
             MavenBuilder builder = new MavenBuilder(program.getProgramDir());
             builder.setBuilderPath(mavenHome);
             String[] phases = new String[]{PRE_GOAL_PIT, //
+                    CMD_PIT_MUTATION_COVERAGE, //
                     OPT_WITH_HISTORY, //
                     OPT_VALUE_MUTATORS, //
                     OPT_TARGET_CLASSES + configuration.getProperty("filter"), //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
                     OPT_TARGET_TESTS + testClass.getQualifiedName(), //
-                    CMD_PIT_MUTATION_COVERAGE};
+                    configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
+                            OPT_ADDITIONAL_CP_ELEMENTS + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) :
+                            "", //
+                    configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) != null ?
+                            OPT_EXCLUDED_CLASSES + configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) :
+                            ""//
+            };
             builder.runGoals(phases, true);
             if (!new File(program.getProgramDir() + "/target/pit-reports").exists()) {
                 return null;
@@ -69,12 +83,19 @@ public class PitRunner {
             MavenBuilder builder = new MavenBuilder(program.getProgramDir());
             builder.setBuilderPath(mavenHome);
             String[] phases = new String[]{PRE_GOAL_PIT, //
+                    CMD_PIT_MUTATION_COVERAGE, //
                     OPT_WITH_HISTORY, //
                     OPT_VALUE_MUTATORS, //
                     OPT_TARGET_CLASSES + configuration.getProperty("filter"), //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
-                    CMD_PIT_MUTATION_COVERAGE};
+                    configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
+                            OPT_ADDITIONAL_CP_ELEMENTS + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) :
+                            "", //
+                    configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) != null ?
+                            OPT_EXCLUDED_CLASSES + configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) :
+                            ""//
+            };
             builder.runGoals(phases, true);
             File directoryReportPit = new File(program.getProgramDir() + "/target/pit-reports").listFiles()[0];
             List<PitResult> results = PitResultParser.parse(new File(directoryReportPit.getPath() + "/mutations.csv"));
