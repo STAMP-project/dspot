@@ -21,10 +21,9 @@ public class Main {
 
     public static void main(String[] args) throws InvalidSdkException, Exception {
         run(JSAPOptions.parse(args));
-        System.exit(0);
     }
 
-    public static void run(JSAPOptions.Configuration configuration) throws InvalidSdkException, Exception {
+    public static void run(Configuration configuration) throws InvalidSdkException, Exception {
         InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
         AmplificationHelper.setSeedRandom(23L);
         InputProgram program = new InputProgram();

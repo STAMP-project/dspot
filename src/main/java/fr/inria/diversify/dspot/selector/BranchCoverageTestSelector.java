@@ -61,7 +61,7 @@ public class BranchCoverageTestSelector implements TestSelector {
         this.absoluteTestSourceCodeDir = configuration.getInputProgram().getAbsoluteTestSourceCodeDir();
         this.logDir = new File(configuration.getInputProgram().getProgramDir() + "/log");
         if (this.outputDirectory == null) {
-            this.outputDirectory = configuration.getOutputDirectory();
+            this.outputDirectory = configuration.getProperty("outputDirectory");
         }
     }
 

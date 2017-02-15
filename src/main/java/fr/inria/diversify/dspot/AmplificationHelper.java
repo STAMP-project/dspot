@@ -212,8 +212,8 @@ public class AmplificationHelper {
 
     public static String getDependenciesOf(InputConfiguration inputConfiguration, InputProgram inputProgram) {
         URL[] dependencies = MavenDependenciesResolver.resolveDependencies(inputConfiguration, inputProgram, DSpotUtils.buildMavenHome(inputConfiguration));
-        String dependenciesAsString = inputConfiguration.getProperty(PitRunner.PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
-                inputConfiguration.getProperty(PitRunner.PROPERTY_ADDITIONAL_CP_ELEMENTS) : ""
+        String dependenciesAsString = (inputConfiguration.getProperty(PitRunner.PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
+                inputConfiguration.getProperty(PitRunner.PROPERTY_ADDITIONAL_CP_ELEMENTS) + ":" : "")
                 + Arrays.stream(dependencies).reduce("", (acc, url) -> {
             try {
                 return acc + new File(url.toURI()).getAbsolutePath() + ":";
