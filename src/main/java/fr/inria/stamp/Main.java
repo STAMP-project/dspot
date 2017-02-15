@@ -21,6 +21,7 @@ public class Main {
 
     public static void main(String[] args) throws InvalidSdkException, Exception {
         run(JSAPOptions.parse(args));
+        System.exit(0);
     }
 
     public static void run(Configuration configuration) throws InvalidSdkException, Exception {

@@ -126,7 +126,10 @@ public class PitMutantScoreSelector implements TestSelector {
         }
 
         selectedTests.forEach(selectedTest ->
-                Log.debug("{} kills {} more mutants", selectedTest.getSimpleName(), testThatKilledMutants.get(selectedTest).size())
+                Log.debug("{} kills {} more mutants",
+                        selectedTest == null ?
+                                this.currentClassTestToBeAmplified.getSimpleName() : selectedTest.getSimpleName(),
+                        testThatKilledMutants.get(selectedTest).size())
         );
 
         try {
@@ -210,11 +213,6 @@ public class PitMutantScoreSelector implements TestSelector {
                 .count();
     }
 
-    @Deprecated
-    private double fitness(CtMethod test) {
-        return ((double) this.testThatKilledMutants.get(test).size() / (double) (Counter.getAssertionOfSinceOrigin(test) + Counter.getInputOfSinceOrigin(test)));
-    }
-
     private static final String nl = System.getProperty("line.separator");
     private static final String tab = "\t";
 
@@ -228,7 +226,9 @@ public class PitMutantScoreSelector implements TestSelector {
             keys.forEach(amplifiedTest -> {
                         final StringBuilder string = new StringBuilder();
                         string.append(tab).append(tab)
-                                .append("\"").append(amplifiedTest.getSimpleName()).append("\":{").append(nl)
+                                .append("\"").append(amplifiedTest == null ?
+                                this.currentClassTestToBeAmplified.getSimpleName() :
+                                amplifiedTest.getSimpleName()).append("\":{").append(nl)
                                 .append(tab).append(tab).append(tab)
                                 .append("\"#AssertionAdded\":").append(Counter.getAssertionOfSinceOrigin(amplifiedTest)).append(",").append(nl)
                                 .append(tab).append(tab).append(tab)

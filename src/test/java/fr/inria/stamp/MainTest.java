@@ -1,8 +1,6 @@
 package fr.inria.stamp;
 
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.MavenAbstractTest;
-import org.apache.maven.Maven;
 import org.junit.Test;
 
 import java.io.*;
@@ -18,17 +16,13 @@ import static org.junit.Assert.assertTrue;
 public class MainTest extends MavenAbstractTest {
 
     @Test
-    public void testAll() throws Exception {
-        try {
-            Main.main(new String[]{
-                    "--path-to-propeties", "src/test/resources/test-projects/test-projects.properties",
-                    "--test-criterion", "BranchCoverageTestSelector",
-                    "--amplifiers", "MethodAdd:TestDataMutator:StatementAdderOnAssert",
-                    "--iteration", "1",
-            });
-        } catch (InvalidSdkException e) {
-            e.printStackTrace();
-        }
+    public void testAll() throws Throwable {
+        Main.run(JSAPOptions.parse(new String[]{
+                "--path-to-propeties", "src/test/resources/test-projects/test-projects.properties",
+                "--test-criterion", "BranchCoverageTestSelector",
+                "--amplifiers", "MethodAdd:TestDataMutator:StatementAdderOnAssert",
+                "--iteration", "1",
+        }));
         final File reportFile = new File("dspot-out/example.TestSuiteExample_branch_coverage_report.txt");
         assertTrue(reportFile.exists());
         assertTrue(new File("dspot-out/example.TestSuiteExample_branch_coverage.json").exists());
@@ -36,7 +30,7 @@ public class MainTest extends MavenAbstractTest {
         try (BufferedReader reader = new BufferedReader(new FileReader(reportFile))) {
             String content = reader.lines().reduce("", (acc, line) -> acc + line + nl);
             assertEquals(expectedReportAll, content);
-        } catch (IOException e ){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
