@@ -76,6 +76,7 @@ public class DSpot {
     }
 
     public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws InvalidSdkException, Exception {
+        this.testResources = new ArrayList<>();
         this.inputConfiguration = inputConfiguration;
         InitUtils.initLogLevel(inputConfiguration);
         inputProgram = InitUtils.initInputProgram(inputConfiguration);
@@ -91,7 +92,8 @@ public class DSpot {
         FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
 
         //Ugly way to support usage of resources with relative path.
-        copyResourceOfTargetProjectIntoDspot();
+        copyResourceOfTargetProjectIntoDspot("testResources");
+        copyResourceOfTargetProjectIntoDspot("srcResources");
 
         inputProgram.setProgramDir(outputDirectory);
         DSpotUtils.compileOriginalProject(this.inputProgram, inputConfiguration, mavenLocalRepository);
@@ -122,17 +124,17 @@ public class DSpot {
         this.testSelector.init(this.inputConfiguration);
     }
 
-    private void copyResourceOfTargetProjectIntoDspot() {
-        if (inputConfiguration.getProperty("testResources") != null) {
+    private void copyResourceOfTargetProjectIntoDspot(String key) {
+        if (inputConfiguration.getProperty(key) != null) {
             try {
-                final File testResourcesDirectory = new File(inputProgram.getProgramDir() + "/" + inputConfiguration.getProperty("testResources"));
-                final File[] resources = testResourcesDirectory.listFiles();
+                final File resourcesDirectory = new File(inputProgram.getProgramDir() + "/" + inputConfiguration.getProperty(key));
+                final File[] resources = resourcesDirectory.listFiles();
                 if (resources != null) {
-                    this.testResources = Arrays.stream(resources)
+                    this.testResources.addAll(Arrays.stream(resources)
                             .map(this::relativePathFromListFile)
-                            .collect(Collectors.toList());
-                    FileUtils.copyDirectory(testResourcesDirectory,
-                            new File(inputConfiguration.getProperty("testResources")));
+                            .collect(Collectors.toList()));
+                    FileUtils.copyDirectory(resourcesDirectory,
+                            new File(inputConfiguration.getProperty(key)));
                 }
             } catch (FileAlreadyExistsException ignored) {
                 //ignored
