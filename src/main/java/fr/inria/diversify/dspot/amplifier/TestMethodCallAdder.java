@@ -61,7 +61,7 @@ public class TestMethodCallAdder implements Amplifier {
     }
 
     private CtMethod apply(CtMethod method, int invocation_index) {
-        CtMethod cloned_method = AmplificationHelper.cloneMethodTest(method, "_add", 1000);
+        CtMethod cloned_method = AmplificationHelper.cloneMethodTest(method, "_add");
         //add the cloned method in the same class as the original method
         //get the lit_indexth literal of the cloned method
         CtInvocation stmt = Query.getElements(cloned_method, new TypeFilter<CtInvocation>(CtInvocation.class)).get(invocation_index);

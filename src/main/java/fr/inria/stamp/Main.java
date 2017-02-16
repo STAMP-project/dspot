@@ -33,7 +33,10 @@ public class Main {
         if (configuration.pathToOutput != null) {
             inputConfiguration.getProperties().setProperty("outputDirectory", configuration.pathToOutput);
         }
+
         AmplificationHelper.setSeedRandom(configuration.seed);
+        AmplificationHelper.setTimeOutInMs(configuration.timeOutInMs);
+
         createOutputDirectories(inputConfiguration);
         if ("all".equals(configuration.testCases.get(0))) {
             amplifyAll(dspot, inputConfiguration);

@@ -1,6 +1,7 @@
 package fr.inria.stamp;
 
 import fr.inria.diversify.dspot.MavenAbstractTest;
+import fr.inria.diversify.util.FileUtils;
 import org.junit.Test;
 
 import java.io.*;
@@ -17,6 +18,7 @@ public class MainTest extends MavenAbstractTest {
 
     @Test
     public void testAll() throws Throwable {
+        FileUtils.deleteDirectory(new File("dspot-out"));
         Main.run(JSAPOptions.parse(new String[]{
                 "--path-to-propeties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "BranchCoverageTestSelector",
