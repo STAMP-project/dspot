@@ -1,7 +1,12 @@
 package fr.inria.diversify.dspot.selector;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.dspot.AmplificationHelper;
+import fr.inria.diversify.dspot.selector.json.MutantJSON;
+import fr.inria.diversify.dspot.selector.json.TestCaseJSON;
+import fr.inria.diversify.dspot.selector.json.TestClassJSON;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
@@ -13,9 +18,7 @@ import fr.inria.diversify.util.PrintClassUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -213,72 +216,42 @@ public class PitMutantScoreSelector implements TestSelector {
                 .count();
     }
 
-    private static final String nl = System.getProperty("line.separator");
-    private static final String tab = "\t";
-
     private void reportJSONMutants() {
-        try (FileWriter writer = new FileWriter(this.configuration.getOutputDirectory() + "/" +
-                this.currentClassTestToBeAmplified.getQualifiedName() + "_mutants_killed.json", false)) {
-            writer.write("{" + nl);
-            writer.write(tab + "\"" +
-                    this.currentClassTestToBeAmplified.getQualifiedName() + "\": {" + nl);
-            List<CtMethod> keys = new ArrayList<>(this.testThatKilledMutants.keySet());
-            keys.forEach(amplifiedTest -> {
-                        final StringBuilder string = new StringBuilder();
-                        string.append(tab).append(tab)
-                                .append("\"").append(amplifiedTest == null ?
-                                this.currentClassTestToBeAmplified.getSimpleName() :
-                                amplifiedTest.getSimpleName()).append("\":{").append(nl)
-                                .append(tab).append(tab).append(tab)
-                                .append("\"#AssertionAdded\":").append(Counter.getAssertionOfSinceOrigin(amplifiedTest)).append(",").append(nl)
-                                .append(tab).append(tab).append(tab)
-                                .append("\"#InputAdded\":").append(Counter.getInputOfSinceOrigin(amplifiedTest)).append(",").append(nl)
-                                .append(tab).append(tab).append(tab)
-                                .append("\"#MutantKilled\":").append(this.testThatKilledMutants.get(amplifiedTest).size()).append(",").append(nl)
-                                .append(tab).append(tab).append(tab)
-                                .append("\"MutantsKilled\":[").append(nl)
-                                .append(buildListOfIdMutantKilled(amplifiedTest))
-                                .append(tab).append(tab).append(tab).append("]").append(nl)
-                                .append(tab).append(tab).append("}");
-                        if (keys.indexOf(amplifiedTest) != keys.size() - 1)
-                            string.append(",");
-                        string.append(nl);
-                        try {
-                            writer.write(string.toString());
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-            );
-            writer.write(nl + tab + "}");
-            writer.write(nl + "}");
+        TestClassJSON testClassJSON;
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        final File file = new File(this.configuration.getOutputDirectory() + "/" +
+                this.currentClassTestToBeAmplified.getQualifiedName() + "_mutants_killed.json");
+        if (file.exists()) {
+            try {
+                testClassJSON = gson.fromJson(new FileReader(file), TestClassJSON.class);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            testClassJSON = new TestClassJSON(this.currentClassTestToBeAmplified.getSimpleName());
+        }
+        List<CtMethod> keys = new ArrayList<>(this.testThatKilledMutants.keySet());
+        keys.forEach(amplifiedTest -> {
+                    List<PitResult> pitResults = new ArrayList<>(this.testThatKilledMutants.get(amplifiedTest));
+                    final List<MutantJSON> mutantsJson = new ArrayList<>();
+                    pitResults.forEach(pitResult -> mutantsJson.add(new MutantJSON(
+                            pitResult.getFullQualifiedNameMutantOperator(),
+                            pitResult.getLineNumber(),
+                            pitResult.getLocation()
+                    )));
+                    testClassJSON.addTestCase(new TestCaseJSON(
+                            amplifiedTest.getSimpleName(),
+                            Counter.getAssertionOfSinceOrigin(amplifiedTest),
+                            Counter.getInputOfSinceOrigin(amplifiedTest),
+                            mutantsJson
+                    ));
+                }
+        );
+        try (FileWriter writer = new FileWriter(file, false)) {
+            writer.write(gson.toJson(testClassJSON));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
 
-    private StringBuilder buildListOfIdMutantKilled(CtMethod amplifiedTest) {
-        List<PitResult> pitResults = new ArrayList<>(this.testThatKilledMutants.get(amplifiedTest));
-        return pitResults.stream()
-                .reduce(new StringBuilder(),
-                        (builder, element) -> {
-                            if (pitResults.indexOf(element) ==
-                                    pitResults.size() - 1) {
-                                return builder.append(getLineOfMutantKilled(element));
-                            } else {
-                                return builder.append(getLineOfMutantKilled(element)).append(",").append(nl);
-                            }
-                        }, StringBuilder::append);
-    }
-
-    private StringBuilder getLineOfMutantKilled(PitResult element) {
-        return new StringBuilder().append(tab).append(tab).append(tab).append("{").append(nl)
-                .append(tab).append(tab).append(tab).append(tab)
-                .append("\"ID\":").append("\"").append(element.getFullQualifiedNameMutantOperator()).append("\",").append(nl)
-                .append(tab).append(tab).append(tab).append(tab)
-                .append("\"lineNumber\":\"").append(element.getLineNumber()).append("\",").append(nl)
-                .append(tab).append(tab).append(tab).append(tab)
-                .append("\"location\":\"").append(element.getLocation()).append("\"").append(nl)
-                .append(tab).append(tab).append(tab).append("}").append(nl);
     }
 }
