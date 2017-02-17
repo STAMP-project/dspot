@@ -15,9 +15,7 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.reference.CtVariableReference;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
-import spoon.support.reflect.code.CtStatementImpl;
 import spoon.support.reflect.code.CtVariableReadImpl;
-import spoon.support.reflect.declaration.CtElementImpl;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -103,7 +101,7 @@ public class StatementAdderOnAssert implements Amplifier {
     }
 
     private CtMethod apply(CtMethod method, List<Statement> statements, int index) {
-        CtMethod cloned_method = AmplificationHelper.cloneMethodTest(method, "_cf", 1000);
+        CtMethod cloned_method = AmplificationHelper.cloneMethodTest(method, "_cf");
         CtStatement stmt = getAssertStatement(cloned_method).get(index);
         statements.forEach(c -> {
                     stmt.insertBefore(c.getCtCodeFragment());

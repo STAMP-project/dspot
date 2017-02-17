@@ -19,15 +19,11 @@ import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static fr.inria.diversify.mutant.pit.PitRunner.PROPERTY_ADDITIONAL_CP_ELEMENTS;
 
 /**
  * Created by Benjamin DANGLOT
@@ -39,6 +35,11 @@ public class AmplificationHelper {
     private static Map<CtMethod, CtMethod> ampTestToParent = new HashMap<>();
     private static Map<CtType, Set<CtType>> importByClass = new HashMap<>();
     private static Random random = new Random();
+    private static int timeOutInMs;
+
+    public static void setTimeOutInMs(int newTimeOutInMs) {
+        timeOutInMs = newTimeOutInMs;
+    }
 
     public static void setSeedRandom(long seed) {
         random = new Random(seed);
@@ -134,7 +135,7 @@ public class AmplificationHelper {
         return cloned_method;
     }
 
-    public static CtMethod cloneMethodTest(CtMethod method, String suffix, int timeOut) {
+    public static CtMethod cloneMethodTest(CtMethod method, String suffix) {
         CtMethod cloned_method = cloneMethod(method, suffix);
         CtAnnotation testAnnotation = cloned_method.getAnnotations().stream()
                 .filter(annotation -> annotation.toString().contains("Test"))
@@ -154,7 +155,7 @@ public class AmplificationHelper {
         testAnnotation.setAnnotationType(ref);
 
         Map<String, Object> elementValue = new HashMap<>();
-        elementValue.put("timeout", timeOut);
+        elementValue.put("timeout", timeOutInMs);
         testAnnotation.setElementValues(elementValue);
 
         cloned_method.addAnnotation(testAnnotation);

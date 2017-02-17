@@ -78,7 +78,8 @@ public class JSAPOptions {
                 jsapConfig.getString("output"),
                 testCriterion,
                 Arrays.asList(jsapConfig.getStringArray("testCases")),
-                jsapConfig.getLong("seed"));
+                jsapConfig.getLong("seed"),
+                jsapConfig.getInt("timeOut"));
     }
 
     private static Amplifier stringToAmplifier(String amplifier) {
@@ -195,6 +196,14 @@ public class JSAPOptions {
         seed.setHelp("specify a seed for the random object (used for all randomized operation)");
         seed.setDefault("23");
 
+        FlaggedOption timeOut = new FlaggedOption("timeOut");
+        timeOut.setStringParser(JSAP.INTEGER_PARSER);
+        timeOut.setLongFlag("timeOut");
+        timeOut.setShortFlag('v');
+        timeOut.setUsageName("long integer");
+        timeOut.setHelp("specify the timeout value of the degenerated tests in millisecond");
+        timeOut.setDefault("10000");
+
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
@@ -205,6 +214,7 @@ public class JSAPOptions {
             jsap.registerParameter(output);
             jsap.registerParameter(mutantScore);
             jsap.registerParameter(seed);
+            jsap.registerParameter(timeOut);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {
