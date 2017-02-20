@@ -84,6 +84,10 @@ Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
             
       [(-r|--randomSeed) <long integer>]
             specify a seed for the random object (used for all randomized operation) (default: 23)
+
+      [(-v|--timeOut) <long integer>]
+            specify the timeout value of the degenerated tests in millisecond
+            (default: 10000)
     
       [-e|--example]
             run the example of DSpot and leave
@@ -226,7 +230,9 @@ Here is the list of configuration properties of DSpot:
 
 * optional properties:
  * filter: string to filter on package or classes.
- * maven.localRepository: path to the local repository of maven (.m2), if you need specific settings. 
+ * maven.localRepository: path to the local repository of maven (.m2), if you need specific settings.
+ * excludedClasses: dspot will not amplify the excluded test classes.
+ * additionalClasspathElements: add elements to the classpath. (e.g. a jar file)
 
 ### Licence
 
