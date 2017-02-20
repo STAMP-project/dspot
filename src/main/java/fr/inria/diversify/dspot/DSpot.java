@@ -178,7 +178,7 @@ public class DSpot {
             testSelector.report();
             final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
             System.out.println("Print " + amplification.getSimpleName() + " with " + testSelector.getNbAmplifiedTestCase() + " amplified test cases in " + this.inputConfiguration.getOutputDirectory());
-            DSpotUtils.printJavaFileWithComment(amplification, outputDirectory);
+            DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory);
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
             FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
             return amplification;
@@ -202,7 +202,7 @@ public class DSpot {
             testSelector.report();
             final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
             System.out.println("Print " + amplification.getSimpleName() + " with " + testSelector.getNbAmplifiedTestCase() + " amplified test cases in " + this.inputConfiguration.getOutputDirectory());
-            DSpotUtils.printJavaFileWithComment(amplification, outputDirectory);
+            DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory);
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
             FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
             DSpotUtils.compileOriginalProject(this.inputProgram, inputConfiguration, inputConfiguration.getProperty("maven.localRepository", null));
