@@ -73,7 +73,6 @@ public class Main {
             } else {
                 amplifiedTestClass = dspot.amplifyTest(fullQualifiedNameTestClass, testCases);
             }
-            DSpotUtils.printJavaFileWithComment(amplifiedTestClass, outputDirectory);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -92,9 +91,7 @@ public class Main {
             }
         }
         try {
-            dspot.amplifyAllTests().forEach(amplifiedTestClass ->
-                    DSpotUtils.printJavaFileWithComment(amplifiedTestClass, outputDirectory)
-            );
+            dspot.amplifyAllTests();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

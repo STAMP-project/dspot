@@ -26,9 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
-import static org.eclipse.jgit.lib.ObjectChecker.type;
-import static org.reflections.vfs.Vfs.DefaultUrlTypes.directory;
-
 
 /**
  * User: Simon
@@ -95,17 +92,14 @@ public class DSpotUtils {
     }
 
     private static CtClass<?> addGeneratedTestToExistingClass(CtType type, String pathname) {
-
         Launcher launcher = new Launcher();
         launcher.getEnvironment().setNoClasspath(true);
         launcher.addInputResource(pathname);
         launcher.buildModel();
-
         final CtClass<?> existingAmplifiedTest = launcher.getFactory().Class().get(type.getQualifiedName());
         ((Set<CtMethod<?>>) type.getMethods()).stream()
                 .filter(testCase -> !existingAmplifiedTest.getMethods().contains(testCase))
                 .forEach(existingAmplifiedTest::addMethod);
-
         return existingAmplifiedTest;
     }
 
