@@ -35,7 +35,7 @@ public class AmplificationHelper {
     private static Map<CtMethod, CtMethod> ampTestToParent = new HashMap<>();
     private static Map<CtType, Set<CtType>> importByClass = new HashMap<>();
     private static Random random = new Random();
-    private static int timeOutInMs;
+    private static int timeOutInMs = 10000;
 
     public static void setTimeOutInMs(int newTimeOutInMs) {
         timeOutInMs = newTimeOutInMs;

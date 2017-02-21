@@ -9,10 +9,13 @@ import fr.inria.diversify.profiling.processor.main.AbstractLoggingInstrumenter;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
+import spoon.Launcher;
 import spoon.compiler.Environment;
 import spoon.processing.Processor;
 import spoon.reflect.code.CtComment;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtElement;
+import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.DefaultJavaPrettyPrinter;
@@ -21,6 +24,8 @@ import spoon.support.QueueProcessingManager;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
+
 
 /**
  * User: Simon
@@ -75,6 +80,27 @@ public class DSpotUtils {
         JavaOutputProcessor processor = new JavaOutputProcessor(directory, new DefaultJavaPrettyPrinter(env));
         processor.setFactory(factory);
         processor.createJavaFile(type);
+    }
+
+    public static void printAmplifiedTestClass(CtType type, File directory) {
+        final String pathname = directory.getAbsolutePath() + "/" + type.getQualifiedName().replaceAll("\\.", "/") + ".java";
+        if (new File(pathname).exists()) {
+            printJavaFileWithComment(addGeneratedTestToExistingClass(type, pathname), directory);
+        } else {
+            printJavaFileWithComment(type, directory);
+        }
+    }
+
+    private static CtClass<?> addGeneratedTestToExistingClass(CtType type, String pathname) {
+        Launcher launcher = new Launcher();
+        launcher.getEnvironment().setNoClasspath(true);
+        launcher.addInputResource(pathname);
+        launcher.buildModel();
+        final CtClass<?> existingAmplifiedTest = launcher.getFactory().Class().get(type.getQualifiedName());
+        ((Set<CtMethod<?>>) type.getMethods()).stream()
+                .filter(testCase -> !existingAmplifiedTest.getMethods().contains(testCase))
+                .forEach(existingAmplifiedTest::addMethod);
+        return existingAmplifiedTest;
     }
 
     public static void printAllClasses(Factory factory, File out) {
