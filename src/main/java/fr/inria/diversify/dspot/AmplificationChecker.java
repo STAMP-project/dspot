@@ -72,9 +72,8 @@ public class AmplificationChecker {
             return false;
         }
         return candidate.getSimpleName().contains("test")
-                || candidate.getAnnotations().stream()
-                .map(annotation -> annotation.toString())
-                .anyMatch(annotation -> annotation.startsWith("@org.junit.Test"));
+                || candidate.getSimpleName().contains("should")
+                || candidate.getAnnotation(org.junit.Test.class) != null;
     }
 
     public static boolean isTest(CtMethod candidate, String relativePath) {

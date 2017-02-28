@@ -205,9 +205,6 @@ public class AmplificationHelper {
                 .filter(mth -> AmplificationChecker.isTest(mth, inputProgram.getRelativeTestSourceCodeDir()))
                 .distinct()
                 .collect(Collectors.toList());
-        if (classTest.getSuperclass() != null) {
-
-        }
         return testMethods;
     }
 

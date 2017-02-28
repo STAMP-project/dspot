@@ -13,6 +13,17 @@
         <default.encoding>UTF-8</default.encoding>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>stamp-maven-repository-mvn-repo</id>
+            <url>https://stamp-project.github.io/stamp-maven-repository/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>fr.inria.gforge.spoon</groupId>
