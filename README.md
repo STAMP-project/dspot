@@ -19,25 +19,17 @@ git clone https://github.com/STAMP-project/dspot.git
 cd dspot
 ```
 
-2) Install the dependencies of dspot by running the provided script:
-```
-# first, local install of dependencies not in Maven Central
-./install.sh
-# second, the other dependencies
-mvn dependency:resolve
-```
-
-3) Compile DSpot
+2) Compile DSpot
 ```
 mvn compile
 ```
 
-4) Run the tests
+3) Run the tests
 ```
 mvn test
 ```
 
-5) Create the jar (eg `target/dspot-1.0.0-jar-with-dependencies.jar`)
+4) Create the jar (eg `target/dspot-1.0.0-jar-with-dependencies.jar`)
 ```
 mvn package
 # check that this is successful

@@ -9,10 +9,6 @@ cache:
   directories:
     - $HOME/.m2
 
-install:
-  - chmod +x install.sh
-  - ./install.sh
-
 script:
   - mvn clean install
 
