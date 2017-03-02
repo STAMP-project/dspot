@@ -48,10 +48,7 @@ public class JunitResult extends RunListener {
     }
 
     public synchronized void testAssumptionFailure(Failure failure) {
-        if(!isCompileOrTimeOutError(failure)) {
-            testRuns.add(failure.getDescription());
-            failures.add(failure);
-        }
+        //empty
     }
 
     private synchronized boolean isCompileOrTimeOutError(Failure failure) {

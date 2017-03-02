@@ -10,6 +10,7 @@ import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.TestCompiler;
 import fr.inria.diversify.testRunner.TestRunner;
+import org.junit.runner.Request;
 import org.junit.runner.notification.Failure;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
@@ -108,7 +109,7 @@ public class MethodAssertGenerator {
         }
         Class exceptionClass;
         if (exception == null) {
-            exceptionClass = Throwable.class;
+            exceptionClass = Exception.class;
         } else {
             exceptionClass = exception.getClass();
         }
@@ -163,6 +164,9 @@ public class MethodAssertGenerator {
         int numberOfAddedAssertion = 0;
         List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter(CtStatement.class));
         for (String id : observations.keySet()) {
+            if (!id.startsWith(testWithAssert.getSimpleName())) {
+                continue;
+            }
             int line = Integer.parseInt(id.split("__")[1]);
             List<String> asserts = observations.get(id).buildAssert();
             for (String snippet : asserts) {

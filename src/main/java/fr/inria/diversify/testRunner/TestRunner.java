@@ -2,6 +2,8 @@ package fr.inria.diversify.testRunner;
 
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputProgram;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
@@ -10,6 +12,7 @@ import spoon.reflect.reference.CtTypeReference;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,7 +40,10 @@ public class TestRunner {
                 .filter(ctClass -> !blackListImplementation.contains(ctClass.getSimpleName()))
                 .collect(Collectors.toList());
 
-        if (subClasses.isEmpty()) {
+        final RunWith annotation = testClass.getAnnotation(RunWith.class);
+        if ( annotation != null && annotation.value().equals(Parameterized.class)) {
+            return junitRunner.runTestClass(testClass.getQualifiedName(), Collections.EMPTY_LIST);
+        } else if (subClasses.isEmpty()) {
             return junitRunner.runTestClass(testClass.getQualifiedName(),
                     tests.stream()
                             .map(CtNamedElement::getSimpleName)
