@@ -4,21 +4,16 @@ import fr.inria.diversify.dspot.amplifier.Amplifier;
 import fr.inria.diversify.dspot.assertGenerator.AssertGenerator;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.TestCompiler;
 import fr.inria.diversify.testRunner.TestRunner;
 import fr.inria.diversify.util.Log;
-import jdk.jfr.events.ExceptionThrownEvent;
-import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -99,16 +94,24 @@ public class Amplification {
 
             currentTestList = reduce(amplifyTests(testToBeAmplified));
 
-            List<CtMethod<?>> testWithAssertions = assertGenerator.generateAsserts(classTest, currentTestList, AmplificationHelper.getAmpTestToParent());
+            List<CtMethod<?>> testWithAssertions = assertGenerator.generateAsserts(classTest, currentTestList);
             if (testWithAssertions.isEmpty()) {
                 continue;
             } else {
                 currentTestList = testWithAssertions;
             }
             JunitResult result = compileAndRunTests(classTest, currentTestList);
-            if (result == null || !result.getFailures().isEmpty()
-                    || result.getTestRuns().size() != currentTestList.size()) {
+            if (result == null || result.getTestRuns().size() != currentTestList.size()) {
                 continue;
+            } else if (!result.getFailures().isEmpty()) {
+                Log.warn("Discarding failing test cases");
+                final List<String> failingTestCase = result.getFailures().stream()
+                        .collect(ArrayList<String>::new,
+                                (testHeader, failure) -> testHeader.add(failure.getTestHeader()),
+                                ArrayList<String>::addAll);
+                currentTestList = currentTestList.stream()
+                        .filter(ctMethod -> !failingTestCase.contains(ctMethod.getSimpleName()))
+                        .collect(Collectors.toList());
             }
             currentTestList = AmplificationHelper.filterTest(currentTestList, result);
             Log.debug("{} test method(s) has been successfully generated", currentTestList.size());
@@ -158,8 +161,7 @@ public class Amplification {
             Log.debug("Try to add assertions before amplification");
             List<CtMethod<?>> preAmplifiedMethods = testSelector.selectToKeep(
                     assertGenerator.generateAsserts(
-                            classTest, testSelector.selectToAmplify(tests), AmplificationHelper.getAmpTestToParent()
-                    )
+                            classTest, testSelector.selectToAmplify(tests))
             );
             if (tests.containsAll(preAmplifiedMethods)) {
                 return new ArrayList<>();
@@ -209,7 +211,7 @@ public class Amplification {
         CtType amplifiedTestClass = this.testSelector.buildClassForSelection(classTest, currentTestList);
         boolean status = TestCompiler.writeAndCompile(this.compiler, amplifiedTestClass, false,
                 this.inputProgram.getProgramDir() + this.inputProgram.getClassesDir() + "/:" +
-                        this.inputProgram.getProgramDir() + this.inputProgram.getTestClassesDir() + "/" );
+                        this.inputProgram.getProgramDir() + this.inputProgram.getTestClassesDir() + "/");
         if (!status) {
             Log.debug("Unable to compile {}", amplifiedTestClass.getSimpleName());
             return null;
