@@ -24,6 +24,7 @@ public class MainTest extends MavenAbstractTest {
                 "--test-criterion", "BranchCoverageTestSelector",
                 "--amplifiers", "MethodAdd:TestDataMutator:StatementAdderOnAssert",
                 "--iteration", "1",
+                "--randomSeed", "72"
         }));
         final File reportFile = new File("dspot-out/example.TestSuiteExample_branch_coverage_report.txt");
         assertTrue(reportFile.exists());

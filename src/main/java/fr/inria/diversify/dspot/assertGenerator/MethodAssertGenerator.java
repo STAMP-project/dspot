@@ -27,11 +27,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static fr.inria.diversify.dspot.assertGenerator.AssertGeneratorHelper.addLogStmt;
+
 /**
  * User: Simon
  * Date: 22/10/15
  * Time: 10:06
  */
+@Deprecated
 public class MethodAssertGenerator {
 
     private int numberOfFail = 0;
@@ -50,11 +53,11 @@ public class MethodAssertGenerator {
 
     public CtMethod generateAssert(CtMethod test) throws IOException, ClassNotFoundException {
         this.test = test;
-        this.test = createTestWithoutAssert(test, new ArrayList<>());
         this.test.setParent(test.getParent());
         for (int i = 0; i < Query.getElements(this.test, new TypeFilter(CtStatement.class)).size(); i++) {
             statementsIndexToAssert.add(i);
         }
+        this.test = createTestWithoutAssert(test, statementsIndexToAssert);
         CtMethod newTest = generateAssert();
         if (newTest == null || !isCorrect(newTest)) {
             return null;
@@ -202,6 +205,7 @@ public class MethodAssertGenerator {
         return result != null && result.getFailures().isEmpty();
     }
 
+    @Deprecated
     protected CtMethod removeFailAssert() throws IOException, ClassNotFoundException {
         List<Integer> goodAssert = findGoodAssert();
         String testName = test.getSimpleName();
@@ -211,6 +215,7 @@ public class MethodAssertGenerator {
         return test;
     }
 
+    @Deprecated
     private List<Integer> findGoodAssert() throws IOException, ClassNotFoundException {
         int stmtIndex = 0;
         List<CtMethod<?>> testsToRun = new ArrayList<>();
@@ -323,58 +328,6 @@ public class MethodAssertGenerator {
 
     private boolean isVoidReturn(CtInvocation invocation) {
         return invocation.getType() != null && (invocation.getType().getSimpleName().equals("Void") || invocation.getType().getSimpleName().equals("void"));
-    }
-
-    private void addLogStmt(CtStatement stmt, String id, boolean forAssert) {
-        if (stmt instanceof CtLocalVariable && ((CtLocalVariable) stmt).getDefaultExpression() == null) {
-            return;
-        }
-        String snippet;
-        if (forAssert) {
-            snippet = "fr.inria.diversify.compare.ObjectLog.log(";
-        } else {
-            snippet = "fr.inria.diversify.compare.ObjectLog.logObject(";
-        }
-
-        CtStatement insertAfter = null;
-        if (stmt instanceof CtVariableWrite) {
-            CtVariableWrite varWrite = (CtVariableWrite) stmt;
-            snippet += varWrite.getVariable()
-                    + ",\"" + varWrite.getVariable() + "\",\"" + id + "\")";
-            insertAfter = stmt;
-        }
-        if (stmt instanceof CtLocalVariable) {
-            CtLocalVariable localVar = (CtLocalVariable) stmt;
-            snippet += localVar.getSimpleName()
-                    + ",\"" + localVar.getSimpleName() + "\",\"" + id + "\")";
-            insertAfter = stmt;
-        }
-        if (stmt instanceof CtAssignment) {
-            CtAssignment localVar = (CtAssignment) stmt;
-            snippet += localVar.getAssigned()
-                    + ",\"" + localVar.getAssigned() + "\",\"" + id + "\")";
-            insertAfter = stmt;
-        }
-
-        if (stmt instanceof CtInvocation) {
-            CtInvocation invocation = (CtInvocation) stmt;
-            if (isVoidReturn(invocation)) {
-                insertAfter = invocation;
-                snippet += invocation.getTarget()
-                        + ",\"" + invocation.getTarget() + "\",\"" + id + "\")";
-            } else {
-                String snippetStmt = "Object o_" + id + " = " + invocation.toString();
-                CtStatement localVarSnippet = getFactory().Code().createCodeSnippetStatement(snippetStmt);
-                stmt.replace(localVarSnippet);
-                insertAfter = localVarSnippet;
-
-                snippet += "o_" + id
-                        + ",\"o_" + id + "\",\"" + id + "\")";
-
-            }
-        }
-        CtStatement logStmt = getFactory().Code().createCodeSnippetStatement(snippet);
-        insertAfter.insertAfter(logStmt);
     }
 
     protected CtMethod createTestWithoutAssert(CtMethod test, List<Integer> assertIndexToKeep) {
