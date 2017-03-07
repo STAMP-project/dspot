@@ -91,9 +91,10 @@ public class DSpot {
         String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
         FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
 
-        //Ugly way to support usage of resources with relative path.
+        //Ugly way to support usage of resources with relative path
         copyResourceOfTargetProjectIntoDspot("testResources");
         copyResourceOfTargetProjectIntoDspot("srcResources");
+        copyParentPomIfExist(outputDirectory);
 
         inputProgram.setProgramDir(outputDirectory);
         DSpotUtils.compileOriginalProject(this.inputProgram, inputConfiguration, mavenLocalRepository);
@@ -105,13 +106,12 @@ public class DSpot {
             Launcher spoonModel = DSpotCompiler.getSpoonModelOf(inputProgram.getAbsoluteSourceCodeDir(), dependencies);
             DSpotUtils.addBranchLogger(inputProgram, spoonModel.getFactory());
             DSpotUtils.copyLoggerPackage(inputProgram);
-        }
-
-        File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
-        FileUtils.cleanDirectory(output);
-        boolean status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
-        if (!status) {
-            throw new RuntimeException("Error during compilation");
+            File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
+            FileUtils.cleanDirectory(output);
+            boolean status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
+            if (!status) {
+                throw new RuntimeException("Error during compilation");
+            }
         }
 
         this.compiler = new DSpotCompiler(inputProgram, dependencies);
@@ -122,6 +122,17 @@ public class DSpot {
         this.numberOfIterations = numberOfIterations;
         this.testSelector = testSelector;
         this.testSelector.init(this.inputConfiguration);
+    }
+
+    private void copyParentPomIfExist(String target) {
+        final File file = new File(inputProgram.getProgramDir() + "/../pom.xml");
+        if (file.exists()) {
+            try {
+                FileUtils.copyFile(file, new File(target + "/../pom.xml"));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     private void copyResourceOfTargetProjectIntoDspot(String key) {
