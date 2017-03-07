@@ -179,8 +179,8 @@ public class AmplificationHelper {
 
     public static char getRandomChar() {
         int value = getRandom().nextInt(94) + 32;
-        char c = (char) ((value == 34 || value == 39) ? value + (getRandom().nextBoolean() ? 1 : -1) : value);
-        return c;//excluding " and '
+        char c = (char) ((value == 34 || value == 39 || value == 92) ? value + (getRandom().nextBoolean() ? 1 : -1) : value);
+        return c;//discarding " ' and \
     }
 
     public static CtMethod<?> addOriginInComment(CtMethod<?> amplifiedTest, CtMethod<?> topParent) {
