@@ -4,12 +4,25 @@ import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.dspot.TypeUtils;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.util.FileUtils;
+import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.IProblem;
+import spoon.Launcher;
+import spoon.reflect.code.CtStatement;
+import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtElement;
+import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.visitor.filter.TypeFilter;
+import spoon.support.reflect.code.CtStatementImpl;
+import spoon.support.reflect.declaration.CtMethodImpl;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.codehaus.plexus.util.FileUtils.forceDelete;
 
@@ -24,6 +37,65 @@ public class TestCompiler {
         if (withLogger) {
             copyLoggerFile(compiler);
         }
+        printAndDelete(compiler, classTest);
+        try {
+            return compiler.compile(dependencies);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static List<CtMethod<?>> compile(DSpotCompiler compiler, CtType classTest,
+                                            boolean withLogger, String dependencies) {
+        if (withLogger) {
+            copyLoggerFile(compiler);
+        }
+        printAndDelete(compiler, classTest);
+        final List<CategorizedProblem> problems = compiler.compileAndGetProbs(dependencies);
+        if (problems.isEmpty()) {
+            return Collections.emptyList();
+        } else {
+            final CtClass<?> newModelCtClass = getNewModelCtClass(compiler.getSourceOutputDirectory().getAbsolutePath(),
+                    classTest.getQualifiedName());
+            final List<CtStatement> statements = newModelCtClass.getElements(new TypeFilter<CtStatement>(CtStatement.class));
+            final HashSet<CtMethod<?>> methodsToRemove = problems.stream()
+                    .filter(IProblem::isError)
+                    .collect(HashSet<CtMethod<?>>::new,
+                            (ctMethods, categorizedProblem) -> {
+                                final Optional<CtStatement> statementOfError = statements.stream()
+                                        .filter(statement ->
+                                                statement.getPosition().getLine() == categorizedProblem.getSourceLineNumber()
+                                        )
+                                        .findFirst();
+                                if (statementOfError.isPresent()) {
+                                    ctMethods.add(statementOfError.get()
+                                            .getParent(CtMethod.class));
+                                }
+                            },
+                            HashSet<CtMethod<?>>::addAll);
+            final List<? extends CtMethod<?>> methods = methodsToRemove.stream()
+                    .map(CtMethod::getSimpleName)
+                    .map(methodName -> (CtMethod<?>) classTest.getMethodsByName(methodName).get(0))
+                    .collect(Collectors.toList());
+            methods.forEach(classTest::removeMethod);
+            methodsToRemove.addAll(compile(compiler, classTest, withLogger, dependencies));
+            return new ArrayList<>(methods);
+        }
+    }
+
+    public static final CtMethod<?> METHOD_CODE_RETURN = new CtMethodImpl();
+
+    private static CtClass<?> getNewModelCtClass(String pathToSrcFolder, String fullQualifiedName) {
+        Launcher launcher = new Launcher();
+        launcher.getEnvironment().setNoClasspath(true);
+        launcher.getEnvironment().setCommentEnabled(true);
+        launcher.addInputResource(pathToSrcFolder);
+        launcher.buildModel();
+
+        return launcher.getFactory().Class().get(fullQualifiedName);
+    }
+
+    private static void printAndDelete(DSpotCompiler compiler, CtType classTest) {
         try {
             PrintClassUtils.printJavaFile(compiler.getSourceOutputDirectory(), classTest);
         } catch (Exception e) {
@@ -35,12 +107,6 @@ public class TestCompiler {
             forceDelete(pathToDotClass);
         } catch (IOException ignored) {
             //ignored
-        }
-
-        try {
-            return compiler.compile(dependencies);
-        } catch (Exception e) {
-            return false;
         }
     }
 

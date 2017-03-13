@@ -12,6 +12,7 @@ import spoon.support.compiler.jdt.JDTBasedSpoonCompiler;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Benjamin DANGLOT
@@ -71,8 +72,12 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
         compiler.compile(finalArgs);
         environment = compiler.getEnvironment();
 
-
         return compiler.globalErrorsCount == 0;
+    }
+
+    public List<CategorizedProblem> compileAndGetProbs(String pathToAdditionalDependencies) {
+        this.compile(pathToAdditionalDependencies);
+        return getProblems();
     }
 
     public static Launcher getSpoonModelOf(String pathToSources, String pathToDependencies) {
