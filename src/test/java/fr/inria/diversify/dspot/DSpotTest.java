@@ -38,9 +38,9 @@ public class DSpotTest extends MavenAbstractTest {
     private final String expectedAmplifiedBody = "{" + nl +
             "    example.Example ex = new example.Example();" + nl + 
             "    // StatementAdderOnAssert create random local variable" + nl + 
-            "    int vc_4 = 1635508580;" + nl + 
+            "    int vc_4 = -619987209;" + nl +
             "    // AssertGenerator add assertion" + nl + 
-            "    org.junit.Assert.assertEquals(vc_4, 1635508580);" + nl + 
+            "    org.junit.Assert.assertEquals(vc_4, -619987209);" + nl +
             "    // StatementAdderOnAssert create literal from method" + nl + 
             "    java.lang.String String_vc_0 = \"abcd\";" + nl + 
             "    // AssertGenerator add assertion" + nl + 
@@ -51,7 +51,7 @@ public class DSpotTest extends MavenAbstractTest {
             "    char o_test2_cf16__9 = // StatementAdderMethod cloned existing statement" + nl + 
             "vc_1.charAt(String_vc_0, vc_4);" + nl + 
             "    // AssertGenerator add assertion" + nl + 
-            "    org.junit.Assert.assertEquals(o_test2_cf16__9, 'd');" + nl + 
+            "    org.junit.Assert.assertEquals(o_test2_cf16__9, 'a');" + nl +
             "    org.junit.Assert.assertEquals('d', ex.charAt(\"abcd\", 3));" + nl + 
             "}";
 

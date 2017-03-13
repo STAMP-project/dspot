@@ -147,7 +147,7 @@ public class Amplification {
                     String methodName = failure.getTestHeader();
                     CtMethod testToRemove = tests.stream()
                             .filter(m -> methodName.startsWith(m.getSimpleName()))
-                            .findAny().get();
+                            .findFirst().get();
                     tests.remove(tests.indexOf(testToRemove));
                     Log.warn("{}", testToRemove.getSimpleName());
                 } catch (Exception ignored) {
