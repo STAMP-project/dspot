@@ -6,6 +6,7 @@ import fr.inria.diversify.mutant.pit.PitRunner;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
+import fr.inria.diversify.util.Log;
 import spoon.reflect.code.CtComment;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
@@ -228,5 +229,20 @@ public class AmplificationHelper {
         classpath += ":" + inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir();
         classpath += ":" + compiler.getDependencies();
         return classpath;
+    }
+
+    //empirically 200 seems to be enough
+    public static final int MAX_NUMBER_OF_TESTS = 200;
+
+    public static List<CtMethod<?>> reduce(List<CtMethod<?>> newTests) {
+        if (newTests.size() > MAX_NUMBER_OF_TESTS) {
+            Log.warn("Too many tests has been generated: {}", newTests.size());
+            Collections.shuffle(newTests, AmplificationHelper.getRandom());
+            List<CtMethod<?>> reducedNewTests = newTests.subList(0, MAX_NUMBER_OF_TESTS);
+            Log.debug("Number of generated test reduced to {}", MAX_NUMBER_OF_TESTS);
+            return reducedNewTests;
+        } else {
+            return newTests;
+        }
     }
 }
