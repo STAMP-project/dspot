@@ -73,12 +73,12 @@ public class TestCompiler {
                                 }
                             },
                             HashSet<CtMethod<?>>::addAll);
-            final List<? extends CtMethod<?>> methods = methodsToRemove.stream()
+            final List<CtMethod<?>> methods = methodsToRemove.stream()
                     .map(CtMethod::getSimpleName)
                     .map(methodName -> (CtMethod<?>) classTest.getMethodsByName(methodName).get(0))
                     .collect(Collectors.toList());
             methods.forEach(classTest::removeMethod);
-            methodsToRemove.addAll(compile(compiler, classTest, withLogger, dependencies));
+            methods.addAll(compile(compiler, classTest, withLogger, dependencies));
             return new ArrayList<>(methods);
         }
     }
