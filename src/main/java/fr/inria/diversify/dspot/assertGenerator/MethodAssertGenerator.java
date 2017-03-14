@@ -4,13 +4,13 @@ import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpotUtils;
+import fr.inria.diversify.dspot.selector.json.TestCaseJSON;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.TestCompiler;
 import fr.inria.diversify.testRunner.TestRunner;
-import org.junit.runner.Request;
 import org.junit.runner.notification.Failure;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
@@ -156,7 +156,7 @@ public class MethodAssertGenerator {
         }
         ObjectLog.reset();
         JunitResult result = runTests(cl, testsToRun);
-        if (result == null || !result.getFailures().isEmpty()) {// || result.getTestRuns().size() != testsToRun.size()) {
+        if (result == null || !result.getFailures().isEmpty()) {
             return null;
         }
         return buildTestWithAssert(ObjectLog.getObservations());
@@ -262,9 +262,10 @@ public class MethodAssertGenerator {
     }
 
     public JunitResult runTests(CtType testClass, List<CtMethod<?>> testsToRun) throws ClassNotFoundException {
-        boolean statusCompilation = TestCompiler.writeAndCompile(this.compiler, testClass, true,
-                inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + ":" +
-                        inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir());
+        final String dependencies = inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + ":" +
+                inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir();
+        boolean statusCompilation = TestCompiler.writeAndCompile(this.compiler, testClass,
+                true, dependencies);
         if (!statusCompilation) {
             return null;
         } else {

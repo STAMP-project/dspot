@@ -39,7 +39,7 @@ public class TestValueCreator extends AbstractTest {
 
         assertEquals("vc_"+count, randomLocalVar.getSimpleName());
         assertEquals(factory.Type().INTEGER_PRIMITIVE, randomLocalVar.getType());
-        assertEquals(1434614297, ((CtLiteral)randomLocalVar.getDefaultExpression()).getValue());
+        assertEquals(-1150482841, ((CtLiteral)randomLocalVar.getDefaultExpression()).getValue());
 
         randomLocalVar = valueCreator.createRandomLocalVar(factory.Type().createArrayReference("int"));
         count++;

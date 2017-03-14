@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.dspot.amplifier.Amplifier;
 import fr.inria.diversify.dspot.assertGenerator.AssertGenerator;
+import fr.inria.diversify.dspot.assertGenerator.AssertGeneratorHelper;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.runner.InputProgram;
@@ -92,7 +93,7 @@ public class Amplification {
             }
             Log.debug("{} tests selected to be amplified over {} available tests", testToBeAmplified.size(), currentTestList.size());
 
-            currentTestList = reduce(amplifyTests(testToBeAmplified));
+            currentTestList = AmplificationHelper.reduce(amplifyTests(testToBeAmplified));
 
             List<CtMethod<?>> testWithAssertions = assertGenerator.generateAsserts(classTest, currentTestList);
             if (testWithAssertions.isEmpty()) {
@@ -147,7 +148,7 @@ public class Amplification {
                     String methodName = failure.getTestHeader();
                     CtMethod testToRemove = tests.stream()
                             .filter(m -> methodName.startsWith(m.getSimpleName()))
-                            .findAny().get();
+                            .findFirst().get();
                     tests.remove(tests.indexOf(testToRemove));
                     Log.warn("{}", testToRemove.getSimpleName());
                 } catch (Exception ignored) {
@@ -186,21 +187,6 @@ public class Amplification {
                 .map(amplifiedTest ->
                         AmplificationHelper.addOriginInComment(amplifiedTest, AmplificationHelper.getTopParent(test))
                 ).collect(Collectors.toList());
-    }
-
-    //empirically 200 seems to be enough
-    private static final int MAX_NUMBER_OF_TESTS = 200;
-
-    private List<CtMethod<?>> reduce(List<CtMethod<?>> newTests) {
-        if (newTests.size() > MAX_NUMBER_OF_TESTS) {
-            Log.warn("Too many tests has been generated: {}", newTests.size());
-            Collections.shuffle(newTests, AmplificationHelper.getRandom());
-            List<CtMethod<?>> reducedNewTests = newTests.subList(0, MAX_NUMBER_OF_TESTS);
-            Log.debug("Number of generated test reduced to {}", MAX_NUMBER_OF_TESTS);
-            return reducedNewTests;
-        } else {
-            return newTests;
-        }
     }
 
     private void resetAmplifiers(CtType parentClass) {

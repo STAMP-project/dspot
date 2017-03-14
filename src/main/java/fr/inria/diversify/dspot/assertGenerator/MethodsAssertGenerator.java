@@ -10,8 +10,6 @@ import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.TestCompiler;
 import fr.inria.diversify.testRunner.TestRunner;
-import fr.inria.diversify.util.Log;
-import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
@@ -65,8 +63,9 @@ public class MethodsAssertGenerator {
         CtType clone = testClass.clone();
         testClass.getPackage().addType(clone);
         tests.forEach(clone::addMethod);
+
         final JunitResult result = runTests(clone, tests);
-        if (result == null || result.getTestRuns().size() != tests.size()) {
+        if (result == null) {
             return Collections.EMPTY_LIST;
         } else {
 
@@ -104,7 +103,7 @@ public class MethodsAssertGenerator {
             } else {
                 passingTests = failingTests;
             }
-            return filterTest(passingTests);
+            return filterTest(passingTests, 3);
         }
     }
 
@@ -222,18 +221,20 @@ public class MethodsAssertGenerator {
     }
 
     private JunitResult runTests(CtType testClass, List<CtMethod<?>> testsToRun) {
-        boolean statusCompilation = TestCompiler.writeAndCompile(this.compiler, testClass, true,
-                inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + ":" +
-                        inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir());
-        if (!statusCompilation) {
+        final String dependencies = inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + ":" +
+                inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir();
+        final List<CtMethod<?>> uncompilableMethods = TestCompiler.compile(this.compiler, testClass, true, dependencies);
+        if (uncompilableMethods.contains(TestCompiler.METHOD_CODE_RETURN)) {
             return null;
         } else {
+            uncompilableMethods.forEach(testsToRun::remove);
+            uncompilableMethods.forEach(testClass::removeMethod);
             String classpath = AmplificationHelper.getClassPath(this.compiler, this.inputProgram);
             return TestRunner.runTests(testClass, testsToRun, classpath, this.inputProgram);
         }
     }
 
-    private List<CtMethod<?>> filterTest(List<CtMethod<?>> tests) {
+    private List<CtMethod<?>> filterTest(List<CtMethod<?>> tests, int nTime) {
         CtType clone = this.originalClass.clone();
         this.originalClass.getPackage().addType(clone);
         final ArrayList<CtMethod<?>> clones = tests.stream()
@@ -242,8 +243,7 @@ public class MethodsAssertGenerator {
                         ArrayList<CtMethod<?>>::addAll);
         clones.forEach(clone::addMethod);
 
-        // here, we run 3 times each test cases in case of randomness
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < nTime; i++) {
             final JunitResult result = runTests(clone, clones);
             if (result == null) {
                 return Collections.emptyList();
@@ -253,13 +253,15 @@ public class MethodsAssertGenerator {
                                 (testHeaders, failure) -> testHeaders.add(failure.getTestHeader().split("\\(")[0]),
                                 ArrayList<String>::addAll);
                 failingTestHeaders.forEach(failingTestHeader -> {
-                            final CtMethod<?> failingTestCase = clones.stream()
+                            final Optional<CtMethod<?>> optionalFailingTestCase = clones.stream()
                                     .filter(ctMethod ->
                                             ctMethod.getSimpleName().equals(failingTestHeader))
-                                    .findFirst()
-                                    .get();
-                            clones.remove(failingTestCase);
-                            clone.removeMethod(failingTestCase);
+                                    .findFirst();
+                            if (optionalFailingTestCase.isPresent()) {
+                                final CtMethod<?> failingTestCase = optionalFailingTestCase.get();
+                                clones.remove(failingTestCase);
+                                clone.removeMethod(failingTestCase);
+                            }
                         }
                 );
             }

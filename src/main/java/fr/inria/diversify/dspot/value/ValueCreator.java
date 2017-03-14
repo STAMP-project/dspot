@@ -12,6 +12,8 @@ import spoon.reflect.reference.CtTypeReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static fr.inria.diversify.dspot.value.ValueType.factory;
+
 /**
  * User: Simon
  * Date: 07/01/16
@@ -31,7 +33,7 @@ public class ValueCreator {
         Factory factory = type.getFactory();
         CtExpression value = createValue(type);
         if (value != null) {
-            return factory.Code().createLocalVariable(type, "vc_" + count++, createValue(type));
+            return factory.Code().createLocalVariable(type, "vc_" + count++, value);
         } else {
             return null;
         }

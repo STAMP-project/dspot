@@ -1,6 +1,5 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
-import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.Log;
@@ -35,13 +34,11 @@ public class AssertGenerator {
     public List<CtMethod<?>> generateAsserts(CtType testClass, Collection<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
         CtType cloneClass = testClass.clone();
         cloneClass.setParent(testClass.getParent());
-        MethodsAssertGenerator ags = new MethodsAssertGenerator(testClass, inputProgram, compiler);
         final Map<CtMethod<?>, List<Integer>> statementIndexToAssert = tests.stream()
                 .collect(Collectors.toMap(Function.identity(), AssertGeneratorHelper::findStatementToAssert));
+        MethodsAssertGenerator ags = new MethodsAssertGenerator(testClass, inputProgram, compiler);
         final List<CtMethod<?>> amplifiedTestWithAssertion = ags.generateAsserts(testClass, new ArrayList<>(tests), statementIndexToAssert);
         Log.debug("{} new tests with assertions generated", amplifiedTestWithAssertion.size());
-        return amplifiedTestWithAssertion == null ? Collections.EMPTY_LIST : amplifiedTestWithAssertion;
+        return amplifiedTestWithAssertion;
     }
-
-
 }
