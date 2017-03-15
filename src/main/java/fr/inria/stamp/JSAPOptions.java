@@ -79,7 +79,8 @@ public class JSAPOptions {
                 testCriterion,
                 Arrays.asList(jsapConfig.getStringArray("testCases")),
                 jsapConfig.getLong("seed"),
-                jsapConfig.getInt("timeOut"));
+                jsapConfig.getInt("timeOut"),
+                jsapConfig.getString("mavenHome"));
     }
 
     private static Amplifier stringToAmplifier(String amplifier) {
@@ -108,8 +109,6 @@ public class JSAPOptions {
     }
 
     private static JSAP initJSAP() {
-        final String nl = System.getProperty("line.separator");
-
         JSAP jsap = new JSAP();
 
         Switch help = new Switch("help");
@@ -204,6 +203,13 @@ public class JSAPOptions {
         timeOut.setHelp("specify the timeout value of the degenerated tests in millisecond");
         timeOut.setDefault("10000");
 
+        FlaggedOption mavenHome = new FlaggedOption("mavenHome");
+        mavenHome.setStringParser(JSAP.STRING_PARSER);
+        mavenHome.setLongFlag("maven-home");
+        mavenHome.setShortFlag('j');
+        mavenHome.setUsageName("path to maven home");
+        mavenHome.setHelp("specify the path to the maven home");
+
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
@@ -217,6 +223,7 @@ public class JSAPOptions {
             jsap.registerParameter(timeOut);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
+            jsap.registerParameter(mavenHome);
         } catch (JSAPException e) {
             throw new RuntimeException(e);
         }
