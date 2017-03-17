@@ -3,14 +3,13 @@ package fr.inria.stamp;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
-import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
-import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Benjamin DANGLOT
@@ -29,6 +28,9 @@ public class Main {
         AmplificationHelper.setSeedRandom(23L);
         InputProgram program = new InputProgram();
         inputConfiguration.setInputProgram(program);
+        if (configuration.mavenHome != null) {
+            inputConfiguration.getProperties().put("maven.home", configuration.mavenHome);
+        }
         DSpot dspot = new DSpot(inputConfiguration, configuration.nbIteration, configuration.amplifiers, configuration.selector);
         if (configuration.pathToOutput != null) {
             inputConfiguration.getProperties().setProperty("outputDirectory", configuration.pathToOutput);
@@ -43,9 +45,9 @@ public class Main {
         } else {
             configuration.testCases.forEach(testCase -> {
                 if (!configuration.namesOfTestCases.isEmpty()) {
-                    amplifyOne(dspot, testCase, inputConfiguration, configuration.namesOfTestCases);
+                    amplifyOne(dspot, testCase, configuration.namesOfTestCases);
                 } else {
-                    amplifyOne(dspot, testCase, inputConfiguration, Collections.EMPTY_LIST);
+                    amplifyOne(dspot, testCase, Collections.EMPTY_LIST);
                 }
             });
         }
@@ -63,15 +65,13 @@ public class Main {
         }
     }
 
-    private static void amplifyOne(DSpot dspot, String fullQualifiedNameTestClass, InputConfiguration configuration, List<String> testCases) {
+    private static void amplifyOne(DSpot dspot, String fullQualifiedNameTestClass, List<String> testCases) {
         long time = System.currentTimeMillis();
-        final File outputDirectory = new File(configuration.getOutputDirectory() + "/");
         try {
-            CtType amplifiedTestClass;
             if (testCases.isEmpty()) {
-                amplifiedTestClass = dspot.amplifyTest(fullQualifiedNameTestClass);
+                dspot.amplifyTest(fullQualifiedNameTestClass);
             } else {
-                amplifiedTestClass = dspot.amplifyTest(fullQualifiedNameTestClass, testCases);
+                dspot.amplifyTest(fullQualifiedNameTestClass, testCases);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
