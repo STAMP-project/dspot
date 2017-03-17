@@ -171,7 +171,8 @@ public class DSpot {
                         ctClass.getMethods().stream()
                                 .filter(method ->
                                         AmplificationChecker.isTest(method, inputProgram.getRelativeTestSourceCodeDir()))
-                                .count() > 0)
+                                .findFirst()
+                                .isPresent())
                 .map(this::amplifyTest)
                 .collect(Collectors.toList());
     }

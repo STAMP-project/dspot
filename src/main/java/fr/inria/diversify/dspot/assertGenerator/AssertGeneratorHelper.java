@@ -76,8 +76,8 @@ public class AssertGeneratorHelper {
                     }
                 }
                 stmtIndex++;
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            } catch (Exception ignored) {
+                //ignored, skipping to the next statement
             }
         }
         return newTest;
@@ -169,14 +169,6 @@ public class AssertGeneratorHelper {
         }
         CtStatement logStmt = stmt.getFactory().Code().createCodeSnippetStatement(snippet);
         insertAfter.insertAfter(logStmt);
-    }
-
-    static CtLocalVariable<Object> buildVarStatement(CtExpression arg, String id) {
-        CtTypeReference<Object> objectType = arg.getFactory().Core().createTypeReference();
-        objectType.setSimpleName("Object");
-        CtLocalVariable<Object> localVar = arg.getFactory().Code().createLocalVariable(objectType, "o_" + id, arg);
-        DSpotUtils.addComment(localVar, "MethodAssertGenerator build local variable", CtComment.CommentType.INLINE);
-        return localVar;
     }
 
     static Map<CtMethod<?>, List<Integer>> takeAllStatementToAssert(CtType testClass, List<CtMethod<?>> tests) {

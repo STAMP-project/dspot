@@ -129,11 +129,12 @@ public class Amplification {
 
     private List<CtMethod<?>> preAmplification(CtType classTest, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
         if (tests.isEmpty()) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         JunitResult result = compileAndRunTests(classTest, tests);
         if (result == null) {
-            throw new RuntimeException("Need a green test suite to run dspot");
+            Log.error("Need a green test suite to run dspot");
+            return Collections.emptyList();
         }
         if (!result.getFailures().isEmpty()) {
             Log.warn("{} tests failed before the amplifications", result.getFailures().size());
@@ -165,7 +166,7 @@ public class Amplification {
                             classTest, testSelector.selectToAmplify(tests))
             );
             if (tests.containsAll(preAmplifiedMethods)) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             } else {
                 return preAmplifiedMethods;
             }

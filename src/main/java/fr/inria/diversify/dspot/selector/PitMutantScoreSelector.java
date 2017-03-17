@@ -113,9 +113,9 @@ public class PitMutantScoreSelector implements TestSelector {
                 Log.warn("Number of generated mutant is different than the original one.");
             }
             results.stream()
-                    .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
-                    .filter(result -> !this.originalKilledMutants.contains(result))
-                    .filter(result -> !this.mutantNotTestedByOriginal.contains(result))
+                    .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED &&
+                            !this.originalKilledMutants.contains(result) &&
+                            !this.mutantNotTestedByOriginal.contains(result))
                     .forEach(result -> {
                         CtMethod method = result.getMethod(clone);
                         if (killsMoreMutantThanParents(method, result)) {
@@ -164,7 +164,9 @@ public class PitMutantScoreSelector implements TestSelector {
     @Override
     public void report() {
         reportStdout();
-        reportJSONMutants();
+        if (this.currentClassTestToBeAmplified != null) {
+            reportJSONMutants();
+        }
         //clean up for the next class
         this.currentClassTestToBeAmplified = null;
     }
@@ -199,11 +201,13 @@ public class PitMutantScoreSelector implements TestSelector {
         if (!reportDir.exists()) {
             reportDir.mkdir();
         }
-        try (FileWriter writer = new FileWriter(this.configuration.getOutputDirectory() + "/" +
-                this.currentClassTestToBeAmplified.getQualifiedName() + "_mutants_report.txt", false)) {
-            writer.write(string.toString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (this.currentClassTestToBeAmplified != null) {
+            try (FileWriter writer = new FileWriter(this.configuration.getOutputDirectory() + "/" +
+                    this.currentClassTestToBeAmplified.getQualifiedName() + "_mutants_report.txt", false)) {
+                writer.write(string.toString());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -211,7 +215,6 @@ public class PitMutantScoreSelector implements TestSelector {
         return this.testThatKilledMutants.keySet()
                 .stream()
                 .flatMap(method -> this.testThatKilledMutants.get(method).stream())
-                .map(PitResult::getFullQualifiedNameMutantOperator)
                 .distinct()
                 .count();
     }
