@@ -7,8 +7,6 @@ import spoon.reflect.reference.CtExecutableReference;
 
 import java.util.*;
 
-import static fr.inria.diversify.compare.Observation.junitAssertClassName;
-
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -16,7 +14,9 @@ import static fr.inria.diversify.compare.Observation.junitAssertClassName;
  */
 public class AssertBuilder {
 
-    public static List<CtStatement> buildAssert(Factory factory, Set<String> notDeterministValues, Map<String, Object> observations) {
+    private static String junitAssertClassName = "org.junit.Assert";
+
+    static List<CtStatement> buildAssert(Factory factory, Set<String> notDeterministValues, Map<String, Object> observations) {
         return observations.keySet().stream()
                 .filter(key -> !notDeterministValues.contains(key))
                 .collect(ArrayList<CtStatement>::new,
@@ -56,7 +56,7 @@ public class AssertBuilder {
         final CtInvocation invocation = factory.createInvocation();
         final CtExecutableReference<?> executableReference = factory.Core().createExecutableReference();
         executableReference.setStatic(true);
-        executableReference.setSimpleName(methodName);
+        executableReference.setSimpleName(junitAssertClassName + "." + methodName);
         executableReference.setDeclaringType(factory.createCtTypeReference(org.junit.Assert.class));
         invocation.setExecutable(executableReference);
         invocation.setArguments(arguments); // TODO

@@ -67,7 +67,7 @@ public class MethodsAssertGenerator {
 
         final JunitResult result = runTests(clone, tests);
         if (result == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         } else {
 
             final List<String> failuresMethodName = result.getFailures().stream()
@@ -110,6 +110,8 @@ public class MethodsAssertGenerator {
 
 
     private List<CtMethod<?>> addAssertions(CtType testClass, List<CtMethod<?>> testCases, Map<CtMethod<?>, List<Integer>> statementsIndexToAssert) throws IOException, ClassNotFoundException {
+        CtType clone = testClass.clone();
+        testClass.getPackage().addType(clone);
         final List<CtMethod<?>> testCasesWithLogs = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             int finalI = i;
@@ -120,13 +122,13 @@ public class MethodsAssertGenerator {
                         return ctMethod;
                     })
                     .collect(Collectors.toList());
-            testsWithLog.forEach(testClass::addMethod);
+            testsWithLog.forEach(clone ::addMethod);
             testCasesWithLogs.addAll(testsWithLog);
         }
         ObjectLog.reset();
-        final JunitResult result = runTests(testClass, testCasesWithLogs);
+        final JunitResult result = runTests(clone, testCasesWithLogs);
         if (result == null || !result.getFailures().isEmpty()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         } else {
             return testCases.stream()
                     .map(ctMethod -> this.buildTestWithAssert(ctMethod, ObjectLog.getObservations()))
@@ -145,12 +147,9 @@ public class MethodsAssertGenerator {
                 continue;
             }
             int line = Integer.parseInt(id.split("__")[1]);
-
-
-
             final List<CtStatement> assertStatements = AssertBuilder.buildAssert(factory,
-                    observations.get(id).notDeterministValues,
-                    observations.get(id).observationValues);
+                    observations.get(id).getNotDeterministValues(),
+                    observations.get(id).getObservationValues());
             for (CtStatement statement : assertStatements) {
                 DSpotUtils.addComment(statement, "AssertGenerator add assertion", CtComment.CommentType.INLINE);
                 try {

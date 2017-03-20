@@ -164,6 +164,7 @@ public class MethodAssertGenerator {
 
     private CtMethod buildTestWithAssert(Map<String, Observation> observations) {
         CtMethod testWithAssert = test.clone();
+        final Factory factory = test.getFactory();
         int numberOfAddedAssertion = 0;
         List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter(CtStatement.class));
         for (String id : observations.keySet()) {
@@ -171,24 +172,25 @@ public class MethodAssertGenerator {
                 continue;
             }
             int line = Integer.parseInt(id.split("__")[1]);
-            List<String> asserts = observations.get(id).buildAssert();
-            for (String snippet : asserts) {
-                CtStatement assertStmt = getFactory().Code().createCodeSnippetStatement(snippet);
-                DSpotUtils.addComment(assertStmt, "AssertGenerator add assertion", CtComment.CommentType.INLINE);
+            final List<CtStatement> assertStatements = AssertBuilder.buildAssert(factory,
+                    observations.get(id).getNotDeterministValues(),
+                    observations.get(id).getObservationValues());
+            for (CtStatement statement : assertStatements) {
+                DSpotUtils.addComment(statement, "AssertGenerator add assertion", CtComment.CommentType.INLINE);
                 try {
                     CtStatement stmt = statements.get(line);
-                    if (stmt instanceof CtInvocation && !isVoidReturn((CtInvocation) stmt)) {
+                    if (stmt instanceof CtInvocation && !AssertGeneratorHelper.isVoidReturn((CtInvocation) stmt)) {
                         String localVarSnippet = ((CtInvocation) stmt).getType().toString()
                                 + " o_" + id + " = "
                                 + stmt.toString();
-                        CtStatement localVarStmt = getFactory().Code().createCodeSnippetStatement(localVarSnippet);
+                        CtStatement localVarStmt = factory.Code().createCodeSnippetStatement(localVarSnippet);
                         stmt.replace(localVarStmt);
                         statements.set(line, localVarStmt);
                         DSpotUtils.addComment(localVarStmt, "AssertGenerator replace invocation", CtComment.CommentType.INLINE);
                         localVarStmt.setParent(stmt.getParent());
-                        localVarStmt.insertAfter(assertStmt);
+                        localVarStmt.insertAfter(statement);
                     } else {
-                        stmt.insertAfter(assertStmt);
+                        stmt.insertAfter(statement);
                     }
                     numberOfAddedAssertion++;
                 } catch (Exception e) {
