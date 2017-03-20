@@ -15,9 +15,9 @@ public class Counter {
 
     private static Counter _instance;
 
-    private Map<CtMethod, Integer> numberOfAssertionAdded;
+    private Map<String, Integer> numberOfAssertionAdded;
 
-    private Map<CtMethod, Integer> numberOfInputAdded;
+    private Map<String, Integer> numberOfInputAdded;
 
     private Counter() {
         this.numberOfAssertionAdded = new HashMap<>();
@@ -40,16 +40,16 @@ public class Counter {
     }
 
     public static Integer getAssertionOf(CtMethod method) {
-        return getInstance().numberOfAssertionAdded.get(method) == null ? 0 : getInstance().numberOfAssertionAdded.get(method);
+        return getInstance().numberOfAssertionAdded.get(method.getSimpleName()) == null ? 0 : getInstance().numberOfAssertionAdded.get(method.getSimpleName());
     }
 
     public static Integer getInputOf(CtMethod method) {
-        return getInstance().numberOfInputAdded.get(method) == null ? 0 : getInstance().numberOfInputAdded.get(method);
+        return getInstance().numberOfInputAdded.get(method.getSimpleName()) == null ? 0 : getInstance().numberOfInputAdded.get(method.getSimpleName());
     }
 
     public static Integer getAssertionOfSinceOrigin(CtMethod method) {
-        CtMethod currentMethod = method;
-        CtMethod parent;
+        CtMethod<?> currentMethod = method;
+        CtMethod<?> parent;
         int countAssertion = getAssertionOf(currentMethod);
         while ((parent = AmplificationHelper.getAmpTestToParent().get(currentMethod)) != null) {
             currentMethod = parent;
@@ -70,11 +70,11 @@ public class Counter {
         return countAssertion;
     }
 
-    private static void updateGivenMap(CtMethod method, int number, Map<CtMethod, Integer> mapToBeUpdated) {
-        if (!mapToBeUpdated.containsKey(method)) {
-            mapToBeUpdated.put(method, 0);
+    private static void updateGivenMap(CtMethod method, int number, Map<String, Integer> mapToBeUpdated) {
+        if (!mapToBeUpdated.containsKey(method.getSimpleName())) {
+            mapToBeUpdated.put(method.getSimpleName(), 0);
         }
-        mapToBeUpdated.put(method, mapToBeUpdated.get(method) + number);
+        mapToBeUpdated.put(method.getSimpleName(), mapToBeUpdated.get(method.getSimpleName()) + number);
     }
 
 }
