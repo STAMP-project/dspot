@@ -5,6 +5,7 @@ import fr.inria.diversify.util.FileUtils;
 import org.junit.Test;
 
 import java.io.*;
+import java.text.DecimalFormat;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -40,13 +41,15 @@ public class MainTest extends MavenAbstractTest {
 
     private static final String nl = System.getProperty("line.separator");
 
+    private static final char DECIMAL_SEPARATOR = (((DecimalFormat) DecimalFormat.getInstance()).getDecimalFormatSymbols().getDecimalSeparator());
+
     private static final String expectedReportAll = nl +
             "======= REPORT =======" + nl +
             "Branch Coverage Selector:" + nl +
-            "Initial coverage: 83.33%" + nl +
+            "Initial coverage: 83" + DECIMAL_SEPARATOR + "33%" + nl +
             "There is 3 unique path in the original test suite" + nl +
             "The amplification results with 6 new tests" + nl +
-            "The branch coverage obtained is: 100.00%" + nl +
+            "The branch coverage obtained is: 100" + DECIMAL_SEPARATOR + "00%" + nl +
             "There is 3 new unique path" + nl + nl;
 
     @Override
