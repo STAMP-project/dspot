@@ -4,18 +4,16 @@ import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.dspot.TypeUtils;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.util.FileUtils;
-import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import spoon.Launcher;
+import spoon.reflect.code.CtComment;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.visitor.filter.TypeFilter;
-import spoon.support.reflect.code.CtStatementImpl;
 import spoon.support.reflect.declaration.CtMethodImpl;
 
 import java.io.File;
@@ -57,26 +55,39 @@ public class TestCompiler {
         } else {
             final CtClass<?> newModelCtClass = getNewModelCtClass(compiler.getSourceOutputDirectory().getAbsolutePath(),
                     classTest.getQualifiedName());
-            final List<CtStatement> statements = newModelCtClass.getElements(new TypeFilter<CtStatement>(CtStatement.class));
             final HashSet<CtMethod<?>> methodsToRemove = problems.stream()
                     .filter(IProblem::isError)
                     .collect(HashSet<CtMethod<?>>::new,
                             (ctMethods, categorizedProblem) -> {
-                                final Optional<CtStatement> statementOfError = statements.stream()
-                                        .filter(statement ->
-                                                statement.getPosition().getLine() == categorizedProblem.getSourceLineNumber()
-                                        )
+                                final Optional<CtMethod<?>> methodToRemove = newModelCtClass.getMethods().stream()
+                                        .filter(ctMethod ->
+                                                ctMethod.getPosition().getSourceStart() <= categorizedProblem.getSourceStart() &&
+                                                        ctMethod.getPosition().getSourceEnd() >= categorizedProblem.getSourceEnd())
                                         .findFirst();
-                                if (statementOfError.isPresent()) {
-                                    ctMethods.add(statementOfError.get()
-                                            .getParent(CtMethod.class));
+                                if (methodToRemove.isPresent()) {
+                                    ctMethods.add(methodToRemove.get());
                                 }
                             },
                             HashSet<CtMethod<?>>::addAll);
+
             final List<CtMethod<?>> methods = methodsToRemove.stream()
                     .map(CtMethod::getSimpleName)
                     .map(methodName -> (CtMethod<?>) classTest.getMethodsByName(methodName).get(0))
                     .collect(Collectors.toList());
+
+            final List<CtMethod<?>> methodToKeep = newModelCtClass.getMethods().stream()
+                    .filter(ctMethod -> ctMethod.getBody().getStatements().stream()
+                            .filter(statement -> !(statement instanceof CtComment) && !methodsToRemove.contains(ctMethod))
+                            .findFirst()
+                            .isPresent())
+                    .collect(Collectors.toList());
+
+            methodsToRemove.addAll(
+                    newModelCtClass.getMethods().stream()
+                            .filter(ctMethod -> !methodToKeep.contains(ctMethod))
+                            .collect(Collectors.toList())
+            );
+
             methods.forEach(classTest::removeMethod);
             methods.addAll(compile(compiler, classTest, withLogger, dependencies));
             return new ArrayList<>(methods);

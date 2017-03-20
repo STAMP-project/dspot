@@ -15,6 +15,7 @@ import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
+import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
@@ -66,7 +67,7 @@ public class MethodsAssertGenerator {
 
         final JunitResult result = runTests(clone, tests);
         if (result == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         } else {
 
             final List<String> failuresMethodName = result.getFailures().stream()
@@ -103,12 +104,14 @@ public class MethodsAssertGenerator {
             } else {
                 passingTests = failingTests;
             }
-            return filterTest(passingTests, 3);
+            return filterTest(clone, passingTests, 3);
         }
     }
 
 
     private List<CtMethod<?>> addAssertions(CtType testClass, List<CtMethod<?>> testCases, Map<CtMethod<?>, List<Integer>> statementsIndexToAssert) throws IOException, ClassNotFoundException {
+        CtType clone = testClass.clone();
+        testClass.getPackage().addType(clone);
         final List<CtMethod<?>> testCasesWithLogs = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             int finalI = i;
@@ -119,19 +122,21 @@ public class MethodsAssertGenerator {
                         return ctMethod;
                     })
                     .collect(Collectors.toList());
-            testsWithLog.forEach(testClass::addMethod);
+            testsWithLog.forEach(clone ::addMethod);
             testCasesWithLogs.addAll(testsWithLog);
         }
         ObjectLog.reset();
-        final JunitResult result = runTests(testClass, testCasesWithLogs);
+        final JunitResult result = runTests(clone, testCasesWithLogs);
         if (result == null || !result.getFailures().isEmpty()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         } else {
             return testCases.stream()
                     .map(ctMethod -> this.buildTestWithAssert(ctMethod, ObjectLog.getObservations()))
                     .collect(Collectors.toList());
         }
     }
+
+
 
     private CtMethod<?> buildTestWithAssert(CtMethod test, Map<String, Observation> observations) {
         CtMethod testWithAssert = test.clone();
@@ -142,10 +147,11 @@ public class MethodsAssertGenerator {
                 continue;
             }
             int line = Integer.parseInt(id.split("__")[1]);
-            List<String> asserts = observations.get(id).buildAssert();
-            for (String snippet : asserts) {
-                CtStatement assertStmt = factory.Code().createCodeSnippetStatement(snippet);
-                DSpotUtils.addComment(assertStmt, "AssertGenerator add assertion", CtComment.CommentType.INLINE);
+            final List<CtStatement> assertStatements = AssertBuilder.buildAssert(factory,
+                    observations.get(id).getNotDeterministValues(),
+                    observations.get(id).getObservationValues());
+            for (CtStatement statement : assertStatements) {
+                DSpotUtils.addComment(statement, "AssertGenerator add assertion", CtComment.CommentType.INLINE);
                 try {
                     CtStatement stmt = statements.get(line);
                     if (stmt instanceof CtInvocation && !AssertGeneratorHelper.isVoidReturn((CtInvocation) stmt)) {
@@ -157,9 +163,9 @@ public class MethodsAssertGenerator {
                         statements.set(line, localVarStmt);
                         DSpotUtils.addComment(localVarStmt, "AssertGenerator replace invocation", CtComment.CommentType.INLINE);
                         localVarStmt.setParent(stmt.getParent());
-                        localVarStmt.insertAfter(assertStmt);
+                        localVarStmt.insertAfter(statement);
                     } else {
-                        stmt.insertAfter(assertStmt);
+                        stmt.insertAfter(statement);
                     }
                     numberOfAddedAssertion++;
                 } catch (Exception e) {
@@ -234,9 +240,7 @@ public class MethodsAssertGenerator {
         }
     }
 
-    private List<CtMethod<?>> filterTest(List<CtMethod<?>> tests, int nTime) {
-        CtType clone = this.originalClass.clone();
-        this.originalClass.getPackage().addType(clone);
+    private List<CtMethod<?>> filterTest(CtType clone, List<CtMethod<?>> tests, int nTime) {
         final ArrayList<CtMethod<?>> clones = tests.stream()
                 .collect(ArrayList<CtMethod<?>>::new,
                         (listClones, ctMethod) -> listClones.add(ctMethod.clone()),
