@@ -11,10 +11,12 @@ import java.util.List;
 public class TestClassJSON {
 
     private final String name;
+    private final int nbOriginalTestCases;
     private List<TestCaseJSON> testCases;
 
-    public TestClassJSON(String name) {
+    public TestClassJSON(String name, int nbOriginalTestCases) {
         this.name = name;
+        this.nbOriginalTestCases = nbOriginalTestCases;
         this.testCases = new ArrayList<>();
     }
 
