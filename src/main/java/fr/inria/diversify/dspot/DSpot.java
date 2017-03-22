@@ -1,21 +1,27 @@
 package fr.inria.diversify.dspot;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
+import fr.inria.diversify.dspot.selector.json.TestClassJSON;
+import fr.inria.diversify.dspot.support.ClassTimeJSON;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
+import fr.inria.diversify.dspot.support.ProjectTimeJSON;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
+import fr.inria.diversify.util.Log;
+import org.json.JSONObject;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,10 +42,12 @@ public class DSpot {
 
     private List<String> testResources;
 
-    @Deprecated
     private InputConfiguration inputConfiguration;
 
     private DSpotCompiler compiler;
+
+    private ProjectTimeJSON projectTimeJSON;
+    ;
 
     public DSpot(InputConfiguration inputConfiguration) throws InvalidSdkException, Exception {
         this(inputConfiguration, 3, Arrays.asList(
@@ -81,6 +89,8 @@ public class DSpot {
         InitUtils.initLogLevel(inputConfiguration);
         inputProgram = InitUtils.initInputProgram(inputConfiguration);
         inputConfiguration.setInputProgram(inputProgram);
+        final String[] splittedPath = inputProgram.getProgramDir().split(System.getProperty("file.separator"));
+        this.projectTimeJSON = new ProjectTimeJSON(splittedPath[splittedPath.length - 1]);
         String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp/";
         File tmpDir = new File(inputConfiguration.getProperty("tmpDir"));
         if (!tmpDir.exists()) {
@@ -159,13 +169,12 @@ public class DSpot {
         return f.getPath().substring((inputProgram.getProgramDir() + "/").length(), f.getPath().length());
     }
 
-
     public void addAmplifier(Amplifier amplifier) {
         this.amplifiers.add(amplifier);
     }
 
     public List<CtType> amplifyAllTests() throws InterruptedException, IOException, ClassNotFoundException {
-        return inputProgram.getFactory().Class().getAll().stream()
+        final List<CtType> amplifiedTest = inputProgram.getFactory().Class().getAll().stream()
                 .filter(ctClass -> !ctClass.getModifiers().contains(ModifierKind.ABSTRACT))
                 .filter(ctClass ->
                         ctClass.getMethods().stream()
@@ -175,18 +184,37 @@ public class DSpot {
                                 .isPresent())
                 .map(this::amplifyTest)
                 .collect(Collectors.toList());
+        writeTimeJson();
+        return amplifiedTest;
+    }
+
+    private void writeTimeJson() {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        final File file = new File(this.inputConfiguration.getOutputDirectory() +
+                "/" + this.projectTimeJSON.projectName + ".json");
+        try (FileWriter writer = new FileWriter(file, false)) {
+            writer.write(gson.toJson(this.projectTimeJSON));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public CtType amplifyTest(String fullName) throws InterruptedException, IOException, ClassNotFoundException {
         CtType<Object> clone = this.compiler.getLauncher().getFactory().Type().get(fullName).clone();
         clone.setParent(this.compiler.getLauncher().getFactory().Type().get(fullName).getParent());
-        return amplifyTest(clone);
+        final CtType ctType = amplifyTest(clone);
+        writeTimeJson();
+        return ctType;
     }
 
     public CtType amplifyTest(CtType test) {
         try {
             Amplification testAmplification = new Amplification(this.inputProgram, this.amplifiers, this.testSelector, this.compiler);
+            long time = System.currentTimeMillis();
             CtType amplification = testAmplification.amplification(test, numberOfIterations);
+            final long elapsedTime = System.currentTimeMillis() - time;
+            Log.debug("elapsedTime {}", elapsedTime);
+            this.projectTimeJSON.add(new ClassTimeJSON(test.getQualifiedName(), elapsedTime));
             testSelector.report();
             final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
             System.out.println("Print " + amplification.getSimpleName() + " with " + testSelector.getNbAmplifiedTestCase() + " amplified test cases in " + this.inputConfiguration.getOutputDirectory());
@@ -202,15 +230,21 @@ public class DSpot {
     public CtType amplifyTest(String fullName, List<String> methods) throws InterruptedException, IOException, ClassNotFoundException {
         CtType<Object> clone = this.compiler.getLauncher().getFactory().Type().get(fullName).clone();
         clone.setParent(this.compiler.getLauncher().getFactory().Type().get(fullName).getParent());
-        return amplifyTest(clone, methods.stream()
+        final CtType ctType = amplifyTest(clone, methods.stream()
                 .map(methodName -> clone.getMethodsByName(methodName).get(0))
                 .collect(Collectors.toList()));
+        writeTimeJson();
+        return ctType;
     }
 
     public CtType amplifyTest(CtType test, List<CtMethod<?>> methods) {
         try {
             Amplification testAmplification = new Amplification(this.inputProgram, this.amplifiers, this.testSelector, this.compiler);
+            long time = System.currentTimeMillis();
             CtType amplification = testAmplification.amplification(test, methods, numberOfIterations);
+            final long elapsedTime = System.currentTimeMillis() - time;
+            Log.debug("elapsedTime {}", elapsedTime);
+            this.projectTimeJSON.add(new ClassTimeJSON(test.getQualifiedName(), elapsedTime));
             testSelector.report();
             final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
             System.out.println("Print " + amplification.getSimpleName() + " with " + testSelector.getNbAmplifiedTestCase() + " amplified test cases in " + this.inputConfiguration.getOutputDirectory());
