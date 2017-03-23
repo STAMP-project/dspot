@@ -7,8 +7,8 @@ package fr.inria.diversify.dspot.support;
  */
 public class ClassTimeJSON {
 
-    private final String fullQualifiedName;
-    private final long timeInMs;
+    public final String fullQualifiedName;
+    public final long timeInMs;
 
     public ClassTimeJSON(String fullQualifiedName, long timeInMs) {
         this.fullQualifiedName = fullQualifiedName;

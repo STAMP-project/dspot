@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class ProjectTimeJSON {
 
-    private final List<ClassTimeJSON> classTimes = new ArrayList<>();
+    public final List<ClassTimeJSON> classTimes = new ArrayList<>();
     public final String projectName;
 
     public ProjectTimeJSON(String projectName) {
