@@ -14,6 +14,8 @@ public class PitResult {
 
     public enum State {SURVIVED, KILLED, NO_COVERAGE, TIMED_OUT, NON_VIABLE, MEMORY_ERROR}
 
+    private final String fullQualifiedNameClass;
+
     private final State stateOfMutant;
 
     private final String fullQualifiedNameMutantOperator;
@@ -26,9 +28,10 @@ public class PitResult {
 
     private CtMethod testCase = null;
 
-    public PitResult(State stateOfMutant, String fullQualifiedNameMutantOperator, String fullQualifiedNameMethod, int lineNumber, String nameOfLocalisation) {
+    public PitResult(State stateOfMutant, String fullQualifiedNameMutantOperator, String fullQualifiedNameMethod, String fullQualifiedNameClass, int lineNumber, String nameOfLocalisation) {
         this.stateOfMutant = stateOfMutant;
         this.fullQualifiedNameMutantOperator = fullQualifiedNameMutantOperator;
+        this.fullQualifiedNameClass = fullQualifiedNameClass;
         String[] split = fullQualifiedNameMethod.split("\\.");
         this.simpleNameMethod = split[split.length - 1];
         this.lineNumber = lineNumber;
@@ -49,6 +52,10 @@ public class PitResult {
 
     public String getLocation() {
         return location;
+    }
+
+    public String getFullQualifiedNameClass() {
+        return fullQualifiedNameClass;
     }
 
     public CtMethod getMethod(CtType ctClass) {
