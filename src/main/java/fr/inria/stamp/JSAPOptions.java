@@ -5,6 +5,7 @@ import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
 import fr.inria.diversify.dspot.selector.PitMutantScoreSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
+import fr.inria.diversify.mutant.pit.PitRunner;
 import fr.inria.diversify.util.Log;
 
 import java.util.Arrays;
@@ -70,6 +71,8 @@ public class JSAPOptions {
         } else {
             testCriterion = SelectorEnum.valueOf(jsapConfig.getString("test-criterion")).testCriterion;
         }
+
+        PitRunner.descartesMode = jsapConfig.getBoolean("descartes");
 
         return new Configuration(jsapConfig.getString("path"),
                 buildAmplifiersFromString(jsapConfig.getStringArray("amplifiers")),
@@ -210,20 +213,25 @@ public class JSAPOptions {
         mavenHome.setUsageName("path to maven home");
         mavenHome.setHelp("specify the path to the maven home");
 
+        Switch descartesMode = new Switch("descartes");
+        descartesMode.setShortFlag('d');
+        descartesMode.setLongFlag("descartes");
+
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
             jsap.registerParameter(iteration);
             jsap.registerParameter(selector);
+            jsap.registerParameter(descartesMode);
             jsap.registerParameter(specificTestCase);
             jsap.registerParameter(testCases);
             jsap.registerParameter(output);
             jsap.registerParameter(mutantScore);
+            jsap.registerParameter(mavenHome);
             jsap.registerParameter(seed);
             jsap.registerParameter(timeOut);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
-            jsap.registerParameter(mavenHome);
         } catch (JSAPException e) {
             throw new RuntimeException(e);
         }
