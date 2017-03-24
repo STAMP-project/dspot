@@ -221,6 +221,7 @@ public class DSpot {
             DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory);
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
             FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
+            DSpotUtils.compileOriginalProject(this.inputProgram, inputConfiguration, inputConfiguration.getProperty("maven.localRepository", null));
             return amplification;
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
             throw new RuntimeException(e);
