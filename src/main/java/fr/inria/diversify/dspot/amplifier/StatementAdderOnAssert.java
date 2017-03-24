@@ -1,14 +1,18 @@
 package fr.inria.diversify.dspot.amplifier;
 
-import fr.inria.diversify.codeFragment.*;
+import fr.inria.diversify.codeFragment.InputContext;
+import fr.inria.diversify.codeFragment.Statement;
 import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.dspot.AmplificationHelper;
-import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.DSpotUtils;
+import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.value.ValueCreator;
 import fr.inria.diversify.dspot.value.VarCartesianProduct;
 import spoon.reflect.code.*;
-import spoon.reflect.declaration.*;
+import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
+import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtTypeReference;
@@ -19,6 +23,8 @@ import spoon.support.reflect.code.CtVariableReadImpl;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static spoon.reflect.visitor.Query.getElements;
 
 /**
  * User: Simon
@@ -81,10 +87,12 @@ public class StatementAdderOnAssert implements Amplifier {
                         return false;
                     }
                 })
+                .filter(stmt -> stmt.getParent(CtClass.class) != null)
+                .filter(stmt -> stmt.getParent(CtClass.class).getQualifiedName().equals(testClass.getQualifiedName()))
                 .filter(stmt -> stmt.getParent() instanceof CtBlock)
                 .filter(stmt -> !stmt.toString().startsWith("super"))
                 .filter(stmt -> !stmt.toString().startsWith("this("))
-                .map(stmt -> new Statement(stmt))
+                .map(Statement::new)
                 .collect(Collectors.toList());
 
         if (findClassUnderTest(testClass) != null) {
@@ -165,9 +173,8 @@ public class StatementAdderOnAssert implements Amplifier {
                 DSpotUtils.addComment(localVariable, "StatementAdderOnAssert create literal from method", CtComment.CommentType.INLINE);
                 varCartesianProduct.addReplaceVar(var, localVariable);
             }
-
             CtLocalVariable randomVar = valueCreator.createRandomLocalVar(var.getType());
-                if (randomVar != null) {
+            if (randomVar != null) {
                 DSpotUtils.addComment(randomVar, "StatementAdderOnAssert create random local variable", CtComment.CommentType.INLINE);
                 varCartesianProduct.addReplaceVar(var, randomVar);
             }
@@ -177,6 +184,7 @@ public class StatementAdderOnAssert implements Amplifier {
     }
 
     private Statement getLocalVar(CtTypeReference type, InputContext inputContext) {
+
         List<Statement> list = localVars.stream()
                 .filter(var -> var.getCtCodeFragment() != null)
                 .filter(var -> type.equals(((CtLocalVariable) var.getCtCodeFragment()).getType()))
@@ -201,10 +209,8 @@ public class StatementAdderOnAssert implements Amplifier {
                     Statement cloneLocalVar = new Statement(localVar.getCtCodeFragment().clone());
                     for (CtVariableReference var : localVar.getInputContext().getVar()) {
                         try {
-                            //TODO
                             CtVariableReference variable = cloneLocalVar.getInputContext().getVariableOrFieldNamed(var.getSimpleName());
                             var.replace(variable);
-//                            cloneLocalVar.getInputContext().getVariableOrFieldNamed(var.getSimpleName()).replace(variable);
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
@@ -217,7 +223,7 @@ public class StatementAdderOnAssert implements Amplifier {
     }
 
     private List<CtStatement> getAssertStatement(CtMethod method) {
-        List<CtStatement> statements = Query.getElements(method, new TypeFilter(CtStatement.class));
+        List<CtStatement> statements = getElements(method, new TypeFilter(CtStatement.class));
         return statements.stream()
                 .filter(stmt -> stmt.getParent() instanceof CtBlock)
                 .filter(AmplificationChecker::isAssert)
@@ -326,7 +332,7 @@ public class StatementAdderOnAssert implements Amplifier {
 
     private List<CtLiteral> getLiterals(CtMethod method) {
         if (!literalsByMethod.containsKey(method)) {
-            literalsByMethod.put(method, Query.getElements(method, new TypeFilter<>(CtLiteral.class)));
+            literalsByMethod.put(method, getElements(method, new TypeFilter<>(CtLiteral.class)));
         }
         return literalsByMethod.get(method);
     }
