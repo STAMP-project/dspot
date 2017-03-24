@@ -57,7 +57,7 @@ public class Amplification {
         testSelector.reset();
         List<CtMethod<?>> ampTest = new ArrayList<>();
 
-        updateAmplifiedTestList(ampTest, preAmplification(classTest, tests).stream().collect(Collectors.toList()));
+        updateAmplifiedTestList(ampTest, preAmplification(classTest, tests));
 
         for (int i = 0; i < tests.size(); i++) {
             CtMethod test = tests.get(i);
@@ -68,7 +68,7 @@ public class Amplification {
                 if (result.getFailures().isEmpty()
                         && !result.getTestRuns().isEmpty()) {
                     updateAmplifiedTestList(ampTest,
-                            amplification(classTest, test, maxIteration).stream().collect(Collectors.toList()));
+                            amplification(classTest, test, maxIteration));
                 } else {
                     Log.debug("{} / {} test cases failed!", result.getFailures().size(), result.getTestRuns().size());
                 }

@@ -232,7 +232,7 @@ public class PitMutantScoreSelector implements TestSelector {
                 throw new RuntimeException(e);
             }
         } else {
-            testClassJSON = new TestClassJSON(this.currentClassTestToBeAmplified.getSimpleName());
+            testClassJSON = new TestClassJSON(this.currentClassTestToBeAmplified.getQualifiedName(), this.currentClassTestToBeAmplified.getMethods().size());
         }
         List<CtMethod> keys = new ArrayList<>(this.testThatKilledMutants.keySet());
         keys.forEach(amplifiedTest -> {
