@@ -53,44 +53,48 @@ public class TestCompiler {
         if (problems.isEmpty()) {
             return Collections.emptyList();
         } else {
-            final CtClass<?> newModelCtClass = getNewModelCtClass(compiler.getSourceOutputDirectory().getAbsolutePath(),
-                    classTest.getQualifiedName());
-            final HashSet<CtMethod<?>> methodsToRemove = problems.stream()
-                    .filter(IProblem::isError)
-                    .collect(HashSet<CtMethod<?>>::new,
-                            (ctMethods, categorizedProblem) -> {
-                                final Optional<CtMethod<?>> methodToRemove = newModelCtClass.getMethods().stream()
-                                        .filter(ctMethod ->
-                                                ctMethod.getPosition().getSourceStart() <= categorizedProblem.getSourceStart() &&
-                                                        ctMethod.getPosition().getSourceEnd() >= categorizedProblem.getSourceEnd())
-                                        .findFirst();
-                                if (methodToRemove.isPresent()) {
-                                    ctMethods.add(methodToRemove.get());
-                                }
-                            },
-                            HashSet<CtMethod<?>>::addAll);
+            try {
+                final CtClass<?> newModelCtClass = getNewModelCtClass(compiler.getSourceOutputDirectory().getAbsolutePath(),
+                        classTest.getQualifiedName());
+                final HashSet<CtMethod<?>> methodsToRemove = problems.stream()
+                        .filter(IProblem::isError)
+                        .collect(HashSet<CtMethod<?>>::new,
+                                (ctMethods, categorizedProblem) -> {
+                                    final Optional<CtMethod<?>> methodToRemove = newModelCtClass.getMethods().stream()
+                                            .filter(ctMethod ->
+                                                    ctMethod.getPosition().getSourceStart() <= categorizedProblem.getSourceStart() &&
+                                                            ctMethod.getPosition().getSourceEnd() >= categorizedProblem.getSourceEnd())
+                                            .findFirst();
+                                    if (methodToRemove.isPresent()) {
+                                        ctMethods.add(methodToRemove.get());
+                                    }
+                                },
+                                HashSet<CtMethod<?>>::addAll);
 
-            final List<CtMethod<?>> methods = methodsToRemove.stream()
-                    .map(CtMethod::getSimpleName)
-                    .map(methodName -> (CtMethod<?>) classTest.getMethodsByName(methodName).get(0))
-                    .collect(Collectors.toList());
+                final List<CtMethod<?>> methods = methodsToRemove.stream()
+                        .map(CtMethod::getSimpleName)
+                        .map(methodName -> (CtMethod<?>) classTest.getMethodsByName(methodName).get(0))
+                        .collect(Collectors.toList());
 
-            final List<CtMethod<?>> methodToKeep = newModelCtClass.getMethods().stream()
-                    .filter(ctMethod -> ctMethod.getBody().getStatements().stream()
-                            .filter(statement -> !(statement instanceof CtComment) && !methodsToRemove.contains(ctMethod))
-                            .findFirst()
-                            .isPresent())
-                    .collect(Collectors.toList());
+                final List<CtMethod<?>> methodToKeep = newModelCtClass.getMethods().stream()
+                        .filter(ctMethod -> ctMethod.getBody().getStatements().stream()
+                                .filter(statement -> !(statement instanceof CtComment) && !methodsToRemove.contains(ctMethod))
+                                .findFirst()
+                                .isPresent())
+                        .collect(Collectors.toList());
 
-            methodsToRemove.addAll(
-                    newModelCtClass.getMethods().stream()
-                            .filter(ctMethod -> !methodToKeep.contains(ctMethod))
-                            .collect(Collectors.toList())
-            );
+                methodsToRemove.addAll(
+                        newModelCtClass.getMethods().stream()
+                                .filter(ctMethod -> !methodToKeep.contains(ctMethod))
+                                .collect(Collectors.toList())
+                );
 
-            methods.forEach(classTest::removeMethod);
-            methods.addAll(compile(compiler, classTest, withLogger, dependencies));
-            return new ArrayList<>(methods);
+                methods.forEach(classTest::removeMethod);
+                methods.addAll(compile(compiler, classTest, withLogger, dependencies));
+                return new ArrayList<>(methods);
+            } catch (Exception e) {
+                return Collections.singletonList(METHOD_CODE_RETURN);
+            }
         }
     }
 
