@@ -34,7 +34,7 @@ mvn test
 mvn package
 # check that this is successful
 ls target/dspot-*-jar-with-dependencies.jar
-java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.diversify.Main path/To/my.properties
+java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main path/To/my.properties
 ```
 
 ### Command Line Usage
@@ -89,9 +89,9 @@ Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
 
 ### Getting Started Example
 
-You can run the provided example by running `fr.inria.diversify.Main` from your IDE, or with
+You can run the provided example by running `fr.inria.stamp.Main` from your IDE, or with
 ```
-mvn exec:java -Dexec.mainClass="fr.inria.diversify.Main" -Dexec.args="--example"
+mvn exec:java -Dexec.mainClass="fr.inria.stamp.Main" -Dexec.args="--example"
 ```
 or
 ```
@@ -144,13 +144,13 @@ DSpot produces 3 outputs in the <outputDirectory> (default: `output_diversify`) 
 
 ### Running on your own project
 
-You can run DSpot on your own project by running `fr.inria.diversify.Main` and specifying the path to the properties file as first argument:
+You can run DSpot on your own project by running `fr.inria.stamp.Main` and specifying the path to the properties file as first argument:
 
 ```
-java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.diversify.Main path/To/my.properties
+java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main path/To/my.properties
 
 # or in maven
-mvn exec:java -Dexec.mainClass="fr.inria.diversify.Main" -Dexec.args="<pathToPropertiesFile>"
+mvn exec:java -Dexec.mainClass="fr.inria.stamp.Main" -Dexec.args="<pathToPropertiesFile>"
 ```
 
 ### API
