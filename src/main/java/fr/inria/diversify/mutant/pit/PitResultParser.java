@@ -26,14 +26,18 @@ public class PitResultParser {
                 }
                 String fullQualifiedNameMutantOperator = splittedLines[2];
                 String fullQualifiedNameMethod;
+                String fullQualifiedNameClass;
                 if ("none".equals(splittedLines[6])) {
                     fullQualifiedNameMethod = "none";
+                    fullQualifiedNameClass = "none";
                 } else {
-                    fullQualifiedNameMethod = splittedLines[6].split("\\(")[0];
+                    final String[] nameOfTheKiller = splittedLines[6].split("\\(");
+                    fullQualifiedNameMethod = nameOfTheKiller[0];
+                    fullQualifiedNameClass = nameOfTheKiller[1].substring(0, nameOfTheKiller[1].length() - 1);
                 }
                 int lineNumber = Integer.parseInt(splittedLines[4]);
                 String location = splittedLines[3];
-                results.add(new PitResult(state, fullQualifiedNameMutantOperator, fullQualifiedNameMethod, lineNumber, location));
+                results.add(new PitResult(state, fullQualifiedNameMutantOperator, fullQualifiedNameMethod, fullQualifiedNameClass, lineNumber, location));
             });
         } catch (Exception e) {
             throw new RuntimeException(e);

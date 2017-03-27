@@ -10,11 +10,13 @@ import java.util.List;
  */
 public class TestClassJSON {
 
+    public final int nbMutantKilledOriginally;
     private final String name;
     private final int nbOriginalTestCases;
     private List<TestCaseJSON> testCases;
 
-    public TestClassJSON(String name, int nbOriginalTestCases) {
+    public TestClassJSON(int nbMutantKilledOriginally, String name, int nbOriginalTestCases) {
+        this.nbMutantKilledOriginally = nbMutantKilledOriginally;
         this.name = name;
         this.nbOriginalTestCases = nbOriginalTestCases;
         this.testCases = new ArrayList<>();

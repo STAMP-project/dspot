@@ -21,7 +21,7 @@ public class JsonTest {
     public void testJSON() throws Exception {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-        TestClassJSON classJSON = new TestClassJSON("MyTestClass", 1);
+        TestClassJSON classJSON = new TestClassJSON(23, "MyTestClass", 1);
         classJSON.addTestCase(new TestCaseJSON("myTestCase", 1, 1,
                 Collections.singletonList(new MutantJSON("IdMutant", 1, "method"))));
         String actualJson = gson.toJson(classJSON);
@@ -44,6 +44,7 @@ public class JsonTest {
     private static final String nl = System.getProperty("line.separator");
 
     private final String expectedJson = "{" + nl  +
+            "  \"nbMutantKilledOriginally\": 23," + nl  +
             "  \"name\": \"MyTestClass\"," + nl  +
             "  \"nbOriginalTestCases\": 1," + nl +
             "  \"testCases\": [" + nl  +

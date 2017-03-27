@@ -167,6 +167,7 @@ public class PitMutantScoreSelector implements TestSelector {
         reportJSONMutants();
         //clean up for the next class
         this.currentClassTestToBeAmplified = null;
+        this.testThatKilledMutants.clear();
     }
 
     @Override
@@ -232,7 +233,8 @@ public class PitMutantScoreSelector implements TestSelector {
                 throw new RuntimeException(e);
             }
         } else {
-            testClassJSON = new TestClassJSON(this.currentClassTestToBeAmplified.getQualifiedName(), this.currentClassTestToBeAmplified.getMethods().size());
+            testClassJSON = new TestClassJSON(getNbMutantKilledOriginally(this.currentClassTestToBeAmplified.getQualifiedName()),
+                    this.currentClassTestToBeAmplified.getQualifiedName(), this.currentClassTestToBeAmplified.getMethods().size());
         }
         List<CtMethod> keys = new ArrayList<>(this.testThatKilledMutants.keySet());
         keys.forEach(amplifiedTest -> {
@@ -257,5 +259,13 @@ public class PitMutantScoreSelector implements TestSelector {
             throw new RuntimeException(e);
         }
 
+    }
+
+    private int getNbMutantKilledOriginally(String qualifiedName) {
+        return (int)this.originalKilledMutants.stream()
+                .filter(pitResult ->
+                        qualifiedName.equals(pitResult.getFullQualifiedNameClass())
+                )
+                .count();
     }
 }
