@@ -32,6 +32,7 @@ public class PitTest extends MavenAbstractTest {
                 Checks that the PitRunner return well the results, and verify state of mutant.
          */
         AmplificationHelper.setSeedRandom(23L);
+        PitRunner.descartesMode = false;
         Utils.init(this.getPathToPropertiesFile());
         CtClass<Object> testClass = Utils.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
         List<PitResult> pitResults = PitRunner.run(Utils.getInputProgram(), Utils.getInputConfiguration(),

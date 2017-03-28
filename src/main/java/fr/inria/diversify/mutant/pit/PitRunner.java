@@ -17,6 +17,8 @@ import java.util.List;
  */
 public class PitRunner {
 
+    public static boolean descartesMode = false;
+
     private static final String PRE_GOAL_PIT = "clean test -DskipTests";
 
     private static final String OPT_WITH_HISTORY = "-DwithHistory";
@@ -39,6 +41,8 @@ public class PitRunner {
 
     private static final String OPT_EXCLUDED_CLASSES = "-D" + PROPERTY_EXCLUDED_CLASSES + "=";
 
+    private static final String OPT_MUTATION_ENGINE = "-DmutationEngines=descartes";
+
     private static final String CMD_PIT_MUTATION_COVERAGE = "org.pitest:pitest-maven:mutationCoverage";
 
     public static List<PitResult> run(InputProgram program, InputConfiguration configuration, CtType testClass) {
@@ -50,16 +54,16 @@ public class PitRunner {
             String[] phases = new String[]{PRE_GOAL_PIT, //
                     CMD_PIT_MUTATION_COVERAGE, //
                     OPT_WITH_HISTORY, //
-                    OPT_VALUE_MUTATORS, //
                     OPT_TARGET_CLASSES + configuration.getProperty("filter"), //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
                     OPT_TARGET_TESTS + testClass.getQualifiedName(), //
                     configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
-                            OPT_ADDITIONAL_CP_ELEMENTS + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) :
-                            "", //
+                    OPT_ADDITIONAL_CP_ELEMENTS + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) :
+                    "", //
+                    descartesMode ? OPT_MUTATION_ENGINE : OPT_VALUE_MUTATORS, //
                     configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) != null ?
-                            OPT_EXCLUDED_CLASSES + configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) :
+                    OPT_EXCLUDED_CLASSES + configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) :
                             ""//
             };
             builder.runGoals(phases, true);
@@ -85,10 +89,10 @@ public class PitRunner {
             String[] phases = new String[]{PRE_GOAL_PIT, //
                     CMD_PIT_MUTATION_COVERAGE, //
                     OPT_WITH_HISTORY, //
-                    OPT_VALUE_MUTATORS, //
                     OPT_TARGET_CLASSES + configuration.getProperty("filter"), //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
+                    descartesMode ? OPT_MUTATION_ENGINE : OPT_VALUE_MUTATORS, //
                     configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
                             OPT_ADDITIONAL_CP_ELEMENTS + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) :
                             "", //

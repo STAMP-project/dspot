@@ -10,6 +10,9 @@ import fr.inria.diversify.dspot.selector.json.TestClassJSON;
 import fr.inria.diversify.dspot.support.ClassTimeJSON;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.dspot.support.ProjectTimeJSON;
+import fr.inria.diversify.mutant.descartes.DescartesChecker;
+import fr.inria.diversify.mutant.descartes.DescartesInjector;
+import fr.inria.diversify.mutant.pit.PitRunner;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
@@ -107,6 +110,12 @@ public class DSpot {
         copyParentPomIfExist(outputDirectory);
 
         inputProgram.setProgramDir(outputDirectory);
+
+        if (PitRunner.descartesMode &&
+                DescartesChecker.shouldInjectDescartes(inputProgram.getProgramDir() + "/pom.xml")) {
+            DescartesInjector.injectDescartesIntoPom(inputProgram.getProgramDir() + "/pom.xml");
+        }
+
         DSpotUtils.compileOriginalProject(this.inputProgram, inputConfiguration, mavenLocalRepository);
         String dependencies = AmplificationHelper.getDependenciesOf(this.inputConfiguration, inputProgram);
 
