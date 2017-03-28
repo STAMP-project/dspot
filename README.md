@@ -1,6 +1,6 @@
-![STAMP - European Commission - H2020](docs/logo_readme_md.png)
 DSpot [![Build Status](https://travis-ci.org/STAMP-project/dspot.svg?branch=master)](https://travis-ci.org/STAMP-project/dspot)[![Coverage Status](https://coveralls.io/repos/github/STAMP-project/dspot/badge.svg?branch=master)](https://coveralls.io/github/STAMP-project/dspot?branch=master)
 =====================================================================================================================
+![STAMP - European Commission - H2020](docs/logo_readme_md.png)
 
 ### What is Dspot?
 
