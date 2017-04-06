@@ -105,8 +105,8 @@ public class DSpot {
         FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
 
         //Ugly way to support usage of resources with relative path
-        copyResourceOfTargetProjectIntoDspot("testResources");
-        copyResourceOfTargetProjectIntoDspot("srcResources");
+        copyResourcesOfTargetProjectIntoDspot("testResources");
+        copyResourcesOfTargetProjectIntoDspot("srcResources");
         copyParentPomIfExist(outputDirectory);
 
         inputProgram.setProgramDir(outputDirectory);
@@ -154,23 +154,28 @@ public class DSpot {
         }
     }
 
-    private void copyResourceOfTargetProjectIntoDspot(String key) {
+    private void copyResourcesOfTargetProjectIntoDspot(String key) {
         if (inputConfiguration.getProperty(key) != null) {
-            try {
-                final File resourcesDirectory = new File(inputProgram.getProgramDir() + "/" + inputConfiguration.getProperty(key));
-                final File[] resources = resourcesDirectory.listFiles();
-                if (resources != null) {
-                    this.testResources.addAll(Arrays.stream(resources)
-                            .map(this::relativePathFromListFile)
-                            .collect(Collectors.toList()));
-                    FileUtils.copyDirectory(resourcesDirectory,
-                            new File(inputConfiguration.getProperty(key)));
-                }
-            } catch (FileAlreadyExistsException ignored) {
-                //ignored
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            final String[] pathFiles = inputConfiguration.getProperty(key).split(System.getProperty("path.separator"));
+            Arrays.stream(pathFiles).forEach(this::copyResourceOfTargetProjectIntoDspot);
+        }
+    }
+
+    private void copyResourceOfTargetProjectIntoDspot(String path) {
+        try {
+            final File resourcesDirectory = new File(inputProgram.getProgramDir() + "/" + path);
+            final File[] resources = resourcesDirectory.listFiles();
+            if (resources != null) {
+                this.testResources.addAll(Arrays.stream(resources)
+                        .map(this::relativePathFromListFile)
+                        .collect(Collectors.toList()));
+                FileUtils.copyDirectory(resourcesDirectory,
+                        new File(path));
             }
+        } catch (FileAlreadyExistsException ignored) {
+            //ignored
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
