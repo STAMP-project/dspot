@@ -50,7 +50,6 @@ public class DSpot {
     private DSpotCompiler compiler;
 
     private ProjectTimeJSON projectTimeJSON;
-    ;
 
     public DSpot(InputConfiguration inputConfiguration) throws InvalidSdkException, Exception {
         this(inputConfiguration, 3, Arrays.asList(

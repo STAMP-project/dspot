@@ -10,7 +10,7 @@ public class Configuration {
     public final String pathToConfigurationFile;
     public final List<Amplifier> amplifiers;
     public final int nbIteration;
-    public final List<String> testCases;
+    public final List<String> testClasses;
     public final String pathToOutput;
     public final TestSelector selector;
     public final List<String> namesOfTestCases;
@@ -18,11 +18,11 @@ public class Configuration {
     public final int timeOutInMs;
     public final String mavenHome;
 
-    public Configuration(String pathToConfigurationFile, List<Amplifier> amplifiers, int nbIteration, List<String> testCases, String pathToOutput, TestSelector selector, List<String> namesOfTestCases, long seed, int timeOutInMs, String mavenHome) {
+    public Configuration(String pathToConfigurationFile, List<Amplifier> amplifiers, int nbIteration, List<String> testClasses, String pathToOutput, TestSelector selector, List<String> namesOfTestCases, long seed, int timeOutInMs, String mavenHome) {
         this.pathToConfigurationFile = pathToConfigurationFile;
         this.amplifiers = amplifiers;
         this.nbIteration = nbIteration;
-        this.testCases = testCases;
+        this.testClasses = testClasses;
         this.pathToOutput = pathToOutput;
         this.selector = selector;
         this.namesOfTestCases = namesOfTestCases;

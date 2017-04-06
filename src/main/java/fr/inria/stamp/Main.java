@@ -9,7 +9,6 @@ import fr.inria.diversify.runner.InputProgram;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Benjamin DANGLOT
@@ -40,10 +39,10 @@ public class Main {
         AmplificationHelper.setTimeOutInMs(configuration.timeOutInMs);
 
         createOutputDirectories(inputConfiguration);
-        if ("all".equals(configuration.testCases.get(0))) {
+        if ("all".equals(configuration.testClasses.get(0))) {
             amplifyAll(dspot, inputConfiguration);
         } else {
-            configuration.testCases.forEach(testCase -> {
+            configuration.testClasses.forEach(testCase -> {
                 if (!configuration.namesOfTestCases.isEmpty()) {
                     amplifyOne(dspot, testCase, configuration.namesOfTestCases);
                 } else {

@@ -80,7 +80,7 @@ public class JSAPOptions {
                 Arrays.asList(jsapConfig.getStringArray("test")),
                 jsapConfig.getString("output"),
                 testCriterion,
-                Arrays.asList(jsapConfig.getStringArray("testCases")),
+                Arrays.asList(jsapConfig.getStringArray("testClasses")),
                 jsapConfig.getLong("seed"),
                 jsapConfig.getInt("timeOut"),
                 jsapConfig.getString("mavenHome"));
@@ -182,10 +182,10 @@ public class JSAPOptions {
         mutantScore.setUsageName("./path/to/mutations.csv");
         mutantScore.setHelp("[optional, expert mode] specify the path to the .csv of the original result of Pit Test. If you use this option the selector will be forced to PitMutantScoreSelector");
 
-        FlaggedOption testCases = new FlaggedOption("testCases");
+        FlaggedOption testCases = new FlaggedOption("testClasses");
         testCases.setList(true);
         testCases.setAllowMultipleDeclarations(false);
-        testCases.setLongFlag("testCases");
+        testCases.setLongFlag("testClasses");
         testCases.setShortFlag('c');
         testCases.setStringParser(JSAP.STRING_PARSER);
         testCases.setHelp("specify the test cases to amplify");

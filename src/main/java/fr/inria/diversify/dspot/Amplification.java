@@ -102,7 +102,7 @@ public class Amplification {
                 currentTestList = testWithAssertions;
             }
             JunitResult result = compileAndRunTests(classTest, currentTestList);
-            if (result == null || result.getTestRuns().size() != currentTestList.size()) {
+            if (result == null) {
                 continue;
             } else if (!result.getFailures().isEmpty()) {
                 Log.warn("Discarding failing test cases");
