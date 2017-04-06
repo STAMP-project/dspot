@@ -35,7 +35,7 @@ public class PitMutantScoreSelector implements TestSelector {
 
     private InputConfiguration configuration;
 
-    private CtType currentClassTestToBeAmplified;
+    private CtType<?> currentClassTestToBeAmplified;
 
     private List<PitResult> originalKilledMutants;
 
@@ -94,7 +94,7 @@ public class PitMutantScoreSelector implements TestSelector {
         }
         CtType clone = this.currentClassTestToBeAmplified.clone();
         clone.setParent(this.currentClassTestToBeAmplified.getParent());
-        ((Set<CtMethod>) this.currentClassTestToBeAmplified.getMethods()).stream()
+        this.currentClassTestToBeAmplified.getMethods().stream()
                 .filter(AmplificationChecker::isTest)
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
@@ -233,8 +233,12 @@ public class PitMutantScoreSelector implements TestSelector {
                 throw new RuntimeException(e);
             }
         } else {
-            testClassJSON = new TestClassJSON(getNbMutantKilledOriginally(this.currentClassTestToBeAmplified.getQualifiedName()),
-                    this.currentClassTestToBeAmplified.getQualifiedName(), this.currentClassTestToBeAmplified.getMethods().size());
+            testClassJSON = new TestClassJSON(getNbMutantKilledOriginally(this.currentClassTestToBeAmplified.getSimpleName()),
+                    this.currentClassTestToBeAmplified.getQualifiedName(),
+                    this.currentClassTestToBeAmplified.getMethods()
+                            .stream()
+                            .filter(AmplificationChecker::isTest)
+                            .count());
         }
         List<CtMethod> keys = new ArrayList<>(this.testThatKilledMutants.keySet());
         keys.forEach(amplifiedTest -> {

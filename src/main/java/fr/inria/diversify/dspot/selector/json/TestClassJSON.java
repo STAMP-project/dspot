@@ -12,10 +12,10 @@ public class TestClassJSON {
 
     public final int nbMutantKilledOriginally;
     private final String name;
-    private final int nbOriginalTestCases;
+    private final long nbOriginalTestCases;
     private List<TestCaseJSON> testCases;
 
-    public TestClassJSON(int nbMutantKilledOriginally, String name, int nbOriginalTestCases) {
+    public TestClassJSON(int nbMutantKilledOriginally, String name, long nbOriginalTestCases) {
         this.nbMutantKilledOriginally = nbMutantKilledOriginally;
         this.name = name;
         this.nbOriginalTestCases = nbOriginalTestCases;
