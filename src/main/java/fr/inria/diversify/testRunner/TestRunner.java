@@ -1,6 +1,7 @@
 package fr.inria.diversify.testRunner;
 
 import fr.inria.diversify.logger.Logger;
+import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -28,10 +29,10 @@ public class TestRunner {
     public static JunitResult runTests(CtType testClass,
                                        List<CtMethod<?>> tests,
                                        String classpath,
-                                       InputProgram program) {
+                                       InputConfiguration configuration) {
         Logger.reset();
-        Logger.setLogDir(new File(program.getProgramDir() + "/log"));
-        final JunitRunner junitRunner = new JunitRunner(classpath);
+        Logger.setLogDir(new File(configuration.getInputProgram().getProgramDir() + "/log"));
+        final JunitRunner junitRunner = new JunitRunner(classpath, configuration);
         final CtTypeReference reference = testClass.getReference();
 
         List<CtType<?>> subClasses = testClass.getFactory().Class().getAll()
@@ -41,25 +42,24 @@ public class TestRunner {
                 .collect(Collectors.toList());
 
         final RunWith annotation = testClass.getAnnotation(RunWith.class);
-        if ( annotation != null && annotation.value().equals(Parameterized.class)) {
-            return junitRunner.runTestClass(testClass.getQualifiedName(), Collections.EMPTY_LIST);
+        if (annotation != null && annotation.value().equals(Parameterized.class)) {
+            return junitRunner.runTestClass(testClass, Collections.emptyList());
         } else if (subClasses.isEmpty()) {
-            return junitRunner.runTestClass(testClass.getQualifiedName(),
+            return junitRunner.runTestClass(testClass,
                     tests.stream()
                             .map(CtNamedElement::getSimpleName)
                             .collect(Collectors.toList()));
         } else {
-            List<String> fullNameSubClasses = subClasses.stream()
-                    .map(CtType::getQualifiedName)
-                    .collect(Collectors.toList());
             JunitResult result = junitRunner.runTestClasses(
-                    fullNameSubClasses,
+                    subClasses,
                     tests.stream()
                             .map(CtNamedElement::getSimpleName)
                             .collect(Collectors.toList()));
+            List<String> fullNameSubClasses = subClasses.stream()
+                    .map(CtType::getQualifiedName)
+                    .collect(Collectors.toList());
             blackListImplementation.addAll(result.getFailures().stream()
-                    .filter(failure -> fullNameSubClasses.contains(failure.getDescription().getDisplayName()))
-                    .map(failure -> failure.getDescription().getDisplayName())
+                    .filter(fullNameSubClasses::contains)
                     .collect(Collectors.toList()));
             return result;
         }

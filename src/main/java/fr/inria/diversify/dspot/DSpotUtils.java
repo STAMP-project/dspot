@@ -114,11 +114,16 @@ public class DSpotUtils {
         }
     }
 
+    public static String mavenHome;
+
     public static String buildMavenHome(InputConfiguration inputConfiguration) {
-        return inputConfiguration != null && inputConfiguration.getProperty("maven.home") != null ? inputConfiguration.getProperty("maven.home") :
-                System.getenv().get("MAVEN_HOME") != null ? System.getenv().get("MAVEN_HOME") :
-                        System.getenv().get("M2_HOME") != null ? System.getenv().get("M2_HOME") :
-                                new File("/usr/share/maven/").exists() ? "/usr/share/maven/" : "/usr/share/maven3/";
+        if (mavenHome == null) {
+            mavenHome = inputConfiguration != null && inputConfiguration.getProperty("maven.home") != null ? inputConfiguration.getProperty("maven.home") :
+                    System.getenv().get("MAVEN_HOME") != null ? System.getenv().get("MAVEN_HOME") :
+                            System.getenv().get("M2_HOME") != null ? System.getenv().get("M2_HOME") :
+                                    new File("/usr/share/maven/").exists() ? "/usr/share/maven/" : "/usr/share/maven3/";
+        }
+        return mavenHome;
     }
 
     private static void applyProcessor(Factory factory, Processor processor) {

@@ -6,6 +6,7 @@ import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
+import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.TestCompiler;
@@ -15,7 +16,6 @@ import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
-import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
@@ -39,15 +39,15 @@ public class MethodsAssertGenerator {
 
     private Factory factory;
 
-    private InputProgram inputProgram;
+    private InputConfiguration configuration;
 
     private DSpotCompiler compiler;
 
-    public MethodsAssertGenerator(CtType originalClass, InputProgram inputProgram, DSpotCompiler compiler) {
+    public MethodsAssertGenerator(CtType originalClass, InputConfiguration configuration, DSpotCompiler compiler) {
         this.originalClass = originalClass;
-        this.inputProgram = inputProgram;
+        this.configuration = configuration;
         this.compiler = compiler;
-        this.factory = inputProgram.getFactory();
+        this.factory = configuration.getInputProgram().getFactory();
     }
 
     public List<CtMethod<?>> generateAsserts(CtType testClass, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
@@ -70,33 +70,27 @@ public class MethodsAssertGenerator {
             return Collections.emptyList();
         } else {
 
-            final List<String> failuresMethodName = result.getFailures().stream()
-                    .collect(ArrayList<String>::new,
-                            (methodNames, failure) ->
-                                    methodNames.add(failure.getDescription().getMethodName()),
-                            ArrayList<String>::addAll);
+            final Set<String> failuresMethodName = result.getFailures();
+            final List<String> passingMethodName = result.getPassingTests();
 
             // add assertion on passing tests
             List<CtMethod<?>> passingTests = addAssertions(clone,
                     tests.stream()
-                            .filter(ctMethod -> !failuresMethodName.contains(ctMethod.getSimpleName()))
+                            .filter(ctMethod -> passingMethodName.contains(ctMethod.getSimpleName()))
                             .collect(Collectors.toList()),
                     statementsIndexToAssert)
                     .stream()
-                    .filter(ctMethod -> ctMethod != null)
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
             // add try/catch/fail on failing/error tests
             List<CtMethod<?>> failingTests = tests.stream()
-                    .filter(ctMethod -> failuresMethodName
-                            .contains(ctMethod.getSimpleName()))
-                    .map(ctMethod -> makeFailureTest(ctMethod,
-                            result.getFailures().stream()
-                                    .filter(failure ->
-                                            failure.getDescription().getMethodName().contains(ctMethod.getSimpleName()))
-                                    .findFirst()
-                                    .get()))
-                    .filter(ctMethod -> ctMethod != null)
+                    .filter(ctMethod ->
+                            failuresMethodName.contains(ctMethod.getSimpleName()))
+                    .map(ctMethod ->
+                            makeFailureTest(ctMethod, result.getFailureOf(ctMethod.getSimpleName()))
+                    )
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
             if (passingTests != null) {
@@ -122,7 +116,7 @@ public class MethodsAssertGenerator {
                         return ctMethod;
                     })
                     .collect(Collectors.toList());
-            testsWithLog.forEach(clone ::addMethod);
+            testsWithLog.forEach(clone::addMethod);
             testCasesWithLogs.addAll(testsWithLog);
         }
         ObjectLog.reset();
@@ -135,7 +129,6 @@ public class MethodsAssertGenerator {
                     .collect(Collectors.toList());
         }
     }
-
 
 
     private CtMethod<?> buildTestWithAssert(CtMethod test, Map<String, Observation> observations) {
@@ -227,6 +220,7 @@ public class MethodsAssertGenerator {
     }
 
     private JunitResult runTests(CtType testClass, List<CtMethod<?>> testsToRun) {
+        final InputProgram inputProgram = this.configuration.getInputProgram();
         final String dependencies = inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + ":" +
                 inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir();
         final List<CtMethod<?>> uncompilableMethods = TestCompiler.compile(this.compiler, testClass, true, dependencies);
@@ -235,8 +229,8 @@ public class MethodsAssertGenerator {
         } else {
             uncompilableMethods.forEach(testsToRun::remove);
             uncompilableMethods.forEach(testClass::removeMethod);
-            String classpath = AmplificationHelper.getClassPath(this.compiler, this.inputProgram);
-            return TestRunner.runTests(testClass, testsToRun, classpath, this.inputProgram);
+            String classpath = AmplificationHelper.getClassPath(this.compiler, inputProgram);
+            return TestRunner.runTests(testClass, testsToRun, classpath, this.configuration);
         }
     }
 
@@ -254,7 +248,7 @@ public class MethodsAssertGenerator {
             } else {
                 final ArrayList<String> failingTestHeaders = result.getFailures().stream()
                         .collect(ArrayList<String>::new,
-                                (testHeaders, failure) -> testHeaders.add(failure.getTestHeader().split("\\(")[0]),
+                                (testHeaders, failure) -> testHeaders.add(result.getFailureOf(failure).getTestHeader().split("\\(")[0]),
                                 ArrayList<String>::addAll);
                 failingTestHeaders.forEach(failingTestHeader -> {
                             final Optional<CtMethod<?>> optionalFailingTestCase = clones.stream()

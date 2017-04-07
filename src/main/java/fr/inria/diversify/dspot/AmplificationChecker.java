@@ -3,10 +3,15 @@ package fr.inria.diversify.dspot;
 import fr.inria.diversify.util.Log;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.reference.CtTypeReference;
+import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
+
+import java.util.List;
 
 /**
  * Created by Benjamin DANGLOT
@@ -98,5 +103,20 @@ public class AmplificationChecker {
             return false;
         }
         return isTest(candidate);
+    }
+
+    //TODO we will use a Name Convention, i.e. contains Mock
+    private static final TypeFilter<CtAnnotation> mockedAnnotationFilter = new TypeFilter<CtAnnotation>(CtAnnotation.class) {
+        @Override
+        public boolean matches(CtAnnotation element) {
+            return element.toString().contains("Mock");
+        }
+    };
+
+    public static boolean isMocked(List<CtType<?>> tests) {
+        return tests.stream()
+                .anyMatch(ctType ->
+                        !ctType.getElements(mockedAnnotationFilter).isEmpty()
+                );
     }
 }

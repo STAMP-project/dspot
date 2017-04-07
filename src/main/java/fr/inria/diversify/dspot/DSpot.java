@@ -25,6 +25,11 @@ import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 
 import java.io.*;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -136,10 +141,40 @@ public class DSpot {
 
         this.inputProgram.setFactory(compiler.getLauncher().getFactory());
 
+        addToClasspath();
+
         this.amplifiers = new ArrayList<>(amplifiers);
         this.numberOfIterations = numberOfIterations;
         this.testSelector = testSelector;
         this.testSelector.init(this.inputConfiguration);
+    }
+
+    private void addToClasspath() {
+        final String classPath = AmplificationHelper.getClassPath(this.compiler, this.inputProgram);
+        final URLClassLoader systemClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+        try {
+            Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[]{URL.class});
+            method.setAccessible(true);
+            Arrays.stream(classPath.split(":"))
+                    .collect(ArrayList<URL>::new,
+                            (urls, path) -> {
+                                try {
+                                    urls.add(new URL("file:" + path));
+                                } catch (Exception e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }, ArrayList<URL>::addAll)
+                    .forEach(url -> {
+                        try {
+                            method.invoke(systemClassLoader, url);
+                        } catch (Throwable e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private void copyParentPomIfExist(String target) {
@@ -222,7 +257,7 @@ public class DSpot {
 
     public CtType amplifyTest(CtType test) {
         try {
-            Amplification testAmplification = new Amplification(this.inputProgram, this.amplifiers, this.testSelector, this.compiler);
+            Amplification testAmplification = new Amplification(this.inputConfiguration, this.amplifiers, this.testSelector, this.compiler);
             long time = System.currentTimeMillis();
             CtType amplification = testAmplification.amplification(test, numberOfIterations);
             final long elapsedTime = System.currentTimeMillis() - time;
@@ -253,7 +288,7 @@ public class DSpot {
 
     public CtType amplifyTest(CtType test, List<CtMethod<?>> methods) {
         try {
-            Amplification testAmplification = new Amplification(this.inputProgram, this.amplifiers, this.testSelector, this.compiler);
+            Amplification testAmplification = new Amplification(this.inputConfiguration, this.amplifiers, this.testSelector, this.compiler);
             long time = System.currentTimeMillis();
             CtType amplification = testAmplification.amplification(test, methods, numberOfIterations);
             final long elapsedTime = System.currentTimeMillis() - time;

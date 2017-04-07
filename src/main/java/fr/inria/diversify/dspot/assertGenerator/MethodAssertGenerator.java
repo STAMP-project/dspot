@@ -4,10 +4,9 @@ import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpotUtils;
-import fr.inria.diversify.dspot.selector.json.TestCaseJSON;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.TestCompiler;
 import fr.inria.diversify.testRunner.TestRunner;
@@ -40,13 +39,13 @@ public class MethodAssertGenerator {
     private int numberOfFail = 0;
     CtMethod test;
     private CtType originalClass;
-    private InputProgram inputProgram;
+    private InputConfiguration configuration;
     private List<Integer> statementsIndexToAssert;
     private DSpotCompiler compiler;
 
-    public MethodAssertGenerator(CtType originalClass, InputProgram inputProgram, DSpotCompiler compiler) throws IOException {
+    public MethodAssertGenerator(CtType originalClass, InputConfiguration configuration, DSpotCompiler compiler) throws IOException {
         this.originalClass = originalClass;
-        this.inputProgram = inputProgram;
+        this.configuration = configuration;
         this.statementsIndexToAssert = new ArrayList<>();
         this.compiler = compiler;
     }
@@ -84,7 +83,7 @@ public class MethodAssertGenerator {
         testsToRun.add(cloneTest);
 
         JunitResult result = runTests(classTest, testsToRun);
-        if (result == null || result.getTestRuns().size() != testsToRun.size()) {
+        if (result == null || result.getTestsRun().size() != testsToRun.size()) {
             return null;
         }
         try {
@@ -93,7 +92,7 @@ public class MethodAssertGenerator {
                     return buildNewAssert();
                 }
             } else {
-                return makeFailureTest(getFailure(cloneTest.getSimpleName(), result));
+                return makeFailureTest(result.getFailureOf(cloneTest.getSimpleName()));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -252,27 +251,20 @@ public class MethodAssertGenerator {
         return goodAssertIndex;
     }
 
-    protected Failure getFailure(String methodName, JunitResult result) {
-        return result.getFailures().stream()
-                .filter(failure -> methodName.equals(failure.getDescription().getMethodName()))
-                .findAny()
-                .orElse(null);
-    }
-
     private boolean testFailed(String methodName, JunitResult result) {
-        return getFailure(methodName, result) != null;
+        return result.getFailureOf(methodName) != null;
     }
 
     public JunitResult runTests(CtType testClass, List<CtMethod<?>> testsToRun) throws ClassNotFoundException {
-        final String dependencies = inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + ":" +
-                inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir();
+        final String dependencies = configuration.getInputProgram().getProgramDir() + "/" + configuration.getInputProgram().getClassesDir() + ":" +
+                configuration.getInputProgram().getProgramDir() + "/" + configuration.getInputProgram().getTestClassesDir();
         boolean statusCompilation = TestCompiler.writeAndCompile(this.compiler, testClass,
                 true, dependencies);
         if (!statusCompilation) {
             return null;
         } else {
-            String classpath = AmplificationHelper.getClassPath(this.compiler, this.inputProgram);
-            return TestRunner.runTests(testClass, testsToRun, classpath, this.inputProgram);
+            String classpath = AmplificationHelper.getClassPath(this.compiler, this.configuration.getInputProgram());
+            return TestRunner.runTests(testClass, testsToRun, classpath, this.configuration);
         }
     }
 

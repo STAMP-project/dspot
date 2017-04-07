@@ -2,10 +2,9 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.dspot.amplifier.Amplifier;
 import fr.inria.diversify.dspot.assertGenerator.AssertGenerator;
-import fr.inria.diversify.dspot.assertGenerator.AssertGeneratorHelper;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.TestCompiler;
 import fr.inria.diversify.testRunner.TestRunner;
@@ -17,6 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  */
 public class Amplification {
 
-    private InputProgram inputProgram;
+    private InputConfiguration configuration;
     private List<Amplifier> amplifiers;
     private TestSelector testSelector;
     private AssertGenerator assertGenerator;
@@ -34,20 +34,22 @@ public class Amplification {
 
     private static int ampTestCount;
 
-    public Amplification(InputProgram inputProgram, List<Amplifier> amplifiers, TestSelector testSelector, DSpotCompiler compiler) {
-        this.inputProgram = inputProgram;
+    public Amplification(InputConfiguration configuration, List<Amplifier> amplifiers, TestSelector testSelector, DSpotCompiler compiler) {
+        this.configuration = configuration;
         this.amplifiers = amplifiers;
         this.testSelector = testSelector;
         this.compiler = compiler;
-        this.assertGenerator = new AssertGenerator(this.inputProgram, this.compiler);
+        this.assertGenerator = new AssertGenerator(this.configuration, this.compiler);
     }
 
     public CtType amplification(CtType classTest, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
-        return amplification(classTest, AmplificationHelper.getAllTest(this.inputProgram, classTest), maxIteration);
+        return amplification(classTest, AmplificationHelper.getAllTest(this.configuration.getInputProgram(), classTest), maxIteration);
     }
 
-    public CtType amplification(CtType classTest, List<CtMethod<?>> tests, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
-
+    public CtType amplification(CtType classTest, List<CtMethod<?>> methods, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
+        List<CtMethod<?>> tests = methods.stream()
+                .filter(mth -> AmplificationChecker.isTest(mth, this.configuration.getInputProgram().getRelativeTestSourceCodeDir()))
+                .collect(Collectors.toList());
         if (tests.isEmpty()) {
             return null;
         }
@@ -64,11 +66,11 @@ public class Amplification {
             JunitResult result = compileAndRunTests(classTest, Collections.singletonList(tests.get(i)));
             if (result != null) {
                 if (result.getFailures().isEmpty()
-                        && !result.getTestRuns().isEmpty()) {
+                        && !result.getTestsRun().isEmpty()) {
                     updateAmplifiedTestList(ampTest,
                             amplification(classTest, test, maxIteration));
                 } else {
-                    Log.debug("{} / {} test cases failed!", result.getFailures().size(), result.getTestRuns().size());
+                    Log.debug("{} / {} test cases failed!", result.getFailures().size(), result.getTestsRun().size());
                 }
             }
         }
@@ -104,10 +106,7 @@ public class Amplification {
                 continue;
             } else if (!result.getFailures().isEmpty()) {
                 Log.warn("Discarding failing test cases");
-                final List<String> failingTestCase = result.getFailures().stream()
-                        .collect(ArrayList<String>::new,
-                                (testHeader, failure) -> testHeader.add(failure.getTestHeader()),
-                                ArrayList<String>::addAll);
+                final Set<String> failingTestCase = result.getFailures();
                 currentTestList = currentTestList.stream()
                         .filter(ctMethod -> !failingTestCase.contains(ctMethod.getSimpleName()))
                         .collect(Collectors.toList());
@@ -140,16 +139,15 @@ public class Amplification {
         if (!result.getFailures().isEmpty()) {
             Log.warn("{} tests failed before the amplifications", result.getFailures().size());
             Log.warn("{}", result.getFailures().stream().reduce("",
-                    (s, failure) -> s + failure.getTestHeader() + ":" + failure.getException() + System.getProperty("line.separator"),
+                    (s, failure) -> s + failure + ":" + System.getProperty("line.separator"),
                     String::concat)
             );
             Log.warn("Discarding following test cases for the amplification");
 
             result.getFailures().forEach(failure -> {
                 try {
-                    String methodName = failure.getTestHeader();
                     CtMethod testToRemove = tests.stream()
-                            .filter(m -> methodName.startsWith(m.getSimpleName()))
+                            .filter(m -> failure.startsWith(m.getSimpleName()))
                             .findFirst().get();
                     tests.remove(tests.indexOf(testToRemove));
                     Log.warn("{}", testToRemove.getSimpleName());
@@ -198,21 +196,21 @@ public class Amplification {
     private JunitResult compileAndRunTests(CtType classTest, List<CtMethod<?>> currentTestList) {
         CtType amplifiedTestClass = this.testSelector.buildClassForSelection(classTest, currentTestList);
         boolean status = TestCompiler.writeAndCompile(this.compiler, amplifiedTestClass, false,
-                this.inputProgram.getProgramDir() + this.inputProgram.getClassesDir() + "/:" +
-                        this.inputProgram.getProgramDir() + this.inputProgram.getTestClassesDir() + "/");
+                this.configuration.getInputProgram().getProgramDir() + this.configuration.getInputProgram().getClassesDir() + "/:" +
+                        this.configuration.getInputProgram().getProgramDir() + this.configuration.getInputProgram().getTestClassesDir() + "/");
         if (!status) {
             Log.debug("Unable to compile {}", amplifiedTestClass.getSimpleName());
             return null;
         }
         JunitResult result;
         try {
-            String classpath = AmplificationHelper.getClassPath(this.compiler, this.inputProgram);
-            result = TestRunner.runTests(amplifiedTestClass, currentTestList, classpath, this.inputProgram);
+            String classpath = AmplificationHelper.getClassPath(this.compiler, this.configuration.getInputProgram());
+            result = TestRunner.runTests(amplifiedTestClass, currentTestList, classpath, configuration);
         } catch (Exception ignored) {
             Log.debug("Error during running test");
             return null;
         }
-        if (result == null || result.getTestRuns().size() < currentTestList.size()) {
+        if (result == null || result.getTestsRun().size() < currentTestList.size()) {
             Log.debug("Error during running test");
             return null;
         }

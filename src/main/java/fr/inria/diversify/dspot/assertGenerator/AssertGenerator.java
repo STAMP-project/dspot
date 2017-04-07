@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
 import fr.inria.diversify.dspot.support.DSpotCompiler;
+import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.Log;
 import spoon.reflect.declaration.CtMethod;
@@ -18,12 +19,12 @@ import java.util.stream.Collectors;
  */
 public class AssertGenerator {
 
-    private InputProgram inputProgram;
+    private InputConfiguration configuration;
 
     private DSpotCompiler compiler;
 
-    public AssertGenerator(InputProgram inputProgram, DSpotCompiler compiler) {
-        this.inputProgram = inputProgram;
+    public AssertGenerator(InputConfiguration configuration, DSpotCompiler compiler) {
+        this.configuration = configuration;
         this.compiler = compiler;
     }
 
@@ -36,7 +37,7 @@ public class AssertGenerator {
         cloneClass.setParent(testClass.getParent());
         final Map<CtMethod<?>, List<Integer>> statementIndexToAssert = tests.stream()
                 .collect(Collectors.toMap(Function.identity(), AssertGeneratorHelper::findStatementToAssert));
-        MethodsAssertGenerator ags = new MethodsAssertGenerator(testClass, inputProgram, compiler);
+        MethodsAssertGenerator ags = new MethodsAssertGenerator(testClass, this.configuration, compiler);
         final List<CtMethod<?>> amplifiedTestWithAssertion = ags.generateAsserts(testClass, new ArrayList<>(tests), statementIndexToAssert);
         Log.debug("{} new tests with assertions generated", amplifiedTestWithAssertion.size());
         return amplifiedTestWithAssertion;
