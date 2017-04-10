@@ -21,7 +21,7 @@ public class MainTest extends MavenAbstractTest {
     public void testAll() throws Throwable {
         FileUtils.deleteDirectory(new File("dspot-out"));
         Main.run(JSAPOptions.parse(new String[]{
-                "--path-to-propeties", "src/test/resources/test-projects/test-projects.properties",
+                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "BranchCoverageTestSelector",
                 "--amplifiers", "MethodAdd:TestDataMutator:StatementAdderOnAssert",
                 "--iteration", "1",

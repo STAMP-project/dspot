@@ -43,7 +43,7 @@ java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main path/To/my
 Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
                           [(-p|--path) <path>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--selector) <BranchCoverageTestSelector | PitMutantScoreSelector>] [(-t|--test) test1:test2:...:testN ] [(-o|--output) <output>] [(-m|--mutant) <mutant>] [-e|--example] [-h|--help]
 
-      [(-p|--path-to-propeties) <./path/to/myproject.properties>]
+      [(-p|--path-to-properties) <./path/to/myproject.properties>]
             [mandatory] specify the path to the configuration file (format Java
             properties) of the target project (e.g. ./foo.properties).
     

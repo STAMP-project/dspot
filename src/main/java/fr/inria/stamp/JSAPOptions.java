@@ -126,7 +126,7 @@ public class JSAPOptions {
 
         FlaggedOption pathToConfigFile = new FlaggedOption("path");
         pathToConfigFile.setAllowMultipleDeclarations(false);
-        pathToConfigFile.setLongFlag("path-to-propeties");
+        pathToConfigFile.setLongFlag("path-to-properties");
         pathToConfigFile.setShortFlag('p');
         pathToConfigFile.setStringParser(JSAP.STRING_PARSER);
         pathToConfigFile.setUsageName("./path/to/myproject.properties");
