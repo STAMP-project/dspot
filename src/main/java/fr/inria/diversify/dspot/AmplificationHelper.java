@@ -202,13 +202,12 @@ public class AmplificationHelper {
         return currentTest;
     }
 
-    public static List<CtMethod<?>> getAllTest(InputProgram inputProgram, CtType classTest) {
+    public static List<CtMethod<?>> getAllTest(InputProgram inputProgram, CtType<?> classTest) {
         Set<CtMethod<?>> methods = classTest.getMethods();
-        List<CtMethod<?>> testMethods = methods.stream()
+        return methods.stream()
                 .filter(mth -> AmplificationChecker.isTest(mth, inputProgram.getRelativeTestSourceCodeDir()))
                 .distinct()
                 .collect(Collectors.toList());
-        return testMethods;
     }
 
     public static String getDependenciesOf(InputConfiguration inputConfiguration, InputProgram inputProgram) {
