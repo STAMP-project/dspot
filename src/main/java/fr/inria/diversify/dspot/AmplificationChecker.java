@@ -60,7 +60,7 @@ public class AmplificationChecker {
         return lit.getParent() instanceof CtInvocation && !AmplificationChecker.isAssert((CtInvocation) lit.getParent());
     }
 
-    public static boolean isTest(CtMethod candidate) {
+    public static boolean isTest(CtMethod<?> candidate) {
         if (candidate.getAnnotation(org.junit.Ignore.class) != null) {
             return false;
         }
