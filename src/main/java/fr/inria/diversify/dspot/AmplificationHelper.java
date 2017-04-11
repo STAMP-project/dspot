@@ -34,6 +34,7 @@ public class AmplificationHelper {
 
     private static int cloneNumber = 1;
     private static Map<CtMethod, CtMethod> ampTestToParent = new HashMap<>();
+    private static Map<CtMethod, CtMethod> tmpAmpTestToParent = new HashMap<>();
     private static Map<CtType, Set<CtType>> importByClass = new HashMap<>();
     private static Random random = new Random();
     private static int timeOutInMs = 10000;
@@ -52,8 +53,9 @@ public class AmplificationHelper {
 
     public static void reset() {
         cloneNumber = 1;
-        ampTestToParent = new HashMap<>();
-        importByClass = new HashMap<>();
+        tmpAmpTestToParent.clear();
+        ampTestToParent.clear();
+        importByClass.clear();
     }
 
     public static CtType createAmplifiedTest(List<CtMethod<?>> ampTest, CtType classTest) {
@@ -79,7 +81,7 @@ public class AmplificationHelper {
     }
 
     public static List<CtMethod> updateAmpTestToParent(List<CtMethod> tests, CtMethod parentTest) {
-        tests.forEach(test -> ampTestToParent.put(test, parentTest));
+        tests.forEach(test -> tmpAmpTestToParent.put(test, parentTest));
         return tests;
     }
 
@@ -238,11 +240,15 @@ public class AmplificationHelper {
         if (newTests.size() > MAX_NUMBER_OF_TESTS) {
             Log.warn("Too many tests has been generated: {}", newTests.size());
             Collections.shuffle(newTests, AmplificationHelper.getRandom());
-            List<CtMethod<?>> reducedNewTests = newTests.subList(0, MAX_NUMBER_OF_TESTS);
+            newTests = newTests.subList(0, MAX_NUMBER_OF_TESTS);
             Log.debug("Number of generated test reduced to {}", MAX_NUMBER_OF_TESTS);
-            return reducedNewTests;
-        } else {
-            return newTests;
         }
+        ampTestToParent.putAll(newTests.stream()
+                .collect(HashMap::new,
+                        (parentsReduced, ctMethod) -> parentsReduced.put(ctMethod, tmpAmpTestToParent.get(ctMethod)),
+                        HashMap::putAll)
+        );
+        tmpAmpTestToParent.clear();
+        return newTests;
     }
 }
