@@ -70,7 +70,14 @@ public class PitRunner {
             if (!new File(program.getProgramDir() + "/target/pit-reports").exists()) {
                 return null;
             }
-            File directoryReportPit = new File(program.getProgramDir() + "/target/pit-reports").listFiles()[0];
+            final File[] files = new File(program.getProgramDir() + "/target/pit-reports").listFiles();
+            if (files == null) {
+                return null;
+            }
+            File directoryReportPit = files[0];
+            if (!directoryReportPit.exists()) {
+                return null;
+            }
             File fileResults = new File(directoryReportPit.getPath() + "/mutations.csv");
             List<PitResult> results = PitResultParser.parse(fileResults);
             Log.debug("Time to run pit mutation coverage {} ms", System.currentTimeMillis() - time);
