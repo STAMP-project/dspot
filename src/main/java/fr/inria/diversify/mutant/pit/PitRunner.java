@@ -6,9 +6,15 @@ import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.Log;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.declaration.ModifierKind;
+import spoon.reflect.reference.CtTypeReference;
 
 import java.io.File;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Created by Benjamin DANGLOT
@@ -57,7 +63,7 @@ public class PitRunner {
                     OPT_TARGET_CLASSES + configuration.getProperty("filter"), //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
-                    OPT_TARGET_TESTS + testClass.getQualifiedName(), //
+                    OPT_TARGET_TESTS + testClassToParameter(testClass), //
                     configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
                     OPT_ADDITIONAL_CP_ELEMENTS + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) :
                     "", //
@@ -77,6 +83,25 @@ public class PitRunner {
             return results;
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static String testClassToParameter(CtType<?> testClass) {
+        if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) {
+            final CtTypeReference reference = testClass.getReference();
+            final ArrayList<String> subClassNames = testClass.getFactory().Class().getAll()
+                    .stream()
+                    .filter(ctClass -> reference.equals(ctClass.getSuperclass()))
+                    .collect(ArrayList<String>::new,
+                            (list, subTestClass) -> list.add(subTestClass.getQualifiedName()),
+                            ArrayList<String>::addAll);
+            String names = "";
+            for (int i = 0; i < subClassNames.size() - 1; i++) {
+                names += subClassNames.get(i) + ",";
+            }
+            return names + subClassNames.get(subClassNames.size() - 1);
+        } else {
+            return testClass.getQualifiedName();
         }
     }
 
