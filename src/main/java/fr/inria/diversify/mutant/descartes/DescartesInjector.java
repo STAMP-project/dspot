@@ -26,11 +26,11 @@ public class DescartesInjector {
 
     private final static String[] mutators = {"null", "void", "0", "false"};
 
-    private static Node getNodeNamedFromOrBuildIfDoesnotExist(Document doc, Node startNode, String name, Node parent) {
+    private static Node getNodeNamedFromOrBuildIfDoesnotExist(Document doc, Node startNode, String name) {
         Node currentNode = DescartesChecker.getNodeNamedFrom(startNode, name);
         if (currentNode == null) {
             currentNode = doc.createElement(name);
-            parent.appendChild(currentNode);
+            startNode.appendChild(currentNode);
         }
         return currentNode;
     }
@@ -104,14 +104,18 @@ public class DescartesInjector {
             Document doc = docBuilder.parse(pathToPom);
 
             final Node root = doc.getFirstChild();
-            getNodeNamedFromOrBuildIfDoesnotExist(doc, root,
-                    "dependencies", root)
-                    .appendChild(buildDependencyToPitTest(doc));
-            getNodeNamedFromOrBuildIfDoesnotExist(doc, root,
-                    "plugins",
-                    getNodeNamedFromOrBuildIfDoesnotExist(doc, root,
-                            "build", root))
+            final Node dependencies = getNodeNamedFromOrBuildIfDoesnotExist(doc, root,
+                    "dependencies");
+            dependencies.appendChild(buildDependencyToPitTest(doc));
+            dependencies.appendChild(buildDependency(doc));
+
+            Node build = getNodeNamedFromOrBuildIfDoesnotExist(doc, root,
+                    "build");
+            getNodeNamedFromOrBuildIfDoesnotExist(doc, build,"plugins")
                     .appendChild(buildPlugin(doc));
+
+            getNodeNamedFromOrBuildIfDoesnotExist(doc, root, "repositories")
+                    .appendChild(buildRepository(doc));
 
             // write the content into xml file
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -122,5 +126,30 @@ public class DescartesInjector {
         } catch (ParserConfigurationException | TransformerException | IOException | SAXException pce) {
             throw new RuntimeException(pce);
         }
+    }
+
+    private static final String ID_REPOSITORY = "stamp-maven-repository-mvn-repo";
+
+    private static final String URL_REPOSITORY = "https://stamp-project.github.io/stamp-maven-repository";
+
+    private static Node buildRepository(Document doc) {
+        final Element repository = doc.createElement("repository");
+        buildListOfChildrenRepository(doc).forEach(repository::appendChild);
+        return repository;
+    }
+
+    private static List<Node> buildListOfChildrenRepository(Document doc) {
+        final Element id = doc.createElement("id");
+        id.setTextContent(ID_REPOSITORY);
+        final Element url = doc.createElement("url");
+        url.setTextContent(URL_REPOSITORY);
+        final Element snapshots = doc.createElement("snapshots");
+        final Element enabled = doc.createElement("enabled");
+        enabled.setTextContent("true");
+        final Element updatePolicy = doc.createElement("updatePolicy");
+        updatePolicy.setTextContent("always");
+        snapshots.appendChild(enabled);
+        snapshots.appendChild(updatePolicy);
+        return Arrays.asList(id, url, snapshots);
     }
 }
