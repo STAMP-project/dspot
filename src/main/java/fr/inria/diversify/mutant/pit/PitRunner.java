@@ -25,6 +25,8 @@ public class PitRunner {
 
     public static boolean descartesMode = false;
 
+    public static boolean evosuiteMode = false;
+
     private static final String PRE_GOAL_PIT = "clean test -DskipTests";
 
     private static final String OPT_WITH_HISTORY = "-DwithHistory";
@@ -51,6 +53,8 @@ public class PitRunner {
 
     private static final String CMD_PIT_MUTATION_COVERAGE = "org.pitest:pitest-maven:mutationCoverage";
 
+    private static final String OPT_VALUE_MUTATORS_EVOSUITE = "-Dmutators=VOID_METHOD_CALLS,NON_VOID_METHOD_CALLS,EXPERIMENTAL_MEMBER_VARIABLE,INCREMENTS,INVERT_NEGS,MATH,NEGATE_CONDITIONALS,CONDITIONALS_BOUNDARY,INLINE_CONSTS";
+
     public static List<PitResult> run(InputProgram program, InputConfiguration configuration, CtType testClass) {
         try {
             long time = System.currentTimeMillis();
@@ -67,7 +71,7 @@ public class PitRunner {
                     configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
                     OPT_ADDITIONAL_CP_ELEMENTS + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) :
                     "", //
-                    descartesMode ? OPT_MUTATION_ENGINE : OPT_VALUE_MUTATORS, //
+                    descartesMode ? OPT_MUTATION_ENGINE : (evosuiteMode ? OPT_VALUE_MUTATORS_EVOSUITE : OPT_VALUE_MUTATORS), //
                     configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) != null ?
                     OPT_EXCLUDED_CLASSES + configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) :
                             ""//
@@ -124,7 +128,7 @@ public class PitRunner {
                     OPT_TARGET_CLASSES + configuration.getProperty("filter"), //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
-                    descartesMode ? OPT_MUTATION_ENGINE : OPT_VALUE_MUTATORS, //
+                    descartesMode ? OPT_MUTATION_ENGINE : (evosuiteMode ? OPT_VALUE_MUTATORS_EVOSUITE : OPT_VALUE_MUTATORS), //
                     configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
                             OPT_ADDITIONAL_CP_ELEMENTS + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) :
                             "", //

@@ -73,6 +73,7 @@ public class JSAPOptions {
         }
 
         PitRunner.descartesMode = jsapConfig.getBoolean("descartes");
+        PitRunner.evosuiteMode = jsapConfig.getBoolean("evosuite");
 
         return new Configuration(jsapConfig.getString("path"),
                 buildAmplifiersFromString(jsapConfig.getStringArray("amplifiers")),
@@ -217,12 +218,17 @@ public class JSAPOptions {
         descartesMode.setShortFlag('d');
         descartesMode.setLongFlag("descartes");
 
+        Switch evosuiteMode = new Switch("evosuite");
+        evosuiteMode.setShortFlag('k');
+        evosuiteMode.setLongFlag("evosuite");
+
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
             jsap.registerParameter(iteration);
             jsap.registerParameter(selector);
             jsap.registerParameter(descartesMode);
+            jsap.registerParameter(evosuiteMode);
             jsap.registerParameter(specificTestCase);
             jsap.registerParameter(testCases);
             jsap.registerParameter(output);
