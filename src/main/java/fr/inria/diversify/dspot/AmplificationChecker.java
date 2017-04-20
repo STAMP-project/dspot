@@ -73,9 +73,10 @@ public class AmplificationChecker {
                 || candidate.getBody().getStatements().size() == 0) {
             return false;
         }
-        return candidate.getAnnotation(org.junit.Test.class) != null ||
+        return candidate.getParameters().isEmpty() &&
+                (candidate.getAnnotation(org.junit.Test.class) != null ||
                 ((candidate.getSimpleName().contains("test") ||
-                candidate.getSimpleName().contains("should")) && !isTestJUnit4(parent));
+                candidate.getSimpleName().contains("should")) && !isTestJUnit4(parent)));
     }
 
     private static boolean isTestJUnit4(CtClass<?> classTest) {
@@ -87,7 +88,7 @@ public class AmplificationChecker {
 
     public static boolean isTest(CtMethod candidate, String relativePath) {
         try {
-            if (candidate.getPosition() != null
+            if (!relativePath.isEmpty() && candidate.getPosition() != null
                     && candidate.getPosition().getFile() != null
                     && !candidate.getPosition().getFile().toString().contains(relativePath)) {
                 return false;

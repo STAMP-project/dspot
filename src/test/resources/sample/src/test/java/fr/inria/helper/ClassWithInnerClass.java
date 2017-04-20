@@ -2,6 +2,7 @@ package fr.inria.helper;
 
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ClassWithInnerClass {
 
@@ -16,4 +17,17 @@ public class ClassWithInnerClass {
         assertEquals(4, innerClass.value);
     }
 
+    @Test
+    public void notATestBecauseEmpty() {
+
+    }
+
+    public void notATestBecauseMixinJunit3AndJunit4() {
+        assertTrue(true);
+    }
+
+    @Test
+    public void notATestBecauseParameters(int a) {
+        assertTrue(true);
+    }
 }

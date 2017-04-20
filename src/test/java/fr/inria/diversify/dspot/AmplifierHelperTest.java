@@ -20,6 +20,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class AmplifierHelperTest {
 
+
     @Test
     public void testCreateAmplifiedTestClass() throws Exception {
 
