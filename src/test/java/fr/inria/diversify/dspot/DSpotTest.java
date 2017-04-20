@@ -34,7 +34,11 @@ public class DSpotTest extends MavenAbstractTest {
         InputProgram program = new InputProgram();
         configuration.setInputProgram(program);
         DSpot dspot = new DSpot(configuration);
-        FileUtils.cleanDirectory(new File(configuration.getOutputDirectory()));
+        try {
+            FileUtils.cleanDirectory(new File(configuration.getOutputDirectory()));
+        } catch (Exception ignored) {
+
+        }
         assertFalse(new File(configuration.getOutputDirectory() + "/test-projects.json").exists());
 
         CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample");

@@ -3,12 +3,10 @@ package fr.inria.diversify.dspot.testrunner;
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AmplificationHelper;
-import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.assertGenerator.MethodAssertGenerator;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.TestCompiler;
 import fr.inria.diversify.testRunner.TestRunner;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.code.CtTry;
@@ -58,15 +56,15 @@ public class TestRunnerTest {
             throw new RuntimeException("Error compilation");
         }
         classpath = AmplificationHelper.getClassPath(Utils.getCompiler(), Utils.getInputProgram());
-        JunitResult result = TestRunner.runTests(testClass, testClass.getMethodsByName("testFromCommonsLang"), classpath, Utils.getInputProgram());
+        JunitResult result = TestRunner.runTests(testClass, testClass.getMethodsByName("testFromCommonsLang"), classpath, Utils.getInputConfiguration());
 
         assertEquals(0, result.getFailures().size());
-        assertEquals(1, result.getTestRuns().size());
+        assertEquals(1, result.getTestsRun().size());
 
-        MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler());
+        MethodAssertGenerator mag = new MethodAssertGenerator(testClass, Utils.getInputConfiguration(), Utils.getCompiler());
         result = mag.runTests(testClass, testClass.getMethodsByName("testFromCommonsLang"));
         assertEquals(0, result.getFailures().size());
-        assertEquals(1, result.getTestRuns().size());
+        assertEquals(1, result.getTestsRun().size());
 
         CtMethod originalTestCase = Utils.findMethod(testClass, "testFromCommonsLang");
         CtMethod amplifiedTestCase = mag.generateAssert(originalTestCase);
