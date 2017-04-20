@@ -23,14 +23,22 @@ public class JunitResult extends RunListener {
 
     }
 
+    void addTestRun(String testRun) {
+        this.testsRun.add(testRun);
+    }
+
+    void addTestFail(Failure failure) {
+        this.testsFail.put(failure.getDescription().getMethodName(), failure);
+    }
+
     @Override
     public synchronized void testFinished(Description description) throws Exception {
-        this.testsRun.add(description.getMethodName());
+        this.addTestRun(description.getMethodName());
     }
 
     @Override
     public synchronized void testFailure(Failure failure) throws Exception {
-        this.testsFail.put(failure.getDescription().getMethodName(), failure);
+        this.addTestFail(failure);
     }
 
     @Override

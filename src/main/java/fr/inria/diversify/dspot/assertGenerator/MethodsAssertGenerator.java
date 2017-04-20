@@ -13,6 +13,7 @@ import fr.inria.diversify.testRunner.TestCompiler;
 import fr.inria.diversify.testRunner.TestRunner;
 import org.junit.runner.notification.Failure;
 import spoon.reflect.code.*;
+import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
@@ -98,7 +99,7 @@ public class MethodsAssertGenerator {
             } else {
                 passingTests = failingTests;
             }
-            return filterTest(clone, passingTests, 3);
+            return passingTests.isEmpty() ? passingTests : filterTest(clone, passingTests, 3);
         }
     }
 
@@ -235,13 +236,15 @@ public class MethodsAssertGenerator {
     }
 
     private List<CtMethod<?>> filterTest(CtType clone, List<CtMethod<?>> tests, int nTime) {
-        final ArrayList<CtMethod<?>> clones = tests.stream()
-                .collect(ArrayList<CtMethod<?>>::new,
-                        (listClones, ctMethod) -> listClones.add(ctMethod.clone()),
-                        ArrayList<CtMethod<?>>::addAll);
+        final List<CtMethod<?>> clones = tests.stream()
+                .map(CtMethod::clone)
+                .collect(Collectors.toList());
         clones.forEach(clone::addMethod);
 
         for (int i = 0; i < nTime; i++) {
+            if (clones.isEmpty()) {
+                return Collections.emptyList();
+            }
             final JunitResult result = runTests(clone, clones);
             if (result == null) {
                 return Collections.emptyList();

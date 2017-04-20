@@ -147,7 +147,7 @@ public class Amplification {
             result.getFailures().forEach(failure -> {
                 try {
                     CtMethod testToRemove = tests.stream()
-                            .filter(m -> failure.startsWith(m.getSimpleName()))
+                            .filter(m -> failure.equals(m.getSimpleName()))
                             .findFirst().get();
                     tests.remove(tests.indexOf(testToRemove));
                     Log.warn("{}", testToRemove.getSimpleName());

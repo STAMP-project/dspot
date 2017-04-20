@@ -28,17 +28,17 @@ public class AssertGenerator {
         this.compiler = compiler;
     }
 
-    public List<CtMethod<?>> generateAsserts(CtType testClass) throws IOException, ClassNotFoundException {
-        return generateAsserts(testClass, testClass.getMethods());
+    public List<CtMethod<?>> generateAsserts(CtType<?> testClass) throws IOException, ClassNotFoundException {
+        return generateAsserts(testClass, new ArrayList<>(testClass.getMethods()));
     }
 
-    public List<CtMethod<?>> generateAsserts(CtType testClass, Collection<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
+    public List<CtMethod<?>> generateAsserts(CtType<?> testClass, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
         CtType cloneClass = testClass.clone();
         cloneClass.setParent(testClass.getParent());
         final Map<CtMethod<?>, List<Integer>> statementIndexToAssert = tests.stream()
                 .collect(Collectors.toMap(Function.identity(), AssertGeneratorHelper::findStatementToAssert));
         MethodsAssertGenerator ags = new MethodsAssertGenerator(testClass, this.configuration, compiler);
-        final List<CtMethod<?>> amplifiedTestWithAssertion = ags.generateAsserts(testClass, new ArrayList<>(tests), statementIndexToAssert);
+        final List<CtMethod<?>> amplifiedTestWithAssertion = ags.generateAsserts(testClass, tests, statementIndexToAssert);
         Log.debug("{} new tests with assertions generated", amplifiedTestWithAssertion.size());
         return amplifiedTestWithAssertion;
     }

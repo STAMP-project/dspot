@@ -6,29 +6,24 @@ import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.util.Log;
-import mockit.Mocked;
-import mockit.integration.junit4.JMockit;
 import org.junit.internal.requests.FilterRequest;
 import org.junit.runner.Computer;
 import org.junit.runner.Description;
 import org.junit.runner.Request;
 import org.junit.runner.Runner;
 import org.junit.runner.manipulation.Filter;
+import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
-import org.junit.runners.model.InitializationError;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
-import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.visitor.filter.TypeFilter;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -37,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 import static fr.inria.diversify.dspot.DSpotUtils.buildMavenHome;
 
@@ -94,35 +90,56 @@ public class JunitRunner {
         try {
             MavenBuilder builder = new MavenBuilder(configuration.getInputProgram().getProgramDir());
             builder.setBuilderPath(buildMavenHome(configuration));
-            builder.runGoals(new String[]{"test", "-Dtest=" + test.getQualifiedName()}, true);
-            readSurefireReports(configuration.getInputProgram().getProgramDir() + "target/surefire-reports/TEST-" + test.getQualifiedName() + ".xml");
+            builder.runGoals(new String[]{"-Dtest=" + buildTestCaseName(test.getQualifiedName(), methodsToRun), "test"}, false);
+            final String pathFile = configuration.getInputProgram().getProgramDir() + "target/surefire-reports/TEST-" + test.getQualifiedName() + ".xml";
+            readSurefireReports(test, pathFile, result);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void readSurefireReports(String pathFile) {
+    private String buildTestCaseName(final String fullQualifiedNameTest, List<String> methodsToRun) {
+        return fullQualifiedNameTest + "#" + methodsToRun.stream()
+                .collect(Collectors.joining("+"));
+    }
+
+    private void readSurefireReports(CtType<?> test, String pathFile, JunitResult result) {
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
             Document doc = docBuilder.parse(pathFile);
-            List<String> testsRun = new ArrayList<>();
-            List<String> testsFail = new ArrayList<>();
             Node currentNode = getNextTestCase(doc.getFirstChild().getFirstChild());
             while (currentNode != null) {
-                final String currentNameTests = currentNode.getAttributes().getNamedItem("name").getNodeValue();
-                testsRun.add(currentNameTests);
+                final String currentNameTest = currentNode.getAttributes().getNamedItem("name").getNodeValue();
+                result.addTestRun(currentNameTest);
                 if (currentNode.getFirstChild() != null
                         && currentNode.getFirstChild().getNextSibling().getNodeName().equals("failure")) {
-                    testsFail.add(currentNameTests);
+                    result.addTestFail(buildFailure(test, currentNameTest, currentNode.getFirstChild().getNextSibling()));
                 }
                 currentNode = getNextTestCase(currentNode);
             }
-            System.out.println(testsRun);
-            System.out.println(testsFail);
         } catch (IOException | SAXException | ParserConfigurationException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private Failure buildFailure(CtType<?> test, String currentNameTest, Node nodeFailure) {
+        Throwable throwable = null;
+        Description description = null;
+        try {
+            String failureException = nodeFailure.getAttributes().getNamedItem("type").getNodeValue();
+            failureException = failureException.endsWith(":") ?
+                    failureException.substring(0, failureException.length() - 1) :
+                    failureException;
+            final Class<?> classThrowable = classLoader.loadClass(failureException);
+            throwable = (Throwable) classThrowable.newInstance();
+            description = Description.createTestDescription(
+                    classLoader.loadClass(test.getQualifiedName()), currentNameTest
+            );
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+            e.printStackTrace();
+        }
+        return new Failure(description, throwable);
     }
 
     private Node getNextTestCase(Node currentNode) {
