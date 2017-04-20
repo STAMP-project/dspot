@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.assertGenerator;
 
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
+import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.support.Counter;
@@ -104,7 +105,7 @@ public class MethodsAssertGenerator {
     }
 
 
-    private List<CtMethod<?>> addAssertions(CtType testClass, List<CtMethod<?>> testCases, Map<CtMethod<?>, List<Integer>> statementsIndexToAssert) throws IOException, ClassNotFoundException {
+    private List<CtMethod<?>> addAssertions(CtType<?> testClass, List<CtMethod<?>> testCases, Map<CtMethod<?>, List<Integer>> statementsIndexToAssert) throws IOException, ClassNotFoundException {
         CtType clone = testClass.clone();
         testClass.getPackage().addType(clone);
         final List<CtMethod<?>> testCasesWithLogs = new ArrayList<>();
@@ -125,8 +126,10 @@ public class MethodsAssertGenerator {
         if (result == null || !result.getFailures().isEmpty()) {
             return Collections.emptyList();
         } else {
+            Map<String, Observation> observations = AmplificationChecker.isMocked(testClass) ?
+                    ObjectLog.getObservations() : ObjectLog.getObservations();
             return testCases.stream()
-                    .map(ctMethod -> this.buildTestWithAssert(ctMethod, ObjectLog.getObservations()))
+                    .map(ctMethod -> this.buildTestWithAssert(ctMethod, observations))
                     .collect(Collectors.toList());
         }
     }

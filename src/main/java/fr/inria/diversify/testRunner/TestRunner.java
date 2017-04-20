@@ -1,11 +1,10 @@
 package fr.inria.diversify.testRunner;
 
+import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
 import spoon.reflect.declaration.CtType;
@@ -26,13 +25,20 @@ public class TestRunner {
 
     private static List<String> blackListImplementation = new ArrayList<>();
 
-    public static JunitResult runTests(CtType testClass,
+    public static JunitResult runTests(CtType<?> testClass,
                                        List<CtMethod<?>> tests,
                                        String classpath,
                                        InputConfiguration configuration) {
         Logger.reset();
         Logger.setLogDir(new File(configuration.getInputProgram().getProgramDir() + "/log"));
-        final JunitRunner junitRunner = new JunitRunner(classpath, configuration);
+        final JunitRunner junitRunner;
+
+        if (AmplificationChecker.isMocked(testClass)) {
+            junitRunner = new JunitRunnerMock(classpath, configuration);
+        } else {
+            junitRunner = new DefaultJunitRunner(classpath);
+        }
+
         final CtTypeReference reference = testClass.getReference();
 
         List<CtType<?>> subClasses = testClass.getFactory().Class().getAll()
@@ -43,14 +49,14 @@ public class TestRunner {
 
         final RunWith annotation = testClass.getAnnotation(RunWith.class);
         if (annotation != null && annotation.value().equals(Parameterized.class)) {
-            return junitRunner.runTestClass(testClass, Collections.emptyList());
+            return junitRunner.run(Collections.singletonList(testClass), Collections.emptyList());
         } else if (subClasses.isEmpty()) {
-            return junitRunner.runTestClass(testClass,
+            return junitRunner.run(Collections.singletonList(testClass),
                     tests.stream()
                             .map(CtNamedElement::getSimpleName)
                             .collect(Collectors.toList()));
         } else {
-            JunitResult result = junitRunner.runTestClasses(
+            JunitResult result = junitRunner.run(
                     subClasses,
                     tests.stream()
                             .map(CtNamedElement::getSimpleName)

@@ -113,10 +113,7 @@ public class AmplificationChecker {
         }
     };
 
-    public static boolean isMocked(List<CtType<?>> tests) {
-        return tests.stream()
-                .anyMatch(ctType ->
-                        !ctType.getElements(mockedAnnotationFilter).isEmpty()
-                );
+    public static boolean isMocked(CtType<?> test) {
+        return !test.getElements(mockedAnnotationFilter).isEmpty();
     }
 }
