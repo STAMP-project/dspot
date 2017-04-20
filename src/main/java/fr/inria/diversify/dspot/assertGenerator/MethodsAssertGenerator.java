@@ -149,7 +149,6 @@ public class MethodsAssertGenerator {
 
     private CtMethod<?> buildTestWithAssert(CtMethod test, Map<String, Observation> observations) {
         CtMethod testWithAssert = test.clone();
-        testWithAssert.setSimpleName(test.getSimpleName() + "_Aampl");
         int numberOfAddedAssertion = 0;
         List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter(CtStatement.class));
         for (String id : observations.keySet()) {
