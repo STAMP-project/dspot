@@ -20,6 +20,7 @@ public class ObjectLog {
     private Invocator invocator;
     private int maxDeep = 4;
     private Map<String, Object> objects;
+    public static final String FILENAME_OF_OBSERVATIONS = "observations.ser";
 
     private ObjectLog() {
         this.observations = new HashMap<>();
@@ -105,7 +106,7 @@ public class ObjectLog {
 
     public static void writeObservationToFile() {
         try {
-            FileOutputStream fos = new FileOutputStream("observations.ser");
+            FileOutputStream fos = new FileOutputStream(FILENAME_OF_OBSERVATIONS);
             try (ObjectOutputStream oos = new ObjectOutputStream(fos)) {
                 oos.writeObject(singleton.observations);
             } catch (Exception e) {

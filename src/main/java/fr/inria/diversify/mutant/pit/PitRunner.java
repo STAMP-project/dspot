@@ -107,7 +107,8 @@ public class PitRunner {
             Log.debug("Time to run pit mutation coverage {} ms", System.currentTimeMillis() - time);
             return results;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return null;
+            //throw new RuntimeException(e);
         }
     }
 

@@ -22,10 +22,14 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static fr.inria.diversify.compare.ObjectLog.FILENAME_OF_OBSERVATIONS;
 import static fr.inria.diversify.dspot.assertGenerator.AssertGeneratorHelper.takeAllStatementToAssert;
 
 /**
@@ -127,16 +131,25 @@ public class MethodsAssertGenerator {
             return Collections.emptyList();
         } else {
             Map<String, Observation> observations = AmplificationChecker.isMocked(testClass) ?
-                    ObjectLog.getObservations() : ObjectLog.getObservations();
+                    readObservations() : ObjectLog.getObservations();
             return testCases.stream()
                     .map(ctMethod -> this.buildTestWithAssert(ctMethod, observations))
                     .collect(Collectors.toList());
         }
     }
 
+    private Map<String, Observation> readObservations() {
+        try (FileInputStream fin = new FileInputStream(this.configuration.getInputProgram().getProgramDir() + "/" + FILENAME_OF_OBSERVATIONS)) {
+            ObjectInputStream ois = new ObjectInputStream(fin);
+            return (Map<String, Observation>) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private CtMethod<?> buildTestWithAssert(CtMethod test, Map<String, Observation> observations) {
         CtMethod testWithAssert = test.clone();
+        testWithAssert.setSimpleName(test.getSimpleName() + "_Aampl");
         int numberOfAddedAssertion = 0;
         List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter(CtStatement.class));
         for (String id : observations.keySet()) {
