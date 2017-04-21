@@ -45,6 +45,9 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
     public void testSelection() throws Exception, InvalidSdkException {
         AmplificationHelper.setSeedRandom(23L);
 
+        PitRunner.evosuiteMode = false;
+        PitRunner.descartesMode = false;
+
         List<PitResult> pitResults = PitResultParser.parse(new File("src/test/resources/test-projects/originalpit/mutations.csv"));
         assertTrue(null != pitResults);
 

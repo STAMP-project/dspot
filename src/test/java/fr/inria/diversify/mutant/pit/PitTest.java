@@ -25,6 +25,46 @@ public class PitTest extends MavenAbstractTest {
     }
 
     @Test
+    public void testPitEvosuiteMode() throws Exception {
+
+        /* by evosuite mode, we mean the common subset of mutation operators between pitest and evosuite */
+
+        AmplificationHelper.setSeedRandom(23L);
+        PitRunner.descartesMode = false;
+        PitRunner.evosuiteMode = true;
+
+        Utils.init(this.getPathToPropertiesFile());
+        CtClass<Object> testClass = Utils.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
+        List<PitResult> pitResults = PitRunner.run(Utils.getInputProgram(), Utils.getInputConfiguration(),
+                testClass);
+
+        System.out.println(pitResults);
+        assertTrue(null != pitResults);
+
+        assertEquals(8, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
+        Optional<PitResult> OptResult = pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).findFirst();
+        assertTrue(OptResult.isPresent());
+        PitResult result = OptResult.get();
+        assertEquals("org.pitest.mutationtest.engine.gregor.mutators.InlineConstantMutator", result.getFullQualifiedNameMutantOperator());
+        assertEquals(null, result.getMethod(testClass));
+        assertEquals(27, result.getLineNumber());
+        assertEquals("<init>", result.getLocation());
+
+        assertEquals(8, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count());
+        OptResult = pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).findFirst();
+        assertTrue(OptResult.isPresent());
+        result = OptResult.get();
+        assertEquals("org.pitest.mutationtest.engine.gregor.mutators.InlineConstantMutator", result.getFullQualifiedNameMutantOperator());
+        assertEquals("test4", result.getMethod(testClass).getSimpleName());
+        assertEquals(18, result.getLineNumber());
+        assertEquals("charAt", result.getLocation());
+
+        assertEquals(2, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.NO_COVERAGE).count());
+
+        //todo should verify generated mutant
+    }
+
+    @Test
     public void testPit() throws Exception, InvalidSdkException {
 
         /*
@@ -33,6 +73,7 @@ public class PitTest extends MavenAbstractTest {
          */
         AmplificationHelper.setSeedRandom(23L);
         PitRunner.descartesMode = false;
+        PitRunner.evosuiteMode = false;
         Utils.init(this.getPathToPropertiesFile());
         CtClass<Object> testClass = Utils.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
         List<PitResult> pitResults = PitRunner.run(Utils.getInputProgram(), Utils.getInputConfiguration(),
