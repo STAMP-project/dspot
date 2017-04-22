@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.util.Log;
+import org.junit.BeforeClass;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtAnnotation;
@@ -11,7 +12,8 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
 
-import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Created by Benjamin DANGLOT
@@ -105,7 +107,7 @@ public class AmplificationChecker {
         return isTest(candidate);
     }
 
-    //TODO we will use a Name Convention, i.e. contains Mock
+    //TODO we will use a Name Convention, i.e. contains Mock on Annotation
     private static final TypeFilter<CtAnnotation> mockedAnnotationFilter = new TypeFilter<CtAnnotation>(CtAnnotation.class) {
         @Override
         public boolean matches(CtAnnotation element) {
@@ -113,7 +115,17 @@ public class AmplificationChecker {
         }
     };
 
+    //TODO it might not be the best way to do
+    private static final Predicate<CtType<?>> gotReferencesToMockito = (ctType ->
+            ctType.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class))
+                    .stream()
+                    .anyMatch(ctTypeReference ->
+                            ctTypeReference.getPackage() != null &&
+                                    ctTypeReference.getPackage().getSimpleName().equals("org.mockito"))
+    );
+
     public static boolean isMocked(CtType<?> test) {
-        return !test.getElements(mockedAnnotationFilter).isEmpty();
+        return gotReferencesToMockito.test(test) ||
+                !test.getElements(mockedAnnotationFilter).isEmpty();
     }
 }

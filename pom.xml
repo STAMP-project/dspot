@@ -66,11 +66,6 @@
             <artifactId>descartes</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>org.jmockit</groupId>
-            <artifactId>jmockit</artifactId>
-            <version>1.12</version>
-        </dependency>
 
     </dependencies>
 

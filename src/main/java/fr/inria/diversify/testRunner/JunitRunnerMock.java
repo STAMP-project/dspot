@@ -3,29 +3,17 @@ package fr.inria.diversify.testRunner;
 import fr.inria.diversify.buildSystem.maven.MavenBuilder;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.util.Log;
-import org.junit.After;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
-import spoon.reflect.code.CtCodeSnippetStatement;
-import spoon.reflect.declaration.CtAnnotation;
-import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.factory.Factory;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,7 +50,7 @@ public class JunitRunnerMock extends JunitRunner {
             MavenBuilder builder = new MavenBuilder(configuration.getInputProgram().getProgramDir());
             builder.setBuilderPath(buildMavenHome(configuration));
             builder.runGoals(new String[]{"-Dtest=" + buildTestCaseName(test.getQualifiedName(), methodsToRun), "test"}, false);
-            final String pathFile = configuration.getInputProgram().getProgramDir() + "target/surefire-reports/TEST-" + test.getQualifiedName() + ".xml";
+            final String pathFile = configuration.getInputProgram().getProgramDir() + "/target/surefire-reports/TEST-" + test.getQualifiedName() + ".xml";
             readSurefireReports(test, pathFile, result);
         } catch (Throwable e) {
             throw new RuntimeException(e);
