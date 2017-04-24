@@ -12,6 +12,7 @@ import spoon.reflect.reference.CtTypeReference;
 import java.io.File;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -25,13 +26,13 @@ public class PitRunner {
 
     public static boolean descartesMode = false;
 
+    public static boolean evosuiteMode = false;
+
     private static final String PRE_GOAL_PIT = "clean test -DskipTests";
 
     private static final String OPT_WITH_HISTORY = "-DwithHistory";
 
     private static final String OPT_VALUE_REPORT_DIR = "-DreportsDirectory=target/pit-reports";
-
-    private static final String OPT_VALUE_MUTATORS = "-Dmutators=ALL";
 
     private static final String OPT_TARGET_CLASSES = "-DtargetClasses=";
 
@@ -51,6 +52,20 @@ public class PitRunner {
 
     private static final String CMD_PIT_MUTATION_COVERAGE = "org.pitest:pitest-maven:mutationCoverage";
 
+    private static final String OPT_MUTATORS = "-Dmutators=";
+
+    private static final String VALUE_MUTATORS_ALL = "ALL";
+
+    public static final String[] VALUE_MUTATORS_EVOSUITE = new String[]{"VOID_METHOD_CALLS",
+            "NON_VOID_METHOD_CALLS",
+            "EXPERIMENTAL_MEMBER_VARIABLE",
+            "INCREMENTS",
+            "INVERT_NEGS",
+            "MATH",
+            "NEGATE_CONDITIONALS",
+            "CONDITIONALS_BOUNDARY",
+            "INLINE_CONSTS"};
+
     public static List<PitResult> run(InputProgram program, InputConfiguration configuration, CtType testClass) {
         try {
             long time = System.currentTimeMillis();
@@ -65,11 +80,14 @@ public class PitRunner {
                     OPT_VALUE_FORMAT, //
                     OPT_TARGET_TESTS + testClassToParameter(testClass), //
                     configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
-                    OPT_ADDITIONAL_CP_ELEMENTS + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) :
-                    "", //
-                    descartesMode ? OPT_MUTATION_ENGINE : OPT_VALUE_MUTATORS, //
+                            OPT_ADDITIONAL_CP_ELEMENTS + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) :
+                            "", //
+                    descartesMode ? OPT_MUTATION_ENGINE :
+                            OPT_MUTATORS + (evosuiteMode ?
+                                    Arrays.stream(VALUE_MUTATORS_EVOSUITE).collect(Collectors.joining(","))
+                                    : VALUE_MUTATORS_ALL), //
                     configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) != null ?
-                    OPT_EXCLUDED_CLASSES + configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) :
+                            OPT_EXCLUDED_CLASSES + configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) :
                             ""//
             };
             builder.runGoals(phases, true);
@@ -124,7 +142,9 @@ public class PitRunner {
                     OPT_TARGET_CLASSES + configuration.getProperty("filter"), //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
-                    descartesMode ? OPT_MUTATION_ENGINE : OPT_VALUE_MUTATORS, //
+                    descartesMode ? OPT_MUTATION_ENGINE : OPT_MUTATORS + (evosuiteMode ?
+                            Arrays.stream(VALUE_MUTATORS_EVOSUITE).collect(Collectors.joining(","))
+                            : VALUE_MUTATORS_ALL), //
                     configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
                             OPT_ADDITIONAL_CP_ELEMENTS + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) :
                             "", //
