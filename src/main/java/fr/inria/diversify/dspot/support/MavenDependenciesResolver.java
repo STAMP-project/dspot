@@ -14,11 +14,16 @@ import org.w3c.dom.Node;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Created by Benjamin DANGLOT
@@ -27,101 +32,43 @@ import java.util.Set;
  */
 public class MavenDependenciesResolver {
 
-    private static String pathToLocalMavenRepository = null;
+    private static String PATH_SEPARATOR = System.getProperty("path.separator");
 
-    private static String pathToMavenHome = null;
+    private static String FILE_SEPARATOR = System.getProperty("file.separator");
 
-    public static URL[] resolveDependencies(InputConfiguration configuration, InputProgram program, String mavenHome) {
-        if (pathToLocalMavenRepository == null) {
-            pathToMavenHome = mavenHome;
-            pathToLocalMavenRepository = configuration.getProperty("maven.localRepository", System.getProperty("user.home") + "/.m2/repository");
-        }
-        runMavenGoals(program);
-        Set<URL> classpath = buildUrls(program.getProgramDir(), program.getProgramDir() + "/pom.xml");
+    private static String NAME_FILE_CLASSPATH = "cp";
+
+    public static URL[] resolveDependencies(@Deprecated InputConfiguration configuration, InputProgram program, String mavenHome) {
+        Set<URL> classpath = buildClasspath(program.getProgramDir(), mavenHome);
         return classpath.toArray(new URL[classpath.size()]);
     }
 
-    private static Set<URL> buildUrls(String path, String pathToPom) {
-        File classPathFile = new File(path + "/.classpath");
-        Set<URL> classpath = new HashSet<>();
-        if (classPathFile.exists()) {
-            classpath.addAll(resolveDependenciesInFile(classPathFile));
-        }
-        MavenProject project = getMavenProject(pathToPom);
-        project.getModules().forEach(module ->
-                classpath.addAll(buildUrls(path, path + module))
-        );
-        return classpath;
-    }
-
-    private static Set<URL> resolveDependenciesInFile(File classPathFile) {
-        Set<URL> urls = new HashSet<>();
+    private static Set<URL> buildClasspath(String programDir, String pathToMavenHome) {
         try {
-            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = builder.parse(classPathFile);
-            Node currentNode = doc.getDocumentElement().getFirstChild();
-            do {
-                String url = getUrlsOfNodes(currentNode);
-                if (url != null) {
-                    urls.add(new URL(url));
-                }
-                currentNode = currentNode.getNextSibling();
-            } while (currentNode != null);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return urls;
-    }
-
-    private static String getUrlsOfNodes(Node element) {
-        try {
-            NamedNodeMap attributes = element.getAttributes();
-            if ("var".equals(attributes.getNamedItem("kind").getNodeValue())) {
-                return attributes.getNamedItem("path").getNodeValue().replace("M2_REPO", "file:" + pathToLocalMavenRepository);
-            } else {
-                return null;
-            }
-        } catch (Exception e) {
-            //skipping this element;
-            return null;
-        }
-    }
-
-    private static MavenProject getMavenProject(String pom) {
-        FileReader reader = null;
-        try {
-            MavenProject mavenProject;
-            MavenXpp3Reader mavenReader = new MavenXpp3Reader();
-            File pomFile = new File(pom);
-            Log.info("resolveURL dependencies of {}", pomFile);
-            //Removed null and file exists protections that mask errors
-            reader = new FileReader(pomFile);
-            Model model = mavenReader.read(reader);
-            model.setPomFile(pomFile);
-            mavenProject = new MavenProject(model);
-            if (model.getParent() != null) {
-                MavenProject parent = new MavenProject();
-                parent.setGroupId(model.getParent().getGroupId());
-                parent.setArtifactId(model.getParent().getArtifactId());
-                parent.setVersion(model.getParent().getVersion());
-                mavenProject.setParent(parent);
-            }
-            reader.close();
-            return mavenProject;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static void runMavenGoals(InputProgram program) {
-        try {
-            MavenBuilder builder = new MavenBuilder(program.getProgramDir());
+            MavenBuilder builder = new MavenBuilder(programDir);
             builder.setBuilderPath(pathToMavenHome);
-            String[] phases = new String[]{"eclipse:eclipse"};
+            String[] phases = new String[]{"dependency:build-classpath", "-Dmdep.outputFile=" + NAME_FILE_CLASSPATH};
             builder.runGoals(phases, false);
+            final File fileClasspath = new File(programDir + FILE_SEPARATOR + NAME_FILE_CLASSPATH);
+            try (BufferedReader buffer = new BufferedReader(new FileReader(fileClasspath))) {
+                return Arrays.stream(buffer.lines()
+                        .findFirst()
+                        .orElseThrow(RuntimeException::new)
+                        .split(PATH_SEPARATOR))
+                        .map(mapStringToURl)
+                        .collect(Collectors.toSet());
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
+
+    private static final Function<String, URL> mapStringToURl = (string -> {
+        try {
+            return new URL("file:" + string);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    });
 
 }

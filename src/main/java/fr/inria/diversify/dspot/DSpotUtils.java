@@ -73,7 +73,7 @@ public class DSpotUtils {
         ProcessorUtil.writeInfoFile(inputProgram.getProgramDir());
     }
 
-    public static void printJavaFileWithComment(CtType type, File directory) {
+    public static void printJavaFileWithComment(CtType<?> type, File directory) {
         Factory factory = type.getFactory();
         Environment env = factory.getEnvironment();
         env.setCommentEnabled(true);
@@ -82,7 +82,7 @@ public class DSpotUtils {
         processor.createJavaFile(type);
     }
 
-    public static void printAmplifiedTestClass(CtType type, File directory) {
+    public static void printAmplifiedTestClass(CtType<?> type, File directory) {
         final String pathname = directory.getAbsolutePath() + "/" + type.getQualifiedName().replaceAll("\\.", "/") + ".java";
         if (new File(pathname).exists()) {
             printJavaFileWithComment(addGeneratedTestToExistingClass(type, pathname), directory);
@@ -91,13 +91,13 @@ public class DSpotUtils {
         }
     }
 
-    private static CtClass<?> addGeneratedTestToExistingClass(CtType type, String pathname) {
+    private static CtClass<?> addGeneratedTestToExistingClass(CtType<?> type, String pathname) {
         Launcher launcher = new Launcher();
         launcher.getEnvironment().setNoClasspath(true);
         launcher.addInputResource(pathname);
         launcher.buildModel();
         final CtClass<?> existingAmplifiedTest = launcher.getFactory().Class().get(type.getQualifiedName());
-        ((Set<CtMethod<?>>) type.getMethods()).stream()
+        type.getMethods().stream()
                 .filter(testCase -> !existingAmplifiedTest.getMethods().contains(testCase))
                 .forEach(existingAmplifiedTest::addMethod);
         return existingAmplifiedTest;
