@@ -49,7 +49,7 @@ public class PitDescartesTest {
                 new PitMutantScoreSelector());
 
         final CtClass<Object> originalTestClass = dspot.getInputProgram().getFactory().Class().get("fr.inria.stamp.mutationtest.test.TestCalculator");
-        assertEquals(2 ,originalTestClass.getMethods().size());
+        assertEquals(2, originalTestClass.getMethods().size());
 
         final CtType ctType = dspot.amplifyTest("fr.inria.stamp.mutationtest.test.TestCalculator");
         assertEquals(8, ctType.getMethods().size());
@@ -75,49 +75,5 @@ public class PitDescartesTest {
             "    org.junit.Assert.assertTrue(o_Integraltypestest_cf1237__11);" + nl +
             "    org.junit.Assert.assertEquals(0, calculator.getLastOperatorSymbol());" + nl +
             "}";
-
-    @Test
-    public void testInjectionOfDescartesIfNeeded() throws Exception {
-        final String pathname = "target/trash/pom.xml";
-        try {
-            FileUtils.copyFile(new File("src/test/resources/test-projects/pom.xml"), new File(pathname));
-        } catch (Exception ignored) {
-            FileUtils.forceDelete(new File(pathname));
-            FileUtils.copyFile(new File("src/test/resources/test-projects/pom.xml"), new File(pathname));
-        }
-        assertTrue(DescartesChecker.shouldInjectDescartes(pathname));
-        DescartesInjector.injectDescartesIntoPom(pathname);
-        assertFalse(DescartesChecker.shouldInjectDescartes(pathname));
-        try (BufferedReader buffer = new BufferedReader(new FileReader(pathname))) {
-            final String pomAsStr = buffer.lines().collect(Collectors.joining(nl));
-            assertEquals(expectedPom, pomAsStr);
-        } catch (IOException e) {
-            fail("should not throw");
-        }
-        FileUtils.forceDelete(new File(pathname));
-    }
-
-    private static final String expectedPom = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">" + nl  +
-            "  <modelVersion>4.0.0</modelVersion>" + nl  +
-            "  <groupId>example</groupId>" + nl  +
-            "  <artifactId>example</artifactId>" + nl  +
-            "  <version>0.0.1-SNAPSHOT</version>" + nl  +
-            "  <name>test-projects</name>" + nl  +
-            "" + nl  +
-            "  <properties>" + nl  +
-            "    <default.encoding>UTF-8</default.encoding>" + nl  +
-            "    <maven.compiler.source>1.7</maven.compiler.source>" + nl  +
-            "    <maven.compiler.target>1.7</maven.compiler.target>" + nl  +
-            "  </properties>" + nl  +
-            "" + nl  +
-            "  <dependencies>" + nl  +
-            "  \t<dependency>" + nl  +
-            "  \t\t<groupId>junit</groupId>" + nl  +
-            "  \t\t<artifactId>junit</artifactId>" + nl  +
-            "  \t\t<version>4.11</version>" + nl  +
-            "  \t</dependency>" + nl  +
-            "  <dependency><groupId>org.pitest</groupId><artifactId>pitest-maven</artifactId><version>1.1.11</version></dependency></dependencies>" + nl  +
-            "<build><plugins><plugin><groupId>org.pitest</groupId><artifactId>pitest-maven</artifactId><version>1.1.11</version><configuration><mutationEngine>descartes</mutationEngine><mutators><mutator>null</mutator><mutator>void</mutator><mutator>0</mutator><mutator>false</mutator></mutators></configuration><dependencies><dependency><groupId>fr.inria.stamp</groupId><artifactId>descartes</artifactId><version>0.1-SNAPSHOT</version></dependency></dependencies></plugin></plugins></build></project>";
-
-
 }
+
