@@ -46,10 +46,8 @@ public class Amplification {
         return amplification(classTest, AmplificationHelper.getAllTest(this.inputProgram, classTest), maxIteration);
     }
 
-    public CtType amplification(CtType classTest, List<CtMethod<?>> methods, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
-        List<CtMethod<?>> tests = methods.stream()
-                .filter(mth -> AmplificationChecker.isTest(mth, inputProgram.getRelativeTestSourceCodeDir()))
-                .collect(Collectors.toList());
+    public CtType amplification(CtType classTest, List<CtMethod<?>> tests, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
+
         if (tests.isEmpty()) {
             return null;
         }
@@ -127,7 +125,10 @@ public class Amplification {
         Log.debug("total amp test: {}, global: {}", amplification.size(), ampTestCount);
     }
 
-    private List<CtMethod<?>> preAmplification(CtType classTest, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
+    private List<CtMethod<?>> preAmplification(CtType classTest, List<CtMethod<?>> methods) throws IOException, ClassNotFoundException {
+        List<CtMethod<?>> tests = methods.stream()
+                .filter(ctMethod -> AmplificationChecker.isTest(ctMethod, inputProgram.getRelativeTestSourceCodeDir()))
+                .collect(Collectors.toList());
         if (tests.isEmpty()) {
             return Collections.emptyList();
         }

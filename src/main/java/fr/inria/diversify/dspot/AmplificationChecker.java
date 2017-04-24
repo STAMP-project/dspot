@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.util.Log;
 import spoon.reflect.code.*;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.reference.CtTypeReference;
@@ -61,6 +62,7 @@ public class AmplificationChecker {
     }
 
     public static boolean isTest(CtMethod<?> candidate) {
+        CtClass<?> parent = candidate.getParent(CtClass.class);
         if (candidate.getAnnotation(org.junit.Ignore.class) != null) {
             return false;
         }
@@ -71,14 +73,22 @@ public class AmplificationChecker {
                 || candidate.getBody().getStatements().size() == 0) {
             return false;
         }
-        return candidate.getSimpleName().contains("test")
-                || candidate.getSimpleName().contains("should")
-                || candidate.getAnnotation(org.junit.Test.class) != null;
+        return candidate.getParameters().isEmpty() &&
+                (candidate.getAnnotation(org.junit.Test.class) != null ||
+                ((candidate.getSimpleName().contains("test") ||
+                candidate.getSimpleName().contains("should")) && !isTestJUnit4(parent)));
+    }
+
+    private static boolean isTestJUnit4(CtClass<?> classTest) {
+        return classTest.getMethods().stream()
+                .anyMatch(ctMethod ->
+                        ctMethod.getAnnotation(org.junit.Test.class) != null
+                );
     }
 
     public static boolean isTest(CtMethod candidate, String relativePath) {
         try {
-            if (candidate.getPosition() != null
+            if (!relativePath.isEmpty() && candidate.getPosition() != null
                     && candidate.getPosition().getFile() != null
                     && !candidate.getPosition().getFile().toString().contains(relativePath)) {
                 return false;
