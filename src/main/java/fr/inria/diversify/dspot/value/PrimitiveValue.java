@@ -51,7 +51,9 @@ public class PrimitiveValue extends Value {
         Factory factory = localVar.getFactory();
 
         if(type.getType().endsWith("[]")) {
-            localVar.setDefaultExpression(factory.Code().createCodeSnippetExpression(formatValueArray()));
+            CtCodeSnippetExpression<Object> snippet = factory.Code().createCodeSnippetExpression(formatValueArray());
+            snippet.setFactory(factory);
+            localVar.setDefaultExpression(snippet);
         }
         else if(value.startsWith("[") || value.startsWith("{")) {
             String dynamicType;
@@ -61,7 +63,9 @@ public class PrimitiveValue extends Value {
             } else {
                 dynamicType = type.getType();
             }
-            localVar.setDefaultExpression(factory.Code().createCodeSnippetExpression("new " + dynamicType +"()"));
+            CtCodeSnippetExpression<Object> snippet = factory.Code().createCodeSnippetExpression("new " + dynamicType + "()");
+            snippet.setFactory(factory);
+            localVar.setDefaultExpression(snippet);
             List<CtStatement> statements = new ArrayList<>();
             if(isCollection(dynamicType)) {
                 statements = generateCollectionAddStatement(value, type.getType(), localVar.getSimpleName());
@@ -71,7 +75,9 @@ public class PrimitiveValue extends Value {
             }
             else {
                 if(dynamicType.startsWith("byte")) {
-                    localVar.setDefaultExpression(factory.Code().createCodeSnippetExpression("\"" + value +"\".getBytes()"));
+                    CtCodeSnippetExpression<Object> snippetByte = factory.Code().createCodeSnippetExpression("\"" + value + "\".getBytes()");
+                    snippetByte.setFactory(factory);
+                    localVar.setDefaultExpression(snippetByte);
                 }
             }
             int count = 1;
@@ -94,9 +100,11 @@ public class PrimitiveValue extends Value {
             return Arrays.stream(mapValues.split(", "))
                     .map(value -> {
                         String[] split = value.split("=");
-                        return type.getSpoonFactory().Code().createCodeSnippetStatement(localVarName + ".put("
+                        CtCodeSnippetStatement snippet = type.getSpoonFactory().Code().createCodeSnippetStatement(localVarName + ".put("
                                 + createNewLiteral(keyGenericType, split[0]) + ", "
-                                + createNewLiteral(valueGenericType, split[1]) +")");
+                                + createNewLiteral(valueGenericType, split[1]) + ")");
+                        snippet.setFactory(type.getSpoonFactory());
+                        return snippet;
                     })
                     .collect(Collectors.toList());
         }
@@ -109,8 +117,12 @@ public class PrimitiveValue extends Value {
             String collectionGenericType = dynamicTypeName.substring(dynamicTypeName.indexOf("<") + 1, dynamicTypeName.length() - 1);
 
             return Arrays.stream(collectionValues.split(", "))
-                    .map(value -> type.getSpoonFactory().Code().createCodeSnippetStatement(localVarName + ".add("
-                            + createNewLiteral(collectionGenericType, value) + ")"))
+                    .map(value -> {
+                        CtCodeSnippetStatement snippet = type.getSpoonFactory().Code().createCodeSnippetStatement(localVarName + ".add("
+                                + createNewLiteral(collectionGenericType, value) + ")");
+                        snippet.setFactory(type.getSpoonFactory());
+                        return snippet;
+                    })
                     .collect(Collectors.toList());
         }
         return new ArrayList<>();
