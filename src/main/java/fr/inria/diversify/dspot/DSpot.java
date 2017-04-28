@@ -8,6 +8,7 @@ import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.dspot.selector.json.TestClassJSON;
 import fr.inria.diversify.dspot.support.ClassTimeJSON;
+import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.dspot.support.ProjectTimeJSON;
 import fr.inria.diversify.mutant.descartes.DescartesChecker;
@@ -226,10 +227,8 @@ public class DSpot {
                 .filter(ctClass -> !ctClass.getModifiers().contains(ModifierKind.ABSTRACT))
                 .filter(ctClass ->
                         ctClass.getMethods().stream()
-                                .filter(method ->
-                                        AmplificationChecker.isTest(method, inputProgram.getRelativeTestSourceCodeDir()))
-                                .findFirst()
-                                .isPresent())
+                                .anyMatch(method ->
+                                        AmplificationChecker.isTest(method, inputProgram.getRelativeTestSourceCodeDir())))
                 .map(this::amplifyTest)
                 .collect(Collectors.toList());
         writeTimeJson();
@@ -257,6 +256,7 @@ public class DSpot {
 
     public CtType amplifyTest(CtType test) {
         try {
+            Counter.reset();
             Amplification testAmplification = new Amplification(this.inputConfiguration, this.amplifiers, this.testSelector, this.compiler);
             long time = System.currentTimeMillis();
             CtType amplification = testAmplification.amplification(test, numberOfIterations);
@@ -288,6 +288,7 @@ public class DSpot {
 
     public CtType amplifyTest(CtType test, List<CtMethod<?>> methods) {
         try {
+            Counter.reset();
             Amplification testAmplification = new Amplification(this.inputConfiguration, this.amplifiers, this.testSelector, this.compiler);
             long time = System.currentTimeMillis();
             CtType amplification = testAmplification.amplification(test, methods, numberOfIterations);

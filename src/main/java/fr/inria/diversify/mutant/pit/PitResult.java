@@ -58,14 +58,12 @@ public class PitResult {
         return fullQualifiedNameClass;
     }
 
-    public CtMethod getMethod(CtType ctClass) {
+    public CtMethod getMethod(CtType<?> ctClass) {
         if ("none".equals(this.simpleNameMethod)) {
             return null;
         } else {
             if (this.testCase == null) {
-                String[] splittedQualifiedName = this.simpleNameMethod.split("\\.");
-                String simpleNameOfMethod = splittedQualifiedName[splittedQualifiedName.length - 1];
-                List<CtMethod<?>> methodsByName = ctClass.getMethodsByName(simpleNameOfMethod);
+                List<CtMethod<?>> methodsByName = ctClass.getMethodsByName(this.simpleNameMethod);
                 if (methodsByName.isEmpty()) {
                     if (ctClass.getSuperclass() != null) {
                         return getMethod(ctClass.getSuperclass().getDeclaration());

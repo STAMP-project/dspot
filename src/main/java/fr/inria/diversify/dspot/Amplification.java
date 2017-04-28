@@ -132,7 +132,7 @@ public class Amplification {
 
     private List<CtMethod<?>> preAmplification(CtType classTest, List<CtMethod<?>> methods) throws IOException, ClassNotFoundException {
         List<CtMethod<?>> tests = methods.stream()
-                .filter(ctMethod -> AmplificationChecker.isTest(ctMethod, inputProgram.getRelativeTestSourceCodeDir()))
+                .filter(ctMethod -> AmplificationChecker.isTest(ctMethod, configuration.getInputProgram().getRelativeTestSourceCodeDir()))
                 .collect(Collectors.toList());
         if (tests.isEmpty()) {
             return Collections.emptyList();
