@@ -72,8 +72,11 @@ public class JunitRunnerMock extends JunitRunner {
                 final String currentNameTest = currentNode.getAttributes().getNamedItem("name").getNodeValue();
                 result.addTestRun(currentNameTest);
                 if (currentNode.getFirstChild() != null
-                        && currentNode.getFirstChild().getNextSibling().getNodeName().equals("failure")) {
-                    result.addTestFail(buildFailure(test, currentNameTest, currentNode.getFirstChild().getNextSibling()));
+                        && (currentNode.getFirstChild().getNextSibling().getNodeName().equals("failure")
+                        || currentNode.getFirstChild().getNextSibling().getNodeName().equals("error"))) {
+                    Failure failure = buildFailure(test, currentNameTest, currentNode.getFirstChild().getNextSibling());
+                    if (failure != null)
+                        result.addTestFail(failure);
                 }
                 currentNode = getNextTestCase(currentNode);
             }
@@ -85,18 +88,18 @@ public class JunitRunnerMock extends JunitRunner {
     private Failure buildFailure(CtType<?> test, String currentNameTest, Node nodeFailure) {
         Throwable throwable = null;
         Description description = null;
+        String failureException = nodeFailure.getAttributes().getNamedItem("type").getNodeValue();
+        failureException = failureException.endsWith(":") ?
+                failureException.substring(0, failureException.length() - 1) :
+                failureException;
         try {
-            String failureException = nodeFailure.getAttributes().getNamedItem("type").getNodeValue();
-            failureException = failureException.endsWith(":") ?
-                    failureException.substring(0, failureException.length() - 1) :
-                    failureException;
             final Class<?> classThrowable = classLoader.loadClass(failureException);
             throwable = (Throwable) classThrowable.newInstance();
             description = Description.createTestDescription(
                     classLoader.loadClass(test.getQualifiedName()), currentNameTest
             );
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-            e.printStackTrace();
+            return null;
         }
         return new Failure(description, throwable);
     }

@@ -2,12 +2,14 @@ package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.codeFragment.InputContext;
 import fr.inria.diversify.codeFragment.Statement;
+import fr.inria.diversify.dspot.Amplification;
 import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.value.ValueCreator;
 import fr.inria.diversify.dspot.value.VarCartesianProduct;
+import org.kevoree.log.Log;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -53,9 +55,15 @@ public class StatementAdderOnAssert implements Amplifier {
             if (!inputContexts.isEmpty()) {
                 int index = inputContexts.size() - 1;
                 List<List<Statement>> statements = buildStatements(inputContexts.get(index));
+                if (!Amplification.cc.toString().equals(Amplification.body)) {
+                    throw new RuntimeException();
+                }
                 for (List<Statement> list : statements) {
                     try {
                         newMethods.add(apply(method, list, index));
+                        if (!Amplification.cc.toString().equals(Amplification.body)) {
+                            throw new RuntimeException();
+                        }
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -162,7 +170,16 @@ public class StatementAdderOnAssert implements Amplifier {
                 varCartesianProduct.addReplaceVar(var, replacement);
             }
 
+            if (!Amplification.cc.toString().equals(Amplification.body)) {
+                throw new RuntimeException();
+            }
+
             Statement cfLocalVar = getLocalVar(var.getType(), inputContext);
+
+            if (!Amplification.cc.toString().equals(Amplification.body)) {
+                throw new RuntimeException();
+            }
+
             if (cfLocalVar != null) {
                 DSpotUtils.addComment(cfLocalVar.getCtCodeFragment(), "StatementAddOnAssert local variable replacement", CtComment.CommentType.INLINE);
                 varCartesianProduct.addReplaceVar(var, cfLocalVar);
@@ -173,11 +190,13 @@ public class StatementAdderOnAssert implements Amplifier {
                 DSpotUtils.addComment(localVariable, "StatementAdderOnAssert create literal from method", CtComment.CommentType.INLINE);
                 varCartesianProduct.addReplaceVar(var, localVariable);
             }
+
             CtLocalVariable randomVar = valueCreator.createRandomLocalVar(var.getType());
             if (randomVar != null) {
                 DSpotUtils.addComment(randomVar, "StatementAdderOnAssert create random local variable", CtComment.CommentType.INLINE);
                 varCartesianProduct.addReplaceVar(var, randomVar);
             }
+
         }
 
         return varCartesianProduct.apply(stmts, targetIndex);
@@ -210,7 +229,9 @@ public class StatementAdderOnAssert implements Amplifier {
                     for (CtVariableReference var : localVar.getInputContext().getVar()) {
                         try {
                             CtVariableReference variable = cloneLocalVar.getInputContext().getVariableOrFieldNamed(var.getSimpleName());
-                            var.replace(variable);
+                            if (variable != null) {
+                                var.replace(variable);
+                            }
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }

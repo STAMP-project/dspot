@@ -13,8 +13,8 @@ import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.TestCompiler;
 import fr.inria.diversify.testRunner.TestRunner;
 import org.junit.runner.notification.Failure;
+import org.kevoree.log.Log;
 import spoon.reflect.code.*;
-import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
@@ -23,7 +23,6 @@ import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.*;
@@ -71,7 +70,7 @@ public class MethodsAssertGenerator {
         testClass.getPackage().addType(clone);
         tests.forEach(clone::addMethod);
 
-        final JunitResult result = runTests(clone, tests);
+        final JunitResult result = runTests(clone, tests, false);
         if (result == null) {
             return Collections.emptyList();
         } else {
@@ -79,32 +78,39 @@ public class MethodsAssertGenerator {
             final Set<String> failuresMethodName = result.getFailures();
             final List<String> passingMethodName = result.getPassingTests();
 
+            final List<CtMethod<?>> generatedTestWithAssertion = new ArrayList<>();
             // add assertion on passing tests
-            List<CtMethod<?>> passingTests = addAssertions(clone,
-                    tests.stream()
-                            .filter(ctMethod -> passingMethodName.contains(ctMethod.getSimpleName()))
-                            .collect(Collectors.toList()),
-                    statementsIndexToAssert)
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+            if (!passingMethodName.isEmpty()) {
+                List<CtMethod<?>> passingTests = addAssertions(clone,
+                        tests.stream()
+                                .filter(ctMethod -> passingMethodName.contains(ctMethod.getSimpleName()))
+                                .collect(Collectors.toList()),
+                        statementsIndexToAssert)
+                        .stream()
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+                if (passingTests != null) {
+                    generatedTestWithAssertion.addAll(passingTests);
+                }
+            }
 
             // add try/catch/fail on failing/error tests
-            List<CtMethod<?>> failingTests = tests.stream()
-                    .filter(ctMethod ->
-                            failuresMethodName.contains(ctMethod.getSimpleName()))
-                    .map(ctMethod ->
-                            makeFailureTest(ctMethod, result.getFailureOf(ctMethod.getSimpleName()))
-                    )
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-
-            if (passingTests != null) {
-                passingTests.addAll(failingTests);
-            } else {
-                passingTests = failingTests;
+            if (!failuresMethodName.isEmpty()) {
+                final List<CtMethod<?>> failingTests = tests.stream()
+                        .filter(ctMethod ->
+                                failuresMethodName.contains(ctMethod.getSimpleName()))
+                        .map(ctMethod ->
+                                makeFailureTest(ctMethod, result.getFailureOf(ctMethod.getSimpleName()))
+                        )
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+                if (!failingTests.isEmpty()) {
+                    generatedTestWithAssertion.addAll(failingTests);
+                }
             }
-            return passingTests.isEmpty() ? passingTests : filterTest(clone, passingTests, 3);
+            return generatedTestWithAssertion.isEmpty() ?
+                    generatedTestWithAssertion :
+                    filterTest(clone, generatedTestWithAssertion, 3);
         }
     }
 
@@ -116,7 +122,8 @@ public class MethodsAssertGenerator {
         for (int i = 0; i < 3; i++) {
             int finalI = i;
             final List<? extends CtMethod<?>> testsWithLog = testCases.stream()
-                    .map(ctMethod -> AssertGeneratorHelper.createTestWithLog(ctMethod, statementsIndexToAssert.get(ctMethod), this.originalClass.getSimpleName()))
+                    .map(ctMethod -> AssertGeneratorHelper.createTestWithLog(ctMethod, statementsIndexToAssert.get(ctMethod),
+                            this.originalClass.getSimpleName()))
                     .map(ctMethod -> {
                         ctMethod.setSimpleName(ctMethod.getSimpleName() + finalI);
                         return ctMethod;
@@ -126,19 +133,19 @@ public class MethodsAssertGenerator {
             testCasesWithLogs.addAll(testsWithLog);
         }
         ObjectLog.reset();
-        final JunitResult result = runTests(clone, testCasesWithLogs);
+        final JunitResult result = runTests(clone, testCasesWithLogs, true);
         if (result == null || !result.getFailures().isEmpty()) {
             return Collections.emptyList();
         } else {
             Map<String, Observation> observations = AmplificationChecker.isMocked(testClass) ?
-                    readObservations() : ObjectLog.getObservations();
+                    readObservations(clone) : ObjectLog.getObservations();
             return testCases.stream()
                     .map(ctMethod -> this.buildTestWithAssert(ctMethod, observations))
                     .collect(Collectors.toList());
         }
     }
 
-    private Map<String, Observation> readObservations() {
+    private Map<String, Observation> readObservations(CtType<?> classTest) {
         try (FileInputStream fin = new FileInputStream(this.configuration.getInputProgram().getProgramDir() + "/" + FILENAME_OF_OBSERVATIONS)) {
             ObjectInputStream ois = new ObjectInputStream(fin);
             return (Map<String, Observation>) ois.readObject();
@@ -235,15 +242,16 @@ public class MethodsAssertGenerator {
         return testWithoutAssert;
     }
 
-    private JunitResult runTests(CtType testClass, List<CtMethod<?>> testsToRun) {
+    private JunitResult runTests(CtType testClass, List<CtMethod<?>> testsToRun, boolean withLog) {
         final InputProgram inputProgram = this.configuration.getInputProgram();
         final String dependencies = inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + ":" +
                 inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir();
-        final List<CtMethod<?>> uncompilableMethods = TestCompiler.compile(this.compiler, testClass, true, dependencies);
+        final List<CtMethod<?>> uncompilableMethods = TestCompiler.compile(this.compiler, testClass,
+                withLog, dependencies);
         if (uncompilableMethods.contains(TestCompiler.METHOD_CODE_RETURN)) {
             return null;
         } else {
-            uncompilableMethods.forEach(testsToRun::remove);
+            testsToRun.removeAll(uncompilableMethods);
             uncompilableMethods.forEach(testClass::removeMethod);
             String classpath = AmplificationHelper.getClassPath(this.compiler, inputProgram);
             return TestRunner.runTests(testClass, testsToRun, classpath, this.configuration);
@@ -260,7 +268,7 @@ public class MethodsAssertGenerator {
             if (clones.isEmpty()) {
                 return Collections.emptyList();
             }
-            final JunitResult result = runTests(clone, clones);
+            final JunitResult result = runTests(clone, clones, false);
             if (result == null) {
                 return Collections.emptyList();
             } else {

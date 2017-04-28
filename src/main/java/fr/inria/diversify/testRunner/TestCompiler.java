@@ -12,15 +12,12 @@ import org.junit.After;
 import spoon.Launcher;
 import spoon.reflect.code.CtCodeSnippetStatement;
 import spoon.reflect.code.CtComment;
-import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
-import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.reflect.declaration.CtMethodImpl;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,14 +34,17 @@ public class TestCompiler {
 
     public static boolean writeAndCompile(DSpotCompiler compiler, CtType<?> classTest, boolean withLogger, String dependencies) {
 
+        CtType<?> cloneClass = classTest.clone();
+        classTest.getPackage().addType(cloneClass);
+
         if (withLogger) {
             copyLoggerFile(compiler);
-            if (AmplificationChecker.isMocked(classTest)) {
-                addWriteObversationToTearDown(classTest);
+            if (AmplificationChecker.isMocked(cloneClass)) {
+                addWriteObservationToTearDown(cloneClass );
             }
         }
 
-        printAndDelete(compiler, classTest);
+        printAndDelete(compiler, cloneClass);
         try {
             return compiler.compile(dependencies);
         } catch (Exception e) {
@@ -52,12 +52,16 @@ public class TestCompiler {
         }
     }
 
-    public static List<CtMethod<?>> compile(DSpotCompiler compiler, CtType<?> classTest,
+    public static List<CtMethod<?>> compile(DSpotCompiler compiler, CtType<?> originalClassTest,
                                             boolean withLogger, String dependencies) {
+
+        CtType<?> classTest = originalClassTest.clone();
+        originalClassTest.getPackage().addType(classTest);
+
         if (withLogger) {
             copyLoggerFile(compiler);
             if (AmplificationChecker.isMocked(classTest)) {
-                addWriteObversationToTearDown(classTest);
+                addWriteObservationToTearDown(classTest);
             }
         }
 
@@ -160,7 +164,7 @@ public class TestCompiler {
         }
     }
 
-    private static CtMethod<?> getTearDownMethod(CtType<?> type) {
+    public static CtMethod<?> getTearDownMethod(CtType<?> type) {
         return type.getMethods().stream()
                 .filter(ctMethod -> ctMethod.getAnnotations()
                         .stream()
@@ -179,7 +183,7 @@ public class TestCompiler {
         return method;
     }
 
-    private static void addWriteObversationToTearDown(CtType<?> type) {
+    private static void addWriteObservationToTearDown(CtType<?> type) {
         final CtMethod<?> method = getTearDownMethod(type);
         //TODO snippet
         final CtCodeSnippetStatement writeObservationToFile =

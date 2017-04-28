@@ -65,7 +65,8 @@ public class AmplificationChecker {
     }
 
     public static boolean isInAssert(CtLiteral lit) {
-        return lit.getParent() instanceof CtInvocation && !AmplificationChecker.isAssert((CtInvocation) lit.getParent());
+        return lit.getParent(CtInvocation.class) != null &&
+                AmplificationChecker.isAssert(lit.getParent(CtInvocation.class));
     }
 
     public static boolean isTest(CtMethod<?> candidate) {

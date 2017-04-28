@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
  */
 public class JunitResult extends RunListener {
 
-    private List<String> testsRun;
+    private Set<String> testsRun;
     private Map<String, Failure> testsFail;
 
     public JunitResult() {
-        this.testsRun = new ArrayList<>();
+        this.testsRun = new HashSet<>();
         this.testsFail = new HashMap<>();
 
     }
@@ -61,6 +61,6 @@ public class JunitResult extends RunListener {
     }
 
     public List<String> getTestsRun() {
-        return this.testsRun;
+        return new ArrayList<>(this.testsRun);
     }
 }
