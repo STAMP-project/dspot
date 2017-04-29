@@ -142,40 +142,10 @@ public class DSpot {
 
         this.inputProgram.setFactory(compiler.getLauncher().getFactory());
 
-        addToClasspath();
-
         this.amplifiers = new ArrayList<>(amplifiers);
         this.numberOfIterations = numberOfIterations;
         this.testSelector = testSelector;
         this.testSelector.init(this.inputConfiguration);
-    }
-
-    private void addToClasspath() {
-        final String classPath = AmplificationHelper.getClassPath(this.compiler, this.inputProgram);
-        final URLClassLoader systemClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-        try {
-            Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[]{URL.class});
-            method.setAccessible(true);
-            Arrays.stream(classPath.split(":"))
-                    .collect(ArrayList<URL>::new,
-                            (urls, path) -> {
-                                try {
-                                    urls.add(new URL("file:" + path));
-                                } catch (Exception e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }, ArrayList<URL>::addAll)
-                    .forEach(url -> {
-                        try {
-                            method.invoke(systemClassLoader, url);
-                        } catch (Throwable e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-        }
-
     }
 
     private void copyParentPomIfExist(String target) {

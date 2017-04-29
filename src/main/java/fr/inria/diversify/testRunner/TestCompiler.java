@@ -14,6 +14,7 @@ import spoon.reflect.code.CtCodeSnippetStatement;
 import spoon.reflect.code.CtComment;
 import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
+import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.reflect.declaration.CtMethodImpl;
 
 import java.io.File;
@@ -34,6 +35,12 @@ public class TestCompiler {
 
     public static boolean writeAndCompile(DSpotCompiler compiler, CtType<?> classTest, boolean withLogger, String dependencies) {
 
+        classTest.getElements(new TypeFilter<CtElement>(CtElement.class){
+            @Override
+            public boolean matches(CtElement element) {
+                return element.getFactory() == null && super.matches(element);
+            }
+        }).forEach(ctElement -> ctElement.setFactory(classTest.getFactory()));
         CtType<?> cloneClass = classTest.clone();
         classTest.getPackage().addType(cloneClass);
 

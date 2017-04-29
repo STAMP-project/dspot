@@ -54,7 +54,7 @@ public class PitDescartesTest {
         final CtType ctType = dspot.amplifyTest("fr.inria.stamp.mutationtest.test.TestCalculator");
         assertEquals(8, ctType.getMethods().size());
 
-        final CtMethod<?> integraltypestest_cf1237 = (CtMethod<?>) ctType.getMethodsByName("Integraltypestest_cf1237").get(0);
+        final CtMethod<?> integraltypestest_cf1237 = (CtMethod<?>) ctType.getMethodsByName("Floatingpointtypestest_cf27_failAssert13").get(0);
         assertEquals(expectedBody, integraltypestest_cf1237.getBody().toString());
 
         FileUtils.cleanDirectory(new File(configuration.getOutputDirectory()));
@@ -63,17 +63,22 @@ public class PitDescartesTest {
     }
 
     private static final String expectedBody = "{" + nl +
-            "    final fr.inria.stamp.mutationtest.test.Calculator calculator = new fr.inria.stamp.mutationtest.test.Calculator();" + nl +
-            "    org.junit.Assert.assertEquals(((byte) (0)), calculator.getByte());" + nl +
-            "    org.junit.Assert.assertEquals(((short) (0)), calculator.getShort());" + nl +
-            "    org.junit.Assert.assertEquals(0, calculator.getCeiling());" + nl +
-            "    org.junit.Assert.assertEquals(0L, calculator.getSquare());" + nl +
-            "    // AssertGenerator replace invocation" + nl +
-            "    boolean o_Integraltypestest_cf1237__11 = // StatementAdderMethod cloned existing statement" + nl +
-            "calculator.isOdd();" + nl +
-            "    // AssertGenerator add assertion" + nl +
-            "    org.junit.Assert.assertTrue(o_Integraltypestest_cf1237__11);" + nl +
-            "    org.junit.Assert.assertEquals(0, calculator.getLastOperatorSymbol());" + nl +
+            "    // AssertGenerator generate try/catch block with fail statement" + nl +
+            "    try {" + nl +
+            "        final fr.inria.stamp.mutationtest.test.Calculator calculator = new fr.inria.stamp.mutationtest.test.Calculator();" + nl +
+            "        // MethodAssertGenerator build local variable" + nl +
+            "        Object o_3_0 = calculator.getSomething();" + nl +
+            "        // MethodAssertGenerator build local variable" + nl +
+            "        Object o_5_0 = calculator.add(23.0F);" + nl +
+            "        // StatementAdderOnAssert create random local variable" + nl +
+            "        int vc_17 = -1780117107;" + nl +
+            "        // StatementAdderMethod cloned existing statement" + nl +
+            "        calculator.getScreen(vc_17);" + nl +
+            "        // MethodAssertGenerator build local variable" + nl +
+            "        Object o_11_0 = calculator.getSomething();" + nl +
+            "        org.junit.Assert.fail(\"Floatingpointtypestest_cf27 should have thrown UnknownFormatConversionException\");" + nl +
+            "    } catch (java.util.UnknownFormatConversionException eee) {" + nl +
+            "    }" + nl +
             "}";
 }
 

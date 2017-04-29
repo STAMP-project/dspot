@@ -66,9 +66,6 @@ public class Amplification {
 
         for (int i = 0; i < tests.size(); i++) {
             CtMethod test = tests.get(i);
-            if (!classTest.toString().equals(body)) {
-                throw new RuntimeException();
-            }
             Log.debug("amp {} ({}/{})", test.getSimpleName(), i + 1, tests.size());
             testSelector.reset();
             JunitResult result = compileAndRunTests(classTest, Collections.singletonList(tests.get(i)));
@@ -177,66 +174,6 @@ public class Amplification {
             }
         }
     }
-
-    public static final String  body = "public class BookDALTest {\n" +
-            "    private static info.sanaulla.dal.BookDAL mockedBookDAL;\n" +
-            "\n" +
-            "    private static info.sanaulla.models.Book book1;\n" +
-            "\n" +
-            "    private static info.sanaulla.models.Book book2;\n" +
-            "\n" +
-            "    @org.junit.BeforeClass\n" +
-            "    public static void setUp() {\n" +
-            "        info.sanaulla.dal.BookDALTest.mockedBookDAL = org.mockito.Mockito.mock(info.sanaulla.dal.BookDAL.class);\n" +
-            "        info.sanaulla.dal.BookDALTest.book1 = new info.sanaulla.models.Book(\"8131721019\", \"Compilers Principles\", java.util.Arrays.asList(\"D. Jeffrey Ulman\", \"Ravi Sethi\", \"Alfred V. Aho\", \"Monica S. Lam\"), \"Pearson Education Singapore Pte Ltd\", 2008, 1009, \"BOOK_IMAGE\");\n" +
-            "        info.sanaulla.dal.BookDALTest.book2 = new info.sanaulla.models.Book(\"9788183331630\", \"Let Us C 13th Edition\", java.util.Arrays.asList(\"Yashavant Kanetkar\"), \"BPB PUBLICATIONS\", 2012, 675, \"BOOK_IMAGE\");\n" +
-            "        org.mockito.Mockito.when(info.sanaulla.dal.BookDALTest.mockedBookDAL.getAllBooks()).thenReturn(java.util.Arrays.asList(info.sanaulla.dal.BookDALTest.book1, info.sanaulla.dal.BookDALTest.book2));\n" +
-            "        org.mockito.Mockito.when(info.sanaulla.dal.BookDALTest.mockedBookDAL.getBook(\"8131721019\")).thenReturn(info.sanaulla.dal.BookDALTest.book1);\n" +
-            "        org.mockito.Mockito.when(info.sanaulla.dal.BookDALTest.mockedBookDAL.addBook(info.sanaulla.dal.BookDALTest.book1)).thenReturn(info.sanaulla.dal.BookDALTest.book1.getIsbn());\n" +
-            "        org.mockito.Mockito.when(info.sanaulla.dal.BookDALTest.mockedBookDAL.updateBook(info.sanaulla.dal.BookDALTest.book1)).thenReturn(info.sanaulla.dal.BookDALTest.book1.getIsbn());\n" +
-            "    }\n" +
-            "\n" +
-            "    @org.junit.Test\n" +
-            "    public void testGetAllBooks() throws java.lang.Exception {\n" +
-            "        java.util.List<info.sanaulla.models.Book> allBooks = info.sanaulla.dal.BookDALTest.mockedBookDAL.getAllBooks();\n" +
-            "        org.junit.Assert.assertEquals(2, allBooks.size());\n" +
-            "        info.sanaulla.models.Book myBook = allBooks.get(0);\n" +
-            "        org.junit.Assert.assertEquals(\"8131721019\", myBook.getIsbn());\n" +
-            "        org.junit.Assert.assertEquals(\"Compilers Principles\", myBook.getTitle());\n" +
-            "        org.junit.Assert.assertEquals(4, myBook.getAuthors().size());\n" +
-            "        org.junit.Assert.assertEquals(((java.lang.Integer) (2008)), myBook.getYearOfPublication());\n" +
-            "        org.junit.Assert.assertEquals(((java.lang.Integer) (1009)), myBook.getNumberOfPages());\n" +
-            "        org.junit.Assert.assertEquals(\"Pearson Education Singapore Pte Ltd\", myBook.getPublication());\n" +
-            "        org.junit.Assert.assertEquals(\"BOOK_IMAGE\", myBook.getImage());\n" +
-            "    }\n" +
-            "\n" +
-            "    @org.junit.Test\n" +
-            "    public void testGetBook() {\n" +
-            "        java.lang.String isbn = \"8131721019\";\n" +
-            "        info.sanaulla.models.Book myBook = info.sanaulla.dal.BookDALTest.mockedBookDAL.getBook(isbn);\n" +
-            "        org.junit.Assert.assertNotNull(myBook);\n" +
-            "        org.junit.Assert.assertEquals(isbn, myBook.getIsbn());\n" +
-            "        org.junit.Assert.assertEquals(\"Compilers Principles\", myBook.getTitle());\n" +
-            "        org.junit.Assert.assertEquals(4, myBook.getAuthors().size());\n" +
-            "        org.junit.Assert.assertEquals(\"Pearson Education Singapore Pte Ltd\", myBook.getPublication());\n" +
-            "        org.junit.Assert.assertEquals(((java.lang.Integer) (2008)), myBook.getYearOfPublication());\n" +
-            "        org.junit.Assert.assertEquals(((java.lang.Integer) (1009)), myBook.getNumberOfPages());\n" +
-            "    }\n" +
-            "\n" +
-            "    @org.junit.Test\n" +
-            "    public void testAddBook() {\n" +
-            "        java.lang.String isbn = info.sanaulla.dal.BookDALTest.mockedBookDAL.addBook(info.sanaulla.dal.BookDALTest.book1);\n" +
-            "        org.junit.Assert.assertNotNull(isbn);\n" +
-            "        org.junit.Assert.assertEquals(info.sanaulla.dal.BookDALTest.book1.getIsbn(), isbn);\n" +
-            "    }\n" +
-            "\n" +
-            "    @org.junit.Test\n" +
-            "    public void testUpdateBook() {\n" +
-            "        java.lang.String isbn = info.sanaulla.dal.BookDALTest.mockedBookDAL.updateBook(info.sanaulla.dal.BookDALTest.book1);\n" +
-            "        org.junit.Assert.assertNotNull(isbn);\n" +
-            "        org.junit.Assert.assertEquals(info.sanaulla.dal.BookDALTest.book1.getIsbn(), isbn);\n" +
-            "    }\n" +
-            "}";
 
     private List<CtMethod<?>> amplifyTests(List<CtMethod<?>> tests) {
         List<CtMethod<?>> amplifiedTests = tests.stream()

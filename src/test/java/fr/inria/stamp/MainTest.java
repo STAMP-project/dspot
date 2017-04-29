@@ -50,7 +50,7 @@ public class MainTest extends MavenAbstractTest {
             "There is 3 unique path in the original test suite" + nl +
             "The amplification results with 6 new tests" + nl +
             "The branch coverage obtained is: 100" + DECIMAL_SEPARATOR + "00%" + nl +
-            "There is 3 new unique path" + nl + nl;
+            "There is 4 new unique path" + nl + nl;
 
     @Override
     public String getPathToPropertiesFile() {

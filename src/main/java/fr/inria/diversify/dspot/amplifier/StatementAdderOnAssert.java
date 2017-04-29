@@ -55,15 +55,9 @@ public class StatementAdderOnAssert implements Amplifier {
             if (!inputContexts.isEmpty()) {
                 int index = inputContexts.size() - 1;
                 List<List<Statement>> statements = buildStatements(inputContexts.get(index));
-                if (!Amplification.cc.toString().equals(Amplification.body)) {
-                    throw new RuntimeException();
-                }
                 for (List<Statement> list : statements) {
                     try {
                         newMethods.add(apply(method, list, index));
-                        if (!Amplification.cc.toString().equals(Amplification.body)) {
-                            throw new RuntimeException();
-                        }
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -169,17 +163,7 @@ public class StatementAdderOnAssert implements Amplifier {
                 DSpotUtils.addComment(replacement, "StatementAdderOnAssert reuse existing variable", CtComment.CommentType.INLINE);
                 varCartesianProduct.addReplaceVar(var, replacement);
             }
-
-            if (!Amplification.cc.toString().equals(Amplification.body)) {
-                throw new RuntimeException();
-            }
-
             Statement cfLocalVar = getLocalVar(var.getType(), inputContext);
-
-            if (!Amplification.cc.toString().equals(Amplification.body)) {
-                throw new RuntimeException();
-            }
-
             if (cfLocalVar != null) {
                 DSpotUtils.addComment(cfLocalVar.getCtCodeFragment(), "StatementAddOnAssert local variable replacement", CtComment.CommentType.INLINE);
                 varCartesianProduct.addReplaceVar(var, cfLocalVar);

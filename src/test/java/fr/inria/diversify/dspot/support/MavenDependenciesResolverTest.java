@@ -19,7 +19,7 @@ import static org.junit.Assert.fail;
 public class MavenDependenciesResolverTest {
 
     @Test
-    public void name() throws Exception {
+    public void testResolveDependencies() throws Exception {
         final InputConfiguration configuration = new InputConfiguration("src/test/resources/sample/sample.properties");
         InputProgram program = InitUtils.initInputProgram(configuration);
         final URL[] urls = MavenDependenciesResolver.resolveDependencies(configuration, program, buildMavenHome(configuration));
@@ -36,7 +36,7 @@ public class MavenDependenciesResolverTest {
             MavenDependenciesResolver.resolveDependencies(configuration, program, buildMavenHome(configuration));
             fail("should have thrown FileNotFoundException");
         } catch (Exception expected) {
-
+            //ignored
         }
     }
 }
