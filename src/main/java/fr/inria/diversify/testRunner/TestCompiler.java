@@ -1,18 +1,19 @@
 package fr.inria.diversify.testRunner;
 
 import fr.inria.diversify.compare.ObjectLog;
+import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.dspot.TypeUtils;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.PrintClassUtils;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.junit.After;
 import spoon.Launcher;
+import spoon.reflect.code.CtCodeSnippetStatement;
 import spoon.reflect.code.CtComment;
-import spoon.reflect.code.CtStatement;
-import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.declaration.CtType;
+import spoon.reflect.declaration.*;
+import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.reflect.declaration.CtMethodImpl;
 
@@ -31,11 +32,26 @@ import static org.codehaus.plexus.util.FileUtils.forceDelete;
  */
 public class TestCompiler {
 
-    public static boolean writeAndCompile(DSpotCompiler compiler, CtType classTest, boolean withLogger, String dependencies) {
+
+    public static boolean writeAndCompile(DSpotCompiler compiler, CtType<?> classTest, boolean withLogger, String dependencies) {
+
+        classTest.getElements(new TypeFilter<CtElement>(CtElement.class){
+            @Override
+            public boolean matches(CtElement element) {
+                return element.getFactory() == null && super.matches(element);
+            }
+        }).forEach(ctElement -> ctElement.setFactory(classTest.getFactory()));
+        CtType<?> cloneClass = classTest.clone();
+        classTest.getPackage().addType(cloneClass);
+
         if (withLogger) {
             copyLoggerFile(compiler);
+            if (AmplificationChecker.isMocked(cloneClass)) {
+                addWriteObservationToTearDown(cloneClass );
+            }
         }
-        printAndDelete(compiler, classTest);
+
+        printAndDelete(compiler, cloneClass);
         try {
             return compiler.compile(dependencies);
         } catch (Exception e) {
@@ -43,11 +59,19 @@ public class TestCompiler {
         }
     }
 
-    public static List<CtMethod<?>> compile(DSpotCompiler compiler, CtType classTest,
+    public static List<CtMethod<?>> compile(DSpotCompiler compiler, CtType<?> originalClassTest,
                                             boolean withLogger, String dependencies) {
+
+        CtType<?> classTest = originalClassTest.clone();
+        originalClassTest.getPackage().addType(classTest);
+
         if (withLogger) {
             copyLoggerFile(compiler);
+            if (AmplificationChecker.isMocked(classTest)) {
+                addWriteObservationToTearDown(classTest);
+            }
         }
+
         printAndDelete(compiler, classTest);
         final List<CategorizedProblem> problems = compiler.compileAndGetProbs(dependencies);
         if (problems.isEmpty()) {
@@ -65,9 +89,7 @@ public class TestCompiler {
                                                     ctMethod.getPosition().getSourceStart() <= categorizedProblem.getSourceStart() &&
                                                             ctMethod.getPosition().getSourceEnd() >= categorizedProblem.getSourceEnd())
                                             .findFirst();
-                                    if (methodToRemove.isPresent()) {
-                                        ctMethods.add(methodToRemove.get());
-                                    }
+                                    methodToRemove.ifPresent(ctMethods::add);
                                 },
                                 HashSet<CtMethod<?>>::addAll);
 
@@ -78,9 +100,8 @@ public class TestCompiler {
 
                 final List<CtMethod<?>> methodToKeep = newModelCtClass.getMethods().stream()
                         .filter(ctMethod -> ctMethod.getBody().getStatements().stream()
-                                .filter(statement -> !(statement instanceof CtComment) && !methodsToRemove.contains(ctMethod))
-                                .findFirst()
-                                .isPresent())
+                                .anyMatch(statement ->
+                                        !(statement instanceof CtComment) && !methodsToRemove.contains(ctMethod)))
                         .collect(Collectors.toList());
 
                 methodsToRemove.addAll(
@@ -147,6 +168,37 @@ public class TestCompiler {
             //skip
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static CtMethod<?> getTearDownMethod(CtType<?> type) {
+        return type.getMethods().stream()
+                .filter(ctMethod -> ctMethod.getAnnotations()
+                        .stream()
+                        .anyMatch(ctAnnotation -> ctAnnotation.getActualAnnotation() instanceof After))
+                .findFirst().orElse(createTearDownMethod(type));
+    }
+
+    private static CtMethod<Void> createTearDownMethod(CtType<?> type) {
+        final Factory factory = type.getFactory();
+        final CtMethod<Void> method = factory.createMethod();
+        method.setSimpleName("after");
+        method.setType(factory.Type().VOID_PRIMITIVE);
+        method.addModifier(ModifierKind.PUBLIC);
+        factory.Annotation().annotate(method, After.class);
+        type.addMethod(method);
+        return method;
+    }
+
+    private static void addWriteObservationToTearDown(CtType<?> type) {
+        final CtMethod<?> method = getTearDownMethod(type);
+        //TODO snippet
+        final CtCodeSnippetStatement writeObservationToFile =
+                type.getFactory().createCodeSnippetStatement("fr.inria.diversify.compare.ObjectLog.writeObservationToFile()");
+        if (method.getBody() == null) {
+            method.setBody(writeObservationToFile);
+        } else {
+            method.getBody().addStatement(writeObservationToFile);
         }
     }
 }

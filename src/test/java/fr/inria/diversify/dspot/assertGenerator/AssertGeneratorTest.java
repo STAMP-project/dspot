@@ -27,8 +27,8 @@ public class AssertGeneratorTest extends AbstractTest {
          */
 
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
-        AssertGenerator assertGenerator = new AssertGenerator(Utils.getInputProgram(), Utils.getCompiler());
-        CtType ctType = AmplificationHelper.createAmplifiedTest(assertGenerator.generateAsserts(testClass), testClass);
+        AssertGenerator assertGenerator = new AssertGenerator(Utils.getInputConfiguration(), Utils.getCompiler());
+        CtType<?> ctType = AmplificationHelper.createAmplifiedTest(assertGenerator.generateAsserts(testClass), testClass);
         assertEquals(expectedBody, ((CtMethod)ctType.getMethods().stream().findFirst().get()).getBody().toString());
     }
 

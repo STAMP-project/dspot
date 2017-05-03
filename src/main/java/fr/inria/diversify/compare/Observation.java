@@ -1,5 +1,6 @@
 package fr.inria.diversify.compare;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -7,18 +8,19 @@ import java.util.*;
  * Date: 23/10/15
  * Time: 15:36
  */
-public  class Observation {
+public class Observation implements Serializable {
 
     private Set<String> notDeterministValues;
 
     private Map<String, Object> observationValues;
 
+    @Deprecated
     private Map<String, Class> observationTypes;
 
     public Observation() {
-        this.observationValues = new HashMap<String, Object>();
-        this.observationTypes = new HashMap<String, Class>();
-        this.notDeterministValues = new HashSet<String>();
+        this.observationValues = new HashMap<>();
+        this.observationTypes = new HashMap<>();
+        this.notDeterministValues = new HashSet<>();
     }
 
     public boolean add(String stringObject, Object value) {
@@ -102,6 +104,7 @@ public  class Observation {
         return observationValues;
     }
 
+    @Deprecated
     public Map<String, Class> getObservationTypes() {
         return observationTypes;
     }

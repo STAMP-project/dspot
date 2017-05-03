@@ -51,7 +51,8 @@ public class DSpotCompilerTest {
         assertEquals(1, results.size());
         assertEquals("uncompilableTest", results.get(0).getSimpleName());
         assertEquals(uncompilableTest, results.get(0));
-        assertEquals(2, aClass.getMethods().size());
+//        assertEquals(2, aClass.getMethods().size());
+        assertEquals(3, aClass.getMethods().size());//The compile methods is now stateless: using a clone class
     }
 
     // quick implementation used to produce a uncompilable test case

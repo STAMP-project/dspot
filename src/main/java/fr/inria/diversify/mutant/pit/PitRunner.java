@@ -52,6 +52,10 @@ public class PitRunner {
 
     private static final String CMD_PIT_MUTATION_COVERAGE = "org.pitest:pitest-maven:mutationCoverage";
 
+    private static final String OPT_VALUE_TIMEOUT =  "-DtimeoutConst=10000";
+
+    private static final String OPT_VALUE_MEMORY = "-DjvmArgs=16G";
+
     private static final String OPT_MUTATORS = "-Dmutators=";
 
     private static final String VALUE_MUTATORS_ALL = "ALL";
@@ -78,6 +82,8 @@ public class PitRunner {
                     OPT_TARGET_CLASSES + configuration.getProperty("filter"), //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
+                    OPT_VALUE_TIMEOUT, //
+                    OPT_VALUE_MEMORY, //
                     OPT_TARGET_TESTS + testClassToParameter(testClass), //
                     configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
                             OPT_ADDITIONAL_CP_ELEMENTS + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) :
@@ -107,7 +113,8 @@ public class PitRunner {
             Log.debug("Time to run pit mutation coverage {} ms", System.currentTimeMillis() - time);
             return results;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return null;
+            //throw new RuntimeException(e);
         }
     }
 
@@ -142,6 +149,8 @@ public class PitRunner {
                     OPT_TARGET_CLASSES + configuration.getProperty("filter"), //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
+                    OPT_VALUE_TIMEOUT, //
+                    OPT_VALUE_MEMORY, //
                     descartesMode ? OPT_MUTATION_ENGINE : OPT_MUTATORS + (evosuiteMode ?
                             Arrays.stream(VALUE_MUTATORS_EVOSUITE).collect(Collectors.joining(","))
                             : VALUE_MUTATORS_ALL), //

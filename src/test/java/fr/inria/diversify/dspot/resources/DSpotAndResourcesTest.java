@@ -24,7 +24,8 @@ public class DSpotAndResourcesTest {
 
     @Test
     public void test() throws Exception, InvalidSdkException {
-        final DSpot dSpot = new DSpot(new InputConfiguration("src/test/resources/sample/sample.properties"));
+        final InputConfiguration inputConfiguration = new InputConfiguration("src/test/resources/sample/sample.properties");
+        final DSpot dSpot = new DSpot(inputConfiguration);
         InputProgram program = dSpot.getInputProgram();
         final CtClass<?> classUsingResources = program.getFactory().Class().get("fr.inria.testresources.TestResources");
         final String classpath = program.getProgramDir() + program.getClassesDir() + "/:" +
@@ -32,15 +33,15 @@ public class DSpotAndResourcesTest {
         final JunitResult result = TestRunner.runTests(classUsingResources,
                 classUsingResources.getMethodsByName("testResources"),
                 classpath,
-                program);
+                inputConfiguration);
 
         assertTrue(new File("src/test/resources/aResource").exists());
         assertTrue(new File("./src/test/resources/aResource").exists());
         assertTrue(new File("src/test/resources/aResourcesDirectory/anotherResource").exists());
         assertTrue(new File("./src/test/resources/aResourcesDirectory/anotherResource").exists());
         assertTrue(result.getFailures().isEmpty());
-        assertEquals(1, result.getTestRuns().size());
-        assertEquals("testResources", result.getTestRuns().get(0));
+        assertEquals(1, result.getTestsRun().size());
+        assertEquals("testResources", result.getTestsRun().get(0));
 
         dSpot.cleanResources();
 

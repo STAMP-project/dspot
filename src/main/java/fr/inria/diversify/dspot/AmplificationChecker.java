@@ -1,12 +1,19 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.util.Log;
+import org.junit.BeforeClass;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.reference.CtTypeReference;
+import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
+
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Created by Benjamin DANGLOT
@@ -58,7 +65,8 @@ public class AmplificationChecker {
     }
 
     public static boolean isInAssert(CtLiteral lit) {
-        return lit.getParent() instanceof CtInvocation && !AmplificationChecker.isAssert((CtInvocation) lit.getParent());
+        return lit.getParent(CtInvocation.class) != null &&
+                AmplificationChecker.isAssert(lit.getParent(CtInvocation.class));
     }
 
     public static boolean isTest(CtMethod<?> candidate) {
@@ -98,5 +106,27 @@ public class AmplificationChecker {
             return false;
         }
         return isTest(candidate);
+    }
+
+    //TODO we will use a Name Convention, i.e. contains Mock on Annotation
+    private static final TypeFilter<CtAnnotation> mockedAnnotationFilter = new TypeFilter<CtAnnotation>(CtAnnotation.class) {
+        @Override
+        public boolean matches(CtAnnotation element) {
+            return element.toString().contains("Mock");
+        }
+    };
+
+    //TODO it might not be the best way to do
+    private static final Predicate<CtType<?>> gotReferencesToMockito = (ctType ->
+            ctType.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class))
+                    .stream()
+                    .anyMatch(ctTypeReference ->
+                            ctTypeReference.getPackage() != null &&
+                                    ctTypeReference.getPackage().getSimpleName().equals("org.mockito"))
+    );
+
+    public static boolean isMocked(CtType<?> test) {
+        return gotReferencesToMockito.test(test) ||
+                !test.getElements(mockedAnnotationFilter).isEmpty();
     }
 }

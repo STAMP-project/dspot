@@ -24,7 +24,7 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
     @Test
     public void testBuildNewAssert() throws InvalidSdkException, Exception {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
-        MethodsAssertGenerator mag = new MethodsAssertGenerator(testClass, Utils.getInputProgram(), Utils.getCompiler());
+        MethodsAssertGenerator mag = new MethodsAssertGenerator(testClass, Utils.getInputConfiguration(), Utils.getCompiler());
 
         String nl = System.getProperty("line.separator");
 

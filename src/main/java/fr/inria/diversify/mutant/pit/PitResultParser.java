@@ -32,8 +32,13 @@ public class PitResultParser {
                     fullQualifiedNameClass = "none";
                 } else {
                     final String[] nameOfTheKiller = splittedLines[6].split("\\(");
-                    fullQualifiedNameMethod = nameOfTheKiller[0];
-                    fullQualifiedNameClass = nameOfTheKiller[1].substring(0, nameOfTheKiller[1].length() - 1);
+                    if (nameOfTheKiller.length > 1) {
+                        fullQualifiedNameMethod = nameOfTheKiller[0];
+                        fullQualifiedNameClass = nameOfTheKiller[1].substring(0, nameOfTheKiller[1].length() - 1);
+                    } else {
+                        fullQualifiedNameMethod = "none";
+                        fullQualifiedNameClass = nameOfTheKiller[0].substring(0, nameOfTheKiller[0].length() / 2);
+                    }
                 }
                 int lineNumber = Integer.parseInt(splittedLines[4]);
                 String location = splittedLines[3];

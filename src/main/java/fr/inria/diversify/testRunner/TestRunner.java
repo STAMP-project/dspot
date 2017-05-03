@@ -1,10 +1,10 @@
 package fr.inria.diversify.testRunner;
 
+import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.logger.Logger;
-import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.runner.InputConfiguration;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
 import spoon.reflect.declaration.CtType;
@@ -25,13 +25,20 @@ public class TestRunner {
 
     private static List<String> blackListImplementation = new ArrayList<>();
 
-    public static JunitResult runTests(CtType testClass,
+    public static JunitResult runTests(CtType<?> testClass,
                                        List<CtMethod<?>> tests,
                                        String classpath,
-                                       InputProgram program) {
+                                       InputConfiguration configuration) {
         Logger.reset();
-        Logger.setLogDir(new File(program.getProgramDir() + "/log"));
-        final JunitRunner junitRunner = new JunitRunner(classpath);
+        Logger.setLogDir(new File(configuration.getInputProgram().getProgramDir() + "/log"));
+        final JunitRunner junitRunner;
+
+        if (AmplificationChecker.isMocked(testClass)) {
+            junitRunner = new JunitRunnerMock(classpath, configuration);
+        } else {
+            junitRunner = new DefaultJunitRunner(classpath);
+        }
+
         final CtTypeReference reference = testClass.getReference();
 
         List<CtType<?>> subClasses = testClass.getFactory().Class().getAll()
@@ -41,25 +48,24 @@ public class TestRunner {
                 .collect(Collectors.toList());
 
         final RunWith annotation = testClass.getAnnotation(RunWith.class);
-        if ( annotation != null && annotation.value().equals(Parameterized.class)) {
-            return junitRunner.runTestClass(testClass.getQualifiedName(), Collections.EMPTY_LIST);
+        if (annotation != null && annotation.value().equals(Parameterized.class)) {
+            return junitRunner.run(Collections.singletonList(testClass), Collections.emptyList());
         } else if (subClasses.isEmpty()) {
-            return junitRunner.runTestClass(testClass.getQualifiedName(),
+            return junitRunner.run(Collections.singletonList(testClass),
                     tests.stream()
                             .map(CtNamedElement::getSimpleName)
                             .collect(Collectors.toList()));
         } else {
-            List<String> fullNameSubClasses = subClasses.stream()
-                    .map(CtType::getQualifiedName)
-                    .collect(Collectors.toList());
-            JunitResult result = junitRunner.runTestClasses(
-                    fullNameSubClasses,
+            JunitResult result = junitRunner.run(
+                    subClasses,
                     tests.stream()
                             .map(CtNamedElement::getSimpleName)
                             .collect(Collectors.toList()));
+            List<String> fullNameSubClasses = subClasses.stream()
+                    .map(CtType::getQualifiedName)
+                    .collect(Collectors.toList());
             blackListImplementation.addAll(result.getFailures().stream()
-                    .filter(failure -> fullNameSubClasses.contains(failure.getDescription().getDisplayName()))
-                    .map(failure -> failure.getDescription().getDisplayName())
+                    .filter(fullNameSubClasses::contains)
                     .collect(Collectors.toList()));
             return result;
         }

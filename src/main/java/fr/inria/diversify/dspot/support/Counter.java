@@ -47,6 +47,19 @@ public class Counter {
         return getInstance().numberOfInputAdded.get(method.getSimpleName()) == null ? 0 : getInstance().numberOfInputAdded.get(method.getSimpleName());
     }
 
+
+    public static Integer getAllAssertions() {
+        return getAllOfGivenMap(getInstance().numberOfAssertionAdded);
+    }
+
+    public static Integer getAllInput() {
+        return getAllOfGivenMap(getInstance().numberOfInputAdded);
+    }
+
+    private static Integer getAllOfGivenMap(Map<String, Integer> map) {
+        return map.values().stream().mapToInt(Integer::intValue).sum();
+    }
+
     public static Integer getAssertionOfSinceOrigin(CtMethod method) {
         CtMethod<?> currentMethod = method;
         CtMethod<?> parent;
@@ -75,6 +88,10 @@ public class Counter {
             mapToBeUpdated.put(method.getSimpleName(), 0);
         }
         mapToBeUpdated.put(method.getSimpleName(), mapToBeUpdated.get(method.getSimpleName()) + number);
+    }
+
+    public static void reset() {
+        _instance = null;
     }
 
 }

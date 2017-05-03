@@ -167,7 +167,7 @@ public class AmplificationHelper {
     }
 
     public static List<CtMethod<?>> filterTest(List<CtMethod<?>> newTests, JunitResult result) {
-        final List<String> goodTests = result.goodTests();
+        final List<String> goodTests = result.getPassingTests();
         return newTests.stream()
                 .filter(test -> goodTests.contains(test.getSimpleName()))
                 .collect(Collectors.toList());

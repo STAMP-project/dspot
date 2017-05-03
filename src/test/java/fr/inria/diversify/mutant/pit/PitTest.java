@@ -8,9 +8,7 @@ import spoon.reflect.declaration.CtClass;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Created by Benjamin DANGLOT
@@ -107,11 +105,7 @@ public class PitTest extends MavenAbstractTest {
         /*
             Run the PitRunner in wrong configuration.
          */
-        try {
-            List<PitResult> pitResults = PitRunner.run(null, null, null);
-            fail("PirRunner.run() should throw : java.lang.NullPointerException");
-        } catch (Exception e) {
-            //catch the null pointer exception
-        }
+        List<PitResult> pitResults = PitRunner.run(null, null, null);
+        assertNull(pitResults);
     }
 }
