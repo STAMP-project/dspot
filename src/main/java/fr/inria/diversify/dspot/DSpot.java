@@ -149,18 +149,6 @@ public class DSpot {
         this.testSelector.init(this.inputConfiguration);
     }
 
-    @Deprecated
-    private void copyParentPomIfExist(String target) {
-        final File file = new File(inputProgram.getProgramDir() + "/../pom.xml");
-        if (file.exists()) {
-            try {
-                FileUtils.copyFile(file, new File(target + "/../pom.xml"));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
     private void copyResourcesOfTargetProjectIntoDspot(String key) {
         if (inputConfiguration.getProperty(key) != null) {
             final String[] pathFiles = inputConfiguration.getProperty(key).split(System.getProperty("path.separator"));
