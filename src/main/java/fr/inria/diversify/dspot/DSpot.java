@@ -99,21 +99,21 @@ public class DSpot {
         inputConfiguration.setInputProgram(inputProgram);
         final String[] splittedPath = inputProgram.getProgramDir().split(System.getProperty("file.separator"));
         this.projectTimeJSON = new ProjectTimeJSON(splittedPath[splittedPath.length - 1]);
-        String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp/";
         File tmpDir = new File(inputConfiguration.getProperty("tmpDir"));
         if (!tmpDir.exists()) {
             tmpDir.mkdir();
         } else {
             FileUtils.cleanDirectory(tmpDir);
         }
-        String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
-        FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
+
+        FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(inputConfiguration.getProperty("tmpDir") + "/tmp"));
 
         //Ugly way to support usage of resources with relative path
         copyResourcesOfTargetProjectIntoDspot("testResources");
         copyResourcesOfTargetProjectIntoDspot("srcResources");
-        copyParentPomIfExist(outputDirectory);
-
+        //copyParentPomIfExist(outputDirectory);
+        final String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp/" +
+                (inputConfiguration.getProperty("targetModule") == null ? "" : inputConfiguration.getProperty("targetModule"));
         inputProgram.setProgramDir(outputDirectory);
 
         if (PitRunner.descartesMode &&
@@ -121,6 +121,7 @@ public class DSpot {
             DescartesInjector.injectDescartesIntoPom(inputProgram.getProgramDir() + "/pom.xml");
         }
 
+        String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
         DSpotUtils.compileOriginalProject(this.inputProgram, inputConfiguration, mavenLocalRepository);
         String dependencies = AmplificationHelper.getDependenciesOf(this.inputConfiguration, inputProgram);
 
@@ -148,6 +149,7 @@ public class DSpot {
         this.testSelector.init(this.inputConfiguration);
     }
 
+    @Deprecated
     private void copyParentPomIfExist(String target) {
         final File file = new File(inputProgram.getProgramDir() + "/../pom.xml");
         if (file.exists()) {

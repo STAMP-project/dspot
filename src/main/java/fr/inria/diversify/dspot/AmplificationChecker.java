@@ -118,11 +118,11 @@ public class AmplificationChecker {
 
     //TODO it might not be the best way to do
     private static final Predicate<CtType<?>> gotReferencesToMockito = (ctType ->
-            ctType.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class))
+            ctType.getElements(new TypeFilter<>(CtTypeReference.class))
                     .stream()
                     .anyMatch(ctTypeReference ->
                             ctTypeReference.getPackage() != null &&
-                                    ctTypeReference.getPackage().getSimpleName().equals("org.mockito"))
+                                    ctTypeReference.getPackage().getSimpleName().contains("mock"))
     );
 
     public static boolean isMocked(CtType<?> test) {
