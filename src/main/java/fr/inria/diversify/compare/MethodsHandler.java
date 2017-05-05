@@ -7,20 +7,12 @@ import java.util.*;
 
 public class MethodsHandler {
 
-
-    @Deprecated
-    private Random random;
-    @Deprecated
-    private boolean onlyPublicMethod;
-    @Deprecated
-    private boolean onlyNotStaticMethod;
-
     private Map<Class<?>, List<Method>> cache;
     private static final Map<String, Class> ignoredMethods;
 
     static {
         Class cl = Object.class;
-        ignoredMethods = new HashMap<String, Class>();
+        ignoredMethods = new HashMap<>();
         ignoredMethods.put("equals", cl);
         ignoredMethods.put("hashCode", cl);
         ignoredMethods.put("notify", cl);
@@ -32,48 +24,11 @@ public class MethodsHandler {
 
         ignoredMethods.put("clone", cl);
 
-        ignoredMethods.put("hasExtensions",cl);
+        ignoredMethods.put("hasExtensions", cl);
     }
 
     public MethodsHandler() {
         this.cache = new HashMap<>();
-        this.onlyNotStaticMethod = true;
-        this.onlyPublicMethod = true;
-    }
-
-    @Deprecated
-    public MethodsHandler(Random random, boolean onlyPublicMethod, boolean onlyNotStaticMethod) {
-        this.cache = new HashMap<Class<?>, List<Method>>();
-        this.random = random;
-        this.onlyNotStaticMethod = onlyNotStaticMethod;
-        this.onlyPublicMethod = onlyPublicMethod;
-    }
-
-    @Deprecated
-    public MethodsHandler(boolean onlyPublicMethod, boolean onlyNotStaticMethod) {
-        this.cache = new HashMap<Class<?>, List<Method>>();
-        this.random = new Random();
-        this.onlyNotStaticMethod = onlyNotStaticMethod;
-        this.onlyPublicMethod = onlyPublicMethod;
-    }
-
-    @Deprecated
-    public List<Method> getRandomMethods(Object o, int nbMethod) {
-        if (!cache.containsKey(o.getClass())) {
-            findMethods(o);
-        }
-
-        List<Method> objectMethods = new LinkedList<Method>(cache.get(o.getClass()));
-        List<Method> randomMethods = new ArrayList<Method>(nbMethod);
-
-        while (randomMethods.size() < nbMethod && !objectMethods.isEmpty()) {
-            int randomIndex = random.nextInt(objectMethods.size());
-            Method m = objectMethods.remove(randomIndex);
-            m.setAccessible(true);
-            randomMethods.add(m);
-        }
-        return randomMethods;
-
     }
 
     public List<Method> getAllMethods(Object o) {
@@ -94,8 +49,8 @@ public class MethodsHandler {
     }
 
     private boolean isValidMethod(Method m) {
-        if ((onlyPublicMethod && !Modifier.isPublic(m.getModifiers()))
-                || (onlyNotStaticMethod && Modifier.isStatic(m.getModifiers()))
+        if (!Modifier.isPublic(m.getModifiers())
+                || Modifier.isStatic(m.getModifiers())
                 || isVoid(m.getReturnType())) {
             return false;
         }
