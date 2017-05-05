@@ -46,7 +46,6 @@ public class Utils {
             inputProgram = InitUtils.initInputProgram(inputConfiguration);
             InitUtils.initLogLevel(inputConfiguration);
             inputConfiguration.setInputProgram(inputProgram);
-            String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp";
             File tmpDir = new File(inputConfiguration.getProperty("tmpDir"));
             if (!tmpDir.exists()) {
                 tmpDir.mkdir();
@@ -54,12 +53,18 @@ public class Utils {
                 FileUtils.cleanDirectory(tmpDir);
             }
             String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
-            FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(outputDirectory));
+            FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(inputConfiguration.getProperty("tmpDir") + "/tmp"));
+            final String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp/" +
+                    (inputConfiguration.getProperty("targetModule") == null ? "" : inputConfiguration.getProperty("targetModule"));
             inputProgram.setProgramDir(outputDirectory);
             DSpotUtils.compileOriginalProject(inputProgram, inputConfiguration, mavenLocalRepository);
             String dependencies = AmplificationHelper.getDependenciesOf(inputConfiguration, inputProgram);
             File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
-            FileUtils.cleanDirectory(output);
+            try {
+                FileUtils.cleanDirectory(output);
+            } catch (IllegalArgumentException ignored){
+                //the target directory does not exist, do not need to clean it
+            }
             DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
             compiler = new DSpotCompiler(inputProgram, dependencies);
             inputProgram.setFactory(compiler.getLauncher().getFactory());
