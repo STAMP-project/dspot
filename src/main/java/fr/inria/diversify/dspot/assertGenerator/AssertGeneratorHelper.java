@@ -29,28 +29,6 @@ public class AssertGeneratorHelper {
         return invocation.getType() != null && (invocation.getType().getSimpleName().equals("Void") || invocation.getType().getSimpleName().equals("void"));
     }
 
-    static boolean isStmtToLog(String nameOfOriginalClass, CtStatement statement) {
-        if (!(statement.getParent() instanceof CtBlock)) {
-            return false;
-        }
-        if (statement instanceof CtInvocation) {
-            CtInvocation invocation = (CtInvocation) statement;
-
-            //type tested by the test class
-            String targetType = "";
-            if (invocation.getTarget() != null &&
-                    invocation.getTarget().getType() != null) {
-                targetType = invocation.getTarget().getType().getSimpleName();
-            }
-            return nameOfOriginalClass.startsWith(targetType)
-                    || !isVoidReturn(invocation);
-        }
-        return statement instanceof CtVariableWrite
-                || statement instanceof CtAssignment
-                || statement instanceof CtLocalVariable;
-    }
-
-
     static CtMethod<?> createTestWithoutAssert(CtMethod<?> test, List<Integer> assertIndexToKeep) {
         CtMethod newTest = test.clone();
         newTest.setSimpleName(test.getSimpleName() + "_withoutAssert");
@@ -119,58 +97,6 @@ public class AssertGeneratorHelper {
         return block;
     }
 
-    static void addLogStmt(CtStatement stmt, String id, boolean forAssert) {
-        if (stmt instanceof CtLocalVariable && ((CtLocalVariable) stmt).getDefaultExpression() == null) {
-            return;
-        }
-        String snippet;
-        if (forAssert) {
-            snippet = "fr.inria.diversify.compare.ObjectLog.log(";
-        } else {
-            snippet = "fr.inria.diversify.compare.ObjectLog.logObject(";
-        }
-
-        CtStatement insertAfter = null;
-        if (stmt instanceof CtVariableWrite) {
-            CtVariableWrite varWrite = (CtVariableWrite) stmt;
-            snippet += varWrite.getVariable()
-                    + ",\"" + varWrite.getVariable() + "\",\"" + id + "\")";
-            insertAfter = stmt;
-        }
-        if (stmt instanceof CtLocalVariable) {
-            CtLocalVariable localVar = (CtLocalVariable) stmt;
-            snippet += localVar.getSimpleName()
-                    + ",\"" + localVar.getSimpleName() + "\",\"" + id + "\")";
-            insertAfter = stmt;
-        }
-        if (stmt instanceof CtAssignment) {
-            CtAssignment localVar = (CtAssignment) stmt;
-            snippet += localVar.getAssigned()
-                    + ",\"" + localVar.getAssigned() + "\",\"" + id + "\")";
-            insertAfter = stmt;
-        }
-
-        if (stmt instanceof CtInvocation) {
-            CtInvocation invocation = (CtInvocation) stmt;
-            if (isVoidReturn(invocation)) {
-                insertAfter = invocation;
-                snippet += invocation.getTarget()
-                        + ",\"" + invocation.getTarget() + "\",\"" + id + "\")";
-            } else {
-                String snippetStmt = "Object o_" + id + " = " + invocation.toString();
-                CtStatement localVarSnippet = stmt.getFactory().Code().createCodeSnippetStatement(snippetStmt);
-                stmt.replace(localVarSnippet);
-                insertAfter = localVarSnippet;
-
-                snippet += "o_" + id
-                        + ",\"o_" + id + "\",\"" + id + "\")";
-
-            }
-        }
-        CtStatement logStmt = stmt.getFactory().Code().createCodeSnippetStatement(snippet);
-        insertAfter.insertAfter(logStmt);
-    }
-
     static Map<CtMethod<?>, List<Integer>> takeAllStatementToAssert(CtType testClass, List<CtMethod<?>> tests) {
         return tests.stream()
                 .collect(Collectors.toMap(Function.identity(),
@@ -232,17 +158,92 @@ public class AssertGeneratorHelper {
         return indices;
     }
 
-    static CtMethod<?> createTestWithLog(CtMethod test, List<Integer> statementsIndexToAssert, String nameOfClass) {
-        CtMethod newTest = test.clone();
-        newTest.setSimpleName(test.getSimpleName() + "_withlog");
-        List<CtStatement> stmts = Query.getElements(newTest, new TypeFilter(CtStatement.class));
-        for (int i = 0; i < stmts.size(); i++) {
-            CtStatement stmt = stmts.get(i);
-            if (isStmtToLog(nameOfClass, stmt)) {
-                addLogStmt(stmt, test.getSimpleName() + "__" + i, statementsIndexToAssert != null && statementsIndexToAssert.contains(i));
+    static CtMethod<?> createTestWithLog(CtMethod test, List<Integer> statementsIndexToAssert, final String simpleNameTestClass) {
+        CtMethod clone = test.clone();
+        clone.setSimpleName(test.getSimpleName() + "_withlog");
+        final List<CtStatement> allStatement = clone.getElements(new TypeFilter<>(CtStatement.class));
+        allStatement.stream()
+                .filter(statement -> isStmtToLog(simpleNameTestClass, statement))
+                .forEach(statement ->
+                        addLogStmt(statement,
+                                test.getSimpleName() + "__" + allStatement.indexOf(statement),
+                                statementsIndexToAssert != null &&
+                                        statementsIndexToAssert.contains(allStatement.indexOf(statement)))
+                );
+        return clone;
+    }
+
+    static boolean isStmtToLog(String nameOfOriginalClass, CtStatement statement) {
+        if (!(statement.getParent() instanceof CtBlock)) {
+            return false;
+        }
+        if (statement instanceof CtInvocation) {
+            CtInvocation invocation = (CtInvocation) statement;
+
+            //type tested by the test class
+            String targetType = "";
+            if (invocation.getTarget() != null &&
+                    invocation.getTarget().getType() != null) {
+                targetType = invocation.getTarget().getType().getSimpleName();
+            }
+            return nameOfOriginalClass.startsWith(targetType)
+                    || !isVoidReturn(invocation);
+        }
+        return statement instanceof CtVariableWrite
+                || statement instanceof CtAssignment
+                || statement instanceof CtLocalVariable;
+    }
+
+    static void addLogStmt(CtStatement stmt, String id, boolean forAssert) {
+        if (stmt instanceof CtLocalVariable && ((CtLocalVariable) stmt).getDefaultExpression() == null) {
+            return;
+        }
+        String snippet;
+        if (forAssert) {
+            snippet = "fr.inria.diversify.compare.ObjectLog.log(";
+        } else {
+            snippet = "fr.inria.diversify.compare.ObjectLog.logObject(";
+        }
+
+        CtStatement insertAfter = null;
+        if (stmt instanceof CtVariableWrite) {
+            CtVariableWrite varWrite = (CtVariableWrite) stmt;
+            snippet += varWrite.getVariable()
+                    + ",\"" + varWrite.getVariable() + "\",\"" + id + "\")";
+            insertAfter = stmt;
+        }
+        if (stmt instanceof CtLocalVariable) {
+            CtLocalVariable localVar = (CtLocalVariable) stmt;
+            snippet += localVar.getSimpleName()
+                    + ",\"" + localVar.getSimpleName() + "\",\"" + id + "\")";
+            insertAfter = stmt;
+        }
+        if (stmt instanceof CtAssignment) {
+            CtAssignment localVar = (CtAssignment) stmt;
+            snippet += localVar.getAssigned()
+                    + ",\"" + localVar.getAssigned() + "\",\"" + id + "\")";
+            insertAfter = stmt;
+        }
+
+        if (stmt instanceof CtInvocation) {
+            CtInvocation invocation = (CtInvocation) stmt;
+            if (isVoidReturn(invocation)) {
+                insertAfter = invocation;
+                snippet += invocation.getTarget()
+                        + ",\"" + invocation.getTarget() + "\",\"" + id + "\")";
+            } else {
+                String snippetStmt = "Object o_" + id + " = " + invocation.toString();
+                CtStatement localVarSnippet = stmt.getFactory().Code().createCodeSnippetStatement(snippetStmt);
+                stmt.replace(localVarSnippet);
+                insertAfter = localVarSnippet;
+
+                snippet += "o_" + id
+                        + ",\"o_" + id + "\",\"" + id + "\")";
+
             }
         }
-        return newTest;
+        CtStatement logStmt = stmt.getFactory().Code().createCodeSnippetStatement(snippet);
+        insertAfter.insertAfter(logStmt);
     }
 
 }

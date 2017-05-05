@@ -7,11 +7,16 @@ import java.util.*;
 
 public class MethodsHandler {
 
-    protected Map<Class<?>, List<Method>> cache;
-    protected Random random;
-    protected static final Map<String, Class> ignoredMethods;
-    protected boolean onlyPublicMethod;
-    protected boolean onlyNotStaticMethod;
+
+    @Deprecated
+    private Random random;
+    @Deprecated
+    private boolean onlyPublicMethod;
+    @Deprecated
+    private boolean onlyNotStaticMethod;
+
+    private Map<Class<?>, List<Method>> cache;
+    private static final Map<String, Class> ignoredMethods;
 
     static {
         Class cl = Object.class;
@@ -30,6 +35,13 @@ public class MethodsHandler {
         ignoredMethods.put("hasExtensions",cl);
     }
 
+    public MethodsHandler() {
+        this.cache = new HashMap<>();
+        this.onlyNotStaticMethod = true;
+        this.onlyPublicMethod = true;
+    }
+
+    @Deprecated
     public MethodsHandler(Random random, boolean onlyPublicMethod, boolean onlyNotStaticMethod) {
         this.cache = new HashMap<Class<?>, List<Method>>();
         this.random = random;
@@ -37,6 +49,7 @@ public class MethodsHandler {
         this.onlyPublicMethod = onlyPublicMethod;
     }
 
+    @Deprecated
     public MethodsHandler(boolean onlyPublicMethod, boolean onlyNotStaticMethod) {
         this.cache = new HashMap<Class<?>, List<Method>>();
         this.random = new Random();
@@ -44,6 +57,7 @@ public class MethodsHandler {
         this.onlyPublicMethod = onlyPublicMethod;
     }
 
+    @Deprecated
     public List<Method> getRandomMethods(Object o, int nbMethod) {
         if (!cache.containsKey(o.getClass())) {
             findMethods(o);
@@ -69,7 +83,7 @@ public class MethodsHandler {
         return cache.get(o.getClass());
     }
 
-    protected void findMethods(Object o) {
+    private void findMethods(Object o) {
         List<Method> methodsList = new ArrayList<Method>();
         for (Method m : o.getClass().getMethods()) {
             if (ignoredMethods.get(m.getName()) == null && isValidMethod(m)) {
@@ -79,20 +93,17 @@ public class MethodsHandler {
         cache.put(o.getClass(), methodsList);
     }
 
-    protected boolean isValidMethod(Method m) {
+    private boolean isValidMethod(Method m) {
         if ((onlyPublicMethod && !Modifier.isPublic(m.getModifiers()))
                 || (onlyNotStaticMethod && Modifier.isStatic(m.getModifiers()))
                 || isVoid(m.getReturnType())) {
             return false;
         }
         Class<?>[] parameterTypes = m.getParameterTypes();
-        if (parameterTypes.length != 0) { // we only consider tests that take no parameters
-            return false;
-        }
-        return true;
+        return parameterTypes.length == 0; // we only consider tests that take no parameters
     }
 
-    protected boolean isVoid(Class<?> type) {
+    private static boolean isVoid(Class<?> type) {
         return type.equals(Void.class) || type.equals(void.class);
     }
 
