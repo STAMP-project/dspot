@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static fr.inria.diversify.compare.ObjectLog.FILENAME_OF_OBSERVATIONS;
 import static fr.inria.diversify.dspot.assertGenerator.AssertGeneratorHelper.takeAllStatementToAssert;
@@ -118,22 +119,31 @@ public class MethodsAssertGenerator {
     private List<CtMethod<?>> addAssertions(CtType<?> testClass, List<CtMethod<?>> testCases, Map<CtMethod<?>, List<Integer>> statementsIndexToAssert) throws IOException, ClassNotFoundException {
         CtType clone = testClass.clone();
         testClass.getPackage().addType(clone);
-        final List<CtMethod<?>> testCasesWithLogs = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            int finalI = i;
-            final List<? extends CtMethod<?>> testsWithLog = testCases.stream()
-                    .map(ctMethod -> AssertGeneratorHelper.createTestWithLog(ctMethod, statementsIndexToAssert.get(ctMethod),
-                            this.originalClass.getSimpleName()))
-                    .map(ctMethod -> {
-                        ctMethod.setSimpleName(ctMethod.getSimpleName() + finalI);
-                        return ctMethod;
-                    })
-                    .collect(Collectors.toList());
-            testsWithLog.forEach(clone::addMethod);
-            testCasesWithLogs.addAll(testsWithLog);
-        }
+        final List<CtMethod<?>> testCasesWithLogs = testCases.stream()
+                .map(ctMethod ->
+                        AssertGeneratorHelper.createTestWithLog(ctMethod,
+                                statementsIndexToAssert.get(ctMethod),
+                                this.originalClass.getSimpleName()
+                        )
+                ).collect(Collectors.toList());
+        final List<CtMethod<?>> testToRuns = new ArrayList<>();
+        IntStream.range(0, 3).forEach(i ->
+                testToRuns.addAll(
+                        testCasesWithLogs.stream()
+                                .map(CtMethod::clone)
+                                .map(ctMethod -> {
+                                    ctMethod.setSimpleName(ctMethod.getSimpleName() + i);
+                                    return ctMethod;
+                                })
+                                .map(ctMethod -> {
+                                    clone.addMethod(ctMethod);
+                                    return ctMethod;
+                                })
+                                .collect(Collectors.toList())
+                )
+        );
         ObjectLog.reset();
-        final JunitResult result = runTests(clone, testCasesWithLogs, true);
+        final JunitResult result = runTests(clone, testToRuns, true);
         if (result == null || !result.getFailures().isEmpty()) {
             return Collections.emptyList();
         } else {

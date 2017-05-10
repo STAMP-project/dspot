@@ -7,15 +7,12 @@ import java.util.*;
 
 public class MethodsHandler {
 
-    protected Map<Class<?>, List<Method>> cache;
-    protected Random random;
-    protected static final Map<String, Class> ignoredMethods;
-    protected boolean onlyPublicMethod;
-    protected boolean onlyNotStaticMethod;
+    private Map<Class<?>, List<Method>> cache;
+    private static final Map<String, Class> ignoredMethods;
 
     static {
         Class cl = Object.class;
-        ignoredMethods = new HashMap<String, Class>();
+        ignoredMethods = new HashMap<>();
         ignoredMethods.put("equals", cl);
         ignoredMethods.put("hashCode", cl);
         ignoredMethods.put("notify", cl);
@@ -27,39 +24,11 @@ public class MethodsHandler {
 
         ignoredMethods.put("clone", cl);
 
-        ignoredMethods.put("hasExtensions",cl);
+        ignoredMethods.put("hasExtensions", cl);
     }
 
-    public MethodsHandler(Random random, boolean onlyPublicMethod, boolean onlyNotStaticMethod) {
-        this.cache = new HashMap<Class<?>, List<Method>>();
-        this.random = random;
-        this.onlyNotStaticMethod = onlyNotStaticMethod;
-        this.onlyPublicMethod = onlyPublicMethod;
-    }
-
-    public MethodsHandler(boolean onlyPublicMethod, boolean onlyNotStaticMethod) {
-        this.cache = new HashMap<Class<?>, List<Method>>();
-        this.random = new Random();
-        this.onlyNotStaticMethod = onlyNotStaticMethod;
-        this.onlyPublicMethod = onlyPublicMethod;
-    }
-
-    public List<Method> getRandomMethods(Object o, int nbMethod) {
-        if (!cache.containsKey(o.getClass())) {
-            findMethods(o);
-        }
-
-        List<Method> objectMethods = new LinkedList<Method>(cache.get(o.getClass()));
-        List<Method> randomMethods = new ArrayList<Method>(nbMethod);
-
-        while (randomMethods.size() < nbMethod && !objectMethods.isEmpty()) {
-            int randomIndex = random.nextInt(objectMethods.size());
-            Method m = objectMethods.remove(randomIndex);
-            m.setAccessible(true);
-            randomMethods.add(m);
-        }
-        return randomMethods;
-
+    public MethodsHandler() {
+        this.cache = new HashMap<>();
     }
 
     public List<Method> getAllMethods(Object o) {
@@ -69,7 +38,7 @@ public class MethodsHandler {
         return cache.get(o.getClass());
     }
 
-    protected void findMethods(Object o) {
+    private void findMethods(Object o) {
         List<Method> methodsList = new ArrayList<Method>();
         for (Method m : o.getClass().getMethods()) {
             if (ignoredMethods.get(m.getName()) == null && isValidMethod(m)) {
@@ -79,20 +48,17 @@ public class MethodsHandler {
         cache.put(o.getClass(), methodsList);
     }
 
-    protected boolean isValidMethod(Method m) {
-        if ((onlyPublicMethod && !Modifier.isPublic(m.getModifiers()))
-                || (onlyNotStaticMethod && Modifier.isStatic(m.getModifiers()))
+    private boolean isValidMethod(Method m) {
+        if (!Modifier.isPublic(m.getModifiers())
+                || Modifier.isStatic(m.getModifiers())
                 || isVoid(m.getReturnType())) {
             return false;
         }
         Class<?>[] parameterTypes = m.getParameterTypes();
-        if (parameterTypes.length != 0) { // we only consider tests that take no parameters
-            return false;
-        }
-        return true;
+        return parameterTypes.length == 0; // we only consider tests that take no parameters
     }
 
-    protected boolean isVoid(Class<?> type) {
+    private static boolean isVoid(Class<?> type) {
         return type.equals(Void.class) || type.equals(void.class);
     }
 

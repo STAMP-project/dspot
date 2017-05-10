@@ -1,7 +1,6 @@
 package fr.inria.diversify.compare;
 
 import java.lang.reflect.Method;
-import java.util.concurrent.TimeoutException;
 
 /**
  * User: Simon
@@ -9,10 +8,14 @@ import java.util.concurrent.TimeoutException;
  * Time: 11:27
  */
 public class Invocation {
-    protected final Object receiver;
-    protected final Method target;
-    protected Object result;
-    protected Throwable error;
+
+    private final Object receiver;
+
+    private final Method target;
+
+    private Object result;
+
+    private Throwable error;
 
     public Invocation(Object receiver, Method target) {
         this.receiver = receiver;
@@ -35,20 +38,12 @@ public class Invocation {
         return error;
     }
 
-
-    public boolean sameStatus(Invocation other) {
-        if(error != null && other.error != null) {
-            return error.getClass().equals(other.getError().getClass());
-        } else {
-            return (error != null) == (other.error != null);
-        }
+    public Object getReceiver() {
+        return receiver;
     }
 
-    public boolean hasTimeOutError() {
-        return error != null && error instanceof TimeoutException;
+    public Method getTarget() {
+        return target;
     }
 
-    public String toString() {
-        return receiver + "." + target;
-    }
 }
