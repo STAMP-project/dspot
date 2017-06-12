@@ -10,6 +10,8 @@ import org.junit.Before;
  */
 public class AbstractTest {
 
+    public static final String nl = System.getProperty("line.separator");
+
     @Before
     public void setUp() throws Exception {
         Utils.init("src/test/resources/sample/sample.properties");
