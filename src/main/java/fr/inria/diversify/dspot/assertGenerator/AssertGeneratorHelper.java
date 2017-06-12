@@ -166,11 +166,20 @@ public class AssertGeneratorHelper {
                 .filter(statement -> isStmtToLog(simpleNameTestClass, statement))
                 .forEach(statement ->
                         addLogStmt(statement,
-                                test.getSimpleName() + "__" + allStatement.indexOf(statement),
+                                test.getSimpleName() + "__" + indexOfByRef(allStatement, statement),
                                 statementsIndexToAssert != null &&
                                         statementsIndexToAssert.contains(allStatement.indexOf(statement)))
                 );
         return clone;
+    }
+
+    private static int indexOfByRef(List<CtStatement> statements, CtStatement statement) {
+        for (int i = 0; i < statements.size(); i++) {
+            if (statements.get(i) == statement) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     static boolean isStmtToLog(String nameOfOriginalClass, CtStatement statement) {
@@ -230,7 +239,7 @@ public class AssertGeneratorHelper {
             if (isVoidReturn(invocation)) {
                 insertAfter = invocation;
                 snippet += invocation.getTarget()
-                        + ",\"" + invocation.getTarget() + "\",\"" + id + "\")";
+                        + ",\"" + invocation.getTarget().toString().replace("\"", "\\\"") + "\",\"" + id + "\")";
             } else {
                 String snippetStmt = "Object o_" + id + " = " + invocation.toString();
                 CtStatement localVarSnippet = stmt.getFactory().Code().createCodeSnippetStatement(snippetStmt);
