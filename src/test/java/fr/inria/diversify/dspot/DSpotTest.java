@@ -67,9 +67,9 @@ public class DSpotTest extends MavenAbstractTest {
             "    java.lang.String String_vc_0 = \"abcd\";" + nl +
             "    // AssertGenerator add assertion" + nl +
             "    org.junit.Assert.assertEquals(String_vc_0, \"abcd\");" + nl +
-            "    // AssertGenerator replace invocation" + nl +
+            "    // AssertGenerator create local variable with return value of invocation" + nl +
             "    char o_test2_cf19__7 = // StatementAdderMethod cloned existing statement" + nl +
-            "ex.charAt(String_vc_0, vc_4);" + nl +
+            "    ex.charAt(String_vc_0, vc_4);" + nl +
             "    // AssertGenerator add assertion" + nl +
             "    org.junit.Assert.assertEquals(o_test2_cf19__7, 'a');" + nl +
             "    org.junit.Assert.assertEquals('d', ex.charAt(\"abcd\", 3));" + nl +
