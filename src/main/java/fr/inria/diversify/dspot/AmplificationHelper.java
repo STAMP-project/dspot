@@ -102,8 +102,7 @@ public class AmplificationHelper {
                 .collect(Collectors.toSet()));
 
 
-        return types.stream()
-                .collect(Collectors.toSet());
+        return new HashSet<>(types);
     }
 
     public static Set<CtType> getImport(CtType type) {
