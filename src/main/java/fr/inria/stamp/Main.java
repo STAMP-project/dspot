@@ -30,10 +30,10 @@ public class Main {
         if (configuration.mavenHome != null) {
             inputConfiguration.getProperties().put("maven.home", configuration.mavenHome);
         }
-        DSpot dspot = new DSpot(inputConfiguration, configuration.nbIteration, configuration.amplifiers, configuration.selector);
         if (configuration.pathToOutput != null) {
             inputConfiguration.getProperties().setProperty("outputDirectory", configuration.pathToOutput);
         }
+        DSpot dspot = new DSpot(inputConfiguration, configuration.nbIteration, configuration.amplifiers, configuration.selector);
 
         AmplificationHelper.setSeedRandom(configuration.seed);
         AmplificationHelper.setTimeOutInMs(configuration.timeOutInMs);

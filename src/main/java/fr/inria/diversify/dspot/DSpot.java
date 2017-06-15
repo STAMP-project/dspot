@@ -6,7 +6,6 @@ import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
-import fr.inria.diversify.dspot.selector.json.TestClassJSON;
 import fr.inria.diversify.dspot.support.ClassTimeJSON;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
@@ -19,18 +18,12 @@ import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.util.Log;
-import org.json.JSONObject;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 
 import java.io.*;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,7 +91,7 @@ public class DSpot {
         inputProgram = InitUtils.initInputProgram(inputConfiguration);
         inputConfiguration.setInputProgram(inputProgram);
         final String[] splittedPath = inputProgram.getProgramDir().split(System.getProperty("file.separator"));
-        this.projectTimeJSON = new ProjectTimeJSON(splittedPath[splittedPath.length - 1]);
+
         File tmpDir = new File(inputConfiguration.getProperty("tmpDir"));
         if (!tmpDir.exists()) {
             tmpDir.mkdir();
@@ -147,6 +140,15 @@ public class DSpot {
         this.numberOfIterations = numberOfIterations;
         this.testSelector = testSelector;
         this.testSelector.init(this.inputConfiguration);
+
+        final File projectJsonFile = new File(this.inputConfiguration.getOutputDirectory() +
+                "/" + splittedPath[splittedPath.length - 1] + ".json");
+        if (projectJsonFile.exists()) {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            this.projectTimeJSON = gson.fromJson(new FileReader(projectJsonFile), ProjectTimeJSON.class);
+        } else {
+            this.projectTimeJSON = new ProjectTimeJSON(splittedPath[splittedPath.length - 1]);
+        }
     }
 
     private void copyResourcesOfTargetProjectIntoDspot(String key) {
@@ -209,9 +211,7 @@ public class DSpot {
     public CtType amplifyTest(String fullName) throws InterruptedException, IOException, ClassNotFoundException {
         CtType<Object> clone = this.compiler.getLauncher().getFactory().Type().get(fullName).clone();
         clone.setParent(this.compiler.getLauncher().getFactory().Type().get(fullName).getParent());
-        final CtType ctType = amplifyTest(clone);
-        writeTimeJson();
-        return ctType;
+        return amplifyTest(clone);
     }
 
     public CtType amplifyTest(CtType test) {
@@ -230,6 +230,7 @@ public class DSpot {
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
             FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
             DSpotUtils.compileOriginalProject(this.inputProgram, inputConfiguration, inputConfiguration.getProperty("maven.localRepository", null));
+            writeTimeJson();
             return amplification;
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -242,7 +243,6 @@ public class DSpot {
         final CtType ctType = amplifyTest(clone, methods.stream()
                 .map(methodName -> clone.getMethodsByName(methodName).get(0))
                 .collect(Collectors.toList()));
-        writeTimeJson();
         return ctType;
     }
 
@@ -262,6 +262,7 @@ public class DSpot {
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
             FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
             DSpotUtils.compileOriginalProject(this.inputProgram, inputConfiguration, inputConfiguration.getProperty("maven.localRepository", null));
+            writeTimeJson();
             return amplification;
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
             throw new RuntimeException(e);
