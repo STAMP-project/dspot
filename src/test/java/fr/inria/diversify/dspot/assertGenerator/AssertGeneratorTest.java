@@ -32,11 +32,11 @@ public class AssertGeneratorTest extends AbstractTest {
 
         final String expectedBody = "{" + nl  +
                 "    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl  +
-                "    // AssertGenerator replace invocation" + nl  +
+                "    // AssertGenerator create local variable with return value of invocation" + nl  +
                 "    boolean o_test1__3 = cl.getFalse();" + nl  +
                 "    // AssertGenerator add assertion" + nl  +
                 "    org.junit.Assert.assertFalse(o_test1__3);" + nl  +
-                "    // AssertGenerator replace invocation" + nl  +
+                "    // AssertGenerator create local variable with return value of invocation" + nl  +
                 "    boolean o_test1__4 = cl.getBoolean();" + nl  +
                 "    // AssertGenerator add assertion" + nl  +
                 "    org.junit.Assert.assertTrue(o_test1__4);" + nl  +
@@ -47,5 +47,4 @@ public class AssertGeneratorTest extends AbstractTest {
     }
 
     private static String nl = System.getProperty("line.separator");
-
 }

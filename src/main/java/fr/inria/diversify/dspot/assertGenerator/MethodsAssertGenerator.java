@@ -163,6 +163,7 @@ public class MethodsAssertGenerator {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private CtMethod<?> buildTestWithAssert(CtMethod test, Map<String, Observation> observations) {
         CtMethod testWithAssert = test.clone();
         int numberOfAddedAssertion = 0;
@@ -180,15 +181,16 @@ public class MethodsAssertGenerator {
                 try {
                     CtStatement stmt = statements.get(line);
                     if (stmt instanceof CtInvocation && !AssertGeneratorHelper.isVoidReturn((CtInvocation) stmt)) {
-                        String localVarSnippet = ((CtInvocation) stmt).getType().toString()
-                                + " o_" + id + " = "
-                                + stmt.toString();
-                        CtStatement localVarStmt = factory.Code().createCodeSnippetStatement(localVarSnippet);
-                        stmt.replace(localVarStmt);
-                        statements.set(line, localVarStmt);
-                        DSpotUtils.addComment(localVarStmt, "AssertGenerator replace invocation", CtComment.CommentType.INLINE);
-                        localVarStmt.setParent(stmt.getParent());
-                        localVarStmt.insertAfter(statement);
+                        CtInvocation invocationToBeReplaced = (CtInvocation) stmt.clone();
+                        final CtLocalVariable localVariable = factory.createLocalVariable(
+                                factory.Type().createReference(
+                                        invocationToBeReplaced.getType().getTypeDeclaration()
+                                ) , "o_" + id, invocationToBeReplaced
+                        );
+                        stmt.replace(localVariable);
+                        DSpotUtils.addComment(localVariable, "AssertGenerator create local variable with return value of invocation", CtComment.CommentType.INLINE);
+                        localVariable.setParent(stmt.getParent());
+                        localVariable.insertAfter(statement);
                     } else {
                         stmt.insertAfter(statement);
                     }
