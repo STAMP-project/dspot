@@ -56,7 +56,7 @@ public class Main {
     private static void createOutputDirectories(InputConfiguration inputConfiguration) {
         if (!new File(inputConfiguration.getOutputDirectory()).exists()) {
 
-            String[] paths = inputConfiguration.getOutputDirectory().split(System.getProperty("file.separator"));
+            String[] paths = inputConfiguration.getOutputDirectory().split("/");
             if (!new File(paths[0]).exists()) {
                 new File(paths[0]).mkdir();
             }

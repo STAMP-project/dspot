@@ -90,7 +90,7 @@ public class DSpot {
         InitUtils.initLogLevel(inputConfiguration);
         inputProgram = InitUtils.initInputProgram(inputConfiguration);
         inputConfiguration.setInputProgram(inputProgram);
-        final String[] splittedPath = inputProgram.getProgramDir().split(System.getProperty("file.separator"));
+        final String[] splittedPath = inputProgram.getProgramDir().split("/");
 
         File tmpDir = new File(inputConfiguration.getProperty("tmpDir"));
         if (!tmpDir.exists()) {
