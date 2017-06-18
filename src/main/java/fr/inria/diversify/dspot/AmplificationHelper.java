@@ -1,8 +1,7 @@
 package fr.inria.diversify.dspot;
 
+import fr.inria.diversify.buildSystem.maven.MavenBuilder;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.dspot.support.MavenDependenciesResolver;
-import fr.inria.diversify.mutant.pit.PitRunner;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
@@ -19,9 +18,9 @@ import spoon.reflect.visitor.ImportScannerImpl;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.FileReader;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -209,18 +208,22 @@ public class AmplificationHelper {
                 .collect(Collectors.toList());
     }
 
-    public static String getDependenciesOf(InputConfiguration inputConfiguration, InputProgram inputProgram) {
-        URL[] dependencies = MavenDependenciesResolver.resolveDependencies(inputConfiguration, inputProgram, DSpotUtils.buildMavenHome(inputConfiguration));
-        String dependenciesAsString = (inputConfiguration.getProperty(PitRunner.PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
-                inputConfiguration.getProperty(PitRunner.PROPERTY_ADDITIONAL_CP_ELEMENTS) + ":" : "")
-                + Arrays.stream(dependencies).reduce("", (acc, url) -> {
-            try {
-                return acc + new File(url.toURI()).getAbsolutePath() + ":";
-            } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
+    public static String getDependenciesOf(InputConfiguration inputConfiguration, InputProgram program) {
+        String mavenHome = DSpotUtils.buildMavenHome(inputConfiguration);
+        try {
+            MavenBuilder builder = new MavenBuilder(program.getProgramDir());
+            builder.setBuilderPath(mavenHome);
+            String NAME_FILE_CLASSPATH = "cp";
+            String[] phases = new String[]{"dependency:build-classpath", "-Dmdep.outputFile=" + NAME_FILE_CLASSPATH};
+            builder.runGoals(phases, false);
+            String FILE_SEPARATOR = "/";
+            final File fileClasspath = new File(program.getProgramDir() + FILE_SEPARATOR + NAME_FILE_CLASSPATH);
+            try (BufferedReader buffer = new BufferedReader(new FileReader(fileClasspath))) {
+                return buffer.lines().collect(Collectors.joining());
             }
-        }, String::concat);
-        return dependenciesAsString.substring(0, dependenciesAsString.length() - 1);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static String getClassPath(DSpotCompiler compiler, InputProgram inputProgram) {
