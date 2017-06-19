@@ -11,7 +11,6 @@ import spoon.reflect.factory.Factory;
 import spoon.support.QueueProcessingManager;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 
 /**
@@ -40,11 +39,11 @@ public class AssertionRemoverTest extends AbstractTest {
 		final String expectedMethod = "@org.junit.Test" + nl +
 				"public void test1() {" + nl +
 				"    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl +
-				"    Object o0 = cl.getTrue();" + nl +
+				"    java.lang.Object o0 = cl.getTrue();" + nl +
 				"    int one = 1;" + nl +
 				"    switch (one) {" + nl +
 				"        case 1 :" + nl +
-				"            Object o1 = fr.inria.assertionremover.TestClassWithAssertToBeRemoved.getNegation(cl.getFalse());" + nl +
+				"            java.lang.Object o1 = fr.inria.assertionremover.TestClassWithAssertToBeRemoved.getNegation(cl.getFalse());" + nl +
 				"            break;" + nl +
 				"    }" + nl +
 				"}";

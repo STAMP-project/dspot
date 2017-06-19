@@ -16,7 +16,11 @@ import static fr.inria.diversify.dspot.AmplificationChecker.isAssert;
 
 public class AssertionRemover extends AbstractProcessor<CtMethod> {
 
-    private static int monitorPointCount = 0;
+	private int counter;
+
+	public AssertionRemover() {
+		this.counter = 0;
+	}
 
 	/*
      * This processor removes all the assertions from a test case
@@ -31,8 +35,8 @@ public class AssertionRemover extends AbstractProcessor<CtMethod> {
 
     @Override
     public void process(CtMethod method) {
-        List<CtInvocation> stmts = Query.getElements(method, new TypeFilter(CtInvocation.class));
-        for (CtInvocation invocation : stmts) {
+        List<CtInvocation> invocations = Query.getElements(method, new TypeFilter(CtInvocation.class));
+        for (CtInvocation invocation : invocations) {
             try {
                 if (isAssert(invocation)) {
                     if (invocation.getParent() instanceof CtCase) {
@@ -60,11 +64,12 @@ public class AssertionRemover extends AbstractProcessor<CtMethod> {
         }
     }
 
-    private CtCodeSnippetStatement buildVarStatement(CtElement arg) {
-        CtCodeSnippetStatement stmt = new CtCodeSnippetStatementImpl();
-        stmt.setValue("Object o" + monitorPointCount + " = " + arg.toString());
-        monitorPointCount++;
-        return stmt;
+    private CtLocalVariable<Object> buildVarStatement(CtElement arg) {
+		final CtLocalVariable<Object> localVariable = arg.getFactory().createLocalVariable();
+		localVariable.setSimpleName("o" + counter++);
+		localVariable.setType(arg.getFactory().createCtTypeReference(Object.class));
+		localVariable.setDefaultExpression(arg.getFactory().createCodeSnippetExpression(arg.toString()));
+		return localVariable;
     }
 
     private List<CtElement> getArgs(CtInvocation invocation) {
