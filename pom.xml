@@ -83,9 +83,8 @@
                                 <include>descartes/target</include>
                                 <include>mockito/target</include>
                                 <include>multiple-pom/target</include>
-                                <include>multiple-pom/module-1/target</include>
-                                <include>multiple-pom/module-1/module-2-1/target</include>
-                                <include>multiple-pom/module-1/module-2-2/target</include>
+                                <include>multiple-pom/module-1/module-2-1/target/</include>
+                                <include>multiple-pom/module-1/module-2-2/target/</include>
                                 <include>sample/target</include>
                                 <include>test-projects/target/</include>
                             </includes>

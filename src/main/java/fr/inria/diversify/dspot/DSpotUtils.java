@@ -5,7 +5,6 @@ import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.processor.ProcessorUtil;
 import fr.inria.diversify.processor.main.AddBlockEverywhereProcessor;
 import fr.inria.diversify.processor.main.BranchCoverageProcessor;
-import fr.inria.diversify.profiling.processor.main.AbstractLoggingInstrumenter;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
@@ -15,7 +14,6 @@ import spoon.processing.Processor;
 import spoon.reflect.code.CtComment;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtElement;
-import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.DefaultJavaPrettyPrinter;
@@ -24,7 +22,6 @@ import spoon.support.QueueProcessingManager;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
 
 
 /**
@@ -50,7 +47,6 @@ public class DSpotUtils {
 
             BranchCoverageProcessor branchCoverageProcessor = new BranchCoverageProcessor(inputProgram, inputProgram.getProgramDir(), true);
             branchCoverageProcessor.setLogger(Logger.class.getCanonicalName());
-            AbstractLoggingInstrumenter.reset();
 
             applyProcessor(factory, branchCoverageProcessor);
 
