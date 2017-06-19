@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static fr.inria.diversify.dspot.AmplificationHelper.PATH_SEPARATOR;
+
 /**
  * User: Simon
  * Date: 03/12/15
@@ -195,7 +197,8 @@ public class Amplification {
     private JunitResult compileAndRunTests(CtType classTest, List<CtMethod<?>> currentTestList) {
         CtType amplifiedTestClass = this.testSelector.buildClassForSelection(classTest, currentTestList);
         boolean status = TestCompiler.writeAndCompile(this.compiler, amplifiedTestClass, false,
-                this.configuration.getInputProgram().getProgramDir() + this.configuration.getInputProgram().getClassesDir() + "/:" +
+                this.configuration.getInputProgram().getProgramDir() + this.configuration.getInputProgram().getClassesDir() + "/" +
+                        PATH_SEPARATOR +
                         this.configuration.getInputProgram().getProgramDir() + this.configuration.getInputProgram().getTestClassesDir() + "/");
         if (!status) {
             Log.debug("Unable to compile {}", amplifiedTestClass.getSimpleName());

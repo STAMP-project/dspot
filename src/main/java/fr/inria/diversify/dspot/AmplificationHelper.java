@@ -31,6 +31,8 @@ import java.util.stream.IntStream;
  */
 public class AmplificationHelper {
 
+    public static final String PATH_SEPARATOR = System.getProperty("path.separator");
+
     private static int cloneNumber = 1;
     private static Map<CtMethod, CtMethod> ampTestToParent = new HashMap<>();
     private static Map<CtMethod, CtMethod> tmpAmpTestToParent = new HashMap<>();
@@ -228,9 +230,9 @@ public class AmplificationHelper {
 
     public static String getClassPath(DSpotCompiler compiler, InputProgram inputProgram) {
         String classpath = compiler.getBinaryOutputDirectory().getAbsolutePath();
-        classpath += ":" + inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir();
-        classpath += ":" + inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir();
-        classpath += ":" + compiler.getDependencies();
+        classpath += PATH_SEPARATOR + inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir();
+        classpath += PATH_SEPARATOR + inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir();
+        classpath += PATH_SEPARATOR + compiler.getDependencies();
         return classpath;
     }
 

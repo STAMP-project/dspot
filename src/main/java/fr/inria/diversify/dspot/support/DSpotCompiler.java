@@ -14,6 +14,8 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import static fr.inria.diversify.dspot.AmplificationHelper.PATH_SEPARATOR;
+
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -23,7 +25,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
     public DSpotCompiler(InputProgram program, String pathToDependencies) {
         super(program.getFactory());
-        String pathToSources = program.getAbsoluteSourceCodeDir() + ":" + program.getAbsoluteTestSourceCodeDir();
+        String pathToSources = program.getAbsoluteSourceCodeDir() + PATH_SEPARATOR + program.getAbsoluteTestSourceCodeDir();
         this.dependencies = pathToDependencies;
         this.launcher = getSpoonModelOf(pathToSources, pathToDependencies);
 
@@ -47,7 +49,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
         this.reportProblems(this.factory.getEnvironment());
 
         String[] sourcesArray = this.sourceOutputDirectory.getAbsolutePath().split(PATH_SEPARATOR);
-        String[] classpath = (this.dependencies + ":" + pathToAdditionalDependencies).split(PATH_SEPARATOR);
+        String[] classpath = (this.dependencies + PATH_SEPARATOR + pathToAdditionalDependencies).split(PATH_SEPARATOR);
         String[] finalClasspath = new String[sourcesArray.length + classpath.length];
         System.arraycopy(sourcesArray, 0, finalClasspath, 0, sourcesArray.length);
         System.arraycopy(classpath, 0, finalClasspath, sourcesArray.length, classpath.length);
@@ -93,8 +95,6 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
         launcher.buildModel();
         return launcher;
     }
-
-    private static final String PATH_SEPARATOR = System.getProperty("path.separator");
 
     public static boolean compile(String pathToSources, String dependencies, File binaryOutputDirectory) {
         Launcher launcher = new Launcher();

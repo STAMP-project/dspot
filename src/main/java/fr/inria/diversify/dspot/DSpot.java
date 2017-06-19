@@ -152,8 +152,9 @@ public class DSpot {
     }
 
     private void copyResourcesOfTargetProjectIntoDspot(String key) {
-        if (inputConfiguration.getProperty(key) != null) {
-            final String[] pathFiles = inputConfiguration.getProperty(key).split(System.getProperty("path.separator"));
+        final String resources = inputConfiguration.getProperty(key);
+        if (resources != null) {
+            String[] pathFiles = resources.split(System.getProperty("path.separator"));
             Arrays.stream(pathFiles).forEach(this::copyResourceOfTargetProjectIntoDspot);
         }
     }
