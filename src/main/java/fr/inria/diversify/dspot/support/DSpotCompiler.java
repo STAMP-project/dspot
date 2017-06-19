@@ -46,8 +46,8 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
         this.reportProblems(this.factory.getEnvironment());
 
-        String[] sourcesArray = this.sourceOutputDirectory.getAbsolutePath().split(":");
-        String[] classpath = (this.dependencies + ":" + pathToAdditionalDependencies).split(":");
+        String[] sourcesArray = this.sourceOutputDirectory.getAbsolutePath().split(PATH_SEPARATOR);
+        String[] classpath = (this.dependencies + ":" + pathToAdditionalDependencies).split(PATH_SEPARATOR);
         String[] finalClasspath = new String[sourcesArray.length + classpath.length];
         System.arraycopy(sourcesArray, 0, finalClasspath, 0, sourcesArray.length);
         System.arraycopy(classpath, 0, finalClasspath, sourcesArray.length, classpath.length);
@@ -84,23 +84,26 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
         Launcher launcher = new Launcher();
         launcher.getEnvironment().setNoClasspath(false);
         launcher.getEnvironment().setCommentEnabled(true);
-        String[] sourcesArray = pathToSources.split(":");
+        String[] sourcesArray = pathToSources.split(PATH_SEPARATOR);
         Arrays.stream(sourcesArray).forEach(launcher::addInputResource);
         if (!pathToDependencies.isEmpty()) {
-            String[] dependenciesArray = pathToDependencies.split(":");
+            String[] dependenciesArray = pathToDependencies.split(PATH_SEPARATOR);
             launcher.getModelBuilder().setSourceClasspath(dependenciesArray);
         }
         launcher.buildModel();
         return launcher;
     }
 
+    private static final String PATH_SEPARATOR = System.getProperty("path.separator");
+
     public static boolean compile(String pathToSources, String dependencies, File binaryOutputDirectory) {
         Launcher launcher = new Launcher();
         launcher.getEnvironment().setNoClasspath(false);
         launcher.getEnvironment().setCommentEnabled(true);
-        String[] sourcesArray = pathToSources.split(":");
+
+        String[] sourcesArray = pathToSources.split(PATH_SEPARATOR);
         Arrays.stream(sourcesArray).forEach(launcher::addInputResource);
-        String[] dependenciesArray = dependencies.split(":");
+        String[] dependenciesArray = dependencies.split(PATH_SEPARATOR);
         launcher.getModelBuilder().setSourceClasspath(dependenciesArray);
         launcher.buildModel();
 
