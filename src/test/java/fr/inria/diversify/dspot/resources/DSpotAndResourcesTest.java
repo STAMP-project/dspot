@@ -28,7 +28,8 @@ public class DSpotAndResourcesTest {
         final DSpot dSpot = new DSpot(inputConfiguration);
         InputProgram program = dSpot.getInputProgram();
         final CtClass<?> classUsingResources = program.getFactory().Class().get("fr.inria.testresources.TestResources");
-        final String classpath = program.getProgramDir() + program.getClassesDir() + "/:" +
+        final String classpath = program.getProgramDir() + program.getClassesDir() + "/" +
+                System.getProperty("path.separator") +
                 program.getProgramDir() + program.getTestClassesDir() + "/";
         final JunitResult result = TestRunner.runTests(classUsingResources,
                 classUsingResources.getMethodsByName("testResources"),

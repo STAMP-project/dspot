@@ -37,13 +37,13 @@ public class ProjectJSONTest extends AbstractTest {
 
         dspot.amplifyTest(Utils.getFactory().Class().get("fr.inria.amp.TestJavaPoet"));
         try (BufferedReader buffer = new BufferedReader(new FileReader(file))) {
-            final String jsonAsString = buffer.lines().collect(Collectors.joining("\n"));
+            final String jsonAsString = buffer.lines().collect(Collectors.joining(nl));
             assertTrue(jsonAsString.startsWith(expectedFirstProjectJSON[0]));
             assertTrue(jsonAsString.endsWith(expectedFirstProjectJSON[1]));
         }
         dspot.amplifyTest(Utils.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest"));
         try (BufferedReader buffer = new BufferedReader(new FileReader(file))) {
-            final String jsonAsString = buffer.lines().collect(Collectors.joining("\n"));
+            final String jsonAsString = buffer.lines().collect(Collectors.joining(nl));
             assertTrue(jsonAsString.startsWith(expectedFirstProjectJSON[0]));
             assertTrue(jsonAsString.contains(expectedFirstProjectJSON[2]));
             assertTrue(jsonAsString.endsWith(expectedFirstProjectJSON[3]));

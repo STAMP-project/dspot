@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.util.Log;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
@@ -12,6 +13,7 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
 
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -81,10 +83,30 @@ public class AmplificationChecker {
                 || candidate.getBody().getStatements().size() == 0) {
             return false;
         }
+
+        List<CtInvocation> listOfAssertion = candidate.getBody().getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
+            @Override
+            public boolean matches(CtInvocation element) {
+                return element.getExecutable() != null && element.getExecutable().getDeclaringType() != null
+                        && (element.getExecutable().getDeclaringType().equals(
+                                element.getFactory().Type().createReference(Assert.class)
+                        )
+                        || (element.getExecutable().getDeclaringType().equals(
+                        element.getFactory().Type().createReference(junit.framework.Assert.class))
+                        ||(element.getExecutable().getDeclaringType().equals(
+                                element.getFactory().Type().createReference(junit.framework.TestCase.class)
+                        )
+                )
+                )
+                );
+            }
+        });
+
         return candidate.getParameters().isEmpty() &&
                 (candidate.getAnnotation(org.junit.Test.class) != null ||
-                ((candidate.getSimpleName().contains("test") ||
-                candidate.getSimpleName().contains("should")) && !isTestJUnit4(parent)));
+                        ((candidate.getSimpleName().contains("test") ||
+                                candidate.getSimpleName().contains("should")) && !isTestJUnit4(parent)
+                                && !listOfAssertion.isEmpty()));
     }
 
     private static boolean isTestJUnit4(CtClass<?> classTest) {

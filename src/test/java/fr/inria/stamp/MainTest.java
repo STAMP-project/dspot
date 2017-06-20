@@ -1,6 +1,9 @@
 package fr.inria.stamp;
 
+import fr.inria.diversify.Utils;
+import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.MavenAbstractTest;
+import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.util.FileUtils;
 import org.junit.Test;
 
@@ -15,17 +18,26 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 2/14/17
  */
-public class MainTest extends MavenAbstractTest {
+public class MainTest {
+
+    private static final String PATH_SEPARATOR = System.getProperty("path.separator");
 
     @Test
     public void testAll() throws Throwable {
-        FileUtils.deleteDirectory(new File("dspot-out"));
+        try {
+            FileUtils.deleteDirectory(new File("dspot-out"));
+            FileUtils.deleteDirectory(new File("tmpDir"));
+        } catch (Exception ignored) {
+
+        }
         Main.run(JSAPOptions.parse(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "BranchCoverageTestSelector",
-                "--amplifiers", "MethodAdd:TestDataMutator:StatementAdderOnAssert",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
                 "--iteration", "1",
-                "--randomSeed", "72"
+                "--randomSeed", "72",
+                "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
+                "--test", "all"
         }));
         final File reportFile = new File("dspot-out/example.TestSuiteExample_branch_coverage_report.txt");
         assertTrue(reportFile.exists());
@@ -52,8 +64,4 @@ public class MainTest extends MavenAbstractTest {
             "The branch coverage obtained is: 100" + DECIMAL_SEPARATOR + "00%" + nl +
             "There is 4 new unique path" + nl + nl;
 
-    @Override
-    public String getPathToPropertiesFile() {
-        return "src/test/resources/test-projects/test-projects.properties";
-    }
 }

@@ -202,10 +202,10 @@ public class AmplificationHelper {
         return currentTest;
     }
 
-    public static List<CtMethod<?>> getAllTest(InputProgram inputProgram, CtType<?> classTest) {
+    public static List<CtMethod<?>> getAllTest(CtType<?> classTest) {
         Set<CtMethod<?>> methods = classTest.getMethods();
         return methods.stream()
-                .filter(mth -> AmplificationChecker.isTest(mth, inputProgram.getRelativeTestSourceCodeDir()))
+                .filter(AmplificationChecker::isTest)
                 .distinct()
                 .collect(Collectors.toList());
     }

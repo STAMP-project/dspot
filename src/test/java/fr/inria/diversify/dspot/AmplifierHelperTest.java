@@ -37,10 +37,13 @@ public class AmplifierHelperTest {
         final String dependenciesOf = AmplificationHelper.getDependenciesOf(Utils.getInputConfiguration(), Utils.getInputProgram());
         final String separator = System.getProperty("path.separator");
         final String[] dependencies = dependenciesOf.split(separator);
-        assertTrue(dependencies[0].endsWith("org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar")
-                || dependencies[0].endsWith("junit/junit/4.11/junit-4.11.jar"));
-        assertTrue(dependencies[1].endsWith("org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar")
-                || dependencies[1].endsWith("junit/junit/4.11/junit-4.11.jar"));
+
+        final String FILE_SEPARATOR = System.getProperty("file.separator");
+
+        assertTrue(dependencies[0].endsWith("org" + FILE_SEPARATOR + "hamcrest" + FILE_SEPARATOR + "hamcrest-core" + FILE_SEPARATOR + "1.3" + FILE_SEPARATOR + "hamcrest-core-1.3.jar")
+                || dependencies[0].endsWith("junit" + FILE_SEPARATOR + "junit" + FILE_SEPARATOR + "4.11" + FILE_SEPARATOR + "junit-4.11.jar"));
+        assertTrue(dependencies[1].endsWith("org" + FILE_SEPARATOR + "hamcrest" + FILE_SEPARATOR + "hamcrest-core" + FILE_SEPARATOR + "1.3" + FILE_SEPARATOR + "hamcrest-core-1.3.jar")
+                || dependencies[1].endsWith("junit" + FILE_SEPARATOR + "junit" + FILE_SEPARATOR + "4.11" + FILE_SEPARATOR + "junit-4.11.jar"));
     }
 
     @Test

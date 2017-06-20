@@ -190,8 +190,7 @@ public class DSpot {
                 .filter(ctClass -> !ctClass.getModifiers().contains(ModifierKind.ABSTRACT))
                 .filter(ctClass ->
                         ctClass.getMethods().stream()
-                                .anyMatch(method ->
-                                        AmplificationChecker.isTest(method, inputProgram.getRelativeTestSourceCodeDir())))
+                                .anyMatch(AmplificationChecker::isTest))
                 .map(this::amplifyTest)
                 .collect(Collectors.toList());
         writeTimeJson();
