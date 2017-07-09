@@ -31,16 +31,6 @@ import java.io.IOException;
  */
 public class DSpotUtils {
 
-    public static void compileOriginalProject(InputProgram inputProgram, InputConfiguration inputConfiguration, String mavenLocalRepository) throws InterruptedException, IOException {
-        MavenBuilder builder = new MavenBuilder(inputProgram.getProgramDir());
-        builder.setBuilderPath(buildMavenHome(inputConfiguration));
-        if (mavenLocalRepository != null) {
-            builder.setSetting(new File(mavenLocalRepository));
-        }
-        builder.setGoals(new String[]{"clean", "test", "-DskipTests"});
-        builder.initTimeOut();
-    }
-
     public static void addBranchLogger(InputProgram inputProgram, Factory factory) {
         try {
             applyProcessor(factory, new AddBlockEverywhereProcessor(inputProgram));

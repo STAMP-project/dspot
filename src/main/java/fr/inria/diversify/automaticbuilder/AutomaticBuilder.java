@@ -13,6 +13,9 @@ import java.util.List;
  */
 public interface AutomaticBuilder {
 
+    //TODO we should use spoon to compile.
+    void compile(String pathToRootOfProject);
+
     String buildClasspath(String pathToRootOfProject);
 
     List<PitResult> runPit(String pathToRootOfProject, CtType<?> testClass);

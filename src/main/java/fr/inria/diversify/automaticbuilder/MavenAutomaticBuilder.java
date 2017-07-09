@@ -1,12 +1,10 @@
 package fr.inria.diversify.automaticbuilder;
 
-import fr.inria.diversify.buildSystem.maven.MavenBuilder;
 import fr.inria.diversify.buildSystem.maven.MavenInvoker;
 import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.util.Log;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.PrintStreamHandler;
@@ -41,6 +39,11 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     public MavenAutomaticBuilder(@Deprecated InputConfiguration configuration) {
         this.mavenHome = DSpotUtils.buildMavenHome(configuration);
         this.configuration = configuration;
+    }
+
+    @Override
+    public void compile(String pathToRootOfProject) {
+        this.runGoals(pathToRootOfProject,"clean", "test", "-DskipTests");
     }
 
     @Override
@@ -97,7 +100,6 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
             return PitResultParser.parse(fileResults);
         } catch (Exception e) {
             return null;
-//            throw new RuntimeException(e);
         }
     }
 
