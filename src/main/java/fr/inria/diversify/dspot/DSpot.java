@@ -119,7 +119,15 @@ public class DSpot {
 
         this.builder = new MavenAutomaticBuilder(inputConfiguration);
         String dependencies = this.builder.buildClasspath(this.inputProgram.getProgramDir());
-        this.builder.compile(this.inputProgram.getProgramDir());
+        File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
+        boolean status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir()
+                + System.getProperty("path.separator") + inputProgram.getAbsoluteTestSourceCodeDir(),
+                dependencies,
+                output);
+        if (!status) {
+            throw new RuntimeException("Error during compilation");
+        }
+//        this.builder.compile(this.inputProgram.getProgramDir());
 
         //We need to use separate factory here, because the BranchProcessor will process test also
         //TODO this is used only with the BranchCoverageSelector
@@ -127,23 +135,21 @@ public class DSpot {
             Launcher spoonModel = DSpotCompiler.getSpoonModelOf(inputProgram.getAbsoluteSourceCodeDir(), dependencies);
             DSpotUtils.addBranchLogger(inputProgram, spoonModel.getFactory());
             DSpotUtils.copyLoggerPackage(inputProgram);
-            File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
             FileUtils.cleanDirectory(output);
-            boolean status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
+            status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir()
+                    + System.getProperty("path.separator") + inputProgram.getAbsoluteTestSourceCodeDir(),
+                    dependencies, output);
             if (!status) {
                 throw new RuntimeException("Error during compilation");
             }
         }
 
         this.compiler = new DSpotCompiler(inputProgram, dependencies);
-
         this.inputProgram.setFactory(compiler.getLauncher().getFactory());
-
         this.amplifiers = new ArrayList<>(amplifiers);
         this.numberOfIterations = numberOfIterations;
         this.testSelector = testSelector;
         this.testSelector.init(this.inputConfiguration);
-
         final File projectJsonFile = new File(this.inputConfiguration.getOutputDirectory() +
                 "/" + splittedPath[splittedPath.length - 1] + ".json");
         if (projectJsonFile.exists()) {

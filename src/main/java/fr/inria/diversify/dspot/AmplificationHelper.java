@@ -1,8 +1,6 @@
 package fr.inria.diversify.dspot;
 
-import fr.inria.diversify.buildSystem.maven.MavenBuilder;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.util.Log;
@@ -18,9 +16,6 @@ import spoon.reflect.visitor.ImportScannerImpl;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;

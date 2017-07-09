@@ -27,9 +27,11 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
         super(program.getFactory());
         String pathToSources = program.getAbsoluteSourceCodeDir() + PATH_SEPARATOR + program.getAbsoluteTestSourceCodeDir();
         this.dependencies = pathToDependencies;
+
         this.launcher = getSpoonModelOf(pathToSources, pathToDependencies);
 
         this.binaryOutputDirectory = new File(program.getProgramDir() + "/" + program.getTestClassesDir());
+
 
         this.sourceOutputDirectory = new File("tmpDir/tmpSrc_test");
         if (!this.sourceOutputDirectory.exists()) {

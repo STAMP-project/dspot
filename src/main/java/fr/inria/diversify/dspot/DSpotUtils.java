@@ -1,6 +1,5 @@
 package fr.inria.diversify.dspot;
 
-import fr.inria.diversify.buildSystem.maven.MavenBuilder;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.processor.ProcessorUtil;
 import fr.inria.diversify.processor.main.AddBlockEverywhereProcessor;

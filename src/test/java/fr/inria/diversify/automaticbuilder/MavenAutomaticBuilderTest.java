@@ -28,10 +28,9 @@ public class MavenAutomaticBuilderTest {
     @Test
     public void testGetDependenciesOf() throws Exception {
         MavenAutomaticBuilder mavenAutomaticBuilder = new MavenAutomaticBuilder(Utils.getInputConfiguration());
-        final String dependenciesOf = mavenAutomaticBuilder.buildClasspath("./");
-        assertTrue(dependenciesOf.contains("spoon-core"));
-        assertTrue(dependenciesOf.contains("jsap"));
-        assertTrue(dependenciesOf.contains("pitest"));
+        final String dependenciesOf = mavenAutomaticBuilder.buildClasspath("src/test/resources/test-projects/");
+        assertTrue(dependenciesOf.contains("org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"));
+        assertTrue(dependenciesOf.contains("junit/junit/4.11/junit-4.11.jar"));
     }
 
 }
