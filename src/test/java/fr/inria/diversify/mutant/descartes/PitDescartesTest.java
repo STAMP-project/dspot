@@ -1,5 +1,6 @@
 package fr.inria.diversify.mutant.descartes;
 
+import fr.inria.diversify.automaticbuilder.MavenAutomaticBuilder;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
@@ -7,12 +8,10 @@ import fr.inria.diversify.dspot.amplifier.StatementAdderOnAssert;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
 import fr.inria.diversify.dspot.amplifier.TestMethodCallAdder;
 import fr.inria.diversify.dspot.selector.PitMutantScoreSelector;
-import fr.inria.diversify.mutant.pit.PitRunner;
+import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
-import fr.inria.stamp.JSAPOptions;
-import fr.inria.stamp.Main;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -20,9 +19,7 @@ import spoon.reflect.declaration.CtType;
 
 import java.io.*;
 import java.util.Arrays;
-import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -38,11 +35,11 @@ public class PitDescartesTest {
     //TODO The generation is not deterministic
     @Test
     public void testPitDescartesMode() throws Exception, InvalidSdkException {
-        assertFalse(PitRunner.descartesMode);
+        assertFalse(MavenPitCommandAndOptions.descartesMode);
         FileUtils.deleteDirectory(new File("dspot-out"));
 
         AmplificationHelper.setSeedRandom(23L);
-        PitRunner.descartesMode = true;
+        MavenPitCommandAndOptions.descartesMode = true;
         InputConfiguration configuration = new InputConfiguration("src/test/resources/descartes/descartes.properties");
         InputProgram program = new InputProgram();
         configuration.setInputProgram(program);
@@ -70,7 +67,7 @@ public class PitDescartesTest {
 
         FileUtils.cleanDirectory(new File(configuration.getOutputDirectory()));
 
-        assertTrue(PitRunner.descartesMode);
+        assertTrue(MavenPitCommandAndOptions.descartesMode);
     }
 
     private static final String expectedBody = "{" + nl +

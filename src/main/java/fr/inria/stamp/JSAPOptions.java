@@ -5,7 +5,7 @@ import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
 import fr.inria.diversify.dspot.selector.PitMutantScoreSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
-import fr.inria.diversify.mutant.pit.PitRunner;
+import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.util.Log;
 
 import java.util.Arrays;
@@ -72,8 +72,8 @@ public class JSAPOptions {
             testCriterion = SelectorEnum.valueOf(jsapConfig.getString("test-criterion")).testCriterion;
         }
 
-        PitRunner.descartesMode = jsapConfig.getBoolean("descartes");
-        PitRunner.evosuiteMode = jsapConfig.getBoolean("evosuite");
+        MavenPitCommandAndOptions.descartesMode = jsapConfig.getBoolean("descartes");
+        MavenPitCommandAndOptions.evosuiteMode = jsapConfig.getBoolean("evosuite");
 
         return new Configuration(jsapConfig.getString("path"),
                 buildAmplifiersFromString(jsapConfig.getStringArray("amplifiers")),

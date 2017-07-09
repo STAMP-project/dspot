@@ -2,6 +2,8 @@ package fr.inria.diversify.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
+import fr.inria.diversify.automaticbuilder.MavenAutomaticBuilder;
 import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.selector.json.MutantJSON;
@@ -10,7 +12,6 @@ import fr.inria.diversify.dspot.selector.json.TestClassJSON;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
-import fr.inria.diversify.mutant.pit.PitRunner;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.Log;
@@ -43,6 +44,8 @@ public class PitMutantScoreSelector implements TestSelector {
 
     private List<PitResult> mutantNotTestedByOriginal;
 
+    private AutomaticBuilder builder;
+
     public PitMutantScoreSelector() {
         this.testThatKilledMutants = new HashMap<>();
     }
@@ -56,8 +59,9 @@ public class PitMutantScoreSelector implements TestSelector {
     public void init(InputConfiguration configuration) {
         this.configuration = configuration;
         this.program = this.configuration.getInputProgram();
+        this.builder = new MavenAutomaticBuilder(this.configuration);// TODO
         if (this.originalKilledMutants == null) {
-            initOriginalPitResult(PitRunner.runAll(this.program, this.configuration));
+            initOriginalPitResult(this.builder.runPit(this.program.getProgramDir()));
         }
     }
 
@@ -105,7 +109,7 @@ public class PitMutantScoreSelector implements TestSelector {
             throw new RuntimeException(e);
         }
 
-        List<PitResult> results = PitRunner.run(this.program, this.configuration, clone);
+        List<PitResult> results = this.builder.runPit(this.program.getProgramDir(), clone);
         Set<CtMethod<?>> selectedTests = new HashSet<>();
         if (results != null) {
             Log.debug("{} mutants has been generated ({})", results.size(), this.numberOfMutant);

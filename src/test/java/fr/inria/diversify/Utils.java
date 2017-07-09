@@ -1,5 +1,6 @@
 package fr.inria.diversify;
 
+import fr.inria.diversify.automaticbuilder.MavenAutomaticBuilder;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
@@ -58,7 +59,8 @@ public class Utils {
                     (inputConfiguration.getProperty("targetModule") == null ? "" : inputConfiguration.getProperty("targetModule"));
             inputProgram.setProgramDir(outputDirectory);
             DSpotUtils.compileOriginalProject(inputProgram, inputConfiguration, mavenLocalRepository);
-            String dependencies = AmplificationHelper.getDependenciesOf(inputConfiguration, inputProgram);
+            MavenAutomaticBuilder mavenAutomaticBuilder = new MavenAutomaticBuilder(inputConfiguration);
+            String dependencies = mavenAutomaticBuilder.buildClasspath(inputProgram.getProgramDir());
             File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
             try {
                 FileUtils.cleanDirectory(output);

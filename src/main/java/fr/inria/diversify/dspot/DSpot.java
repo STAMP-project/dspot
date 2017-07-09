@@ -2,6 +2,8 @@ package fr.inria.diversify.dspot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
+import fr.inria.diversify.automaticbuilder.MavenAutomaticBuilder;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
@@ -12,7 +14,7 @@ import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.dspot.support.ProjectTimeJSON;
 import fr.inria.diversify.mutant.descartes.DescartesChecker;
 import fr.inria.diversify.mutant.descartes.DescartesInjector;
-import fr.inria.diversify.mutant.pit.PitRunner;
+import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
@@ -109,14 +111,16 @@ public class DSpot {
                 (inputConfiguration.getProperty("targetModule") == null ? "" : inputConfiguration.getProperty("targetModule"));
         inputProgram.setProgramDir(outputDirectory);
 
-        if (PitRunner.descartesMode &&
+        if (MavenPitCommandAndOptions.descartesMode &&
                 DescartesChecker.shouldInjectDescartes(inputProgram.getProgramDir() + "/pom.xml")) {
             DescartesInjector.injectDescartesIntoPom(inputProgram.getProgramDir() + "/pom.xml");
         }
 
         String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
         DSpotUtils.compileOriginalProject(this.inputProgram, inputConfiguration, mavenLocalRepository);
-        String dependencies = AmplificationHelper.getDependenciesOf(this.inputConfiguration, inputProgram);
+
+        AutomaticBuilder builder = new MavenAutomaticBuilder(inputConfiguration);
+        String dependencies = builder.buildClasspath(this.inputProgram.getProgramDir());
 
         //We need to use separate factory here, because the BranchProcessor will process test also
         //TODO this is used only with the BranchCoverageSelector

@@ -1,11 +1,14 @@
 package fr.inria.diversify.mutant.pit;
 
 import fr.inria.diversify.Utils;
+import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
+import fr.inria.diversify.automaticbuilder.MavenAutomaticBuilder;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.*;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 
+import javax.rmi.CORBA.Util;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -28,13 +31,14 @@ public class PitTest extends MavenAbstractTest {
         /* by evosuite mode, we mean the common subset of mutation operators between pitest and evosuite */
 
         AmplificationHelper.setSeedRandom(23L);
-        PitRunner.descartesMode = false;
-        PitRunner.evosuiteMode = true;
+        MavenPitCommandAndOptions.descartesMode = false;
+        MavenPitCommandAndOptions.evosuiteMode = true;
 
         Utils.init(this.getPathToPropertiesFile());
         CtClass<Object> testClass = Utils.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
-        List<PitResult> pitResults = PitRunner.run(Utils.getInputProgram(), Utils.getInputConfiguration(),
-                testClass);
+        AutomaticBuilder builder = new MavenAutomaticBuilder(Utils.getInputConfiguration());
+
+        List<PitResult> pitResults = builder.runPit(Utils.getInputProgram().getProgramDir(), testClass);
 
         System.out.println(pitResults);
         assertTrue(null != pitResults);
@@ -70,12 +74,12 @@ public class PitTest extends MavenAbstractTest {
                 Checks that the PitRunner return well the results, and verify state of mutant.
          */
         AmplificationHelper.setSeedRandom(23L);
-        PitRunner.descartesMode = false;
-        PitRunner.evosuiteMode = false;
+        MavenPitCommandAndOptions.descartesMode = false;
+        MavenPitCommandAndOptions.evosuiteMode = false;
         Utils.init(this.getPathToPropertiesFile());
         CtClass<Object> testClass = Utils.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
-        List<PitResult> pitResults = PitRunner.run(Utils.getInputProgram(), Utils.getInputConfiguration(),
-                testClass);
+        AutomaticBuilder builder = new MavenAutomaticBuilder(Utils.getInputConfiguration());
+        List<PitResult> pitResults = builder.runPit(Utils.getInputProgram().getProgramDir(), testClass);
 
         assertTrue(null != pitResults);
         assertEquals(9, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
@@ -105,7 +109,8 @@ public class PitTest extends MavenAbstractTest {
         /*
             Run the PitRunner in wrong configuration.
          */
-        List<PitResult> pitResults = PitRunner.run(null, null, null);
+        AutomaticBuilder builder = new MavenAutomaticBuilder(Utils.getInputConfiguration());
+        List<PitResult> pitResults = builder.runPit(null, null);
         assertNull(pitResults);
     }
 }

@@ -210,24 +210,6 @@ public class AmplificationHelper {
                 .collect(Collectors.toList());
     }
 
-    public static String getDependenciesOf(InputConfiguration inputConfiguration, InputProgram program) {
-        String mavenHome = DSpotUtils.buildMavenHome(inputConfiguration);
-        try {
-            MavenBuilder builder = new MavenBuilder(program.getProgramDir());
-            builder.setBuilderPath(mavenHome);
-            String NAME_FILE_CLASSPATH = "cp";
-            String[] phases = new String[]{"dependency:build-classpath", "-Dmdep.outputFile=" + NAME_FILE_CLASSPATH};
-            builder.runGoals(phases, false);
-            String FILE_SEPARATOR = "/";
-            final File fileClasspath = new File(program.getProgramDir() + FILE_SEPARATOR + NAME_FILE_CLASSPATH);
-            try (BufferedReader buffer = new BufferedReader(new FileReader(fileClasspath))) {
-                return buffer.lines().collect(Collectors.joining());
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static String getClassPath(DSpotCompiler compiler, InputProgram inputProgram) {
         String classpath = compiler.getBinaryOutputDirectory().getAbsolutePath();
         classpath += PATH_SEPARATOR + inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir();
