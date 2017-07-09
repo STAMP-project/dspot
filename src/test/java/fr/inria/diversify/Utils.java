@@ -58,9 +58,9 @@ public class Utils {
             final String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp/" +
                     (inputConfiguration.getProperty("targetModule") == null ? "" : inputConfiguration.getProperty("targetModule"));
             inputProgram.setProgramDir(outputDirectory);
-            DSpotUtils.compileOriginalProject(inputProgram, inputConfiguration, mavenLocalRepository);
-            MavenAutomaticBuilder mavenAutomaticBuilder = new MavenAutomaticBuilder(inputConfiguration);
-            String dependencies = mavenAutomaticBuilder.buildClasspath(inputProgram.getProgramDir());
+            MavenAutomaticBuilder builder = new MavenAutomaticBuilder(inputConfiguration);
+            String dependencies = builder.buildClasspath(inputProgram.getProgramDir());
+            builder.compile(inputProgram.getProgramDir());
             File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
             try {
                 FileUtils.cleanDirectory(output);
