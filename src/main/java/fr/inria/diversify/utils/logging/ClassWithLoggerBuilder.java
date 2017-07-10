@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot;
+package fr.inria.diversify.utils.logging;
 
 import fr.inria.diversify.processor.test.TestLogProcessor;
 import fr.inria.diversify.dspot.assertGenerator.AssertionRemover;

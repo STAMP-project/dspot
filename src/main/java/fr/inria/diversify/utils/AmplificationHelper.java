@@ -2,8 +2,10 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.util.Log;
+import fr.inria.diversify.utils.DSpotUtils;
+import fr.inria.stamp.test.listener.TestListener;
+import org.junit.runner.Description;
 import spoon.reflect.code.CtComment;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
@@ -161,8 +163,9 @@ public class AmplificationHelper {
         return cloned_method;
     }
 
-    public static List<CtMethod<?>> filterTest(List<CtMethod<?>> newTests, JunitResult result) {
-        final List<String> goodTests = result.getPassingTests();
+    public static List<CtMethod<?>> filterTest(List<CtMethod<?>> newTests, TestListener result) {
+        final List<String> goodTests = result.getPassingTests().stream()
+                .map(Description::getMethodName).collect(Collectors.toList());
         return newTests.stream()
                 .filter(test -> goodTests.contains(test.getSimpleName()))
                 .collect(Collectors.toList());
