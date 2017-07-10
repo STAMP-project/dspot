@@ -2,7 +2,6 @@ package fr.inria.diversify.compare;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * User: Simon

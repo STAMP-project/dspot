@@ -206,27 +206,21 @@ public class Amplification {
 
 	private TestListener compileAndRunTests(CtType classTest, List<CtMethod<?>> currentTestList) {
 		CtType amplifiedTestClass = this.testSelector.buildClassForSelection(classTest, currentTestList);
-		boolean status = TestCompiler.writeAndCompile(this.compiler, amplifiedTestClass,
-				this.configuration.getInputProgram().getProgramDir() + this.configuration.getInputProgram().getClassesDir() + "/:" +
-						this.configuration.getInputProgram().getProgramDir() + this.configuration.getInputProgram().getTestClassesDir() + "/");
-		if (!status) {
-			Log.debug("Unable to compile {}", amplifiedTestClass.getSimpleName());
+		final TestListener result = TestCompiler.compileAndRun(
+				amplifiedTestClass,
+				false,
+				this.compiler,
+				currentTestList,
+				this.configuration
+		);
+		if (result == null ||
+				!result.getFailingTests().isEmpty() ||
+				result.getRunningTests().size() != currentTestList.size()) {
 			return null;
+		} else {
+			Log.debug("update test testCriterion");
+			testSelector.update();
+			return result;
 		}
-		TestListener result;
-		try {
-			final String classPath = AmplificationHelper.getClassPath(this.compiler, this.configuration.getInputProgram());
-			result = TestLauncher.runFromSpoonNodes(this.configuration, classPath, amplifiedTestClass, currentTestList);
-		} catch (Exception ignored) {
-			Log.debug("Error during running test");
-			return null;
-		}
-		if (result == null || result.getRunningTests().size() < currentTestList.size()) {
-			Log.debug("Error during running test");
-			return null;
-		}
-		Log.debug("update test testCriterion");
-		testSelector.update();
-		return result;
 	}
 }

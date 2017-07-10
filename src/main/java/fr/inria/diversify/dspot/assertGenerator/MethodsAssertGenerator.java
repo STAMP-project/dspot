@@ -7,9 +7,7 @@ import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.dspot.support.TestCompiler;
-import fr.inria.stamp.test.launcher.TestLauncher;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
@@ -67,7 +65,8 @@ public class MethodsAssertGenerator {
 		testClass.getPackage().addType(clone);
 		tests.forEach(clone::addMethod);
 
-		final TestListener result = runTests(clone, tests, false);
+		final TestListener result = TestCompiler.compileAndRun(clone, false,
+				this.compiler, tests, this.configuration);
 		if (result == null) {
 			return Collections.emptyList();
 		} else {
@@ -146,7 +145,8 @@ public class MethodsAssertGenerator {
 				)
 		);
 		ObjectLog.reset();
-		final TestListener result = runTests(clone, testToRuns, true);
+		final TestListener result = TestCompiler.compileAndRun(clone, true,
+				this.compiler, testToRuns, this.configuration);
 		if (result == null || !result.getFailingTests().isEmpty()) {
 			return Collections.emptyList();
 		} else {
@@ -247,22 +247,6 @@ public class MethodsAssertGenerator {
 		return testWithoutAssert;
 	}
 
-	public TestListener runTests(CtType testClass, List<CtMethod<?>> testsToRun, boolean withLog) {
-		final InputProgram inputProgram = this.configuration.getInputProgram();
-		final String dependencies = inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + ":" +
-				inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir();
-		final List<CtMethod<?>> uncompilableMethods = TestCompiler.compile(this.compiler, testClass,
-				withLog, dependencies);
-		if (uncompilableMethods.contains(TestCompiler.METHOD_CODE_RETURN)) {
-			return null;
-		} else {
-			testsToRun.removeAll(uncompilableMethods);
-			uncompilableMethods.forEach(testClass::removeMethod);
-			final String classPath = AmplificationHelper.getClassPath(this.compiler, configuration.getInputProgram());
-			return TestLauncher.runFromSpoonNodes(this.configuration, classPath, testClass, testsToRun);
-		}
-	}
-
 	private List<CtMethod<?>> filterTest(CtType clone, List<CtMethod<?>> tests, int nTime) {
 		final List<CtMethod<?>> clones = tests.stream()
 				.map(CtMethod::clone)
@@ -273,7 +257,8 @@ public class MethodsAssertGenerator {
 			if (clones.isEmpty()) {
 				return Collections.emptyList();
 			}
-			final TestListener result = runTests(clone, clones, false);
+			final TestListener result = TestCompiler.compileAndRun(clone, false,
+					this.compiler, clones, this.configuration);
 			if (result == null) {
 				return Collections.emptyList();
 			} else {
