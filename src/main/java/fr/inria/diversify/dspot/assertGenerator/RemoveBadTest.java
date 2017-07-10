@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
  * Date: 22/11/16
  * Time: 09:36
  */
+@Deprecated
 public class RemoveBadTest {
 
     protected InputProgram inputProgram;

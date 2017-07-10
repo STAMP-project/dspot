@@ -71,6 +71,29 @@
 
     <build>
         <plugins>
+
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>src/test/resources/</directory>
+                            <includes>
+                                <include>descartes/target</include>
+                                <include>mockito/target</include>
+                                <include>multiple-pom/target</include>
+                                <include>multiple-pom/module-1/module-2-1/target/</include>
+                                <include>multiple-pom/module-1/module-2-2/target/</include>
+                                <include>sample/target</include>
+                                <include>test-projects/target/</include>
+                            </includes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static fr.inria.diversify.dspot.AmplificationHelper.PATH_SEPARATOR;
+
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -20,7 +22,7 @@ public abstract class JunitRunner {
     protected ClassLoader classLoader;
 
     public JunitRunner(String classpath) {
-        final List<URL> tmp = Arrays.stream(classpath.split(System.getProperty("path.separator")))
+        final List<URL> tmp = Arrays.stream(classpath.split(PATH_SEPARATOR))
                 .map(File::new)
                 .map(File::toURI)
                 .map(uri -> {

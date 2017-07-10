@@ -1,15 +1,13 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.processor.test.TestLogProcessor;
-import fr.inria.diversify.profiling.processor.test.AssertionRemover;
+import fr.inria.diversify.dspot.assertGenerator.AssertionRemover;
 import fr.inria.diversify.runner.InputProgram;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -22,21 +20,10 @@ public class ClassWithLoggerBuilder {
     private final AssertionRemover assertionRemoverProcessor;
     private final TestLogProcessor loggingProcessor;
 
-
-    public ClassWithLoggerBuilder(InputProgram inputProgram) {
+    public ClassWithLoggerBuilder(Factory factory) {
         String logger = "fr.inria.diversify.logger";
 
-        assertionRemoverProcessor = new AssertionRemover(inputProgram.getAbsoluteTestSourceCodeDir());
-        assertionRemoverProcessor.setFactory(inputProgram.getFactory());
-        loggingProcessor = new TestLogProcessor();
-        loggingProcessor.setLogger(logger + ".Logger");
-        loggingProcessor.setFactory(inputProgram.getFactory());
-    }
-
-    public ClassWithLoggerBuilder(Factory factory, String absoluteTestSourceCodeDir) {
-        String logger = "fr.inria.diversify.logger";
-
-        assertionRemoverProcessor = new AssertionRemover(absoluteTestSourceCodeDir);
+        assertionRemoverProcessor = new AssertionRemover();
         assertionRemoverProcessor.setFactory(factory);
         loggingProcessor = new TestLogProcessor();
         loggingProcessor.setLogger(logger + ".Logger");
@@ -46,7 +33,6 @@ public class ClassWithLoggerBuilder {
     public CtType buildClassWithLogger(CtType originalClass, List<CtMethod<?>> tests) {
         CtType cloneClass = originalClass.clone();
         originalClass.getPackage().addType(cloneClass);
-//        tests.forEach(cloneClass::removeMethod);
         tests.forEach(test -> cloneClass.addMethod(buildMethodWithLogger(cloneClass, test)));
         return cloneClass;
     }

@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.Utils;
+import fr.inria.diversify.runner.InputProgram;
 import org.junit.Test;
 import spoon.reflect.declaration.*;
 import spoon.reflect.reference.CtTypeReference;
@@ -9,9 +10,7 @@ import spoon.reflect.visitor.filter.TypeFilter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by Benjamin DANGLOT
@@ -20,6 +19,32 @@ import static org.junit.Assert.assertTrue;
  */
 public class AmplifierHelperTest {
 
+    @Test
+    public void testWrongMaven() throws Exception {
+        InputProgram program = new InputProgram();
+        program.setProgramDir("target/");//is not a maven project
+        try {
+            AmplificationHelper.getDependenciesOf(Utils.getInputConfiguration(), program);
+            fail("should have thrown FileNotFoundException");
+        } catch (Exception expected) {
+            //ignored
+        }
+    }
+
+    @Test
+    public void testGetDependenciesOf() throws Exception {
+        Utils.init("src/test/resources/sample/sample.properties");
+        final String dependenciesOf = AmplificationHelper.getDependenciesOf(Utils.getInputConfiguration(), Utils.getInputProgram());
+        final String separator = System.getProperty("path.separator");
+        final String[] dependencies = dependenciesOf.split(separator);
+
+        final String FILE_SEPARATOR = System.getProperty("file.separator");
+
+        assertTrue(dependencies[0].endsWith("org" + FILE_SEPARATOR + "hamcrest" + FILE_SEPARATOR + "hamcrest-core" + FILE_SEPARATOR + "1.3" + FILE_SEPARATOR + "hamcrest-core-1.3.jar")
+                || dependencies[0].endsWith("junit" + FILE_SEPARATOR + "junit" + FILE_SEPARATOR + "4.11" + FILE_SEPARATOR + "junit-4.11.jar"));
+        assertTrue(dependencies[1].endsWith("org" + FILE_SEPARATOR + "hamcrest" + FILE_SEPARATOR + "hamcrest-core" + FILE_SEPARATOR + "1.3" + FILE_SEPARATOR + "hamcrest-core-1.3.jar")
+                || dependencies[1].endsWith("junit" + FILE_SEPARATOR + "junit" + FILE_SEPARATOR + "4.11" + FILE_SEPARATOR + "junit-4.11.jar"));
+    }
 
     @Test
     public void testCreateAmplifiedTestClass() throws Exception {

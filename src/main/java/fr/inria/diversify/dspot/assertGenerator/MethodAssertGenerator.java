@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static fr.inria.diversify.dspot.AmplificationHelper.PATH_SEPARATOR;
 import static fr.inria.diversify.dspot.assertGenerator.AssertGeneratorHelper.addLogStmt;
 
 /**
@@ -256,7 +257,7 @@ public class MethodAssertGenerator {
     }
 
     public JunitResult runTests(CtType testClass, List<CtMethod<?>> testsToRun) throws ClassNotFoundException {
-        final String dependencies = configuration.getInputProgram().getProgramDir() + "/" + configuration.getInputProgram().getClassesDir() + ":" +
+        final String dependencies = configuration.getInputProgram().getProgramDir() + "/" + configuration.getInputProgram().getClassesDir() + PATH_SEPARATOR +
                 configuration.getInputProgram().getProgramDir() + "/" + configuration.getInputProgram().getTestClassesDir();
         boolean statusCompilation = TestCompiler.writeAndCompile(this.compiler, testClass,
                 true, dependencies);

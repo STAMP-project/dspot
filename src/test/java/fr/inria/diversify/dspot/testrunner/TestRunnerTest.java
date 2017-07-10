@@ -49,7 +49,8 @@ public class TestRunnerTest {
          */
 
         CtClass testClass = Utils.findClass("fr.inria.testrunner.TestClassWithVisibility");
-        String classpath = Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getClassesDir() + ":" +
+        String classpath = Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getClassesDir()
+                + System.getProperty("path.separator") +
                 Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getTestClassesDir();
         boolean status = TestCompiler.writeAndCompile(Utils.getCompiler(), testClass, false, classpath);
         if (!status) {

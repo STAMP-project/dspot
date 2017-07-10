@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static fr.inria.diversify.compare.ObjectLog.FILENAME_OF_OBSERVATIONS;
+import static fr.inria.diversify.dspot.AmplificationHelper.PATH_SEPARATOR;
 import static fr.inria.diversify.dspot.assertGenerator.AssertGeneratorHelper.takeAllStatementToAssert;
 
 /**
@@ -255,7 +256,7 @@ public class MethodsAssertGenerator {
 
     private JunitResult runTests(CtType testClass, List<CtMethod<?>> testsToRun, boolean withLog) {
         final InputProgram inputProgram = this.configuration.getInputProgram();
-        final String dependencies = inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + ":" +
+        final String dependencies = inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + PATH_SEPARATOR +
                 inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir();
         final List<CtMethod<?>> uncompilableMethods = TestCompiler.compile(this.compiler, testClass,
                 withLog, dependencies);

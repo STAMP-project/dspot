@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static fr.inria.diversify.dspot.AmplificationHelper.PATH_SEPARATOR;
+
 /**
  * User: Simon
  * Date: 03/12/15
@@ -43,12 +45,12 @@ public class Amplification {
     }
 
     public CtType amplification(CtType<?> classTest, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
-        return amplification(classTest, AmplificationHelper.getAllTest(this.configuration.getInputProgram(), classTest), maxIteration);
+        return amplification(classTest, AmplificationHelper.getAllTest(classTest), maxIteration);
     }
 
     public CtType amplification(CtType<?> classTest, List<CtMethod<?>> methods, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
         List<CtMethod<?>> tests = methods.stream()
-                .filter(mth -> AmplificationChecker.isTest(mth, this.configuration.getInputProgram().getRelativeTestSourceCodeDir()))
+                .filter(AmplificationChecker::isTest)
                 .collect(Collectors.toList());
         if (tests.isEmpty()) {
             return null;
@@ -125,7 +127,7 @@ public class Amplification {
 
     private List<CtMethod<?>> preAmplification(CtType classTest, List<CtMethod<?>> methods) throws IOException, ClassNotFoundException {
         List<CtMethod<?>> tests = methods.stream()
-                .filter(ctMethod -> AmplificationChecker.isTest(ctMethod, configuration.getInputProgram().getRelativeTestSourceCodeDir()))
+                .filter(AmplificationChecker::isTest)
                 .collect(Collectors.toList());
         if (tests.isEmpty()) {
             return Collections.emptyList();
@@ -195,7 +197,8 @@ public class Amplification {
     private JunitResult compileAndRunTests(CtType classTest, List<CtMethod<?>> currentTestList) {
         CtType amplifiedTestClass = this.testSelector.buildClassForSelection(classTest, currentTestList);
         boolean status = TestCompiler.writeAndCompile(this.compiler, amplifiedTestClass, false,
-                this.configuration.getInputProgram().getProgramDir() + this.configuration.getInputProgram().getClassesDir() + "/:" +
+                this.configuration.getInputProgram().getProgramDir() + this.configuration.getInputProgram().getClassesDir() + "/" +
+                        PATH_SEPARATOR +
                         this.configuration.getInputProgram().getProgramDir() + this.configuration.getInputProgram().getTestClassesDir() + "/");
         if (!status) {
             Log.debug("Unable to compile {}", amplifiedTestClass.getSimpleName());

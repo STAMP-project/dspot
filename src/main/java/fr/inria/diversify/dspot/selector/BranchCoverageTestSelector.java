@@ -211,7 +211,7 @@ public class BranchCoverageTestSelector implements TestSelector {
 
     @Override
     public CtType buildClassForSelection(CtType original, List<CtMethod<?>> methods) {
-        ClassWithLoggerBuilder builder = new ClassWithLoggerBuilder(original.getFactory(), this.absoluteTestSourceCodeDir);
+        ClassWithLoggerBuilder builder = new ClassWithLoggerBuilder(original.getFactory());
         return builder.buildClassWithLogger(original, methods);
     }
 

@@ -90,7 +90,7 @@ public class DSpot {
         InitUtils.initLogLevel(inputConfiguration);
         inputProgram = InitUtils.initInputProgram(inputConfiguration);
         inputConfiguration.setInputProgram(inputProgram);
-        final String[] splittedPath = inputProgram.getProgramDir().split(System.getProperty("file.separator"));
+        final String[] splittedPath = inputProgram.getProgramDir().split("/");
 
         File tmpDir = new File(inputConfiguration.getProperty("tmpDir"));
         if (!tmpDir.exists()) {
@@ -152,8 +152,9 @@ public class DSpot {
     }
 
     private void copyResourcesOfTargetProjectIntoDspot(String key) {
-        if (inputConfiguration.getProperty(key) != null) {
-            final String[] pathFiles = inputConfiguration.getProperty(key).split(System.getProperty("path.separator"));
+        final String resources = inputConfiguration.getProperty(key);
+        if (resources != null) {
+            String[] pathFiles = resources.split(System.getProperty("path.separator"));
             Arrays.stream(pathFiles).forEach(this::copyResourceOfTargetProjectIntoDspot);
         }
     }
@@ -189,8 +190,7 @@ public class DSpot {
                 .filter(ctClass -> !ctClass.getModifiers().contains(ModifierKind.ABSTRACT))
                 .filter(ctClass ->
                         ctClass.getMethods().stream()
-                                .anyMatch(method ->
-                                        AmplificationChecker.isTest(method, inputProgram.getRelativeTestSourceCodeDir())))
+                                .anyMatch(AmplificationChecker::isTest))
                 .map(this::amplifyTest)
                 .collect(Collectors.toList());
         writeTimeJson();
