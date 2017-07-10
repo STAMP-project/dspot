@@ -117,7 +117,7 @@ public class DSpot {
             DescartesInjector.injectDescartesIntoPom(inputProgram.getProgramDir() + "/pom.xml");
         }
 
-        this.builder = new MavenAutomaticBuilder(inputConfiguration);
+        this.builder = new MavenAutomaticBuilder(inputConfiguration);//TODO
         String dependencies = this.builder.buildClasspath(this.inputProgram.getProgramDir());
         File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
         boolean status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir()
@@ -127,8 +127,6 @@ public class DSpot {
         if (!status) {
             throw new RuntimeException("Error during compilation");
         }
-//        this.builder.compile(this.inputProgram.getProgramDir());
-
         //We need to use separate factory here, because the BranchProcessor will process test also
         //TODO this is used only with the BranchCoverageSelector
         if (testSelector instanceof BranchCoverageTestSelector) {
@@ -238,7 +236,6 @@ public class DSpot {
             DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory);
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
             FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
-            this.builder.compile(this.inputProgram.getProgramDir());
             writeTimeJson();
             return amplification;
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
@@ -270,7 +267,6 @@ public class DSpot {
             DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory);
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
             FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
-            this.builder.compile(this.inputProgram.getProgramDir());
             writeTimeJson();
             return amplification;
         } catch (IOException | InterruptedException | ClassNotFoundException e) {

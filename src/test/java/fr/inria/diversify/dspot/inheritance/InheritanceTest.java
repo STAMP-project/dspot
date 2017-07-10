@@ -28,4 +28,5 @@ public class InheritanceTest extends AbstractTest {
         CtType ctType = dspot.amplifyTest(classInherit);
         assertEquals(2, ctType.getMethods().size());
     }
+
 }

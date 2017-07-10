@@ -2,12 +2,14 @@ package fr.inria.diversify.dspot.testrunner;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import fr.inria.diversify.Utils;
+import fr.inria.diversify.dspot.AbstractTest;
 import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.MavenAbstractTest;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.testRunner.JunitRunnerMock;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.notification.Failure;
 import spoon.reflect.declaration.CtClass;
@@ -22,7 +24,7 @@ import static org.junit.Assert.*;
  * benjamin.danglot@inria.fr
  * on 21/04/17
  */
-public class MockitoRunnerTest extends MavenAbstractTest {
+public class MockitoRunnerTest {
 
     @Test
     public void testRunMockito() throws Exception {
@@ -53,8 +55,8 @@ public class MockitoRunnerTest extends MavenAbstractTest {
         assertTrue(failure.getException() instanceof AssertionError);
     }
 
-    @Override
-    public String getPathToPropertiesFile() {
-        return "src/test/resources/mockito/mockito.properties";
+    @Before
+    public void setUp() throws Exception {
+        Utils.init("src/test/resources/mockito/mockito.properties");
     }
 }

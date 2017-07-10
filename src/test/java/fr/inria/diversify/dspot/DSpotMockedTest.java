@@ -33,6 +33,7 @@ public class DSpotMockedTest extends MavenAbstractTest {
         InputProgram program = new InputProgram();
         configuration.setInputProgram(program);
         DSpot dspot = new DSpot(configuration, 1);
+        addMavenHomeToPropertiesFile();
         try {
             FileUtils.cleanDirectory(new File(configuration.getOutputDirectory()));
         } catch (Exception ignored) {
@@ -43,6 +44,7 @@ public class DSpotMockedTest extends MavenAbstractTest {
         assertEquals(8, amplifiedTest.getMethods().size());
         final CtMethod<?> testAddBook_cf11_failAssert4 = amplifiedTest.getMethodsByName("testAddBook_cf11_failAssert4").get(0);
         assertEquals(expectedBody, testAddBook_cf11_failAssert4.getBody().toString());
+        removeHomFromPropertiesFile();
     }
 
     private static final String nl = System.getProperty("line.separator");

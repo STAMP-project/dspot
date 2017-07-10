@@ -65,8 +65,8 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
         File directory = new File(dspot.getInputProgram().getProgramDir() + "/" + dspot.getInputProgram().getRelativeTestSourceCodeDir());
         PrintClassUtils.printJavaFile(directory, amplifiedTest);
 
-        AutomaticBuilder builder = new MavenAutomaticBuilder(Utils.getInputConfiguration());
-        List<PitResult> pitResultsAmplified = builder.runPit(Utils.getInputProgram().getProgramDir(),
+        AutomaticBuilder builder = new MavenAutomaticBuilder(configuration);
+        List<PitResult> pitResultsAmplified = builder.runPit(configuration.getInputProgram().getProgramDir(),
                 amplifiedTest);
 
         assertTrue(null != pitResultsAmplified);

@@ -8,7 +8,7 @@ import org.junit.Before;
  * benjamin.danglot@inria.fr
  * on 1/31/17
  */
-public class AbstractTest {
+public abstract class AbstractTest {
 
     public static final String nl = System.getProperty("line.separator");
 

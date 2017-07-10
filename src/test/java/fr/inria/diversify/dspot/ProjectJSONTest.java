@@ -72,5 +72,4 @@ public class ProjectJSONTest extends AbstractTest {
                     "  \"projectName\": \"sample\"" + nl +
                     "}"
     };
-
 }
