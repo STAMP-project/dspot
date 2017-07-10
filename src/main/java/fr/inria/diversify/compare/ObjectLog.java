@@ -6,7 +6,7 @@ import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import fr.inria.diversify.dspot.TypeUtils;
+import fr.inria.diversify.utils.TypeUtils;
 
 /**
  * User: Simon

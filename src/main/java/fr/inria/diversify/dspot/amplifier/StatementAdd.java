@@ -1,11 +1,11 @@
 package fr.inria.diversify.dspot.amplifier;
 
 
-import fr.inria.diversify.dspot.AmplificationHelper;
+import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.value.Value;
 import fr.inria.diversify.dspot.value.ValueFactory;
 import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.utils.CtTypeUtils;
+import fr.inria.diversify.utils.TypeUtils;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
@@ -72,7 +72,7 @@ public class StatementAdd implements Amplifier {
         // use the potential parameters to generate new invocation
 
         invocations.stream()
-                .filter(invocation -> !CtTypeUtils.isPrimitive(invocation.getType()) || !CtTypeUtils.isString(invocation.getType()))
+                .filter(invocation -> !TypeUtils.isPrimitive(invocation.getType()) || !TypeUtils.isString(invocation.getType()))
                 .forEach(invocation -> {
                     List<CtMethod> methodsWithTargetType = findMethodsWithTargetType(invocation.getType());
                     if (!methodsWithTargetType.isEmpty()) {
@@ -203,11 +203,11 @@ public class StatementAdd implements Amplifier {
                     List<CtParameter> parameters = mth.getParameters();
                     return parameters.stream()
                             .map(param -> param.getType())
-                            .allMatch(param -> CtTypeUtils.isPrimitive(param)
-                                    || CtTypeUtils.isString(param)
-                                    || CtTypeUtils.isPrimitiveArray(param)
-                                    || CtTypeUtils.isPrimitiveCollection(param)
-                                    || CtTypeUtils.isPrimitiveMap(param)
+                            .allMatch(param -> TypeUtils.isPrimitive(param)
+                                    || TypeUtils.isString(param)
+                                    || TypeUtils.isPrimitiveArray(param)
+                                    || TypeUtils.isPrimitiveCollection(param)
+                                    || TypeUtils.isPrimitiveMap(param)
                                     || isSerializable(param));
                 })
                 .collect(Collectors.toSet());

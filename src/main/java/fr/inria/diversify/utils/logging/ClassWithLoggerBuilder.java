@@ -1,8 +1,6 @@
 package fr.inria.diversify.utils.logging;
 
 import fr.inria.diversify.processor.test.TestLogProcessor;
-import fr.inria.diversify.dspot.assertGenerator.AssertionRemover;
-import fr.inria.diversify.runner.InputProgram;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;

@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot.support;
+package fr.inria.diversify.dspot.support.json;
 
 import java.util.ArrayList;
 import java.util.List;

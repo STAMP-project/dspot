@@ -1,8 +1,7 @@
-package fr.inria.diversify.dspot;
+package fr.inria.diversify.utils;
 
 import fr.inria.diversify.util.Log;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtAnnotation;
@@ -14,7 +13,6 @@ import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**

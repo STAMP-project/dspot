@@ -1,7 +1,7 @@
 package fr.inria.diversify.dspot.value;
 
-import fr.inria.diversify.dspot.AmplificationChecker;
-import fr.inria.diversify.dspot.AmplificationHelper;
+import fr.inria.diversify.utils.AmplificationChecker;
+import fr.inria.diversify.utils.AmplificationHelper;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
@@ -11,8 +11,6 @@ import spoon.reflect.reference.CtTypeReference;
 
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static fr.inria.diversify.dspot.value.ValueType.factory;
 
 /**
  * User: Simon

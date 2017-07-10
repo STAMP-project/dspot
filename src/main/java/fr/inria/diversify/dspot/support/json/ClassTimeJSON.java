@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot.support;
+package fr.inria.diversify.dspot.support.json;
 
 /**
  * Created by Benjamin DANGLOT

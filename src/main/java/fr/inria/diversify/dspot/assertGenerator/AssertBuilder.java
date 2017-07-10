@@ -1,6 +1,6 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
-import fr.inria.diversify.dspot.TypeUtils;
+import fr.inria.diversify.utils.TypeUtils;
 import spoon.reflect.code.*;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;

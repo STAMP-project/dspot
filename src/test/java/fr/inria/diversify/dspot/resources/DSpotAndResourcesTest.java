@@ -4,8 +4,8 @@ import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.testRunner.JunitResult;
-import fr.inria.diversify.testRunner.TestRunner;
+import fr.inria.stamp.test.launcher.TestLauncher;
+import fr.inria.stamp.test.listener.TestListener;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 
@@ -22,33 +22,31 @@ import static org.junit.Assert.assertTrue;
  */
 public class DSpotAndResourcesTest {
 
-    @Test
-    public void test() throws Exception, InvalidSdkException {
-        final InputConfiguration inputConfiguration = new InputConfiguration("src/test/resources/sample/sample.properties");
-        final DSpot dSpot = new DSpot(inputConfiguration);
-        InputProgram program = dSpot.getInputProgram();
-        final CtClass<?> classUsingResources = program.getFactory().Class().get("fr.inria.testresources.TestResources");
-        final String classpath = program.getProgramDir() + program.getClassesDir() + "/" +
-                System.getProperty("path.separator") +
-                program.getProgramDir() + program.getTestClassesDir() + "/";
-        final JunitResult result = TestRunner.runTests(classUsingResources,
-                classUsingResources.getMethodsByName("testResources"),
-                classpath,
-                inputConfiguration);
+	@Test
+	public void test() throws Exception, InvalidSdkException {
+		final InputConfiguration inputConfiguration = new InputConfiguration("src/test/resources/sample/sample.properties");
+		final DSpot dSpot = new DSpot(inputConfiguration);
+		InputProgram program = dSpot.getInputProgram();
+		final CtClass<?> classUsingResources = program.getFactory().Class().get("fr.inria.testresources.TestResources");
+		final String classpath = program.getProgramDir() + program.getClassesDir() + "/:" +
+				program.getProgramDir() + program.getTestClassesDir() + "/";
+		final TestListener result = TestLauncher.runFromSpoonNodes(
+				inputConfiguration,
+				classpath,
+				classUsingResources, classUsingResources.getMethodsByName("testResources"));
 
-        assertTrue(new File("src/test/resources/aResource").exists());
-        assertTrue(new File("./src/test/resources/aResource").exists());
-        assertTrue(new File("src/test/resources/aResourcesDirectory/anotherResource").exists());
-        assertTrue(new File("./src/test/resources/aResourcesDirectory/anotherResource").exists());
-        assertTrue(result.getFailures().isEmpty());
-        assertEquals(1, result.getTestsRun().size());
-        assertEquals("testResources", result.getTestsRun().get(0));
+		assertTrue(new File("src/test/resources/aResource").exists());
+		assertTrue(new File("./src/test/resources/aResource").exists());
+		assertTrue(new File("src/test/resources/aResourcesDirectory/anotherResource").exists());
+		assertTrue(new File("./src/test/resources/aResourcesDirectory/anotherResource").exists());
+		assertTrue(result.getFailingTests().isEmpty());
+		assertEquals(1, result.getRunningTests().size());
+		assertEquals("testResources", result.getRunningTests().get(0).getMethodName());
 
-        dSpot.cleanResources();
+		dSpot.cleanResources();
 
-        assertFalse(new File("src/test/resources/aResourcesDirectory/anotherResource").exists());
-        assertFalse(new File("./src/test/resources/aResourcesDirectory/anotherResource").exists());
-    }
-
+		assertFalse(new File("src/test/resources/aResourcesDirectory/anotherResource").exists());
+		assertFalse(new File("./src/test/resources/aResourcesDirectory/anotherResource").exists());
+	}
 
 }

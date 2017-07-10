@@ -2,8 +2,8 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.dspot.amplifier.Amplifier;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
+import fr.inria.diversify.dspot.support.TestCompiler;
 import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.testRunner.TestCompiler;
 import fr.inria.diversify.util.FileUtils;
 import org.junit.Test;
 import spoon.reflect.code.CtCodeSnippetStatement;

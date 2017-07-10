@@ -2,14 +2,12 @@ package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.codeFragment.InputContext;
 import fr.inria.diversify.codeFragment.Statement;
-import fr.inria.diversify.dspot.Amplification;
-import fr.inria.diversify.dspot.AmplificationChecker;
-import fr.inria.diversify.dspot.AmplificationHelper;
-import fr.inria.diversify.dspot.DSpotUtils;
+import fr.inria.diversify.utils.AmplificationChecker;
+import fr.inria.diversify.utils.AmplificationHelper;
+import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.value.ValueCreator;
 import fr.inria.diversify.dspot.value.VarCartesianProduct;
-import org.kevoree.log.Log;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;

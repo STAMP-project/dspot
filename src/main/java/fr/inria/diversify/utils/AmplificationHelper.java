@@ -1,9 +1,8 @@
-package fr.inria.diversify.dspot;
+package fr.inria.diversify.utils;
 
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.Log;
-import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Description;
 import spoon.reflect.code.CtComment;

@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot;
+package fr.inria.diversify.dspot.support;
 
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
