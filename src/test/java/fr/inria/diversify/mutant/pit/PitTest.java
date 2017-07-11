@@ -40,7 +40,6 @@ public class PitTest extends MavenAbstractTest {
 
         List<PitResult> pitResults = builder.runPit(Utils.getInputProgram().getProgramDir(), testClass);
 
-        System.out.println(pitResults);
         assertTrue(null != pitResults);
 
         assertEquals(8, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
