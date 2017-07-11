@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class InheritanceTest extends AbstractTest {
 
+    //TODO
     @Test
     public void testInheritanceMethod() throws Exception, InvalidSdkException {
         CtClass<?> classInherit = Utils.getFactory().Class().get("fr.inria.inheritance.Inherited");

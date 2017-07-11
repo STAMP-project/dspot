@@ -9,12 +9,12 @@ import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
-import fr.inria.stamp.test.launcher.TestLauncher;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.declaration.ModifierKind;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -213,9 +213,15 @@ public class Amplification {
 				currentTestList,
 				this.configuration
 		);
+		final long numberOfSubClasses = classTest.getFactory().Class().getAll().stream()
+				.filter(subClass -> classTest.getReference().equals(subClass.getSuperclass()))
+				.count();
 		if (result == null ||
 				!result.getFailingTests().isEmpty() ||
-				result.getRunningTests().size() != currentTestList.size()) {
+				(!classTest.getModifiers().contains(ModifierKind.ABSTRACT) &&
+						result.getRunningTests().size() != currentTestList.size()) ||
+				(classTest.getModifiers().contains(ModifierKind.ABSTRACT) &&
+						numberOfSubClasses != result.getRunningTests().size())) {
 			return null;
 		} else {
 			Log.debug("update test testCriterion");
