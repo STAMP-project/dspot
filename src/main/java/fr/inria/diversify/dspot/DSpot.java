@@ -2,6 +2,8 @@ package fr.inria.diversify.dspot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
+import fr.inria.diversify.automaticbuilder.MavenAutomaticBuilder;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
@@ -12,7 +14,7 @@ import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.dspot.support.ProjectTimeJSON;
 import fr.inria.diversify.mutant.descartes.DescartesChecker;
 import fr.inria.diversify.mutant.descartes.DescartesInjector;
-import fr.inria.diversify.mutant.pit.PitRunner;
+import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
@@ -37,6 +39,7 @@ import java.util.stream.Collectors;
  */
 public class DSpot {
 
+    private final AutomaticBuilder builder;
     private List<Amplifier> amplifiers;
     private int numberOfIterations;
     private TestSelector testSelector;
@@ -109,38 +112,42 @@ public class DSpot {
                 (inputConfiguration.getProperty("targetModule") == null ? "" : inputConfiguration.getProperty("targetModule"));
         inputProgram.setProgramDir(outputDirectory);
 
-        if (PitRunner.descartesMode &&
+        if (MavenPitCommandAndOptions.descartesMode &&
                 DescartesChecker.shouldInjectDescartes(inputProgram.getProgramDir() + "/pom.xml")) {
             DescartesInjector.injectDescartesIntoPom(inputProgram.getProgramDir() + "/pom.xml");
         }
 
-        String mavenLocalRepository = inputConfiguration.getProperty("maven.localRepository", null);
-        DSpotUtils.compileOriginalProject(this.inputProgram, inputConfiguration, mavenLocalRepository);
-        String dependencies = AmplificationHelper.getDependenciesOf(this.inputConfiguration, inputProgram);
-
+        this.builder = new MavenAutomaticBuilder(inputConfiguration);//TODO
+        String dependencies = this.builder.buildClasspath(this.inputProgram.getProgramDir());
+        File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
+        boolean status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir()
+                + System.getProperty("path.separator") + inputProgram.getAbsoluteTestSourceCodeDir(),
+                dependencies,
+                output);
+        if (!status) {
+            throw new RuntimeException("Error during compilation");
+        }
         //We need to use separate factory here, because the BranchProcessor will process test also
         //TODO this is used only with the BranchCoverageSelector
         if (testSelector instanceof BranchCoverageTestSelector) {
             Launcher spoonModel = DSpotCompiler.getSpoonModelOf(inputProgram.getAbsoluteSourceCodeDir(), dependencies);
             DSpotUtils.addBranchLogger(inputProgram, spoonModel.getFactory());
             DSpotUtils.copyLoggerPackage(inputProgram);
-            File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
             FileUtils.cleanDirectory(output);
-            boolean status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
+            status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir()
+                    + System.getProperty("path.separator") + inputProgram.getAbsoluteTestSourceCodeDir(),
+                    dependencies, output);
             if (!status) {
                 throw new RuntimeException("Error during compilation");
             }
         }
 
         this.compiler = new DSpotCompiler(inputProgram, dependencies);
-
         this.inputProgram.setFactory(compiler.getLauncher().getFactory());
-
         this.amplifiers = new ArrayList<>(amplifiers);
         this.numberOfIterations = numberOfIterations;
         this.testSelector = testSelector;
         this.testSelector.init(this.inputConfiguration);
-
         final File projectJsonFile = new File(this.inputConfiguration.getOutputDirectory() +
                 "/" + splittedPath[splittedPath.length - 1] + ".json");
         if (projectJsonFile.exists()) {
@@ -229,7 +236,6 @@ public class DSpot {
             DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory);
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
             FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
-            DSpotUtils.compileOriginalProject(this.inputProgram, inputConfiguration, inputConfiguration.getProperty("maven.localRepository", null));
             writeTimeJson();
             return amplification;
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
@@ -261,7 +267,6 @@ public class DSpot {
             DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory);
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
             FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
-            DSpotUtils.compileOriginalProject(this.inputProgram, inputConfiguration, inputConfiguration.getProperty("maven.localRepository", null));
             writeTimeJson();
             return amplification;
         } catch (IOException | InterruptedException | ClassNotFoundException e) {

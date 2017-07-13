@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.selector.json.TestClassJSON;
 import fr.inria.diversify.dspot.support.ProjectTimeJSON;
@@ -12,6 +13,7 @@ import org.junit.Test;
 import spoon.reflect.declaration.CtType;
 
 import java.io.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -39,6 +41,9 @@ public class DSpotTest extends MavenAbstractTest {
 
         }
         DSpot dspot = new DSpot(configuration);
+
+        addMavenHomeToPropertiesFile();
+
         assertFalse(new File(configuration.getOutputDirectory() + "/test-projects.json").exists());
 
         CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample");
@@ -55,6 +60,8 @@ public class DSpotTest extends MavenAbstractTest {
         assertEquals(1, projectTimeJSON.classTimes.size());
         assertEquals("example.TestSuiteExample", projectTimeJSON.classTimes.get(0).fullQualifiedName);
         // do not test the time...
+
+        removeHomFromPropertiesFile();
     }
 
     private final String expectedAmplifiedBody = "{" + nl +

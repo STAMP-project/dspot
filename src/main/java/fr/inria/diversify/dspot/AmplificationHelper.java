@@ -1,8 +1,6 @@
 package fr.inria.diversify.dspot;
 
-import fr.inria.diversify.buildSystem.maven.MavenBuilder;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.testRunner.JunitResult;
 import fr.inria.diversify.util.Log;
@@ -18,9 +16,6 @@ import spoon.reflect.visitor.ImportScannerImpl;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -208,24 +203,6 @@ public class AmplificationHelper {
                 .filter(AmplificationChecker::isTest)
                 .distinct()
                 .collect(Collectors.toList());
-    }
-
-    public static String getDependenciesOf(InputConfiguration inputConfiguration, InputProgram program) {
-        String mavenHome = DSpotUtils.buildMavenHome(inputConfiguration);
-        try {
-            MavenBuilder builder = new MavenBuilder(program.getProgramDir());
-            builder.setBuilderPath(mavenHome);
-            String NAME_FILE_CLASSPATH = "cp";
-            String[] phases = new String[]{"dependency:build-classpath", "-Dmdep.outputFile=" + NAME_FILE_CLASSPATH};
-            builder.runGoals(phases, false);
-            String FILE_SEPARATOR = "/";
-            final File fileClasspath = new File(program.getProgramDir() + FILE_SEPARATOR + NAME_FILE_CLASSPATH);
-            try (BufferedReader buffer = new BufferedReader(new FileReader(fileClasspath))) {
-                return buffer.lines().collect(Collectors.joining());
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public static String getClassPath(DSpotCompiler compiler, InputProgram inputProgram) {

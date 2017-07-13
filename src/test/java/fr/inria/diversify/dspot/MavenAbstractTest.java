@@ -23,22 +23,10 @@ public abstract class MavenAbstractTest {
 
     private static String originalProperties;
 
-
     public abstract String getPathToPropertiesFile();
 
-    @Before
-    public void setUp() throws Exception {
-        addMavenHomeToPropertiesFile();
-        Utils.init(getPathToPropertiesFile());
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        removeHomFromPropertiesFile();
-    }
-
     // hack to add maven.home to the properties automatically for travis. For local, the test will clean
-    private void addMavenHomeToPropertiesFile() {
+    protected void addMavenHomeToPropertiesFile() {
         try (BufferedReader buffer = new BufferedReader(new FileReader(getPathToPropertiesFile()))) {
             originalProperties = buffer.lines().collect(Collectors.joining(nl));
         } catch (IOException e) {
@@ -54,7 +42,7 @@ public abstract class MavenAbstractTest {
         }
     }
 
-    private void removeHomFromPropertiesFile() {
+    protected void removeHomFromPropertiesFile() {
         try(FileWriter writer = new FileWriter(pathToPropertiesFile, false)) {
             writer.write(originalProperties);
         } catch (IOException e) {

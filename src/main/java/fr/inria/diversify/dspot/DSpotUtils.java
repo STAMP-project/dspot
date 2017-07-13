@@ -1,6 +1,5 @@
 package fr.inria.diversify.dspot;
 
-import fr.inria.diversify.buildSystem.maven.MavenBuilder;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.processor.ProcessorUtil;
 import fr.inria.diversify.processor.main.AddBlockEverywhereProcessor;
@@ -30,16 +29,6 @@ import java.io.IOException;
  * Time: 16:10
  */
 public class DSpotUtils {
-
-    public static void compileOriginalProject(InputProgram inputProgram, InputConfiguration inputConfiguration, String mavenLocalRepository) throws InterruptedException, IOException {
-        MavenBuilder builder = new MavenBuilder(inputProgram.getProgramDir());
-        builder.setBuilderPath(buildMavenHome(inputConfiguration));
-        if (mavenLocalRepository != null) {
-            builder.setSetting(new File(mavenLocalRepository));
-        }
-        builder.setGoals(new String[]{"clean", "test", "-DskipTests"});
-        builder.initTimeOut();
-    }
 
     public static void addBranchLogger(InputProgram inputProgram, Factory factory) {
         try {
