@@ -21,7 +21,6 @@ import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.utils.AmplificationChecker;
-import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtMethod;

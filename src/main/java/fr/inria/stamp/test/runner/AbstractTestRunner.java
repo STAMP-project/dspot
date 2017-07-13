@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 
 /**
@@ -44,7 +45,22 @@ public abstract class AbstractTestRunner implements TestRunner {
     }
 
     @Override
+    public TestListener run(String fullQualifiedName, Collection<String> testMethodNames) {
+        return this.run(this.loadClass(fullQualifiedName), testMethodNames);
+    }
+
+    @Override
+    public TestListener run(Class<?> testClass, String testMethodName) {
+        return this.run(testClass, Collections.singleton(testMethodName));
+    }
+
+    @Override
     public TestListener run(String fullQualifiedName, String testMethodName) {
-        return this.run(fullQualifiedName, Collections.singletonList(testMethodName));
+        return this.run(this.loadClass(fullQualifiedName), Collections.singleton(testMethodName));
+    }
+
+    @Override
+    public TestListener run(String fullQualifiedName) {
+        return this.run(this.loadClass(fullQualifiedName));
     }
 }

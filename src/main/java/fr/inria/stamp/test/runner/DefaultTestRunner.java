@@ -26,11 +26,11 @@ public class DefaultTestRunner extends AbstractTestRunner {
 	}
 
 	@Override
-	public TestListener run(String fullQualifiedName, Collection<String> testMethodNames) {
+	public TestListener run(Class<?> classTest, Collection<String> testMethodNames) {
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		final TestListener listener = new TestListener();
 		final Future<?> submit = executor.submit(() -> {
-			Request request = Request.aClass(this.loadClass(fullQualifiedName));
+			Request request = Request.aClass(classTest);
 			request = request.filterWith(new MethodFilter(testMethodNames));
 			Runner runner = request.getRunner();
 			RunNotifier runNotifier = new RunNotifier();
@@ -51,9 +51,9 @@ public class DefaultTestRunner extends AbstractTestRunner {
 	}
 
 	@Override
-	public TestListener run(String fullQualifiedName) {
+	public TestListener run(Class<?> classTest) {
 		TestListener listener = new TestListener();
-		Request request = Request.classes(this.loadClass(fullQualifiedName));
+		Request request = Request.classes(classTest);
 		Runner runner = request.getRunner();
 		RunNotifier runNotifier = new RunNotifier();
 		runNotifier.addFirstListener(listener);

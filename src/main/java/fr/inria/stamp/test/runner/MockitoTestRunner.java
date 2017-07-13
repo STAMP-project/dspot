@@ -32,12 +32,12 @@ public class MockitoTestRunner extends AbstractTestRunner {
 	}
 
 	@Override
-	public TestListener run(String fullQualifiedName, Collection<String> testMethodNames) {
+	public TestListener run(Class<?> testClass, Collection<String> testMethodNames) {
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		final TestListener listener = new TestListener();
 		final Future<?> submit = executor.submit(() -> {
 			try {
-				MockitoJUnitRunner runner = new MockitoJUnitRunner(this.loadClass(fullQualifiedName));
+				MockitoJUnitRunner runner = new MockitoJUnitRunner(testClass);
 				runner.filter(new MethodFilter(testMethodNames));
 				RunNotifier runNotifier = new RunNotifier();
 				runNotifier.addFirstListener(listener);
@@ -60,10 +60,10 @@ public class MockitoTestRunner extends AbstractTestRunner {
 	}
 
 	@Override
-	public TestListener run(String fullQualifiedName) {
+	public TestListener run(Class<?> testClass) {
 		try {
 			TestListener listener = new TestListener();
-			MockitoJUnitRunner runner = new MockitoJUnitRunner(this.loadClass(fullQualifiedName));
+			MockitoJUnitRunner runner = new MockitoJUnitRunner(testClass);
 			RunNotifier runNotifier = new RunNotifier();
 			runNotifier.addFirstListener(listener);
 			runner.run(runNotifier);
