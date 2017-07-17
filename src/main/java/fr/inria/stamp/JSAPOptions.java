@@ -84,6 +84,7 @@ public class JSAPOptions {
                 Arrays.asList(jsapConfig.getStringArray("testClasses")),
                 jsapConfig.getLong("seed"),
                 jsapConfig.getInt("timeOut"),
+                jsapConfig.getString("builder"),
                 jsapConfig.getString("mavenHome"));
     }
 
@@ -207,6 +208,14 @@ public class JSAPOptions {
         timeOut.setHelp("specify the timeout value of the degenerated tests in millisecond");
         timeOut.setDefault("10000");
 
+        FlaggedOption automaticBuilder = new FlaggedOption("builder");
+        automaticBuilder.setStringParser(JSAP.STRING_PARSER);
+        automaticBuilder.setLongFlag("automatic-builder");
+        automaticBuilder.setShortFlag('b');
+        automaticBuilder.setUsageName("MavenBuilder | GradleBuilder");
+        automaticBuilder.setHelp("[optional] specify the automatic builder to build the project");
+        automaticBuilder.setDefault("MavenBuilder");
+
         FlaggedOption mavenHome = new FlaggedOption("mavenHome");
         mavenHome.setStringParser(JSAP.STRING_PARSER);
         mavenHome.setLongFlag("maven-home");
@@ -233,6 +242,7 @@ public class JSAPOptions {
             jsap.registerParameter(testCases);
             jsap.registerParameter(output);
             jsap.registerParameter(mutantScore);
+            jsap.registerParameter(automaticBuilder);
             jsap.registerParameter(mavenHome);
             jsap.registerParameter(seed);
             jsap.registerParameter(timeOut);

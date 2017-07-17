@@ -27,6 +27,7 @@ public class Main {
         AmplificationHelper.setSeedRandom(23L);
         InputProgram program = new InputProgram();
         inputConfiguration.setInputProgram(program);
+        inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
         if (configuration.mavenHome != null) {
             inputConfiguration.getProperties().put("maven.home", configuration.mavenHome);
         }

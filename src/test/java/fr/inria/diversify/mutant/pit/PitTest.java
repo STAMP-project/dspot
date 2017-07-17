@@ -8,7 +8,6 @@ import fr.inria.diversify.dspot.*;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 
-import javax.rmi.CORBA.Util;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -36,7 +35,7 @@ public class PitTest extends MavenAbstractTest {
 
         Utils.init(this.getPathToPropertiesFile());
         CtClass<Object> testClass = Utils.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
-        AutomaticBuilder builder = new MavenAutomaticBuilder(Utils.getInputConfiguration());
+        AutomaticBuilder builder = new MavenAutomaticBuilder(Utils.getInputConfiguration()); //TODO should we use the builder factory?
 
         List<PitResult> pitResults = builder.runPit(Utils.getInputProgram().getProgramDir(), testClass);
 
