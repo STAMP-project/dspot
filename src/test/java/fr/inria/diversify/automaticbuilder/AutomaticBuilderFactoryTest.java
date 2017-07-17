@@ -63,20 +63,20 @@ public class AutomaticBuilderFactoryTest {
         AutomaticBuilder builder = this.sut.getAutomaticBuilder(inputConfiguration);
 
         assertNotNull(builder);
-        assertTrue(builder.getClass().equals(GradleAutomaticBuilder.class));
+        assertTrue(builder.getClass().equals(MavenAutomaticBuilder.class));
     }
 
     @Test
     public void getAutomaticBuilder_whenUnknown() throws Exception {
 
-        this.configuration = JSAPOptions.parse(getArgsWithUnknownBuilder());
+        this.configuration = JSAPOptions.parse(getArgsWithGradleBuilder());
 
         InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
         inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
 
         assertFalse(inputConfiguration.getProperty("automaticBuilderName") == null);
         assertFalse(inputConfiguration.getProperty("automaticBuilderName").toUpperCase().contains("MAVEN"));
-        assertFalse(inputConfiguration.getProperty("automaticBuilderName").toUpperCase().contains("GRADLE"));
+        assertFalse(!inputConfiguration.getProperty("automaticBuilderName").toUpperCase().contains("GRADLE"));
 
         AutomaticBuilder builder = this.sut.getAutomaticBuilder(inputConfiguration);
 
