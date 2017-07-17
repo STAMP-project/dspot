@@ -16,9 +16,10 @@ public class Configuration {
     public final List<String> namesOfTestCases;
     public final long seed;
     public final int timeOutInMs;
+    public final String automaticBuilderName;
     public final String mavenHome;
 
-    public Configuration(String pathToConfigurationFile, List<Amplifier> amplifiers, int nbIteration, List<String> testClasses, String pathToOutput, TestSelector selector, List<String> namesOfTestCases, long seed, int timeOutInMs, String mavenHome) {
+    public Configuration(String pathToConfigurationFile, List<Amplifier> amplifiers, int nbIteration, List<String> testClasses, String pathToOutput, TestSelector selector, List<String> namesOfTestCases, long seed, int timeOutInMs, String automaticBuilderName, String mavenHome) {
         this.pathToConfigurationFile = pathToConfigurationFile;
         this.amplifiers = amplifiers;
         this.nbIteration = nbIteration;
@@ -28,6 +29,7 @@ public class Configuration {
         this.namesOfTestCases = namesOfTestCases;
         this.seed = seed;
         this.timeOutInMs = timeOutInMs;
+        this.automaticBuilderName = automaticBuilderName;
         this.mavenHome = mavenHome;
     }
 }
