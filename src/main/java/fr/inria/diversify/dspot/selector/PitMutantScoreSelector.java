@@ -3,7 +3,7 @@ package fr.inria.diversify.dspot.selector;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
-import fr.inria.diversify.automaticbuilder.MavenAutomaticBuilder;
+import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.dspot.AmplificationChecker;
 import fr.inria.diversify.dspot.AmplificationHelper;
 import fr.inria.diversify.dspot.selector.json.MutantJSON;
@@ -57,9 +57,11 @@ public class PitMutantScoreSelector implements TestSelector {
 
     @Override
     public void init(InputConfiguration configuration) {
+        AutomaticBuilderFactory builderFactory = new AutomaticBuilderFactory();
+
         this.configuration = configuration;
         this.program = this.configuration.getInputProgram();
-        this.builder = new MavenAutomaticBuilder(this.configuration);// TODO
+        this.builder = builderFactory.getAutomaticBuilder(configuration);
         if (this.originalKilledMutants == null) {
             initOriginalPitResult(this.builder.runPit(this.program.getProgramDir()));
         }

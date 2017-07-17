@@ -3,7 +3,7 @@ package fr.inria.diversify.dspot;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
-import fr.inria.diversify.automaticbuilder.MavenAutomaticBuilder;
+import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
@@ -88,6 +88,7 @@ public class DSpot {
     }
 
     public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws InvalidSdkException, Exception {
+        AutomaticBuilderFactory builderFactory = new AutomaticBuilderFactory();
         this.testResources = new ArrayList<>();
         this.inputConfiguration = inputConfiguration;
         InitUtils.initLogLevel(inputConfiguration);
@@ -117,11 +118,12 @@ public class DSpot {
             DescartesInjector.injectDescartesIntoPom(inputProgram.getProgramDir() + "/pom.xml");
         }
 
-        this.builder = new MavenAutomaticBuilder(inputConfiguration);//TODO
+        this.builder = builderFactory.getAutomaticBuilder(inputConfiguration);
+
         String dependencies = this.builder.buildClasspath(this.inputProgram.getProgramDir());
         File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
         boolean status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir()
-                + System.getProperty("path.separator") + inputProgram.getAbsoluteTestSourceCodeDir(),
+                        + System.getProperty("path.separator") + inputProgram.getAbsoluteTestSourceCodeDir(),
                 dependencies,
                 output);
         if (!status) {
@@ -135,7 +137,7 @@ public class DSpot {
             DSpotUtils.copyLoggerPackage(inputProgram);
             FileUtils.cleanDirectory(output);
             status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir()
-                    + System.getProperty("path.separator") + inputProgram.getAbsoluteTestSourceCodeDir(),
+                            + System.getProperty("path.separator") + inputProgram.getAbsoluteTestSourceCodeDir(),
                     dependencies, output);
             if (!status) {
                 throw new RuntimeException("Error during compilation");
