@@ -17,7 +17,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
-task showClasspath {
+task printClasspath4DSpot {
     doLast {
         println sourceSets.main.runtimeClasspath.asPath
         println sourceSets.test.runtimeClasspath.asPath
