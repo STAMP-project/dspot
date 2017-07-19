@@ -46,7 +46,8 @@ public class GradleAutomaticBuilderTest {
 
     @Test
     public void buildClasspath() throws Exception {
-        sut.buildClasspath("src/test/resources/test-projects/");
+        String classPath = sut.buildClasspath("src/test/resources/test-projects/");
+        assertNotNull(classPath);
     }
 
     @Test
