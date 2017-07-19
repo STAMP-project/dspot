@@ -3,9 +3,7 @@ package fr.inria.diversify.automaticbuilder;
 import fr.inria.diversify.mutant.pit.PitResult;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ProjectConnection;
-import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.Task;
 import spoon.reflect.declaration.CtType;
@@ -29,7 +27,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
 
     @Override
     public String buildClasspath(String pathToRootOfProject) {
-        runTasks(pathToRootOfProject,"showClasspath");
+        runTasks(pathToRootOfProject,"printClasspath4DSpot");
 
         return null;
     }
@@ -54,7 +52,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
             build.setStandardOutput(outputStream);
             build.setStandardError(outputStream);
             build.run();
-            FileOutputStream fos = new FileOutputStream("src/test/resources/test-gradle-projects/cp");
+            FileOutputStream fos = new FileOutputStream("src/test/resources/test-projects/cp");
             fos.write(outputStream.toByteArray());
             fos.close();
         } catch (Exception e) {
@@ -68,7 +66,6 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
         ProjectConnection connection = GradleConnector.newConnector().forProjectDirectory(new File(pathToRootOfProject)).connect();
 
         try {
-            //ModelBuilder<CustomModel> customModelBuilder = connection.model(CustomModel.class);
 
             GradleProject project = connection.getModel(GradleProject.class);
 
@@ -76,14 +73,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
                 System.out.println("    " + task.getName());
             }
 
-            //customModelBuilder.withArguments("--init-script", "init.gradle");
-            //CustomModel model = customModelBuilder.get();
-            //assert model.hasPlugin(JavaPlugin.class);
-
-            //customModelBuilder.
-
             BuildLauncher build = connection.newBuild();
-            //connection.
 
             build.forTasks(tasks);
 
@@ -92,7 +82,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
             build.setStandardOutput(outputStream);
             build.setStandardError(outputStream);
             build.run();
-            FileOutputStream fos = new FileOutputStream("src/test/resources/test-gradle-projects/cp");
+            FileOutputStream fos = new FileOutputStream("src/test/resources/test-projects/cp");
             fos.write(outputStream.toByteArray());
             fos.close();
         } catch (Exception e) {

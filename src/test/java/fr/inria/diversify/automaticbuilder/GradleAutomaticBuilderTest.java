@@ -46,7 +46,7 @@ public class GradleAutomaticBuilderTest {
 
     @Test
     public void buildClasspath() throws Exception {
-        sut.buildClasspath("src/test/resources/test-gradle-projects/");
+        sut.buildClasspath("src/test/resources/test-projects/");
     }
 
     @Test
@@ -59,7 +59,7 @@ public class GradleAutomaticBuilderTest {
 
     private String[] getArgsWithGradleBuilder() throws IOException {
         return new String[]{
-                "--path-to-properties", "src/test/resources/test-gradle-projects/test-projects.properties",
+                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "BranchCoverageTestSelector",
                 "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
                 "--iteration", "1",
