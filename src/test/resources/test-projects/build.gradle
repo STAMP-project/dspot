@@ -19,7 +19,6 @@ dependencies {
 
 task printClasspath4DSpot {
     doLast {
-        println sourceSets.main.runtimeClasspath.asPath
-        println sourceSets.test.runtimeClasspath.asPath
+        configurations.testRuntime.each { println it }
     }
 }
