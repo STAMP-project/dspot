@@ -46,6 +46,7 @@ public class GradleAutomaticBuilderTest {
 
     @Test
     public void buildClasspath() throws Exception {
+        sut.buildClasspath("src/test/resources/test-gradle-projects/");
     }
 
     @Test
