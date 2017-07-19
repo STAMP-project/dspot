@@ -78,6 +78,16 @@
             <version>4.0.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.gradle</groupId>
+            <artifactId>gradle-core</artifactId>
+            <version>4.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.gradle</groupId>
+            <artifactId>gradle-plugins</artifactId>
+            <version>0.9-preview-3</version>
+        </dependency>
     </dependencies>
 
     <build>

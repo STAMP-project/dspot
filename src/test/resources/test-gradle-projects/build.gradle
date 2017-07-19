@@ -16,3 +16,10 @@ repositories {
 dependencies {
     testCompile 'junit:junit:4.12'
 }
+
+task showClasspath {
+    doLast {
+        println sourceSets.main.runtimeClasspath.asPath
+        println sourceSets.test.runtimeClasspath.asPath
+    }
+}
