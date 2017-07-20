@@ -47,7 +47,13 @@ public class GradleAutomaticBuilderTest {
     @Test
     public void buildClasspath() throws Exception {
         String classPath = sut.buildClasspath("src/test/resources/test-projects/");
-        assertNotNull(classPath);
+
+        assertNotNull(classPath, "Classpath should be null");
+
+        assertTrue("Classpath should contain gradle-pitest-plugin-1.1.11.jar library as copmile/runtime dependency", classPath.contains("gradle-pitest-plugin-1.1.11.jar")); // compile dependency
+
+        assertTrue("Classpath should contain hamcrest-core-1.3.jar library as test dependency", classPath.contains("hamcrest-core-1.3.jar")); // test compile dependency
+        assertTrue("Classpath should contain junit-4.12.jar library as test dependency", classPath.contains("junit-4.12.jar")); // test compile dependency
     }
 
     @Test
@@ -65,7 +71,6 @@ public class GradleAutomaticBuilderTest {
                 "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
                 "--iteration", "1",
                 "--randomSeed", "72",
-//                "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-gradle-projects/test-projects.properties")),
                 "--automatic-builder", "GradleBuilder",
                 "--test", "all"
         };
