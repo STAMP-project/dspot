@@ -14,11 +14,6 @@ repositories {
 }
 
 dependencies {
+    compile 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.1.11'
     testCompile 'junit:junit:4.12'
-}
-
-task printClasspath4DSpot {
-    doLast {
-        configurations.testRuntime.each { println it }
-    }
 }
