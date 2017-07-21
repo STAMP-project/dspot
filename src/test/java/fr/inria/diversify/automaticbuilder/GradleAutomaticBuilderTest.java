@@ -141,6 +141,12 @@ public class GradleAutomaticBuilderTest {
             Log.debug("Cleaning Test Env - Deleting Gradle Java project build dir...");
             FileUtils.deleteDirectory(buildDir);
         }
+
+        File gradlewDir = new File("src/test/resources/test-projects/gradle");
+        if (gradlewDir.exists()) {
+            Log.debug("Cleaning Test Env - Deleting Gradle Java project gradle dir...");
+            FileUtils.deleteDirectory(gradlewDir);
+        }
         Log.debug("Test Env cleaning complete.");
     }
 
