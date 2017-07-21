@@ -1,0 +1,19 @@
+description = """
+Test Gradle project for DSpot test cases
+
+Project name: dspot.gradle.java.example
+
+"""
+apply plugin: 'java'
+
+version = "0.0.1"
+sourceCompatibility = 1.7
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.1.11'
+    testCompile 'junit:junit:4.12'
+}

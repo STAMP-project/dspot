@@ -22,6 +22,11 @@
                 <updatePolicy>always</updatePolicy>
             </snapshots>
         </repository>
+        <repository>
+            <id>gradle-repo</id>
+            <name>Gradle Tooling API repository</name>
+            <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -65,6 +70,12 @@
             <groupId>fr.inria.stamp</groupId>
             <artifactId>descartes</artifactId>
             <version>0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.gradle</groupId>
+            <artifactId>gradle-tooling-api</artifactId>
+            <version>4.0.1</version>
         </dependency>
 
     </dependencies>
