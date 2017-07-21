@@ -46,18 +46,24 @@ public class GradleAutomaticBuilderTest {
 
     @Test
     public void buildClasspath() throws Exception {
+        String[] expectedCompilationLibraries = {"log4j-api-2.8.2.jar", "log4j-core-2.8.2.jar"};
+        String[] expectedTestCompilationLibraries = {"hamcrest-core-1.3.jar", "junit-4.12.jar"};
+
         String classPath = sut.buildClasspath("src/test/resources/test-projects/");
 
         assertNotNull(classPath, "Classpath should be null");
 
-        assertTrue("Classpath should contain gradle-pitest-plugin-1.1.11.jar library as copmile/runtime dependency", classPath.contains("gradle-pitest-plugin-1.1.11.jar")); // compile dependency
+        assertTrue("Classpath should contain " + expectedCompilationLibraries[0] + " library as compile/runtime dependency", classPath.contains(expectedCompilationLibraries[0])); // compile dependency
+        assertTrue("Classpath should contain " + expectedCompilationLibraries[1] + " library as compile/runtime dependency", classPath.contains(expectedCompilationLibraries[1])); // compile dependency
 
-        assertTrue("Classpath should contain hamcrest-core-1.3.jar library as test dependency", classPath.contains("hamcrest-core-1.3.jar")); // test compile dependency
-        assertTrue("Classpath should contain junit-4.12.jar library as test dependency", classPath.contains("junit-4.12.jar")); // test compile dependency
+        assertTrue("Classpath should contain " + expectedTestCompilationLibraries[0] + " library as test dependency", classPath.contains(expectedTestCompilationLibraries[0])); // test compile dependency
+        assertTrue("Classpath should contain " + expectedTestCompilationLibraries[1] + " library as test dependency", classPath.contains(expectedTestCompilationLibraries[1])); // test compile dependency
     }
 
     @Test
     public void runPit() throws Exception {
+        sut.runPit("src/test/resources/test-projects/");
+        assertTrue(true);
     }
 
     @Test
