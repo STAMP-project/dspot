@@ -19,7 +19,7 @@ public class AutomaticBuilderFactory {
         }
         if (builderType.toUpperCase().contains("GRADLE")) {
             Log.debug("Selected Gradle automatic builder.");
-            return new GradleAutomaticBuilder();
+            return new GradleAutomaticBuilder(configuration);
         }
         if (builderType.toUpperCase().contains("MAVEN")) {
             Log.debug("Selected Maven automatic builder.");

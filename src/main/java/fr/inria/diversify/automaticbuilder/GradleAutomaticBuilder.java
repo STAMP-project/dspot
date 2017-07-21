@@ -4,6 +4,7 @@ import java.io.*;
 
 import java.nio.file.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 import java.util.regex.Matcher;
@@ -11,6 +12,8 @@ import java.util.regex.Pattern;
 
 import java.util.stream.Collectors;
 
+import fr.inria.diversify.mutant.pit.PitResultParser;
+import fr.inria.diversify.runner.InputConfiguration;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
@@ -19,6 +22,10 @@ import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.util.Log;
 
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.declaration.ModifierKind;
+import spoon.reflect.reference.CtTypeReference;
+
+import static fr.inria.diversify.mutant.pit.GradlePitTaskAndOptions.*;
 
 /**
  * Created by Daniele Gagliardi
@@ -37,9 +44,15 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
 
     private static final String NEW_LINE = System.getProperty("line.separator");
 
+    private InputConfiguration configuration;
+
+    public GradleAutomaticBuilder(InputConfiguration configuration) {
+        this.configuration = configuration;
+    }
+
     @Override
     public void compile(String pathToRootOfProject) {
-
+        runTasks(pathToRootOfProject,"clean", "compileJava", "test");
     }
 
     @Override
@@ -68,13 +81,28 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
     }
 
     @Override
-    public List<PitResult> runPit(String pathToRootOfProject, CtType<?> testClass) {
-        return null;
+    public List<PitResult> runPit(String pathToRootOfProject) {
+        return runPit(pathToRootOfProject, null);
     }
 
     @Override
-    public List<PitResult> runPit(String pathToRootOfProject) {
-        return null;
+    public List<PitResult> runPit(String pathToRootOfProject, CtType<?> testClass) {
+        try {
+            Log.debug("Injecting  Gradle task to run Pit...");
+            injectPitTask(pathToRootOfProject, testClass);
+
+            Log.debug("Running Pit...");
+
+            runTasks(pathToRootOfProject,CMD_PIT_MUTATION_COVERAGE);
+
+            resetOriginalGradleBuildFile(pathToRootOfProject);
+
+            File directoryReportPit = new File(pathToRootOfProject + "/build/pit-reports").listFiles()[0];
+            return PitResultParser.parse(new File(directoryReportPit.getPath() + "/mutations.csv"));
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected byte[] runTasks(String pathToRootOfProject, String... tasks) {
@@ -117,12 +145,35 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
     }
 
     private void injectPrintClasspathTask(String pathToRootOfProject) throws IOException {
+
         String originalGradleBuildFilename = pathToRootOfProject + File.separator + GRADLE_BUILD_FILE;
         File gradleBuildFile = new File(originalGradleBuildFilename);
         makeBackup(gradleBuildFile);
-        Files.write(Paths.get(originalGradleBuildFilename), getPrintClasspathTask().getBytes(), StandardOpenOption.APPEND);
-        Log.debug("Injected followin Gradle task in the Gradle build file " + originalGradleBuildFilename + ":\n");
-        Log.debug(getPrintClasspathTask());
+
+        String printClasspathTask = getPrintClasspathTask();
+
+        Files.write(Paths.get(originalGradleBuildFilename), printClasspathTask.getBytes(), StandardOpenOption.APPEND);
+
+        Log.debug("Injected following Gradle task in the Gradle build file " + originalGradleBuildFilename + ":\n");
+        Log.debug(printClasspathTask);
+    }
+
+    private void injectPitTask(String pathToRootOfProject) throws IOException {
+        injectPitTask(pathToRootOfProject, null);
+    }
+
+    private void injectPitTask(String pathToRootOfProject, CtType<?> testClass) throws IOException {
+
+        String originalGradleBuildFilename = pathToRootOfProject + File.separator + GRADLE_BUILD_FILE;
+        File gradleBuildFile = new File(originalGradleBuildFilename);
+        makeBackup(gradleBuildFile);
+
+        String pitTask = getPitTask(testClass);
+
+        Files.write(Paths.get(originalGradleBuildFilename), pitTask.getBytes(), StandardOpenOption.APPEND);
+
+        Log.debug("Injected following Gradle task in the Gradle build file " + originalGradleBuildFilename + ":\n");
+        Log.debug(pitTask);
     }
 
     private void makeBackup(File gradleBuildFile) throws IOException {
@@ -159,12 +210,80 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
         }
     }
 
+    private String ctTypeToFullQualifiedName(CtType<?> testClass) {
+        if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) {
+            CtTypeReference<?> referenceOfSuperClass = testClass.getReference();
+            return testClass.getFactory().Class().getAll()
+                    .stream()
+                    .filter(ctType -> referenceOfSuperClass.equals(ctType.getSuperclass()))
+                    .map(CtType::getQualifiedName)
+                    .collect(Collectors.joining(","));
+        } else {
+            return testClass.getQualifiedName();
+        }
+    }
+
+
+
     private String getPrintClasspathTask() {
         return NEW_LINE + NEW_LINE + "task printClasspath4DSpot {" + NEW_LINE +
                 "    doLast {" + NEW_LINE +
                 "        configurations.testRuntime.each { println it }" + NEW_LINE +
                 "    }" + NEW_LINE +
                 "}";
+    }
+
+    private String getPitTask() {
+        return getPitTask(null);
+    }
+
+
+    private String getPitTask(CtType<?> testClass) {
+        return getPitTaskConfiguration() + getPitTaskOptions(testClass);
+    }
+
+    private String getPitTaskConfiguration() {
+        return NEW_LINE + NEW_LINE + "buildscript {" + NEW_LINE +
+                "    repositories {" + NEW_LINE +
+                "        //mavenLocal()" + NEW_LINE +
+                "        maven {\n" +
+                "            url \"https://plugins.gradle.org/m2/\"" + NEW_LINE +
+                "        }" + NEW_LINE +
+                NEW_LINE +
+                "    }" + NEW_LINE +
+                NEW_LINE +
+                "    configurations.maybeCreate(\"pitest\")" + NEW_LINE +
+                NEW_LINE +
+                "    dependencies {" + NEW_LINE +
+                "       classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.1.11'" + NEW_LINE +
+                "       //pitest 'fr.inria.stamp:descartes:0.2-SNAPSHOT'" + NEW_LINE +
+                "    }" + NEW_LINE +
+                "}" + NEW_LINE +
+                NEW_LINE +
+                "apply plugin: 'info.solidsoft.pitest'" + NEW_LINE;
+    }
+
+    private String getPitTaskOptions() {
+        return getPitTaskOptions(null);
+    }
+
+    private String getPitTaskOptions(CtType<?> testClass) {
+        return  NEW_LINE + NEW_LINE + "pitest {" + NEW_LINE +
+                "    " + OPT_TARGET_CLASSES + "['" + configuration.getProperty("filter") + "']" + NEW_LINE +
+                "    " + OPT_WITH_HISTORY + "true" + NEW_LINE +
+                "    " + OPT_VALUE_REPORT_DIR + NEW_LINE +
+                "    " + OPT_VALUE_FORMAT + NEW_LINE +
+//                "    " + OPT_VALUE_TIMEOUT + NEW_LINE +
+//                "    " + OPT_VALUE_MEMORY + NEW_LINE +
+                (testClass != null ? "    " + OPT_TARGET_TESTS + "['" + ctTypeToFullQualifiedName(testClass) + "']": "") + NEW_LINE +
+                (configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
+                                    "    " + OPT_ADDITIONAL_CP_ELEMENTS + "['" + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) + "']":"") + NEW_LINE +
+                (descartesMode ? "    " + OPT_MUTATION_ENGINE :
+                                    "    " + OPT_MUTATORS + (evosuiteMode ?
+                                                    VALUE_MUTATORS_EVOSUITE : VALUE_MUTATORS_ALL)) + NEW_LINE +
+                (configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) != null ?
+                        "    " + OPT_EXCLUDED_CLASSES +  "['" + configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) + "']":"") + NEW_LINE +
+                "}" + NEW_LINE;
     }
 
 }
