@@ -14,6 +14,8 @@ import static org.junit.Assert.fail;
  */
 public class MavenAutomaticBuilderTest {
 
+
+
     @Test
     public void testWrongMaven() throws Exception {
         MavenAutomaticBuilder mavenAutomaticBuilder = new MavenAutomaticBuilder(Utils.getInputConfiguration());
@@ -29,8 +31,12 @@ public class MavenAutomaticBuilderTest {
     public void testGetDependenciesOf() throws Exception {
         MavenAutomaticBuilder mavenAutomaticBuilder = new MavenAutomaticBuilder(Utils.getInputConfiguration());
         final String dependenciesOf = mavenAutomaticBuilder.buildClasspath("src/test/resources/test-projects/");
-        assertTrue(dependenciesOf.contains("org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"));
-        assertTrue(dependenciesOf.contains("junit/junit/4.11/junit-4.11.jar"));
+        assertTrue(dependenciesOf.contains("org" + System.getProperty("file.separator") + "hamcrest" +
+                System.getProperty("file.separator") + "hamcrest-core" + System.getProperty("file.separator") +
+                "1.3" + System.getProperty("file.separator") + "hamcrest-core-1.3.jar"));
+        assertTrue(dependenciesOf.contains("junit" + System.getProperty("file.separator") + "junit" +
+                System.getProperty("file.separator") + "4.11" + System.getProperty("file.separator") +
+                "junit-4.11.jar"));
     }
 
 }
