@@ -43,7 +43,7 @@ public class GradleAutomaticBuilderTest {
 
         Log.debug("Test Set-up - Reading input parameters...");
         this.configuration = JSAPOptions.parse(getArgsWithGradleBuilder());
-        InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
+        InputConfiguration inputConfiguration = Utils.getInputConfiguration();
         inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
 
         Log.debug("Test Set-up - instantiating Automatic Builder (SUT)...");
