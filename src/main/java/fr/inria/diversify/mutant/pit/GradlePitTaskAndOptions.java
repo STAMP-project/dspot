@@ -35,11 +35,9 @@ public class GradlePitTaskAndOptions {
 
     public static final String CMD_PIT_MUTATION_COVERAGE = "pitest";
 
-    //Apparently Unsupported by PIT plugin
-    public static final String OPT_VALUE_TIMEOUT =  "timeoutConst = 10000";
+    public static final String OPT_VALUE_TIMEOUT =  "timeoutConstInMillis = 10000";
 
-    //Apparently Unsupported by PIT plugin
-    public static final String OPT_VALUE_MEMORY = "jvmArgs = 16G";
+    public static final String OPT_VALUE_MEMORY = "jvmArgs = ['-Xms16G']";
 
     public static final String OPT_MUTATORS = "mutators = ";
 
