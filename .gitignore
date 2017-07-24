@@ -1,3 +1,11 @@
+# Resources #
++###################
+src/test/resources/aResource
+src/test/resources/aResourcesDirectory/
+src/test/resources/test-projects/.gradle/
+src/test/resources/test-projects/gjp_cp
+src/test/resources/test-projects/cp
+
 target/
 pom.xml.tag
 pom.xml.releaseBackup
