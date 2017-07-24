@@ -274,7 +274,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
                 "    " + OPT_VALUE_REPORT_DIR + NEW_LINE +
                 "    " + OPT_VALUE_FORMAT + NEW_LINE +
 //                "    " + OPT_VALUE_TIMEOUT + NEW_LINE +
-                "    " + OPT_VALUE_MEMORY + NEW_LINE +
+//                "    " + OPT_VALUE_MEMORY + NEW_LINE +
                 (testClass != null ? "    " + OPT_TARGET_TESTS + "['" + ctTypeToFullQualifiedName(testClass) + "']": "") + NEW_LINE +
                 (configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
                                     "    " + OPT_ADDITIONAL_CP_ELEMENTS + "['" + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) + "']":"") + NEW_LINE +
