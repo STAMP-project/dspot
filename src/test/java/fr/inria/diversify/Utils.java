@@ -13,6 +13,7 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Set;
 
 
@@ -35,6 +36,15 @@ public class Utils {
 
 	public static InputConfiguration getInputConfiguration() {
 		return inputConfiguration;
+	}
+
+	public static void reset() {
+		currentInputConfigurationLoaded = null;
+		try {
+			FileUtils.forceDelete(new File("tmpDir"));
+		} catch (IOException ignored) {
+			//ignored
+		}
 	}
 
 	public static void init(String pathToConfFile) {
