@@ -78,6 +78,12 @@
             <version>4.0.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.9.5</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -91,12 +97,12 @@
                         <fileset>
                             <directory>src/test/resources/</directory>
                             <includes>
-                                <include>descartes/target</include>
-                                <include>mockito/target</include>
-                                <include>multiple-pom/target</include>
+                                <include>descartes/target/</include>
+                                <include>mockito/target/</include>
+                                <include>multiple-pom/target/</include>
                                 <include>multiple-pom/module-1/module-2-1/target/</include>
                                 <include>multiple-pom/module-1/module-2-2/target/</include>
-                                <include>sample/target</include>
+                                <include>sample/target/</include>
                                 <include>test-projects/target/</include>
                             </includes>
                             <followSymlinks>false</followSymlinks>

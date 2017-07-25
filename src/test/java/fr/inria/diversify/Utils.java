@@ -1,8 +1,6 @@
 package fr.inria.diversify;
 
 import fr.inria.diversify.automaticbuilder.MavenAutomaticBuilder;
-import fr.inria.diversify.dspot.AmplificationHelper;
-import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;

@@ -1,10 +1,10 @@
 package fr.inria.diversify.dspot.value;
 
 
-import fr.inria.diversify.dspot.AmplificationHelper;
+import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.value.objectInstanciationTree.ObjectInstantiation;
 import fr.inria.diversify.dspot.value.objectInstanciationTree.StaticMethodValue;
-import fr.inria.diversify.utils.CtTypeUtils;
+import fr.inria.diversify.utils.TypeUtils;
 import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
@@ -12,8 +12,6 @@ import spoon.reflect.reference.CtExecutableReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * User: Simon
@@ -163,7 +161,7 @@ public class ValueType {
                             .filter(c -> {
                                 List<CtParameter> parameters = c.getParameters();
                                 return parameters.stream()
-                                        .allMatch(type -> CtTypeUtils.isSerializable(type.getType()));
+                                        .allMatch(type -> TypeUtils.isSerializable(type.getType()));
                             })
                             .map(c -> c.getReference())
                             .findFirst()

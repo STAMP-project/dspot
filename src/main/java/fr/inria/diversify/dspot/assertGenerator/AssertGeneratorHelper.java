@@ -1,7 +1,7 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
-import fr.inria.diversify.dspot.AmplificationHelper;
-import fr.inria.diversify.dspot.DSpotUtils;
+import fr.inria.diversify.utils.AmplificationHelper;
+import fr.inria.diversify.utils.DSpotUtils;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static fr.inria.diversify.dspot.AmplificationChecker.isAssert;
+import static fr.inria.diversify.utils.AmplificationChecker.isAssert;
 
 /**
  * Created by Benjamin DANGLOT

@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.utils.AmplificationHelper;
 import org.junit.Test;
 import spoon.reflect.declaration.*;
 import spoon.reflect.reference.CtTypeReference;

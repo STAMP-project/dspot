@@ -1,7 +1,7 @@
 package fr.inria.diversify.dspot.selector;
 
-import fr.inria.diversify.dspot.AmplificationHelper;
-import fr.inria.diversify.dspot.ClassWithLoggerBuilder;
+import fr.inria.diversify.utils.AmplificationHelper;
+import fr.inria.diversify.utils.logging.ClassWithLoggerBuilder;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.log.LogReader;
 import fr.inria.diversify.log.TestCoverageParser;

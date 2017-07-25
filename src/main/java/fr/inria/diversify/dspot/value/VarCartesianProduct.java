@@ -1,7 +1,7 @@
 package fr.inria.diversify.dspot.value;
 
 import fr.inria.diversify.codeFragment.Statement;
-import fr.inria.diversify.dspot.DSpotUtils;
+import fr.inria.diversify.utils.DSpotUtils;
 import spoon.reflect.code.CtComment;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLocalVariable;

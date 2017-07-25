@@ -2,7 +2,7 @@ package fr.inria.diversify.dspot.assertGenerator;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
-import fr.inria.diversify.dspot.AmplificationHelper;
+import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.AbstractTest;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;

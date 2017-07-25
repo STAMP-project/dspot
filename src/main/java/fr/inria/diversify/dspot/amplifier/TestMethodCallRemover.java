@@ -1,9 +1,9 @@
 package fr.inria.diversify.dspot.amplifier;
 
-import fr.inria.diversify.dspot.AmplificationChecker;
-import fr.inria.diversify.dspot.AmplificationHelper;
+import fr.inria.diversify.utils.AmplificationChecker;
+import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.support.Counter;
-import fr.inria.diversify.dspot.DSpotUtils;
+import fr.inria.diversify.utils.DSpotUtils;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;

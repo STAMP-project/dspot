@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.assertGenerator;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.dspot.AbstractTest;
+import fr.inria.diversify.utils.logging.AssertionRemover;
 import org.junit.Test;
 import spoon.processing.AbstractProcessor;
 import spoon.processing.ProcessingManager;

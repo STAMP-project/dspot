@@ -5,7 +5,7 @@ import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AbstractTest;
 import org.junit.AfterClass;
 import org.junit.Test;
-import fr.inria.diversify.dspot.AmplificationHelper;
+import fr.inria.diversify.utils.AmplificationHelper;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 

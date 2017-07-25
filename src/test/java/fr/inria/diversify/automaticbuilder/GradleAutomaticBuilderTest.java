@@ -1,7 +1,6 @@
 package fr.inria.diversify.automaticbuilder;
 
 import fr.inria.diversify.Utils;
-import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.util.FileUtils;

@@ -6,8 +6,6 @@ import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import fr.inria.diversify.dspot.TypeUtils;
-
 /**
  * User: Simon
  * Date: 23/10/15
@@ -55,11 +53,11 @@ public class ObjectLog {
         if (deep < maxDeep) {
             if (object == null) {
                 addObservation(positionId, stringObject, null);
-            } else if (TypeUtils.isPrimitive(object)) {
+            } else if (Utils.isPrimitive(object)) {
                 addObservation(positionId, stringObject, object);
-            } else if (TypeUtils.isPrimitiveArray(object)) {
+            } else if (Utils.isPrimitiveArray(object)) {
                 addObservation(positionId, stringObject, object);
-            } else if (TypeUtils.isPrimitiveCollectionOrMap(object)) {
+            } else if (Utils.isPrimitiveCollectionOrMap(object)) {
                 addObservation(positionId, stringObject, object);
             } else {
                 compareWithPreviousObjects(object, stringObject, positionId);

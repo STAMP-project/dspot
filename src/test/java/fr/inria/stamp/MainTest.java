@@ -1,10 +1,8 @@
 package fr.inria.stamp;
 
-import fr.inria.diversify.Utils;
-import fr.inria.diversify.dspot.DSpotUtils;
-import fr.inria.diversify.dspot.MavenAbstractTest;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.util.FileUtils;
+import fr.inria.diversify.utils.DSpotUtils;
 import org.junit.Test;
 
 import java.io.*;

@@ -1,7 +1,7 @@
 package fr.inria.diversify.automaticbuilder;
 
-import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.runner.InputConfiguration;
+import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.Configuration;
 import fr.inria.stamp.JSAPOptions;
 import org.junit.After;

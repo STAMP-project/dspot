@@ -14,7 +14,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import static fr.inria.diversify.dspot.AmplificationHelper.PATH_SEPARATOR;
+import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
 
 /**
  * Created by Benjamin DANGLOT

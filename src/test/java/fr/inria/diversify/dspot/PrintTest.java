@@ -1,5 +1,6 @@
 package fr.inria.diversify.dspot;
 
+import fr.inria.diversify.utils.DSpotUtils;
 import org.eclipse.jgit.util.FileUtils;
 import org.junit.Test;
 import spoon.Launcher;

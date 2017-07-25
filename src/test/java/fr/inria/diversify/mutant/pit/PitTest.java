@@ -5,6 +5,7 @@ import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.MavenAutomaticBuilder;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.*;
+import fr.inria.diversify.utils.AmplificationHelper;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 
@@ -39,7 +40,6 @@ public class PitTest extends MavenAbstractTest {
 
         List<PitResult> pitResults = builder.runPit(Utils.getInputProgram().getProgramDir(), testClass);
 
-        System.out.println(pitResults);
         assertTrue(null != pitResults);
 
         assertEquals(8, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());

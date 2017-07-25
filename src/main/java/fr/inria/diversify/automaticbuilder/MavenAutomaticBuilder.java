@@ -1,10 +1,10 @@
 package fr.inria.diversify.automaticbuilder;
 
 import fr.inria.diversify.buildSystem.maven.MavenInvoker;
-import fr.inria.diversify.dspot.DSpotUtils;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.diversify.runner.InputConfiguration;
+import fr.inria.diversify.utils.DSpotUtils;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.PrintStreamHandler;
