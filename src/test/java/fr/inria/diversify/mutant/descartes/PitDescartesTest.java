@@ -1,5 +1,6 @@
 package fr.inria.diversify.mutant.descartes;
 
+import fr.inria.diversify.Utils;
 import fr.inria.diversify.automaticbuilder.MavenAutomaticBuilder;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AmplificationHelper;
@@ -12,6 +13,7 @@ import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -31,6 +33,11 @@ import static org.junit.Assert.*;
 public class PitDescartesTest {
 
     private static final String nl = System.getProperty("line.separator");
+
+    @Before
+    public void setUp() throws Exception {
+        Utils.reset();
+    }
 
     //TODO The generation is not deterministic
     @Test
