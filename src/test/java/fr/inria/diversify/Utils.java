@@ -59,7 +59,11 @@ public class Utils {
 			if (!tmpDir.exists()) {
 				tmpDir.mkdir();
 			} else {
-				FileUtils.cleanDirectory(tmpDir);
+				try {
+					FileUtils.cleanDirectory(tmpDir);
+				} catch (Exception ignored) {
+					// ignored
+				}
 			}
 			FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(inputConfiguration.getProperty("tmpDir") + "/tmp"));
 			final String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp/" +

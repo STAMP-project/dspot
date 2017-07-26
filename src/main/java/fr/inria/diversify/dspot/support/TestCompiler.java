@@ -36,7 +36,7 @@ public class TestCompiler {
 											 DSpotCompiler compiler, List<CtMethod<?>> testsToRun,
 											 InputConfiguration configuration) {
 		final InputProgram inputProgram = configuration.getInputProgram();
-		final String dependencies = inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + ":" +
+		final String dependencies = inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + System.getProperty("path.separator") +
 				inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir();
 		final List<CtMethod<?>> uncompilableMethods = TestCompiler.compile(compiler, testClass,
 				withLog, dependencies);
@@ -65,6 +65,7 @@ public class TestCompiler {
 		if (problems.isEmpty()) {
 			return Collections.emptyList();
 		} else {
+			Log.warn("{} errors during compilation, discarding involved test methods", problems.size());
 			try {
 				final CtClass<?> newModelCtClass = getNewModelCtClass(compiler.getSourceOutputDirectory().getAbsolutePath(),
 						classTest.getQualifiedName());
