@@ -19,6 +19,10 @@ public abstract class AbstractTestRunner implements TestRunner {
 
     private URLClassLoader classLoader;
 
+    public AbstractTestRunner(URLClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
+
     public AbstractTestRunner(String classpath) {
         this(classpath.split(System.getProperty("path.separator")));
     }

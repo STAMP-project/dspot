@@ -7,6 +7,7 @@ import org.junit.runner.Request;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
 
+import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.concurrent.*;
 
@@ -16,6 +17,10 @@ import java.util.concurrent.*;
  * on 30/06/17
  */
 public class DefaultTestRunner extends AbstractTestRunner {
+
+	public DefaultTestRunner(URLClassLoader classLoader) {
+		super(classLoader);
+	}
 
 	public DefaultTestRunner(String classpath) {
 		super(classpath);
