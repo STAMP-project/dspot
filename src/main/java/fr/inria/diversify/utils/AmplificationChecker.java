@@ -118,7 +118,7 @@ public class AmplificationChecker {
         try {
             if (!relativePath.isEmpty() && candidate.getPosition() != null
                     && candidate.getPosition().getFile() != null
-                    && !candidate.getPosition().getFile().toString().contains(relativePath)) {
+                    && !candidate.getPosition().getFile().toString().replaceAll("\\\\", "/").contains(relativePath)) {
                 return false;
             }
         } catch (Exception e) {
