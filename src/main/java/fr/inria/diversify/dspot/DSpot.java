@@ -124,11 +124,18 @@ public class DSpot {
 
         String dependencies = this.builder.buildClasspath(this.inputProgram.getProgramDir());
         File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
-        boolean status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir()
-                        + System.getProperty("path.separator") + inputProgram.getAbsoluteTestSourceCodeDir(),
-                dependencies,
-                output);
-        if (!status) {
+        File outputTest = new File(inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir());
+        try {
+            FileUtils.cleanDirectory(output);
+            FileUtils.cleanDirectory(outputTest);
+        } catch (IllegalArgumentException ignored) {
+            //the target directory does not exist, do not need to clean it
+        }
+        boolean status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
+        boolean statusTest = DSpotCompiler.compile(inputProgram.getAbsoluteTestSourceCodeDir(),
+                output.getAbsolutePath() + System.getProperty("path.separator") + dependencies, outputTest);
+
+        if (! (status && statusTest)) {
             throw new RuntimeException("Error during compilation");
         }
         //We need to use separate factory here, because the BranchProcessor will process test also
@@ -138,10 +145,10 @@ public class DSpot {
             DSpotUtils.addBranchLogger(inputProgram, spoonModel.getFactory());
             DSpotUtils.copyLoggerPackage(inputProgram);
             FileUtils.cleanDirectory(output);
-            status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir()
-                            + System.getProperty("path.separator") + inputProgram.getAbsoluteTestSourceCodeDir(),
-                    dependencies, output);
-            if (!status) {
+            status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
+            statusTest = DSpotCompiler.compile(inputProgram.getAbsoluteTestSourceCodeDir(),
+                    output.getAbsolutePath() + System.getProperty("path.separator") + dependencies, outputTest);
+            if (! (status && statusTest)) {
                 throw new RuntimeException("Error during compilation");
             }
         }
