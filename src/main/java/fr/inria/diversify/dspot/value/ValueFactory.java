@@ -1,18 +1,13 @@
 package fr.inria.diversify.dspot.value;
 
 import fr.inria.diversify.dspot.value.objectInstanciationTree.ObjectInstantiation;
-import fr.inria.diversify.dspot.value.objectInstanciationTree.PrimitiveForNewReader;
-import fr.inria.diversify.log.LogReader;
 import fr.inria.diversify.runner.InputProgram;
 import spoon.reflect.code.CtConstructorCall;
-import spoon.reflect.code.CtExpression;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtConstructor;
 import spoon.reflect.declaration.ModifierKind;
-import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtTypeReference;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -32,15 +27,6 @@ public class ValueFactory {
         buildObjectInstantiation();
     }
 
-    public ValueFactory(InputProgram inputProgram, String logDir) throws IOException {
-        this.inputProgram = inputProgram;
-        this.valueTypes = new HashMap<>();
-        ValueType.setFactory(inputProgram.getFactory(), this);
-
-        buildObjectInstantiation();
-        buildPrimitiveValue(logDir);
-    }
-
     public ValueType getValueType(String typeName) {
         if(!valueTypes.containsKey(typeName)) {
             valueTypes.put(typeName, new ValueType(typeName));
@@ -50,27 +36,6 @@ public class ValueFactory {
 
     public ValueType getValueType(CtTypeReference typeRef) {
         return getValueType(typeRef.getQualifiedName());
-    }
-
-    public ObjectInstantiation getObjectInstantiation(CtExecutableReference constructor) {
-        ValueType type = getValueType(constructor.getType());
-        ObjectInstantiation value = new ObjectInstantiation(type, constructor, this);
-        type.addValue(value);
-        return value;
-    }
-
-    public PrimitiveValue getPrimitiveValue(ValueType type, String value) {
-        PrimitiveValue primitiveValue = new PrimitiveValue(type, value);
-        type.addValue(primitiveValue);
-
-        return primitiveValue;
-    }
-
-    protected void buildPrimitiveValue(String logDir) throws IOException {
-        LogReader logReader = new LogReader(logDir);
-        PrimitiveForNewReader reader = new PrimitiveForNewReader(inputProgram, this);
-        logReader.addParser(reader);
-        logReader.readLogs();
     }
 
     protected Set<ObjectInstantiation> buildObjectInstantiation() {
@@ -98,35 +63,6 @@ public class ValueFactory {
         } else {
             return ((CtConstructor)cc.getExecutable().getDeclaration()).getModifiers().contains(ModifierKind.PRIVATE);
         }
-    }
-
-    public CtExpression findConstructorCall(CtClass target, boolean withSubType) {
-        if(withSubType) {
-            CtTypeReference ref = target.getReference();
-            return target.getFactory().Class().getAll(false).stream()
-                    .filter(type -> type.getReference().isSubtypeOf(ref))
-                    .filter(type -> type instanceof CtClass)
-                    .map(cl -> findConstructorCall((CtClass) cl))
-                    .filter(expression -> expression != null)
-                    .findFirst()
-                    .orElse(null);
-
-        } else {
-            return findConstructorCall(target);
-        }
-    }
-
-    public CtExpression findConstructorCall(CtClass target) {
-        if(target != null && target.isTopLevel() && !target.getModifiers().contains(ModifierKind.ABSTRACT)) {
-            String className = target.getQualifiedName();
-            ValueType valueType = getValueType(className);
-            Value value = valueType.getRandomValue(true);
-
-             if(value != null) {
-                return value.getValue();
-            }
-        }
-        return null;
     }
 
     public boolean hasConstructorCall(CtClass target, boolean withSubType) {

@@ -15,7 +15,8 @@ import spoon.reflect.reference.CtTypeReference;
  * Time: 17:34
  */
 public class StaticMethodValue extends Value {
-    CtExecutableReference methodRef;
+
+    private CtExecutableReference methodRef;
 
     public StaticMethodValue(ValueType type, CtExecutableReference methodRef, ValueFactory valueFactory) {
         this.valueFactory = valueFactory;

@@ -1,7 +1,6 @@
 package fr.inria.diversify.dspot.value.objectInstanciationTree;
 
 
-import fr.inria.diversify.dspot.value.PrimitiveValue;
 import fr.inria.diversify.dspot.value.Value;
 import fr.inria.diversify.dspot.value.ValueFactory;
 import fr.inria.diversify.dspot.value.ValueType;
@@ -13,7 +12,6 @@ import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtTypeReference;
 
-import java.time.temporal.TemporalAmount;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -23,12 +21,11 @@ import java.util.stream.IntStream;
  * Date: 19/08/16
  */
 public class ObjectInstantiation extends Value {
-    protected Boolean isOk = null;
 
-    protected CtExecutableReference constructor;
-    protected String constructorString;
-    protected List<List<Value>> params;
-
+    private Boolean isOk = null;
+    private CtExecutableReference constructor;
+    private String constructorString;
+    private List<List<Value>> params;
 
     public ObjectInstantiation(ValueType type, CtExecutableReference constructor, ValueFactory valueFactory) {
         this.valueFactory = valueFactory;
@@ -47,10 +44,6 @@ public class ObjectInstantiation extends Value {
 
     public CtTypeReference getType() {
         return constructor.getType();
-    }
-
-    public CtExecutableReference getConstructor() {
-        return constructor;
     }
 
     public boolean isOk() {
@@ -110,11 +103,4 @@ public class ObjectInstantiation extends Value {
         localVar.setDefaultExpression(getValue());
     }
 
-    public void addParameterValue(Value value, Integer paramIndex) {
-        params.get(paramIndex).add(value);
-    }
-
-    public List<CtTypeReference<?>> getParameters() {
-        return constructor.getParameters();
-    }
 }
