@@ -44,10 +44,11 @@ public class JacocoCoverageSelector implements TestSelector {
 	public List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified) {
 		if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
 			this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
-			final List<String> methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).collect(Collectors.toList());
-			this.selectedToBeAmplifiedCoverageResultsMap = new JacocoExecutor(this.program).executeJacoco(
-					this.currentClassTestToBeAmplified.getQualifiedName(), methodNames);
+
 		}
+		final List<String> methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).collect(Collectors.toList());
+		this.selectedToBeAmplifiedCoverageResultsMap = new JacocoExecutor(this.program).executeJacoco(
+				this.currentClassTestToBeAmplified.getQualifiedName(), methodNames);
 		return testsToBeAmplified;
 	}
 
@@ -55,16 +56,28 @@ public class JacocoCoverageSelector implements TestSelector {
 	public List<CtMethod<?>> selectToKeep(List<CtMethod<?>> amplifiedTestToBeKept) {
 		final List<String> methodNames = amplifiedTestToBeKept.stream().map(CtNamedElement::getSimpleName).collect(Collectors.toList());
 		final Map<String, CoverageResults> coverageResultsMap = new JacocoExecutor(this.program).executeJacoco(
-				"example.TestSuiteExampleAmpl", methodNames);
+				this.currentClassTestToBeAmplified.getQualifiedName(), methodNames);
 		final List<CtMethod<?>> methodsKept = amplifiedTestToBeKept.stream()
 				.filter(ctMethod ->
 						coverageResultsMap.get(ctMethod.getSimpleName()).isBetterThan(
 								this.selectedToBeAmplifiedCoverageResultsMap.get(
-										AmplificationHelper.getAmpTestToParent().get(ctMethod).getSimpleName())
+										getFirstParentThatHasBeenRun(ctMethod).getSimpleName())
 						)
 				).collect(Collectors.toList());
-		this.selectedAmplifiedTest.addAll(methodsKept);
+		this.selectedAmplifiedTest = new ArrayList<>(methodsKept);
 		return methodsKept;
+	}
+
+	private CtMethod<?> getFirstParentThatHasBeenRun(CtMethod<?> test) {
+		CtMethod<?> currentParent = AmplificationHelper.getAmpTestToParent().get(test);
+		while (AmplificationHelper.getAmpTestToParent().get(currentParent) != null) {
+			if (this.selectedToBeAmplifiedCoverageResultsMap.get(currentParent.getSimpleName()) != null) {
+				return currentParent;
+			} else {
+				currentParent = AmplificationHelper.getAmpTestToParent().get(currentParent);
+			}
+		}
+		return currentParent;
 	}
 
 	@Override

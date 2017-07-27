@@ -1,6 +1,7 @@
 package fr.inria.stamp.coverage;
 
 import fr.inria.diversify.log.branch.Coverage;
+import org.kevoree.log.Log;
 
 /**
  * Created by Benjamin DANGLOT
@@ -30,6 +31,7 @@ public class CoverageResults {
 		if (that == null) {
 			return true;
 		}
+		Log.debug("that is not null");
 		int percCoverageThis = (int) ((double) this.instructionsCovered / (double) this.instructionsTotal);
 		int percCoverageThat = (int) ((double) that.instructionsCovered / (double) that.instructionsTotal);
 		if (percCoverageThat == percCoverageThis) {
