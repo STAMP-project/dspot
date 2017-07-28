@@ -175,7 +175,7 @@ public class StatementAdd implements Amplifier {
 				.filter(mth -> !mth.getModifiers().contains(ModifierKind.PRIVATE))
 				.filter(mth -> mth.getBody() != null)
 				.filter(mth -> !mth.getBody().getStatements().isEmpty())
-				.filter(mth -> {
+				/*.filter(mth -> {
 					List<CtParameter> parameters = mth.getParameters();
 					return parameters.stream()
 							.map(param -> param.getType())
@@ -185,7 +185,7 @@ public class StatementAdd implements Amplifier {
 									|| TypeUtils.isPrimitiveCollection(param)
 									|| TypeUtils.isPrimitiveMap(param)
 									|| isSerializable(param));
-				})
+				})*/
 				.collect(Collectors.toSet());
 	}
 

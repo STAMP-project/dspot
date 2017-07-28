@@ -1,5 +1,6 @@
 package fr.inria.diversify.dspot.value;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
@@ -37,13 +38,14 @@ public class ValueCreator {
 			return generatePrimitiveRandomValue(type);
 		} else {
 			try {
-				if (type.getActualClass() == String.class) {
+				if (AmplificationChecker.isArray(type)) {
+					return createArray(type);
+				} else if (type.getActualClass() == String.class) {
 					return type.getFactory().createLiteral(AmplificationHelper.getRandomString(20));
-				}
-				// TODO add some generic type such as List, check DSpotMockedTest to have a use case
+				}// TODO add some generic type such as List, check DSpotMockedTest to have a use case
 			} catch (SpoonClassNotFoundException exception) {
 				// couldn't load the definition of the class, it may be a client class
-				return createValue(type);
+				return generateConstructionOf(type);
 			}
 		}
 		Log.warn("Could not generate a random value");
@@ -58,19 +60,20 @@ public class ValueCreator {
 		return factory.Code().createLocalVariable(type, "vc_" + count++, defaultExpression);
 	}
 
-	private static CtExpression createValue(CtTypeReference type) {
-		if (AmplificationChecker.isArray(type)) {
-			CtArrayTypeReference arrayType = (CtArrayTypeReference) type;
-			CtTypeReference typeComponent = arrayType.getComponentType();
-			final CtNewArray<?> newArray = type.getFactory().createNewArray();
-			newArray.setType(typeComponent);
-			IntStream.range(0, AmplificationHelper.getRandom().nextInt(MAX_ARRAY_SIZE))
-					.mapToObj(i -> createValue(typeComponent))
-					.forEach(newArray::addElement);
-			return newArray;
+	private static CtExpression createArray(CtTypeReference type) {
+		CtArrayTypeReference arrayType = (CtArrayTypeReference) type;
+		CtTypeReference typeComponent = arrayType.getComponentType();
+		CtNewArray<?> newArray = type.getFactory().createNewArray();
+		final int size = AmplificationHelper.getRandom().nextInt(MAX_ARRAY_SIZE);
+		newArray.setType(arrayType);
+		if (size == 0) {
+			newArray.setDimensionExpressions(Collections.singletonList(type.getFactory().createLiteral(size)));
 		} else {
-			return generateConstructionOf(type);
+			IntStream.range(0, size)
+					.mapToObj(i -> getRandomValue(typeComponent))
+					.forEach(newArray::addElement);
 		}
+		return newArray;
 	}
 
 	private static CtExpression generateConstructionOf(CtTypeReference type) {
