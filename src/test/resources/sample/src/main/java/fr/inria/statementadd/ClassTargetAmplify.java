@@ -6,7 +6,7 @@ package fr.inria.statementadd;
 public class ClassTargetAmplify {
 
     public ClassParameterAmplify methodWithReturn() {
-        return new ClassParameterAmplify();
+        return new ClassParameterAmplify(0);
     }
 
     public void methodWithDomainParameter(ClassParameterAmplify object) {

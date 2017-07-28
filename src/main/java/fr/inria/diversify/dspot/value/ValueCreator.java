@@ -1,5 +1,6 @@
 package fr.inria.diversify.dspot.value;
 
+import fr.inria.diversify.util.Log;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import spoon.reflect.code.CtConstructorCall;
@@ -7,11 +8,14 @@ import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.code.CtNewArray;
+import spoon.reflect.declaration.CtConstructor;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtArrayTypeReference;
 import spoon.reflect.reference.CtTypeReference;
+import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
 
+import java.util.List;
 import java.util.stream.IntStream;
 
 /**
@@ -25,40 +29,7 @@ public class ValueCreator {
 	public static int count = 0;
 
 	public static CtLocalVariable createRandomLocalVar(CtTypeReference type) {
-		Factory factory = type.getFactory();
-		CtExpression value = createValue(type);
-		if (value != null) {
-			return factory.Code().createLocalVariable(type, "vc_" + count++, value);
-		} else {
-			return null;
-		}
-	}
-
-	public static CtLocalVariable createNull(CtTypeReference type) {
-		Factory factory = type.getFactory();
-		final CtLiteral<?> defaultExpression = factory.createLiteral(null);
-		defaultExpression.addTypeCast(type);
-		return factory.Code().createLocalVariable(type, "vc_" + count++, defaultExpression);
-	}
-
-	private static CtExpression createValue(CtTypeReference type) {
-		Factory factory = type.getFactory();
-		if (AmplificationChecker.isPrimitive(type)) {
-			return generatePrimitiveRandomValue(type);
-		} else if (AmplificationChecker.isArray(type)) {
-			CtArrayTypeReference arrayType = (CtArrayTypeReference) type;
-			CtTypeReference typeComponent = arrayType.getComponentType();
-			final CtNewArray<?> newArray = factory.createNewArray();
-			newArray.setType(typeComponent);
-			IntStream.range(0, AmplificationHelper.getRandom().nextInt(MAX_ARRAY_SIZE))
-					.mapToObj(i -> createValue(typeComponent))
-					.forEach(newArray::addElement);
-			return newArray;
-		} else {
-			CtConstructorCall<?> constructorCall = factory.createConstructorCall();
-			constructorCall.setType(type);
-			return constructorCall;
-		}
+		return type.getFactory().createLocalVariable(type, "vc_" + count++, getRandomValue(type));
 	}
 
 	public static CtExpression<?> getRandomValue(CtTypeReference type) {
@@ -69,12 +40,52 @@ public class ValueCreator {
 				if (type.getActualClass() == String.class) {
 					return type.getFactory().createLiteral(AmplificationHelper.getRandomString(20));
 				}
+				// TODO add some generic type such as List, check DSpotMockedTest to have a use case
 			} catch (SpoonClassNotFoundException exception) {
-				// could load the definition of the class, it may be a client class
+				// couldn't load the definition of the class, it may be a client class
 				return createValue(type);
 			}
 		}
-		throw new RuntimeException();
+		Log.warn("Could not generate a random value");
+		return null;
+//		throw new RuntimeException();
+	}
+
+	public static CtLocalVariable createNull(CtTypeReference type) {
+		Factory factory = type.getFactory();
+		final CtLiteral<?> defaultExpression = factory.createLiteral(null);
+		defaultExpression.addTypeCast(type);
+		return factory.Code().createLocalVariable(type, "vc_" + count++, defaultExpression);
+	}
+
+	private static CtExpression createValue(CtTypeReference type) {
+		if (AmplificationChecker.isArray(type)) {
+			CtArrayTypeReference arrayType = (CtArrayTypeReference) type;
+			CtTypeReference typeComponent = arrayType.getComponentType();
+			final CtNewArray<?> newArray = type.getFactory().createNewArray();
+			newArray.setType(typeComponent);
+			IntStream.range(0, AmplificationHelper.getRandom().nextInt(MAX_ARRAY_SIZE))
+					.mapToObj(i -> createValue(typeComponent))
+					.forEach(newArray::addElement);
+			return newArray;
+		} else {
+			return generateConstructionOf(type);
+		}
+	}
+
+	private static CtExpression generateConstructionOf(CtTypeReference type) {
+		CtConstructorCall<?> constructorCall = type.getFactory().createConstructorCall();
+		constructorCall.setType(type);
+		if (type.getDeclaration() != null) {
+			final List<CtConstructor> constructors = type.getDeclaration().getElements(new TypeFilter<>(CtConstructor.class));
+			if (!constructors.isEmpty()) {
+				final CtConstructor<?> selectedConstructor = constructors.get(AmplificationHelper.getRandom().nextInt(constructors.size()));
+				selectedConstructor.getParameters().forEach(parameter ->
+						constructorCall.addArgument(getRandomValue(parameter.getType()))
+				);
+			}
+		}
+		return constructorCall;
 	}
 
 	private static CtExpression<?> generatePrimitiveRandomValue(CtTypeReference type) {

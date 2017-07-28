@@ -51,7 +51,7 @@ public class DSpotTest extends MavenAbstractTest {
         CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample");
 
         assertEquals(18, amplifiedTest.getMethods().size());
-        assertEquals(expectedAmplifiedBody, amplifiedTest.getMethod("test2_cf19").getBody().toString());
+        assertEquals(expectedAmplifiedBody, amplifiedTest.getMethod("test2_cf27").getBody().toString());
 
         final File file = new File(configuration.getOutputDirectory() + "/test-projects.json");
         assertTrue(file.exists());
@@ -66,22 +66,24 @@ public class DSpotTest extends MavenAbstractTest {
         removeHomFromPropertiesFile();
     }
 
-    private final String expectedAmplifiedBody = "{" + nl +
-            "    example.Example ex = new example.Example();" + nl +
-            "    // StatementAdderOnAssert create random local variable" + nl +
-            "    int vc_4 = -1848848534;" + nl +
-            "    // AssertGenerator add assertion" + nl +
-            "    org.junit.Assert.assertEquals(vc_4, -1848848534);" + nl +
-            "    // StatementAdderOnAssert create literal from method" + nl +
-            "    java.lang.String String_vc_0 = \"abcd\";" + nl +
-            "    // AssertGenerator add assertion" + nl +
-            "    org.junit.Assert.assertEquals(String_vc_0, \"abcd\");" + nl +
-            "    // AssertGenerator create local variable with return value of invocation" + nl +
-            "    char o_test2_cf19__7 = // StatementAdderMethod cloned existing statement" + nl +
-            "    ex.charAt(String_vc_0, vc_4);" + nl +
-            "    // AssertGenerator add assertion" + nl +
-            "    org.junit.Assert.assertEquals(o_test2_cf19__7, 'a');" + nl +
-            "    org.junit.Assert.assertEquals('d', ex.charAt(\"abcd\", 3));" + nl +
+    private final String expectedAmplifiedBody = "{\n" +
+            "    example.Example ex = new example.Example();\n" +
+            "    // StatementAdderOnAssert create random local variable\n" +
+            "    int vc_4 = -710729714;\n" +
+            "    // AssertGenerator add assertion\n" +
+            "    org.junit.Assert.assertEquals(vc_4, -710729714);\n" +
+            "    // StatementAdderOnAssert create random local variable\n" +
+            "    java.lang.String vc_3 = \"!x*zH_,y(q2 5[gpbL[{\";\n" +
+            "    // AssertGenerator add assertion\n" +
+            "    org.junit.Assert.assertEquals(vc_3, \"!x*zH_,y(q2 5[gpbL[{\");\n" +
+            "    // StatementAdderOnAssert create random local variable\n" +
+            "    example.Example vc_1 = new example.Example();\n" +
+            "    // AssertGenerator create local variable with return value of invocation\n" +
+            "    char o_test2_cf27__10 = // StatementAdderMethod cloned existing statement\n" +
+            "    vc_1.charAt(vc_3, vc_4);\n" +
+            "    // AssertGenerator add assertion\n" +
+            "    org.junit.Assert.assertEquals(o_test2_cf27__10, '!');\n" +
+            "    org.junit.Assert.assertEquals('d', ex.charAt(\"abcd\", 3));\n" +
             "}";
 
     @Override
