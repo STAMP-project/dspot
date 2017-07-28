@@ -53,7 +53,7 @@ public class JSAPOptions {
             }
             showUsage();
         } else if (jsapConfig.getBoolean("example")) {
-            Main.runExample();
+            return null;
         }
 
         if (jsapConfig.getString("path") == null) {

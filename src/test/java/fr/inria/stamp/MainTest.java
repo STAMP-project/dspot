@@ -1,5 +1,6 @@
 package fr.inria.stamp;
 
+import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.utils.DSpotUtils;
@@ -19,6 +20,27 @@ import static org.junit.Assert.assertTrue;
 public class MainTest {
 
     private static final String PATH_SEPARATOR = System.getProperty("path.separator");
+
+    @Test
+    public void testExample() throws Exception, InvalidSdkException {
+        try {
+            FileUtils.deleteDirectory(new File("dspot-out"));
+            FileUtils.deleteDirectory(new File("tmpDir"));
+        } catch (Exception ignored) {
+
+        }
+        Main.main(new String[]{"--example"});
+        final File reportFile = new File("dspot-out/example.TestSuiteExample_branch_coverage_report.txt");
+        assertTrue(reportFile.exists());
+        assertTrue(new File("dspot-out/example.TestSuiteExample_branch_coverage.json").exists());
+        assertTrue(new File("dspot-out/example/TestSuiteExampleAmpl.java").exists());
+        try (BufferedReader reader = new BufferedReader(new FileReader(reportFile))) {
+            String content = reader.lines().reduce("", (acc, line) -> acc + line + nl);
+            assertEquals(expectedReportAll, content);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Test
     public void testAll() throws Throwable {
