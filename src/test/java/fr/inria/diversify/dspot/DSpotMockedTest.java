@@ -55,13 +55,13 @@ public class DSpotMockedTest extends MavenAbstractTest {
             "    try {" + nl  +
             "        java.lang.String isbn = info.sanaulla.dal.AmplBookDALTest.mockedBookDAL.addBook(info.sanaulla.dal.AmplBookDALTest.book1);" + nl  +
             "        // StatementAdderOnAssert create null value" + nl  +
-            "        info.sanaulla.models.Book vc_8 = (info.sanaulla.models.Book)null;" + nl  +
+            "        info.sanaulla.models.Book vc_8 = ((info.sanaulla.models.Book) (null));" + nl  +
             "        // StatementAdderOnAssert create random local variable" + nl  +
             "        info.sanaulla.dal.BookDAL vc_7 = new info.sanaulla.dal.BookDAL();" + nl  +
             "        // StatementAdderMethod cloned existing statement" + nl  +
             "        vc_7.addBook(vc_8);" + nl  +
             "        // MethodAssertGenerator build local variable" + nl  +
-            "        Object o_10_0 = info.sanaulla.dal.AmplBookDALTest.book1.getIsbn();" + nl  +
+            "        Object o_11_0 = info.sanaulla.dal.AmplBookDALTest.book1.getIsbn();" + nl  +
             "        org.junit.Assert.fail(\"testAddBook_cf11 should have thrown NullPointerException\");" + nl  +
             "    } catch (java.lang.NullPointerException eee) {" + nl  +
             "    }" + nl  +
