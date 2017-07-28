@@ -9,11 +9,11 @@ public class ClassTargetAmplify {
         return new ClassParameterAmplify();
     }
 
-    public void methodWithPrimitifParameters(boolean b, byte by, short s, int i, long l, float f, double d) {
+    public void methodWithPrimitifParameters(char c, boolean b, byte by, short s, int i, long l, float f, double d) {
         System.out.println("");
     }
 
-    public void methodWithPrimitifParameters(Boolean b, Byte by, Short s, Integer i, Long l, Float f, Double d) {
+    public void methodWithPrimitifParameters(String str, Boolean b, Byte by, Short s, Integer i, Long l, Float f, Double d) {
         System.out.println("");
     }
 

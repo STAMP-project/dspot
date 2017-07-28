@@ -62,29 +62,31 @@ public class StatementAddTest extends AbstractTest {
     }
 
     private final String expectedBody1 = "{" + nl  +
-            "    double d_6 = 0.7018696454992024;" + nl  +
-            "    float f_5 = 0.0728184F;" + nl  +
-            "    long l_4 = 90L;" + nl  +
-            "    int i_3 = 43;" + nl  +
-            "    short s_2 = 18;" + nl  +
-            "    byte by_1 = 47;" + nl  +
-            "    boolean b_0 = false;" + nl  +
+            "    double d_7 = 0.5855341934158772;" + nl  +
+            "    float f_6 = 0.7848072F;" + nl  +
+            "    long l_5 = 10L;" + nl  +
+            "    int i_4 = 90;" + nl  +
+            "    short s_3 = 43;" + nl  +
+            "    byte by_2 = 18;" + nl  +
+            "    boolean b_1 = false;" + nl  +
+            "    char c_0 = 'k';" + nl  +
             "    fr.inria.statementadd.ClassTargetAmplify clazz = new fr.inria.statementadd.ClassTargetAmplify();" + nl  +
             "    clazz.methodWithReturn();" + nl  +
-            "    clazz.methodWithPrimitifParameters(b_0, by_1, s_2, i_3, l_4, f_5, d_6);" + nl  +
+            "    clazz.methodWithPrimitifParameters(c_0, b_1, by_2, s_3, i_4, l_5, f_6, d_7);" + nl  +
             "}";
 
-    private final String expectedBody2 = "{" + nl  +
-            "    java.lang.Double d_13 = 0.1315393550111239;" + nl  +
-            "    java.lang.Float f_12 = 0.4807895F;" + nl  +
-            "    java.lang.Long l_11 = 24L;" + nl  +
-            "    java.lang.Integer i_10 = 86;" + nl  +
-            "    java.lang.Short s_9 = 81;" + nl  +
-            "    java.lang.Byte by_8 = 70;" + nl  +
-            "    java.lang.Boolean b_7 = true;" + nl  +
-            "    fr.inria.statementadd.ClassTargetAmplify clazz = new fr.inria.statementadd.ClassTargetAmplify();" + nl  +
-            "    clazz.methodWithPrimitifParameters(b_7, by_8, s_9, i_10, l_11, f_12, d_13);" + nl  +
-            "    clazz.methodWithReturn();" + nl  +
+    private final String expectedBody2 = "{" + nl +
+            "    java.lang.Double d_15 = 0.6860892400083877;" + nl +
+            "    java.lang.Float f_14 = 0.9954207F;" + nl +
+            "    java.lang.Long l_13 = 30L;" + nl +
+            "    java.lang.Integer i_12 = 24;" + nl +
+            "    java.lang.Short s_11 = 86;" + nl +
+            "    java.lang.Byte by_10 = 81;" + nl +
+            "    java.lang.Boolean b_9 = true;" + nl +
+            "    java.lang.String str_8;" + nl +
+            "    fr.inria.statementadd.ClassTargetAmplify clazz = new fr.inria.statementadd.ClassTargetAmplify();" + nl +
+            "    clazz.methodWithPrimitifParameters(str_8, b_9, by_10, s_11, i_12, l_13, f_14, d_15);" + nl +
+            "    clazz.methodWithReturn();" + nl +
             "}";
 
 }
