@@ -62,7 +62,7 @@ public class TestStatementAdderOnAssert extends AbstractTest {
 
         CtMethod currentMethod = amplifiedMethods.get(0);
         assertEquals("1", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
-        assertEquals("(fr.inria.mutation.ClassUnderTest)null", ((CtLocalVariable)(currentMethod.getBody().getStatement(2))).getDefaultExpression().toString()); // <- nullify the object
+        assertEquals("((fr.inria.mutation.ClassUnderTest) (null))", ((CtLocalVariable)(currentMethod.getBody().getStatement(2))).getDefaultExpression().toString()); // <- nullify the object
         assertTrue(currentMethod.getBody().getStatement(3) instanceof  CtInvocation);
         assertEquals("// StatementAdderMethod cloned existing statement" + nl + "vc_0.minusOne(int_vc_0)", currentMethod.getBody().getStatement(3).toString());
 

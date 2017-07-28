@@ -74,21 +74,21 @@ public class TestValueCreator extends AbstractTest {
 
         assertEquals("vc_"+count, randomLocalVar.getSimpleName());
         assertEquals(factory.Type().INTEGER_PRIMITIVE, randomLocalVar.getType());
-        assertEquals("(int)null", randomLocalVar.getDefaultExpression().toString());
+        assertEquals("((int) (null))", randomLocalVar.getDefaultExpression().toString());
 
         randomLocalVar = valueCreator.createNull(factory.Type().createArrayReference("int"));
         count++;
 
         assertEquals("vc_"+count, randomLocalVar.getSimpleName());
         assertEquals(factory.Type().createArrayReference("int"), randomLocalVar.getType());
-        assertEquals("(int[])null", randomLocalVar.getDefaultExpression().toString());
+        assertEquals("((int[]) (null))", randomLocalVar.getDefaultExpression().toString());
 
         randomLocalVar = valueCreator.createNull(factory.Type().createReference("mutation.ClassUnderTest"));
         count++;
 
         assertEquals("vc_"+count, randomLocalVar.getSimpleName());
         assertEquals(factory.Type().createReference("mutation.ClassUnderTest"), randomLocalVar.getType());
-        assertEquals("(mutation.ClassUnderTest)null", randomLocalVar.getDefaultExpression().toString());
+        assertEquals("((mutation.ClassUnderTest) (null))", randomLocalVar.getDefaultExpression().toString());
     }
 
 }

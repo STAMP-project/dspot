@@ -1,11 +1,8 @@
 package fr.inria.diversify.dspot.value;
 
-import fr.inria.diversify.dspot.value.objectInstanciationTree.ObjectInstantiation;
-import fr.inria.diversify.runner.InputProgram;
-import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtConstructor;
 import spoon.reflect.declaration.ModifierKind;
+import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
 
 import java.util.*;
@@ -16,53 +13,20 @@ import java.util.*;
  * Time: 11:11
  */
 public class ValueFactory {
-    protected InputProgram inputProgram;
-    protected Map<String, ValueType> valueTypes;
+
+    private Map<CtTypeReference, ValueType> valueTypes;
 
 
-    public ValueFactory(InputProgram inputProgram) {
-        this.inputProgram = inputProgram;
+    public ValueFactory(Factory factory) {
         this.valueTypes = new HashMap<>();
-        ValueType.setFactory(inputProgram.getFactory(), this);
-        buildObjectInstantiation();
-    }
-
-    public ValueType getValueType(String typeName) {
-        if(!valueTypes.containsKey(typeName)) {
-            valueTypes.put(typeName, new ValueType(typeName));
-        }
-        return valueTypes.get(typeName);
+//        ValueType.setFactory(factory, this);
     }
 
     public ValueType getValueType(CtTypeReference typeRef) {
-        return getValueType(typeRef.getQualifiedName());
-    }
-
-    protected Set<ObjectInstantiation> buildObjectInstantiation() {
-        Set<ObjectInstantiation> objectInstantiations = new HashSet<>();
-        Set<String> filter = new HashSet<>();
-        List<CtConstructorCall> constructorCalls = inputProgram.getAllElement(CtConstructorCall.class);
-
-        for (CtConstructorCall cc : constructorCalls) {
-            if (!isPrivate(cc)) {
-                String string = cc.getExecutable().toString();
-                if (!filter.contains(string)) {
-                    filter.add(string);
-
-                    ValueType type = getValueType(cc.getType());
-                    objectInstantiations.add(new ObjectInstantiation(type, cc.getExecutable(), this));
-                }
-            }
+        if(!valueTypes.containsKey(typeRef)) {
+            valueTypes.put(typeRef, new ValueType(typeRef));
         }
-        return objectInstantiations;
-    }
-
-    public boolean isPrivate(CtConstructorCall cc) {
-        if(cc.getExecutable() == null || cc.getExecutable().getDeclaration() == null) {
-            return false;
-        } else {
-            return ((CtConstructor)cc.getExecutable().getDeclaration()).getModifiers().contains(ModifierKind.PRIVATE);
-        }
+        return valueTypes.get(typeRef);
     }
 
     public boolean hasConstructorCall(CtClass target, boolean withSubType) {
@@ -80,13 +44,7 @@ public class ValueFactory {
     }
 
     public boolean hasConstructorCall(CtClass target) {
-        if(target != null && target.isTopLevel() && !target.getModifiers().contains(ModifierKind.ABSTRACT)) {
-            String className = target.getQualifiedName();
-            ValueType valueType = getValueType(className);
-            Value value = valueType.getRandomValue(true);
-
-            return value != null;
-        }
-        return false;
+        return target != null && target.isTopLevel() && !target.getModifiers().contains(ModifierKind.ABSTRACT) &&
+                (getValueType(target.getReference()).getRandomValue() != null);
     }
 }

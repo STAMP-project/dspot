@@ -2,14 +2,15 @@ package fr.inria.diversify.dspot.value;
 
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
+import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
+import spoon.reflect.code.CtNewArray;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtArrayTypeReference;
 import spoon.reflect.reference.CtTypeReference;
 
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -21,7 +22,6 @@ public class ValueCreator {
 
     private static final int MAX_ARRAY_SIZE = 5;
     private int count;
-
 
     public ValueCreator() {
         this.count = 0;
@@ -39,39 +39,34 @@ public class ValueCreator {
 
     public CtLocalVariable createNull(CtTypeReference type) {
         Factory factory = type.getFactory();
-        String snippet = "(" + type.getQualifiedName() + ")null";
-        CtExpression expression = factory.Code().createCodeSnippetExpression(snippet);
-        expression.setType(type);
-        return factory.Code().createLocalVariable(type, "vc_" + count++, expression);
+        final CtLiteral<?> defaultExpression = factory.createLiteral(null);
+        defaultExpression.addTypeCast(type);
+        return factory.Code().createLocalVariable(type, "vc_" + count++, defaultExpression);
     }
 
     public CtExpression createValue(CtTypeReference type) {
         Factory factory = type.getFactory();
-        String snippet;
         if (AmplificationChecker.isPrimitive(type)) {
             return createRandomPrimitive(type);
         } else if (AmplificationChecker.isArray(type)) {
             CtArrayTypeReference arrayType = (CtArrayTypeReference) type;
             CtTypeReference typeComponent = arrayType.getComponentType();
-            snippet = "new " + typeComponent.getQualifiedName() + " []{";
-
-            snippet += IntStream.range(0, AmplificationHelper.getRandom().nextInt(MAX_ARRAY_SIZE))
+            final CtNewArray<?> newArray = factory.createNewArray();
+            newArray.setType(typeComponent);
+            IntStream.range(0, AmplificationHelper.getRandom().nextInt(MAX_ARRAY_SIZE))
                     .mapToObj(i -> createValue(typeComponent))
-                    .map(value -> value.toString())
-                    .collect(Collectors.joining(","))
-                    + "}";
+                    .forEach(newArray::addElement);
+            return newArray;
         } else {
-            snippet = "new " + type.getQualifiedName() + "()";
+            CtConstructorCall<?> constructorCall = factory.createConstructorCall();
+            constructorCall.setType(type);
+            return constructorCall;
         }
-        CtExpression expression = factory.Code().createCodeSnippetExpression(snippet);
-        expression.setType(type);
-        return expression;
     }
 
-    protected CtLiteral createRandomPrimitive(CtTypeReference type) {
+    private CtLiteral createRandomPrimitive(CtTypeReference type) {
         Factory factory = type.getFactory();
         String typeName = type.unbox().getSimpleName();
-
         switch (typeName) {
             case "int":
                 return factory.Code().createLiteral(AmplificationHelper.getRandom().nextInt());

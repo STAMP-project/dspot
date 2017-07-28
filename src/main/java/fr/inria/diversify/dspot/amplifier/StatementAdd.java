@@ -2,7 +2,6 @@ package fr.inria.diversify.dspot.amplifier;
 
 
 import fr.inria.diversify.utils.AmplificationHelper;
-import fr.inria.diversify.dspot.value.Value;
 import fr.inria.diversify.dspot.value.ValueFactory;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.utils.TypeUtils;
@@ -33,14 +32,14 @@ public class StatementAdd implements Amplifier {
 
     @Deprecated //The fact that StatementAdd Amplifier need the input program is a conception issue IMHO
     public StatementAdd(InputProgram program) {
-        this.valueFactory = new ValueFactory(program);
+        this.valueFactory = new ValueFactory(program.getFactory());
         this.factory = program.getFactory();
         this.filter = "";
         this.hasConstructor = new HashMap<>();
     }
 
     public StatementAdd(InputProgram program, String filter) {
-        this.valueFactory = new ValueFactory(program);
+        this.valueFactory = new ValueFactory(program.getFactory());
         this.factory = program.getFactory();
         this.filter = filter;
         this.hasConstructor = new HashMap<>();
@@ -112,26 +111,23 @@ public class StatementAdd implements Amplifier {
         CtBlock body = methodClone.getBody();
 
         List<CtParameter> parameters = mthToAdd.getParameters();
-        List<CtExpression<?>> arg = new ArrayList<>(parameters.size());
+        List<CtExpression<?>> arguments = new ArrayList<>(parameters.size());
         for (int i = 0; i < parameters.size(); i++) {
             try {
                 CtParameter parameter = parameters.get(i);
-                Value value = valueFactory.getValueType(parameter.getType()).getRandomValue(true);
-                CtLocalVariable localVar = factory.Code().createLocalVariable(
-                        generateStaticType(parameter.getType(), value.getDynamicType()),
-                        parameter.getSimpleName() + "_" + count[0]++,
-                        null);
-                body.getStatements().add(0, localVar);
-                localVar.setParent(body);
-                arg.add(createLocalVarRef(localVar));
-                value.initLocalVar(body, localVar);
+                CtLocalVariable localVariable = factory.createLocalVariable();
+                localVariable.setSimpleName(parameter.getSimpleName() + "_" + count[0]++);
+                localVariable.setType(parameter.getType());
+                localVariable.setDefaultExpression(valueFactory.getValueType(parameter.getType()).getRandomValue());
+                body.insertBegin(localVariable);
+                arguments.add(factory.createVariableRead(localVariable.getReference(), false));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
 
         CtExpression targetClone = target.clone();
-        CtInvocation newInvocation = factory.Code().createInvocation(targetClone, mthToAdd.getReference(), arg);
+        CtInvocation newInvocation = factory.Code().createInvocation(targetClone, mthToAdd.getReference(), arguments);
 
         CtStatement stmt = findInvocationIn(methodClone, position);
         if (before) {
@@ -153,7 +149,6 @@ public class StatementAdd implements Amplifier {
     private CtExpression<?> createLocalVarRef(CtLocalVariable var) {
         CtLocalVariableReference varRef = factory.Code().createLocalVariableReference(var);
         CtVariableAccess varRead = factory.Code().createVariableRead(varRef, false);
-
         return varRead;
     }
 
@@ -173,7 +168,7 @@ public class StatementAdd implements Amplifier {
 
     private List<CtMethod> findMethodsWithTargetType(CtTypeReference type) {
         if (type == null) {
-            return new ArrayList<>(0);
+            return Collections.emptyList();
         } else {
             return methods.stream()
                     .filter(mth -> mth.getDeclaringType().getReference().getQualifiedName().equals(type.getQualifiedName()))
