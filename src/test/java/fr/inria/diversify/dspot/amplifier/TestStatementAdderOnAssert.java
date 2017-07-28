@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import fr.inria.diversify.dspot.value.ValueCreator;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.AbstractTest;
 import org.junit.Test;
@@ -40,6 +41,7 @@ public class TestStatementAdderOnAssert extends AbstractTest {
         */
 
         Factory factory = Utils.getFactory();
+        ValueCreator.count = 0;
         CtClass<Object> ctClass = factory.Class().get("fr.inria.mutation.ClassUnderTestTest");
         AmplificationHelper.setSeedRandom(23L);
 

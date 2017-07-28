@@ -30,24 +30,24 @@ public class TestValueCreator extends AbstractTest {
          */
 
         AmplificationHelper.setSeedRandom(23L);
-        final ValueCreator valueCreator = new ValueCreator();
+        ValueCreator.count = 0;
         Factory factory = Utils.getFactory();
 
         int count = 0;
 
-        CtLocalVariable randomLocalVar = valueCreator.createRandomLocalVar(factory.Type().INTEGER_PRIMITIVE);
+        CtLocalVariable randomLocalVar = ValueCreator.createRandomLocalVar(factory.Type().INTEGER_PRIMITIVE);
 
         assertEquals("vc_"+count, randomLocalVar.getSimpleName());
         assertEquals(factory.Type().INTEGER_PRIMITIVE, randomLocalVar.getType());
         assertEquals(-1150482841, ((CtLiteral)randomLocalVar.getDefaultExpression()).getValue());
 
-        randomLocalVar = valueCreator.createRandomLocalVar(factory.Type().createArrayReference("int"));
+        randomLocalVar = ValueCreator.createRandomLocalVar(factory.Type().createArrayReference("int"));
         count++;
 
         assertEquals("vc_"+count, randomLocalVar.getSimpleName());
         assertEquals(factory.Type().createArrayReference("int"), randomLocalVar.getType());
 
-        randomLocalVar = valueCreator.createRandomLocalVar(factory.Type().createReference("mutation.ClassUnderTest"));
+        randomLocalVar = ValueCreator.createRandomLocalVar(factory.Type().createReference("mutation.ClassUnderTest"));
         count++;
 
         assertEquals("vc_"+count, randomLocalVar.getSimpleName());
@@ -64,26 +64,26 @@ public class TestValueCreator extends AbstractTest {
          */
 
         AmplificationHelper.setSeedRandom(23L);
-        final ValueCreator valueCreator = new ValueCreator();
+        ValueCreator.count = 0;
         Factory factory = Utils.getFactory();
 
         int count = 0;
 
-        CtLocalVariable randomLocalVar = valueCreator.createNull(factory.Type().INTEGER_PRIMITIVE);
+        CtLocalVariable randomLocalVar = ValueCreator.createNull(factory.Type().INTEGER_PRIMITIVE);
 
 
         assertEquals("vc_"+count, randomLocalVar.getSimpleName());
         assertEquals(factory.Type().INTEGER_PRIMITIVE, randomLocalVar.getType());
         assertEquals("((int) (null))", randomLocalVar.getDefaultExpression().toString());
 
-        randomLocalVar = valueCreator.createNull(factory.Type().createArrayReference("int"));
+        randomLocalVar = ValueCreator.createNull(factory.Type().createArrayReference("int"));
         count++;
 
         assertEquals("vc_"+count, randomLocalVar.getSimpleName());
         assertEquals(factory.Type().createArrayReference("int"), randomLocalVar.getType());
         assertEquals("((int[]) (null))", randomLocalVar.getDefaultExpression().toString());
 
-        randomLocalVar = valueCreator.createNull(factory.Type().createReference("mutation.ClassUnderTest"));
+        randomLocalVar = ValueCreator.createNull(factory.Type().createReference("mutation.ClassUnderTest"));
         count++;
 
         assertEquals("vc_"+count, randomLocalVar.getSimpleName());

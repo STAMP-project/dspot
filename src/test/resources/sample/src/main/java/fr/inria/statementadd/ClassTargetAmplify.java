@@ -9,6 +9,10 @@ public class ClassTargetAmplify {
         return new ClassParameterAmplify();
     }
 
+    public void methodWithDomainParameter(ClassParameterAmplify object) {
+        System.out.println("");
+    }
+
     public void methodWithPrimitifParameters(char c, boolean b, byte by, short s, int i, long l, float f, double d) {
         System.out.println("");
     }

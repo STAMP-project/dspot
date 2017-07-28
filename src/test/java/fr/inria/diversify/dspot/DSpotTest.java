@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.support.json.ProjectTimeJSON;
+import fr.inria.diversify.dspot.value.ValueCreator;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
@@ -31,6 +32,7 @@ public class DSpotTest extends MavenAbstractTest {
             Test the whole dspot procedure.
                 It results with 24 methods: 18 amplified tests + 6 original tests.
          */
+        ValueCreator.count = 0;
         AmplificationHelper.setSeedRandom(23L);
         InputConfiguration configuration = new InputConfiguration(pathToPropertiesFile);
         InputProgram program = new InputProgram();
