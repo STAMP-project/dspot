@@ -12,6 +12,7 @@ import spoon.reflect.declaration.CtType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -44,16 +45,18 @@ public class JacocoCoverageSelector implements TestSelector {
 	public List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified) {
 		if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
 			this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
-
+			final List<String> methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).collect(Collectors.toList());
+			this.selectedToBeAmplifiedCoverageResultsMap = new JacocoExecutor(this.program).executeJacoco(
+					this.currentClassTestToBeAmplified.getQualifiedName(), methodNames);
 		}
-		final List<String> methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).collect(Collectors.toList());
-		this.selectedToBeAmplifiedCoverageResultsMap = new JacocoExecutor(this.program).executeJacoco(
-				this.currentClassTestToBeAmplified.getQualifiedName(), methodNames);
 		return testsToBeAmplified;
 	}
 
 	@Override
 	public List<CtMethod<?>> selectToKeep(List<CtMethod<?>> amplifiedTestToBeKept) {
+		if (amplifiedTestToBeKept.isEmpty()) {
+			return amplifiedTestToBeKept;
+		}
 		final List<String> methodNames = amplifiedTestToBeKept.stream().map(CtNamedElement::getSimpleName).collect(Collectors.toList());
 		final Map<String, CoverageResults> coverageResultsMap = new JacocoExecutor(this.program).executeJacoco(
 				this.currentClassTestToBeAmplified.getQualifiedName(), methodNames);
@@ -64,6 +67,14 @@ public class JacocoCoverageSelector implements TestSelector {
 										getFirstParentThatHasBeenRun(ctMethod).getSimpleName())
 						)
 				).collect(Collectors.toList());
+
+		this.selectedToBeAmplifiedCoverageResultsMap.putAll(methodsKept.stream()
+				.map(CtNamedElement::getSimpleName)
+				.collect(
+						Collectors.toMap(Function.identity(), coverageResultsMap::get)
+				)
+		);
+
 		this.selectedAmplifiedTest = new ArrayList<>(methodsKept);
 		return methodsKept;
 	}

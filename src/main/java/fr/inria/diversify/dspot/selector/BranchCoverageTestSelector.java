@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
  * benjamin.danglot@inria.fr
  * on 1/5/17
  */
+@Deprecated
 public class BranchCoverageTestSelector implements TestSelector {
 
     private File logDir;

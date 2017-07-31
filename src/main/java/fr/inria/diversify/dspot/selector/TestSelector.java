@@ -16,12 +16,14 @@ public interface TestSelector {
 
     void init(InputConfiguration configuration);
 
+    @Deprecated
     void reset();
 
     List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified);
 
     List<CtMethod<?>> selectToKeep(List<CtMethod<?>> amplifiedTestToBeKept);
 
+    @Deprecated
     void update();
 
     void report();
