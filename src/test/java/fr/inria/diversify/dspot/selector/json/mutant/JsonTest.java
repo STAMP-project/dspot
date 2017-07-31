@@ -1,7 +1,10 @@
-package fr.inria.diversify.dspot.selector.json;
+package fr.inria.diversify.dspot.selector.json.mutant;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import fr.inria.diversify.dspot.selector.json.mutant.MutantJSON;
+import fr.inria.diversify.dspot.selector.json.mutant.TestCaseJSON;
+import fr.inria.diversify.dspot.selector.json.mutant.TestClassJSON;
 import org.junit.Test;
 
 import java.io.*;
