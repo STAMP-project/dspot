@@ -1,6 +1,7 @@
 package fr.inria.stamp.coverage;
 
 import fr.inria.diversify.runner.InputProgram;
+import fr.inria.stamp.test.listener.TestListener;
 import fr.inria.stamp.test.runner.DefaultTestRunner;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -20,7 +21,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -115,10 +115,7 @@ public class JacocoExecutor {
 
 	public Map<String, CoverageResults> executeJacoco(String fullQualifiedNameTestClass, Collection<String> methodNames) {
 		final String testClassesDirectory = this.program.getProgramDir() + "/" + this.program.getTestClassesDir();
-
-		final RuntimeData data = new RuntimeData();
-		final ExecutionDataStore executionData = new ExecutionDataStore();
-		final SessionInfoStore sessionInfos = new SessionInfoStore();
+		final String classesDirectory = this.program.getProgramDir() + "/" + this.program.getClassesDir();
 		URLClassLoader classLoader;
 		try {
 			classLoader = new URLClassLoader(new URL[]
@@ -132,23 +129,16 @@ public class JacocoExecutor {
 					fullQualifiedNameTestClass,
 					IOUtils.toByteArray(classLoader.getResourceAsStream(resource))
 			);
-
 			final Class<?> testClass = this.internalClassLoader.loadClass(fullQualifiedNameTestClass);
-			runtime.startup(data);
+			final RuntimeData data = new RuntimeData();
+			this.runtime.startup(data);
+			final JacocoListener jacocoListener = new JacocoListener(data, classesDirectory);
 			final DefaultTestRunner runner = new DefaultTestRunner(this.internalClassLoader);
-
-			final Map<String, CoverageResults> coverageResultsMap = new HashMap<>();
-
-			methodNames.forEach(methodName -> {
-				runner.run(testClass, methodName);
-				data.collect(executionData, sessionInfos, false);
-				coverageResultsMap.put(methodName, coverageResults(executionData));
-			});
-			runtime.shutdown();
-
+			final TestListener run = runner.run(testClass, methodNames, jacocoListener);
+			jacocoListener.getResults().forEach(System.out::println);
+			this.runtime.shutdown();
 			clearCache(this.internalClassLoader);
-
-			return coverageResultsMap;
+			return jacocoListener.getCoverageResultsMap();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

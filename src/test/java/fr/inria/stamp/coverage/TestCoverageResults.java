@@ -32,7 +32,9 @@ public class TestCoverageResults {
 		assertFalse(coverageResults2.isBetterThan(coverageResults3));
 
 		assertTrue(coverageResults3.isBetterThan(coverageResults));
-		assertFalse(coverageResults3.isBetterThan(coverageResults1));
+		assertTrue(coverageResults3.isBetterThan(coverageResults1));
 		assertTrue(coverageResults3.isBetterThan(coverageResults2));
+
+		assertTrue(coverageResults.isBetterThan(null));
 	}
 }

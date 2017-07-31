@@ -1,7 +1,6 @@
 package fr.inria.stamp.coverage;
 
-import fr.inria.diversify.log.branch.Coverage;
-import org.kevoree.log.Log;
+import fr.inria.diversify.util.Log;
 
 /**
  * Created by Benjamin DANGLOT
@@ -19,26 +18,13 @@ public class CoverageResults {
 		this.instructionsTotal = instructionsTotal;
 	}
 
-	@Override
-	public String toString() {
-		return "CoverageResults{" +
-				"instructionsCovered=" + instructionsCovered +
-				", instructionsTotal=" + instructionsTotal +
-				'}';
-	}
-
 	public boolean isBetterThan(CoverageResults that) {
 		if (that == null) {
 			return true;
 		}
-		Log.debug("that is not null");
-		int percCoverageThis = (int) ((double) this.instructionsCovered / (double) this.instructionsTotal);
-		int percCoverageThat = (int) ((double) that.instructionsCovered / (double) that.instructionsTotal);
-		if (percCoverageThat == percCoverageThis) {
-			return this.instructionsCovered > that.instructionsCovered;
-		} else {
-			return percCoverageThis > percCoverageThat;
-		}
+		double percCoverageThis = ((double) this.instructionsCovered / (double) this.instructionsTotal);
+		double percCoverageThat = ((double) that.instructionsCovered / (double) that.instructionsTotal);
+		return percCoverageThis >= percCoverageThat;
 	}
 
 }

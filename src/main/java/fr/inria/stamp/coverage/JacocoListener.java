@@ -1,0 +1,89 @@
+package fr.inria.stamp.coverage;
+
+import org.jacoco.core.analysis.Analyzer;
+import org.jacoco.core.analysis.CoverageBuilder;
+import org.jacoco.core.analysis.IClassCoverage;
+import org.jacoco.core.data.ExecutionDataStore;
+import org.jacoco.core.data.SessionInfoStore;
+import org.jacoco.core.runtime.RuntimeData;
+import org.junit.runner.Description;
+import org.junit.runner.notification.RunListener;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by Benjamin DANGLOT
+ * benjamin.danglot@inria.fr
+ * on 31/07/17
+ */
+public class JacocoListener extends RunListener {
+
+	private final Map<String, CoverageResults> coverageResultsMap;
+
+	private final String classesDirectory;
+
+	private RuntimeData data;
+
+	private ExecutionDataStore executionData;
+
+	private SessionInfoStore sessionInfos;
+
+	private List<String> results = new ArrayList<>();
+
+	public JacocoListener(RuntimeData data, String classesDirectory) {
+		this.data = data;
+		this.classesDirectory = classesDirectory;
+		this.coverageResultsMap = new HashMap<>();
+	}
+
+	public Map<String, CoverageResults> getCoverageResultsMap() {
+		return coverageResultsMap;
+	}
+
+	@Override
+	public void testStarted(Description description) throws Exception {
+		this.executionData = new ExecutionDataStore();
+		this.sessionInfos = new SessionInfoStore();
+		data.setSessionId(description.getMethodName());
+		data.collect(executionData, sessionInfos, true);
+	}
+
+	public List<String> getResults() {
+		return results;
+	}
+
+	@Override
+	public void testFinished(Description description) throws Exception {
+		data.collect(executionData, sessionInfos, false);
+		final CoverageResults v = coverageResults(executionData);
+		results.add(String.format("%s covered %d over %d", description.getMethodName(), v.instructionsCovered, v.instructionsTotal));
+		coverageResultsMap.put(description.getMethodName(), v);
+	}
+
+	private CoverageResults coverageResults(ExecutionDataStore executionData) {
+		final CoverageBuilder coverageBuilder = new CoverageBuilder();
+		final Analyzer analyzer = new Analyzer(executionData, coverageBuilder);
+
+		try {
+			analyzer.analyzeAll(new File(classesDirectory));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		final int[] counter = new int[2];
+		coverageBuilder.getClasses().stream()
+				.map(IClassCoverage::getLineCounter)
+				.forEach(iCounter -> {
+					counter[0] += iCounter.getCoveredCount();
+					counter[1] += iCounter.getTotalCount();
+				});
+
+		return new CoverageResults(counter[0], counter[1]);
+	}
+
+}
