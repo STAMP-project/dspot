@@ -134,8 +134,7 @@ public class JacocoExecutor {
 			this.runtime.startup(data);
 			final JacocoListener jacocoListener = new JacocoListener(data, classesDirectory);
 			final DefaultTestRunner runner = new DefaultTestRunner(this.internalClassLoader);
-			final TestListener run = runner.run(testClass, methodNames, jacocoListener);
-			jacocoListener.getResults().forEach(System.out::println);
+			runner.run(testClass, methodNames, jacocoListener);
 			this.runtime.shutdown();
 			clearCache(this.internalClassLoader);
 			return jacocoListener.getCoverageResultsMap();

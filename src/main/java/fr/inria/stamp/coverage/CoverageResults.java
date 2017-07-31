@@ -1,7 +1,5 @@
 package fr.inria.stamp.coverage;
 
-import fr.inria.diversify.util.Log;
-
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr

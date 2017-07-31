@@ -33,8 +33,6 @@ public class JacocoListener extends RunListener {
 
 	private SessionInfoStore sessionInfos;
 
-	private List<String> results = new ArrayList<>();
-
 	public JacocoListener(RuntimeData data, String classesDirectory) {
 		this.data = data;
 		this.classesDirectory = classesDirectory;
@@ -53,15 +51,10 @@ public class JacocoListener extends RunListener {
 		data.collect(executionData, sessionInfos, true);
 	}
 
-	public List<String> getResults() {
-		return results;
-	}
-
 	@Override
 	public void testFinished(Description description) throws Exception {
 		data.collect(executionData, sessionInfos, false);
 		final CoverageResults v = coverageResults(executionData);
-		results.add(String.format("%s covered %d over %d", description.getMethodName(), v.instructionsCovered, v.instructionsTotal));
 		coverageResultsMap.put(description.getMethodName(), v);
 	}
 
@@ -77,7 +70,7 @@ public class JacocoListener extends RunListener {
 
 		final int[] counter = new int[2];
 		coverageBuilder.getClasses().stream()
-				.map(IClassCoverage::getLineCounter)
+				.map(IClassCoverage::getInstructionCounter)
 				.forEach(iCounter -> {
 					counter[0] += iCounter.getCoveredCount();
 					counter[1] += iCounter.getTotalCount();
