@@ -1,6 +1,7 @@
 package fr.inria.stamp.test.runner;
 
 import fr.inria.diversify.logger.Logger;
+import fr.inria.stamp.coverage.JacocoListener;
 import fr.inria.stamp.test.filter.MethodFilter;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Request;
@@ -71,6 +72,30 @@ public class MockitoTestRunner extends AbstractTestRunner {
 		} catch (InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public TestListener run(Class<?> testClass, Collection<String> methodNames, JacocoListener jacocoListener) {
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		TestListener listener = new TestListener();
+		final Future<?> submit = executor.submit(() -> {
+			Request request = Request.aClass(testClass);
+			request = request.filterWith(new MethodFilter(methodNames));
+			Runner runner = request.getRunner();
+			RunNotifier runNotifier = new RunNotifier();
+			runNotifier.addListener(jacocoListener);
+			runNotifier.addListener(listener);
+			runner.run(runNotifier);
+		});
+		try {
+			submit.get(10000, TimeUnit.MILLISECONDS);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			submit.cancel(true);
+			executor.shutdownNow();
+		}
+		return listener;
 	}
 
 }
