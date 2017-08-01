@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot.value;
+package fr.inria.diversify.dspot.amplifier.value;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import fr.inria.diversify.util.Log;
@@ -9,6 +9,7 @@ import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.code.CtNewArray;
+import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtConstructor;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtArrayTypeReference;
@@ -16,7 +17,10 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -30,10 +34,18 @@ public class ValueCreator {
 	public static int count = 0;
 
 	public static CtLocalVariable createRandomLocalVar(CtTypeReference type) {
-		return type.getFactory().createLocalVariable(type, "vc_" + count++, getRandomValue(type));
+		return ValueCreator.createRandomLocalVar(type, "vc");
 	}
 
-	public static CtExpression<?> getRandomValue(CtTypeReference type) {
+	public static CtLocalVariable createRandomLocalVar(CtTypeReference type, String prefixName) {
+		final CtExpression<?> randomValue = getRandomValue(type);
+		if (randomValue == null) {
+			return null;
+		}
+		return type.getFactory().createLocalVariable(type, prefixName + "_" + count++, randomValue);
+	}
+
+	private static CtExpression<?> getRandomValue(CtTypeReference type) {
 		if (AmplificationChecker.isPrimitive(type)) {
 			return generatePrimitiveRandomValue(type);
 		} else {
@@ -42,13 +54,19 @@ public class ValueCreator {
 					return createArray(type);
 				} else if (type.getActualClass() == String.class) {
 					return type.getFactory().createLiteral(AmplificationHelper.getRandomString(20));
-				}// TODO add some generic type such as List, check DSpotMockedTest to have a use case
+				} else if (type.getActualClass() == Collection.class) {
+					//todo
+					return null;
+				} else if (type.getActualClass() == Map.class) {
+					//todo
+					return null;
+				}
+				// TODO add some generic type such as List, check DSpotMockedTest to have a use case
 			} catch (SpoonClassNotFoundException exception) {
 				// couldn't load the definition of the class, it may be a client class
 				return generateConstructionOf(type);
 			}
 		}
-		Log.warn("Could not generate a random value");
 		return null;
 //		throw new RuntimeException();
 	}
@@ -74,6 +92,30 @@ public class ValueCreator {
 					.forEach(newArray::addElement);
 		}
 		return newArray;
+	}
+
+	public static List<CtExpression> generateAllConstructionOf(CtTypeReference type) {
+		CtConstructorCall<?> constructorCall = type.getFactory().createConstructorCall();
+		constructorCall.setType(type);
+		if (type.getDeclaration() != null) {
+			final List<CtConstructor<?>> constructors = type.getDeclaration().getElements(new TypeFilter<>(CtConstructor.class));
+			if (!constructors.isEmpty()) {
+				final List<CtExpression> generatedConstructors = constructors.stream().map(ctConstructor -> {
+							final CtConstructorCall<?> clone = constructorCall.clone();
+							ctConstructor.getParameters().forEach(parameter ->
+									clone.addArgument(getRandomValue(parameter.getType()))
+							);
+							return clone;
+						}
+				).collect(Collectors.toList());
+				//add a null value
+				final CtExpression<?> literalNull = type.getFactory().createLiteral(null);
+				literalNull.setType(type);
+				generatedConstructors.add(literalNull);
+				return generatedConstructors;
+			}
+		}
+		return Collections.singletonList(constructorCall);
 	}
 
 	private static CtExpression generateConstructionOf(CtTypeReference type) {

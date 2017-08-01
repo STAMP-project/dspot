@@ -2,12 +2,12 @@ package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.codeFragment.InputContext;
 import fr.inria.diversify.codeFragment.Statement;
+import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
+import fr.inria.diversify.dspot.amplifier.value.VarCartesianProduct;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.dspot.support.Counter;
-import fr.inria.diversify.dspot.value.ValueCreator;
-import fr.inria.diversify.dspot.value.VarCartesianProduct;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -31,6 +31,7 @@ import static spoon.reflect.visitor.Query.getElements;
  * Date: 02/12/15
  * Time: 14:55
  */
+
 public class StatementAdderOnAssert implements Amplifier {
 
     private List<Statement> localVars;

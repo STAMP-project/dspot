@@ -1,9 +1,8 @@
 package fr.inria.diversify.dspot.amplifier;
 
 
-import fr.inria.diversify.dspot.value.ValueCreator;
+import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.utils.AmplificationHelper;
-import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.utils.TypeUtils;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
@@ -15,6 +14,7 @@ import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * User: Simon
@@ -23,54 +23,83 @@ import java.util.stream.Collectors;
  */
 public class StatementAdd implements Amplifier {
 
+	private int counterGenerateNewObject = 0;
 	private String filter;
 	private Set<CtMethod> methods;
 	private Map<CtType, Boolean> hasConstructor;
-	private Factory factory;
-	private final int[] count = {0};
 
-	@Deprecated //The fact that StatementAdd Amplifier need the input program is a conception issue IMHO
-	public StatementAdd(InputProgram program) {
-		this.factory = program.getFactory();
+	public StatementAdd() {
 		this.filter = "";
 		this.hasConstructor = new HashMap<>();
 	}
 
-	public StatementAdd(InputProgram program, String filter) {
-		this.factory = program.getFactory();
-		this.filter = filter;
-		this.hasConstructor = new HashMap<>();
-	}
-
-	public StatementAdd(Factory factory, String filter) {
-		this.factory = factory;
+	public StatementAdd(String filter) {
 		this.filter = filter;
 		this.hasConstructor = new HashMap<>();
 	}
 
 	@Override
 	public List<CtMethod> apply(CtMethod method) {
+		// generate new objects
+ 		final List<CtMethod<?>> generateNewObjects = generateNewObjects(method);
+
+		// reuse existing object in test to add call to methods
+		final List<CtMethod> useExistingObject = useExistingObject(method); // original
+		useExistingObject.addAll(generateNewObjects.stream() // + generated at previous step
+				.flatMap(ctMethod -> useExistingObject(ctMethod).stream())
+				.collect(Collectors.toList())
+		);
+		// use results of existing method call to generate new statement.
+		final List<CtMethod> useReturnValuesOfExistingMethodCall = useReturnValuesOfExistingMethodCall(method);  // original
+		useReturnValuesOfExistingMethodCall.addAll(generateNewObjects.stream() // + generated at previous step
+				.flatMap(ctMethod -> useReturnValuesOfExistingMethodCall(ctMethod).stream())
+				.collect(Collectors.toList()));
+
+		useExistingObject.addAll(useReturnValuesOfExistingMethodCall);
+		return useExistingObject;
+	}
+
+	private List<CtMethod<?>> generateNewObjects(CtMethod method) {
+		List<CtLocalVariable<?>> existingObjects = getExistingObjects(method);
+		final Stream<? extends CtMethod<?>> gen_o1 = existingObjects.stream() // must use tmp variable because javac is confused
+				.flatMap(localVariable -> ValueCreator.generateAllConstructionOf(localVariable.getType()).stream())
+				.map(ctExpression -> {
+							final CtMethod<?> clone = AmplificationHelper.cloneMethod(method, "_sd");
+							clone.getBody().insertEnd(
+									clone.getFactory().createLocalVariable(
+											ctExpression.getType(), "gen_o" + counterGenerateNewObject++, ctExpression
+									)
+							);
+							return clone;
+						}
+				);
+		return gen_o1.collect(Collectors.toList());
+	}
+
+	private List<CtMethod> useExistingObject(CtMethod method) {
+		List<CtLocalVariable<?>> existingObjects = getExistingObjects(method);
+		return existingObjects.stream()
+				.flatMap(existingObject -> findMethodsWithTargetType(existingObject.getType()).stream()
+						.map(methodToBeAdd ->
+								addInvocation(method,
+										methodToBeAdd,
+										createLocalVarRef(existingObject),
+										existingObject)
+						).collect(Collectors.toList()).stream()
+				).collect(Collectors.toList());
+	}
+
+	private List<CtMethod> useReturnValuesOfExistingMethodCall(CtMethod method) {
+		final int[] count = new int[1];
 		count[0] = 0;
 		List<CtInvocation> invocations = getInvocation(method);
-		final List<CtMethod> ampMethods = invocations.stream()
-				.filter(invocation -> invocation.getExecutable().getDeclaration() != null &&
-						!((CtMethod) invocation.getExecutable().getDeclaration()).getModifiers().contains(ModifierKind.STATIC))
-				.flatMap(invocation ->
-						findMethodsWithTargetType(invocation.getTarget().getType()).stream()
-								.map(addMth -> addInvocation(method, addMth, invocation.getTarget(), invocation, AmplificationHelper.getRandom().nextBoolean()))
-								.collect(Collectors.toList()).stream())
-				.collect(Collectors.toList());
-
-		// use the existing invocation to add new invocation
-
-		// use the potential parameters to generate new invocation
-
+		final List<CtMethod> ampMethods = new ArrayList<>();
 		invocations.stream()
 				.filter(invocation -> !TypeUtils.isPrimitive(invocation.getType()) || !TypeUtils.isString(invocation.getType()))
 				.forEach(invocation -> {
 					List<CtMethod> methodsWithTargetType = findMethodsWithTargetType(invocation.getType());
 					if (!methodsWithTargetType.isEmpty()) {
-						CtLocalVariable localVar = factory.Code().createLocalVariable(
+						CtLocalVariable localVar = method.getFactory().Code().createLocalVariable(
 								invocation.getType(),
 								"invoc_" + count[0]++,
 								invocation);
@@ -80,14 +109,22 @@ public class StatementAdd implements Amplifier {
 						stmt.replace(localVar);
 
 						ampMethods.addAll(methodsWithTargetType.stream()
-								.map(addMth -> addInvocation(methodClone, addMth, target, localVar, false))
+								.map(addMth -> addInvocation(methodClone, addMth, target, localVar))
 								.collect(Collectors.toList()));
 					}
 				});
-
-		//  use the return value of the first generation to generate
-
 		return ampMethods;
+	}
+
+	private List<CtLocalVariable<?>> getExistingObjects(CtMethod method) {
+		return method.getElements(new TypeFilter<CtLocalVariable<?>>(CtLocalVariable.class) {
+			@Override
+			public boolean matches(CtLocalVariable<?> element) {
+				return element.getType() != null &&
+						!element.getType().isPrimitive() &&
+						element.getType().getDeclaration() != null;
+			}
+		});
 	}
 
 	@Override
@@ -101,8 +138,10 @@ public class StatementAdd implements Amplifier {
 		initMethods(testClass);
 	}
 
-	private CtMethod addInvocation(CtMethod mth, CtMethod mthToAdd, CtExpression target, CtStatement position, boolean before) {
-		CtMethod methodClone = AmplificationHelper.cloneMethod(mth, "_sd");
+	private CtMethod addInvocation(CtMethod method, CtMethod mthToAdd, CtExpression target, CtStatement position) {
+		final Factory factory = method.getFactory();
+		CtMethod methodClone = AmplificationHelper.cloneMethod(method, "_sd");
+
 		CtBlock body = methodClone.getBody();
 
 		List<CtParameter> parameters = mthToAdd.getParameters();
@@ -110,10 +149,7 @@ public class StatementAdd implements Amplifier {
 		for (int i = 0; i < parameters.size(); i++) {
 			try {
 				CtParameter parameter = parameters.get(i);
-				CtLocalVariable localVariable = factory.createLocalVariable();
-				localVariable.setSimpleName(parameter.getSimpleName() + "_" + count[0]++);
-				localVariable.setType(parameter.getType());
-				localVariable.setDefaultExpression(ValueCreator.getRandomValue(parameter.getType()));
+				CtLocalVariable localVariable = ValueCreator.createRandomLocalVar(parameter.getType(), parameter.getSimpleName());
 				body.insertBegin(localVariable);
 				arguments.add(factory.createVariableRead(localVariable.getReference(), false));
 			} catch (Exception e) {
@@ -125,11 +161,7 @@ public class StatementAdd implements Amplifier {
 		CtInvocation newInvocation = factory.Code().createInvocation(targetClone, mthToAdd.getReference(), arguments);
 
 		CtStatement stmt = findInvocationIn(methodClone, position);
-		if (before) {
-			stmt.insertBefore(newInvocation);
-		} else {
-			stmt.insertAfter(newInvocation);
-		}
+		stmt.insertAfter(newInvocation);
 
 		return methodClone;
 	}
@@ -142,8 +174,8 @@ public class StatementAdd implements Amplifier {
 	}
 
 	private CtExpression<?> createLocalVarRef(CtLocalVariable var) {
-		CtLocalVariableReference varRef = factory.Code().createLocalVariableReference(var);
-		CtVariableAccess varRead = factory.Code().createVariableRead(varRef, false);
+		CtLocalVariableReference varRef = var.getFactory().Code().createLocalVariableReference(var);
+		CtVariableAccess varRead = var.getFactory().Code().createVariableRead(varRef, false);
 		return varRead;
 	}
 
@@ -189,6 +221,7 @@ public class StatementAdd implements Amplifier {
 				.collect(Collectors.toSet());
 	}
 
+	@Deprecated
 	private boolean isSerializable(CtTypeReference type) {
 		if (!hasConstructor.containsKey(type.getDeclaration())) {
 			if (type.getDeclaration() instanceof CtClass) {
@@ -202,14 +235,15 @@ public class StatementAdd implements Amplifier {
 		return hasConstructor.get(type.getDeclaration());
 	}
 
+	@Deprecated
 	private boolean hasConstructorCall(CtClass target) {
 		CtTypeReference ref = target.getReference();
 		return target.getFactory().Class().getAll(false).stream()
 				.filter(type -> type.getReference().isSubtypeOf(ref))
 				.filter(type -> type instanceof CtClass)
 				.map(cl ->
-						target.isTopLevel() && !target.getModifiers().contains(ModifierKind.ABSTRACT)
-						&& (ValueCreator.getRandomValue(target.getReference()) != null)
+								target.isTopLevel() && !target.getModifiers().contains(ModifierKind.ABSTRACT)
+						/*&& (ValueCreator.getRandomValue(target.getReference()) != null)*/
 				)
 				.anyMatch(Objects::nonNull);
 	}

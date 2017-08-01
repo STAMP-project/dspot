@@ -2,7 +2,7 @@ package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
-import fr.inria.diversify.dspot.value.ValueCreator;
+import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.AbstractTest;
 import org.junit.Test;
@@ -50,6 +50,8 @@ public class TestStatementAdderOnAssert extends AbstractTest {
 
         CtMethod originalMethod = Utils.findMethod(ctClass, "testLit");
         List<CtMethod> amplifiedMethods = amplificator.apply(originalMethod);
+
+        System.out.println(amplifiedMethods);
 
         amplifiedMethods.forEach(method -> {
             assertEquals(1, method.getElements(new TypeFilter<CtLocalVariable>(CtLocalVariable.class) {

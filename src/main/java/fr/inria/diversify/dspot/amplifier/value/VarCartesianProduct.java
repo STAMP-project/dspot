@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot.value;
+package fr.inria.diversify.dspot.amplifier.value;
 
 import fr.inria.diversify.codeFragment.Statement;
 import fr.inria.diversify.utils.DSpotUtils;

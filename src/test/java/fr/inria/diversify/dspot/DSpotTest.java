@@ -2,19 +2,18 @@ package fr.inria.diversify.dspot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.support.json.ProjectTimeJSON;
-import fr.inria.diversify.dspot.value.ValueCreator;
+import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.utils.AmplificationHelper;
 import org.junit.Test;
+import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.io.*;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -50,8 +49,8 @@ public class DSpotTest extends MavenAbstractTest {
 
         CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample");
 
-        assertEquals(18, amplifiedTest.getMethods().size());
-        assertEquals(expectedAmplifiedBody, amplifiedTest.getMethod("test2_cf27").getBody().toString());
+        assertEquals(24, amplifiedTest.getMethods().size());
+        assertEquals(expectedAmplifiedBody, ((CtMethod<?>)amplifiedTest.getMethodsByName("test8_cf613").get(0)).getBody().toString());
 
         final File file = new File(configuration.getOutputDirectory() + "/test-projects.json");
         assertTrue(file.exists());
@@ -69,21 +68,21 @@ public class DSpotTest extends MavenAbstractTest {
     private final String expectedAmplifiedBody = "{\n" +
             "    example.Example ex = new example.Example();\n" +
             "    // StatementAdderOnAssert create random local variable\n" +
-            "    int vc_4 = -710729714;\n" +
+            "    int vc_412 = -1798905206;\n" +
             "    // AssertGenerator add assertion\n" +
-            "    org.junit.Assert.assertEquals(vc_4, -710729714);\n" +
-            "    // StatementAdderOnAssert create random local variable\n" +
-            "    java.lang.String vc_3 = \"!x*zH_,y(q2 5[gpbL[{\";\n" +
+            "    org.junit.Assert.assertEquals(vc_412, -1798905206);\n" +
+            "    // StatementAdderOnAssert create literal from method\n" +
+            "    java.lang.String String_vc_8 = \"abcd\";\n" +
             "    // AssertGenerator add assertion\n" +
-            "    org.junit.Assert.assertEquals(vc_3, \"!x*zH_,y(q2 5[gpbL[{\");\n" +
+            "    org.junit.Assert.assertEquals(String_vc_8, \"abcd\");\n" +
             "    // StatementAdderOnAssert create random local variable\n" +
-            "    example.Example vc_1 = new example.Example();\n" +
+            "    example.Example vc_409 = new example.Example();\n" +
             "    // AssertGenerator create local variable with return value of invocation\n" +
-            "    char o_test2_cf27__10 = // StatementAdderMethod cloned existing statement\n" +
-            "    vc_1.charAt(vc_3, vc_4);\n" +
+            "    char o_test8_cf613__10 = // StatementAdderMethod cloned existing statement\n" +
+            "    vc_409.charAt(String_vc_8, vc_412);\n" +
             "    // AssertGenerator add assertion\n" +
-            "    org.junit.Assert.assertEquals(o_test2_cf27__10, '!');\n" +
-            "    org.junit.Assert.assertEquals('d', ex.charAt(\"abcd\", 3));\n" +
+            "    org.junit.Assert.assertEquals(o_test8_cf613__10, 'a');\n" +
+            "    org.junit.Assert.assertEquals('b', ex.charAt(\"abcd\", 1));\n" +
             "}";
 
     @Override
