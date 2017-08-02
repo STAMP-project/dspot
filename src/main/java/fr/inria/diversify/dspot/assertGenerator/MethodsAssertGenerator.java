@@ -11,6 +11,7 @@ import fr.inria.diversify.dspot.support.TestCompiler;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
+import org.kevoree.log.Log;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -174,17 +175,22 @@ public class MethodsAssertGenerator {
 				DSpotUtils.addComment(statement, "AssertGenerator add assertion", CtComment.CommentType.INLINE);
 				try {
 					CtStatement stmt = statements.get(line);
-					if (stmt instanceof CtInvocation && !AssertGeneratorHelper.isVoidReturn((CtInvocation) stmt)) {
+					if (stmt instanceof CtBlock) {
+						break;
+					}
+					if (stmt instanceof CtInvocation &&
+							!AssertGeneratorHelper.isVoidReturn((CtInvocation) stmt) &&
+							stmt.getParent() instanceof CtBlock) {
 						CtInvocation invocationToBeReplaced = (CtInvocation) stmt.clone();
 						final CtLocalVariable localVariable = factory.createLocalVariable(
-								factory.Type().createReference(
-										invocationToBeReplaced.getType().getTypeDeclaration()
-								), "o_" + id, invocationToBeReplaced
+								invocationToBeReplaced.getType(), "o_" + id, invocationToBeReplaced
 						);
 						stmt.replace(localVariable);
 						DSpotUtils.addComment(localVariable, "AssertGenerator create local variable with return value of invocation", CtComment.CommentType.INLINE);
 						localVariable.setParent(stmt.getParent());
 						localVariable.insertAfter(statement);
+						statements.remove(line);
+						statements.add(line, localVariable);
 					} else {
 						stmt.insertAfter(statement);
 					}

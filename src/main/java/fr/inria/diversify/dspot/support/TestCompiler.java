@@ -45,6 +45,9 @@ public class TestCompiler {
 		} else {
 			testsToRun.removeAll(uncompilableMethods);
 			uncompilableMethods.forEach(testClass::removeMethod);
+			if (testsToRun.isEmpty()) {
+				return null;
+			}
 			final String classPath = AmplificationHelper.getClassPath(compiler, configuration.getInputProgram());
 			return TestLauncher.runFromSpoonNodes(configuration, classPath, testClass, testsToRun);
 		}

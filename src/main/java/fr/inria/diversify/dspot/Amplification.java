@@ -64,6 +64,7 @@ public class Amplification {
 		List<CtMethod<?>> ampTest = new ArrayList<>();
 
 		updateAmplifiedTestList(ampTest, preAmplification(classTest, tests));
+		resetAmplifiers(classTest);
 
 		for (int i = 0; i < tests.size(); i++) {
 			CtMethod test = tests.get(i);
@@ -169,7 +170,6 @@ public class Amplification {
 			return preAmplification(classTest, tests);
 		} else {
 			testSelector.update();
-			resetAmplifiers(classTest);
 			Log.debug("Try to add assertions before amplification");
 			List<CtMethod<?>> preAmplifiedMethods = testSelector.selectToKeep(
 					assertGenerator.generateAsserts(

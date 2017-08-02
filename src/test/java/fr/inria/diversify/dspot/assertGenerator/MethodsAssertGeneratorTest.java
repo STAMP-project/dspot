@@ -22,6 +22,34 @@ import static junit.framework.TestCase.assertEquals;
 public class MethodsAssertGeneratorTest extends AbstractTest {
 
     @Test
+    public void testBuildAssertOnSpecificCases() throws Exception {
+        CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithSpecificCaseToBeAsserted");
+        MethodsAssertGenerator mag = new MethodsAssertGenerator(testClass, Utils.getInputConfiguration(), Utils.getCompiler());
+        CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithSpecificCaseToBeAsserted", "test1");
+        List<CtMethod<?>> test1_buildNewAssert = mag.generateAsserts(testClass, Collections.singletonList(test1));
+
+        final String expectedBody = "{" + nl +
+                "    int a = 0;" + nl +
+                "    // AssertGenerator add assertion" + nl +
+                "    org.junit.Assert.assertEquals(a, 0);" + nl +
+                "    int b = 1;" + nl +
+                "    // AssertGenerator add assertion" + nl +
+                "    org.junit.Assert.assertEquals(b, 1);" + nl +
+                "    // AssertGenerator create local variable with return value of invocation" + nl +
+                "    int o_test1_withoutAssert__3 = new java.util.Comparator<java.lang.Integer>() {" + nl +
+                "        @java.lang.Override" + nl +
+                "        public int compare(java.lang.Integer integer, java.lang.Integer t1) {" + nl +
+                "            return integer - t1;" + nl +
+                "        }" + nl +
+                "    }.compare(a, b);" + nl +
+                "    // AssertGenerator add assertion" + nl +
+                "    org.junit.Assert.assertEquals(o_test1_withoutAssert__3, -1);" + nl +
+                "}";
+
+        assertEquals(expectedBody, test1_buildNewAssert.get(0).getBody().toString());
+    }
+
+    @Test
     public void testBuildNewAssert() throws InvalidSdkException, Exception {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         MethodsAssertGenerator mag = new MethodsAssertGenerator(testClass, Utils.getInputConfiguration(), Utils.getCompiler());
