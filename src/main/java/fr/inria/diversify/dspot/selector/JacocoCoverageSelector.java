@@ -65,9 +65,9 @@ public class JacocoCoverageSelector implements TestSelector {
 		if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
 			this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
 			final List<String> methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).collect(Collectors.toList());
-			this.initialCoverage = new JacocoExecutor(this.program).executeJacoco(this.currentClassTestToBeAmplified.getQualifiedName());
-			this.selectedToBeAmplifiedCoverageResultsMap = new JacocoExecutor(this.program).executeJacoco(
-					this.currentClassTestToBeAmplified.getQualifiedName(), methodNames);
+			this.initialCoverage = new JacocoExecutor(this.program, this.configuration).executeJacoco(this.currentClassTestToBeAmplified.getQualifiedName());
+			this.selectedToBeAmplifiedCoverageResultsMap = new JacocoExecutor(this.program, this.configuration).executeJacoco(
+					this.currentClassTestToBeAmplified, methodNames);
 		}
 		return testsToBeAmplified;
 	}
@@ -78,8 +78,8 @@ public class JacocoCoverageSelector implements TestSelector {
 			return amplifiedTestToBeKept;
 		}
 		final List<String> methodNames = amplifiedTestToBeKept.stream().map(CtNamedElement::getSimpleName).collect(Collectors.toList());
-		final Map<String, CoverageResults> coverageResultsMap = new JacocoExecutor(this.program).executeJacoco(
-				this.currentClassTestToBeAmplified.getQualifiedName(), methodNames);
+		final Map<String, CoverageResults> coverageResultsMap = new JacocoExecutor(this.program, this.configuration).executeJacoco(
+				this.currentClassTestToBeAmplified, methodNames);
 		final List<CtMethod<?>> methodsKept = amplifiedTestToBeKept.stream()
 				.filter(ctMethod ->
 						coverageResultsMap.get(ctMethod.getSimpleName()).isBetterThan(
@@ -149,7 +149,7 @@ public class JacocoCoverageSelector implements TestSelector {
 				new File(this.program.getProgramDir() + fileSeparator + this.program.getTestClassesDir()));
 
 		final CoverageResults coverageResults =
-				new JacocoExecutor(this.program).executeJacoco(this.currentClassTestToBeAmplified.getQualifiedName());
+				new JacocoExecutor(this.program, this.configuration).executeJacoco(this.currentClassTestToBeAmplified.getQualifiedName());
 
 		report.append("Amplified instruction coverage: ").append(coverageResults.instructionsCovered)
 				.append(" / ").append(coverageResults.instructionsTotal).append(nl)

@@ -1,7 +1,8 @@
 package fr.inria.stamp.coverage;
 
+import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
-import fr.inria.stamp.test.listener.TestListener;
+import fr.inria.stamp.test.launcher.TestLauncher;
 import fr.inria.stamp.test.runner.DefaultTestRunner;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -14,6 +15,7 @@ import org.jacoco.core.instr.Instrumenter;
 import org.jacoco.core.runtime.IRuntime;
 import org.jacoco.core.runtime.LoggerRuntime;
 import org.jacoco.core.runtime.RuntimeData;
+import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +43,10 @@ public class JacocoExecutor {
 
 	private InputProgram program;
 
-	public JacocoExecutor(InputProgram program) {
+	private InputConfiguration configuration;
+
+	public JacocoExecutor(InputProgram program, InputConfiguration configuration) {
+		this.configuration = configuration;
 		this.program = program;
 		this.runtime = new LoggerRuntime();
 		this.instrumenter = new Instrumenter(this.runtime);
@@ -113,7 +118,7 @@ public class JacocoExecutor {
 
 	}
 
-	public Map<String, CoverageResults> executeJacoco(String fullQualifiedNameTestClass, Collection<String> methodNames) {
+	public Map<String, CoverageResults> executeJacoco(CtType<?> testClass, Collection<String> methodNames) {
 		final String testClassesDirectory = this.program.getProgramDir() + "/" + this.program.getTestClassesDir();
 		final String classesDirectory = this.program.getProgramDir() + "/" + this.program.getClassesDir();
 		URLClassLoader classLoader;
@@ -123,18 +128,16 @@ public class JacocoExecutor {
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
-		final String resource = fullQualifiedNameTestClass.replace('.', '/') + ".class";
+		final String resource = testClass.getQualifiedName().replace('.', '/') + ".class";
 		try {
 			this.internalClassLoader.addDefinition(
-					fullQualifiedNameTestClass,
+					testClass.getQualifiedName(),
 					IOUtils.toByteArray(classLoader.getResourceAsStream(resource))
 			);
-			final Class<?> testClass = this.internalClassLoader.loadClass(fullQualifiedNameTestClass);
 			final RuntimeData data = new RuntimeData();
 			this.runtime.startup(data);
 			final JacocoListener jacocoListener = new JacocoListener(data, classesDirectory);
-			final DefaultTestRunner runner = new DefaultTestRunner(this.internalClassLoader);
-			runner.run(testClass, methodNames, jacocoListener);
+			TestLauncher.run(this.configuration, this.internalClassLoader, testClass, methodNames, jacocoListener);
 			this.runtime.shutdown();
 			clearCache(this.internalClassLoader);
 			return jacocoListener.getCoverageResultsMap();
