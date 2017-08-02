@@ -31,7 +31,7 @@ import static spoon.reflect.visitor.Query.getElements;
  * Date: 02/12/15
  * Time: 14:55
  */
-
+@Deprecated
 public class StatementAdderOnAssert implements Amplifier {
 
     private List<Statement> localVars;

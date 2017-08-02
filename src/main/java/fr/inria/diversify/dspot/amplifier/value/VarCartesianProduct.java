@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
  * Date: 04/02/16
  * Time: 14:13
  */
+@Deprecated
 public class VarCartesianProduct {
 
     private List<CtVariableReference> oldVarRefs;
