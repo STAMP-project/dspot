@@ -43,8 +43,11 @@ public class DSpotMockedTest extends MavenAbstractTest {
 		}
 		CtType<?> amplifiedTest = dspot.amplifyTest("info.sanaulla.dal.BookDALTest", Collections.singletonList("testAddBook"));
 
-		assertEquals(8, amplifiedTest.getMethods().size());
-		final CtMethod<?> testAddBook_cf11_failAssert4 = amplifiedTest.getMethodsByName("testAddBook_cf11_failAssert4").get(0);
+		assertEquals(9, amplifiedTest.getMethods().size());
+
+		System.out.println(amplifiedTest);
+
+		final CtMethod<?> testAddBook_cf11_failAssert4 = amplifiedTest.getMethodsByName("testAddBook_cf11_failAssert5").get(0);
 		assertEquals(expectedBody, testAddBook_cf11_failAssert4.getBody().toString());
 		removeHomFromPropertiesFile();
 	}

@@ -151,7 +151,7 @@ public class StatementAdderOnAssert implements Amplifier {
         for (CtVariableReference var : statement.getInputContext().getVar()) {
 
             if (!var.getType().isPrimitive()) {
-                CtLocalVariable aNull = valueCreator.createNull(var.getType());
+                CtLocalVariable aNull = valueCreator.generateNullValue(var.getType());
                 DSpotUtils.addComment(aNull, "StatementAdderOnAssert create null value", CtComment.CommentType.INLINE);
                 varCartesianProduct.addReplaceVar(var, aNull);
             }

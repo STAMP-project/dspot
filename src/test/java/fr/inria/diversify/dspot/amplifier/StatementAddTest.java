@@ -24,6 +24,57 @@ import static org.junit.Assert.assertEquals;
 public class StatementAddTest extends AbstractTest {
 
     @Test
+    public void testOnClassWithJavaObjects() throws Exception {
+
+        /*
+            Test that the StatementAdd amplifier is able to generate, and manage Collection and Map from java.util
+         */
+
+        final String packageName = "fr.inria.statementadd";
+        InputProgram inputProgram = Utils.getInputProgram();
+        final Factory factory = inputProgram.getFactory();
+        inputProgram.setFactory(factory);
+        AmplificationHelper.setSeedRandom(32L);
+        StatementAdd amplifier = new StatementAdd(packageName);
+        amplifier.reset(factory.Class().get(packageName + ".ClassTarget"));
+
+        CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTarget"), "test");
+        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod);
+
+        System.out.println(amplifiedMethods);
+
+        final String expectedBody1 = "{\n" +
+                "    java.util.Map<fr.inria.statementadd.ClassParameterAmplify, java.lang.String> map_1 = java.util.Collections.singletonMap(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(-2078357828))), -575613422))), 221178161), \"@|,nBRih;>(&RC0P(.Ub\");\n" +
+                "    fr.inria.statementadd.ClassTarget clazz = new fr.inria.statementadd.ClassTarget();\n" +
+                "    clazz.getSizeOfTypedMap(map_1);\n" +
+                "}";
+
+        assertEquals(expectedBody1, amplifiedMethods.stream()
+                .filter(amplifiedMethod ->
+                        "test_sd4".equals(amplifiedMethod.getSimpleName())
+                ).findFirst()
+                .get()
+                .getBody()
+                .toString()
+        );
+        final String expectedBody2 = "{\n" +
+                "    java.util.Set set_18 = java.util.Collections.emptySet();\n" +
+                "    fr.inria.statementadd.ClassTarget clazz = new fr.inria.statementadd.ClassTarget();\n" +
+                "    fr.inria.statementadd.ClassTarget gen_o0 = new fr.inria.statementadd.ClassTarget();\n" +
+                "    gen_o0.getSizeOf(set_18);\n" +
+                "}";
+
+        assertEquals(expectedBody2, amplifiedMethods.stream()
+                .filter(amplifiedMethod ->
+                        "test_sd1_sd21".equals(amplifiedMethod.getSimpleName())
+                ).findFirst()
+                .get()
+                .getBody()
+                .toString()
+        );
+    }
+
+    @Test
     public void testStatementAddOnArrayObjects() throws Exception {
         final String packageName = "fr.inria.statementaddarray";
         InputProgram inputProgram = Utils.getInputProgram();
@@ -100,7 +151,7 @@ public class StatementAddTest extends AbstractTest {
 
         assertEquals(expectedBody, amplifiedMethods.stream()
                 .filter(amplifiedMethod ->
-                        "test_sd4".equals(amplifiedMethod.getSimpleName())
+                        "test_sd6".equals(amplifiedMethod.getSimpleName())
                 ).findFirst()
                 .get()
                 .getBody()
@@ -108,18 +159,18 @@ public class StatementAddTest extends AbstractTest {
         );
     }
 
-    private final String expectedBody = "{" + nl  +
-            "    double d_7 = 0.6655489517945736;" + nl  +
-            "    float f_6 = 0.27707848F;" + nl  +
-            "    long l_5 = -248792245L;" + nl  +
-            "    int i_4 = 1325939940;" + nl  +
-            "    short s_3 = -16344;" + nl  +
-            "    byte by_2 = -31;" + nl  +
-            "    boolean b_1 = false;" + nl  +
-            "    char c_0 = 'h';" + nl  +
-            "    fr.inria.statementadd.ClassTargetAmplify clazz = new fr.inria.statementadd.ClassTargetAmplify();" + nl  +
-            "    clazz.methodWithPrimitifParameters(c_0, b_1, by_2, s_3, i_4, l_5, f_6, d_7);" + nl  +
-            "    clazz.methodWithReturn();" + nl  +
+    private final String expectedBody = "{\n" +
+            "    double d_8 = 0.3816430907807956;\n" +
+            "    float f_7 = 0.45125723F;\n" +
+            "    long l_6 = -415012931L;\n" +
+            "    int i_5 = 392236186;\n" +
+            "    short s_4 = 27326;\n" +
+            "    byte by_3 = 109;\n" +
+            "    boolean b_2 = false;\n" +
+            "    char c_1 = '#';\n" +
+            "    fr.inria.statementadd.ClassTargetAmplify clazz = new fr.inria.statementadd.ClassTargetAmplify();\n" +
+            "    clazz.methodWithPrimitifParameters(c_1, b_2, by_3, s_4, i_5, l_6, f_7, d_8);\n" +
+            "    clazz.methodWithReturn();\n" +
             "}";
 
 }
