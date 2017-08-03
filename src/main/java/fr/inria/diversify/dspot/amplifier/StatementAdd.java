@@ -207,44 +207,6 @@ public class StatementAdd implements Amplifier {
 				.filter(mth -> !mth.getModifiers().contains(ModifierKind.PRIVATE))
 				.filter(mth -> mth.getBody() != null)
 				.filter(mth -> !mth.getBody().getStatements().isEmpty())
-				/*.filter(mth -> {
-					List<CtParameter> parameters = mth.getParameters();
-					return parameters.stream()
-							.map(param -> param.getType())
-							.allMatch(param -> TypeUtils.isPrimitive(param)
-									|| TypeUtils.isString(param)
-									|| TypeUtils.isPrimitiveArray(param)
-									|| TypeUtils.isPrimitiveCollection(param)
-									|| TypeUtils.isPrimitiveMap(param)
-									|| isSerializable(param));
-				})*/
 				.collect(Collectors.toSet());
-	}
-
-	@Deprecated
-	private boolean isSerializable(CtTypeReference type) {
-		if (!hasConstructor.containsKey(type.getDeclaration())) {
-			if (type.getDeclaration() instanceof CtClass) {
-				CtClass cl = (CtClass) type.getDeclaration();
-				hasConstructor.put(type.getDeclaration(),
-						cl.isTopLevel() && hasConstructorCall(cl));
-			} else {
-				hasConstructor.put(type.getDeclaration(), false);
-			}
-		}
-		return hasConstructor.get(type.getDeclaration());
-	}
-
-	@Deprecated
-	private boolean hasConstructorCall(CtClass target) {
-		CtTypeReference ref = target.getReference();
-		return target.getFactory().Class().getAll(false).stream()
-				.filter(type -> type.getReference().isSubtypeOf(ref))
-				.filter(type -> type instanceof CtClass)
-				.map(cl ->
-								target.isTopLevel() && !target.getModifiers().contains(ModifierKind.ABSTRACT)
-						/*&& (ValueCreator.getRandomValue(target.getReference()) != null)*/
-				)
-				.anyMatch(Objects::nonNull);
 	}
 }

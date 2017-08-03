@@ -19,8 +19,6 @@ import static org.junit.Assert.assertTrue;
  */
 public class MainTest {
 
-    private static final String PATH_SEPARATOR = System.getProperty("path.separator");
-
     @Test
     public void testExample() throws Exception, InvalidSdkException {
         try {
@@ -36,8 +34,7 @@ public class MainTest {
         assertTrue(new File("dspot-out/example/TestSuiteExampleAmpl.java").exists());
         try (BufferedReader reader = new BufferedReader(new FileReader(reportFile))) {
             String content = reader.lines().reduce("", (acc, line) -> acc + line + nl);
-//            assertEquals(expectedReportAll, content);
-            //TODO flaky
+            //assertEquals(expectedReportExample, content);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -72,9 +69,20 @@ public class MainTest {
         }
     }
 
+    private static final String PATH_SEPARATOR = System.getProperty("path.separator");
+
     private static final String nl = System.getProperty("line.separator");
 
     private static final char DECIMAL_SEPARATOR = (((DecimalFormat) DecimalFormat.getInstance()).getDecimalFormatSymbols().getDecimalSeparator());
+
+    private static final String expectedReportExample = nl +
+            "======= REPORT =======" + nl +
+            "Branch Coverage Selector:" + nl +
+            "Initial coverage: 83" + DECIMAL_SEPARATOR + "33%" + nl +
+            "There is 3 unique path in the original test suite" + nl +
+            "The amplification results with 6 new tests" + nl +
+            "The branch coverage obtained is: 100" + DECIMAL_SEPARATOR + "00%" + nl +
+            "There is 3 new unique path" + nl + nl;
 
     private static final String expectedReportAll = nl +
             "======= REPORT =======" + nl +
