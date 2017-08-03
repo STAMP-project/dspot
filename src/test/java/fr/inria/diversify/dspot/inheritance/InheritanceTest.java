@@ -5,6 +5,8 @@ import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AbstractTest;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
+import fr.inria.diversify.runner.InputConfiguration;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtType;
@@ -19,14 +21,18 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 2/6/17
  */
-public class InheritanceTest extends AbstractTest {
+public class InheritanceTest {
 
-    //TODO
+    @Before
+    public void setUp() throws Exception {
+        Utils.reset();
+    }
+
     @Test
     public void testInheritanceMethod() throws Exception, InvalidSdkException {
-        CtClass<?> classInherit = Utils.getFactory().Class().get("fr.inria.inheritance.Inherited");
-        DSpot dspot = new DSpot(Utils.getInputConfiguration(), 3, Collections.singletonList(new TestDataMutator()));
-        CtType ctType = dspot.amplifyTest(classInherit);
+        final InputConfiguration configuration = new InputConfiguration("src/test/resources/sample/sample.properties");
+        DSpot dspot = new DSpot(configuration, 3, Collections.singletonList(new TestDataMutator()));
+        CtType ctType = dspot.amplifyTest("fr.inria.inheritance.Inherited");
         assertEquals(2, ctType.getMethods().size());
     }
 

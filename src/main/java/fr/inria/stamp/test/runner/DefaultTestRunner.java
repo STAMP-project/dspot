@@ -1,12 +1,16 @@
 package fr.inria.stamp.test.runner;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import fr.inria.diversify.logger.Logger;
+import fr.inria.stamp.coverage.JacocoListener;
 import fr.inria.stamp.test.filter.MethodFilter;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Request;
 import org.junit.runner.Runner;
+import org.junit.runner.notification.RunListener;
 import org.junit.runner.notification.RunNotifier;
 
+import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.concurrent.*;
 
@@ -16,6 +20,10 @@ import java.util.concurrent.*;
  * on 30/06/17
  */
 public class DefaultTestRunner extends AbstractTestRunner {
+
+	public DefaultTestRunner(URLClassLoader classLoader) {
+		super(classLoader);
+	}
 
 	public DefaultTestRunner(String classpath) {
 		super(classpath);
@@ -31,7 +39,9 @@ public class DefaultTestRunner extends AbstractTestRunner {
 		final TestListener listener = new TestListener();
 		final Future<?> submit = executor.submit(() -> {
 			Request request = Request.aClass(classTest);
-			request = request.filterWith(new MethodFilter(testMethodNames));
+			if (!testMethodNames.isEmpty()) {
+				request = request.filterWith(new MethodFilter(testMethodNames));
+			}
 			Runner runner = request.getRunner();
 			RunNotifier runNotifier = new RunNotifier();
 			runNotifier.addFirstListener(listener);
@@ -52,12 +62,37 @@ public class DefaultTestRunner extends AbstractTestRunner {
 
 	@Override
 	public TestListener run(Class<?> classTest) {
+		return this.run(classTest, Collections.emptyList());
+	}
+
+	@Override
+	public TestListener run(Class<?> testClass, Collection<String> methodNames, RunListener additionalListener) {
+		ExecutorService executor = Executors.newSingleThreadExecutor();
 		TestListener listener = new TestListener();
-		Request request = Request.classes(classTest);
-		Runner runner = request.getRunner();
-		RunNotifier runNotifier = new RunNotifier();
-		runNotifier.addFirstListener(listener);
-		runner.run(runNotifier);
+		final Future<?> submit = executor.submit(() -> {
+			Request request = Request.aClass(testClass);
+			if (!methodNames.isEmpty()) {
+				request = request.filterWith(new MethodFilter(methodNames));
+			}
+			Runner runner = request.getRunner();
+			RunNotifier runNotifier = new RunNotifier();
+			runNotifier.addListener(additionalListener);
+			runNotifier.addListener(listener);
+			runner.run(runNotifier);
+		});
+		try {
+			submit.get(10000, TimeUnit.MILLISECONDS);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			submit.cancel(true);
+			executor.shutdownNow();
+		}
 		return listener;
+	}
+
+	@Override
+	public TestListener run(Class<?> testClass, RunListener additionalListener) {
+		return this.run(testClass, Collections.emptyList(), additionalListener);
 	}
 }

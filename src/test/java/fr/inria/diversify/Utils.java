@@ -72,14 +72,16 @@ public class Utils {
 			MavenAutomaticBuilder builder = new MavenAutomaticBuilder(inputConfiguration);
 			String dependencies = builder.buildClasspath(inputProgram.getProgramDir());
 			File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
+			File outputTest = new File(inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir());
 			try {
 				FileUtils.cleanDirectory(output);
+				FileUtils.cleanDirectory(outputTest);
 			} catch (IllegalArgumentException ignored) {
 				//the target directory does not exist, do not need to clean it
 			}
-			DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir()
-							+ System.getProperty("path.separator") + inputProgram.getAbsoluteTestSourceCodeDir()
-					, dependencies, output);
+			DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
+			DSpotCompiler.compile(inputProgram.getAbsoluteTestSourceCodeDir(),
+					output.getAbsolutePath() + System.getProperty("path.separator") + dependencies, outputTest);
 			compiler = new DSpotCompiler(inputProgram, dependencies);
 			inputProgram.setFactory(compiler.getLauncher().getFactory());
 		} catch (Exception e) {

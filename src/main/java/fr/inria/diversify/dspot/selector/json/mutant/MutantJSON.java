@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot.selector.json;
+package fr.inria.diversify.dspot.selector.json.mutant;
 
 /**
  * Created by Benjamin DANGLOT

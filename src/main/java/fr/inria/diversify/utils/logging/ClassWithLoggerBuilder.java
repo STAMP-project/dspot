@@ -13,6 +13,7 @@ import java.util.List;
  * Date: 23/02/16
  * Time: 11:45
  */
+@Deprecated
 public class ClassWithLoggerBuilder {
 
     private final AssertionRemover assertionRemoverProcessor;

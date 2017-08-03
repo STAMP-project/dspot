@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot.selector.json;
+package fr.inria.diversify.dspot.selector.json.mutant;
 
 import java.util.ArrayList;
 import java.util.List;

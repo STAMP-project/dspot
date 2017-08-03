@@ -1,5 +1,6 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
+import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.TypeUtils;
 import spoon.reflect.code.*;
 import spoon.reflect.factory.Factory;
@@ -64,10 +65,9 @@ public class AssertBuilder {
     }
 
     private static CtStatement buildAssertForArray(Factory factory, String expression, Object array) {
-        Random r = new Random();
         String type = array.getClass().getCanonicalName();
-        String arrayLocalVar1 = "array_" + Math.abs(r.nextInt());
-        String arrayLocalVar2 = "array_" + Math.abs(r.nextInt());
+        String arrayLocalVar1 = "array_" + Math.abs(AmplificationHelper.getRandom().nextInt());
+        String arrayLocalVar2 = "array_" + Math.abs(AmplificationHelper.getRandom().nextInt());
 
 
         String forLoop = "\tfor(int ii = 0; ii <" + arrayLocalVar1 + ".length; ii++) {\n\t\t"

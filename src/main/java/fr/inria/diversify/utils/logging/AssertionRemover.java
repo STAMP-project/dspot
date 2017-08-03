@@ -13,7 +13,7 @@ import java.util.List;
 
 import static fr.inria.diversify.utils.AmplificationChecker.isAssert;
 
-
+@Deprecated
 public class AssertionRemover extends AbstractProcessor<CtMethod> {
 
     private int counter;

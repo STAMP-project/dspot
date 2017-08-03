@@ -5,6 +5,7 @@ import fr.inria.diversify.dspot.value.PrimitiveValue;
 import fr.inria.diversify.dspot.value.Value;
 import fr.inria.diversify.dspot.value.ValueFactory;
 import fr.inria.diversify.dspot.value.ValueType;
+import fr.inria.diversify.utils.AmplificationHelper;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtExpression;
@@ -24,7 +25,6 @@ import java.util.stream.IntStream;
 public class ObjectInstantiation extends Value {
     protected Boolean isOk = null;
 
-    protected static Random random = new Random();
     protected CtExecutableReference constructor;
     protected String constructorString;
     protected List<List<Value>> params;
@@ -94,7 +94,7 @@ public class ObjectInstantiation extends Value {
                     if(list.isEmpty()) {
                         return null;
                     } else {
-                        return list.get(random.nextInt(list.size()));
+                        return list.get(AmplificationHelper.getRandom().nextInt(list.size()));
                     }
                 } )
                 .map(value -> value.getValue())

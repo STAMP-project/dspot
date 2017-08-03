@@ -68,8 +68,4 @@ public class TestMethodCallRemove extends AbstractTest {
         assertNotEquals(amplifiedMethod.getBody().getStatements(), amplifiedMethod2.getBody().getStatements());
     }
 
-    @AfterClass
-    public static void tearDown() throws InvalidSdkException, Exception {
-        //Utils.reset();
-    }
 }
