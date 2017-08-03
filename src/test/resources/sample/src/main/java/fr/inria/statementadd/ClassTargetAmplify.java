@@ -6,11 +6,19 @@ package fr.inria.statementadd;
 public class ClassTargetAmplify {
 
     public ClassParameterAmplify methodWithReturn() {
-        return new ClassParameterAmplify();
+        return new ClassParameterAmplify(0);
     }
 
-    public void methodPrimitif(Integer i) {
-        System.out.println(i);
+    public void methodWithDomainParameter(ClassParameterAmplify object) {
+        System.out.println("");
+    }
+
+    public void methodWithPrimitifParameters(char c, boolean b, byte by, short s, int i, long l, float f, double d) {
+        System.out.println("");
+    }
+
+    public void methodWithPrimitifParameters(String str, Boolean b, Byte by, Short s, Integer i, Long l, Float f, Double d) {
+        System.out.println("");
     }
 
     public void method() {

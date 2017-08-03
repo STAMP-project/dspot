@@ -18,8 +18,12 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) throws InvalidSdkException, Exception {
-        run(JSAPOptions.parse(args));
-        System.exit(0);
+        final Configuration configuration = JSAPOptions.parse(args);
+        if (configuration == null) {
+            Main.runExample();
+        } else {
+            run(configuration);
+        }
     }
 
     public static void run(Configuration configuration) throws InvalidSdkException, Exception {
@@ -106,6 +110,5 @@ public class Main {
         } catch (Exception | InvalidSdkException e) {
             throw new RuntimeException(e);
         }
-        System.exit(0);
     }
 }

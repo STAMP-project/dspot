@@ -1,7 +1,7 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.Utils;
-import org.junit.After;
+import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import org.junit.Before;
 
 /**
@@ -16,6 +16,7 @@ public abstract class AbstractTest {
     @Before
     public void setUp() throws Exception {
         Utils.init("src/test/resources/sample/sample.properties");
+        ValueCreator.count = 0;
     }
 
 }

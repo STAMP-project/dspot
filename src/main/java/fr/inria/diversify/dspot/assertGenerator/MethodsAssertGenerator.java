@@ -164,7 +164,7 @@ public class MethodsAssertGenerator {
 		int numberOfAddedAssertion = 0;
 		List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter(CtStatement.class));
 		for (String id : observations.keySet()) {
-			if (!id.startsWith(testWithAssert.getSimpleName())) {
+			if (!id.split("__")[0].equals(testWithAssert.getSimpleName())) {
 				continue;
 			}
 			int line = Integer.parseInt(id.split("__")[1]);

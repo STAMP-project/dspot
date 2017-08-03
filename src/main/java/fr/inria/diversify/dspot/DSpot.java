@@ -41,53 +41,56 @@ import java.util.stream.Collectors;
  */
 public class DSpot {
 
-    private final AutomaticBuilder builder;
-    private List<Amplifier> amplifiers;
-    private int numberOfIterations;
-    private TestSelector testSelector;
-    public InputProgram inputProgram;
+	private final AutomaticBuilder builder;
+	private List<Amplifier> amplifiers;
+	private int numberOfIterations;
+	private TestSelector testSelector;
+	public InputProgram inputProgram;
 
-    private List<String> testResources;
+	private List<String> testResources;
 
-    private InputConfiguration inputConfiguration;
+	private InputConfiguration inputConfiguration;
 
-    private DSpotCompiler compiler;
+	private DSpotCompiler compiler;
 
-    private ProjectTimeJSON projectTimeJSON;
+	private ProjectTimeJSON projectTimeJSON;
 
-    public DSpot(InputConfiguration inputConfiguration) throws InvalidSdkException, Exception {
-        this(inputConfiguration, 3, Arrays.asList(
-                new TestDataMutator(),
-                new TestMethodCallAdder(),
-                new TestMethodCallRemover(),
-                new StatementAdderOnAssert()),
-                new BranchCoverageTestSelector(10));
-    }
+	public DSpot(InputConfiguration inputConfiguration) throws InvalidSdkException, Exception {
+		this(inputConfiguration, 3, Arrays.asList(
+				new TestDataMutator(),
+				new TestMethodCallAdder(),
+				new TestMethodCallRemover(),
+				new StatementAdderOnAssert(),
+				new StatementAdd(inputConfiguration.getProperty("filter"))),
+				new BranchCoverageTestSelector(10));
+	}
 
-    public DSpot(InputConfiguration configuration, int numberOfIterations) throws InvalidSdkException, Exception {
-        this(configuration, numberOfIterations, Arrays.asList(
-                new TestDataMutator(),
-                new TestMethodCallAdder(),
-                new TestMethodCallRemover(),
-                new StatementAdderOnAssert())
-        );
-    }
+	public DSpot(InputConfiguration configuration, int numberOfIterations) throws InvalidSdkException, Exception {
+		this(configuration, numberOfIterations, Arrays.asList(
+				new TestDataMutator(),
+				new TestMethodCallAdder(),
+				new TestMethodCallRemover(),
+				new StatementAdderOnAssert(),
+				new StatementAdd(configuration.getProperty("filter")))
+		);
+	}
 
-    public DSpot(InputConfiguration configuration, TestSelector testSelector) throws InvalidSdkException, Exception {
-        this(configuration, 3, Arrays.asList(
-                new TestDataMutator(),
-                new TestMethodCallAdder(),
-                new TestMethodCallRemover(),
-                new StatementAdderOnAssert()), testSelector);
-    }
+	public DSpot(InputConfiguration configuration, TestSelector testSelector) throws InvalidSdkException, Exception {
+		this(configuration, 3, Arrays.asList(
+				new TestDataMutator(),
+				new TestMethodCallAdder(),
+				new TestMethodCallRemover(),
+				new StatementAdderOnAssert(),
+				new StatementAdd(configuration.getProperty("filter"))), testSelector);
+	}
 
-    public DSpot(InputConfiguration configuration, List<Amplifier> amplifiers) throws InvalidSdkException, Exception {
-        this(configuration, 3, amplifiers);
-    }
+	public DSpot(InputConfiguration configuration, List<Amplifier> amplifiers) throws InvalidSdkException, Exception {
+		this(configuration, 3, amplifiers);
+	}
 
-    public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers) throws InvalidSdkException, Exception {
-        this(inputConfiguration, numberOfIterations, amplifiers, new BranchCoverageTestSelector(10));
-    }
+	public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers) throws InvalidSdkException, Exception {
+		this(inputConfiguration, numberOfIterations, amplifiers, new BranchCoverageTestSelector(10));
+	}
 
     public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws InvalidSdkException, Exception {
         AutomaticBuilderFactory builderFactory = new AutomaticBuilderFactory();

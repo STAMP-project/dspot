@@ -128,9 +128,8 @@ public class TypeUtils {
 
 	public static boolean isPrimitive(CtTypeReference type) {
 		try {
-			return type.isPrimitive();
+			return type.isPrimitive() || type.unbox().isPrimitive();
 		} catch (Exception e) {
-			e.printStackTrace();
 			return false;
 		}
 	}

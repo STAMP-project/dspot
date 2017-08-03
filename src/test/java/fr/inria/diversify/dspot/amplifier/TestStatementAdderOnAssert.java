@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.AbstractTest;
 import org.junit.Test;
@@ -40,6 +41,7 @@ public class TestStatementAdderOnAssert extends AbstractTest {
         */
 
         Factory factory = Utils.getFactory();
+        ValueCreator.count = 0;
         CtClass<Object> ctClass = factory.Class().get("fr.inria.mutation.ClassUnderTestTest");
         AmplificationHelper.setSeedRandom(23L);
 
@@ -48,6 +50,8 @@ public class TestStatementAdderOnAssert extends AbstractTest {
 
         CtMethod originalMethod = Utils.findMethod(ctClass, "testLit");
         List<CtMethod> amplifiedMethods = amplificator.apply(originalMethod);
+
+        System.out.println(amplifiedMethods);
 
         amplifiedMethods.forEach(method -> {
             assertEquals(1, method.getElements(new TypeFilter<CtLocalVariable>(CtLocalVariable.class) {
@@ -62,12 +66,12 @@ public class TestStatementAdderOnAssert extends AbstractTest {
 
         CtMethod currentMethod = amplifiedMethods.get(0);
         assertEquals("1", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
-        assertEquals("(fr.inria.mutation.ClassUnderTest)null", ((CtLocalVariable)(currentMethod.getBody().getStatement(2))).getDefaultExpression().toString()); // <- nullify the object
+        assertEquals("((fr.inria.mutation.ClassUnderTest) (null))", ((CtLocalVariable)(currentMethod.getBody().getStatement(2))).getDefaultExpression().toString()); // <- nullify the object
         assertTrue(currentMethod.getBody().getStatement(3) instanceof  CtInvocation);
         assertEquals("// StatementAdderMethod cloned existing statement" + nl + "vc_0.minusOne(int_vc_0)", currentMethod.getBody().getStatement(3).toString());
 
         currentMethod = amplifiedMethods.get(1);
-        assertEquals("156591366", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
+        assertEquals("825130495", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
         assertTrue(currentMethod.getBody().getStatement(3) instanceof  CtInvocation);
         assertEquals("// StatementAdderMethod cloned existing statement" + nl + "vc_0.minusOne(vc_2)", currentMethod.getBody().getStatement(3).toString());
 
@@ -76,7 +80,6 @@ public class TestStatementAdderOnAssert extends AbstractTest {
         assertTrue(currentMethod.getBody().getStatement(1) instanceof  CtLocalVariable);
         assertTrue(currentMethod.getBody().getStatement(2) instanceof  CtInvocation);
         assertEquals("// StatementAdderMethod cloned existing statement" + nl + "underTest.minusOne(int_vc_0)", currentMethod.getBody().getStatement(2).toString());
-
     }
 
 }

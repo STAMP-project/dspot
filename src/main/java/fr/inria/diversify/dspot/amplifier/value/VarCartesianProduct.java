@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot.value;
+package fr.inria.diversify.dspot.amplifier.value;
 
 import fr.inria.diversify.codeFragment.Statement;
 import fr.inria.diversify.utils.DSpotUtils;
@@ -20,10 +20,12 @@ import java.util.stream.Collectors;
  * Date: 04/02/16
  * Time: 14:13
  */
+@Deprecated
 public class VarCartesianProduct {
-    List<CtVariableReference> oldVarRefs;
-    List<List<CtVariableReference>> newVarsRefs;
-    Map<CtVariableReference, Statement> newLocalVar;
+
+    private List<CtVariableReference> oldVarRefs;
+    private List<List<CtVariableReference>> newVarsRefs;
+    private Map<CtVariableReference, Statement> newLocalVar;
 
     public VarCartesianProduct() {
         oldVarRefs = new ArrayList<>();
@@ -90,7 +92,7 @@ public class VarCartesianProduct {
                 .collect(Collectors.toList());
     }
 
-    protected List<List<CtVariableReference>> cartesianProduct(List<List<CtVariableReference>> lists) {
+    private List<List<CtVariableReference>> cartesianProduct(List<List<CtVariableReference>> lists) {
         List<List<CtVariableReference>> resultLists = new ArrayList<>();
         if (lists.size() == 0) {
             resultLists.add(new ArrayList<>());
@@ -110,12 +112,12 @@ public class VarCartesianProduct {
         return resultLists;
     }
 
-    protected boolean isReceiver(CtVariableReference var) {
+    private boolean isReceiver(CtVariableReference var) {
         CtInvocation invocation = var.getParent(CtInvocation.class);
         return invocation.getTarget() != null && invocation.getTarget().equals(var);
     }
 
-    protected boolean isNull(CtLocalVariable localVariable) {
+    private boolean isNull(CtLocalVariable localVariable) {
         return localVariable.getAssignment() == null || localVariable.getAssignment().toString().endsWith("null");
     }
 }

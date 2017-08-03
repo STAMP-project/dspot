@@ -1,5 +1,6 @@
 package fr.inria.stamp;
 
+import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.utils.DSpotUtils;
@@ -18,7 +19,26 @@ import static org.junit.Assert.assertTrue;
  */
 public class MainTest {
 
-    private static final String PATH_SEPARATOR = System.getProperty("path.separator");
+    @Test
+    public void testExample() throws Exception, InvalidSdkException {
+        try {
+            FileUtils.deleteDirectory(new File("dspot-out"));
+            FileUtils.deleteDirectory(new File("tmpDir"));
+        } catch (Exception ignored) {
+
+        }
+        Main.main(new String[]{"--example"});
+        final File reportFile = new File("dspot-out/example.TestSuiteExample_branch_coverage_report.txt");
+        assertTrue(reportFile.exists());
+        assertTrue(new File("dspot-out/example.TestSuiteExample_branch_coverage.json").exists());
+        assertTrue(new File("dspot-out/example/TestSuiteExampleAmpl.java").exists());
+        try (BufferedReader reader = new BufferedReader(new FileReader(reportFile))) {
+            String content = reader.lines().reduce("", (acc, line) -> acc + line + nl);
+            //assertEquals(expectedReportExample, content);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Test
     public void testAll() throws Throwable {
@@ -49,9 +69,20 @@ public class MainTest {
         }
     }
 
+    private static final String PATH_SEPARATOR = System.getProperty("path.separator");
+
     private static final String nl = System.getProperty("line.separator");
 
     private static final char DECIMAL_SEPARATOR = (((DecimalFormat) DecimalFormat.getInstance()).getDecimalFormatSymbols().getDecimalSeparator());
+
+    private static final String expectedReportExample = nl +
+            "======= REPORT =======" + nl +
+            "Branch Coverage Selector:" + nl +
+            "Initial coverage: 83" + DECIMAL_SEPARATOR + "33%" + nl +
+            "There is 3 unique path in the original test suite" + nl +
+            "The amplification results with 6 new tests" + nl +
+            "The branch coverage obtained is: 100" + DECIMAL_SEPARATOR + "00%" + nl +
+            "There is 3 new unique path" + nl + nl;
 
     private static final String expectedReportAll = nl +
             "======= REPORT =======" + nl +

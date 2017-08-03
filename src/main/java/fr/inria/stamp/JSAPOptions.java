@@ -36,7 +36,8 @@ public class JSAPOptions {
         MethodAdd(new TestMethodCallAdder()),
         MethodRemove(new TestMethodCallRemover()),
         StatementAdderOnAssert(new StatementAdderOnAssert()),
-        TestDataMutator(new TestDataMutator());
+        TestDataMutator(new TestDataMutator()),
+        StatementAdd(new StatementAdd());
         public final Amplifier amplifier;
 
         private AmplifierEnum(Amplifier amplifier) {
@@ -53,7 +54,7 @@ public class JSAPOptions {
             }
             showUsage();
         } else if (jsapConfig.getBoolean("example")) {
-            Main.runExample();
+            return null;
         }
 
         if (jsapConfig.getString("path") == null) {

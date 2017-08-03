@@ -2,18 +2,18 @@ package fr.inria.diversify.dspot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.support.json.ProjectTimeJSON;
+import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.utils.AmplificationHelper;
 import org.junit.Test;
+import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.io.*;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -31,6 +31,7 @@ public class DSpotTest extends MavenAbstractTest {
             Test the whole dspot procedure.
                 It results with 24 methods: 18 amplified tests + 6 original tests.
          */
+        ValueCreator.count = 0;
         AmplificationHelper.setSeedRandom(23L);
         InputConfiguration configuration = new InputConfiguration(pathToPropertiesFile);
         InputProgram program = new InputProgram();
@@ -48,8 +49,8 @@ public class DSpotTest extends MavenAbstractTest {
 
         CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample");
 
-        assertEquals(18, amplifiedTest.getMethods().size());
-        assertEquals(expectedAmplifiedBody, amplifiedTest.getMethod("test2_cf19").getBody().toString());
+        assertEquals(24, amplifiedTest.getMethods().size());
+        assertEquals(expectedAmplifiedBody, ((CtMethod<?>)amplifiedTest.getMethodsByName("test8_cf613").get(0)).getBody().toString());
 
         final File file = new File(configuration.getOutputDirectory() + "/test-projects.json");
         assertTrue(file.exists());
@@ -64,22 +65,24 @@ public class DSpotTest extends MavenAbstractTest {
         removeHomFromPropertiesFile();
     }
 
-    private final String expectedAmplifiedBody = "{" + nl +
-            "    example.Example ex = new example.Example();" + nl +
-            "    // StatementAdderOnAssert create random local variable" + nl +
-            "    int vc_4 = -1848848534;" + nl +
-            "    // AssertGenerator add assertion" + nl +
-            "    org.junit.Assert.assertEquals(vc_4, -1848848534);" + nl +
-            "    // StatementAdderOnAssert create literal from method" + nl +
-            "    java.lang.String String_vc_0 = \"abcd\";" + nl +
-            "    // AssertGenerator add assertion" + nl +
-            "    org.junit.Assert.assertEquals(String_vc_0, \"abcd\");" + nl +
-            "    // AssertGenerator create local variable with return value of invocation" + nl +
-            "    char o_test2_cf19__7 = // StatementAdderMethod cloned existing statement" + nl +
-            "    ex.charAt(String_vc_0, vc_4);" + nl +
-            "    // AssertGenerator add assertion" + nl +
-            "    org.junit.Assert.assertEquals(o_test2_cf19__7, 'a');" + nl +
-            "    org.junit.Assert.assertEquals('d', ex.charAt(\"abcd\", 3));" + nl +
+    private final String expectedAmplifiedBody = "{\n" +
+            "    example.Example ex = new example.Example();\n" +
+            "    // StatementAdderOnAssert create random local variable\n" +
+            "    int vc_412 = -1798905206;\n" +
+            "    // AssertGenerator add assertion\n" +
+            "    org.junit.Assert.assertEquals(vc_412, -1798905206);\n" +
+            "    // StatementAdderOnAssert create literal from method\n" +
+            "    java.lang.String String_vc_8 = \"abcd\";\n" +
+            "    // AssertGenerator add assertion\n" +
+            "    org.junit.Assert.assertEquals(String_vc_8, \"abcd\");\n" +
+            "    // StatementAdderOnAssert create random local variable\n" +
+            "    example.Example vc_409 = new example.Example();\n" +
+            "    // AssertGenerator create local variable with return value of invocation\n" +
+            "    char o_test8_cf613__10 = // StatementAdderMethod cloned existing statement\n" +
+            "    vc_409.charAt(String_vc_8, vc_412);\n" +
+            "    // AssertGenerator add assertion\n" +
+            "    org.junit.Assert.assertEquals(o_test8_cf613__10, 'a');\n" +
+            "    org.junit.Assert.assertEquals('b', ex.charAt(\"abcd\", 1));\n" +
             "}";
 
     @Override
