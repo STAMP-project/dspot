@@ -3,6 +3,7 @@ package fr.inria.stamp.coverage;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.stamp.test.launcher.TestLauncher;
+import fr.inria.stamp.test.listener.TestListener;
 import fr.inria.stamp.test.runner.DefaultTestRunner;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -79,9 +80,8 @@ public class JacocoExecutor {
 		clearCache(this.internalClassLoader);
 	}
 
-	public CoverageResults executeJacoco(String fullQualifiedNameTestClass) {
+	public CoverageResults executeJacoco(CtType<?> testClass) {
 		final String testClassesDirectory = this.program.getProgramDir() + "/" + this.program.getTestClassesDir();
-
 		final RuntimeData data = new RuntimeData();
 		final ExecutionDataStore executionData = new ExecutionDataStore();
 		final SessionInfoStore sessionInfos = new SessionInfoStore();
@@ -92,25 +92,17 @@ public class JacocoExecutor {
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
-		final String resource = fullQualifiedNameTestClass.replace('.', '/') + ".class";
+		final String resource = testClass.getQualifiedName().replace('.', '/') + ".class";
 		try {
 			this.internalClassLoader.addDefinition(
-					fullQualifiedNameTestClass,
+					testClass.getQualifiedName(),
 					IOUtils.toByteArray(classLoader.getResourceAsStream(resource))
 			);
-
-			final Class<?> testClass = this.internalClassLoader.loadClass(fullQualifiedNameTestClass);
 			runtime.startup(data);
-
-			//Run test class
-			final DefaultTestRunner runner = new DefaultTestRunner(this.internalClassLoader);
-			runner.run(testClass);
-
+			final TestListener listener = TestLauncher.run(this.configuration, this.internalClassLoader, testClass);
 			data.collect(executionData, sessionInfos, false);
 			runtime.shutdown();
-
 			clearCache(this.internalClassLoader);
-
 			return coverageResults(executionData);
 		} catch (Exception e) {
 			throw new RuntimeException(e);

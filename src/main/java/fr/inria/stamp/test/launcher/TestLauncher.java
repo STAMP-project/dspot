@@ -5,6 +5,7 @@ import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.stamp.test.listener.TestListener;
 import fr.inria.stamp.test.runner.DefaultTestRunner;
 import fr.inria.stamp.test.runner.MockitoTestRunner;
+import org.junit.runner.notification.RunListener;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
 import spoon.reflect.declaration.CtType;
@@ -12,6 +13,7 @@ import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.reference.CtTypeReference;
 
 import java.io.File;
+import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -44,6 +46,51 @@ public class TestLauncher {
 		}
 	}
 
+	public static TestListener run(InputConfiguration configuration, URLClassLoader classLoader, CtType<?> testClass,
+								   Collection<String> testMethodNames, RunListener listener) {
+		Logger.reset();
+		Logger.setLogDir(new File(configuration.getInputProgram().getProgramDir() + "/log"));
+		if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) {
+			final CtTypeReference<?> referenceToAbstractClass = testClass.getReference();
+			return testClass.getFactory().Class().getAll().stream()
+					.filter(ctType -> ctType.getSuperclass() != null)
+					.filter(ctType ->
+							ctType.getSuperclass().equals(referenceToAbstractClass)
+					)
+					.map(ctType -> run(configuration, classLoader, ctType, testMethodNames, listener))
+					.reduce(new TestListener(), TestListener::aggregate);
+		}
+		final TypeTestEnum typeTest = TypeTestEnum.getTypeTest(testClass);
+		if (typeTest == TypeTestEnum.DEFAULT) {
+			return new DefaultTestRunner(classLoader).run(testClass.getQualifiedName(), testMethodNames, listener);
+		} else {
+			return new MockitoTestRunner(classLoader).run(testClass.getQualifiedName(), testMethodNames, listener);
+		}
+	}
+
+	public static TestListener run(InputConfiguration configuration, URLClassLoader classLoader, CtType<?> testClass,
+								   RunListener listener) {
+		Logger.reset();
+		Logger.setLogDir(new File(configuration.getInputProgram().getProgramDir() + "/log"));
+		if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) {
+			final CtTypeReference<?> referenceToAbstractClass = testClass.getReference();
+			return testClass.getFactory().Class().getAll().stream()
+					.filter(ctType -> ctType.getSuperclass() != null)
+					.filter(ctType ->
+							ctType.getSuperclass().equals(referenceToAbstractClass)
+					)
+					.map(ctType -> run(configuration, classLoader, ctType, listener))
+					.reduce(new TestListener(), TestListener::aggregate);
+		}
+		final TypeTestEnum typeTest = TypeTestEnum.getTypeTest(testClass);
+		if (typeTest == TypeTestEnum.DEFAULT) {
+			return new DefaultTestRunner(classLoader).run(testClass.getQualifiedName(), listener);
+		} else {
+			return new MockitoTestRunner(classLoader).run(testClass.getQualifiedName(), listener);
+		}
+	}
+
+
 	public static TestListener runFromSpoonNodes(InputConfiguration configuration, String classpath, CtType<?> testClass, Collection<CtMethod<?>> testMethods) {
 		return run(configuration,
 				classpath,
@@ -72,6 +119,27 @@ public class TestLauncher {
 			return new DefaultTestRunner(classpath).run(testClass.getQualifiedName());
 		} else {
 			return new MockitoTestRunner(classpath).run(testClass.getQualifiedName());
+		}
+	}
+
+	public static TestListener run(InputConfiguration configuration, URLClassLoader classLoader, CtType<?> testClass) {
+		Logger.reset();
+		Logger.setLogDir(new File(configuration.getInputProgram().getProgramDir() + "/log"));
+		if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) {
+			final CtTypeReference<?> referenceToAbstractClass = testClass.getReference();
+			return testClass.getFactory().Class().getAll().stream()
+					.filter(ctType -> ctType.getSuperclass() != null)
+					.filter(ctType ->
+							ctType.getSuperclass().equals(referenceToAbstractClass)
+					)
+					.map(subType -> run(configuration, classLoader, subType))
+					.reduce(new TestListener(), TestListener::aggregate);
+		}
+		final TypeTestEnum typeTest = TypeTestEnum.getTypeTest(testClass);
+		if (typeTest == TypeTestEnum.DEFAULT) {
+			return new DefaultTestRunner(classLoader).run(testClass.getQualifiedName());
+		} else {
+			return new MockitoTestRunner(classLoader).run(testClass.getQualifiedName());
 		}
 	}
 }

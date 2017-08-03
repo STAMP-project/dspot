@@ -1,6 +1,7 @@
 package fr.inria.stamp.test.runner;
 
 import fr.inria.stamp.test.listener.TestListener;
+import org.junit.runner.notification.RunListener;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -66,5 +67,15 @@ public abstract class AbstractTestRunner implements TestRunner {
     @Override
     public TestListener run(String fullQualifiedName) {
         return this.run(this.loadClass(fullQualifiedName));
+    }
+
+    @Override
+    public TestListener run(String fullQualifiedName, Collection<String> methodNames, RunListener listener) {
+        return this.run(this.loadClass(fullQualifiedName), methodNames, listener);
+    }
+
+    @Override
+    public TestListener run(String fullQualifiedName, RunListener listener) {
+        return this.run(this.loadClass(fullQualifiedName), listener);
     }
 }

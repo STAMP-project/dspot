@@ -1,7 +1,7 @@
 package fr.inria.stamp.test.runner;
 
-import fr.inria.stamp.coverage.JacocoListener;
 import fr.inria.stamp.test.listener.TestListener;
+import org.junit.runner.notification.RunListener;
 
 import java.util.Collection;
 
@@ -24,6 +24,12 @@ public interface TestRunner {
 
     TestListener run(Class<?> classTest);
 
-    TestListener run(Class<?> testClass, Collection<String> methodNames, JacocoListener jacocoListener);
+    TestListener run(Class<?> testClass, RunListener listener);
+
+    TestListener run(Class<?> testClass, Collection<String> methodNames, RunListener listener);
+
+    TestListener run(String fullQualifiedName, RunListener listener);
+
+    TestListener run(String fullQualifiedName, Collection<String> methodNames, RunListener listener);
 
 }
