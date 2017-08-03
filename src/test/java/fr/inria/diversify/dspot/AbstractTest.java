@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.Utils;
+import org.junit.After;
 import org.junit.Before;
 
 /**

@@ -1,11 +1,13 @@
 package fr.inria.diversify.dspot.resources;
 
+import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.stamp.test.launcher.TestLauncher;
 import fr.inria.stamp.test.listener.TestListener;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 
@@ -21,6 +23,11 @@ import static org.junit.Assert.assertTrue;
  * on 2/14/17
  */
 public class DSpotAndResourcesTest {
+
+	@Before
+	public void setUp() throws Exception {
+		Utils.reset();
+	}
 
 	@Test
 	public void test() throws Exception, InvalidSdkException {
