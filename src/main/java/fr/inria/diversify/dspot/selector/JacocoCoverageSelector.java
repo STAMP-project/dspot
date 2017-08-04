@@ -14,6 +14,11 @@ import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.coverage.CoverageResults;
 import fr.inria.stamp.coverage.JacocoExecutor;
 import org.apache.commons.io.FileUtils;
+import org.jacoco.core.analysis.CoverageBuilder;
+import org.jacoco.core.analysis.IClassCoverage;
+import org.jacoco.core.analysis.ICounter;
+import org.jacoco.core.analysis.ILine;
+import org.kevoree.log.Log;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
 import spoon.reflect.declaration.CtType;
@@ -24,10 +29,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Created by Benjamin DANGLOT
@@ -64,13 +72,46 @@ public class JacocoCoverageSelector implements TestSelector {
 	public List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified) {
 		if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
 			this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
-			final List<String> methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).collect(Collectors.toList());
 			this.initialCoverage = new JacocoExecutor(this.program, this.configuration).executeJacoco(this.currentClassTestToBeAmplified);
-			this.selectedToBeAmplifiedCoverageResultsMap = new JacocoExecutor(this.program, this.configuration).executeJacoco(
-					this.currentClassTestToBeAmplified, methodNames);
 		}
-		return testsToBeAmplified;
+		final List<String> methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).collect(Collectors.toList());
+		final Map<String, CoverageResults> coverageResultsMap = new JacocoExecutor(this.program, this.configuration)
+				.executeJacoco(this.currentClassTestToBeAmplified, methodNames);
+		final List<String> pathExecuted = new ArrayList<>();
+		final List<CtMethod<?>> filteredTests = testsToBeAmplified.stream()
+				.filter(ctMethod -> {
+					final String pathByExecInstructions = computePathExecuted.apply(coverageResultsMap.get(ctMethod.getSimpleName()).getCoverageBuilder());
+					if (pathExecuted.contains(pathByExecInstructions)) {
+						return false;
+					} else {
+						pathExecuted.add(pathByExecInstructions);
+						return true;
+					}
+				}).collect(Collectors.toList());
+
+		if (this.selectedToBeAmplifiedCoverageResultsMap == null) {
+			final List<String> filteredMethodNames = filteredTests.stream()
+					.map(CtNamedElement::getSimpleName)
+					.collect(Collectors.toList());
+			this.selectedToBeAmplifiedCoverageResultsMap = coverageResultsMap.keySet()
+					.stream()
+					.filter(filteredMethodNames::contains)
+					.collect(Collectors.toMap(Function.identity(), coverageResultsMap::get));
+		}
+		return filteredTests;
 	}
+
+	private Function<CoverageBuilder, String> computePathExecuted = coverageBuilder ->
+			coverageBuilder.getClasses()
+					.stream()
+					.map(iClassCoverage ->
+							IntStream.range(iClassCoverage.getFirstLine(), iClassCoverage.getLastLine())
+									.mapToObj(iClassCoverage::getLine)
+									.map(ILine::getInstructionCounter)
+									.map(ICounter::getCoveredCount)
+									.map(Object::toString)
+									.collect(Collectors.joining(","))
+					).collect(Collectors.joining(";"));
 
 	@Override
 	public List<CtMethod<?>> selectToKeep(List<CtMethod<?>> amplifiedTestToBeKept) {
@@ -80,13 +121,24 @@ public class JacocoCoverageSelector implements TestSelector {
 		final List<String> methodNames = amplifiedTestToBeKept.stream().map(CtNamedElement::getSimpleName).collect(Collectors.toList());
 		final Map<String, CoverageResults> coverageResultsMap = new JacocoExecutor(this.program, this.configuration).executeJacoco(
 				this.currentClassTestToBeAmplified, methodNames);
+		final List<String> pathExecuted = new ArrayList<>();
 		final List<CtMethod<?>> methodsKept = amplifiedTestToBeKept.stream()
 				.filter(ctMethod ->
 						coverageResultsMap.get(ctMethod.getSimpleName()).isBetterThan(
 								this.selectedToBeAmplifiedCoverageResultsMap.get(
 										getFirstParentThatHasBeenRun(ctMethod).getSimpleName())
 						)
-				).collect(Collectors.toList());
+				)
+				.filter(ctMethod -> {
+					final String pathByExecInstructions = computePathExecuted.apply(coverageResultsMap.get(ctMethod.getSimpleName()).getCoverageBuilder());
+					if (pathExecuted.contains(pathByExecInstructions)) {
+						return false;
+					} else {
+						pathExecuted.add(pathByExecInstructions);
+						return true;
+					}
+				})
+				.collect(Collectors.toList());
 
 		this.selectedToBeAmplifiedCoverageResultsMap.putAll(methodsKept.stream()
 				.map(CtNamedElement::getSimpleName)
@@ -148,8 +200,8 @@ public class JacocoCoverageSelector implements TestSelector {
 		DSpotCompiler.compile("tmpDir/tmpSrc_test", classpath,
 				new File(this.program.getProgramDir() + fileSeparator + this.program.getTestClassesDir()));
 
-		final CoverageResults coverageResults =
-				new JacocoExecutor(this.program, this.configuration).executeJacoco(this.currentClassTestToBeAmplified);
+		final CoverageResults coverageResults = new JacocoExecutor(this.program, this.configuration)
+				.executeJacoco(this.currentClassTestToBeAmplified);
 
 		report.append("Amplified instruction coverage: ").append(coverageResults.instructionsCovered)
 				.append(" / ").append(coverageResults.instructionsTotal).append(nl)
