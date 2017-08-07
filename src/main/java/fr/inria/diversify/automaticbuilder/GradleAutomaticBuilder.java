@@ -46,7 +46,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
 
     private InputConfiguration configuration;
 
-    public GradleAutomaticBuilder(InputConfiguration configuration) {
+    GradleAutomaticBuilder(InputConfiguration configuration) {
         this.configuration = configuration;
     }
 

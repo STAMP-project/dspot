@@ -1,5 +1,7 @@
 package fr.inria.diversify;
 
+import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
+import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.automaticbuilder.MavenAutomaticBuilder;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.runner.InputConfiguration;
@@ -38,6 +40,7 @@ public class Utils {
 
 	public static void reset() {
 		currentInputConfigurationLoaded = null;
+		AutomaticBuilderFactory.reset();
 		try {
 			FileUtils.forceDelete(new File("tmpDir"));
 		} catch (IOException ignored) {
@@ -50,6 +53,7 @@ public class Utils {
 			return;
 		}
 		try {
+			AutomaticBuilderFactory.reset();
 			currentInputConfigurationLoaded = pathToConfFile;
 			inputConfiguration = new InputConfiguration(pathToConfFile);
 			inputProgram = InitUtils.initInputProgram(inputConfiguration);
@@ -69,7 +73,7 @@ public class Utils {
 			final String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp/" +
 					(inputConfiguration.getProperty("targetModule") == null ? "" : inputConfiguration.getProperty("targetModule"));
 			inputProgram.setProgramDir(outputDirectory);
-			MavenAutomaticBuilder builder = new MavenAutomaticBuilder(inputConfiguration);
+			AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 			String dependencies = builder.buildClasspath(inputProgram.getProgramDir());
 			File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
 			File outputTest = new File(inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir());

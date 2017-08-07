@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot.selector;
 
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
+import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.automaticbuilder.MavenAutomaticBuilder;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.utils.AmplificationHelper;
@@ -64,7 +65,7 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
         File directory = new File(dspot.getInputProgram().getProgramDir() + "/" + dspot.getInputProgram().getRelativeTestSourceCodeDir());
         PrintClassUtils.printJavaFile(directory, amplifiedTest);
 
-        AutomaticBuilder builder = new MavenAutomaticBuilder(configuration);
+        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(configuration);
         List<PitResult> pitResultsAmplified = builder.runPit(configuration.getInputProgram().getProgramDir(),
                 amplifiedTest);
 

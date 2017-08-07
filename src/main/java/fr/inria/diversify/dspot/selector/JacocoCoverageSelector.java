@@ -191,7 +191,7 @@ public class JacocoCoverageSelector implements TestSelector {
 		DSpotUtils.printJavaFileWithComment(clone, new File("tmpDir/tmpSrc_test"));
 
 		final String fileSeparator = System.getProperty("file.separator");
-		final String classpath = new AutomaticBuilderFactory()
+		final String classpath = AutomaticBuilderFactory
 				.getAutomaticBuilder(this.configuration)
 				.buildClasspath(this.program.getProgramDir())
 				+ System.getProperty("path.separator") +

@@ -44,8 +44,6 @@ public class PitMutantScoreSelector implements TestSelector {
 
     private List<PitResult> mutantNotTestedByOriginal;
 
-    private AutomaticBuilder builder;
-
     public PitMutantScoreSelector() {
         this.testThatKilledMutants = new HashMap<>();
     }
@@ -57,13 +55,10 @@ public class PitMutantScoreSelector implements TestSelector {
 
     @Override
     public void init(InputConfiguration configuration) {
-        AutomaticBuilderFactory builderFactory = new AutomaticBuilderFactory();
-
         this.configuration = configuration;
         this.program = this.configuration.getInputProgram();
-        this.builder = builderFactory.getAutomaticBuilder(configuration);
         if (this.originalKilledMutants == null) {
-            initOriginalPitResult(this.builder.runPit(this.program.getProgramDir()));
+            initOriginalPitResult(AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).runPit(this.program.getProgramDir()));
         }
     }
 
@@ -111,7 +106,7 @@ public class PitMutantScoreSelector implements TestSelector {
             throw new RuntimeException(e);
         }
 
-        List<PitResult> results = this.builder.runPit(this.program.getProgramDir(), clone);
+        List<PitResult> results = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).runPit(this.program.getProgramDir(), clone);
         Set<CtMethod<?>> selectedTests = new HashSet<>();
         if (results != null) {
             Log.debug("{} mutants has been generated ({})", results.size(), this.numberOfMutant);

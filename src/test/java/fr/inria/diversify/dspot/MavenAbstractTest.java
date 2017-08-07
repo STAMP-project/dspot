@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.Utils;
+import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.utils.DSpotUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -23,6 +24,11 @@ public abstract class MavenAbstractTest {
     public static final String nl = System.getProperty("line.separator");
 
     private static String originalProperties;
+
+    @Before
+    public void setUp() throws Exception {
+        AutomaticBuilderFactory.reset();
+    }
 
     public abstract String getPathToPropertiesFile();
 
