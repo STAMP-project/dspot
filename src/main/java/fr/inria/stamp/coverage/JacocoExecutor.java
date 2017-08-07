@@ -148,16 +148,7 @@ public class JacocoExecutor {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-
-		final int[] counter = new int[2];
-		coverageBuilder.getClasses().stream()
-				.map(IClassCoverage::getInstructionCounter)
-				.forEach(iCounter -> {
-					counter[0] += iCounter.getCoveredCount();
-					counter[1] += iCounter.getTotalCount();
-				});
-
-		return new CoverageResults(counter[0], counter[1]);
+		return new CoverageResults(coverageBuilder);
 	}
 
 }
