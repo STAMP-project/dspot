@@ -11,25 +11,30 @@ import java.util.*;
  * Date: 23/03/16
  * Time: 15:48
  */
+@SuppressWarnings("unchecked")
 public class TypeUtils {
 
-    protected static Set<Class<?>> WRAPPER_TYPES = getWrapperTypes();
+    private final static Set<Class<?>> WRAPPER_TYPES;
+
+    static {
+        WRAPPER_TYPES = new HashSet<>();
+        WRAPPER_TYPES.add(Boolean.class);
+        WRAPPER_TYPES.add(Character.class);
+        WRAPPER_TYPES.add(Byte.class);
+        WRAPPER_TYPES.add(Short.class);
+        WRAPPER_TYPES.add(Integer.class);
+        WRAPPER_TYPES.add(Long.class);
+        WRAPPER_TYPES.add(Float.class);
+        WRAPPER_TYPES.add(Double.class);
+        WRAPPER_TYPES.add(Void.class);
+    }
 
     public static boolean isPrimitiveCollection(Object object) {
         if (Collection.class.isInstance(object)) {
             Collection collection = (Collection) object;
-            if (collection.isEmpty()) {
-                return true;
-            } else {
-                Iterator iterator = collection.iterator();
-                while (iterator.hasNext()) {
-                    Object next = iterator.next();
-                    if (next != null) {
-                        return isPrimitive(next);
-                    }
-                }
-                return true;
-            }
+            return collection.isEmpty() ||
+                    collection.stream()
+                            .anyMatch(TypeUtils::isPrimitive);
         }
         return false;
     }
@@ -37,31 +42,13 @@ public class TypeUtils {
     public static boolean isPrimitiveMap(Object object) {
         if(Map.class.isInstance(object)) {
             Map map = (Map) object;
-            if (map.isEmpty()) {
-                return true;
-            } else {
-                boolean isKeyPrimitive = false;
-                boolean isValuePrimitive = false;
-                Iterator keyIterator = map.keySet().iterator();
-                while (keyIterator.hasNext()) {
-                    Object next = keyIterator.next();
-                    if (next != null && isPrimitive(next)) {
-                        isKeyPrimitive = true;
-                        break;
-                    }
-                }
-                if (isKeyPrimitive) {
-                    Iterator valueIterator = map.keySet().iterator();
-                    while (valueIterator.hasNext()) {
-                        Object next = valueIterator.next();
-                        if (next != null && isPrimitive(next)) {
-                            isValuePrimitive = true;
-                            break;
-                        }
-                    }
-                }
-                return isKeyPrimitive && isValuePrimitive;
-            }
+            return map.isEmpty() ||
+                    map.keySet()
+                            .stream()
+                            .anyMatch(TypeUtils::isPrimitive) &&
+                            map.values()
+                                    .stream()
+                                    .anyMatch(TypeUtils::isPrimitive);
         }
         return false;
     }
@@ -76,22 +63,8 @@ public class TypeUtils {
                 || String.class.equals(cl);
     }
 
-    public static boolean isWrapperType(Class cl) {
+    private static boolean isWrapperType(Class cl) {
         return WRAPPER_TYPES.contains(cl);
-    }
-
-    protected static Set<Class<?>> getWrapperTypes() {
-        Set<Class<?>> ret = new HashSet<Class<?>>();
-        ret.add(Boolean.class);
-        ret.add(Character.class);
-        ret.add(Byte.class);
-        ret.add(Short.class);
-        ret.add(Integer.class);
-        ret.add(Long.class);
-        ret.add(Float.class);
-        ret.add(Double.class);
-        ret.add(Void.class);
-        return ret;
     }
 
     public static boolean isArray(Object o) {
