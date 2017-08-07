@@ -12,15 +12,8 @@ import java.util.*;
  * Time: 15:48
  */
 public class TypeUtils {
-    protected static Set<Class<?>> WRAPPER_TYPES = getWrapperTypes();
 
-    public static boolean isPrimitiveCollectionOrMap(Object collectionOrMap) {
-        try {
-            return isPrimitiveCollection(collectionOrMap) || isPrimitiveMap(collectionOrMap);
-        } catch (Exception e) {
-            return false;
-        }
-    }
+    protected static Set<Class<?>> WRAPPER_TYPES = getWrapperTypes();
 
     public static boolean isPrimitiveCollection(Object object) {
         if (Collection.class.isInstance(object)) {
@@ -105,27 +98,6 @@ public class TypeUtils {
         return o != null && o.getClass().isArray();
     }
 
-    public static boolean isPrimitiveArray(Object o) {
-        String type = o.getClass().getCanonicalName();
-        return type != null && isArray(o) &&
-                (type.equals("byte[]")
-                        || type.equals("short[]")
-                        || type.equals("int[]")
-                        || type.equals("long[]")
-                        || type.equals("float[]")
-                        || type.equals("double[]")
-                        || type.equals("boolean[]")
-                        || type.equals("char[]"));
-    }
-
-	public static boolean isSerializable(CtTypeReference type) {
-		return isPrimitive(type)
-				|| isString(type)
-				|| isPrimitiveArray(type)
-				|| isPrimitiveCollection(type)
-				|| isPrimitiveMap(type);
-	}
-
 	public static boolean isPrimitive(CtTypeReference type) {
 		try {
 			return type.isPrimitive() || type.unbox().isPrimitive();
@@ -134,33 +106,11 @@ public class TypeUtils {
 		}
 	}
 
-	public static  boolean isString(CtTypeReference type) {
+	public static boolean isString(CtTypeReference type) {
 		try {
 			return String.class.isAssignableFrom(type.getActualClass());
 		} catch (Exception ignored) {
 			Log.warn("Error during check isString on " + type);
-		}
-		return false;
-	}
-
-	public static boolean isPrimitiveArray(CtTypeReference type) {
-		return CtArrayTypeReference.class.isInstance(type) && isPrimitive(((CtArrayTypeReference) type).getComponentType());
-	}
-
-	public static boolean isPrimitiveCollection(CtTypeReference type) {
-		try {
-			return Collection.class.isAssignableFrom(type.getActualClass());
-		} catch (Exception ignored) {
-			Log.warn("Error during check isPrimitiveCollection on " + type);
-		}
-		return false;
-	}
-
-	public static boolean isPrimitiveMap(CtTypeReference type) {
-		try {
-			return Map.class.isAssignableFrom(type.getActualClass());
-		} catch (Exception ignored) {
-			Log.warn("Error during check isPrimitiveMap on " + type);
 		}
 		return false;
 	}
