@@ -43,32 +43,46 @@ public class DSpotMockedTest extends MavenAbstractTest {
 		}
 		CtType<?> amplifiedTest = dspot.amplifyTest("info.sanaulla.dal.BookDALTest", Collections.singletonList("testAddBook"));
 
-		assertEquals(9, amplifiedTest.getMethods().size());
+		assertEquals(8, amplifiedTest.getMethods().size());
 
 		System.out.println(amplifiedTest);
 
-		final CtMethod<?> testAddBook_cf11_failAssert4 = amplifiedTest.getMethodsByName("testAddBook_cf11_failAssert5").get(0);
+		final CtMethod<?> testAddBook_cf11_failAssert4 = amplifiedTest.getMethodsByName("testAddBook_cf12").get(0);
 		assertEquals(expectedBody, testAddBook_cf11_failAssert4.getBody().toString());
 		removeHomFromPropertiesFile();
 	}
 
 	private static final String nl = System.getProperty("line.separator");
 
-	private static final String expectedBody = "{" + nl +
-			"    // AssertGenerator generate try/catch block with fail statement" + nl +
-			"    try {" + nl +
-			"        java.lang.String isbn = info.sanaulla.dal.AmplBookDALTest.mockedBookDAL.addBook(info.sanaulla.dal.AmplBookDALTest.book1);" + nl +
-			"        // StatementAdderOnAssert create null value" + nl +
-			"        info.sanaulla.models.Book vc_8 = ((info.sanaulla.models.Book) (null));" + nl +
-			"        // StatementAdderOnAssert create random local variable" + nl +
-			"        info.sanaulla.dal.BookDAL vc_7 = new info.sanaulla.dal.BookDAL();" + nl +
-			"        // StatementAdderMethod cloned existing statement" + nl +
-			"        vc_7.addBook(vc_8);" + nl +
-			"        // MethodAssertGenerator build local variable" + nl +
-			"        Object o_11_0 = info.sanaulla.dal.AmplBookDALTest.book1.getIsbn();" + nl +
-			"        org.junit.Assert.fail(\"testAddBook_cf11 should have thrown NullPointerException\");" + nl +
-			"    } catch (java.lang.NullPointerException eee) {" + nl +
-			"    }" + nl +
+	private static final String expectedBody = "{" + nl  +
+			"    java.lang.String isbn = info.sanaulla.dal.AmplBookDALTest.mockedBookDAL.addBook(info.sanaulla.dal.AmplBookDALTest.book1);" + nl  +
+			"    org.junit.Assert.assertNotNull(isbn);" + nl  +
+			"    // StatementAdderOnAssert create random local variable" + nl  +
+			"    info.sanaulla.models.Book vc_9 = new info.sanaulla.models.Book(\"SgpbL[{$QV5:Wz2[|+mr\", \"6#-VtX(r!Fs2l>UgIvC=\", java.util.Collections.singletonList(\"U&zgYc TM1`_8;0L`A=S\"), \"O/woO!OKS@Rl&{ha!&Bc\", 279793993, -818917466, \"[?i!rb0/|]6^FT)-ef&b\");" + nl  +
+			"    // AssertGenerator add assertion" + nl  +
+			"    org.junit.Assert.assertEquals(\"SgpbL[{$QV5:Wz2[|+mr\", ((info.sanaulla.models.Book)vc_9).getIsbn());" + nl  +
+			"    // AssertGenerator add assertion" + nl  +
+			"    org.junit.Assert.assertEquals(279793993, ((int) (((info.sanaulla.models.Book)vc_9).getYearOfPublication())));" + nl  +
+			"    // AssertGenerator add assertion" + nl  +
+			"    org.junit.Assert.assertTrue(((info.sanaulla.models.Book)vc_9).getAuthors().contains(\"U&zgYc TM1`_8;0L`A=S\"));" + nl  +
+			"    // AssertGenerator add assertion" + nl  +
+			"    org.junit.Assert.assertEquals(\"O/woO!OKS@Rl&{ha!&Bc\", ((info.sanaulla.models.Book)vc_9).getPublication());" + nl  +
+			"    // AssertGenerator add assertion" + nl  +
+			"    org.junit.Assert.assertEquals(\"[?i!rb0/|]6^FT)-ef&b\", ((info.sanaulla.models.Book)vc_9).getImage());" + nl  +
+			"    // AssertGenerator add assertion" + nl  +
+			"    org.junit.Assert.assertEquals(-818917466, ((int) (((info.sanaulla.models.Book)vc_9).getNumberOfPages())));" + nl  +
+			"    // AssertGenerator add assertion" + nl  +
+			"    org.junit.Assert.assertEquals(\"6#-VtX(r!Fs2l>UgIvC=\", ((info.sanaulla.models.Book)vc_9).getTitle());" + nl  +
+			"    // StatementAdderOnAssert create random local variable" + nl  +
+			"    info.sanaulla.dal.BookDAL vc_7 = new info.sanaulla.dal.BookDAL();" + nl  +
+			"    // AssertGenerator add assertion" + nl  +
+			"    org.junit.Assert.assertTrue(((info.sanaulla.dal.BookDAL)vc_7).getAllBooks().isEmpty());" + nl  +
+			"    // AssertGenerator create local variable with return value of invocation" + nl  +
+			"    java.lang.String o_testAddBook_cf12__11 = // StatementAdderMethod cloned existing statement" + nl  +
+			"    vc_7.addBook(vc_9);" + nl  +
+			"    // AssertGenerator add assertion" + nl  +
+			"    org.junit.Assert.assertEquals(\"SgpbL[{$QV5:Wz2[|+mr\", o_testAddBook_cf12__11);" + nl  +
+			"    org.junit.Assert.assertEquals(info.sanaulla.dal.AmplBookDALTest.book1.getIsbn(), isbn);" + nl  +
 			"}";
 
 	@Override

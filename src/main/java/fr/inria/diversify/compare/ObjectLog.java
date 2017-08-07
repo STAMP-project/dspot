@@ -1,5 +1,6 @@
 package fr.inria.diversify.compare;
 
+
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.*;
@@ -18,7 +19,6 @@ public class ObjectLog {
     private Invocator invocator;
     private int maxDeep = 4;
     private Map<String, Object> objects;
-    public static final String FILENAME_OF_OBSERVATIONS = "observations.ser";
 
     private ObjectLog() {
         this.observations = new HashMap<>();
@@ -60,7 +60,6 @@ public class ObjectLog {
             } else if (Utils.isPrimitiveCollectionOrMap(object)) {
                 addObservation(positionId, stringObject, object);
             } else {
-                compareWithPreviousObjects(object, stringObject, positionId);
                 observeNotNullObject(object, stringObject, positionId, deep);
             }
         }
@@ -71,20 +70,6 @@ public class ObjectLog {
             observations.put(positionId, new Observation());
         }
         observations.get(positionId).add(stringObject, value);
-    }
-
-    private void compareWithPreviousObjects(Object object, String stringObject, String positionId) {
-        try {
-            for (String key : objects.keySet()) {
-                if (!key.equals(stringObject)) {
-                    if (objects.get(key).equals(object)) {
-                        addObservation(positionId, stringObject + ".equals(" + key + ")", true);
-                    }
-                }
-            }
-        } catch (Exception ignored) {
-            //todo ignored
-        }
     }
 
     private void observeNotNullObject(Object o, String stringObject, String positionId, int deep) {
@@ -103,27 +88,12 @@ public class ObjectLog {
     }
 
     //TODO checks this assertion...
+    @Deprecated
     private boolean isAClientCode(Object result) {
         return result != null &&
                 result.getClass().getProtectionDomain() != null &&
                 result.getClass().getProtectionDomain().getCodeSource() != null &&
                 result.getClass().getProtectionDomain().getCodeSource().getLocation() != null;
-    }
-
-    /**
-     * Method injected in the tearDown method of the test class @see TestCompiler#addWriteObservationToTearDown
-     */
-    public static void writeObservationToFile() {
-        try {
-            FileOutputStream fos = new FileOutputStream(FILENAME_OF_OBSERVATIONS);
-            try (ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-                oos.writeObject(singleton.observations);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public static Map<String, Observation> getObservations() {
