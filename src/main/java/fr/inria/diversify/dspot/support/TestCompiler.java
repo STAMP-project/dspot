@@ -64,7 +64,10 @@ public class TestCompiler {
 		}
 
 		printAndDelete(compiler, classTest);
-		final List<CategorizedProblem> problems = compiler.compileAndGetProbs(dependencies);
+		final List<CategorizedProblem> problems = compiler.compileAndGetProbs(dependencies)
+				.stream()
+				.filter(IProblem::isError)
+				.collect(Collectors.toList());
 		if (problems.isEmpty()) {
 			return Collections.emptyList();
 		} else {
@@ -72,8 +75,8 @@ public class TestCompiler {
 			try {
 				final CtClass<?> newModelCtClass = getNewModelCtClass(compiler.getSourceOutputDirectory().getAbsolutePath(),
 						classTest.getQualifiedName());
+
 				final HashSet<CtMethod<?>> methodsToRemove = problems.stream()
-						.filter(IProblem::isError)
 						.collect(HashSet<CtMethod<?>>::new,
 								(ctMethods, categorizedProblem) -> {
 									final Optional<CtMethod<?>> methodToRemove = newModelCtClass.getMethods().stream()

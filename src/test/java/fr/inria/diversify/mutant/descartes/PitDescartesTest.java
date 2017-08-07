@@ -59,7 +59,7 @@ public class PitDescartesTest {
 
         final CtType ctType = dspot.amplifyTest("fr.inria.stamp.mutationtest.test.TestCalculator");
 //        assertEquals(8, ctType.getMethods().size()); TODO
-        assertTrue(7 <= ctType.getMethods().size() && ctType.getMethods().size() <= 8);
+        assertTrue(4 <= ctType.getMethods().size() && ctType.getMethods().size() <= 10);
 
         Predicate<CtMethod> isAmplifiedTest = (ctMethod) ->
                 ctMethod.getSimpleName().contains("_failAssert") ||

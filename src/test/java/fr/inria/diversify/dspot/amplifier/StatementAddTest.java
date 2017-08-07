@@ -59,9 +59,9 @@ public class StatementAddTest extends AbstractTest {
         );
         final String expectedBody2 = "{\n" +
                 "    java.util.Set set_18 = java.util.Collections.emptySet();\n" +
-                "    fr.inria.statementadd.ClassTarget clazz = new fr.inria.statementadd.ClassTarget();\n" +
                 "    fr.inria.statementadd.ClassTarget gen_o0 = new fr.inria.statementadd.ClassTarget();\n" +
-                "    gen_o0.getSizeOf(set_18);\n" +
+                "    fr.inria.statementadd.ClassTarget clazz = new fr.inria.statementadd.ClassTarget();\n" +
+                "    clazz.getSizeOf(set_18);\n" +
                 "}";
 
         assertEquals(expectedBody2, amplifiedMethods.stream()

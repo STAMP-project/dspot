@@ -49,8 +49,8 @@ public class DSpotTest extends MavenAbstractTest {
 
         CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample");
 
-        assertEquals(24, amplifiedTest.getMethods().size());
-        assertEquals(expectedAmplifiedBody, ((CtMethod<?>)amplifiedTest.getMethodsByName("test8_cf613").get(0)).getBody().toString());
+        assertEquals(18, amplifiedTest.getMethods().size());
+        assertEquals(expectedAmplifiedBody, ((CtMethod<?>)amplifiedTest.getMethodsByName("test2_sd28_sd32").get(0)).getBody().toString());
 
         final File file = new File(configuration.getOutputDirectory() + "/test-projects.json");
         assertTrue(file.exists());
@@ -65,24 +65,16 @@ public class DSpotTest extends MavenAbstractTest {
         removeHomFromPropertiesFile();
     }
 
-    private final String expectedAmplifiedBody = "{\n" +
-            "    example.Example ex = new example.Example();\n" +
-            "    // StatementAdderOnAssert create random local variable\n" +
-            "    int vc_412 = -1798905206;\n" +
-            "    // AssertGenerator add assertion\n" +
-            "    org.junit.Assert.assertEquals(vc_412, -1798905206);\n" +
-            "    // StatementAdderOnAssert create literal from method\n" +
-            "    java.lang.String String_vc_8 = \"abcd\";\n" +
-            "    // AssertGenerator add assertion\n" +
-            "    org.junit.Assert.assertEquals(String_vc_8, \"abcd\");\n" +
-            "    // StatementAdderOnAssert create random local variable\n" +
-            "    example.Example vc_409 = new example.Example();\n" +
-            "    // AssertGenerator create local variable with return value of invocation\n" +
-            "    char o_test8_cf613__10 = // StatementAdderMethod cloned existing statement\n" +
-            "    vc_409.charAt(String_vc_8, vc_412);\n" +
-            "    // AssertGenerator add assertion\n" +
-            "    org.junit.Assert.assertEquals(o_test8_cf613__10, 'a');\n" +
-            "    org.junit.Assert.assertEquals('b', ex.charAt(\"abcd\", 1));\n" +
+    private final String expectedAmplifiedBody = "{" + nl  +
+            "    int index_10 = -186471031;" + nl  +
+            "    java.lang.String s_9 = \"`_8;0L`A=SO/woO!OKS@\";" + nl  +
+            "    example.Example gen_o0 = new example.Example();" + nl  +
+            "    example.Example ex = new example.Example();" + nl  +
+            "    // AssertGenerator create local variable with return value of invocation" + nl  +
+            "    char o_test2_sd28_sd32__7 = ex.charAt(s_9, index_10);" + nl  +
+            "    // AssertGenerator add assertion" + nl  +
+            "    org.junit.Assert.assertEquals('`', ((char) (o_test2_sd28_sd32__7)));" + nl  +
+            "    org.junit.Assert.assertEquals('d', ex.charAt(\"abcd\", 3));" + nl  +
             "}";
 
     @Override

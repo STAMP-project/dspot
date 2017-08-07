@@ -65,7 +65,7 @@ public class StatementAdd implements Amplifier {
 				.flatMap(localVariable -> ValueCreator.generateAllConstructionOf(localVariable.getType()).stream())
 				.map(ctExpression -> {
 							final CtMethod<?> clone = AmplificationHelper.cloneMethod(method, "_sd");
-							clone.getBody().insertEnd(
+							clone.getBody().insertBegin(
 									clone.getFactory().createLocalVariable(
 											ctExpression.getType(), "gen_o" + counterGenerateNewObject++, ctExpression
 									)

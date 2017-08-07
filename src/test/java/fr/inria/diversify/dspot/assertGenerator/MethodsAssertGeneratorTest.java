@@ -28,23 +28,23 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
         CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithSpecificCaseToBeAsserted", "test1");
         List<CtMethod<?>> test1_buildNewAssert = mag.generateAsserts(testClass, Collections.singletonList(test1));
 
-        final String expectedBody = "{" + nl +
-                "    int a = 0;" + nl +
-                "    // AssertGenerator add assertion" + nl +
-                "    org.junit.Assert.assertEquals(a, 0);" + nl +
-                "    int b = 1;" + nl +
-                "    // AssertGenerator add assertion" + nl +
-                "    org.junit.Assert.assertEquals(b, 1);" + nl +
-                "    // AssertGenerator create local variable with return value of invocation" + nl +
-                "    int o_test1_withoutAssert__3 = new java.util.Comparator<java.lang.Integer>() {" + nl +
-                "        @java.lang.Override" + nl +
-                "        public int compare(java.lang.Integer integer, java.lang.Integer t1) {" + nl +
-                "            return integer - t1;" + nl +
-                "        }" + nl +
-                "    }.compare(a, b);" + nl +
-                "    // AssertGenerator add assertion" + nl +
-                "    org.junit.Assert.assertEquals(o_test1_withoutAssert__3, -1);" + nl +
-                "}";
+        final String expectedBody = "{" + nl  +
+				"    int a = 0;" + nl  +
+				"    // AssertGenerator add assertion" + nl  +
+				"    org.junit.Assert.assertEquals(0, ((int) (a)));" + nl  +
+				"    int b = 1;" + nl  +
+				"    // AssertGenerator add assertion" + nl  +
+				"    org.junit.Assert.assertEquals(1, ((int) (b)));" + nl  +
+				"    // AssertGenerator create local variable with return value of invocation" + nl  +
+				"    int o_test1_withoutAssert__3 = new java.util.Comparator<java.lang.Integer>() {" + nl  +
+				"        @java.lang.Override" + nl  +
+				"        public int compare(java.lang.Integer integer, java.lang.Integer t1) {" + nl  +
+				"            return integer - t1;" + nl  +
+				"        }" + nl  +
+				"    }.compare(a, b);" + nl  +
+				"    // AssertGenerator add assertion" + nl  +
+				"    org.junit.Assert.assertEquals(-1, ((int) (o_test1_withoutAssert__3)));" + nl  +
+				"}";
 
         assertEquals(expectedBody, test1_buildNewAssert.get(0).getBody().toString());
     }
