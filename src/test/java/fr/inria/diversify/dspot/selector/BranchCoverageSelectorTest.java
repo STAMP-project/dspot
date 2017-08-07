@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.selector;
 
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.DSpot;
+import fr.inria.diversify.dspot.amplifier.StatementAdd;
 import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.utils.AmplificationHelper;
@@ -21,7 +22,8 @@ public class BranchCoverageSelectorTest {
 		long time = System.currentTimeMillis();
 		AmplificationHelper.setSeedRandom(23L);
 		InputConfiguration configuration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
-		DSpot dspot = new DSpot(configuration, new BranchCoverageTestSelector(1000));
+		DSpot dspot = new DSpot(configuration, 1, Collections.singletonList(new StatementAdd()) ,
+			new BranchCoverageTestSelector(1000));
 		dspot.amplifyTest("example.TestSuiteExample", Collections.singletonList("test2"));
 		System.out.println(System.currentTimeMillis() - time);
 	}

@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.selector;
 
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.DSpot;
+import fr.inria.diversify.dspot.amplifier.StatementAdd;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
@@ -33,7 +34,8 @@ public class JacocoCoverageSelectorTest {
 		}
 		AmplificationHelper.setSeedRandom(23L);
 		InputConfiguration configuration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
-		DSpot dspot = new DSpot(configuration, new JacocoCoverageSelector());
+		DSpot dspot = new DSpot(configuration, 1, Collections.singletonList(new StatementAdd()),
+				new JacocoCoverageSelector());
 		dspot.amplifyTest("example.TestSuiteExample", Collections.singletonList("test2"));
 
 		try (BufferedReader buffer = new BufferedReader(new FileReader(configuration.getOutputDirectory() +
@@ -46,7 +48,7 @@ public class JacocoCoverageSelectorTest {
 	private static final String expectedReport = nl + "======= REPORT =======" + nl +
 			"Initial instruction coverage: 33 / 37" + nl +
 			"89.19%" + nl +
-			"Amplification results with 18 amplified tests." + nl +
+			"Amplification results with 3 amplified tests." + nl +
 			"Amplified instruction coverage: 37 / 37" + nl +
 			"100.00%";
 

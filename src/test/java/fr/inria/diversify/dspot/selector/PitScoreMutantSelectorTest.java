@@ -4,6 +4,7 @@ import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.automaticbuilder.MavenAutomaticBuilder;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import fr.inria.diversify.dspot.amplifier.StatementAdd;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.MavenAbstractTest;
@@ -54,11 +55,11 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
         InputConfiguration configuration = new InputConfiguration(pathToPropertiesFile);
         InputProgram program = new InputProgram();
         configuration.setInputProgram(program);
-        DSpot dspot = new DSpot(configuration, 1, Collections.singletonList(new StatementAdderOnAssert()),
+        DSpot dspot = new DSpot(configuration, 1, Collections.singletonList(new StatementAdd()),
                 new PitMutantScoreSelector("src/test/resources/test-projects/originalpit/mutations.csv"));//loading from existing pit-results
 
         final CtClass<Object> exampleOriginalTestClass = dspot.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
-        CtType amplifiedTest = dspot.amplifyAllTests().get(0);
+        CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample", Collections.singletonList("test2"));
 
         assertTrue(amplifiedTest.getMethods().size() > exampleOriginalTestClass.getMethods().size());
 
