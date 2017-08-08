@@ -48,7 +48,7 @@ public class DefaultTestRunner extends AbstractTestRunner {
 			runner.run(runNotifier);
 		});
 		try {
-			submit.get(10000, TimeUnit.MILLISECONDS);
+			submit.get(10000 * (testMethodNames.size() + 1), TimeUnit.MILLISECONDS);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -66,13 +66,13 @@ public class DefaultTestRunner extends AbstractTestRunner {
 	}
 
 	@Override
-	public TestListener run(Class<?> testClass, Collection<String> methodNames, RunListener additionalListener) {
+	public TestListener run(Class<?> testClass, Collection<String> testMethodNames, RunListener additionalListener) {
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		TestListener listener = new TestListener();
 		final Future<?> submit = executor.submit(() -> {
 			Request request = Request.aClass(testClass);
-			if (!methodNames.isEmpty()) {
-				request = request.filterWith(new MethodFilter(methodNames));
+			if (!testMethodNames.isEmpty()) {
+				request = request.filterWith(new MethodFilter(testMethodNames));
 			}
 			Runner runner = request.getRunner();
 			RunNotifier runNotifier = new RunNotifier();
@@ -81,7 +81,7 @@ public class DefaultTestRunner extends AbstractTestRunner {
 			runner.run(runNotifier);
 		});
 		try {
-			submit.get(10000, TimeUnit.MILLISECONDS);
+			submit.get(10000 * (testMethodNames.size() + 1), TimeUnit.MILLISECONDS);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
