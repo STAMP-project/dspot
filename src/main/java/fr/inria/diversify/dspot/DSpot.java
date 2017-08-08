@@ -41,8 +41,7 @@ import java.util.stream.Collectors;
  */
 public class DSpot {
 
-	private final AutomaticBuilder builder;
-	private List<Amplifier> amplifiers;
+    private List<Amplifier> amplifiers;
 	private int numberOfIterations;
 	private TestSelector testSelector;
 	public InputProgram inputProgram;
@@ -93,7 +92,6 @@ public class DSpot {
 	}
 
     public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws InvalidSdkException, Exception {
-        AutomaticBuilderFactory builderFactory = new AutomaticBuilderFactory();
         this.testResources = new ArrayList<>();
         this.inputConfiguration = inputConfiguration;
         InitUtils.initLogLevel(inputConfiguration);
@@ -123,9 +121,9 @@ public class DSpot {
             DescartesInjector.injectDescartesIntoPom(inputProgram.getProgramDir() + "/pom.xml");
         }
 
-        this.builder = builderFactory.getAutomaticBuilder(inputConfiguration);
+        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 
-        String dependencies = this.builder.buildClasspath(this.inputProgram.getProgramDir());
+        String dependencies = builder.buildClasspath(this.inputProgram.getProgramDir());
         File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
         File outputTest = new File(inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir());
         try {

@@ -36,7 +36,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     private static final String POM_FILE = "pom.xml";
 
-    public MavenAutomaticBuilder(@Deprecated InputConfiguration configuration) {
+    MavenAutomaticBuilder(@Deprecated InputConfiguration configuration) {
         this.mavenHome = DSpotUtils.buildMavenHome(configuration);
         this.configuration = configuration;
     }

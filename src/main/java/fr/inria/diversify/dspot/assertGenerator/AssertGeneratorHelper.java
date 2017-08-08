@@ -261,7 +261,7 @@ public class AssertGeneratorHelper {
 				try {
 					stmt.replace(localVariable);
 				} catch (ClassCastException e) {
-					Log.debug("bp");
+					throw new RuntimeException(e);
 				}
 				invocationToObjectLog.addArgument(stmt.getFactory().createVariableRead(localVariable.getReference(), false));
 				invocationToObjectLog.addArgument(stmt.getFactory().createLiteral("o_" + id));

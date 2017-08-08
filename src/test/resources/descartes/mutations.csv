@@ -1,0 +1,5 @@
+Calculator.java,fr.inria.stamp.mutationtest.test.Calculator,void,clear,17,SURVIVED,none
+Calculator.java,fr.inria.stamp.mutationtest.test.Calculator,0,getCeiling,32,KILLED,fr.inria.stamp.mutationtest.test.TestCalculator.Floatingpointtypestest(fr.inria.stamp.mutationtest.test.TestCalculator)
+Calculator.java,fr.inria.stamp.mutationtest.test.Calculator,null,getClone,73,NO_COVERAGE,none
+Calculator.java,fr.inria.stamp.mutationtest.test.Calculator,null,getScreen,67,NO_COVERAGE,none
+Calculator.java,fr.inria.stamp.mutationtest.test.Calculator,false,isOdd,61,NO_COVERAGE,none

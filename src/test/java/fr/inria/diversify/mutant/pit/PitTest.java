@@ -2,9 +2,11 @@ package fr.inria.diversify.mutant.pit;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
+import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.automaticbuilder.MavenAutomaticBuilder;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.*;
+import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.utils.AmplificationHelper;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
@@ -36,7 +38,7 @@ public class PitTest extends MavenAbstractTest {
 
         Utils.init(this.getPathToPropertiesFile());
         CtClass<Object> testClass = Utils.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
-        AutomaticBuilder builder = new MavenAutomaticBuilder(Utils.getInputConfiguration()); //TODO should we use the builder factory?
+        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration());
 
         List<PitResult> pitResults = builder.runPit(Utils.getInputProgram().getProgramDir(), testClass);
 
@@ -77,7 +79,7 @@ public class PitTest extends MavenAbstractTest {
         MavenPitCommandAndOptions.evosuiteMode = false;
         Utils.init(this.getPathToPropertiesFile());
         CtClass<Object> testClass = Utils.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
-        AutomaticBuilder builder = new MavenAutomaticBuilder(Utils.getInputConfiguration());
+        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration());
         List<PitResult> pitResults = builder.runPit(Utils.getInputProgram().getProgramDir(), testClass);
 
         assertTrue(null != pitResults);
@@ -108,7 +110,7 @@ public class PitTest extends MavenAbstractTest {
         /*
             Run the PitRunner in wrong configuration.
          */
-        AutomaticBuilder builder = new MavenAutomaticBuilder(Utils.getInputConfiguration());
+        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(new InputConfiguration(getPathToPropertiesFile()));
         List<PitResult> pitResults = builder.runPit(null, null);
         assertNull(pitResults);
     }

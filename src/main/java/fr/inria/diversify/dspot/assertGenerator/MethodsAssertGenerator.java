@@ -128,7 +128,7 @@ public class MethodsAssertGenerator {
 								statementsIndexToAssert.get(ctMethod),
 								this.originalClass.getSimpleName()
 						)
-				).collect(Collectors.toList());//"o_testAddBook_cf1__6.equals(o_testAddBook_cf2__7)"
+				).collect(Collectors.toList());
 		final List<CtMethod<?>> testToRuns = new ArrayList<>();
 		IntStream.range(0, 3).forEach(i ->
 				testToRuns.addAll(

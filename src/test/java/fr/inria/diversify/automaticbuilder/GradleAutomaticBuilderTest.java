@@ -29,9 +29,7 @@ public class GradleAutomaticBuilderTest {
 
     private Configuration configuration;
 
-    AutomaticBuilderFactory factory = new AutomaticBuilderFactory();
-
-    AutomaticBuilder sut = null;
+    private AutomaticBuilder sut = null;
 
     @Before
     public void setUp() throws Exception {
@@ -40,13 +38,15 @@ public class GradleAutomaticBuilderTest {
 
         Utils.init("src/test/resources/test-projects/test-projects.properties");
 
+        AutomaticBuilderFactory.reset();
+
         Log.debug("Test Set-up - Reading input parameters...");
         this.configuration = JSAPOptions.parse(getArgsWithGradleBuilder());
         InputConfiguration inputConfiguration = Utils.getInputConfiguration();
-        inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
+        inputConfiguration.getProperties().setProperty("automaticBuilderName", this.configuration.automaticBuilderName);
 
         Log.debug("Test Set-up - instantiating Automatic Builder (SUT)...");
-        sut = factory.getAutomaticBuilder(inputConfiguration);
+        sut = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
         Log.debug("Test Set-up complete.");
     }
 

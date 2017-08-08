@@ -23,11 +23,9 @@ public class AutomaticBuilderFactoryTest {
 
     private Configuration configuration;
 
-    private AutomaticBuilderFactory sut;
-
     @Before
     public void setUp() throws Exception {
-        sut = new AutomaticBuilderFactory();
+        AutomaticBuilderFactory.reset();
     }
 
     @After
@@ -44,7 +42,7 @@ public class AutomaticBuilderFactoryTest {
 
         assertTrue(inputConfiguration.getProperty("automaticBuilderName").toUpperCase().contains("MAVEN"));
 
-        AutomaticBuilder builder = this.sut.getAutomaticBuilder(inputConfiguration);
+        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 
         assertNotNull(builder);
         assertTrue(builder.getClass().equals(MavenAutomaticBuilder.class));
@@ -60,7 +58,7 @@ public class AutomaticBuilderFactoryTest {
 
         assertTrue(inputConfiguration.getProperty("automaticBuilderName").toUpperCase().contains("GRADLE"));
 
-        AutomaticBuilder builder = this.sut.getAutomaticBuilder(inputConfiguration);
+        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 
         assertNotNull(builder);
         assertTrue(builder.getClass().equals(GradleAutomaticBuilder.class));
@@ -78,7 +76,7 @@ public class AutomaticBuilderFactoryTest {
         assertFalse(inputConfiguration.getProperty("automaticBuilderName").toUpperCase().contains("MAVEN"));
         assertFalse(inputConfiguration.getProperty("automaticBuilderName").toUpperCase().contains("GRADLE"));
 
-        AutomaticBuilder builder = this.sut.getAutomaticBuilder(inputConfiguration);
+        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 
         assertNotNull(builder);
         assertTrue(builder.getClass().equals(MavenAutomaticBuilder.class));
@@ -93,7 +91,7 @@ public class AutomaticBuilderFactoryTest {
 
         assertTrue(inputConfiguration.getProperty("automaticBuilderName") == null);
 
-        AutomaticBuilder builder = this.sut.getAutomaticBuilder(inputConfiguration);
+        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 
         assertNotNull(builder);
         assertTrue(builder.getClass().equals(MavenAutomaticBuilder.class));
