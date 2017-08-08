@@ -9,8 +9,10 @@ import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.code.CtNewArray;
 import spoon.reflect.code.CtTypeAccess;
 import spoon.reflect.declaration.CtConstructor;
+import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtArrayTypeReference;
 import spoon.reflect.reference.CtExecutableReference;
@@ -18,6 +20,7 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -69,7 +72,7 @@ public class ValueCreator {
 				return generateConstructionOf(type);
 			}
 		}
-		return null;
+		return generateConstructionOf(type);
 //		throw new RuntimeException();
 	}
 
@@ -170,8 +173,14 @@ public class ValueCreator {
 	private static CtExpression generateConstructionOf(CtTypeReference type) {
 		CtConstructorCall<?> constructorCall = type.getFactory().createConstructorCall();
 		constructorCall.setType(type);
-		if (type.getDeclaration() != null) {
-			final List<CtConstructor> constructors = type.getDeclaration().getElements(new TypeFilter<>(CtConstructor.class));
+		CtType<?> typeDeclaration = type.getDeclaration() == null ? type.getTypeDeclaration() : type.getDeclaration();
+		if (typeDeclaration  != null) {
+			final List<CtConstructor> constructors = typeDeclaration.getElements(new TypeFilter<CtConstructor>(CtConstructor.class) {
+				@Override
+				public boolean matches(CtConstructor element) {
+					return element.hasModifier(ModifierKind.PUBLIC);
+				}
+			});
 			if (!constructors.isEmpty()) {
 				final CtConstructor<?> selectedConstructor = constructors.get(AmplificationHelper.getRandom().nextInt(constructors.size()));
 				selectedConstructor.getParameters().forEach(parameter ->
