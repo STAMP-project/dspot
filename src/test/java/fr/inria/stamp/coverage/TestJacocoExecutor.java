@@ -2,6 +2,7 @@ package fr.inria.stamp.coverage;
 
 import fr.inria.diversify.Utils;
 import org.junit.Test;
+import spoon.reflect.declaration.CtClass;
 
 import static org.junit.Assert.assertEquals;
 
@@ -11,6 +12,27 @@ import static org.junit.Assert.assertEquals;
  * on 13/07/17
  */
 public class TestJacocoExecutor {
+
+	@Test
+	public void testJacocoExecutorOnMocks() throws Exception {
+		Utils.reset();
+		Utils.init("src/test/resources/mock/mock.properties");
+
+		JacocoExecutor jacocoExecutor = new JacocoExecutor(Utils.getInputProgram(), Utils.getInputConfiguration());
+		final CtClass<?> easyMockTest = Utils.findClass("org.baeldung.mocks.easymock.LoginControllerIntegrationTest");
+		final CtClass<?> jmockitTest = Utils.findClass("org.baeldung.mocks.jmockit.LoginControllerIntegrationTest");
+		final CtClass<?> mockitoTest = Utils.findClass("org.baeldung.mocks.mockito.LoginControllerIntegrationTest");
+
+		CoverageResults coverageResults = jacocoExecutor.executeJacoco(easyMockTest);
+		assertEquals(0, coverageResults.instructionsCovered); // TODO not able to run mocked test
+		assertEquals(78, coverageResults.instructionsTotal);
+		coverageResults = jacocoExecutor.executeJacoco(jmockitTest);
+		assertEquals(0, coverageResults.instructionsCovered); // TODO not able to run mocked test
+		assertEquals(78, coverageResults.instructionsTotal);
+		coverageResults = jacocoExecutor.executeJacoco(mockitoTest);
+		assertEquals(3, coverageResults.instructionsCovered); // TODO not able to run mocked test
+		assertEquals(78, coverageResults.instructionsTotal);
+	}
 
 	@Test
 	public void testJacocoExecutor() throws Exception {

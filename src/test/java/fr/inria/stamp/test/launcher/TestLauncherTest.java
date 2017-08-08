@@ -2,9 +2,12 @@ package fr.inria.stamp.test.launcher;
 
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.Utils;
+import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.Test;
 import spoon.Launcher;
+import spoon.reflect.declaration.CtClass;
 
 import java.util.Collections;
 
@@ -16,6 +19,42 @@ import static org.junit.Assert.assertEquals;
  * on 06/07/17
  */
 public class TestLauncherTest {
+
+	@Test
+	public void testOnMultipleMockers() throws Exception {
+
+		/*
+			Runner is able to run all kind of test
+		 */
+
+		Utils.reset();
+		Utils.init("src/test/resources/mock/mock.properties");
+		final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration())
+				.buildClasspath(Utils.getInputProgram().getProgramDir())
+				+ System.getProperty("path.separator")
+				+ Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getClassesDir()
+				+ System.getProperty("path.separator")
+				+ Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getTestClassesDir();
+
+		final CtClass<?> easyMockTest = Utils.findClass("org.baeldung.mocks.easymock.LoginControllerIntegrationTest");
+		final CtClass<?> jmockitTest = Utils.findClass("org.baeldung.mocks.jmockit.LoginControllerIntegrationTest");
+		final CtClass<?> mockitoTest = Utils.findClass("org.baeldung.mocks.mockito.LoginControllerIntegrationTest");
+
+		TestListener run = TestLauncher.run(Utils.getInputConfiguration(), classpath, easyMockTest);
+		assertEquals(7, run.getRunningTests().size());
+		assertEquals(7, run.getPassingTests().size());
+		assertEquals(0, run.getFailingTests().size());
+
+		run = TestLauncher.run(Utils.getInputConfiguration(), classpath, jmockitTest);
+		assertEquals(7, run.getRunningTests().size());
+		assertEquals(7, run.getPassingTests().size());
+		assertEquals(0, run.getFailingTests().size());
+
+		run = TestLauncher.run(Utils.getInputConfiguration(), classpath, mockitoTest);
+		assertEquals(7, run.getRunningTests().size());
+		assertEquals(7, run.getPassingTests().size());
+		assertEquals(0, run.getFailingTests().size());
+	}
 
 	@Test
 	public void test() throws Exception {
