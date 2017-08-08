@@ -44,11 +44,7 @@ public class ValueCreator {
 	}
 
 	public static CtLocalVariable createRandomLocalVar(CtTypeReference type, String prefixName) {
-		final CtExpression<?> randomValue = generateRandomValue(type);
-		if (randomValue == null) {
-			return null;
-		}
-		return type.getFactory().createLocalVariable(type, prefixName + "_" + count++, randomValue);
+		return type.getFactory().createLocalVariable(type, prefixName + "_" + count++, generateRandomValue(type));
 	}
 
 	private static CtExpression<?> generateRandomValue(CtTypeReference type) {

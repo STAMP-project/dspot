@@ -138,27 +138,23 @@ public class StatementAdd implements Amplifier {
 		initMethods(testClass);
 	}
 
-	private CtMethod addInvocation(CtMethod method, CtMethod mthToAdd, CtExpression target, CtStatement position) {
+	private CtMethod addInvocation(CtMethod<?> method, CtMethod<?> mthToAdd, CtExpression<?> target, CtStatement position) {
 		final Factory factory = method.getFactory();
 		CtMethod methodClone = AmplificationHelper.cloneMethodTest(method, "_sd");
 
 		CtBlock body = methodClone.getBody();
-
-//		mthToAdd.getParameters().stream()
-
-
-		List<CtParameter> parameters = mthToAdd.getParameters();
+		List<CtParameter<?>> parameters = mthToAdd.getParameters();
 		List<CtExpression<?>> arguments = new ArrayList<>(parameters.size());
-		for (int i = 0; i < parameters.size(); i++) {
-			CtParameter parameter = parameters.get(i);
-			try {
-				CtLocalVariable localVariable = ValueCreator.createRandomLocalVar(parameter.getType(), parameter.getSimpleName());
-				body.insertBegin(localVariable);
-				arguments.add(factory.createVariableRead(localVariable.getReference(), false));
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
+
+		mthToAdd.getParameters().forEach(parameter -> {
+					try {
+						CtLocalVariable<?> localVariable = ValueCreator.createRandomLocalVar(parameter.getType(), parameter.getSimpleName());
+						body.insertBegin(localVariable);
+						arguments.add(factory.createVariableRead(localVariable.getReference(), false));
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				});
 
 		CtExpression targetClone = target.clone();
 		CtInvocation newInvocation = factory.Code().createInvocation(targetClone, mthToAdd.getReference(), arguments);
