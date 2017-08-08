@@ -101,7 +101,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
             return PitResultParser.parse(new File(directoryReportPit.getPath() + "/mutations.csv"));
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 
@@ -116,7 +116,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
             build.setStandardError(outputStream);
             build.run();
         } catch (Exception e) {
-            new RuntimeException(e);
+            throw new RuntimeException(e);
         } finally {
             connection.close();
         }

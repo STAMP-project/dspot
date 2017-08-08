@@ -6,6 +6,7 @@ import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.automaticbuilder.MavenAutomaticBuilder;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.*;
+import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.utils.AmplificationHelper;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
@@ -109,7 +110,7 @@ public class PitTest extends MavenAbstractTest {
         /*
             Run the PitRunner in wrong configuration.
          */
-        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration());
+        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(new InputConfiguration(getPathToPropertiesFile()));
         List<PitResult> pitResults = builder.runPit(null, null);
         assertNull(pitResults);
     }
