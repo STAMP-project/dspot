@@ -16,7 +16,7 @@ public class MockitoTestRunnerTest {
 
     @Test
     public void testRunTestClass() throws Exception {
-        TestRunner runner = new MockitoTestRunner(
+        TestRunner runner = new DefaultTestRunner(
                         "src/test/resources/MockitoDemo-1.0-SNAPSHOT.jar"
                                 + System.getProperty("path.separator") +
                         "src/test/resources/MockitoDemo-1.0-SNAPSHOT-tests.jar");
@@ -30,7 +30,7 @@ public class MockitoTestRunnerTest {
 
     @Test
     public void testRunTestMethod() throws Exception {
-        TestRunner runner = new MockitoTestRunner(
+        TestRunner runner = new DefaultTestRunner(
                 new String[]{
                         "src/test/resources/MockitoDemo-1.0-SNAPSHOT.jar",
                         "src/test/resources/MockitoDemo-1.0-SNAPSHOT-tests.jar",
@@ -45,7 +45,7 @@ public class MockitoTestRunnerTest {
 
     @Test
     public void testRunTestMethods() throws Exception {
-        TestRunner runner = new MockitoTestRunner(
+        TestRunner runner = new DefaultTestRunner(
                 new String[]{
                         "src/test/resources/MockitoDemo-1.0-SNAPSHOT.jar",
                         "src/test/resources/MockitoDemo-1.0-SNAPSHOT-tests.jar",

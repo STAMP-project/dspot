@@ -1,9 +1,13 @@
 package fr.inria.stamp.test.launcher;
 
+import fr.inria.diversify.runner.InputConfiguration;
+import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.Utils;
+import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.Test;
 import spoon.Launcher;
+import spoon.reflect.declaration.CtClass;
 
 import java.util.Collections;
 
@@ -15,6 +19,42 @@ import static org.junit.Assert.assertEquals;
  * on 06/07/17
  */
 public class TestLauncherTest {
+
+	@Test
+	public void testOnMultipleMockers() throws Exception {
+
+		/*
+			Runner is able to run all kind of test
+		 */
+
+		Utils.reset();
+		Utils.init("src/test/resources/mock/mock.properties");
+		final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration())
+				.buildClasspath(Utils.getInputProgram().getProgramDir())
+				+ System.getProperty("path.separator")
+				+ Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getClassesDir()
+				+ System.getProperty("path.separator")
+				+ Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getTestClassesDir();
+
+		final CtClass<?> easyMockTest = Utils.findClass("org.baeldung.mocks.easymock.LoginControllerIntegrationTest");
+		final CtClass<?> jmockitTest = Utils.findClass("org.baeldung.mocks.jmockit.LoginControllerIntegrationTest");
+		final CtClass<?> mockitoTest = Utils.findClass("org.baeldung.mocks.mockito.LoginControllerIntegrationTest");
+
+		TestListener run = TestLauncher.run(Utils.getInputConfiguration(), classpath, easyMockTest);
+		assertEquals(7, run.getRunningTests().size());
+		assertEquals(7, run.getPassingTests().size());
+		assertEquals(0, run.getFailingTests().size());
+
+		run = TestLauncher.run(Utils.getInputConfiguration(), classpath, jmockitTest);
+		assertEquals(7, run.getRunningTests().size());
+		assertEquals(7, run.getPassingTests().size());
+		assertEquals(0, run.getFailingTests().size());
+
+		run = TestLauncher.run(Utils.getInputConfiguration(), classpath, mockitoTest);
+		assertEquals(7, run.getRunningTests().size());
+		assertEquals(7, run.getPassingTests().size());
+		assertEquals(0, run.getFailingTests().size());
+	}
 
 	@Test
 	public void test() throws Exception {
@@ -37,16 +77,18 @@ public class TestLauncherTest {
 		/*
 			Test that we the same entry point we are able to run all kind of test
 		 */
+		InputConfiguration configuration = new InputConfiguration("src/test/resources/mockito/mockito.properties");
+		configuration.setInputProgram(new InputProgram());
 
 		// Mocked
-		TestListener results = TestLauncher.run(Utils.getInputConfiguration(), classpath, launcher.getFactory().Class().get("info.sanaulla.dal.BookDALTest"));
+		TestListener results = TestLauncher.run(configuration, classpath, launcher.getFactory().Class().get("info.sanaulla.dal.BookDALTest"));
 		assertEquals(5, results.getRunningTests().size());
 		assertEquals(1, results.getFailingTests().size());
 		assertEquals(4, results.getPassingTests().size());
 		assertEquals(0, results.getAssumptionFailingTests().size());
 		assertEquals(0, results.getIgnoredTests().size());
 
-		results = TestLauncher.run(Utils.getInputConfiguration(), classpath, launcher.getFactory().Class().get("info.sanaulla.dal.BookDALTest"),
+		results = TestLauncher.run(configuration, classpath, launcher.getFactory().Class().get("info.sanaulla.dal.BookDALTest"),
 				Collections.singleton("testGetBook"));
 		assertEquals(1, results.getRunningTests().size());
 		assertEquals(0, results.getFailingTests().size());
@@ -54,8 +96,11 @@ public class TestLauncherTest {
 		assertEquals(0, results.getAssumptionFailingTests().size());
 		assertEquals(0, results.getIgnoredTests().size());
 
+		configuration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
+		configuration.setInputProgram(new InputProgram());
+
 		// Default
-		results = TestLauncher.run(Utils.getInputConfiguration(), classpath, launcher.getFactory().Class().get("example.TestSuiteExample"),
+		results = TestLauncher.run(configuration, classpath, launcher.getFactory().Class().get("example.TestSuiteExample"),
 				Collections.singleton("test1"));
 		assertEquals(1, results.getRunningTests().size());
 		assertEquals(1, results.getFailingTests().size());
@@ -63,8 +108,11 @@ public class TestLauncherTest {
 		assertEquals(0, results.getAssumptionFailingTests().size());
 		assertEquals(0, results.getIgnoredTests().size());
 
+		configuration = new InputConfiguration("src/test/resources/sample/sample.properties");
+		configuration.setInputProgram(new InputProgram());
+
 		// Abstract Class: using implementation of abstract class to run test
-		results = TestLauncher.run(Utils.getInputConfiguration(), classpath, launcher.getFactory().Class().get("example.InheriteTest"));
+		results = TestLauncher.run(configuration, classpath, launcher.getFactory().Class().get("example.InheriteTest"));
 		assertEquals(2, results.getRunningTests().size());
 		assertEquals(0, results.getFailingTests().size());
 		assertEquals(2, results.getPassingTests().size());
@@ -72,7 +120,7 @@ public class TestLauncherTest {
 		assertEquals(0, results.getIgnoredTests().size());
 
 		// will use example.InheriteTest to run the test of AbstractTest
-		results = TestLauncher.run(Utils.getInputConfiguration(), classpath, launcher.getFactory().Class().get("example.AbstractTest"),
+		results = TestLauncher.run(configuration, classpath, launcher.getFactory().Class().get("example.AbstractTest"),
 				Collections.singleton("abstractTest"));
 		assertEquals(1, results.getRunningTests().size());
 		assertEquals(0, results.getFailingTests().size());
@@ -80,7 +128,7 @@ public class TestLauncherTest {
 		assertEquals(0, results.getAssumptionFailingTests().size());
 		assertEquals(0, results.getIgnoredTests().size());
 
-		results = TestLauncher.run(Utils.getInputConfiguration(), classpath, launcher.getFactory().Class().get("example.AbstractTest"));
+		results = TestLauncher.run(configuration, classpath, launcher.getFactory().Class().get("example.AbstractTest"));
 		assertEquals(2, results.getRunningTests().size());
 		assertEquals(0, results.getFailingTests().size());
 		assertEquals(2, results.getPassingTests().size());
@@ -109,9 +157,11 @@ public class TestLauncherTest {
 		/*
 			Test that we the same entry point we are able to run all kind of test
 		 */
+		InputConfiguration configuration = new InputConfiguration("src/test/resources/mockito/mockito.properties");
+		configuration.setInputProgram(new InputProgram());
 
 		// Mocked
-		TestListener results = TestLauncher.runFromSpoonNodes(Utils.getInputConfiguration(), classpath,
+		TestListener results = TestLauncher.runFromSpoonNodes(configuration, classpath,
 				launcher.getFactory().Class().get("info.sanaulla.dal.BookDALTest"),
 				launcher.getFactory().Class().get("info.sanaulla.dal.BookDALTest").getMethodsByName("testGetBook")
 		);
@@ -121,8 +171,11 @@ public class TestLauncherTest {
 		assertEquals(0, results.getAssumptionFailingTests().size());
 		assertEquals(0, results.getIgnoredTests().size());
 
+		configuration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
+		configuration.setInputProgram(new InputProgram());
+
 		// Default
-		results = TestLauncher.runFromSpoonNodes(Utils.getInputConfiguration(), classpath,
+		results = TestLauncher.runFromSpoonNodes(configuration, classpath,
 				launcher.getFactory().Class().get("example.TestSuiteExample"),
 				launcher.getFactory().Class().get("example.TestSuiteExample").getMethodsByName("test1")
 		);
@@ -132,8 +185,11 @@ public class TestLauncherTest {
 		assertEquals(0, results.getAssumptionFailingTests().size());
 		assertEquals(0, results.getIgnoredTests().size());
 
+		configuration = new InputConfiguration("src/test/resources/sample/sample.properties");
+		configuration.setInputProgram(new InputProgram());
+
 		// will use example.InheriteTest to run the test of AbstractTest
-		results = TestLauncher.runFromSpoonNodes(Utils.getInputConfiguration(), classpath,
+		results = TestLauncher.runFromSpoonNodes(configuration, classpath,
 				launcher.getFactory().Class().get("example.AbstractTest"),
 				launcher.getFactory().Class().get("example.AbstractTest").getMethodsByName("abstractTest"));
 		assertEquals(1, results.getRunningTests().size());
