@@ -50,7 +50,7 @@ public class TestDataMutatorTest extends AbstractTest {
         for (int i = 0; i < mutantMethods.size(); i++) {
             CtMethod mutantMethod = mutantMethods.get(i);
             assertEquals(nameMethod + SUFFIX_MUTATION + (i + 1), mutantMethod.getSimpleName());
-            CtLiteral mutantLiteral = mutantMethod.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
+            CtLiteral mutantLiteral = mutantMethod.getBody().getElements(new TypeFilter<>(CtLiteral.class)).get(0);
             assertNotEquals(originalValue, mutantLiteral.getValue());
             assertTrue(expectedValues.contains(mutantLiteral.getValue()));
         }
@@ -77,14 +77,14 @@ public class TestDataMutatorTest extends AbstractTest {
         CtMethod mutantMethod = amplificator.applyRandom(method);
 
         assertEquals(nameMethod + SUFFIX_MUTATION + 1, mutantMethod.getSimpleName());
-        CtLiteral mutantLiteral = mutantMethod.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
+        CtLiteral mutantLiteral = mutantMethod.getBody().getElements(new TypeFilter<>(CtLiteral.class)).get(0);
         assertNotEquals(originalValue, mutantLiteral.getValue());
         assertTrue(expectedValues.contains(mutantLiteral.getValue()));
 
         CtMethod mutantMethod2 = amplificator.applyRandom(method);
 
         assertEquals(nameMethod + SUFFIX_MUTATION + 2, mutantMethod2.getSimpleName());
-        CtLiteral mutantLiteral2 = mutantMethod2.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
+        CtLiteral mutantLiteral2 = mutantMethod2.getBody().getElements(new TypeFilter<>(CtLiteral.class)).get(0);
         assertNotEquals(originalValue, mutantLiteral2.getValue());
         assertTrue(expectedValues.contains(mutantLiteral2.getValue()));
 
@@ -114,7 +114,7 @@ public class TestDataMutatorTest extends AbstractTest {
         for (int i = 0; i < mutantMethods.size(); i++) {
             CtMethod mutantMethod = mutantMethods.get(i);
             assertEquals(nameMethod + SUFFIX_MUTATION + (i + 1), mutantMethod.getSimpleName());
-            CtLiteral mutantLiteral = mutantMethod.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
+            CtLiteral mutantLiteral = mutantMethod.getBody().getElements(new TypeFilter<>(CtLiteral.class)).get(0);
             assertNotEquals(originalValue, mutantLiteral.getValue());
             assertTrue(expectedValues.contains(mutantLiteral.getValue()));
         }
@@ -140,14 +140,14 @@ public class TestDataMutatorTest extends AbstractTest {
         CtMethod mutantMethod = amplificator.applyRandom(method);
 
         assertEquals(nameMethod + SUFFIX_MUTATION + 1, mutantMethod.getSimpleName());
-        CtLiteral mutantLiteral = mutantMethod.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
+        CtLiteral mutantLiteral = mutantMethod.getBody().getElements(new TypeFilter<>(CtLiteral.class)).get(0);
         assertNotEquals(originalValue, mutantLiteral.getValue());
         assertTrue(expectedValues.contains(mutantLiteral.getValue()));
 
         CtMethod mutantMethod2 = amplificator.applyRandom(method);
 
         assertEquals(nameMethod + SUFFIX_MUTATION + 2, mutantMethod2.getSimpleName());
-        CtLiteral mutantLiteral2 = mutantMethod2.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
+        CtLiteral mutantLiteral2 = mutantMethod2.getBody().getElements(new TypeFilter<>(CtLiteral.class)).get(0);
         assertNotEquals(originalValue, mutantLiteral2.getValue());
         assertTrue(expectedValues.contains(mutantLiteral2.getValue()));
 
@@ -177,7 +177,7 @@ public class TestDataMutatorTest extends AbstractTest {
         for (int i = 0; i < mutantMethods.size(); i++) {
             CtMethod mutantMethod = mutantMethods.get(i);
             assertEquals(nameMethod + SUFFIX_MUTATION + (i + 1), mutantMethod.getSimpleName());
-            CtLiteral mutantLiteral = mutantMethod.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
+            CtLiteral mutantLiteral = mutantMethod.getBody().getElements(new TypeFilter<>(CtLiteral.class)).get(0);
             assertNotEquals(originalValue, mutantLiteral.getValue());
             assertDistanceBetweenOriginalAndMuted(originalValue, (String) mutantLiteral.getValue());
         }
@@ -204,14 +204,14 @@ public class TestDataMutatorTest extends AbstractTest {
         CtMethod mutantMethod = amplificator.applyRandom(method);
 
         assertEquals(nameMethod + SUFFIX_MUTATION + 1, mutantMethod.getSimpleName());
-        CtLiteral mutantLiteral = mutantMethod.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
+        CtLiteral mutantLiteral = mutantMethod.getBody().getElements(new TypeFilter<>(CtLiteral.class)).get(0);
         assertNotEquals(originalValue, mutantLiteral.getValue());
         assertDistanceBetweenOriginalAndMuted(originalValue, (String) mutantLiteral.getValue());
 
         CtMethod mutantMethod2 = amplificator.applyRandom(method);
 
         assertEquals(nameMethod + SUFFIX_MUTATION + 2, mutantMethod2.getSimpleName());
-        CtLiteral mutantLiteral2 = mutantMethod2.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
+        CtLiteral mutantLiteral2 = mutantMethod2.getBody().getElements(new TypeFilter<>(CtLiteral.class)).get(0);
         assertNotEquals(originalValue, mutantLiteral2.getValue());
         assertDistanceBetweenOriginalAndMuted(originalValue, (String) mutantLiteral.getValue());
 
@@ -282,7 +282,7 @@ public class TestDataMutatorTest extends AbstractTest {
 
         assertEquals(1, mutantMethods.size());
         assertEquals(nameMethod + SUFFIX_MUTATION + "1", mutantMethod.getSimpleName());
-        CtLiteral mutantLiteral = mutantMethod.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
+        CtLiteral mutantLiteral = mutantMethod.getBody().getElements(new TypeFilter<>(CtLiteral.class)).get(0);
         assertEquals(!(originalValue), mutantLiteral.getValue());
     }
 
