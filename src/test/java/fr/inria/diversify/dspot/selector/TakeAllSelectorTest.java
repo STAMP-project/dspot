@@ -1,0 +1,42 @@
+package fr.inria.diversify.dspot.selector;
+
+import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import fr.inria.diversify.dspot.DSpot;
+import fr.inria.diversify.dspot.amplifier.StatementAdd;
+import fr.inria.diversify.runner.InputConfiguration;
+import fr.inria.diversify.utils.AmplificationHelper;
+import org.apache.commons.io.FileUtils;
+import org.junit.Test;
+import spoon.reflect.declaration.CtType;
+
+import java.io.File;
+import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
+
+/**
+ * Created by Benjamin DANGLOT
+ * benjamin.danglot@inria.fr
+ * on 08/08/17
+ */
+public class TakeAllSelectorTest {
+	@Test
+	public void test() throws Exception, InvalidSdkException {
+
+		try {
+			FileUtils.deleteDirectory(new File("dspot-out"));
+		} catch (Exception ignored) {
+			//ignored
+		}
+		AmplificationHelper.setSeedRandom(23L);
+		InputConfiguration configuration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
+		DSpot dspot = new DSpot(configuration, 1, Collections.singletonList(new StatementAdd()),
+				new TakeAllSelector());
+
+		assertEquals(6, dspot.getInputProgram().getFactory().Class().get("example.TestSuiteExample").getMethods().size());
+
+		final CtType<?> test2 = dspot.amplifyTest("example.TestSuiteExample", Collections.singletonList("test2"));
+
+		assertEquals(11, test2.getMethods().size());
+	}
+}

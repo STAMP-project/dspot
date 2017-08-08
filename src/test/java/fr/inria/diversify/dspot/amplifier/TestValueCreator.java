@@ -47,11 +47,11 @@ public class TestValueCreator extends AbstractTest {
         assertEquals("vc_"+count, randomLocalVar.getSimpleName());
         assertEquals(factory.Type().createArrayReference("int"), randomLocalVar.getType());
 
-        randomLocalVar = ValueCreator.createRandomLocalVar(factory.Type().createReference("mutation.ClassUnderTest"));
+        randomLocalVar = ValueCreator.createRandomLocalVar(factory.Type().createReference("fr.inria.mutation.ClassUnderTest"));
         count++;
 
         assertEquals("vc_"+count, randomLocalVar.getSimpleName());
-        assertEquals(factory.Type().createReference("mutation.ClassUnderTest"), randomLocalVar.getType());
+        assertEquals(factory.Type().createReference("fr.inria.mutation.ClassUnderTest"), randomLocalVar.getType());
     }
 
     @Test

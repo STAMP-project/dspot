@@ -34,7 +34,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 				"test1"
 		);
 
-		final String expectedMethod = "@org.junit.Test" + nl  +
+		final String expectedMethod = "@org.junit.Test(timeout = 10000)" + nl  +
 				"public void test1_withlog() {" + nl  +
 				"    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl  +
 				"    fr.inria.diversify.compare.ObjectLog.log(cl, \"cl\", \"test1__1\");" + nl  +
@@ -62,7 +62,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 				"test2"
 		);
 
-		final String expectedMethod = "@org.junit.Test" + nl  +
+		final String expectedMethod = "@org.junit.Test(timeout = 10000)" + nl  +
 				"public void test2_withlog() {" + nl  +
 				"    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl  +
 				"    fr.inria.diversify.compare.ObjectLog.log(cl, \"cl\", \"test2__1\");" + nl  +

@@ -42,15 +42,7 @@ import java.util.stream.IntStream;
  * benjamin.danglot@inria.fr
  * on 13/07/17
  */
-public class JacocoCoverageSelector implements TestSelector {
-
-	private InputProgram program;
-
-	private InputConfiguration configuration;
-
-	private CtType<?> currentClassTestToBeAmplified;
-
-	private List<CtMethod<?>> selectedAmplifiedTest = new ArrayList<>();
+public class JacocoCoverageSelector extends TakeAllSelector {
 
 	private Map<String, CoverageResults> selectedToBeAmplifiedCoverageResultsMap;
 
@@ -58,14 +50,8 @@ public class JacocoCoverageSelector implements TestSelector {
 
 	@Override
 	public void init(InputConfiguration configuration) {
-		this.configuration = configuration;
-		this.program = configuration.getInputProgram();
+		super.init(configuration);
 		this.selectedAmplifiedTest.clear();
-	}
-
-	@Override
-	public void reset() {
-		//empty
 	}
 
 	@Override
@@ -164,11 +150,6 @@ public class JacocoCoverageSelector implements TestSelector {
 	}
 
 	@Override
-	public void update() {
-		//empty
-	}
-
-	@Override
 	public void report() {
 		final String nl = System.getProperty("line.separator");
 		StringBuilder report = new StringBuilder();
@@ -259,18 +240,5 @@ public class JacocoCoverageSelector implements TestSelector {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	@Override //TODO factorize with pit selector
-	public int getNbAmplifiedTestCase() {
-		return this.selectedAmplifiedTest.size();
-	}
-
-	@Override //TODO factorize with pit selector
-	public CtType buildClassForSelection(CtType original, List<CtMethod<?>> methods) {
-		CtType clone = original.clone();
-		original.getPackage().addType(clone);
-		methods.forEach(clone::addMethod);
-		return clone;
 	}
 }

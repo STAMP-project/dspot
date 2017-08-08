@@ -28,15 +28,9 @@ import java.util.stream.Collectors;
  * benjamin.danglot@inria.fr
  * on 1/5/17
  */
-public class PitMutantScoreSelector implements TestSelector {
+public class PitMutantScoreSelector extends TakeAllSelector {
 
     private int numberOfMutant;
-
-    private InputProgram program;
-
-    private InputConfiguration configuration;
-
-    private CtType<?> currentClassTestToBeAmplified;
 
     private List<PitResult> originalKilledMutants;
 
@@ -55,8 +49,7 @@ public class PitMutantScoreSelector implements TestSelector {
 
     @Override
     public void init(InputConfiguration configuration) {
-        this.configuration = configuration;
-        this.program = this.configuration.getInputProgram();
+        super.init(configuration);
         if (this.originalKilledMutants == null) {
             initOriginalPitResult(AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).runPit(this.program.getProgramDir()));
         }
@@ -73,11 +66,6 @@ public class PitMutantScoreSelector implements TestSelector {
                 .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
                 .collect(Collectors.toList());
         Log.debug("The original test suite kill {} / {}", this.originalKilledMutants.size(), results.size());
-    }
-
-    @Override
-    public void reset() {
-        //empty
     }
 
     @Override
@@ -163,30 +151,12 @@ public class PitMutantScoreSelector implements TestSelector {
     }
 
     @Override
-    public void update() {
-        // empty
-    }
-
-    @Override
     public void report() {
         reportStdout();
         reportJSONMutants();
         //clean up for the next class
         this.currentClassTestToBeAmplified = null;
         this.testThatKilledMutants.clear();
-    }
-
-    @Override
-    public int getNbAmplifiedTestCase() {
-        return this.testThatKilledMutants.size();
-    }
-
-    @Override
-    public CtType buildClassForSelection(CtType original, List<CtMethod<?>> methods) {
-        CtType clone = original.clone();
-        original.getPackage().addType(clone);
-        methods.forEach(clone::addMethod);
-        return clone;
     }
 
     private void reportStdout() {

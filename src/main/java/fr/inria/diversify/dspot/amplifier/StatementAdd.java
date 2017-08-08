@@ -41,7 +41,7 @@ public class StatementAdd implements Amplifier {
 	@Override
 	public List<CtMethod> apply(CtMethod method) {
 		// generate new objects
- 		final List<CtMethod<?>> generateNewObjects = generateNewObjects(method);
+		final List<CtMethod<?>> generateNewObjects = generateNewObjects(method);
 
 		// reuse existing object in test to add call to methods
 		final List<CtMethod> useExistingObject = useExistingObject(method); // original
@@ -64,7 +64,7 @@ public class StatementAdd implements Amplifier {
 		final Stream<? extends CtMethod<?>> gen_o1 = existingObjects.stream() // must use tmp variable because javac is confused
 				.flatMap(localVariable -> ValueCreator.generateAllConstructionOf(localVariable.getType()).stream())
 				.map(ctExpression -> {
-							final CtMethod<?> clone = AmplificationHelper.cloneMethod(method, "_sd");
+							final CtMethod<?> clone = AmplificationHelper.cloneMethodTest(method, "_sd");
 							clone.getBody().insertBegin(
 									clone.getFactory().createLocalVariable(
 											ctExpression.getType(), "gen_o" + counterGenerateNewObject++, ctExpression
@@ -104,7 +104,7 @@ public class StatementAdd implements Amplifier {
 								"invoc_" + count[0]++,
 								invocation);
 						CtExpression<?> target = createLocalVarRef(localVar);
-						CtMethod methodClone = AmplificationHelper.cloneMethod(method, "");
+						CtMethod methodClone = AmplificationHelper.cloneMethodTest(method, "");
 						CtStatement stmt = findInvocationIn(methodClone, invocation);
 						stmt.replace(localVar);
 
@@ -138,24 +138,23 @@ public class StatementAdd implements Amplifier {
 		initMethods(testClass);
 	}
 
-	private CtMethod addInvocation(CtMethod method, CtMethod mthToAdd, CtExpression target, CtStatement position) {
+	private CtMethod addInvocation(CtMethod<?> method, CtMethod<?> mthToAdd, CtExpression<?> target, CtStatement position) {
 		final Factory factory = method.getFactory();
-		CtMethod methodClone = AmplificationHelper.cloneMethod(method, "_sd");
+		CtMethod methodClone = AmplificationHelper.cloneMethodTest(method, "_sd");
 
 		CtBlock body = methodClone.getBody();
-
-		List<CtParameter> parameters = mthToAdd.getParameters();
+		List<CtParameter<?>> parameters = mthToAdd.getParameters();
 		List<CtExpression<?>> arguments = new ArrayList<>(parameters.size());
-		for (int i = 0; i < parameters.size(); i++) {
-			try {
-				CtParameter parameter = parameters.get(i);
-				CtLocalVariable localVariable = ValueCreator.createRandomLocalVar(parameter.getType(), parameter.getSimpleName());
-				body.insertBegin(localVariable);
-				arguments.add(factory.createVariableRead(localVariable.getReference(), false));
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
+
+		mthToAdd.getParameters().forEach(parameter -> {
+					try {
+						CtLocalVariable<?> localVariable = ValueCreator.createRandomLocalVar(parameter.getType(), parameter.getSimpleName());
+						body.insertBegin(localVariable);
+						arguments.add(factory.createVariableRead(localVariable.getReference(), false));
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				});
 
 		CtExpression targetClone = target.clone();
 		CtInvocation newInvocation = factory.Code().createInvocation(targetClone, mthToAdd.getReference(), arguments);

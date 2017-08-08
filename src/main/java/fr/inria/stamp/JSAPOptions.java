@@ -3,7 +3,9 @@ package fr.inria.stamp;
 import com.martiansoftware.jsap.*;
 import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
+import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
 import fr.inria.diversify.dspot.selector.PitMutantScoreSelector;
+import fr.inria.diversify.dspot.selector.TakeAllSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.util.Log;
@@ -24,7 +26,9 @@ public class JSAPOptions {
 
     enum SelectorEnum {
         BranchCoverageTestSelector(new BranchCoverageTestSelector(10)),
-        PitMutantScoreSelector(new fr.inria.diversify.dspot.selector.PitMutantScoreSelector());
+        PitMutantScoreSelector(new PitMutantScoreSelector()),
+        JacocoCoverageSelector(new JacocoCoverageSelector()),
+        TakeAllSelector(new TakeAllSelector());
         public final TestSelector testCriterion;
 
         private SelectorEnum(TestSelector testCriterion) {
@@ -141,7 +145,7 @@ public class JSAPOptions {
         amplifiers.setShortFlag('a');
         amplifiers.setStringParser(JSAP.STRING_PARSER);
         amplifiers.setUsageName("Amplifier");
-        amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. Possible values: MethodAdd|MethodRemove|StatementAdderOnAssert|TestDataMutator");
+        amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. Possible values: MethodAdd|MethodRemove|StatementAdderOnAssert|TestDataMutator|StatementAdd");
 
         FlaggedOption iteration = new FlaggedOption("iteration");
         iteration.setDefault("3");
@@ -156,7 +160,7 @@ public class JSAPOptions {
         selector.setLongFlag("test-criterion");
         selector.setShortFlag('s');
         selector.setStringParser(JSAP.STRING_PARSER);
-        selector.setUsageName("PitMutantScoreSelector | BranchCoverageTestSelector");
+        selector.setUsageName("PitMutantScoreSelector | BranchCoverageTestSelector | JacocoCoverageSelector | TakeAllSelector");
         selector.setHelp("[optional] specify the test adequacy criterion to be maximized with amplification");
         selector.setDefault("PitMutantScoreSelector");
 
