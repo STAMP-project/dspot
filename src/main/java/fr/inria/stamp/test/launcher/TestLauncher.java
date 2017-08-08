@@ -4,7 +4,7 @@ import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.stamp.test.listener.TestListener;
 import fr.inria.stamp.test.runner.DefaultTestRunner;
-import fr.inria.stamp.test.runner.MockitoTestRunner;
+import fr.inria.stamp.test.runner.DefaultTestRunner;
 import org.junit.runner.notification.RunListener;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
@@ -38,12 +38,7 @@ public class TestLauncher {
 					.map(ctType -> run(configuration, classpath, ctType, testMethodNames))
 					.reduce(new TestListener(), TestListener::aggregate);
 		}
-		final TypeTestEnum typeTest = TypeTestEnum.getTypeTest(testClass);
-		if (typeTest == TypeTestEnum.DEFAULT) {
-			return new DefaultTestRunner(classpath).run(testClass.getQualifiedName(), testMethodNames);
-		} else {
-			return new MockitoTestRunner(classpath).run(testClass.getQualifiedName(), testMethodNames);
-		}
+		return new DefaultTestRunner(classpath).run(testClass.getQualifiedName(), testMethodNames);
 	}
 
 	public static TestListener run(InputConfiguration configuration, URLClassLoader classLoader, CtType<?> testClass,
@@ -60,12 +55,7 @@ public class TestLauncher {
 					.map(ctType -> run(configuration, classLoader, ctType, testMethodNames, listener))
 					.reduce(new TestListener(), TestListener::aggregate);
 		}
-		final TypeTestEnum typeTest = TypeTestEnum.getTypeTest(testClass);
-		if (typeTest == TypeTestEnum.DEFAULT) {
-			return new DefaultTestRunner(classLoader).run(testClass.getQualifiedName(), testMethodNames, listener);
-		} else {
-			return new MockitoTestRunner(classLoader).run(testClass.getQualifiedName(), testMethodNames, listener);
-		}
+		return new DefaultTestRunner(classLoader).run(testClass.getQualifiedName(), testMethodNames, listener);
 	}
 
 	public static TestListener run(InputConfiguration configuration, URLClassLoader classLoader, CtType<?> testClass,
@@ -82,12 +72,7 @@ public class TestLauncher {
 					.map(ctType -> run(configuration, classLoader, ctType, listener))
 					.reduce(new TestListener(), TestListener::aggregate);
 		}
-		final TypeTestEnum typeTest = TypeTestEnum.getTypeTest(testClass);
-		if (typeTest == TypeTestEnum.DEFAULT) {
-			return new DefaultTestRunner(classLoader).run(testClass.getQualifiedName(), listener);
-		} else {
-			return new MockitoTestRunner(classLoader).run(testClass.getQualifiedName(), listener);
-		}
+		return new DefaultTestRunner(classLoader).run(testClass.getQualifiedName(), listener);
 	}
 
 
@@ -114,12 +99,7 @@ public class TestLauncher {
 					.map(subType -> run(configuration, classpath, subType))
 					.reduce(new TestListener(), TestListener::aggregate);
 		}
-		final TypeTestEnum typeTest = TypeTestEnum.getTypeTest(testClass);
-		if (typeTest == TypeTestEnum.DEFAULT) {
-			return new DefaultTestRunner(classpath).run(testClass.getQualifiedName());
-		} else {
-			return new MockitoTestRunner(classpath).run(testClass.getQualifiedName());
-		}
+		return new DefaultTestRunner(classpath).run(testClass.getQualifiedName());
 	}
 
 	public static TestListener run(InputConfiguration configuration, URLClassLoader classLoader, CtType<?> testClass) {
@@ -135,11 +115,6 @@ public class TestLauncher {
 					.map(subType -> run(configuration, classLoader, subType))
 					.reduce(new TestListener(), TestListener::aggregate);
 		}
-		final TypeTestEnum typeTest = TypeTestEnum.getTypeTest(testClass);
-		if (typeTest == TypeTestEnum.DEFAULT) {
-			return new DefaultTestRunner(classLoader).run(testClass.getQualifiedName());
-		} else {
-			return new MockitoTestRunner(classLoader).run(testClass.getQualifiedName());
-		}
+		return new DefaultTestRunner(classLoader).run(testClass.getQualifiedName());
 	}
 }
