@@ -160,7 +160,7 @@ public class MethodsAssertGenerator {
 
 	@SuppressWarnings("unchecked")
 	private CtMethod<?> buildTestWithAssert(CtMethod test, Map<String, Observation> observations) {
-		CtMethod testWithAssert = test.clone();
+		CtMethod testWithAssert = AmplificationHelper.cloneMethodTest(test, "");
 		int numberOfAddedAssertion = 0;
 		List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter(CtStatement.class));
 		for (String id : observations.keySet()) {

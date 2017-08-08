@@ -118,7 +118,7 @@ public class AmplificationHelper {
         return AmplificationHelper.importByClass.get(type);
     }
 
-    public static CtMethod cloneMethod(CtMethod method, String suffix) {
+    private static CtMethod cloneMethod(CtMethod method, String suffix) {
         CtMethod cloned_method = method.clone();
         //rename the clone
         cloned_method.setSimpleName(method.getSimpleName() + suffix + cloneNumber);

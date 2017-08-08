@@ -35,7 +35,7 @@ public class AssertGeneratorHelper {
 	}
 
 	static CtMethod<?> createTestWithoutAssert(CtMethod<?> test, List<Integer> assertIndexToKeep) {
-		CtMethod newTest = test.clone();
+		CtMethod newTest = AmplificationHelper.cloneMethodTest(test, "");
 		newTest.setSimpleName(test.getSimpleName() + "_withoutAssert");
 		int stmtIndex = 0;
 		List<CtStatement> statements = Query.getElements(newTest, new TypeFilter(CtStatement.class));
@@ -169,7 +169,7 @@ public class AssertGeneratorHelper {
 	}
 
 	static CtMethod<?> createTestWithLog(CtMethod test, List<Integer> statementsIndexToAssert, final String simpleNameTestClass) {
-		CtMethod clone = test.clone();
+		CtMethod clone = AmplificationHelper.cloneMethodTest(test, "");
 		clone.setSimpleName(test.getSimpleName() + "_withlog");
 		final List<CtStatement> allStatement = clone.getElements(new TypeFilter<>(CtStatement.class));
 		allStatement.stream()
@@ -242,10 +242,10 @@ public class AssertGeneratorHelper {
 			invocationToObjectLog.addArgument(variableRead);
 			invocationToObjectLog.addArgument(stmt.getFactory().createLiteral(localVar.getSimpleName()));
 			insertAfter = stmt;
-		} else if (stmt instanceof CtAssignment) {//TODO
+		} else if (stmt instanceof CtAssignment) {
 			CtAssignment localVar = (CtAssignment) stmt;
-			String snippet = localVar.getAssigned()
-					+ ",\"" + localVar.getAssigned() + "\",\"" + id + "\")";
+			invocationToObjectLog.addArgument(localVar.getAssigned());
+			invocationToObjectLog.addArgument(stmt.getFactory().createLiteral(localVar.getAssigned().toString()));
 			insertAfter = stmt;
 		} else if (stmt instanceof CtInvocation) {
 			CtInvocation invocation = (CtInvocation) stmt;
