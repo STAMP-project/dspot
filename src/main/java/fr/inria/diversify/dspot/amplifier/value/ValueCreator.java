@@ -74,10 +74,10 @@ public class ValueCreator {
 
 	private static CtExpression<?> generateCollection(CtTypeReference type, String nameMethod, Class<?> typeOfCollection) {
 		if (AmplificationHelper.getRandom().nextBoolean()) {
-			return generateEmptyCollection(type, "empty"+nameMethod, typeOfCollection);
+			return generateEmptyCollection(type, "empty" + nameMethod, typeOfCollection);
 		} else {
 			return generateSingletonList(type,
-					"singleton"+ ("Set".equals(nameMethod) ? "" : nameMethod),
+					"singleton" + ("Set".equals(nameMethod) ? "" : nameMethod),
 					typeOfCollection
 			);
 		}
@@ -98,7 +98,7 @@ public class ValueCreator {
 			executableReference.setParameters(type.getActualTypeArguments());
 			List<CtExpression<?>> parameters = type.getActualTypeArguments().stream()
 					.map(ValueCreator::generateRandomValue).collect(Collectors.toList());
-			return factory.createInvocation(accessToCollections, executableReference,parameters);
+			return factory.createInvocation(accessToCollections, executableReference, parameters);
 		} else {
 			return factory.createInvocation(accessToCollections, executableReference,
 					factory.createConstructorCall(factory.Type().createReference(Object.class))
@@ -170,7 +170,7 @@ public class ValueCreator {
 		CtConstructorCall<?> constructorCall = type.getFactory().createConstructorCall();
 		constructorCall.setType(type);
 		CtType<?> typeDeclaration = type.getDeclaration() == null ? type.getTypeDeclaration() : type.getDeclaration();
-		if (typeDeclaration  != null) {
+		if (typeDeclaration != null) {
 			final List<CtConstructor> constructors = typeDeclaration.getElements(new TypeFilter<CtConstructor>(CtConstructor.class) {
 				@Override
 				public boolean matches(CtConstructor element) {
@@ -179,8 +179,17 @@ public class ValueCreator {
 			});
 			if (!constructors.isEmpty()) {
 				final CtConstructor<?> selectedConstructor = constructors.get(AmplificationHelper.getRandom().nextInt(constructors.size()));
-				selectedConstructor.getParameters().forEach(parameter ->
-						constructorCall.addArgument(generateRandomValue(parameter.getType()))
+				selectedConstructor.getParameters().forEach(parameter -> {
+							if (!type.getActualTypeArguments().isEmpty()) {
+								type.getActualTypeArguments().forEach(ctTypeReference -> {
+											if (!parameter.getType().getActualTypeArguments().contains(ctTypeReference)){
+												parameter.getType().addActualTypeArgument(ctTypeReference);
+											}
+										}
+								);
+							}
+							constructorCall.addArgument(generateRandomValue(parameter.getType()));
+						}
 				);
 			}
 		}

@@ -2,7 +2,6 @@ package fr.inria.diversify;
 
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
-import fr.inria.diversify.automaticbuilder.MavenAutomaticBuilder;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
@@ -83,6 +82,7 @@ public class Utils {
 			} catch (IllegalArgumentException ignored) {
 				//the target directory does not exist, do not need to clean it
 			}
+
 			DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
 			DSpotCompiler.compile(inputProgram.getAbsoluteTestSourceCodeDir(),
 					output.getAbsolutePath() + System.getProperty("path.separator") + dependencies, outputTest);
