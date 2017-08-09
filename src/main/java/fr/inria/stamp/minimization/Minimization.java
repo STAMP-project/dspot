@@ -11,7 +11,6 @@ import spoon.support.reflect.code.CtVariableWriteImpl;
 
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
 
 /**
  * Created by Benjamin DANGLOT
@@ -23,7 +22,21 @@ public class Minimization {
 	private static final String classAssertion = "org.junit.Assert";
 
 	public static CtMethod<?> minimize(CtMethod<?> methodToMinimize) {
-		return removeUselessAssertion(inlineCtLocalVariable(methodToMinimize));
+		if (methodToMinimize.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
+			@Override
+			public boolean matches(CtInvocation element) {
+				return classAssertion.equals(element.getExecutable().getDeclaringType().toString())
+						 && "fail".equals(element.getExecutable().getSimpleName());
+			}
+		}).isEmpty()){
+			return removeUselessAssertion(inlineCtLocalVariable(methodToMinimize));
+		} else {
+			return removeStatementsNotInvoldedInThrowningException(methodToMinimize);
+		}
+	}
+
+	private static CtMethod<?> removeStatementsNotInvoldedInThrowningException(CtMethod<?> methodToMinimize) {
+		return methodToMinimize;
 	}
 
 	private static CtMethod<?> removeUselessAssertion(CtMethod<?> methodToMinimize) {

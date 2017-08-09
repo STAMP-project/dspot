@@ -1,7 +1,10 @@
 package fr.inria.stamp.minimization;
 
 import fr.inria.diversify.Utils;
+import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
+import fr.inria.diversify.runner.InputConfiguration;
 import org.junit.Test;
+import spoon.Launcher;
 import spoon.reflect.declaration.CtMethod;
 
 import static org.junit.Assert.assertEquals;
@@ -15,10 +18,24 @@ public class MinimizationTest {
 
 	@Test
 	public void testMinimize() throws Exception {
-		Utils.reset();
-		Utils.init("src/test/resources/test-projects/test-projects.properties");
-		final CtMethod<?> test9_cf2680 = Utils.findMethod("example.AmplTestSuiteExample", "test9_cf2680");
-		System.out.println(test9_cf2680);
+
+		InputConfiguration configuration =
+				new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
+		final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(configuration)
+				.buildClasspath("src/test/resources/test-projects/");
+		Launcher launcher = new Launcher();
+		launcher.addInputResource("src/test/resources/test-projects/src/main/java/");
+		launcher.addInputResource("src/test/resources/test-projects/src/test/java/");
+		launcher.addInputResource("src/test/resources/AmplTestSuiteExample.java");//add extra amplified class
+
+		launcher.getEnvironment().setCommentEnabled(true);
+
+		launcher.getModelBuilder().setSourceClasspath(classpath.split(System.getProperty("path.separator")));
+		launcher.buildModel();
+
+		final CtMethod<?> test9_cf2680 = launcher.getFactory().Class()
+				.get("example.AmplTestSuiteExample")
+				.getMethodsByName("test9_cf2680").get(0);
 		assertEquals(methodWithoutMinimization, test9_cf2680.toString());
 		final CtMethod<?> minimize = Minimization.minimize(test9_cf2680);
 		assertEquals(methodWithMinimization, minimize.toString());
