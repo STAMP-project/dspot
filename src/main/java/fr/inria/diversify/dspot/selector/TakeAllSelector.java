@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class TakeAllSelector implements TestSelector {
 
-	protected List<CtMethod> selectedAmplifiedTest;
+	protected List<CtMethod<?>> selectedAmplifiedTest;
 
 	protected InputConfiguration configuration;
 
@@ -60,8 +60,8 @@ public class TakeAllSelector implements TestSelector {
 	}
 
 	@Override
-	public int getNbAmplifiedTestCase() {
-		return this.selectedAmplifiedTest.size();
+	public List<CtMethod<?>> getAmplifiedTestCases() {
+		return this.selectedAmplifiedTest;
 	}
 
 	@Override

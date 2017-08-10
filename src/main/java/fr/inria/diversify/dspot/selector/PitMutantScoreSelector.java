@@ -121,6 +121,8 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                     });
         }
 
+        this.selectedAmplifiedTest.addAll(selectedTests);
+
         selectedTests.forEach(selectedTest ->
                 Log.debug("{} kills {} more mutants",
                         selectedTest == null ?

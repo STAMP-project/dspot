@@ -47,7 +47,7 @@ public class PitDescartesTest {
     @Test
     public void testPitDescartesMode() throws Exception, InvalidSdkException {
         assertFalse(MavenPitCommandAndOptions.descartesMode);
-        FileUtils.deleteDirectory(new File("dspot-out"));
+        FileUtils.deleteDirectory(new File("target/trash"));
 
         AmplificationHelper.setSeedRandom(23L);
         MavenPitCommandAndOptions.descartesMode = true;

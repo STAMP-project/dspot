@@ -22,16 +22,16 @@ public class MainTest {
     @Test
     public void testExample() throws Exception, InvalidSdkException {
         try {
-            FileUtils.deleteDirectory(new File("dspot-out"));
+            FileUtils.deleteDirectory(new File("target/trash"));
             FileUtils.deleteDirectory(new File("tmpDir"));
         } catch (Exception ignored) {
 
         }
         Main.main(new String[]{"--example"});
-        final File reportFile = new File("dspot-out/example.TestSuiteExample_branch_coverage_report.txt");
+        final File reportFile = new File("target/trash/example.TestSuiteExample_branch_coverage_report.txt");
         assertTrue(reportFile.exists());
-        assertTrue(new File("dspot-out/example.TestSuiteExample_branch_coverage.json").exists());
-        assertTrue(new File("dspot-out/example/TestSuiteExampleAmpl.java").exists());
+        assertTrue(new File("target/trash/example.TestSuiteExample_branch_coverage.json").exists());
+        assertTrue(new File("target/trash/example/TestSuiteExampleAmpl.java").exists());
         try (BufferedReader reader = new BufferedReader(new FileReader(reportFile))) {
             String content = reader.lines().reduce("", (acc, line) -> acc + line + nl);
 //            assertEquals(expectedReportExample, content);
@@ -43,7 +43,7 @@ public class MainTest {
     @Test
     public void testAll() throws Throwable {
         try {
-            FileUtils.deleteDirectory(new File("dspot-out"));
+            FileUtils.deleteDirectory(new File("target/trash"));
             FileUtils.deleteDirectory(new File("tmpDir"));
         } catch (Exception ignored) {
 
@@ -57,13 +57,13 @@ public class MainTest {
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
                 "--test", "all"
         }));
-        final File reportFile = new File("dspot-out/example.TestSuiteExample_branch_coverage_report.txt");
+        final File reportFile = new File("target/trash/example.TestSuiteExample_branch_coverage_report.txt");
         assertTrue(reportFile.exists());
-        assertTrue(new File("dspot-out/example.TestSuiteExample_branch_coverage.json").exists());
-        assertTrue(new File("dspot-out/example/TestSuiteExampleAmpl.java").exists());
+        assertTrue(new File("target/trash/example.TestSuiteExample_branch_coverage.json").exists());
+        assertTrue(new File("target/trash/example/TestSuiteExampleAmpl.java").exists());
         try (BufferedReader reader = new BufferedReader(new FileReader(reportFile))) {
             String content = reader.lines().reduce("", (acc, line) -> acc + line + nl);
-//            assertEquals(expectedReportAll, content);
+            assertEquals(expectedReportAll, content);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

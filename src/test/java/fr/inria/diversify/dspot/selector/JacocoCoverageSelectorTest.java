@@ -28,7 +28,7 @@ public class JacocoCoverageSelectorTest {
 	@Test
 	public void testDSpotWithJacocoCoverageSelector() throws Exception, InvalidSdkException {
 		try {
-			FileUtils.deleteDirectory(new File("dspot-out"));
+			FileUtils.deleteDirectory(new File("target/trash"));
 		} catch (Exception ignored) {
 			//ignored
 		}

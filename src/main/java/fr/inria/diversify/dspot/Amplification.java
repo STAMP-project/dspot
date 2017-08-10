@@ -47,16 +47,16 @@ public class Amplification {
 		this.assertGenerator = new AssertGenerator(this.configuration, this.compiler);
 	}
 
-	public CtType amplification(CtType<?> classTest, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
-		return amplification(classTest, AmplificationHelper.getAllTest(classTest), maxIteration);
+	public void amplification(CtType<?> classTest, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
+		amplification(classTest, AmplificationHelper.getAllTest(classTest), maxIteration);
 	}
 
-	public CtType amplification(CtType<?> classTest, List<CtMethod<?>> methods, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
+	public void amplification(CtType<?> classTest, List<CtMethod<?>> methods, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
 		List<CtMethod<?>> tests = methods.stream()
 				.filter(mth -> AmplificationChecker.isTest(mth, this.configuration.getInputProgram().getRelativeTestSourceCodeDir()))
 				.collect(Collectors.toList());
 		if (tests.isEmpty()) {
-			return null;
+			return;
 		}
 
 		Log.info("amplification of {} ({} test)", classTest.getQualifiedName(), tests.size());
@@ -81,7 +81,6 @@ public class Amplification {
 				}
 			}
 		}
-		return AmplificationHelper.createAmplifiedTest(ampTest, classTest);
 	}
 
 	private List<CtMethod<?>> amplification(CtType<?> classTest, CtMethod test, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
@@ -132,13 +131,7 @@ public class Amplification {
 		Log.debug("total amp test: {}, global: {}", amplification.size(), ampTestCount);
 	}
 
-	private List<CtMethod<?>> preAmplification(CtType classTest, List<CtMethod<?>> methods) throws IOException, ClassNotFoundException {
-		List<CtMethod<?>> tests = methods.stream()
-				.filter(ctMethod -> AmplificationChecker.isTest(ctMethod, configuration.getInputProgram().getRelativeTestSourceCodeDir()))
-				.collect(Collectors.toList());
-		if (tests.isEmpty()) {
-			return Collections.emptyList();
-		}
+	private List<CtMethod<?>> preAmplification(CtType classTest, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
 		TestListener result = compileAndRunTests(classTest, tests);
 		if (result == null) {
 			Log.warn("Need a green test suite to run dspot");
