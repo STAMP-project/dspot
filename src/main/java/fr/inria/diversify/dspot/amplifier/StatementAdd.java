@@ -44,11 +44,12 @@ public class StatementAdd implements Amplifier {
 		final List<CtMethod<?>> generateNewObjects = generateNewObjects(method);
 
 		// reuse existing object in test to add call to methods
-		final List<CtMethod> useExistingObject = useExistingObject(method); // original
-		useExistingObject.addAll(generateNewObjects.stream() // + generated at previous step
+		List<CtMethod> useExistingObject = useExistingObject(method); // original
+		useExistingObject.addAll(generateNewObjects);
+		useExistingObject = useExistingObject.stream() // + generated at previous step
 				.flatMap(ctMethod -> useExistingObject(ctMethod).stream())
-				.collect(Collectors.toList())
-		);
+				.collect(Collectors.toList());
+
 		// use results of existing method call to generate new statement.
 		final List<CtMethod> useReturnValuesOfExistingMethodCall = useReturnValuesOfExistingMethodCall(method);  // original
 		useReturnValuesOfExistingMethodCall.addAll(generateNewObjects.stream() // + generated at previous step
