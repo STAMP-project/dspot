@@ -11,7 +11,6 @@ import fr.inria.diversify.dspot.support.TestCompiler;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
-import org.kevoree.log.Log;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -24,8 +23,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static fr.inria.diversify.dspot.assertGenerator.AssertGeneratorHelper.takeAllStatementToAssert;
 
 /**
  * Created by Benjamin DANGLOT
@@ -52,16 +49,6 @@ public class MethodsAssertGenerator {
 	}
 
 	public List<CtMethod<?>> generateAsserts(CtType testClass, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
-		final Map<CtMethod<?>, List<Integer>> statementsIndexToAssert = takeAllStatementToAssert(testClass, tests);
-		final List<CtMethod<?>> testWithoutAssert = tests.stream()
-				.map(test -> AssertGeneratorHelper.createTestWithoutAssert(test, statementsIndexToAssert.get(test)))
-				.collect(Collectors.toList());
-		return generateAsserts(testClass,
-				testWithoutAssert,
-				takeAllStatementToAssert(testClass, testWithoutAssert));
-	}
-
-	public List<CtMethod<?>> generateAsserts(CtType testClass, List<CtMethod<?>> tests, Map<CtMethod<?>, List<Integer>> statementsIndexToAssert) throws IOException, ClassNotFoundException {
 		CtType clone = testClass.clone();
 		testClass.getPackage().addType(clone);
 		tests.forEach(clone::addMethod);
@@ -88,8 +75,7 @@ public class MethodsAssertGenerator {
 				List<CtMethod<?>> passingTests = addAssertions(clone,
 						tests.stream()
 								.filter(ctMethod -> passingMethodName.contains(ctMethod.getSimpleName()))
-								.collect(Collectors.toList()),
-						statementsIndexToAssert)
+								.collect(Collectors.toList()))
 						.stream()
 						.filter(Objects::nonNull)
 						.collect(Collectors.toList());
@@ -119,13 +105,12 @@ public class MethodsAssertGenerator {
 	}
 
 
-	private List<CtMethod<?>> addAssertions(CtType<?> testClass, List<CtMethod<?>> testCases, Map<CtMethod<?>, List<Integer>> statementsIndexToAssert) throws IOException, ClassNotFoundException {
+	private List<CtMethod<?>> addAssertions(CtType<?> testClass, List<CtMethod<?>> testCases) throws IOException, ClassNotFoundException {
 		CtType clone = testClass.clone();
 		testClass.getPackage().addType(clone);
 		final List<CtMethod<?>> testCasesWithLogs = testCases.stream()
 				.map(ctMethod ->
 						AssertGeneratorHelper.createTestWithLog(ctMethod,
-								statementsIndexToAssert.get(ctMethod),
 								this.originalClass.getSimpleName()
 						)
 				).collect(Collectors.toList());
@@ -210,9 +195,9 @@ public class MethodsAssertGenerator {
 	}
 
 	protected CtMethod<?> makeFailureTest(CtMethod<?> test, Failure failure) {
-		CtMethod testWithoutAssert = AssertGeneratorHelper.createTestWithoutAssert(test, new ArrayList<>());
-		testWithoutAssert.setSimpleName(test.getSimpleName());
-		Factory factory = testWithoutAssert.getFactory();
+		CtMethod cloneMethodTest = AmplificationHelper.cloneMethodTest(test, "");
+		cloneMethodTest.setSimpleName(test.getSimpleName());
+		Factory factory = cloneMethodTest.getFactory();
 
 		Throwable exception = failure.getException();
 		if (exception instanceof AssertionError) {
@@ -226,7 +211,7 @@ public class MethodsAssertGenerator {
 		}
 
 		CtTry tryBlock = factory.Core().createTry();
-		tryBlock.setBody(testWithoutAssert.getBody());
+		tryBlock.setBody(cloneMethodTest.getBody());
 		String snippet = "org.junit.Assert.fail(\"" + test.getSimpleName() + " should have thrown " + exceptionClass.getSimpleName() + "\")";
 		tryBlock.getBody().addStatement(factory.Code().createCodeSnippetStatement(snippet));
 		DSpotUtils.addComment(tryBlock, "AssertGenerator generate try/catch block with fail statement", CtComment.CommentType.INLINE);
@@ -244,13 +229,13 @@ public class MethodsAssertGenerator {
 		CtBlock body = factory.Core().createBlock();
 		body.addStatement(tryBlock);
 
-		testWithoutAssert.setBody(body);
-		testWithoutAssert.setSimpleName(testWithoutAssert.getSimpleName() + "_failAssert" + (numberOfFail++));
-		Counter.updateAssertionOf(testWithoutAssert, 1);
+		cloneMethodTest.setBody(body);
+		cloneMethodTest.setSimpleName(cloneMethodTest.getSimpleName() + "_failAssert" + (numberOfFail++));
+		Counter.updateAssertionOf(cloneMethodTest, 1);
 
-		AmplificationHelper.getAmpTestToParent().put(testWithoutAssert, test);
+		AmplificationHelper.getAmpTestToParent().put(cloneMethodTest, test);
 
-		return testWithoutAssert;
+		return cloneMethodTest;
 	}
 
 	private List<CtMethod<?>> filterTest(CtType clone, List<CtMethod<?>> tests, int nTime) {
