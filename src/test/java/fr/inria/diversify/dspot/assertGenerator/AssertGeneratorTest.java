@@ -31,17 +31,25 @@ public class AssertGeneratorTest extends AbstractTest {
         AssertGenerator assertGenerator = new AssertGenerator(Utils.getInputConfiguration(), Utils.getCompiler());
         CtType<?> ctType = AmplificationHelper.createAmplifiedTest(assertGenerator.generateAsserts(testClass), testClass);
 
-        final String expectedBody = "{" + nl  +
-                "    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl  +
-                "    // AssertGenerator create local variable with return value of invocation" + nl  +
-                "    boolean o_test1__3 = cl.getFalse();" + nl  +
-                "    // AssertGenerator add assertion" + nl  +
-                "    org.junit.Assert.assertFalse(o_test1__3);" + nl  +
-                "    // AssertGenerator create local variable with return value of invocation" + nl  +
-                "    boolean o_test1__4 = cl.getBoolean();" + nl  +
-                "    // AssertGenerator add assertion" + nl  +
-                "    org.junit.Assert.assertTrue(o_test1__4);" + nl  +
-                "    boolean var = cl.getTrue();" + nl  +
+        final String expectedBody = "{" + nl +
+                "    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl +
+                "    // AssertGenerator add assertion" + nl +
+                "    org.junit.Assert.assertFalse(((fr.inria.sample.ClassWithBoolean)cl).getFalse());" + nl +
+                "    // AssertGenerator add assertion" + nl +
+                "    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getTrue());" + nl +
+                "    // AssertGenerator add assertion" + nl +
+                "    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getBoolean());" + nl +
+                "    // AssertGenerator create local variable with return value of invocation" + nl +
+                "    boolean o_test1__3 = cl.getFalse();" + nl +
+                "    // AssertGenerator add assertion" + nl +
+                "    org.junit.Assert.assertFalse(o_test1__3);" + nl +
+                "    // AssertGenerator create local variable with return value of invocation" + nl +
+                "    boolean o_test1__4 = cl.getBoolean();" + nl +
+                "    // AssertGenerator add assertion" + nl +
+                "    org.junit.Assert.assertTrue(o_test1__4);" + nl +
+                "    boolean var = cl.getTrue();" + nl +
+                "    // AssertGenerator add assertion" + nl +
+                "    org.junit.Assert.assertTrue(var);" + nl +
                 "}";
 
         assertEquals(expectedBody, ((CtMethod)ctType.getMethodsByName("test1").stream().findFirst().get()).getBody().toString());

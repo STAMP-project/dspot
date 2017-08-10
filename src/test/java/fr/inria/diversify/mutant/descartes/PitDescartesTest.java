@@ -61,7 +61,7 @@ public class PitDescartesTest {
 
         final CtType ctType = dspot.amplifyTest("fr.inria.stamp.mutationtest.test.TestCalculator",
                 Collections.singletonList("Integraltypestest"));
-        assertEquals(4, ctType.getMethods().size());
+        assertEquals(3, ctType.getMethods().size());
 
         System.out.println(ctType);
 

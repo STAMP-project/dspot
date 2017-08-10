@@ -27,12 +27,8 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 
 		CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
 		final CtMethod<?> test1 = (CtMethod<?>) testClass.getMethodsByName("test1").get(0);
-		final CtMethod<?> testWithLog = AssertGeneratorHelper.createTestWithLog(test1,
-				IntStream.range(0, test1.getBody().getStatements().size())
-						.boxed()
-						.collect(Collectors.toList()),
-				"test1"
-		);
+		final CtMethod<?> testWithLog =
+				AssertGeneratorHelper.createTestWithLog(test1,"test1");
 
 		final String expectedMethod = "@org.junit.Test(timeout = 10000)" + nl  +
 				"public void test1_withlog() {" + nl  +
@@ -41,9 +37,9 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 				"    boolean o_test1__3 = cl.getFalse();" + nl  +
 				"    fr.inria.diversify.compare.ObjectLog.log(o_test1__3, \"o_test1__3\", \"test1__3\");" + nl  +
 				"    boolean o_test1__4 = cl.getBoolean();" + nl  +
-				"    fr.inria.diversify.compare.ObjectLog.logObject(o_test1__4, \"o_test1__4\", \"test1__4\");" + nl  +
+				"    fr.inria.diversify.compare.ObjectLog.log(o_test1__4, \"o_test1__4\", \"test1__4\");" + nl  +
 				"    boolean var = cl.getTrue();" + nl  +
-				"    fr.inria.diversify.compare.ObjectLog.logObject(var, \"var\", \"test1__5\");" + nl  +
+				"    fr.inria.diversify.compare.ObjectLog.log(var, \"var\", \"test1__5\");" + nl  +
 				"}";
 		assertEquals(expectedMethod, testWithLog.toString());
 	}
@@ -55,12 +51,8 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 		 */
 		CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
 		final CtMethod<?> test2 = (CtMethod<?>) testClass.getMethodsByName("test2").get(0);
-		final CtMethod<?> testWithLog = AssertGeneratorHelper.createTestWithLog(test2,
-				IntStream.range(0, test2.getBody().getStatements().size())
-						.boxed()
-						.collect(Collectors.toList()),
-				"test2"
-		);
+		final CtMethod<?> testWithLog =
+				AssertGeneratorHelper.createTestWithLog(test2,"test2");
 
 		final String expectedMethod = "@org.junit.Test(timeout = 10000)" + nl  +
 				"public void test2_withlog() {" + nl  +

@@ -1,8 +1,6 @@
 package fr.inria.diversify.compare;
 
 
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,11 +16,9 @@ public class ObjectLog {
     private MethodsHandler methodsHandler;
     private Invocator invocator;
     private int maxDeep = 4;
-    private Map<String, Object> objects;
 
     private ObjectLog() {
         this.observations = new HashMap<>();
-        this.objects = new HashMap<>();
         this.methodsHandler = new MethodsHandler();
         this.invocator = new Invocator(1);
     }
@@ -39,17 +35,10 @@ public class ObjectLog {
     }
 
     public static void log(Object object, String stringObject, String positionId) {
-        logObject(object, stringObject, positionId);
         getSingleton().pLog(object, stringObject, positionId, 0);
     }
 
-    public static void logObject(Object object, String stringObject, @Deprecated String positionId) {
-        if (object != null) {
-            getSingleton().objects.put(stringObject, object);
-        }
-    }
-
-    public void pLog(Object object, String stringObject, String positionId, int deep) {
+    private void pLog(Object object, String stringObject, String positionId, int deep) {
         if (deep < maxDeep) {
             if (object == null) {
                 addObservation(positionId, stringObject, null);
