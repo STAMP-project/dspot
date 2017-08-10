@@ -43,6 +43,7 @@ public class DSpotMockedTest extends MavenAbstractTest {
 
 		}
 		assertEquals(6, dspot.getInputProgram().getFactory().Class().get("info.sanaulla.dal.BookDALTest").getMethods().size());
+
 		CtType<?> amplifiedTest = dspot.amplifyTest("info.sanaulla.dal.BookDALTest", Collections.singletonList("testAddBook"));
 
 		assertEquals(8, amplifiedTest.getMethods().size());

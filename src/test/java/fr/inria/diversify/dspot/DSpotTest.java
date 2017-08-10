@@ -65,16 +65,20 @@ public class DSpotTest extends MavenAbstractTest {
         removeHomFromPropertiesFile();
     }
 
-    private final String expectedAmplifiedBody = "{" + nl  +
-            "    int index_10 = -186471031;" + nl  +
-            "    java.lang.String s_9 = \"`_8;0L`A=SO/woO!OKS@\";" + nl  +
-            "    example.Example gen_o0 = new example.Example();" + nl  +
-            "    example.Example ex = new example.Example();" + nl  +
-            "    // AssertGenerator create local variable with return value of invocation" + nl  +
-            "    char o_test2_sd28_sd32__7 = ex.charAt(s_9, index_10);" + nl  +
-            "    // AssertGenerator add assertion" + nl  +
-            "    org.junit.Assert.assertEquals('`', ((char) (o_test2_sd28_sd32__7)));" + nl  +
-            "    org.junit.Assert.assertEquals('d', ex.charAt(\"abcd\", 3));" + nl  +
+    private final String expectedAmplifiedBody = "{" + nl +
+            "    int index_10 = -186471031;" + nl +
+            "    // AssertGenerator add assertion" + nl +
+            "    org.junit.Assert.assertEquals(-186471031, ((int) (index_10)));" + nl +
+            "    java.lang.String s_9 = \"`_8;0L`A=SO/woO!OKS@\";" + nl +
+            "    // AssertGenerator add assertion" + nl +
+            "    org.junit.Assert.assertEquals(\"`_8;0L`A=SO/woO!OKS@\", s_9);" + nl +
+            "    example.Example gen_o0 = new example.Example();" + nl +
+            "    example.Example ex = new example.Example();" + nl +
+            "    // AssertGenerator create local variable with return value of invocation" + nl +
+            "    char o_test2_sd28_sd32__7 = ex.charAt(s_9, index_10);" + nl +
+            "    // AssertGenerator add assertion" + nl +
+            "    org.junit.Assert.assertEquals('`', ((char) (o_test2_sd28_sd32__7)));" + nl +
+            "    org.junit.Assert.assertEquals('d', ex.charAt(\"abcd\", 3));" + nl +
             "}";
 
     @Override
