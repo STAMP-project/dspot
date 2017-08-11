@@ -8,6 +8,7 @@ import org.kevoree.log.Log;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.declaration.CtTypedElement;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtTypeReference;
@@ -32,26 +33,6 @@ public class AssertGeneratorHelper {
 	static boolean isVoidReturn(CtInvocation invocation) {
 		return (invocation.getType() != null && (invocation.getType().equals(invocation.getFactory().Type().voidType()) ||
 				invocation.getType().equals(invocation.getFactory().Type().voidPrimitiveType())));
-	}
-
-	private static CtLocalVariable<?> buildVarStatement(Factory factory, CtExpression arg, String id) {
-		CtTypeReference<?> objectType;
-		if (arg.getType() == null) {
-			objectType = factory.Type().createReference(Object.class);
-		} else {
-			objectType = arg.getType();
-		}
-		CtLocalVariable<?> localVar = factory.Code().createLocalVariable(objectType,
-				"o_" + id + "_" + ValueCreator.count++, arg);
-		DSpotUtils.addComment(localVar, "MethodAssertGenerator build local variable", CtComment.CommentType.INLINE);
-		return localVar;
-	}
-
-	private static List<CtExpression> getNotLiteralArgs(CtInvocation invocation) {
-		List<CtExpression> args = invocation.getArguments();
-		return args.stream()
-				.filter(arg -> !(arg instanceof CtLiteral))
-				.collect(Collectors.toList());
 	}
 
 	static CtMethod<?> createTestWithLog(CtMethod test, final String simpleNameTestClass) {
@@ -92,9 +73,10 @@ public class AssertGeneratorHelper {
 			return (nameOfOriginalClass.startsWith(targetType)
 					|| !isVoidReturn(invocation));
 		}
-		return statement instanceof CtVariableWrite
-				|| statement instanceof CtAssignment
-				|| statement instanceof CtLocalVariable;
+		if (statement instanceof CtLocalVariable || statement instanceof CtAssignment || statement instanceof CtVariableWrite) {
+			return ((CtTypedElement) statement).getType().getQualifiedName().startsWith(nameOfOriginalClass);
+		}
+		return false;
 	}
 
 

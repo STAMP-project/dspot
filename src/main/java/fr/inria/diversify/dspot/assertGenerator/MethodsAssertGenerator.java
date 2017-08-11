@@ -98,9 +98,7 @@ public class MethodsAssertGenerator {
 					generatedTestWithAssertion.addAll(failingTests);
 				}
 			}
-			return generatedTestWithAssertion.isEmpty() ?
-					generatedTestWithAssertion :
-					filterTest(clone, generatedTestWithAssertion, 3);
+			return generatedTestWithAssertion;
 		}
 	}
 
@@ -111,7 +109,7 @@ public class MethodsAssertGenerator {
 		final List<CtMethod<?>> testCasesWithLogs = testCases.stream()
 				.map(ctMethod ->
 						AssertGeneratorHelper.createTestWithLog(ctMethod,
-								this.originalClass.getSimpleName()
+								this.originalClass.getPackage().getQualifiedName()
 						)
 				).collect(Collectors.toList());
 		final List<CtMethod<?>> testToRuns = new ArrayList<>();
@@ -236,42 +234,5 @@ public class MethodsAssertGenerator {
 		AmplificationHelper.getAmpTestToParent().put(cloneMethodTest, test);
 
 		return cloneMethodTest;
-	}
-
-	private List<CtMethod<?>> filterTest(CtType clone, List<CtMethod<?>> tests, int nTime) {
-		final List<CtMethod<?>> clones = tests.stream()
-				.map(CtMethod::clone)
-				.collect(Collectors.toList());
-		clones.forEach(clone::addMethod);
-
-		for (int i = 0; i < nTime; i++) {
-			if (clones.isEmpty()) {
-				return Collections.emptyList();
-			}
-			final TestListener result = TestCompiler.compileAndRun(clone, false,
-					this.compiler, clones, this.configuration);
-			if (result == null) {
-				return Collections.emptyList();
-			} else {
-				result.getFailingTests()
-						.stream()
-						.map(Failure::getDescription)
-						.map(Description::getMethodName)
-						.forEach(failingTestMethodName -> {
-									final Optional<CtMethod<?>> failingTestMethod = clones.stream()
-											.filter(ctMethod ->
-													failingTestMethodName.equals(ctMethod.getSimpleName())
-											).findFirst();
-									if (failingTestMethod.isPresent()) {
-										final CtMethod<?> ctMethod = failingTestMethod.get();
-										clone.removeMethod(ctMethod);
-										clones.remove(ctMethod);
-									}
-								}
-
-						);
-			}
-		}
-		return clones;
 	}
 }
