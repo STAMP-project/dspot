@@ -62,7 +62,6 @@ public class RegressionSelector extends TakeAllSelector {
 						.collect(Collectors.toList())
 		);
 
-
 		if (!results.getFailingTests().isEmpty()) {
 			final List<String> failingTestName = results.getFailingTests()
 					.stream()
@@ -76,6 +75,6 @@ public class RegressionSelector extends TakeAllSelector {
 			System.out.println(this.selectedAmplifiedTest);
 			throw new RuntimeException();
 		}
-		return super.selectToKeep(amplifiedTestToBeKept);
+		return amplifiedTestToBeKept;
 	}
 }
