@@ -107,7 +107,8 @@ public class JSAPOptions {
 				jsapConfig.getLong("seed"),
 				jsapConfig.getInt("timeOut"),
 				jsapConfig.getString("builder"),
-				jsapConfig.getString("mavenHome"));
+				jsapConfig.getString("mavenHome"),
+				jsapConfig.getInt("maxTestAmplified"));
 	}
 
 	private static Amplifier stringToAmplifier(String amplifier) {
@@ -253,11 +254,20 @@ public class JSAPOptions {
 		evosuiteMode.setShortFlag('k');
 		evosuiteMode.setLongFlag("evosuite");
 
+		FlaggedOption maxTestAmplified = new FlaggedOption("maxTestAmplified");
+		maxTestAmplified.setStringParser(JSAP.INTEGER_PARSER);
+		maxTestAmplified.setLongFlag("max-test-amplified");
+		maxTestAmplified.setShortFlag('g');
+		maxTestAmplified.setUsageName("integer");
+		maxTestAmplified.setHelp("[optional] specify the maximum number of amplified test that dspot keep (before generating assertion)");
+		maxTestAmplified.setDefault("200");
+
 		try {
 			jsap.registerParameter(pathToConfigFile);
 			jsap.registerParameter(amplifiers);
 			jsap.registerParameter(iteration);
 			jsap.registerParameter(selector);
+			jsap.registerParameter(maxTestAmplified);
 			jsap.registerParameter(descartesMode);
 			jsap.registerParameter(evosuiteMode);
 			jsap.registerParameter(specificTestCase);

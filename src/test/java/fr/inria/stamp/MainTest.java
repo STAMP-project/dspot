@@ -57,7 +57,8 @@ public class MainTest {
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
                 "--test", "example.TestSuiteExample",
                 "--cases", "test2",
-                "--output-path", "target/trash"
+                "--output-path", "target/trash",
+                "--maxTestAmplified", "200"
         });
         final File reportFile = new File("target/trash/example.TestSuiteExample_branch_coverage_report.txt");
         assertTrue(reportFile.exists());
@@ -96,7 +97,8 @@ public class MainTest {
                 "--randomSeed", "72",
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
                 "--test", "example.TestSuiteExample",
-                "--output-path", "target/trash"
+                "--output-path", "target/trash",
+                "--maxTestAmplified", "200"
         });
         final File reportFile = new File("target/trash/example.TestSuiteExample_branch_coverage_report.txt");
         assertTrue(reportFile.exists());
@@ -126,7 +128,8 @@ public class MainTest {
                 "--randomSeed", "72",
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
                 "--test", "all",
-                "--output-path", "target/trash"
+                "--output-path", "target/trash",
+                "--maxTestAmplified", "200"
         });
         final File reportFile = new File("target/trash/example.TestSuiteExample_branch_coverage_report.txt");
         assertTrue(reportFile.exists());

@@ -216,7 +216,7 @@ public class AmplificationHelper {
     }
 
     //empirically 200 seems to be enough
-    public static final int MAX_NUMBER_OF_TESTS = 200;
+    public static int MAX_NUMBER_OF_TESTS = 200;
 
     public static List<CtMethod<?>> reduce(List<CtMethod<?>> newTests) {
         if (newTests.size() > MAX_NUMBER_OF_TESTS) {
