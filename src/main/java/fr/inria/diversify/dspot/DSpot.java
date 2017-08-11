@@ -243,6 +243,7 @@ public class DSpot {
         clone.setParent(this.compiler.getLauncher().getFactory().Type().get(fullName).getParent());
         return amplifyTest(clone, methods.stream()
                 .map(methodName -> clone.getMethodsByName(methodName).get(0))
+				.filter(AmplificationChecker::isTest)
                 .collect(Collectors.toList()));
     }
 
