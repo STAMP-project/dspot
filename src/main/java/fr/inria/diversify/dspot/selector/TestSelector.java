@@ -28,7 +28,7 @@ public interface TestSelector {
 
     void report();
 
-    int getNbAmplifiedTestCase();
+    List<CtMethod<?>> getAmplifiedTestCases();
 
     CtType buildClassForSelection(CtType original, List<CtMethod<?>> methods);
 

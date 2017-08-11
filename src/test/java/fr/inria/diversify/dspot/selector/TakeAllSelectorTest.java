@@ -24,7 +24,7 @@ public class TakeAllSelectorTest {
 	public void test() throws Exception, InvalidSdkException {
 
 		try {
-			FileUtils.deleteDirectory(new File("dspot-out"));
+			FileUtils.deleteDirectory(new File("target/trash"));
 		} catch (Exception ignored) {
 			//ignored
 		}

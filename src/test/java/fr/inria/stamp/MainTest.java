@@ -22,16 +22,16 @@ public class MainTest {
     @Test
     public void testExample() throws Exception, InvalidSdkException {
         try {
-            FileUtils.deleteDirectory(new File("dspot-out"));
+            FileUtils.deleteDirectory(new File("target/trash"));
             FileUtils.deleteDirectory(new File("tmpDir"));
         } catch (Exception ignored) {
 
         }
         Main.main(new String[]{"--example"});
-        final File reportFile = new File("dspot-out/example.TestSuiteExample_branch_coverage_report.txt");
+        final File reportFile = new File("target/trash/example.TestSuiteExample_branch_coverage_report.txt");
         assertTrue(reportFile.exists());
-        assertTrue(new File("dspot-out/example.TestSuiteExample_branch_coverage.json").exists());
-        assertTrue(new File("dspot-out/example/TestSuiteExampleAmpl.java").exists());
+        assertTrue(new File("target/trash/example.TestSuiteExample_branch_coverage.json").exists());
+        assertTrue(new File("target/trash/example/TestSuiteExampleAmpl.java").exists());
         try (BufferedReader reader = new BufferedReader(new FileReader(reportFile))) {
             String content = reader.lines().reduce("", (acc, line) -> acc + line + nl);
 //            assertEquals(expectedReportExample, content);
@@ -41,29 +41,100 @@ public class MainTest {
     }
 
     @Test
-    public void testAll() throws Throwable {
+    public void testOneClassOneMethod() throws Throwable {
         try {
-            FileUtils.deleteDirectory(new File("dspot-out"));
+            FileUtils.deleteDirectory(new File("target/trash"));
             FileUtils.deleteDirectory(new File("tmpDir"));
         } catch (Exception ignored) {
 
         }
-        Main.run(JSAPOptions.parse(new String[]{
+        Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "BranchCoverageTestSelector",
                 "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
                 "--iteration", "1",
                 "--randomSeed", "72",
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
-                "--test", "all"
-        }));
-        final File reportFile = new File("dspot-out/example.TestSuiteExample_branch_coverage_report.txt");
+                "--test", "example.TestSuiteExample",
+                "--cases", "test2",
+                "--output-path", "target/trash"
+        });
+        final File reportFile = new File("target/trash/example.TestSuiteExample_branch_coverage_report.txt");
         assertTrue(reportFile.exists());
-        assertTrue(new File("dspot-out/example.TestSuiteExample_branch_coverage.json").exists());
-        assertTrue(new File("dspot-out/example/TestSuiteExampleAmpl.java").exists());
+        assertTrue(new File("target/trash/example.TestSuiteExample_branch_coverage.json").exists());
+        assertTrue(new File("target/trash/example/TestSuiteExampleAmpl.java").exists());
         try (BufferedReader reader = new BufferedReader(new FileReader(reportFile))) {
             String content = reader.lines().reduce("", (acc, line) -> acc + line + nl);
-//            assertEquals(expectedReportAll, content);
+            assertEquals(expectedReportOneClassOneMethod, content);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static final String expectedReportOneClassOneMethod = "\n" +
+            "======= REPORT =======\n" +
+            "Branch Coverage Selector:\n" +
+            "Initial coverage: 66.67%\n" +
+            "There is 1 unique path in the original test suite\n" +
+            "The amplification results with 2 new tests\n" +
+            "The branch coverage obtained is: 83.33%\n" +
+            "There is 1 new unique path\n\n";
+
+    @Test
+    public void testOneClass() throws Throwable {
+        try {
+            FileUtils.deleteDirectory(new File("target/trash"));
+            FileUtils.deleteDirectory(new File("tmpDir"));
+        } catch (Exception ignored) {
+
+        }
+        Main.main(new String[]{
+                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
+                "--test-criterion", "BranchCoverageTestSelector",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
+                "--iteration", "1",
+                "--randomSeed", "72",
+                "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
+                "--test", "example.TestSuiteExample",
+                "--output-path", "target/trash"
+        });
+        final File reportFile = new File("target/trash/example.TestSuiteExample_branch_coverage_report.txt");
+        assertTrue(reportFile.exists());
+        assertTrue(new File("target/trash/example.TestSuiteExample_branch_coverage.json").exists());
+        assertTrue(new File("target/trash/example/TestSuiteExampleAmpl.java").exists());
+        try (BufferedReader reader = new BufferedReader(new FileReader(reportFile))) {
+            String content = reader.lines().reduce("", (acc, line) -> acc + line + nl);
+            assertEquals(expectedReportAll, content);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void testAll() throws Throwable {
+        try {
+            FileUtils.deleteDirectory(new File("target/trash"));
+            FileUtils.deleteDirectory(new File("tmpDir"));
+        } catch (Exception ignored) {
+
+        }
+        Main.main(new String[]{
+                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
+                "--test-criterion", "BranchCoverageTestSelector",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
+                "--iteration", "1",
+                "--randomSeed", "72",
+                "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
+                "--test", "all",
+                "--output-path", "target/trash"
+        });
+        final File reportFile = new File("target/trash/example.TestSuiteExample_branch_coverage_report.txt");
+        assertTrue(reportFile.exists());
+        assertTrue(new File("target/trash/example.TestSuiteExample_branch_coverage.json").exists());
+        assertTrue(new File("target/trash/example/TestSuiteExampleAmpl.java").exists());
+        try (BufferedReader reader = new BufferedReader(new FileReader(reportFile))) {
+            String content = reader.lines().reduce("", (acc, line) -> acc + line + nl);
+            assertEquals(expectedReportAll, content);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

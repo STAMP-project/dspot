@@ -21,6 +21,7 @@ import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.utils.AmplificationChecker;
+import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtMethod;
@@ -234,34 +235,16 @@ public class DSpot {
     }
 
     public CtType amplifyTest(CtType test) {
-        try {
-            Counter.reset();
-            Amplification testAmplification = new Amplification(this.inputConfiguration, this.amplifiers, this.testSelector, this.compiler);
-            long time = System.currentTimeMillis();
-            CtType amplification = testAmplification.amplification(test, numberOfIterations);
-            final long elapsedTime = System.currentTimeMillis() - time;
-            Log.debug("elapsedTime {}", elapsedTime);
-            this.projectTimeJSON.add(new ClassTimeJSON(test.getQualifiedName(), elapsedTime));
-            testSelector.report();
-            final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
-            System.out.println("Print " + amplification.getSimpleName() + " with " + testSelector.getNbAmplifiedTestCase() + " amplified test cases in " + this.inputConfiguration.getOutputDirectory());
-            DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory);
-            FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
-            FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
-            writeTimeJson();
-            return amplification;
-        } catch (IOException | InterruptedException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+	    return this.amplifyTest(test, AmplificationHelper.getAllTest(test));
     }
 
     public CtType amplifyTest(String fullName, List<String> methods) throws InterruptedException, IOException, ClassNotFoundException {
         CtType<Object> clone = this.compiler.getLauncher().getFactory().Type().get(fullName).clone();
         clone.setParent(this.compiler.getLauncher().getFactory().Type().get(fullName).getParent());
-        final CtType ctType = amplifyTest(clone, methods.stream()
+        return amplifyTest(clone, methods.stream()
                 .map(methodName -> clone.getMethodsByName(methodName).get(0))
+				.filter(AmplificationChecker::isTest)
                 .collect(Collectors.toList()));
-        return ctType;
     }
 
     public CtType amplifyTest(CtType test, List<CtMethod<?>> methods) {
@@ -269,13 +252,15 @@ public class DSpot {
             Counter.reset();
             Amplification testAmplification = new Amplification(this.inputConfiguration, this.amplifiers, this.testSelector, this.compiler);
             long time = System.currentTimeMillis();
-            CtType amplification = testAmplification.amplification(test, methods, numberOfIterations);
+            testAmplification.amplification(test, methods, numberOfIterations);
             final long elapsedTime = System.currentTimeMillis() - time;
             Log.debug("elapsedTime {}", elapsedTime);
             this.projectTimeJSON.add(new ClassTimeJSON(test.getQualifiedName(), elapsedTime));
             testSelector.report();
             final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
-            System.out.println("Print " + amplification.getSimpleName() + " with " + testSelector.getNbAmplifiedTestCase() + " amplified test cases in " + this.inputConfiguration.getOutputDirectory());
+            CtType<?> amplification = AmplificationHelper.createAmplifiedTest(testSelector.getAmplifiedTestCases(), test);
+            Log.info("Print {} with {} amplified test cases in {}",  amplification.getSimpleName() ,
+                    testSelector.getAmplifiedTestCases().size(), this.inputConfiguration.getOutputDirectory());
             DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory);
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
             FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());

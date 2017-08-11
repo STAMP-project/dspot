@@ -32,7 +32,7 @@ public class ProjectJSONTest {
 	@Test
 	public void test() throws Exception, InvalidSdkException {
 
-		final File file = new File("output/sample.json");
+		final File file = new File("target/trash/sample.json");
 		if (file.exists()) {
 			file.delete();
 		}

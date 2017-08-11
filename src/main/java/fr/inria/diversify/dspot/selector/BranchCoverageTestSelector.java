@@ -36,7 +36,7 @@ public class BranchCoverageTestSelector implements TestSelector {
 
     private List<CtMethod> oldTests;
 
-    private Map<CtMethod, Coverage> coveragePerTestKept;
+    private Map<CtMethod<?>, Coverage> coveragePerTestKept;
 
     private CtType currentClassTestToBeAmplified;
 
@@ -206,8 +206,8 @@ public class BranchCoverageTestSelector implements TestSelector {
     }
 
     @Override
-    public int getNbAmplifiedTestCase() {
-        return this.coveragePerTestKept.size();
+    public List<CtMethod<?>> getAmplifiedTestCases() {
+        return new ArrayList<>(this.coveragePerTestKept.keySet());
     }
 
     @Override
