@@ -9,17 +9,22 @@ import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
+import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
+import spoon.reflect.code.CtInvocation;
+import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
+import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -164,21 +169,21 @@ public class Amplification {
 		} else {
 			testSelector.update();
 			Log.debug("Try to add assertions before amplification");
-			List<CtMethod<?>> preAmplifiedMethods = testSelector.selectToKeep(
+			testSelector.selectToKeep(
 					assertGenerator.generateAsserts(
 							classTest, testSelector.selectToAmplify(tests))
 			);
-			if (tests.containsAll(preAmplifiedMethods)) {
-				return Collections.emptyList();
-			} else {
-				return preAmplifiedMethods;
-			}
+			return testSelector.getAmplifiedTestCases();
 		}
 	}
 
 	private List<CtMethod<?>> amplifyTests(List<CtMethod<?>> tests) {
+		Log.info("Amplification of inputs...");
 		List<CtMethod<?>> amplifiedTests = tests.stream()
-				.flatMap(test -> amplifyTest(test).stream())
+				.flatMap(test -> {
+					DSpotUtils.printProgress(tests.indexOf(test), tests.size());
+					return amplifyTest(test).stream();
+				})
 				.filter(test -> test != null && !test.getBody().getStatements().isEmpty())
 				.collect(Collectors.toList());
 		Log.debug("{} new tests generated", amplifiedTests.size());

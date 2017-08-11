@@ -28,7 +28,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 		CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
 		final CtMethod<?> test1 = (CtMethod<?>) testClass.getMethodsByName("test1").get(0);
 		final CtMethod<?> testWithLog =
-				AssertGeneratorHelper.createTestWithLog(test1,"test1");
+				AssertGeneratorHelper.createTestWithLog(test1,"fr.inria.sample");
 
 		final String expectedMethod = "@org.junit.Test(timeout = 10000)" + nl  +
 				"public void test1_withlog() {" + nl  +
@@ -52,7 +52,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 		CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
 		final CtMethod<?> test2 = (CtMethod<?>) testClass.getMethodsByName("test2").get(0);
 		final CtMethod<?> testWithLog =
-				AssertGeneratorHelper.createTestWithLog(test2,"test2");
+				AssertGeneratorHelper.createTestWithLog(test2,"fr.inria.sample");
 
 		final String expectedMethod = "@org.junit.Test(timeout = 10000)" + nl  +
 				"public void test2_withlog() {" + nl  +

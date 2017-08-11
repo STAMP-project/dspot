@@ -14,6 +14,7 @@ import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
+import spoon.support.SpoonClassNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,12 +36,12 @@ public class AssertGeneratorHelper {
 				invocation.getType().equals(invocation.getFactory().Type().voidPrimitiveType())));
 	}
 
-	static CtMethod<?> createTestWithLog(CtMethod test, final String simpleNameTestClass) {
+	static CtMethod<?> createTestWithLog(CtMethod test, final String filter) {
 		CtMethod clone = AmplificationHelper.cloneMethodTest(test, "");
 		clone.setSimpleName(test.getSimpleName() + "_withlog");
 		final List<CtStatement> allStatement = clone.getElements(new TypeFilter<>(CtStatement.class));
 		allStatement.stream()
-				.filter(statement -> isStmtToLog(simpleNameTestClass, statement))
+				.filter(statement -> isStmtToLog(filter, statement))
 				.forEach(statement ->
 						addLogStmt(statement,
 								test.getSimpleName() + "__" + indexOfByRef(allStatement, statement))
@@ -57,7 +58,7 @@ public class AssertGeneratorHelper {
 		return -1;
 	}
 
-	static boolean isStmtToLog(String nameOfOriginalClass, CtStatement statement) {
+	private static boolean isStmtToLog(String filter, CtStatement statement) {
 		if (!(statement.getParent() instanceof CtBlock)) {
 			return false;
 		}
@@ -70,13 +71,26 @@ public class AssertGeneratorHelper {
 					invocation.getTarget().getType() != null) {
 				targetType = invocation.getTarget().getType().getSimpleName();
 			}
-			return (nameOfOriginalClass.startsWith(targetType)
+			return (filter.startsWith(targetType)
 					|| !isVoidReturn(invocation));
 		}
-		if (statement instanceof CtLocalVariable || statement instanceof CtAssignment || statement instanceof CtVariableWrite) {
-			return ((CtTypedElement) statement).getType().getQualifiedName().startsWith(nameOfOriginalClass);
+		if (statement instanceof CtLocalVariable ||
+				statement instanceof CtAssignment ||
+				statement instanceof CtVariableWrite) {
+			final CtTypeReference type = ((CtTypedElement) statement).getType();
+			if (type.getQualifiedName().startsWith(filter) ||
+					type.isPrimitive()) {
+				return true;
+			} else {
+				try {
+					return type.getActualClass() == String.class;
+				} catch (SpoonClassNotFoundException e) {
+					return false;
+				}
+			}
+		} else {
+			return false;
 		}
-		return false;
 	}
 
 

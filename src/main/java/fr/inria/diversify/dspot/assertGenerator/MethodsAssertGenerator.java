@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.assertGenerator;
 
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
+import fr.inria.diversify.util.Log;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.dspot.support.Counter;
@@ -53,6 +54,7 @@ public class MethodsAssertGenerator {
 		testClass.getPackage().addType(clone);
 		tests.forEach(clone::addMethod);
 
+		Log.info("Run tests. ({})", tests.size());
 		final TestListener result = TestCompiler.compileAndRun(clone, false,
 				this.compiler, tests, this.configuration);
 		if (result == null) {
@@ -72,6 +74,7 @@ public class MethodsAssertGenerator {
 			final List<CtMethod<?>> generatedTestWithAssertion = new ArrayList<>();
 			// add assertion on passing tests
 			if (!passingMethodName.isEmpty()) {
+				Log.info("{} test pass, generating assertion...", passingMethodName.size());
 				List<CtMethod<?>> passingTests = addAssertions(clone,
 						tests.stream()
 								.filter(ctMethod -> passingMethodName.contains(ctMethod.getSimpleName()))
@@ -86,6 +89,7 @@ public class MethodsAssertGenerator {
 
 			// add try/catch/fail on failing/error tests
 			if (!failuresMethodName.isEmpty()) {
+				Log.info("{} test fail, generating try/catch/fail blocks...", failuresMethodName.size());
 				final List<CtMethod<?>> failingTests = tests.stream()
 						.filter(ctMethod ->
 								failuresMethodName.contains(ctMethod.getSimpleName()))
@@ -106,37 +110,42 @@ public class MethodsAssertGenerator {
 	private List<CtMethod<?>> addAssertions(CtType<?> testClass, List<CtMethod<?>> testCases) throws IOException, ClassNotFoundException {
 		CtType clone = testClass.clone();
 		testClass.getPackage().addType(clone);
+		Log.info("Add observations points in passing tests.");
+		Log.info("Instrumentation...");
 		final List<CtMethod<?>> testCasesWithLogs = testCases.stream()
-				.map(ctMethod ->
-						AssertGeneratorHelper.createTestWithLog(ctMethod,
-								this.originalClass.getPackage().getQualifiedName()
-						)
+				.map(ctMethod -> {
+							DSpotUtils.printProgress(testCases.indexOf(ctMethod), testCases.size());
+							return AssertGeneratorHelper.createTestWithLog(ctMethod,
+									this.originalClass.getPackage().getQualifiedName()
+							);}
 				).collect(Collectors.toList());
 		final List<CtMethod<?>> testToRuns = new ArrayList<>();
-		IntStream.range(0, 3).forEach(i ->
-				testToRuns.addAll(
-						testCasesWithLogs.stream()
-								.map(CtMethod::clone)
-								.map(ctMethod -> {
-									ctMethod.setSimpleName(ctMethod.getSimpleName() + i);
-									return ctMethod;
-								})
-								.map(ctMethod -> {
-									clone.addMethod(ctMethod);
-									return ctMethod;
-								})
-								.collect(Collectors.toList())
-				)
-		);
+		IntStream.range(0, 3).forEach(i -> {
+			testToRuns.addAll(
+					testCasesWithLogs.stream()
+							.map(CtMethod::clone)
+							.map(ctMethod -> {
+								ctMethod.setSimpleName(ctMethod.getSimpleName() + i);
+								return ctMethod;
+							})
+							.map(ctMethod -> {
+								clone.addMethod(ctMethod);
+								return ctMethod;
+							})
+							.collect(Collectors.toList())
+			);
+		});
 		ObjectLog.reset();
+		Log.info("Run instrumented tests. ({})", testToRuns.size());
 		final TestListener result = TestCompiler.compileAndRun(clone, true,
 				this.compiler, testToRuns, this.configuration);
 		if (result == null || !result.getFailingTests().isEmpty()) {
 			return Collections.emptyList();
 		} else {
 			Map<String, Observation> observations = ObjectLog.getObservations();
+			Log.info("Generating assertions...");
 			return testCases.stream()
-					.map(ctMethod -> this.buildTestWithAssert(ctMethod, observations))
+					.map(ctMethod ->this.buildTestWithAssert(ctMethod, observations))
 					.collect(Collectors.toList());
 		}
 	}

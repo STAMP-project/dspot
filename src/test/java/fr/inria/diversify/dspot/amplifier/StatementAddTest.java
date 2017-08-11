@@ -89,7 +89,7 @@ public class StatementAddTest extends AbstractTest {
 
         System.out.println(amplifiedMethods);
 
-        assertEquals(26, amplifiedMethods.size());
+        assertEquals(23, amplifiedMethods.size());
 
         assertEquals(expectedBody_array, amplifiedMethods.stream()
                 .filter(amplifiedMethod ->
