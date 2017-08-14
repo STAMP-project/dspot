@@ -56,7 +56,6 @@ public class TestCompiler {
 	@Deprecated // TODO must be reimplemented
 	public static List<CtMethod<?>> compile(DSpotCompiler compiler, CtType<?> originalClassTest,
 											boolean withLogger, String dependencies) {
-
 		CtType<?> classTest = originalClassTest.clone();
 		originalClassTest.getPackage().addType(classTest);
 		if (withLogger) {

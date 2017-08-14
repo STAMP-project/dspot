@@ -34,12 +34,9 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 				"public void test1_withlog() {" + nl  +
 				"    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl  +
 				"    fr.inria.diversify.compare.ObjectLog.log(cl, \"cl\", \"test1__1\");" + nl  +
-				"    boolean o_test1__3 = cl.getFalse();" + nl  +
-				"    fr.inria.diversify.compare.ObjectLog.log(o_test1__3, \"o_test1__3\", \"test1__3\");" + nl  +
-				"    boolean o_test1__4 = cl.getBoolean();" + nl  +
-				"    fr.inria.diversify.compare.ObjectLog.log(o_test1__4, \"o_test1__4\", \"test1__4\");" + nl  +
+				"    cl.getFalse();" + nl  +
+				"    cl.getBoolean();" + nl  +
 				"    boolean var = cl.getTrue();" + nl  +
-				"    fr.inria.diversify.compare.ObjectLog.log(var, \"var\", \"test1__5\");" + nl  +
 				"}";
 		assertEquals(expectedMethod, testWithLog.toString());
 	}
@@ -58,12 +55,9 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 				"public void test2_withlog() {" + nl  +
 				"    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl  +
 				"    fr.inria.diversify.compare.ObjectLog.log(cl, \"cl\", \"test2__1\");" + nl  +
-				"    boolean o_test2__3 = cl.getFalse();" + nl  +
-				"    fr.inria.diversify.compare.ObjectLog.log(o_test2__3, \"o_test2__3\", \"test2__3\");" + nl  +
-				"    boolean o_test2__4 = cl.getFalse();" + nl  +
-				"    fr.inria.diversify.compare.ObjectLog.log(o_test2__4, \"o_test2__4\", \"test2__4\");" + nl  +
-				"    boolean o_test2__5 = cl.getFalse();" + nl  +
-				"    fr.inria.diversify.compare.ObjectLog.log(o_test2__5, \"o_test2__5\", \"test2__5\");" + nl  +
+				"    cl.getFalse();" + nl  +
+				"    cl.getFalse();" + nl  +
+				"    cl.getFalse();" + nl  +
 				"}";
 		assertEquals(expectedMethod, testWithLog.toString());
 	}

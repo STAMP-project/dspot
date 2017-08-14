@@ -41,7 +41,7 @@ public class DSpotUtils {
 		String format = "\r%3d%% |%s ]%c";
 		int percent = (++done * 100) / total;
 		int extrachars = (percent / 2) - progress.length();
-		while (extrachars-- > 1) {
+		while (extrachars-- > 0) {
 			progress.append('=');
 		}
 		System.out.printf(format, percent, progress,
