@@ -5,6 +5,8 @@ src/test/resources/aResourcesDirectory/
 src/test/resources/test-projects/.gradle/
 src/test/resources/test-projects/gjp_cp
 src/test/resources/test-projects/cp
+src/test/resources/regression/test-projects_1/cp
+*.properties
 
 target/
 pom.xml.tag
