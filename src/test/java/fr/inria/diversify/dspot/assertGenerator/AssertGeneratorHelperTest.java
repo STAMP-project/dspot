@@ -36,6 +36,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 				"    fr.inria.diversify.compare.ObjectLog.log(cl, \"cl\", \"test1__1\");" + nl  +
 				"    cl.getFalse();" + nl  +
 				"    cl.getBoolean();" + nl  +
+				"    java.io.File file = new java.io.File(\"\");" + nl +
 				"    boolean var = cl.getTrue();" + nl  +
 				"}";
 		assertEquals(expectedMethod, testWithLog.toString());

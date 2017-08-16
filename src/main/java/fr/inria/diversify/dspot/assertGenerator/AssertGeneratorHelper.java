@@ -76,18 +76,21 @@ public class AssertGeneratorHelper {
             String targetType = "";
             if (invocation.getTarget() != null &&
                     invocation.getTarget().getType() != null) {
-                targetType = invocation.getTarget().getType().getSimpleName();
+                targetType = invocation.getTarget().getType().getQualifiedName();
             }
-            return (filter.startsWith(targetType)
-                    || !isVoidReturn(invocation)
-                    && !isGetter(invocation));
+            if (targetType.startsWith(filter)) {
+                return (!isVoidReturn(invocation)
+                        && !isGetter(invocation));
+            } else {
+                return !isVoidReturn(invocation);
+            }
+
         }
         if (statement instanceof CtLocalVariable ||
                 statement instanceof CtAssignment ||
                 statement instanceof CtVariableWrite) {
             final CtTypeReference type = ((CtTypedElement) statement).getType();
-            if (type.getQualifiedName().startsWith(filter) ||
-                    !type.isPrimitive()) {
+            if (type.getQualifiedName().startsWith(filter)) {
                 return true;
             } else {
                 try {

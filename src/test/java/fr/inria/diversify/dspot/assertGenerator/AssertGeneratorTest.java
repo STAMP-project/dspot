@@ -41,6 +41,7 @@ public class AssertGeneratorTest extends AbstractTest {
                 "    org.junit.Assert.assertFalse(((fr.inria.sample.ClassWithBoolean)cl).getFalse());" + nl  +
                 "    cl.getFalse();" + nl  +
                 "    cl.getBoolean();" + nl  +
+                "    java.io.File file = new java.io.File(\"\");" +nl +
                 "    boolean var = cl.getTrue();" + nl  +
                 "}";
 
