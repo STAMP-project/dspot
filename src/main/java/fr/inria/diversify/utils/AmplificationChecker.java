@@ -127,26 +127,4 @@ public class AmplificationChecker {
         }
         return isTest(candidate);
     }
-
-    //TODO we will use a Name Convention, i.e. contains Mock on Annotation
-    private static final TypeFilter<CtAnnotation> mockedAnnotationFilter = new TypeFilter<CtAnnotation>(CtAnnotation.class) {
-        @Override
-        public boolean matches(CtAnnotation element) {
-            return element.toString().contains("Mock");
-        }
-    };
-
-    //TODO it might not be the best way to do
-    private static final Predicate<CtType<?>> gotReferencesToMockito = (ctType ->
-            ctType.getElements(new TypeFilter<>(CtTypeReference.class))
-                    .stream()
-                    .anyMatch(ctTypeReference ->
-                            ctTypeReference.getPackage() != null &&
-                                    ctTypeReference.getPackage().getSimpleName().contains("mock"))
-    );
-
-    public static boolean isMocked(CtType<?> test) {
-        return gotReferencesToMockito.test(test) ||
-                !test.getElements(mockedAnnotationFilter).isEmpty();
-    }
 }

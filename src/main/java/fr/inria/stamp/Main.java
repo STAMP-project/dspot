@@ -32,6 +32,7 @@ public class Main {
         InputProgram program = new InputProgram();
         inputConfiguration.setInputProgram(program);
         inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
+        AmplificationHelper.MAX_NUMBER_OF_TESTS = configuration.maxTestAmplified;
         if (configuration.mavenHome != null) {
             inputConfiguration.getProperties().put("maven.home", configuration.mavenHome);
         }

@@ -3,7 +3,9 @@ package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.utils.AmplificationHelper;
+import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.TypeUtils;
+import org.kevoree.log.Log;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
@@ -23,43 +25,45 @@ import java.util.stream.Stream;
  */
 public class StatementAdd implements Amplifier {
 
+	private boolean shouldGenerateNewObject = true;// TODO
 	private int counterGenerateNewObject = 0;
 	private String filter;
 	private Set<CtMethod> methods;
-	private Map<CtType, Boolean> hasConstructor;
 
 	public StatementAdd() {
 		this.filter = "";
-		this.hasConstructor = new HashMap<>();
 	}
 
 	public StatementAdd(String filter) {
 		this.filter = filter;
-		this.hasConstructor = new HashMap<>();
 	}
 
 	@Override
 	public List<CtMethod> apply(CtMethod method) {
-		// generate new objects
-		final List<CtMethod<?>> generateNewObjects = generateNewObjects(method);
-
 		// reuse existing object in test to add call to methods
 		final List<CtMethod> useExistingObject = useExistingObject(method); // original
-		useExistingObject.addAll(generateNewObjects.stream() // + generated at previous step
-				.flatMap(ctMethod -> useExistingObject(ctMethod).stream())
-				.collect(Collectors.toList())
-		);
 		// use results of existing method call to generate new statement.
 		final List<CtMethod> useReturnValuesOfExistingMethodCall = useReturnValuesOfExistingMethodCall(method);  // original
-		useReturnValuesOfExistingMethodCall.addAll(generateNewObjects.stream() // + generated at previous step
-				.flatMap(ctMethod -> useReturnValuesOfExistingMethodCall(ctMethod).stream())
-				.collect(Collectors.toList()));
-
 		useExistingObject.addAll(useReturnValuesOfExistingMethodCall);
+		if (shouldGenerateNewObject) {
+			useExistingObject.addAll(generateOnNewObjects(method));
+		}
 		return useExistingObject;
 	}
 
-	private List<CtMethod<?>> generateNewObjects(CtMethod method) {
+	private List<CtMethod> generateOnNewObjects(CtMethod method) {
+		// generate new objects
+		final List<CtMethod> generateNewObjects = generateNewObjects(method);
+		final List<CtMethod> methodsWithMoreStatement = generateNewObjects.stream() // + generated at previous step
+				.flatMap(ctMethod -> useExistingObject(ctMethod).stream())
+				.collect(Collectors.toList());
+		methodsWithMoreStatement.addAll(generateNewObjects.stream() // + generated at previous step
+				.flatMap(ctMethod -> useReturnValuesOfExistingMethodCall(ctMethod).stream())
+				.collect(Collectors.toList()));
+		return methodsWithMoreStatement;
+	}
+
+	private List<CtMethod> generateNewObjects(CtMethod method) {
 		List<CtLocalVariable<?>> existingObjects = getExistingObjects(method);
 		final Stream<? extends CtMethod<?>> gen_o1 = existingObjects.stream() // must use tmp variable because javac is confused
 				.flatMap(localVariable -> ValueCreator.generateAllConstructionOf(localVariable.getType()).stream())
@@ -138,15 +142,21 @@ public class StatementAdd implements Amplifier {
 		initMethods(testClass);
 	}
 
-	private CtMethod addInvocation(CtMethod<?> method, CtMethod<?> mthToAdd, CtExpression<?> target, CtStatement position) {
-		final Factory factory = method.getFactory();
-		CtMethod methodClone = AmplificationHelper.cloneMethodTest(method, "_sd");
+	private CtMethod addInvocation(CtMethod<?> testMethod, CtMethod<?> methodToInvokeToAdd, CtExpression<?> target, CtStatement position) {
+		final Factory factory = testMethod.getFactory();
+		CtMethod methodClone = AmplificationHelper.cloneMethodTest(testMethod, "_sd");
 
-		CtBlock body = methodClone.getBody();
-		List<CtParameter<?>> parameters = mthToAdd.getParameters();
+		CtBlock body = methodClone.getElements(new TypeFilter<>(CtStatement.class))
+				.stream()
+				.filter(statement -> statement.equals(position))
+				.findFirst()
+				.get()
+				.getParent(CtBlock.class);
+
+		List<CtParameter<?>> parameters = methodToInvokeToAdd.getParameters();
 		List<CtExpression<?>> arguments = new ArrayList<>(parameters.size());
 
-		mthToAdd.getParameters().forEach(parameter -> {
+		methodToInvokeToAdd.getParameters().forEach(parameter -> {
 					try {
 						CtLocalVariable<?> localVariable = ValueCreator.createRandomLocalVar(parameter.getType(), parameter.getSimpleName());
 						body.insertBegin(localVariable);
@@ -155,13 +165,10 @@ public class StatementAdd implements Amplifier {
 						throw new RuntimeException(e);
 					}
 				});
-
 		CtExpression targetClone = target.clone();
-		CtInvocation newInvocation = factory.Code().createInvocation(targetClone, mthToAdd.getReference(), arguments);
-
-		CtStatement stmt = findInvocationIn(methodClone, position);
-		stmt.insertAfter(newInvocation);
-
+		CtInvocation newInvocation = factory.Code().createInvocation(targetClone, methodToInvokeToAdd.getReference(), arguments);
+		DSpotUtils.addComment(newInvocation, "StatementAdd: add invocation of a method", CtComment.CommentType.INLINE);
+		body.insertEnd(newInvocation);
 		return methodClone;
 	}
 
@@ -183,7 +190,11 @@ public class StatementAdd implements Amplifier {
 			return Collections.emptyList();
 		} else {
 			return methods.stream()
-					.filter(mth -> mth.getDeclaringType().getReference().getQualifiedName().equals(type.getQualifiedName()))
+					.filter(method ->
+							method.getDeclaringType().getReference().getQualifiedName()
+									.equals(type.getQualifiedName())
+					)
+					.filter(method -> method.getModifiers().contains(ModifierKind.PUBLIC))
 					.collect(Collectors.toList());
 		}
 	}

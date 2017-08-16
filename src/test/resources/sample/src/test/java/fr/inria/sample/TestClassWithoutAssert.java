@@ -1,8 +1,5 @@
 package fr.inria.sample;
 
-import java.io.File;
-import java.util.Comparator;
-
 import org.junit.Test;
 
 /**
@@ -17,6 +14,7 @@ public class TestClassWithoutAssert {
         ClassWithBoolean cl = new ClassWithBoolean();
         cl.getFalse();
         cl.getBoolean();
+        java.io.File file = new java.io.File("");
         boolean var = cl.getTrue();
     }
 
