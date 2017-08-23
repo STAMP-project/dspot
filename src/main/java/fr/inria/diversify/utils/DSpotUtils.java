@@ -72,8 +72,9 @@ public class DSpotUtils {
 
 	public static void copyLoggerPackage(InputProgram inputProgram) throws IOException {
 		String loggerPackage = Logger.class.getPackage().getName().replace(".", "/");
+		loggerPackage = "fr/inria/diversify/logger";
 		File destDir = new File(inputProgram.getAbsoluteSourceCodeDir() + "/" + loggerPackage);
-		File srcDir = new File(System.getProperty("user.dir") + "/src/main/java/" + loggerPackage);
+		File srcDir = new File("/home/bertazzo/Progetti/2017/dspot/dspot/src/main/java/" + loggerPackage);
 		FileUtils.forceMkdir(destDir);
 
 		FileUtils.copyDirectory(srcDir, destDir);

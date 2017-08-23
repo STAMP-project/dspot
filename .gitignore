@@ -34,6 +34,9 @@ buildNumber.properties
 .DS_Store
 .DS_Store?
 ._*
+.settings
+.classpath
+.project
 .Spotlight-V100
 .Trashes
 ehthumbs.db
