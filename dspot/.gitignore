@@ -1,0 +1,47 @@
+# Resources #
++###################
+src/test/resources/aResource
+src/test/resources/aResourcesDirectory/
+src/test/resources/test-projects/.gradle/
+src/test/resources/test-projects/gjp_cp
+src/test/resources/test-projects/cp
+src/test/resources/regression/test-projects_1/cp
+src/test/resources/test-projects/test-projects.properties
+src/test/resources/test-projects/sample.properties
+
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# Compiled source #
+###################
+*.class
+
+# intelliJ File #
+#####################
+**.idea
+**.iml
+.Rapp.history
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.settings
+.classpath
+.project
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+/repo/
+/result/
+/tmpDir/
