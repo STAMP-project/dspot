@@ -1,5 +1,6 @@
 package fr.inria.diversify.dspot.maven;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -12,22 +13,29 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.DSpot;
-import fr.inria.diversify.runner.InputConfiguration;
 
 @Mojo(name = "mutationCoverage", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.TEST)
 public class DSpotMojo extends AbstractMojo {
 
 	/**
-	 * path to dspot properties file.
+	 * @deprecated path to dspot properties file. Use Maven Properties
 	 */
 	@Parameter(property = "path-to-properties")
 	private String pathToProperties;
 
+	@Parameter(defaultValue = "${project.basedir}", property = "project")
+	private File project;
+	
+	//@Parameter(defaultValue = "${project.build.directory}/tempDir", property = "tmpDir")
+	@Parameter(defaultValue = "target/tmpDir", property = "tmpDir")
+	private String tmpDir;
+
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		getLog().info("Hello, world.");
-		getLog().info(getPathToProperties().toString());
+		getLog().info("PathToProperties: " + getPathToProperties());
+		getLog().info("Project: " + getProject());
 		try {
-			InputConfiguration configuration = new InputConfiguration(getPathToProperties());
+			MyInputConfiguration configuration = new MyInputConfiguration(getPathToProperties(), getProject(),getTmpDir());
 			getLog().info("before new DSpot");
 			DSpot dSpot = new DSpot(configuration, 1);
 			getLog().info("before amplifyTest");
@@ -44,8 +52,16 @@ public class DSpotMojo extends AbstractMojo {
 		}
 	}
 
-	public String getPathToProperties() {
+	private String getPathToProperties() {
 		return pathToProperties;
+	}
+
+	private String getProject() {
+		return project.toString();
+	}
+	
+	private String getTmpDir() {
+		return tmpDir;
 	}
 
 }

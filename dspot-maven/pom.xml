@@ -38,7 +38,7 @@
 		<dependency>
 			<groupId>fr.inria.diversify</groupId>
 			<artifactId>dspot</artifactId>
-			<version>1.0.0</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
