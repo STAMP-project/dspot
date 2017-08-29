@@ -29,7 +29,7 @@ public class RegressionSelectorTest {
 				Collections.singletonList(new StatementAdd()),
 				regressionSelector);
 		try {
-			final CtType ctType = dSpot.amplifyTest("example.TestSuiteExample"); // TODO 
+			final CtType ctType = dSpot.amplifyTest("example.TestSuiteExample").get(0); // TODO
 			fail();
 		} catch (RuntimeException e) {
 

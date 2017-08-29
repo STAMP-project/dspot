@@ -27,7 +27,7 @@ public class MainTest {
         } catch (Exception ignored) {
 
         }
-        Main.main(new String[]{"--example"});
+        Main.main(new String[]{"--verbose", "--example"});
         final File reportFile = new File("target/trash/example.TestSuiteExample_branch_coverage_report.txt");
         assertTrue(reportFile.exists());
         assertTrue(new File("target/trash/example.TestSuiteExample_branch_coverage.json").exists());
@@ -82,6 +82,37 @@ public class MainTest {
             "There is 1 new unique path\n\n";
 
     @Test
+    public void testOneClassBis() throws Throwable {
+        try {
+            FileUtils.deleteDirectory(new File("target/trash"));
+            FileUtils.deleteDirectory(new File("tmpDir"));
+        } catch (Exception ignored) {
+
+        }
+        Main.main(new String[]{
+                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
+                "--test-criterion", "BranchCoverageTestSelector",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
+                "--iteration", "1",
+                "--randomSeed", "72",
+                "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
+                "--test", "example.*",
+                "--output-path", "target/trash",
+                "--max-test-amplified", "200"
+        });
+        final File reportFile = new File("target/trash/example.TestSuiteExample_branch_coverage_report.txt");
+        assertTrue(reportFile.exists());
+        assertTrue(new File("target/trash/example.TestSuiteExample_branch_coverage.json").exists());
+        assertTrue(new File("target/trash/example/TestSuiteExampleAmpl.java").exists());
+        try (BufferedReader reader = new BufferedReader(new FileReader(reportFile))) {
+            String content = reader.lines().reduce("", (acc, line) -> acc + line + nl);
+            assertEquals(expectedReportAll, content);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
     public void testOneClass() throws Throwable {
         try {
             FileUtils.deleteDirectory(new File("target/trash"));
@@ -96,7 +127,7 @@ public class MainTest {
                 "--iteration", "1",
                 "--randomSeed", "72",
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
-                "--test", "example.TestSuiteExample",
+                "--test", "example.TestSuite*",
                 "--output-path", "target/trash",
                 "--max-test-amplified", "200"
         });

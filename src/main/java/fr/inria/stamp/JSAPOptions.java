@@ -68,6 +68,7 @@ public class JSAPOptions {
 
 	public static Configuration parse(String[] args) {
 		JSAPResult jsapConfig = options.parse(args);
+		Main.verbose = jsapConfig.getBoolean("verbose");
 		if (!jsapConfig.success() || jsapConfig.getBoolean("help")) {
 			System.err.println();
 			for (Iterator<?> errs = jsapConfig.getErrorMessageIterator(); errs.hasNext(); ) {
@@ -190,7 +191,7 @@ public class JSAPOptions {
 		specificTestCase.setLongFlag("test");
 		specificTestCase.setDefault("all");
 		specificTestCase.setUsageName("my.package.MyClassTest");
-		specificTestCase.setHelp("[optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite.");
+		specificTestCase.setHelp("[optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite. You can also use regex to describe a set of test classes.");
 
 		FlaggedOption output = new FlaggedOption("output");
 		output.setStringParser(JSAP.STRING_PARSER);
@@ -254,6 +255,10 @@ public class JSAPOptions {
 		evosuiteMode.setShortFlag('k');
 		evosuiteMode.setLongFlag("evosuite");
 
+		Switch verbose = new Switch("verbose");
+		verbose.setLongFlag("verbose");
+		verbose.setDefault("false");
+
 		FlaggedOption maxTestAmplified = new FlaggedOption("maxTestAmplified");
 		maxTestAmplified.setStringParser(JSAP.INTEGER_PARSER);
 		maxTestAmplified.setLongFlag("max-test-amplified");
@@ -278,6 +283,7 @@ public class JSAPOptions {
 			jsap.registerParameter(mavenHome);
 			jsap.registerParameter(seed);
 			jsap.registerParameter(timeOut);
+			jsap.registerParameter(verbose);
 			jsap.registerParameter(example);
 			jsap.registerParameter(help);
 		} catch (JSAPException e) {

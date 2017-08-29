@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import edu.emory.mathcs.backport.java.util.Collections;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.support.json.ProjectTimeJSON;
 import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
@@ -47,7 +48,7 @@ public class DSpotTest extends MavenAbstractTest {
 
         assertFalse(new File(configuration.getOutputDirectory() + "/test-projects.json").exists());
 
-        CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample");
+        CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample").get(0);
 
         assertEquals(24, amplifiedTest.getMethods().size());
         assertEquals(expectedAmplifiedBody, ((CtMethod<?>)amplifiedTest.getMethodsByName("test4_sd1355_sd1358").get(0)).getBody().toString());
