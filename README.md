@@ -25,17 +25,22 @@ cd dspot
 mvn compile
 ```
 
-3) Run the tests
+3) DSpot use the environnment variable MAVEN_HOME, ensure that this variable points to your maven installation. Example:
+```
+export MAVEN_HOME=path/to/maven/
+```
+
+4) Run the tests
 ```
 mvn test
 ```
 
-4) Create the jar (eg `target/dspot-1.0.0-jar-with-dependencies.jar`)
+5) Create the jar (eg `target/dspot-1.0.0-jar-with-dependencies.jar`)
 ```
 mvn package
 # check that this is successful
 ls target/dspot-*-jar-with-dependencies.jar
-java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main path/To/my.properties
+java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main -p path/To/my.properties
 ```
 
 ### Command Line Usage
