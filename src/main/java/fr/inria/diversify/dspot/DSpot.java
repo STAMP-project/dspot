@@ -236,6 +236,9 @@ public class DSpot {
 		Pattern pattern = Pattern.compile(targetTestClasses);
 		return this.compiler.getFactory().Class().getAll().stream()
 				.filter(ctType -> pattern.matcher(ctType.getQualifiedName()).matches())
+				.filter(ctClass ->
+						ctClass.getMethods().stream()
+								.anyMatch(AmplificationChecker::isTest))
 				.map(this::amplifyTest)
 				.collect(Collectors.toList());
 	}
