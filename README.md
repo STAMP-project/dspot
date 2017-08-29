@@ -86,6 +86,8 @@ Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
       [(-v|--timeOut) <long integer>]
             specify the timeout value of the degenerated tests in millisecond
             (default: 10000)
+            
+      [--verbose]
     
       [-e|--example]
             run the example of DSpot and leave
