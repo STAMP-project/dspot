@@ -27,7 +27,7 @@ public class MainTest {
         } catch (Exception ignored) {
 
         }
-        Main.main(new String[]{"--example"});
+        Main.main(new String[]{"--verbose", "--example"});
         final File reportFile = new File("target/trash/example.TestSuiteExample_branch_coverage_report.txt");
         assertTrue(reportFile.exists());
         assertTrue(new File("target/trash/example.TestSuiteExample_branch_coverage.json").exists());

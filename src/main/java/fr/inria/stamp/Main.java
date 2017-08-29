@@ -17,6 +17,8 @@ import java.util.List;
  */
 public class Main {
 
+    public static boolean verbose = false;
+
     public static void main(String[] args) throws InvalidSdkException, Exception {
         final Configuration configuration = JSAPOptions.parse(args);
         if (configuration == null) {

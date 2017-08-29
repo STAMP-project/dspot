@@ -68,6 +68,7 @@ public class JSAPOptions {
 
 	public static Configuration parse(String[] args) {
 		JSAPResult jsapConfig = options.parse(args);
+		Main.verbose = jsapConfig.getBoolean("verbose");
 		if (!jsapConfig.success() || jsapConfig.getBoolean("help")) {
 			System.err.println();
 			for (Iterator<?> errs = jsapConfig.getErrorMessageIterator(); errs.hasNext(); ) {
@@ -254,6 +255,10 @@ public class JSAPOptions {
 		evosuiteMode.setShortFlag('k');
 		evosuiteMode.setLongFlag("evosuite");
 
+		Switch verbose = new Switch("verbose");
+		verbose.setLongFlag("verbose");
+		verbose.setDefault("false");
+
 		FlaggedOption maxTestAmplified = new FlaggedOption("maxTestAmplified");
 		maxTestAmplified.setStringParser(JSAP.INTEGER_PARSER);
 		maxTestAmplified.setLongFlag("max-test-amplified");
@@ -278,6 +283,7 @@ public class JSAPOptions {
 			jsap.registerParameter(mavenHome);
 			jsap.registerParameter(seed);
 			jsap.registerParameter(timeOut);
+			jsap.registerParameter(verbose);
 			jsap.registerParameter(example);
 			jsap.registerParameter(help);
 		} catch (JSAPException e) {
