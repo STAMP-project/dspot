@@ -96,7 +96,7 @@ public class MainTest {
                 "--iteration", "1",
                 "--randomSeed", "72",
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
-                "--test", "example.TestSuiteExample",
+                "--test", "example.TestSuite*",
                 "--output-path", "target/trash",
                 "--max-test-amplified", "200"
         });

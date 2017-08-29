@@ -30,7 +30,7 @@ public class InheritanceTest {
     public void testInheritanceMethod() throws Exception, InvalidSdkException {
         final InputConfiguration configuration = new InputConfiguration("src/test/resources/sample/sample.properties");
         DSpot dspot = new DSpot(configuration, 3, Collections.singletonList(new TestDataMutator()));
-        CtType ctType = dspot.amplifyTest("fr.inria.inheritance.Inherited");
+        CtType ctType = dspot.amplifyTest("fr.inria.inheritance.Inherited").get(0);
         assertEquals(2, ctType.getMethods().size());
     }
 

@@ -33,6 +33,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -228,19 +229,24 @@ public class DSpot {
         }
     }
 
-    public CtType amplifyTest(String fullName) throws InterruptedException, IOException, ClassNotFoundException {
-        CtType<Object> clone = this.compiler.getLauncher().getFactory().Type().get(fullName).clone();
-        clone.setParent(this.compiler.getLauncher().getFactory().Type().get(fullName).getParent());
-        return amplifyTest(clone);
-    }
+    public List<CtType> amplifyTest(String targetTestClasses) {
+		if (!targetTestClasses.contains("\\")) {
+			targetTestClasses = targetTestClasses.replaceAll("\\.", "\\\\\\.").replaceAll("\\*", ".*");
+		}
+		Pattern pattern = Pattern.compile(targetTestClasses);
+		return this.compiler.getFactory().Class().getAll().stream()
+				.filter(ctType -> pattern.matcher(ctType.getQualifiedName()).matches())
+				.map(this::amplifyTest)
+				.collect(Collectors.toList());
+	}
 
     public CtType amplifyTest(CtType test) {
 	    return this.amplifyTest(test, AmplificationHelper.getAllTest(test));
     }
 
-    public CtType amplifyTest(String fullName, List<String> methods) throws InterruptedException, IOException, ClassNotFoundException {
-        CtType<Object> clone = this.compiler.getLauncher().getFactory().Type().get(fullName).clone();
-        clone.setParent(this.compiler.getLauncher().getFactory().Type().get(fullName).getParent());
+    public CtType amplifyTest(String fullQualifiedName, List<String> methods) throws InterruptedException, IOException, ClassNotFoundException {
+        CtType<Object> clone = this.compiler.getLauncher().getFactory().Type().get(fullQualifiedName).clone();
+        clone.setParent(this.compiler.getLauncher().getFactory().Type().get(fullQualifiedName).getParent());
         return amplifyTest(clone, methods.stream()
                 .map(methodName -> clone.getMethodsByName(methodName).get(0))
 				.filter(AmplificationChecker::isTest)

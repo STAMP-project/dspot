@@ -7,6 +7,7 @@ import spoon.SpoonModelBuilder;
 import spoon.compiler.Environment;
 import spoon.compiler.ModelBuildingException;
 import spoon.compiler.builder.*;
+import spoon.reflect.factory.Factory;
 import spoon.support.compiler.FileSystemFolder;
 import spoon.support.compiler.jdt.JDTBasedSpoonCompiler;
 
@@ -22,6 +23,11 @@ import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
  * on 1/19/17
  */
 public class DSpotCompiler extends JDTBasedSpoonCompiler {
+
+    @Override
+    public Factory getFactory() {
+        return this.launcher.getFactory();
+    }
 
     public DSpotCompiler(InputProgram program, String pathToDependencies) {
         super(program.getFactory());

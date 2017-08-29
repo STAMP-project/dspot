@@ -190,7 +190,7 @@ public class JSAPOptions {
 		specificTestCase.setLongFlag("test");
 		specificTestCase.setDefault("all");
 		specificTestCase.setUsageName("my.package.MyClassTest");
-		specificTestCase.setHelp("[optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite.");
+		specificTestCase.setHelp("[optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite. You can also use regex to describe a set of test classes.");
 
 		FlaggedOption output = new FlaggedOption("output");
 		output.setStringParser(JSAP.STRING_PARSER);
