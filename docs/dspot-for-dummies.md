@@ -1,4 +1,4 @@
-#DSpot for dummies
+## DSpot for dummies
 
 ### Prerequisites
 You must have an understanding of how to install software on your computer. If you do not know how to do this, please ask someone at your office, school, etc or pay someone to explain this to you. 
