@@ -59,5 +59,7 @@ outputDirectory=dspot-out/
 cd dspot
 java -jar target/dspot-1.0.0-jar-with-dependencies.jar  -p ../dhell/dspot.properties
 ```
+1. Check the output
+
 ### Conclusion
 We hope this quick overview has increased your interest in DSpot usage. Note that this is a very truncated quick-start guide. Now you are ready for more comprehensive details concerning the actions you have just performed. Check out the DSpot Readme Guide.
