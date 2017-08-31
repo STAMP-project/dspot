@@ -42,7 +42,7 @@ mvn clean package
 #### Execute DSpot
 
 1. From the root folder copy the configuration to the file dhell/dspot.properties
-```
+```properties
 #relative path to the project root from dspot project
 project=../dhell
 #relative path to the source project from the project properties
