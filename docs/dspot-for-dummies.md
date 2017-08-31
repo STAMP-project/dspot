@@ -1,8 +1,9 @@
 ## DSpot for dummies
 
 ### Prerequisites
-You must have an understanding of how to install software on your computer. If you do not know how to do this, please ask someone at your office, school, etc or pay someone to explain this to you. 
-Install these programs:
+You must have an understanding of how to install software on your computer.
+Install and set-up these programs:
+
 1. [Java 8](https://www.java.com/en/download/help/download_options.xml)
 1. [GIT](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 1. [Maven](https://maven.apache.org/install.html)
