@@ -1,7 +1,6 @@
 ## DSpot for dummies
 
 ### Prerequisites
-You must have an understanding of how to install software on your computer.
 
 Install and set-up these programs:
 
