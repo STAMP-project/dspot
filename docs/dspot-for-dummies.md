@@ -2,13 +2,15 @@
 
 ### Prerequisites
 You must have an understanding of how to install software on your computer.
+
 Install and set-up these programs:
 
 1. [Java 8](https://www.java.com/en/download/help/download_options.xml)
 1. [GIT](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 1. [Maven](https://maven.apache.org/install.html)
 
-### Clone DSpot and create jar
+### DSpot Set-Up
+#### Clone DSpot and create jar
 
 1. From the root folder, clone the project:
 ```
@@ -22,8 +24,8 @@ cd dspot
 ```
 mvn package -DskipTests
 ```
-
-### Clone and Compile Maven Project (DHELL)
+### Execute an analysis with DSpot
+#### Clone and Compile Maven Project (DHELL)
 
 1. From the root folder, clone the project
 ```
@@ -38,7 +40,7 @@ cd dhell
 mvn clean package
 ```
 
-### Execute DSpot
+#### Execute DSpot
 
 1. From the root folder copy the configuration to the file dhell/dspot.properties
 ```
