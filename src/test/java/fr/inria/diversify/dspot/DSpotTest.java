@@ -50,8 +50,8 @@ public class DSpotTest extends MavenAbstractTest {
 
         CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample").get(0);
 
-        assertEquals(24, amplifiedTest.getMethods().size());
-        assertEquals(expectedAmplifiedBody, ((CtMethod<?>)amplifiedTest.getMethodsByName("test4_sd1355_sd1358").get(0)).getBody().toString());
+        assertEquals(21, amplifiedTest.getMethods().size());
+        assertEquals(expectedAmplifiedBody, ((CtMethod<?>)amplifiedTest.getMethodsByName("test4_cf1569").get(0)).getBody().toString());
 
         final File file = new File(configuration.getOutputDirectory() + "/test-projects.json");
         assertTrue(file.exists());
@@ -66,25 +66,24 @@ public class DSpotTest extends MavenAbstractTest {
         removeHomFromPropertiesFile();
     }
 
-    private final String expectedAmplifiedBody = "{" + nl  +
-            "    int index_312 = -1787921271;" + nl  +
-            "    java.lang.String s_311 = \"q5 w=#@fx)l0pr;puH(&\";" + nl  +
-            "    // AssertGenerator add assertion" + nl  +
-            "    org.junit.Assert.assertEquals(\"q5 w=#@fx)l0pr;puH(&\", s_311);" + nl  +
-            "    example.Example gen_o36 = new example.Example();" + nl  +
-            "    example.Example ex = new example.Example();" + nl  +
-            "    java.lang.String s = \"abcd\";" + nl  +
-            "    // AssertGenerator add assertion" + nl  +
-            "    org.junit.Assert.assertEquals(\"abcd\", s);" + nl  +
-            "    // AssertGenerator create local variable with return value of invocation" + nl  +
-            "    char o_test4_sd1355_sd1358__8 = ex.charAt(s, 12);" + nl  +
-            "    // AssertGenerator add assertion" + nl  +
-            "    org.junit.Assert.assertEquals('d', ((char) (o_test4_sd1355_sd1358__8)));" + nl  +
-            "    // AssertGenerator create local variable with return value of invocation" + nl  +
-            "    char o_test4_sd1355_sd1358__9 = // StatementAdd: add invocation of a method" + nl  +
-            "    ex.charAt(s_311, index_312);" + nl  +
-            "    // AssertGenerator add assertion" + nl  +
-            "    org.junit.Assert.assertEquals('q', ((char) (o_test4_sd1355_sd1358__9)));" + nl  +
+    private final String expectedAmplifiedBody = "{" + nl +
+            "    example.Example ex = new example.Example();" + nl +
+            "    java.lang.String s = \"abcd\";" + nl +
+            "    // AssertGenerator add assertion" + nl +
+            "    org.junit.Assert.assertEquals(\"abcd\", s);" + nl +
+            "    // StatementAdderOnAssert create random local variable" + nl +
+            "    int vc_334 = -1421497065;" + nl +
+            "    // StatementAdderOnAssert create random local variable" + nl +
+            "    example.Example vc_331 = new example.Example();" + nl +
+            "    // AssertGenerator create local variable with return value of invocation" + nl +
+            "    char o_test4_cf1569__9 = // StatementAdderMethod cloned existing statement" + nl +
+            "    vc_331.charAt(s, vc_334);" + nl +
+            "    // AssertGenerator add assertion" + nl +
+            "    org.junit.Assert.assertEquals('a', ((char) (o_test4_cf1569__9)));" + nl +
+            "    // AssertGenerator create local variable with return value of invocation" + nl +
+            "    char o_test4_cf1569__11 = ex.charAt(s, 12);" + nl +
+            "    // AssertGenerator add assertion" + nl +
+            "    org.junit.Assert.assertEquals('d', ((char) (o_test4_cf1569__11)));" + nl +
             "}";
 
     @Override

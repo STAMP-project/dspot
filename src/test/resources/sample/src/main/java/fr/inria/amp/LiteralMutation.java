@@ -22,4 +22,8 @@ public class LiteralMutation {
         boolean literalBoolean = true;
     }
 
+    public void methodCharacter() {
+        char character = 'z';
+    }
+
 }

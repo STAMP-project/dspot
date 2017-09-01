@@ -49,7 +49,7 @@ public class AmplificationChecker {
     }
 
     public static boolean canBeAdded(CtInvocation invocation) {
-        return !invocation.toString().startsWith("super(") && invocation.getParent() instanceof CtBlock;
+        return !invocation.toString().startsWith("super(");// && invocation.getParent() instanceof CtBlock;
     }
 
     public static boolean isArray(CtTypeReference type) {
