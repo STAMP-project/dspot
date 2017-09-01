@@ -35,9 +35,9 @@ public class GradlePitTaskAndOptions {
 
     public static final String CMD_PIT_MUTATION_COVERAGE = "pitest";
 
-    public static final String OPT_VALUE_TIMEOUT =  "timeoutConstInMillis = 10000";
+    public static final String PROPERTY_VALUE_TIMEOUT =  "timeoutConstInMillis";
 
-    public static final String OPT_VALUE_MEMORY = "jvmArgs = ['-Xms16G']";
+    public static final String PROPERTY_VALUE_JVM_ARGS = "jvmArgs";
 
     public static final String OPT_MUTATORS = "mutators = ";
 
