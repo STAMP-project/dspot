@@ -47,9 +47,28 @@ testSrc=src/test/java
 javaVersion=8
 # (optional) path to the output folder, default to "output_diversify"
 outputDirectory=dspot-out/
+# (optional) filter on the package name containing tests to be amplified ("example" => "example.*"
+filter=myWorld*
 ```
+
 1. Execute DSpot
 ```
 cd dspot
-java -jar target/dspot-1.0.0-jar-with-dependencies.jar  -p ../dhell/dspot.properties
+java -jar target/dspot-1.0.0-jar-with-dependencies.jar  -p ../dhell/dspot.properties -i 1 -t myWorld.HelloAppTest
 ```
+The execution uses these parameters:
+* p: [mandatory] specify the path to the configuration file.
+* i: specify the number of amplification iteration.
+* t: fully qualified names of test classes to be amplified.
+
+1. Check the Output
+```
+======= REPORT =======
+PitMutantScoreSelector: 
+The original test suite kill 106 mutants
+The amplification results with 33 new tests
+it kill 18 more mutants
+```
+
+1. Check the amplified test
+Open dspot/dspot-out/myWorld/AmplHelloAppTest.java
