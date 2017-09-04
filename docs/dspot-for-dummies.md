@@ -1,9 +1,15 @@
-### Environment Set-up
-1. [Install Java 8](https://www.java.com/en/download/help/download_options.xml)
-1. [Install GIT](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-1. [Install Maven](https://maven.apache.org/install.html)
+## DSpot for dummies
 
-### Clone DSpot and create jar
+### Prerequisites
+
+Install and set-up these programs:
+
+1. [Java 8](https://www.java.com/en/download/help/download_options.xml)
+1. [GIT](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+1. [Maven](https://maven.apache.org/install.html)
+
+### DSpot Set-Up
+#### Clone DSpot and create jar
 
 1. From the root folder, clone the project:
 ```
@@ -17,8 +23,8 @@ cd dspot
 ```
 mvn package -DskipTests
 ```
-
-### Clone and Compile Maven Project (DHELL)
+### Execute an analysis with DSpot
+#### Clone and Compile Maven Project (DHELL)
 
 1. From the root folder, clone the project
 ```
@@ -33,10 +39,10 @@ cd dhell
 mvn clean package
 ```
 
-### Execute DSpot
+#### Execute DSpot
 
 1. From the root folder copy the configuration to the file dhell/dspot.properties
-```
+```properties
 #relative path to the project root from dspot project
 project=../dhell
 #relative path to the source project from the project properties
@@ -72,3 +78,6 @@ it kill 18 more mutants
 
 1. Check the amplified test
 Open dspot/dspot-out/myWorld/AmplHelloAppTest.java
+
+### Conclusion
+We hope this quick overview has increased your interest in DSpot usage. Note that this is a very truncated quick-start guide. Now you are ready for more comprehensive details concerning the actions you have just performed. Check out the DSpot Readme Guide.
