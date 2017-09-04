@@ -68,6 +68,7 @@ The execution uses these parameters:
 * t: fully qualified names of test classes to be amplified.
 
 3. Check the Output
+The result of the amplification consists of 33 new tests, as shown in the output below. Those new tests are written to the output folder specified by configuration property outputDirectory (dspot-out/).
 ```
 ======= REPORT =======
 PitMutantScoreSelector: 
@@ -76,8 +77,11 @@ The amplification results with 33 new tests
 it kill 18 more mutants
 ```
 
-4. Check the amplified test
-Open dspot/dspot-out/myWorld/AmplHelloAppTest.java
+DSpot produces 3 outputs in the (default: outputDirectory) specified in the properties file.
+
+* a textual report of the result of the amplification also printed on the standard output (see dspot/dspot-out/myWorld.HelloAppTest_mutants_report.txt)
+* a json file summarizing the amplification (see dspot/dspot-out/myWorld.HelloAppTest_mutants_killed.json)
+* the amplified tests augmented with comments (see dspot/dspot-out/myWorld/AmplHelloAppTest.java)
 
 ### Conclusion
 We hope this quick overview has increased your interest in DSpot usage. Note that this is a very truncated quick-start guide. Now you are ready for more comprehensive details concerning the actions you have just performed. Check out the DSpot Readme Guide.
