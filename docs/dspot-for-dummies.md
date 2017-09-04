@@ -15,11 +15,11 @@ Install and set-up these programs:
 ```
 git clone https://github.com/STAMP-project/dspot.git
 ```
-1. Access to the dspot project directory
+2. Access to the dspot project directory
 ```
 cd dspot
 ```
-1. Create DSpot jar (eg `target/dspot-1.0.0-jar-with-dependencies.jar`)
+3. Create DSpot jar (eg `target/dspot-1.0.0-jar-with-dependencies.jar`)
 ```
 mvn package -DskipTests
 ```
@@ -30,11 +30,11 @@ mvn package -DskipTests
 ```
 git clone https://github.com/STAMP-project/dhell.git
 ```
-1. Access to the project directory
+2. Access to the project directory
 ```
 cd dhell
 ```
-1.  Compile application and tests, and run tests:
+3.  Compile application and tests, and run tests:
 ```
 mvn clean package
 ```
@@ -57,7 +57,7 @@ outputDirectory=dspot-out/
 filter=myWorld*
 ```
 
-1. Execute DSpot
+2. Execute DSpot
 ```
 cd dspot
 java -jar target/dspot-1.0.0-jar-with-dependencies.jar  -p ../dhell/dspot.properties -i 1 -t myWorld.HelloAppTest
@@ -67,7 +67,7 @@ The execution uses these parameters:
 * i: specify the number of amplification iteration.
 * t: fully qualified names of test classes to be amplified.
 
-1. Check the Output
+3. Check the Output
 ```
 ======= REPORT =======
 PitMutantScoreSelector: 
@@ -76,7 +76,7 @@ The amplification results with 33 new tests
 it kill 18 more mutants
 ```
 
-1. Check the amplified test
+4. Check the amplified test
 Open dspot/dspot-out/myWorld/AmplHelloAppTest.java
 
 ### Conclusion
