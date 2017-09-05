@@ -118,7 +118,7 @@ public class JSAPOptions {
 
 	private static List<Amplifier> buildAmplifiersFromString(String[] amplifiersAsString) {
 		if (amplifiersAsString.length == 0) {
-			return Arrays.stream(new String[]{"MethodAdd", "MethodRemove", "StatementAdderOnAssert", "TestDataMutator"})
+			return Arrays.stream(new String[]{"MethodAdd", "MethodRemove", "StatementAdd", "TestDataMutator"})
 					.map(JSAPOptions::stringToAmplifier)
 					.collect(Collectors.toList());
 		} else {
