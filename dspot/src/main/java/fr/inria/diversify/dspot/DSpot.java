@@ -98,13 +98,13 @@ public class DSpot {
 			FileUtils.cleanDirectory(tmpDir);
 		}
 		
-//		FileUtils.copyDirectory(new File(inputProgram.getProgramDir()),
-//				new File(inputConfiguration.getProperty("tmpDir") + "/tmp"));
+		FileUtils.copyDirectory(new File(inputProgram.getProgramDir()),
+				new File(inputConfiguration.getProperty("tmpDir") + "/tmp"));
 
 		// Ugly way to support usage of resources with relative path
 		copyResourcesOfTargetProjectIntoDspot("testResources");
 		copyResourcesOfTargetProjectIntoDspot("srcResources");
-		// copyParentPomIfExist(outputDirectory);
+		copyParentPomIfExist(outputDirectory);
 		final String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp/"
 				+ (inputConfiguration.getProperty("targetModule") == null ? ""
 						: inputConfiguration.getProperty("targetModule"));
