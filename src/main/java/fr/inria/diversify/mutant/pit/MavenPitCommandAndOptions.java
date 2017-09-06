@@ -11,7 +11,7 @@ public class MavenPitCommandAndOptions {
 
     public static boolean evosuiteMode = false;
 
-    public static final String PRE_GOAL_PIT = "clean test -DskipTests";
+    public static final String PRE_GOAL_PIT = "test -DskipTests";
 
     public static final String OPT_WITH_HISTORY = "-DwithHistory";
 

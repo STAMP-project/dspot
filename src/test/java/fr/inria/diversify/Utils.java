@@ -7,6 +7,7 @@ import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
+import fr.inria.diversify.utils.DSpotUtils;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
@@ -87,6 +88,8 @@ public class Utils {
 			DSpotCompiler.compile(inputProgram.getAbsoluteTestSourceCodeDir(),
 					output.getAbsolutePath() + System.getProperty("path.separator") + dependencies, outputTest);
 			compiler = new DSpotCompiler(inputProgram, dependencies);
+			DSpotUtils.copyPackageFromResources(inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir(),
+					"fr/inria/diversify/compare", "MethodsHandler", "ObjectLog", "Observation", "Utils");
 			inputProgram.setFactory(compiler.getLauncher().getFactory());
 		} catch (Exception e) {
 			throw new RuntimeException(e);

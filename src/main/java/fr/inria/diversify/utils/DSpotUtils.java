@@ -7,6 +7,7 @@ import fr.inria.diversify.processor.main.BranchCoverageProcessor;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
+import org.jacoco.core.data.ExecutionDataStore;
 import org.kevoree.log.Log;
 import spoon.Launcher;
 import spoon.compiler.Environment;
@@ -22,7 +23,12 @@ import spoon.support.QueueProcessingManager;
 
 import javax.xml.transform.sax.SAXSource;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -68,17 +74,6 @@ public class DSpotUtils {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	public static void copyLoggerPackage(InputProgram inputProgram) throws IOException {
-		String loggerPackage = Logger.class.getPackage().getName().replace(".", "/");
-		File destDir = new File(inputProgram.getAbsoluteSourceCodeDir() + "/" + loggerPackage);
-		File srcDir = new File(System.getProperty("user.dir") + "/src/main/java/" + loggerPackage);
-		FileUtils.forceMkdir(destDir);
-
-		FileUtils.copyDirectory(srcDir, destDir);
-
-		ProcessorUtil.writeInfoFile(inputProgram.getProgramDir());
 	}
 
 	public static void printJavaFileWithComment(CtType<?> type, File directory) {
@@ -139,5 +134,32 @@ public class DSpotUtils {
 		QueueProcessingManager pm = new QueueProcessingManager(factory);
 		pm.addProcessor(processor);
 		pm.process(factory.Package().getRootPackage());
+	}
+
+	public static void copyPackageFromResources(String directory, String packagePath, String... classToCopy) {
+		final String pathToTestClassesDirectory = directory + "/" + packagePath + "/";
+		try {
+			org.apache.commons.io.FileUtils.forceMkdir(new File(pathToTestClassesDirectory));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		Arrays.stream(classToCopy).forEach(file -> {
+			OutputStream resStreamOut = null;
+			try {
+				final InputStream resourceAsStream = Thread.currentThread()
+						.getContextClassLoader()
+						.getResourceAsStream(packagePath + "/" + file + ".class");
+				resStreamOut =
+						new FileOutputStream(pathToTestClassesDirectory + file + ".class");
+				int readBytes;
+				byte[] buffer = new byte[4096];
+				while ((readBytes = resourceAsStream.read(buffer)) > 0) {
+					resStreamOut.write(buffer, 0, readBytes);
+				}
+				resStreamOut.close();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
 	}
 }
