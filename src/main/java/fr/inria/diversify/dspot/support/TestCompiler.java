@@ -1,13 +1,10 @@
 package fr.inria.diversify.dspot.support;
 
-import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
 import fr.inria.diversify.utils.AmplificationHelper;
-import fr.inria.diversify.utils.TypeUtils;
 import fr.inria.stamp.test.launcher.TestLauncher;
 import fr.inria.stamp.test.listener.TestListener;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -17,9 +14,7 @@ import spoon.reflect.code.CtComment;
 import spoon.reflect.declaration.*;
 import spoon.support.reflect.declaration.CtMethodImpl;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -58,10 +53,6 @@ public class TestCompiler {
 											boolean withLogger, String dependencies) {
 		CtType<?> classTest = originalClassTest.clone();
 		originalClassTest.getPackage().addType(classTest);
-		if (withLogger) {
-			copyLoggerFile(compiler);
-		}
-
 		printAndDelete(compiler, classTest);
 		final List<CategorizedProblem> problems = compiler.compileAndGetProbs(dependencies)
 				.stream()
@@ -137,31 +128,6 @@ public class TestCompiler {
 			forceDelete(pathToDotClass);
 		} catch (IOException ignored) {
 			//ignored
-		}
-	}
-
-	private static void copyLoggerFile(DSpotCompiler compiler) {
-		try {
-			String comparePackage = ObjectLog.class.getPackage().getName().replace(".", "/");
-			File srcDir = new File(System.getProperty("user.dir") + "/src/main/java/" + comparePackage);
-
-			File destDir = new File(compiler.getSourceOutputDirectory() + "/" + comparePackage);
-			FileUtils.forceMkdir(destDir);
-
-			FileUtils.copyDirectory(srcDir, destDir);
-
-			/*String typeUtilsPackage = TypeUtils.class.getPackage().getName().replace(".", "/");
-			File srcFile = new File(System.getProperty("user.dir") + "/src/main/java/" + typeUtilsPackage + "/TypeUtils.java");
-
-			destDir = new File(compiler.getSourceOutputDirectory() + "/" + typeUtilsPackage);
-			FileUtils.forceMkdir(destDir);
-
-			File destFile = new File(compiler.getSourceOutputDirectory() + "/" + typeUtilsPackage + "/TypeUtils.java");
-			FileUtils.copyFile(srcFile, destFile);*/
-		} catch (FileAlreadyExistsException ignored) {
-			//skip
-		} catch (IOException e) {
-			throw new RuntimeException(e);
 		}
 	}
 }

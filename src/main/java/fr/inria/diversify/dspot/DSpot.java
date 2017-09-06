@@ -15,6 +15,7 @@ import fr.inria.diversify.dspot.support.json.ProjectTimeJSON;
 import fr.inria.diversify.mutant.descartes.DescartesChecker;
 import fr.inria.diversify.mutant.descartes.DescartesInjector;
 import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
+import fr.inria.diversify.processor.ProcessorUtil;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
@@ -35,6 +36,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
 
 /**
  * User: Simon
@@ -108,7 +111,10 @@ public class DSpot {
             FileUtils.cleanDirectory(tmpDir);
         }
 
-        FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(inputConfiguration.getProperty("tmpDir") + "/tmp"));
+		org.apache.commons.io.FileUtils.copyDirectory(
+				new File(inputProgram.getProgramDir()),
+				new File(inputConfiguration.getProperty("tmpDir") + "/tmp")
+		);
 
         //Ugly way to support usage of resources with relative path
         copyResourcesOfTargetProjectIntoDspot("testResources");
@@ -133,8 +139,8 @@ public class DSpot {
             FileUtils.cleanDirectory(outputTest);
         } catch (IllegalArgumentException ignored) {
             //the target directory does not exist, do not need to clean it
-        }
-        boolean status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
+		}
+		boolean status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
         boolean statusTest = DSpotCompiler.compile(inputProgram.getAbsoluteTestSourceCodeDir(),
                 output.getAbsolutePath() + System.getProperty("path.separator") + dependencies, outputTest);
 
@@ -146,8 +152,12 @@ public class DSpot {
         if (testSelector instanceof BranchCoverageTestSelector) {
             Launcher spoonModel = DSpotCompiler.getSpoonModelOf(inputProgram.getAbsoluteSourceCodeDir(), dependencies);
             DSpotUtils.addBranchLogger(inputProgram, spoonModel.getFactory());
-            DSpotUtils.copyLoggerPackage(inputProgram);
-            FileUtils.cleanDirectory(output);
+			FileUtils.cleanDirectory(output);
+            DSpotUtils.copyPackageFromResources(this.inputProgram.getProgramDir() + "/" + this.inputProgram.getClassesDir(),
+					"fr/inria/diversify/logger", "ClassObserver",
+					"KeyWord", "Logger", "LogWriter", "PathBuilder", "Pool", "ShutdownHookLog");
+			ProcessorUtil.writeInfoFile(inputProgram.getProgramDir());
+			dependencies += PATH_SEPARATOR + output;
             status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
             statusTest = DSpotCompiler.compile(inputProgram.getAbsoluteTestSourceCodeDir(),
                     output.getAbsolutePath() + System.getProperty("path.separator") + dependencies, outputTest);
@@ -157,6 +167,8 @@ public class DSpot {
         }
 
         this.compiler = new DSpotCompiler(inputProgram, dependencies);
+		DSpotUtils.copyPackageFromResources(this.inputProgram.getProgramDir() + "/" + this.inputProgram.getTestClassesDir(),
+				"fr/inria/diversify/compare", "MethodsHandler", "ObjectLog", "Observation", "Utils");
         this.inputProgram.setFactory(compiler.getLauncher().getFactory());
         this.amplifiers = new ArrayList<>(amplifiers);
         this.numberOfIterations = numberOfIterations;
@@ -172,7 +184,9 @@ public class DSpot {
         }
     }
 
-    private void copyResourcesOfTargetProjectIntoDspot(String key) {
+
+
+	private void copyResourcesOfTargetProjectIntoDspot(String key) {
         final String resources = inputConfiguration.getProperty(key);
         if (resources != null) {
             String[] pathFiles = resources.split(System.getProperty("path.separator"));
