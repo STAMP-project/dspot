@@ -167,10 +167,7 @@ The execution uses these parameters:
 * b: specify the automatic builder to build the project.
 
 3. DSpot produces 3 outputs in the (default: outputDirectory) specified in the properties file.
-
-* a textual report of the result of the amplification also printed on the standard output (see dspot/dspot-out/myWorld.HelloAppTest_mutants_report.txt)
-* a json file summarizing the amplification (see dspot/dspot-out/myWorld.HelloAppTest_mutants_killed.json)
-* the amplified tests augmented with comments (see dspot/dspot-out/myWorld/AmplHelloAppTest.java)
+TODO
 
 ### Conclusion
 We hope this quick overview has increased your interest in DSpot usage. Note that this is a very truncated quick-start guide. Now you are ready for more comprehensive details concerning the actions you have just performed. Check out the DSpot Readme Guide.
