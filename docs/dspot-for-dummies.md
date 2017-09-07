@@ -61,21 +61,26 @@ filter=myWorld*
 2. Execute DSpot
 ```
 cd dspot
-java -jar target/dspot-1.0.0-jar-with-dependencies.jar  -p ../dhell/dspot.properties -i 1 -t myWorld.HelloAppTest
+java -jar target/dspot-1.0.0-jar-with-dependencies.jar  -p ../dhell/dspot.properties -i 1 -t myWorld.HelloAppTest -a MethodAdd
 ```
 The execution uses these parameters:
 * p: [mandatory] specify the path to the configuration file.
 * i: specify the number of amplification iteration.
 * t: fully qualified names of test classes to be amplified.
+* a: specify the list of amplifiers to use.
 
 3. Check the Output
-The result of the amplification consists of 33 new tests, as shown in the output below. Those new tests are written to the output folder specified by configuration property outputDirectory (dspot-out/).
+The result of the amplification consists of 14 new tests, as shown in the output below. Those new tests are written to the output folder specified by configuration property outputDirectory (dspot-out/).
 ```
 ======= REPORT =======
 PitMutantScoreSelector: 
-The original test suite kill 106 mutants
-The amplification results with 33 new tests
-it kill 18 more mutants
+The original test suite kill 107 mutants
+The amplification results with 14 new tests
+it kill 12 more mutants
+
+01:43 INFO: Print AmplHelloAppTest with 14 amplified test cases in dspot-out/
+73172 ms
+
 ```
 
 DSpot produces 3 outputs in the (default: outputDirectory) specified in the properties file.
@@ -158,16 +163,33 @@ filter=myWorld*
 2. Execute DSpot
 ```
 cd dspot
-java -jar target/dspot-1.0.0-jar-with-dependencies.jar  -p ../dheg/dspot.properties -i 1 -t myWorld.HelloAppTest -b GradleBuilder
+java -jar target/dspot-1.0.0-jar-with-dependencies.jar  -p ../dheg/dspot.properties -i 1 -t myWorld.HelloAppTest -b GradleBuilder -a MethodAdd
 ```
 The execution uses these parameters:
 * p: [mandatory] specify the path to the configuration file.
 * i: specify the number of amplification iteration.
 * t: fully qualified names of test classes to be amplified.
 * b: specify the automatic builder to build the project.
+* a: specify the list of amplifiers to use.
 
-3. DSpot produces 3 outputs in the (default: outputDirectory) specified in the properties file.
-TODO
+3. The result of the amplification consists of 15 new tests, as shown in the output below. Those new tests are written to the output folder specified by configuration property outputDirectory (dspot-out/).
+```
+======= REPORT =======
+PitMutantScoreSelector: 
+The original test suite kill 103 mutants
+The amplification results with 15 new tests
+it kill 13 more mutants
+
+01:25 INFO: Print AmplHelloAppTest with 15 amplified test cases in dspot-out/
+46032 ms
+```
+
+DSpot produces 3 outputs in the (default: outputDirectory) specified in the properties file.
+
+* a textual report of the result of the amplification also printed on the standard output (see dspot/dspot-out/myWorld.HelloAppTest_mutants_report.txt)
+* a json file summarizing the amplification (see dspot/dspot-out/myWorld.HelloAppTest_mutants_killed.json)
+* the amplified tests augmented with comments (see dspot/dspot-out/myWorld/AmplHelloAppTest.java)
+
 
 ### Conclusion
 We hope this quick overview has increased your interest in DSpot usage. Note that this is a very truncated quick-start guide. Now you are ready for more comprehensive details concerning the actions you have just performed. Check out the DSpot Readme Guide.
