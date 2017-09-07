@@ -42,3 +42,6 @@ Thumbs.db
 /repo/
 /result/
 /tmpDir/
+.classpath
+.project
+.settings/
