@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -127,22 +128,25 @@ public class DSpotUtils {
 				mavenHome = inputConfiguration.getProperty("maven.home");
 			} else {
 				if(!setMavenHome(envVariable -> System.getenv().get(envVariable) != null,
+						envVariable -> System.getenv().get(envVariable),
 						"MAVEN_HOME", "M2_HOME")) {
 					if (!setMavenHome(path -> new File(path).exists(),
+							Function.identity(),
 							"/usr/share/maven/", "/usr/local/maven-3.3.9/", "/usr/share/maven3/")) {
 						throw new RuntimeException("Maven home not found");
 					}
 				}
 			}
 		}
+		Log.info("maven home find at {}", mavenHome);
 		return mavenHome;
 	}
 
-	private static boolean setMavenHome(Predicate<String> conditional, String... possibleValues) {
+	private static boolean setMavenHome(Predicate<String> conditional, Function<String, String> getFunction, String... possibleValues) {
 		Arrays.stream(possibleValues)
 				.filter(conditional)
 				.findFirst()
-				.ifPresent(s -> mavenHome = s);
+				.ifPresent(s -> mavenHome = getFunction.apply(s));
 		return mavenHome != null;
 	}
 
