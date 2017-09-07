@@ -44,8 +44,6 @@ public class DSpotTest extends MavenAbstractTest {
         }
         DSpot dspot = new DSpot(configuration);
 
-        addMavenHomeToPropertiesFile();
-
         assertFalse(new File(configuration.getOutputDirectory() + "/test-projects.json").exists());
 
         CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample").get(0);
@@ -63,7 +61,6 @@ public class DSpotTest extends MavenAbstractTest {
         assertEquals("example.TestSuiteExample", projectTimeJSON.classTimes.get(0).fullQualifiedName);
         // do not test the time...
 
-        removeHomFromPropertiesFile();
     }
 
     private final String expectedAmplifiedBody = "{" + nl +

@@ -36,7 +36,6 @@ public class DSpotMockedTest extends MavenAbstractTest {
 		InputProgram program = new InputProgram();
 		configuration.setInputProgram(program);
 		DSpot dspot = new DSpot(configuration, 1);
-		addMavenHomeToPropertiesFile();
 		try {
 			FileUtils.cleanDirectory(new File(configuration.getOutputDirectory()));
 		} catch (Exception ignored) {
@@ -47,8 +46,6 @@ public class DSpotMockedTest extends MavenAbstractTest {
 		CtType<?> amplifiedTest = dspot.amplifyTest("info.sanaulla.dal.BookDALTest", Collections.singletonList("testAddBook"));
 
 		assertEquals(8, amplifiedTest.getMethods().size());
-
-		removeHomFromPropertiesFile();
 	}
 
 	@Override
