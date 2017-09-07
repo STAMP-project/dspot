@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -121,13 +123,27 @@ public class DSpotUtils {
 
 	public static String buildMavenHome(InputConfiguration inputConfiguration) {
 		if (mavenHome == null) {
-			mavenHome = inputConfiguration != null && inputConfiguration.getProperty("maven.home") != null ? inputConfiguration.getProperty("maven.home") :
-					System.getenv().get("MAVEN_HOME") != null ? System.getenv().get("MAVEN_HOME") :
-							System.getenv().get("M2_HOME") != null ? System.getenv().get("M2_HOME") :
-									new File("/usr/share/maven/").exists() ? "/usr/share/maven/" :
-											new File("/usr/local/maven-3.3.9/").exists() ? "/usr/local/maven-3.3.9/" : "/usr/share/maven3/";
+			if (inputConfiguration != null && inputConfiguration.getProperty("maven.home") != null) {
+				mavenHome = inputConfiguration.getProperty("maven.home");
+			} else {
+				if(!setMavenHome(envVariable -> System.getenv().get(envVariable) != null,
+						"MAVEN_HOME", "M2_HOME")) {
+					if (!setMavenHome(path -> new File(path).exists(),
+							"/usr/share/maven/", "/usr/local/maven-3.3.9/", "/usr/share/maven3/")) {
+						throw new RuntimeException("Maven home not found");
+					}
+				}
+			}
 		}
 		return mavenHome;
+	}
+
+	private static boolean setMavenHome(Predicate<String> conditional, String... possibleValues) {
+		Arrays.stream(possibleValues)
+				.filter(conditional)
+				.findFirst()
+				.ifPresent(s -> mavenHome = s);
+		return mavenHome != null;
 	}
 
 	private static void applyProcessor(Factory factory, Processor processor) {
