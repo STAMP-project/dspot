@@ -25,17 +25,22 @@ cd dspot
 mvn compile
 ```
 
-3) Run the tests
+3) DSpot use the environnment variable MAVEN_HOME, ensure that this variable points to your maven installation. Example:
+```
+export MAVEN_HOME=path/to/maven/
+```
+
+4) Run the tests
 ```
 mvn test
 ```
 
-4) Create the jar (eg `target/dspot-1.0.0-jar-with-dependencies.jar`)
+5) Create the jar (eg `target/dspot-1.0.0-jar-with-dependencies.jar`)
 ```
 mvn package
 # check that this is successful
 ls target/dspot-*-jar-with-dependencies.jar
-java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main path/To/my.properties
+java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main -p path/To/my.properties
 ```
 
 ### Command Line Usage
@@ -64,7 +69,8 @@ Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
     
       [(-t|--test) my.package.MyClassTest1:my.package.MyClassTest2:...:my.package.MyClassTestN ]
             [optional] fully qualified names of test classes to be amplified. If the
-            value is all, DSpot will amplify the whole test suite. (default: all)
+            value is all, DSpot will amplify the whole test suite. You can also use
+            regex to describe a set of test classes. (default: all)
     
       [(-o|--output-path) <output>]
             [optional] specify the output folder (default: dspot-report)
@@ -80,6 +86,8 @@ Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
       [(-v|--timeOut) <long integer>]
             specify the timeout value of the degenerated tests in millisecond
             (default: 10000)
+            
+      [--verbose]
     
       [-e|--example]
             run the example of DSpot and leave
@@ -148,11 +156,26 @@ DSpot produces 3 outputs in the <outputDirectory> (default: `output_diversify`) 
 You can run DSpot on your own project by running `fr.inria.stamp.Main` and specifying the path to the properties file as first argument:
 
 ```
-java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main path/To/my.properties
-
+java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties path/To/my.properties
 # or in maven
-mvn exec:java -Dexec.mainClass="fr.inria.stamp.Main" -Dexec.args="<pathToPropertiesFile>"
+mvn exec:java -Dexec.mainClass="fr.inria.stamp.Main" -Dexec.args="--path-to-properties <pathToPropertiesFile>"
 ```
+
+Amplify a specific test class
+```
+java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties path/To/my.properties --test my.package.TestClass
+```
+Amplify specific test classes according to a regex
+```
+java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties path/To/my.properties --test my.package.*
+java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties path/To/my.properties --test my.package.Example*
+```
+
+Amplify a specific test method from a specific test class
+```
+java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties path/To/my.properties --test my.package.TestClass --cases testMethod
+```
+
 
 ### API
 

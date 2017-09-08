@@ -63,10 +63,10 @@ public class TestMethodCallRemover implements Amplifier {
 
     private CtMethod apply(CtMethod method, int invocation_index) {
         //clone the method
-        CtMethod cloned_method = AmplificationHelper.cloneMethodTest(method, "_remove");
+        CtMethod<?> cloned_method = AmplificationHelper.cloneMethodTest(method, "_remove");
 
         //get the lit_indexth literal of the cloned method
-        CtInvocation stmt = Query.getElements(cloned_method, new TypeFilter<CtInvocation>(CtInvocation.class)).get(invocation_index);
+        CtInvocation stmt = Query.getElements(cloned_method, new TypeFilter<>(CtInvocation.class)).get(invocation_index);
         CtBlock b = ((CtBlock) stmt.getParent());
         DSpotUtils.addComment(b, "removed " + stmt.toString() + " at line " + stmt.getPosition().getLine(), CtComment.CommentType.INLINE);
         b.removeStatement(stmt);

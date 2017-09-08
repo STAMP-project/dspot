@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -192,7 +193,10 @@ public class Amplification {
 
 	private List<CtMethod<?>> amplifyTest(CtMethod test) {
 		return amplifiers.stream()
-				.flatMap(amplifier -> amplifier.apply(test).stream())
+				.flatMap(amplifier -> amplifier.apply(test).stream()).
+						map(CtMethod::getBody)
+				.distinct()
+				.map(body -> body.getParent(CtMethod.class))
 				.map(amplifiedTest ->
 						AmplificationHelper.addOriginInComment(amplifiedTest, AmplificationHelper.getTopParent(test))
 				).collect(Collectors.toList());

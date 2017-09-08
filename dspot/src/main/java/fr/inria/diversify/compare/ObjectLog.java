@@ -4,6 +4,10 @@ package fr.inria.diversify.compare;
 import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
 /**
  * User: Simon
@@ -11,82 +15,80 @@ import java.util.Map;
  * Time: 14:31
  */
 public class ObjectLog {
-    private static ObjectLog singleton;
-    private Map<String, Observation> observations;
-    private MethodsHandler methodsHandler;
-    private Invocator invocator;
-    private int maxDeep = 4;
+	private static ObjectLog singleton;
+	private Map<String, Observation> observations;
+	private MethodsHandler methodsHandler;
+	private int maxDeep = 4;
 
-    private ObjectLog() {
-        this.observations = new HashMap<>();
-        this.methodsHandler = new MethodsHandler();
-        this.invocator = new Invocator(1);
-    }
+	private ObjectLog() {
+		this.observations = new HashMap<>();
+		this.methodsHandler = new MethodsHandler();
+	}
 
-    private static ObjectLog getSingleton() {
-        if (singleton == null) {
-            singleton = new ObjectLog();
-        }
-        return singleton;
-    }
+	private static ObjectLog getSingleton() {
+		if (singleton == null) {
+			singleton = new ObjectLog();
+		}
+		return singleton;
+	}
 
-    public static void reset() {
-        singleton = new ObjectLog();
-    }
+	public static void reset() {
+		singleton = new ObjectLog();
+	}
 
-    public static void log(Object object, String stringObject, String positionId) {
-        getSingleton().pLog(object, stringObject, positionId, 0);
-    }
+	public static void log(Object object, String stringObject, String positionId) {
+		getSingleton()._log(object, stringObject, positionId, 0);
+	}
 
-    private void pLog(Object object, String stringObject, String positionId, int deep) {
-        if (deep < maxDeep) {
-            if (object == null) {
-                addObservation(positionId, stringObject, null);
-            } else if (Utils.isPrimitive(object)) {
-                addObservation(positionId, stringObject, object);
-            } else if (Utils.isPrimitiveArray(object)) {
-                addObservation(positionId, stringObject, object);
-            } else if (Utils.isPrimitiveCollectionOrMap(object)) {
-                addObservation(positionId, stringObject, object);
-            } else {
-                observeNotNullObject(object, stringObject, positionId, deep);
-            }
-        }
-    }
+	private void _log(Object object, String stringObject, String positionId, int deep) {
+		if (deep < maxDeep) {
+			if (object == null) {
+				addObservation(positionId, stringObject, null);
+			} else if (Utils.isPrimitive(object)) {
+				addObservation(positionId, stringObject, object);
+			} else if (Utils.isPrimitiveArray(object)) {
+				addObservation(positionId, stringObject, object);
+			} else if (Utils.isPrimitiveCollectionOrMap(object)) {
+				addObservation(positionId, stringObject, object);
+			} else {
+				observeNotNullObject(object, stringObject, positionId, deep);
+			}
+		}
+	}
 
-    private void addObservation(String positionId, String stringObject, Object value) {
-        if (!observations.containsKey(positionId)) {
-            observations.put(positionId, new Observation());
-        }
-        observations.get(positionId).add(stringObject, value);
-    }
+	private void addObservation(String positionId, String stringObject, Object value) {
+		if (!observations.containsKey(positionId)) {
+			observations.put(positionId, new Observation());
+		}
+		observations.get(positionId).add(stringObject, value);
+	}
 
-    private void observeNotNullObject(Object o, String stringObject, String positionId, int deep) {
-        if (deep < maxDeep) {
-            for (Method method : methodsHandler.getAllMethods(o)) {
-                Invocation invocation = new Invocation(o, method);
-                invocator.invoke(invocation);
-                final Object result = invocation.getResult();
-                if (!isAClientCode(result) && invocation.getError() == null) {
-                    String castType = o.getClass().getCanonicalName();
-                    pLog(result, "((" + castType + ")"
-                            + stringObject + ")." + method.getName() + "()", positionId, deep + 1);
-                }
-            }
-        }
-    }
+	private void observeNotNullObject(Object o, String stringObject, String positionId, int deep) {
+		if (deep < maxDeep) {
+			ExecutorService executor = Executors.newSingleThreadExecutor();
+			FutureTask task = null;
+			try {
+				for (Method method : methodsHandler.getAllMethods(o)) {
+					task = new FutureTask<>(() -> method.invoke(o));
+					executor.execute(task);
+					final Object result = task.get(1, TimeUnit.SECONDS);
+					String castType = o.getClass().getCanonicalName();
+					_log(result, "((" + castType + ")"
+							+ stringObject + ")." + method.getName() + "()", positionId, deep + 1);
+				}
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			} finally {
+				if (task != null) {
+					task.cancel(true);
+				}
+				executor.shutdown();
+			}
+		}
+	}
 
-    //TODO checks this assertion...
-    @Deprecated
-    private boolean isAClientCode(Object result) {
-        return result != null &&
-                result.getClass().getProtectionDomain() != null &&
-                result.getClass().getProtectionDomain().getCodeSource() != null &&
-                result.getClass().getProtectionDomain().getCodeSource().getLocation() != null;
-    }
-
-    public static Map<String, Observation> getObservations() {
-        return singleton.observations;
-    }
+	public static Map<String, Observation> getObservations() {
+		return singleton.observations;
+	}
 
 }
