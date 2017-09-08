@@ -244,7 +244,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
     private String getPitTaskConfiguration() {
         return NEW_LINE + NEW_LINE + "buildscript {" + NEW_LINE +
                 "    repositories {" + NEW_LINE +
-                "        mavenLocal()" + NEW_LINE +
+                (descartesMode ? "        mavenLocal()" : "") + NEW_LINE +
                 "        maven {\n" +
                 "            url \"https://plugins.gradle.org/m2/\"" + NEW_LINE +
                 "        }" + NEW_LINE +
@@ -255,7 +255,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
                 NEW_LINE +
                 "    dependencies {" + NEW_LINE +
                 "       classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.1.11'" + NEW_LINE +
-                "       pitest 'fr.inria.stamp:descartes:0.1-SNAPSHOT'" + NEW_LINE +
+                (descartesMode ? "       pitest 'fr.inria.stamp:descartes:0.1-SNAPSHOT'" : "") + NEW_LINE +
                 "    }" + NEW_LINE +
                 "}" + NEW_LINE +
                 NEW_LINE +
