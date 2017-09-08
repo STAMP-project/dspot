@@ -129,16 +129,16 @@ public class DSpotUtils {
 			} else {
 				if(!setMavenHome(envVariable -> System.getenv().get(envVariable) != null,
 						envVariable -> System.getenv().get(envVariable),
-						"MAVEN_HOME", "M2_HOME")) {
+						"MAVEN_HOME", "M2_HOME")) {//TODO asking if predefined values are useful or not
 					if (!setMavenHome(path -> new File(path).exists(),
 							Function.identity(),
 							"/usr/share/maven/", "/usr/local/maven-3.3.9/", "/usr/share/maven3/")) {
-						throw new RuntimeException("Maven home not found");
+						throw new RuntimeException("Maven home not found, please set properly MAVEN_HOME or M2_HOME.");
 					}
 				}
 			}
 		}
-		Log.info("maven home find at {}", mavenHome);
+		Log.info("maven home found at {}", mavenHome);
 		return mavenHome;
 	}
 
