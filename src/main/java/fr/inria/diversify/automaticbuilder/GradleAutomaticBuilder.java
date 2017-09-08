@@ -4,7 +4,6 @@ import java.io.*;
 
 import java.nio.file.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 import java.util.regex.Matcher;
@@ -263,10 +262,6 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
                 "apply plugin: 'info.solidsoft.pitest'" + NEW_LINE;
     }
 
-    private String getPitTaskOptions() {
-        return getPitTaskOptions(null);
-    }
-
     private String getPitTaskOptions(CtType<?> testClass) {
         return  NEW_LINE + NEW_LINE + "pitest {" + NEW_LINE +
                 "    " + OPT_TARGET_CLASSES + "['" + configuration.getProperty("filter") + "']" + NEW_LINE +
@@ -290,7 +285,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
 
 
     private String getDescartesMutators() {
-        return "mutators = [" + configuration.getProperty("descartesMutators") + "]";
+        return "mutators = " + configuration.getProperty("descartesMutators");
     }
 
 }
