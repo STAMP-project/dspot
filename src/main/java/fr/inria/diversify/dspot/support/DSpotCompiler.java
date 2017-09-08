@@ -108,7 +108,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 	public static boolean compile(String pathToSources, String dependencies, File binaryOutputDirectory) {
 		Launcher launcher = new Launcher();
 		if (Main.verbose) {
-			launcher.getEnvironment().setLevel("ALL");
+			launcher.getEnvironment().setLevel("DEBUG");
 		}
 		launcher.getEnvironment().setNoClasspath(false);
 		launcher.getEnvironment().setCommentEnabled(true);
