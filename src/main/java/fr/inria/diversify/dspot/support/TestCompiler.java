@@ -27,14 +27,12 @@ import static org.codehaus.plexus.util.FileUtils.forceDelete;
  */
 public class TestCompiler {
 
-	public static TestListener compileAndRun(CtType<?> testClass, boolean withLog,
-											 DSpotCompiler compiler, List<CtMethod<?>> testsToRun,
+	public static TestListener compileAndRun(CtType<?> testClass, DSpotCompiler compiler, List<CtMethod<?>> testsToRun,
 											 InputConfiguration configuration) {
 		final InputProgram inputProgram = configuration.getInputProgram();
 		final String dependencies = inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + System.getProperty("path.separator") +
 				inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir();
-		final List<CtMethod<?>> uncompilableMethods = TestCompiler.compile(compiler, testClass,
-				withLog, dependencies);
+		final List<CtMethod<?>> uncompilableMethods = TestCompiler.compile(compiler, testClass, dependencies);
 		if (uncompilableMethods.contains(TestCompiler.METHOD_CODE_RETURN)) {
 			return null;
 		} else {
@@ -50,7 +48,7 @@ public class TestCompiler {
 
 	@Deprecated // TODO must be reimplemented
 	public static List<CtMethod<?>> compile(DSpotCompiler compiler, CtType<?> originalClassTest,
-											boolean withLogger, String dependencies) {
+											String dependencies) {
 		CtType<?> classTest = originalClassTest.clone();
 		originalClassTest.getPackage().addType(classTest);
 		printAndDelete(compiler, classTest);
@@ -96,7 +94,7 @@ public class TestCompiler {
 				);
 
 				methods.forEach(classTest::removeMethod);
-				methods.addAll(compile(compiler, classTest, withLogger, dependencies));
+				methods.addAll(compile(compiler, classTest, dependencies));
 				return new ArrayList<>(methods);
 			} catch (Exception e) {
 				return Collections.singletonList(METHOD_CODE_RETURN);

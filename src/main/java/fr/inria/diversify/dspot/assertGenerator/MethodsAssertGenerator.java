@@ -51,8 +51,11 @@ public class MethodsAssertGenerator {
 
     public List<CtMethod<?>> generateAsserts(CtType testClass, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
         Log.info("Run tests. ({})", tests.size());
-        final TestListener result = TestCompiler.compileAndRun(testClass, false,
-                this.compiler, tests, this.configuration);
+        final TestListener result = TestCompiler.compileAndRun(testClass,
+                this.compiler,
+                tests,
+                this.configuration
+        );
         if (result == null) {
             return Collections.emptyList();
         } else {
@@ -131,8 +134,11 @@ public class MethodsAssertGenerator {
         ));
         ObjectLog.reset();
         Log.info("Run instrumented tests. ({})", testToRuns.size());
-        final TestListener result = TestCompiler.compileAndRun(clone, true,
-                this.compiler, testToRuns, this.configuration);
+        final TestListener result = TestCompiler.compileAndRun(clone,
+                this.compiler,
+                testToRuns,
+                this.configuration
+        );
         if (result == null || !result.getFailingTests().isEmpty()) {
             return Collections.emptyList();
         } else {
