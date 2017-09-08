@@ -8,6 +8,7 @@ import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
 import fr.inria.diversify.dspot.selector.PitMutantScoreSelector;
 import fr.inria.diversify.dspot.selector.TakeAllSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
+import fr.inria.diversify.mutant.pit.GradlePitTaskAndOptions;
 import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.util.Log;
 
@@ -104,6 +105,9 @@ public class JSAPOptions {
 
 		MavenPitCommandAndOptions.descartesMode = jsapConfig.getBoolean("descartes");
 		MavenPitCommandAndOptions.evosuiteMode = jsapConfig.getBoolean("evosuite");
+
+		GradlePitTaskAndOptions.descartesMode = jsapConfig.getBoolean("descartes");
+		GradlePitTaskAndOptions.evosuiteMode = jsapConfig.getBoolean("evosuite");
 
 		return new Configuration(jsapConfig.getString("path"),
 				buildAmplifiersFromString(jsapConfig.getStringArray("amplifiers")),
