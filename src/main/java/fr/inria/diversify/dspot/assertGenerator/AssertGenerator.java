@@ -9,6 +9,7 @@ import fr.inria.diversify.utils.AmplificationHelper;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.IOException;
@@ -50,9 +51,13 @@ public class AssertGenerator {
                 if (clone instanceof CtStatement) {
                     ctInvocation.insertBefore((CtStatement) clone);
                 } else if (! (clone instanceof CtLiteral)) {
+                    CtTypeReference typeOfParameter = clone.getType();
+                    if (clone.getType().equals(test.getFactory().Type().NULL_TYPE)) {
+                        typeOfParameter = test.getFactory().Type().createReference(Object.class);
+                    }
                     ctInvocation.insertBefore(test.getFactory().createLocalVariable(
-                            clone.getType(),
-                            clone.getType().getSimpleName() + "_" + counter[0]++,
+                            typeOfParameter,
+                            typeOfParameter.getSimpleName() + "_" + counter[0]++,
                             clone
                     ));
                 }
