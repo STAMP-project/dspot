@@ -22,26 +22,34 @@ import java.util.stream.Collectors;
  * benjamin.danglot@inria.fr
  * on 09/08/17
  */
-public class RegressionSelector extends TakeAllSelector {
+public class ChangeDetectorSelector extends TakeAllSelector {
 
 	private String pathToChangedVersionOfProgram;
 
-	public RegressionSelector(String configurationPath, String pathToFolder) throws IOException, InterruptedException {
-		InputConfiguration inputConfiguration = new InputConfiguration(configurationPath);
-		InitUtils.initLogLevel(inputConfiguration);
-		InputProgram inputProgram = InitUtils.initInputProgram(inputConfiguration);
-		inputConfiguration.setInputProgram(inputProgram);
-		inputProgram.setProgramDir(pathToFolder);
-		String dependencies = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration)
-				.buildClasspath(inputProgram.getProgramDir());
-		File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
+	@Override
+	public void init(InputConfiguration configuration) {
+		super.init(configuration);
+		final String configurationPath = configuration.getProperty("configPath");
+		final String pathToFolder = configuration.getProperty("folderPath");
+		InputConfiguration inputConfiguration = null;
 		try {
-			FileUtils.cleanDirectory(output);
-		} catch (IllegalArgumentException ignored) {
-			//the target directory does not exist, do not need to clean it
+			inputConfiguration = new InputConfiguration(configurationPath);
+			InputProgram inputProgram = InitUtils.initInputProgram(inputConfiguration);
+			inputConfiguration.setInputProgram(inputProgram);
+			inputProgram.setProgramDir(pathToFolder);
+			String dependencies = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration)
+					.buildClasspath(inputProgram.getProgramDir());
+			File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
+			try {
+				FileUtils.cleanDirectory(output);
+			} catch (IllegalArgumentException ignored) {
+				//the target directory does not exist, do not need to clean it
+			}
+			DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
+			this.pathToChangedVersionOfProgram = inputProgram.getProgramDir();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
-		DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
-		this.pathToChangedVersionOfProgram = inputProgram.getProgramDir();
 	}
 
 	@Override
@@ -72,9 +80,13 @@ public class RegressionSelector extends TakeAllSelector {
 					.stream()
 					.filter(ctMethod -> failingTestName.contains(ctMethod.getSimpleName()))
 					.forEach(this.selectedAmplifiedTest::add);
-			System.out.println(this.selectedAmplifiedTest);
-			throw new RuntimeException();
 		}
 		return amplifiedTestToBeKept;
+	}
+
+	@Override
+	public void report() {
+		System.out.println("======= REPORT =======");
+		System.out.println(this.selectedAmplifiedTest.size() + " amplified test fails on the new versions.");
 	}
 }

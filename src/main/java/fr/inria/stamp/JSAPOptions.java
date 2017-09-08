@@ -3,6 +3,7 @@ package fr.inria.stamp;
 import com.martiansoftware.jsap.*;
 import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
+import fr.inria.diversify.dspot.selector.ChangeDetectorSelector;
 import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
 import fr.inria.diversify.dspot.selector.PitMutantScoreSelector;
 import fr.inria.diversify.dspot.selector.TakeAllSelector;
@@ -48,8 +49,13 @@ public class JSAPOptions {
 			public TestSelector buildSelector() {
 				return new TakeAllSelector();
 			}
+		},
+		ChangeDetectorSelector {
+			@Override
+			public TestSelector buildSelector() {
+				return new ChangeDetectorSelector();
+			}
 		};
-
 		public abstract TestSelector buildSelector();
 	}
 
