@@ -1,6 +1,5 @@
 package fr.inria.diversify.automaticbuilder;
 
-import fr.inria.diversify.buildSystem.maven.MavenInvoker;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.diversify.runner.InputConfiguration;
@@ -8,7 +7,10 @@ import fr.inria.diversify.util.Log;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.Main;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
+import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
+import org.apache.maven.shared.invoker.Invoker;
+import org.apache.maven.shared.invoker.MavenInvocationException;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.reference.CtTypeReference;
@@ -150,14 +152,15 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 		}
 	}
 
-	protected void runGoals(String pathToRootOfProject, String... goals) {
+	private void runGoals(String pathToRootOfProject, String... goals) {
 		InvocationRequest request = new DefaultInvocationRequest();
 		request.setGoals(Arrays.asList(goals));
 		request.setPomFile(new File(pathToRootOfProject + FILE_SEPARATOR + POM_FILE));
 		request.setJavaHome(new File(System.getProperty("java.home")));
-		MavenInvoker invoker = new MavenInvoker();
+
+		Invoker invoker = new DefaultInvoker();
 		invoker.setMavenHome(new File(this.mavenHome));
-		Log.debug("run maven {}", Arrays.stream(goals).collect(Collectors.joining(" ")));
+		Log.info("run maven {}", Arrays.stream(goals).collect(Collectors.joining(" ")));
 		if (Main.verbose) {
 			invoker.setOutputHandler(System.out::println);
 			invoker.setErrorHandler(System.err::println);
@@ -167,7 +170,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 		}
 		try {
 			invoker.execute(request);
-		} catch (Exception e) {
+		} catch (MavenInvocationException e) {
 			throw new RuntimeException(e);
 		}
 	}

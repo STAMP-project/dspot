@@ -9,6 +9,9 @@ cache:
   directories:
     - $HOME/.m2
 
+install:
+  - export MAVEN_HOME=/usr/local/maven-3.5.0
+
 script:
   - mvn clean install
 

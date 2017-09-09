@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
  * benjamin.danglot@inriAVa.fr
  * on 1/5/17
  */
+@Deprecated
 public abstract class MavenAbstractTest {
 
     public final String pathToPropertiesFile = getPathToPropertiesFile();
