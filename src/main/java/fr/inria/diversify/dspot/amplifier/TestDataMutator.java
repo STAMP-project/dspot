@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 /* This processor is meant to replace all literal values in test cases by other literal values
  * */
+@Deprecated //TODO this amplifier should be replaced by multiple amplifiers, one for each type
 public class TestDataMutator implements Amplifier {
 
 
