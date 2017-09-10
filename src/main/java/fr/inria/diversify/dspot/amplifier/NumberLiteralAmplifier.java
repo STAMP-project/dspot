@@ -40,7 +40,7 @@ public class NumberLiteralAmplifier implements Amplifier {
                 ).collect(Collectors.toList());
     }
 
-    private Set<CtLiteral<Number>> amplify(CtLiteral literal) {
+    private Set<CtLiteral<Number>> amplify(CtLiteral<?> literal) {
         Set<CtLiteral<Number>> values = new HashSet<>();
         Double value = ((Number) literal.getValue()).doubleValue();
 
@@ -48,37 +48,44 @@ public class NumberLiteralAmplifier implements Amplifier {
 //        values.add(literal.getFactory().createLiteral(value / 2));
 //        values.add(literal.getFactory().createLiteral(value * 2));
 
-        if (literal.getValue().getClass() == Byte.class || literal.getValue().getClass() == byte.class) {
-            values.add(literal.getFactory().createLiteral(value.byteValue() + 1));
-            values.add(literal.getFactory().createLiteral(value.byteValue() - 1));
+        Class<?> classOfLiteral;
+        if (! literal.getTypeCasts().isEmpty()){
+            classOfLiteral = literal.getTypeCasts().get(0).getActualClass();
+        } else {
+            classOfLiteral = literal.getType().getActualClass();
+        }
+
+        if (classOfLiteral == Byte.class || classOfLiteral == byte.class) {
+            values.add(literal.getFactory().createLiteral((byte)(value.byteValue() + 1)));
+            values.add(literal.getFactory().createLiteral((byte)(value.byteValue() - 1)));
             values.add(literal.getFactory().createLiteral(Byte.MAX_VALUE));
             values.add(literal.getFactory().createLiteral(Byte.MIN_VALUE));
             values.add(literal.getFactory().createLiteral((byte)0));
         }
-        if (literal.getValue().getClass() == Short.class || literal.getValue().getClass() == short.class) {
-            values.add(literal.getFactory().createLiteral(value.shortValue() + 1));
-            values.add(literal.getFactory().createLiteral(value.shortValue() - 1));
+        if (classOfLiteral == Short.class || classOfLiteral == short.class) {
+            values.add(literal.getFactory().createLiteral((short)(value.shortValue() + 1)));
+            values.add(literal.getFactory().createLiteral((short)(value.shortValue() - 1)));
             values.add(literal.getFactory().createLiteral(Short.MAX_VALUE));
             values.add(literal.getFactory().createLiteral(Short.MIN_VALUE));
             values.add(literal.getFactory().createLiteral((short)0));
         }
-        if (literal.getValue().getClass() == Integer.class || literal.getValue().getClass() == int.class) {
+        if (classOfLiteral == Integer.class || classOfLiteral == int.class) {
             values.add(literal.getFactory().createLiteral(value.intValue() + 1));
             values.add(literal.getFactory().createLiteral(value.intValue() - 1));
             values.add(literal.getFactory().createLiteral(Integer.MAX_VALUE));
             values.add(literal.getFactory().createLiteral(Integer.MIN_VALUE));
             values.add(literal.getFactory().createLiteral(0));
         }
-        if (literal.getValue().getClass() == Long.class || literal.getValue().getClass() == long.class) {
-            values.add(literal.getFactory().createLiteral(value.longValue() + 1));
-            values.add(literal.getFactory().createLiteral(value.longValue() - 1));
+        if (classOfLiteral == Long.class || classOfLiteral == long.class) {
+            values.add(literal.getFactory().createLiteral((long)(value.longValue() + 1)));
+            values.add(literal.getFactory().createLiteral((long)(value.longValue() - 1)));
             values.add(literal.getFactory().createLiteral(Long.MAX_VALUE));
             values.add(literal.getFactory().createLiteral(Long.MIN_VALUE));
             values.add(literal.getFactory().createLiteral(0L));
         }
-        if (literal.getValue().getClass() == Float.class || literal.getValue().getClass() == float.class) {
-            values.add(literal.getFactory().createLiteral(value.floatValue() + 1));
-            values.add(literal.getFactory().createLiteral(value.floatValue() - 1));
+        if (classOfLiteral == Float.class || classOfLiteral == float.class) {
+            values.add(literal.getFactory().createLiteral(value.floatValue() + 1.0F));
+            values.add(literal.getFactory().createLiteral(value.floatValue() - 1.0F));
             values.add(literal.getFactory().createLiteral(Float.NaN));
             values.add(literal.getFactory().createLiteral(Float.POSITIVE_INFINITY));
             values.add(literal.getFactory().createLiteral(Float.NEGATIVE_INFINITY));
@@ -87,9 +94,9 @@ public class NumberLiteralAmplifier implements Amplifier {
             values.add(literal.getFactory().createLiteral(Float.MIN_VALUE));
             values.add(literal.getFactory().createLiteral(0.0F));
         }
-        if (literal.getValue().getClass() == Double.class || literal.getValue().getClass() == double.class) {
-            values.add(literal.getFactory().createLiteral(value + 1));
-            values.add(literal.getFactory().createLiteral(value - 1));
+        if (classOfLiteral == Double.class || classOfLiteral == double.class) {
+            values.add(literal.getFactory().createLiteral(value + 1.0D));
+            values.add(literal.getFactory().createLiteral(value - 1.0D));
             values.add(literal.getFactory().createLiteral(Double.NaN));
             values.add(literal.getFactory().createLiteral(Double.POSITIVE_INFINITY));
             values.add(literal.getFactory().createLiteral(Double.NEGATIVE_INFINITY));
