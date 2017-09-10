@@ -210,7 +210,6 @@ public class Amplification {
 		CtType amplifiedTestClass = this.testSelector.buildClassForSelection(classTest, currentTestList);
 		final TestListener result = TestCompiler.compileAndRun(
 				amplifiedTestClass,
-				false,
 				this.compiler,
 				currentTestList,
 				this.configuration
