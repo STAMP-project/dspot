@@ -4,7 +4,6 @@ import java.io.*;
 
 import java.nio.file.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 import java.util.regex.Matcher;
@@ -245,7 +244,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
     private String getPitTaskConfiguration() {
         return NEW_LINE + NEW_LINE + "buildscript {" + NEW_LINE +
                 "    repositories {" + NEW_LINE +
-                "        //mavenLocal()" + NEW_LINE +
+                (descartesMode ? "        mavenLocal()" : "") + NEW_LINE +
                 "        maven {\n" +
                 "            url \"https://plugins.gradle.org/m2/\"" + NEW_LINE +
                 "        }" + NEW_LINE +
@@ -256,15 +255,11 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
                 NEW_LINE +
                 "    dependencies {" + NEW_LINE +
                 "       classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.1.11'" + NEW_LINE +
-                "       //pitest 'fr.inria.stamp:descartes:0.2-SNAPSHOT'" + NEW_LINE +
+                (descartesMode ? "       pitest 'fr.inria.stamp:descartes:0.1-SNAPSHOT'" : "") + NEW_LINE +
                 "    }" + NEW_LINE +
                 "}" + NEW_LINE +
                 NEW_LINE +
                 "apply plugin: 'info.solidsoft.pitest'" + NEW_LINE;
-    }
-
-    private String getPitTaskOptions() {
-        return getPitTaskOptions(null);
     }
 
     private String getPitTaskOptions(CtType<?> testClass) {
@@ -280,7 +275,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
                 (testClass != null ? "    " + OPT_TARGET_TESTS + "['" + ctTypeToFullQualifiedName(testClass) + "']": "") + NEW_LINE +
                 (configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
                         "    " + OPT_ADDITIONAL_CP_ELEMENTS + "['" + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) + "']":"") + NEW_LINE +
-                (descartesMode ? "    " + OPT_MUTATION_ENGINE :
+                (descartesMode ? "    " + OPT_MUTATION_ENGINE + NEW_LINE + "    " + getDescartesMutators() :
                         "    " + OPT_MUTATORS + (evosuiteMode ?
                                 VALUE_MUTATORS_EVOSUITE : VALUE_MUTATORS_ALL)) + NEW_LINE +
                 (configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) != null ?
@@ -289,5 +284,8 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
     }
 
 
+    private String getDescartesMutators() {
+        return "mutators = " + configuration.getProperty("descartesMutators");
+    }
 
 }
