@@ -60,6 +60,7 @@ public class JSAPOptions {
 	}
 
 	enum AmplifierEnum {
+		NumberLiteralAmplifier(new NumberLiteralAmplifier()),
 		MethodAdd(new TestMethodCallAdder()),
 		MethodRemove(new TestMethodCallRemover()),
 		StatementAdderOnAssert(new StatementAdderOnAssert()),
@@ -170,7 +171,7 @@ public class JSAPOptions {
 		amplifiers.setShortFlag('a');
 		amplifiers.setStringParser(JSAP.STRING_PARSER);
 		amplifiers.setUsageName("Amplifier");
-		amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. Possible values: MethodAdd|MethodRemove|StatementAdderOnAssert|TestDataMutator|StatementAdd");
+		amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. Possible values: NumberLiteralAmplifier|MethodAdd|MethodRemove|StatementAdderOnAssert|TestDataMutator|StatementAdd");
 
 		FlaggedOption iteration = new FlaggedOption("iteration");
 		iteration.setDefault("3");
@@ -185,7 +186,7 @@ public class JSAPOptions {
 		selector.setLongFlag("test-criterion");
 		selector.setShortFlag('s');
 		selector.setStringParser(JSAP.STRING_PARSER);
-		selector.setUsageName("PitMutantScoreSelector | BranchCoverageTestSelector | JacocoCoverageSelector | TakeAllSelector");
+		selector.setUsageName("PitMutantScoreSelector | BranchCoverageTestSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector");
 		selector.setHelp("[optional] specify the test adequacy criterion to be maximized with amplification");
 		selector.setDefault("PitMutantScoreSelector");
 
