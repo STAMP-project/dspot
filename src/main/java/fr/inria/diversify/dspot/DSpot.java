@@ -103,10 +103,6 @@ public class DSpot {
         this.inputConfiguration = inputConfiguration;
         this.inputProgram = inputConfiguration.getInputProgram();
 
-        //Ugly way to support usage of resources with relative path
-        copyResourcesOfTargetProjectIntoDspot("testResources");
-        copyResourcesOfTargetProjectIntoDspot("srcResources");
-
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
         String dependencies = builder.buildClasspath(this.inputProgram.getProgramDir());
 
@@ -126,39 +122,6 @@ public class DSpot {
         } else {
             this.projectTimeJSON = new ProjectTimeJSON(splittedPath[splittedPath.length - 1]);
         }
-    }
-
-
-	@Deprecated
-	private void copyResourcesOfTargetProjectIntoDspot(String key) {
-        final String resources = inputConfiguration.getProperty(key);
-        if (resources != null) {
-            String[] pathFiles = resources.split(System.getProperty("path.separator"));
-            Arrays.stream(pathFiles).forEach(this::copyResourceOfTargetProjectIntoDspot);
-        }
-    }
-
-	@Deprecated
-    private void copyResourceOfTargetProjectIntoDspot(String path) {
-        try {
-            final File resourcesDirectory = new File(inputProgram.getProgramDir() + "/" + path);
-            final File[] resources = resourcesDirectory.listFiles();
-            if (resources != null) {
-                this.testResources.addAll(Arrays.stream(resources)
-                        .map(this::relativePathFromListFile)
-                        .collect(Collectors.toList()));
-                FileUtils.copyDirectory(resourcesDirectory,
-                        new File(path));
-            }
-        } catch (FileAlreadyExistsException ignored) {
-            //ignored
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String relativePathFromListFile(File f) {
-        return f.getPath().substring((inputProgram.getProgramDir() + "/").length(), f.getPath().length());
     }
 
     public void addAmplifier(Amplifier amplifier) {
