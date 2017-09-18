@@ -2,9 +2,7 @@ package fr.inria.stamp.test.launcher;
 
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.util.Log;
 import fr.inria.stamp.test.listener.TestListener;
-import fr.inria.stamp.test.runner.DefaultTestRunner;
 import fr.inria.stamp.test.runner.DefaultTestRunner;
 import org.junit.runner.notification.RunListener;
 import spoon.reflect.declaration.CtMethod;

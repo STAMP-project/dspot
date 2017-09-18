@@ -5,6 +5,7 @@ import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.utils.DSpotUtils;
 
 import java.io.File;
 import java.util.Collections;
@@ -54,7 +55,7 @@ public class Main {
                 if (!configuration.namesOfTestCases.isEmpty()) {
                     amplifyOne(dspot, testCase, configuration.namesOfTestCases);
                 } else {
-                    amplifyOne(dspot, testCase, Collections.EMPTY_LIST);
+                    amplifyOne(dspot, testCase, Collections.emptyList());
                 }
             });
         }
