@@ -6,6 +6,7 @@ import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.diversify.runner.InputConfiguration;
+import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.Main;
@@ -127,7 +128,9 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 				return null;
 			}
 			File fileResults = new File(directoryReportPit.getPath() + "/mutations.csv");
-			return PitResultParser.parse(fileResults);
+			final List<PitResult> parse = PitResultParser.parse(fileResults);
+			FileUtils.deleteDirectory(directoryReportPit);
+			return parse;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -175,7 +178,9 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 				throw new RuntimeException("Maven build failed! Enable verbose mode for more information (--verbose)");
 			}
 			File directoryReportPit = new File(pathToRootOfProject + "/target/pit-reports").listFiles()[0];
-			return PitResultParser.parse(new File(directoryReportPit.getPath() + "/mutations.csv"));
+			final List<PitResult> parse = PitResultParser.parse(new File(directoryReportPit.getPath() + "/mutations.csv"));
+			FileUtils.deleteDirectory(directoryReportPit);
+			return parse;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
