@@ -8,6 +8,7 @@ import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.utils.DSpotUtils;
+import fr.inria.diversify.utils.Initializer;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
@@ -41,11 +42,6 @@ public class Utils {
 	public static void reset() {
 		currentInputConfigurationLoaded = null;
 		AutomaticBuilderFactory.reset();
-		try {
-			FileUtils.forceDelete(new File("tmpDir"));
-		} catch (IOException ignored) {
-			//ignored
-		}
 	}
 
 	public static void init(String pathToConfFile) {
@@ -54,42 +50,17 @@ public class Utils {
 		}
 		try {
 			AutomaticBuilderFactory.reset();
+			if (! new File("target/dspot/dependencies/compare").exists()) {
+				DSpotUtils.copyPackageFromResources("fr/inria/diversify/compare/",
+						"MethodsHandler", "ObjectLog", "Observation", "Utils");
+			}
 			currentInputConfigurationLoaded = pathToConfFile;
 			inputConfiguration = new InputConfiguration(pathToConfFile);
-			inputProgram = InitUtils.initInputProgram(inputConfiguration);
-			InitUtils.initLogLevel(inputConfiguration);
-			inputConfiguration.setInputProgram(inputProgram);
-			File tmpDir = new File(inputConfiguration.getProperty("tmpDir"));
-			if (!tmpDir.exists()) {
-				tmpDir.mkdir();
-			} else {
-				try {
-					FileUtils.cleanDirectory(tmpDir);
-				} catch (Exception ignored) {
-					// ignored
-				}
-			}
-			FileUtils.copyDirectory(new File(inputProgram.getProgramDir()), new File(inputConfiguration.getProperty("tmpDir") + "/tmp"));
-			final String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp/" +
-					(inputConfiguration.getProperty("targetModule") == null ? "" : inputConfiguration.getProperty("targetModule"));
-			inputProgram.setProgramDir(outputDirectory);
+			Initializer.initialize(inputConfiguration, false);
+			inputProgram = inputConfiguration.getInputProgram();
 			AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 			String dependencies = builder.buildClasspath(inputProgram.getProgramDir());
-			File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
-			File outputTest = new File(inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir());
-			try {
-				FileUtils.cleanDirectory(output);
-				FileUtils.cleanDirectory(outputTest);
-			} catch (IllegalArgumentException ignored) {
-				//the target directory does not exist, do not need to clean it
-			}
-
-			DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
-			DSpotCompiler.compile(inputProgram.getAbsoluteTestSourceCodeDir(),
-					output.getAbsolutePath() + System.getProperty("path.separator") + dependencies, outputTest);
 			compiler = new DSpotCompiler(inputProgram, dependencies);
-			DSpotUtils.copyPackageFromResources(inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir(),
-					"fr/inria/diversify/compare", "MethodsHandler", "ObjectLog", "Observation", "Utils");
 			inputProgram.setFactory(compiler.getLauncher().getFactory());
 		} catch (Exception e) {
 			throw new RuntimeException(e);

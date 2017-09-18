@@ -24,6 +24,7 @@ import fr.inria.diversify.util.Log;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
+import fr.inria.diversify.utils.Initializer;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -97,83 +98,26 @@ public class DSpot {
 	}
 
     public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws InvalidSdkException, Exception {
+		Initializer.initialize(inputConfiguration, testSelector instanceof BranchCoverageTestSelector);
         this.testResources = new ArrayList<>();
         this.inputConfiguration = inputConfiguration;
-        InitUtils.initLogLevel(inputConfiguration);
-        inputProgram = InitUtils.initInputProgram(inputConfiguration);
-        inputConfiguration.setInputProgram(inputProgram);
-        final String[] splittedPath = inputProgram.getProgramDir().split("/");
-
-        File tmpDir = new File(inputConfiguration.getProperty("tmpDir"));
-        if (!tmpDir.exists()) {
-            tmpDir.mkdir();
-        } else {
-            FileUtils.cleanDirectory(tmpDir);
-        }
-
-		org.apache.commons.io.FileUtils.copyDirectory(
-				new File(inputProgram.getProgramDir()),
-				new File(inputConfiguration.getProperty("tmpDir") + "/tmp")
-		);
+        this.inputProgram = inputConfiguration.getInputProgram();
 
         //Ugly way to support usage of resources with relative path
         copyResourcesOfTargetProjectIntoDspot("testResources");
         copyResourcesOfTargetProjectIntoDspot("srcResources");
-        //copyParentPomIfExist(outputDirectory);
-        final String outputDirectory = inputConfiguration.getProperty("tmpDir") + "/tmp/" +
-                (inputConfiguration.getProperty("targetModule") == null ? "" : inputConfiguration.getProperty("targetModule"));
-        inputProgram.setProgramDir(outputDirectory);
-
-        if (MavenPitCommandAndOptions.descartesMode &&
-                DescartesChecker.shouldInjectDescartes(inputProgram.getProgramDir() + "/pom.xml")) {
-            DescartesInjector.injectDescartesIntoPom(inputProgram.getProgramDir() + "/pom.xml");
-        }
 
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
-
         String dependencies = builder.buildClasspath(this.inputProgram.getProgramDir());
-        File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
-        File outputTest = new File(inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir());
-        try {
-            FileUtils.cleanDirectory(output);
-            FileUtils.cleanDirectory(outputTest);
-        } catch (IllegalArgumentException ignored) {
-            //the target directory does not exist, do not need to clean it
-		}
-		boolean status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
-        boolean statusTest = DSpotCompiler.compile(inputProgram.getAbsoluteTestSourceCodeDir(),
-                output.getAbsolutePath() + System.getProperty("path.separator") + dependencies, outputTest);
-
-        if (! (status && statusTest)) {
-            throw new RuntimeException("Error during compilation");
-        }
-        //We need to use separate factory here, because the BranchProcessor will process test also
-        //TODO this is used only with the BranchCoverageSelector
-        if (testSelector instanceof BranchCoverageTestSelector) {
-            Launcher spoonModel = DSpotCompiler.getSpoonModelOf(inputProgram.getAbsoluteSourceCodeDir(), dependencies);
-            DSpotUtils.addBranchLogger(inputProgram, spoonModel.getFactory());
-			FileUtils.cleanDirectory(output);
-            DSpotUtils.copyPackageFromResources(this.inputProgram.getProgramDir() + "/" + this.inputProgram.getClassesDir(),
-					"fr/inria/diversify/logger", "ClassObserver",
-					"KeyWord", "Logger", "LogWriter", "PathBuilder", "Pool", "ShutdownHookLog");
-			ProcessorUtil.writeInfoFile(inputProgram.getProgramDir());
-			dependencies += PATH_SEPARATOR + output;
-            status = DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
-            statusTest = DSpotCompiler.compile(inputProgram.getAbsoluteTestSourceCodeDir(),
-                    output.getAbsolutePath() + System.getProperty("path.separator") + dependencies, outputTest);
-            if (! (status && statusTest)) {
-                throw new RuntimeException("Error during compilation");
-            }
-        }
 
         this.compiler = new DSpotCompiler(inputProgram, dependencies);
-		DSpotUtils.copyPackageFromResources(this.inputProgram.getProgramDir() + "/" + this.inputProgram.getTestClassesDir(),
-				"fr/inria/diversify/compare", "MethodsHandler", "ObjectLog", "Observation", "Utils");
         this.inputProgram.setFactory(compiler.getLauncher().getFactory());
         this.amplifiers = new ArrayList<>(amplifiers);
         this.numberOfIterations = numberOfIterations;
         this.testSelector = testSelector;
         this.testSelector.init(this.inputConfiguration);
+
+		final String[] splittedPath = inputProgram.getProgramDir().split("/");
         final File projectJsonFile = new File(this.inputConfiguration.getOutputDirectory() +
                 "/" + splittedPath[splittedPath.length - 1] + ".json");
         if (projectJsonFile.exists()) {
@@ -185,7 +129,7 @@ public class DSpot {
     }
 
 
-
+	@Deprecated
 	private void copyResourcesOfTargetProjectIntoDspot(String key) {
         final String resources = inputConfiguration.getProperty(key);
         if (resources != null) {
@@ -194,6 +138,7 @@ public class DSpot {
         }
     }
 
+	@Deprecated
     private void copyResourceOfTargetProjectIntoDspot(String path) {
         try {
             final File resourcesDirectory = new File(inputProgram.getProgramDir() + "/" + path);
@@ -294,11 +239,11 @@ public class DSpot {
         }
     }
 
-
     public InputProgram getInputProgram() {
         return inputProgram;
     }
 
+    @Deprecated
     public void cleanResources() {
         if (this.testResources != null) {
             this.testResources.stream()
