@@ -205,20 +205,4 @@ public class DSpot {
     public InputProgram getInputProgram() {
         return inputProgram;
     }
-
-    @Deprecated
-    public void cleanResources() {
-        if (this.testResources != null) {
-            this.testResources.stream()
-                    .map(File::new)
-                    .filter(File::exists)
-                    .forEach(file -> {
-                        try {
-                            FileUtils.forceDelete(file);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-        }
-    }
 }

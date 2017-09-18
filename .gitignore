@@ -4,22 +4,11 @@ src/test/resources/aResource
 src/test/resources/aResourcesDirectory/
 src/test/resources/test-projects/.gradle/
 src/test/resources/test-projects/gjp_cp
-src/test/resources/test-projects/cp
-src/test/resources/regression/test-projects_1/cp
 src/test/resources/test-projects/test-projects.properties
 src/test/resources/test-projects/sample.properties
-src/test/resources/descartes/cp
-src/test/resources/mockito/cp
 src/test/resources/mockito/log/
-src/test/resources/multiple-pom/cp
-src/test/resources/multiple-pom/module-1/cp
-src/test/resources/multiple-pom/module-1/module-2-1/cp
-src/test/resources/multiple-pom/module-1/module-2-2/cp
-src/test/resources/regression/test-projects_0/cp
-src/test/resources/sample/cp
 src/test/resources/sample/log/
 src/test/resources/test-projects/log/
-src/test/resources/mock/cp
 src/test/resources/multiple-pom/log/
 
 

@@ -57,8 +57,10 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
 
         AmplificationHelper.setSeedRandom(23L);
         InputConfiguration configuration = new InputConfiguration(pathToPropertiesFile);
-        DSpot dspot = new DSpot(configuration, 1, Collections.singletonList(new TestDataMutator()),
+        DSpot dspot = new DSpot(configuration, 1, Collections.emptyList(),
                 new PitMutantScoreSelector("src/test/resources/test-projects/originalpit/mutations.csv"));//loading from existing pit-results
+
+        dspot.addAmplifier(new TestDataMutator());
 
         final CtClass<Object> exampleOriginalTestClass = dspot.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
         CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample", Collections.singletonList("test2"));

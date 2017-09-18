@@ -36,7 +36,8 @@ public class DSpotAndResourcesTest {
 		Utils.reset();
 	}
 
-	//TODO since we do not copy anymore the project, resources is already in the client project, we do not need to copy them anymore
+
+	//TODO we must implement a generic way to support resources, depending on where we launch dspot.
 	@Test
 	@Ignore
 	public void test() throws Exception, InvalidSdkException {
@@ -59,8 +60,6 @@ public class DSpotAndResourcesTest {
 		assertTrue(result.getFailingTests().isEmpty());
 		assertEquals(1, result.getRunningTests().size());
 		assertEquals("testResources", result.getRunningTests().get(0).getMethodName());
-
-		dSpot.cleanResources();
 
 		assertFalse(new File("src/test/resources/aResourcesDirectory/anotherResource").exists());
 		assertFalse(new File("./src/test/resources/aResourcesDirectory/anotherResource").exists());
