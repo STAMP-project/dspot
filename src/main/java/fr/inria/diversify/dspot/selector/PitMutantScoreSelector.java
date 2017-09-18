@@ -89,6 +89,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
         try {
+            //TODO We should not print and compile but just compile it from Spoon
             PrintClassUtils.printJavaFile(new File(this.program.getAbsoluteTestSourceCodeDir()), clone);
         } catch (IOException e) {
             throw new RuntimeException(e);
