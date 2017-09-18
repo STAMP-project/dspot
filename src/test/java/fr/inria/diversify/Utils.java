@@ -25,6 +25,8 @@ import java.util.Set;
  */
 public class Utils {
 
+	private static AutomaticBuilder builder;
+
 	private static InputProgram inputProgram;
 	private static InputConfiguration inputConfiguration;
 	private static DSpotCompiler compiler;
@@ -37,6 +39,10 @@ public class Utils {
 
 	public static InputConfiguration getInputConfiguration() {
 		return inputConfiguration;
+	}
+
+	public static AutomaticBuilder getBuilder() {
+		return builder;
 	}
 
 	public static void reset() {
@@ -58,7 +64,7 @@ public class Utils {
 			inputConfiguration = new InputConfiguration(pathToConfFile);
 			Initializer.initialize(inputConfiguration, false);
 			inputProgram = inputConfiguration.getInputProgram();
-			AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
+			builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 			String dependencies = builder.buildClasspath(inputProgram.getProgramDir());
 			compiler = new DSpotCompiler(inputProgram, dependencies);
 			inputProgram.setFactory(compiler.getLauncher().getFactory());

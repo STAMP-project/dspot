@@ -131,22 +131,6 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		return modelBuilder.compile(SpoonModelBuilder.InputType.CTTYPES);
 	}
 
-	protected void report(Environment environment, CategorizedProblem problem) {
-		File file = new File(new String(problem.getOriginatingFileName()));
-		String filename = file.getAbsolutePath();
-
-		String message = problem.getMessage() + " at " + filename + ":"
-				+ problem.getSourceLineNumber();
-
-		if (problem.isError()) {
-			if (!environment.getNoClasspath()) {
-				// by default, compilation errors are notified as exception
-				throw new ModelBuildingException(message);
-			}
-		}
-
-	}
-
 	private Launcher launcher;
 
 	private File binaryOutputDirectory;
