@@ -40,8 +40,6 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
 	private static final String FILE_SEPARATOR = "/";
 
-	private static final String NAME_FILE_CLASSPATH = "cp";
-
 	private static final String POM_FILE = "pom.xml";
 
 	MavenAutomaticBuilder(@Deprecated InputConfiguration configuration) {
@@ -67,9 +65,9 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 	@Override
 	public String buildClasspath(String pathToRootOfProject) {
 		try {
-			final File classpathFile = new File(pathToRootOfProject + FILE_SEPARATOR + NAME_FILE_CLASSPATH);
+			final File classpathFile = new File(pathToRootOfProject + "/target/dspot/classpath");
 			if (!classpathFile.exists()) {
-				this.runGoals(pathToRootOfProject, "dependency:build-classpath", "-Dmdep.outputFile=" + NAME_FILE_CLASSPATH);
+				this.runGoals(pathToRootOfProject, "dependency:build-classpath", "-Dmdep.outputFile=" + "target/dspot/classpath");
 			}
 			try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
 				return buffer.lines().collect(Collectors.joining());
@@ -131,7 +129,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 			File fileResults = new File(directoryReportPit.getPath() + "/mutations.csv");
 			return PitResultParser.parse(fileResults);
 		} catch (Exception e) {
-			return null;
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -173,7 +171,9 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 							OPT_EXCLUDED_CLASSES + configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) :
 							""//
 			};
-			this.runGoals(pathToRootOfProject, phases);
+			if (this.runGoals(pathToRootOfProject, phases) != 0) {
+				throw new RuntimeException("Maven build failed! Enable verbose mode for more information (--verbose)");
+			}
 			File directoryReportPit = new File(pathToRootOfProject + "/target/pit-reports").listFiles()[0];
 			return PitResultParser.parse(new File(directoryReportPit.getPath() + "/mutations.csv"));
 		} catch (Exception e) {
