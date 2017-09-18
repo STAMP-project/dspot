@@ -105,6 +105,7 @@
                             <directory>src/test/resources/</directory>
                             <includes>
                                 <include>descartes/target/</include>
+                                <include>mock/target/</include>
                                 <include>mockito/target/</include>
                                 <include>multiple-pom/target/</include>
                                 <include>multiple-pom/module-1/module-2-1/target/</include>
