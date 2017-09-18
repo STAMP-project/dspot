@@ -10,6 +10,7 @@ import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.utils.AmplificationHelper;
+import fr.inria.diversify.utils.DSpotUtils;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -60,7 +61,6 @@ public class DSpotTest extends MavenAbstractTest {
         assertEquals(1, projectTimeJSON.classTimes.size());
         assertEquals("example.TestSuiteExample", projectTimeJSON.classTimes.get(0).fullQualifiedName);
         // do not test the time...
-
     }
 
     private final String expectedAmplifiedBody = "{" + nl +

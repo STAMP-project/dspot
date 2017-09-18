@@ -22,7 +22,7 @@ public class DescartesTest {
 
     @Test
     public void testInjectionOfDescartesIfNeeded() throws Exception {
-        final String pathname = "target/trash/pom.xml";
+        final String pathname = "target/dspot/trash/pom.xml";
         try {
             FileUtils.copyFile(new File("src/test/resources/test-projects/pom.xml"), new File(pathname));
         } catch (Exception ignored) {
@@ -36,7 +36,7 @@ public class DescartesTest {
             final String pomAsStr = buffer.lines().collect(Collectors.joining(nl));
             assertEquals(expectedPom, pomAsStr);
         } catch (IOException e) {
-            fail("should not throw");
+            fail("should not throw the exception " + e.toString());
         }
         FileUtils.forceDelete(new File(pathname));
     }

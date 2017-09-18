@@ -105,15 +105,4 @@ public class PitTest extends MavenAbstractTest {
 
         assertEquals(3, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.NO_COVERAGE).count());
     }
-
-    @Test
-    public void testFailPit() throws Exception, InvalidSdkException {
-
-        /*
-            Run the PitRunner in wrong configuration.
-         */
-        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(new InputConfiguration(getPathToPropertiesFile()));
-        List<PitResult> pitResults = builder.runPit(null, null);
-        assertNull(pitResults);
-    }
 }

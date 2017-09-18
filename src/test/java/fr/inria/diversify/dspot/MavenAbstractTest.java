@@ -17,13 +17,14 @@ import java.util.stream.Collectors;
  * benjamin.danglot@inriAVa.fr
  * on 1/5/17
  */
-@Deprecated
+@Deprecated // TODO must be merge with AbstractTest
 public abstract class MavenAbstractTest {
 
     public final String pathToPropertiesFile = getPathToPropertiesFile();
 
     public static final String nl = System.getProperty("line.separator");
 
+    @Deprecated
     private static String originalProperties;
 
     @Before
@@ -31,9 +32,15 @@ public abstract class MavenAbstractTest {
         AutomaticBuilderFactory.reset();
     }
 
+    @After
+    public void tearDown() throws Exception {
+        AutomaticBuilderFactory.reset();
+    }
+
     public abstract String getPathToPropertiesFile();
 
     // hack to add maven.home to the properties automatically for travis. For local, the test will clean
+    @Deprecated
     protected void addMavenHomeToPropertiesFile() {
         try (BufferedReader buffer = new BufferedReader(new FileReader(getPathToPropertiesFile()))) {
             originalProperties = buffer.lines().collect(Collectors.joining(nl));
@@ -50,6 +57,7 @@ public abstract class MavenAbstractTest {
         }
     }
 
+    @Deprecated
     protected void removeHomFromPropertiesFile() {
         try(FileWriter writer = new FileWriter(pathToPropertiesFile, false)) {
             writer.write(originalProperties);

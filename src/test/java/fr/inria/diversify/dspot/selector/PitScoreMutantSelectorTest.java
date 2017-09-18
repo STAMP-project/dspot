@@ -5,6 +5,7 @@ import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.automaticbuilder.MavenAutomaticBuilder;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.amplifier.StatementAdd;
+import fr.inria.diversify.dspot.amplifier.TestDataMutator;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.MavenAbstractTest;
@@ -15,6 +16,8 @@ import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.PrintClassUtils;
+import fr.inria.stamp.Main;
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtType;
@@ -41,6 +44,8 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
     public void testSelection() throws Exception, InvalidSdkException {
         AmplificationHelper.setSeedRandom(23L);
 
+        Main.verbose = true;
+
         MavenPitCommandAndOptions.evosuiteMode = false;
         MavenPitCommandAndOptions.descartesMode = false;
 
@@ -55,7 +60,7 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
         InputConfiguration configuration = new InputConfiguration(pathToPropertiesFile);
         InputProgram program = new InputProgram();
         configuration.setInputProgram(program);
-        DSpot dspot = new DSpot(configuration, 1, Collections.singletonList(new StatementAdd()),
+        DSpot dspot = new DSpot(configuration, 1, Collections.singletonList(new TestDataMutator()),
                 new PitMutantScoreSelector("src/test/resources/test-projects/originalpit/mutations.csv"));//loading from existing pit-results
 
         final CtClass<Object> exampleOriginalTestClass = dspot.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
@@ -74,7 +79,7 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
         assertTrue(pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count() <
                 pitResultsAmplified.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count());
 
-        PrintClassUtils.printJavaFile(directory, exampleOriginalTestClass);
+        FileUtils.forceDelete(new File(directory + "/" + amplifiedTest.getQualifiedName().replaceAll("\\.", "/") + ".java"));
     }
 
 }

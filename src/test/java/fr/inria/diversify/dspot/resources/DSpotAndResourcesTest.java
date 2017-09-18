@@ -7,7 +7,9 @@ import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.stamp.test.launcher.TestLauncher;
 import fr.inria.stamp.test.listener.TestListener;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 
@@ -29,7 +31,14 @@ public class DSpotAndResourcesTest {
 		Utils.reset();
 	}
 
+	@After
+	public void tearDown() throws Exception {
+		Utils.reset();
+	}
+
+	//TODO since we do not copy anymore the project, resources is already in the client project, we do not need to copy them anymore
 	@Test
+	@Ignore
 	public void test() throws Exception, InvalidSdkException {
 		final InputConfiguration inputConfiguration = new InputConfiguration("src/test/resources/sample/sample.properties");
 		final DSpot dSpot = new DSpot(inputConfiguration);

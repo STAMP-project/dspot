@@ -1,6 +1,9 @@
 package fr.inria.diversify.automaticbuilder;
 
 import fr.inria.diversify.Utils;
+import fr.inria.diversify.runner.InputConfiguration;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 
@@ -14,17 +17,15 @@ import static org.junit.Assert.fail;
  */
 public class MavenAutomaticBuilderTest {
 
+    @Before
+    public void setUp() throws Exception {
+        Utils.reset();
+        Utils.init("src/test/resources/test-projects/test-projects.properties");
+    }
 
-
-    @Test
-    public void testWrongMaven() throws Exception {
-        MavenAutomaticBuilder mavenAutomaticBuilder = new MavenAutomaticBuilder(Utils.getInputConfiguration());
-        try {
-            mavenAutomaticBuilder.buildClasspath("target/");
-            fail("should have thrown FileNotFoundException");
-        } catch (Exception expected) {
-            //ignored
-        }
+    @After
+    public void tearDown() throws Exception {
+        Utils.reset();
     }
 
     @Test

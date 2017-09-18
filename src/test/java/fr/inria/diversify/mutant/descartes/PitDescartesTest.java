@@ -16,6 +16,7 @@ import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
@@ -35,56 +36,31 @@ import static org.junit.Assert.*;
  */
 public class PitDescartesTest {
 
-    private static final String nl = System.getProperty("line.separator");
-
-    @Before
-    public void setUp() throws Exception {
-        Utils.reset();
-        AutomaticBuilderFactory.reset();
-    }
-
     //TODO The generation is not deterministic
     @Test
     public void testPitDescartesMode() throws Exception, InvalidSdkException {
         assertFalse(MavenPitCommandAndOptions.descartesMode);
-        FileUtils.deleteDirectory(new File("target/trash"));
-
+        FileUtils.deleteDirectory(new File("target/dspot/trash"));
         AmplificationHelper.setSeedRandom(23L);
         MavenPitCommandAndOptions.descartesMode = true;
         InputConfiguration configuration = new InputConfiguration("src/test/resources/descartes/descartes.properties");
         DSpot dspot = new DSpot(configuration, 1,
                 Collections.singletonList(new StatementAdd()),
                 new PitMutantScoreSelector("src/test/resources/descartes/mutations.csv"));
-
         final CtClass<Object> originalTestClass = dspot.getInputProgram().getFactory().Class().get("fr.inria.stamp.mutationtest.test.TestCalculator");
         assertEquals(2, originalTestClass.getMethods().size());
 
         final CtType ctType = dspot.amplifyTest("fr.inria.stamp.mutationtest.test.TestCalculator",
                 Collections.singletonList("Integraltypestest"));
-//        assertEquals(4, ctType.getMethods().size());
-
-        System.out.println(ctType);
-
-        //TODO this is not deterministic
-//        final CtMethod<?> integraltypestest_cf1237 = (CtMethod<?>) ctType.getMethodsByName("Integraltypestest_sd12").get(0);
-//        assertEquals(expectedBody, integraltypestest_cf1237.getBody().toString());
-
+        assertTrue(originalTestClass.getMethods().size() < ctType.getMethods().size());
         FileUtils.cleanDirectory(new File(configuration.getOutputDirectory()));
-
         assertTrue(MavenPitCommandAndOptions.descartesMode);
+        MavenPitCommandAndOptions.descartesMode = false;
     }
 
-    private static final String expectedBody = "{\n" +
-            "    final fr.inria.stamp.mutationtest.test.Calculator calculator = new fr.inria.stamp.mutationtest.test.Calculator();\n" +
-            "    // AssertGenerator create local variable with return value of invocation\n" +
-            "    boolean o_Integraltypestest_sd12__3 = calculator.isOdd();\n" +
-            "    // AssertGenerator add assertion\n" +
-            "    org.junit.Assert.assertTrue(o_Integraltypestest_sd12__3);\n" +
-            "    org.junit.Assert.assertEquals(((byte) (0)), calculator.getByte());\n" +
-            "    org.junit.Assert.assertEquals(((short) (0)), calculator.getShort());\n" +
-            "    org.junit.Assert.assertEquals(0, calculator.getCeiling());\n" +
-            "    org.junit.Assert.assertEquals(0L, calculator.getSquare());\n" +
-            "    org.junit.Assert.assertEquals(0, calculator.getLastOperatorSymbol());\n" +
-            "}";
+    @After
+    public void tearDown() throws Exception {
+        AutomaticBuilderFactory.reset();
+    }
 }
 
