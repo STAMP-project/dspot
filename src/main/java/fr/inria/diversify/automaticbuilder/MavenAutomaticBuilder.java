@@ -1,5 +1,8 @@
 package fr.inria.diversify.automaticbuilder;
 
+import fr.inria.diversify.mutant.descartes.DescartesChecker;
+import fr.inria.diversify.mutant.descartes.DescartesInjector;
+import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.diversify.runner.InputConfiguration;
@@ -31,6 +34,8 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
 	private InputConfiguration configuration;
 
+	private String backUpPom;
+
 	private String mavenHome;
 
 	private static final String FILE_SEPARATOR = "/";
@@ -42,6 +47,16 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 	MavenAutomaticBuilder(@Deprecated InputConfiguration configuration) {
 		this.mavenHome = DSpotUtils.buildMavenHome(configuration);
 		this.configuration = configuration;
+		final String pathToPomFile = configuration.getInputProgram().getProgramDir() + FILE_SEPARATOR + POM_FILE;
+		try (final BufferedReader bufferedReader = new BufferedReader(new FileReader(pathToPomFile))) {
+			this.backUpPom = bufferedReader.lines().collect(Collectors.joining(System.getProperty("line.separator")));
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		if (MavenPitCommandAndOptions.descartesMode &&
+				DescartesChecker.shouldInjectDescartes(pathToPomFile)) {
+			DescartesInjector.injectDescartesIntoPom(pathToPomFile);
+		}
 	}
 
 	@Override
@@ -65,6 +80,18 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 	}
 
 	@Override
+	public void reset() {
+		final String pathToPomFile = configuration.getInputProgram().getProgramDir() + FILE_SEPARATOR + POM_FILE;
+		try {
+			final FileWriter writer = new FileWriter(pathToPomFile, false);
+			writer.write(this.backUpPom);
+			writer.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
 	public List<PitResult> runPit(String pathToRootOfProject, CtType<?> testClass) {
 		try {
 			String[] phases = new String[]{PRE_GOAL_PIT, //
@@ -76,9 +103,9 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 					OPT_VALUE_TIMEOUT, //
 					OPT_VALUE_MEMORY, //
 					OPT_TARGET_TESTS + ctTypeToFullQualifiedName(testClass), //
-					configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
-							OPT_ADDITIONAL_CP_ELEMENTS + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) :
-							"", //
+					OPT_ADDITIONAL_CP_ELEMENTS + "target/dspot/dependencies/" +
+							(configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
+							configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) : "") , //
 					descartesMode ? OPT_MUTATION_ENGINE :
 							OPT_MUTATORS + (evosuiteMode ?
 									Arrays.stream(VALUE_MUTATORS_EVOSUITE).collect(Collectors.joining(","))
@@ -87,7 +114,9 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 							OPT_EXCLUDED_CLASSES + configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) :
 							""//
 			};
-			this.runGoals(pathToRootOfProject, phases);
+			if (this.runGoals(pathToRootOfProject, phases) != 0) {
+				throw new RuntimeException("Maven build failed! Enable verbose mode for more information (--verbose)");
+			}
 			if (!new File(pathToRootOfProject + "/target/pit-reports").exists()) {
 				return null;
 			}
@@ -137,9 +166,9 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 					descartesMode ? OPT_MUTATION_ENGINE : OPT_MUTATORS + (evosuiteMode ?
 							Arrays.stream(VALUE_MUTATORS_EVOSUITE).collect(Collectors.joining(","))
 							: VALUE_MUTATORS_ALL), //
-					configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
-							OPT_ADDITIONAL_CP_ELEMENTS + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) :
-							"", //
+					OPT_ADDITIONAL_CP_ELEMENTS + "target/dspot/dependencies/" +
+							(configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
+									configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) : "") , //
 					configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) != null ?
 							OPT_EXCLUDED_CLASSES + configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) :
 							""//
@@ -152,7 +181,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 		}
 	}
 
-	private void runGoals(String pathToRootOfProject, String... goals) {
+	private int runGoals(String pathToRootOfProject, String... goals) {
 		InvocationRequest request = new DefaultInvocationRequest();
 		request.setGoals(Arrays.asList(goals));
 		request.setPomFile(new File(pathToRootOfProject + FILE_SEPARATOR + POM_FILE));
@@ -169,7 +198,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 			invoker.setErrorHandler(null);
 		}
 		try {
-			invoker.execute(request);
+			return invoker.execute(request).getExitCode();
 		} catch (MavenInvocationException e) {
 			throw new RuntimeException(e);
 		}

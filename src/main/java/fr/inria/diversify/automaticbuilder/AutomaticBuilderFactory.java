@@ -15,7 +15,10 @@ public class AutomaticBuilderFactory {
 	private static AutomaticBuilder automaticBuilder = null;
 
 	public static void reset() {
-		AutomaticBuilderFactory.automaticBuilder = null;
+		if (AutomaticBuilderFactory.automaticBuilder != null) {
+			AutomaticBuilderFactory.automaticBuilder.reset();
+			AutomaticBuilderFactory.automaticBuilder = null;
+		}
 	}
 
 	public static AutomaticBuilder getAutomaticBuilder(InputConfiguration configuration) {
