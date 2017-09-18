@@ -5,6 +5,7 @@ import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.MavenAbstractTest;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
+import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
@@ -13,6 +14,7 @@ import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.PrintClassUtils;
+import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.Main;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -55,8 +57,6 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
 
         AmplificationHelper.setSeedRandom(23L);
         InputConfiguration configuration = new InputConfiguration(pathToPropertiesFile);
-        InputProgram program = new InputProgram();
-        configuration.setInputProgram(program);
         DSpot dspot = new DSpot(configuration, 1, Collections.singletonList(new TestDataMutator()),
                 new PitMutantScoreSelector("src/test/resources/test-projects/originalpit/mutations.csv"));//loading from existing pit-results
 
@@ -65,8 +65,16 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
 
         assertTrue(amplifiedTest.getMethods().size() > exampleOriginalTestClass.getMethods().size());
 
-        File directory = new File(dspot.getInputProgram().getProgramDir() + "/" + dspot.getInputProgram().getRelativeTestSourceCodeDir());
-        PrintClassUtils.printJavaFile(directory, amplifiedTest);
+        DSpotUtils.printJavaFileWithComment(amplifiedTest, new File(DSpotCompiler.pathToTmpTestSources));
+        final String classpath = AutomaticBuilderFactory
+                .getAutomaticBuilder(configuration)
+                .buildClasspath(dspot.getInputProgram().getProgramDir())
+                + AmplificationHelper.PATH_SEPARATOR +
+                dspot.getInputProgram().getProgramDir() + "/" + dspot.getInputProgram().getClassesDir()
+                + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
+
+        DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
+                new File(dspot.getInputProgram().getProgramDir() + "/" + dspot.getInputProgram().getTestClassesDir()));
 
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(configuration);
         List<PitResult> pitResultsAmplified = builder.runPit(configuration.getInputProgram().getProgramDir(),
@@ -75,8 +83,6 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
         assertTrue(null != pitResultsAmplified);
         assertTrue(pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count() <
                 pitResultsAmplified.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count());
-
-        FileUtils.forceDelete(new File(directory + "/" + amplifiedTest.getQualifiedName().replaceAll("\\.", "/") + ".java"));
     }
 
 }

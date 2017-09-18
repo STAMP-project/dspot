@@ -11,7 +11,7 @@ public class MavenPitCommandAndOptions {
 
     public static boolean evosuiteMode = false;
 
-    public static final String PRE_GOAL_PIT = "clean test -DskipTests"; // TODO those pre-goals are necessary while we do not know how to compile with spoon
+    public static final String PRE_GOAL_PIT = ""; // TODO those pre-goals are necessary while we do not know how to compile with spoon
 
     public static final String OPT_WITH_HISTORY = "-DwithHistory";
 

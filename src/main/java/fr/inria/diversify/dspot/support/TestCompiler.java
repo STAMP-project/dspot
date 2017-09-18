@@ -49,7 +49,6 @@ public class TestCompiler {
 		}
 	}
 
-	@Deprecated // TODO must be reimplemented
 	public static List<CtMethod<?>> compile(DSpotCompiler compiler, CtType<?> originalClassTest,
 											String dependencies) {
 		CtType<?> classTest = originalClassTest.clone();
