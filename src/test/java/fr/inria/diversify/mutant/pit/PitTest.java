@@ -46,7 +46,14 @@ public class PitTest extends MavenAbstractTest {
 
         assertTrue(null != pitResults);
 
-        //assertEquals(8, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
+        long nbErrors = pitResults.stream()
+                .filter(pitResult ->
+                        pitResult.getStateOfMutant() == PitResult.State.MEMORY_ERROR ||
+                                pitResult.getStateOfMutant() == PitResult.State.NON_VIABLE||
+                                pitResult.getStateOfMutant() == PitResult.State.TIMED_OUT
+                ).count();
+
+        assertEquals(8, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count(), nbErrors);
         Optional<PitResult> OptResult = pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).findFirst();
         assertTrue(OptResult.isPresent());
         PitResult result = OptResult.get();
@@ -55,7 +62,7 @@ public class PitTest extends MavenAbstractTest {
         assertEquals(27, result.getLineNumber());
         assertEquals("<init>", result.getLocation());
 
-        //assertEquals(8, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count());
+        assertEquals(8, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count(), nbErrors);
         OptResult = pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).findFirst();
         assertTrue(OptResult.isPresent());
         result = OptResult.get();
@@ -64,9 +71,7 @@ public class PitTest extends MavenAbstractTest {
         assertEquals(18, result.getLineNumber());
         assertEquals("charAt", result.getLocation());
 
-        assertEquals(2, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.NO_COVERAGE).count());
-
-        //todo should verify generated mutant
+        assertEquals(2, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.NO_COVERAGE).count(), nbErrors);
     }
 
     @Test
@@ -85,7 +90,15 @@ public class PitTest extends MavenAbstractTest {
         List<PitResult> pitResults = builder.runPit(Utils.getInputProgram().getProgramDir(), testClass);
 
         assertTrue(null != pitResults);
-        assertEquals(9, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
+
+        long nbErrors = pitResults.stream()
+                .filter(pitResult ->
+                        pitResult.getStateOfMutant() == PitResult.State.MEMORY_ERROR ||
+                                pitResult.getStateOfMutant() == PitResult.State.NON_VIABLE||
+                                pitResult.getStateOfMutant() == PitResult.State.TIMED_OUT
+                ).count();
+
+        assertEquals(9, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count(), nbErrors);
         Optional<PitResult> OptResult = pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).findFirst();
         assertTrue(OptResult.isPresent());
         PitResult result = OptResult.get();
@@ -94,7 +107,7 @@ public class PitTest extends MavenAbstractTest {
         assertEquals(27, result.getLineNumber());
         assertEquals("<init>", result.getLocation());
 
-        assertEquals(13, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count());
+        assertEquals(13, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count(), nbErrors);
         OptResult = pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).findFirst();
         assertTrue(OptResult.isPresent());
         result = OptResult.get();
@@ -103,17 +116,6 @@ public class PitTest extends MavenAbstractTest {
         assertEquals(18, result.getLineNumber());
         assertEquals("charAt", result.getLocation());
 
-        assertEquals(3, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.NO_COVERAGE).count());
-    }
-
-    @Test
-    public void testFailPit() throws Exception, InvalidSdkException {
-
-        /*
-            Run the PitRunner in wrong configuration.
-         */
-        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(new InputConfiguration(getPathToPropertiesFile()));
-        List<PitResult> pitResults = builder.runPit(null, null);
-        assertNull(pitResults);
+        assertEquals(3, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.NO_COVERAGE).count(), nbErrors);
     }
 }

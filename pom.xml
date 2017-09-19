@@ -86,8 +86,6 @@
             <version>2.8.47</version>
         </dependency>
 
-
-
     </dependencies>
 
     <build>
@@ -105,12 +103,15 @@
                             <directory>src/test/resources/</directory>
                             <includes>
                                 <include>descartes/target/</include>
+                                <include>mock/target/</include>
                                 <include>mockito/target/</include>
                                 <include>multiple-pom/target/</include>
                                 <include>multiple-pom/module-1/module-2-1/target/</include>
                                 <include>multiple-pom/module-1/module-2-2/target/</include>
                                 <include>sample/target/</include>
                                 <include>test-projects/target/</include>
+                                <include>regression/test-projects_0/target/</include>
+                                <include>regression/test-projects_1/target/</include>
                             </includes>
                             <followSymlinks>false</followSymlinks>
                         </fileset>

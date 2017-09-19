@@ -1,6 +1,8 @@
 package fr.inria.stamp.coverage;
 
 import fr.inria.diversify.Utils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 
@@ -12,6 +14,16 @@ import static org.junit.Assert.assertEquals;
  * on 13/07/17
  */
 public class TestJacocoExecutor {
+
+	@Before
+	public void setUp() throws Exception {
+		Utils.reset();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		Utils.reset();
+	}
 
 	@Test
 	public void testJacocoExecutorOnMocks() throws Exception {

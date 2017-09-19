@@ -4,10 +4,14 @@ src/test/resources/aResource
 src/test/resources/aResourcesDirectory/
 src/test/resources/test-projects/.gradle/
 src/test/resources/test-projects/gjp_cp
-src/test/resources/test-projects/cp
-src/test/resources/regression/test-projects_1/cp
 src/test/resources/test-projects/test-projects.properties
 src/test/resources/test-projects/sample.properties
+src/test/resources/mockito/log/
+src/test/resources/sample/log/
+src/test/resources/test-projects/log/
+src/test/resources/multiple-pom/log/
+
+
 
 target/
 pom.xml.tag

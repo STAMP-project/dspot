@@ -1,8 +1,12 @@
 package fr.inria.diversify.automaticbuilder;
 
+import fr.inria.diversify.mutant.descartes.DescartesChecker;
+import fr.inria.diversify.mutant.descartes.DescartesInjector;
+import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.diversify.runner.InputConfiguration;
+import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.Main;
@@ -31,17 +35,27 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
 	private InputConfiguration configuration;
 
+	private String backUpPom;
+
 	private String mavenHome;
 
 	private static final String FILE_SEPARATOR = "/";
-
-	private static final String NAME_FILE_CLASSPATH = "cp";
 
 	private static final String POM_FILE = "pom.xml";
 
 	MavenAutomaticBuilder(@Deprecated InputConfiguration configuration) {
 		this.mavenHome = DSpotUtils.buildMavenHome(configuration);
 		this.configuration = configuration;
+		final String pathToPomFile = configuration.getInputProgram().getProgramDir() + FILE_SEPARATOR + POM_FILE;
+		try (final BufferedReader bufferedReader = new BufferedReader(new FileReader(pathToPomFile))) {
+			this.backUpPom = bufferedReader.lines().collect(Collectors.joining(System.getProperty("line.separator")));
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		if (MavenPitCommandAndOptions.descartesMode &&
+				DescartesChecker.shouldInjectDescartes(pathToPomFile)) {
+			DescartesInjector.injectDescartesIntoPom(pathToPomFile);
+		}
 	}
 
 	@Override
@@ -52,14 +66,26 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 	@Override
 	public String buildClasspath(String pathToRootOfProject) {
 		try {
-			final File classpathFile = new File(pathToRootOfProject + FILE_SEPARATOR + NAME_FILE_CLASSPATH);
+			final File classpathFile = new File(pathToRootOfProject + "/target/dspot/classpath");
 			if (!classpathFile.exists()) {
-				this.runGoals(pathToRootOfProject, "dependency:build-classpath", "-Dmdep.outputFile=" + NAME_FILE_CLASSPATH);
+				this.runGoals(pathToRootOfProject, "dependency:build-classpath", "-Dmdep.outputFile=" + "target/dspot/classpath");
 			}
 			try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
 				return buffer.lines().collect(Collectors.joining());
 			}
 		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public void reset() {
+		final String pathToPomFile = configuration.getInputProgram().getProgramDir() + FILE_SEPARATOR + POM_FILE;
+		try {
+			final FileWriter writer = new FileWriter(pathToPomFile, false);
+			writer.write(this.backUpPom);
+			writer.close();
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -76,9 +102,9 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 					OPT_VALUE_TIMEOUT, //
 					OPT_VALUE_MEMORY, //
 					OPT_TARGET_TESTS + ctTypeToFullQualifiedName(testClass), //
-					configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
-							OPT_ADDITIONAL_CP_ELEMENTS + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) :
-							"", //
+					OPT_ADDITIONAL_CP_ELEMENTS + "target/dspot/dependencies/" +
+							(configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
+							configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) : "") , //
 					descartesMode ? OPT_MUTATION_ENGINE :
 							OPT_MUTATORS + (evosuiteMode ?
 									Arrays.stream(VALUE_MUTATORS_EVOSUITE).collect(Collectors.joining(","))
@@ -87,7 +113,9 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 							OPT_EXCLUDED_CLASSES + configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) :
 							""//
 			};
-			this.runGoals(pathToRootOfProject, phases);
+			if (this.runGoals(pathToRootOfProject, phases) != 0) {
+				throw new RuntimeException("Maven build failed! Enable verbose mode for more information (--verbose)");
+			}
 			if (!new File(pathToRootOfProject + "/target/pit-reports").exists()) {
 				return null;
 			}
@@ -100,9 +128,11 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 				return null;
 			}
 			File fileResults = new File(directoryReportPit.getPath() + "/mutations.csv");
-			return PitResultParser.parse(fileResults);
+			final List<PitResult> parse = PitResultParser.parse(fileResults);
+			FileUtils.deleteDirectory(directoryReportPit);
+			return parse;
 		} catch (Exception e) {
-			return null;
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -137,22 +167,26 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 					descartesMode ? OPT_MUTATION_ENGINE : OPT_MUTATORS + (evosuiteMode ?
 							Arrays.stream(VALUE_MUTATORS_EVOSUITE).collect(Collectors.joining(","))
 							: VALUE_MUTATORS_ALL), //
-					configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
-							OPT_ADDITIONAL_CP_ELEMENTS + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) :
-							"", //
+					OPT_ADDITIONAL_CP_ELEMENTS + "target/dspot/dependencies/" +
+							(configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
+									configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) : "") , //
 					configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) != null ?
 							OPT_EXCLUDED_CLASSES + configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) :
 							""//
 			};
-			this.runGoals(pathToRootOfProject, phases);
+			if (this.runGoals(pathToRootOfProject, phases) != 0) {
+				throw new RuntimeException("Maven build failed! Enable verbose mode for more information (--verbose)");
+			}
 			File directoryReportPit = new File(pathToRootOfProject + "/target/pit-reports").listFiles()[0];
-			return PitResultParser.parse(new File(directoryReportPit.getPath() + "/mutations.csv"));
+			final List<PitResult> parse = PitResultParser.parse(new File(directoryReportPit.getPath() + "/mutations.csv"));
+			FileUtils.deleteDirectory(directoryReportPit);
+			return parse;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private void runGoals(String pathToRootOfProject, String... goals) {
+	private int runGoals(String pathToRootOfProject, String... goals) {
 		InvocationRequest request = new DefaultInvocationRequest();
 		request.setGoals(Arrays.asList(goals));
 		request.setPomFile(new File(pathToRootOfProject + FILE_SEPARATOR + POM_FILE));
@@ -169,7 +203,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 			invoker.setErrorHandler(null);
 		}
 		try {
-			invoker.execute(request);
+			return invoker.execute(request).getExitCode();
 		} catch (MavenInvocationException e) {
 			throw new RuntimeException(e);
 		}

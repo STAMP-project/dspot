@@ -1,13 +1,10 @@
 package fr.inria.diversify.utils;
 
 import fr.inria.diversify.logger.Logger;
-import fr.inria.diversify.processor.ProcessorUtil;
 import fr.inria.diversify.processor.main.AddBlockEverywhereProcessor;
 import fr.inria.diversify.processor.main.BranchCoverageProcessor;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.FileUtils;
-import org.jacoco.core.data.ExecutionDataStore;
 import org.kevoree.log.Log;
 import spoon.Launcher;
 import spoon.compiler.Environment;
@@ -21,19 +18,14 @@ import spoon.reflect.visitor.DefaultJavaPrettyPrinter;
 import spoon.support.JavaOutputProcessor;
 import spoon.support.QueueProcessingManager;
 
-import javax.xml.transform.sax.SAXSource;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 
 /**
@@ -65,15 +57,12 @@ public class DSpotUtils {
 	public static void addBranchLogger(InputProgram inputProgram, Factory factory) {
 		try {
 			applyProcessor(factory, new AddBlockEverywhereProcessor(inputProgram));
-
 			BranchCoverageProcessor branchCoverageProcessor = new BranchCoverageProcessor(inputProgram, inputProgram.getProgramDir(), true);
 			branchCoverageProcessor.setLogger(Logger.class.getCanonicalName());
-
 			applyProcessor(factory, branchCoverageProcessor);
-
-			File fileFrom = new File(inputProgram.getAbsoluteSourceCodeDir());
-			printAllClasses(factory, fileFrom);
-
+			copyPackageFromResources(
+					"fr/inria/diversify/logger", "ClassObserver",
+					"KeyWord", "Logger", "LogWriter", "PathBuilder", "Pool", "ShutdownHookLog");
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -120,8 +109,10 @@ public class DSpotUtils {
 		}
 	}
 
+	@Deprecated
 	public static String mavenHome;
 
+	@Deprecated
 	public static String buildMavenHome(InputConfiguration inputConfiguration) {
 		if (mavenHome == null) {
 			if (inputConfiguration != null && inputConfiguration.getProperty("maven.home") != null) {
@@ -156,8 +147,10 @@ public class DSpotUtils {
 		pm.process(factory.Package().getRootPackage());
 	}
 
-	public static void copyPackageFromResources(String directory, String packagePath, String... classToCopy) {
-		final String pathToTestClassesDirectory = directory + "/" + packagePath + "/";
+	public static final String pathToDSpotDependencies = "target/dspot/dependencies/";
+
+	public static void copyPackageFromResources(String packagePath, String... classToCopy) {
+		final String pathToTestClassesDirectory = pathToDSpotDependencies + "/" + packagePath + "/";
 		try {
 			org.apache.commons.io.FileUtils.forceMkdir(new File(pathToTestClassesDirectory));
 		} catch (IOException e) {

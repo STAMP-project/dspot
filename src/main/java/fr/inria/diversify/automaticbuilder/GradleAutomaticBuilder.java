@@ -80,6 +80,11 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
     }
 
     @Override
+    public void reset() {
+        //TODO Maybe we should change one time the the gradle and reset it at the end of the process
+    }
+
+    @Override
     public List<PitResult> runPit(String pathToRootOfProject) {
         return runPit(pathToRootOfProject, null);
     }

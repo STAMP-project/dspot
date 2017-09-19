@@ -10,8 +10,10 @@ import fr.inria.stamp.test.listener.TestListener;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import spoon.Launcher;
+import spoon.SpoonModelBuilder;
 import spoon.reflect.code.CtComment;
 import spoon.reflect.declaration.*;
+import spoon.support.compiler.jdt.CompilationUnitFilter;
 import spoon.support.reflect.declaration.CtMethodImpl;
 
 import java.io.IOException;
@@ -31,7 +33,8 @@ public class TestCompiler {
 											 InputConfiguration configuration) {
 		final InputProgram inputProgram = configuration.getInputProgram();
 		final String dependencies = inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + System.getProperty("path.separator") +
-				inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir();
+				inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir() + System.getProperty("path.separator") +
+				"target/dspot/dependencies/";
 		final List<CtMethod<?>> uncompilableMethods = TestCompiler.compile(compiler, testClass, dependencies);
 		if (uncompilableMethods.contains(TestCompiler.METHOD_CODE_RETURN)) {
 			return null;
@@ -46,11 +49,12 @@ public class TestCompiler {
 		}
 	}
 
-	@Deprecated // TODO must be reimplemented
 	public static List<CtMethod<?>> compile(DSpotCompiler compiler, CtType<?> originalClassTest,
 											String dependencies) {
 		CtType<?> classTest = originalClassTest.clone();
 		originalClassTest.getPackage().addType(classTest);
+
+		//TODO we should only compile the new test, and not print it. How to compile one and only one CtType with Spoon?
 		printAndDelete(compiler, classTest);
 		final List<CategorizedProblem> problems = compiler.compileAndGetProbs(dependencies)
 				.stream()
@@ -114,6 +118,7 @@ public class TestCompiler {
 		return launcher.getFactory().Class().get(fullQualifiedName);
 	}
 
+	@Deprecated
 	private static void printAndDelete(DSpotCompiler compiler, CtType classTest) {
 		try {
 			PrintClassUtils.printJavaFile(compiler.getSourceOutputDirectory(), classTest);

@@ -16,6 +16,7 @@ import org.jacoco.core.instr.Instrumenter;
 import org.jacoco.core.runtime.IRuntime;
 import org.jacoco.core.runtime.LoggerRuntime;
 import org.jacoco.core.runtime.RuntimeData;
+import org.kevoree.log.Log;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
@@ -74,6 +75,7 @@ public class JacocoExecutor {
 				this.internalClassLoader.addDefinition(fullQualifiedName,
 						this.instrumenter.instrument(this.internalClassLoader.getResourceAsStream(fileName), fullQualifiedName));
 			} catch (IOException e) {
+				Log.error("Encountered a problem while instrumenting " + fullQualifiedName);
 				throw new RuntimeException(e);
 			}
 		}

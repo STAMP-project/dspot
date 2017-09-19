@@ -165,11 +165,11 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 		this.currentClassTestToBeAmplified.getPackage().addType(clone);
 		this.selectedAmplifiedTest.forEach(clone::addMethod);
 		try {
-			FileUtils.deleteDirectory(new File("tmpDir/tmpSrc_test"));
+			FileUtils.deleteDirectory(new File(DSpotCompiler.pathToTmpTestSources));
 		} catch (IOException ignored) {
 			//ignored
 		}
-		DSpotUtils.printJavaFileWithComment(clone, new File("tmpDir/tmpSrc_test"));
+		DSpotUtils.printJavaFileWithComment(clone, new File(DSpotCompiler.pathToTmpTestSources));
 
 		final String fileSeparator = System.getProperty("file.separator");
 		final String classpath = AutomaticBuilderFactory
@@ -178,7 +178,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 				+ System.getProperty("path.separator") +
 				this.program.getProgramDir() + fileSeparator + this.program.getClassesDir();
 
-		DSpotCompiler.compile("tmpDir/tmpSrc_test", classpath,
+		DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
 				new File(this.program.getProgramDir() + fileSeparator + this.program.getTestClassesDir()));
 
 		final CoverageResults coverageResults = new JacocoExecutor(this.program, this.configuration)

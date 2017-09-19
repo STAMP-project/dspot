@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot.support;
 
 import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.Main;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import spoon.Launcher;
@@ -25,6 +26,8 @@ import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
  */
 public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
+	public static final String pathToTmpTestSources = "target/dspot/tmp_test_sources";
+
 	@Override
 	public Factory getFactory() {
 		return this.launcher.getFactory();
@@ -39,8 +42,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
 		this.binaryOutputDirectory = new File(program.getProgramDir() + "/" + program.getTestClassesDir());
 
-
-		this.sourceOutputDirectory = new File("tmpDir/tmpSrc_test");
+		this.sourceOutputDirectory = new File(pathToTmpTestSources);
 		if (!this.sourceOutputDirectory.exists()) {
 			this.sourceOutputDirectory.mkdir();
 		}
@@ -95,7 +97,12 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		Launcher launcher = new Launcher();
 		launcher.getEnvironment().setNoClasspath(false);
 		launcher.getEnvironment().setCommentEnabled(true);
-		String[] sourcesArray = pathToSources.split(PATH_SEPARATOR);
+
+		if (! new File("target/dspot/dependencies/compare").exists()) {
+			DSpotUtils.copyPackageFromResources("fr/inria/diversify/compare/",
+					"MethodsHandler", "ObjectLog", "Observation", "Utils");
+		}
+		String[] sourcesArray = (pathToSources + PATH_SEPARATOR + "target/dspot/dependencies/").split(PATH_SEPARATOR);
 		Arrays.stream(sourcesArray).forEach(launcher::addInputResource);
 		if (!pathToDependencies.isEmpty()) {
 			String[] dependenciesArray = pathToDependencies.split(PATH_SEPARATOR);
@@ -113,7 +120,11 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		launcher.getEnvironment().setNoClasspath(false);
 		launcher.getEnvironment().setCommentEnabled(true);
 
-		String[] sourcesArray = pathToSources.split(PATH_SEPARATOR);
+		if (! new File("target/dspot/dependencies/compare").exists()) {
+			DSpotUtils.copyPackageFromResources("fr/inria/diversify/compare/",
+					"MethodsHandler", "ObjectLog", "Observation", "Utils");
+		}
+		String[] sourcesArray = (pathToSources + PATH_SEPARATOR + "target/dspot/dependencies/").split(PATH_SEPARATOR);
 		Arrays.stream(sourcesArray).forEach(launcher::addInputResource);
 		String[] dependenciesArray = dependencies.split(PATH_SEPARATOR);
 		launcher.getModelBuilder().setSourceClasspath(dependenciesArray);
@@ -122,22 +133,6 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		SpoonModelBuilder modelBuilder = launcher.getModelBuilder();
 		modelBuilder.setBinaryOutputDirectory(binaryOutputDirectory);
 		return modelBuilder.compile(SpoonModelBuilder.InputType.CTTYPES);
-	}
-
-	protected void report(Environment environment, CategorizedProblem problem) {
-		File file = new File(new String(problem.getOriginatingFileName()));
-		String filename = file.getAbsolutePath();
-
-		String message = problem.getMessage() + " at " + filename + ":"
-				+ problem.getSourceLineNumber();
-
-		if (problem.isError()) {
-			if (!environment.getNoClasspath()) {
-				// by default, compilation errors are notified as exception
-				throw new ModelBuildingException(message);
-			}
-		}
-
 	}
 
 	private Launcher launcher;

@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -15,7 +16,9 @@ import static org.junit.Assert.assertTrue;
  */
 public class DSpotMultiplePomTest {
 
+    //TODO this test is useless since we do not copy test
     @Test
+    @Ignore
     public void testCopyMultipleModuleProject() throws Exception, InvalidSdkException {
 
         /*

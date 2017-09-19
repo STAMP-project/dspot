@@ -1,8 +1,7 @@
+
+
 package fr.inria.stamp.mutationtest.test;
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Created by Benjamin DANGLOT
@@ -10,22 +9,22 @@ import static org.junit.Assert.assertEquals;
  * on 24/03/17
  */
 public class TestCalculator {
-
-    @Test
-    public void Integraltypestest() throws Exception {
-        final Calculator calculator = new Calculator();
-        assertEquals((byte)0, calculator.getByte());
-        assertEquals((short) 0, calculator.getShort());
-        assertEquals(0,  calculator.getCeiling());
-        assertEquals(0L, calculator.getSquare());
-        assertEquals(0, calculator.getLastOperatorSymbol());
+    @org.junit.Test
+    public void Floatingpointtypestest() throws java.lang.Exception {
+        final fr.inria.stamp.mutationtest.test.Calculator calculator = new fr.inria.stamp.mutationtest.test.Calculator();
+        org.junit.Assert.assertEquals(0.0F, calculator.getSomething(), 0.0F);
+        org.junit.Assert.assertEquals(23.0F, calculator.add(23.0F), 0.0F);
+        org.junit.Assert.assertEquals(748.11F, calculator.getSomething(), 0.1F);
     }
 
-    @Test
-    public void Floatingpointtypestest() throws Exception {
-        final Calculator calculator = new Calculator();
-        assertEquals(0.0F, calculator.getSomething(), 0.0F);
-        assertEquals(23.0F, calculator.add(23F), 0.0F);
-        assertEquals(748.11F, calculator.getSomething(), 0.1F);
+    @org.junit.Test
+    public void Integraltypestest() throws java.lang.Exception {
+        final fr.inria.stamp.mutationtest.test.Calculator calculator = new fr.inria.stamp.mutationtest.test.Calculator();
+        org.junit.Assert.assertEquals(((byte) (0)), calculator.getByte());
+        org.junit.Assert.assertEquals(((short) (0)), calculator.getShort());
+        org.junit.Assert.assertEquals(0, calculator.getCeiling());
+        org.junit.Assert.assertEquals(0L, calculator.getSquare());
+        org.junit.Assert.assertEquals(0, calculator.getLastOperatorSymbol());
     }
 }
+

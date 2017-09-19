@@ -5,6 +5,7 @@ import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.dspot.support.TestCompiler;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.code.CtCodeSnippetStatement;
 import spoon.reflect.declaration.CtClass;
@@ -27,6 +28,11 @@ import static org.junit.Assert.assertTrue;
  * on 3/13/17
  */
 public class DSpotCompilerTest {
+
+    @Before
+    public void setUp() throws Exception {
+        org.apache.commons.io.FileUtils.forceDelete(new File("target/dspot/tmp_test_sources/"));
+    }
 
     @Test
     public void testDSpotCompiler() throws Exception {
@@ -85,6 +91,7 @@ public class DSpotCompilerTest {
         }
 
     }
+
     private InputProgram getInputProgram() {
         final File tmpDir = new File("tmpDir");
         if (tmpDir.exists()) {
@@ -95,7 +102,7 @@ public class DSpotCompilerTest {
             }
         }
         final InputProgram inputProgram = new InputProgram();
-        inputProgram.setProgramDir("tmpDir/tmp");
+        inputProgram.setProgramDir("target/dspot/trash/");
         inputProgram.setRelativeSourceCodeDir("src/main/java/");
         inputProgram.setRelativeTestSourceCodeDir("src/test/java");
         return inputProgram;
