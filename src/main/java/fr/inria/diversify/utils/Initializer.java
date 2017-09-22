@@ -13,6 +13,7 @@ import spoon.SpoonModelBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.function.Function;
 
 import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
 
@@ -29,11 +30,10 @@ public class Initializer {
 		AutomaticBuilderFactory.reset();
 		InitUtils.initLogLevel(configuration);
 		InputProgram program = InitUtils.initInputProgram(configuration);
+		program.setProgramDir(DSpotUtils.computeProgramDirectory.apply(configuration));
 		configuration.setInputProgram(program);
 		AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(configuration);
-		String dependencies = builder.buildClasspath(configuration.getProperty("project") + "/" +
-				(configuration.getProperty("targetModule") != null ?
-						configuration.getProperty("targetModule") + "/" : ""));
+		String dependencies = builder.buildClasspath(program.getProgramDir());
 		dependencies += PATH_SEPARATOR + "target/dspot/dependencies/";
 
 
@@ -57,20 +57,15 @@ public class Initializer {
 			modelBuilder.setBinaryOutputDirectory(output);
 			status = modelBuilder.compile(SpoonModelBuilder.InputType.CTTYPES);
 		} else {
-			status = DSpotCompiler.compile(configuration.getProperty("project") + "/" +
-							(configuration.getProperty("targetModule") != null ?
-									configuration.getProperty("targetModule") + "/":"" )
-							+ program.getRelativeSourceCodeDir(),
-					dependencies, output);
+			status = DSpotCompiler.compile(program.getAbsoluteSourceCodeDir(), dependencies, output);
 		}
-		boolean statusTest = DSpotCompiler.compile(configuration.getProperty("project") + "/" +
-						(configuration.getProperty("targetModule") != null ?
-								configuration.getProperty("targetModule") + "/" :"" )
-						+  program.getRelativeTestSourceCodeDir(),
+		boolean statusTest = DSpotCompiler.compile(program.getAbsoluteTestSourceCodeDir(),
 				output.getAbsolutePath() + PATH_SEPARATOR + dependencies, outputTest);
 		if (! (status && statusTest)) {
 			throw new RuntimeException("Error during compilation");
 		}
 	}
+
+
 
 }

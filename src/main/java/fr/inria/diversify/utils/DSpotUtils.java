@@ -177,4 +177,11 @@ public class DSpotUtils {
 			}
 		});
 	}
+
+	public static final Function<String, String> shouldAddSeparator = string -> string.endsWith("/") ? "" : "/";
+
+	public static Function<InputConfiguration, String> computeProgramDirectory = configuration ->
+			configuration.getProperty("project") + shouldAddSeparator.apply(configuration.getProperty("project")) +
+					(configuration.getProperty("targetModule") != null ?
+							configuration.getProperty("targetModule") + shouldAddSeparator.apply(configuration.getProperty("project")) : "");
 }

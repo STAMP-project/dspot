@@ -62,6 +62,7 @@ public class Amplification {
 				.filter(mth -> AmplificationChecker.isTest(mth, this.configuration.getInputProgram().getRelativeTestSourceCodeDir()))
 				.collect(Collectors.toList());
 		if (tests.isEmpty()) {
+			Log.warn("No test has been found into {}", classTest.getQualifiedName());
 			return;
 		}
 

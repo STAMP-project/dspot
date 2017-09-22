@@ -1,6 +1,5 @@
 package fr.inria.diversify.dspot.selector;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.amplifier.StatementAdd;
@@ -8,6 +7,8 @@ import fr.inria.diversify.runner.InputConfiguration;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
+
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
