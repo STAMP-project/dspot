@@ -1,19 +1,16 @@
 package fr.inria.diversify.utils;
 
-import fr.inria.diversify.util.Log;
+import fr.inria.diversify.sosiefier.util.Log;
 import org.junit.Assert;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
 
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Created by Benjamin DANGLOT

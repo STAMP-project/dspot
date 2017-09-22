@@ -1,9 +1,7 @@
 package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.Utils;
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AbstractTest;
-import org.junit.AfterClass;
 import org.junit.Test;
 import fr.inria.diversify.utils.AmplificationHelper;
 import spoon.reflect.declaration.CtClass;
@@ -22,7 +20,7 @@ import static org.junit.Assert.assertNotEquals;
 public class TestMethodCallRemove extends AbstractTest {
 
     @Test
-    public void testMethodCallRemoveAll() throws Exception, InvalidSdkException {
+    public void testMethodCallRemoveAll() throws Exception {
 
         /*
             Test that we remove method call in a test for each used method in the test.
@@ -46,7 +44,7 @@ public class TestMethodCallRemove extends AbstractTest {
     }
 
     @Test
-    public void testMethodCallRemoveRnd() throws Exception, InvalidSdkException {
+    public void testMethodCallRemoveRnd() throws Exception {
 
         /*
             Test that we remove method call in a test for each used method in the test.

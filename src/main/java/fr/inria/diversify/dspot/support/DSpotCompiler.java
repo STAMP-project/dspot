@@ -1,13 +1,11 @@
 package fr.inria.diversify.dspot.support;
 
-import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.sosiefier.runner.InputProgram;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.Main;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import spoon.Launcher;
 import spoon.SpoonModelBuilder;
-import spoon.compiler.Environment;
-import spoon.compiler.ModelBuildingException;
 import spoon.compiler.builder.*;
 import spoon.reflect.factory.Factory;
 import spoon.support.compiler.FileSystemFolder;

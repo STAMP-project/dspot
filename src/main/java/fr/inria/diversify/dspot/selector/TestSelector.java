@@ -1,7 +1,6 @@
 package fr.inria.diversify.dspot.selector;
 
-import fr.inria.diversify.runner.InputConfiguration;
-import spoon.reflect.declaration.CtClass;
+import fr.inria.diversify.sosiefier.runner.InputConfiguration;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 

@@ -1,19 +1,17 @@
 package fr.inria.diversify.dspot.support;
 
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.Log;
-import fr.inria.diversify.util.PrintClassUtils;
+import fr.inria.diversify.sosiefier.runner.InputConfiguration;
+import fr.inria.diversify.sosiefier.runner.InputProgram;
+import fr.inria.diversify.sosiefier.util.Log;
 import fr.inria.diversify.utils.AmplificationHelper;
+import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.test.launcher.TestLauncher;
 import fr.inria.stamp.test.listener.TestListener;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import spoon.Launcher;
-import spoon.SpoonModelBuilder;
 import spoon.reflect.code.CtComment;
 import spoon.reflect.declaration.*;
-import spoon.support.compiler.jdt.CompilationUnitFilter;
 import spoon.support.reflect.declaration.CtMethodImpl;
 
 import java.io.IOException;
@@ -121,7 +119,7 @@ public class TestCompiler {
 	@Deprecated
 	private static void printAndDelete(DSpotCompiler compiler, CtType classTest) {
 		try {
-			PrintClassUtils.printJavaFile(compiler.getSourceOutputDirectory(), classTest);
+			DSpotUtils.printJavaFileWithComment(classTest, compiler.getSourceOutputDirectory());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

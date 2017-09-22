@@ -1,7 +1,7 @@
 package fr.inria.stamp.test.launcher;
 
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.sosiefier.runner.InputConfiguration;
+import fr.inria.diversify.sosiefier.runner.InputProgram;
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.stamp.test.listener.TestListener;

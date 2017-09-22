@@ -1,20 +1,17 @@
 package fr.inria.diversify.dspot;
 
 import edu.emory.mathcs.backport.java.util.Collections;
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.FileUtils;
+import fr.inria.diversify.sosiefier.runner.InputConfiguration;
+import fr.inria.diversify.sosiefier.runner.InputProgram;
 import fr.inria.diversify.utils.AmplificationHelper;
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
-import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Benjamin DANGLOT
@@ -24,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 public class DSpotMockedTest extends MavenAbstractTest {
 
 	@Test
-	public void test() throws Exception, InvalidSdkException {
+	public void test() throws Exception {
 
         /*
 			Test the whole dspot procedure.
@@ -45,7 +42,7 @@ public class DSpotMockedTest extends MavenAbstractTest {
 
 		CtType<?> amplifiedTest = dspot.amplifyTest("info.sanaulla.dal.BookDALTest", Collections.singletonList("testAddBook"));
 
-		assertEquals(8, amplifiedTest.getMethods().size());
+		assertEquals(7, amplifiedTest.getMethods().size());
 	}
 
 	@Override

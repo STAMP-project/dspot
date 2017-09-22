@@ -3,11 +3,11 @@ package fr.inria.diversify.utils;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.processor.ProcessorUtil;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.FileUtils;
-import fr.inria.diversify.util.InitUtils;
+import fr.inria.diversify.sosiefier.processor.ProcessorUtil;
+import fr.inria.diversify.sosiefier.runner.InputConfiguration;
+import fr.inria.diversify.sosiefier.runner.InputProgram;
+import fr.inria.diversify.sosiefier.util.InitUtils;
+import org.apache.commons.io.FileUtils;
 import spoon.Launcher;
 import spoon.SpoonModelBuilder;
 

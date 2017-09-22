@@ -1,7 +1,7 @@
 package fr.inria.diversify.automaticbuilder;
 
 import fr.inria.diversify.mutant.pit.PitResult;
-import fr.inria.diversify.runner.InputConfiguration;
+import fr.inria.diversify.sosiefier.runner.InputConfiguration;
 import spoon.reflect.declaration.CtType;
 
 import java.util.List;

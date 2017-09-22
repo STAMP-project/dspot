@@ -1,10 +1,12 @@
 package fr.inria.diversify.automaticbuilder;
 
 import fr.inria.diversify.Utils;
+import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.mutant.pit.PitResult;
-import fr.inria.diversify.runner.InputConfiguration;
+import fr.inria.diversify.sosiefier.runner.InputConfiguration;
 import fr.inria.stamp.Main;
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.shared.invoker.MavenCommandLineBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +26,13 @@ import static org.junit.Assert.fail;
  */
 public class MavenAutomaticBuilderTest {
 
+    @Before
+    public void setUp() throws Exception {
+        Utils.reset();
+        MavenPitCommandAndOptions.descartesMode = false;
+        MavenPitCommandAndOptions.evosuiteMode = false;
+    }
+
     @After
     public void tearDown() throws Exception {
         Utils.reset();
@@ -33,7 +42,7 @@ public class MavenAutomaticBuilderTest {
     public void testGetDependenciesOf() throws Exception {
 
         try {
-            FileUtils.forceDelete(new File("src/test/resources/test-projects//target/dspot/classpath"));
+            FileUtils.forceDelete(new File("src/test/resources/test-projects/target/dspot/classpath"));
         } catch (Exception ignored){
             //ignored
         }

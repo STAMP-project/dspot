@@ -1,18 +1,15 @@
 package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.Utils;
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
-import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.AbstractTest;
-import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.sosiefier.runner.InputProgram;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
@@ -83,7 +80,7 @@ public class StatementAddTest extends AbstractTest {
     }
 
     @Test
-    public void testStatementAdd() throws Exception, InvalidSdkException {
+    public void testStatementAdd() throws Exception {
 
         /*
             Test the StatementAdd amplifier. It reuse existing object to add method call of accessible method.

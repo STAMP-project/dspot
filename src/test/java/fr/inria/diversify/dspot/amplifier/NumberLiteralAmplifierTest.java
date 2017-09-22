@@ -1,7 +1,6 @@
 package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.Utils;
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AbstractTest;
 import fr.inria.diversify.utils.AmplificationHelper;
 import org.junit.Test;
@@ -20,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 public class NumberLiteralAmplifierTest extends AbstractTest {
 
     @Test
-    public void testByteMutation() throws Exception, InvalidSdkException {
+    public void testByteMutation() throws Exception {
         final String nameMethod = "methodByte";
         final byte originalValue = 23;
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
@@ -42,7 +41,7 @@ public class NumberLiteralAmplifierTest extends AbstractTest {
     }
 
     @Test
-    public void testShortMutation() throws Exception, InvalidSdkException {
+    public void testShortMutation() throws Exception {
         final String nameMethod = "methodShort";
         final short originalValue = 23;
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
@@ -64,7 +63,7 @@ public class NumberLiteralAmplifierTest extends AbstractTest {
     }
 
     @Test
-    public void testIntMutation() throws Exception, InvalidSdkException {
+    public void testIntMutation() throws Exception {
         final String nameMethod = "methodInteger";
         final int originalValue = 23;
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
@@ -86,7 +85,7 @@ public class NumberLiteralAmplifierTest extends AbstractTest {
     }
 
     @Test
-    public void testLongMutation() throws Exception, InvalidSdkException {
+    public void testLongMutation() throws Exception {
         final String nameMethod = "methodLong";
         final long originalValue = 23L;
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
@@ -108,7 +107,7 @@ public class NumberLiteralAmplifierTest extends AbstractTest {
     }
 
     @Test
-    public void testFloatMutation() throws Exception, InvalidSdkException {
+    public void testFloatMutation() throws Exception {
         final String nameMethod = "methodFloat";
         final double originalValue = 23.0F;
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
@@ -132,7 +131,7 @@ public class NumberLiteralAmplifierTest extends AbstractTest {
 
 
     @Test
-    public void testDoubleMutation() throws Exception, InvalidSdkException {
+    public void testDoubleMutation() throws Exception {
         final String nameMethod = "methodDouble";
         final double originalValue = 23.0D;
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");

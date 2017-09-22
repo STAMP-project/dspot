@@ -2,11 +2,11 @@ package fr.inria.diversify.automaticbuilder;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.mutant.pit.PitResult;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.util.FileUtils;
-import fr.inria.diversify.util.Log;
+import fr.inria.diversify.sosiefier.runner.InputConfiguration;
+import fr.inria.diversify.sosiefier.util.Log;
 import fr.inria.stamp.Configuration;
 import fr.inria.stamp.JSAPOptions;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

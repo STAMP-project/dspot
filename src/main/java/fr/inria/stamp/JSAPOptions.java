@@ -10,7 +10,7 @@ import fr.inria.diversify.dspot.selector.TakeAllSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.mutant.pit.GradlePitTaskAndOptions;
 import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
-import fr.inria.diversify.util.Log;
+import fr.inria.diversify.sosiefier.util.Log;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -64,7 +64,6 @@ public class JSAPOptions {
 		NumberLiteralAmplifier(new NumberLiteralAmplifier()),
 		MethodAdd(new TestMethodCallAdder()),
 		MethodRemove(new TestMethodCallRemover()),
-		StatementAdderOnAssert(new StatementAdderOnAssert()),
 		TestDataMutator(new TestDataMutator()),
 		StatementAdd(new StatementAdd());
 		public final Amplifier amplifier;
@@ -175,7 +174,7 @@ public class JSAPOptions {
 		amplifiers.setShortFlag('a');
 		amplifiers.setStringParser(JSAP.STRING_PARSER);
 		amplifiers.setUsageName("Amplifier");
-		amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. Possible values: NumberLiteralAmplifier|MethodAdd|MethodRemove|StatementAdderOnAssert|TestDataMutator|StatementAdd");
+		amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. Possible values: NumberLiteralAmplifier|MethodAdd|MethodRemove|TestDataMutator|StatementAdd");
 
 		FlaggedOption iteration = new FlaggedOption("iteration");
 		iteration.setDefault("3");

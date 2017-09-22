@@ -1,9 +1,7 @@
 package fr.inria.diversify.automaticbuilder;
 
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.util.Log;
-
-import java.util.function.Predicate;
+import fr.inria.diversify.sosiefier.runner.InputConfiguration;
+import fr.inria.diversify.sosiefier.util.Log;
 
 /**
  * Created by Daniele Gagliardi

@@ -2,10 +2,9 @@ package fr.inria.diversify.dspot;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import fr.inria.diversify.Utils;
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
 import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
-import fr.inria.diversify.runner.InputConfiguration;
+import fr.inria.diversify.sosiefier.runner.InputConfiguration;
 import org.junit.After;
 import org.junit.Test;
 
@@ -30,7 +29,7 @@ public class ProjectJSONTest {
 	}
 
 	@Test
-	public void test() throws Exception, InvalidSdkException {
+	public void test() throws Exception {
 
 		final File file = new File("target/trash/sample.json");
 		if (file.exists()) {

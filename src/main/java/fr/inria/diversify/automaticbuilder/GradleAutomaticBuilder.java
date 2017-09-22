@@ -12,13 +12,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import fr.inria.diversify.mutant.pit.PitResultParser;
-import fr.inria.diversify.runner.InputConfiguration;
+import fr.inria.diversify.sosiefier.runner.InputConfiguration;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
 
 import fr.inria.diversify.mutant.pit.PitResult;
-import fr.inria.diversify.util.Log;
+import fr.inria.diversify.sosiefier.util.Log;
 
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
