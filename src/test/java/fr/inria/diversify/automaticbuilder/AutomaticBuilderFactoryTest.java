@@ -1,8 +1,8 @@
 package fr.inria.diversify.automaticbuilder;
 
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.InitUtils;
+import fr.inria.diversify.sosiefier.runner.InputConfiguration;
+import fr.inria.diversify.sosiefier.runner.InputProgram;
+import fr.inria.diversify.sosiefier.util.InitUtils;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.Configuration;
 import fr.inria.stamp.JSAPOptions;
@@ -109,7 +109,7 @@ public class AutomaticBuilderFactoryTest {
         return new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "BranchCoverageTestSelector",
-                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" ,
                 "--iteration", "1",
                 "--randomSeed", "72",
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
@@ -122,7 +122,7 @@ public class AutomaticBuilderFactoryTest {
         return new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "BranchCoverageTestSelector",
-                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" ,
                 "--iteration", "1",
                 "--randomSeed", "72",
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
@@ -135,7 +135,7 @@ public class AutomaticBuilderFactoryTest {
         return new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "BranchCoverageTestSelector",
-                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" ,
                 "--iteration", "1",
                 "--randomSeed", "72",
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
@@ -148,7 +148,7 @@ public class AutomaticBuilderFactoryTest {
         return new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "BranchCoverageTestSelector",
-                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" ,
                 "--iteration", "1",
                 "--randomSeed", "72",
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),

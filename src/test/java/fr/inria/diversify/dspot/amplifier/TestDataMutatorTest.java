@@ -1,7 +1,6 @@
 package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.Utils;
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.AbstractTest;
 import org.junit.Test;
@@ -28,7 +27,7 @@ public class TestDataMutatorTest extends AbstractTest {
     private static final String SUFFIX_MUTATION = "_literalMutation";
 
     @Test
-    public void testIntMutation() throws Exception, InvalidSdkException {
+    public void testIntMutation() throws Exception {
 
         /*
             Test the amplification on numbers (integer) literal
@@ -58,7 +57,7 @@ public class TestDataMutatorTest extends AbstractTest {
     }
 
     @Test
-    public void testIntMutationRandom() throws Exception, InvalidSdkException {
+    public void testIntMutationRandom() throws Exception {
 
         /*
             Test the amplification on numbers (integer) literal
@@ -94,7 +93,7 @@ public class TestDataMutatorTest extends AbstractTest {
 
 
     @Test
-    public void testDoubleMutation() throws Exception, InvalidSdkException {
+    public void testDoubleMutation() throws Exception {
 
         /*
             Test the amplification on numbers (double) literal
@@ -122,7 +121,7 @@ public class TestDataMutatorTest extends AbstractTest {
     }
 
     @Test
-    public void testDoubleMutationRandom() throws Exception, InvalidSdkException {
+    public void testDoubleMutationRandom() throws Exception {
 
         /*
             Test the amplification on numbers (double) literal
@@ -157,7 +156,7 @@ public class TestDataMutatorTest extends AbstractTest {
 
 
     @Test
-    public void testStringMutation() throws Exception, InvalidSdkException {
+    public void testStringMutation() throws Exception {
 
         /*
           Test the amplification on string literal
@@ -185,7 +184,7 @@ public class TestDataMutatorTest extends AbstractTest {
     }
 
     @Test
-    public void testStringMutationRandom() throws Exception, InvalidSdkException {
+    public void testStringMutationRandom() throws Exception {
 
         /*
           Test the amplification on string literal
@@ -224,7 +223,7 @@ public class TestDataMutatorTest extends AbstractTest {
      * this distance is equals to 1, since we do not stack mutation.
      * 3 cases: one char less, one char more and one (and only one) different char.
      */
-    private void assertDistanceBetweenOriginalAndMuted(String original, String mutant) throws InvalidSdkException, Exception {
+    private void assertDistanceBetweenOriginalAndMuted(String original, String mutant) throws Exception {
 
         byte[] originalBytes = original.getBytes();
         byte[] mutantBytes = mutant.getBytes();
@@ -266,7 +265,7 @@ public class TestDataMutatorTest extends AbstractTest {
     }
 
     @Test
-    public void testBooleanMutation() throws Exception, InvalidSdkException {
+    public void testBooleanMutation() throws Exception {
 
         /*
             Test the amplification on boolean literal

@@ -1,7 +1,7 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.utils.DSpotUtils;
-import org.eclipse.jgit.util.FileUtils;
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtMethod;
@@ -27,7 +27,7 @@ public class PrintTest {
     public void test() throws Exception {
         final File javaFile = new File(outputDirectory.getAbsolutePath() + "/" + "example.TestSuiteExample".replaceAll("\\.", "\\/") + ".java");
         try {
-            FileUtils.delete(javaFile);
+            FileUtils.forceDelete(javaFile);
         } catch (IOException ignored) {
             //ignored
         }

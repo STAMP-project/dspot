@@ -167,7 +167,7 @@
                 </executions>
                 <configuration>
                     <excludes>
-                        <exclude>fr.inria.diversify.sosiefier.*</exclude>
+                        <exclude>**/fr/inria/diversify/sosiefier/*</exclude>
                     </excludes>
                 </configuration>
             </plugin>
