@@ -45,8 +45,13 @@ public class ChangeDetectorSelector extends TakeAllSelector {
 			} catch (IllegalArgumentException ignored) {
 				//the target directory does not exist, do not need to clean it
 			}
-			DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
-			this.pathToChangedVersionOfProgram = inputProgram.getProgramDir();
+			DSpotCompiler.compile(inputConfiguration.getProperty("folderPath") + "/" +
+					(inputConfiguration.getProperty("targetModule") != null ?
+							inputConfiguration.getProperty("targetModule") + "/":"" )
+					+ inputProgram.getRelativeSourceCodeDir(), dependencies, output);
+			this.pathToChangedVersionOfProgram = inputConfiguration.getProperty("folderPath") + "/" +
+					(inputConfiguration.getProperty("targetModule") != null ?
+							inputConfiguration.getProperty("targetModule") + "/": "");
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

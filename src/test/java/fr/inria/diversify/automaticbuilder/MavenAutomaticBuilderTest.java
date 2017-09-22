@@ -1,6 +1,7 @@
 package fr.inria.diversify.automaticbuilder;
 
 import fr.inria.diversify.Utils;
+import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.stamp.Main;
@@ -92,6 +93,8 @@ public class MavenAutomaticBuilderTest {
         Utils.init("src/test/resources/sample/sample.properties");
 
         Main.verbose = true;
+        MavenPitCommandAndOptions.evosuiteMode = false;
+        MavenPitCommandAndOptions.descartesMode = false;
 
         final List<PitResult> pitResults = Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir(),
                 Utils.findClass("fr.inria.inheritance.Inherited"));
@@ -99,6 +102,6 @@ public class MavenAutomaticBuilderTest {
         assertEquals(9, pitResults.size());
         System.out.println(pitResults);
 
-        Main.verbose = true;
+        Main.verbose = false;
     }
 }

@@ -31,8 +31,11 @@ public class Initializer {
 		InputProgram program = InitUtils.initInputProgram(configuration);
 		configuration.setInputProgram(program);
 		AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(configuration);
-		String dependencies = builder.buildClasspath(program.getProgramDir());
+		String dependencies = builder.buildClasspath(configuration.getProperty("project") + "/" +
+				(configuration.getProperty("targetModule") != null ?
+						configuration.getProperty("targetModule") + "/" : ""));
 		dependencies += PATH_SEPARATOR + "target/dspot/dependencies/";
+
 
 		File output = new File(program.getProgramDir() + "/" + program.getClassesDir());
 		File outputTest = new File(program.getProgramDir() + "/" + program.getTestClassesDir());
@@ -54,9 +57,16 @@ public class Initializer {
 			modelBuilder.setBinaryOutputDirectory(output);
 			status = modelBuilder.compile(SpoonModelBuilder.InputType.CTTYPES);
 		} else {
-			status = DSpotCompiler.compile(program.getAbsoluteSourceCodeDir() , dependencies, output);
+			status = DSpotCompiler.compile(configuration.getProperty("project") + "/" +
+							(configuration.getProperty("targetModule") != null ?
+									configuration.getProperty("targetModule") + "/":"" )
+							+ program.getRelativeSourceCodeDir(),
+					dependencies, output);
 		}
-		boolean statusTest = DSpotCompiler.compile(program.getAbsoluteTestSourceCodeDir(),
+		boolean statusTest = DSpotCompiler.compile(configuration.getProperty("project") + "/" +
+						(configuration.getProperty("targetModule") != null ?
+								configuration.getProperty("targetModule") + "/" :"" )
+						+  program.getRelativeTestSourceCodeDir(),
 				output.getAbsolutePath() + PATH_SEPARATOR + dependencies, outputTest);
 		if (! (status && statusTest)) {
 			throw new RuntimeException("Error during compilation");
