@@ -3,12 +3,12 @@ package fr.inria.diversify.dspot.selector;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.logging.ClassWithLoggerBuilder;
 import fr.inria.diversify.dspot.support.Counter;
-import fr.inria.diversify.log.LogReader;
-import fr.inria.diversify.log.TestCoverageParser;
-import fr.inria.diversify.log.branch.Coverage;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.util.FileUtils;
-import fr.inria.diversify.util.Log;
+import fr.inria.diversify.sosiefier.log.LogReader;
+import fr.inria.diversify.sosiefier.log.TestCoverageParser;
+import fr.inria.diversify.sosiefier.log.Coverage;
+import fr.inria.diversify.sosiefier.runner.InputConfiguration;
+import fr.inria.diversify.sosiefier.util.Log;
+import org.apache.commons.io.FileUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 

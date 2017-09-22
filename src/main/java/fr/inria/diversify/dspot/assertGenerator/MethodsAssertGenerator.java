@@ -2,12 +2,12 @@ package fr.inria.diversify.dspot.assertGenerator;
 
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
-import fr.inria.diversify.util.Log;
+import fr.inria.diversify.sosiefier.util.Log;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.runner.InputConfiguration;
+import fr.inria.diversify.sosiefier.runner.InputConfiguration;
 import fr.inria.diversify.dspot.support.TestCompiler;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Description;

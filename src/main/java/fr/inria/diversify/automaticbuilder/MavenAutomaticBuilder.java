@@ -5,11 +5,11 @@ import fr.inria.diversify.mutant.descartes.DescartesInjector;
 import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.util.FileUtils;
-import fr.inria.diversify.util.Log;
+import fr.inria.diversify.sosiefier.runner.InputConfiguration;
+import fr.inria.diversify.sosiefier.util.Log;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.Main;
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
@@ -93,6 +93,11 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 	@Override
 	public List<PitResult> runPit(String pathToRootOfProject, CtType<?> testClass) {
 		try {
+			FileUtils.deleteDirectory(new File(pathToRootOfProject + "/target/pit-reports"));
+		} catch (Exception ignored) {
+			//ignored
+		}
+		try {
 			String[] phases = new String[]{PRE_GOAL_PIT, //
 					CMD_PIT_MUTATION_COVERAGE, //
 					OPT_WITH_HISTORY, //
@@ -129,7 +134,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 			}
 			File fileResults = new File(directoryReportPit.getPath() + "/mutations.csv");
 			final List<PitResult> parse = PitResultParser.parse(fileResults);
-			FileUtils.deleteDirectory(directoryReportPit);
+			FileUtils.deleteDirectory(new File(pathToRootOfProject + "/target/pit-reports"));
 			return parse;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -156,6 +161,11 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 	@Override
 	public List<PitResult> runPit(String pathToRootOfProject) {
 		try {
+			FileUtils.deleteDirectory(new File(pathToRootOfProject + "/target/pit-reports"));
+		} catch (Exception ignored) {
+			//ignored
+		}
+		try {
 			String[] phases = new String[]{PRE_GOAL_PIT, //
 					CMD_PIT_MUTATION_COVERAGE, //
 					OPT_WITH_HISTORY, //
@@ -179,7 +189,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 			}
 			File directoryReportPit = new File(pathToRootOfProject + "/target/pit-reports").listFiles()[0];
 			final List<PitResult> parse = PitResultParser.parse(new File(directoryReportPit.getPath() + "/mutations.csv"));
-			FileUtils.deleteDirectory(directoryReportPit);
+			FileUtils.deleteDirectory(new File(pathToRootOfProject + "/target/pit-reports"));
 			return parse;
 		} catch (Exception e) {
 			throw new RuntimeException(e);

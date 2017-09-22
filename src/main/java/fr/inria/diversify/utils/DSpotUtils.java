@@ -1,11 +1,11 @@
 package fr.inria.diversify.utils;
 
 import fr.inria.diversify.logger.Logger;
-import fr.inria.diversify.processor.main.AddBlockEverywhereProcessor;
-import fr.inria.diversify.processor.main.BranchCoverageProcessor;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
-import org.kevoree.log.Log;
+import fr.inria.diversify.sosiefier.processor.AddBlockEverywhereProcessor;
+import fr.inria.diversify.sosiefier.processor.BranchCoverageProcessor;
+import fr.inria.diversify.sosiefier.runner.InputConfiguration;
+import fr.inria.diversify.sosiefier.runner.InputProgram;
+import fr.inria.diversify.sosiefier.util.Log;
 import spoon.Launcher;
 import spoon.compiler.Environment;
 import spoon.processing.Processor;

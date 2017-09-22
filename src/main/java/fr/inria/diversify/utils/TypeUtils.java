@@ -1,7 +1,6 @@
 package fr.inria.diversify.utils;
 
-import fr.inria.diversify.util.Log;
-import spoon.reflect.reference.CtArrayTypeReference;
+import fr.inria.diversify.sosiefier.util.Log;
 import spoon.reflect.reference.CtTypeReference;
 
 import java.util.*;

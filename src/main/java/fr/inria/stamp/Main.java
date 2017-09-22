@@ -1,11 +1,10 @@
 package fr.inria.stamp;
 
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.utils.DSpotUtils;
+import fr.inria.diversify.sosiefier.runner.InputConfiguration;
+import fr.inria.diversify.sosiefier.runner.InputProgram;
 
 import java.io.File;
 import java.util.Collections;
@@ -20,7 +19,7 @@ public class Main {
 
     public static boolean verbose = false;
 
-    public static void main(String[] args) throws InvalidSdkException, Exception {
+    public static void main(String[] args) throws  Exception {
         final Configuration configuration = JSAPOptions.parse(args);
         if (configuration == null) {
             Main.runExample();
@@ -29,7 +28,7 @@ public class Main {
         }
     }
 
-    public static void run(Configuration configuration) throws InvalidSdkException, Exception {
+    public static void run(Configuration configuration) throws  Exception {
         InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
         AmplificationHelper.setSeedRandom(23L);
         InputProgram program = new InputProgram();
@@ -108,9 +107,9 @@ public class Main {
     static void runExample() {
         try {
             InputConfiguration configuration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
-            DSpot dSpot = new DSpot(configuration, 1);
+            DSpot dSpot = new DSpot(configuration, 1, new JacocoCoverageSelector());
             dSpot.amplifyTest("example.TestSuiteExample");
-        } catch (Exception | InvalidSdkException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

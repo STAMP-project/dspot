@@ -4,41 +4,33 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
+import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.dspot.support.json.ClassTimeJSON;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.dspot.support.json.ProjectTimeJSON;
-import fr.inria.diversify.mutant.descartes.DescartesChecker;
-import fr.inria.diversify.mutant.descartes.DescartesInjector;
-import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
-import fr.inria.diversify.processor.ProcessorUtil;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.FileUtils;
-import fr.inria.diversify.util.InitUtils;
-import fr.inria.diversify.util.Log;
+import fr.inria.diversify.sosiefier.runner.InputConfiguration;
+import fr.inria.diversify.sosiefier.runner.InputProgram;
+import fr.inria.diversify.sosiefier.util.Log;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.Initializer;
-import spoon.Launcher;
+import org.apache.commons.io.FileUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 
 import java.io.*;
-import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
 
 /**
  * User: Simon
@@ -52,54 +44,56 @@ public class DSpot {
 	private TestSelector testSelector;
 	public InputProgram inputProgram;
 
-	private List<String> testResources;
-
 	private InputConfiguration inputConfiguration;
 
 	private DSpotCompiler compiler;
 
 	private ProjectTimeJSON projectTimeJSON;
 
-	public DSpot(InputConfiguration inputConfiguration) throws InvalidSdkException, Exception {
+	public DSpot(InputConfiguration inputConfiguration) throws  Exception {
 		this(inputConfiguration, 3, Arrays.asList(
 				new TestDataMutator(),
 				new TestMethodCallAdder(),
 				new TestMethodCallRemover(),
-				new StatementAdderOnAssert(),
 				new StatementAdd(inputConfiguration.getProperty("filter"))),
-				new BranchCoverageTestSelector(10));
+				new JacocoCoverageSelector());
 	}
 
-	public DSpot(InputConfiguration configuration, int numberOfIterations) throws InvalidSdkException, Exception {
+	public DSpot(InputConfiguration configuration, int numberOfIterations) throws  Exception {
 		this(configuration, numberOfIterations, Arrays.asList(
 				new TestDataMutator(),
 				new TestMethodCallAdder(),
 				new TestMethodCallRemover(),
-				new StatementAdderOnAssert(),
 				new StatementAdd(configuration.getProperty("filter")))
 		);
 	}
 
-	public DSpot(InputConfiguration configuration, TestSelector testSelector) throws InvalidSdkException, Exception {
+	public DSpot(InputConfiguration configuration, TestSelector testSelector) throws  Exception {
 		this(configuration, 3, Arrays.asList(
 				new TestDataMutator(),
 				new TestMethodCallAdder(),
 				new TestMethodCallRemover(),
-				new StatementAdderOnAssert(),
 				new StatementAdd(configuration.getProperty("filter"))), testSelector);
 	}
 
-	public DSpot(InputConfiguration configuration, List<Amplifier> amplifiers) throws InvalidSdkException, Exception {
+	public DSpot(InputConfiguration configuration, int numberOfIterations, TestSelector testSelector) throws  Exception {
+		this(configuration, numberOfIterations, Arrays.asList(
+				new TestDataMutator(),
+				new TestMethodCallAdder(),
+				new TestMethodCallRemover(),
+				new StatementAdd(configuration.getProperty("filter"))), testSelector);
+	}
+
+	public DSpot(InputConfiguration configuration, List<Amplifier> amplifiers) throws  Exception {
 		this(configuration, 3, amplifiers);
 	}
 
-	public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers) throws InvalidSdkException, Exception {
+	public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers) throws  Exception {
 		this(inputConfiguration, numberOfIterations, amplifiers, new BranchCoverageTestSelector(10));
 	}
 
-    public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws InvalidSdkException, Exception {
+    public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws  Exception {
 		Initializer.initialize(inputConfiguration, testSelector instanceof BranchCoverageTestSelector);
-        this.testResources = new ArrayList<>();
         this.inputConfiguration = inputConfiguration;
         this.inputProgram = inputConfiguration.getInputProgram();
 
