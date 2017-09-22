@@ -1,6 +1,5 @@
 package fr.inria.diversify.dspot;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
@@ -12,6 +11,7 @@ import org.junit.Test;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 import static fr.inria.diversify.dspot.AbstractTest.nl;
