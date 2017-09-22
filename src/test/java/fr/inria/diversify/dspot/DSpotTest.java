@@ -2,7 +2,6 @@ package fr.inria.diversify.dspot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import edu.emory.mathcs.backport.java.util.Collections;
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.support.json.ProjectTimeJSON;
 import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
@@ -10,7 +9,6 @@ import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.utils.AmplificationHelper;
-import fr.inria.diversify.utils.DSpotUtils;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
