@@ -13,6 +13,7 @@ import spoon.SpoonModelBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.function.Function;
 
 import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
 
@@ -29,10 +30,12 @@ public class Initializer {
 		AutomaticBuilderFactory.reset();
 		InitUtils.initLogLevel(configuration);
 		InputProgram program = InitUtils.initInputProgram(configuration);
+		program.setProgramDir(DSpotUtils.computeProgramDirectory.apply(configuration));
 		configuration.setInputProgram(program);
 		AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(configuration);
 		String dependencies = builder.buildClasspath(program.getProgramDir());
 		dependencies += PATH_SEPARATOR + "target/dspot/dependencies/";
+
 
 		File output = new File(program.getProgramDir() + "/" + program.getClassesDir());
 		File outputTest = new File(program.getProgramDir() + "/" + program.getTestClassesDir());
@@ -54,7 +57,7 @@ public class Initializer {
 			modelBuilder.setBinaryOutputDirectory(output);
 			status = modelBuilder.compile(SpoonModelBuilder.InputType.CTTYPES);
 		} else {
-			status = DSpotCompiler.compile(program.getAbsoluteSourceCodeDir() , dependencies, output);
+			status = DSpotCompiler.compile(program.getAbsoluteSourceCodeDir(), dependencies, output);
 		}
 		boolean statusTest = DSpotCompiler.compile(program.getAbsoluteTestSourceCodeDir(),
 				output.getAbsolutePath() + PATH_SEPARATOR + dependencies, outputTest);
@@ -62,5 +65,7 @@ public class Initializer {
 			throw new RuntimeException("Error during compilation");
 		}
 	}
+
+
 
 }

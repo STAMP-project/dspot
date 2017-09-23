@@ -1,6 +1,7 @@
 package fr.inria.diversify.automaticbuilder;
 
 import fr.inria.diversify.Utils;
+import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.stamp.Main;
@@ -24,9 +25,18 @@ import static org.junit.Assert.fail;
  */
 public class MavenAutomaticBuilderTest {
 
+    @Before
+    public void setUp() throws Exception {
+        Utils.reset();
+        Main.verbose = true;
+        MavenPitCommandAndOptions.evosuiteMode = false;
+        MavenPitCommandAndOptions.descartesMode = false;
+    }
+
     @After
     public void tearDown() throws Exception {
         Utils.reset();
+        Main.verbose = false;
     }
 
     @Test
@@ -38,7 +48,6 @@ public class MavenAutomaticBuilderTest {
             //ignored
         }
 
-        Utils.reset();
         Utils.init("src/test/resources/test-projects/test-projects.properties");
 
         final String dependenciesOf = Utils.getBuilder().buildClasspath("src/test/resources/test-projects/");
@@ -53,7 +62,6 @@ public class MavenAutomaticBuilderTest {
     @Test
     public void testRunPit() throws Exception {
 
-        Utils.reset();
         Utils.init("src/test/resources/test-projects/test-projects.properties");
 
         final List<PitResult> pitResults = Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir());
@@ -66,7 +74,6 @@ public class MavenAutomaticBuilderTest {
     @Test
     public void testFailingPit() throws Exception {
 
-        Utils.reset();
         Utils.init("src/test/resources/mockito/mockito.properties");
 
         try {
@@ -88,17 +95,13 @@ public class MavenAutomaticBuilderTest {
     @Test
     public void testOnAbstractClass() throws Exception {
 
-        Utils.reset();
         Utils.init("src/test/resources/sample/sample.properties");
 
-        Main.verbose = true;
+        FileUtils.deleteDirectory(new File("src/test/resources/sample/target/pit-reports"));
 
         final List<PitResult> pitResults = Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir(),
                 Utils.findClass("fr.inria.inheritance.Inherited"));
 
         assertEquals(9, pitResults.size());
-        System.out.println(pitResults);
-
-        Main.verbose = true;
     }
 }

@@ -6,6 +6,7 @@ import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.InitUtils;
+import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.test.launcher.TestLauncher;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Description;
@@ -45,8 +46,19 @@ public class ChangeDetectorSelector extends TakeAllSelector {
 			} catch (IllegalArgumentException ignored) {
 				//the target directory does not exist, do not need to clean it
 			}
-			DSpotCompiler.compile(inputProgram.getAbsoluteSourceCodeDir(), dependencies, output);
-			this.pathToChangedVersionOfProgram = inputProgram.getProgramDir();
+
+
+			this.pathToChangedVersionOfProgram = inputConfiguration.getProperty("folderPath") +
+					DSpotUtils.shouldAddSeparator.apply(inputConfiguration.getProperty("folderPath")) +
+					(inputConfiguration.getProperty("targetModule") != null ?
+							inputConfiguration.getProperty("targetModule") +
+									DSpotUtils.shouldAddSeparator.apply(inputConfiguration.getProperty("folderPath"))
+							: "");
+
+			DSpotCompiler.compile(this.pathToChangedVersionOfProgram +
+					inputProgram.getRelativeSourceCodeDir() +
+							DSpotUtils.shouldAddSeparator.apply(inputProgram.getRelativeSourceCodeDir()),
+					dependencies, output);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

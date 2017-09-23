@@ -129,7 +129,7 @@ public class DSpot {
     }
 
     public List<CtType> amplifyAllTests() throws InterruptedException, IOException, ClassNotFoundException {
-        final List<CtType> amplifiedTest = inputProgram.getFactory().Class().getAll().stream()
+		final List<CtType> amplifiedTest = inputProgram.getFactory().Class().getAll().stream()
                 .filter(ctClass -> !ctClass.getModifiers().contains(ModifierKind.ABSTRACT))
                 .filter(ctClass ->
                         ctClass.getMethods().stream()

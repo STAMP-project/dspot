@@ -105,8 +105,8 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 					OPT_ADDITIONAL_CP_ELEMENTS + "target/dspot/dependencies/" +
 							(configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
 							configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) : "") , //
-					descartesMode ? OPT_MUTATION_ENGINE :
-							OPT_MUTATORS + (evosuiteMode ?
+					descartesMode ? OPT_MUTATION_ENGINE_DESCARTES : OPT_MUTATION_ENGINE_DEFAULT,
+					OPT_MUTATORS + (evosuiteMode ?
 									Arrays.stream(VALUE_MUTATORS_EVOSUITE).collect(Collectors.joining(","))
 									: VALUE_MUTATORS_ALL), //
 					configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) != null ?
@@ -164,7 +164,8 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 					OPT_VALUE_FORMAT, //
 					OPT_VALUE_TIMEOUT, //
 					OPT_VALUE_MEMORY, //
-					descartesMode ? OPT_MUTATION_ENGINE : OPT_MUTATORS + (evosuiteMode ?
+					descartesMode ? OPT_MUTATION_ENGINE_DESCARTES : OPT_MUTATION_ENGINE_DEFAULT,
+					OPT_MUTATORS + (evosuiteMode ?
 							Arrays.stream(VALUE_MUTATORS_EVOSUITE).collect(Collectors.joining(","))
 							: VALUE_MUTATORS_ALL), //
 					OPT_ADDITIONAL_CP_ELEMENTS + "target/dspot/dependencies/" +

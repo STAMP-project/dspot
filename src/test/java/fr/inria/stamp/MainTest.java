@@ -23,7 +23,6 @@ public class MainTest {
     public void testExample() throws Exception, InvalidSdkException {
         try {
             FileUtils.deleteDirectory(new File("target/trash"));
-            FileUtils.deleteDirectory(new File("tmpDir"));
         } catch (Exception ignored) {
 
         }

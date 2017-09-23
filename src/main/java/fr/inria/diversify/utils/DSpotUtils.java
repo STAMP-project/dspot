@@ -1,10 +1,12 @@
 package fr.inria.diversify.utils;
 
+import fr.inria.diversify.compare.MethodsHandler;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.processor.main.AddBlockEverywhereProcessor;
 import fr.inria.diversify.processor.main.BranchCoverageProcessor;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
+import org.apache.commons.io.FileUtils;
 import org.kevoree.log.Log;
 import spoon.Launcher;
 import spoon.compiler.Environment;
@@ -19,6 +21,7 @@ import spoon.support.JavaOutputProcessor;
 import spoon.support.QueueProcessingManager;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -151,17 +154,16 @@ public class DSpotUtils {
 
 	public static void copyPackageFromResources(String packagePath, String... classToCopy) {
 		final String pathToTestClassesDirectory = pathToDSpotDependencies + "/" + packagePath + "/";
+		final String directory = packagePath.split("/")[packagePath.split("/").length -1];
 		try {
-			org.apache.commons.io.FileUtils.forceMkdir(new File(pathToTestClassesDirectory));
+			FileUtils.forceMkdir(new File(pathToTestClassesDirectory));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 		Arrays.stream(classToCopy).forEach(file -> {
 			OutputStream resStreamOut = null;
 			try {
-				final InputStream resourceAsStream = Thread.currentThread()
-						.getContextClassLoader()
-						.getResourceAsStream(packagePath + "/" + file + ".class");
+				final InputStream resourceAsStream = ClassLoader.getSystemResourceAsStream( directory + "/" + file + ".class");
 				resStreamOut =
 						new FileOutputStream(pathToTestClassesDirectory + file + ".class");
 				int readBytes;
@@ -175,4 +177,11 @@ public class DSpotUtils {
 			}
 		});
 	}
+
+	public static final Function<String, String> shouldAddSeparator = string -> string.endsWith("/") ? "" : "/";
+
+	public static Function<InputConfiguration, String> computeProgramDirectory = configuration ->
+			configuration.getProperty("project") + shouldAddSeparator.apply(configuration.getProperty("project")) +
+					(configuration.getProperty("targetModule") != null ?
+							configuration.getProperty("targetModule") + shouldAddSeparator.apply(configuration.getProperty("project")) : "");
 }

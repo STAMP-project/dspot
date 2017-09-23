@@ -68,11 +68,11 @@
             <version>2.8.0</version>
         </dependency>
 
-        <dependency>
+        <!--<dependency>
             <groupId>fr.inria.stamp</groupId>
             <artifactId>descartes</artifactId>
             <version>0.1-SNAPSHOT</version>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>org.gradle</groupId>

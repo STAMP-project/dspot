@@ -1,10 +1,10 @@
 package fr.inria.diversify.utils;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.Test;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
