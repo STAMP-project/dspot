@@ -54,14 +54,14 @@ testSrc=src/test/java
 javaVersion=8
 # (optional) path to the output folder, default to "output_diversify"
 outputDirectory=dspot-out/
-# (optional) filter on the package name containing tests to be amplified ("example" => "example.*"
-filter=myWorld*
+# (optional) filter on the package name containing tests to be amplified ("example" => "example.*")
+filter=fr.inria.stamp.examples.dhell*
 ```
 
 2. Execute DSpot
 ```
 cd dspot
-java -jar target/dspot-1.0.0-jar-with-dependencies.jar  -p ../dhell/dspot.properties -i 1 -t myWorld.HelloAppTest -a MethodAdd
+java -jar target/dspot-1.0.0-jar-with-dependencies.jar  -p ../dhell/dspot.properties -i 1 -t  fr.inria.stamp.examples.dhell.HelloAppTest -a MethodAdd
 ```
 The execution uses these parameters:
 * p: [mandatory] specify the path to the configuration file.
@@ -85,9 +85,9 @@ it kill 12 more mutants
 
 DSpot produces 3 outputs in the (default: outputDirectory) specified in the properties file.
 
-* a textual report of the result of the amplification also printed on the standard output (see dspot/dspot-out/myWorld.HelloAppTest_mutants_report.txt)
-* a json file summarizing the amplification (see dspot/dspot-out/myWorld.HelloAppTest_mutants_killed.json)
-* the amplified tests augmented with comments (see dspot/dspot-out/myWorld/AmplHelloAppTest.java)
+* a textual report of the result of the amplification also printed on the standard output (see dspot/dspot-out/*.HelloAppTest_mutants_report.txt)
+* a json file summarizing the amplification (see dspot/dspot-out/*.HelloAppTest_mutants_killed.json)
+* the amplified tests augmented with comments (see dspot/dspot-out/*/AmplHelloAppTest.java)
 
 ### Execute an analysis with DSpot on a Gradle Project
 #### Clone and Compile Maven Project (DHEG)
@@ -157,13 +157,13 @@ javaVersion=8
 # (optional) path to the output folder, default to "output_diversify"
 outputDirectory=dspot-out/
 # (optional) filter on the package name containing tests to be amplified ("example" => "example.*"
-filter=myWorld*
+filter=fr.inria.stamp.examples.dhell*
 ```
 
 2. Execute DSpot
 ```
 cd dspot
-java -jar target/dspot-1.0.0-jar-with-dependencies.jar  -p ../dheg/dspot.properties -i 1 -t myWorld.HelloAppTest -b GradleBuilder -a MethodAdd
+java -jar target/dspot-1.0.0-jar-with-dependencies.jar  -p ../dheg/dspot.properties -i 1 -t fr.inria.stamp.examples.dhell.HelloAppTest -b GradleBuilder -a MethodAdd
 ```
 The execution uses these parameters:
 * p: [mandatory] specify the path to the configuration file.
@@ -186,9 +186,9 @@ it kill 13 more mutants
 
 DSpot produces 3 outputs in the (default: outputDirectory) specified in the properties file.
 
-* a textual report of the result of the amplification also printed on the standard output (see dspot/dspot-out/myWorld.HelloAppTest_mutants_report.txt)
-* a json file summarizing the amplification (see dspot/dspot-out/myWorld.HelloAppTest_mutants_killed.json)
-* the amplified tests augmented with comments (see dspot/dspot-out/myWorld/AmplHelloAppTest.java)
+* a textual report of the result of the amplification also printed on the standard output (see dspot/dspot-out/*.HelloAppTest_mutants_report.txt)
+* a json file summarizing the amplification (see dspot/dspot-out/*.HelloAppTest_mutants_killed.json)
+* the amplified tests augmented with comments (see dspot/dspot-out/*/AmplHelloAppTest.java)
 
 
 ### Conclusion
