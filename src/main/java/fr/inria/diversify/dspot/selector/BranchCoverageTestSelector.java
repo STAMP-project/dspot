@@ -6,6 +6,7 @@ import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.log.LogReader;
 import fr.inria.diversify.log.TestCoverageParser;
 import fr.inria.diversify.log.branch.Coverage;
+import fr.inria.diversify.log.branch.MethodCoverage;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
@@ -16,7 +17,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by Benjamin DANGLOT
@@ -25,6 +30,10 @@ import java.util.stream.Collectors;
  */
 @Deprecated
 public class BranchCoverageTestSelector implements TestSelector {
+
+    /**
+     * The coverage used in this class is a relative coverage on method executed and not over all methods of the programs.
+     */
 
     private File logDir;
 
@@ -42,8 +51,6 @@ public class BranchCoverageTestSelector implements TestSelector {
 
     private List<Coverage> initialBranchCoverages;
 
-    private Double initialCoverage;
-
     private int initialUniquePath;
 
     private String outputDirectory;
@@ -54,7 +61,6 @@ public class BranchCoverageTestSelector implements TestSelector {
         this.maxNumberOfTest = maxNumberOfTest;
         this.coveragePerTestKept = new HashMap<>();
         this.oldTests = new ArrayList<>();
-        this.initialCoverage = 0.0D;
     }
 
     @Override
@@ -74,15 +80,25 @@ public class BranchCoverageTestSelector implements TestSelector {
         this.oldTests.clear();
     }
 
+    private static Stream<List<String>> addMethodCoveredInFrontInPath(MethodCoverage methodCoverage) {
+        final HashSet<List<String>> paths = new HashSet<>(methodCoverage.getAllPath());
+        paths.forEach(strings -> strings.add(0, methodCoverage.getMethodName()));
+        return paths.stream();
+    }
+
+    private static Function<Collection<Coverage>, Integer> computeNumberOfUniquePath = (coverages) -> coverages.stream()
+            .flatMap(coverage -> coverage.getMethodCoverages().stream())
+            .flatMap(BranchCoverageTestSelector::addMethodCoveredInFrontInPath)
+            .collect(HashSet::new,
+                    (allPath, path) -> allPath.add(path.stream().collect(Collectors.joining(":"))),
+                    HashSet::addAll).size();
+
     @Override
     public List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified) {
         if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
             this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
-            Coverage global = new Coverage("global");
-            this.branchCoverage.forEach(global::merge);
             this.initialBranchCoverages = this.branchCoverage;
-            this.initialCoverage = global.coverage();
-            this.initialUniquePath = Math.toIntExact(this.branchCoverage.stream().map(Coverage::getCoverageBranch).distinct().count());
+            this.initialUniquePath = computeNumberOfUniquePath.apply(this.initialBranchCoverages);
         }
         if (this.oldTests.isEmpty()) {
             this.oldTests.addAll(testsToBeAmplified);
@@ -124,16 +140,16 @@ public class BranchCoverageTestSelector implements TestSelector {
             }
         }
         List<CtMethod<?>> amplifiedTestKept = reduceSelectedTest(amplifiedTests);
-        amplifiedTestKept.forEach(test -> {
-            Optional<Coverage> testToKeep = branchCoverage.stream()
-                    .filter(coverage ->
-                            (coverage.getName()).equals(
-                                    this.currentClassTestToBeAmplified.getQualifiedName() + "." + test.getSimpleName()))
-                    .findAny();
-            if (testToKeep.isPresent()) {
-                this.coveragePerTestKept.put(test, testToKeep.get());
-            }
-        });
+        amplifiedTestKept.forEach(test ->
+                branchCoverage.stream()
+                        .filter(coverage ->
+                                (coverage.getName()).equals(
+                                        this.currentClassTestToBeAmplified.getQualifiedName() + "." + test.getSimpleName()))
+                        .findAny()
+                        .ifPresent(coverage ->
+                                this.coveragePerTestKept.put(test, coverage)
+                        )
+        );
         return amplifiedTestKept;
     }
 
@@ -165,29 +181,34 @@ public class BranchCoverageTestSelector implements TestSelector {
         deleteLogFile();
     }
 
+    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Map<Object, Boolean> seen = new ConcurrentHashMap<>();
+        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+    }
+
     @Override
     public void report() {
         final String nl = System.getProperty("line.separator");
         StringBuilder string = new StringBuilder();
 
+        double initial = getInitialCoverage().coverage();
+        Coverage global = new Coverage("global");
+        this.initialBranchCoverages.forEach(global::merge);
+        this.coveragePerTestKept.keySet().forEach(test -> global.merge(this.coveragePerTestKept.get(test)));
+
         string.append(nl).append("======= REPORT =======").append(nl);
         string.append("Branch Coverage Selector:").append(nl);
-        string.append("Initial coverage: ").append(String.format("%.2f", (100.0D * this.initialCoverage))).append("%")
+        string.append("Initial coverage: ").append(String.format("%.2f", (100.0D * initial))).append("%")
                 .append(nl);
         string.append("There is ").append(this.initialUniquePath).append(" unique path in the original test suite")
                 .append(nl);
         string.append("The amplification results with ").append(this.coveragePerTestKept.size())
                 .append(" new tests").append(nl);
-        Coverage global = new Coverage("global");
-        this.coveragePerTestKept.keySet().forEach(test -> global.merge(this.coveragePerTestKept.get(test)));
+
         string.append("The branch coverage obtained is: ").append(String.format("%.2f", 100.0D * global.coverage())).append("%")
                 .append(nl);
-        int newUniquePath = Math.toIntExact(this.coveragePerTestKept.keySet().stream()
-                .map(this.coveragePerTestKept::get)
-                .filter(coverage -> !this.initialBranchCoverages.contains(coverage))
-                .map(Coverage::getCoverageBranch)
-                .distinct()
-                .count());
+
+        int newUniquePath = computeNumberOfUniquePath.apply(this.coveragePerTestKept.values());
         string.append("There is ").append(newUniquePath).append(" new unique path").append(nl).append(nl);
         System.out.println(string.toString());
 
@@ -203,6 +224,29 @@ public class BranchCoverageTestSelector implements TestSelector {
             e.printStackTrace();
         }
         reportJSON();
+    }
+
+    private Coverage getInitialCoverage() {
+        Coverage initial = new Coverage("initial");
+        this.initialBranchCoverages.forEach(initial::merge);
+
+        Set<String> coverageMethodByInitial = initial.getMethodCoverages().stream()
+                .map(MethodCoverage::getMethodName)
+                .collect(Collectors.toSet());
+
+        this.coveragePerTestKept.values().stream()
+                .flatMap(coverage -> coverage.getMethodCoverages().stream())
+                .filter(coverage -> !coverageMethodByInitial.contains(coverage.getMethodName()))
+                .filter(distinctByKey(MethodCoverage::getMethodName))
+                .forEach(methodCoverage ->
+                        initial.getMethodCoverages().add(new MethodCoverage(
+                                        methodCoverage.getMethodId(),
+                                        methodCoverage.getMethodName(),
+                                        methodCoverage.getAllBranch()
+                                )
+                        )
+                );
+        return initial;
     }
 
     @Override
@@ -276,7 +320,7 @@ public class BranchCoverageTestSelector implements TestSelector {
             }
         }
         while (oldMethods.size() > maxNumberOfTest) {
-            final Integer minAge = testAges.get(oldMethods.stream().min((m1, m2) -> testAges.get(m1.getSimpleName()) - testAges.get(m2.getSimpleName())).get().getSimpleName());
+            final Integer minAge = testAges.get(oldMethods.stream().min(Comparator.comparingInt(m -> testAges.get(m.getSimpleName()))).get().getSimpleName());
             Optional<CtMethod> oldestMethod;
             while ((oldestMethod = oldMethods.stream().filter(method -> testAges.get(method.getSimpleName()).equals(minAge)).findAny()).isPresent()) {
                 oldMethods.remove(oldestMethod.get());
