@@ -110,10 +110,14 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 		final List<String> pathExecuted = new ArrayList<>();
 		final List<CtMethod<?>> methodsKept = amplifiedTestToBeKept.stream()
 				.filter(ctMethod ->
-						coverageResultsMap.get(ctMethod.getSimpleName()).isBetterThan(
+						this.selectedToBeAmplifiedCoverageResultsMap.get(
+								getFirstParentThatHasBeenRun(ctMethod).getSimpleName()) == null ||
+								coverageResultsMap.get(ctMethod.getSimpleName()).isBetterThan(
 								this.selectedToBeAmplifiedCoverageResultsMap.get(
-										getFirstParentThatHasBeenRun(ctMethod).getSimpleName())
-						)
+										getFirstParentThatHasBeenRun(ctMethod).getSimpleName())) &&
+								!computePathExecuted.apply(coverageResultsMap.get(ctMethod.getSimpleName()).getCoverageBuilder())
+								.equals(computePathExecuted.apply(this.selectedToBeAmplifiedCoverageResultsMap.get(
+										getFirstParentThatHasBeenRun(ctMethod).getSimpleName()).getCoverageBuilder()))
 				)
 				.filter(ctMethod -> {
 					final String pathByExecInstructions = computePathExecuted.apply(coverageResultsMap.get(ctMethod.getSimpleName()).getCoverageBuilder());
