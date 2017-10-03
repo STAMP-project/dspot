@@ -55,6 +55,17 @@ public class MainTest {
                 "--test-criterion", "JacocoCoverageSelector",
                 "--iteration", "1"
         });
+        // We test that the amplification fail on our example TODO maybe we should add a new resource that can be amplified only using A-Amplification...
+        final File reportFile = new File("target/trash/example.TestSuiteExample_jacoco_instr_coverage_report.txt");
+        assertTrue(reportFile.exists());
+        assertTrue(new File("target/trash/example.TestSuiteExample_jacoco_instr_coverage.json").exists());
+        assertTrue(new File("target/trash/example/TestSuiteExampleAmpl.java").exists());
+        try (BufferedReader reader = new BufferedReader(new FileReader(reportFile))) {
+            String content = reader.lines().reduce("", (acc, line) -> acc + line + nl);
+            assertEquals(expectedReportOnDefaultMode, content);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -66,15 +77,29 @@ public class MainTest {
                 "--amplifiers", "None",
                 "--iteration", "1"
         });
+        // We test that the amplification fail on our example TODO maybe we should add a new resource that can be amplified only using A-Amplification...
+        final File reportFile = new File("target/trash/example.TestSuiteExample_jacoco_instr_coverage_report.txt");
+        assertTrue(reportFile.exists());
+        assertTrue(new File("target/trash/example.TestSuiteExample_jacoco_instr_coverage.json").exists());
+        assertTrue(new File("target/trash/example/TestSuiteExampleAmpl.java").exists());
+        try (BufferedReader reader = new BufferedReader(new FileReader(reportFile))) {
+            String content = reader.lines().reduce("", (acc, line) -> acc + line + nl);
+            assertEquals(expectedReportOnDefaultMode, content);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
+
+    private static final String expectedReportOnDefaultMode = "\n" +
+            "======= REPORT =======\n" +
+            "Initial instruction coverage: 33 / 37\n" +
+            "89.19%\n" +
+            "Amplification results with 0 amplified tests.\n" +
+            "Amplified instruction coverage: 33 / 37\n" +
+            "89.19%\n";
 
     @Test
     public void testExample() throws Exception, InvalidSdkException {
-        try {
-            FileUtils.deleteDirectory(new File("target/trash"));
-        } catch (Exception ignored) {
-
-        }
         Main.main(new String[]{"--verbose", "--example"});
         final File reportFile = new File("target/trash/example.TestSuiteExample_jacoco_instr_coverage_report.txt");
         assertTrue(reportFile.exists());
@@ -90,12 +115,6 @@ public class MainTest {
 
     @Test
     public void testTwoClasses() throws Exception, InvalidSdkException {
-        try {
-            FileUtils.deleteDirectory(new File("target/trash"));
-            FileUtils.deleteDirectory(new File("tmpDir"));
-        } catch (Exception ignored) {
-
-        }
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
@@ -121,12 +140,6 @@ public class MainTest {
 
     @Test
     public void testOneClassOneMethod() throws Throwable {
-        try {
-            FileUtils.deleteDirectory(new File("target/trash"));
-            FileUtils.deleteDirectory(new File("tmpDir"));
-        } catch (Exception ignored) {
-
-        }
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
@@ -155,18 +168,12 @@ public class MainTest {
             "======= REPORT =======" + nl +
             "Initial instruction coverage: 33 / 37" + nl +
             "89" + DECIMAL_SEPARATOR + "19%" + nl +
-            "Amplification results with 6 amplified tests." + nl +
+            "Amplification results with 5 amplified tests." + nl +
             "Amplified instruction coverage: 37 / 37" + nl +
             "100" + DECIMAL_SEPARATOR + "00%" + nl;
 
     @Test
     public void testRegexOnWholePackage() throws Throwable {
-        try {
-            FileUtils.deleteDirectory(new File("target/trash"));
-            FileUtils.deleteDirectory(new File("tmpDir"));
-        } catch (Exception ignored) {
-
-        }
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
@@ -196,12 +203,6 @@ public class MainTest {
 
     @Test
     public void testUsingRegex() throws Throwable {
-        try {
-            FileUtils.deleteDirectory(new File("target/trash"));
-            FileUtils.deleteDirectory(new File("tmpDir"));
-        } catch (Exception ignored) {
-
-        }
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
@@ -227,12 +228,6 @@ public class MainTest {
 
     @Test
     public void testAll() throws Throwable {
-        try {
-            FileUtils.deleteDirectory(new File("target/trash"));
-            FileUtils.deleteDirectory(new File("tmpDir"));
-        } catch (Exception ignored) {
-
-        }
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
@@ -260,7 +255,7 @@ public class MainTest {
             "======= REPORT =======" + nl +
             "Initial instruction coverage: 33 / 37" + nl +
             "89" + DECIMAL_SEPARATOR + "19%" + nl +
-            "Amplification results with 24 amplified tests." + nl +
+            "Amplification results with 22 amplified tests." + nl +
             "Amplified instruction coverage: 37 / 37" + nl +
             "100" + DECIMAL_SEPARATOR + "00%" + nl;
 
@@ -268,7 +263,7 @@ public class MainTest {
             "======= REPORT =======" + nl +
             "Initial instruction coverage: 33 / 37" + nl +
             "89" + DECIMAL_SEPARATOR + "19%" + nl +
-            "Amplification results with 31 amplified tests." + nl +
+            "Amplification results with 29 amplified tests." + nl +
             "Amplified instruction coverage: 37 / 37" + nl +
             "100" + DECIMAL_SEPARATOR + "00%" + nl;
 
