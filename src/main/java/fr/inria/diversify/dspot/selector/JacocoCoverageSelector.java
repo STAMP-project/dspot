@@ -176,7 +176,9 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 				.getAutomaticBuilder(this.configuration)
 				.buildClasspath(this.program.getProgramDir())
 				+ System.getProperty("path.separator") +
-				this.program.getProgramDir() + fileSeparator + this.program.getClassesDir();
+				this.program.getProgramDir() + fileSeparator + this.program.getClassesDir()
+				+ System.getProperty("path.separator") +
+				this.program.getProgramDir() + fileSeparator + this.program.getTestClassesDir();
 
 		DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
 				new File(this.program.getProgramDir() + fileSeparator + this.program.getTestClassesDir()));

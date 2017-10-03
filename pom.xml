@@ -59,7 +59,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
+            <version>4.12</version>
         </dependency>
 
         <dependency>
@@ -83,7 +83,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>2.8.47</version>
+            <version>2.10.0</version>
         </dependency>
 
     </dependencies>
@@ -104,6 +104,8 @@
                             <includes>
                                 <include>descartes/target/</include>
                                 <include>mock/target/</include>
+                                <include>easymock/target/</include>
+                                <include>jmockit/target/</include>
                                 <include>mockito/target/</include>
                                 <include>multiple-pom/target/</include>
                                 <include>multiple-pom/module-1/module-2-1/target/</include>

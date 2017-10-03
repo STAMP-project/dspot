@@ -42,7 +42,7 @@ public class Initializer {
 		try {
 			FileUtils.cleanDirectory(output);
 			FileUtils.cleanDirectory(outputTest);
-		} catch (IllegalArgumentException ignored) {
+		} catch (Exception ignored) {
 			//the target directory does not exist, do not need to clean it
 		}
 
@@ -62,6 +62,25 @@ public class Initializer {
 		boolean statusTest = DSpotCompiler.compile(program.getAbsoluteTestSourceCodeDir(),
 				output.getAbsolutePath() + PATH_SEPARATOR + dependencies, outputTest);
 		if (! (status && statusTest)) {
+			throw new RuntimeException("Error during compilation");
+		}
+	}
+
+	public static void compileTest(InputConfiguration configuration) {
+		InputProgram program = configuration.getInputProgram();
+		String dependencies = AutomaticBuilderFactory.getAutomaticBuilder(configuration)
+				.buildClasspath(program.getProgramDir());
+		dependencies += PATH_SEPARATOR + "target/dspot/dependencies/";
+		File output = new File(program.getProgramDir() + "/" + program.getClassesDir());
+		File outputTest = new File(program.getProgramDir() + "/" + program.getTestClassesDir());
+		try {
+			FileUtils.cleanDirectory(outputTest);
+		} catch (Exception ignored) {
+			//the target directory does not exist, do not need to clean it
+		}
+		boolean statusTest = DSpotCompiler.compile(program.getAbsoluteTestSourceCodeDir(),
+				output.getAbsolutePath() + PATH_SEPARATOR + dependencies, outputTest);
+		if (!statusTest) {
 			throw new RuntimeException("Error during compilation");
 		}
 	}

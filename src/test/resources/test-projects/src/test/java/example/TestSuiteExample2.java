@@ -3,7 +3,9 @@
 package example;
 
 
-public class TestSuiteExample {
+public class TestSuiteExample2 {
+
+    private static int integer = example.TestResources.integer;
 
     @org.junit.Test
     public void test3() {

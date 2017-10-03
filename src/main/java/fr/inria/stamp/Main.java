@@ -1,6 +1,8 @@
 package fr.inria.stamp;
 
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import fr.inria.diversify.dspot.amplifier.TestDataMutator;
+import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.runner.InputConfiguration;
@@ -108,7 +110,11 @@ public class Main {
     static void runExample() {
         try {
             InputConfiguration configuration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
-            DSpot dSpot = new DSpot(configuration, 1);
+            DSpot dSpot = new DSpot(configuration,
+                    1,
+                    Collections.singletonList(new TestDataMutator()),
+                    new JacocoCoverageSelector()
+            );
             dSpot.amplifyTest("example.TestSuiteExample");
         } catch (Exception | InvalidSdkException e) {
             throw new RuntimeException(e);
