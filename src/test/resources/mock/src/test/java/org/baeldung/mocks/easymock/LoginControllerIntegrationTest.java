@@ -101,12 +101,10 @@ public class LoginControllerIntegrationTest {
 
     private static String specificArgumentMatching(final String expected) {
         EasyMock.reportMatcher(new IArgumentMatcher() {
-            @Override
             public boolean matches(Object argument) {
                 return argument instanceof String && ((String) argument).startsWith(expected);
             }
 
-            @Override
             public void appendTo(StringBuffer buffer) {
                 //NOOP
             }
