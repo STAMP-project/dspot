@@ -25,9 +25,8 @@ import java.util.stream.Stream;
  */
 public class StatementAdd implements Amplifier {
 
-	private boolean shouldGenerateNewObject = true;// TODO
-	private int counterGenerateNewObject = 0;
 	private String filter;
+
 	private Set<CtMethod> methods;
 
 	public StatementAdd() {
@@ -45,41 +44,10 @@ public class StatementAdd implements Amplifier {
 		// use results of existing method call to generate new statement.
 		final List<CtMethod> useReturnValuesOfExistingMethodCall = useReturnValuesOfExistingMethodCall(method);  // original
 		useExistingObject.addAll(useReturnValuesOfExistingMethodCall);
-		if (shouldGenerateNewObject) {
-			useExistingObject.addAll(generateOnNewObjects(method));
-		}
 		return useExistingObject;
 	}
 
-	private List<CtMethod> generateOnNewObjects(CtMethod method) {
-		// generate new objects
-		final List<CtMethod> generateNewObjects = generateNewObjects(method);
-		final List<CtMethod> methodsWithMoreStatement = generateNewObjects.stream() // + generated at previous step
-				.flatMap(ctMethod -> useExistingObject(ctMethod).stream())
-				.collect(Collectors.toList());
-		methodsWithMoreStatement.addAll(generateNewObjects.stream() // + generated at previous step
-				.flatMap(ctMethod -> useReturnValuesOfExistingMethodCall(ctMethod).stream())
-				.collect(Collectors.toList()));
-		return methodsWithMoreStatement;
-	}
-
-	private List<CtMethod> generateNewObjects(CtMethod method) {
-		List<CtLocalVariable<?>> existingObjects = getExistingObjects(method);
-		final Stream<? extends CtMethod<?>> gen_o1 = existingObjects.stream() // must use tmp variable because javac is confused
-				.flatMap(localVariable -> ValueCreator.generateAllConstructionOf(localVariable.getType()).stream())
-				.map(ctExpression -> {
-							final CtMethod<?> clone = AmplificationHelper.cloneMethodTest(method, "_sd");
-							clone.getBody().insertBegin(
-									clone.getFactory().createLocalVariable(
-											ctExpression.getType(), "gen_o" + counterGenerateNewObject++, ctExpression
-									)
-							);
-							return clone;
-						}
-				);
-		return gen_o1.collect(Collectors.toList());
-	}
-
+	//TODO existing object should be object from the original test, not from
 	private List<CtMethod> useExistingObject(CtMethod method) {
 		List<CtLocalVariable<?>> existingObjects = getExistingObjects(method);
 		return existingObjects.stream()
@@ -213,8 +181,9 @@ public class StatementAdd implements Amplifier {
 					Set<CtMethod> allMethods = cl.getAllMethods();
 					return allMethods.stream();
 				})
-				.filter(mth -> !mth.getModifiers().contains(ModifierKind.ABSTRACT))//TODO abstract
+				.filter(mth -> !mth.getModifiers().contains(ModifierKind.ABSTRACT))
 				.filter(mth -> !mth.getModifiers().contains(ModifierKind.PRIVATE))
+				.filter(mth -> !mth.getModifiers().contains(ModifierKind.STATIC))
 				.filter(mth -> mth.getBody() != null)
 				.filter(mth -> !mth.getBody().getStatements().isEmpty())
 				.collect(Collectors.toSet());
