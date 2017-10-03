@@ -193,8 +193,9 @@ public class DSpot {
             Log.info("Print {} with {} amplified test cases in {}",  amplification.getSimpleName() ,
                     testSelector.getAmplifiedTestCases().size(), this.inputConfiguration.getOutputDirectory());
             DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory);
-            FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
-            FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
+			FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
+			FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
+			Initializer.compileTest(this.inputConfiguration);
             writeTimeJson();
             return amplification;
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
