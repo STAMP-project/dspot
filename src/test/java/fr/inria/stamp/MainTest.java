@@ -48,6 +48,27 @@ public class MainTest {
     }
 
     @Test
+    public void testDefaultModeIsNoneAmplifier() throws Exception, InvalidSdkException {
+        Main.main(new String[] {
+                "--verbose",
+                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
+                "--test-criterion", "JacocoCoverageSelector",
+                "--iteration", "1"
+        });
+    }
+
+    @Test
+    public void testNoneAmplifier() throws Exception, InvalidSdkException {
+        Main.main(new String[] {
+                "--verbose",
+                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
+                "--test-criterion", "JacocoCoverageSelector",
+                "--amplifiers", "None",
+                "--iteration", "1"
+        });
+    }
+
+    @Test
     public void testExample() throws Exception, InvalidSdkException {
         try {
             FileUtils.deleteDirectory(new File("target/trash"));

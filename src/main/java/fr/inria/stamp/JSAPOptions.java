@@ -13,6 +13,7 @@ import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.util.Log;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -66,7 +67,8 @@ public class JSAPOptions {
 		MethodRemove(new TestMethodCallRemover()),
 		StatementAdderOnAssert(new StatementAdderOnAssert()),
 		TestDataMutator(new TestDataMutator()),
-		StatementAdd(new StatementAdd());
+		StatementAdd(new StatementAdd()),
+		None(null);
 		public final Amplifier amplifier;
 
 		private AmplifierEnum(Amplifier amplifier) {
@@ -128,10 +130,8 @@ public class JSAPOptions {
 	}
 
 	private static List<Amplifier> buildAmplifiersFromString(String[] amplifiersAsString) {
-		if (amplifiersAsString.length == 0) {
-			return Arrays.stream(new String[]{"MethodAdd", "MethodRemove", "StatementAdd", "TestDataMutator"})
-					.map(JSAPOptions::stringToAmplifier)
-					.collect(Collectors.toList());
+		if (amplifiersAsString.length == 0 || "None".equals(amplifiersAsString[0])) {
+			return Collections.emptyList();
 		} else {
 			return Arrays.stream(amplifiersAsString)
 					.map(JSAPOptions::stringToAmplifier)
@@ -175,7 +175,8 @@ public class JSAPOptions {
 		amplifiers.setShortFlag('a');
 		amplifiers.setStringParser(JSAP.STRING_PARSER);
 		amplifiers.setUsageName("Amplifier");
-		amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. Possible values: NumberLiteralAmplifier|MethodAdd|MethodRemove|StatementAdderOnAssert|TestDataMutator|StatementAdd");
+		amplifiers.setDefault("None");
+		amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. Possible values: NumberLiteralAmplifier|MethodAdd|MethodRemove|StatementAdderOnAssert|TestDataMutator|StatementAdd|None");
 
 		FlaggedOption iteration = new FlaggedOption("iteration");
 		iteration.setDefault("3");
