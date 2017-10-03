@@ -104,6 +104,8 @@
                             <includes>
                                 <include>descartes/target/</include>
                                 <include>mock/target/</include>
+                                <include>easymock/target/</include>
+                                <include>jmockit/target/</include>
                                 <include>mockito/target/</include>
                                 <include>multiple-pom/target/</include>
                                 <include>multiple-pom/module-1/module-2-1/target/</include>

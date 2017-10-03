@@ -4,6 +4,8 @@ import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.utils.DSpotUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
@@ -25,6 +27,25 @@ public class MainTest {
 
     private static final char DECIMAL_SEPARATOR = (((DecimalFormat) DecimalFormat.getInstance()).getDecimalFormatSymbols().getDecimalSeparator());
 
+    @Before
+    public void setUp() throws Exception {
+        try {
+            FileUtils.deleteDirectory(new File("target/trash"));
+            FileUtils.deleteDirectory(new File("src/test/resources/test-projects/target"));
+        } catch (Exception ignored) {
+
+        }
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        try {
+            FileUtils.deleteDirectory(new File("target/trash"));
+            FileUtils.deleteDirectory(new File("src/test/resources/test-projects/target"));
+        } catch (Exception ignored) {
+
+        }
+    }
 
     @Test
     public void testExample() throws Exception, InvalidSdkException {
@@ -77,15 +98,6 @@ public class MainTest {
         }
     }
 
-    private static final String expectedReportTwoClass = nl +
-            "======= REPORT =======" + nl +
-            "Branch Coverage Selector:" + nl +
-            "Initial coverage: 83.33%" + nl +
-            "There is 3 unique path in the original test suite" + nl +
-            "The amplification results with 7 new tests" + nl +
-            "The branch coverage obtained is: 100.00%" + nl +
-            "There is 4 new unique path" + nl + nl;
-
     @Test
     public void testOneClassOneMethod() throws Throwable {
         try {
@@ -121,10 +133,10 @@ public class MainTest {
     private static final String expectedReportOneClassOneMethod = "" + nl +
             "======= REPORT =======" + nl +
             "Initial instruction coverage: 33 / 37" + nl +
-            "89.19%" + nl +
+            "89" + DECIMAL_SEPARATOR + "19%" + nl +
             "Amplification results with 6 amplified tests." + nl +
             "Amplified instruction coverage: 37 / 37" + nl +
-            "100.00%" + nl;
+            "100" + DECIMAL_SEPARATOR + "00%" + nl;
 
     @Test
     public void testRegexOnWholePackage() throws Throwable {
@@ -226,17 +238,17 @@ public class MainTest {
     private static final String expectedReportExample = nl +
             "======= REPORT =======" + nl +
             "Initial instruction coverage: 33 / 37" + nl +
-            "89.19%" + nl +
+            "89" + DECIMAL_SEPARATOR + "19%" + nl +
             "Amplification results with 24 amplified tests." + nl +
             "Amplified instruction coverage: 37 / 37" + nl +
-            "100.00%" + nl;
+            "100" + DECIMAL_SEPARATOR + "00%" + nl;
 
     private static final String expectedReportAll = nl +
             "======= REPORT =======" + nl +
             "Initial instruction coverage: 33 / 37" + nl +
-            "89.19%" + nl +
+            "89" + DECIMAL_SEPARATOR + "19%" + nl +
             "Amplification results with 31 amplified tests." + nl +
             "Amplified instruction coverage: 37 / 37" + nl +
-            "100.00%" + nl;
+            "100" + DECIMAL_SEPARATOR + "00%" + nl;
 
 }

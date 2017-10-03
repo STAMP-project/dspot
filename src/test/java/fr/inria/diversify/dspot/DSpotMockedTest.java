@@ -28,7 +28,6 @@ public class DSpotMockedTest extends MavenAbstractTest {
 
         /*
 			Test the whole dspot procedure.
-                It results with 24 methods: 18 amplified tests + 6 original tests.
          */
 		ValueCreator.count = 0;
 		AmplificationHelper.setSeedRandom(23L);

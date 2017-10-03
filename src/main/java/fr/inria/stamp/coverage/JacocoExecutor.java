@@ -62,8 +62,6 @@ public class JacocoExecutor {
 		final String classesDirectory = this.program.getProgramDir() + "/" + this.program.getClassesDir();
 		final String testClassesDirectory = this.program.getProgramDir() + "/" + this.program.getTestClassesDir();
 		try {
-			//TODO add dependencies?
-
 			String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration)
 							.buildClasspath(this.program.getProgramDir());
 

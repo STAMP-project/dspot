@@ -27,11 +27,12 @@ public class TestJacocoExecutor {
 		Utils.reset();
 	}
 
-	//TODO fix the range
+
 	@Test
+	@Ignore // TODO We may need a specific runner.
 	public void testJacocoExecutorOnJMockit() throws Exception {
 		Utils.reset();
-		Utils.init("src/test/resources/mock/mock.properties");
+		Utils.init("src/test/resources/jmockit/mock.properties");
 
 		JacocoExecutor jacocoExecutor = new JacocoExecutor(Utils.getInputProgram(), Utils.getInputConfiguration());
 		final CtClass<?> jmockitTest = Utils.findClass("org.baeldung.mocks.jmockit.LoginControllerIntegrationTest");
@@ -46,7 +47,7 @@ public class TestJacocoExecutor {
 	@Test
 	public void testJacocoExecutorOnEasyMock() throws Exception {
 		Utils.reset();
-		Utils.init("src/test/resources/mock/mock.properties");
+		Utils.init("src/test/resources/easymock/mock.properties");
 
 		JacocoExecutor jacocoExecutor = new JacocoExecutor(Utils.getInputProgram(), Utils.getInputConfiguration());
 		final CtClass<?> easyMockTest = Utils.findClass("org.baeldung.mocks.easymock.LoginControllerIntegrationTest");
@@ -56,9 +57,6 @@ public class TestJacocoExecutor {
 				coverageResults.instructionsCovered <= 60);
 		assertEquals(78, coverageResults.instructionsTotal);
 	}
-
-
-
 
 	@Test
 	public void testJacocoExecutor() throws Exception {
@@ -85,6 +83,10 @@ public class TestJacocoExecutor {
 		assertEquals(65, coverageResults.instructionsTotal);
 	}
 
+	/**
+	 * WARNING: The jacoco executor can not run mockito see: https://github.com/mockito/mockito/issues/969
+	 * TODO: fixme
+	 */
 	@Test
 	@Ignore
 	public void testJacocoExecutorOnMockito2() throws Exception {

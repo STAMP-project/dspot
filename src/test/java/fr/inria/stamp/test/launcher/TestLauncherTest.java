@@ -6,6 +6,7 @@ import fr.inria.diversify.Utils;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.stamp.test.listener.TestListener;
 import org.apache.commons.io.FileUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
@@ -23,7 +24,69 @@ import static org.junit.Assert.assertEquals;
 public class TestLauncherTest {
 
 	@Test
-	public void testOnMultipleMockers() throws Exception {
+	@Ignore // TODO fix it, we may need a specific runner
+	public void testOnJMockit() throws Exception {
+
+		/*
+			Runner is able to run all kind of test
+		 */
+
+		try {
+			FileUtils.deleteDirectory(new File("src/test/resources/jmockit/target/"));
+		} catch (Exception ignored) {
+
+		}
+
+		Utils.reset();
+		Utils.init("src/test/resources/jmockit/mock.properties");
+		final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration())
+				.buildClasspath(Utils.getInputProgram().getProgramDir())
+				+ System.getProperty("path.separator")
+				+ Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getClassesDir()
+				+ System.getProperty("path.separator")
+				+ Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getTestClassesDir();
+
+		final CtClass<?> jmockitTest = Utils.findClass("org.baeldung.mocks.jmockit.LoginControllerIntegrationTest");
+
+		TestListener run = TestLauncher.run(Utils.getInputConfiguration(), classpath, jmockitTest);
+		// TODO must fix it:
+		assertEquals(7, run.getRunningTests().size());
+		assertEquals(7, run.getPassingTests().size());
+		assertEquals(0, run.getFailingTests().size());
+	}
+
+	@Test
+	public void testOnEasyMock() throws Exception {
+
+		/*
+			Runner is able to run all kind of test
+		 */
+
+		try {
+			FileUtils.deleteDirectory(new File("src/test/resources/easymock/target/"));
+		} catch (Exception ignored) {
+
+		}
+
+		Utils.reset();
+		Utils.init("src/test/resources/easymock/mock.properties");
+		final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration())
+				.buildClasspath(Utils.getInputProgram().getProgramDir())
+				+ System.getProperty("path.separator")
+				+ Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getClassesDir()
+				+ System.getProperty("path.separator")
+				+ Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getTestClassesDir();
+
+		final CtClass<?> easyMockTest = Utils.findClass("org.baeldung.mocks.easymock.LoginControllerIntegrationTest");
+
+		TestListener run = TestLauncher.run(Utils.getInputConfiguration(), classpath, easyMockTest);
+		assertEquals(7, run.getRunningTests().size());
+		assertEquals(7, run.getPassingTests().size());
+		assertEquals(0, run.getFailingTests().size());
+	}
+
+	@Test
+	public void testOnMockito() throws Exception {
 
 		/*
 			Runner is able to run all kind of test
@@ -44,22 +107,9 @@ public class TestLauncherTest {
 				+ System.getProperty("path.separator")
 				+ Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getTestClassesDir();
 
-		final CtClass<?> easyMockTest = Utils.findClass("org.baeldung.mocks.easymock.LoginControllerIntegrationTest");
-		final CtClass<?> jmockitTest = Utils.findClass("org.baeldung.mocks.jmockit.LoginControllerIntegrationTest");
 		final CtClass<?> mockitoTest = Utils.findClass("org.baeldung.mocks.mockito.LoginControllerIntegrationTest");
 
-		TestListener run = TestLauncher.run(Utils.getInputConfiguration(), classpath, jmockitTest);
-		// TODO must fix it:
-		/*assertEquals(7, run.getRunningTests().size());
-		assertEquals(7, run.getPassingTests().size());
-		assertEquals(0, run.getFailingTests().size());*/
-
-		run = TestLauncher.run(Utils.getInputConfiguration(), classpath, easyMockTest);
-		assertEquals(7, run.getRunningTests().size());
-		assertEquals(7, run.getPassingTests().size());
-		assertEquals(0, run.getFailingTests().size());
-
-		run = TestLauncher.run(Utils.getInputConfiguration(), classpath, mockitoTest);
+		TestListener run = TestLauncher.run(Utils.getInputConfiguration(), classpath, mockitoTest);
 		assertEquals(7, run.getRunningTests().size());
 		assertEquals(7, run.getPassingTests().size());
 		assertEquals(0, run.getFailingTests().size());
