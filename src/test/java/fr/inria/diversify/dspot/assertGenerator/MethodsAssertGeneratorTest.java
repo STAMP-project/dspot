@@ -18,7 +18,7 @@ import static junit.framework.TestCase.assertEquals;
  */
 public class MethodsAssertGeneratorTest extends AbstractTest {
 
-    @Test
+	@Test
     public void testBuildAssertOnSpecificCases() throws Exception {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithSpecificCaseToBeAsserted");
         MethodsAssertGenerator mag = new MethodsAssertGenerator(testClass, Utils.getInputConfiguration(), Utils.getCompiler());

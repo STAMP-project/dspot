@@ -37,6 +37,6 @@ public class TakeAllSelectorTest {
 
 		final CtType<?> test2 = dspot.amplifyTest("example.TestSuiteExample", Collections.singletonList("test2"));
 
-		assertEquals(11, test2.getMethods().size());
+		assertEquals(7, test2.getMethods().size());
 	}
 }

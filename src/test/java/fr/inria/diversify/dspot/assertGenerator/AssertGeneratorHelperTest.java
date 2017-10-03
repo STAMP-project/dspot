@@ -6,6 +6,8 @@ import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -38,9 +40,30 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 				"    cl.getBoolean();" + nl  +
 				"    java.io.File file = new java.io.File(\"\");" + nl +
 				"    boolean var = cl.getTrue();" + nl  +
-				"    fr.inria.diversify.compare.ObjectLog.log(cl, \"cl\", \"test1__1__end\");" + nl +
+				"    fr.inria.diversify.compare.ObjectLog.log(cl, \"cl\", \"test1__1___end\");" + nl +
 				"}";
 		assertEquals(expectedMethod, testWithLog.toString());
+	}
+
+	@Test
+	public void testCreateTestWithLogWithoutChainSameObservations() throws Exception {
+		CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithSpecificCaseToBeAsserted", "test1");
+		final CtMethod<?> testWithLog =
+				AssertGeneratorHelper.createTestWithLog(test1,"fr.inria.sample");
+
+		final String expectedMethodWithLog = "@org.junit.Test(timeout = 10000)\n" +
+				"public void test1_withlog() {\n" +
+				"    int a = 0;\n" +
+				"    int b = 1;\n" +
+				"    int o_test1__3 = new java.util.Comparator<java.lang.Integer>() {\n" +
+				"        @java.lang.Override\n" +
+				"        public int compare(java.lang.Integer integer, java.lang.Integer t1) {\n" +
+				"            return integer - t1;\n" +
+				"        }\n" +
+				"    }.compare(a, b);\n" +
+				"    fr.inria.diversify.compare.ObjectLog.log(o_test1__3, \"o_test1__3\", \"test1__3\");\n" +
+				"}";
+		assertEquals(expectedMethodWithLog, testWithLog.toString());
 	}
 
 	@Test
@@ -60,7 +83,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 				"    cl.getFalse();" + nl  +
 				"    cl.getFalse();" + nl  +
 				"    cl.getFalse();" + nl  +
-				"    fr.inria.diversify.compare.ObjectLog.log(cl, \"cl\", \"test2__1__end\");" + nl +
+				"    fr.inria.diversify.compare.ObjectLog.log(cl, \"cl\", \"test2__1___end\");" + nl +
 				"}";
 		assertEquals(expectedMethod, testWithLog.toString());
 	}
