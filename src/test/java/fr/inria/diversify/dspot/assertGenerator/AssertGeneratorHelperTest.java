@@ -38,6 +38,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 				"    cl.getBoolean();" + nl  +
 				"    java.io.File file = new java.io.File(\"\");" + nl +
 				"    boolean var = cl.getTrue();" + nl  +
+				"    fr.inria.diversify.compare.ObjectLog.log(cl, \"cl\", \"test1__1__end\");" + nl +
 				"}";
 		assertEquals(expectedMethod, testWithLog.toString());
 	}
@@ -59,6 +60,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 				"    cl.getFalse();" + nl  +
 				"    cl.getFalse();" + nl  +
 				"    cl.getFalse();" + nl  +
+				"    fr.inria.diversify.compare.ObjectLog.log(cl, \"cl\", \"test2__1__end\");" + nl +
 				"}";
 		assertEquals(expectedMethod, testWithLog.toString());
 	}

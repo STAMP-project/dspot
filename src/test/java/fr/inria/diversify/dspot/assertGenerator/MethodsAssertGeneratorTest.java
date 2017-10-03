@@ -47,8 +47,6 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         MethodsAssertGenerator mag = new MethodsAssertGenerator(testClass, Utils.getInputConfiguration(), Utils.getCompiler());
 
-        String nl = System.getProperty("line.separator");
-
         final String expectedBody = "{" + nl  +
 				"    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl  +
 				"    // AssertGenerator add assertion" + nl  +
@@ -61,6 +59,12 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
 				"    cl.getBoolean();" + nl  +
 				"    java.io.File file = new java.io.File(\"\");" + nl +
 				"    boolean var = cl.getTrue();" + nl  +
+				"    // AssertGenerator add assertion" + nl +
+				"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getBoolean());" + nl +
+				"    // AssertGenerator add assertion" + nl +
+				"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getTrue());" + nl +
+				"    // AssertGenerator add assertion" + nl +
+				"    org.junit.Assert.assertFalse(((fr.inria.sample.ClassWithBoolean)cl).getFalse());" + nl +
 				"}";
 
         CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithoutAssert", "test1");
