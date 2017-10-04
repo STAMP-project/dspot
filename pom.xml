@@ -172,6 +172,11 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>**/fr/inria/diversify/dspot/amplifier/ObjectGenerator.*</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
 
         </plugins>

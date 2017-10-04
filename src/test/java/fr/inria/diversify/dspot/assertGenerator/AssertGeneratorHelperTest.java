@@ -53,9 +53,9 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 				"    fr.inria.statementaddarray.ClassTargetAmplify clazz = new fr.inria.statementaddarray.ClassTargetAmplify();" + nl +
 				"    fr.inria.diversify.compare.ObjectLog.log(clazz, \"clazz\", \"test_sd6__1\");" + nl +
 				"    // StatementAdd: generate variable from return value" + nl +
-				"    fr.inria.statementaddarray.ClassParameterAmplify __DSPOT_invoc_0 = clazz.methodWithReturn();" + nl +
+				"    fr.inria.statementaddarray.ClassParameterAmplify __DSPOT_invoc_3 = clazz.methodWithReturn();" + nl +
 				"    // StatementAdd: add invocation of a method" + nl +
-				"    __DSPOT_invoc_0.method1();" + nl +
+				"    __DSPOT_invoc_3.method1();" + nl +
 				"    fr.inria.diversify.compare.ObjectLog.log(clazz, \"clazz\", \"test_sd6__1___end\");" + nl +
 				"}";
 
