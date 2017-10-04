@@ -31,7 +31,7 @@ public class ObjectGenerator implements Amplifier {
 							final CtMethod<?> clone = AmplificationHelper.cloneMethodTest(method, "_sd");
 							clone.getBody().insertBegin(
 									clone.getFactory().createLocalVariable(
-											ctExpression.getType(), "gen_o" + counterGenerateNewObject++, ctExpression
+											ctExpression.getType(), "__DSPOT_gen_o" + counterGenerateNewObject++, ctExpression
 									)
 							);
 							return clone;

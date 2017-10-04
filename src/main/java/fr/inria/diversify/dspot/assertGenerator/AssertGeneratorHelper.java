@@ -1,29 +1,18 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
 import fr.inria.diversify.compare.ObjectLog;
-import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.utils.AmplificationHelper;
-import fr.inria.diversify.utils.DSpotUtils;
-import org.kevoree.log.Log;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.declaration.CtType;
+import spoon.reflect.declaration.CtNamedElement;
 import spoon.reflect.declaration.CtTypedElement;
-import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtTypeReference;
-import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import static fr.inria.diversify.utils.AmplificationChecker.isAssert;
 
 /**
  * Created by Benjamin DANGLOT
@@ -87,9 +76,18 @@ public class AssertGeneratorHelper {
             }
 
         }
+
         if (statement instanceof CtLocalVariable ||
                 statement instanceof CtAssignment ||
                 statement instanceof CtVariableWrite) {
+
+            if (statement instanceof CtNamedElement) {
+                if (((CtNamedElement)statement).getSimpleName()
+                        .startsWith("__DSPOT_")) {
+                    return false;
+                }
+            }
+
             final CtTypeReference type = ((CtTypedElement) statement).getType();
             if (type.getQualifiedName().startsWith(filter)) {
                 return true;

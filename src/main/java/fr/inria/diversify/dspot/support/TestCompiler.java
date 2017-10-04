@@ -69,6 +69,8 @@ public class TestCompiler {
 				final CtClass<?> newModelCtClass = getNewModelCtClass(compiler.getSourceOutputDirectory().getAbsolutePath(),
 						classTest.getQualifiedName());
 
+				System.out.println(problems);
+
 				final HashSet<CtMethod<?>> methodsToRemove = problems.stream()
 						.collect(HashSet<CtMethod<?>>::new,
 								(ctMethods, categorizedProblem) -> {

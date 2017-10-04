@@ -54,5 +54,4 @@ public class AssertGeneratorTest extends AbstractTest {
         assertEquals(expectedBody, ((CtMethod)ctType.getMethodsByName("test1").stream().findFirst().get()).getBody().toString());
     }
 
-    private static String nl = System.getProperty("line.separator");
 }

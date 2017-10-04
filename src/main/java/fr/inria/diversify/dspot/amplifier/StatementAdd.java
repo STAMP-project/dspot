@@ -5,7 +5,6 @@ import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.TypeUtils;
-import org.kevoree.log.Log;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
@@ -16,7 +15,6 @@ import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * User: Simon
@@ -73,12 +71,15 @@ public class StatementAdd implements Amplifier {
 					if (!methodsWithTargetType.isEmpty()) {
 						CtLocalVariable localVar = method.getFactory().Code().createLocalVariable(
 								invocation.getType(),
-								"invoc_" + count[0]++,
+								"__DSPOT_invoc_" + count[0]++,
 								invocation);
+
 						CtExpression<?> target = createLocalVarRef(localVar);
 						CtMethod methodClone = AmplificationHelper.cloneMethodTest(method, "");
 						CtStatement stmt = findInvocationIn(methodClone, invocation);
 						stmt.replace(localVar);
+
+						DSpotUtils.addComment(localVar, "StatementAdd: generate variable from return value", CtComment.CommentType.INLINE);
 
 						ampMethods.addAll(methodsWithTargetType.stream()
 								.map(addMth -> addInvocation(methodClone, addMth, target, localVar))
@@ -149,8 +150,7 @@ public class StatementAdd implements Amplifier {
 
 	private CtExpression<?> createLocalVarRef(CtLocalVariable var) {
 		CtLocalVariableReference varRef = var.getFactory().Code().createLocalVariableReference(var);
-		CtVariableAccess varRead = var.getFactory().Code().createVariableRead(varRef, false);
-		return varRead;
+		return var.getFactory().Code().createVariableRead(varRef, false);
 	}
 
 	private List<CtMethod> findMethodsWithTargetType(CtTypeReference type) {
