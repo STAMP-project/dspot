@@ -43,7 +43,7 @@ public class StatementAddTest extends AbstractTest {
 
         System.out.println(amplifiedMethods);
 
-        assertEquals(35, amplifiedMethods.size());
+        assertEquals(7, amplifiedMethods.size());
     }
 
     @Test
@@ -61,7 +61,7 @@ public class StatementAddTest extends AbstractTest {
 
         System.out.println(amplifiedMethods);
 
-        assertEquals(23, amplifiedMethods.size());
+        assertEquals(5, amplifiedMethods.size());
     }
 
     @Test
@@ -79,7 +79,7 @@ public class StatementAddTest extends AbstractTest {
 
         System.out.println(amplifiedMethods);
 
-        assertEquals(10, amplifiedMethods.size());
+        assertEquals(2, amplifiedMethods.size());
     }
 
     @Test
@@ -103,7 +103,7 @@ public class StatementAddTest extends AbstractTest {
 
         System.out.println(amplifiedMethods);
 
-        assertEquals(28, amplifiedMethods.size());
+        assertEquals(6, amplifiedMethods.size());
     }
 
 }

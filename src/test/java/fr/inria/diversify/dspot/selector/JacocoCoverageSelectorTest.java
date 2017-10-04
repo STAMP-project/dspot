@@ -2,7 +2,9 @@ package fr.inria.diversify.dspot.selector;
 
 import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.DSpot;
+import fr.inria.diversify.dspot.amplifier.ObjectGenerator;
 import fr.inria.diversify.dspot.amplifier.StatementAdd;
+import fr.inria.diversify.dspot.amplifier.TestDataMutator;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
@@ -11,6 +13,8 @@ import org.junit.Test;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
@@ -25,6 +29,9 @@ public class JacocoCoverageSelectorTest {
 
 	public static final String nl = System.getProperty("line.separator");
 
+	private static final char DECIMAL_SEPARATOR = (((DecimalFormat) DecimalFormat.getInstance()).getDecimalFormatSymbols().getDecimalSeparator());
+
+
 	@Test
 	public void testDSpotWithJacocoCoverageSelector() throws Exception, InvalidSdkException {
 		try {
@@ -34,7 +41,9 @@ public class JacocoCoverageSelectorTest {
 		}
 		AmplificationHelper.setSeedRandom(23L);
 		InputConfiguration configuration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
-		DSpot dspot = new DSpot(configuration, 1, Collections.singletonList(new StatementAdd()),
+		DSpot dspot = new DSpot(configuration,
+				2,
+				Arrays.asList(new TestDataMutator(), new StatementAdd()),
 				new JacocoCoverageSelector());
 		dspot.amplifyTest("example.TestSuiteExample", Collections.singletonList("test2"));
 
@@ -47,9 +56,9 @@ public class JacocoCoverageSelectorTest {
 
 	private static final String expectedReport = nl + "======= REPORT =======" + nl +
 			"Initial instruction coverage: 33 / 37" + nl +
-			"89.19%" + nl +
-			"Amplification results with 3 amplified tests." + nl +
+			"89" + DECIMAL_SEPARATOR + "19%" + nl +
+			"Amplification results with 5 amplified tests." + nl +
 			"Amplified instruction coverage: 37 / 37" + nl +
-			"100.00%";
+			"100" + DECIMAL_SEPARATOR + "00%";
 
 }

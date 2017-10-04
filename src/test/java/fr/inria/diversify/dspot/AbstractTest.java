@@ -2,7 +2,9 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Created by Benjamin DANGLOT
@@ -23,4 +25,8 @@ public abstract class AbstractTest {
         ValueCreator.count = 0;
     }
 
+    @After
+    public void tearDown() throws Exception {
+        Utils.reset();
+    }
 }
