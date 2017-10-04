@@ -34,8 +34,9 @@ public class AmplificationChecker {
         try {
             Class cl = invocation.getExecutable().getDeclaringType().getActualClass();
             String mthName = invocation.getExecutable().getSimpleName();
-            return (mthName.startsWith("assert") || mthName.contains("fail"))
-                    || isAssertInstance(cl);
+            return (mthName.startsWith("assert") ||
+                    mthName.contains("fail")) ||
+                    isAssertInstance(cl);
         } catch (Exception e) {
             return false;
         }

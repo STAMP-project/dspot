@@ -5,6 +5,7 @@ import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
 import fr.inria.diversify.utils.AmplificationHelper;
+import fr.inria.stamp.Main;
 import fr.inria.stamp.test.launcher.TestLauncher;
 import fr.inria.stamp.test.listener.TestListener;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -69,7 +70,13 @@ public class TestCompiler {
 				final CtClass<?> newModelCtClass = getNewModelCtClass(compiler.getSourceOutputDirectory().getAbsolutePath(),
 						classTest.getQualifiedName());
 
-				System.out.println(problems);
+				if (Main.verbose) {
+					int maxNumber = problems.size() > 20 ? 20 : problems.size();
+					problems.subList(0, maxNumber)
+							.forEach(categorizedProblem ->
+									Log.error("{}", categorizedProblem)
+							);
+				}
 
 				final HashSet<CtMethod<?>> methodsToRemove = problems.stream()
 						.collect(HashSet<CtMethod<?>>::new,

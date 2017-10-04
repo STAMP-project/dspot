@@ -166,6 +166,8 @@ public class ValueCreator {
 		return Collections.singletonList(constructorCall);
 	}
 
+	//TODO we should checks if at least the default constructor is available.
+	//TODO we may need to implement a support for factory usages
 	private static CtExpression generateConstructionOf(CtTypeReference type) {
 		CtConstructorCall<?> constructorCall = type.getFactory().createConstructorCall();
 		constructorCall.setType(type);

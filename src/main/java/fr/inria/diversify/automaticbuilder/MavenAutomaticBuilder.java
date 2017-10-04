@@ -93,6 +93,11 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 	@Override
 	public List<PitResult> runPit(String pathToRootOfProject, CtType<?> testClass) {
 		try {
+			org.apache.commons.io.FileUtils.deleteDirectory(new File(pathToRootOfProject + "/target/pit-reports"));
+		} catch (Exception ignored) {
+
+		}
+		try {
 			String[] phases = new String[]{PRE_GOAL_PIT, //
 					CMD_PIT_MUTATION_COVERAGE, //
 					OPT_WITH_HISTORY, //
@@ -155,6 +160,11 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
 	@Override
 	public List<PitResult> runPit(String pathToRootOfProject) {
+		try {
+			org.apache.commons.io.FileUtils.deleteDirectory(new File(pathToRootOfProject + "/target/pit-reports"));
+		} catch (Exception ignored) {
+
+		}
 		try {
 			String[] phases = new String[]{PRE_GOAL_PIT, //
 					CMD_PIT_MUTATION_COVERAGE, //
