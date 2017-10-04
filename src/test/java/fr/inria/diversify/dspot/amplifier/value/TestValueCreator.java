@@ -34,26 +34,26 @@ public class TestValueCreator extends AbstractTest {
 		final CtTypeReference<ArrayList> reference = factory.Type().createReference(ArrayList.class);
 		reference.setActualTypeArguments(Collections.singletonList(factory.Type().createReference(String.class)));
 
-		assertEquals("java.util.ArrayList<java.lang.String> vc_0 = " +
+		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_0 = " +
 						"new java.util.ArrayList<java.lang.String>(" +
 						"java.util.Collections.singletonList(\"mEp_A=f&o(QqZ.%_r;?r\")" +
 						")",
 				ValueCreator.createRandomLocalVar(reference).toString());
-		assertEquals("java.util.ArrayList<java.lang.String> vc_1 = new java.util.ArrayList<java.lang.String>()",
+		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_1 = new java.util.ArrayList<java.lang.String>()",
 				ValueCreator.createRandomLocalVar(reference).toString());
-		assertEquals("java.util.ArrayList<java.lang.String> vc_2 = new java.util.ArrayList<java.lang.String>(-1016235803)",
+		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_2 = new java.util.ArrayList<java.lang.String>(-1016235803)",
 				ValueCreator.createRandomLocalVar(reference).toString());
-		assertEquals("java.util.ArrayList<java.lang.String> vc_3 = new java.util.ArrayList<java.lang.String>(java.util.Collections.emptyList())",
+		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_3 = new java.util.ArrayList<java.lang.String>(java.util.Collections.emptyList())",
 				ValueCreator.createRandomLocalVar(reference).toString());
-		assertEquals("java.util.ArrayList<java.lang.String> vc_4 = new java.util.ArrayList<java.lang.String>(java.util.Collections.emptyList())",
+		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_4 = new java.util.ArrayList<java.lang.String>(java.util.Collections.emptyList())",
 				ValueCreator.createRandomLocalVar(reference).toString());
-		assertEquals("java.util.ArrayList<java.lang.String> vc_5 = new java.util.ArrayList<java.lang.String>(java.util.Collections.singletonList(\"`)}.clE+=T zM>*v:Zvh\"))",
+		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_5 = new java.util.ArrayList<java.lang.String>(java.util.Collections.singletonList(\"`)}.clE+=T zM>*v:Zvh\"))",
 				ValueCreator.createRandomLocalVar(reference).toString());
-		assertEquals("java.util.ArrayList<java.lang.String> vc_6 = new java.util.ArrayList<java.lang.String>(1240296032)",
+		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_6 = new java.util.ArrayList<java.lang.String>(1240296032)",
 				ValueCreator.createRandomLocalVar(reference).toString());
-		assertEquals("java.util.ArrayList<java.lang.String> vc_7 = new java.util.ArrayList<java.lang.String>()",
+		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_7 = new java.util.ArrayList<java.lang.String>()",
 				ValueCreator.createRandomLocalVar(reference).toString());
-		assertEquals("java.util.ArrayList<java.lang.String> vc_8 = new java.util.ArrayList<java.lang.String>(java.util.Collections.singletonList(\"k?IJ8_ubM+qAn$Xwf>7M\"))",
+		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_8 = new java.util.ArrayList<java.lang.String>(java.util.Collections.singletonList(\"k?IJ8_ubM+qAn$Xwf>7M\"))",
 				ValueCreator.createRandomLocalVar(reference).toString());
 	}
 
@@ -75,20 +75,20 @@ public class TestValueCreator extends AbstractTest {
 
 		CtLocalVariable randomLocalVar = ValueCreator.createRandomLocalVar(factory.Type().INTEGER_PRIMITIVE);
 
-		assertEquals("vc_" + count, randomLocalVar.getSimpleName());
+		assertEquals("__DSPOT_vc_" + count, randomLocalVar.getSimpleName());
 		assertEquals(factory.Type().INTEGER_PRIMITIVE, randomLocalVar.getType());
 		assertEquals(-1150482841, ((CtLiteral) randomLocalVar.getDefaultExpression()).getValue());
 
 		randomLocalVar = ValueCreator.createRandomLocalVar(factory.Type().createArrayReference("int"));
 		count++;
 
-		assertEquals("vc_" + count, randomLocalVar.getSimpleName());
+		assertEquals("__DSPOT_vc_" + count, randomLocalVar.getSimpleName());
 		assertEquals(factory.Type().createArrayReference("int"), randomLocalVar.getType());
 
 		randomLocalVar = ValueCreator.createRandomLocalVar(factory.Type().createReference("fr.inria.mutation.ClassUnderTest"));
 		count++;
 
-		assertEquals("vc_" + count, randomLocalVar.getSimpleName());
+		assertEquals("__DSPOT_vc_" + count, randomLocalVar.getSimpleName());
 		assertEquals(factory.Type().createReference("fr.inria.mutation.ClassUnderTest"), randomLocalVar.getType());
 	}
 
