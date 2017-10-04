@@ -19,6 +19,28 @@ import static junit.framework.TestCase.assertEquals;
 public class MethodsAssertGeneratorTest extends AbstractTest {
 
 	@Test
+	public void testMultipleObservationsPoints() throws Exception {
+		CtClass testClass = Utils.findClass("fr.inria.multipleobservations.TestClassToBeTest");
+		MethodsAssertGenerator mag = new MethodsAssertGenerator(testClass, Utils.getInputConfiguration(), Utils.getCompiler());
+		CtMethod test = Utils.findMethod("fr.inria.multipleobservations.TestClassToBeTest", "test");
+		List<CtMethod<?>> test_buildNewAssert = mag.generateAsserts(testClass, Collections.singletonList(test));
+		final String expectedMethodWithAssertions = "@org.junit.Test(timeout = 10000)" + nl  +
+				"public void test() throws java.lang.Exception {" + nl  +
+				"    final fr.inria.multipleobservations.ClassToBeTest classToBeTest = new fr.inria.multipleobservations.ClassToBeTest();" + nl  +
+				"    // AssertGenerator add assertion" + nl  +
+				"    org.junit.Assert.assertEquals(0, ((int) (((fr.inria.multipleobservations.ClassToBeTest)classToBeTest).getInt())));" + nl  +
+				"    // AssertGenerator add assertion" + nl  +
+				"    org.junit.Assert.assertEquals(0, ((int) (((fr.inria.multipleobservations.ClassToBeTest)classToBeTest).getInteger())));" + nl  +
+				"    classToBeTest.method();" + nl  +
+				"    // AssertGenerator add assertion" + nl  +
+				"    org.junit.Assert.assertEquals(1, ((int) (((fr.inria.multipleobservations.ClassToBeTest)classToBeTest).getInt())));" + nl  +
+				"    // AssertGenerator add assertion" + nl  +
+				"    org.junit.Assert.assertEquals(1, ((int) (((fr.inria.multipleobservations.ClassToBeTest)classToBeTest).getInteger())));" + nl  +
+				"}";
+		assertEquals(expectedMethodWithAssertions, test_buildNewAssert.get(0).toString());
+	}
+
+	@Test
     public void testBuildAssertOnSpecificCases() throws Exception {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithSpecificCaseToBeAsserted");
         MethodsAssertGenerator mag = new MethodsAssertGenerator(testClass, Utils.getInputConfiguration(), Utils.getCompiler());
