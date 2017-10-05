@@ -200,7 +200,7 @@ public class MethodsAssertGenerator {
                             statements.add(line, localVariable);
                         } else {
                             if (id.endsWith("end")) {
-                                testWithAssert.getBody().insertEnd(statement);
+                                stmt.getParent(CtBlock.class).insertEnd(statement);
                             } else {
                                 lastStmt.insertAfter(statement);
                             }
