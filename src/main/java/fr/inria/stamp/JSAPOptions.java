@@ -27,7 +27,7 @@ public class JSAPOptions {
 
 	public static final JSAP options = initJSAP();
 
-	enum SelectorEnum {
+	public enum SelectorEnum {
 		BranchCoverageTestSelector {
 			@Override
 			public TestSelector buildSelector() {
@@ -61,7 +61,7 @@ public class JSAPOptions {
 		public abstract TestSelector buildSelector();
 	}
 
-	enum AmplifierEnum {
+	public enum AmplifierEnum {
 		NumberLiteralAmplifier(new NumberLiteralAmplifier()),
 		MethodAdd(new TestMethodCallAdder()),
 		MethodRemove(new TestMethodCallRemover()),
@@ -125,11 +125,11 @@ public class JSAPOptions {
 				jsapConfig.getInt("maxTestAmplified"));
 	}
 
-	private static Amplifier stringToAmplifier(String amplifier) {
+	public static Amplifier stringToAmplifier(String amplifier) {
 		return AmplifierEnum.valueOf(amplifier).amplifier;
 	}
 
-	private static List<Amplifier> buildAmplifiersFromString(String[] amplifiersAsString) {
+	public static List<Amplifier> buildAmplifiersFromString(String[] amplifiersAsString) {
 		if (amplifiersAsString.length == 0 || "None".equals(amplifiersAsString[0])) {
 			return Collections.emptyList();
 		} else {
