@@ -44,7 +44,7 @@ public class ValueCreator {
 	}
 
 	public static CtLocalVariable createRandomLocalVar(CtTypeReference type, String prefixName) {
-		return type.getFactory().createLocalVariable(type, prefixName + "_" + count++, generateRandomValue(type));
+		return type.getFactory().createLocalVariable(type, "__DSPOT_" + prefixName + "_" + count++, generateRandomValue(type));
 	}
 
 	private static CtExpression<?> generateRandomValue(CtTypeReference type) {
@@ -119,6 +119,7 @@ public class ValueCreator {
 		return factory.createInvocation(accessToCollections, executableReference);
 	}
 
+	@Deprecated
 	public static CtLocalVariable generateNullValue(CtTypeReference type) {
 		Factory factory = type.getFactory();
 		final CtLiteral<?> defaultExpression = factory.createLiteral(null);

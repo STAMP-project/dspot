@@ -167,15 +167,8 @@ public class StatementAdd implements Amplifier {
 		return methodClone;
 	}
 
-	private CtStatement findInvocationIn(CtMethod method, CtInvocation invocation) {
-		return method.getElements(new TypeFilter<>(CtInvocation.class))
-				.stream()
-				.filter(invocation1 -> invocation1 == invocation)
-				.findFirst().orElseThrow(RuntimeException::new);
-	}
-
-	private CtExpression<?> createLocalVarRef(CtLocalVariable var) {
-		CtLocalVariableReference varRef = var.getFactory().Code().createLocalVariableReference(var);
+	private CtExpression<?> createLocalVarRef(CtLocalVariable<?> var) {
+		CtLocalVariableReference<?> varRef = var.getFactory().Code().createLocalVariableReference(var);
 		return var.getFactory().Code().createVariableRead(varRef, false);
 	}
 
