@@ -39,7 +39,7 @@ public class Utils {
     }
 
     public static boolean isPrimitiveMap(Object object) {
-        if(Map.class.isInstance(object)) {
+        if (Map.class.isInstance(object)) {
             Map map = (Map) object;
             if (map.isEmpty()) {
                 return true;
@@ -75,9 +75,10 @@ public class Utils {
     }
 
     public static boolean isPrimitive(Class cl) {
-        return cl.isPrimitive()
-                || isWrapperType(cl)
-                || String.class.equals(cl);
+        return cl != null &&
+                (cl.isPrimitive()
+                        || isWrapperType(cl)
+                        || String.class.equals(cl));
     }
 
     public static boolean isWrapperType(Class cl) {
@@ -112,6 +113,14 @@ public class Utils {
                         || type.equals("float[]")
                         || type.equals("double[]")
                         || type.equals("boolean[]")
-                        || type.equals("char[]"));
+                        || type.equals("char[]")
+                        || type.equals("java.lang.Byte[]")
+                        || type.equals("java.lang.Short[]")
+                        || type.equals("java.lang.Integer[]")
+                        || type.equals("java.lang.Long[]")
+                        || type.equals("java.lang.Float[]")
+                        || type.equals("java.lang.Double[]")
+                        || type.equals("java.lang.Boolean[]")
+                        || type.equals("java.lang.Character[]"));
     }
 }
