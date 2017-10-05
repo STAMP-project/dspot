@@ -1,5 +1,6 @@
 package fr.inria.diversify.dspot.amplifier;
 
+import fr.inria.diversify.dspot.amplifier.value.ConstructorCreator;
 import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.utils.AmplificationHelper;
 import spoon.reflect.code.CtLocalVariable;
@@ -26,7 +27,7 @@ public class ObjectGenerator implements Amplifier {
 	public List<CtMethod> apply(CtMethod method) {
 		List<CtLocalVariable<?>> existingObjects = getExistingObjects(method);
 		final Stream<? extends CtMethod<?>> gen_o1 = existingObjects.stream() // must use tmp variable because javac is confused
-				.flatMap(localVariable -> ValueCreator.generateAllConstructionOf(localVariable.getType()).stream())
+				.flatMap(localVariable -> ConstructorCreator.generateAllConstructionOf(localVariable.getType()).stream())
 				.map(ctExpression -> {
 							final CtMethod<?> clone = AmplificationHelper.cloneMethodTest(method, "_sd");
 							clone.getBody().insertBegin(
