@@ -82,7 +82,18 @@ public class AmplificationChecker {
             return false;
         }
 
-        List<CtInvocation> listOfAssertion = candidate.getBody().getElements(filterContainsAssertions);
+
+        List<CtInvocation> listOfAssertion =
+                candidate.getBody().getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
+            @Override
+            public boolean matches(CtInvocation element) {
+                return hasAssertCall.test(element);
+            }
+        });
+
+        if (listOfAssertion.isEmpty()) {
+            listOfAssertion.addAll(candidate.getBody().getElements(filterContainsAssertions));
+        }
 
         return candidate.getParameters().isEmpty() &&
                 (candidate.getAnnotation(org.junit.Test.class) != null ||
@@ -94,24 +105,26 @@ public class AmplificationChecker {
     private static final TypeFilter<CtInvocation> filterContainsAssertions = new TypeFilter<CtInvocation>(CtInvocation.class) {
         @Override
         public boolean matches(CtInvocation element) {
-            return element.getExecutable() != null && element.getExecutable().getDeclaringType() != null &&
-                    (element.getExecutable().getDeclaringType().equals(
-                            element.getFactory().Type().createReference(Assert.class)
-                    ) ||
-                            element.getExecutable().getDeclaringType().equals(
-                                    element.getFactory().Type().createReference(junit.framework.Assert.class)
-                            ) || element.getExecutable().getDeclaringType().equals(
-                            element.getFactory().Type().createReference(TestCase.class)
-                    )) ||
-                    (containsMethodCallToAssertion.test(element));
+            return hasAssertCall.test(element) || containsMethodCallToAssertion.test(element);
         }
     };
+
+    private static final Predicate<CtInvocation<?>> hasAssertCall = invocation ->
+            invocation.getExecutable() != null && invocation.getExecutable().getDeclaringType() != null &&
+                    (invocation.getExecutable().getDeclaringType().equals(
+                            invocation.getFactory().Type().createReference(Assert.class)
+                    ) ||
+                            invocation.getExecutable().getDeclaringType().equals(
+                                    invocation.getFactory().Type().createReference(junit.framework.Assert.class)
+                            ) || invocation.getExecutable().getDeclaringType().equals(
+                            invocation.getFactory().Type().createReference(TestCase.class)
+                    ));
 
     private static final Predicate<CtInvocation<?>> containsMethodCallToAssertion = invocation -> {
         final CtMethod<?> method = invocation.getExecutable().getDeclaringType().getTypeDeclaration().getMethod(
                 invocation.getExecutable().getType(),
                 invocation.getExecutable().getSimpleName(),
-                invocation.getExecutable().getParameters().stream().toArray(CtTypeReference[]::new)
+                invocation.getExecutable().getParameters().toArray(new CtTypeReference[0])
         );
         return method != null && !method.getElements(filterContainsAssertions).isEmpty();
     };
