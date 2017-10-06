@@ -1,12 +1,11 @@
 package fr.inria.diversify.utils;
 
 import fr.inria.diversify.util.Log;
+import junit.framework.TestCase;
 import org.junit.Assert;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
@@ -83,23 +82,7 @@ public class AmplificationChecker {
             return false;
         }
 
-        List<CtInvocation> listOfAssertion = candidate.getBody().getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
-            @Override
-            public boolean matches(CtInvocation element) {
-                return element.getExecutable() != null && element.getExecutable().getDeclaringType() != null
-                        && (element.getExecutable().getDeclaringType().equals(
-                                element.getFactory().Type().createReference(Assert.class)
-                        )
-                        || (element.getExecutable().getDeclaringType().equals(
-                        element.getFactory().Type().createReference(junit.framework.Assert.class))
-                        ||(element.getExecutable().getDeclaringType().equals(
-                                element.getFactory().Type().createReference(junit.framework.TestCase.class)
-                        )
-                )
-                )
-                );
-            }
-        });
+        List<CtInvocation> listOfAssertion = candidate.getBody().getElements(filterContainsAssertions);
 
         return candidate.getParameters().isEmpty() &&
                 (candidate.getAnnotation(org.junit.Test.class) != null ||
@@ -107,6 +90,31 @@ public class AmplificationChecker {
                                 candidate.getSimpleName().contains("should")) && !isTestJUnit4(parent)
                                 && !listOfAssertion.isEmpty()));
     }
+
+    private static final TypeFilter<CtInvocation> filterContainsAssertions = new TypeFilter<CtInvocation>(CtInvocation.class) {
+        @Override
+        public boolean matches(CtInvocation element) {
+            return element.getExecutable() != null && element.getExecutable().getDeclaringType() != null &&
+                    (element.getExecutable().getDeclaringType().equals(
+                            element.getFactory().Type().createReference(Assert.class)
+                    ) ||
+                            element.getExecutable().getDeclaringType().equals(
+                                    element.getFactory().Type().createReference(junit.framework.Assert.class)
+                            ) || element.getExecutable().getDeclaringType().equals(
+                            element.getFactory().Type().createReference(TestCase.class)
+                    )) ||
+                    (containsMethodCallToAssertion.test(element));
+        }
+    };
+
+    private static final Predicate<CtInvocation<?>> containsMethodCallToAssertion = invocation -> {
+        final CtMethod<?> method = invocation.getExecutable().getDeclaringType().getTypeDeclaration().getMethod(
+                invocation.getExecutable().getType(),
+                invocation.getExecutable().getSimpleName(),
+                invocation.getExecutable().getParameters().stream().toArray(CtTypeReference[]::new)
+        );
+        return method != null && !method.getElements(filterContainsAssertions).isEmpty();
+    };
 
     private static boolean isTestJUnit4(CtClass<?> classTest) {
         return classTest.getMethods().stream()
