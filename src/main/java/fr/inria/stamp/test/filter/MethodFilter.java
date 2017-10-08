@@ -23,7 +23,8 @@ public class MethodFilter extends Filter {
 	public boolean shouldRun(Description description) {
 		return (description.isTest() &&
 				testMethodNames.stream().anyMatch(testMethodName ->
-						Pattern.compile(testMethodName + "\\[\\d:(.*?)\\]").matcher(description.getMethodName()).find()
+						Pattern.compile(testMethodName + "\\[\\d:(.*?)\\]").matcher(description.getMethodName()).find() ||
+						Pattern.compile(testMethodName + "\\[\\d\\]").matcher(description.getMethodName()).find()
 				) || testMethodNames.contains(description.getMethodName())
 				) ||
 				description.getChildren().stream()
