@@ -13,7 +13,6 @@ import spoon.SpoonModelBuilder;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.function.Function;
 
 import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
 
@@ -61,6 +60,9 @@ public class Initializer {
 		}
 		boolean statusTest = DSpotCompiler.compile(program.getAbsoluteTestSourceCodeDir(),
 				output.getAbsolutePath() + PATH_SEPARATOR + dependencies, outputTest);
+
+		DSpotUtils.copyResources(configuration);
+
 		if (! (status && statusTest)) {
 			throw new RuntimeException("Error during compilation");
 		}

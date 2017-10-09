@@ -30,6 +30,8 @@ import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
+
 
 /**
  * User: Simon
@@ -184,4 +186,39 @@ public class DSpotUtils {
 			configuration.getProperty("project") + shouldAddSeparator.apply(configuration.getProperty("project")) +
 					(configuration.getProperty("targetModule") != null ?
 							configuration.getProperty("targetModule") + shouldAddSeparator.apply(configuration.getProperty("project")) : "");
+
+	public static void copyResources(InputConfiguration configuration) {
+		final InputProgram program = configuration.getInputProgram();
+		final String src = configuration.getProperty("src");
+		final String testSrc = configuration.getProperty("testSrc");
+		// handle now resources
+		if (configuration.getProperty("srcResources") != null) {
+			Arrays.stream(configuration.getProperty("srcResources").split(PATH_SEPARATOR)).forEach(resource -> {
+						String pathToTarget = resource.startsWith(src) ? resource.substring(src.length()) : resource;
+						copyGivenFileToGivenPath(new File(program.getProgramDir() + resource),
+								new File(program.getProgramDir() + program.getClassesDir() + "/" + pathToTarget));
+					}
+			);
+		}
+		if (configuration.getProperty("testResources") != null) {
+			Arrays.stream(configuration.getProperty("testResources").split(PATH_SEPARATOR)).forEach(resource -> {
+						String pathToTarget = resource.startsWith(testSrc) ? resource.substring(testSrc.length()) : resource;
+						copyGivenFileToGivenPath(new File(program.getProgramDir() + resource),
+								new File(program.getProgramDir() + program.getTestClassesDir() + "/" + pathToTarget));
+					}
+			);
+		}
+	}
+
+	private static void copyGivenFileToGivenPath(File fileToCopy, File fileTarget) {
+		try {
+			if (fileToCopy.isDirectory()) {
+				FileUtils.copyDirectory(fileToCopy, fileTarget);
+			} else {
+				FileUtils.copyFile(fileToCopy, fileTarget);
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
