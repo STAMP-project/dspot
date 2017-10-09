@@ -12,6 +12,7 @@ import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -103,6 +104,13 @@ public class AssertGeneratorHelper {
         }
     }
 
+    private static int getSize(CtBlock<?> block) {
+        return block.getStatements().size() +
+                block.getStatements().stream()
+                        .filter(statement -> statement instanceof CtBlock)
+                        .mapToInt(childBlock -> AssertGeneratorHelper.getSize((CtBlock<?>)childBlock ))
+                        .sum();
+    }
 
     // This method will add a log statement at the given statement AND at the end of the test.
     @SuppressWarnings("unchecked")
@@ -166,10 +174,15 @@ public class AssertGeneratorHelper {
         CtInvocation invocationToObjectLogAtTheEnd = invocationToObjectLog.clone();
         invocationToObjectLogAtTheEnd.addArgument(stmt.getFactory().createLiteral(id + "___" + "end"));
         invocationToObjectLog.addArgument(stmt.getFactory().createLiteral(id));
-        insertAfter.insertAfter(invocationToObjectLog);
+
+        //TODO checks this if this condition is ok.
+        if (getSize(stmt.getParent(CtMethod.class).getBody()) + 1 < 65535) {
+            insertAfter.insertAfter(invocationToObjectLog);
+        }
 
         // if between the two log statements there is only log statement, we do not add the log end statement
-        if(shouldAddLogEndStatement.test(invocationToObjectLog)) {
+        if(shouldAddLogEndStatement.test(invocationToObjectLog) &&
+                getSize(stmt.getParent(CtMethod.class).getBody()) + 1 < 65535) {
             stmt.getParent(CtBlock.class).insertEnd(invocationToObjectLogAtTheEnd);
         }
     }
