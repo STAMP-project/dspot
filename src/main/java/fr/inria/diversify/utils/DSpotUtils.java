@@ -1,11 +1,10 @@
 package fr.inria.diversify.utils;
 
-import fr.inria.diversify.compare.MethodsHandler;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.processor.main.AddBlockEverywhereProcessor;
-import fr.inria.diversify.processor.main.BranchCoverageProcessor;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.utils.sosiefier.BranchCoverageProcessor;
 import org.apache.commons.io.FileUtils;
 import org.kevoree.log.Log;
 import spoon.Launcher;
@@ -21,7 +20,6 @@ import spoon.support.JavaOutputProcessor;
 import spoon.support.QueueProcessingManager;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
