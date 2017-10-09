@@ -14,6 +14,7 @@ import spoon.reflect.reference.CtTypeReference;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -31,29 +32,12 @@ public class TestValueCreator extends AbstractTest {
 		ValueCreator.count = 0;
 		Factory factory = Utils.getFactory();
 
-		final CtTypeReference<ArrayList> reference = factory.Type().createReference(ArrayList.class);
-		reference.setActualTypeArguments(Collections.singletonList(factory.Type().createReference(String.class)));
+		final CtTypeReference<?> reference = factory.Class().get(new ArrayList<String>().getClass()).getReference();
+		reference.addActualTypeArgument(factory.Type().createReference(String.class));
 
-		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_0 = " +
-						"new java.util.ArrayList<java.lang.String>(" +
-						"java.util.Collections.singletonList(\"mEp_A=f&o(QqZ.%_r;?r\")" +
-						")",
+		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_0 = java.util.Collections.emptyList()",
 				ValueCreator.createRandomLocalVar(reference).toString());
-		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_1 = new java.util.ArrayList<java.lang.String>()",
-				ValueCreator.createRandomLocalVar(reference).toString());
-		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_2 = new java.util.ArrayList<java.lang.String>(-1016235803)",
-				ValueCreator.createRandomLocalVar(reference).toString());
-		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_3 = new java.util.ArrayList<java.lang.String>(java.util.Collections.emptyList())",
-				ValueCreator.createRandomLocalVar(reference).toString());
-		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_4 = new java.util.ArrayList<java.lang.String>(java.util.Collections.emptyList())",
-				ValueCreator.createRandomLocalVar(reference).toString());
-		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_5 = new java.util.ArrayList<java.lang.String>(java.util.Collections.singletonList(\"`)}.clE+=T zM>*v:Zvh\"))",
-				ValueCreator.createRandomLocalVar(reference).toString());
-		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_6 = new java.util.ArrayList<java.lang.String>(1240296032)",
-				ValueCreator.createRandomLocalVar(reference).toString());
-		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_7 = new java.util.ArrayList<java.lang.String>()",
-				ValueCreator.createRandomLocalVar(reference).toString());
-		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_8 = new java.util.ArrayList<java.lang.String>(java.util.Collections.singletonList(\"k?IJ8_ubM+qAn$Xwf>7M\"))",
+		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_1 = java.util.Collections.singletonList(\"mEp_A=f&o(QqZ.%_r;?r\")",
 				ValueCreator.createRandomLocalVar(reference).toString());
 	}
 

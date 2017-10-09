@@ -57,7 +57,7 @@ public class JacocoCoverageSelectorTest {
 	private static final String expectedReport = nl + "======= REPORT =======" + nl +
 			"Initial instruction coverage: 33 / 37" + nl +
 			"89" + DECIMAL_SEPARATOR + "19%" + nl +
-			"Amplification results with 5 amplified tests." + nl +
+			"Amplification results with 6 amplified tests." + nl +
 			"Amplified instruction coverage: 37 / 37" + nl +
 			"100" + DECIMAL_SEPARATOR + "00%";
 
