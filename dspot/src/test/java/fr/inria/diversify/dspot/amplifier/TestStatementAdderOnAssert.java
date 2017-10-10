@@ -73,7 +73,7 @@ public class TestStatementAdderOnAssert extends AbstractTest {
         currentMethod = amplifiedMethods.get(1);
         assertEquals("825130495", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());
         assertTrue(currentMethod.getBody().getStatement(3) instanceof  CtInvocation);
-        assertEquals("// StatementAdderMethod cloned existing statement" + nl + "vc_0.minusOne(vc_2)", currentMethod.getBody().getStatement(3).toString());
+        assertEquals("// StatementAdderMethod cloned existing statement" + nl + "vc_0.minusOne(__DSPOT_vc_2)", currentMethod.getBody().getStatement(3).toString());
 
         currentMethod = amplifiedMethods.get(2);
         assertEquals("1", ((CtLocalVariable)(currentMethod.getBody().getStatement(1))).getDefaultExpression().toString());

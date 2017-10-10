@@ -8,7 +8,9 @@ import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtNamedElement;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.IOException;
@@ -36,9 +38,10 @@ public class AssertGenerator {
         return generateAsserts(testClass, new ArrayList<>(testClass.getMethods()));
     }
 
+    static final int[] counter = new int[]{0};
+
     private CtMethod<?> removeAssertion(CtMethod<?> test) {
         CtMethod<?> testWithoutAssertion = AmplificationHelper.cloneMethodTest(test, "");
-        int[] counter = new int[]{0};
         testWithoutAssertion.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
             @Override
             public boolean matches(CtInvocation element) {
@@ -50,11 +53,16 @@ public class AssertGenerator {
                 if (clone instanceof CtStatement) {
                     ctInvocation.insertBefore((CtStatement) clone);
                 } else if (! (clone instanceof CtLiteral)) {
-                    ctInvocation.insertBefore(test.getFactory().createLocalVariable(
-                            clone.getType(),
-                            clone.getType().getSimpleName() + "_" + counter[0]++,
+                    CtTypeReference typeOfParameter = clone.getType();
+                    if (clone.getType().equals(test.getFactory().Type().NULL_TYPE)) {
+                        typeOfParameter = test.getFactory().Type().createReference(Object.class);
+                    }
+                    final CtLocalVariable localVariable = test.getFactory().createLocalVariable(
+                            typeOfParameter,
+                            typeOfParameter.getSimpleName() + "_" + counter[0]++,
                             clone
-                    ));
+                    );
+                    ctInvocation.insertBefore(localVariable);
                 }
             });
             ctInvocation.getParent(CtBlock.class).removeStatement(ctInvocation);

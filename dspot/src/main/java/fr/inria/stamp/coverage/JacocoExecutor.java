@@ -1,5 +1,6 @@
 package fr.inria.stamp.coverage;
 
+import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.stamp.test.launcher.TestLauncher;
@@ -16,13 +17,16 @@ import org.jacoco.core.instr.Instrumenter;
 import org.jacoco.core.runtime.IRuntime;
 import org.jacoco.core.runtime.LoggerRuntime;
 import org.jacoco.core.runtime.RuntimeData;
+import org.kevoree.log.Log;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -56,10 +60,30 @@ public class JacocoExecutor {
 
 	private void instrumentAll() {
 		final String classesDirectory = this.program.getProgramDir() + "/" + this.program.getClassesDir();
+		final String testClassesDirectory = this.program.getProgramDir() + "/" + this.program.getTestClassesDir();
 		try {
-			this.internalClassLoader = new MemoryClassLoader(
-					new URL[]{new File(classesDirectory).toURI().toURL()},
+			String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration)
+							.buildClasspath(this.program.getProgramDir());
+
+			ClassLoader classLoader = new URLClassLoader(
+			Arrays.stream(classpath.split(":"))
+					.map(File::new)
+					.map(File::toURI)
+					.map(uri -> {
+						try {
+							return uri.toURL();
+						} catch (MalformedURLException e) {
+							throw new RuntimeException(e);
+						}
+					})
+					.toArray(URL[]::new),
 					ClassLoader.getSystemClassLoader()
+			);
+
+			this.internalClassLoader = new MemoryClassLoader(
+					new URL[]{new File(classesDirectory).toURI().toURL(),
+							new File(testClassesDirectory).toURI().toURL()},
+					classLoader
 			);
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
@@ -74,6 +98,7 @@ public class JacocoExecutor {
 				this.internalClassLoader.addDefinition(fullQualifiedName,
 						this.instrumenter.instrument(this.internalClassLoader.getResourceAsStream(fileName), fullQualifiedName));
 			} catch (IOException e) {
+				Log.error("Encountered a problem while instrumenting " + fullQualifiedName);
 				throw new RuntimeException(e);
 			}
 		}
@@ -100,6 +125,10 @@ public class JacocoExecutor {
 			);
 			runtime.startup(data);
 			final TestListener listener = TestLauncher.run(this.configuration, this.internalClassLoader, testClass);
+			if (!listener.getFailingTests().isEmpty()) {
+				listener.getFailingTests().forEach(System.out::println);
+				throw new RuntimeException("Error: some test fail when computing the coverage.");
+			}
 			data.collect(executionData, sessionInfos, false);
 			runtime.shutdown();
 			clearCache(this.internalClassLoader);

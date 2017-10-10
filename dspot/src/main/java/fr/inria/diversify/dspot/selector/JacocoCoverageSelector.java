@@ -110,10 +110,14 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 		final List<String> pathExecuted = new ArrayList<>();
 		final List<CtMethod<?>> methodsKept = amplifiedTestToBeKept.stream()
 				.filter(ctMethod ->
-						coverageResultsMap.get(ctMethod.getSimpleName()).isBetterThan(
+						this.selectedToBeAmplifiedCoverageResultsMap.get(
+								getFirstParentThatHasBeenRun(ctMethod).getSimpleName()) == null ||
+								coverageResultsMap.get(ctMethod.getSimpleName()).isBetterThan(
 								this.selectedToBeAmplifiedCoverageResultsMap.get(
-										getFirstParentThatHasBeenRun(ctMethod).getSimpleName())
-						)
+										getFirstParentThatHasBeenRun(ctMethod).getSimpleName())) &&
+								!computePathExecuted.apply(coverageResultsMap.get(ctMethod.getSimpleName()).getCoverageBuilder())
+								.equals(computePathExecuted.apply(this.selectedToBeAmplifiedCoverageResultsMap.get(
+										getFirstParentThatHasBeenRun(ctMethod).getSimpleName()).getCoverageBuilder()))
 				)
 				.filter(ctMethod -> {
 					final String pathByExecInstructions = computePathExecuted.apply(coverageResultsMap.get(ctMethod.getSimpleName()).getCoverageBuilder());
@@ -165,20 +169,22 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 		this.currentClassTestToBeAmplified.getPackage().addType(clone);
 		this.selectedAmplifiedTest.forEach(clone::addMethod);
 		try {
-			FileUtils.deleteDirectory(new File("tmpDir/tmpSrc_test"));
+			FileUtils.deleteDirectory(new File(DSpotCompiler.pathToTmpTestSources));
 		} catch (IOException ignored) {
 			//ignored
 		}
-		DSpotUtils.printJavaFileWithComment(clone, new File("tmpDir/tmpSrc_test"));
+		DSpotUtils.printJavaFileWithComment(clone, new File(DSpotCompiler.pathToTmpTestSources));
 
 		final String fileSeparator = System.getProperty("file.separator");
 		final String classpath = AutomaticBuilderFactory
 				.getAutomaticBuilder(this.configuration)
 				.buildClasspath(this.program.getProgramDir())
 				+ System.getProperty("path.separator") +
-				this.program.getProgramDir() + fileSeparator + this.program.getClassesDir();
+				this.program.getProgramDir() + fileSeparator + this.program.getClassesDir()
+				+ System.getProperty("path.separator") +
+				this.program.getProgramDir() + fileSeparator + this.program.getTestClassesDir();
 
-		DSpotCompiler.compile("tmpDir/tmpSrc_test", classpath,
+		DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
 				new File(this.program.getProgramDir() + fileSeparator + this.program.getTestClassesDir()));
 
 		final CoverageResults coverageResults = new JacocoExecutor(this.program, this.configuration)

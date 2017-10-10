@@ -6,12 +6,6 @@ package example;
 public class TestSuiteExample {
 
     @org.junit.Test
-    public void test2() {
-        example.Example ex = new example.Example();
-        org.junit.Assert.assertEquals('d', ex.charAt("abcd", 3));
-    }
-
-    @org.junit.Test
     public void test3() {
         example.Example ex = new example.Example();
         java.lang.String s = "abcd";
@@ -41,6 +35,12 @@ public class TestSuiteExample {
     public void test9() {
         example.Example ex = new example.Example();
         org.junit.Assert.assertEquals('f', ex.charAt("abcdefghijklm", 5));
+    }
+
+    @org.junit.Test
+    public void test2() {
+        example.Example ex = new example.Example();
+        org.junit.Assert.assertEquals('d', ex.charAt("abcd", 3));
     }
 }
 

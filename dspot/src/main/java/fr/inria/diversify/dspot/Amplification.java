@@ -62,6 +62,7 @@ public class Amplification {
 				.filter(mth -> AmplificationChecker.isTest(mth, this.configuration.getInputProgram().getRelativeTestSourceCodeDir()))
 				.collect(Collectors.toList());
 		if (tests.isEmpty()) {
+			Log.warn("No test has been found into {}", classTest.getQualifiedName());
 			return;
 		}
 
@@ -210,7 +211,6 @@ public class Amplification {
 		CtType amplifiedTestClass = this.testSelector.buildClassForSelection(classTest, currentTestList);
 		final TestListener result = TestCompiler.compileAndRun(
 				amplifiedTestClass,
-				false,
 				this.compiler,
 				currentTestList,
 				this.configuration

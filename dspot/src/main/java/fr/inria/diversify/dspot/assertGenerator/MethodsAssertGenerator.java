@@ -51,8 +51,11 @@ public class MethodsAssertGenerator {
 
     public List<CtMethod<?>> generateAsserts(CtType testClass, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
         Log.info("Run tests. ({})", tests.size());
-        final TestListener result = TestCompiler.compileAndRun(testClass, false,
-                this.compiler, tests, this.configuration);
+        final TestListener result = TestCompiler.compileAndRun(testClass,
+                this.compiler,
+                tests,
+                this.configuration
+        );
         if (result == null) {
             return Collections.emptyList();
         } else {
@@ -131,8 +134,11 @@ public class MethodsAssertGenerator {
         ));
         ObjectLog.reset();
         Log.info("Run instrumented tests. ({})", testToRuns.size());
-        final TestListener result = TestCompiler.compileAndRun(clone, true,
-                this.compiler, testToRuns, this.configuration);
+        final TestListener result = TestCompiler.compileAndRun(clone,
+                this.compiler,
+                testToRuns,
+                this.configuration
+        );
         if (result == null || !result.getFailingTests().isEmpty()) {
             return Collections.emptyList();
         } else {
@@ -153,43 +159,58 @@ public class MethodsAssertGenerator {
             if (!id.split("__")[0].equals(testWithAssert.getSimpleName())) {
                 continue;
             }
-            int line = Integer.parseInt(id.split("__")[1]);
             final List<CtStatement> assertStatements = AssertBuilder.buildAssert(factory,
                     observations.get(id).getNotDeterministValues(),
                     observations.get(id).getObservationValues());
-            CtStatement lastStmt = null;
-            for (CtStatement statement : assertStatements) {
-                DSpotUtils.addComment(statement, "AssertGenerator add assertion", CtComment.CommentType.INLINE);
-                try {
-                    CtStatement stmt = statements.get(line);
-                    if (lastStmt == null) {
-                        lastStmt = stmt;
-                    }
-                    if (stmt instanceof CtBlock) {
-                        break;
-                    }
-                    if (stmt instanceof CtInvocation &&
-                            !AssertGeneratorHelper.isVoidReturn((CtInvocation) stmt) &&
-                            stmt.getParent() instanceof CtBlock) {
-                        CtInvocation invocationToBeReplaced = (CtInvocation) stmt.clone();
-                        final CtLocalVariable localVariable = factory.createLocalVariable(
-                                invocationToBeReplaced.getType(), "o_" + id, invocationToBeReplaced
-                        );
-                        stmt.replace(localVariable);
-                        DSpotUtils.addComment(localVariable, "AssertGenerator create local variable with return value of invocation", CtComment.CommentType.INLINE);
-                        localVariable.setParent(stmt.getParent());
-                        localVariable.insertAfter(statement);
-                        statements.remove(line);
-                        statements.add(line, localVariable);
-                    } else {
-                        lastStmt.insertAfter(statement);
-                    }
-                    lastStmt = statement;
-                    numberOfAddedAssertion++;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+
+            if (assertStatements.stream()
+                    .map(Object::toString)
+                    .map("// AssertGenerator add assertion\n"::concat)
+                    .anyMatch(testWithAssert.getBody().getLastStatement().toString()::equals)) {
+                continue;
             }
+            int line = Integer.parseInt(id.split("__")[1]);
+                CtStatement lastStmt = null;
+                for (CtStatement statement : assertStatements) {
+                    DSpotUtils.addComment(statement, "AssertGenerator add assertion", CtComment.CommentType.INLINE);
+                    try {
+                        CtStatement stmt = statements.get(line);
+                        if (lastStmt == null) {
+                            lastStmt = stmt;
+                        }
+                        if (stmt instanceof CtBlock) {
+                            break;
+                        }
+                        if (stmt instanceof CtInvocation &&
+                                !AssertGeneratorHelper.isVoidReturn((CtInvocation) stmt) &&
+                                stmt.getParent() instanceof CtBlock) {
+                            CtInvocation invocationToBeReplaced = (CtInvocation) stmt.clone();
+                            final CtLocalVariable localVariable = factory.createLocalVariable(
+                                    invocationToBeReplaced.getType(), "o_" + id.split("___")[0], invocationToBeReplaced
+                            );
+                            stmt.replace(localVariable);
+                            DSpotUtils.addComment(localVariable, "AssertGenerator create local variable with return value of invocation", CtComment.CommentType.INLINE);
+                            localVariable.setParent(stmt.getParent());
+                            if (id.endsWith("end")) {
+                                testWithAssert.getBody().insertEnd(statement);
+                            } else {
+                                localVariable.insertAfter(statement);
+                            }
+                            statements.remove(line);
+                            statements.add(line, localVariable);
+                        } else {
+                            if (id.endsWith("end")) {
+                                stmt.getParent(CtBlock.class).insertEnd(statement);
+                            } else {
+                                lastStmt.insertAfter(statement);
+                            }
+                        }
+                        lastStmt = statement;
+                        numberOfAddedAssertion++;
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
         }
         Counter.updateAssertionOf(testWithAssert, numberOfAddedAssertion);
         if (!testWithAssert.equals(test)) {

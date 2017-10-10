@@ -1,6 +1,8 @@
 package fr.inria.diversify.automaticbuilder;
 
 import fr.inria.diversify.runner.InputConfiguration;
+import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.Configuration;
 import fr.inria.stamp.JSAPOptions;
@@ -38,6 +40,8 @@ public class AutomaticBuilderFactoryTest {
         this.configuration = JSAPOptions.parse(getArgsWithMavenBuilder());
 
         InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
+        InputProgram program = InitUtils.initInputProgram(inputConfiguration);
+        inputConfiguration.setInputProgram(program);
         inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
 
         assertTrue(inputConfiguration.getProperty("automaticBuilderName").toUpperCase().contains("MAVEN"));
@@ -71,6 +75,8 @@ public class AutomaticBuilderFactoryTest {
 
         InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
         inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
+        InputProgram program = InitUtils.initInputProgram(inputConfiguration);
+        inputConfiguration.setInputProgram(program);
 
         assertFalse(inputConfiguration.getProperty("automaticBuilderName") == null);
         assertFalse(inputConfiguration.getProperty("automaticBuilderName").toUpperCase().contains("MAVEN"));
@@ -88,6 +94,8 @@ public class AutomaticBuilderFactoryTest {
         this.configuration = JSAPOptions.parse(getArgsWithNoBuilder());
 
         InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
+        InputProgram program = InitUtils.initInputProgram(inputConfiguration);
+        inputConfiguration.setInputProgram(program);
 
         assertTrue(inputConfiguration.getProperty("automaticBuilderName") == null);
 

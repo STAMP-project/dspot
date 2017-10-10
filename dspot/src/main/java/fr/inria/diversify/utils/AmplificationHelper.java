@@ -85,7 +85,7 @@ public class AmplificationHelper {
     public static Set<CtType> computeClassProvider(CtType testClass) {
         List<CtType> types = Query.getElements(testClass.getParent(CtPackage.class), new TypeFilter(CtType.class));
         types = types.stream()
-                .filter(type -> type != null)
+                .filter(Objects::nonNull)
                 .filter(type -> type.getPackage() != null)
                 .filter(type -> type.getPackage().getQualifiedName().equals(testClass.getPackage().getQualifiedName()))
                 .collect(Collectors.toList());
@@ -108,7 +108,7 @@ public class AmplificationHelper {
             try {
                 Set<CtType> set = importScanner.computeImports(type).stream()
                         .map(CtTypeReference::getDeclaration)
-                        .filter(t -> t != null)
+                        .filter(Objects::nonNull)
                         .collect(Collectors.toSet());
                 AmplificationHelper.importByClass.put(type, set);
             } catch (Exception e) {

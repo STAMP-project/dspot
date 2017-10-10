@@ -1,4 +1,4 @@
-package sample.src.test.java.fr.inria.inheritance;
+package fr.inria.inheritance;
 
 import org.junit.Test;
 

@@ -1,28 +1,18 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
 import fr.inria.diversify.compare.ObjectLog;
-import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.utils.AmplificationHelper;
-import fr.inria.diversify.utils.DSpotUtils;
-import org.kevoree.log.Log;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.declaration.CtType;
+import spoon.reflect.declaration.CtNamedElement;
 import spoon.reflect.declaration.CtTypedElement;
-import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtTypeReference;
-import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static fr.inria.diversify.utils.AmplificationChecker.isAssert;
+import java.util.function.Predicate;
 
 /**
  * Created by Benjamin DANGLOT
@@ -86,9 +76,18 @@ public class AssertGeneratorHelper {
             }
 
         }
+
         if (statement instanceof CtLocalVariable ||
                 statement instanceof CtAssignment ||
                 statement instanceof CtVariableWrite) {
+
+            if (statement instanceof CtNamedElement) {
+                if (((CtNamedElement)statement).getSimpleName()
+                        .startsWith("__DSPOT_")) {
+                    return false;
+                }
+            }
+
             final CtTypeReference type = ((CtTypedElement) statement).getType();
             if (type.getQualifiedName().startsWith(filter)) {
                 return true;
@@ -105,6 +104,7 @@ public class AssertGeneratorHelper {
     }
 
 
+    // This method will add a log statement at the given statement AND at the end of the test.
     @SuppressWarnings("unchecked")
     private static void addLogStmt(CtStatement stmt, String id) {
         if (stmt instanceof CtLocalVariable && ((CtLocalVariable) stmt).getDefaultExpression() == null) {
@@ -161,8 +161,29 @@ public class AssertGeneratorHelper {
         } else {
             throw new RuntimeException("Could not find the proper type to add log statement" + stmt.toString());
         }
+
+        // clone the statement invocation for add it to the end of the tests
+        CtInvocation invocationToObjectLogAtTheEnd = invocationToObjectLog.clone();
+        invocationToObjectLogAtTheEnd.addArgument(stmt.getFactory().createLiteral(id + "___" + "end"));
         invocationToObjectLog.addArgument(stmt.getFactory().createLiteral(id));
         insertAfter.insertAfter(invocationToObjectLog);
+
+        // if between the two log statements there is only log statement, we do not add the log end statement
+        if(shouldAddLogEndStatement.test(invocationToObjectLog)) {
+            stmt.getParent(CtBlock.class).insertEnd(invocationToObjectLogAtTheEnd);
+        }
     }
+
+    private static final Predicate<CtStatement> shouldAddLogEndStatement = statement -> {
+        final List<CtStatement> statements = statement.getParent(CtBlock.class).getStatements();
+        for (int i = statements.indexOf(statement) + 1 ; i < statements.size() ; i++) {
+            if (! (statements.get(i) instanceof CtInvocation) ||
+                    !((CtInvocation)statements.get(i)).getTarget().equals(statement.getFactory().createTypeAccess(
+                            statement.getFactory().Type().createReference(ObjectLog.class)))) {
+                return true;
+            }
+        }
+        return false;
+    };
 
 }

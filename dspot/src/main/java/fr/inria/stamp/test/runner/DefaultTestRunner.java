@@ -1,8 +1,6 @@
 package fr.inria.stamp.test.runner;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import fr.inria.diversify.logger.Logger;
-import fr.inria.stamp.coverage.JacocoListener;
 import fr.inria.stamp.test.filter.MethodFilter;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Request;
@@ -12,6 +10,7 @@ import org.junit.runner.notification.RunNotifier;
 
 import java.net.URLClassLoader;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.*;
 
 /**

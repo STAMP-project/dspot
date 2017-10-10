@@ -11,17 +11,25 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
+import fr.inria.diversify.buildSystem.android.InvalidSdkException;
+import fr.inria.stamp.Configuration;
+import fr.inria.stamp.JSAPOptions;
+import fr.inria.stamp.Main;
+import fr.inria.stamp.JSAPOptions.SelectorEnum;
+
 @Mojo(name = "mutationCoverage", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.TEST)
 public class DSpotMojo extends AbstractMojo {
 
 	// Command Line parameters -> fr.inria.stamp.Configuration
-//	/**
-//	 * @deprecated path to dspot properties file. Use Maven Properties
-//	 */
-//	@Parameter(property = "path-to-properties")
-//	private String pathToConfigurationFile;
+	// /**
+	// * @deprecated path to dspot properties file. Use Maven Properties
+	// */
+	// @Parameter(property = "path-to-properties")
+	// private String pathToConfigurationFile;
 
-	@Parameter(defaultValue = "all", property = "amplifiers")
+	private static final String BUILDER = "Maven";
+
+	@Parameter(defaultValue = "MethodAdd", property = "amplifiers")
 	private List<String> amplifiers;
 
 	@Parameter(defaultValue = "3", property = "iteration")
@@ -31,7 +39,7 @@ public class DSpotMojo extends AbstractMojo {
 	private String testCriterion;
 
 	@Parameter(defaultValue = "all", property = "test")
-	private String namesOfTestCases;
+	private List<String> namesOfTestCases;
 
 	@Parameter(defaultValue = "${project.build.directory}/dspot-report", property = "output-path")
 	private String outputPath;
@@ -41,6 +49,9 @@ public class DSpotMojo extends AbstractMojo {
 
 	@Parameter(defaultValue = "10000", property = "timeOut")
 	private Integer timeOutInMs;
+
+	@Parameter(defaultValue = "BranchCoverageTestSelector", property = "selector")
+	private String selector;
 
 	// Properties file parameters -> fr.inria.diversify.runner.InputConfiguration
 	/*
@@ -56,6 +67,15 @@ public class DSpotMojo extends AbstractMojo {
 	@Parameter(defaultValue = "${project.build.testSourceDirectory}", property = "test")
 	private File testDir;
 
+	@Parameter(defaultValue = "${project.build.outputDirectory}", property = "classes")
+	private File classesDir;
+
+	@Parameter(defaultValue = "${project.build.testOutputDirectory}", property = "testClasses")
+	private File testClassesDir;
+
+	@Parameter(defaultValue = "${project.build.directory}/tempDir", property = "tempDir")
+	private File tempDir;
+
 	@Parameter(property = "filter")
 	private String filter;
 
@@ -63,58 +83,43 @@ public class DSpotMojo extends AbstractMojo {
 	private File mavenHome;
 
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		System.out.println("getAmplifiers(): " + getAmplifiers());
-		System.out.println("getIteration(): " + getIteration());
-		System.out.println("getTestCriterion(): " + getTestCriterion());
-		System.out.println("getNamesOfTestCases(): " + getNamesOfTestCases());
-		System.out.println("getOutputPath(): " + getOutputPath());
-		System.out.println("getRandomSeed() : " + getRandomSeed() );
-		System.out.println("getTimeOutInMs(): " + getTimeOutInMs());
-		System.out.println("getProject(): " + getProject());
-		System.out.println("getSrcDir(): " + getSrcDir());
-		System.out.println("getTestDir(): " + getTestDir());
-		System.out.println("getFilter(): " + getFilter());
-		System.out.println("getMavenHome(): " + getMavenHome().toString());
-		
-		
-//		try {
-//			MyInputConfiguration configuration = new MyInputConfiguration(getPathToConfigurationFile(), getProject(),
-//					getTmpDir());
-//			getLog().info("before new DSpot");
-//			DSpot dSpot = new DSpot(configuration, 1);
-//			getLog().info("before amplifyTest");
-//			//
-//			AmplificationHelper.setSeedRandom(72);
-//			AmplificationHelper.setTimeOutInMs(100000);
+//		System.out.println("getAmplifiers(): " + getAmplifiers());
+//		System.out.println("getIteration(): " + getIteration());
+//		System.out.println("getTestCriterion(): " + getTestCriterion());
+//		System.out.println("getNamesOfTestCases(): " + getNamesOfTestCases());
+//		System.out.println("getOutputPath(): " + getOutputPath());
+//		System.out.println("getRandomSeed() : " + getRandomSeed());
+//		System.out.println("getTimeOutInMs(): " + getTimeOutInMs());
+//		System.out.println("getProject(): " + getProject());
+//		System.out.println("getSrcDir(): " + getSrcDir());
+//		System.out.println("getTestDir(): " + getTestDir());
+//		System.out.println("getFilter(): " + getFilter());
+//		System.out.println("getMavenHome(): " + getMavenHome().toString());
 //
-//			Main.createOutputDirectories(configuration);
-//			if ("all".equals(test)) {
-//				Main.amplifyAll(dSpot, configuration);
-//			} else {
-////				configuration.testClasses.forEach(testCase -> {
-////					if (!configuration.namesOfTestCases.isEmpty()) {
-////						amplifyOne(dspot, testCase, configuration.namesOfTestCases);
-////					} else {
-////						amplifyOne(dspot, testCase, Collections.EMPTY_LIST);
-////					}
-////				});
-//			}
-//			dSpot.cleanResources();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (InvalidSdkException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+//		System.out.println("MethodsHandler : " + this.getClass().getClassLoader()
+//				.getResourceAsStream("fr/inria/diversify/compare/MethodsHandler.class"));
+
+		Configuration configuration = new Configuration(
+				// path to file
+				null,
+				// Amplifiers
+				JSAPOptions.buildAmplifiersFromString(getAmplifiers().toArray(new String[0])),
+				// Iteration
+				getIteration(),
+				// testClases
+				getNamesOfTestCases(), getOutputPath().toString(), SelectorEnum.valueOf(getSelector()).buildSelector(),
+				getNamesOfTestCases(), getRandomSeed().longValue(), getTimeOutInMs().intValue(), BUILDER,
+				getMavenHome().getAbsolutePath(), 10);
+		try {
+			MyInputConfiguration inputConfiguration = new MyInputConfiguration(getProject(), getSrcDir(), getTestDir(),
+					getTestClassesDir(), getTestClassesDir(), getTempDir(), getFilter(), getMavenHome());
+
+			Main.run(configuration, inputConfiguration);
+		} catch (InvalidSdkException | Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
-//
-//	public String getPathToConfigurationFile() {
-//		return pathToConfigurationFile;
-//	}
 
 	public List<String> getAmplifiers() {
 		return amplifiers;
@@ -128,7 +133,7 @@ public class DSpotMojo extends AbstractMojo {
 		return testCriterion;
 	}
 
-	public String getNamesOfTestCases() {
+	public List<String> getNamesOfTestCases() {
 		return namesOfTestCases;
 	}
 
@@ -162,6 +167,22 @@ public class DSpotMojo extends AbstractMojo {
 
 	public File getMavenHome() {
 		return mavenHome;
+	}
+
+	public File getClassesDir() {
+		return classesDir;
+	}
+
+	public File getTestClassesDir() {
+		return testClassesDir;
+	}
+
+	public File getTempDir() {
+		return tempDir;
+	}
+
+	public String getSelector() {
+		return selector;
 	}
 
 }

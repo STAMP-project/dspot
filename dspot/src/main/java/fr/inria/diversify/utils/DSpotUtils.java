@@ -1,14 +1,24 @@
 package fr.inria.diversify.utils;
 
+import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+import org.apache.commons.io.FileUtils;
+import org.kevoree.log.Log;
+
 import fr.inria.diversify.logger.Logger;
-import fr.inria.diversify.processor.ProcessorUtil;
 import fr.inria.diversify.processor.main.AddBlockEverywhereProcessor;
 import fr.inria.diversify.processor.main.BranchCoverageProcessor;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.FileUtils;
-import org.jacoco.core.data.ExecutionDataStore;
-import org.kevoree.log.Log;
 import spoon.Launcher;
 import spoon.compiler.Environment;
 import spoon.processing.Processor;
@@ -21,37 +31,22 @@ import spoon.reflect.visitor.DefaultJavaPrettyPrinter;
 import spoon.support.JavaOutputProcessor;
 import spoon.support.QueueProcessingManager;
 
-import javax.xml.transform.sax.SAXSource;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-
 /**
- * User: Simon
- * Date: 18/05/16
- * Time: 16:10
+ * User: Simon Date: 18/05/16 Time: 16:10
  */
 public class DSpotUtils {
 
 	private static StringBuilder progress = new StringBuilder(60);
 
 	public static void printProgress(int done, int total) {
-		char[] workchars = {'|', '/', '-', '\\'};
+		char[] workchars = { '|', '/', '-', '\\' };
 		String format = "\r%3d%% |%s ]%c";
 		int percent = (++done * 100) / total;
 		int extrachars = (percent / 2) - progress.length();
 		while (extrachars-- > 0) {
 			progress.append('=');
 		}
-		System.out.printf(format, percent, progress,
-				workchars[done % workchars.length]);
+		System.out.printf(format, percent, progress, workchars[done % workchars.length]);
 		if (done == total) {
 			System.out.flush();
 			System.out.println();
@@ -62,15 +57,12 @@ public class DSpotUtils {
 	public static void addBranchLogger(InputProgram inputProgram, Factory factory) {
 		try {
 			applyProcessor(factory, new AddBlockEverywhereProcessor(inputProgram));
-
-			BranchCoverageProcessor branchCoverageProcessor = new BranchCoverageProcessor(inputProgram, inputProgram.getProgramDir(), true);
+			BranchCoverageProcessor branchCoverageProcessor = new BranchCoverageProcessor(inputProgram,
+					inputProgram.getProgramDir(), true);
 			branchCoverageProcessor.setLogger(Logger.class.getCanonicalName());
-
 			applyProcessor(factory, branchCoverageProcessor);
-
-			File fileFrom = new File(inputProgram.getAbsoluteSourceCodeDir());
-			printAllClasses(factory, fileFrom);
-
+			copyPackageFromResources("fr/inria/diversify/logger", "ClassObserver", "KeyWord", "Logger", "LogWriter",
+					"PathBuilder", "Pool", "ShutdownHookLog");
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -86,7 +78,8 @@ public class DSpotUtils {
 	}
 
 	public static void printAmplifiedTestClass(CtType<?> type, File directory) {
-		final String pathname = directory.getAbsolutePath() + "/" + type.getQualifiedName().replaceAll("\\.", "/") + ".java";
+		final String pathname = directory.getAbsolutePath() + "/" + type.getQualifiedName().replaceAll("\\.", "/")
+				+ ".java";
 		if (new File(pathname).exists()) {
 			printJavaFileWithComment(addGeneratedTestToExistingClass(type, pathname), directory);
 		} else {
@@ -100,8 +93,7 @@ public class DSpotUtils {
 		launcher.addInputResource(pathname);
 		launcher.buildModel();
 		final CtClass<?> existingAmplifiedTest = launcher.getFactory().Class().get(type.getQualifiedName());
-		type.getMethods().stream()
-				.filter(testCase -> !existingAmplifiedTest.getMethods().contains(testCase))
+		type.getMethods().stream().filter(testCase -> !existingAmplifiedTest.getMethods().contains(testCase))
 				.forEach(existingAmplifiedTest::addMethod);
 		return existingAmplifiedTest;
 	}
@@ -117,17 +109,34 @@ public class DSpotUtils {
 		}
 	}
 
+	@Deprecated
 	public static String mavenHome;
 
+	@Deprecated
 	public static String buildMavenHome(InputConfiguration inputConfiguration) {
 		if (mavenHome == null) {
-			mavenHome = inputConfiguration != null && inputConfiguration.getProperty("maven.home") != null ? inputConfiguration.getProperty("maven.home") :
-					System.getenv().get("MAVEN_HOME") != null ? System.getenv().get("MAVEN_HOME") :
-							System.getenv().get("M2_HOME") != null ? System.getenv().get("M2_HOME") :
-									new File("/usr/share/maven/").exists() ? "/usr/share/maven/" :
-											new File("/usr/local/maven-3.3.9/").exists() ? "/usr/local/maven-3.3.9/" : "/usr/share/maven3/";
+			if (inputConfiguration != null && inputConfiguration.getProperty("maven.home") != null) {
+				mavenHome = inputConfiguration.getProperty("maven.home");
+			} else {
+				if (!setMavenHome(envVariable -> System.getenv().get(envVariable) != null,
+						envVariable -> System.getenv().get(envVariable), "MAVEN_HOME", "M2_HOME")) {// TODO asking if
+																									// predefined values
+																									// are useful or not
+					if (!setMavenHome(path -> new File(path).exists(), Function.identity(), "/usr/share/maven/",
+							"/usr/local/maven-3.3.9/", "/usr/share/maven3/")) {
+						throw new RuntimeException("Maven home not found, please set properly MAVEN_HOME or M2_HOME.");
+					}
+				}
+			}
 		}
+		Log.info("maven home found at {}", mavenHome);
 		return mavenHome;
+	}
+
+	private static boolean setMavenHome(Predicate<String> conditional, Function<String, String> getFunction,
+			String... possibleValues) {
+		Arrays.stream(possibleValues).filter(conditional).findFirst().ifPresent(s -> mavenHome = getFunction.apply(s));
+		return mavenHome != null;
 	}
 
 	private static void applyProcessor(Factory factory, Processor processor) {
@@ -136,24 +145,26 @@ public class DSpotUtils {
 		pm.process(factory.Package().getRootPackage());
 	}
 
-	public static void copyPackageFromResources(String directory, String packagePath, String... classToCopy) {
-		final String pathToTestClassesDirectory = directory + "/" + packagePath + "/";
+	public static final String pathToDSpotDependencies = "target/dspot/dependencies/";
+
+	public static void copyPackageFromResources(String packagePath, String... classToCopy) {
+		final String pathToTestClassesDirectory = pathToDSpotDependencies + "/" + packagePath + "/";
+		final String directory = packagePath.split("/")[packagePath.split("/").length - 1];
 		try {
-			org.apache.commons.io.FileUtils.forceMkdir(new File(pathToTestClassesDirectory));
+			FileUtils.forceMkdir(new File(pathToTestClassesDirectory));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 		Arrays.stream(classToCopy).forEach(file -> {
 			OutputStream resStreamOut = null;
 			try {
-				final InputStream resourceAsStream = Thread.currentThread()
-						.getContextClassLoader()
-						.getResourceAsStream(packagePath + "/" + file + ".class");
-				resStreamOut =
-						new FileOutputStream(pathToTestClassesDirectory + file + ".class");
+				String myResource = directory + "/" + file + ".class";
+				final InputStream resourceAsStream =
+						ClassLoader.getSystemResourceAsStream(myResource);
+				resStreamOut = new FileOutputStream(pathToTestClassesDirectory + file + ".class");
 				int readBytes;
 				byte[] buffer = new byte[4096];
-				while ((readBytes = resourceAsStream.read(buffer)) > 0) {
+				while (resourceAsStream!= null && (readBytes = resourceAsStream.read(buffer)) > 0) {
 					resStreamOut.write(buffer, 0, readBytes);
 				}
 				resStreamOut.close();
@@ -161,5 +172,45 @@ public class DSpotUtils {
 				throw new RuntimeException(e);
 			}
 		});
+	}
+
+	public static final Function<String, String> shouldAddSeparator = string -> string.endsWith("/") ? "" : "/";
+
+	public static Function<InputConfiguration, String> computeProgramDirectory = configuration -> configuration
+			.getProperty("project") + shouldAddSeparator.apply(configuration.getProperty("project"))
+			+ (configuration.getProperty("targetModule") != null ? configuration.getProperty("targetModule")
+					+ shouldAddSeparator.apply(configuration.getProperty("project")) : "");
+
+	public static void copyResources(InputConfiguration configuration) {
+		final InputProgram program = configuration.getInputProgram();
+		final String src = configuration.getProperty("src");
+		final String testSrc = configuration.getProperty("testSrc");
+		// handle now resources
+		if (configuration.getProperty("srcResources") != null) {
+			Arrays.stream(configuration.getProperty("srcResources").split(PATH_SEPARATOR)).forEach(resource -> {
+				String pathToTarget = resource.startsWith(src) ? resource.substring(src.length()) : resource;
+				copyGivenFileToGivenPath(new File(program.getProgramDir() + resource),
+						new File(program.getProgramDir() + program.getClassesDir() + "/" + pathToTarget));
+			});
+		}
+		if (configuration.getProperty("testResources") != null) {
+			Arrays.stream(configuration.getProperty("testResources").split(PATH_SEPARATOR)).forEach(resource -> {
+				String pathToTarget = resource.startsWith(testSrc) ? resource.substring(testSrc.length()) : resource;
+				copyGivenFileToGivenPath(new File(program.getProgramDir() + resource),
+						new File(program.getProgramDir() + program.getTestClassesDir() + "/" + pathToTarget));
+			});
+		}
+	}
+
+	private static void copyGivenFileToGivenPath(File fileToCopy, File fileTarget) {
+		try {
+			if (fileToCopy.isDirectory()) {
+				FileUtils.copyDirectory(fileToCopy, fileTarget);
+			} else {
+				FileUtils.copyFile(fileToCopy, fileTarget);
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

@@ -5,13 +5,16 @@ import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
 import fr.inria.diversify.utils.AmplificationHelper;
+import fr.inria.stamp.Main;
 import fr.inria.stamp.test.launcher.TestLauncher;
 import fr.inria.stamp.test.listener.TestListener;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import spoon.Launcher;
+import spoon.SpoonModelBuilder;
 import spoon.reflect.code.CtComment;
 import spoon.reflect.declaration.*;
+import spoon.support.compiler.jdt.CompilationUnitFilter;
 import spoon.support.reflect.declaration.CtMethodImpl;
 
 import java.io.IOException;
@@ -27,14 +30,13 @@ import static org.codehaus.plexus.util.FileUtils.forceDelete;
  */
 public class TestCompiler {
 
-	public static TestListener compileAndRun(CtType<?> testClass, boolean withLog,
-											 DSpotCompiler compiler, List<CtMethod<?>> testsToRun,
+	public static TestListener compileAndRun(CtType<?> testClass, DSpotCompiler compiler, List<CtMethod<?>> testsToRun,
 											 InputConfiguration configuration) {
 		final InputProgram inputProgram = configuration.getInputProgram();
 		final String dependencies = inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + System.getProperty("path.separator") +
-				inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir();
-		final List<CtMethod<?>> uncompilableMethods = TestCompiler.compile(compiler, testClass,
-				withLog, dependencies);
+				inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir() + System.getProperty("path.separator") +
+				"target/dspot/dependencies/";
+		final List<CtMethod<?>> uncompilableMethods = TestCompiler.compile(compiler, testClass, dependencies);
 		if (uncompilableMethods.contains(TestCompiler.METHOD_CODE_RETURN)) {
 			return null;
 		} else {
@@ -48,11 +50,12 @@ public class TestCompiler {
 		}
 	}
 
-	@Deprecated // TODO must be reimplemented
 	public static List<CtMethod<?>> compile(DSpotCompiler compiler, CtType<?> originalClassTest,
-											boolean withLogger, String dependencies) {
+											String dependencies) {
 		CtType<?> classTest = originalClassTest.clone();
 		originalClassTest.getPackage().addType(classTest);
+
+		//TODO we should only compile the new test, and not print it. How to compile one and only one CtType with Spoon?
 		printAndDelete(compiler, classTest);
 		final List<CategorizedProblem> problems = compiler.compileAndGetProbs(dependencies)
 				.stream()
@@ -63,8 +66,17 @@ public class TestCompiler {
 		} else {
 			Log.warn("{} errors during compilation, discarding involved test methods", problems.size());
 			try {
+				
 				final CtClass<?> newModelCtClass = getNewModelCtClass(compiler.getSourceOutputDirectory().getAbsolutePath(),
 						classTest.getQualifiedName());
+
+				if (Main.verbose) {
+					int maxNumber = problems.size() > 20 ? 20 : problems.size();
+					problems.subList(0, maxNumber)
+							.forEach(categorizedProblem ->
+									Log.error("{}", categorizedProblem)
+							);
+				}
 
 				final HashSet<CtMethod<?>> methodsToRemove = problems.stream()
 						.collect(HashSet<CtMethod<?>>::new,
@@ -96,7 +108,7 @@ public class TestCompiler {
 				);
 
 				methods.forEach(classTest::removeMethod);
-				methods.addAll(compile(compiler, classTest, withLogger, dependencies));
+				methods.addAll(compile(compiler, classTest, dependencies));
 				return new ArrayList<>(methods);
 			} catch (Exception e) {
 				return Collections.singletonList(METHOD_CODE_RETURN);
@@ -116,6 +128,7 @@ public class TestCompiler {
 		return launcher.getFactory().Class().get(fullQualifiedName);
 	}
 
+	@Deprecated
 	private static void printAndDelete(DSpotCompiler compiler, CtType classTest) {
 		try {
 			PrintClassUtils.printJavaFile(compiler.getSourceOutputDirectory(), classTest);

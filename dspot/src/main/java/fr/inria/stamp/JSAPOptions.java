@@ -3,14 +3,17 @@ package fr.inria.stamp;
 import com.martiansoftware.jsap.*;
 import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
+import fr.inria.diversify.dspot.selector.ChangeDetectorSelector;
 import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
 import fr.inria.diversify.dspot.selector.PitMutantScoreSelector;
 import fr.inria.diversify.dspot.selector.TakeAllSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
+import fr.inria.diversify.mutant.pit.GradlePitTaskAndOptions;
 import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.util.Log;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,7 +27,7 @@ public class JSAPOptions {
 
 	public static final JSAP options = initJSAP();
 
-	enum SelectorEnum {
+	public enum SelectorEnum {
 		BranchCoverageTestSelector {
 			@Override
 			public TestSelector buildSelector() {
@@ -48,17 +51,24 @@ public class JSAPOptions {
 			public TestSelector buildSelector() {
 				return new TakeAllSelector();
 			}
+		},
+		ChangeDetectorSelector {
+			@Override
+			public TestSelector buildSelector() {
+				return new ChangeDetectorSelector();
+			}
 		};
-
 		public abstract TestSelector buildSelector();
 	}
 
-	enum AmplifierEnum {
+	public enum AmplifierEnum {
+		NumberLiteralAmplifier(new NumberLiteralAmplifier()),
 		MethodAdd(new TestMethodCallAdder()),
 		MethodRemove(new TestMethodCallRemover()),
 		StatementAdderOnAssert(new StatementAdderOnAssert()),
 		TestDataMutator(new TestDataMutator()),
-		StatementAdd(new StatementAdd());
+		StatementAdd(new StatementAdd()),
+		None(null);
 		public final Amplifier amplifier;
 
 		private AmplifierEnum(Amplifier amplifier) {
@@ -85,11 +95,13 @@ public class JSAPOptions {
 		}
 
 		TestSelector testCriterion;
+		System.out.println("MUTANT VALUE:" + jsapConfig.getString("mutant"));
 		if (jsapConfig.getString("mutant") != null) {
 			if (!"PitMutantScoreSelector".equals(jsapConfig.getString("test-criterion"))) {
 				Log.warn("You specify a path to mutations.csv but you did not specified the right test-criterion");
 				Log.warn("Forcing the Selector to PitMutantScoreSelector");
 			}
+		
 			testCriterion = new PitMutantScoreSelector(jsapConfig.getString("mutant"));
 		} else {
 			testCriterion = SelectorEnum.valueOf(jsapConfig.getString("test-criterion")).buildSelector();
@@ -97,6 +109,9 @@ public class JSAPOptions {
 
 		MavenPitCommandAndOptions.descartesMode = jsapConfig.getBoolean("descartes");
 		MavenPitCommandAndOptions.evosuiteMode = jsapConfig.getBoolean("evosuite");
+
+		GradlePitTaskAndOptions.descartesMode = jsapConfig.getBoolean("descartes");
+		GradlePitTaskAndOptions.evosuiteMode = jsapConfig.getBoolean("evosuite");
 
 		return new Configuration(jsapConfig.getString("path"),
 				buildAmplifiersFromString(jsapConfig.getStringArray("amplifiers")),
@@ -112,15 +127,13 @@ public class JSAPOptions {
 				jsapConfig.getInt("maxTestAmplified"));
 	}
 
-	private static Amplifier stringToAmplifier(String amplifier) {
+	public static Amplifier stringToAmplifier(String amplifier) {
 		return AmplifierEnum.valueOf(amplifier).amplifier;
 	}
 
-	private static List<Amplifier> buildAmplifiersFromString(String[] amplifiersAsString) {
-		if (amplifiersAsString.length == 0) {
-			return Arrays.stream(new String[]{"MethodAdd", "MethodRemove", "StatementAdd", "TestDataMutator"})
-					.map(JSAPOptions::stringToAmplifier)
-					.collect(Collectors.toList());
+	public static List<Amplifier> buildAmplifiersFromString(String[] amplifiersAsString) {
+		if (amplifiersAsString.length == 0 || "None".equals(amplifiersAsString[0])) {
+			return Collections.emptyList();
 		} else {
 			return Arrays.stream(amplifiersAsString)
 					.map(JSAPOptions::stringToAmplifier)
@@ -164,7 +177,8 @@ public class JSAPOptions {
 		amplifiers.setShortFlag('a');
 		amplifiers.setStringParser(JSAP.STRING_PARSER);
 		amplifiers.setUsageName("Amplifier");
-		amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. Possible values: MethodAdd|MethodRemove|StatementAdderOnAssert|TestDataMutator|StatementAdd");
+		amplifiers.setDefault("None");
+		amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. Possible values: NumberLiteralAmplifier|MethodAdd|MethodRemove|StatementAdderOnAssert|TestDataMutator|StatementAdd|None");
 
 		FlaggedOption iteration = new FlaggedOption("iteration");
 		iteration.setDefault("3");
@@ -179,7 +193,7 @@ public class JSAPOptions {
 		selector.setLongFlag("test-criterion");
 		selector.setShortFlag('s');
 		selector.setStringParser(JSAP.STRING_PARSER);
-		selector.setUsageName("PitMutantScoreSelector | BranchCoverageTestSelector | JacocoCoverageSelector | TakeAllSelector");
+		selector.setUsageName("PitMutantScoreSelector | BranchCoverageTestSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector");
 		selector.setHelp("[optional] specify the test adequacy criterion to be maximized with amplification");
 		selector.setDefault("PitMutantScoreSelector");
 

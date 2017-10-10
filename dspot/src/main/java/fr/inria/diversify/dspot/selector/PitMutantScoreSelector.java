@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
+import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.selector.json.mutant.MutantJSON;
@@ -16,6 +17,7 @@ import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.util.PrintClassUtils;
+import fr.inria.diversify.utils.DSpotUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -88,11 +90,18 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
-        try {
-            PrintClassUtils.printJavaFile(new File(this.program.getAbsoluteTestSourceCodeDir()), clone);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        DSpotUtils.printJavaFileWithComment(clone, new File(DSpotCompiler.pathToTmpTestSources));
+        final String classpath = AutomaticBuilderFactory
+                .getAutomaticBuilder(this.configuration)
+                .buildClasspath(this.program.getProgramDir())
+                + AmplificationHelper.PATH_SEPARATOR +
+                this.program.getProgramDir() + "/" + this.program.getClassesDir()
+                + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/"
+                + AmplificationHelper.PATH_SEPARATOR +
+                this.program.getProgramDir() + "/" + this.program.getTestClassesDir();
+
+        DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
+                new File(this.program.getProgramDir() + "/" + this.program.getTestClassesDir()));
 
         List<PitResult> results = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).runPit(this.program.getProgramDir(), clone);
         Set<CtMethod<?>> selectedTests = new HashSet<>();
@@ -130,13 +139,6 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                         this.testThatKilledMutants.containsKey(selectedTest) ?
                                 this.testThatKilledMutants.get(selectedTest).size() : this.testThatKilledMutants.get(null))
         );
-
-        try {
-            PrintClassUtils.printJavaFile(new File(this.program.getAbsoluteTestSourceCodeDir()), this.currentClassTestToBeAmplified);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
         return new ArrayList<>(selectedTests);
     }
 
