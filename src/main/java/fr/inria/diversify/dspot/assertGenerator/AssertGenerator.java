@@ -52,7 +52,7 @@ public class AssertGenerator {
                 CtExpression clone = ((CtExpression) argument).clone();
                 if (clone instanceof CtStatement) {
                     ctInvocation.insertBefore((CtStatement) clone);
-                } else if (! (clone instanceof CtLiteral)) {
+                } else if (! (clone instanceof CtLiteral || clone instanceof CtVariableRead)) {
                     CtTypeReference typeOfParameter = clone.getType();
                     if (clone.getType().equals(test.getFactory().Type().NULL_TYPE)) {
                         typeOfParameter = test.getFactory().Type().createReference(Object.class);
