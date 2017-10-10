@@ -50,7 +50,7 @@ public class DSpotMojo extends AbstractMojo {
 	@Parameter(defaultValue = "10000", property = "timeOut")
 	private Integer timeOutInMs;
 
-	@Parameter(defaultValue = "BranchCoverageTestSelector", property = "selector")
+	@Parameter(defaultValue = "PitMutantScoreSelector", property = "selector")
 	private String selector;
 
 	// Properties file parameters -> fr.inria.diversify.runner.InputConfiguration
