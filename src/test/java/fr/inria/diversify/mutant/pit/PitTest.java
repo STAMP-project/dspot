@@ -54,23 +54,7 @@ public class PitTest extends MavenAbstractTest {
                 ).count();
 
         assertEquals(8, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count(), nbErrors);
-        Optional<PitResult> OptResult = pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).findFirst();
-        assertTrue(OptResult.isPresent());
-        PitResult result = OptResult.get();
-        assertEquals("org.pitest.mutationtest.engine.gregor.mutators.InlineConstantMutator", result.getFullQualifiedNameMutantOperator());
-        assertEquals(null, result.getMethod(testClass));
-        assertEquals(27, result.getLineNumber());
-        assertEquals("<init>", result.getLocation());
-
         assertEquals(8, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count(), nbErrors);
-        OptResult = pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).findFirst();
-        assertTrue(OptResult.isPresent());
-        result = OptResult.get();
-        assertEquals("org.pitest.mutationtest.engine.gregor.mutators.InlineConstantMutator", result.getFullQualifiedNameMutantOperator());
-        assertEquals("test4", result.getMethod(testClass).getSimpleName());
-        assertEquals(18, result.getLineNumber());
-        assertEquals("charAt", result.getLocation());
-
         assertEquals(2, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.NO_COVERAGE).count(), nbErrors);
     }
 

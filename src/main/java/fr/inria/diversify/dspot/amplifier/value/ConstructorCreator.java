@@ -72,14 +72,14 @@ public class ConstructorCreator {
                 constructorCall.setType(type);
                 final CtConstructor<?> selectedConstructor = constructors.get(AmplificationHelper.getRandom().nextInt(constructors.size()));
                 selectedConstructor.getParameters().forEach(parameter -> {
-                            if (!type.getActualTypeArguments().isEmpty()) {
-                                type.getActualTypeArguments().forEach(ctTypeReference -> {
-                                            if (!parameter.getType().getActualTypeArguments().contains(ctTypeReference)) {
-                                                parameter.getType().addActualTypeArgument(ctTypeReference);
-                                            }
-                                        }
-                                );
-                            }
+//                            if (!type.getActualTypeArguments().isEmpty()) {
+//                                type.getActualTypeArguments().forEach(ctTypeReference -> {
+//                                            if (!parameter.getType().getActualTypeArguments().contains(ctTypeReference)) {
+//                                                parameter.getType().setActualTypeArguments(ctTypeReference);
+//                                            }
+//                                        }
+//                                );
+//                            }
                             constructorCall.addArgument(ValueCreator.generateRandomValue(parameter.getType()));
                         }
                 );

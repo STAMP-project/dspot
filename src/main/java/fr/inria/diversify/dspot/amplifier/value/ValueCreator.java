@@ -47,7 +47,9 @@ public class ValueCreator {
                     return generateArray(type);
                 } else if (type.getActualClass() == String.class) {
                     return type.getFactory().createLiteral(AmplificationHelper.getRandomString(20));
-                } else if (type.getActualClass() == Collection.class || type.getActualClass() == List.class) {
+                } else if (type.getActualClass() == Collection.class ||
+                        type.getActualClass() == List.class ||
+                        type.getSuperInterfaces().contains(type.getFactory().Type().get(List.class).getReference())) {
                     return CollectionCreator.generateCollection(type, "List", List.class);
                 } else if (type.getActualClass() == Set.class) {
                     return CollectionCreator.generateCollection(type, "Set", Set.class);

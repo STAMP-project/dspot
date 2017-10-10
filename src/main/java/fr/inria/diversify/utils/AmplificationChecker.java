@@ -3,6 +3,7 @@ package fr.inria.diversify.utils;
 import fr.inria.diversify.util.Log;
 import junit.framework.TestCase;
 import org.junit.Assert;
+import spoon.SpoonException;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -59,7 +60,7 @@ public class AmplificationChecker {
     public static boolean isPrimitive(CtTypeReference type) {
         try {
             return type.unbox().isPrimitive();
-        } catch (SpoonClassNotFoundException e) {
+        } catch (SpoonException e) {
             return false;
         }
     }

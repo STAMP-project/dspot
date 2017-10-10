@@ -28,20 +28,17 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
 	public static final String pathToTmpTestSources = "target/dspot/tmp_test_sources";
 
-	@Override
-	public Factory getFactory() {
-		return this.launcher.getFactory();
+	public static DSpotCompiler createDSpotCompiler(InputProgram program, String pathToDependencies) {
+		String pathToSources = program.getAbsoluteSourceCodeDir() + PATH_SEPARATOR + program.getAbsoluteTestSourceCodeDir();
+		Launcher launcher = getSpoonModelOf(pathToSources, pathToDependencies);
+		return new DSpotCompiler(launcher, program, pathToDependencies);
 	}
 
-	public DSpotCompiler(InputProgram program, String pathToDependencies) {
-		super(program.getFactory());
-		String pathToSources = program.getAbsoluteSourceCodeDir() + PATH_SEPARATOR + program.getAbsoluteTestSourceCodeDir();
+	private DSpotCompiler(Launcher launcher, InputProgram program, String pathToDependencies) {
+		super(launcher.getFactory());
 		this.dependencies = pathToDependencies;
-
-		this.launcher = getSpoonModelOf(pathToSources, pathToDependencies);
-
+		this.launcher = launcher;
 		this.binaryOutputDirectory = new File(program.getProgramDir() + "/" + program.getTestClassesDir());
-
 		this.sourceOutputDirectory = new File(pathToTmpTestSources);
 		if (!this.sourceOutputDirectory.exists()) {
 			this.sourceOutputDirectory.mkdir();
@@ -66,7 +63,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		System.arraycopy(classpath, 0, finalClasspath, sourcesArray.length, classpath.length);
 
 		final ClasspathOptions classpathOptions = new ClasspathOptions()
-				.encoding(this.encoding)
+				.encoding(getEnvironment().getEncoding().displayName())
 				.classpath(finalClasspath)
 				.binaries(getBinaryOutputDirectory());
 

@@ -38,7 +38,7 @@ public class DSpotCompilerTest {
     public void testDSpotCompiler() throws Exception {
 
         final InputProgram inputProgram = getInputProgram();
-        final DSpotCompiler compiler = new DSpotCompiler(inputProgram, "");
+        final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(inputProgram, "");
         final CtClass<?> aClass = getClass(compiler.getLauncher().getFactory());
         final List<CtMethod<?>> compile = TestCompiler.compile(compiler, aClass, "");
         assertTrue(compile.isEmpty());

@@ -11,6 +11,7 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtPackage;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.reference.CtPackageReference;
+import spoon.reflect.reference.CtReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.ImportScanner;
 import spoon.reflect.visitor.ImportScannerImpl;
@@ -106,9 +107,13 @@ public class AmplificationHelper {
         if (!AmplificationHelper.importByClass.containsKey(type)) {
             ImportScanner importScanner = new ImportScannerImpl();
             try {
-                Set<CtType> set = importScanner.computeImports(type).stream()
-                        .map(CtTypeReference::getDeclaration)
+                importScanner.computeImports(type);
+                Set<CtType> set = importScanner.getAllImports()
+                        .stream()
+                        .map(CtReference::getDeclaration)
                         .filter(Objects::nonNull)
+                        .filter(ctElement -> ctElement instanceof CtType)
+                        .map(ctElement -> (CtType) ctElement)
                         .collect(Collectors.toSet());
                 AmplificationHelper.importByClass.put(type, set);
             } catch (Exception e) {
