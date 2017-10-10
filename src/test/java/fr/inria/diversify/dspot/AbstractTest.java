@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
+import fr.inria.diversify.utils.AmplificationHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,6 +22,7 @@ public abstract class AbstractTest {
 
     @Before
     public void setUp() throws Exception {
+        AmplificationHelper.setSeedRandom(72L);
         Utils.init(getPathToPropertiesFile());
         ValueCreator.count = 0;
     }

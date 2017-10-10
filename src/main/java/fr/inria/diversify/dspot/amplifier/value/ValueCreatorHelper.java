@@ -44,6 +44,7 @@ public class ValueCreatorHelper {
     private static boolean canGenerateConstructionOf(CtTypeReference type) {
         CtType<?> typeDeclaration = type.getDeclaration() == null ? type.getTypeDeclaration() : type.getDeclaration();
         return typeDeclaration != null &&
+                !type.getModifiers().contains(ModifierKind.ABSTRACT) &&
                 !typeDeclaration.getElements(new TypeFilter<CtConstructor>(CtConstructor.class) {
                     @Override
                     public boolean matches(CtConstructor element) {
