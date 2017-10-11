@@ -66,7 +66,7 @@ public class Utils {
 			inputProgram = inputConfiguration.getInputProgram();
 			builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 			String dependencies = builder.buildClasspath(inputProgram.getProgramDir());
-			compiler = DSpotCompiler.createDSpotCompiler(inputProgram, dependencies);
+			compiler = DSpotCompiler.createDSpotCompiler(inputConfiguration, dependencies);
 			inputProgram.setFactory(compiler.getLauncher().getFactory());
 		} catch (Exception e) {
 			throw new RuntimeException(e);

@@ -106,7 +106,7 @@ public class DSpot {
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
         String dependencies = builder.buildClasspath(this.inputProgram.getProgramDir());
 
-        this.compiler =  DSpotCompiler.createDSpotCompiler(inputProgram, dependencies);
+        this.compiler =  DSpotCompiler.createDSpotCompiler(this.inputConfiguration, dependencies);
         this.inputProgram.setFactory(compiler.getLauncher().getFactory());
         this.amplifiers = new ArrayList<>(amplifiers);
         this.numberOfIterations = numberOfIterations;

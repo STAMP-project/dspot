@@ -1,5 +1,6 @@
 package fr.inria.diversify.dspot.support;
 
+import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.Main;
@@ -28,14 +29,17 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
 	public static final String pathToTmpTestSources = "target/dspot/tmp_test_sources";
 
-	public static DSpotCompiler createDSpotCompiler(InputProgram program, String pathToDependencies) {
+	public static DSpotCompiler createDSpotCompiler(InputConfiguration configuration, String pathToDependencies) {
+		final InputProgram program = configuration.getInputProgram();
+		int javaCompliance = Integer.parseInt(configuration.getProperty("javaVersion"));
 		String pathToSources = program.getAbsoluteSourceCodeDir() + PATH_SEPARATOR + program.getAbsoluteTestSourceCodeDir();
 		Launcher launcher = getSpoonModelOf(pathToSources, pathToDependencies);
-		return new DSpotCompiler(launcher, program, pathToDependencies);
+		return new DSpotCompiler(launcher, program, pathToDependencies, javaCompliance);
 	}
 
-	private DSpotCompiler(Launcher launcher, InputProgram program, String pathToDependencies) {
+	private DSpotCompiler(Launcher launcher, InputProgram program, String pathToDependencies, int javaCompliance) {
 		super(launcher.getFactory());
+		this.javaCompliance = javaCompliance;
 		this.dependencies = pathToDependencies;
 		this.launcher = launcher;
 		this.binaryOutputDirectory = new File(program.getProgramDir() + "/" + program.getTestClassesDir());
