@@ -90,18 +90,19 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
-        DSpotUtils.printJavaFileWithComment(clone, new File(DSpotCompiler.pathToTmpTestSources));
-        final String classpath = AutomaticBuilderFactory
-                .getAutomaticBuilder(this.configuration)
-                .buildClasspath(this.program.getProgramDir())
-                + AmplificationHelper.PATH_SEPARATOR +
-                this.program.getProgramDir() + "/" + this.program.getClassesDir()
-                + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/"
-                + AmplificationHelper.PATH_SEPARATOR +
-                this.program.getProgramDir() + "/" + this.program.getTestClassesDir();
+        DSpotUtils.printJavaFileWithComment(clone, new File(this.program.getAbsoluteTestSourceCodeDir()));
 
-        DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
-                new File(this.program.getProgramDir() + "/" + this.program.getTestClassesDir()));
+//        final String classpath = AutomaticBuilderFactory
+//                .getAutomaticBuilder(this.configuration)
+//                .buildClasspath(this.program.getProgramDir())
+//                + AmplificationHelper.PATH_SEPARATOR +
+//                this.program.getProgramDir() + "/" + this.program.getClassesDir()
+//                + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/"
+//                + AmplificationHelper.PATH_SEPARATOR +
+//                this.program.getProgramDir() + "/" + this.program.getTestClassesDir();
+//
+//        DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
+//                new File(this.program.getProgramDir() + "/" + this.program.getTestClassesDir()));
 
         List<PitResult> results = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).runPit(this.program.getProgramDir(), clone);
         Set<CtMethod<?>> selectedTests = new HashSet<>();
@@ -129,6 +130,10 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                         }
                     });
         }
+
+        DSpotUtils.printJavaFileWithComment(this.currentClassTestToBeAmplified,
+                new File(this.program.getAbsoluteTestSourceCodeDir()));
+
 
         this.selectedAmplifiedTest.addAll(selectedTests);
 
