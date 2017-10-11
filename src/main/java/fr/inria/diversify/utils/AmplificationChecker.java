@@ -97,10 +97,10 @@ public class AmplificationChecker {
         }
 
         return candidate.getParameters().isEmpty() &&
+                !listOfAssertion.isEmpty() &&
                 (candidate.getAnnotation(org.junit.Test.class) != null ||
                         ((candidate.getSimpleName().contains("test") ||
-                                candidate.getSimpleName().contains("should")) && !isTestJUnit4(parent)
-                                && !listOfAssertion.isEmpty()));
+                                candidate.getSimpleName().contains("should")) && !isTestJUnit4(parent)));
     }
 
     private static class HasAssertInvocationFilter extends TypeFilter<CtInvocation> {
@@ -112,7 +112,7 @@ public class AmplificationChecker {
 
         @Override
         public boolean matches(CtInvocation element) {
-            return deep > 0 &&
+            return deep >= 0 &&
                     (hasAssertCall.test(element) || containsMethodCallToAssertion(element, this.deep));
         }
     };
@@ -135,7 +135,7 @@ public class AmplificationChecker {
                 invocation.getExecutable().getParameters().toArray(new CtTypeReference[0])
         );
         return method != null && !method.getElements(new HasAssertInvocationFilter(deep - 1)).isEmpty();
-    };
+    }
 
     private static boolean isTestJUnit4(CtClass<?> classTest) {
         return classTest.getMethods().stream()
