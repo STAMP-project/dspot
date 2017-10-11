@@ -125,6 +125,7 @@ public class AmplificationHelper {
 
     private static CtMethod cloneMethod(CtMethod method, String suffix) {
         CtMethod cloned_method = method.clone();
+        cloned_method.setParent(method.getParent());
         //rename the clone
         cloned_method.setSimpleName(method.getSimpleName() + (suffix.isEmpty() ? "" : suffix + cloneNumber));
         cloneNumber++;
