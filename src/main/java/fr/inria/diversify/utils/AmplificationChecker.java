@@ -93,20 +93,27 @@ public class AmplificationChecker {
         });
 
         if (listOfAssertion.isEmpty()) {
-            listOfAssertion.addAll(candidate.getBody().getElements(filterContainsAssertions));
+            listOfAssertion.addAll(candidate.getBody().getElements(new HasAssertInvocationFilter(3)));
         }
 
         return candidate.getParameters().isEmpty() &&
+                !listOfAssertion.isEmpty() &&
                 (candidate.getAnnotation(org.junit.Test.class) != null ||
                         ((candidate.getSimpleName().contains("test") ||
-                                candidate.getSimpleName().contains("should")) && !isTestJUnit4(parent)
-                                && !listOfAssertion.isEmpty()));
+                                candidate.getSimpleName().contains("should")) && !isTestJUnit4(parent)));
     }
 
-    private static final TypeFilter<CtInvocation> filterContainsAssertions = new TypeFilter<CtInvocation>(CtInvocation.class) {
+    private static class HasAssertInvocationFilter extends TypeFilter<CtInvocation> {
+        int deep;
+        public HasAssertInvocationFilter(int deep) {
+            super(CtInvocation.class);
+            this.deep = deep;
+        }
+
         @Override
         public boolean matches(CtInvocation element) {
-            return hasAssertCall.test(element) || containsMethodCallToAssertion.test(element);
+            return deep >= 0 &&
+                    (hasAssertCall.test(element) || containsMethodCallToAssertion(element, this.deep));
         }
     };
 
@@ -121,14 +128,14 @@ public class AmplificationChecker {
                             invocation.getFactory().Type().createReference(TestCase.class)
                     ));
 
-    private static final Predicate<CtInvocation<?>> containsMethodCallToAssertion = invocation -> {
+    private static boolean containsMethodCallToAssertion (CtInvocation<?> invocation, int deep) {
         final CtMethod<?> method = invocation.getExecutable().getDeclaringType().getTypeDeclaration().getMethod(
                 invocation.getExecutable().getType(),
                 invocation.getExecutable().getSimpleName(),
                 invocation.getExecutable().getParameters().toArray(new CtTypeReference[0])
         );
-        return method != null && !method.getElements(filterContainsAssertions).isEmpty();
-    };
+        return method != null && !method.getElements(new HasAssertInvocationFilter(deep - 1)).isEmpty();
+    }
 
     private static boolean isTestJUnit4(CtClass<?> classTest) {
         return classTest.getMethods().stream()

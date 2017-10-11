@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot;
+package fr.inria.diversify.utils;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.runner.InputProgram;
