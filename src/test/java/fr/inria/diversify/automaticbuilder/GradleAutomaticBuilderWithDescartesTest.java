@@ -68,7 +68,7 @@ public class GradleAutomaticBuilderWithDescartesTest {
         CtClass<Object> testClass = Utils.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
 
         sut.runPit("src/test/resources/test-projects/", testClass);
-        List<PitResult> pitResults = PitResultParser.parseAndDelete("src/test/resources/test-projects/");
+        List<PitResult> pitResults = PitResultParser.parseAndDelete("src/test/resources/test-projects/" + sut.getOutputDirectoryPit());
 
         assertTrue("PIT results shouldn't be null", pitResults != null);
         assertTrue("PIT results shouldn't be empty", !pitResults.isEmpty());

@@ -16,11 +16,11 @@ import java.util.List;
  */
 public class PitResultParser {
 
-    public static List<PitResult> parseAndDelete(String programDirectory) {
-        if (!new File(programDirectory + "/target/pit-reports").exists()) {
+    public static List<PitResult> parseAndDelete(String pathToDirectoryResults) {
+        if (!new File(pathToDirectoryResults).exists()) {
             return null;
         }
-        final File[] files = new File(programDirectory + "/target/pit-reports").listFiles();
+        final File[] files = new File(pathToDirectoryResults).listFiles();
         if (files == null) {
             return null;
         }

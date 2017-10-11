@@ -2,6 +2,7 @@ package fr.inria.diversify.automaticbuilder;
 
 import fr.inria.diversify.mutant.descartes.DescartesChecker;
 import fr.inria.diversify.mutant.descartes.DescartesInjector;
+import fr.inria.diversify.mutant.pit.GradlePitTaskAndOptions;
 import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
@@ -199,5 +200,10 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 		} catch (MavenInvocationException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public String getOutputDirectoryPit() {
+		return MavenPitCommandAndOptions.OUTPUT_DIRECTORY_PIT;
 	}
 }

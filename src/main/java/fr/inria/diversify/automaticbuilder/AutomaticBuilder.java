@@ -21,4 +21,6 @@ public interface AutomaticBuilder {
     void runPit(String pathToRootOfProject, CtType<?> testClass);
 
     void runPit(String pathToRootOfProject);
+
+    String getOutputDirectoryPit();
 }

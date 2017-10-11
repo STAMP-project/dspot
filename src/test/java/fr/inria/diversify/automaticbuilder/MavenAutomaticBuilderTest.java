@@ -66,7 +66,7 @@ public class MavenAutomaticBuilderTest {
         Utils.init("src/test/resources/test-projects/test-projects.properties");
 
         Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir());
-        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir());
+        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertEquals(25, pitResults.size());
         assertEquals(9, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
@@ -104,7 +104,7 @@ public class MavenAutomaticBuilderTest {
         Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir(),
                 Utils.findClass("fr.inria.inheritance.Inherited"));
 
-        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir());
+        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertEquals(9, pitResults.size());
     }
