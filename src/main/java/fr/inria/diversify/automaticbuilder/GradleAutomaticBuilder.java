@@ -85,12 +85,12 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
     }
 
     @Override
-    public List<PitResult> runPit(String pathToRootOfProject) {
-        return runPit(pathToRootOfProject, null);
+    public void runPit(String pathToRootOfProject) {
+        runPit(pathToRootOfProject, null);
     }
 
     @Override
-    public List<PitResult> runPit(String pathToRootOfProject, CtType<?> testClass) {
+    public void runPit(String pathToRootOfProject, CtType<?> testClass) {
         try {
             Log.debug("Injecting  Gradle task to run Pit...");
             injectPitTask(pathToRootOfProject, testClass);
@@ -101,11 +101,11 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
 
             resetOriginalGradleBuildFile(pathToRootOfProject);
 
-            File directoryReportPit = new File(pathToRootOfProject + "/build/pit-reports").listFiles()[0];
-            return PitResultParser.parse(new File(directoryReportPit.getPath() + "/mutations.csv"));
+//            File directoryReportPit = new File(pathToRootOfProject + "/build/pit-reports").listFiles()[0];
+//            return PitResultParser.parse(new File(directoryReportPit.getPath() + "/mutations.csv"));
 
         } catch (Exception e) {
-            return null;
+//            return null;
         }
     }
 

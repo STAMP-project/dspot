@@ -3,6 +3,7 @@ package fr.inria.diversify.automaticbuilder;
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.mutant.pit.PitResult;
+import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.stamp.Main;
 import org.apache.commons.io.FileUtils;
@@ -64,7 +65,8 @@ public class MavenAutomaticBuilderTest {
 
         Utils.init("src/test/resources/test-projects/test-projects.properties");
 
-        final List<PitResult> pitResults = Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir());
+        Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir());
+        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir());
 
         assertEquals(25, pitResults.size());
         assertEquals(9, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
@@ -99,8 +101,10 @@ public class MavenAutomaticBuilderTest {
 
         FileUtils.deleteDirectory(new File("src/test/resources/sample/target/pit-reports"));
 
-        final List<PitResult> pitResults = Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir(),
+        Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir(),
                 Utils.findClass("fr.inria.inheritance.Inherited"));
+
+        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir());
 
         assertEquals(9, pitResults.size());
     }

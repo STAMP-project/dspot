@@ -2,6 +2,7 @@ package fr.inria.diversify.automaticbuilder;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.mutant.pit.PitResult;
+import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.util.Log;
@@ -94,7 +95,8 @@ public class GradleAutomaticBuilderTest {
     public void runPit_whenNoTestClassIsSpecified() throws Exception {
         Log.info("Starting Gradle Automatic Builder runPit() test when no test class is specified...");
 
-        List<PitResult> pitResults = sut.runPit("src/test/resources/test-projects/");
+        sut.runPit("src/test/resources/test-projects/");
+        List<PitResult> pitResults = PitResultParser.parseAndDelete("src/test/resources/test-projects/");
 
         assertTrue("PIT results shouldn't be null", pitResults != null);
         assertTrue("PIT results shouldn't be empty", !pitResults.isEmpty());
@@ -108,7 +110,8 @@ public class GradleAutomaticBuilderTest {
 
         CtClass<Object> testClass = Utils.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
 
-        List<PitResult> pitResults = sut.runPit("src/test/resources/test-projects/", testClass);
+        sut.runPit("src/test/resources/test-projects/", testClass);
+        List<PitResult> pitResults = PitResultParser.parseAndDelete("src/test/resources/test-projects/");
 
         assertTrue("PIT results shouldn't be null", pitResults != null);
         assertTrue("PIT results shouldn't be empty", !pitResults.isEmpty());
