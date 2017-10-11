@@ -91,11 +91,10 @@ public class PitResult {
 
         PitResult result = (PitResult) o;
 
-//        if (lineNumber != result.lineNumber) return false;
-        return fullQualifiedNameOfMutatedClass.endsWith(result.fullQualifiedNameOfMutatedClass) &&
-               nameOfMutatedMethod.equals(result.nameOfMutatedMethod) &&
-               fullQualifiedNameMutantOperator.equals(result.fullQualifiedNameMutantOperator);
-
+        return lineNumber == result.lineNumber &&
+                fullQualifiedNameOfMutatedClass.endsWith(result.fullQualifiedNameOfMutatedClass) &&
+                nameOfMutatedMethod.equals(result.nameOfMutatedMethod) &&
+                fullQualifiedNameMutantOperator.equals(result.fullQualifiedNameMutantOperator);
     }
 
     @Override
