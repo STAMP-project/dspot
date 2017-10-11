@@ -25,14 +25,14 @@ public class TestCollectionCreator extends AbstractTest {
     @Test
     public void testCreateCollection() throws Exception {
         final CtTypeReference typeList = Utils.findMethod("fr.inria.statementadd.ClassTarget", "getList").getType();
-        assertEquals("java.util.Collections.emptyList()" ,
+        assertEquals("Collections.emptyList()" ,
                 CollectionCreator.generateCollection(
                         typeList,
                         "List",
                         String.class)
                         .toString()
         );
-        assertEquals("java.util.Collections.singletonList(new fr.inria.statementadd.ClassParameterAmplify(1224731715))" ,
+        assertEquals("Collections.singletonList(new fr.inria.statementadd.ClassParameterAmplify(1224731715))" ,
                 CollectionCreator.generateCollection(
                         typeList,
                         "List",
@@ -46,14 +46,14 @@ public class TestCollectionCreator extends AbstractTest {
                 .getParameters()
                 .get(0)
         ).getType();
-        assertEquals("java.util.Collections.emptyList()" ,
+        assertEquals("Collections.emptyList()" ,
                 CollectionCreator.generateCollection(
                         typeCollectionObject,
                         "List",
                         String.class)
                         .toString()
         );
-        assertEquals("java.util.Collections.emptyList()" ,
+        assertEquals("Collections.emptyList()" ,
                 CollectionCreator.generateCollection(
                         typeCollectionObject,
                         "List",
@@ -69,7 +69,7 @@ public class TestCollectionCreator extends AbstractTest {
                 .get(0)
         ).getType();
 
-        assertEquals("java.util.Collections.emptySet()" ,
+        assertEquals("Collections.emptySet()" ,
                 CollectionCreator.generateCollection(
                         typeSet,
                         "Set",
@@ -77,7 +77,7 @@ public class TestCollectionCreator extends AbstractTest {
                         .toString()
         );
 
-        assertEquals("java.util.Collections.singleton(new fr.inria.statementadd.ClassParameterAmplify(-1355944483))" ,
+        assertEquals("Collections.singleton(new fr.inria.statementadd.ClassParameterAmplify(-1355944483))" ,
                 CollectionCreator.generateCollection(
                         typeSet,
                         "Set",

@@ -94,6 +94,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		Launcher launcher = new Launcher();
 		launcher.getEnvironment().setNoClasspath(false);
 		launcher.getEnvironment().setCommentEnabled(true);
+		launcher.getEnvironment().setAutoImports(true);
 
 		if (! new File("target/dspot/dependencies/compare").exists()) {
 			DSpotUtils.copyPackageFromResources("fr/inria/diversify/compare/",
@@ -116,6 +117,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		}
 		launcher.getEnvironment().setNoClasspath(false);
 		launcher.getEnvironment().setCommentEnabled(true);
+		launcher.getEnvironment().setAutoImports(true);
 
 		if (! new File("target/dspot/dependencies/compare").exists()) {
 			DSpotUtils.copyPackageFromResources("fr/inria/diversify/compare/",

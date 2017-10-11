@@ -155,8 +155,13 @@ public class AssertGeneratorHelper {
                 );
                 insertAfter = invocation;
             } else {
-                final CtLocalVariable localVariable = stmt.getFactory().createLocalVariable(invocation.getType(),
-                        "o_" + id, invocation.clone());
+                final CtInvocation clone = invocation.clone();
+                clone.setParent(invocation.getParent());
+                final CtLocalVariable localVariable = stmt.getFactory().createLocalVariable(
+                        invocation.getType(),
+                        "o_" + id,
+                        clone
+                );
                 try {
                     stmt.replace(localVariable);
                 } catch (ClassCastException e) {
