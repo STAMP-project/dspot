@@ -1,8 +1,11 @@
 package fr.inria.diversify.mutant.pit;
 
+import fr.inria.diversify.util.FileUtils;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +15,28 @@ import java.util.List;
  * on 1/4/17
  */
 public class PitResultParser {
+
+    public static List<PitResult> parseAndDelete(String pathToDirectoryResults) {
+        if (!new File(pathToDirectoryResults).exists()) {
+            return null;
+        }
+        final File[] files = new File(pathToDirectoryResults).listFiles();
+        if (files == null) {
+            return null;
+        }
+        File directoryReportPit = files[0];
+        if (!directoryReportPit.exists()) {
+            return null;
+        }
+        File fileResults = new File(directoryReportPit.getPath() + "/mutations.csv");
+        final List<PitResult> results = PitResultParser.parse(fileResults);
+        try {
+            FileUtils.deleteDirectory(directoryReportPit);
+        } catch (IOException e) {
+            // ignored
+        }
+        return results;
+    }
 
     public static List<PitResult> parse(File fileResults) {
         final List<PitResult> results = new ArrayList<>();

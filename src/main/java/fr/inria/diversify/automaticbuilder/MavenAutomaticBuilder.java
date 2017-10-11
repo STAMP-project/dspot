@@ -2,6 +2,7 @@ package fr.inria.diversify.automaticbuilder;
 
 import fr.inria.diversify.mutant.descartes.DescartesChecker;
 import fr.inria.diversify.mutant.descartes.DescartesInjector;
+import fr.inria.diversify.mutant.pit.GradlePitTaskAndOptions;
 import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
@@ -91,7 +92,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 	}
 
 	@Override
-	public List<PitResult> runPit(String pathToRootOfProject, CtType<?> testClass) {
+	public void runPit(String pathToRootOfProject, CtType<?> testClass) {
 		try {
 			org.apache.commons.io.FileUtils.deleteDirectory(new File(pathToRootOfProject + "/target/pit-reports"));
 		} catch (Exception ignored) {
@@ -121,21 +122,6 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 			if (this.runGoals(pathToRootOfProject, phases) != 0) {
 				throw new RuntimeException("Maven build failed! Enable verbose mode for more information (--verbose)");
 			}
-			if (!new File(pathToRootOfProject + "/target/pit-reports").exists()) {
-				return null;
-			}
-			final File[] files = new File(pathToRootOfProject + "/target/pit-reports").listFiles();
-			if (files == null) {
-				return null;
-			}
-			File directoryReportPit = files[0];
-			if (!directoryReportPit.exists()) {
-				return null;
-			}
-			File fileResults = new File(directoryReportPit.getPath() + "/mutations.csv");
-			final List<PitResult> parse = PitResultParser.parse(fileResults);
-			FileUtils.deleteDirectory(directoryReportPit);
-			return parse;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -159,7 +145,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 	}
 
 	@Override
-	public List<PitResult> runPit(String pathToRootOfProject) {
+	public void runPit(String pathToRootOfProject) {
 		try {
 			org.apache.commons.io.FileUtils.deleteDirectory(new File(pathToRootOfProject + "/target/pit-reports"));
 		} catch (Exception ignored) {
@@ -188,10 +174,6 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 			if (this.runGoals(pathToRootOfProject, phases) != 0) {
 				throw new RuntimeException("Maven build failed! Enable verbose mode for more information (--verbose)");
 			}
-			File directoryReportPit = new File(pathToRootOfProject + "/target/pit-reports").listFiles()[0];
-			final List<PitResult> parse = PitResultParser.parse(new File(directoryReportPit.getPath() + "/mutations.csv"));
-			FileUtils.deleteDirectory(directoryReportPit);
-			return parse;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -218,5 +200,10 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 		} catch (MavenInvocationException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public String getOutputDirectoryPit() {
+		return MavenPitCommandAndOptions.OUTPUT_DIRECTORY_PIT;
 	}
 }

@@ -79,8 +79,9 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
                 new File(dspot.getInputProgram().getProgramDir() + "/" + dspot.getInputProgram().getTestClassesDir()));
 
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(configuration);
-        List<PitResult> pitResultsAmplified = builder.runPit(configuration.getInputProgram().getProgramDir(),
+        builder.runPit(configuration.getInputProgram().getProgramDir(),
                 amplifiedTest);
+        List<PitResult> pitResultsAmplified = PitResultParser.parseAndDelete(configuration.getInputProgram().getProgramDir() + builder.getOutputDirectoryPit());
 
         assertTrue(null != pitResultsAmplified);
         assertTrue(pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count() <

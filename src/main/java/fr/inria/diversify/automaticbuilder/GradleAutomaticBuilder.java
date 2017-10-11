@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import java.util.stream.Collectors;
 
+import fr.inria.diversify.mutant.pit.GradlePitTaskAndOptions;
 import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.diversify.runner.InputConfiguration;
 import org.gradle.tooling.BuildLauncher;
@@ -85,27 +86,24 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
     }
 
     @Override
-    public List<PitResult> runPit(String pathToRootOfProject) {
-        return runPit(pathToRootOfProject, null);
+    public void runPit(String pathToRootOfProject) {
+        runPit(pathToRootOfProject, null);
     }
 
     @Override
-    public List<PitResult> runPit(String pathToRootOfProject, CtType<?> testClass) {
+    public void runPit(String pathToRootOfProject, CtType<?> testClass) {
         try {
             Log.debug("Injecting  Gradle task to run Pit...");
             injectPitTask(pathToRootOfProject, testClass);
 
             Log.debug("Running Pit...");
 
-            runTasks(pathToRootOfProject,CMD_PIT_MUTATION_COVERAGE);
+            runTasks(pathToRootOfProject, CMD_PIT_MUTATION_COVERAGE);
 
             resetOriginalGradleBuildFile(pathToRootOfProject);
 
-            File directoryReportPit = new File(pathToRootOfProject + "/build/pit-reports").listFiles()[0];
-            return PitResultParser.parse(new File(directoryReportPit.getPath() + "/mutations.csv"));
+        } catch (Exception ignored) {
 
-        } catch (Exception e) {
-            return null;
         }
     }
 
@@ -293,4 +291,8 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
         return "mutators = " + configuration.getProperty("descartesMutators");
     }
 
+    @Override
+    public String getOutputDirectoryPit() {
+        return GradlePitTaskAndOptions.OUTPUT_DIRECTORY_PIT;
+    }
 }

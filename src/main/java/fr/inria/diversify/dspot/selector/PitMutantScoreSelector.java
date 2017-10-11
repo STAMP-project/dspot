@@ -2,8 +2,10 @@ package fr.inria.diversify.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
+import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.selector.json.mutant.MutantJSON;
@@ -50,7 +52,9 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     public void init(InputConfiguration configuration) {
         super.init(configuration);
         if (this.originalKilledMutants == null) {
-            initOriginalPitResult(AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).runPit(this.program.getProgramDir()));
+            final AutomaticBuilder automaticBuilder = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration);
+            automaticBuilder.runPit(this.program.getProgramDir());
+            initOriginalPitResult(PitResultParser.parseAndDelete(this.program.getProgramDir() + automaticBuilder.getOutputDirectoryPit()) );
         }
     }
 
@@ -88,6 +92,8 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
         DSpotUtils.printJavaFileWithComment(clone, new File(DSpotCompiler.pathToTmpTestSources));
+        final AutomaticBuilder automaticBuilder = AutomaticBuilderFactory
+                .getAutomaticBuilder(this.configuration);
         final String classpath = AutomaticBuilderFactory
                 .getAutomaticBuilder(this.configuration)
                 .buildClasspath(this.program.getProgramDir())
@@ -100,7 +106,11 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
                 new File(this.program.getProgramDir() + "/" + this.program.getTestClassesDir()));
 
-        List<PitResult> results = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).runPit(this.program.getProgramDir(), clone);
+        AutomaticBuilderFactory
+                .getAutomaticBuilder(this.configuration)
+                .runPit(this.program.getProgramDir(), clone);
+        final List<PitResult> results = PitResultParser.parseAndDelete(program.getProgramDir() + automaticBuilder.getOutputDirectoryPit());
+
         Set<CtMethod<?>> selectedTests = new HashSet<>();
         if (results != null) {
             Log.debug("{} mutants has been generated ({})", results.size(), this.numberOfMutant);

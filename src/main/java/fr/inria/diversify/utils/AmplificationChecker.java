@@ -79,7 +79,8 @@ public class AmplificationChecker {
                 || candidate.getVisibility() == null
                 || !candidate.getVisibility().equals(ModifierKind.PUBLIC)
                 || candidate.getBody() == null
-                || candidate.getBody().getStatements().size() == 0) {
+                || candidate.getBody().getStatements().size() == 0
+                || !candidate.getParameters().isEmpty()) {
             return false;
         }
 
@@ -96,9 +97,11 @@ public class AmplificationChecker {
             listOfAssertion.addAll(candidate.getBody().getElements(new HasAssertInvocationFilter(3)));
         }
 
-        return candidate.getParameters().isEmpty() &&
-                !listOfAssertion.isEmpty() &&
-                (candidate.getAnnotation(org.junit.Test.class) != null ||
+        if (!listOfAssertion.isEmpty()) {
+            return true;
+        }
+
+        return (candidate.getAnnotation(org.junit.Test.class) != null ||
                         ((candidate.getSimpleName().contains("test") ||
                                 candidate.getSimpleName().contains("should")) && !isTestJUnit4(parent)));
     }

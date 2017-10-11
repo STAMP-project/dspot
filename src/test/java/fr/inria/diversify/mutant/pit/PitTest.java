@@ -42,7 +42,8 @@ public class PitTest extends MavenAbstractTest {
         CtClass<Object> testClass = Utils.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration());
 
-        List<PitResult> pitResults = builder.runPit(Utils.getInputProgram().getProgramDir(), testClass);
+        builder.runPit(Utils.getInputProgram().getProgramDir(), testClass);
+        List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir()+ builder.getOutputDirectoryPit());
 
         assertTrue(null != pitResults);
 
@@ -71,7 +72,8 @@ public class PitTest extends MavenAbstractTest {
         Utils.init(this.getPathToPropertiesFile());
         CtClass<Object> testClass = Utils.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration());
-        List<PitResult> pitResults = builder.runPit(Utils.getInputProgram().getProgramDir(), testClass);
+        builder.runPit(Utils.getInputProgram().getProgramDir(), testClass);
+        List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir() + builder.getOutputDirectoryPit());
 
         assertTrue(null != pitResults);
 

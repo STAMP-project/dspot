@@ -1,10 +1,6 @@
 package fr.inria.diversify.automaticbuilder;
 
-import fr.inria.diversify.mutant.pit.PitResult;
-import fr.inria.diversify.runner.InputConfiguration;
 import spoon.reflect.declaration.CtType;
-
-import java.util.List;
 
 /**
  * Created by Benjamin DANGLOT
@@ -22,7 +18,9 @@ public interface AutomaticBuilder {
 
     void reset();
 
-    List<PitResult> runPit(String pathToRootOfProject, CtType<?> testClass);
+    void runPit(String pathToRootOfProject, CtType<?> testClass);
 
-    List<PitResult> runPit(String pathToRootOfProject);
+    void runPit(String pathToRootOfProject);
+
+    String getOutputDirectoryPit();
 }

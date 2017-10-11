@@ -54,4 +54,6 @@ public class MavenPitCommandAndOptions {
             "NEGATE_CONDITIONALS",
             "CONDITIONALS_BOUNDARY",
             "INLINE_CONSTS"};
+
+    public static final String OUTPUT_DIRECTORY_PIT = "target/pit-reports/";
 }
