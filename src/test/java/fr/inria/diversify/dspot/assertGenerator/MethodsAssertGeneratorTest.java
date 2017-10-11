@@ -24,18 +24,18 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
 		MethodsAssertGenerator mag = new MethodsAssertGenerator(testClass, Utils.getInputConfiguration(), Utils.getCompiler());
 		CtMethod test = Utils.findMethod("fr.inria.multipleobservations.TestClassToBeTest", "test");
 		List<CtMethod<?>> test_buildNewAssert = mag.generateAsserts(testClass, Collections.singletonList(test));
-		final String expectedMethodWithAssertions = "@org.junit.Test(timeout = 10000)" + nl  +
-				"public void test() throws java.lang.Exception {" + nl  +
-				"    final fr.inria.multipleobservations.ClassToBeTest classToBeTest = new fr.inria.multipleobservations.ClassToBeTest();" + nl  +
-				"    // AssertGenerator add assertion" + nl  +
-				"    org.junit.Assert.assertEquals(0, ((int) (((fr.inria.multipleobservations.ClassToBeTest)classToBeTest).getInt())));" + nl  +
-				"    // AssertGenerator add assertion" + nl  +
-				"    org.junit.Assert.assertEquals(0, ((int) (((fr.inria.multipleobservations.ClassToBeTest)classToBeTest).getInteger())));" + nl  +
-				"    classToBeTest.method();" + nl  +
-				"    // AssertGenerator add assertion" + nl  +
-				"    org.junit.Assert.assertEquals(1, ((int) (((fr.inria.multipleobservations.ClassToBeTest)classToBeTest).getInt())));" + nl  +
-				"    // AssertGenerator add assertion" + nl  +
-				"    org.junit.Assert.assertEquals(1, ((int) (((fr.inria.multipleobservations.ClassToBeTest)classToBeTest).getInteger())));" + nl  +
+		final String expectedMethodWithAssertions = "@Test(timeout = 10000)" + nl +
+				"public void test() throws Exception {" + nl +
+				"    final ClassToBeTest classToBeTest = new ClassToBeTest();" + nl +
+				"    // AssertGenerator add assertion" + nl +
+				"    Assert.assertEquals(0, ((int) (((fr.inria.multipleobservations.ClassToBeTest)classToBeTest).getInt())));" + nl +
+				"    // AssertGenerator add assertion" + nl +
+				"    Assert.assertEquals(0, ((int) (((fr.inria.multipleobservations.ClassToBeTest)classToBeTest).getInteger())));" + nl +
+				"    classToBeTest.method();" + nl +
+				"    // AssertGenerator add assertion" + nl +
+				"    Assert.assertEquals(1, ((int) (((fr.inria.multipleobservations.ClassToBeTest)classToBeTest).getInt())));" + nl +
+				"    // AssertGenerator add assertion" + nl +
+				"    Assert.assertEquals(1, ((int) (((fr.inria.multipleobservations.ClassToBeTest)classToBeTest).getInteger())));" + nl +
 				"}";
 		assertEquals(expectedMethodWithAssertions, test_buildNewAssert.get(0).toString());
 	}
@@ -47,18 +47,18 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
         CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithSpecificCaseToBeAsserted", "test1");
         List<CtMethod<?>> test1_buildNewAssert = mag.generateAsserts(testClass, Collections.singletonList(test1));
 
-        final String expectedBody = "{" + nl  +
-				"    int a = 0;" + nl  +
-				"    int b = 1;" + nl  +
-				"    // AssertGenerator create local variable with return value of invocation" + nl  +
-				"    int o_test1__3 = new java.util.Comparator<java.lang.Integer>() {" + nl  +
-				"        @java.lang.Override" + nl  +
-				"        public int compare(java.lang.Integer integer, java.lang.Integer t1) {" + nl  +
-				"            return integer - t1;" + nl  +
-				"        }" + nl  +
-				"    }.compare(a, b);" + nl  +
-				"    // AssertGenerator add assertion" + nl  +
-				"    org.junit.Assert.assertEquals(-1, ((int) (o_test1__3)));" + nl  +
+        final String expectedBody = "{" + nl +
+				"    int a = 0;" + nl +
+				"    int b = 1;" + nl +
+				"    // AssertGenerator create local variable with return value of invocation" + nl +
+				"    int o_test1__3 = new Comparator<Integer>() {" + nl +
+				"        @Override" + nl +
+				"        public int compare(Integer integer, Integer t1) {" + nl +
+				"            return integer - t1;" + nl +
+				"        }" + nl +
+				"    }.compare(a, b);" + nl +
+				"    // AssertGenerator add assertion" + nl +
+				"    Assert.assertEquals(-1, ((int) (o_test1__3)));" + nl +
 				"}";
 
         assertEquals(expectedBody, test1_buildNewAssert.get(0).getBody().toString());
@@ -69,24 +69,24 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         MethodsAssertGenerator mag = new MethodsAssertGenerator(testClass, Utils.getInputConfiguration(), Utils.getCompiler());
 
-        final String expectedBody = "{" + nl  +
-				"    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl  +
-				"    // AssertGenerator add assertion" + nl  +
-				"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getBoolean());" + nl  +
-				"    // AssertGenerator add assertion" + nl  +
-				"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getTrue());" + nl  +
-				"    // AssertGenerator add assertion" + nl  +
-				"    org.junit.Assert.assertFalse(((fr.inria.sample.ClassWithBoolean)cl).getFalse());" + nl  +
-				"    cl.getFalse();" + nl  +
-				"    cl.getBoolean();" + nl  +
-				"    java.io.File file = new java.io.File(\"\");" + nl +
-				"    boolean var = cl.getTrue();" + nl  +
+        final String expectedBody = "{" + nl +
+				"    ClassWithBoolean cl = new ClassWithBoolean();" + nl +
 				"    // AssertGenerator add assertion" + nl +
-				"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getBoolean());" + nl +
+				"    Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getBoolean());" + nl +
 				"    // AssertGenerator add assertion" + nl +
-				"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getTrue());" + nl +
+				"    Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getTrue());" + nl +
 				"    // AssertGenerator add assertion" + nl +
-				"    org.junit.Assert.assertFalse(((fr.inria.sample.ClassWithBoolean)cl).getFalse());" + nl +
+				"    Assert.assertFalse(((fr.inria.sample.ClassWithBoolean)cl).getFalse());" + nl +
+				"    cl.getFalse();" + nl +
+				"    cl.getBoolean();" + nl +
+				"    File file = new File(\"\");" + nl +
+				"    boolean var = cl.getTrue();" + nl +
+				"    // AssertGenerator add assertion" + nl +
+				"    Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getBoolean());" + nl +
+				"    // AssertGenerator add assertion" + nl +
+				"    Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getTrue());" + nl +
+				"    // AssertGenerator add assertion" + nl +
+				"    Assert.assertFalse(((fr.inria.sample.ClassWithBoolean)cl).getFalse());" + nl +
 				"}";
 
         CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithoutAssert", "test1");

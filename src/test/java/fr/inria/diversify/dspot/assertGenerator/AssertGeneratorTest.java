@@ -31,24 +31,24 @@ public class AssertGeneratorTest extends AbstractTest {
         AssertGenerator assertGenerator = new AssertGenerator(Utils.getInputConfiguration(), Utils.getCompiler());
         CtType<?> ctType = AmplificationHelper.createAmplifiedTest(assertGenerator.generateAsserts(testClass), testClass);
 
-        final String expectedBody = "{" + nl  +
-                "    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl  +
-                "    // AssertGenerator add assertion" + nl  +
-                "    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getBoolean());" + nl  +
-                "    // AssertGenerator add assertion" + nl  +
-                "    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getTrue());" + nl  +
-                "    // AssertGenerator add assertion" + nl  +
-                "    org.junit.Assert.assertFalse(((fr.inria.sample.ClassWithBoolean)cl).getFalse());" + nl  +
-                "    cl.getFalse();" + nl  +
-                "    cl.getBoolean();" + nl  +
-                "    java.io.File file = new java.io.File(\"\");" +nl +
-                "    boolean var = cl.getTrue();" + nl  +
+        final String expectedBody = "{" + nl +
+                "    ClassWithBoolean cl = new ClassWithBoolean();" + nl +
                 "    // AssertGenerator add assertion" + nl +
-                "    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getBoolean());" + nl +
+                "    Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getBoolean());" + nl +
                 "    // AssertGenerator add assertion" + nl +
-                "    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getTrue());" + nl +
+                "    Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getTrue());" + nl +
                 "    // AssertGenerator add assertion" + nl +
-                "    org.junit.Assert.assertFalse(((fr.inria.sample.ClassWithBoolean)cl).getFalse());" + nl +
+                "    Assert.assertFalse(((fr.inria.sample.ClassWithBoolean)cl).getFalse());" + nl +
+                "    cl.getFalse();" + nl +
+                "    cl.getBoolean();" + nl +
+                "    File file = new File(\"\");" + nl +
+                "    boolean var = cl.getTrue();" + nl +
+                "    // AssertGenerator add assertion" + nl +
+                "    Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getBoolean());" + nl +
+                "    // AssertGenerator add assertion" + nl +
+                "    Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getTrue());" + nl +
+                "    // AssertGenerator add assertion" + nl +
+                "    Assert.assertFalse(((fr.inria.sample.ClassWithBoolean)cl).getFalse());" + nl +
                 "}";
 
         assertEquals(expectedBody, ((CtMethod)ctType.getMethodsByName("test1").stream().findFirst().get()).getBody().toString());

@@ -37,14 +37,14 @@ public class AssertionRemoverTest extends AbstractTest {
 		processingManager.addProcessor(assertionRemover);
 		processingManager.process(aClass);
 
-		final String expectedMethod = "@org.junit.Test" + nl +
+		final String expectedMethod = "@Test" + nl +
 				"public void test1() {" + nl +
-				"    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl +
-				"    java.lang.Object o0 = cl.getTrue();" + nl +
+				"    ClassWithBoolean cl = new ClassWithBoolean();" + nl +
+				"    Object o0 = cl.getTrue();" + nl +
 				"    int one = 1;" + nl +
 				"    switch (one) {" + nl +
 				"        case 1 :" + nl +
-				"            java.lang.Object o1 = fr.inria.assertionremover.TestClassWithAssertToBeRemoved.getNegation(cl.getFalse());" + nl +
+				"            Object o1 = TestClassWithAssertToBeRemoved.getNegation(cl.getFalse());" + nl +
 				"            break;" + nl +
 				"    }" + nl +
 				"}";

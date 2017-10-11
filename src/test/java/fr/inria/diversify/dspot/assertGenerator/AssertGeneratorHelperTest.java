@@ -50,13 +50,13 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 		assertEquals(5, amplifiedMethods.size());
 
 		final String expectedInstrumentedBodyAfterAmplification_test_sd6_withlog = "{" + nl +
-				"    fr.inria.statementaddarray.ClassTargetAmplify clazz = new fr.inria.statementaddarray.ClassTargetAmplify();" + nl +
-				"    fr.inria.diversify.compare.ObjectLog.log(clazz, \"clazz\", \"test_sd6__1\");" + nl +
+				"    ClassTargetAmplify clazz = new ClassTargetAmplify();" + nl +
+				"    ObjectLog.log(clazz, \"clazz\", \"test_sd6__1\");" + nl +
 				"    // StatementAdd: generate variable from return value" + nl +
-				"    fr.inria.statementaddarray.ClassParameterAmplify __DSPOT_invoc_3 = clazz.methodWithReturn();" + nl +
+				"    ClassParameterAmplify __DSPOT_invoc_3 = clazz.methodWithReturn();" + nl +
 				"    // StatementAdd: add invocation of a method" + nl +
 				"    __DSPOT_invoc_3.method1();" + nl +
-				"    fr.inria.diversify.compare.ObjectLog.log(clazz, \"clazz\", \"test_sd6__1___end\");" + nl +
+				"    ObjectLog.log(clazz, \"clazz\", \"test_sd6__1___end\");" + nl +
 				"}";
 
 		assertEquals(expectedInstrumentedBodyAfterAmplification_test_sd6_withlog,
@@ -75,12 +75,12 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 		final CtMethod<?> test1 = Utils.findMethod("fr.inria.multipleobservations.TestClassToBeTest", "test");
 		final CtMethod<?> testWithLog =
 				AssertGeneratorHelper.createTestWithLog(test1,"fr.inria.multipleobservations");
-		final String expectedMethodWithLogs = "@org.junit.Test(timeout = 10000)" + nl  +
-				"public void test_withlog() throws java.lang.Exception {" + nl  +
-				"    final fr.inria.multipleobservations.ClassToBeTest classToBeTest = new fr.inria.multipleobservations.ClassToBeTest();" + nl  +
-				"    fr.inria.diversify.compare.ObjectLog.log(classToBeTest, \"classToBeTest\", \"test__1\");" + nl  +
-				"    classToBeTest.method();" + nl  +
-				"    fr.inria.diversify.compare.ObjectLog.log(classToBeTest, \"classToBeTest\", \"test__1___end\");" + nl  +
+		final String expectedMethodWithLogs = "@Test(timeout = 10000)" + nl +
+				"public void test_withlog() throws Exception {" + nl +
+				"    final ClassToBeTest classToBeTest = new ClassToBeTest();" + nl +
+				"    ObjectLog.log(classToBeTest, \"classToBeTest\", \"test__1\");" + nl +
+				"    classToBeTest.method();" + nl +
+				"    ObjectLog.log(classToBeTest, \"classToBeTest\", \"test__1___end\");" + nl +
 				"}";
 		assertEquals(expectedMethodWithLogs, testWithLog.toString());
 	}
@@ -90,13 +90,13 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 		final CtMethod<?> test1 = Utils.findMethod("fr.inria.statementaddarray.TestClassTargetAmplify", "test");
 		final CtMethod<?> testWithLog =
 				AssertGeneratorHelper.createTestWithLog(test1,"fr.inria.statementaddarray");
-		final String expectedMethod = "@org.junit.Test(timeout = 10000)" + nl  +
-				"public void test_withlog() throws java.lang.Exception {" + nl  +
-				"    fr.inria.statementaddarray.ClassTargetAmplify clazz = new fr.inria.statementaddarray.ClassTargetAmplify();" + nl  +
-				"    fr.inria.diversify.compare.ObjectLog.log(clazz, \"clazz\", \"test__1\");" + nl  +
-				"    fr.inria.statementaddarray.ClassParameterAmplify o_test__3 = clazz.methodWithReturn();" + nl  +
-				"    fr.inria.diversify.compare.ObjectLog.log(o_test__3, \"o_test__3\", \"test__3\");" + nl  +
-				"    fr.inria.diversify.compare.ObjectLog.log(clazz, \"clazz\", \"test__1___end\");" + nl  +
+		final String expectedMethod = "@Test(timeout = 10000)" + nl +
+				"public void test_withlog() throws Exception {" + nl +
+				"    ClassTargetAmplify clazz = new ClassTargetAmplify();" + nl +
+				"    ObjectLog.log(clazz, \"clazz\", \"test__1\");" + nl +
+				"    ClassParameterAmplify o_test__3 = clazz.methodWithReturn();" + nl +
+				"    ObjectLog.log(o_test__3, \"o_test__3\", \"test__3\");" + nl +
+				"    ObjectLog.log(clazz, \"clazz\", \"test__1___end\");" + nl +
 				"}";
 		assertEquals(expectedMethod, testWithLog.toString());
 	}
@@ -112,15 +112,15 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 		final CtMethod<?> testWithLog =
 				AssertGeneratorHelper.createTestWithLog(test1,"fr.inria.sample");
 
-		final String expectedMethod = "@org.junit.Test(timeout = 10000)" + nl  +
-				"public void test1_withlog() {" + nl  +
-				"    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl  +
-				"    fr.inria.diversify.compare.ObjectLog.log(cl, \"cl\", \"test1__1\");" + nl  +
-				"    cl.getFalse();" + nl  +
-				"    cl.getBoolean();" + nl  +
-				"    java.io.File file = new java.io.File(\"\");" + nl +
-				"    boolean var = cl.getTrue();" + nl  +
-				"    fr.inria.diversify.compare.ObjectLog.log(cl, \"cl\", \"test1__1___end\");" + nl +
+		final String expectedMethod = "@Test(timeout = 10000)" + nl +
+				"public void test1_withlog() {" + nl +
+				"    ClassWithBoolean cl = new ClassWithBoolean();" + nl +
+				"    ObjectLog.log(cl, \"cl\", \"test1__1\");" + nl +
+				"    cl.getFalse();" + nl +
+				"    cl.getBoolean();" + nl +
+				"    File file = new File(\"\");" + nl +
+				"    boolean var = cl.getTrue();" + nl +
+				"    ObjectLog.log(cl, \"cl\", \"test1__1___end\");" + nl +
 				"}";
 		assertEquals(expectedMethod, testWithLog.toString());
 	}
@@ -131,17 +131,17 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 		final CtMethod<?> testWithLog =
 				AssertGeneratorHelper.createTestWithLog(test1,"fr.inria.sample");
 
-		final String expectedMethodWithLog = "@org.junit.Test(timeout = 10000)" + nl  +
-				"public void test1_withlog() {" + nl  +
-				"    int a = 0;" + nl  +
-				"    int b = 1;" + nl  +
-				"    int o_test1__3 = new java.util.Comparator<java.lang.Integer>() {" + nl  +
-				"        @java.lang.Override" + nl  +
-				"        public int compare(java.lang.Integer integer, java.lang.Integer t1) {" + nl  +
-				"            return integer - t1;" + nl  +
-				"        }" + nl  +
-				"    }.compare(a, b);" + nl  +
-				"    fr.inria.diversify.compare.ObjectLog.log(o_test1__3, \"o_test1__3\", \"test1__3\");" + nl  +
+		final String expectedMethodWithLog = "@Test(timeout = 10000)" + nl +
+				"public void test1_withlog() {" + nl +
+				"    int a = 0;" + nl +
+				"    int b = 1;" + nl +
+				"    int o_test1__3 = new Comparator<Integer>() {" + nl +
+				"        @Override" + nl +
+				"        public int compare(Integer integer, Integer t1) {" + nl +
+				"            return integer - t1;" + nl +
+				"        }" + nl +
+				"    }.compare(a, b);" + nl +
+				"    ObjectLog.log(o_test1__3, \"o_test1__3\", \"test1__3\");" + nl +
 				"}";
 		assertEquals(expectedMethodWithLog, testWithLog.toString());
 	}
@@ -156,14 +156,14 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 		final CtMethod<?> testWithLog =
 				AssertGeneratorHelper.createTestWithLog(test2,"fr.inria.sample");
 
-		final String expectedMethod = "@org.junit.Test(timeout = 10000)" + nl  +
-				"public void test2_withlog() {" + nl  +
-				"    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl  +
-				"    fr.inria.diversify.compare.ObjectLog.log(cl, \"cl\", \"test2__1\");" + nl  +
-				"    cl.getFalse();" + nl  +
-				"    cl.getFalse();" + nl  +
-				"    cl.getFalse();" + nl  +
-				"    fr.inria.diversify.compare.ObjectLog.log(cl, \"cl\", \"test2__1___end\");" + nl +
+		final String expectedMethod = "@Test(timeout = 10000)" + nl +
+				"public void test2_withlog() {" + nl +
+				"    ClassWithBoolean cl = new ClassWithBoolean();" + nl +
+				"    ObjectLog.log(cl, \"cl\", \"test2__1\");" + nl +
+				"    cl.getFalse();" + nl +
+				"    cl.getFalse();" + nl +
+				"    cl.getFalse();" + nl +
+				"    ObjectLog.log(cl, \"cl\", \"test2__1___end\");" + nl +
 				"}";
 		assertEquals(expectedMethod, testWithLog.toString());
 	}
