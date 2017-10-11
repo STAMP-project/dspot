@@ -14,28 +14,35 @@ public class PitResult {
 
     public enum State {SURVIVED, KILLED, NO_COVERAGE, TIMED_OUT, NON_VIABLE, MEMORY_ERROR}
 
-    private final String fullQualifiedNameClass;
-
-    private final State stateOfMutant;
+    private final String fullQualifiedNameOfMutatedClass;
 
     private final String fullQualifiedNameMutantOperator;
 
+    private final String nameOfMutatedMethod;
+
     private final int lineNumber;
 
-    private final String location;
+    private final State stateOfMutant;
+
+    private final String fullQualifiedNameOfKiller;
 
     private final String simpleNameMethod;
 
     private CtMethod testCase = null;
 
-    public PitResult(State stateOfMutant, String fullQualifiedNameMutantOperator, String fullQualifiedNameMethod, String fullQualifiedNameClass, int lineNumber, String nameOfLocalisation) {
+    public PitResult(String fullQualifiedNameOfMutatedClass, State stateOfMutant,
+                     String fullQualifiedNameMutantOperator,
+                     String fullQualifiedNameMethod, String fullQualifiedNameOfKiller,
+                     int lineNumber,
+                     String nameOfLocalisation) {
+        this.fullQualifiedNameOfMutatedClass = fullQualifiedNameOfMutatedClass;
         this.stateOfMutant = stateOfMutant;
         this.fullQualifiedNameMutantOperator = fullQualifiedNameMutantOperator;
-        this.fullQualifiedNameClass = fullQualifiedNameClass;
+        this.fullQualifiedNameOfKiller = fullQualifiedNameOfKiller;
         String[] split = fullQualifiedNameMethod.split("\\.");
         this.simpleNameMethod = split[split.length - 1];
         this.lineNumber = lineNumber;
-        this.location = nameOfLocalisation;
+        this.nameOfMutatedMethod = nameOfLocalisation;
     }
 
     public State getStateOfMutant() {
@@ -50,12 +57,12 @@ public class PitResult {
         return lineNumber;
     }
 
-    public String getLocation() {
-        return location;
+    public String getNameOfMutatedMethod() {
+        return nameOfMutatedMethod;
     }
 
-    public String getFullQualifiedNameClass() {
-        return fullQualifiedNameClass;
+    public String getFullQualifiedNameOfKiller() {
+        return fullQualifiedNameOfKiller;
     }
 
     public CtMethod getMethod(CtType<?> ctClass) {
@@ -84,9 +91,10 @@ public class PitResult {
 
         PitResult result = (PitResult) o;
 
-        if (lineNumber != result.lineNumber) return false;
-        if (!location.equals(result.location)) return false;
-        return fullQualifiedNameMutantOperator.equals(result.fullQualifiedNameMutantOperator);
+//        if (lineNumber != result.lineNumber) return false;
+        return fullQualifiedNameOfMutatedClass.endsWith(result.fullQualifiedNameOfMutatedClass) &&
+               nameOfMutatedMethod.equals(result.nameOfMutatedMethod) &&
+               fullQualifiedNameMutantOperator.equals(result.fullQualifiedNameMutantOperator);
 
     }
 
@@ -95,18 +103,21 @@ public class PitResult {
         int result = stateOfMutant != null ? stateOfMutant.hashCode() : 0;
         result = 31 * result + (fullQualifiedNameMutantOperator != null ? fullQualifiedNameMutantOperator.hashCode() : 0);
         result = 31 * result + lineNumber;
-        result = 31 * result + (location != null ? location.hashCode() : 0);
+        result = 31 * result + (nameOfMutatedMethod != null ? nameOfMutatedMethod.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
         return "PitResult{" +
-                "stateOfMutant=" + stateOfMutant +
+                "fullQualifiedNameOfMutatedClass='" + fullQualifiedNameOfMutatedClass + '\'' +
                 ", fullQualifiedNameMutantOperator='" + fullQualifiedNameMutantOperator + '\'' +
+                ", nameOfMutatedMethod='" + nameOfMutatedMethod + '\'' +
                 ", lineNumber=" + lineNumber +
-                ", location='" + location + '\'' +
+                ", stateOfMutant=" + stateOfMutant +
+                ", fullQualifiedNameOfKiller='" + fullQualifiedNameOfKiller + '\'' +
                 ", simpleNameMethod='" + simpleNameMethod + '\'' +
+                ", testCase=" + testCase +
                 '}';
     }
 }

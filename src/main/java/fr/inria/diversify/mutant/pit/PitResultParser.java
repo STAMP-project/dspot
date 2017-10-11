@@ -24,6 +24,7 @@ public class PitResultParser {
                 } catch (Exception e) {
                     state = PitResult.State.NO_COVERAGE;
                 }
+                String fullQualifiedNameOfMutatedClass = splittedLines[1];
                 String fullQualifiedNameMutantOperator = splittedLines[2];
                 String fullQualifiedNameMethod;
                 String fullQualifiedNameClass;
@@ -42,7 +43,7 @@ public class PitResultParser {
                 }
                 int lineNumber = Integer.parseInt(splittedLines[4]);
                 String location = splittedLines[3];
-                results.add(new PitResult(state, fullQualifiedNameMutantOperator, fullQualifiedNameMethod, fullQualifiedNameClass, lineNumber, location));
+                results.add(new PitResult(fullQualifiedNameOfMutatedClass, state, fullQualifiedNameMutantOperator, fullQualifiedNameMethod, fullQualifiedNameClass, lineNumber, location));
             });
         } catch (Exception e) {
             throw new RuntimeException(e);

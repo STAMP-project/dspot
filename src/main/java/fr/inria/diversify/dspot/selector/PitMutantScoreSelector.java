@@ -2,7 +2,6 @@ package fr.inria.diversify.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.utils.AmplificationChecker;
@@ -14,9 +13,7 @@ import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.Log;
-import fr.inria.diversify.util.PrintClassUtils;
 import fr.inria.diversify.utils.DSpotUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -227,7 +224,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                     pitResults.forEach(pitResult -> mutantsJson.add(new MutantJSON(
                             pitResult.getFullQualifiedNameMutantOperator(),
                             pitResult.getLineNumber(),
-                            pitResult.getLocation()
+                            pitResult.getNameOfMutatedMethod()
                     )));
                     if (amplifiedTest == null) {
                         testClassJSON.addTestCase(new TestCaseJSON(
@@ -257,7 +254,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     private int getNbMutantKilledOriginally(String qualifiedName) {
         return (int) this.originalKilledMutants.stream()
                 .filter(pitResult ->
-                        qualifiedName.equals(pitResult.getFullQualifiedNameClass())
+                        qualifiedName.equals(pitResult.getFullQualifiedNameOfKiller())
                 )
                 .count();
     }
