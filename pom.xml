@@ -136,6 +136,7 @@
                                 <include>test-projects/target/</include>
                                 <include>regression/test-projects_0/target/</include>
                                 <include>regression/test-projects_1/target/</include>
+                                <include>project-with-resources/target/</include>
                             </includes>
                             <followSymlinks>false</followSymlinks>
                         </fileset>
