@@ -12,26 +12,19 @@ import fr.inria.diversify.dspot.support.json.ClassTimeJSON;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.dspot.support.json.ProjectTimeJSON;
-import fr.inria.diversify.mutant.descartes.DescartesChecker;
-import fr.inria.diversify.mutant.descartes.DescartesInjector;
-import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
-import fr.inria.diversify.processor.ProcessorUtil;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.util.FileUtils;
-import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.util.Log;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.Initializer;
-import spoon.Launcher;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 
 import java.io.*;
-import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -105,6 +98,11 @@ public class DSpot {
 
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
         String dependencies = builder.buildClasspath(this.inputProgram.getProgramDir());
+
+        if (inputConfiguration.getProperty("additionalClasspathElements") != null) {
+            dependencies += PATH_SEPARATOR + inputConfiguration.getInputProgram().getProgramDir()
+                    + inputConfiguration.getProperty("additionalClasspathElements");
+        }
 
         this.compiler =  DSpotCompiler.createDSpotCompiler(inputProgram, dependencies);
         this.inputProgram.setFactory(compiler.getLauncher().getFactory());

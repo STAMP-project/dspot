@@ -10,7 +10,6 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
-import spoon.support.SpoonClassNotFoundException;
 
 import java.util.List;
 import java.util.function.Predicate;
