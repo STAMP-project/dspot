@@ -187,12 +187,11 @@ public class DSpotUtils {
 
 	public static void copyResources(InputConfiguration configuration) {
 		final InputProgram program = configuration.getInputProgram();
-		final String src = configuration.getProperty("src");
-		final String testSrc = configuration.getProperty("testSrc");
+
 		// handle now resources
 		if (configuration.getProperty("srcResources") != null) {
 			Arrays.stream(configuration.getProperty("srcResources").split(PATH_SEPARATOR)).forEach(resource -> {
-						String pathToTarget = resource.startsWith(src) ? resource.substring(src.length()) : resource;
+						String pathToTarget = removeSourcePathIfPresent.apply(resource);
 						copyGivenFileToGivenPath(new File(program.getProgramDir() + resource),
 								new File(program.getProgramDir() + program.getClassesDir() + "/" + pathToTarget));
 					}
@@ -200,13 +199,17 @@ public class DSpotUtils {
 		}
 		if (configuration.getProperty("testResources") != null) {
 			Arrays.stream(configuration.getProperty("testResources").split(PATH_SEPARATOR)).forEach(resource -> {
-						String pathToTarget = resource.startsWith(testSrc) ? resource.substring(testSrc.length()) : resource;
+						String pathToTarget = removeSourcePathIfPresent.apply(resource);
 						copyGivenFileToGivenPath(new File(program.getProgramDir() + resource),
 								new File(program.getProgramDir() + program.getTestClassesDir() + "/" + pathToTarget));
 					}
 			);
 		}
 	}
+
+	private static Function<String,String> removeSourcePathIfPresent = path ->
+			path.startsWith("src/test/resources/") || path.startsWith("src/main/resources/") ?
+					path.substring("src/test/resources/".length()) : path;
 
 	private static void copyGivenFileToGivenPath(File fileToCopy, File fileTarget) {
 		try {

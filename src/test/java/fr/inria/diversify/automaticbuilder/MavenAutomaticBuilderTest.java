@@ -16,6 +16,7 @@ import java.io.File;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -107,5 +108,18 @@ public class MavenAutomaticBuilderTest {
         final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertEquals(9, pitResults.size());
+    }
+
+    @Test
+    public void testOnProjectWithResources() throws Exception {
+
+        Utils.init("src/test/resources/project-with-resources/project-with-resources.properties");
+
+        Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir());
+        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir() + Utils.getBuilder().getOutputDirectoryPit());
+
+        assertNotNull(pitResults);
+        assertEquals(80, pitResults.size());
+
     }
 }

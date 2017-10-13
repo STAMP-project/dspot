@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions.*;
+import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
 
 /**
  * Created by Benjamin DANGLOT
@@ -110,7 +111,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 					OPT_TARGET_TESTS + ctTypeToFullQualifiedName(testClass), //
 					OPT_ADDITIONAL_CP_ELEMENTS + "target/dspot/dependencies/" +
 							(configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
-							configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) : "") , //
+									"," + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) : "") , //
 					descartesMode ? OPT_MUTATION_ENGINE_DESCARTES : OPT_MUTATION_ENGINE_DEFAULT,
 					OPT_MUTATORS + (evosuiteMode ?
 									Arrays.stream(VALUE_MUTATORS_EVOSUITE).collect(Collectors.joining(","))
@@ -166,7 +167,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 							: VALUE_MUTATORS_ALL), //
 					OPT_ADDITIONAL_CP_ELEMENTS + "target/dspot/dependencies/" +
 							(configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
-									configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) : "") , //
+									"," + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) : "") , //
 					configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) != null ?
 							OPT_EXCLUDED_CLASSES + configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) :
 							""//
