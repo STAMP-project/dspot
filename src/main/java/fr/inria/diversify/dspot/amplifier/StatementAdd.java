@@ -3,6 +3,7 @@ package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.dspot.amplifier.value.ValueCreatorHelper;
+import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.TypeUtils;
@@ -25,8 +26,6 @@ import java.util.stream.Collectors;
 public class StatementAdd implements Amplifier {
 
     private String filter;
-
-    private Set<CtMethod<?>> methods;
 
     public StatementAdd() {
         this.filter = "";
@@ -65,6 +64,7 @@ public class StatementAdd implements Amplifier {
     }
 
     private List<CtMethod> useReturnValuesOfExistingMethodCall(CtMethod method) {
+        final CtType<?> testClass = method.getParent(CtType.class);
         List<CtInvocation> invocations = getInvocation(method);
         final List<CtMethod> ampMethods = new ArrayList<>();
         invocations.stream()
@@ -139,7 +139,6 @@ public class StatementAdd implements Amplifier {
     @Override
     public void reset(CtType testClass) {
         AmplificationHelper.reset();
-        initMethods(testClass);
     }
 
     private CtMethod addInvocation(CtMethod<?> testMethod, CtMethod<?> methodToInvokeToAdd, CtExpression<?> target, CtStatement position) {
@@ -177,16 +176,18 @@ public class StatementAdd implements Amplifier {
         return var.getFactory().Code().createVariableRead(varRef, false);
     }
 
-    private List<CtMethod<?>> findMethodsWithTargetType(CtTypeReference type) {
+    private List<CtMethod<?>> findMethodsWithTargetType(CtTypeReference<?> type) {
         if (type == null) {
             return Collections.emptyList();
         } else {
-            return methods.stream()
-                    .filter(method ->
-                            method.getDeclaringType().getReference().getQualifiedName()
-                                    .equals(type.getQualifiedName())
-                    )
-                    .filter(method -> method.getModifiers().contains(ModifierKind.PUBLIC))
+            return type.getTypeDeclaration().getMethods().stream()
+                    .filter(method -> method.getModifiers().contains(ModifierKind.PUBLIC)) // TODO checks this predicate
+                    // TODO we could also access to method with default or protected modifiers
+                    .filter(method -> !method.getModifiers().contains(ModifierKind.STATIC)) // TODO checks this predicate
+                    // TODO we can't amplify test on full static classes with this predicate
+                    .filter(method -> !method.getModifiers().contains(ModifierKind.ABSTRACT)) // TODO checks this predicate
+                    // TODO maybe we would like to call of abstract method, since the abstract would be implemented
+                    // TODO inherited classes. However, the semantic of the test to be amplified may be to test the abstract class
                     .filter(method -> method.getParameters()
                             .stream()
                             .map(CtParameter::getType)
@@ -194,6 +195,8 @@ public class StatementAdd implements Amplifier {
                     ).collect(Collectors.toList());
         }
     }
+
+
 
     private List<CtInvocation> getInvocation(CtMethod method) {
         List<CtInvocation> statements = Query.getElements(method, new TypeFilter(CtInvocation.class));
@@ -203,17 +206,4 @@ public class StatementAdd implements Amplifier {
                 .collect(Collectors.toList());
     }
 
-    private void initMethods(CtType testClass) {
-        methods = AmplificationHelper.computeClassProvider(testClass).stream()
-                .flatMap(cl -> {
-                    Set<CtMethod<?>> allMethods = (Set<CtMethod<?>>) cl.getAllMethods();
-                    return allMethods.stream();
-                })
-                .filter(mth -> !mth.getModifiers().contains(ModifierKind.ABSTRACT))
-                .filter(mth -> !mth.getModifiers().contains(ModifierKind.PRIVATE))
-                .filter(mth -> !mth.getModifiers().contains(ModifierKind.STATIC))
-                .filter(mth -> mth.getBody() != null)
-                .filter(mth -> !mth.getBody().getStatements().isEmpty())
-                .collect(Collectors.toSet());
-    }
 }
