@@ -64,7 +64,6 @@ public class StatementAdd implements Amplifier {
     }
 
     private List<CtMethod> useReturnValuesOfExistingMethodCall(CtMethod method) {
-        final CtType<?> testClass = method.getParent(CtType.class);
         List<CtInvocation> invocations = getInvocation(method);
         final List<CtMethod> ampMethods = new ArrayList<>();
         invocations.stream()
