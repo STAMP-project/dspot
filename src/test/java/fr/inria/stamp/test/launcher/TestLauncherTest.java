@@ -44,9 +44,9 @@ public class TestLauncherTest {
 
 		Utils.reset();
 		Utils.init("src/test/resources/jmockit/mock.properties");
-		final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration())
-				.buildClasspath(Utils.getInputProgram().getProgramDir())
-				+ System.getProperty("path.separator")
+
+        final String classpath = Utils.getBuilder().buildClasspath(Utils.getInputProgram().getProgramDir())
+        + System.getProperty("path.separator")
 				+ Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getClassesDir()
 				+ System.getProperty("path.separator")
 				+ Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getTestClassesDir();

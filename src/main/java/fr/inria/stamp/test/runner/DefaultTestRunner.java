@@ -3,11 +3,14 @@ package fr.inria.stamp.test.runner;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.stamp.test.filter.MethodFilter;
 import fr.inria.stamp.test.listener.TestListener;
+import org.junit.internal.requests.ClassRequest;
 import org.junit.runner.Request;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunListener;
 import org.junit.runner.notification.RunNotifier;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,6 +35,25 @@ public class DefaultTestRunner extends AbstractTestRunner {
 		super(classpath);
 	}
 
+	private static void Init(ClassLoader classLoader, Request request) {
+		try {
+			Class<?> aClass = classLoader.loadClass("mockit.internal.startup.InstrumentationHolder");
+			Field hostJREClassName = aClass.getField("hostJREClassName");
+			hostJREClassName.set(aClass, "NegativeArraySizeException");
+			Class<?> startUp = classLoader.loadClass("mockit.internal.startup.Startup");
+			Method initializeIfPossible = startUp.getMethod("initializeIfPossible");
+			Boolean success = (Boolean)initializeIfPossible.invoke(startUp);
+			System.out.println(success);
+			Class<?> requestClass = ClassRequest.class;
+			Field runner = requestClass.getField("runner");
+			runner.setAccessible(true);
+			runner.set(requestClass, null);
+			System.out.println("Runner of RequestClass set to null");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	@Override
 	public TestListener run(Class<?> classTest, Collection<String> testMethodNames) {
 		ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -42,12 +64,18 @@ public class DefaultTestRunner extends AbstractTestRunner {
 				request = request.filterWith(new MethodFilter(testMethodNames));
 			}
 			Runner runner = request.getRunner();
+			Init(classLoader, request);
+			request = Request.aClass(classTest);
+			if (!testMethodNames.isEmpty()) {
+				request = request.filterWith(new MethodFilter(testMethodNames));
+			}
+			runner = request.getRunner();
 			RunNotifier runNotifier = new RunNotifier();
 			runNotifier.addFirstListener(listener);
 			runner.run(runNotifier);
 		});
 		try {
-			submit.get(10000 * (testMethodNames.size() + 1), TimeUnit.MILLISECONDS);
+			submit.get(1000000000 * (testMethodNames.size() + 1), TimeUnit.MILLISECONDS);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {

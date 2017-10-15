@@ -18,7 +18,7 @@ import java.util.Collections;
  */
 public abstract class AbstractTestRunner implements TestRunner {
 
-    private URLClassLoader classLoader;
+    protected URLClassLoader classLoader;
 
     public AbstractTestRunner(URLClassLoader classLoader) {
         this.classLoader = classLoader;
@@ -38,7 +38,7 @@ public abstract class AbstractTestRunner implements TestRunner {
                     } catch (MalformedURLException e) {
                         throw new RuntimeException(e);
                     }
-                }).toArray(URL[]::new), ClassLoader.getSystemClassLoader());
+                }).toArray(URL[]::new), ClassLoader.getSystemClassLoader().getParent());
     }
 
     protected Class<?> loadClass(String fullQualifiedName) {
