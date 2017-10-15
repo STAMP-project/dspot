@@ -3,7 +3,6 @@ package fr.inria.stamp.test.runner;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.stamp.test.filter.MethodFilter;
 import fr.inria.stamp.test.listener.TestListener;
-import org.junit.internal.requests.ClassRequest;
 import org.junit.runner.Request;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunListener;
@@ -35,8 +34,10 @@ public class DefaultTestRunner extends AbstractTestRunner {
 		super(classpath);
 	}
 
-	private static void Init(ClassLoader classLoader, Request request) {
+	private void runWithReset(Class<?> classTest, TestListener listener) {
 		try {
+			Request request = Request.aClass(classTest);
+			Runner runner = request.getRunner();
 			Class<?> aClass = classLoader.loadClass("mockit.internal.startup.InstrumentationHolder");
 			Field hostJREClassName = aClass.getField("hostJREClassName");
 			hostJREClassName.set(aClass, "NegativeArraySizeException");
@@ -44,38 +45,60 @@ public class DefaultTestRunner extends AbstractTestRunner {
 			Method initializeIfPossible = startUp.getMethod("initializeIfPossible");
 			Boolean success = (Boolean)initializeIfPossible.invoke(startUp);
 			System.out.println(success);
-			Class<?> requestClass = ClassRequest.class;
-			Field runner = requestClass.getField("runner");
-			runner.setAccessible(true);
-			runner.set(requestClass, null);
-			System.out.println("Runner of RequestClass set to null");
+			request = Request.aClass(classTest);
+			runner = request.getRunner();
+			RunNotifier runNotifier = new RunNotifier();
+			runNotifier.addFirstListener(listener);
+			runner.run(runNotifier);
+
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	private TestListener runFullyReflection(Class<?> classTest) {
+		try {
+			Class<?> requestClass = classLoader.loadClass("org.junit.runner.Request");
+			Object request = requestClass.getMethod("aClass", Class.class)
+					.invoke(requestClass, classTest);
+			Object runner = request.getClass()
+					.getMethod("getRunner")
+					.invoke(request);
+			Object notifier = classLoader.loadClass("org.junit.runner.notification.RunNotifier")
+					.newInstance();
+			Class<?> listenerClass = classLoader.loadClass("fr.inria.stamp.test.listener.TestListener");
+			Object listenerInstance = listenerClass
+					.newInstance();
+			notifier.getClass()
+					.getMethod("addFirstListener",
+							classLoader.loadClass("org.junit.runner.notification.RunListener")
+					).invoke(notifier, listenerInstance);
+			runner.getClass()
+					.getMethod("run", notifier.getClass())
+					.invoke(runner, notifier);
+			return TestListener.copyFromObject(listenerInstance);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
 	public TestListener run(Class<?> classTest, Collection<String> testMethodNames) {
 		ExecutorService executor = Executors.newSingleThreadExecutor();
-		final TestListener listener = new TestListener();
+		TestListener listener = new TestListener();
 		final Future<?> submit = executor.submit(() -> {
-			Request request = Request.aClass(classTest);
+			return runFullyReflection(classTest);
+			/*Request request = Request.aClass(classTest);
 			if (!testMethodNames.isEmpty()) {
 				request = request.filterWith(new MethodFilter(testMethodNames));
 			}
 			Runner runner = request.getRunner();
-			Init(classLoader, request);
-			request = Request.aClass(classTest);
-			if (!testMethodNames.isEmpty()) {
-				request = request.filterWith(new MethodFilter(testMethodNames));
-			}
-			runner = request.getRunner();
 			RunNotifier runNotifier = new RunNotifier();
 			runNotifier.addFirstListener(listener);
-			runner.run(runNotifier);
+			runner.run(runNotifier);*/
 		});
 		try {
-			submit.get(1000000000 * (testMethodNames.size() + 1), TimeUnit.MILLISECONDS);
+			listener = (TestListener) submit.get(1000000000 * (testMethodNames.size() + 1), TimeUnit.MILLISECONDS);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {

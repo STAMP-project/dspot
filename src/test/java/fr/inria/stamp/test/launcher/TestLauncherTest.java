@@ -49,7 +49,9 @@ public class TestLauncherTest {
         + System.getProperty("path.separator")
 				+ Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getClassesDir()
 				+ System.getProperty("path.separator")
-				+ Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getTestClassesDir();
+				+ Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getTestClassesDir()
+				+ System.getProperty("path.separator")
+				+ "target/dspot/dependencies/";
 
 		final CtClass<?> jmockitTest = Utils.findClass("org.baeldung.mocks.jmockit.LoginControllerIntegrationTest");
 
