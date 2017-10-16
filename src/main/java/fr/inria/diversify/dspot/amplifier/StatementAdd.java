@@ -64,7 +64,6 @@ public class StatementAdd implements Amplifier {
     }
 
     private List<CtMethod> useReturnValuesOfExistingMethodCall(CtMethod method) {
-        final CtType<?> testClass = method.getParent(CtType.class);
         List<CtInvocation> invocations = getInvocation(method);
         final List<CtMethod> ampMethods = new ArrayList<>();
         invocations.stream()
@@ -195,8 +194,6 @@ public class StatementAdd implements Amplifier {
                     ).collect(Collectors.toList());
         }
     }
-
-
 
     private List<CtInvocation> getInvocation(CtMethod method) {
         List<CtInvocation> statements = Query.getElements(method, new TypeFilter(CtInvocation.class));
