@@ -171,10 +171,14 @@ public class Amplification {
 		} else {
 			testSelector.update();
 			Log.debug("Try to add assertions before amplification");
-			testSelector.selectToKeep(
-					assertGenerator.generateAsserts(
-							classTest, testSelector.selectToAmplify(tests))
-			);
+			final List<CtMethod<?>> amplifiedTestToBeKept = assertGenerator.generateAsserts(
+					classTest, testSelector.selectToAmplify(tests));
+			result = compileAndRunTests(classTest, amplifiedTestToBeKept);
+			if (result == null) {
+				Log.warn("Need a green test suite to run dspot");
+				return Collections.emptyList();
+			}
+			testSelector.selectToKeep(amplifiedTestToBeKept);
 			return testSelector.getAmplifiedTestCases();
 		}
 	}

@@ -30,7 +30,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.stream.Stream;
 
+import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
 import static java.util.ResourceBundle.clearCache;
 
 /**
@@ -40,144 +42,168 @@ import static java.util.ResourceBundle.clearCache;
  */
 public class JacocoExecutor {
 
-	private MemoryClassLoader internalClassLoader;
+    private MemoryClassLoader internalClassLoader;
 
-	private IRuntime runtime;
+    private IRuntime runtime;
 
-	private Instrumenter instrumenter;
+    private Instrumenter instrumenter;
 
-	private InputProgram program;
+    private InputProgram program;
 
-	private InputConfiguration configuration;
+    private InputConfiguration configuration;
 
-	public JacocoExecutor(InputProgram program, InputConfiguration configuration) {
-		this.configuration = configuration;
-		this.program = program;
-		this.runtime = new LoggerRuntime();
-		this.instrumenter = new Instrumenter(this.runtime);
-		this.instrumentAll();
-	}
+    public JacocoExecutor(InputProgram program, InputConfiguration configuration) {
+        this.configuration = configuration;
+        this.program = program;
+        this.runtime = new LoggerRuntime();
+        this.instrumenter = new Instrumenter(this.runtime);
+        this.instrumentAll(configuration);
+    }
 
-	private void instrumentAll() {
-		final String classesDirectory = this.program.getProgramDir() + "/" + this.program.getClassesDir();
-		final String testClassesDirectory = this.program.getProgramDir() + "/" + this.program.getTestClassesDir();
-		try {
-			String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration)
-							.buildClasspath(this.program.getProgramDir());
+    private void instrumentAll(InputConfiguration configuration) {
+        final String classesDirectory = this.program.getProgramDir() + "/" + this.program.getClassesDir();
+        final String testClassesDirectory = this.program.getProgramDir() + "/" + this.program.getTestClassesDir();
+        try {
+            String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration)
+                    .buildClasspath(this.program.getProgramDir());
 
-			ClassLoader classLoader = new URLClassLoader(
-			Arrays.stream(classpath.split(":"))
-					.map(File::new)
-					.map(File::toURI)
-					.map(uri -> {
-						try {
-							return uri.toURL();
-						} catch (MalformedURLException e) {
-							throw new RuntimeException(e);
-						}
-					})
-					.toArray(URL[]::new),
-					ClassLoader.getSystemClassLoader()
-			);
+            ClassLoader classLoader = new URLClassLoader(
+                    Arrays.stream(classpath.split(":"))
+                            .map(File::new)
+                            .map(File::toURI)
+                            .map(uri -> {
+                                try {
+                                    return uri.toURL();
+                                } catch (MalformedURLException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            })
+                            .toArray(URL[]::new),
+                    ClassLoader.getSystemClassLoader()
+            );
 
-			this.internalClassLoader = new MemoryClassLoader(
-					new URL[]{new File(classesDirectory).toURI().toURL(),
-							new File(testClassesDirectory).toURI().toURL()},
-					classLoader
-			);
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
-		/* instrument all of them */
-		final Iterator<File> iterator = FileUtils.iterateFiles(new File(classesDirectory), new String[]{"class"}, true);
-		while (iterator.hasNext()) {
-			final File next = iterator.next();
-			final String fileName = next.getPath().substring(classesDirectory.length());
-			final String fullQualifiedName = fileName.replaceAll("/", ".").substring(0, fileName.length() - ".class".length());
-			try {
-				this.internalClassLoader.addDefinition(fullQualifiedName,
-						this.instrumenter.instrument(this.internalClassLoader.getResourceAsStream(fileName), fullQualifiedName));
-			} catch (IOException e) {
-				Log.error("Encountered a problem while instrumenting " + fullQualifiedName);
-				throw new RuntimeException(e);
-			}
-		}
-		clearCache(this.internalClassLoader);
-	}
+            final URL[] urls = {
+                    new File(classesDirectory).toURI().toURL(),
+                    new File(testClassesDirectory).toURI().toURL()
+            };
 
-	public CoverageResults executeJacoco(CtType<?> testClass) {
-		final String testClassesDirectory = this.program.getProgramDir() + "/" + this.program.getTestClassesDir();
-		final RuntimeData data = new RuntimeData();
-		final ExecutionDataStore executionData = new ExecutionDataStore();
-		final SessionInfoStore sessionInfos = new SessionInfoStore();
-		URLClassLoader classLoader;
-		try {
-			classLoader = new URLClassLoader(new URL[]
-					{new File(testClassesDirectory).toURI().toURL()}, this.internalClassLoader);
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
-		final String resource = testClass.getQualifiedName().replace('.', '/') + ".class";
-		try {
-			this.internalClassLoader.addDefinition(
-					testClass.getQualifiedName(),
-					IOUtils.toByteArray(classLoader.getResourceAsStream(resource))
-			);
-			runtime.startup(data);
-			final TestListener listener = TestLauncher.run(this.configuration, this.internalClassLoader, testClass);
-			if (!listener.getFailingTests().isEmpty()) {
-				listener.getFailingTests().forEach(System.out::println);
-				throw new RuntimeException("Error: some test fail when computing the coverage.");
-			}
-			data.collect(executionData, sessionInfos, false);
-			runtime.shutdown();
-			clearCache(this.internalClassLoader);
-			return coverageResults(executionData);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+            if (configuration.getProperty("additionalClasspathElements") != null) {
+                this.internalClassLoader = new MemoryClassLoader(
+                        Stream.concat(
+                                Arrays.stream(configuration.getProperty("additionalClasspathElements").split(PATH_SEPARATOR))
+                                        .map(configuration.getInputProgram().getProgramDir()::concat)
+                                        .map(File::new)
+                                        .map(File::toURI)
+                                        .map(uri -> {
+                                            try {
+                                                return uri.toURL();
+                                            } catch (MalformedURLException e) {
+                                                throw new RuntimeException(e);
+                                            }
+                                        }), Arrays.stream(urls))
+                                .toArray(URL[]::new), classLoader
+                );
+            } else {
+                this.internalClassLoader = new MemoryClassLoader(urls, classLoader);
+            }
 
-	}
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+        /* instrument all of them */
+        final Iterator<File> iterator = FileUtils.iterateFiles(new File(classesDirectory), new String[]{"class"}, true);
+        while (iterator.hasNext()) {
+            final File next = iterator.next();
+            final String fileName = next.getPath().substring(classesDirectory.length());
+            final String fullQualifiedName = fileName.replaceAll("/", ".").substring(0, fileName.length() - ".class".length());
+            try {
+                this.internalClassLoader.addDefinition(fullQualifiedName,
+                        this.instrumenter.instrument(this.internalClassLoader.getResourceAsStream(fileName), fullQualifiedName));
+            } catch (IOException e) {
+                Log.error("Encountered a problem while instrumenting " + fullQualifiedName);
+                throw new RuntimeException(e);
+            }
+        }
+        clearCache(this.internalClassLoader);
+    }
 
-	public Map<String, CoverageResults> executeJacoco(CtType<?> testClass, Collection<String> methodNames) {
-		final String testClassesDirectory = this.program.getProgramDir() + "/" + this.program.getTestClassesDir();
-		final String classesDirectory = this.program.getProgramDir() + "/" + this.program.getClassesDir();
-		URLClassLoader classLoader;
-		try {
-			classLoader = new URLClassLoader(new URL[]
-					{new File(testClassesDirectory).toURI().toURL()}, this.internalClassLoader);
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
-		final String resource = testClass.getQualifiedName().replace('.', '/') + ".class";
-		try {
-			this.internalClassLoader.addDefinition(
-					testClass.getQualifiedName(),
-					IOUtils.toByteArray(classLoader.getResourceAsStream(resource))
-			);
-			final RuntimeData data = new RuntimeData();
-			this.runtime.startup(data);
-			final JacocoListener jacocoListener = new JacocoListener(data, classesDirectory);
-			TestLauncher.run(this.configuration, this.internalClassLoader, testClass, methodNames, jacocoListener);
-			this.runtime.shutdown();
-			clearCache(this.internalClassLoader);
-			return jacocoListener.getCoverageResultsMap();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+    public CoverageResults executeJacoco(CtType<?> testClass) {
+        final String testClassesDirectory = this.program.getProgramDir() + "/" + this.program.getTestClassesDir();
+        final RuntimeData data = new RuntimeData();
+        final ExecutionDataStore executionData = new ExecutionDataStore();
+        final SessionInfoStore sessionInfos = new SessionInfoStore();
+        URLClassLoader classLoader;
+        try {
+            classLoader = new URLClassLoader(new URL[]
+                    {new File(testClassesDirectory).toURI().toURL()}, this.internalClassLoader);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+        final String resource = testClass.getQualifiedName().replace('.', '/') + ".class";
+        try {
+            this.internalClassLoader.addDefinition(
+                    testClass.getQualifiedName(),
+                    IOUtils.toByteArray(classLoader.getResourceAsStream(resource))
+            );
+            runtime.startup(data);
+            final TestListener listener = TestLauncher.run(this.configuration, this.internalClassLoader, testClass);
+            if (!listener.getFailingTests().isEmpty()) {
+                listener.getFailingTests().forEach(System.out::println);
+                throw new RuntimeException("Error: some test fail when computing the coverage.");
+            }
+            data.collect(executionData, sessionInfos, false);
+            runtime.shutdown();
+            clearCache(this.internalClassLoader);
+            return coverageResults(executionData);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
-	private CoverageResults coverageResults(ExecutionDataStore executionData) {
-		final String classesDirectory = this.program.getProgramDir() + "/" + this.program.getClassesDir();
-		final CoverageBuilder coverageBuilder = new CoverageBuilder();
-		final Analyzer analyzer = new Analyzer(executionData, coverageBuilder);
+    }
 
-		try {
-			analyzer.analyzeAll(new File(classesDirectory));
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		return new CoverageResults(coverageBuilder);
-	}
+    public Map<String, CoverageResults> executeJacoco(CtType<?> testClass, Collection<String> methodNames) {
+        final String testClassesDirectory = this.program.getProgramDir() + "/" + this.program.getTestClassesDir();
+        final String classesDirectory = this.program.getProgramDir() + "/" + this.program.getClassesDir();
+        URLClassLoader classLoader;
+        try {
+            classLoader = new URLClassLoader(new URL[]
+                    {new File(testClassesDirectory).toURI().toURL()}, this.internalClassLoader);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+        final String resource = testClass.getQualifiedName().replace('.', '/') + ".class";
+        try {
+            this.internalClassLoader.addDefinition(
+                    testClass.getQualifiedName(),
+                    IOUtils.toByteArray(classLoader.getResourceAsStream(resource))
+            );
+            final RuntimeData data = new RuntimeData();
+            this.runtime.startup(data);
+            final JacocoListener jacocoListener = new JacocoListener(data, classesDirectory);
+            final TestListener listener = TestLauncher.run(this.configuration, this.internalClassLoader, testClass, methodNames, jacocoListener);
+            if (!listener.getFailingTests().isEmpty()) {
+                listener.getFailingTests().forEach(System.out::println);
+                throw new RuntimeException("Error: some test fail when computing the coverage.");
+            }
+            this.runtime.shutdown();
+            clearCache(this.internalClassLoader);
+            return jacocoListener.getCoverageResultsMap();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private CoverageResults coverageResults(ExecutionDataStore executionData) {
+        final String classesDirectory = this.program.getProgramDir() + "/" + this.program.getClassesDir();
+        final CoverageBuilder coverageBuilder = new CoverageBuilder();
+        final Analyzer analyzer = new Analyzer(executionData, coverageBuilder);
+
+        try {
+            analyzer.analyzeAll(new File(classesDirectory));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return new CoverageResults(coverageBuilder);
+    }
 
 }

@@ -48,6 +48,16 @@ public class MainTest {
     }
 
     @Test
+    public void testOnProjectWithResources() throws Exception, InvalidSdkException {
+        Main.main(new String[] {
+            "--verbose",
+            "--path-to-properties", "src/test/resources/project-with-resources/project-with-resources.properties",
+            "--test-criterion", "JacocoCoverageSelector",
+            "--iteration", "1"
+        });
+    }
+
+    @Test
     public void testDefaultModeIsNoneAmplifier() throws Exception, InvalidSdkException {
         Main.main(new String[] {
                 "--verbose",
