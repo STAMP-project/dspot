@@ -22,15 +22,15 @@ import java.util.concurrent.*;
  */
 public class DefaultTestRunner extends AbstractTestRunner {
 
-	public DefaultTestRunner(URLClassLoader classLoader) {
+	DefaultTestRunner(URLClassLoader classLoader) {
 		super(classLoader);
 	}
 
-	public DefaultTestRunner(String classpath) {
+	DefaultTestRunner(String classpath) {
 		super(classpath);
 	}
 
-	public DefaultTestRunner(String[] classpath) {
+	DefaultTestRunner(String[] classpath) {
 		super(classpath);
 	}
 
@@ -50,7 +50,7 @@ public class DefaultTestRunner extends AbstractTestRunner {
 			runner.run(runNotifier);
 		});
 		try {
-			submit.get(1000000000 * (testMethodNames.size() + 1), TimeUnit.MILLISECONDS);
+			submit.get(10000 * (testMethodNames.size() + 1), TimeUnit.MILLISECONDS);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {

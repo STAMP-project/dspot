@@ -1,10 +1,15 @@
 package fr.inria.stamp.test.runner;
 
 import fr.inria.diversify.logger.Logger;
+import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.notification.RunListener;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.ExecutorService;
@@ -12,36 +17,49 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
+
 public class ReflectiveTestRunner extends AbstractTestRunner {
 
-    public ReflectiveTestRunner(URLClassLoader classLoader) {
+    ReflectiveTestRunner(URLClassLoader classLoader) {
         super(classLoader);
     }
 
-    public ReflectiveTestRunner(String classpath) {
-        super(classpath);
+    ReflectiveTestRunner(String classpath) {
+        this((classpath + PATH_SEPARATOR + "target/dspot/dependencies/").split(System.getProperty("path.separator")));
     }
 
-    public ReflectiveTestRunner(String[] classpath) {
-        super(classpath);
+    ReflectiveTestRunner(String[] classpath) {
+        DSpotUtils.copyPackageFromResources("fr/inria/stamp/test/listener/",
+                "TestListener");
+        this.classLoader = new URLClassLoader(Arrays.stream(classpath)
+                .map(File::new)
+                .map(File::toURI)
+                .map(uri -> {
+                    try {
+                        return uri.toURL();
+                    } catch (MalformedURLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).toArray(URL[]::new), ClassLoader.getSystemClassLoader().getParent());
     }
 
     private TestListener runUsingReflection(Class<?> classTest) {
         try {
-            Class<?> requestClass = classLoader.loadClass("org.junit.runner.Request");
+            Class<?> requestClass = this.loadClass("org.junit.runner.Request");
             Object request = requestClass.getMethod("aClass", Class.class)
                     .invoke(requestClass, classTest);
             Object runner = request.getClass()
                     .getMethod("getRunner")
                     .invoke(request);
-            Object notifier = classLoader.loadClass("org.junit.runner.notification.RunNotifier")
+            Object notifier = this.loadClass("org.junit.runner.notification.RunNotifier")
                     .newInstance();
-            Class<?> listenerClass = classLoader.loadClass("fr.inria.stamp.test.listener.TestListener");
+            Class<?> listenerClass = this.loadClass("fr.inria.stamp.test.listener.TestListener");
             Object listenerInstance = listenerClass
                     .newInstance();
             notifier.getClass()
                     .getMethod("addFirstListener",
-                            classLoader.loadClass("org.junit.runner.notification.RunListener")
+                            this.loadClass("org.junit.runner.notification.RunListener")
                     ).invoke(notifier, listenerInstance);
             runner.getClass()
                     .getMethod("run", notifier.getClass())
@@ -59,7 +77,7 @@ public class ReflectiveTestRunner extends AbstractTestRunner {
             runUsingReflection(classTest)
         );
         try {
-            Object listener = submit.get(10000 * (testMethodNames.size() + 1),
+            Object listener = submit.get(10000000 * (testMethodNames.size() + 1),
                     TimeUnit.MILLISECONDS);
             return TestListener.copyFromObject(listener);
         } catch (Exception e) {

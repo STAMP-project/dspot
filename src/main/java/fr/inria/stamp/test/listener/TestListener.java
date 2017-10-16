@@ -93,11 +93,11 @@ public class TestListener extends RunListener {
     private static Failure copyFailurefromObject(Object failureToBeCopied) {
         try {
             Class<?> failureClass = failureToBeCopied.getClass();
-            Description description = (Description) failureClass
+            Description description = copyDescriptionFromObject(failureClass
                     .getMethod("getDescription")
-                    .invoke(failureToBeCopied);
+                    .invoke(failureToBeCopied));
             Throwable exception = (Throwable) failureClass
-                    .getMethod("getException()")
+                    .getMethod("getException")
                     .invoke(failureToBeCopied);
             return new Failure(description, exception);
         } catch (Exception e) {

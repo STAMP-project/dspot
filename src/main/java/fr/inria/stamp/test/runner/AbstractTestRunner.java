@@ -20,15 +20,19 @@ public abstract class AbstractTestRunner implements TestRunner {
 
     protected URLClassLoader classLoader;
 
-    public AbstractTestRunner(URLClassLoader classLoader) {
+    AbstractTestRunner() {
+
+    }
+
+    AbstractTestRunner(URLClassLoader classLoader) {
         this.classLoader = classLoader;
     }
 
-    public AbstractTestRunner(String classpath) {
+    AbstractTestRunner(String classpath) {
         this(classpath.split(System.getProperty("path.separator")));
     }
 
-    public AbstractTestRunner(String[] classpath) {
+    AbstractTestRunner(String[] classpath) {
         this.classLoader = new URLClassLoader(Arrays.stream(classpath)
                 .map(File::new)
                 .map(File::toURI)
@@ -38,7 +42,7 @@ public abstract class AbstractTestRunner implements TestRunner {
                     } catch (MalformedURLException e) {
                         throw new RuntimeException(e);
                     }
-                }).toArray(URL[]::new), ClassLoader.getSystemClassLoader().getParent());
+                }).toArray(URL[]::new), ClassLoader.getSystemClassLoader());
     }
 
     protected Class<?> loadClass(String fullQualifiedName) {
