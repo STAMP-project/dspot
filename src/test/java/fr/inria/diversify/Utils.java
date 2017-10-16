@@ -17,6 +17,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
+import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
+
 
 /**
  * User: Simon
@@ -66,6 +68,10 @@ public class Utils {
 			inputProgram = inputConfiguration.getInputProgram();
 			builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 			String dependencies = builder.buildClasspath(inputProgram.getProgramDir());
+			if (inputConfiguration.getProperty("additionalClasspathElements") != null) {
+				dependencies += PATH_SEPARATOR + inputConfiguration.getInputProgram().getProgramDir()
+						+ inputConfiguration.getProperty("additionalClasspathElements");
+			}
 			compiler = DSpotCompiler.createDSpotCompiler(inputProgram, dependencies);
 			inputProgram.setFactory(compiler.getLauncher().getFactory());
 		} catch (Exception e) {

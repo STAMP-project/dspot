@@ -39,7 +39,8 @@ public class MemoryClassLoader extends URLClassLoader {
 				throws ClassNotFoundException {
 			final byte[] bytes = definitions.get(name);
 			if (bytes != null) {
-				return defineClass(name, bytes, 0, bytes.length);
+				final Class<?> aClass = defineClass(name, bytes, 0, bytes.length);
+				return aClass;
 			}
 			return super.loadClass(name, resolve);
 		}
