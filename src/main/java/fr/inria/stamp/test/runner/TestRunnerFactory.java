@@ -1,6 +1,5 @@
 package fr.inria.stamp.test.runner;
 
-import fr.inria.diversify.runner.InputConfiguration;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
@@ -17,7 +16,7 @@ public class TestRunnerFactory {
     // if any one match with the predicate, we build a reflective test runner.
     // the predicate is based on the named of packages
 
-    // packags added
+    // packages added
     //  - jmockit <=> mockit
 
     // this list contains string to filter test class
@@ -25,7 +24,7 @@ public class TestRunnerFactory {
 
     static {
         STRING_ARRAY_LIST.add("mockit");
-        STRING_ARRAY_LIST.add("org.mockito");
+//        STRING_ARRAY_LIST.add("org.mockito");
     }
 
     private static final Predicate<CtType<?>> containsSpecificAnnotation = testClass ->
@@ -42,7 +41,7 @@ public class TestRunnerFactory {
             ).isEmpty());
 
     public static TestRunner createRunner(CtType<?> testClass, String classpath) {
-        if (containsSpecificAnnotation.test(testClass)) {
+        if (testClass != null && containsSpecificAnnotation.test(testClass)) {
             return new ReflectiveTestRunner(classpath);
         } else {
             return new DefaultTestRunner(classpath);

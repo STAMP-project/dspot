@@ -29,7 +29,6 @@ import static org.junit.Assert.assertTrue;
 public class TestLauncherTest {
 
 	@Test
-//	@Ignore // TODO fix it, we may need a specific runner
 	public void testOnJMockit() throws Exception {
 
 		/*

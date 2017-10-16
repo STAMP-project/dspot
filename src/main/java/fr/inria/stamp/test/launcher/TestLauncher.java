@@ -54,7 +54,7 @@ public class TestLauncher {
 					.map(ctType -> run(configuration, classLoader, ctType, testMethodNames, listener))
 					.reduce(new TestListener(), TestListener::aggregate);
 		}
-		return TestRunnerFactory.createRunner(testClass, classLoader).run(testClass.getQualifiedName(), testMethodNames);
+		return TestRunnerFactory.createRunner(testClass, classLoader).run(testClass.getQualifiedName(), testMethodNames, listener);
 	}
 
 	public static TestListener run(InputConfiguration configuration, URLClassLoader classLoader, CtType<?> testClass,
@@ -71,7 +71,7 @@ public class TestLauncher {
 					.map(ctType -> run(configuration, classLoader, ctType, listener))
 					.reduce(new TestListener(), TestListener::aggregate);
 		}
-		return TestRunnerFactory.createRunner(testClass, classLoader).run(testClass.getQualifiedName());
+		return TestRunnerFactory.createRunner(testClass, classLoader).run(testClass.getQualifiedName(), listener);
 	}
 
 
