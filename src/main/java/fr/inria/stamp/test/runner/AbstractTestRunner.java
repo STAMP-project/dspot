@@ -18,17 +18,21 @@ import java.util.Collections;
  */
 public abstract class AbstractTestRunner implements TestRunner {
 
-    private URLClassLoader classLoader;
+    protected URLClassLoader classLoader;
 
-    public AbstractTestRunner(URLClassLoader classLoader) {
+    AbstractTestRunner() {
+
+    }
+
+    AbstractTestRunner(URLClassLoader classLoader) {
         this.classLoader = classLoader;
     }
 
-    public AbstractTestRunner(String classpath) {
+    AbstractTestRunner(String classpath) {
         this(classpath.split(System.getProperty("path.separator")));
     }
 
-    public AbstractTestRunner(String[] classpath) {
+    AbstractTestRunner(String[] classpath) {
         this.classLoader = new URLClassLoader(Arrays.stream(classpath)
                 .map(File::new)
                 .map(File::toURI)

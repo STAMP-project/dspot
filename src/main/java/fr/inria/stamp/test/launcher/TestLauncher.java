@@ -3,7 +3,7 @@ package fr.inria.stamp.test.launcher;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.stamp.test.listener.TestListener;
-import fr.inria.stamp.test.runner.DefaultTestRunner;
+import fr.inria.stamp.test.runner.TestRunnerFactory;
 import org.junit.runner.notification.RunListener;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
@@ -37,7 +37,7 @@ public class TestLauncher {
 					.map(ctType -> run(configuration, classpath, ctType, testMethodNames))
 					.reduce(new TestListener(), TestListener::aggregate);
 		}
-		return new DefaultTestRunner(classpath).run(testClass.getQualifiedName(), testMethodNames);
+		return TestRunnerFactory.createRunner(testClass, classpath).run(testClass.getQualifiedName(), testMethodNames);
 	}
 
 	public static TestListener run(InputConfiguration configuration, URLClassLoader classLoader, CtType<?> testClass,
@@ -54,7 +54,7 @@ public class TestLauncher {
 					.map(ctType -> run(configuration, classLoader, ctType, testMethodNames, listener))
 					.reduce(new TestListener(), TestListener::aggregate);
 		}
-		return new DefaultTestRunner(classLoader).run(testClass.getQualifiedName(), testMethodNames, listener);
+		return TestRunnerFactory.createRunner(testClass, classLoader).run(testClass.getQualifiedName(), testMethodNames, listener);
 	}
 
 	public static TestListener run(InputConfiguration configuration, URLClassLoader classLoader, CtType<?> testClass,
@@ -71,7 +71,7 @@ public class TestLauncher {
 					.map(ctType -> run(configuration, classLoader, ctType, listener))
 					.reduce(new TestListener(), TestListener::aggregate);
 		}
-		return new DefaultTestRunner(classLoader).run(testClass.getQualifiedName(), listener);
+		return TestRunnerFactory.createRunner(testClass, classLoader).run(testClass.getQualifiedName(), listener);
 	}
 
 
@@ -98,7 +98,7 @@ public class TestLauncher {
 					.map(subType -> run(configuration, classpath, subType))
 					.reduce(new TestListener(), TestListener::aggregate);
 		}
-		return new DefaultTestRunner(classpath).run(testClass.getQualifiedName());
+		return TestRunnerFactory.createRunner(testClass, classpath).run(testClass.getQualifiedName());
 	}
 
 	public static TestListener run(InputConfiguration configuration, URLClassLoader classLoader, CtType<?> testClass) {
@@ -114,6 +114,6 @@ public class TestLauncher {
 					.map(subType -> run(configuration, classLoader, subType))
 					.reduce(new TestListener(), TestListener::aggregate);
 		}
-		return new DefaultTestRunner(classLoader).run(testClass.getQualifiedName());
+		return TestRunnerFactory.createRunner(testClass, classLoader).run(testClass.getQualifiedName());
 	}
 }

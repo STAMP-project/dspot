@@ -129,6 +129,7 @@
                                 <include>easymock/target/</include>
                                 <include>jmockit/target/</include>
                                 <include>mockito/target/</include>
+                                <include>mockito2/target/</include>
                                 <include>multiple-pom/target/</include>
                                 <include>multiple-pom/module-1/module-2-1/target/</include>
                                 <include>multiple-pom/module-1/module-2-2/target/</include>

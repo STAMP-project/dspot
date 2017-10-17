@@ -34,6 +34,7 @@ public class Initializer {
 		AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(configuration);
 		String dependencies = builder.buildClasspath(program.getProgramDir());
 		dependencies += PATH_SEPARATOR + "target/dspot/dependencies/";
+
 		if (configuration.getProperty("additionalClasspathElements") != null) {
 			dependencies += PATH_SEPARATOR + program.getProgramDir() + configuration.getProperty("additionalClasspathElements");
 		}

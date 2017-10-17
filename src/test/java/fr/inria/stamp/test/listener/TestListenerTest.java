@@ -1,7 +1,7 @@
 package fr.inria.stamp.test.listener;
 
-import fr.inria.stamp.test.runner.DefaultTestRunner;
 import fr.inria.stamp.test.runner.TestRunner;
+import fr.inria.stamp.test.runner.TestRunnerFactory;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -16,11 +16,10 @@ public class TestListenerTest {
     @Test
     public void testAggregate() throws Exception {
 
-        TestRunner runner = new DefaultTestRunner(
-                new String[]{
-                        "src/test/resources/example-0.0.1-SNAPSHOT.jar",
-                        "src/test/resources/example-0.0.1-SNAPSHOT-tests.jar",
-                });
+        TestRunner runner = TestRunnerFactory.createRunner(
+                null,
+                "src/test/resources/example-0.0.1-SNAPSHOT.jar:src/test/resources/example-0.0.1-SNAPSHOT-tests.jar"
+        );
         TestListener results = runner.run("example.TestSuiteExample");
         TestListener results2 = runner.run("example.TestSuiteExample");
 

@@ -8,6 +8,8 @@ import org.junit.runner.Runner;
 import org.junit.runner.notification.RunListener;
 import org.junit.runner.notification.RunNotifier;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Collections;
@@ -20,17 +22,18 @@ import java.util.concurrent.*;
  */
 public class DefaultTestRunner extends AbstractTestRunner {
 
-	public DefaultTestRunner(URLClassLoader classLoader) {
+	DefaultTestRunner(URLClassLoader classLoader) {
 		super(classLoader);
 	}
 
-	public DefaultTestRunner(String classpath) {
+	DefaultTestRunner(String classpath) {
 		super(classpath);
 	}
 
-	public DefaultTestRunner(String[] classpath) {
+	DefaultTestRunner(String[] classpath) {
 		super(classpath);
 	}
+
 
 	@Override
 	public TestListener run(Class<?> classTest, Collection<String> testMethodNames) {

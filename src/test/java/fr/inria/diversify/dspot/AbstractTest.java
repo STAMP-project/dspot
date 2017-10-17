@@ -3,9 +3,12 @@ package fr.inria.diversify.dspot;
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.utils.AmplificationHelper;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
 
 /**
  * Created by Benjamin DANGLOT
@@ -22,6 +25,11 @@ public abstract class AbstractTest {
 
     @Before
     public void setUp() throws Exception {
+        try {
+            FileUtils.forceDelete(new File("target/dspot/"));
+        } catch (Exception ignored) {
+
+        }
         AmplificationHelper.setSeedRandom(72L);
         Utils.init(getPathToPropertiesFile());
         ValueCreator.count = 0;

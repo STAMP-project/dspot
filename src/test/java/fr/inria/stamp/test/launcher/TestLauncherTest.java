@@ -29,7 +29,6 @@ import static org.junit.Assert.assertTrue;
 public class TestLauncherTest {
 
 	@Test
-	@Ignore // TODO fix it, we may need a specific runner
 	public void testOnJMockit() throws Exception {
 
 		/*
@@ -44,9 +43,9 @@ public class TestLauncherTest {
 
 		Utils.reset();
 		Utils.init("src/test/resources/jmockit/mock.properties");
-		final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration())
-				.buildClasspath(Utils.getInputProgram().getProgramDir())
-				+ System.getProperty("path.separator")
+
+        final String classpath = Utils.getBuilder().buildClasspath(Utils.getInputProgram().getProgramDir())
+        + System.getProperty("path.separator")
 				+ Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getClassesDir()
 				+ System.getProperty("path.separator")
 				+ Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getTestClassesDir();
@@ -98,13 +97,13 @@ public class TestLauncherTest {
 		 */
 
 		try {
-			FileUtils.deleteDirectory(new File("src/test/resources/mock/target/"));
+			FileUtils.deleteDirectory(new File("src/test/resources/mockito2/target/"));
 		} catch (Exception ignored) {
 
 		}
 
 		Utils.reset();
-		Utils.init("src/test/resources/mock/mock.properties");
+		Utils.init("src/test/resources/mockito2/mock.properties");
 		final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration())
 				.buildClasspath(Utils.getInputProgram().getProgramDir())
 				+ System.getProperty("path.separator")
@@ -121,7 +120,7 @@ public class TestLauncherTest {
 	}
 
 	@Test
-	public void test() throws Exception {
+	public void testRunningAllKindOfTests() throws Exception {
 
 		Launcher launcher = new Launcher();
 		launcher.getEnvironment().setSourceClasspath(

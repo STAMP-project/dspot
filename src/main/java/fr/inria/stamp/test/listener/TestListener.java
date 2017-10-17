@@ -4,7 +4,10 @@ import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -85,5 +88,84 @@ public class TestListener extends RunListener {
                         methodTestName.equals(failure.getDescription().getMethodName())
                 ).findFirst()
                 .get();
+    }
+
+    private static Failure copyFailurefromObject(Object failureToBeCopied) {
+        try {
+            Class<?> failureClass = failureToBeCopied.getClass();
+            Description description = copyDescriptionFromObject(failureClass
+                    .getMethod("getDescription")
+                    .invoke(failureToBeCopied));
+            Throwable exception = (Throwable) failureClass
+                    .getMethod("getException")
+                    .invoke(failureToBeCopied);
+            return new Failure(description, exception);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static Description copyDescriptionFromObject(Object descriptionToBeCopied) {
+        try {
+            Class<?> descriptionClass = descriptionToBeCopied.getClass();
+            Class<?> testClass = (Class<?>) descriptionClass
+                    .getMethod("getTestClass")
+                    .invoke(descriptionToBeCopied);
+            String displayname = (String) descriptionClass
+                    .getMethod("getDisplayName")
+                    .invoke(descriptionToBeCopied);
+            Collection<?> annotations = (Collection<?>) descriptionClass
+                    .getMethod("getAnnotations")
+                    .invoke(descriptionToBeCopied);
+            // TODO
+
+            return Description.createTestDescription(testClass,
+                    displayname
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static TestListener copyFromObject(Object listenerToBeCopied) {
+        try {
+
+            Class<?> listenerClass = listenerToBeCopied.getClass();
+            TestListener copy = new TestListener();
+
+            copy.getRunningTests().addAll(((Collection<?>) listenerClass
+                    .getMethod("getRunningTests")
+                    .invoke(listenerToBeCopied))
+                    .stream()
+                    .map(TestListener::copyDescriptionFromObject)
+                    .collect(Collectors.toList()));
+
+            copy.getFailingTests().addAll(((Collection<?>) listenerClass
+                    .getMethod("getFailingTests")
+                    .invoke(listenerToBeCopied))
+                    .stream()
+                    .map(TestListener::copyFailurefromObject)
+                    .collect(Collectors.toList()));
+
+            copy.getIgnoredTests().addAll(((Collection<?>) listenerClass
+                    .getMethod("getIgnoredTests")
+                    .invoke(listenerToBeCopied))
+                    .stream()
+                    .map(TestListener::copyDescriptionFromObject)
+                    .collect(Collectors.toList()));
+
+            copy.getAssumptionFailingTests().addAll(((Collection<?>) listenerClass
+                    .getMethod("getAssumptionFailingTests")
+                    .invoke(listenerToBeCopied))
+                    .stream()
+                    .map(TestListener::copyFailurefromObject)
+                    .collect(Collectors.toList()));
+
+            return copy;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

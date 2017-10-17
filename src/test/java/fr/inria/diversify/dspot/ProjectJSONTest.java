@@ -5,7 +5,9 @@ import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
 import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
 import fr.inria.diversify.runner.InputConfiguration;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -23,6 +25,15 @@ import static org.junit.Assert.assertTrue;
  * on 12/06/17
  */
 public class ProjectJSONTest {
+
+	@Before
+	public void setUp() throws Exception {
+		try {
+			FileUtils.forceDelete(new File("target/dspot/"));
+		} catch (Exception ignored) {
+
+		}
+	}
 
 	@After
 	public void tearDown() throws Exception {
