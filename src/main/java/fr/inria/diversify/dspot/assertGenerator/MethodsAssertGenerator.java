@@ -12,6 +12,7 @@ import fr.inria.diversify.dspot.support.TestCompiler;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
+import org.junit.runners.model.TestTimedOutException;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -227,9 +228,12 @@ public class MethodsAssertGenerator {
         Factory factory = cloneMethodTest.getFactory();
 
         Throwable exception = failure.getException();
-        if (exception instanceof AssertionError) {
+        if (exception instanceof TestTimedOutException) { // TestTimedOutException means infinite loop?
+            return null;
+        } else if (exception instanceof AssertionError) {
             exception = exception.getCause();
         }
+
         Class exceptionClass;
         if (exception == null) {
             exceptionClass = Exception.class;

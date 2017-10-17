@@ -10,6 +10,7 @@ import spoon.reflect.declaration.CtMethod;
 import java.util.*;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Benjamin DANGLOT
@@ -17,6 +18,15 @@ import static junit.framework.TestCase.assertEquals;
  * on 3/4/17
  */
 public class MethodsAssertGeneratorTest extends AbstractTest {
+
+	@Test
+	public void testOnInfiniteLoop() throws Exception {
+		final CtClass testClass = Utils.findClass("fr.inria.infinite.LoopTest");
+		MethodsAssertGenerator mag = new MethodsAssertGenerator(testClass, Utils.getInputConfiguration(), Utils.getCompiler());
+		CtMethod test = Utils.findMethod("fr.inria.infinite.LoopTest", "testLoop");
+		List<CtMethod<?>> test_buildNewAssert = mag.generateAsserts(testClass, Collections.singletonList(test));
+		assertTrue(test_buildNewAssert.isEmpty());
+	}
 
 	@Test
 	public void testMultipleObservationsPoints() throws Exception {
