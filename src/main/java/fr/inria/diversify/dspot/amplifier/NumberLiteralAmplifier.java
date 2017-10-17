@@ -1,46 +1,14 @@
 package fr.inria.diversify.dspot.amplifier;
 
-import fr.inria.diversify.utils.AmplificationChecker;
-import fr.inria.diversify.utils.AmplificationHelper;
-import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
-import spoon.reflect.declaration.CtAnnotation;
-import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.declaration.CtType;
-import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-public class NumberLiteralAmplifier implements Amplifier {
-
-    private final TypeFilter<CtLiteral> literalTypeFilter = new TypeFilter<CtLiteral>(CtLiteral.class) {
-        @Override
-        public boolean matches(CtLiteral literal) {
-            return (literal.getParent() instanceof CtInvocation &&
-                    !AmplificationChecker.isAssert((CtInvocation) literal.getParent())) ||
-                    literal.getParent(CtAnnotation.class) == null
-                            && super.matches(literal);
-        }
-    };
+public class NumberLiteralAmplifier extends AbstractLiteralAmplifier<Number> {
 
     @Override
-    public List<CtMethod> apply(CtMethod testMethod) {
-        List<CtLiteral> literals = testMethod.getElements(literalTypeFilter);
-        return literals.stream()
-                .filter(literal -> literal.getValue() instanceof Number)
-                .flatMap(literal ->
-                        this.amplify(literal).stream().map(newValue -> {
-                            CtMethod clone = AmplificationHelper.cloneMethodTest(testMethod, "litNum");
-                            clone.getElements(literalTypeFilter).get(literals.indexOf(literal)).replace(newValue);
-                            return clone;
-                        })
-                ).collect(Collectors.toList());
-    }
-
-    private Set<CtLiteral<Number>> amplify(CtLiteral<?> literal) {
+    protected Set<CtLiteral<Number>> amplify(CtLiteral<?> literal) {
         Set<CtLiteral<Number>> values = new HashSet<>();
         Double value = ((Number) literal.getValue()).doubleValue();
 
@@ -109,12 +77,7 @@ public class NumberLiteralAmplifier implements Amplifier {
     }
 
     @Override
-    public CtMethod applyRandom(CtMethod testMethod) {
-        return null;
-    }
-
-    @Override
-    public void reset(CtType testClass) {
-        AmplificationHelper.reset();
+    protected String getSuffix() {
+        return "litNum";
     }
 }
