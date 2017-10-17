@@ -20,6 +20,29 @@
     </dependencies>
 
     <build>
+
+        <!-- this example will load all resources inside src/main/java/ -->
+        <resources>
+            <resource>
+                <directory>${project.build.sourceDirectory}</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+        </resources>
+        <!-- this example will load all resources inside src/test/java/ -->
+        <testResources>
+            <testResource>
+                <directory>${project.build.testSourceDirectory}</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </testResource>
+            <testResource>
+                <directory>src/test/resources/</directory>
+            </testResource>
+        </testResources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -27,7 +50,8 @@
                 <version>2.19.1</version>
                 <configuration>
                     <additionalClasspathElements>
-                        <additionalClasspathElement>${project.basedir}/src/test/resources/templates.jar
+                        <additionalClasspathElement>
+                            ${project.basedir}/src/test/resources/templates.jar
                         </additionalClasspathElement>
                     </additionalClasspathElements>
                 </configuration>

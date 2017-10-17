@@ -272,4 +272,16 @@ public class TestLauncherTest {
 		assertEquals(10, run.getRunningTests().size());
 		assertTrue(run.getFailingTests().isEmpty());
 	}
+
+	@Test
+	public void testLauncherWithResourcesInsideTheSourcesFolders() throws Exception {
+		Utils.init("src/test/resources/project-with-resources/project-with-resources.properties");
+		final CtClass aClass = Utils.findClass("textresources.in.sources.TestResourcesInSources");
+		final String classPath = AmplificationHelper.getClassPath(Utils.getCompiler(), Utils.getInputProgram());
+		final TestListener run = TestLauncher.run(Utils.getInputConfiguration(), classPath, aClass);
+		assertEquals(1, run.getPassingTests().size());
+		assertEquals(1, run.getRunningTests().size());
+		assertEquals(0, run.getFailingTests().size());
+		assertTrue(run.getFailingTests().isEmpty());
+	}
 }
