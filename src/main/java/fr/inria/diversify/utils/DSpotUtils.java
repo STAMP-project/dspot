@@ -5,7 +5,9 @@ import fr.inria.diversify.processor.main.AddBlockEverywhereProcessor;
 import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.utils.sosiefier.BranchCoverageProcessor;
+import fr.inria.stamp.Main;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFileFilter;
 import org.kevoree.log.Log;
 import spoon.Launcher;
 import spoon.compiler.Environment;
@@ -185,41 +187,69 @@ public class DSpotUtils {
 					(configuration.getProperty("targetModule") != null ?
 							configuration.getProperty("targetModule") + shouldAddSeparator.apply(configuration.getProperty("project")) : "");
 
-	public static void copyResources(InputConfiguration configuration) {
-		final InputProgram program = configuration.getInputProgram();
+	private static void copyDirectory(String pathToProgramDir, String resourcesToBeCopied, String pathDirectoryToCopy) {
+		FileUtils.listFiles(new File(pathToProgramDir + resourcesToBeCopied),
+				new FileFileFilter() {
+					@Override
+					public boolean accept(File file) {
+						return !file.getAbsolutePath().endsWith("java");
+					}
+				},
+				new FileFileFilter() {
+					@Override
+					public boolean accept(File file) {
+						return true;
+					}
+				}
+		).forEach(file ->
+				DSpotUtils.copyFile(pathToProgramDir, resourcesToBeCopied, pathDirectoryToCopy, file)
+		);
+	}
 
-		// handle now resources
-		if (configuration.getProperty("srcResources") != null) {
-			Arrays.stream(configuration.getProperty("srcResources").split(PATH_SEPARATOR)).forEach(resource -> {
-						String pathToTarget = removeSourcePathIfPresent.apply(resource);
-						copyGivenFileToGivenPath(new File(program.getProgramDir() + resource),
-								new File(program.getProgramDir() + program.getClassesDir() + "/" + pathToTarget));
-					}
+
+	private static void copyFile(String pathToProgramDir, String pathToResourceToBeCopied, String pathDirectoryToCopy, File fileToBeCopied) {
+		try {
+			if(Main.verbose) {
+				Log.info("copy {} to {}", fileToBeCopied.getPath(), pathDirectoryToCopy + "/" +
+						fileToBeCopied.getPath().substring(
+								pathToProgramDir.length() + pathToResourceToBeCopied.length()
+						)
+				);
+			}
+			FileUtils.copyFile(fileToBeCopied,
+					new File(pathDirectoryToCopy + "/" +
+							fileToBeCopied.getPath().substring(
+									pathToProgramDir.length() + pathToResourceToBeCopied.length()
+								)
+							)
 			);
-		}
-		if (configuration.getProperty("testResources") != null) {
-			Arrays.stream(configuration.getProperty("testResources").split(PATH_SEPARATOR)).forEach(resource -> {
-						String pathToTarget = removeSourcePathIfPresent.apply(resource);
-						copyGivenFileToGivenPath(new File(program.getProgramDir() + resource),
-								new File(program.getProgramDir() + program.getTestClassesDir() + "/" + pathToTarget));
-					}
-			);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 
-	private static Function<String,String> removeSourcePathIfPresent = path ->
-			path.startsWith("src/test/resources/") || path.startsWith("src/main/resources/") ?
-					path.substring("src/test/resources/".length()) : path;
-
-	private static void copyGivenFileToGivenPath(File fileToCopy, File fileTarget) {
-		try {
-			if (fileToCopy.isDirectory()) {
-				FileUtils.copyDirectory(fileToCopy, fileTarget);
-			} else {
-				FileUtils.copyFile(fileToCopy, fileTarget);
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+	private static void copyGivenResources(String key, String outputDirectory, InputConfiguration configuration) {
+		final InputProgram program = configuration.getInputProgram();
+		final String resources = configuration.getProperty(key);
+		if (resources != null) {
+			Arrays.stream(resources.split(PATH_SEPARATOR)).forEach(resource -> {
+				if (new File(program.getProgramDir() + resource).isDirectory()) {
+					copyDirectory(program.getProgramDir(),
+							resource,
+							program.getProgramDir() + outputDirectory);
+				} else {
+					copyFile(program.getProgramDir(),
+							resource,
+							program.getProgramDir() + outputDirectory,
+							new File(program.getProgramDir() + resource));
+				}
+			});
 		}
+	}
+
+	public static void copyResources(InputConfiguration configuration) {
+		final InputProgram program = configuration.getInputProgram();
+		copyGivenResources("srcResources", program.getClassesDir(), configuration);
+		copyGivenResources("testResources", program.getTestClassesDir(), configuration);
 	}
 }

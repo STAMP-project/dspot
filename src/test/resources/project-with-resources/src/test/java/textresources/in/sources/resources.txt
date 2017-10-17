@@ -1,0 +1,1 @@
+this is a resource inside the folder of sources of tests
