@@ -23,6 +23,7 @@ import spoon.reflect.reference.CtTypeReference;
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 import static fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions.*;
@@ -185,6 +186,17 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 		request.setGoals(Arrays.asList(goals));
 		request.setPomFile(new File(pathToRootOfProject + FILE_SEPARATOR + POM_FILE));
 		request.setJavaHome(new File(System.getProperty("java.home")));
+
+		Properties properties = new Properties();
+		properties.setProperty("enforcer.skip", "true");
+		properties.setProperty("checkstyle.skip", "true");
+		properties.setProperty("cobertura.skip", "true");
+		properties.setProperty("skipITs", "true");
+		properties.setProperty("rat.skip", "true");
+		properties.setProperty("license.skip", "true");
+		properties.setProperty("findbugs.skip", "true");
+		properties.setProperty("gpg.skip", "true");
+		request.setProperties(properties);
 
 		Invoker invoker = new DefaultInvoker();
 		invoker.setMavenHome(new File(this.mavenHome));
