@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.amplifier.value;
 
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
+import spoon.SpoonException;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
@@ -56,7 +57,7 @@ public class ValueCreator {
                 } else if (type.getActualClass() == Map.class) {
                     return CollectionCreator.generateCollection(type, "Map", Map.class);
                 }
-            } catch (SpoonClassNotFoundException exception) {
+            } catch (SpoonException exception) {
                 // couldn't load the definition of the class, it may be a client class
                 return ConstructorCreator.generateConstructionOf(type);
             }

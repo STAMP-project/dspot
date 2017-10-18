@@ -21,24 +21,28 @@ import java.util.Set;
 public class ValueCreatorHelper {
 
     public static boolean canGenerateAValueForType(CtTypeReference type) {
-        if (AmplificationChecker.isPrimitive(type)) {
-            return true;
-        } else {
-            try {
-                if (AmplificationChecker.isArray(type) ||
-                        type.getActualClass() == String.class ||
-                        type.getActualClass() == Collection.class ||
-                        type.getActualClass() == List.class ||
-                        type.getActualClass() == Set.class ||
-                        type.getActualClass() == Map.class) {
-                    return true;
+        try {
+            if (AmplificationChecker.isPrimitive(type)) {
+                return true;
+            } else {
+                try {
+                    if (AmplificationChecker.isArray(type) ||
+                            type.getActualClass() == String.class ||
+                            type.getActualClass() == Collection.class ||
+                            type.getActualClass() == List.class ||
+                            type.getActualClass() == Set.class ||
+                            type.getActualClass() == Map.class) {
+                        return true;
+                    }
+                } catch (SpoonClassNotFoundException exception) {
+                    // couldn't load the definition of the class, it may be a client class
+                    return canGenerateConstructionOf(type);
                 }
-            } catch (SpoonClassNotFoundException exception) {
-                // couldn't load the definition of the class, it may be a client class
-                return canGenerateConstructionOf(type);
             }
+            return canGenerateConstructionOf(type);
+        } catch (Exception e) {
+            return false;
         }
-        return canGenerateConstructionOf(type);
     }
 
     private static boolean canGenerateConstructionOf(CtTypeReference type) {
