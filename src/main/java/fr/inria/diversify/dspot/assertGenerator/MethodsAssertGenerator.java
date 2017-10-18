@@ -228,10 +228,9 @@ public class MethodsAssertGenerator {
         Factory factory = cloneMethodTest.getFactory();
 
         Throwable exception = failure.getException();
-        if (exception instanceof TestTimedOutException) { // TestTimedOutException means infinite loop?
+        if (exception instanceof TestTimedOutException || // TestTimedOutException means infinite loop
+                exception instanceof AssertionError) { // AssertionError means that some assertion remained in the test: TODO
             return null;
-        } else if (exception instanceof AssertionError) {
-            exception = exception.getCause();
         }
 
         Class exceptionClass;

@@ -106,4 +106,12 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
         assertEquals(expectedBody, test1_buildNewAssert.get(0).getBody().toString());
     }
 
+	@Test
+	public void testMakeFailureTest() throws Exception {
+		CtClass<?> testClass = Utils.findClass("fr.inria.failing.FailingTest");
+		MethodsAssertGenerator mag = new MethodsAssertGenerator(testClass, Utils.getInputConfiguration(), Utils.getCompiler());
+		final CtMethod testAssertionError = Utils.findMethod("fr.inria.failing.FailingTest", "testAssertionError");
+		final List<CtMethod<?>> generatedAssertion = mag.generateAsserts(testClass, Collections.singletonList(testAssertionError));
+		assertTrue(generatedAssertion.isEmpty());
+	}
 }
