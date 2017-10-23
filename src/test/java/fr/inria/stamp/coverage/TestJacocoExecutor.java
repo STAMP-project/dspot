@@ -27,7 +27,6 @@ public class TestJacocoExecutor {
 		Utils.reset();
 	}
 
-
 	@Test
 	@Ignore // TODO We may need a specific runner.
 	public void testJacocoExecutorOnJMockit() throws Exception {
@@ -91,7 +90,7 @@ public class TestJacocoExecutor {
 	@Ignore
 	public void testJacocoExecutorOnMockito2() throws Exception {
 		Utils.reset();
-		Utils.init("src/test/resources/mock/mock.properties");
+		Utils.init("src/test/resources/mockito2/mock.properties");
 
 		JacocoExecutor jacocoExecutor = new JacocoExecutor(Utils.getInputProgram(), Utils.getInputConfiguration());
 		final CtClass<?> mockitoTest = Utils.findClass("org.baeldung.mocks.mockito.LoginControllerIntegrationTest");

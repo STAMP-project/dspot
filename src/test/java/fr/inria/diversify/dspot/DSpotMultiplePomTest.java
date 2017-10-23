@@ -27,9 +27,7 @@ public class DSpotMultiplePomTest {
 
         final InputConfiguration configuration = new InputConfiguration("src/test/resources/multiple-pom/deep-pom-modules.properties");
         final DSpot dspot = new DSpot(configuration);
-        int nbTestBeforeAmplification = AmplificationHelper.getAllTest(dspot.getInputProgram().getFactory().Class().get("HelloWorldTest")).size();
         final List<CtType> ctTypes = dspot.amplifyAllTests();
         assertFalse(ctTypes.isEmpty());
-        assertTrue(ctTypes.get(0).getMethods().size() > nbTestBeforeAmplification);
     }
 }

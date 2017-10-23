@@ -69,6 +69,10 @@ public class DSpot {
 		this(configuration, 3, Collections.emptyList(), testSelector);
 	}
 
+    public DSpot(InputConfiguration configuration, int iteration, TestSelector testSelector) throws Exception {
+        this(configuration, iteration, Collections.emptyList(), testSelector);
+    }
+
 	public DSpot(InputConfiguration configuration, List<Amplifier> amplifiers) throws Exception {
 		this(configuration, 3, amplifiers);
 	}
