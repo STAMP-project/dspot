@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.io.*;
 import java.util.Collections;
 
+import static fr.inria.diversify.dspot.AbstractTest.nl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -46,24 +47,24 @@ public class JsonTest {
 
     // do not use system separator because gson generate json with \n
 
-    private final String expectedJson = "{" + "\n"  +
-            "  \"nbMutantKilledOriginally\": 23," + "\n"  +
-            "  \"name\": \"MyTestClass\"," + "\n"  +
-            "  \"nbOriginalTestCases\": 1," + "\n" +
-            "  \"testCases\": [" + "\n"  +
-            "    {" + "\n"  +
-            "      \"name\": \"myTestCase\"," + "\n"  +
-            "      \"nbAssertionAdded\": 1," + "\n"  +
-            "      \"nbInputAdded\": 1," + "\n"  +
-            "      \"nbMutantKilled\": 1," + "\n"  +
-            "      \"mutantsKilled\": [" + "\n"  +
-            "        {" + "\n"  +
-            "          \"ID\": \"IdMutant\"," + "\n"  +
-            "          \"lineNumber\": 1," + "\n"  +
-            "          \"locationMethod\": \"method\"" + "\n"  +
-            "        }" + "\n"  +
-            "      ]" + "\n"  +
-            "    }" + "\n"  +
-            "  ]" + "\n"  +
+    private final String expectedJson = "{" + "" + nl  +
+            "  \"nbMutantKilledOriginally\": 23," + "" + nl  +
+            "  \"name\": \"MyTestClass\"," + "" + nl  +
+            "  \"nbOriginalTestCases\": 1," + "" + nl +
+            "  \"testCases\": [" + "" + nl  +
+            "    {" + "" + nl  +
+            "      \"name\": \"myTestCase\"," + "" + nl  +
+            "      \"nbAssertionAdded\": 1," + "" + nl  +
+            "      \"nbInputAdded\": 1," + "" + nl  +
+            "      \"nbMutantKilled\": 1," + "" + nl  +
+            "      \"mutantsKilled\": [" + "" + nl  +
+            "        {" + "" + nl  +
+            "          \"ID\": \"IdMutant\"," + "" + nl  +
+            "          \"lineNumber\": 1," + "" + nl  +
+            "          \"locationMethod\": \"method\"" + "" + nl  +
+            "        }" + "" + nl  +
+            "      ]" + "" + nl  +
+            "    }" + "" + nl  +
+            "  ]" + "" + nl  +
             "}";
 }
