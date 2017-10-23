@@ -49,7 +49,6 @@ public class TestLauncherTest {
 		final CtClass<?> jmockitTest = Utils.findClass("org.baeldung.mocks.jmockit.LoginControllerIntegrationTest");
 
 		TestListener run = TestLauncher.run(Utils.getInputConfiguration(), classpath, jmockitTest);
-		// TODO must fix it:
 		assertEquals(7, run.getRunningTests().size());
 		assertEquals(7, run.getPassingTests().size());
 		assertEquals(0, run.getFailingTests().size());
