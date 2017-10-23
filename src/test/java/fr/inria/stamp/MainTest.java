@@ -127,7 +127,7 @@ public class MainTest {
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdd",
                 "--iteration", "1",
                 "--randomSeed", "72",
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
@@ -152,7 +152,7 @@ public class MainTest {
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdd",
                 "--iteration", "1",
                 "--randomSeed", "72",
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
@@ -177,7 +177,7 @@ public class MainTest {
             "======= REPORT =======" + nl +
             "Initial instruction coverage: 33 / 37" + nl +
             "89" + DECIMAL_SEPARATOR + "19%" + nl +
-            "Amplification results with 6 amplified tests." + nl +
+            "Amplification results with 5 amplified tests." + nl +
             "Amplified instruction coverage: 37 / 37" + nl +
             "100" + DECIMAL_SEPARATOR + "00%" + nl;
 
@@ -186,7 +186,7 @@ public class MainTest {
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdd",
                 "--iteration", "1",
                 "--randomSeed", "72",
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
@@ -215,7 +215,7 @@ public class MainTest {
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdd",
                 "--iteration", "1",
                 "--randomSeed", "72",
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
@@ -240,7 +240,7 @@ public class MainTest {
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdd",
                 "--iteration", "1",
                 "--randomSeed", "72",
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
@@ -272,7 +272,7 @@ public class MainTest {
             "======= REPORT =======" + nl +
             "Initial instruction coverage: 33 / 37" + nl +
             "89" + DECIMAL_SEPARATOR + "19%" + nl +
-            "Amplification results with 35 amplified tests." + nl +
+            "Amplification results with 31 amplified tests." + nl +
             "Amplified instruction coverage: 37 / 37" + nl +
             "100" + DECIMAL_SEPARATOR + "00%" + nl;
 

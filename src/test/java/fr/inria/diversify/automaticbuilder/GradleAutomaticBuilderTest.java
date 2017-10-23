@@ -122,7 +122,7 @@ public class GradleAutomaticBuilderTest {
         return new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "BranchCoverageTestSelector",
-                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdd",
                 "--iteration", "1",
                 "--randomSeed", "72",
                 "--automatic-builder", "GradleBuilder",

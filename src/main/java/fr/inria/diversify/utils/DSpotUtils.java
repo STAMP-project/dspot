@@ -46,7 +46,7 @@ public class DSpotUtils {
 
 	public static void printProgress(int done, int total) {
 		char[] workchars = {'|', '/', '-', '\\'};
-		String format = "\r%3d%% |{} ]%c";
+		String format = "\r%3d%% |%s ]%c";
 		int percent = (++done * 100) / total;
 		int extrachars = (percent / 2) - progress.length();
 		while (extrachars-- > 0) {
@@ -65,11 +65,11 @@ public class DSpotUtils {
 		try {
 			applyProcessor(factory, new AddBlockEverywhereProcessor(inputProgram));
 			BranchCoverageProcessor branchCoverageProcessor = new BranchCoverageProcessor(inputProgram, inputProgram.getProgramDir(), true);
-			branchCoverageProcessor.setLogger(Logger.class.getCanonicalName());
+			branchCoverageProcessor.setLogger(fr.inria.diversify.logger.Logger.class.getCanonicalName());
 			applyProcessor(factory, branchCoverageProcessor);
 			copyPackageFromResources(
 					"fr/inria/diversify/logger", "ClassObserver",
-					"KeyWord", "Logger", "LogWriter", "PathBuilder", "Pool", "ShutdownHookMain.LOGGER");
+					"KeyWord", "Logger", "LogWriter", "PathBuilder", "Pool", "ShutdownHookLog");
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -136,7 +136,6 @@ public class DSpotUtils {
 				}
 			}
 		}
-		LOGGER.info("maven home found at {}", mavenHome);
 		return mavenHome;
 	}
 

@@ -1,5 +1,9 @@
 package fr.inria.diversify.dspot;
 
+import fr.inria.diversify.dspot.amplifier.StatementAdd;
+import fr.inria.diversify.dspot.amplifier.TestDataMutator;
+import fr.inria.diversify.dspot.amplifier.TestMethodCallAdder;
+import fr.inria.diversify.dspot.amplifier.TestMethodCallRemover;
 import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
@@ -9,6 +13,7 @@ import org.junit.Test;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
@@ -32,7 +37,12 @@ public class DSpotMockedTest extends MavenAbstractTest {
 		InputConfiguration configuration = new InputConfiguration(pathToPropertiesFile);
 		InputProgram program = new InputProgram();
 		configuration.setInputProgram(program);
-		DSpot dspot = new DSpot(configuration, 1);
+		DSpot dspot = new DSpot(configuration, 1,
+				Arrays.asList(new TestDataMutator(),
+						new TestMethodCallAdder(),
+						new TestMethodCallRemover(),
+						new StatementAdd())
+		);
 		try {
 			FileUtils.cleanDirectory(new File(configuration.getOutputDirectory()));
 		} catch (Exception ignored) {
