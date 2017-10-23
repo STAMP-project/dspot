@@ -1,15 +1,17 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
-import fr.inria.diversify.utils.AmplificationHelper;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtType;
 
+import java.io.File;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Benjamin DANGLOT
@@ -17,6 +19,12 @@ import static org.junit.Assert.assertTrue;
  * on 05/05/17
  */
 public class DSpotMultiplePomTest {
+
+    @Before
+    public void setUp() throws Exception {
+        FileUtils.forceDelete(new File("target/trash/"));
+        FileUtils.forceDelete(new File("target/dspot/"));
+    }
 
     @Test
     public void testCopyMultipleModuleProject() throws Exception {
@@ -29,5 +37,11 @@ public class DSpotMultiplePomTest {
         final DSpot dspot = new DSpot(configuration);
         final List<CtType> ctTypes = dspot.amplifyAllTests();
         assertFalse(ctTypes.isEmpty());
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        FileUtils.forceDelete(new File("target/trash/"));
+        FileUtils.forceDelete(new File("target/dspot/"));
     }
 }
