@@ -53,10 +53,10 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 	public List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified) {
 		if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
 			this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
-			this.initialCoverage = new JacocoExecutor(this.program, this.configuration).executeJacoco(this.currentClassTestToBeAmplified);
+			this.initialCoverage = new JacocoExecutor(this.program, this.configuration, this.currentClassTestToBeAmplified).executeJacoco(this.currentClassTestToBeAmplified);
 		}
 		final List<String> methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).collect(Collectors.toList());
-		final Map<String, CoverageResults> coverageResultsMap = new JacocoExecutor(this.program, this.configuration)
+		final Map<String, CoverageResults> coverageResultsMap = new JacocoExecutor(this.program, this.configuration, this.currentClassTestToBeAmplified)
 				.executeJacoco(this.currentClassTestToBeAmplified, methodNames);
 		final List<String> pathExecuted = new ArrayList<>();
 		final List<CtMethod<?>> filteredTests = testsToBeAmplified.stream()
@@ -100,7 +100,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 			return amplifiedTestToBeKept;
 		}
 		final List<String> methodNames = amplifiedTestToBeKept.stream().map(CtNamedElement::getSimpleName).collect(Collectors.toList());
-		final Map<String, CoverageResults> coverageResultsMap = new JacocoExecutor(this.program, this.configuration).executeJacoco(
+		final Map<String, CoverageResults> coverageResultsMap = new JacocoExecutor(this.program, this.configuration, this.currentClassTestToBeAmplified).executeJacoco(
 				this.currentClassTestToBeAmplified, methodNames);
 		final List<String> pathExecuted = new ArrayList<>();
 		final List<CtMethod<?>> methodsKept = amplifiedTestToBeKept.stream()
@@ -182,7 +182,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 		DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
 				new File(this.program.getProgramDir() + fileSeparator + this.program.getTestClassesDir()));
 
-		final CoverageResults coverageResults = new JacocoExecutor(this.program, this.configuration)
+		final CoverageResults coverageResults = new JacocoExecutor(this.program, this.configuration, this.currentClassTestToBeAmplified)
 				.executeJacoco(this.currentClassTestToBeAmplified);
 
 		report.append("Amplified instruction coverage: ").append(coverageResults.instructionsCovered)

@@ -28,13 +28,12 @@ public class TestJacocoExecutor {
 	}
 
 	@Test
-	@Ignore // TODO We may need a specific runner.
 	public void testJacocoExecutorOnJMockit() throws Exception {
 		Utils.reset();
 		Utils.init("src/test/resources/jmockit/mock.properties");
 
-		JacocoExecutor jacocoExecutor = new JacocoExecutor(Utils.getInputProgram(), Utils.getInputConfiguration());
 		final CtClass<?> jmockitTest = Utils.findClass("org.baeldung.mocks.jmockit.LoginControllerIntegrationTest");
+		JacocoExecutor jacocoExecutor = new JacocoExecutor(Utils.getInputProgram(), Utils.getInputConfiguration(), jmockitTest);
 
 		CoverageResults coverageResults = jacocoExecutor.executeJacoco(jmockitTest);
 		assertTrue(60 <= coverageResults.instructionsCovered &&
@@ -42,14 +41,13 @@ public class TestJacocoExecutor {
 		assertEquals(78, coverageResults.instructionsTotal);
 	}
 
-	//TODO fix the range
 	@Test
 	public void testJacocoExecutorOnEasyMock() throws Exception {
 		Utils.reset();
 		Utils.init("src/test/resources/easymock/mock.properties");
 
-		JacocoExecutor jacocoExecutor = new JacocoExecutor(Utils.getInputProgram(), Utils.getInputConfiguration());
 		final CtClass<?> easyMockTest = Utils.findClass("org.baeldung.mocks.easymock.LoginControllerIntegrationTest");
+		JacocoExecutor jacocoExecutor = new JacocoExecutor(Utils.getInputProgram(), Utils.getInputConfiguration(), easyMockTest);
 
 		CoverageResults coverageResults = jacocoExecutor.executeJacoco(easyMockTest);
 		assertTrue(50 <= coverageResults.instructionsCovered &&
@@ -61,8 +59,9 @@ public class TestJacocoExecutor {
 	public void testJacocoExecutor() throws Exception {
 		Utils.reset();
 		Utils.init("src/test/resources/test-projects/test-projects.properties");
-		JacocoExecutor jacocoExecutor = new JacocoExecutor(Utils.getInputProgram(), Utils.getInputConfiguration());
-		final CoverageResults coverageResults = jacocoExecutor.executeJacoco(Utils.findClass("example.TestSuiteExample"));
+		final CtClass<?> testClass = Utils.findClass("example.TestSuiteExample");
+		JacocoExecutor jacocoExecutor = new JacocoExecutor(Utils.getInputProgram(), Utils.getInputConfiguration(), testClass);
+		final CoverageResults coverageResults = jacocoExecutor.executeJacoco(testClass);
 		assertEquals(33, coverageResults.instructionsCovered);
 		assertEquals(37, coverageResults.instructionsTotal);
 	}
@@ -76,8 +75,9 @@ public class TestJacocoExecutor {
 	public void testJacocoExecutorOnMockito() throws Exception {
 		Utils.reset();
 		Utils.init("src/test/resources/mockito/mockito.properties");
-		JacocoExecutor jacocoExecutor = new JacocoExecutor(Utils.getInputProgram(), Utils.getInputConfiguration());
-		final CoverageResults coverageResults = jacocoExecutor.executeJacoco(Utils.findClass("info.sanaulla.dal.BookDALTest"));
+		final CtClass<?> testClass = Utils.findClass("info.sanaulla.dal.BookDALTest");
+		JacocoExecutor jacocoExecutor = new JacocoExecutor(Utils.getInputProgram(), Utils.getInputConfiguration(), testClass);
+		final CoverageResults coverageResults = jacocoExecutor.executeJacoco(testClass);
 		assertEquals(0, coverageResults.instructionsCovered); // TODO not able to run mockito test
 		assertEquals(65, coverageResults.instructionsTotal);
 	}
@@ -92,8 +92,8 @@ public class TestJacocoExecutor {
 		Utils.reset();
 		Utils.init("src/test/resources/mockito2/mock.properties");
 
-		JacocoExecutor jacocoExecutor = new JacocoExecutor(Utils.getInputProgram(), Utils.getInputConfiguration());
 		final CtClass<?> mockitoTest = Utils.findClass("org.baeldung.mocks.mockito.LoginControllerIntegrationTest");
+		JacocoExecutor jacocoExecutor = new JacocoExecutor(Utils.getInputProgram(), Utils.getInputConfiguration(), mockitoTest);
 
 		CoverageResults coverageResults = jacocoExecutor.executeJacoco(mockitoTest);
 		assertEquals(0, coverageResults.instructionsCovered); // TODO not able to run mocked test

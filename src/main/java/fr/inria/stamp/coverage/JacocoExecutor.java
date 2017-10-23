@@ -1,6 +1,5 @@
 package fr.inria.stamp.coverage;
 
-import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.test.launcher.TestLauncher;
@@ -24,13 +23,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.stream.Stream;
 
-import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
 import static java.util.ResourceBundle.clearCache;
 
 /**
@@ -52,64 +48,17 @@ public class JacocoExecutor {
 
     private InputConfiguration configuration;
 
-    public JacocoExecutor(InputProgram program, InputConfiguration configuration) {
+    public JacocoExecutor(InputProgram program, InputConfiguration configuration, CtType<?> testClass) {
         this.configuration = configuration;
         this.program = program;
         this.runtime = new LoggerRuntime();
         this.instrumenter = new Instrumenter(this.runtime);
-        this.instrumentAll(configuration);
+        this.instrumentAll(configuration, testClass);
     }
 
-    private void instrumentAll(InputConfiguration configuration) {
+    private void instrumentAll(InputConfiguration configuration, CtType<?> testClass) {
         final String classesDirectory = this.program.getProgramDir() + "/" + this.program.getClassesDir();
-        final String testClassesDirectory = this.program.getProgramDir() + "/" + this.program.getTestClassesDir();
-        try {
-            String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration)
-                    .buildClasspath(this.program.getProgramDir());
-
-            ClassLoader classLoader = new URLClassLoader(
-                    Arrays.stream(classpath.split(":"))
-                            .map(File::new)
-                            .map(File::toURI)
-                            .map(uri -> {
-                                try {
-                                    return uri.toURL();
-                                } catch (MalformedURLException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            })
-                            .toArray(URL[]::new),
-                    ClassLoader.getSystemClassLoader()
-            );
-
-            final URL[] urls = {
-                    new File(classesDirectory).toURI().toURL(),
-                    new File(testClassesDirectory).toURI().toURL()
-            };
-
-            if (configuration.getProperty("additionalClasspathElements") != null) {
-                this.internalClassLoader = new MemoryClassLoader(
-                        Stream.concat(
-                                Arrays.stream(configuration.getProperty("additionalClasspathElements").split(PATH_SEPARATOR))
-                                        .map(configuration.getInputProgram().getProgramDir()::concat)
-                                        .map(File::new)
-                                        .map(File::toURI)
-                                        .map(uri -> {
-                                            try {
-                                                return uri.toURL();
-                                            } catch (MalformedURLException e) {
-                                                throw new RuntimeException(e);
-                                            }
-                                        }), Arrays.stream(urls))
-                                .toArray(URL[]::new), classLoader
-                );
-            } else {
-                this.internalClassLoader = new MemoryClassLoader(urls, classLoader);
-            }
-
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
+        this.internalClassLoader = MemoryClassLoaderFactory.createMemoryClassLoader(testClass, configuration);
         /* instrument all of them */
         final Iterator<File> iterator = FileUtils.iterateFiles(new File(classesDirectory), new String[]{"class"}, true);
         while (iterator.hasNext()) {
