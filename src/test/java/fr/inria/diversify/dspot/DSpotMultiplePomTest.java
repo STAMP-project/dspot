@@ -1,11 +1,14 @@
 package fr.inria.diversify.dspot;
 
-import fr.inria.diversify.Utils;
-import org.junit.Ignore;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.diversify.utils.AmplificationHelper;
+
 import org.junit.Test;
+import spoon.reflect.declaration.CtType;
 
-import java.io.File;
+import java.util.List;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -15,25 +18,18 @@ import static org.junit.Assert.assertTrue;
  */
 public class DSpotMultiplePomTest {
 
-    //TODO this test is useless since we do not copy test
     @Test
-    @Ignore
     public void testCopyMultipleModuleProject() throws Exception {
 
         /*
-            This test that dspot copy the whole project, in order to keep the hierarchy of pom
-                It will check that the whole hierarchy has been copied
+            Contract: DSpot is able to amplify a multi-module project
          */
 
-        Utils.init("src/test/resources/multiple-pom/deep-pom-modules.properties");
-
-        final DSpot dSpot = new DSpot(Utils.getInputConfiguration());
-
-        final StringBuilder currentPom = new StringBuilder(Utils.getInputConfiguration().getProperty("tmpDir") + "/tmp");
-        assertTrue(new File(currentPom.toString() + "/pom.xml").exists());
-        currentPom.append("/module-1");
-        assertTrue(new File(currentPom.toString() + "/pom.xml").exists());
-        assertTrue(new File(currentPom.toString() + "/module-2-1" + "/pom.xml").exists());
-        assertTrue(new File(currentPom.toString() + "/module-2-2" + "/pom.xml").exists());
+        final InputConfiguration configuration = new InputConfiguration("src/test/resources/multiple-pom/deep-pom-modules.properties");
+        final DSpot dspot = new DSpot(configuration);
+        int nbTestBeforeAmplification = AmplificationHelper.getAllTest(dspot.getInputProgram().getFactory().Class().get("HelloWorldTest")).size();
+        final List<CtType> ctTypes = dspot.amplifyAllTests();
+        assertFalse(ctTypes.isEmpty());
+        assertTrue(ctTypes.get(0).getMethods().size() > nbTestBeforeAmplification);
     }
 }
