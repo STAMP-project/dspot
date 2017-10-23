@@ -1,32 +1,21 @@
 package fr.inria.diversify.mutant.descartes;
 
-import fr.inria.diversify.Utils;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
-import fr.inria.diversify.automaticbuilder.MavenAutomaticBuilder;
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.amplifier.StatementAdd;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
-import fr.inria.diversify.dspot.amplifier.StatementAdderOnAssert;
-import fr.inria.diversify.dspot.amplifier.TestDataMutator;
-import fr.inria.diversify.dspot.amplifier.TestMethodCallAdder;
 import fr.inria.diversify.dspot.selector.PitMutantScoreSelector;
 import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.FileUtils;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.function.Predicate;
 
 import static org.junit.Assert.*;
 
@@ -40,7 +29,7 @@ public class PitDescartesTest {
     //TODO The generation is not deterministic
     @Ignore
     @Test
-    public void testPitDescartesMode() throws Exception, InvalidSdkException {
+    public void testPitDescartesMode() throws Exception {
         assertFalse(MavenPitCommandAndOptions.descartesMode);
         FileUtils.deleteDirectory(new File("target/dspot/trash"));
         AmplificationHelper.setSeedRandom(23L);

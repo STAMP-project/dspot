@@ -4,7 +4,6 @@ import fr.inria.diversify.Utils;
 import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
-import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.stamp.Main;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;

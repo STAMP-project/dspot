@@ -3,18 +3,17 @@ package fr.inria.diversify;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.FileUtils;
-import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.Initializer;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.diversify.utils.sosiefier.InputProgram;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Set;
 
 import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
@@ -26,6 +25,8 @@ import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
  * Time: 11:16
  */
 public class Utils {
+
+	public static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
 
 	private static AutomaticBuilder builder;
 

@@ -3,17 +3,15 @@ package fr.inria.diversify.dspot.assertGenerator;
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.dspot.AbstractTest;
 import fr.inria.diversify.dspot.amplifier.StatementAdd;
-import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.utils.AmplificationHelper;
+import fr.inria.diversify.utils.sosiefier.InputProgram;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
 

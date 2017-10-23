@@ -1,12 +1,10 @@
 package fr.inria.diversify.dspot.selector;
 
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.DSpot;
-import fr.inria.diversify.dspot.amplifier.ObjectGenerator;
 import fr.inria.diversify.dspot.amplifier.StatementAdd;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
-import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.utils.AmplificationHelper;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
@@ -33,7 +31,7 @@ public class JacocoCoverageSelectorTest {
 
 
 	@Test
-	public void testDSpotWithJacocoCoverageSelector() throws Exception, InvalidSdkException {
+	public void testDSpotWithJacocoCoverageSelector() throws Exception {
 		try {
 			FileUtils.deleteDirectory(new File("target/trash"));
 		} catch (Exception ignored) {

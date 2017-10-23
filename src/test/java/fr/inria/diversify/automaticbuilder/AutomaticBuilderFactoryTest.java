@@ -1,9 +1,8 @@
 package fr.inria.diversify.automaticbuilder;
 
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.utils.DSpotUtils;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.Configuration;
 import fr.inria.stamp.JSAPOptions;
 import org.junit.After;
@@ -40,7 +39,7 @@ public class AutomaticBuilderFactoryTest {
         this.configuration = JSAPOptions.parse(getArgsWithMavenBuilder());
 
         InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
-        InputProgram program = InitUtils.initInputProgram(inputConfiguration);
+        InputProgram program = InputConfiguration.initInputProgram(inputConfiguration);
         inputConfiguration.setInputProgram(program);
         inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
 
@@ -75,7 +74,7 @@ public class AutomaticBuilderFactoryTest {
 
         InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
         inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
-        InputProgram program = InitUtils.initInputProgram(inputConfiguration);
+        InputProgram program = InputConfiguration.initInputProgram(inputConfiguration);
         inputConfiguration.setInputProgram(program);
 
         assertFalse(inputConfiguration.getProperty("automaticBuilderName") == null);
@@ -94,7 +93,7 @@ public class AutomaticBuilderFactoryTest {
         this.configuration = JSAPOptions.parse(getArgsWithNoBuilder());
 
         InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
-        InputProgram program = InitUtils.initInputProgram(inputConfiguration);
+        InputProgram program = InputConfiguration.initInputProgram(inputConfiguration);
         inputConfiguration.setInputProgram(program);
 
         assertTrue(inputConfiguration.getProperty("automaticBuilderName") == null);

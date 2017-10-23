@@ -1,13 +1,11 @@
 package fr.inria.diversify.dspot;
 
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.utils.AmplificationHelper;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.diversify.utils.sosiefier.InputProgram;
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
-import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
@@ -24,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 public class DSpotMockedTest extends MavenAbstractTest {
 
 	@Test
-	public void test() throws Exception, InvalidSdkException {
+	public void test() throws Exception {
 
         /*
 			Test the whole dspot procedure.

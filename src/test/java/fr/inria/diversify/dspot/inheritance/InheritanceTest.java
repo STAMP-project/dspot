@@ -1,10 +1,9 @@
 package fr.inria.diversify.dspot.inheritance;
 
 import fr.inria.diversify.Utils;
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
-import fr.inria.diversify.runner.InputConfiguration;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtType;
@@ -27,7 +26,7 @@ public class InheritanceTest {
     }
 
     @Test
-    public void testInheritanceMethod() throws Exception, InvalidSdkException {
+    public void testInheritanceMethod() throws Exception {
         final InputConfiguration configuration = new InputConfiguration("src/test/resources/sample/sample.properties");
         DSpot dspot = new DSpot(configuration, 3, Collections.singletonList(new TestDataMutator()));
         CtType ctType = dspot.amplifyTest("fr.inria.inheritance.Inherited").get(0);

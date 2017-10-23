@@ -1,7 +1,6 @@
 package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.Utils;
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -19,7 +18,7 @@ public class DSpotMultiplePomTest {
     //TODO this test is useless since we do not copy test
     @Test
     @Ignore
-    public void testCopyMultipleModuleProject() throws Exception, InvalidSdkException {
+    public void testCopyMultipleModuleProject() throws Exception {
 
         /*
             This test that dspot copy the whole project, in order to keep the hierarchy of pom

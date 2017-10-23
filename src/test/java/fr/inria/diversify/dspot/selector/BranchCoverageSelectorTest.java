@@ -1,11 +1,9 @@
 package fr.inria.diversify.dspot.selector;
 
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.amplifier.StatementAdd;
-import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
-import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.utils.AmplificationHelper;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -18,7 +16,7 @@ import java.util.Collections;
 public class BranchCoverageSelectorTest {
 
 	@Test
-	public void testDSpotWithBranchCoverageSelector() throws Exception, InvalidSdkException {
+	public void testDSpotWithBranchCoverageSelector() throws Exception {
 		long time = System.currentTimeMillis();
 		AmplificationHelper.setSeedRandom(23L);
 		InputConfiguration configuration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");

@@ -2,7 +2,6 @@ package fr.inria.diversify.dspot.selector;
 
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.MavenAbstractTest;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
@@ -11,12 +10,9 @@ import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.PrintClassUtils;
 import fr.inria.diversify.utils.DSpotUtils;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.Main;
-import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtType;
@@ -40,7 +36,7 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
     }
 
     @Test
-    public void testSelection() throws Exception, InvalidSdkException {
+    public void testSelection() throws Exception {
         AmplificationHelper.setSeedRandom(23L);
 
         Main.verbose = true;
