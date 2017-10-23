@@ -1,6 +1,5 @@
 package fr.inria.diversify.utils.sosiefier;
 
-import fr.inria.diversify.processor.test.TestProcessor;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtCodeSnippetStatement;
 import spoon.reflect.code.CtTry;
