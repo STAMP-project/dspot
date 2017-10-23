@@ -1,8 +1,9 @@
 package fr.inria.diversify.utils;
 
-import fr.inria.diversify.util.Log;
 import junit.framework.TestCase;
 import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.SpoonException;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
@@ -20,6 +21,8 @@ import java.util.function.Predicate;
  */
 
 public class AmplificationChecker {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AmplificationChecker.class);
 
     public static boolean isCase(CtLiteral literal) {
         return literal.getParent(CtCase.class) != null;
@@ -154,7 +157,7 @@ public class AmplificationChecker {
                 return false;
             }
         } catch (Exception e) {
-            Log.warn("Error during check of position of " + candidate.getSimpleName());
+            LOGGER.warn("Error during check of position of " + candidate.getSimpleName());
             return false;
         }
         return isTest(candidate);

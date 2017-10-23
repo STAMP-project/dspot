@@ -1,29 +1,27 @@
 package fr.inria.stamp.coverage;
 
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.test.launcher.TestLauncher;
 import fr.inria.stamp.test.listener.TestListener;
-import fr.inria.stamp.test.runner.DefaultTestRunner;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jacoco.core.analysis.Analyzer;
 import org.jacoco.core.analysis.CoverageBuilder;
-import org.jacoco.core.analysis.IClassCoverage;
 import org.jacoco.core.data.ExecutionDataStore;
 import org.jacoco.core.data.SessionInfoStore;
 import org.jacoco.core.instr.Instrumenter;
 import org.jacoco.core.runtime.IRuntime;
 import org.jacoco.core.runtime.LoggerRuntime;
 import org.jacoco.core.runtime.RuntimeData;
-import org.kevoree.log.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
@@ -41,6 +39,8 @@ import static java.util.ResourceBundle.clearCache;
  * on 13/07/17
  */
 public class JacocoExecutor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JacocoExecutor.class);
 
     private MemoryClassLoader internalClassLoader;
 
@@ -120,7 +120,7 @@ public class JacocoExecutor {
                 this.internalClassLoader.addDefinition(fullQualifiedName,
                         this.instrumenter.instrument(this.internalClassLoader.getResourceAsStream(fileName), fullQualifiedName));
             } catch (IOException e) {
-                Log.error("Encountered a problem while instrumenting " + fullQualifiedName);
+                LOGGER.error("Encountered a problem while instrumenting " + fullQualifiedName);
                 throw new RuntimeException(e);
             }
         }

@@ -2,17 +2,18 @@ package fr.inria.diversify.dspot.assertGenerator;
 
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
-import fr.inria.diversify.util.Log;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.dspot.support.TestCompiler;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import org.junit.runners.model.TestTimedOutException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -33,6 +34,8 @@ import java.util.stream.IntStream;
  */
 public class MethodsAssertGenerator {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodsAssertGenerator.class);
+
     private int numberOfFail = 0;
 
     private CtType originalClass;
@@ -51,7 +54,7 @@ public class MethodsAssertGenerator {
     }
 
     public List<CtMethod<?>> generateAsserts(CtType testClass, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
-        Log.info("Run tests. ({})", tests.size());
+        LOGGER.info("Run tests. ({})", tests.size());
         final TestListener result = TestCompiler.compileAndRun(testClass,
                 this.compiler,
                 tests,
@@ -73,7 +76,7 @@ public class MethodsAssertGenerator {
             final List<CtMethod<?>> generatedTestWithAssertion = new ArrayList<>();
             // add assertion on passing tests
             if (!passingMethodName.isEmpty()) {
-                Log.info("{} test pass, generating assertion...", passingMethodName.size());
+                LOGGER.info("{} test pass, generating assertion...", passingMethodName.size());
                 List<CtMethod<?>> passingTests = addAssertions(testClass,
                         tests.stream()
                                 .filter(ctMethod -> passingMethodName.contains(ctMethod.getSimpleName()))
@@ -88,7 +91,7 @@ public class MethodsAssertGenerator {
 
             // add try/catch/fail on failing/error tests
             if (!failuresMethodName.isEmpty()) {
-                Log.info("{} test fail, generating try/catch/fail blocks...", failuresMethodName.size());
+                LOGGER.info("{} test fail, generating try/catch/fail blocks...", failuresMethodName.size());
                 final List<CtMethod<?>> failingTests = tests.stream()
                         .filter(ctMethod ->
                                 failuresMethodName.contains(ctMethod.getSimpleName()))
@@ -109,8 +112,8 @@ public class MethodsAssertGenerator {
     private List<CtMethod<?>> addAssertions(CtType<?> testClass, List<CtMethod<?>> testCases) throws IOException, ClassNotFoundException {
         CtType clone = testClass.clone();
         testClass.getPackage().addType(clone);
-        Log.info("Add observations points in passing tests.");
-        Log.info("Instrumentation...");
+        LOGGER.info("Add observations points in passing tests.");
+        LOGGER.info("Instrumentation...");
         final List<CtMethod<?>> testCasesWithLogs = testCases.stream()
                 .map(ctMethod -> {
                             DSpotUtils.printProgress(testCases.indexOf(ctMethod), testCases.size());
@@ -134,7 +137,7 @@ public class MethodsAssertGenerator {
                         .collect(Collectors.toList())
         ));
         ObjectLog.reset();
-        Log.info("Run instrumented tests. ({})", testToRuns.size());
+        LOGGER.info("Run instrumented tests. ({})", testToRuns.size());
         final TestListener result = TestCompiler.compileAndRun(clone,
                 this.compiler,
                 testToRuns,
@@ -144,7 +147,7 @@ public class MethodsAssertGenerator {
             return Collections.emptyList();
         } else {
             Map<String, Observation> observations = ObjectLog.getObservations();
-            Log.info("Generating assertions...");
+            LOGGER.info("Generating assertions...");
             return testCases.stream()
                     .map(ctMethod -> this.buildTestWithAssert(ctMethod, observations))
                     .collect(Collectors.toList());

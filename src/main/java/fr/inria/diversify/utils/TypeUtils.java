@@ -1,7 +1,7 @@
 package fr.inria.diversify.utils;
 
-import fr.inria.diversify.util.Log;
-import spoon.reflect.reference.CtArrayTypeReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.reference.CtTypeReference;
 
 import java.util.*;
@@ -13,6 +13,8 @@ import java.util.*;
  */
 @SuppressWarnings("unchecked")
 public class TypeUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TypeUtils.class);
 
     private final static Set<Class<?>> WRAPPER_TYPES;
 
@@ -83,7 +85,7 @@ public class TypeUtils {
 		try {
 			return String.class.isAssignableFrom(type.getActualClass());
 		} catch (Exception ignored) {
-			Log.warn("Error during check isString on " + type);
+            LOGGER.warn("Error during check isString on {}", type.toString());
 		}
 		return false;
 	}

@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.selector.json.mutant.MutantJSON;
@@ -14,9 +13,11 @@ import fr.inria.diversify.dspot.selector.json.mutant.TestClassJSON;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.util.Log;
 import fr.inria.diversify.utils.DSpotUtils;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.stamp.coverage.JacocoExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -30,6 +31,8 @@ import java.util.stream.Collectors;
  * on 1/5/17
  */
 public class PitMutantScoreSelector extends TakeAllSelector {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JacocoExecutor.class);
 
     private int numberOfMutant;
 
@@ -68,7 +71,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         this.originalKilledMutants = results.stream()
                 .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
                 .collect(Collectors.toList());
-        Log.debug("The original test suite kill {} / {}", this.originalKilledMutants.size(), results.size());
+        LOGGER.debug("The original test suite kill {} / {}", this.originalKilledMutants.size(), results.size());
     }
 
     @Override
@@ -113,9 +116,9 @@ public class PitMutantScoreSelector extends TakeAllSelector {
 
         Set<CtMethod<?>> selectedTests = new HashSet<>();
         if (results != null) {
-            Log.debug("{} mutants has been generated ({})", results.size(), this.numberOfMutant);
+            LOGGER.debug("{} mutants has been generated ({})", results.size(), this.numberOfMutant);
             if (results.size() != this.numberOfMutant) {
-                Log.warn("Number of generated mutant is different than the original one.");
+                LOGGER.warn("Number of generated mutant is different than the original one.");
             }
             results.stream()
                     .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED &&
@@ -140,7 +143,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         this.selectedAmplifiedTest.addAll(selectedTests);
 
         selectedTests.forEach(selectedTest ->
-                Log.debug("{} kills {} more mutants",
+                LOGGER.debug("{} kills {} more mutants",
                         selectedTest == null ?
                                 this.currentClassTestToBeAmplified.getSimpleName() : selectedTest.getSimpleName(),
                         this.testThatKilledMutants.containsKey(selectedTest) ?

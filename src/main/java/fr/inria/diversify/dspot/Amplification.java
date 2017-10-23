@@ -5,29 +5,25 @@ import fr.inria.diversify.dspot.assertGenerator.AssertGenerator;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.dspot.support.TestCompiler;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.util.Log;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
-import spoon.reflect.code.CtInvocation;
-import spoon.reflect.code.CtLiteral;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
-import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 /**
@@ -37,10 +33,16 @@ import java.util.stream.Stream;
  */
 public class Amplification {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(Amplification.class);
+
 	private InputConfiguration configuration;
+
 	private List<Amplifier> amplifiers;
+
 	private TestSelector testSelector;
+
 	private AssertGenerator assertGenerator;
+
 	private DSpotCompiler compiler;
 
 	private static int ampTestCount;
@@ -62,11 +64,11 @@ public class Amplification {
 				.filter(mth -> AmplificationChecker.isTest(mth, this.configuration.getInputProgram().getRelativeTestSourceCodeDir()))
 				.collect(Collectors.toList());
 		if (tests.isEmpty()) {
-			Log.warn("No test has been found into {}", classTest.getQualifiedName());
+			LOGGER.warn("No test has been found into {}", classTest.getQualifiedName());
 			return;
 		}
 
-		Log.info("amplification of {} ({} test)", classTest.getQualifiedName(), tests.size());
+		LOGGER.info("amplification of {} ({} test)", classTest.getQualifiedName(), tests.size());
 		testSelector.reset();
 		List<CtMethod<?>> ampTest = new ArrayList<>();
 
@@ -75,7 +77,7 @@ public class Amplification {
 
 		for (int i = 0; i < tests.size(); i++) {
 			CtMethod test = tests.get(i);
-			Log.debug("amp {} ({}/{})", test.getSimpleName(), i + 1, tests.size());
+			LOGGER.debug("amp {} ({}/{})", test.getSimpleName(), i + 1, tests.size());
 			testSelector.reset();
 			TestListener result = compileAndRunTests(classTest, Collections.singletonList(tests.get(i)));
 			if (result != null) {
@@ -84,7 +86,10 @@ public class Amplification {
 					updateAmplifiedTestList(ampTest,
 							amplification(classTest, test, maxIteration));
 				} else {
-					Log.debug("{} / {} test cases failed!", result.getFailingTests().size(), result.getRunningTests().size());
+					LOGGER.debug("{} / {} test cases failed!",
+							result.getFailingTests().size(),
+							result.getRunningTests().size()
+					);
 				}
 			}
 		}
@@ -97,13 +102,16 @@ public class Amplification {
 		List<CtMethod<?>> amplifiedTests = new ArrayList<>();
 
 		for (int i = 0; i < maxIteration; i++) {
-			Log.debug("iteration {}:", i);
+			LOGGER.debug("iteration {}:", i);
 			List<CtMethod<?>> testToBeAmplified = testSelector.selectToAmplify(currentTestList);
 			if (testToBeAmplified.isEmpty()) {
-				Log.debug("No test could be generated from selected test");
+				LOGGER.debug("No test could be generated from selected test");
 				continue;
 			}
-			Log.debug("{} tests selected to be amplified over {} available tests", testToBeAmplified.size(), currentTestList.size());
+			LOGGER.debug("{} tests selected to be amplified over {} available tests",
+					testToBeAmplified.size(),
+					currentTestList.size()
+			);
 
 			currentTestList = AmplificationHelper.reduce(amplifyTests(testToBeAmplified));
 			List<CtMethod<?>> testWithAssertions = assertGenerator.generateAsserts(classTest, currentTestList);
@@ -116,7 +124,7 @@ public class Amplification {
 			if (result == null) {
 				continue;
 			} else if (!result.getFailingTests().isEmpty()) {
-				Log.warn("Discarding failing test cases");
+				LOGGER.warn("Discarding failing test cases");
 				final Set<String> failingTestCase = result.getFailingTests().stream()
 						.map(Failure::getDescription)
 						.map(Description::getMethodName)
@@ -126,7 +134,7 @@ public class Amplification {
 						.collect(Collectors.toList());
 			}
 			currentTestList = AmplificationHelper.filterTest(currentTestList, result);
-			Log.debug("{} test method(s) has been successfully generated", currentTestList.size());
+			LOGGER.debug("{} test method(s) has been successfully generated", currentTestList.size());
 			amplifiedTests.addAll(testSelector.selectToKeep(currentTestList));
 		}
 		return amplifiedTests;
@@ -135,23 +143,23 @@ public class Amplification {
 	private void updateAmplifiedTestList(List<CtMethod<?>> ampTest, List<CtMethod<?>> amplification) {
 		ampTest.addAll(amplification);
 		ampTestCount += amplification.size();
-		Log.debug("total amp test: {}, global: {}", amplification.size(), ampTestCount);
+		LOGGER.debug("total amp test: {}, global: {}", amplification.size(), ampTestCount);
 	}
 
 	private List<CtMethod<?>> preAmplification(CtType classTest, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
 		TestListener result = compileAndRunTests(classTest, tests);
 		if (result == null) {
-			Log.warn("Need a green test suite to run dspot");
+			LOGGER.warn("Need a green test suite to run dspot");
 			return Collections.emptyList();
 		}
 		if (!result.getFailingTests().isEmpty()) {
-			Log.warn("{} tests failed before the amplifications", result.getFailingTests().size());
+			LOGGER.warn("{} tests failed before the amplifications", result.getFailingTests().size());
 
-			Log.warn("{}", result.getFailingTests().stream()
+			LOGGER.warn("{}", result.getFailingTests().stream()
 					.map(Object::toString)
 					.collect(Collectors.joining(System.getProperty("line.separator")))
 			);
-			Log.warn("Discarding following test cases for the amplification");
+			LOGGER.warn("Discarding following test cases for the amplification");
 
 			result.getFailingTests().stream()
 					.map(Failure::getDescription)
@@ -162,7 +170,7 @@ public class Amplification {
 									.filter(m -> failure.equals(m.getSimpleName()))
 									.findFirst().get();
 							tests.remove(tests.indexOf(testToRemove));
-							Log.warn("{}", testToRemove.getSimpleName());
+							LOGGER.warn("{}", testToRemove.getSimpleName());
 						} catch (Exception ignored) {
 							//ignored
 						}
@@ -170,12 +178,12 @@ public class Amplification {
 			return preAmplification(classTest, tests);
 		} else {
 			testSelector.update();
-			Log.debug("Try to add assertions before amplification");
+			LOGGER.debug("Try to add assertions before amplification");
 			final List<CtMethod<?>> amplifiedTestToBeKept = assertGenerator.generateAsserts(
 					classTest, testSelector.selectToAmplify(tests));
 			result = compileAndRunTests(classTest, amplifiedTestToBeKept);
 			if (result == null) {
-				Log.warn("Need a green test suite to run dspot");
+				LOGGER.warn("Need a green test suite to run dspot");
 				return Collections.emptyList();
 			}
 			testSelector.selectToKeep(amplifiedTestToBeKept);
@@ -184,7 +192,7 @@ public class Amplification {
 	}
 
 	private List<CtMethod<?>> amplifyTests(List<CtMethod<?>> tests) {
-		Log.info("Amplification of inputs...");
+		LOGGER.info("Amplification of inputs...");
 		List<CtMethod<?>> amplifiedTests = tests.stream()
 				.flatMap(test -> {
 					DSpotUtils.printProgress(tests.indexOf(test), tests.size());
@@ -192,7 +200,7 @@ public class Amplification {
 				})
 				.filter(test -> test != null && !test.getBody().getStatements().isEmpty())
 				.collect(Collectors.toList());
-		Log.debug("{} new tests generated", amplifiedTests.size());
+		LOGGER.debug("{} new tests generated", amplifiedTests.size());
 		return amplifiedTests;
 	}
 
@@ -230,7 +238,7 @@ public class Amplification {
 						numberOfSubClasses != result.getRunningTests().size())) {
 			return null;
 		} else {
-			Log.debug("update test testCriterion");
+			LOGGER.debug("update test testCriterion");
 			testSelector.update();
 			return result;
 		}

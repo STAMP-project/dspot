@@ -2,20 +2,18 @@ package fr.inria.diversify.dspot.selector;
 
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.FileUtils;
-import fr.inria.diversify.util.InitUtils;
 import fr.inria.diversify.utils.DSpotUtils;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.test.launcher.TestLauncher;
 import fr.inria.stamp.test.listener.TestListener;
+import org.codehaus.plexus.util.FileUtils;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 /**
@@ -35,7 +33,7 @@ public class ChangeDetectorSelector extends TakeAllSelector {
 		InputConfiguration inputConfiguration = null;
 		try {
 			inputConfiguration = new InputConfiguration(configurationPath);
-			InputProgram inputProgram = InitUtils.initInputProgram(inputConfiguration);
+			InputProgram inputProgram = InputConfiguration.initInputProgram(inputConfiguration);
 			inputConfiguration.setInputProgram(inputProgram);
 			inputProgram.setProgramDir(pathToFolder);
 			String dependencies = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration)

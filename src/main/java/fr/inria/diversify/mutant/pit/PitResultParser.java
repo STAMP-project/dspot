@@ -1,6 +1,6 @@
 package fr.inria.diversify.mutant.pit;
 
-import fr.inria.diversify.util.FileUtils;
+import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
