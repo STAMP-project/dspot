@@ -21,8 +21,8 @@ public class AssertBuilder {
 	static List<CtStatement> buildAssert(Factory factory, Set<String> notDeterministValues, Map<String, Object> observations) {
 		return observations.keySet().stream()
 				.filter(key -> !notDeterministValues.contains(key))
-				.filter(key -> !(observations.get(key) instanceof Float ||
-						observations.get(key) instanceof Double))
+				/*.filter(key -> !(observations.get(key) instanceof Float ||
+						observations.get(key) instanceof Double))*/ // TODO why this predicate has been introduced?
 				.collect(ArrayList<CtStatement>::new,
 						(expressions, key) -> {
 							Object value = observations.get(key);

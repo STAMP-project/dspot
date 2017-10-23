@@ -1,13 +1,13 @@
 package fr.inria.stamp;
 
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
 import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.utils.DSpotUtils;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.diversify.utils.sosiefier.InputProgram;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Collections;
@@ -20,9 +20,11 @@ import java.util.List;
  */
 public class Main {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+
     public static boolean verbose = false;
 
-    public static void main(String[] args) throws InvalidSdkException, Exception {
+    public static void main(String[] args) throws Exception {
         final Configuration configuration = JSAPOptions.parse(args);
         if (configuration == null) {
             Main.runExample();
@@ -31,7 +33,7 @@ public class Main {
         }
     }
 
-    public static void run(Configuration configuration) throws InvalidSdkException, Exception {
+    public static void run(Configuration configuration) throws Exception {
         InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
         AmplificationHelper.setSeedRandom(23L);
         InputProgram program = new InputProgram();
@@ -116,7 +118,7 @@ public class Main {
                     new JacocoCoverageSelector()
             );
             dSpot.amplifyTest("example.TestSuiteExample");
-        } catch (Exception | InvalidSdkException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

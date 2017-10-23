@@ -1,7 +1,6 @@
 package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.Utils;
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.AbstractTest;
 import org.junit.Test;
@@ -21,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 public class TestMethodCallAdderTest extends AbstractTest {
 
     @Test
-    public void testMethodCallAddAll() throws Exception, InvalidSdkException {
+    public void testMethodCallAddAll() throws Exception {
 
         /*
             Test that we reuse method call in a test for each used method in the test.
@@ -50,7 +49,7 @@ public class TestMethodCallAdderTest extends AbstractTest {
     }
 
     @Test
-    public void testMethodCallAddRandom() throws Exception, InvalidSdkException {
+    public void testMethodCallAddRandom() throws Exception {
 
           /*
             Test that we duplicate method call in a test for each used method in the test.

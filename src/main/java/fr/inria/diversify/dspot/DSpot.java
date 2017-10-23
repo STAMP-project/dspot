@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
@@ -12,14 +11,15 @@ import fr.inria.diversify.dspot.support.json.ClassTimeJSON;
 import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.dspot.support.json.ProjectTimeJSON;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.FileUtils;
-import fr.inria.diversify.util.Log;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.Initializer;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.diversify.utils.sosiefier.InputProgram;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
@@ -27,6 +27,7 @@ import spoon.reflect.declaration.ModifierKind;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -40,12 +41,15 @@ import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
  */
 public class DSpot {
 
-    private List<Amplifier> amplifiers;
-	private int numberOfIterations;
-	private TestSelector testSelector;
-	public InputProgram inputProgram;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DSpot.class);
 
-	private List<String> testResources;
+    private List<Amplifier> amplifiers;
+
+	private int numberOfIterations;
+
+	private TestSelector testSelector;
+
+	public InputProgram inputProgram;
 
 	private InputConfiguration inputConfiguration;
 
@@ -53,46 +57,28 @@ public class DSpot {
 
 	private ProjectTimeJSON projectTimeJSON;
 
-	public DSpot(InputConfiguration inputConfiguration) throws InvalidSdkException, Exception {
-		this(inputConfiguration, 3, Arrays.asList(
-				new TestDataMutator(),
-				new TestMethodCallAdder(),
-				new TestMethodCallRemover(),
-				new StatementAdderOnAssert(),
-				new StatementAdd(inputConfiguration.getProperty("filter"))),
-				new BranchCoverageTestSelector(10));
+	public DSpot(InputConfiguration inputConfiguration) throws Exception {
+		this(inputConfiguration, 3, Collections.emptyList(), new BranchCoverageTestSelector(10));
 	}
 
-	public DSpot(InputConfiguration configuration, int numberOfIterations) throws InvalidSdkException, Exception {
-		this(configuration, numberOfIterations, Arrays.asList(
-				new TestDataMutator(),
-				new TestMethodCallAdder(),
-				new TestMethodCallRemover(),
-				new StatementAdderOnAssert(),
-				new StatementAdd(configuration.getProperty("filter")))
-		);
+	public DSpot(InputConfiguration configuration, int numberOfIterations) throws Exception {
+		this(configuration, numberOfIterations, Collections.emptyList());
 	}
 
-	public DSpot(InputConfiguration configuration, TestSelector testSelector) throws InvalidSdkException, Exception {
-		this(configuration, 3, Arrays.asList(
-				new TestDataMutator(),
-				new TestMethodCallAdder(),
-				new TestMethodCallRemover(),
-				new StatementAdderOnAssert(),
-				new StatementAdd(configuration.getProperty("filter"))), testSelector);
+	public DSpot(InputConfiguration configuration, TestSelector testSelector) throws Exception {
+		this(configuration, 3, Collections.emptyList(), testSelector);
 	}
 
-	public DSpot(InputConfiguration configuration, List<Amplifier> amplifiers) throws InvalidSdkException, Exception {
+	public DSpot(InputConfiguration configuration, List<Amplifier> amplifiers) throws Exception {
 		this(configuration, 3, amplifiers);
 	}
 
-	public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers) throws InvalidSdkException, Exception {
+	public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers) throws Exception {
 		this(inputConfiguration, numberOfIterations, amplifiers, new BranchCoverageTestSelector(10));
 	}
 
-    public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws InvalidSdkException, Exception {
+    public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws Exception {
 		Initializer.initialize(inputConfiguration, testSelector instanceof BranchCoverageTestSelector);
-        this.testResources = new ArrayList<>();
         this.inputConfiguration = inputConfiguration;
         this.inputProgram = inputConfiguration.getInputProgram();
 
@@ -183,12 +169,12 @@ public class DSpot {
             long time = System.currentTimeMillis();
             testAmplification.amplification(test, methods, numberOfIterations);
             final long elapsedTime = System.currentTimeMillis() - time;
-            Log.debug("elapsedTime {}", elapsedTime);
+            LOGGER.debug("elapsedTime {}", elapsedTime);
             this.projectTimeJSON.add(new ClassTimeJSON(test.getQualifiedName(), elapsedTime));
             testSelector.report();
             final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
             CtType<?> amplification = AmplificationHelper.createAmplifiedTest(testSelector.getAmplifiedTestCases(), test);
-            Log.info("Print {} with {} amplified test cases in {}",  amplification.getSimpleName() ,
+            LOGGER.info("Print {} with {} amplified test cases in {}",  amplification.getSimpleName() ,
                     testSelector.getAmplifiedTestCases().size(), this.inputConfiguration.getOutputDirectory());
             DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory);
 			FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());

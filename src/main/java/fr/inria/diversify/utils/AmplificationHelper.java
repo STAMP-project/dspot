@@ -1,10 +1,12 @@
 package fr.inria.diversify.utils;
 
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.Log;
+import fr.inria.diversify.utils.sosiefier.InputProgram;
+import fr.inria.stamp.Main;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Description;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtComment;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
@@ -28,13 +30,22 @@ import java.util.stream.IntStream;
  */
 public class AmplificationHelper {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AmplificationHelper.class);
+
     public static final String PATH_SEPARATOR = System.getProperty("path.separator");
 
+    public static final String LINE_SEPARATOR = System.getProperty("line.separator");
+
     private static int cloneNumber = 1;
+
     private static Map<CtMethod, CtMethod> ampTestToParent = new HashMap<>();
+
     private static Map<CtMethod, CtMethod> tmpAmpTestToParent = new HashMap<>();
+
     private static Map<CtType, Set<CtType>> importByClass = new HashMap<>();
+
     private static Random random = new Random();
+
     private static int timeOutInMs = 10000;
 
     public static void setTimeOutInMs(int newTimeOutInMs) {
@@ -227,10 +238,10 @@ public class AmplificationHelper {
 
     public static List<CtMethod<?>> reduce(List<CtMethod<?>> newTests) {
         if (newTests.size() > MAX_NUMBER_OF_TESTS) {
-            Log.warn("Too many tests has been generated: {}", newTests.size());
+            LOGGER.warn("Too many tests has been generated: {}", newTests.size());
             Collections.shuffle(newTests, AmplificationHelper.getRandom());
             newTests = newTests.subList(0, MAX_NUMBER_OF_TESTS);
-            Log.debug("Number of generated test reduced to {}", MAX_NUMBER_OF_TESTS);
+            LOGGER.debug("Number of generated test reduced to {}", MAX_NUMBER_OF_TESTS);
         }
         ampTestToParent.putAll(newTests.stream()
                 .collect(HashMap::new,

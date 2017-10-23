@@ -1,10 +1,9 @@
 package fr.inria.diversify.dspot.selector;
 
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.amplifier.StatementAdd;
-import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.diversify.utils.AmplificationHelper;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import spoon.reflect.declaration.CtType;
@@ -21,7 +20,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class TakeAllSelectorTest {
 	@Test
-	public void test() throws Exception, InvalidSdkException {
+	public void test() throws Exception {
 
 		try {
 			FileUtils.deleteDirectory(new File("target/trash"));

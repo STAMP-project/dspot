@@ -4,7 +4,6 @@ import fr.inria.diversify.Utils;
 import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
-import fr.inria.diversify.runner.InputConfiguration;
 import fr.inria.stamp.Main;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -107,7 +106,7 @@ public class MavenAutomaticBuilderTest {
 
         final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir() + Utils.getBuilder().getOutputDirectoryPit());
 
-        assertEquals(9, pitResults.size());
+        assertEquals(31, pitResults.size());
     }
 
     @Test

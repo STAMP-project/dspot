@@ -1,20 +1,15 @@
 package fr.inria.diversify.dspot.amplifier.value;
 
 import fr.inria.diversify.Utils;
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.AbstractTest;
-import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.utils.AmplificationHelper;
 import org.junit.Test;
-import spoon.Launcher;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -42,7 +37,7 @@ public class TestValueCreator extends AbstractTest {
 	}
 
 	@Test
-	public void testCreateRandomLocalVar() throws Exception, InvalidSdkException {
+	public void testCreateRandomLocalVar() throws Exception {
 
         /*
 			Test the value created randomly by the value creator.
@@ -77,7 +72,7 @@ public class TestValueCreator extends AbstractTest {
 	}
 
 	@Test
-	public void testCreateNull() throws Exception, InvalidSdkException {
+	public void testCreateNull() throws Exception {
 		/*
 			Test the value created randomly by the value creator.
                 - one primitive

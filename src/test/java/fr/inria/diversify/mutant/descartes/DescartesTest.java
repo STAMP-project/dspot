@@ -1,6 +1,6 @@
 package fr.inria.diversify.mutant.descartes;
 
-import fr.inria.diversify.util.FileUtils;
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import java.io.BufferedReader;

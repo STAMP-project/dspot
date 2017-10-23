@@ -1,9 +1,10 @@
 package fr.inria.diversify.automaticbuilder;
 
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.util.Log;
 
-import java.util.function.Predicate;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.stamp.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by Daniele Gagliardi
@@ -11,6 +12,8 @@ import java.util.function.Predicate;
  * on 14/07/17.
  */
 public class AutomaticBuilderFactory {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(AutomaticBuilderFactory.class);
 
 	private static AutomaticBuilder automaticBuilder = null;
 
@@ -25,18 +28,18 @@ public class AutomaticBuilderFactory {
 		if (automaticBuilder == null) {
 			String builderType = configuration.getProperty("automaticBuilderName");
 			if (builderType == null) {
-				Log.warn("No automatic builder specified in configuration, going to default.");
-				Log.debug("Default: provided Maven automatic builder.");
+				LOGGER.warn("No automatic builder specified in configuration, going to default.");
+				LOGGER.debug("Default: provided Maven automatic builder.");
 				automaticBuilder = new MavenAutomaticBuilder(configuration);
 			} else if (builderType.toUpperCase().contains("GRADLE")) {
-				Log.debug("Selected Gradle automatic builder.");
+				LOGGER.debug("Selected Gradle automatic builder.");
 				automaticBuilder = new GradleAutomaticBuilder(configuration);
 			} else if (builderType.toUpperCase().contains("MAVEN")) {
-				Log.debug("Selected Maven automatic builder.");
+				LOGGER.debug("Selected Maven automatic builder.");
 				automaticBuilder = new MavenAutomaticBuilder(configuration);
 			} else {
-				Log.warn(builderType + ": unknown automatic builder specified in configuration, going to default.");
-				Log.debug("Default: provided Maven automatic builder.");
+				LOGGER.warn(builderType + ": unknown automatic builder specified in configuration, going to default.");
+				LOGGER.debug("Default: provided Maven automatic builder.");
 				automaticBuilder = new MavenAutomaticBuilder(configuration);
 			}
 		}

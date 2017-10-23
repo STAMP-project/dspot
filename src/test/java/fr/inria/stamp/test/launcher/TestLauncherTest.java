@@ -1,22 +1,18 @@
 package fr.inria.stamp.test.launcher;
 
-import fr.inria.diversify.dspot.support.TestCompiler;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.utils.AmplificationHelper;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.test.listener.TestListener;
 import org.apache.commons.io.FileUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtMethod;
 
 import java.io.File;
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

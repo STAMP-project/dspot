@@ -2,32 +2,28 @@ package fr.inria.diversify.automaticbuilder;
 
 import fr.inria.diversify.mutant.descartes.DescartesChecker;
 import fr.inria.diversify.mutant.descartes.DescartesInjector;
-import fr.inria.diversify.mutant.pit.GradlePitTaskAndOptions;
 import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
-import fr.inria.diversify.mutant.pit.PitResult;
-import fr.inria.diversify.mutant.pit.PitResultParser;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.util.FileUtils;
-import fr.inria.diversify.util.Log;
+import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.Main;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.reference.CtTypeReference;
 
 import java.io.*;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
 import static fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions.*;
-import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
 
 /**
  * Created by Benjamin DANGLOT
@@ -35,6 +31,8 @@ import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
  * on 09/07/17.
  */
 public class MavenAutomaticBuilder implements AutomaticBuilder {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(MavenAutomaticBuilder.class);
 
 	private InputConfiguration configuration;
 
@@ -200,7 +198,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
 		Invoker invoker = new DefaultInvoker();
 		invoker.setMavenHome(new File(this.mavenHome));
-		Log.info("run maven {}", Arrays.stream(goals).collect(Collectors.joining(" ")));
+		LOGGER.info(String.format("run maven %s", Arrays.stream(goals).collect(Collectors.joining(" "))));
 		if (Main.verbose) {
 			invoker.setOutputHandler(System.out::println);
 			invoker.setErrorHandler(System.err::println);

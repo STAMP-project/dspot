@@ -1,9 +1,8 @@
 package fr.inria.stamp;
 
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.util.FileUtils;
 import fr.inria.diversify.utils.DSpotUtils;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +47,7 @@ public class MainTest {
     }
 
     @Test
-    public void testOnProjectWithResources() throws Exception, InvalidSdkException {
+    public void testOnProjectWithResources() throws Exception {
         Main.main(new String[] {
             "--verbose",
             "--path-to-properties", "src/test/resources/project-with-resources/project-with-resources.properties",
@@ -58,7 +57,7 @@ public class MainTest {
     }
 
     @Test
-    public void testDefaultModeIsNoneAmplifier() throws Exception, InvalidSdkException {
+    public void testDefaultModeIsNoneAmplifier() throws Exception {
         Main.main(new String[] {
                 "--verbose",
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
@@ -79,7 +78,7 @@ public class MainTest {
     }
 
     @Test
-    public void testNoneAmplifier() throws Exception, InvalidSdkException {
+    public void testNoneAmplifier() throws Exception {
         Main.main(new String[] {
                 "--verbose",
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
@@ -109,7 +108,7 @@ public class MainTest {
             "89.19%\n";
 
     @Test
-    public void testExample() throws Exception, InvalidSdkException {
+    public void testExample() throws Exception {
         Main.main(new String[]{"--verbose", "--example"});
         final File reportFile = new File("target/trash/example.TestSuiteExample_jacoco_instr_coverage_report.txt");
         assertTrue(reportFile.exists());
@@ -124,11 +123,11 @@ public class MainTest {
     }
 
     @Test
-    public void testTwoClasses() throws Exception, InvalidSdkException {
+    public void testTwoClasses() throws Exception {
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdd",
                 "--iteration", "1",
                 "--randomSeed", "72",
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
@@ -153,7 +152,7 @@ public class MainTest {
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdd",
                 "--iteration", "1",
                 "--randomSeed", "72",
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
@@ -178,7 +177,7 @@ public class MainTest {
             "======= REPORT =======" + nl +
             "Initial instruction coverage: 33 / 37" + nl +
             "89" + DECIMAL_SEPARATOR + "19%" + nl +
-            "Amplification results with 6 amplified tests." + nl +
+            "Amplification results with 5 amplified tests." + nl +
             "Amplified instruction coverage: 37 / 37" + nl +
             "100" + DECIMAL_SEPARATOR + "00%" + nl;
 
@@ -187,7 +186,7 @@ public class MainTest {
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdd",
                 "--iteration", "1",
                 "--randomSeed", "72",
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
@@ -216,7 +215,7 @@ public class MainTest {
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdd",
                 "--iteration", "1",
                 "--randomSeed", "72",
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
@@ -241,7 +240,7 @@ public class MainTest {
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdderOnAssert",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdd",
                 "--iteration", "1",
                 "--randomSeed", "72",
                 "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
@@ -273,7 +272,7 @@ public class MainTest {
             "======= REPORT =======" + nl +
             "Initial instruction coverage: 33 / 37" + nl +
             "89" + DECIMAL_SEPARATOR + "19%" + nl +
-            "Amplification results with 35 amplified tests." + nl +
+            "Amplification results with 31 amplified tests." + nl +
             "Amplified instruction coverage: 37 / 37" + nl +
             "100" + DECIMAL_SEPARATOR + "00%" + nl;
 

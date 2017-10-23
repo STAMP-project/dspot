@@ -1,10 +1,9 @@
 package fr.inria.diversify.dspot.resources;
 
 import fr.inria.diversify.Utils;
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.diversify.dspot.DSpot;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.test.launcher.TestLauncher;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.After;
@@ -40,7 +39,7 @@ public class DSpotAndResourcesTest {
 	//TODO we must implement a generic way to support resources, depending on where we launch dspot.
 	@Test
 	@Ignore
-	public void test() throws Exception, InvalidSdkException {
+	public void test() throws Exception {
 		final InputConfiguration inputConfiguration = new InputConfiguration("src/test/resources/sample/sample.properties");
 		final DSpot dSpot = new DSpot(inputConfiguration);
 		InputProgram program = dSpot.getInputProgram();

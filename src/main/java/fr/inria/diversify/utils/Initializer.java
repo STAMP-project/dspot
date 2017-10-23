@@ -3,11 +3,10 @@ package fr.inria.diversify.utils;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.processor.ProcessorUtil;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.FileUtils;
-import fr.inria.diversify.util.InitUtils;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.diversify.utils.sosiefier.InputProgram;
+import fr.inria.diversify.utils.sosiefier.ProcessorUtil;
+import org.apache.commons.io.FileUtils;
 import spoon.Launcher;
 import spoon.SpoonModelBuilder;
 
@@ -27,8 +26,7 @@ public class Initializer {
 	public static void initialize(InputConfiguration configuration, @Deprecated boolean isBranchCoverageSelector)
 			throws IOException, InterruptedException {
 		AutomaticBuilderFactory.reset();
-		InitUtils.initLogLevel(configuration);
-		InputProgram program = InitUtils.initInputProgram(configuration);
+		InputProgram program = InputConfiguration.initInputProgram(configuration);
 		program.setProgramDir(DSpotUtils.computeProgramDirectory.apply(configuration));
 		configuration.setInputProgram(program);
 		AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(configuration);
@@ -89,6 +87,8 @@ public class Initializer {
 			throw new RuntimeException("Error during compilation");
 		}
 	}
+
+
 
 
 

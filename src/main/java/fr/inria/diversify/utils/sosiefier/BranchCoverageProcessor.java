@@ -1,8 +1,5 @@
 package fr.inria.diversify.utils.sosiefier;
 
-import fr.inria.diversify.processor.ProcessorUtil;
-import fr.inria.diversify.processor.main.AbstractLoggingInstrumenter;
-import fr.inria.diversify.runner.InputProgram;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtConstructor;
 import spoon.reflect.declaration.CtExecutable;
@@ -23,6 +20,7 @@ import java.util.List;
  */
 @Deprecated
 public class BranchCoverageProcessor extends AbstractLoggingInstrumenter<CtExecutable> {
+
     List<String> methodsId;
     boolean addBodyBranch;
 

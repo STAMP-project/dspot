@@ -1,14 +1,14 @@
 package fr.inria.diversify.utils;
 
-import fr.inria.diversify.logger.Logger;
-import fr.inria.diversify.processor.main.AddBlockEverywhereProcessor;
-import fr.inria.diversify.runner.InputConfiguration;
-import fr.inria.diversify.runner.InputProgram;
+import fr.inria.diversify.utils.sosiefier.AddBlockEverywhereProcessor;
 import fr.inria.diversify.utils.sosiefier.BranchCoverageProcessor;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.Main;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFileFilter;
-import org.kevoree.log.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.Launcher;
 import spoon.compiler.Environment;
 import spoon.processing.Processor;
@@ -40,6 +40,8 @@ import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
  */
 public class DSpotUtils {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(DSpotUtils.class);
+
 	private static StringBuilder progress = new StringBuilder(60);
 
 	public static void printProgress(int done, int total) {
@@ -63,7 +65,7 @@ public class DSpotUtils {
 		try {
 			applyProcessor(factory, new AddBlockEverywhereProcessor(inputProgram));
 			BranchCoverageProcessor branchCoverageProcessor = new BranchCoverageProcessor(inputProgram, inputProgram.getProgramDir(), true);
-			branchCoverageProcessor.setLogger(Logger.class.getCanonicalName());
+			branchCoverageProcessor.setLogger(fr.inria.diversify.logger.Logger.class.getCanonicalName());
 			applyProcessor(factory, branchCoverageProcessor);
 			copyPackageFromResources(
 					"fr/inria/diversify/logger", "ClassObserver",
@@ -134,7 +136,6 @@ public class DSpotUtils {
 				}
 			}
 		}
-		Log.info("maven home found at {}", mavenHome);
 		return mavenHome;
 	}
 
@@ -210,7 +211,7 @@ public class DSpotUtils {
 	private static void copyFile(String pathToProgramDir, String pathToResourceToBeCopied, String pathDirectoryToCopy, File fileToBeCopied) {
 		try {
 			if(Main.verbose) {
-				Log.info("copy {} to {}", fileToBeCopied.getPath(), pathDirectoryToCopy + "/" +
+				LOGGER.info("copy {} to {}", fileToBeCopied.getPath(), pathDirectoryToCopy + "/" +
 						fileToBeCopied.getPath().substring(
 								pathToProgramDir.length() + pathToResourceToBeCopied.length()
 						)

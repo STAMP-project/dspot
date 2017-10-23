@@ -10,7 +10,8 @@ import fr.inria.diversify.dspot.selector.TakeAllSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.mutant.pit.GradlePitTaskAndOptions;
 import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
-import fr.inria.diversify.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,6 +25,8 @@ import java.util.stream.Collectors;
  * on 1/17/17
  */
 public class JSAPOptions {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(JSAPOptions.class);
 
 	public static final JSAP options = initJSAP();
 
@@ -65,7 +68,6 @@ public class JSAPOptions {
 		NumberLiteralAmplifier(new NumberLiteralAmplifier()),
 		MethodAdd(new TestMethodCallAdder()),
 		MethodRemove(new TestMethodCallRemover()),
-		StatementAdderOnAssert(new StatementAdderOnAssert()),
 		TestDataMutator(new TestDataMutator()),
 		StatementAdd(new StatementAdd()),
 		None(null);
@@ -97,8 +99,8 @@ public class JSAPOptions {
 		TestSelector testCriterion;
 		if (jsapConfig.getString("mutant") != null) {
 			if (!"PitMutantScoreSelector".equals(jsapConfig.getString("test-criterion"))) {
-				Log.warn("You specify a path to mutations.csv but you did not specified the right test-criterion");
-				Log.warn("Forcing the Selector to PitMutantScoreSelector");
+				LOGGER.warn("You specify a path to mutations.csv but you did not specified the right test-criterion");
+				LOGGER.warn("Forcing the Selector to PitMutantScoreSelector");
 			}
 			testCriterion = new PitMutantScoreSelector(jsapConfig.getString("mutant"));
 		} else {
@@ -176,7 +178,7 @@ public class JSAPOptions {
 		amplifiers.setStringParser(JSAP.STRING_PARSER);
 		amplifiers.setUsageName("Amplifier");
 		amplifiers.setDefault("None");
-		amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. Possible values: NumberLiteralAmplifier|MethodAdd|MethodRemove|StatementAdderOnAssert|TestDataMutator|StatementAdd|None");
+		amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. Possible values: NumberLiteralAmplifier | MethodAdd | MethodRemove | TestDataMutator | StatementAdd | None");
 
 		FlaggedOption iteration = new FlaggedOption("iteration");
 		iteration.setDefault("3");

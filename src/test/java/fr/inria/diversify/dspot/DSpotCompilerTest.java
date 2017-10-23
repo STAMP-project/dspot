@@ -3,8 +3,8 @@ package fr.inria.diversify.dspot;
 import fr.inria.diversify.dspot.amplifier.Amplifier;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.dspot.support.TestCompiler;
-import fr.inria.diversify.runner.InputProgram;
-import fr.inria.diversify.util.FileUtils;
+import fr.inria.diversify.utils.sosiefier.InputProgram;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.code.CtCodeSnippetStatement;
@@ -31,7 +31,7 @@ public class DSpotCompilerTest {
 
     @Before
     public void setUp() throws Exception {
-        org.apache.commons.io.FileUtils.forceDelete(new File("target/dspot/tmp_test_sources/"));
+        FileUtils.forceDelete(new File("target/dspot/tmp_test_sources/"));
     }
 
     @Test
