@@ -31,13 +31,13 @@ public class MavenPitCommandAndOptions {
 
     public static final String OPT_EXCLUDED_CLASSES = "-D" + PROPERTY_EXCLUDED_CLASSES + "=";
 
-    public static final String OPT_MUTATION_ENGINE_DESCARTES  = "-DmutationEngines=descartes";
+    public static final String OPT_MUTATION_ENGINE_DESCARTES = "-DmutationEngines=descartes";
 
     public static final String OPT_MUTATION_ENGINE_DEFAULT = "-DmutationEngines=gregor";
 
     public static final String CMD_PIT_MUTATION_COVERAGE = "org.pitest:pitest-maven:mutationCoverage";
 
-    public static final String OPT_VALUE_TIMEOUT =  "-DtimeoutConst=10000";
+    public static final String OPT_VALUE_TIMEOUT = "-DtimeoutConst=10000";
 
     public static final String OPT_VALUE_MEMORY = "-DjvmArgs=16G";
 
@@ -45,7 +45,8 @@ public class MavenPitCommandAndOptions {
 
     public static final String VALUE_MUTATORS_ALL = "ALL";
 
-    public static final String[] VALUE_MUTATORS_EVOSUITE = new String[]{"VOID_METHOD_CALLS",
+    public static final String[] VALUE_MUTATORS_EVOSUITE = new String[]{
+            "VOID_METHOD_CALLS",
             "NON_VOID_METHOD_CALLS",
             "EXPERIMENTAL_MEMBER_VARIABLE",
             "INCREMENTS",
@@ -53,7 +54,35 @@ public class MavenPitCommandAndOptions {
             "MATH",
             "NEGATE_CONDITIONALS",
             "CONDITIONALS_BOUNDARY",
-            "INLINE_CONSTS"};
+            "INLINE_CONSTS"
+    };
+
+    /**
+     * Mutant operator copied from dhell
+     */
+    public static final String[] VALUE_MUTATORS_DESCARTES = new String[]{
+            "void",
+            "null",
+            "true",
+            "false",
+            "empty",
+            "0",
+            "1",
+            "(byte)0",
+            "(byte)1",
+            "(short)1",
+            "(short)2",
+            "0L",
+            "1L",
+            "0.0",
+            "1.0",
+            "0.0f",
+            "1.0f",
+            "\'\40\'",
+            "\'A\'",
+            "\"\"",
+            "\"A\"",
+    };
 
     public static final String OUTPUT_DIRECTORY_PIT = "target/pit-reports/";
 }

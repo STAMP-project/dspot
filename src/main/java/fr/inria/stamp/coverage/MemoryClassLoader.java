@@ -35,14 +35,13 @@ public class MemoryClassLoader extends URLClassLoader {
 		}
 
 		@Override
-		protected Class<?> loadClass(final String name, final boolean resolve)
+		public Class<?> loadClass(final String name)
 				throws ClassNotFoundException {
 			final byte[] bytes = definitions.get(name);
 			if (bytes != null) {
-				final Class<?> aClass = defineClass(name, bytes, 0, bytes.length);
-				return aClass;
+				return defineClass(name, bytes, 0, bytes.length);
 			}
-			return super.loadClass(name, resolve);
+			return super.loadClass(name, false);
 		}
 
 	}

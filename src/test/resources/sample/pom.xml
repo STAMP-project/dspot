@@ -14,15 +14,6 @@
             <groupId>junit</groupId>
             <version>4.11</version>
         </dependency>
-        
-        <!--<dependency>
-            <artifactId>fr.inria</artifactId>
-            <groupId>sample</groupId>
-            <scope>system</scope>
-             <version>1.0</version>
-            <systemPath>${basedir}/sample-1.0.jar</systemPath>
-        </dependency>-->
-
     </dependencies>
 
 </project>

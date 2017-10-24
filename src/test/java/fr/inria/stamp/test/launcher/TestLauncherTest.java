@@ -49,7 +49,6 @@ public class TestLauncherTest {
 		final CtClass<?> jmockitTest = Utils.findClass("org.baeldung.mocks.jmockit.LoginControllerIntegrationTest");
 
 		TestListener run = TestLauncher.run(Utils.getInputConfiguration(), classpath, jmockitTest);
-		// TODO must fix it:
 		assertEquals(7, run.getRunningTests().size());
 		assertEquals(7, run.getPassingTests().size());
 		assertEquals(0, run.getFailingTests().size());
@@ -87,6 +86,36 @@ public class TestLauncherTest {
 
 	@Test
 	public void testOnMockito() throws Exception {
+
+		/*
+			Runner is able to run all kind of test
+		 */
+
+		try {
+			FileUtils.deleteDirectory(new File("src/test/resources/mockito/target/"));
+		} catch (Exception ignored) {
+
+		}
+
+		Utils.reset();
+		Utils.init("src/test/resources/mockito/mockito.properties");
+		final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration())
+				.buildClasspath(Utils.getInputProgram().getProgramDir())
+				+ System.getProperty("path.separator")
+				+ Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getClassesDir()
+				+ System.getProperty("path.separator")
+				+ Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getTestClassesDir();
+
+		final CtClass<?> mockitoTest = Utils.findClass("info.sanaulla.dal.BookDALTest");
+
+		TestListener run = TestLauncher.run(Utils.getInputConfiguration(), classpath, mockitoTest);
+		assertEquals(5, run.getRunningTests().size());
+		assertEquals(4, run.getPassingTests().size());
+		assertEquals(1, run.getFailingTests().size());
+	}
+
+	@Test
+	public void testOnMockito2() throws Exception {
 
 		/*
 			Runner is able to run all kind of test

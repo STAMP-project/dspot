@@ -113,8 +113,9 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 									"," + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) : "") , //
 					descartesMode ? OPT_MUTATION_ENGINE_DESCARTES : OPT_MUTATION_ENGINE_DEFAULT,
 					OPT_MUTATORS + (evosuiteMode ?
-									Arrays.stream(VALUE_MUTATORS_EVOSUITE).collect(Collectors.joining(","))
-									: VALUE_MUTATORS_ALL), //
+									Arrays.stream(VALUE_MUTATORS_EVOSUITE).collect(Collectors.joining(",")) :
+									descartesMode ? Arrays.stream(VALUE_MUTATORS_DESCARTES).collect(Collectors.joining(",")) :
+								VALUE_MUTATORS_ALL), //
 					configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) != null ?
 							OPT_EXCLUDED_CLASSES + configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) :
 							""//
@@ -162,8 +163,9 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 					OPT_VALUE_MEMORY, //
 					descartesMode ? OPT_MUTATION_ENGINE_DESCARTES : OPT_MUTATION_ENGINE_DEFAULT,
 					OPT_MUTATORS + (evosuiteMode ?
-							Arrays.stream(VALUE_MUTATORS_EVOSUITE).collect(Collectors.joining(","))
-							: VALUE_MUTATORS_ALL), //
+							Arrays.stream(VALUE_MUTATORS_EVOSUITE).collect(Collectors.joining(",")) :
+							descartesMode ? Arrays.stream(VALUE_MUTATORS_DESCARTES).collect(Collectors.joining(",")) :
+									VALUE_MUTATORS_ALL), //
 					OPT_ADDITIONAL_CP_ELEMENTS + "target/dspot/dependencies/" +
 							(configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
 									"," + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) : "") , //

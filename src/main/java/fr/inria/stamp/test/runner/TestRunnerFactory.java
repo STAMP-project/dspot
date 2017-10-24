@@ -24,10 +24,10 @@ public class TestRunnerFactory {
 
     static {
         STRING_ARRAY_LIST.add("mockit");
-//        STRING_ARRAY_LIST.add("org.mockito");
+        //STRING_ARRAY_LIST.add("org.mockito");
     }
 
-    private static final Predicate<CtType<?>> containsSpecificAnnotation = testClass ->
+    public static final Predicate<CtType<?>> containsSpecificAnnotation = testClass ->
             !(testClass.getElements(
                     new TypeFilter<CtTypeReference>(CtTypeReference.class) {
                         @Override

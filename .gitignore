@@ -10,6 +10,7 @@ src/test/resources/mockito/log/
 src/test/resources/sample/log/
 src/test/resources/test-projects/log/
 src/test/resources/multiple-pom/log/
+src/test/resources/multiple-pom/module-1/module-2-1/log/
 
 
 
