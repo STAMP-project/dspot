@@ -4,6 +4,7 @@ import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.notification.RunListener;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -11,7 +12,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -20,6 +20,8 @@ import java.util.concurrent.TimeUnit;
 import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
 
 public class ReflectiveTestRunner extends AbstractTestRunner {
+
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ReflectiveTestRunner.class);
 
     ReflectiveTestRunner(URLClassLoader classLoader) {
         super(classLoader);
@@ -70,11 +72,15 @@ public class ReflectiveTestRunner extends AbstractTestRunner {
         }
     }
 
+    //TODO: implements a way to use additionalListeners
     @Override
-    public TestListener run(Class<?> classTest, Collection<String> testMethodNames) {
+    public TestListener run(Class<?> testClass, Collection<String> testMethodNames, RunListener... additionalListeners) {
+        if (additionalListeners.length != 0) {
+            LOGGER.warn("Additional listeners is not supported for ReflectiveTestRunner");
+        }
         ExecutorService executor = Executors.newSingleThreadExecutor();
         final Future<?> submit = executor.submit(() ->
-            runUsingReflection(classTest)
+            runUsingReflection(testClass)
         );
         try {
             Object listener = submit.get(10000000 * (testMethodNames.size() + 1),
@@ -90,18 +96,4 @@ public class ReflectiveTestRunner extends AbstractTestRunner {
         }
     }
 
-    @Override
-    public TestListener run(Class<?> classTest) {
-        return this.run(classTest, Collections.emptyList());
-    }
-
-    @Override
-    public TestListener run(Class<?> testClass, Collection<String> testMethodNames, RunListener additionalListener) {
-        throw new UnsupportedOperationException("Can not load additionnal listener from custom classloader: must be implemented"); // TODO
-    }
-
-    @Override
-    public TestListener run(Class<?> testClass, RunListener additionalListener) {
-        return this.run(testClass, Collections.emptyList(), additionalListener);
-    }
 }

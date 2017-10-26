@@ -52,6 +52,10 @@ public class AmplificationHelper {
         timeOutInMs = newTimeOutInMs;
     }
 
+    public static int getTimeOutInMs() {
+        return timeOutInMs;
+    }
+
     public static void setSeedRandom(long seed) {
         random = new Random(seed);
     }

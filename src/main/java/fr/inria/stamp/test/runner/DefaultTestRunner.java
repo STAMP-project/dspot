@@ -1,6 +1,7 @@
 package fr.inria.stamp.test.runner;
 
 import fr.inria.diversify.logger.Logger;
+import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.stamp.test.filter.MethodFilter;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Request;
@@ -8,11 +9,9 @@ import org.junit.runner.Runner;
 import org.junit.runner.notification.RunListener;
 import org.junit.runner.notification.RunNotifier;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.concurrent.*;
 
 /**
@@ -34,23 +33,26 @@ public class DefaultTestRunner extends AbstractTestRunner {
 		super(classpath);
 	}
 
-
 	@Override
-	public TestListener run(Class<?> classTest, Collection<String> testMethodNames) {
+	public TestListener run(Class<?> testClass, Collection<String> testMethodNames, RunListener... additionalListeners) {
 		ExecutorService executor = Executors.newSingleThreadExecutor();
-		final TestListener listener = new TestListener();
+		TestListener listener = new TestListener();
 		final Future<?> submit = executor.submit(() -> {
-			Request request = Request.aClass(classTest);
+			Request request = Request.aClass(testClass);
 			if (!testMethodNames.isEmpty()) {
 				request = request.filterWith(new MethodFilter(testMethodNames));
 			}
 			Runner runner = request.getRunner();
 			RunNotifier runNotifier = new RunNotifier();
+			Arrays.stream(additionalListeners).forEach(runNotifier::addListener);
 			runNotifier.addFirstListener(listener);
 			runner.run(runNotifier);
 		});
 		try {
-			submit.get(10000 * (testMethodNames.size() + 1), TimeUnit.MILLISECONDS);
+			long timeBeforeTimeOut = testMethodNames.isEmpty() ?
+					AmplificationHelper.getTimeOutInMs() * (testClass.getMethods().length + 1) :
+					AmplificationHelper.getTimeOutInMs() * (testMethodNames.size() + 1);
+			submit.get(timeBeforeTimeOut, TimeUnit.MILLISECONDS);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -62,39 +64,4 @@ public class DefaultTestRunner extends AbstractTestRunner {
 		return listener;
 	}
 
-	@Override
-	public TestListener run(Class<?> classTest) {
-		return this.run(classTest, Collections.emptyList());
-	}
-
-	@Override
-	public TestListener run(Class<?> testClass, Collection<String> testMethodNames, RunListener additionalListener) {
-		ExecutorService executor = Executors.newSingleThreadExecutor();
-		TestListener listener = new TestListener();
-		final Future<?> submit = executor.submit(() -> {
-			Request request = Request.aClass(testClass);
-			if (!testMethodNames.isEmpty()) {
-				request = request.filterWith(new MethodFilter(testMethodNames));
-			}
-			Runner runner = request.getRunner();
-			RunNotifier runNotifier = new RunNotifier();
-			runNotifier.addListener(additionalListener);
-			runNotifier.addListener(listener);
-			runner.run(runNotifier);
-		});
-		try {
-			submit.get(10000 * (testMethodNames.size() + 1), TimeUnit.MILLISECONDS);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		} finally {
-			submit.cancel(true);
-			executor.shutdownNow();
-		}
-		return listener;
-	}
-
-	@Override
-	public TestListener run(Class<?> testClass, RunListener additionalListener) {
-		return this.run(testClass, Collections.emptyList(), additionalListener);
-	}
 }

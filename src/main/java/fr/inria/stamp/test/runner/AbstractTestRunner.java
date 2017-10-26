@@ -45,7 +45,7 @@ public abstract class AbstractTestRunner implements TestRunner {
                 }).toArray(URL[]::new), ClassLoader.getSystemClassLoader());
     }
 
-    protected Class<?> loadClass(String fullQualifiedName) {
+    Class<?> loadClass(String fullQualifiedName) {
         try {
             return this.classLoader.loadClass(fullQualifiedName);
         } catch (ClassNotFoundException e) {
@@ -54,8 +54,23 @@ public abstract class AbstractTestRunner implements TestRunner {
     }
 
     @Override
+    public TestListener run(String fullQualifiedName, String testMethodName) {
+        return this.run(this.loadClass(fullQualifiedName), Collections.singleton(testMethodName));
+    }
+
+    @Override
     public TestListener run(String fullQualifiedName, Collection<String> testMethodNames) {
         return this.run(this.loadClass(fullQualifiedName), testMethodNames);
+    }
+
+    @Override
+    public TestListener run(String fullQualifiedName, RunListener... listeners) {
+        return this.run(this.loadClass(fullQualifiedName), listeners);
+    }
+
+    @Override
+    public TestListener run(String fullQualifiedName, Collection<String> methodNames, RunListener... listeners) {
+        return this.run(this.loadClass(fullQualifiedName), methodNames, listeners);
     }
 
     @Override
@@ -64,22 +79,7 @@ public abstract class AbstractTestRunner implements TestRunner {
     }
 
     @Override
-    public TestListener run(String fullQualifiedName, String testMethodName) {
-        return this.run(this.loadClass(fullQualifiedName), Collections.singleton(testMethodName));
-    }
-
-    @Override
-    public TestListener run(String fullQualifiedName) {
-        return this.run(this.loadClass(fullQualifiedName));
-    }
-
-    @Override
-    public TestListener run(String fullQualifiedName, Collection<String> methodNames, RunListener listener) {
-        return this.run(this.loadClass(fullQualifiedName), methodNames, listener);
-    }
-
-    @Override
-    public TestListener run(String fullQualifiedName, RunListener listener) {
-        return this.run(this.loadClass(fullQualifiedName), listener);
+    public TestListener run(Class<?> testClass, RunListener... listeners) {
+        return this.run(testClass, Collections.emptyList(), listeners);
     }
 }
