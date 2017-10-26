@@ -47,7 +47,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 			this.factory = this.launcher.getFactory();
 		}
 		javaCompliance = factory.getEnvironment().getComplianceLevel();
-		DSpotJDTBatchCompiler compiler = new DSpotJDTBatchCompiler(this, true, null);//environment);
+		DSpotJDTBatchCompiler compiler = new DSpotJDTBatchCompiler(this, null);//environment);
 		final SourceOptions sourcesOptions = new SourceOptions();
 		sourcesOptions.sources((new FileSystemFolder(this.sourceOutputDirectory).getAllJavaFiles()));
 

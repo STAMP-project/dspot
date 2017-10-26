@@ -326,7 +326,8 @@ public class TestLauncherTest {
 			TestLauncher.run(Utils.getInputConfiguration(), classPath, aClass);
 			fail("testTimeoutTuning should have thrown a java.util.concurrent.TimeoutException");
 		}  catch (Exception e) {
-			assertTrue(e instanceof java.util.concurrent.TimeoutException);
+			assertTrue(e instanceof java.lang.RuntimeException);
+			assertTrue(e.getCause() instanceof java.util.concurrent.TimeoutException);
 		}
 		AmplificationHelper.setTimeOutInMs(10000);
 		final TestListener run  = TestLauncher.run(Utils.getInputConfiguration(), classPath, aClass);

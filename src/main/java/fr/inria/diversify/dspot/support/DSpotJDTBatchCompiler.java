@@ -23,15 +23,11 @@ import java.io.IOException;
  */
 public class DSpotJDTBatchCompiler extends JDTBatchCompiler {
 
-    public DSpotJDTBatchCompiler(JDTBasedSpoonCompiler jdtCompiler) {
-        super(jdtCompiler);
-    }
+    private FileSystem environment;
 
-
-    public DSpotJDTBatchCompiler(JDTBasedSpoonCompiler jdtCompiler, boolean useFactory, FileSystem environment ) {
+    public DSpotJDTBatchCompiler(JDTBasedSpoonCompiler jdtCompiler, FileSystem environment ) {
         super(jdtCompiler);
         this.environment = environment;
-        this.useFactory = useFactory;
     }
 
     @Override
@@ -79,28 +75,7 @@ public class DSpotJDTBatchCompiler extends JDTBatchCompiler {
         }
 
         this.logger.printStats();
-//        environment.cleanup();
     }
-
-//    public void performCompilation2() {
-//        try {
-//            this.logger.startLoggingSources();
-//            this.batchCompiler.compile(this.getCompilationUnits());
-//        } finally {
-//            this.logger.endLoggingSources();
-//        }
-//
-//        if(this.extraProblems != null) {
-//            this.loggingExtraProblems();
-//            this.extraProblems = null;
-//        }
-//
-//        if(this.compilerStats != null) {
-//            this.compilerStats[this.currentRepetition] = this.batchCompiler.stats;
-//        }
-//
-//        this.logger.printStats();
-//    }
 
     private ReferenceBinding[] processClassNames(LookupEnvironment environment) {
         int length = this.classNames.length;
@@ -235,24 +210,14 @@ public class DSpotJDTBatchCompiler extends JDTBatchCompiler {
             } catch (IOException var10) {
                 fileName = this.filenames[i];
             }
-
-            units[i] = new CompilationUnit((char[])null, fileName, encoding, this.destinationPaths[i], false);
+            units[i] = new CompilationUnit((char[])null, fileName, encoding, this.destinationPaths[i], false, null);
         }
         return units;
-    }
-
-    @Deprecated
-    public boolean isUseFactory() {
-        return useFactory;
     }
 
     public FileSystem getEnvironment() {
         return environment;
     }
 
-    @Deprecated
-    private boolean useFactory;
-
-    private FileSystem environment;
 
 }
