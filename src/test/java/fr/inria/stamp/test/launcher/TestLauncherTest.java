@@ -335,4 +335,27 @@ public class TestLauncherTest {
 		assertEquals(0, run.getFailingTests().size());
 		assertTrue(run.getFailingTests().isEmpty());
 	}
+
+
+	@Test
+	public void testLauncherOnTestThatUseSystemProperties() throws Exception {
+
+		/*
+			Contract: DSpot is able to run a test that use System Properties.
+				System Properties must be described in the properties file given as input.
+				System Properties must be described with the key systemProperties (i.e. systemProperties=...)
+				System Properties must be a couple of key and value, separated by an equals '=' (e.g. key=value)
+				System Properties must be separated by a comma ',' (e.g. key1=value1,key2=value2)
+
+		 */
+
+		Utils.init("src/test/resources/sample/sample.properties");
+		final CtClass aClass = Utils.findClass("fr.inria.systemproperties.SystemPropertiesTest");
+		final String classPath = AmplificationHelper.getClassPath(Utils.getCompiler(), Utils.getInputProgram());
+		final TestListener run = TestLauncher.run(Utils.getInputConfiguration(), classPath, aClass);
+		assertEquals(1, run.getPassingTests().size());
+		assertEquals(1, run.getRunningTests().size());
+		assertEquals(0, run.getFailingTests().size());
+		assertTrue(run.getFailingTests().isEmpty());
+	}
 }
