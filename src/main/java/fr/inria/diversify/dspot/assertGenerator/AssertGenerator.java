@@ -80,7 +80,7 @@ public class AssertGenerator {
         MethodsAssertGenerator ags = new MethodsAssertGenerator(testClass, this.configuration, compiler);
         final List<CtMethod<?>> amplifiedTestWithAssertion =
                 ags.generateAsserts(cloneClass, testWithoutAssertions);
-        LOGGER.debug("{} new tests with assertions generated", amplifiedTestWithAssertion.size());
+        LOGGER.info("{} new tests with assertions generated", amplifiedTestWithAssertion.size());
         return amplifiedTestWithAssertion;
     }
 }

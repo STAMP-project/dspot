@@ -71,7 +71,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         this.originalKilledMutants = results.stream()
                 .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED)
                 .collect(Collectors.toList());
-        LOGGER.debug("The original test suite kill {} / {}", this.originalKilledMutants.size(), results.size());
+        LOGGER.info("The original test suite kill {} / {}", this.originalKilledMutants.size(), results.size());
     }
 
     @Override
@@ -116,7 +116,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
 
         Set<CtMethod<?>> selectedTests = new HashSet<>();
         if (results != null) {
-            LOGGER.debug("{} mutants has been generated ({})", results.size(), this.numberOfMutant);
+            LOGGER.info("{} mutants has been generated ({})", results.size(), this.numberOfMutant);
             if (results.size() != this.numberOfMutant) {
                 LOGGER.warn("Number of generated mutant is different than the original one.");
             }
@@ -143,7 +143,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         this.selectedAmplifiedTest.addAll(selectedTests);
 
         selectedTests.forEach(selectedTest ->
-                LOGGER.debug("{} kills {} more mutants",
+                LOGGER.info("{} kills {} more mutants",
                         selectedTest == null ?
                                 this.currentClassTestToBeAmplified.getSimpleName() : selectedTest.getSimpleName(),
                         this.testThatKilledMutants.containsKey(selectedTest) ?

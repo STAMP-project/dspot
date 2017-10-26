@@ -245,7 +245,7 @@ public class AmplificationHelper {
             LOGGER.warn("Too many tests has been generated: {}", newTests.size());
             Collections.shuffle(newTests, AmplificationHelper.getRandom());
             newTests = newTests.subList(0, MAX_NUMBER_OF_TESTS);
-            LOGGER.debug("Number of generated test reduced to {}", MAX_NUMBER_OF_TESTS);
+            LOGGER.info("Number of generated test reduced to {}", MAX_NUMBER_OF_TESTS);
         }
         ampTestToParent.putAll(newTests.stream()
                 .collect(HashMap::new,
