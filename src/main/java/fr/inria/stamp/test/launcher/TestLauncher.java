@@ -1,6 +1,5 @@
 package fr.inria.stamp.test.launcher;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.test.listener.TestListener;
@@ -15,6 +14,7 @@ import spoon.reflect.reference.CtTypeReference;
 import java.io.File;
 import java.net.URLClassLoader;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 
