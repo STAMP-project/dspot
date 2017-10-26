@@ -8,6 +8,28 @@
     <artifactId>sample</artifactId>
     <version>1.0</version>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.20</version>
+                <configuration>
+                    <systemProperties> <!-- this System Properties are reported into the sample.properties file to be used by DSpot -->
+                        <property>
+                            <name>admin</name>
+                            <value>toto</value>
+                        </property>
+                        <property>
+                            <name>passwd</name>
+                            <value>tata</value>
+                        </property>
+                    </systemProperties>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <dependency>
             <artifactId>junit</artifactId>

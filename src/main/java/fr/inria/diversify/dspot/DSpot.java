@@ -173,7 +173,7 @@ public class DSpot {
             long time = System.currentTimeMillis();
             testAmplification.amplification(test, methods, numberOfIterations);
             final long elapsedTime = System.currentTimeMillis() - time;
-            LOGGER.debug("elapsedTime {}", elapsedTime);
+            LOGGER.info("elapsedTime {}", elapsedTime);
             this.projectTimeJSON.add(new ClassTimeJSON(test.getQualifiedName(), elapsedTime));
             testSelector.report();
             final File outputDirectory = new File(inputConfiguration.getOutputDirectory());

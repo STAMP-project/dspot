@@ -29,17 +29,17 @@ public class AutomaticBuilderFactory {
 			String builderType = configuration.getProperty("automaticBuilderName");
 			if (builderType == null) {
 				LOGGER.warn("No automatic builder specified in configuration, going to default.");
-				LOGGER.debug("Default: provided Maven automatic builder.");
+				LOGGER.info("Default: provided Maven automatic builder.");
 				automaticBuilder = new MavenAutomaticBuilder(configuration);
 			} else if (builderType.toUpperCase().contains("GRADLE")) {
-				LOGGER.debug("Selected Gradle automatic builder.");
+				LOGGER.info("Selected Gradle automatic builder.");
 				automaticBuilder = new GradleAutomaticBuilder(configuration);
 			} else if (builderType.toUpperCase().contains("MAVEN")) {
-				LOGGER.debug("Selected Maven automatic builder.");
+				LOGGER.info("Selected Maven automatic builder.");
 				automaticBuilder = new MavenAutomaticBuilder(configuration);
 			} else {
 				LOGGER.warn(builderType + ": unknown automatic builder specified in configuration, going to default.");
-				LOGGER.debug("Default: provided Maven automatic builder.");
+				LOGGER.info("Default: provided Maven automatic builder.");
 				automaticBuilder = new MavenAutomaticBuilder(configuration);
 			}
 		}

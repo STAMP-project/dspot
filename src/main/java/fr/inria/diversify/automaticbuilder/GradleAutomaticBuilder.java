@@ -58,13 +58,13 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
         try {
             final File classpathFile = new File(pathToRootOfProject + File.separator + JAVA_PROJECT_CLASSPATH);
             if (!classpathFile.exists()) {
-                LOGGER.debug("Classpath file for Gradle project doesn't exist, starting to build it...");
+                LOGGER.info("Classpath file for Gradle project doesn't exist, starting to build it...");
 
-                LOGGER.debug("Injecting  Gradle task to print project classpath on stdout...");
+                LOGGER.info("Injecting  Gradle task to print project classpath on stdout...");
                 injectPrintClasspathTask(pathToRootOfProject);
-                LOGGER.debug("Retrieving project classpath...");
+                LOGGER.info("Retrieving project classpath...");
                 byte[] taskOutput = cleanClasspath(runTasks(pathToRootOfProject,"printClasspath4DSpot"));
-                LOGGER.debug("Writing project classpath on file " + JAVA_PROJECT_CLASSPATH +"...");
+                LOGGER.info("Writing project classpath on file " + JAVA_PROJECT_CLASSPATH +"...");
                 FileOutputStream fos = new FileOutputStream(pathToRootOfProject + File.separator + JAVA_PROJECT_CLASSPATH);
                 fos.write(taskOutput);
                 fos.close();
@@ -91,10 +91,10 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
     @Override
     public void runPit(String pathToRootOfProject, CtType<?> testClass) {
         try {
-            LOGGER.debug("Injecting  Gradle task to run Pit...");
+            LOGGER.info("Injecting  Gradle task to run Pit...");
             injectPitTask(pathToRootOfProject, testClass);
 
-            LOGGER.debug("Running Pit...");
+            LOGGER.info("Running Pit...");
 
             runTasks(pathToRootOfProject, CMD_PIT_MUTATION_COVERAGE);
 
@@ -125,9 +125,9 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
 
     private byte[] cleanClasspath(byte[] taskOutput) {
 
-        LOGGER.debug("Retrieved task output:" + NEW_LINE);
-        LOGGER.debug(new String(taskOutput));
-        LOGGER.debug("" + NEW_LINE + " Extracting project classpath from task output...");
+        LOGGER.info("Retrieved task output:" + NEW_LINE);
+        LOGGER.info(new String(taskOutput));
+        LOGGER.info("" + NEW_LINE + " Extracting project classpath from task output...");
         StringBuilder sb = new StringBuilder();
         String cleanCP = new String(taskOutput);
         String classPathPattern = "([\\/a-z0-9\\.\\-]*\\.jar|[\\/a-z0-9\\.\\-]*\\.zip)";
@@ -139,8 +139,8 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
             sb.append(m.group());
             sb.append(CLASSPATH_SEPARATOR);
         }
-        LOGGER.debug("Project classpath from task output:" + NEW_LINE + " ");
-        LOGGER.debug(sb.toString() + "" + NEW_LINE + " ");
+        LOGGER.info("Project classpath from task output:" + NEW_LINE + " ");
+        LOGGER.info(sb.toString() + "" + NEW_LINE + " ");
         return sb.toString().getBytes();
     }
 
@@ -154,8 +154,8 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
 
         Files.write(Paths.get(originalGradleBuildFilename), printClasspathTask.getBytes(), StandardOpenOption.APPEND);
 
-        LOGGER.debug("Injected following Gradle task in the Gradle build file " + originalGradleBuildFilename + ":" + NEW_LINE + " ");
-        LOGGER.debug(printClasspathTask);
+        LOGGER.info("Injected following Gradle task in the Gradle build file " + originalGradleBuildFilename + ":" + NEW_LINE + " ");
+        LOGGER.info(printClasspathTask);
     }
 
     private void injectPitTask(String pathToRootOfProject) throws IOException {
@@ -172,13 +172,13 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
 
         Files.write(Paths.get(originalGradleBuildFilename), pitTask.getBytes(), StandardOpenOption.APPEND);
 
-        LOGGER.debug("Injected following Gradle task in the Gradle build file " + originalGradleBuildFilename + ":" + NEW_LINE + " ");
-        LOGGER.debug(pitTask);
+        LOGGER.info("Injected following Gradle task in the Gradle build file " + originalGradleBuildFilename + ":" + NEW_LINE + " ");
+        LOGGER.info(pitTask);
     }
 
     private void makeBackup(File gradleBuildFile) throws IOException {
         if (gradleBuildFile.exists()) {
-            LOGGER.debug("Found original Gradle build file, making backup copy...");
+            LOGGER.info("Found original Gradle build file, making backup copy...");
             String originalGradleBuildFilename = gradleBuildFile.getPath();
             String backedUpGradleBuildFilename = originalGradleBuildFilename + GRADLE_BUILD_FILE_BAK_SUFFIX;
             Path from = Paths.get(originalGradleBuildFilename);
@@ -189,13 +189,13 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
                     StandardCopyOption.COPY_ATTRIBUTES
             };
             Files.copy(from, to, options);
-            LOGGER.debug("Original Gradle build file backed-up as " + backedUpGradleBuildFilename + ".");
+            LOGGER.info("Original Gradle build file backed-up as " + backedUpGradleBuildFilename + ".");
         }
     }
 
     private void resetOriginalGradleBuildFile(String pathToRootOfProject) {
 
-        LOGGER.debug("Restoring original Gradle build file...");
+        LOGGER.info("Restoring original Gradle build file...");
 
         String modifiedGradleBuildFilename = pathToRootOfProject + File.separator + GRADLE_BUILD_FILE;
         String originalGradleBuildFilename = modifiedGradleBuildFilename + GRADLE_BUILD_FILE_BAK_SUFFIX;
@@ -203,9 +203,9 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
         File originalGradleBuildFile = new File(originalGradleBuildFilename);
         if (originalGradleBuildFile.exists()) {
             File modifiedGradleBuildFile = new File(modifiedGradleBuildFilename);
-            LOGGER.debug("Deleting modified (with injected task) Gradle build file...");
+            LOGGER.info("Deleting modified (with injected task) Gradle build file...");
             modifiedGradleBuildFile.delete();
-            LOGGER.debug("Renaming original Gradle build file from " + originalGradleBuildFilename + " to " + modifiedGradleBuildFilename + "...");
+            LOGGER.info("Renaming original Gradle build file from " + originalGradleBuildFilename + " to " + modifiedGradleBuildFilename + "...");
             originalGradleBuildFile.renameTo(new File(pathToRootOfProject + File.separator + GRADLE_BUILD_FILE));
         }
     }

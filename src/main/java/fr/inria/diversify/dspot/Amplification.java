@@ -77,7 +77,7 @@ public class Amplification {
 
 		for (int i = 0; i < tests.size(); i++) {
 			CtMethod test = tests.get(i);
-			LOGGER.debug("amp {} ({}/{})", test.getSimpleName(), i + 1, tests.size());
+			LOGGER.info("amp {} ({}/{})", test.getSimpleName(), i + 1, tests.size());
 			testSelector.reset();
 			TestListener result = compileAndRunTests(classTest, Collections.singletonList(tests.get(i)));
 			if (result != null) {
@@ -86,7 +86,7 @@ public class Amplification {
 					updateAmplifiedTestList(ampTest,
 							amplification(classTest, test, maxIteration));
 				} else {
-					LOGGER.debug("{} / {} test cases failed!",
+					LOGGER.info("{} / {} test cases failed!",
 							result.getFailingTests().size(),
 							result.getRunningTests().size()
 					);
@@ -102,13 +102,13 @@ public class Amplification {
 		List<CtMethod<?>> amplifiedTests = new ArrayList<>();
 
 		for (int i = 0; i < maxIteration; i++) {
-			LOGGER.debug("iteration {}:", i);
+			LOGGER.info("iteration {}:", i);
 			List<CtMethod<?>> testToBeAmplified = testSelector.selectToAmplify(currentTestList);
 			if (testToBeAmplified.isEmpty()) {
-				LOGGER.debug("No test could be generated from selected test");
+				LOGGER.info("No test could be generated from selected test");
 				continue;
 			}
-			LOGGER.debug("{} tests selected to be amplified over {} available tests",
+			LOGGER.info("{} tests selected to be amplified over {} available tests",
 					testToBeAmplified.size(),
 					currentTestList.size()
 			);
@@ -134,7 +134,7 @@ public class Amplification {
 						.collect(Collectors.toList());
 			}
 			currentTestList = AmplificationHelper.filterTest(currentTestList, result);
-			LOGGER.debug("{} test method(s) has been successfully generated", currentTestList.size());
+			LOGGER.info("{} test method(s) has been successfully generated", currentTestList.size());
 			amplifiedTests.addAll(testSelector.selectToKeep(currentTestList));
 		}
 		return amplifiedTests;
@@ -143,7 +143,7 @@ public class Amplification {
 	private void updateAmplifiedTestList(List<CtMethod<?>> ampTest, List<CtMethod<?>> amplification) {
 		ampTest.addAll(amplification);
 		ampTestCount += amplification.size();
-		LOGGER.debug("total amp test: {}, global: {}", amplification.size(), ampTestCount);
+		LOGGER.info("total amp test: {}, global: {}", amplification.size(), ampTestCount);
 	}
 
 	private List<CtMethod<?>> preAmplification(CtType classTest, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
@@ -178,7 +178,7 @@ public class Amplification {
 			return preAmplification(classTest, tests);
 		} else {
 			testSelector.update();
-			LOGGER.debug("Try to add assertions before amplification");
+			LOGGER.info("Try to add assertions before amplification");
 			final List<CtMethod<?>> amplifiedTestToBeKept = assertGenerator.generateAsserts(
 					classTest, testSelector.selectToAmplify(tests));
 			result = compileAndRunTests(classTest, amplifiedTestToBeKept);
@@ -200,7 +200,7 @@ public class Amplification {
 				})
 				.filter(test -> test != null && !test.getBody().getStatements().isEmpty())
 				.collect(Collectors.toList());
-		LOGGER.debug("{} new tests generated", amplifiedTests.size());
+		LOGGER.info("{} new tests generated", amplifiedTests.size());
 		return amplifiedTests;
 	}
 
@@ -238,7 +238,7 @@ public class Amplification {
 						numberOfSubClasses != result.getRunningTests().size())) {
 			return null;
 		} else {
-			LOGGER.debug("update test testCriterion");
+			LOGGER.info("update test testCriterion");
 			testSelector.update();
 			return result;
 		}

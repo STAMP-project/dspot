@@ -6,10 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -67,6 +69,13 @@ public class InputConfiguration {
         setCodeFragmentClass();
         errors = new ArrayList<>();
         rootPath = prop.getProperty("root.path");
+        if (prop.getProperty("systemProperties") != null) {
+            Arrays.stream(prop.getProperty("systemProperties").split(","))
+                    .forEach( systemProperty -> {
+                                String[] keyValueInArray = systemProperty.split("=");
+                                System.getProperties().put(keyValueInArray[0], keyValueInArray[1]);
+                            });
+        }
     }
 
 
