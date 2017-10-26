@@ -16,6 +16,7 @@ import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Created by Benjamin DANGLOT
@@ -304,6 +305,31 @@ public class TestLauncherTest {
 		final CtClass aClass = Utils.findClass("textresources.in.sources.TestResourcesInSources");
 		final String classPath = AmplificationHelper.getClassPath(Utils.getCompiler(), Utils.getInputProgram());
 		final TestListener run = TestLauncher.run(Utils.getInputConfiguration(), classPath, aClass);
+		assertEquals(1, run.getPassingTests().size());
+		assertEquals(1, run.getRunningTests().size());
+		assertEquals(0, run.getFailingTests().size());
+		assertTrue(run.getFailingTests().isEmpty());
+	}
+
+	@Test
+	public void testTimeoutTuning() throws Exception {
+		/*
+			Contract: DSpot is able to tune the timeout of the test runner.
+				We test that with a small time (0), DSpot throws a TimeoutException exception.
+				We test that with a enough large time (10000, default value) DSpot runs the test correctly.
+		 */
+		Utils.init("src/test/resources/sample/sample.properties");
+		AmplificationHelper.setTimeOutInMs(0);
+		final CtClass aClass = Utils.findClass("fr.inria.systemproperties.SystemPropertiesTest");
+		final String classPath = AmplificationHelper.getClassPath(Utils.getCompiler(), Utils.getInputProgram());
+		try {
+			TestLauncher.run(Utils.getInputConfiguration(), classPath, aClass);
+			fail("testTimeoutTuning should have thrown a java.util.concurrent.TimeoutException");
+		}  catch (Exception e) {
+			assertTrue(e instanceof java.util.concurrent.TimeoutException);
+		}
+		AmplificationHelper.setTimeOutInMs(10000);
+		final TestListener run  = TestLauncher.run(Utils.getInputConfiguration(), classPath, aClass);
 		assertEquals(1, run.getPassingTests().size());
 		assertEquals(1, run.getRunningTests().size());
 		assertEquals(0, run.getFailingTests().size());
