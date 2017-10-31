@@ -15,7 +15,7 @@ install:
 script:
   - mvn clean install
   - mvn package -DskipTests
-  - java -jar target/dspot-1.0.0-jar-with-dependencies.jar --example
+  - java -jar dspot/target/dspot-1.0.0-jar-with-dependencies.jar --example
 
 
 after_success:
