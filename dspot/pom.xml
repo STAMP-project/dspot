@@ -5,14 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>fr.inria.diversify</groupId>
+        <groupId>fr.inria.stamp</groupId>
         <artifactId>dspot-parent</artifactId>
         <version>1.0.0</version>
     </parent>
 
-    <groupId>fr.inria.diversify</groupId>
     <artifactId>dspot</artifactId>
-    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>DSpot</name>
