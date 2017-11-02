@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>fr.inria.stamp</groupId>
+        <artifactId>dspot-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>dspot</artifactId>
+    <packaging>jar</packaging>
+
+    <name>DSpot</name>
+    <description>Dspot is a tool to automatically improve a Java test suite. It uses dynamic analysis to identify missing assertions and inputs. Make your tests better! Amplify your test suite! Now!</description>
+    <url>https://github.com/STAMP-project/dspot</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <default.encoding>UTF-8</default.encoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License v3.0</name>
+            <url>https://github.com/STAMP-project/dspot/blob/master/Licence.md</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/STAMP-project/dspot</url>
+    </scm>
+
+    <repositories>
+        <repository>
+            <id>stamp-maven-repository-mvn-repo</id>
+            <url>https://stamp-project.github.io/stamp-maven-repository/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>gradle-repo</id>
+            <name>Gradle Tooling API repository</name>
+            <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
+        </repository>
+        <repository>
+            <id>gforge.inria.fr-snapshot</id>
+            <name>Maven Repository for Spoon Snapshot</name>
+            <url>http://spoon.gforge.inria.fr/repositories/snapshots/</url>
+            <snapshots />
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>fr.inria.gforge.spoon</groupId>
+            <artifactId>spoon-core</artifactId>
+            <version>6.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.maven.shared/maven-invoker -->
+        <dependency>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-invoker</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.25</version>
+            <scope>compile</scope>
+        </dependency>
+
+
+        <!-- https://mvnrepository.com/artifact/org.jacoco/org.jacoco.core -->
+        <dependency>
+            <groupId>org.jacoco</groupId>
+            <artifactId>org.jacoco.core</artifactId>
+            <version>0.7.9</version>
+        </dependency>
+
+        <dependency>
+            <groupId>fr.inria.stamp</groupId>
+            <artifactId>descartes</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.gradle</groupId>
+            <artifactId>gradle-tooling-api</artifactId>
+            <version>4.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>2.10.0</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>tmpDir/</directory>
+                        </fileset>
+                        <fileset>
+                            <directory>src/test/resources/</directory>
+                            <includes>
+                                <include>descartes/target/</include>
+                                <include>mock/target/</include>
+                                <include>easymock/target/</include>
+                                <include>jmockit/target/</include>
+                                <include>mockito/target/</include>
+                                <include>mockito2/target/</include>
+                                <include>multiple-pom/target/</include>
+                                <include>multiple-pom/module-1/module-2-1/target/</include>
+                                <include>multiple-pom/module-1/module-2-2/target/</include>
+                                <include>sample/target/</include>
+                                <include>test-projects/target/</include>
+                                <include>regression/test-projects_0/target/</include>
+                                <include>regression/test-projects_1/target/</include>
+                                <include>project-with-resources/target/</include>
+                            </includes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>fr.inria.stamp.Main</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-my-jar-with-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.9</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>**/fr/inria/diversify/dspot/amplifier/ObjectGenerator.*</exclude>
+                        <exclude>**/fr/inria/diversify/utils/sosiefier/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.eluder.coveralls</groupId>
+                    <artifactId>coveralls-maven-plugin</artifactId>
+                    <version>4.3.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+    </build>
+
+    <profiles>
+        <profile>
+            <id>coveralls</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.eluder.coveralls</groupId>
+                        <artifactId>coveralls-maven-plugin</artifactId>
+                        <version>4.3.0</version>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>
