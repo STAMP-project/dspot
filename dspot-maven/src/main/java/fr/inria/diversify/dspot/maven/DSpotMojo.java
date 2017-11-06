@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot.maven;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -11,7 +12,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
-import fr.inria.diversify.buildSystem.android.InvalidSdkException;
 import fr.inria.stamp.Configuration;
 import fr.inria.stamp.JSAPOptions;
 import fr.inria.stamp.Main;
@@ -83,21 +83,21 @@ public class DSpotMojo extends AbstractMojo {
 	private File mavenHome;
 
 	public void execute() throws MojoExecutionException, MojoFailureException {
-//		System.out.println("getAmplifiers(): " + getAmplifiers());
-//		System.out.println("getIteration(): " + getIteration());
-//		System.out.println("getTestCriterion(): " + getTestCriterion());
-//		System.out.println("getNamesOfTestCases(): " + getNamesOfTestCases());
-//		System.out.println("getOutputPath(): " + getOutputPath());
-//		System.out.println("getRandomSeed() : " + getRandomSeed());
-//		System.out.println("getTimeOutInMs(): " + getTimeOutInMs());
-//		System.out.println("getProject(): " + getProject());
-//		System.out.println("getSrcDir(): " + getSrcDir());
-//		System.out.println("getTestDir(): " + getTestDir());
-//		System.out.println("getFilter(): " + getFilter());
-//		System.out.println("getMavenHome(): " + getMavenHome().toString());
-//
-//		System.out.println("MethodsHandler : " + this.getClass().getClassLoader()
-//				.getResourceAsStream("fr/inria/diversify/compare/MethodsHandler.class"));
+		// System.out.println("getAmplifiers(): " + getAmplifiers());
+		// System.out.println("getIteration(): " + getIteration());
+		// System.out.println("getTestCriterion(): " + getTestCriterion());
+		// System.out.println("getNamesOfTestCases(): " + getNamesOfTestCases());
+		// System.out.println("getOutputPath(): " + getOutputPath());
+		// System.out.println("getRandomSeed() : " + getRandomSeed());
+		// System.out.println("getTimeOutInMs(): " + getTimeOutInMs());
+		// System.out.println("getProject(): " + getProject());
+		// System.out.println("getSrcDir(): " + getSrcDir());
+		// System.out.println("getTestDir(): " + getTestDir());
+		// System.out.println("getFilter(): " + getFilter());
+		// System.out.println("getMavenHome(): " + getMavenHome().toString());
+		//
+		// System.out.println("MethodsHandler : " + this.getClass().getClassLoader()
+		// .getResourceAsStream("fr/inria/diversify/compare/MethodsHandler.class"));
 
 		Configuration configuration = new Configuration(
 				// path to file
@@ -110,15 +110,20 @@ public class DSpotMojo extends AbstractMojo {
 				getNamesOfTestCases(), getOutputPath().toString(), SelectorEnum.valueOf(getSelector()).buildSelector(),
 				getNamesOfTestCases(), getRandomSeed().longValue(), getTimeOutInMs().intValue(), BUILDER,
 				getMavenHome().getAbsolutePath(), 10);
-		try {
-			MyInputConfiguration inputConfiguration = new MyInputConfiguration(getProject(), getSrcDir(), getTestDir(),
-					getTestClassesDir(), getTestClassesDir(), getTempDir(), getFilter(), getMavenHome());
 
+		MyInputConfiguration inputConfiguration;
+		try {
+			inputConfiguration = new MyInputConfiguration(getProject(), getSrcDir(), getTestDir(), getTestClassesDir(),
+					getTestClassesDir(), getTempDir(), getFilter(), getMavenHome());
 			Main.run(configuration, inputConfiguration);
-		} catch (InvalidSdkException | Exception e) {
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
 	}
 
 	public List<String> getAmplifiers() {

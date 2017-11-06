@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import fr.inria.diversify.runner.InputConfiguration;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 
 public class MyInputConfiguration extends InputConfiguration {
 
