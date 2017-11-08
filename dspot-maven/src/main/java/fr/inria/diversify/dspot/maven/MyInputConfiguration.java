@@ -19,7 +19,7 @@ public class MyInputConfiguration extends InputConfiguration {
 	private String filter;
 	private File mavenHome;
 
-	public MyInputConfiguration(File project, File srcDir, File testDir, File classesDir, File testClassesDir,
+	public MyInputConfiguration(File project, File srcDir, File testDir, File classesDir, File testClassesDir, 
 			File tempDir, String filter, File mavenHome) throws IOException {
 		super();
 		this.project = project;
@@ -35,11 +35,13 @@ public class MyInputConfiguration extends InputConfiguration {
 		getProperties().setProperty("project", project.getAbsolutePath());
 		getProperties().setProperty("src", getRelativePath(srcDir));
 		getProperties().setProperty("testSrc", getRelativePath(testDir));
-//		getProperties().setProperty("testResources", "pippoTestR");
-//		getProperties().setProperty("srcResources", "pippoSrcR");
+		//TODO 
+//		getProperties().setProperty("testResources", getRelativePath(testResourcesDir));
+//		getProperties().setProperty("srcResources", getRelativePath(srcResourcesDir));
 		getProperties().setProperty("maven.home", mavenHome.getAbsolutePath());
 		getProperties().setProperty("classes", getRelativePath(classesDir));
 		getProperties().setProperty("tmpDir", getRelativePath(testClassesDir));
+		getProperties().setProperty("filter", this.filter);
 		// getProperties().setProperty("clojure", "false");
 		// getProperties().setProperty("javaVersion", "5");
 		// getProperties().setProperty("transformation.type", "all");

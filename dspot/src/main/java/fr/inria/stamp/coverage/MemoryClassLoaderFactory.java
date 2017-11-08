@@ -50,7 +50,7 @@ public class MemoryClassLoaderFactory {
                                 }
                             })
                             .toArray(URL[]::new),
-                    ClassLoader.getSystemClassLoader().getParent()
+                    MemoryClassLoaderFactory.class.getClassLoader().getParent()
             );
         } else {
             classLoader = new URLClassLoader(
@@ -65,7 +65,7 @@ public class MemoryClassLoaderFactory {
                                 }
                             })
                             .toArray(URL[]::new),
-                    ClassLoader.getSystemClassLoader()
+                    MemoryClassLoaderFactory.class.getClassLoader()
             );
         }
         final URL[] urls;

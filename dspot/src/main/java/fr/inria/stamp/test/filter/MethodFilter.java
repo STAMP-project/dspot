@@ -21,7 +21,7 @@ public class MethodFilter extends Filter {
 
 	@Override
 	public boolean shouldRun(Description description) {
-		return this.testMethodNames.isEmpty() || (description.isTest() &&
+		return (description.isTest() &&
 				testMethodNames.stream().anyMatch(testMethodName ->
 						Pattern.compile(testMethodName + "\\[\\d:(.*?)\\]").matcher(description.getMethodName()).find() ||
 						Pattern.compile(testMethodName + "\\[\\d\\]").matcher(description.getMethodName()).find()

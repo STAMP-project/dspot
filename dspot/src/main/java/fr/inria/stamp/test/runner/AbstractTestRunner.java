@@ -42,7 +42,7 @@ public abstract class AbstractTestRunner implements TestRunner {
                     } catch (MalformedURLException e) {
                         throw new RuntimeException(e);
                     }
-                }).toArray(URL[]::new), ClassLoader.getSystemClassLoader());
+                }).toArray(URL[]::new), this.getClass().getClassLoader());
     }
 
     Class<?> loadClass(String fullQualifiedName) {

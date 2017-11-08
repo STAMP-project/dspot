@@ -46,7 +46,7 @@ public class ReflectiveTestRunner extends AbstractTestRunner {
                 }).toArray(URL[]::new), ClassLoader.getSystemClassLoader().getParent());
     }
 
-    private TestListener runUsingReflection(Class<?> classTest) {
+    private Object runUsingReflection(Class<?> classTest) {
         try {
             Class<?> requestClass = this.loadClass("org.junit.runner.Request");
             Object request = requestClass.getMethod("aClass", Class.class)
@@ -66,7 +66,7 @@ public class ReflectiveTestRunner extends AbstractTestRunner {
             runner.getClass()
                     .getMethod("run", notifier.getClass())
                     .invoke(runner, notifier);
-            return TestListener.copyFromObject(listenerInstance);
+            return listenerInstance;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -2,7 +2,6 @@ package fr.inria.diversify.dspot.maven;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -14,13 +13,11 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import fr.inria.diversify.dspot.DSpot;
-import fr.inria.diversify.dspot.amplifier.TestDataMutator;
-import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.Configuration;
 import fr.inria.stamp.JSAPOptions;
-import fr.inria.stamp.Main;
 import fr.inria.stamp.JSAPOptions.SelectorEnum;
+import fr.inria.stamp.Main;
 
 @Mojo(name = "mutationCoverage", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.TEST)
 public class DSpotMojo extends AbstractMojo {
@@ -81,13 +78,14 @@ public class DSpotMojo extends AbstractMojo {
 	@Parameter(defaultValue = "${project.build.directory}/tempDir", property = "tempDir")
 	private File tempDir;
 
-	@Parameter(property = "filter")
+	// TODO: Command line option
+	@Parameter(defaultValue = "example.*", property = "filter")
 	private String filter;
 
 	@Parameter(defaultValue = "${env.M2_HOME}", property = "mavenHome")
 	private File mavenHome;
 
-	public void execute1() throws MojoExecutionException, MojoFailureException {
+	public void execute() throws MojoExecutionException, MojoFailureException {
 		// System.out.println("getAmplifiers(): " + getAmplifiers());
 		// System.out.println("getIteration(): " + getIteration());
 		// System.out.println("getTestCriterion(): " + getTestCriterion());
@@ -130,7 +128,7 @@ public class DSpotMojo extends AbstractMojo {
 		}
 	}
 	
-	public void execute()throws MojoExecutionException, MojoFailureException {
+	public void executeTest()throws MojoExecutionException, MojoFailureException {
 		try {
 		InputConfiguration configuration = new InputConfiguration(
 				"/home/bertazzo/Progetti/2017/dspot/dspot/dspot/src/test/resources/test-projects/test-projects.properties");

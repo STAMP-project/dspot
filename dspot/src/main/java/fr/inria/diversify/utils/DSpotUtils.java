@@ -26,9 +26,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
 
@@ -166,7 +169,7 @@ public class DSpotUtils {
 		Arrays.stream(classToCopy).forEach(file -> {
 			OutputStream resStreamOut = null;
 			try {
-				final InputStream resourceAsStream = ClassLoader.getSystemResourceAsStream( directory + "/" + file + ".class");
+				final InputStream resourceAsStream =  DSpotUtils.class.getClassLoader().getResourceAsStream( directory + "/" + file + ".class");
 				resStreamOut =
 						new FileOutputStream(pathToTestClassesDirectory + file + ".class");
 				int readBytes;
