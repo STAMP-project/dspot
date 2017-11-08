@@ -127,19 +127,6 @@
     </dependencies>
 
     <build>
-
-        <resources>
-            <resource>
-                <directory>${basedir}/src/main/resources/</directory>
-            </resource>
-        </resources>
-
-        <testResources>
-            <testResource>
-                <directory>${basedir}/src/test/resources/</directory>
-            </testResource>
-        </testResources>
-
         <plugins>
 
             <plugin>
@@ -147,9 +134,6 @@
                 <version>3.0.0</version>
                 <configuration>
                     <filesets>
-                        <fileset>
-                            <directory>build/</directory>
-                        </fileset>
                         <fileset>
                             <directory>tmpDir/</directory>
                         </fileset>

@@ -1,5 +1,6 @@
 package fr.inria.stamp.coverage;
 
+import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.test.launcher.TestLauncher;
@@ -14,6 +15,7 @@ import org.jacoco.core.instr.Instrumenter;
 import org.jacoco.core.runtime.IRuntime;
 import org.jacoco.core.runtime.LoggerRuntime;
 import org.jacoco.core.runtime.RuntimeData;
+import org.junit.runner.notification.Failure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtType;
@@ -26,6 +28,7 @@ import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.ResourceBundle.clearCache;
 
@@ -97,8 +100,12 @@ public class JacocoExecutor {
             runtime.startup(data);
             final TestListener listener = TestLauncher.run(this.configuration, this.internalClassLoader, testClass);
             if (!listener.getFailingTests().isEmpty()) {
-                listener.getFailingTests().forEach(System.out::println);
-                throw new RuntimeException("Error: some test fail when computing the coverage.");
+                LOGGER.warn("Some test(s) failed during computation of coverage:" + AmplificationHelper.LINE_SEPARATOR +
+                        listener.getFailingTests()
+                                .stream()
+                                .map(Failure::toString)
+                                .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR))
+                );
             }
             data.collect(executionData, sessionInfos, false);
             runtime.shutdown();
@@ -131,8 +138,12 @@ public class JacocoExecutor {
             final JacocoListener jacocoListener = new JacocoListener(data, classesDirectory);
             final TestListener listener = TestLauncher.run(this.configuration, this.internalClassLoader, testClass, methodNames, jacocoListener);
             if (!listener.getFailingTests().isEmpty()) {
-                listener.getFailingTests().forEach(System.out::println);
-                throw new RuntimeException("Error: some test fail when computing the coverage.");
+                LOGGER.warn("Some test(s) failed during computation of coverage:" + AmplificationHelper.LINE_SEPARATOR +
+                        listener.getFailingTests()
+                                .stream()
+                                .map(Failure::toString)
+                                .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR))
+                );
             }
             this.runtime.shutdown();
             clearCache(this.internalClassLoader);
