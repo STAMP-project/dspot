@@ -116,7 +116,7 @@ public class DSpotMojo extends AbstractMojo {
 
 		MyInputConfiguration inputConfiguration;
 		try {
-			inputConfiguration = new MyInputConfiguration(getProject(), getSrcDir(), getTestDir(), getTestClassesDir(),
+			inputConfiguration = new MyInputConfiguration(getProject(), getSrcDir(), getTestDir(), getClassesDir(),
 					getTestClassesDir(), getTempDir(), getFilter(), getMavenHome());
 			Main.run(configuration, inputConfiguration);
 		} catch (IOException e) {
@@ -128,7 +128,7 @@ public class DSpotMojo extends AbstractMojo {
 		}
 	}
 	
-	public void executeTest()throws MojoExecutionException, MojoFailureException {
+	public void executetest()throws MojoExecutionException, MojoFailureException {
 		try {
 		InputConfiguration configuration = new InputConfiguration(
 				"/home/bertazzo/Progetti/2017/dspot/dspot/dspot/src/test/resources/test-projects/test-projects.properties");

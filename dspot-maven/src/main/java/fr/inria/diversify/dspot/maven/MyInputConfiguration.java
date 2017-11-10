@@ -40,7 +40,8 @@ public class MyInputConfiguration extends InputConfiguration {
 //		getProperties().setProperty("srcResources", getRelativePath(srcResourcesDir));
 		getProperties().setProperty("maven.home", mavenHome.getAbsolutePath());
 		getProperties().setProperty("classes", getRelativePath(classesDir));
-		getProperties().setProperty("tmpDir", getRelativePath(testClassesDir));
+		
+		getProperties().setProperty("tmpDir", getRelativePath(tempDir));
 		getProperties().setProperty("filter", this.filter);
 		// getProperties().setProperty("clojure", "false");
 		// getProperties().setProperty("javaVersion", "5");
