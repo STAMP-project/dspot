@@ -12,7 +12,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
-import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.Configuration;
 import fr.inria.stamp.JSAPOptions;
@@ -23,11 +22,6 @@ import fr.inria.stamp.Main;
 public class DSpotMojo extends AbstractMojo {
 
 	// Command Line parameters -> fr.inria.stamp.Configuration
-	// /**
-	// * @deprecated path to dspot properties file. Use Maven Properties
-	// */
-	// @Parameter(property = "path-to-properties")
-	// private String pathToConfigurationFile;
 
 	private static final String BUILDER = "Maven";
 
@@ -56,9 +50,6 @@ public class DSpotMojo extends AbstractMojo {
 	private String selector;
 
 	// Properties file parameters -> fr.inria.diversify.runner.InputConfiguration
-	/*
-	 *
-	 */
 
 	@Parameter(defaultValue = "${project.basedir}", property = "project")
 	private File project;
@@ -86,21 +77,6 @@ public class DSpotMojo extends AbstractMojo {
 	private File mavenHome;
 
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		// System.out.println("getAmplifiers(): " + getAmplifiers());
-		// System.out.println("getIteration(): " + getIteration());
-		// System.out.println("getTestCriterion(): " + getTestCriterion());
-		// System.out.println("getNamesOfTestCases(): " + getNamesOfTestCases());
-		// System.out.println("getOutputPath(): " + getOutputPath());
-		// System.out.println("getRandomSeed() : " + getRandomSeed());
-		// System.out.println("getTimeOutInMs(): " + getTimeOutInMs());
-		// System.out.println("getProject(): " + getProject());
-		// System.out.println("getSrcDir(): " + getSrcDir());
-		// System.out.println("getTestDir(): " + getTestDir());
-		// System.out.println("getFilter(): " + getFilter());
-		// System.out.println("getMavenHome(): " + getMavenHome().toString());
-		//
-		// System.out.println("MethodsHandler : " + this.getClass().getClassLoader()
-		// .getResourceAsStream("fr/inria/diversify/compare/MethodsHandler.class"));
 
 		Configuration configuration = new Configuration(
 				// path to file
@@ -114,27 +90,15 @@ public class DSpotMojo extends AbstractMojo {
 				getNamesOfTestCases(), getRandomSeed().longValue(), getTimeOutInMs().intValue(), BUILDER,
 				getMavenHome().getAbsolutePath(), 10);
 
-		MyInputConfiguration inputConfiguration;
+		InputConfiguration inputConfiguration;
 		try {
-			inputConfiguration = new MyInputConfiguration(getProject(), getSrcDir(), getTestDir(), getClassesDir(),
+			inputConfiguration = new InputConfiguration(getProject(), getSrcDir(), getTestDir(), getClassesDir(),
 					getTestClassesDir(), getTempDir(), getFilter(), getMavenHome());
 			Main.run(configuration, inputConfiguration);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public void executetest()throws MojoExecutionException, MojoFailureException {
-		try {
-		InputConfiguration configuration = new InputConfiguration(
-				"/home/bertazzo/Progetti/2017/dspot/dspot/dspot/src/test/resources/test-projects/test-projects.properties");
-		DSpot dSpot = new DSpot(configuration);
-		dSpot.amplifyTest("example.TestSuiteExample");
-		}catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -204,15 +168,4 @@ public class DSpotMojo extends AbstractMojo {
 		return selector;
 	}
 
-	public static void main(String[] args) {
-		try {
-			InputConfiguration configuration = new InputConfiguration(
-					"/home/bertazzo/Progetti/2017/dspot/dspot/dspot/src/test/resources/test-projects/test-projects.properties");
-			DSpot dSpot = new DSpot(configuration);
-			dSpot.amplifyTest("example.TestSuiteExample");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 }
