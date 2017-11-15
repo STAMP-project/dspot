@@ -22,8 +22,12 @@ public class DSpotMultiplePomTest {
 
     @Before
     public void setUp() throws Exception {
-        FileUtils.forceDelete(new File("target/trash/"));
-        FileUtils.forceDelete(new File("target/dspot/"));
+        try {
+            FileUtils.forceDelete(new File("target/trash/"));
+            FileUtils.forceDelete(new File("target/dspot/"));
+        } catch (Exception ignored) {
+            //ignored
+        }
     }
 
     @Test
@@ -41,7 +45,11 @@ public class DSpotMultiplePomTest {
 
     @After
     public void tearDown() throws Exception {
-        FileUtils.forceDelete(new File("target/trash/"));
-        FileUtils.forceDelete(new File("target/dspot/"));
+        try {
+            FileUtils.forceDelete(new File("target/trash/"));
+            FileUtils.forceDelete(new File("target/dspot/"));
+        } catch (Exception ignored) {
+            //ignored
+        }
     }
 }
