@@ -8,12 +8,13 @@
     <artifactId>dspot-parent</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
- 
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <default.encoding>UTF-8</default.encoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <github.global.server>github</github.global.server>
     </properties>
 
     <repositories>
@@ -32,7 +33,60 @@
         </repository>
     </repositories>
 
+    <distributionManagement>
+        <repository>
+            <id>internal.repo</id>
+            <name>Temporary Staging Repository</name>
+            <url>file://${project.build.directory}/mvn-repo</url>
+        </repository>
+    </distributionManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.1</version>
+                <configuration>
+                    <altDeploymentRepository>
+                        internal.repo::default::file://${project.build.directory}/master
+                    </altDeploymentRepository>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.github</groupId>
+                <artifactId>site-maven-plugin</artifactId>
+                <version>0.11</version>
+                <configuration>
+                    <path>${project.distributionManagement.site.url}</path>
+                    <merge>true</merge>
+                    <message>Maven artifacts for ${project.name}-${project.version}</message>
+                    <outputDirectory>
+                        ${project.build.directory}/master
+                    </outputDirectory>
+                    <branch>refs/heads/master</branch>
+                    <includes>
+                        <include>**/*</include>
+                    </includes>
+                    <excludes>
+                        <exclude>**/*jar-with-dependencies.jar</exclude>
+                    </excludes>
+                    <repositoryName>stamp-maven-repository</repositoryName>
+                    <repositoryOwner>STAMP-project</repositoryOwner>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>site</goal>
+                        </goals>
+                        <phase>deploy</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
     <modules>
         <module>dspot</module>
     </modules>
+
 </project>
