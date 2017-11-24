@@ -32,7 +32,7 @@ public class AssertionRemoverTest extends AbstractTest {
 		final String expectedMethod = "@org.junit.Test" + nl +
 				"public void test1() {" + nl +
 				"    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl +
-				"    boolean boolean_0 = cl.getTrue();" + nl +
+				"    cl.getTrue();" + nl +
 				"}";
 		assertEquals(expectedMethod , testClass.getMethodsByName("test1").get(0).toString());
 	}
@@ -56,11 +56,11 @@ public class AssertionRemoverTest extends AbstractTest {
 		final String expectedMethod = "@org.junit.Test" + nl +
 				"public void test1() {" + nl +
 				"    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl +
-				"    boolean boolean_0 = cl.getTrue();" + nl +
+				"    cl.getTrue();" + nl +
 				"    int one = 1;" + nl +
 				"    switch (one) {" + nl +
 				"        case 1 :" + nl +
-				"            boolean boolean_1 = fr.inria.assertionremover.TestClassWithAssertToBeRemoved.getNegation(cl.getFalse());" + nl +
+				"            fr.inria.assertionremover.TestClassWithAssertToBeRemoved.getNegation(cl.getFalse());" + nl +
 				"            break;" + nl +
 				"    }" + nl +
 				"}";
