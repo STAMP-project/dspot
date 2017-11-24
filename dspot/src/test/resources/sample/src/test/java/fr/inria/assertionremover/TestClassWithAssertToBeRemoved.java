@@ -3,6 +3,7 @@ package fr.inria.assertionremover;
 import org.junit.Test;
 import fr.inria.sample.*;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -27,5 +28,13 @@ public class TestClassWithAssertToBeRemoved {
                 assertTrue(getNegation(cl.getFalse()));
                 break;
         }
+    }
+
+    @Test
+    public void test2() throws Exception {
+        int a = -1;
+        assertEquals(-1, a);
+        int b = 1;
+        assertEquals(1, b);
     }
 }
