@@ -158,6 +158,7 @@ public class DSpot {
     }
 
     private final Predicate<CtType> isExcluded = ctType ->
+            this.inputConfiguration.getProperty("excludedClasses") == null ||
             Arrays.stream(this.inputConfiguration.getProperty("excludedClasses").split(","))
                     .map(Pattern::compile)
                     .map(pattern -> pattern.matcher(ctType.getQualifiedName()))
