@@ -1,4 +1,4 @@
-package fr.inria.failing;
+package fr.inria.filter.failing;
 
 import org.junit.Test;
 

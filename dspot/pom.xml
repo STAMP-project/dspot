@@ -7,7 +7,7 @@
     <parent>
         <groupId>fr.inria.stamp</groupId>
         <artifactId>dspot-parent</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>dspot</artifactId>
@@ -61,7 +61,7 @@
         <dependency>
             <groupId>fr.inria.gforge.spoon</groupId>
             <artifactId>spoon-core</artifactId>
-            <version>6.0.0-SNAPSHOT</version>
+            <version>6.0.0</version>
         </dependency>
 
         <dependency>
