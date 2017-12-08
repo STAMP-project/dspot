@@ -3,7 +3,6 @@ package fr.inria.diversify.automaticbuilder;
 import fr.inria.diversify.mutant.descartes.DescartesChecker;
 import fr.inria.diversify.mutant.descartes.DescartesInjector;
 import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
-import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.Main;
