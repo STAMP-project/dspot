@@ -11,6 +11,11 @@ src/test/resources/sample/log/
 src/test/resources/test-projects/log/
 src/test/resources/multiple-pom/log/
 src/test/resources/multiple-pom/module-1/module-2-1/log/
+dspot/src/test/resources/mockito/log/
+dspot/src/test/resources/multiple-pom/module-1/module-2-1/log/
+dspot/src/test/resources/sample/log/
+dspot/src/test/resources/test-projects/log/
+
 
 
 
