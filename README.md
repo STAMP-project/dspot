@@ -1,18 +1,16 @@
-DSpot [![Build Status](https://travis-ci.org/STAMP-project/dspot.svg?branch=master)](https://travis-ci.org/STAMP-project/dspot)[![Coverage Status](https://coveralls.io/repos/github/STAMP-project/dspot/badge.svg?branch=master)](https://coveralls.io/github/STAMP-project/dspot?branch=master)
+DSpot: a Test Amplification Tool for Java [![Build Status](https://travis-ci.org/STAMP-project/dspot.svg?branch=master)](https://travis-ci.org/STAMP-project/dspot)[![Coverage Status](https://coveralls.io/repos/github/STAMP-project/dspot/badge.svg?branch=master)](https://coveralls.io/github/STAMP-project/dspot?branch=master)
 =====================================================================================================================
-![STAMP - European Commission - H2020](docs/logo_readme_md.png)
 
 ### What is Dspot?
 
-The goal of DSpot is to automatically improve existing JUnit test suites.
-It automatically generates new JUnit tests by modifying existing  existing test cases.
+DSpot automatically improves existing JUnit test suites.
+It automatically generates new JUnit tests by modifying existing ones.
 
-- Input: DSpot take as input a Java project with an existing test suite..
-- Output: DSpot produces a new test suite, containing both the existing tests and the new generated ones.
+- Input: DSpot take as input a Java project with an existing test suite.
+- Output: DSpot produces a new test cases, given on the command line and in a new file. Those new test cases kill new mutants, which means that Dspot help you to catch more regressions and to improve your mutation score.
 
-**How does it work?** DSpot applies transformation operators on existing tests in order to create new observation points
-on the state of the system. Those observation points are used to generate new assertion statements. The generated tests 
-are then selected and ordered according to a specific criterion, such as the branch coverage or mutation score.
+**How does Dspot work?** DSpot applies transformation operators on existing tests.
+The transformations result in new inputs and new explored paths. They also consist of adding new assertions.
 
 ### Command Line Usage
 ```
@@ -303,3 +301,8 @@ Here is the list of configuration properties of DSpot:
 
 DSpot is published under LGPL-3.0 (see [Licence.md](https://github.com/STAMP-project/dspot/blob/master/Licence.md) for 
 further details).
+
+### Funding
+
+Dspot is partially funded by research project STAMP (European Commission - H2020)
+![STAMP - European Commission - H2020](docs/logo_readme_md.png)
