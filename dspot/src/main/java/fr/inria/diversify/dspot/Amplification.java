@@ -181,10 +181,12 @@ public class Amplification {
 			LOGGER.info("Try to add assertions before amplification");
 			final List<CtMethod<?>> amplifiedTestToBeKept = assertGenerator.generateAsserts(
 					classTest, testSelector.selectToAmplify(tests));
-			result = compileAndRunTests(classTest, amplifiedTestToBeKept);
-			if (result == null) {
-				LOGGER.warn("Need a green test suite to run dspot");
-				return Collections.emptyList();
+			if (!amplifiedTestToBeKept.isEmpty()) {
+				result = compileAndRunTests(classTest, amplifiedTestToBeKept);
+				if (result == null) {
+					LOGGER.warn("Need a green test suite to run dspot");
+					return Collections.emptyList();
+				}
 			}
 			testSelector.selectToKeep(amplifiedTestToBeKept);
 			return testSelector.getAmplifiedTestCases();

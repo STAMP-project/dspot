@@ -51,7 +51,11 @@ public class AssertGenerator {
         MethodsAssertGenerator ags = new MethodsAssertGenerator(testClass, this.configuration, compiler);
         final List<CtMethod<?>> amplifiedTestWithAssertion =
                 ags.generateAsserts(cloneClass, testWithoutAssertions);
-        LOGGER.info("{} new tests with assertions generated", amplifiedTestWithAssertion.size());
+        if (amplifiedTestWithAssertion.isEmpty()) {
+            LOGGER.info("Could not generate any test with assertions");
+        } else {
+            LOGGER.info("{} new tests with assertions generated", amplifiedTestWithAssertion.size());
+        }
         return amplifiedTestWithAssertion;
     }
 }
