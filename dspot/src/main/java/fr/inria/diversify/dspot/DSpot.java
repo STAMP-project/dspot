@@ -205,12 +205,16 @@ public class DSpot {
     }
 
     protected List<CtMethod<?>> filterTestCases(List<CtMethod<?>> testMethods) {
-        final List<String> excludedTestCases = Arrays.stream(this.inputConfiguration.getProperty("excludedTestCases").split(",")).collect(Collectors.toList());
-        return testMethods.stream()
-                .filter(ctMethod ->
-                        excludedTestCases.isEmpty() ||
-                                !excludedTestCases.contains(ctMethod.getSimpleName())
-                ).collect(Collectors.toList());
+        if (this.inputConfiguration.getProperty("excludedTestCases") == null) {
+            return testMethods;
+        } else {
+            final List<String> excludedTestCases = Arrays.stream(this.inputConfiguration.getProperty("excludedTestCases").split(",")).collect(Collectors.toList());
+            return testMethods.stream()
+                    .filter(ctMethod ->
+                            excludedTestCases.isEmpty() ||
+                                    !excludedTestCases.contains(ctMethod.getSimpleName())
+                    ).collect(Collectors.toList());
+        }
     }
 
     public InputProgram getInputProgram() {
