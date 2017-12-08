@@ -78,10 +78,12 @@ public class DSpotUtils {
 	public static void printJavaFileWithComment(CtType<?> type, File directory) {
 		Factory factory = type.getFactory();
 		Environment env = factory.getEnvironment();
+		env.setAutoImports(true);
 		env.setCommentEnabled(true);
 		JavaOutputProcessor processor = new JavaOutputProcessor(directory, new DefaultJavaPrettyPrinter(env));
 		processor.setFactory(factory);
 		processor.createJavaFile(type);
+		env.setAutoImports(false);
 	}
 
 	public static void printAmplifiedTestClass(CtType<?> type, File directory) {
