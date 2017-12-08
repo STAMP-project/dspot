@@ -15,4 +15,9 @@ public class PassingTest {
     public void testAssertion() throws Exception {
         assertFalse(false);
     }
+
+    @Test
+    public void failingTestCase() throws Exception {
+        assertFalse(true);
+    }
 }
