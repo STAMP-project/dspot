@@ -182,8 +182,9 @@ public class DSpot {
         try {
             Counter.reset();
             Amplification testAmplification = new Amplification(this.inputConfiguration, this.amplifiers, this.testSelector, this.compiler);
+            final List<CtMethod<?>> filteredTestCases = this.filterTestCases(methods);
             long time = System.currentTimeMillis();
-            testAmplification.amplification(test, methods, numberOfIterations);
+            testAmplification.amplification(test, filteredTestCases, numberOfIterations);
             final long elapsedTime = System.currentTimeMillis() - time;
             LOGGER.info("elapsedTime {}", elapsedTime);
             this.projectTimeJSON.add(new ClassTimeJSON(test.getQualifiedName(), elapsedTime));
@@ -200,6 +201,19 @@ public class DSpot {
             return amplification;
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    protected List<CtMethod<?>> filterTestCases(List<CtMethod<?>> testMethods) {
+        if (this.inputConfiguration.getProperty("excludedTestCases") == null) {
+            return testMethods;
+        } else {
+            final List<String> excludedTestCases = Arrays.stream(this.inputConfiguration.getProperty("excludedTestCases").split(",")).collect(Collectors.toList());
+            return testMethods.stream()
+                    .filter(ctMethod ->
+                            excludedTestCases.isEmpty() ||
+                                    !excludedTestCases.contains(ctMethod.getSimpleName())
+                    ).collect(Collectors.toList());
         }
     }
 
