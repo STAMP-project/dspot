@@ -10,43 +10,14 @@ It automatically generates new JUnit tests by modifying existing  existing test 
 - Input: DSpot take as input a Java project with an existing test suite..
 - Output: DSpot produces a new test suite, containing both the existing tests and the new generated ones.
 
-**How does it work?** DSpot applies transformation operators on existing tests in order to create new observation points on the state of the system. Those observation points are used to generate new assertion statements. The generated tests are then selected and ordered according to a specific criterion, such as the branch coverage or mutation score.
-
-### Compile DSpot
-
-1) Clone the project:
-```
-git clone https://github.com/STAMP-project/dspot.git
-cd dspot
-```
-
-2) Compile DSpot
-```
-mvn compile
-```
-
-3) DSpot use the environnment variable MAVEN_HOME, ensure that this variable points to your maven installation. Example:
-```
-export MAVEN_HOME=path/to/maven/
-```
-
-4) Run the tests
-```
-mvn test
-```
-
-5) Create the jar (eg `target/dspot-1.0.0-jar-with-dependencies.jar`)
-```
-mvn package
-# check that this is successful
-ls target/dspot-*-jar-with-dependencies.jar
-java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main -p path/To/my.properties
-```
+**How does it work?** DSpot applies transformation operators on existing tests in order to create new observation points
+on the state of the system. Those observation points are used to generate new assertion statements. The generated tests 
+are then selected and ordered according to a specific criterion, such as the branch coverage or mutation score.
 
 ### Command Line Usage
 ```
 Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
-                          [(-p|--path) <path>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--selector) <BranchCoverageTestSelector | PitMutantScoreSelector>] [(-t|--test) test1:test2:...:testN ] [(-o|--output) <output>] [(-m|--mutant) <mutant>] [-e|--example] [-h|--help]
+      [(-p|--path) <path>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--selector) <BranchCoverageTestSelector | PitMutantScoreSelector>] [(-t|--test) test1:test2:...:testN ] [(-o|--output) <output>] [(-m|--mutant) <mutant>] [-e|--example] [-h|--help]
 
       [(-p|--path-to-properties) <./path/to/myproject.properties>]
             [mandatory] specify the path to the configuration file (format Java
@@ -96,22 +67,129 @@ Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
             shows this help
 ```
 
+### Output of DSpot
+
+DSpot produces 3 outputs in the <outputDirectory> (default: `output_diversify`) specified in the properties file.
+
+* a textual report of the result of the amplification also printed  on the standard output 
+* a json file summarizing the amplification 
+* the amplified tests augmented with comments (see `DSpotUtils.printJavaFileWithComment()`)
+
+### Running on your own project
+
+First, you should either [download the DSpot JAR](https://github.com/STAMP-project/dspot/releases) or build DSpot from 
+its sources (see below the section about compiling DSpot).
+
+You'll also need to create a properties file providing information to Dspot about where to find sources and more. 
+Let's imagine that we have a Maven multimodule project as follows:
+
+```
+myproject/
+  |_ module1/
+    |_ pom.xml
+  |_ module 2/
+    |_ pom.xml
+```
+
+Let's imagine you wish to run DSpot on `module1`. You'd need to create a properties file (e.g. `dspot.properties`),
+that you can located under under `module1` and containing (for example):
+
+```properties
+# Relative path to the project root.
+project=..
+# Path to the current module where we want to execute DSpot, relative to the project root
+targetModule=mymodule/
+# Relative path to the source project from this properties file
+src=src/main/java/
+# Relative path to the test source project from this properties file
+testSrc=src/test/java
+# Java version used
+javaVersion=8
+# (Optional) Path to the output folder, default to "output_diversify"
+outputDirectory=dspot-out/
+# (Optional) Filter on the package name containing tests to be amplified ("example" => "example.*")
+filter=example
+```
+
+You can then execute DSpot by using:
+
+```
+java -cp /path/to/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties dspot.properties
+# or in maven
+mvn exec:java -Dexec.mainClass="fr.inria.stamp.Main" -Dexec.args="--path-to-properties dspot.properties"
+```
+
+Amplify a specific test class
+```
+java -cp /path/to/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties dspot.properties --test my.package.TestClass
+```
+Amplify specific test classes according to a regex
+```
+java -cp /path/to/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties dspot.properties --test my.package.*
+java -cp /path/to/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties dspot.properties --test my.package.Example*
+```
+
+Amplify a specific test method from a specific test class
+```
+java -cp /path/to/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties dspot.properties --test my.package.TestClass --cases testMethod
+```
+
+### Compiling DSpot
+
+1) Clone the project:
+```
+git clone https://github.com/STAMP-project/dspot.git
+cd dspot
+```
+
+2) Compile DSpot
+```
+mvn compile
+```
+
+3) DSpot use the environnment variable MAVEN_HOME, ensure that this variable points to your maven installation. Example:
+```
+export MAVEN_HOME=path/to/maven/
+```
+
+4) Run the tests
+```
+mvn test
+```
+
+5) Create the jar (eg `target/dspot-1.0.0-jar-with-dependencies.jar`)
+```
+mvn package
+# check that this is successful
+ls target/dspot-*-jar-with-dependencies.jar
+java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main -p path/To/my.properties
+```
+
 ### Getting Started Example
 
-You can run the provided example by running `fr.inria.stamp.Main` from your IDE, or with
+After having cloned DSpot (see the previous section ), you can run the provided example by running 
+`fr.inria.stamp.Main` from your IDE, or with
+
 ```
 mvn exec:java -Dexec.mainClass="fr.inria.stamp.Main" -Dexec.args="--example"
 ```
+
 or
+
 ```
 java -jar target/dspot-1.0.0-jar-with-dependencies.jar --example
 ```
 
-This example is an implementation of the function `chartAt(s, i)` (in `src/test/resources/test-projects/`), which returns the char at the index _i_ in the String _s_.
+This example is an implementation of the function `chartAt(s, i)` (in `src/test/resources/test-projects/`), which 
+returns the char at the index _i_ in the String _s_.
 
-In this example, DSpot amplifies the tests of `chartAt(s, i)` with defaults amplifiers `TestDataMutator`, `TestMethodCallAdder`, `TestMethodCallRemover` and `StatementAdderOnAssert`, which changes literals (add 1 to integer, remove one char in a string, etc...), and with generation of assertions.
+In this example, DSpot amplifies the tests of `chartAt(s, i)` with defaults amplifiers `TestDataMutator`, 
+`TestMethodCallAdder`, `TestMethodCallRemover` and `StatementAdderOnAssert`, which changes literals (add 1 to integer, 
+remove one char in a string, etc...), and with generation of assertions.
 
-DSpot first reads information about the project from the properties file `src/test/resources/test-projects/test-projects.properties`
+DSpot first reads information about the project from the properties file 
+`src/test/resources/test-projects/test-projects.properties`.
+
 ```properties
 #relative path to the project root from dspot project
 project=src/test/resources/test-projects
@@ -127,7 +205,8 @@ outputDirectory=dspot-out/
 filter=example
 ```
 
-The result of the amplification of charAt consists of 6 new tests, as shown in the output below. Those new tests are written to the output folder specified by configuration property `outputDirectory` (`./dspot-out/`). 
+The result of the amplification of charAt consists of 6 new tests, as shown in the output below. Those new tests are 
+written to the output folder specified by configuration property `outputDirectory` (`./dspot-out/`). 
 
 ```
 ======= REPORT =======
@@ -142,41 +221,6 @@ There is 4 new unique path
 Print TestSuiteExampleAmpl with 6 amplified test cases in dspot-out/
 ```
 
-
-### Output of DSpot
-
-DSpot produces 3 outputs in the <outputDirectory> (default: `output_diversify`) specified in the properties file.
-
-* a textual report of the result of the amplification also printed  on the standard output 
-* a json file summarizing the amplification 
-* the amplified tests augmented with comments (see `DSpotUtils.printJavaFileWithComment()`)
-
-### Running on your own project
-
-You can run DSpot on your own project by running `fr.inria.stamp.Main` and specifying the path to the properties file as first argument:
-
-```
-java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties path/To/my.properties
-# or in maven
-mvn exec:java -Dexec.mainClass="fr.inria.stamp.Main" -Dexec.args="--path-to-properties <pathToPropertiesFile>"
-```
-
-Amplify a specific test class
-```
-java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties path/To/my.properties --test my.package.TestClass
-```
-Amplify specific test classes according to a regex
-```
-java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties path/To/my.properties --test my.package.*
-java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties path/To/my.properties --test my.package.Example*
-```
-
-Amplify a specific test method from a specific test class
-```
-java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties path/To/my.properties --test my.package.TestClass --cases testMethod
-```
-
-
 ### API
 
 The whole procedure of amplification is done by the `fr.inria.diversify.dspot.DSpot` class. 
@@ -189,24 +233,31 @@ You can specify which amplifiers (as a list) you want to use. By default, DSpot 
     * TestMethodCallRemover: which removes a method call in the test case.
     * StatementAdderOnAssert: which adds calls to accessible methods on existing objects and creates new instances.
   
-The amplifier `StatementAdd` (unstable): which reuses existing objects and return values to add method calls to accessible methods.
-Need the initialized InputProgram if DSpot to be well constructed.
+The amplifier `StatementAdd` (unstable): which reuses existing objects and return values to add method calls to 
+accessible methods. Need the initialized InputProgram if DSpot to be well constructed.
 
 ##### Amplifiers
 
-You can implement you own amplifier by implementing the `fr.inria.diversify.dspot.amplifier.Amplifier` interface and giving it to DSpot.
+You can implement you own amplifier by implementing the `fr.inria.diversify.dspot.amplifier.Amplifier` interface and 
+giving it to DSpot.
 
 #### Test Selectors
 
 A test selector is responsible the tests to be amplified in an amplification iteration.
 There are two test selectors:
 
-* BranchCoverageTestSelector: it selects amplified tests that increase the coverage, or produce a new unique execution path. BranchCoverageTestSelector produces a json which contains for each amplified test class, the name of the generated tests. For each test, the json file gives the number of added inputs, added assertions and the coverage measured in \# of method calls
-
-* PitMutantScoreSelector: it selects amplified tests that increase the mutant score, _i.e._ kills more mutants than the original tests. The mutants are generated with [Pitest](http://pitest.org/). Warning, the selector takes more time than the first one. This selector produces a json which contains for the amplified classed, the name of of each generated test, the number of added inputs, of added assertions, and the number of newly killed mutants. For each newly killed  mutant killed, it gives:
-        * the ID of the mutant operators (see [Mutator](http://pitest.org/quickstart/mutators/))
-        * the name of the method where the mutant is inserted.
-        * the line where the mutant is inserted.
+* BranchCoverageTestSelector: it selects amplified tests that increase the coverage, or produce a new unique execution
+path. BranchCoverageTestSelector produces a json which contains for each amplified test class, the name of the generated
+tests. For each test, the json file gives the number of added inputs, added assertions and the coverage measured in \# 
+of method calls
+* PitMutantScoreSelector: it selects amplified tests that increase the mutant score, _i.e._ kills more mutants than the 
+original tests. The mutants are generated with [Pitest](http://pitest.org/). Warning, the selector takes more time than
+the first one. This selector produces a json which contains for the amplified classed, the name of of each generated 
+test, the number of added inputs, of added assertions, and the number of newly killed mutants. For each newly killed 
+mutant killed, it gives:
+    * the ID of the mutant operators (see [Mutator](http://pitest.org/quickstart/mutators/))
+    * the name of the method where the mutant is inserted.
+    * the line where the mutant is inserted.
 
 #### Snippets
 
@@ -234,21 +285,21 @@ new DSpot(configuration, new PitMutantScoreSelector());//3 iterations, default a
 Here is the list of configuration properties of DSpot:
 
 * required properties:
- * project: path to the project root directory.
- * src: relative path (from project properties) to the source root directory.
- * testSrc: relative path (from project properties) to the test source root directory.
-
+  * project: path to the project root directory.
+  * src: relative path (from project properties) to the source root directory.
+  * testSrc: relative path (from project properties) to the test source root directory.
 * recommended properties:
- * outputDirectory: path to the out of dspot. (default: output)
- * javaVersion: version used of java (default: 5)
- * maven.home: path to the executable maven. If no value is specified, it will try some defaults values (for instance: `/usr/share/maven/`, `usr/local/Cellar/maven/3.3.9/libexec/` ...).
-
+  * outputDirectory: path to the out of dspot. (default: output)
+  * javaVersion: version used of java (default: 5)
+  * maven.home: path to the executable maven. If no value is specified, it will try some defaults values 
+    (for instance: `/usr/share/maven/`, `usr/local/Cellar/maven/3.3.9/libexec/` ...).
 * optional properties:
- * filter: string to filter on package or classes.
- * maven.localRepository: path to the local repository of maven (.m2), if you need specific settings.
- * excludedClasses: dspot will not amplify the excluded test classes.
- * additionalClasspathElements: add elements to the classpath. (e.g. a jar file)
+  * filter: string to filter on package or classes.
+  * maven.localRepository: path to the local repository of maven (.m2), if you need specific settings.
+  * excludedClasses: dspot will not amplify the excluded test classes.
+  * additionalClasspathElements: add elements to the classpath. (e.g. a jar file)
 
 ### Licence
 
-DSpot is published under LGPL-3.0 (see [Licence.md](https://github.com/STAMP-project/dspot/blob/master/Licence.md) for further details).
+DSpot is published under LGPL-3.0 (see [Licence.md](https://github.com/STAMP-project/dspot/blob/master/Licence.md) for 
+further details).
