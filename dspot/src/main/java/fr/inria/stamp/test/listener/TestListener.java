@@ -4,8 +4,6 @@ import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -112,7 +110,7 @@ public class TestListener extends RunListener {
                     .getMethod("getTestClass")
                     .invoke(descriptionToBeCopied);
             String displayname = (String) descriptionClass
-                    .getMethod("getDisplayName")
+                    .getMethod("getMethodName")
                     .invoke(descriptionToBeCopied);
             Collection<?> annotations = (Collection<?>) descriptionClass
                     .getMethod("getAnnotations")

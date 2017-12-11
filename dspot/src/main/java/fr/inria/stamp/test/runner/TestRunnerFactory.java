@@ -27,6 +27,8 @@ public class TestRunnerFactory {
         //STRING_ARRAY_LIST.add("org.mockito");
     }
 
+    public static boolean useReflectiveTestRunner = false;
+
     public static final Predicate<CtType<?>> containsSpecificAnnotation = testClass ->
             !(testClass.getElements(
                     new TypeFilter<CtTypeReference>(CtTypeReference.class) {
@@ -41,7 +43,7 @@ public class TestRunnerFactory {
             ).isEmpty());
 
     public static TestRunner createRunner(CtType<?> testClass, String classpath) {
-        if (testClass != null && containsSpecificAnnotation.test(testClass)) {
+        if (useReflectiveTestRunner || testClass != null && containsSpecificAnnotation.test(testClass)) {
             return new ReflectiveTestRunner(classpath);
         } else {
             return new DefaultTestRunner(classpath);
@@ -49,7 +51,7 @@ public class TestRunnerFactory {
     }
 
     public static TestRunner createRunner(CtType<?> testClass, URLClassLoader classLoader) {
-        if (containsSpecificAnnotation.test(testClass)) {
+        if (useReflectiveTestRunner || containsSpecificAnnotation.test(testClass)) {
             return new ReflectiveTestRunner(classLoader);
         } else {
             return new DefaultTestRunner(classLoader);
