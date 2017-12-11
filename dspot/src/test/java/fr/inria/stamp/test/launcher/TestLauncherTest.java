@@ -6,6 +6,7 @@ import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.test.listener.TestListener;
+import fr.inria.stamp.test.runner.TestRunnerFactory;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import spoon.Launcher;
@@ -358,5 +359,23 @@ public class TestLauncherTest {
 		assertEquals(1, run.getRunningTests().size());
 		assertEquals(0, run.getFailingTests().size());
 		assertTrue(run.getFailingTests().isEmpty());
+	}
+
+	@Test
+	public void testLauncherOnTestUsingReflectiveTestRunnerOnTestThatUseSystemProperty() throws Exception {
+
+		/*
+			Using the ReflectiveTestRunner
+		 */
+		TestRunnerFactory.useReflectiveTestRunner = true;
+		Utils.init("src/test/resources/sample/sample.properties");
+		final CtClass aClass = Utils.findClass("fr.inria.systemproperties.SystemPropertiesTest");
+		final String classPath = AmplificationHelper.getClassPath(Utils.getCompiler(), Utils.getInputProgram());
+		final TestListener run = TestLauncher.run(Utils.getInputConfiguration(), classPath, aClass);
+		assertEquals(1, run.getPassingTests().size());
+		assertEquals(1, run.getRunningTests().size());
+		assertEquals(0, run.getFailingTests().size());
+		assertTrue(run.getFailingTests().isEmpty());
+		TestRunnerFactory.useReflectiveTestRunner = false;
 	}
 }
