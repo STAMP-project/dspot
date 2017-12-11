@@ -287,6 +287,7 @@ public class JSAPOptions {
 		Switch useReflection = new Switch("useReflection");
 		useReflection.setLongFlag("useReflection");
 		useReflection.setDefault("false");
+		useReflection.setHelp("Use a totally isolate test runner. WARNING this test runner does not support the usage of the JacocoCoverageSelector");
 
 		try {
 			jsap.registerParameter(pathToConfigFile);
