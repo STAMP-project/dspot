@@ -46,6 +46,7 @@ public class DefaultTestRunner extends AbstractTestRunner {
 			RunNotifier runNotifier = new RunNotifier();
 			Arrays.stream(additionalListeners).forEach(runNotifier::addListener);
 			runNotifier.addFirstListener(listener);
+			Thread.currentThread().setContextClassLoader(this.classLoader);
 			runner.run(runNotifier);
 		});
 		try {
