@@ -78,6 +78,8 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     public List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified) {
         if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
             this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
+            this.testThatKilledMutants.clear();
+            this.selectedAmplifiedTest.clear();
         }
         return testsToBeAmplified;
     }
@@ -170,7 +172,6 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         reportJSONMutants();
         //clean up for the next class
         this.currentClassTestToBeAmplified = null;
-        this.testThatKilledMutants.clear();
     }
 
     private void reportStdout() {

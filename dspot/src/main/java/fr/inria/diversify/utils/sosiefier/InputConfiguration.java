@@ -6,10 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -76,28 +78,6 @@ public class InputConfiguration {
         }
     }
 
-    public InputConfiguration(File project, File srcDir, File testDir, File classesDir, File testClassesDir, 
-			File tempDir, String filter, File mavenHome) throws IOException {
-		this();
-		
-		getProperties().setProperty("project", project.getAbsolutePath());
-		getProperties().setProperty("src", getRelativePath(srcDir));
-		getProperties().setProperty("testSrc", getRelativePath(testDir));
-		//TODO 
-//		getProperties().setProperty("testResources", getRelativePath(testResourcesDir));
-//		getProperties().setProperty("srcResources", getRelativePath(srcResourcesDir));
-		getProperties().setProperty("maven.home", mavenHome.getAbsolutePath());
-		getProperties().setProperty("classes", getRelativePath(classesDir));
-		
-		getProperties().setProperty("tmpDir", getRelativePath(tempDir));
-		getProperties().setProperty("filter", filter);
-
-	}
-    
-    private String getRelativePath(File path) {
-		String projectAbsolutePath = getProperties().getProperty("project");
-		return path.getAbsolutePath().replace(projectAbsolutePath, "");
-	}
 
     public InputConfiguration(String file) throws IOException {
         this(new FileInputStream(file));

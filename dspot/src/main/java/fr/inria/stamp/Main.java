@@ -71,37 +71,6 @@ public class Main {
         }
     }
 
-    public static void run(Configuration configuration, InputConfiguration inputConfiguration) throws Exception {
-        AmplificationHelper.setSeedRandom(23L);
-        InputProgram program = new InputProgram();
-        inputConfiguration.setInputProgram(program);
-        inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
-        AmplificationHelper.MAX_NUMBER_OF_TESTS = configuration.maxTestAmplified;
-        if (configuration.mavenHome != null) {
-            inputConfiguration.getProperties().put("maven.home", configuration.mavenHome);
-        }
-        if (configuration.pathToOutput != null) {
-            inputConfiguration.getProperties().setProperty("outputDirectory", configuration.pathToOutput);
-        }
-        DSpot dspot = new DSpot(inputConfiguration, configuration.nbIteration, configuration.amplifiers, configuration.selector);
-
-        AmplificationHelper.setSeedRandom(configuration.seed);
-        AmplificationHelper.setTimeOutInMs(configuration.timeOutInMs);
-
-        createOutputDirectories(inputConfiguration);
-        if ("all".equals(configuration.testClasses.get(0))) {
-            amplifyAll(dspot, inputConfiguration);
-        } else {
-            configuration.testClasses.forEach(testCase -> {
-                if (!configuration.namesOfTestCases.isEmpty()) {
-                    amplifyOne(dspot, testCase, configuration.namesOfTestCases);
-                } else {
-                    amplifyOne(dspot, testCase, Collections.emptyList());
-                }
-            });
-        }
-    }
-
     private static void createOutputDirectories(InputConfiguration inputConfiguration) {
         if (!new File(inputConfiguration.getOutputDirectory()).exists()) {
 

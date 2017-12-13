@@ -22,7 +22,7 @@ public class DSpotMultiplePomTest {
 
     @Before
     public void setUp() throws Exception {
-try {
+        try {
             FileUtils.forceDelete(new File("target/trash/"));
             FileUtils.forceDelete(new File("target/dspot/"));
         } catch (Exception ignored) {
