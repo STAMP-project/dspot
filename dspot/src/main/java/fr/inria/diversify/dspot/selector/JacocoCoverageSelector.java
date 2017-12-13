@@ -54,6 +54,8 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 		if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
 			this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
 			this.initialCoverage = new JacocoExecutor(this.program, this.configuration, this.currentClassTestToBeAmplified).executeJacoco(this.currentClassTestToBeAmplified);
+			this.selectedToBeAmplifiedCoverageResultsMap = null;
+			this.selectedAmplifiedTest.clear();
 		}
 		final List<String> methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).collect(Collectors.toList());
 		final Map<String, CoverageResults> coverageResultsMap = new JacocoExecutor(this.program, this.configuration, this.currentClassTestToBeAmplified)
@@ -169,6 +171,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 			//ignored
 		}
 		DSpotUtils.printJavaFileWithComment(clone, new File(DSpotCompiler.pathToTmpTestSources));
+		this.currentClassTestToBeAmplified.getPackage().removeType(clone);
 
 		final String fileSeparator = System.getProperty("file.separator");
 		final String classpath = AutomaticBuilderFactory

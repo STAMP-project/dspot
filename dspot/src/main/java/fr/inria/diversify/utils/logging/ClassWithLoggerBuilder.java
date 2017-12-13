@@ -1,10 +1,14 @@
 package fr.inria.diversify.utils.logging;
 
+import fr.inria.diversify.dspot.assertGenerator.AssertionRemover;
+import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.sosiefier.TestLogProcessor;
+import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
+import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.List;
 
@@ -16,14 +20,14 @@ import java.util.List;
 @Deprecated
 public class ClassWithLoggerBuilder {
 
-    private final AssertionRemover assertionRemoverProcessor;
     private final TestLogProcessor loggingProcessor;
+    private final AssertionRemover assertionRemover;
 
     public ClassWithLoggerBuilder(Factory factory) {
         String logger = "fr.inria.diversify.logger";
 
-        assertionRemoverProcessor = new AssertionRemover();
-        assertionRemoverProcessor.setFactory(factory);
+        assertionRemover = new AssertionRemover();
+
         loggingProcessor = new TestLogProcessor();
         loggingProcessor.setLogger(logger + ".Logger");
         loggingProcessor.setFactory(factory);
@@ -40,9 +44,13 @@ public class ClassWithLoggerBuilder {
         CtMethod clone = cloneMethod(method);
         clone.setParent(parentClass);
 
-        if(assertionRemoverProcessor != null) {
-            assertionRemoverProcessor.process(clone);
-        }
+        clone.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
+            @Override
+            public boolean matches(CtInvocation element) {
+                return AmplificationChecker.isAssert(element);
+            }
+        }).forEach(assertionRemover::removeAssertion);
+
         loggingProcessor.process(clone);
 
         return clone;

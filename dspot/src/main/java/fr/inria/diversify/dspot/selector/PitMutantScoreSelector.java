@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  */
 public class PitMutantScoreSelector extends TakeAllSelector {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JacocoExecutor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PitMutantScoreSelector.class);
 
     private int numberOfMutant;
 
@@ -179,10 +179,10 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         long nbOfTotalMutantKilled = getNbTotalNewMutantKilled();
         string.append(nl).append("======= REPORT =======").append(nl);
         string.append("PitMutantScoreSelector: ").append(nl);
-        string.append("The original test suite kill ").append(this.originalKilledMutants.size()).append(" mutants").append(nl);
+        string.append("The original test suite kills ").append(this.originalKilledMutants.size()).append(" mutants").append(nl);
         string.append("The amplification results with ").append(
                 this.testThatKilledMutants.size()).append(" new tests").append(nl);
-        string.append("it kill ")
+        string.append("it kills ")
                 .append(nbOfTotalMutantKilled).append(" more mutants").append(nl);
         System.out.println(string.toString());
 

@@ -6,6 +6,7 @@ import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,11 @@ public class Main {
     public static boolean verbose = false;
 
     public static void main(String[] args) throws Exception {
+        try {
+            FileUtils.forceDelete(new File("target/dspot/"));
+        } catch (Exception ignored) {
+
+        }
         final Configuration configuration = JSAPOptions.parse(args);
         if (configuration == null) {
             Main.runExample();

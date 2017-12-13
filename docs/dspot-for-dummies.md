@@ -20,7 +20,7 @@ git clone https://github.com/STAMP-project/dspot.git
 ```
 cd dspot
 ```
-3. Create DSpot jar (eg `target/dspot-1.0.0-jar-with-dependencies.jar`)
+3. Create DSpot jar (eg `dspot/target/dspot-1.0.0-jar-with-dependencies.jar`)
 ```
 mvn package -DskipTests
 ```

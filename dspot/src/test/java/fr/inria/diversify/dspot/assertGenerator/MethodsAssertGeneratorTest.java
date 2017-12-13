@@ -92,9 +92,9 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
 
 	@Test
 	public void testMakeFailureTest() throws Exception {
-		CtClass<?> testClass = Utils.findClass("fr.inria.failing.FailingTest");
+		CtClass<?> testClass = Utils.findClass("fr.inria.filter.failing.FailingTest");
 		MethodsAssertGenerator mag = new MethodsAssertGenerator(testClass, Utils.getInputConfiguration(), Utils.getCompiler());
-		final CtMethod testAssertionError = Utils.findMethod("fr.inria.failing.FailingTest", "testAssertionError");
+		final CtMethod testAssertionError = Utils.findMethod("fr.inria.filter.failing.FailingTest", "testAssertionError");
 		final List<CtMethod<?>> generatedAssertion = mag.generateAsserts(testClass, Collections.singletonList(testAssertionError));
 		assertTrue(generatedAssertion.isEmpty());
 	}

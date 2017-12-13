@@ -17,6 +17,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 12/8/16
  */
+@Deprecated
 public class AssertGeneratorTest extends AbstractTest {
 
     @Test
