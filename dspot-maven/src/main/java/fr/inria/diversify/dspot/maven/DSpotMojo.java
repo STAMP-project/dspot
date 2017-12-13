@@ -95,9 +95,6 @@ public class DSpotMojo extends AbstractMojo {
 			inputConfiguration = new InputConfiguration(getProject(), getSrcDir(), getTestDir(), getClassesDir(),
 					getTestClassesDir(), getTempDir(), getFilter(), getMavenHome());
 			Main.run(configuration, inputConfiguration);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
