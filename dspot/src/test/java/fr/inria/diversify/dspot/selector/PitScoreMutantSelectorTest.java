@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.selector;
 
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
+import fr.inria.diversify.dspot.Amplification;
 import fr.inria.diversify.dspot.MavenAbstractTest;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
@@ -15,12 +16,15 @@ import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.Main;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -37,6 +41,15 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
 
     @Test
     public void testSelection() throws Exception {
+
+        /*
+            Test the PitMutantScoreSelector:
+                - The amplified test should increase the mutation score of the test suite.
+                    we compare the mutation score before and after.
+                - The amplification of several test classes in a row should not impact other test classes : see #280
+
+         */
+
         AmplificationHelper.setSeedRandom(23L);
 
         Main.verbose = true;
@@ -53,15 +66,17 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
 
         AmplificationHelper.setSeedRandom(23L);
         InputConfiguration configuration = new InputConfiguration(pathToPropertiesFile);
-        DSpot dspot = new DSpot(configuration, 1, Collections.emptyList(),
-                new PitMutantScoreSelector("src/test/resources/test-projects/originalpit/mutations.csv"));//loading from existing pit-results
+        final PitMutantScoreSelector testSelector = new PitMutantScoreSelector("src/test/resources/test-projects/originalpit/mutations.csv");//loading from existing pit-results
+        DSpot dspot = new DSpot(configuration, 1, Collections.emptyList(), testSelector);
 
         dspot.addAmplifier(new TestDataMutator());
 
         final CtClass<Object> exampleOriginalTestClass = dspot.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
-        CtType amplifiedTest = dspot.amplifyTest("example.TestSuiteExample", Collections.singletonList("test2"));
-
-        assertTrue(amplifiedTest.getMethods().size() > exampleOriginalTestClass.getMethods().size());
+        dspot.amplifyTest("example.TestSuiteExample", Collections.singletonList("test2"));
+        int numberOfGeneratedTest = Amplification.ampTestCount;
+        CtType<?> amplifiedTest = dspot.amplifyTest("example.TestSuiteExample", Collections.singletonList("test2"));
+        int numberOfGeneratedTest2 = Amplification.ampTestCount - numberOfGeneratedTest;
+        assertEquals(amplifiedTest.getMethods().size(), exampleOriginalTestClass.getMethods().size() + numberOfGeneratedTest2, numberOfGeneratedTest - 1);
 
         DSpotUtils.printJavaFileWithComment(amplifiedTest, new File(DSpotCompiler.pathToTmpTestSources));
         final String classpath = AutomaticBuilderFactory

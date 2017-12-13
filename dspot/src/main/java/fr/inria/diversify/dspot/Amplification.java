@@ -45,7 +45,7 @@ public class Amplification {
 
 	private DSpotCompiler compiler;
 
-	private static int ampTestCount;
+	public static int ampTestCount;
 
 	public Amplification(InputConfiguration configuration, List<Amplifier> amplifiers, TestSelector testSelector, DSpotCompiler compiler) {
 		this.configuration = configuration;
