@@ -4,8 +4,6 @@ import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -112,7 +110,7 @@ public class TestListener extends RunListener {
                     .getMethod("getTestClass")
                     .invoke(descriptionToBeCopied);
             String displayname = (String) descriptionClass
-                    .getMethod("getDisplayName")
+                    .getMethod("getMethodName")
                     .invoke(descriptionToBeCopied);
             Collection<?> annotations = (Collection<?>) descriptionClass
                     .getMethod("getAnnotations")
@@ -127,7 +125,7 @@ public class TestListener extends RunListener {
         }
     }
 
-    public static TestListener copyFromObject(Object listenerToBeCopied) {
+    public static TestListener copyFromObject(Object listenerToBeCopied, Collection<String> testMethodNames) {
         try {
 
             Class<?> listenerClass = listenerToBeCopied.getClass();
@@ -138,6 +136,7 @@ public class TestListener extends RunListener {
                     .invoke(listenerToBeCopied))
                     .stream()
                     .map(TestListener::copyDescriptionFromObject)
+                    .filter(description -> testMethodNames.contains(description.getMethodName()) || testMethodNames.isEmpty())
                     .collect(Collectors.toList()));
 
             copy.getFailingTests().addAll(((Collection<?>) listenerClass
@@ -145,6 +144,8 @@ public class TestListener extends RunListener {
                     .invoke(listenerToBeCopied))
                     .stream()
                     .map(TestListener::copyFailurefromObject)
+                    .filter(failure -> failure.getDescription().getMethodName() == null ||
+                            testMethodNames.contains(failure.getDescription().getMethodName()) || testMethodNames.isEmpty())
                     .collect(Collectors.toList()));
 
             copy.getIgnoredTests().addAll(((Collection<?>) listenerClass
@@ -152,6 +153,7 @@ public class TestListener extends RunListener {
                     .invoke(listenerToBeCopied))
                     .stream()
                     .map(TestListener::copyDescriptionFromObject)
+                    .filter(description -> testMethodNames.contains(description.getMethodName()) || testMethodNames.isEmpty())
                     .collect(Collectors.toList()));
 
             copy.getAssumptionFailingTests().addAll(((Collection<?>) listenerClass
@@ -159,6 +161,7 @@ public class TestListener extends RunListener {
                     .invoke(listenerToBeCopied))
                     .stream()
                     .map(TestListener::copyFailurefromObject)
+                    .filter(failure -> testMethodNames.contains(failure.getDescription().getMethodName()) || testMethodNames.isEmpty())
                     .collect(Collectors.toList()));
 
             return copy;

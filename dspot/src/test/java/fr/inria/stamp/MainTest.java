@@ -99,16 +99,22 @@ public class MainTest {
         }
     }
 
-    private static final String expectedReportOnDefaultMode = "\n" +
-            "======= REPORT =======\n" +
-            "Initial instruction coverage: 33 / 37\n" +
-            "89.19%\n" +
-            "Amplification results with 0 amplified tests.\n" +
-            "Amplified instruction coverage: 33 / 37\n" +
-            "89.19%\n";
+    private static final String expectedReportOnDefaultMode = "" + nl  +
+            "======= REPORT =======" + nl  +
+            "Initial instruction coverage: 33 / 37" + nl  +
+            "89.19%" + nl  +
+            "Amplification results with 0 amplified tests." + nl  +
+            "Amplified instruction coverage: 33 / 37" + nl  +
+            "89.19%" + nl ;
 
     @Test
     public void testExample() throws Exception {
+
+        /*
+            Test the --example option. It runs a specific predefined example of amplification.
+                It also checks the auto imports output of DSpot.
+         */
+
         Main.main(new String[]{"--verbose", "--example"});
         final File reportFile = new File("target/trash/example.TestSuiteExample_jacoco_instr_coverage_report.txt");
         assertTrue(reportFile.exists());
@@ -120,7 +126,29 @@ public class MainTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        try (BufferedReader reader = new BufferedReader(new FileReader(new File("target/trash/example/TestSuiteExampleAmpl.java")))) {
+            String content = reader.lines().reduce("", (acc, line) -> acc + line + nl);
+            assertTrue(content.startsWith(expectedAmplifiedTestClass));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
+
+    //we  don't test the whole file, but only the begin of it. It is sufficient to detect the auto import.
+    private static final String expectedAmplifiedTestClass = "package example;" + nl  +
+             nl  +
+             nl  +
+            "import org.junit.Assert;" + nl  +
+            "import org.junit.Test;" + nl  +
+             nl  +
+             nl  +
+            "public class TestSuiteExampleAmpl {" + nl  +
+            "    @Test" + nl  +
+            "    public void test3() {" + nl  +
+            "        Example ex = new Example();" + nl  +
+            "        String s = \"abcd\";" + nl  +
+            "        Assert.assertEquals('d', ex.charAt(s, ((s.length()) - 1)));" + nl  +
+            "    }" + nl ;
 
     @Test
     public void testTwoClasses() throws Exception {

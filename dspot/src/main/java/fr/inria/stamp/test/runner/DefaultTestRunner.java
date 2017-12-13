@@ -46,6 +46,15 @@ public class DefaultTestRunner extends AbstractTestRunner {
 			RunNotifier runNotifier = new RunNotifier();
 			Arrays.stream(additionalListeners).forEach(runNotifier::addListener);
 			runNotifier.addFirstListener(listener);
+
+			// Since we want to use our custom ClassLoader to run the tests of the project being executed by DSpot,
+			// and since we create a new thread for starting the JUnit Runner, we need to set the context ClassLoader
+			// to be our custom ClassLoader. This is so that any code in the tests or triggered by the test that uses
+			// the context ClassLoader will work.
+			// As an example if the tests call some code that uses Java's ServiceLoader then it would fail to find and
+			// load any provider located in our custom ClassLoader.
+			Thread.currentThread().setContextClassLoader(this.classLoader);
+
 			runner.run(runNotifier);
 		});
 		try {

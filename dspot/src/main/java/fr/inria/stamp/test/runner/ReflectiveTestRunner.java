@@ -43,7 +43,7 @@ public class ReflectiveTestRunner extends AbstractTestRunner {
                     } catch (MalformedURLException e) {
                         throw new RuntimeException(e);
                     }
-                }).toArray(URL[]::new), ClassLoader.getSystemClassLoader().getParent());
+                }).toArray(URL[]::new), null);
     }
 
     private Object runUsingReflection(Class<?> classTest) {
@@ -79,13 +79,14 @@ public class ReflectiveTestRunner extends AbstractTestRunner {
             LOGGER.warn("Additional listeners is not supported for ReflectiveTestRunner");
         }
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        final Future<?> submit = executor.submit(() ->
-            runUsingReflection(testClass)
-        );
+        final Future<?> submit = executor.submit(() -> {
+            Thread.currentThread().setContextClassLoader(classLoader);
+            return runUsingReflection(testClass);
+        });
         try {
             Object listener = submit.get(10000000 * (testMethodNames.size() + 1),
                     TimeUnit.MILLISECONDS);
-            return TestListener.copyFromObject(listener);
+            return TestListener.copyFromObject(listener, testMethodNames);
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {

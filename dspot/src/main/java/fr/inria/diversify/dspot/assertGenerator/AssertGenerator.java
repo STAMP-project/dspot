@@ -29,58 +29,33 @@ public class AssertGenerator {
 
     private DSpotCompiler compiler;
 
+    private AssertionRemover assertionRemover;
+
     public AssertGenerator(InputConfiguration configuration, DSpotCompiler compiler) {
         this.configuration = configuration;
         this.compiler = compiler;
+        this.assertionRemover = new AssertionRemover();
     }
 
     public List<CtMethod<?>> generateAsserts(CtType<?> testClass) throws IOException, ClassNotFoundException {
         return generateAsserts(testClass, new ArrayList<>(testClass.getMethods()));
     }
 
-    static final int[] counter = new int[]{0};
-
-    private CtMethod<?> removeAssertion(CtMethod<?> test) {
-        CtMethod<?> testWithoutAssertion = AmplificationHelper.cloneMethodTest(test, "");
-        testWithoutAssertion.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
-            @Override
-            public boolean matches(CtInvocation element) {
-                return AmplificationChecker.isAssert(element);
-            }
-        }).forEach(ctInvocation -> {
-            ctInvocation.getArguments().forEach(argument -> {
-                CtExpression clone = ((CtExpression) argument).clone();
-                if (clone instanceof CtStatement) {
-                    ctInvocation.insertBefore((CtStatement) clone);
-                } else if (! (clone instanceof CtLiteral || clone instanceof CtVariableRead)) {
-                    CtTypeReference typeOfParameter = clone.getType();
-                    if (clone.getType().equals(test.getFactory().Type().NULL_TYPE)) {
-                        typeOfParameter = test.getFactory().Type().createReference(Object.class);
-                    }
-                    final CtLocalVariable localVariable = test.getFactory().createLocalVariable(
-                            typeOfParameter,
-                            typeOfParameter.getSimpleName() + "_" + counter[0]++,
-                            clone
-                    );
-                    ctInvocation.insertBefore(localVariable);
-                }
-            });
-            ctInvocation.getParent(CtBlock.class).removeStatement(ctInvocation);
-        });
-        return testWithoutAssertion;
-    }
-
     public List<CtMethod<?>> generateAsserts(CtType<?> testClass, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
         CtType cloneClass = testClass.clone();
         cloneClass.setParent(testClass.getParent());
         List<CtMethod<?>> testWithoutAssertions = tests.stream()
-                .map(this::removeAssertion)
+                .map(this.assertionRemover::removeAssertion)
                 .collect(Collectors.toList());
         testWithoutAssertions.forEach(cloneClass::addMethod);
         MethodsAssertGenerator ags = new MethodsAssertGenerator(testClass, this.configuration, compiler);
         final List<CtMethod<?>> amplifiedTestWithAssertion =
                 ags.generateAsserts(cloneClass, testWithoutAssertions);
-        LOGGER.info("{} new tests with assertions generated", amplifiedTestWithAssertion.size());
+        if (amplifiedTestWithAssertion.isEmpty()) {
+            LOGGER.info("Could not generate any test with assertions");
+        } else {
+            LOGGER.info("{} new tests with assertions generated", amplifiedTestWithAssertion.size());
+        }
         return amplifiedTestWithAssertion;
     }
 }
