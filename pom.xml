@@ -87,6 +87,7 @@
 
     <modules>
         <module>dspot</module>
+        <module>dspot-maven</module>
     </modules>
 
 </project>

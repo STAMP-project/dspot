@@ -20,7 +20,7 @@ public class DescartesTest {
 
     private static final String nl = System.getProperty("line.separator");
 
-    @Test
+//    @Test
     public void testInjectionOfDescartesIfNeeded() throws Exception {
         final String pathname = "target/dspot/trash/pom.xml";
         try {
