@@ -9,7 +9,7 @@ import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
-import fr.inria.stamp.mutant.PitExecutor;
+import fr.inria.stamp.Main;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtType;
@@ -37,9 +37,10 @@ public class ExecutedMutantSelectorTest {
     public void test() throws Exception {
 
         // pre computing the number of executed mutants...
-
-        PitExecutor.execute(Utils.getInputConfiguration(), "example.TestSuiteExample");
-        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir() + "target/report-pits");
+        Main.verbose = true;
+        AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration())
+                .runPit(Utils.getInputProgram().getProgramDir());
+        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir() + "target/pit-reports/");
 
         final ExecutedMutantSelector testSelector = new ExecutedMutantSelector();
         DSpot dspot = new DSpot(Utils.getInputConfiguration(), 1, Collections.singletonList(new TestDataMutator()), testSelector);
@@ -62,8 +63,9 @@ public class ExecutedMutantSelectorTest {
         DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
                 new File(Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getTestClassesDir()));
 
-        PitExecutor.execute(Utils.getInputConfiguration(), "example.TestSuiteExampleAmpl");
-        final List<PitResult> amplifiedPitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir() + "target/report-pits");
+        AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration())
+                .runPit(Utils.getInputProgram().getProgramDir());
+        final List<PitResult> amplifiedPitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir() + "target/pit-reports/");
 
         assertTrue(pitResults.stream()
                 .filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED ||
@@ -71,6 +73,6 @@ public class ExecutedMutantSelectorTest {
                 amplifiedPitResults.stream()
                         .filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED ||
                                 pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
-
+        Main.verbose = false;
     }
 }
