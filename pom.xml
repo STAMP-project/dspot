@@ -6,10 +6,11 @@
 
     <groupId>fr.inria.stamp</groupId>
     <artifactId>dspot-parent</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>{$project.version}</version>
     <packaging>pom</packaging>
 
     <properties>
+        <project.version>1.0.5-SNAPSHOT</project.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <default.encoding>UTF-8</default.encoding>
         <maven.compiler.source>1.8</maven.compiler.source>
