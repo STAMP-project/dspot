@@ -4,8 +4,9 @@
 	<parent>
 		<groupId>fr.inria.stamp</groupId>
 		<artifactId>dspot-parent</artifactId>
-		<version>1.0.4-SNAPSHOT</version>
+		<version>1.0.5-SNAPSHOT</version>
 	</parent>
+
 	<artifactId>dspot-maven</artifactId>
 	<packaging>maven-plugin</packaging>
 	<name>Maven DSpot Plugin</name>
