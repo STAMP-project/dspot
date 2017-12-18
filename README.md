@@ -12,79 +12,6 @@ It automatically generates new JUnit tests by modifying existing ones.
 **How does Dspot work?** DSpot applies transformation operators on existing tests.
 The transformations result in new inputs and new explored paths. They also consist of adding new assertions.
 
-### Command Line Usage
-```
-Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
-                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | BranchCoverageTestSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [(-g|--max-test-amplified) <integer>] [-d|--descartes] [-k|--evosuite] [(-t|--test) my.package.MyClassTest1:my.package.MyClassTest2:...:my.package.MyClassTestN ] [(-c|--cases) testCases1:testCases2:...:testCasesN ] [(-o|--output-path) <output>] [(-m|--path-pit-result) <./path/to/mutations.csv>] [(-b|--automatic-builder) <MavenBuilder | GradleBuilder>] [--useReflection] [(-j|--maven-home) <path to maven home>] [(-r|--randomSeed) <long integer>] [(-v|--timeOut) <long integer>] [--verbose] [-e|--example] [-h|--help]
-
-  [(-p|--path-to-properties) <./path/to/myproject.properties>]
-        [mandatory] specify the path to the configuration file (format Java
-        properties) of the target project (e.g. ./foo.properties).
-
-  [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ]
-        [optional] specify the list of amplifiers to use. Default with all
-        available amplifiers. Possible values: NumberLiteralAmplifier |
-        MethodAdd | MethodRemove | TestDataMutator | StatementAdd | None
-        (default: None)
-
-  [(-i|--iteration) <iteration>]
-        [optional] specify the number of amplification iteration. A larger
-        number may help to improve the test criterion (eg a larger number of
-        iterations mah help to kill more mutants). This has an impact on the
-        execution time: the more iterations, the longer DSpot runs. (default: 3)
-
-  [(-s|--test-criterion) <PitMutantScoreSelector | BranchCoverageTestSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>]
-        [optional] specify the test adequacy criterion to be maximized with
-        amplification (default: PitMutantScoreSelector)
-
-  [(-g|--max-test-amplified) <integer>]
-        [optional] specify the maximum number of amplified test that dspot keep
-        (before generating assertion) (default: 200)
-
-  [(-t|--test) my.package.MyClassTest1:my.package.MyClassTest2:...:my.package.MyClassTestN ]
-        [optional] fully qualified names of test classes to be amplified. If the
-        value is all, DSpot will amplify the whole test suite. You can also use
-        regex to describe a set of test classes. (default: all)
-
-  [(-c|--cases) testCases1:testCases2:...:testCasesN ]
-        specify the test cases to amplify
-
-  [(-o|--output-path) <output>]
-        [optional] specify the output folder (default: dspot-report)
-
-  [(-m|--path-pit-result) <./path/to/mutations.csv>]
-        [optional, expert mode] specify the path to the .csv of the original
-        result of Pit Test. If you use this option the selector will be forced
-        to PitMutantScoreSelector
-
-  [(-b|--automatic-builder) <MavenBuilder | GradleBuilder>]
-        [optional] specify the automatic builder to build the project (default:
-        MavenBuilder)
-
-  [--useReflection]
-        Use a totally isolate test runner. WARNING this test runner does not
-        support the usage of the JacocoCoverageSelector
-
-  [(-j|--maven-home) <path to maven home>]
-        specify the path to the maven home
-
-  [(-r|--randomSeed) <long integer>]
-        specify a seed for the random object (used for all randomized operation)
-        (default: 23)
-
-  [(-v|--timeOut) <long integer>]
-        specify the timeout value of the degenerated tests in millisecond
-        (default: 10000)
-
-  [--verbose]
-
-  [-e|--example]
-        run the example of DSpot and leave
-
-  [-h|--help]
-        shows this help
-```
-
 ### Output of DSpot
 
 DSpot produces 3 outputs in the <outputDirectory> (default: `output_diversify`) specified in the properties file.
@@ -152,6 +79,57 @@ Amplify a specific test method from a specific test class
 java -cp /path/to/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties dspot.properties --test my.package.TestClass --cases testMethod
 ```
 
+### Getting Started Example
+
+After having cloned DSpot (see the previous section), you can run the provided example by running
+`fr.inria.stamp.Main` from your IDE, or with
+
+```
+java -jar target/dspot-LATEST-jar-with-dependencies.jar --example
+```
+
+replacing `LATEST` by the latest version of **Dspot**, _e.g._ 1.0.4 would give :
+ `dspot-1.0.4-jar-with-dependencies.jar`
+
+This example is an implementation of the function `chartAt(s, i)` (in `src/test/resources/test-projects/`), which
+returns the char at the index _i_ in the String _s_.
+
+In this example, DSpot amplifies the tests of `chartAt(s, i)` with the `TestDataMutator`, which modifies literals inside the test and the generation of assertions.
+
+DSpot first reads information about the project from the properties file
+`src/test/resources/test-projects/test-projects.properties`.
+
+```properties
+#relative path to the project root from dspot project
+project=src/test/resources/test-projects
+#relative path to the source project from the project properties
+src=src/main/java/
+#relative path to the test source project from the project properties
+testSrc=src/test/java
+#java version used
+javaVersion=8
+# (optional) path to the output folder, default to "output_diversify"
+outputDirectory=dspot-out/
+# (optional) filter on the package name containing tests to be amplified ("example" => "example.*")
+filter=example
+```
+
+The result of the amplification of charAt consists of 6 new tests, as shown in the output below. Those new tests are
+written to the output folder specified by configuration property `outputDirectory` (`./dspot-out/`).
+
+```
+======= REPORT =======
+Branch Coverage Selector:
+Initial coverage: 83.33%
+There is 3 unique path in the original test suite
+The amplification results with 6 new tests
+The branch coverage obtained is: 100.00%
+There is 4 new unique path
+
+
+Print TestSuiteExampleAmpl with 6 amplified test cases in dspot-out/
+```
+
 ### Compiling DSpot
 
 1) Clone the project:
@@ -183,60 +161,77 @@ ls target/dspot-*-jar-with-dependencies.jar
 java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main -p path/To/my.properties
 ```
 
-### Getting Started Example
-
-After having cloned DSpot (see the previous section ), you can run the provided example by running 
-`fr.inria.stamp.Main` from your IDE, or with
-
+### Command Line Usage
 ```
-mvn exec:java -Dexec.mainClass="fr.inria.stamp.Main" -Dexec.args="--example"
-```
+Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
+                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | ExecutedMutantSelector | BranchCoverageTestSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [(-g|--max-test-amplified) <integer>] [-d|--descartes] [-k|--evosuite] [(-t|--test) my.package.MyClassTest1:my.package.MyClassTest2:...:my.package.MyClassTestN ] [(-c|--cases) testCases1:testCases2:...:testCasesN ] [(-o|--output-path) <output>] [(-m|--path-pit-result) <./path/to/mutations.csv>] [(-b|--automatic-builder) <MavenBuilder | GradleBuilder>] [--useReflection] [(-j|--maven-home) <path to maven home>] [(-r|--randomSeed) <long integer>] [(-v|--timeOut) <long integer>] [--verbose] [-e|--example] [-h|--help]
 
-or
+  [(-p|--path-to-properties) <./path/to/myproject.properties>]
+        [mandatory] specify the path to the configuration file (format Java
+        properties) of the target project (e.g. ./foo.properties).
 
-```
-java -jar target/dspot-1.0.0-jar-with-dependencies.jar --example
-```
+  [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ]
+        [optional] specify the list of amplifiers to use. Default with all
+        available amplifiers. Possible values: NumberLiteralAmplifier |
+        MethodAdd | MethodRemove | TestDataMutator | StatementAdd | None
+        (default: None)
 
-This example is an implementation of the function `chartAt(s, i)` (in `src/test/resources/test-projects/`), which 
-returns the char at the index _i_ in the String _s_.
+  [(-i|--iteration) <iteration>]
+        [optional] specify the number of amplification iteration. A larger
+        number may help to improve the test criterion (eg a larger number of
+        iterations mah help to kill more mutants). This has an impact on the
+        execution time: the more iterations, the longer DSpot runs. (default: 3)
 
-In this example, DSpot amplifies the tests of `chartAt(s, i)` with defaults amplifiers `TestDataMutator`, 
-`TestMethodCallAdder`, `TestMethodCallRemover` and `StatementAdderOnAssert`, which changes literals (add 1 to integer, 
-remove one char in a string, etc...), and with generation of assertions.
+  [(-s|--test-criterion) <PitMutantScoreSelector | ExecutedMutantSelector | BranchCoverageTestSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>]
+        [optional] specify the test adequacy criterion to be maximized with
+        amplification (default: PitMutantScoreSelector)
 
-DSpot first reads information about the project from the properties file 
-`src/test/resources/test-projects/test-projects.properties`.
+  [(-g|--max-test-amplified) <integer>]
+        [optional] specify the maximum number of amplified test that dspot keep
+        (before generating assertion) (default: 200)
 
-```properties
-#relative path to the project root from dspot project
-project=src/test/resources/test-projects
-#relative path to the source project from the project properties
-src=src/main/java/
-#relative path to the test source project from the project properties
-testSrc=src/test/java
-#java version used
-javaVersion=8
-# (optional) path to the output folder, default to "output_diversify"
-outputDirectory=dspot-out/
-# (optional) filter on the package name containing tests to be amplified ("example" => "example.*"
-filter=example
-```
+  [(-t|--test) my.package.MyClassTest1:my.package.MyClassTest2:...:my.package.MyClassTestN ]
+        [optional] fully qualified names of test classes to be amplified. If the
+        value is all, DSpot will amplify the whole test suite. You can also use
+        regex to describe a set of test classes. (default: all)
 
-The result of the amplification of charAt consists of 6 new tests, as shown in the output below. Those new tests are 
-written to the output folder specified by configuration property `outputDirectory` (`./dspot-out/`). 
+  [(-c|--cases) testCases1:testCases2:...:testCasesN ]
+        specify the test cases to amplify
 
-```
-======= REPORT =======
-Branch Coverage Selector:
-Initial coverage: 83.33%
-There is 3 unique path in the original test suite
-The amplification results with 6 new tests
-The branch coverage obtained is: 100.00%
-There is 4 new unique path
+  [(-o|--output-path) <output>]
+        [optional] specify the output folder (default: dspot-report)
 
+  [(-m|--path-pit-result) <./path/to/mutations.csv>]
+        [optional, expert mode] specify the path to the .csv of the original
+        result of Pit Test. If you use this option the selector will be forced
+        to PitMutantScoreSelector
 
-Print TestSuiteExampleAmpl with 6 amplified test cases in dspot-out/
+  [(-b|--automatic-builder) <MavenBuilder | GradleBuilder>]
+        [optional] specify the automatic builder to build the project (default:
+        MavenBuilder)
+
+  [--useReflection]
+        Use a totally isolate test runner. WARNING this test runner does not
+        support the usage of the JacocoCoverageSelector
+
+  [(-j|--maven-home) <path to maven home>]
+        specify the path to the maven home
+
+  [(-r|--randomSeed) <long integer>]
+        specify a seed for the random object (used for all randomized operation)
+        (default: 23)
+
+  [(-v|--timeOut) <long integer>]
+        specify the timeout value of the degenerated tests in millisecond
+        (default: 10000)
+
+  [--verbose]
+
+  [-e|--example]
+        run the example of DSpot and leave
+
+  [-h|--help]
+        shows this help
 ```
 
 ###### Available Properties
