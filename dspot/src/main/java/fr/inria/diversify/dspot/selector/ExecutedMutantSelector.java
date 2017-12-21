@@ -1,7 +1,13 @@
 package fr.inria.diversify.dspot.selector;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
+import fr.inria.diversify.dspot.selector.json.mutant.MutantJSON;
+import fr.inria.diversify.dspot.selector.json.mutant.TestCaseJSON;
+import fr.inria.diversify.dspot.selector.json.mutant.TestClassJSON;
+import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
@@ -15,6 +21,11 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -121,4 +132,111 @@ public class ExecutedMutantSelector extends TakeAllSelector {
         LOGGER.info("{} has been selected to amplify the test suite", numberOfSelectedAmplifiedTest);
         return amplifiedTestToBeKept;
     }
+
+    @Override
+    public void report() {
+        reportStdout();
+        reportJSONMutants();
+        //clean up for the next class
+        this.currentClassTestToBeAmplified = null;
+    }
+
+    private long getNbTotalNewMutantKilled() {
+        return this.mutantExecutedPerAmplifiedTestMethod.keySet()
+                .stream()
+                .flatMap(method -> this.mutantExecutedPerAmplifiedTestMethod.get(method).stream())
+                .distinct()
+                .count();
+    }
+
+    private void reportStdout() {
+        final StringBuilder string = new StringBuilder();
+        final String nl = System.getProperty("line.separator");
+        long nbOfTotalMutantKilled = getNbTotalNewMutantKilled();
+        string.append(nl).append("======= REPORT =======").append(nl);
+        string.append("PitMutantScoreSelector: ").append(nl);
+        string.append("The original test suite executes ").append(this.originalMutantExecuted.size()).append(" mutants").append(nl);
+        string.append("The amplification results with ").append(
+                this.selectedAmplifiedTest.size()).append(" new tests").append(nl);
+        string.append("it executes ")
+                .append(nbOfTotalMutantKilled).append(" more mutants").append(nl);
+        System.out.println(string.toString());
+
+        File reportDir = new File(this.configuration.getOutputDirectory());
+        if (!reportDir.exists()) {
+            reportDir.mkdir();
+        }
+        if (this.currentClassTestToBeAmplified != null) {
+            try (FileWriter writer = new FileWriter(this.configuration.getOutputDirectory() + "/" +
+                    this.currentClassTestToBeAmplified.getQualifiedName() + "_mutants_report.txt", false)) {
+                writer.write(string.toString());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private void reportJSONMutants() {
+        if (this.currentClassTestToBeAmplified == null) {
+            return;
+        }
+        TestClassJSON testClassJSON;
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        final File file = new File(this.configuration.getOutputDirectory() + "/" +
+                this.currentClassTestToBeAmplified.getQualifiedName() + "_mutants_executed.json");
+        if (file.exists()) {
+            try {
+                testClassJSON = gson.fromJson(new FileReader(file), TestClassJSON.class);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            testClassJSON = new TestClassJSON(getNbMutantExecutedOriginally(this.currentClassTestToBeAmplified.getQualifiedName()),
+                    this.currentClassTestToBeAmplified.getQualifiedName(),
+                    this.currentClassTestToBeAmplified.getMethods()
+                            .stream()
+                            .filter(AmplificationChecker::isTest)
+                            .count());
+        }
+        List<CtMethod> keys = new ArrayList<>(this.mutantExecutedPerAmplifiedTestMethod.keySet());
+        keys.forEach(amplifiedTest -> {
+                    List<PitResult> pitResults = new ArrayList<>(this.mutantExecutedPerAmplifiedTestMethod.get(amplifiedTest));
+                    final List<MutantJSON> mutantsJson = new ArrayList<>();
+                    pitResults.forEach(pitResult -> mutantsJson.add(new MutantJSON(
+                            pitResult.getFullQualifiedNameMutantOperator(),
+                            pitResult.getLineNumber(),
+                            pitResult.getNameOfMutatedMethod()
+                    )));
+                    if (amplifiedTest == null) {
+                        testClassJSON.addTestCase(new TestCaseJSON(
+                                this.currentClassTestToBeAmplified.getSimpleName(),
+                                Counter.getAllAssertions(),
+                                Counter.getAllInput(),
+                                mutantsJson
+                        ));
+                    } else {
+                        testClassJSON.addTestCase(new TestCaseJSON(
+                                amplifiedTest.getSimpleName(),
+                                Counter.getAssertionOfSinceOrigin(amplifiedTest),
+                                Counter.getInputOfSinceOrigin(amplifiedTest),
+                                mutantsJson
+                        ));
+                    }
+                }
+        );
+        try (FileWriter writer = new FileWriter(file, false)) {
+            writer.write(gson.toJson(testClassJSON));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    private int getNbMutantExecutedOriginally(String qualifiedName) {
+        return (int) this.originalMutantExecuted.stream()
+                .filter(pitResult ->
+                        qualifiedName.equals(pitResult.getFullQualifiedNameOfKiller())
+                ).count();
+    }
+
 }
