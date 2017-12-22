@@ -44,7 +44,7 @@ public class AmplificationHelper {
 
     private static Map<CtType, Set<CtType>> importByClass = new HashMap<>();
 
-    private static Random random = new Random();
+    private static Random random = new Random(23L);
 
     private static int timeOutInMs = 10000;
 
@@ -71,12 +71,13 @@ public class AmplificationHelper {
         importByClass.clear();
     }
 
-    public static CtType createAmplifiedTest(List<CtMethod<?>> ampTest, CtType classTest) {
+    public static CtType createAmplifiedTest(List<CtMethod<?>> ampTest, CtType<?> classTest) {
         CtType amplifiedTest = classTest.clone();
         final String amplifiedName = classTest.getSimpleName().startsWith("Test") ?
                 classTest.getSimpleName() + "Ampl" :
                 "Ampl" + classTest.getSimpleName();
         amplifiedTest.setSimpleName(amplifiedName);
+        classTest.getMethods().stream().filter(AmplificationChecker::isTest).forEach(amplifiedTest::removeMethod);
         ampTest.forEach(amplifiedTest::addMethod);
         final CtTypeReference classTestReference = classTest.getReference();
         amplifiedTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
