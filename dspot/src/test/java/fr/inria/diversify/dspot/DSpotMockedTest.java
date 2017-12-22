@@ -5,6 +5,7 @@ import fr.inria.diversify.dspot.amplifier.TestDataMutator;
 import fr.inria.diversify.dspot.amplifier.TestMethodCallAdder;
 import fr.inria.diversify.dspot.amplifier.TestMethodCallRemover;
 import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
+import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
@@ -52,8 +53,8 @@ public class DSpotMockedTest extends MavenAbstractTest {
 
 		CtType<?> amplifiedTest = dspot.amplifyTest("info.sanaulla.dal.BookDALTest", Collections.singletonList("testAddBook"));
 
-//		assertEquals(8, amplifiedTest.getMethods().size());
-		assertTrue(amplifiedTest.getMethods().size() > 6);//TODO Fix it
+		assertEquals(2, amplifiedTest.getMethods().stream().filter(AmplificationChecker::isTest).count());
+        assertTrue(!amplifiedTest.getMethodsByName("testAddBook_add1").isEmpty());
 	}
 
 	@Override

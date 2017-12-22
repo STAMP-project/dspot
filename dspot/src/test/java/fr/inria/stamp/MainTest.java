@@ -48,17 +48,17 @@ public class MainTest {
 
     @Test
     public void testOnProjectWithResources() throws Exception {
-        Main.main(new String[] {
-            "--verbose",
-            "--path-to-properties", "src/test/resources/project-with-resources/project-with-resources.properties",
-            "--test-criterion", "JacocoCoverageSelector",
-            "--iteration", "1"
+        Main.main(new String[]{
+                "--verbose",
+                "--path-to-properties", "src/test/resources/project-with-resources/project-with-resources.properties",
+                "--test-criterion", "JacocoCoverageSelector",
+                "--iteration", "1"
         });
     }
 
     @Test
     public void testDefaultModeIsNoneAmplifier() throws Exception {
-        Main.main(new String[] {
+        Main.main(new String[]{
                 "--verbose",
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
@@ -79,7 +79,7 @@ public class MainTest {
 
     @Test
     public void testNoneAmplifier() throws Exception {
-        Main.main(new String[] {
+        Main.main(new String[]{
                 "--verbose",
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
@@ -99,13 +99,13 @@ public class MainTest {
         }
     }
 
-    private static final String expectedReportOnDefaultMode = "" + nl  +
-            "======= REPORT =======" + nl  +
-            "Initial instruction coverage: 33 / 37" + nl  +
-            "89.19%" + nl  +
-            "Amplification results with 0 amplified tests." + nl  +
-            "Amplified instruction coverage: 33 / 37" + nl  +
-            "89.19%" + nl ;
+    private static final String expectedReportOnDefaultMode = nl +
+            "======= REPORT =======" + nl +
+            "Initial instruction coverage: 33 / 37" + nl +
+            "89.19%" + nl +
+            "Amplification results with 0 amplified tests." + nl +
+            "Amplified instruction coverage: 33 / 37" + nl +
+            "89.19%" + nl;
 
     @Test
     public void testExample() throws Exception {
@@ -135,20 +135,23 @@ public class MainTest {
     }
 
     //we  don't test the whole file, but only the begin of it. It is sufficient to detect the auto import.
-    private static final String expectedAmplifiedTestClass = "package example;" + nl  +
-             nl  +
-             nl  +
-            "import org.junit.Assert;" + nl  +
-            "import org.junit.Test;" + nl  +
-             nl  +
-             nl  +
-            "public class TestSuiteExampleAmpl {" + nl  +
-            "    @Test" + nl  +
-            "    public void test3() {" + nl  +
-            "        Example ex = new Example();" + nl  +
-            "        String s = \"abcd\";" + nl  +
-            "        Assert.assertEquals('d', ex.charAt(s, ((s.length()) - 1)));" + nl  +
-            "    }" + nl ;
+    private static final String expectedAmplifiedTestClass = "package example;\n" +
+            "\n" +
+            "\n" +
+            "import org.junit.Assert;\n" +
+            "import org.junit.Test;\n" +
+            "\n" +
+            "\n" +
+            "public class TestSuiteExampleAmpl {\n" +
+            "    /* amplification of example.TestSuiteExample#test2 */\n" +
+            "    @Test(timeout = 10000)\n" +
+            "    public void test2_literalMutationString2() {\n" +
+            "        Example ex = new Example();\n" +
+            "        // AssertGenerator create local variable with return value of invocation\n" +
+            "        char o_test2_literalMutationString2__3 = ex.charAt(\"acd\", 3);\n" +
+            "        // AssertGenerator add assertion\n" +
+            "        Assert.assertEquals('d', ((char) (o_test2_literalMutationString2__3)));\n" +
+            "    }";
 
     @Test
     public void testTwoClasses() throws Exception {
@@ -201,7 +204,7 @@ public class MainTest {
         }
     }
 
-    private static final String expectedReportOneClassOneMethod = "" + nl +
+    private static final String expectedReportOneClassOneMethod = nl +
             "======= REPORT =======" + nl +
             "Initial instruction coverage: 33 / 37" + nl +
             "89" + DECIMAL_SEPARATOR + "19%" + nl +

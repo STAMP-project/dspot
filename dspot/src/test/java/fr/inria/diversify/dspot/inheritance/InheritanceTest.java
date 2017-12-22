@@ -11,6 +11,7 @@ import spoon.reflect.declaration.CtType;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -29,8 +30,8 @@ public class InheritanceTest {
     public void testInheritanceMethod() throws Exception {
         final InputConfiguration configuration = new InputConfiguration("src/test/resources/sample/sample.properties");
         DSpot dspot = new DSpot(configuration, 3, Collections.singletonList(new TestDataMutator()));
-        CtType ctType = dspot.amplifyTest("fr.inria.inheritance.Inherited").get(0);
-        assertEquals(2, ctType.getMethods().size());
+        CtType<?> ctType = dspot.amplifyTest("fr.inria.inheritance.Inherited").get(0);
+        assertEquals(1, ctType.getMethods().size());
     }
 
 }

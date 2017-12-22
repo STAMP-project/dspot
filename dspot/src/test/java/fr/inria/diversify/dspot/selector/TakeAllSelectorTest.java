@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
  * on 08/08/17
  */
 public class TakeAllSelectorTest {
+
 	@Test
 	public void test() throws Exception {
 
@@ -31,11 +32,9 @@ public class TakeAllSelectorTest {
 		InputConfiguration configuration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
 		DSpot dspot = new DSpot(configuration, 1, Collections.singletonList(new StatementAdd()),
 				new TakeAllSelector());
-
 		assertEquals(6, dspot.getInputProgram().getFactory().Class().get("example.TestSuiteExample").getMethods().size());
-
-		final CtType<?> test2 = dspot.amplifyTest("example.TestSuiteExample", Collections.singletonList("test2"));
-
-		assertEquals(7, test2.getMethods().size());
+		final CtType<?> amplifiedTest = dspot.amplifyTest("example.TestSuiteExample", Collections.singletonList("test2"));
+		assertEquals(2, amplifiedTest.getMethods().size());
 	}
+
 }
