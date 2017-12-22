@@ -181,6 +181,10 @@ public class CloverCoverageSelector extends TakeAllSelector {
         final File destDir = new File(PATH_TO_COPIED_FILES);
         try {
             FileUtils.forceDelete(destDir);
+        } catch (IOException ignored) {
+            //ignored
+        }
+        try {
             FileUtils.copyDirectory(
                     new File(this.configuration.getInputProgram().getAbsoluteSourceCodeDir()),
                     destDir
