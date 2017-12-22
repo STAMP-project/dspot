@@ -6,14 +6,11 @@ import com.atlassian.clover.reporters.json.JSONException;
 import com.atlassian.clover.reporters.json.JSONObject;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.EntryPoint;
 import org.apache.commons.io.FileUtils;
-import spoon.reflect.declaration.CtNamedElement;
-import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,6 +70,8 @@ public class CloverExecutor {
         final String finalClasspath = classpath +
                 AmplificationHelper.PATH_SEPARATOR + rootDirectoryOfCloverFiles.getAbsolutePath() + INSTR_BIN_DIRECTORY +
                 AmplificationHelper.PATH_SEPARATOR + ABSOLUTE_PATH_TO_CLOVER_DEPENDENCIES;
+
+
 
         final File binaryOutputDirectory = new File(rootDirectoryOfCloverFiles.getAbsolutePath() + INSTR_BIN_DIRECTORY);
         if (!binaryOutputDirectory.mkdir()) {
