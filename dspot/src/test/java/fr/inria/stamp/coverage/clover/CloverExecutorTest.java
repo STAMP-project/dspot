@@ -1,8 +1,12 @@
 package fr.inria.stamp.coverage.clover;
 
 import fr.inria.diversify.Utils;
+import fr.inria.diversify.dspot.AbstractTest;
+import org.apache.commons.io.FileUtils;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +18,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 22/12/17
  */
-public class CloverExecutorTest {
+public class CloverExecutorTest extends AbstractTest {
 
     /*
         The CloverExecutor should return a map, containing the contribution of each executed test cases, i.e.,
@@ -24,15 +28,18 @@ public class CloverExecutorTest {
             {testMethod1 -> [ {Class1 -> 1,2,3}, {Class2 -> 5,7,8}, ...], testMethod2 -> ... }
      */
 
+    @Override
+    public String getPathToPropertiesFile() {
+        return "src/test/resources/test-projects/test-projects.properties";
+    }
+
     @Test
     public void testExecuteAll() throws Exception {
         /*
             Test the method executeAll, on all test classes, of CloverExecutor:
 
-
          */
-        Utils.reset();
-        Utils.init("src/test/resources/test-projects/test-projects.properties");
+
 
         final Map<String, Map<String, List<Integer>>> lineCoveragePerTestMethod =
                 CloverExecutor.executeAll(Utils.getInputConfiguration(), Utils.getInputProgram().getProgramDir() + "/src/");
@@ -54,9 +61,6 @@ public class CloverExecutorTest {
             Test the method execute, on one single test class, of CloverExecutor:
                 We test two coverages: test4 and test8. These tests cover 1 class, but different lines.
          */
-
-        Utils.reset();
-        Utils.init("src/test/resources/test-projects/test-projects.properties");
 
         final Map<String, Map<String, List<Integer>>> lineCoveragePerTestMethod =
                 CloverExecutor.execute(Utils.getInputConfiguration(), Utils.getInputProgram().getProgramDir() + "/src/", "example.TestSuiteExample");
