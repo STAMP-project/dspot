@@ -14,15 +14,11 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Created by Benjamin DANGLOT
@@ -43,6 +39,7 @@ public class CloverExecutor {
 
     public static Map<String, Map<String, List<Integer>>> executeAll(InputConfiguration configuration,
                                                                      String pathToSources) {
+
         return CloverExecutor.execute(configuration, pathToSources,
                 DSpotUtils.getAllTestClasses(configuration)
         );
@@ -51,7 +48,6 @@ public class CloverExecutor {
     public static Map<String, Map<String, List<Integer>>> execute(InputConfiguration configuration,
                                                                   String pathToSources,
                                                                   String... testClassesNames) {
-
         final File rootDirectoryOfCloverFiles = new File(ROOT_DIRECTORY);
         try {
             FileUtils.deleteDirectory(rootDirectoryOfCloverFiles);
@@ -69,8 +65,7 @@ public class CloverExecutor {
                 .buildClasspath(configuration.getInputProgram().getProgramDir());
         final String finalClasspath = classpath +
                 AmplificationHelper.PATH_SEPARATOR + rootDirectoryOfCloverFiles.getAbsolutePath() + INSTR_BIN_DIRECTORY +
-                AmplificationHelper.PATH_SEPARATOR + ABSOLUTE_PATH_TO_CLOVER_DEPENDENCIES;
-
+                AmplificationHelper.PATH_SEPARATOR + CLOVER_DEPENDENCIES;
 
 
         final File binaryOutputDirectory = new File(rootDirectoryOfCloverFiles.getAbsolutePath() + INSTR_BIN_DIRECTORY);
@@ -123,19 +118,10 @@ public class CloverExecutor {
         return coverage;
     }
 
-    private static final Function<List<String>, String> LIST_OF_DEPENDENCIES_TO_ABS_PATH = list ->
-            Arrays.stream(((URLClassLoader) ClassLoader.getSystemClassLoader())
-                    .getURLs())
-                    .filter(url -> list.stream().anyMatch(s -> url.getPath().contains(s)))
-                    .map(URL::getPath)
-                    .collect(Collectors.joining(AmplificationHelper.PATH_SEPARATOR));
-
-    private static final List<String> CLOVER_DEPENDENCIES = Arrays.asList(
-            "commons-io/commons-io/2.5/commons-io-2.5.jar",
-            "org/openclover/clover/4.2.1/clover-4.2.1.jar"
-    );
-
-    private static final String ABSOLUTE_PATH_TO_CLOVER_DEPENDENCIES = LIST_OF_DEPENDENCIES_TO_ABS_PATH.apply(CLOVER_DEPENDENCIES);
+    private static final String CLOVER_DEPENDENCIES =
+            FileUtils.class.getResource("/" + FileUtils.class.getName().replaceAll("\\.", "/") + ".class").getPath().substring(5).split("!")[0]
+                    + AmplificationHelper.PATH_SEPARATOR +
+                    CloverInstr.class.getResource("/" + CloverInstr.class.getName().replaceAll("\\.", "/") + ".class").getPath().substring(5).split("!")[0];
 
     public volatile static Map<String, JSONObject> jsonTestTargets = new HashMap<>();
 

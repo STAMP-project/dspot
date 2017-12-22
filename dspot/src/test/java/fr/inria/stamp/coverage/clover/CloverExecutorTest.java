@@ -2,11 +2,8 @@ package fr.inria.stamp.coverage.clover;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.dspot.AbstractTest;
-import org.apache.commons.io.FileUtils;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +27,7 @@ public class CloverExecutorTest extends AbstractTest {
 
     @Override
     public String getPathToPropertiesFile() {
+
         return "src/test/resources/test-projects/test-projects.properties";
     }
 
@@ -39,7 +37,6 @@ public class CloverExecutorTest extends AbstractTest {
             Test the method executeAll, on all test classes, of CloverExecutor:
 
          */
-
 
         final Map<String, Map<String, List<Integer>>> lineCoveragePerTestMethod =
                 CloverExecutor.executeAll(Utils.getInputConfiguration(), Utils.getInputProgram().getProgramDir() + "/src/");
