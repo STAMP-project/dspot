@@ -7,6 +7,7 @@ import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.amplifier.Amplifier;
 import fr.inria.diversify.dspot.amplifier.StatementAdd;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
+import fr.inria.stamp.EntryPoint;
 import org.junit.Test;
 import spoon.reflect.declaration.CtType;
 
@@ -28,6 +29,7 @@ public class CloverCoverageSelectorTest {
 
         Utils.reset();
         Utils.init("src/test/resources/test-projects/test-projects.properties");
+        EntryPoint.verbose = true;
 
         final DSpot dspot = new DSpot(Utils.getInputConfiguration(),
                 1,
@@ -38,5 +40,6 @@ public class CloverCoverageSelectorTest {
                 Collections.singletonList(Utils.findMethod("example.TestSuiteExample", "test2"))
         );
         assertFalse(ctType.getMethodsByName("test2_literalMutationNumber9").isEmpty());
+        EntryPoint.verbose = false;
     }
 }
