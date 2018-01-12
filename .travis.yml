@@ -14,7 +14,7 @@ install:
 
 script:
   - mvn clean install
-  - cd dspot && java -jar target/dspot-1.0.3-SNAPSHOT-jar-with-dependencies.jar --example
+  - cd dspot && java -jar target/dspot-1.0.5-SNAPSHOT-jar-with-dependencies.jar --example
 
 after_success:
   - mvn clean test jacoco:report coveralls:report

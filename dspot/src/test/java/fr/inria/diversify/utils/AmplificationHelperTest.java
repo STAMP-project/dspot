@@ -16,24 +16,22 @@ import static org.junit.Assert.*;
  * benjamin.danglot@inria.fr
  * on 1/30/17
  */
-public class AmplifierHelperTest {
-
-
+public class AmplificationHelperTest {
 
     @Test
     public void testCreateAmplifiedTestClass() throws Exception {
 
         Utils.init("src/test/resources/sample/sample.properties");
 
-        CtClass<Object> classTest = Utils.getFactory().Class().get("fr.inria.helper.ClassWithInnerClass");
+        CtClass<?> classTest = Utils.getFactory().Class().get("fr.inria.helper.ClassWithInnerClass");
         List<CtMethod<?>> fakeAmplifiedMethod = classTest.getMethods()
                 .stream()
                 .map(CtMethod::clone)
                 .collect(Collectors.toList());
         fakeAmplifiedMethod.forEach(ctMethod -> ctMethod.setSimpleName("ampl" + ctMethod.getSimpleName()));
 
-        CtType amplifiedTest = AmplificationHelper.createAmplifiedTest(fakeAmplifiedMethod, classTest);
-        assertEquals(classTest.getMethods().size() * 2, amplifiedTest.getMethods().size());
+        CtType<?> amplifiedTest = AmplificationHelper.createAmplifiedTest(fakeAmplifiedMethod, classTest);
+        assertEquals(16, amplifiedTest.getMethods().size());
 
         assertFalse(classTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
             @Override
