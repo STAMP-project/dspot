@@ -42,10 +42,10 @@ mvn clean package
 
 ##### Execute DSpot
 
-1. From the root folder copy the configuration to the file dhell/dspot.properties
+1. Go to the dhell folder, copy below configuration to the file dspot.properties
 ```properties
-#relative path to the project root from dspot project
-project=../dhell
+#relative path to the target project root from the folder where dspot is executed
+project=./
 #relative path to the source project from the project properties
 src=src/main/java/
 #relative path to the test source project from the project properties
@@ -60,26 +60,27 @@ filter=fr.inria.stamp.examples.dhell*
 
 2. Execute DSpot
 ```
-cd dspot
-java -jar target/dspot-1.0.0-jar-with-dependencies.jar  -p ../dhell/dspot.properties -i 1 -t  fr.inria.stamp.examples.dhell.HelloAppTest -a MethodAdd
+java -jar ../dspot/dspot/target/dspot-1.0.5-SNAPSHOT-jar-with-dependencies.jar -p ./dspot.properties -i 1 -t fr.inria.stamp.examples.dhell.HelloAppTest -a MethodAdd
 ```
 The execution uses these parameters:
-* p: [mandatory] specify the path to the configuration file.
-* i: specify the number of amplification iteration.
+* jar: [mandatory] specify the path to the DSpot library
+* p: [mandatory] specify the path to the DSpot configuration file.
+* i: specify the number of amplification iterations.
 * t: fully qualified names of test classes to be amplified.
 * a: specify the list of amplifiers to use.
 
 3. Check the Output
-The result of the amplification consists of 14 new tests, as shown in the output below. Those new tests are written to the output folder specified by configuration property outputDirectory (dspot-out/).
+The result of the amplification consists of 15 new tests, as shown in the output below. Those new tests are written to the output folder specified by configuration property outputDirectory (dspot-out/).
 ```
 ======= REPORT =======
 PitMutantScoreSelector: 
-The original test suite kill 107 mutants
-The amplification results with 14 new tests
-it kill 12 more mutants
+The original test suite kills 104 mutants
+The amplification results with 15 new tests
+it kills 15 more mutants
 
-01:43 INFO: Print AmplHelloAppTest with 14 amplified test cases in dspot-out/
-73172 ms
+
+2018-01-11 12:50:04,540 INFO fr.inria.diversify.dspot.DSpot - Print AmplHelloAppTest with 15 amplified test cases in dspot-out/
+81162 ms
 
 ```
 
