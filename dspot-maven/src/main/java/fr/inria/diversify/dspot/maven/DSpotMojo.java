@@ -17,7 +17,7 @@ import fr.inria.stamp.JSAPOptions;
 import fr.inria.stamp.JSAPOptions.SelectorEnum;
 import fr.inria.stamp.Main;
 
-@Mojo(name = "mutationCoverage", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.TEST)
+@Mojo(name = "amplify-unit-tests", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.TEST)
 public class DSpotMojo extends AbstractMojo {
 
 	// Command Line parameters -> fr.inria.stamp.Configuration
