@@ -5,6 +5,7 @@ import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
 import fr.inria.diversify.dspot.selector.ChangeDetectorSelector;
 import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
+import fr.inria.diversify.dspot.selector.CloverCoverageSelector;
 import fr.inria.diversify.dspot.selector.PitMutantScoreSelector;
 import fr.inria.diversify.dspot.selector.ExecutedMutantSelector;
 import fr.inria.diversify.dspot.selector.TakeAllSelector;
@@ -55,6 +56,11 @@ public class JSAPOptions {
             @Override
             public TestSelector buildSelector() {
                 return new TakeAllSelector();
+            }
+        },CloverCoverageSelector {
+            @Override
+            public TestSelector buildSelector() {
+                return new CloverCoverageSelector();
             }
         },
         ExecutedMutantSelector {
@@ -203,7 +209,7 @@ public class JSAPOptions {
         selector.setLongFlag("test-criterion");
         selector.setShortFlag('s');
         selector.setStringParser(JSAP.STRING_PARSER);
-        selector.setUsageName("PitMutantScoreSelector | ExecutedMutantSelector | BranchCoverageTestSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector");
+        selector.setUsageName("PitMutantScoreSelector | ExecutedMutantSelector | CloverCoverageSelector | BranchCoverageTestSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector");
         selector.setHelp("[optional] specify the test adequacy criterion to be maximized with amplification");
         selector.setDefault("PitMutantScoreSelector");
 

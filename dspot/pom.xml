@@ -124,6 +124,19 @@
             <version>2.10.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>fr.inria.stamp</groupId>
+            <artifactId>test-runner</artifactId>
+            <version>1.0.0</version>
+            <classifier>jar-with-dependencies</classifier>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openclover</groupId>
+            <artifactId>clover</artifactId>
+            <version>4.2.1</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -212,8 +225,9 @@
                 </executions>
                 <configuration>
                     <excludes>
-                        <exclude>**/fr/inria/diversify/dspot/amplifier/ObjectGenerator.*</exclude>
-                        <exclude>**/fr/inria/diversify/utils/sosiefier/*</exclude>
+                        <exclude>**/fr/inria/diversify/dspot/amplifier/ObjectGenerator.*</exclude> <!-- generator of tests -->
+                        <exclude>**/fr/inria/diversify/utils/sosiefier/*</exclude> <!-- old classes from sosiefier -->
+                        <exclude>**/com/atlassian/clover/reporters/html/*</exclude> <!-- we override this class to get specific information -->
                     </excludes>
                 </configuration>
             </plugin>
