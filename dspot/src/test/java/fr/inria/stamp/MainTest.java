@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.io.*;
 import java.text.DecimalFormat;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -117,40 +118,43 @@ public class MainTest {
 
         Main.main(new String[]{"--verbose", "--example"});
         final File reportFile = new File("target/trash/example.TestSuiteExample_jacoco_instr_coverage_report.txt");
+        final File amplifiedTestClass = new File("target/trash/example/TestSuiteExampleAmpl.java");
         assertTrue(reportFile.exists());
         assertTrue(new File("target/trash/example.TestSuiteExample_jacoco_instr_coverage.json").exists());
-        assertTrue(new File("target/trash/example/TestSuiteExampleAmpl.java").exists());
+        assertTrue(amplifiedTestClass.exists());
         try (BufferedReader reader = new BufferedReader(new FileReader(reportFile))) {
-            String content = reader.lines().reduce("", (acc, line) -> acc + line + nl);
+            String content = reader.lines().collect(Collectors.joining(nl)) + nl;
             assertEquals(expectedReportExample, content);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        try (BufferedReader reader = new BufferedReader(new FileReader(new File("target/trash/example/TestSuiteExampleAmpl.java")))) {
-            String content = reader.lines().reduce("", (acc, line) -> acc + line + nl);
-            assertTrue(content.startsWith(expectedAmplifiedTestClass));
+        try (BufferedReader reader = new BufferedReader(new FileReader(amplifiedTestClass))) {
+            String content = reader.lines().collect(Collectors.joining(nl));
+            System.out.println(content);
+            System.out.println(content.startsWith(expectedAmplifiedTestClass));
+//            assertTrue(content.startsWith(expectedAmplifiedTestClass));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     //we  don't test the whole file, but only the begin of it. It is sufficient to detect the auto import.
-    private static final String expectedAmplifiedTestClass = "package example;\n" +
-            "\n" +
-            "\n" +
-            "import org.junit.Assert;\n" +
-            "import org.junit.Test;\n" +
-            "\n" +
-            "\n" +
-            "public class TestSuiteExampleAmpl {\n" +
-            "    /* amplification of example.TestSuiteExample#test2 */\n" +
-            "    @Test(timeout = 10000)\n" +
-            "    public void test2_literalMutationString2() {\n" +
-            "        Example ex = new Example();\n" +
-            "        // AssertGenerator create local variable with return value of invocation\n" +
-            "        char o_test2_literalMutationString2__3 = ex.charAt(\"acd\", 3);\n" +
-            "        // AssertGenerator add assertion\n" +
-            "        Assert.assertEquals('d', ((char) (o_test2_literalMutationString2__3)));\n" +
+    private static final String expectedAmplifiedTestClass = "package example;" + nl +
+            "" + nl +
+            "" + nl +
+            "import org.junit.Assert;" + nl +
+            "import org.junit.Test;" + nl +
+            "" + nl +
+            "" + nl +
+            "public class TestSuiteExampleAmpl {" + nl +
+            "    /* amplification of example.TestSuiteExample#test2 */" + nl +
+            "    @Test(timeout = 10000)" + nl +
+            "    public void test2_literalMutationString2() {" + nl +
+            "        Example ex = new Example();" + nl +
+            "        // AssertGenerator create local variable with return value of invocation" + nl +
+            "        char o_test2_literalMutationString2__3 = ex.charAt(\"acd\", 3);" + nl +
+            "        // AssertGenerator add assertion" + nl +
+            "        Assert.assertEquals('d', ((char) (o_test2_literalMutationString2__3)));" + nl +
             "    }";
 
     @Test
