@@ -164,6 +164,7 @@
                                 <include>multiple-pom/module-1/module-2-2/target/</include>
                                 <include>sample/target/</include>
                                 <include>test-projects/target/</include>
+                                <include>test-projects/build/</include>
                                 <include>regression/test-projects_0/target/</include>
                                 <include>regression/test-projects_1/target/</include>
                                 <include>project-with-resources/target/</include>
