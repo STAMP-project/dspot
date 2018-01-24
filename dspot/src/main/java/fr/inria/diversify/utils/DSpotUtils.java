@@ -87,8 +87,9 @@ public class DSpotUtils {
         Environment env = factory.getEnvironment();
         env.setAutoImports(true);
         env.setCommentEnabled(true);
-        JavaOutputProcessor processor = new JavaOutputProcessor(directory, new DefaultJavaPrettyPrinter(env));
+        JavaOutputProcessor processor = new JavaOutputProcessor(new DefaultJavaPrettyPrinter(env));
         processor.setFactory(factory);
+        processor.setOutputDirectory(directory);
         processor.createJavaFile(type);
         env.setAutoImports(false);
     }

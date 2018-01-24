@@ -2,13 +2,13 @@ package fr.inria.diversify.utils;
 
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
-import fr.inria.stamp.Main;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtComment;
 import spoon.reflect.declaration.CtAnnotation;
+import spoon.reflect.declaration.CtImport;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtPackage;
 import spoon.reflect.declaration.CtType;
@@ -126,7 +126,7 @@ public class AmplificationHelper {
                 importScanner.computeImports(type);
                 Set<CtType> set = importScanner.getAllImports()
                         .stream()
-                        .map(CtReference::getDeclaration)
+                        .map(CtImport::getReference)
                         .filter(Objects::nonNull)
                         .filter(ctElement -> ctElement instanceof CtType)
                         .map(ctElement -> (CtType) ctElement)
