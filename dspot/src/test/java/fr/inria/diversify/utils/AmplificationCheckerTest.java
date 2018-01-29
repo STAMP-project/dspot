@@ -38,7 +38,7 @@ public class AmplificationCheckerTest {
 
 
     @Test
-    public void testIsAssertion() throws Exception {
+    public void testIsAssert() throws Exception {
         /*
 			isAssert method should be match all the kind of assertions:
 				For now, the supported types are:
@@ -46,6 +46,7 @@ public class AmplificationCheckerTest {
 					assertThat (from google.truth)
 
 			see src/test/resources/sample/src/test/java/fr/inria/helper/TestWithMultipleAsserts.java
+			Also, the isAssert method will math invocation on methods that contain assertions
 		 */
 
         Utils.init("src/test/resources/sample/sample.properties");
