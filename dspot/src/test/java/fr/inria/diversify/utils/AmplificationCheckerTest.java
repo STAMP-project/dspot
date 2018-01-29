@@ -54,7 +54,10 @@ public class AmplificationCheckerTest {
         final List<CtInvocation> invocations = classTest.getMethodsByName("test")
                 .get(0)
                 .getElements(new TypeFilter<>(CtInvocation.class));
-        invocations.forEach(invocation -> assertTrue(AmplificationChecker.isAssert(invocation)));
+        invocations.forEach(invocation ->
+                assertTrue(invocation.toString()  + " should match on isAssert",
+                    AmplificationChecker.isAssert(invocation)
+        ));
     }
 
 }
