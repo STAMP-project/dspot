@@ -28,22 +28,28 @@ public class AmplificationChecker {
         return literal.getParent(CtCase.class) != null;
     }
 
+    @Deprecated
     public static boolean isAssert(CtStatement stmt) {
-        return stmt instanceof CtInvocation && isAssert((CtInvocation) stmt);
+        return stmt instanceof CtInvocation &&
+                isAssert((CtInvocation) stmt);
     }
 
     public static boolean isAssert(CtInvocation invocation) {
-        try {
-            Class cl = invocation.getExecutable().getDeclaringType().getActualClass();
-            String mthName = invocation.getExecutable().getSimpleName();
-            return (mthName.startsWith("assert") ||
-                    mthName.contains("fail")) ||
-                    isAssertInstance(cl);
-        } catch (Exception e) {
-            return false;
-        }
+        // simplification of this method, rely on the name of the method, also,
+        // we checks that this invocation is not an invocation to a method that contains assertion
+        // in this case, we will match it
+        final String nameOfMethodCalled = invocation.getExecutable().getSimpleName();
+        return nameOfMethodCalled.toLowerCase().contains("assert") ||
+                nameOfMethodCalled.toLowerCase().startsWith("fail") ||
+                !(invocation.getExecutable().getDeclaration() != null &&
+                        invocation.getExecutable()
+                                .getDeclaration()
+                                .getElements(new HasAssertInvocationFilter(3))
+                                .isEmpty()
+                );
     }
 
+    @Deprecated
     public static boolean isAssertInstance(Class cl) {
         if (cl.equals(org.junit.Assert.class) || cl.equals(junit.framework.Assert.class))
             return true;
@@ -89,11 +95,11 @@ public class AmplificationChecker {
 
         List<CtInvocation> listOfAssertion =
                 candidate.getBody().getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
-            @Override
-            public boolean matches(CtInvocation element) {
-                return hasAssertCall.test(element);
-            }
-        });
+                    @Override
+                    public boolean matches(CtInvocation element) {
+                        return hasAssertCall.test(element);
+                    }
+                });
 
         if (listOfAssertion.isEmpty()) {
             listOfAssertion.addAll(candidate.getBody().getElements(new HasAssertInvocationFilter(3)));
@@ -104,12 +110,13 @@ public class AmplificationChecker {
         }
 
         return (candidate.getAnnotation(org.junit.Test.class) != null ||
-                        ((candidate.getSimpleName().contains("test") ||
-                                candidate.getSimpleName().contains("should")) && !isTestJUnit4(parent)));
+                ((candidate.getSimpleName().contains("test") ||
+                        candidate.getSimpleName().contains("should")) && !isTestJUnit4(parent)));
     }
 
     private static class HasAssertInvocationFilter extends TypeFilter<CtInvocation> {
         int deep;
+
         public HasAssertInvocationFilter(int deep) {
             super(CtInvocation.class);
             this.deep = deep;
@@ -120,7 +127,9 @@ public class AmplificationChecker {
             return deep >= 0 &&
                     (hasAssertCall.test(element) || containsMethodCallToAssertion(element, this.deep));
         }
-    };
+    }
+
+    ;
 
     private static final Predicate<CtInvocation<?>> hasAssertCall = invocation ->
             invocation.getExecutable() != null && invocation.getExecutable().getDeclaringType() != null &&
@@ -133,7 +142,7 @@ public class AmplificationChecker {
                             invocation.getFactory().Type().createReference(TestCase.class)
                     ));
 
-    private static boolean containsMethodCallToAssertion (CtInvocation<?> invocation, int deep) {
+    private static boolean containsMethodCallToAssertion(CtInvocation<?> invocation, int deep) {
         final CtMethod<?> method = invocation.getExecutable().getDeclaringType().getTypeDeclaration().getMethod(
                 invocation.getExecutable().getType(),
                 invocation.getExecutable().getSimpleName(),

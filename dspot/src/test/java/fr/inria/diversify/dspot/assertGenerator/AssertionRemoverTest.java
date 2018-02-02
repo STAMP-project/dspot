@@ -6,9 +6,11 @@ import fr.inria.diversify.utils.AmplificationChecker;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -91,4 +93,24 @@ public class AssertionRemoverTest extends AbstractTest {
 		assertEquals(expectedMethod , testClass.getMethodsByName("test2").get(0).toString());
 	}
 
+	@Test
+	public void testOnDifferentKindOfAssertions() throws Exception {
+		/*
+			Test that the AssertionRemover remove all kind of assertions
+		 */
+
+		final CtClass<?> testClass = Utils.findClass("fr.inria.helper.TestWithMultipleAsserts");
+		final AssertionRemover assertionRemover = new AssertionRemover();
+		final CtMethod<?> testMethod = testClass.getMethodsByName("test").get(0);
+		testMethod.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
+			@Override
+			public boolean matches(CtInvocation element) {
+				return AmplificationChecker.isAssert(element);
+			}
+		}).forEach(assertionRemover::removeAssertion);
+		assertTrue(testMethod.toString() + " its body should be empty",
+				testMethod.getBody().getStatements().isEmpty()
+		);
+		System.out.println(testMethod);
+	}
 }

@@ -3,8 +3,12 @@ package fr.inria.diversify.utils;
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.utils.AmplificationChecker;
 import org.junit.Test;
+import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.visitor.filter.TypeFilter;
+
+import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -30,6 +34,30 @@ public class AmplificationCheckerTest {
 
         classTest = Utils.getFactory().Class().get("fr.inria.helper.ClassJunit3");
         assertTrue(AmplificationChecker.isTest(classTest.getMethodsByName("test").get(0)));
+    }
+
+
+    @Test
+    public void testIsAssert() throws Exception {
+        /*
+			isAssert method should be match all the kind of assertions:
+				For now, the supported types are:
+					assert*** (from org.junit)
+					assertThat (from google.truth)
+
+			see src/test/resources/sample/src/test/java/fr/inria/helper/TestWithMultipleAsserts.java
+			Also, the isAssert method will math invocation on methods that contain assertions
+		 */
+
+        Utils.init("src/test/resources/sample/sample.properties");
+        CtClass<?> classTest = Utils.getFactory().Class().get("fr.inria.helper.TestWithMultipleAsserts");
+        final List<CtInvocation> invocations = classTest.getMethodsByName("test")
+                .get(0)
+                .getElements(new TypeFilter<>(CtInvocation.class));
+        invocations.forEach(invocation ->
+                assertTrue(invocation.toString()  + " should match on isAssert",
+                    AmplificationChecker.isAssert(invocation)
+        ));
     }
 
 }
