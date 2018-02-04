@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by Benjamin DANGLOT
@@ -79,16 +80,24 @@ public class JSAPOptions {
     }
 
     public enum AmplifierEnum {
-        NumberLiteralAmplifier(new NumberLiteralAmplifier()),
-        MethodAdd(new TestMethodCallAdder()),
-        MethodRemove(new TestMethodCallRemover()),
-        TestDataMutator(new TestDataMutator()),
-        StatementAdd(new StatementAdd()),
+        MethodAdd(Collections.singletonList(new TestMethodCallAdder())),
+        MethodRemove(Collections.singletonList(new TestMethodCallRemover())),
+        TestDataMutator(Collections.singletonList(new TestDataMutator())),
+        StatementAdd(Collections.singletonList(new StatementAdd())),
+        StringLiteralAmplifier(Collections.singletonList(new StringLiteralAmplifier())),
+        NumberLiteralAmplifier(Collections.singletonList(new NumberLiteralAmplifier())),
+        BooleanLiteralAmplifier(Collections.singletonList(new BooleanLiteralAmplifier())),
+        CharLiteralAmplifier(Collections.singletonList(new CharLiteralAmplifier())),
+        AllLiteralAmplifiers(Arrays.asList(new StringLiteralAmplifier(),
+                new NumberLiteralAmplifier(),
+                new BooleanLiteralAmplifier(),
+                new CharLiteralAmplifier())
+        ),
         None(null);
-        public final Amplifier amplifier;
+        public final List<Amplifier> amplifiers;
 
-        private AmplifierEnum(Amplifier amplifier) {
-            this.amplifier = amplifier;
+        private AmplifierEnum(List<Amplifier> amplifiers) {
+            this.amplifiers = amplifiers;
         }
     }
 
@@ -143,8 +152,8 @@ public class JSAPOptions {
                 jsapConfig.getInt("maxTestAmplified"));
     }
 
-    public static Amplifier stringToAmplifier(String amplifier) {
-        return AmplifierEnum.valueOf(amplifier).amplifier;
+    public static Stream<Amplifier> stringToAmplifier(String amplifier) {
+        return AmplifierEnum.valueOf(amplifier).amplifiers.stream();
     }
 
     public static List<Amplifier> buildAmplifiersFromString(String[] amplifiersAsString) {
@@ -152,7 +161,7 @@ public class JSAPOptions {
             return Collections.emptyList();
         } else {
             return Arrays.stream(amplifiersAsString)
-                    .map(JSAPOptions::stringToAmplifier)
+                    .flatMap(JSAPOptions::stringToAmplifier)
                     .collect(Collectors.toList());
         }
     }
@@ -194,7 +203,7 @@ public class JSAPOptions {
         amplifiers.setStringParser(JSAP.STRING_PARSER);
         amplifiers.setUsageName("Amplifier");
         amplifiers.setDefault("None");
-        amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. Possible values: NumberLiteralAmplifier | MethodAdd | MethodRemove | TestDataMutator | StatementAdd | None");
+        amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. Possible values: StringLiteralAmplifier | NumberLiteralAmplifier | CharLiteralAmplifier | BooleanLiteralAmplifier | AllLiteralAmplifier | MethodAdd | MethodRemove | TestDataMutator | StatementAdd | None");
 
         FlaggedOption iteration = new FlaggedOption("iteration");
         iteration.setDefault("3");
