@@ -8,7 +8,7 @@ import java.util.Set;
 public class NumberLiteralAmplifier extends AbstractLiteralAmplifier<Number> {
 
     @Override
-    protected Set<CtLiteral<Number>> amplify(CtLiteral<?> literal) {
+    protected Set<CtLiteral<Number>> amplify(CtLiteral<Number> literal) {
         Set<CtLiteral<Number>> values = new HashSet<>();
         Double value = ((Number) literal.getValue()).doubleValue();
 
@@ -79,5 +79,10 @@ public class NumberLiteralAmplifier extends AbstractLiteralAmplifier<Number> {
     @Override
     protected String getSuffix() {
         return "litNum";
+    }
+
+    @Override
+    protected Class<?> getTargetedClass() {
+        return Number.class;
     }
 }
