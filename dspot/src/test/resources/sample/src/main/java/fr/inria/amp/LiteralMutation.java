@@ -32,6 +32,12 @@ public class LiteralMutation {
 
     public void methodString() {
         String literalString = "MyStringLiteral";
+        literalString = null;
+        literalString = getString("MyStringLiteral3");
+    }
+
+    private String getString(String s) {
+        return s;
     }
 
     public void methodBoolean() {
