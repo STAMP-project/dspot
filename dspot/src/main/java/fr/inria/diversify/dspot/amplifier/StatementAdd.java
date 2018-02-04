@@ -131,11 +131,6 @@ public class StatementAdd implements Amplifier {
     }
 
     @Override
-    public CtMethod applyRandom(CtMethod method) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void reset(CtType testClass) {
         AmplificationHelper.reset();
     }

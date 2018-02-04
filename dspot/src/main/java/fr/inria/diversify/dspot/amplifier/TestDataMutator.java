@@ -69,28 +69,6 @@ public class TestDataMutator implements Amplifier {
 		return AmplificationHelper.updateAmpTestToParent(methods, method);
 	}
 
-
-	public CtMethod applyRandom(CtMethod method) {
-		List<CtLiteral> literals = Query.getElements(method.getBody(), new LiteralToBeMutedFilter());
-		if (!literals.isEmpty()) {
-			int original_lit_index = AmplificationHelper.getRandom().nextInt(literals.size());
-			CtLiteral literal = literals.get(original_lit_index);
-
-			if (literal.getValue() instanceof Number) {
-				List<? extends Number> mut = new ArrayList<>(numberMutated(literal));
-				return createNumberMutant(method, original_lit_index, mut.get(AmplificationHelper.getRandom().nextInt(mut.size())));
-			}
-			if (literal.getValue() instanceof String) {
-				List<String> mut = new ArrayList<>(stringMutated(literal));
-				return createStringMutant(method, original_lit_index, mut.get(AmplificationHelper.getRandom().nextInt(mut.size())));
-			}
-			if (literal.getValue() instanceof Boolean) {
-				return createBooleanMutant(method, literal);
-			}
-		}
-		return null;
-	}
-
 	public void reset(CtType testClass) {
 		AmplificationHelper.reset();
 		Set<CtType> codeFragmentsProvide = AmplificationHelper.computeClassProvider(testClass);

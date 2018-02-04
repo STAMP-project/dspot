@@ -48,47 +48,4 @@ public class TestMethodCallAdderTest extends AbstractTest {
         }
     }
 
-    @Test
-    public void testMethodCallAddRandom() throws Exception {
-
-          /*
-            Test that we duplicate method call in a test for each used method in the test.
-                Here, we test the applyRandom feature that will build one method randomly by reusing an existing call.
-          */
-
-        CtClass<Object> testClass = Utils.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
-        AmplificationHelper.setSeedRandom(23L);
-
-        TestMethodCallAdder methodCallAdder = new TestMethodCallAdder();
-        methodCallAdder.reset(null);
-
-        final CtMethod<?> originalMethod = testClass.getMethods().stream().filter(m -> "testAddCall".equals(m.getSimpleName())).findFirst().get();
-        CtMethod amplifiedMethod = originalMethod.clone();
-        amplifiedMethod = methodCallAdder.applyRandom(originalMethod);
-
-        assertEquals(originalMethod.getBody().getStatements().size() + 1, amplifiedMethod.getBody().getStatements().size());
-        CtStatement expectedStatement = originalMethod.getBody().getStatements().get(2);
-        assertEquals("// MethodCallAdder" + nl + expectedStatement.toString(), amplifiedMethod.getBody().getStatements().get(2).toString());
-        assertEquals(expectedStatement.toString(), amplifiedMethod.getBody().getStatements().get(3).toString());
-
-
-        amplifiedMethod = methodCallAdder.applyRandom(originalMethod);
-        assertEquals(originalMethod.getBody().getStatements().size() + 1, amplifiedMethod.getBody().getStatements().size());
-        expectedStatement = originalMethod.getBody().getStatements().get(1);
-        assertEquals("// MethodCallAdder" + nl + expectedStatement.toString(), amplifiedMethod.getBody().getStatements().get(1).toString());
-        assertEquals(expectedStatement.toString(), amplifiedMethod.getBody().getStatements().get(2).toString());
-
-        amplifiedMethod = methodCallAdder.applyRandom(originalMethod);
-        assertEquals(originalMethod.getBody().getStatements().size() + 1, amplifiedMethod.getBody().getStatements().size());
-        expectedStatement = originalMethod.getBody().getStatements().get(1);
-        assertEquals("// MethodCallAdder" + nl + expectedStatement.toString(), amplifiedMethod.getBody().getStatements().get(1).toString());
-        assertEquals(expectedStatement.toString(), amplifiedMethod.getBody().getStatements().get(2).toString());
-
-        // stack random amplification
-        amplifiedMethod.setParent(originalMethod.getParent());
-        CtMethod stackedAmplifiedMethod = methodCallAdder.applyRandom(amplifiedMethod);
-        assertEquals(amplifiedMethod.getBody().getStatements().size() + 1, stackedAmplifiedMethod.getBody().getStatements().size());
-        assertEquals(originalMethod.getBody().getStatements().size() + 2, stackedAmplifiedMethod.getBody().getStatements().size());
-    }
-
 }

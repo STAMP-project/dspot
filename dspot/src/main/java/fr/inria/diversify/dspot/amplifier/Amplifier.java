@@ -16,9 +16,6 @@ public interface Amplifier {
 
     List<CtMethod> apply(CtMethod testMethod);
 
-    @Deprecated
-    CtMethod applyRandom(CtMethod testMethod);
-
     void reset(CtType testClass);
 
 }

@@ -41,21 +41,6 @@ public class TestMethodCallRemover implements Amplifier {
         return AmplificationHelper.updateAmpTestToParent(methods, method);
     }
 
-    public CtMethod applyRandom(CtMethod method) {
-        if (method.getDeclaringType() != null) {
-            List<CtInvocation> invocations = Query.getElements(method, new TypeFilter(CtInvocation.class));
-            if (!invocations.isEmpty()) {
-                try {
-                    int invocation_index = AmplificationHelper.getRandom().nextInt(invocations.size());
-                    return apply(method, invocation_index);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-        return null;
-    }
-
     @Override
     public void reset(CtType testClass) {
         AmplificationHelper.reset();

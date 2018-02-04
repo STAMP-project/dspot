@@ -69,11 +69,6 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
     }
 
     @Override
-    public CtMethod applyRandom(CtMethod testMethod) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void reset(CtType testClass) {
         AmplificationHelper.reset();
         this.testClassToBeAmplified = testClass;
