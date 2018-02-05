@@ -81,11 +81,6 @@ public class DSpotCompilerTest {
         }
 
         @Override
-        public CtMethod applyRandom(CtMethod testMethod) {
-            return null;
-        }
-
-        @Override
         public void reset(CtType testClass) {
 
         }

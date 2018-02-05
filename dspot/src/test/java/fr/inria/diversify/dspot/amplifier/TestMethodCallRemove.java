@@ -43,27 +43,4 @@ public class TestMethodCallRemove extends AbstractTest {
         }
     }
 
-    @Test
-    public void testMethodCallRemoveRnd() throws Exception {
-
-        /*
-            Test that we remove method call in a test for each used method in the test.
-                2 method are called in the original test, we produce 2 test methods randomly among them.
-         */
-
-        CtClass<Object> testClass = Utils.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
-        AmplificationHelper.setSeedRandom(23L);
-
-        TestMethodCallRemover methodCallRemove = new TestMethodCallRemover();
-        methodCallRemove.reset(null);
-
-        final CtMethod<?> originalMethod = testClass.getMethods().stream().filter(m -> "testAddCall".equals(m.getSimpleName())).findFirst().get();
-        CtMethod amplifiedMethod = methodCallRemove.applyRandom(originalMethod);
-        CtMethod amplifiedMethod2 = methodCallRemove.applyRandom(originalMethod);
-
-        assertEquals(originalMethod.getBody().getStatements().size() - 1, amplifiedMethod.getBody().getStatements().size());
-        assertEquals(originalMethod.getBody().getStatements().size() - 1, amplifiedMethod2.getBody().getStatements().size());
-        assertNotEquals(amplifiedMethod.getBody().getStatements(), amplifiedMethod2.getBody().getStatements());
-    }
-
 }

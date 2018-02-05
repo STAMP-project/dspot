@@ -57,42 +57,6 @@ public class TestDataMutatorTest extends AbstractTest {
     }
 
     @Test
-    public void testIntMutationRandom() throws Exception {
-
-        /*
-            Test the amplification on numbers (integer) literal
-                4 operations: i+1, i−1, i×2, i÷2.
-                and 1 literals present that is different that the muted
-                One random amplification at the time
-         */
-
-        final String nameMethod = "methodInteger";
-        final int originalValue = 23;
-        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
-        AmplificationHelper.setSeedRandom(42L);
-        TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
-        CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<Integer> expectedValues = Arrays.asList(22, 24, 46, (23 / 2), 32);
-
-        CtMethod mutantMethod = amplificator.applyRandom(method);
-
-        assertEquals(nameMethod + SUFFIX_MUTATION + "Number" + 1, mutantMethod.getSimpleName());
-        CtLiteral mutantLiteral = mutantMethod.getBody().getElements(new TypeFilter<>(CtLiteral.class)).get(0);
-        assertNotEquals(originalValue, mutantLiteral.getValue());
-        assertTrue(expectedValues.contains(mutantLiteral.getValue()));
-
-        CtMethod mutantMethod2 = amplificator.applyRandom(method);
-
-        assertEquals(nameMethod + SUFFIX_MUTATION + "Number" + 2, mutantMethod2.getSimpleName());
-        CtLiteral mutantLiteral2 = mutantMethod2.getBody().getElements(new TypeFilter<>(CtLiteral.class)).get(0);
-        assertNotEquals(originalValue, mutantLiteral2.getValue());
-        assertTrue(expectedValues.contains(mutantLiteral2.getValue()));
-
-        assertNotEquals(mutantLiteral.getValue(), mutantLiteral2.getValue());
-    }
-
-
-    @Test
     public void testDoubleMutation() throws Exception {
 
         /*
@@ -121,41 +85,6 @@ public class TestDataMutatorTest extends AbstractTest {
     }
 
     @Test
-    public void testDoubleMutationRandom() throws Exception {
-
-        /*
-            Test the amplification on numbers (double) literal
-                4 operations: i+1, i−1, i×2, i÷2
-                and 1 literals present that is different that the muted
-                One random amplification at the time
-         */
-        final String nameMethod = "methodDouble";
-        final double originalValue = 23.0D;
-        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
-        AmplificationHelper.setSeedRandom(42L);
-        TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
-        CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<Double> expectedValues = Arrays.asList(22.0D, 24.0D, 46.0D, (23.0D / 2.0D), 32.0D);
-
-        CtMethod mutantMethod = amplificator.applyRandom(method);
-
-        assertEquals(nameMethod + SUFFIX_MUTATION + "Number" + 1, mutantMethod.getSimpleName());
-        CtLiteral mutantLiteral = mutantMethod.getBody().getElements(new TypeFilter<>(CtLiteral.class)).get(0);
-        assertNotEquals(originalValue, mutantLiteral.getValue());
-        assertTrue(expectedValues.contains(mutantLiteral.getValue()));
-
-        CtMethod mutantMethod2 = amplificator.applyRandom(method);
-
-        assertEquals(nameMethod + SUFFIX_MUTATION + "Number" + 2, mutantMethod2.getSimpleName());
-        CtLiteral mutantLiteral2 = mutantMethod2.getBody().getElements(new TypeFilter<>(CtLiteral.class)).get(0);
-        assertNotEquals(originalValue, mutantLiteral2.getValue());
-        assertTrue(expectedValues.contains(mutantLiteral2.getValue()));
-
-        assertNotEquals(mutantLiteral.getValue(), mutantLiteral2.getValue());
-    }
-
-
-    @Test
     public void testStringMutation() throws Exception {
 
         /*
@@ -173,49 +102,14 @@ public class TestDataMutatorTest extends AbstractTest {
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<CtMethod> mutantMethods = amplificator.apply(method);
 
-        assertEquals(6, mutantMethods.size());
-        for (int i = 0; i < mutantMethods.size(); i++) {
+        assertEquals(12, mutantMethods.size());
+        for (int i = 0; i < 6; i++) {
             CtMethod mutantMethod = mutantMethods.get(i);
             assertEquals(nameMethod + SUFFIX_MUTATION + "String" + (i + 1), mutantMethod.getSimpleName());
             CtLiteral mutantLiteral = mutantMethod.getBody().getElements(new TypeFilter<>(CtLiteral.class)).get(0);
             assertNotEquals(originalValue, mutantLiteral.getValue());
             assertDistanceBetweenOriginalAndMuted(originalValue, (String) mutantLiteral.getValue());
         }
-    }
-
-    @Test
-    public void testStringMutationRandom() throws Exception {
-
-        /*
-          Test the amplification on string literal
-                3 operations: remove 1 random char, replace 1 random char, add 1 random char
-                Additionally, it replace by totally random string with the same size than the original one,
-                and by 1 literals present that is different that the muted
-                One random amplification at the time
-        */
-
-        final String nameMethod = "methodString";
-        final String originalValue = "MyStringLiteral";
-        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
-        AmplificationHelper.setSeedRandom(42L);
-        TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
-        CtMethod method = literalMutationClass.getMethod(nameMethod);
-
-        CtMethod mutantMethod = amplificator.applyRandom(method);
-
-        assertEquals(nameMethod + SUFFIX_MUTATION + "String" + 1, mutantMethod.getSimpleName());
-        CtLiteral mutantLiteral = mutantMethod.getBody().getElements(new TypeFilter<>(CtLiteral.class)).get(0);
-        assertNotEquals(originalValue, mutantLiteral.getValue());
-        assertDistanceBetweenOriginalAndMuted(originalValue, (String) mutantLiteral.getValue());
-
-        CtMethod mutantMethod2 = amplificator.applyRandom(method);
-
-        assertEquals(nameMethod + SUFFIX_MUTATION + "String" + 2, mutantMethod2.getSimpleName());
-        CtLiteral mutantLiteral2 = mutantMethod2.getBody().getElements(new TypeFilter<>(CtLiteral.class)).get(0);
-        assertNotEquals(originalValue, mutantLiteral2.getValue());
-        assertDistanceBetweenOriginalAndMuted(originalValue, (String) mutantLiteral.getValue());
-
-        assertNotEquals(mutantLiteral.getValue(), mutantLiteral2.getValue());
     }
 
     /**

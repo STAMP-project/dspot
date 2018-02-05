@@ -2,8 +2,7 @@ package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
-import spoon.reflect.code.CtInvocation;
-import spoon.reflect.code.CtLiteral;
+import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -20,42 +19,65 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
 
-	private final TypeFilter<CtLiteral> literalTypeFilter = new TypeFilter<CtLiteral>(CtLiteral.class) {
-		@Override
-		public boolean matches(CtLiteral literal) {
-			return (literal.getParent() instanceof CtInvocation &&
-					!AmplificationChecker.isAssert((CtInvocation) literal.getParent())) ||
-					literal.getParent(CtAnnotation.class) == null
-							&& ((T) new Object()).getClass().isAssignableFrom(literal.getValue().getClass())
-							&& super.matches(literal);
-		}
-	};
+    protected CtType<?> testClassToBeAmplified;
 
-	@Override
-	public List<CtMethod> apply(CtMethod testMethod) {
-		List<CtLiteral> literals = testMethod.getElements(literalTypeFilter);
-		return literals.stream()
-				.flatMap(literal ->
-						this.amplify(literal).stream().map(newValue -> {
-							CtMethod clone = AmplificationHelper.cloneMethodTest(testMethod, getSuffix());
-							clone.getElements(literalTypeFilter).get(literals.indexOf(literal)).replace(newValue);
-							return clone;
-						})
-				).collect(Collectors.toList());
-	}
+    private final TypeFilter<CtLiteral<T>> literalTypeFilter = new TypeFilter<CtLiteral<T>>(CtLiteral.class) {
+        @Override
+        public boolean matches(CtLiteral<T> literal) {
+            Class<?> clazzOfLiteral = null;
+            if ((literal.getParent() instanceof CtInvocation &&
+                    AmplificationChecker.isAssert((CtInvocation) literal.getParent()))
+                    || literal.getParent(CtAnnotation.class) != null) {
+                return false;
+            } else if (literal.getValue() == null) {
+                if (literal.getParent() instanceof CtInvocation<?>) {
+                    clazzOfLiteral = ((CtExpression<?>) ((CtInvocation<?>) literal.getParent())
+                            .getArguments()
+                            .stream()
+                            .filter(parameter -> parameter.equals(literal))
+                            .findFirst()
+                            .get())
+                            .getType().getActualClass();
+                } else if (literal.getParent() instanceof CtAssignment) {
+                    clazzOfLiteral = ((CtAssignment) literal.getParent())
+                            .getAssigned()
+                            .getType()
+                            .getActualClass();
+                } else if (literal.getParent() instanceof CtLocalVariable) {
+                    clazzOfLiteral = ((CtLocalVariable) literal.getParent())
+                            .getType()
+                            .getActualClass();
+                }
+            } else {
+                clazzOfLiteral = literal.getValue().getClass();
+            }
+            return getTargetedClass().isAssignableFrom(clazzOfLiteral);
+        }
+    };
 
-	@Override
-	public CtMethod applyRandom(CtMethod testMethod) {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public List<CtMethod> apply(CtMethod testMethod) {
+        List<CtLiteral<T>> literals = testMethod.getElements(literalTypeFilter);
+        return literals.stream()
+                .flatMap(literal ->
+                        this.amplify(literal).stream().map(newValue -> {
+                            CtMethod clone = AmplificationHelper.cloneMethodTest(testMethod, getSuffix());
+                            clone.getElements(literalTypeFilter).get(literals.indexOf(literal)).replace(newValue);
+                            return clone;
+                        })
+                ).collect(Collectors.toList());
+    }
 
-	@Override
-	public void reset(CtType testClass) {
-		AmplificationHelper.reset();
-	}
+    @Override
+    public void reset(CtType testClass) {
+        AmplificationHelper.reset();
+        this.testClassToBeAmplified = testClass;
+    }
 
-	protected abstract Set<CtLiteral<T>> amplify(CtLiteral<?> existingLiteral);
+    protected abstract Set<CtLiteral<T>> amplify(CtLiteral<T> existingLiteral);
 
-	protected abstract String getSuffix();
+    protected abstract String getSuffix();
+
+    protected abstract Class<?> getTargetedClass();
 
 }
