@@ -56,7 +56,7 @@ public class ConstructorCreator {
 
     //TODO we should checks if at least the default constructor is available.
     //TODO we may need to implement a support for factory usages
-    static CtExpression generateConstructionOf(CtTypeReference type) {
+    static CtExpression generateConstructionOf(CtTypeReference type, CtExpression<?>... expressionsToAvoid) {
         CtType<?> typeDeclaration = type.getDeclaration() == null ? type.getTypeDeclaration() : type.getDeclaration();
         if (typeDeclaration != null) {
             final List<CtConstructor<?>> constructors = typeDeclaration.getElements(new TypeFilter<CtConstructor<?>>(CtConstructor.class) {
@@ -80,8 +80,14 @@ public class ConstructorCreator {
             } else {
                 final List<CtExpression<?>> constructorWithFactoryMethod = generateConstructorUsingFactory(type);
                 if (!constructorWithFactoryMethod.isEmpty()) {
-                    return constructorWithFactoryMethod
-                            .get(AmplificationHelper.getRandom().nextInt(constructorWithFactoryMethod.size()));
+                    CtExpression<?> selectedConstructor = constructorWithFactoryMethod
+                            .remove(AmplificationHelper.getRandom().nextInt(constructorWithFactoryMethod.size()));
+                    while (!constructorWithFactoryMethod.isEmpty() &&
+                            Arrays.stream(expressionsToAvoid).anyMatch(selectedConstructor::equals)) {
+                        selectedConstructor = constructorWithFactoryMethod
+                                .remove(AmplificationHelper.getRandom().nextInt(constructorWithFactoryMethod.size()));
+                    }
+                    return selectedConstructor;
                 }
             }
         }

@@ -39,7 +39,7 @@ public class ValueCreator {
         return type.getFactory().createLocalVariable(type, "__DSPOT_" + prefixName + "_" + count++, generateRandomValue(type));
     }
 
-    public static CtExpression<?> generateRandomValue(CtTypeReference type) {
+    public static CtExpression<?> generateRandomValue(CtTypeReference type, CtExpression<?>... expressionsToAvoid) {
         if (AmplificationChecker.isPrimitive(type)) {
             return generatePrimitiveRandomValue(type);
         } else {
@@ -59,10 +59,10 @@ public class ValueCreator {
                 }
             } catch (SpoonException exception) {
                 // couldn't load the definition of the class, it may be a client class
-                return ConstructorCreator.generateConstructionOf(type);
+                return ConstructorCreator.generateConstructionOf(type, expressionsToAvoid);
             }
         }
-        return ConstructorCreator.generateConstructionOf(type);
+        return ConstructorCreator.generateConstructionOf(type, expressionsToAvoid);
 //		throw new RuntimeException();
     }
 

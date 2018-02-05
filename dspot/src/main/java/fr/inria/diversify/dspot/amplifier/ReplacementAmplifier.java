@@ -28,11 +28,7 @@ public class ReplacementAmplifier implements Amplifier {
                             .filter(ctLocalVariable1 -> ctLocalVariable1.equals(ctLocalVariable))
                             .findFirst()
                             .get();
-                    CtExpression<?> ctExpression = ValueCreator.generateRandomValue(ctLocalVariable.getType());
-                    // TODO avoid to reuse the same existing assignment
-                    while(ctExpression.equals(localVariable.getAssignment())) {
-                        ctExpression = ValueCreator.generateRandomValue(ctLocalVariable.getType());
-                    }
+                    CtExpression<?> ctExpression = ValueCreator.generateRandomValue(ctLocalVariable.getType(), localVariable.getAssignment());
                     localVariable.setAssignment(ctExpression);
                     return clone;
                 }).collect(Collectors.toList());
