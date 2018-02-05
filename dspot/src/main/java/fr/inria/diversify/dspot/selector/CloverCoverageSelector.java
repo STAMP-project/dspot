@@ -18,12 +18,14 @@ import spoon.reflect.declaration.CtType;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by Benjamin DANGLOT
@@ -94,20 +96,22 @@ public class CloverCoverageSelector extends TakeAllSelector {
         if (amplifiedTestToBeKept.isEmpty()) {
             return amplifiedTestToBeKept;
         }
-
         CtType<?> clone = this.currentClassTestToBeAmplified.clone();
         clone.setParent(this.currentClassTestToBeAmplified.getParent());
         this.currentClassTestToBeAmplified.getMethods().stream()
                 .filter(AmplificationChecker::isTest)
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
-
         DSpotUtils.printJavaFileWithComment(clone, new File(PATH_TO_COPIED_FILES));
-
         final Map<String, Map<String, List<Integer>>> lineCoveragePerTestMethods =
                 CloverExecutor.execute(this.configuration, PATH_TO_COPIED_FILES, clone.getQualifiedName());
+        final List<CtMethod<?>> selectedTests = this.selectTests(clone, lineCoveragePerTestMethods);
+        this.selectedAmplifiedTest.addAll(selectedTests);
+        return selectedTests;
+    }
 
-        final List<CtMethod<?>> selectedTests = lineCoveragePerTestMethods.keySet()
+    private List<CtMethod<?>> selectTests(CtType<?> clone, Map<String, Map<String, List<Integer>>> lineCoveragePerTestMethods) {
+        return lineCoveragePerTestMethods.keySet()
                 .stream()
                 .filter(testMethodName ->
                         lineCoveragePerTestMethods.get(testMethodName)
@@ -126,27 +130,6 @@ public class CloverCoverageSelector extends TakeAllSelector {
                 .map(clone::getMethodsByName)
                 .map(ctMethods -> ctMethods.get(0))
                 .collect(Collectors.toList());
-
-        // update covered branch
-        selectedTests.stream()
-                .map(CtNamedElement::getSimpleName)
-                .forEach(nameMethod -> {
-                    final Map<String, List<Integer>> coverageOfTestMethod =
-                            lineCoveragePerTestMethods.get(nameMethod);
-                    coverageOfTestMethod.keySet()
-                            .forEach(fullQualifiedName ->
-                                    this.originalLineCoveragePerClass
-                                            .get(this.originalLineCoveragePerClass
-                                                    .keySet()
-                                                    .stream()
-                                                    .filter(ctType -> ctType.getQualifiedName().equals(fullQualifiedName))
-                                                    .findFirst()
-                                                    .get())
-                                            .addAll(coverageOfTestMethod.get(fullQualifiedName)));
-                });
-
-        this.selectedAmplifiedTest.addAll(selectedTests);
-        return selectedTests;
     }
 
     @Override
