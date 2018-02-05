@@ -23,7 +23,8 @@ public class StringLiteralAmplifierTest extends AbstractTest {
         amplificator.reset(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<CtMethod> mutantMethods = amplificator.apply(method);
-        assertEquals(19, mutantMethods.size());
+        System.out.println(mutantMethods);
+        assertEquals(29, mutantMethods.size());
     }
 
     @Test

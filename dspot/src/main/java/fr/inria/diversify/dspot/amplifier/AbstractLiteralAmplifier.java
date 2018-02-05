@@ -31,13 +31,21 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
                 return false;
             } else if (literal.getValue() == null) {
                 if (literal.getParent() instanceof CtInvocation<?>) {
-                    clazzOfLiteral = ((CtExpression<?>) ((CtInvocation<?>) literal.getParent())
+                    final CtInvocation<?> parent = (CtInvocation<?>) literal.getParent();
+                    final CtExpression<?> ctExpression = parent
                             .getArguments()
                             .stream()
                             .filter(parameter -> parameter.equals(literal))
                             .findFirst()
-                            .get())
-                            .getType().getActualClass();
+                            .get();
+                    clazzOfLiteral = parent.getExecutable()
+                            .getDeclaration()
+                            .getParameters()
+                            .get(parent
+                                    .getArguments()
+                                    .indexOf(ctExpression)
+                            ).getType()
+                            .getActualClass();
                 } else if (literal.getParent() instanceof CtAssignment) {
                     clazzOfLiteral = ((CtAssignment) literal.getParent())
                             .getAssigned()

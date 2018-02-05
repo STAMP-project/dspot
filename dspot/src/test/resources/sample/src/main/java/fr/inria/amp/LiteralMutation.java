@@ -33,7 +33,9 @@ public class LiteralMutation {
     public void methodString() {
         String literalString = "MyStringLiteral";
         literalString = null;
+        String literalString2 = null;
         literalString = getString("MyStringLiteral3");
+        literalString = getString(null);
     }
 
     private String getString(String s) {
