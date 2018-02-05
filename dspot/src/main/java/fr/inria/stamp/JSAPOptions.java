@@ -153,7 +153,14 @@ public class JSAPOptions {
     }
 
     public static Stream<Amplifier> stringToAmplifier(String amplifier) {
-        return AmplifierEnum.valueOf(amplifier).amplifiers.stream();
+        try {
+            return AmplifierEnum.valueOf(amplifier).amplifiers.stream();
+        } catch (IllegalArgumentException e) {
+            LOGGER.warn("Wrong values for amplifiers: {} is not recognized", amplifier);
+            LOGGER.warn("Possible values are: StringLiteralAmplifier | NumberLiteralAmplifier | CharLiteralAmplifier | BooleanLiteralAmplifier | AllLiteralAmplifiers | MethodAdd | MethodRemove | TestDataMutator | StatementAdd | None");
+            LOGGER.warn("No amplifier has been added for {}", amplifier);
+            return Stream.of();
+        }
     }
 
     public static List<Amplifier> buildAmplifiersFromString(String[] amplifiersAsString) {
@@ -203,7 +210,7 @@ public class JSAPOptions {
         amplifiers.setStringParser(JSAP.STRING_PARSER);
         amplifiers.setUsageName("Amplifier");
         amplifiers.setDefault("None");
-        amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. Possible values: StringLiteralAmplifier | NumberLiteralAmplifier | CharLiteralAmplifier | BooleanLiteralAmplifier | AllLiteralAmplifier | MethodAdd | MethodRemove | TestDataMutator | StatementAdd | None");
+        amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. Possible values: StringLiteralAmplifier | NumberLiteralAmplifier | CharLiteralAmplifier | BooleanLiteralAmplifier | AllLiteralAmplifiers | MethodAdd | MethodRemove | TestDataMutator | StatementAdd | None");
 
         FlaggedOption iteration = new FlaggedOption("iteration");
         iteration.setDefault("3");
