@@ -254,10 +254,11 @@ public class AmplificationHelper {
             final double standardDeviation = standardDeviation(hashCodes);
             // we take the first hash, and keeps only hash that have at least the StdDev between them
             final List<CtMethod<?>> reducedTests = hashCodes.stream()
-                    .filter(hashCode -> Math.abs(hashCode - hashCodes.get(0)) <= standardDeviation)
+                    .filter(hashCode -> Math.abs(hashCode - hashCodes.get(0)) >= standardDeviation)
                     .map(hashCodes::indexOf)
                     .map(newTests::get)
                     .collect(Collectors.toList());
+            reducedTests.add(newTests.get(0));
             LOGGER.info("Number of generated test reduced to {}", reducedTests.size());
             return reduce(reducedTests);
         } else {
