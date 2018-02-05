@@ -13,7 +13,6 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtPackage;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.reference.CtPackageReference;
-import spoon.reflect.reference.CtReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.ImportScanner;
 import spoon.reflect.visitor.ImportScannerImpl;
@@ -208,7 +207,7 @@ public class AmplificationHelper {
         DSpotUtils.addComment(amplifiedTest,
                 "amplification of " +
                         (topParent.getDeclaringType() != null ?
-                        topParent.getDeclaringType().getQualifiedName() + "#" : "") + topParent.getSimpleName(),
+                                topParent.getDeclaringType().getQualifiedName() + "#" : "") + topParent.getSimpleName(),
                 CtComment.CommentType.BLOCK);
         return amplifiedTest;
     }
@@ -241,19 +240,48 @@ public class AmplificationHelper {
     //empirically 200 seems to be enough
     public static int MAX_NUMBER_OF_TESTS = 200;
 
+
+    // What we want here, is diversity.
+    // We use the hashCode of CtMethod to do this
+    // We select CtMethod that have very different hashCode
+    // We use the Standard deviation and takes only CtMethod that have hashcode different of at least this value
     public static List<CtMethod<?>> reduce(List<CtMethod<?>> newTests) {
         if (newTests.size() > MAX_NUMBER_OF_TESTS) {
             LOGGER.warn("Too many tests has been generated: {}", newTests.size());
-            Collections.shuffle(newTests, AmplificationHelper.getRandom());
-            newTests = newTests.subList(0, MAX_NUMBER_OF_TESTS);
-            LOGGER.info("Number of generated test reduced to {}", MAX_NUMBER_OF_TESTS);
+            final List<Integer> hashCodes = newTests.stream()
+                    .map(Object::hashCode)
+                    .collect(Collectors.toList());
+            final double standardDeviation = standardDeviation(hashCodes);
+            // we take the first hash, and keeps only hash that have at least the StdDev between them
+            final List<CtMethod<?>> reducedTests = hashCodes.stream()
+                    .filter(hashCode -> Math.abs(hashCode - hashCodes.get(0)) <= standardDeviation)
+                    .map(hashCodes::indexOf)
+                    .map(newTests::get)
+                    .collect(Collectors.toList());
+            LOGGER.info("Number of generated test reduced to {}", reducedTests.size());
+            return reduce(reducedTests);
+        } else {
+            ampTestToParent.putAll(newTests.stream()
+                    .collect(HashMap::new,
+                            (parentsReduced, ctMethod) -> parentsReduced.put(ctMethod, tmpAmpTestToParent.get(ctMethod)),
+                            HashMap::putAll)
+            );
+            tmpAmpTestToParent.clear();
+            return newTests;
         }
-        ampTestToParent.putAll(newTests.stream()
-                .collect(HashMap::new,
-                        (parentsReduced, ctMethod) -> parentsReduced.put(ctMethod, tmpAmpTestToParent.get(ctMethod)),
-                        HashMap::putAll)
-        );
-        tmpAmpTestToParent.clear();
-        return newTests;
     }
+
+
+    private static double standardDeviation(List<Integer> hashCodes) {
+        final double mean = hashCodes.stream()
+                .mapToInt(value -> value)
+                .average()
+                .orElse(0.0D);
+        return Math.sqrt(hashCodes.stream()
+                .mapToDouble(value -> value)
+                .map(value -> Math.pow(Math.abs((value - mean)), 2.0D))
+                .sum()
+                / hashCodes.size());
+    }
+
 }
