@@ -3,13 +3,12 @@ package fr.inria.diversify.dspot.amplifier.value;
 import fr.inria.diversify.utils.AmplificationHelper;
 import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtExpression;
-import spoon.reflect.declaration.CtConstructor;
-import spoon.reflect.declaration.CtParameter;
-import spoon.reflect.declaration.CtType;
-import spoon.reflect.declaration.ModifierKind;
+import spoon.reflect.declaration.*;
+import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,6 +20,7 @@ import java.util.stream.Collectors;
  */
 public class ConstructorCreator {
 
+    @Deprecated
     public static List<CtExpression> generateAllConstructionOf(CtTypeReference type) {
         CtConstructorCall<?> constructorCall = type.getFactory().createConstructorCall();
         constructorCall.setType(type);
@@ -46,6 +46,7 @@ public class ConstructorCreator {
                 //add a null value
                 final CtExpression<?> literalNull = type.getFactory().createLiteral(null);
                 literalNull.setType(type);
+                //add all constructor via factory
                 generatedConstructors.add(literalNull);
                 return generatedConstructors;
             }
@@ -55,7 +56,7 @@ public class ConstructorCreator {
 
     //TODO we should checks if at least the default constructor is available.
     //TODO we may need to implement a support for factory usages
-    static CtExpression generateConstructionOf(CtTypeReference type) {
+    static CtExpression generateConstructionOf(CtTypeReference type, CtExpression<?>... expressionsToAvoid) {
         CtType<?> typeDeclaration = type.getDeclaration() == null ? type.getTypeDeclaration() : type.getDeclaration();
         if (typeDeclaration != null) {
             final List<CtConstructor<?>> constructors = typeDeclaration.getElements(new TypeFilter<CtConstructor<?>>(CtConstructor.class) {
@@ -72,21 +73,55 @@ public class ConstructorCreator {
                 constructorCall.setType(type);
                 final CtConstructor<?> selectedConstructor = constructors.get(AmplificationHelper.getRandom().nextInt(constructors.size()));
                 selectedConstructor.getParameters().forEach(parameter -> {
-//                            if (!type.getActualTypeArguments().isEmpty()) {
-//                                type.getActualTypeArguments().forEach(ctTypeReference -> {
-//                                            if (!parameter.getType().getActualTypeArguments().contains(ctTypeReference)) {
-//                                                parameter.getType().setActualTypeArguments(ctTypeReference);
-//                                            }
-//                                        }
-//                                );
-//                            }
                             constructorCall.addArgument(ValueCreator.generateRandomValue(parameter.getType()));
                         }
                 );
                 return constructorCall;
+            } else {
+                final List<CtExpression<?>> constructorWithFactoryMethod = generateConstructorUsingFactory(type);
+                if (!constructorWithFactoryMethod.isEmpty()) {
+                    CtExpression<?> selectedConstructor = constructorWithFactoryMethod
+                            .remove(AmplificationHelper.getRandom().nextInt(constructorWithFactoryMethod.size()));
+                    while (!constructorWithFactoryMethod.isEmpty() &&
+                            Arrays.stream(expressionsToAvoid).anyMatch(selectedConstructor::equals)) {
+                        selectedConstructor = constructorWithFactoryMethod
+                                .remove(AmplificationHelper.getRandom().nextInt(constructorWithFactoryMethod.size()));
+                    }
+                    return selectedConstructor;
+                }
             }
         }
         return null;
+    }
+
+    // we may need to be more exhaustive in the name convention of factories
+    private static final String[] NAME_OF_FACTORY_METHOD = {"build", "create"};
+
+    static List<CtExpression<?>> generateConstructorUsingFactory(CtTypeReference type) {
+        // this method will return an invocation of method that return the given type.
+        // the usage of Factory classes/methods is well spread
+        final Factory factory = type.getFactory();
+        final List<CtMethod<?>> factoryMethod = factory.getModel().getElements(new TypeFilter<CtMethod<?>>(CtMethod.class) {
+            @Override
+            public boolean matches(CtMethod<?> element) {
+                return element.getModifiers().contains(ModifierKind.STATIC) &&
+                        Arrays.stream(NAME_OF_FACTORY_METHOD)
+                                .anyMatch(element.getSimpleName().toLowerCase()::contains) &&
+                        element.getType().equals(type) &&
+                        element.getParameters().stream()
+                                .map(CtParameter::getType)
+                                .allMatch(ValueCreatorHelper::canGenerateAValueForType);
+            }
+        });
+        return factoryMethod.stream()
+                .map(method ->
+                        factory.createInvocation(factory.createTypeAccess(method.getParent(CtType.class).getReference(), true),
+                                method.getReference(),
+                                method.getParameters().stream()
+                                        .map(parameter -> ValueCreator.generateRandomValue(parameter.getType()))
+                                        .collect(Collectors.toList())
+                        )
+                ).collect(Collectors.toList());
     }
 
 }

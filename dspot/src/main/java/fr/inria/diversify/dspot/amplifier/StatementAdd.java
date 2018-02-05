@@ -151,7 +151,13 @@ public class StatementAdd implements Amplifier {
 
         methodToInvokeToAdd.getParameters().forEach(parameter -> {
             try {
-                CtLocalVariable<?> localVariable = ValueCreator.createRandomLocalVar(parameter.getType(), parameter.getSimpleName());
+                final CtLocalVariable<?> localVariable;
+                if (methodToInvokeToAdd.getSimpleName().equals("equals") &&
+                        AmplificationHelper.getRandom().nextFloat() >= 0.25F) {
+                    localVariable = ValueCreator.createRandomLocalVar(target.getType(), parameter.getSimpleName());
+                } else {
+                    localVariable = ValueCreator.createRandomLocalVar(parameter.getType(), parameter.getSimpleName());
+                }
                 body.insertBegin(localVariable);
                 arguments.add(factory.createVariableRead(localVariable.getReference(), false));
             } catch (Exception e) {
