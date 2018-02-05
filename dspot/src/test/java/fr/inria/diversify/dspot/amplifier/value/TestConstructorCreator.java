@@ -71,4 +71,23 @@ public class TestConstructorCreator extends AbstractTest {
         CtExpression constructionOf = ConstructorCreator.generateConstructionOf(createdClass.getReference());
         assertNull(constructionOf);
     }
+
+    @Test
+    public void testGenerateConstructorUsingFactory() throws Exception {
+
+        /*
+            The ConstructorCreator can generate a call on factory.
+            We consider has factory methods that:
+                - are static
+                - return the type expected
+                - contains specific keyword in their names: build create //TODO we may need to update this list of names
+         */
+
+        final Factory factory = Utils.getFactory();
+        Utils.findMethod("fr.inria.factory.FactoryTest", "test");
+        final List<CtExpression<?>> aClass = ConstructorCreator.generateConstructorUsingFactory(
+                factory.Class().get("fr.inria.factory.FactoryTest").getNestedType("aClass").getReference()
+        );
+        assertEquals(2, aClass.size());
+    }
 }
