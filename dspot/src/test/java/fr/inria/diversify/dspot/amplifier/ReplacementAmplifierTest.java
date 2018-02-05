@@ -18,7 +18,7 @@ public class ReplacementAmplifierTest extends AbstractTest {
         final List<CtMethod> test = replacementAmplifier.apply(originalTest);
         final String expectedMethod = "@org.junit.Test\n" +
                 "public void test() throws java.lang.Exception {\n" +
-                "    final fr.inria.factory.FactoryTest.aClass aClass = build(-1293507656);\n" +
+                "    final fr.inria.factory.FactoryTest.aClass aClass = build(-1183186497);\n" +
                 "}";
         assertEquals(expectedMethod, test.get(0).toString());
     }
