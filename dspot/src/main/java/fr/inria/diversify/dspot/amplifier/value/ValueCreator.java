@@ -39,7 +39,7 @@ public class ValueCreator {
         return type.getFactory().createLocalVariable(type, "__DSPOT_" + prefixName + "_" + count++, generateRandomValue(type));
     }
 
-    static CtExpression<?> generateRandomValue(CtTypeReference type) {
+    public static CtExpression<?> generateRandomValue(CtTypeReference type) {
         if (AmplificationChecker.isPrimitive(type)) {
             return generatePrimitiveRandomValue(type);
         } else {
