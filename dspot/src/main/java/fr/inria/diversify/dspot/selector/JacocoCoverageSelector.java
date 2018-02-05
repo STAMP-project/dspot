@@ -39,210 +39,212 @@ import java.util.stream.IntStream;
  */
 public class JacocoCoverageSelector extends TakeAllSelector {
 
-	private Map<String, CoverageResults> selectedToBeAmplifiedCoverageResultsMap;
+    private Map<String, CoverageResults> selectedToBeAmplifiedCoverageResultsMap;
 
-	private CoverageResults initialCoverage;
+    private CoverageResults initialCoverage;
 
-	@Override
-	public void init(InputConfiguration configuration) {
-		super.init(configuration);
-		this.selectedAmplifiedTest.clear();
-	}
+    @Override
+    public void init(InputConfiguration configuration) {
+        super.init(configuration);
+        this.selectedAmplifiedTest.clear();
+    }
 
-	@Override
-	public List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified) {
-		if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
-			this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
-			this.initialCoverage = new JacocoExecutor(this.program, this.configuration, this.currentClassTestToBeAmplified).executeJacoco(this.currentClassTestToBeAmplified);
-			this.selectedToBeAmplifiedCoverageResultsMap = null;
-			this.selectedAmplifiedTest.clear();
-		}
-		final List<String> methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).collect(Collectors.toList());
-		final Map<String, CoverageResults> coverageResultsMap = new JacocoExecutor(this.program, this.configuration, this.currentClassTestToBeAmplified)
-				.executeJacoco(this.currentClassTestToBeAmplified, methodNames);
-		final List<String> pathExecuted = new ArrayList<>();
-		final List<CtMethod<?>> filteredTests = testsToBeAmplified.stream()
-				.filter(ctMethod -> {
-					final String pathByExecInstructions = computePathExecuted.apply(coverageResultsMap.get(ctMethod.getSimpleName()).getCoverageBuilder());
-					if (pathExecuted.contains(pathByExecInstructions)) {
-						return false;
-					} else {
-						pathExecuted.add(pathByExecInstructions);
-						return true;
-					}
-				}).collect(Collectors.toList());
+    @Override
+    public List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified) {
+        if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
+            this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
+            this.initialCoverage = new JacocoExecutor(this.program, this.configuration, this.currentClassTestToBeAmplified).executeJacoco(this.currentClassTestToBeAmplified);
+            this.selectedToBeAmplifiedCoverageResultsMap = null;
+            this.selectedAmplifiedTest.clear();
+        }
+        final List<String> methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).collect(Collectors.toList());
+        final Map<String, CoverageResults> coverageResultsMap = new JacocoExecutor(this.program, this.configuration, this.currentClassTestToBeAmplified)
+                .executeJacoco(this.currentClassTestToBeAmplified, methodNames);
+        final List<String> pathExecuted = new ArrayList<>();
+        final List<CtMethod<?>> filteredTests = testsToBeAmplified.stream()
+                .filter(ctMethod -> ctMethod != null &&
+                        coverageResultsMap.get(ctMethod.getSimpleName()) != null)
+                .filter(ctMethod -> {
+                    final String pathByExecInstructions = computePathExecuted.apply(coverageResultsMap.get(ctMethod.getSimpleName()).getCoverageBuilder());
+                    if (pathExecuted.contains(pathByExecInstructions)) {
+                        return false;
+                    } else {
+                        pathExecuted.add(pathByExecInstructions);
+                        return true;
+                    }
+                }).collect(Collectors.toList());
 
-		if (this.selectedToBeAmplifiedCoverageResultsMap == null) {
-			final List<String> filteredMethodNames = filteredTests.stream()
-					.map(CtNamedElement::getSimpleName)
-					.collect(Collectors.toList());
-			this.selectedToBeAmplifiedCoverageResultsMap = coverageResultsMap.keySet()
-					.stream()
-					.filter(filteredMethodNames::contains)
-					.collect(Collectors.toMap(Function.identity(), coverageResultsMap::get));
-		}
-		return filteredTests;
-	}
+        if (this.selectedToBeAmplifiedCoverageResultsMap == null) {
+            final List<String> filteredMethodNames = filteredTests.stream()
+                    .map(CtNamedElement::getSimpleName)
+                    .collect(Collectors.toList());
+            this.selectedToBeAmplifiedCoverageResultsMap = coverageResultsMap.keySet()
+                    .stream()
+                    .filter(filteredMethodNames::contains)
+                    .collect(Collectors.toMap(Function.identity(), coverageResultsMap::get));
+        }
+        return filteredTests;
+    }
 
-	private Function<CoverageBuilder, String> computePathExecuted = coverageBuilder ->
-			coverageBuilder.getClasses()
-					.stream()
-					.map(iClassCoverage ->
-							IntStream.range(iClassCoverage.getFirstLine(), iClassCoverage.getLastLine())
-									.mapToObj(iClassCoverage::getLine)
-									.map(ILine::getInstructionCounter)
-									.map(ICounter::getCoveredCount)
-									.map(Object::toString)
-									.collect(Collectors.joining(","))
-					).collect(Collectors.joining(";"));
+    private Function<CoverageBuilder, String> computePathExecuted = coverageBuilder ->
+            coverageBuilder.getClasses()
+                    .stream()
+                    .map(iClassCoverage ->
+                            IntStream.range(iClassCoverage.getFirstLine(), iClassCoverage.getLastLine())
+                                    .mapToObj(iClassCoverage::getLine)
+                                    .map(ILine::getInstructionCounter)
+                                    .map(ICounter::getCoveredCount)
+                                    .map(Object::toString)
+                                    .collect(Collectors.joining(","))
+                    ).collect(Collectors.joining(";"));
 
-	@Override
-	public List<CtMethod<?>> selectToKeep(List<CtMethod<?>> amplifiedTestToBeKept) {
-		if (amplifiedTestToBeKept.isEmpty()) {
-			return amplifiedTestToBeKept;
-		}
-		final List<String> methodNames = amplifiedTestToBeKept.stream().map(CtNamedElement::getSimpleName).collect(Collectors.toList());
-		final Map<String, CoverageResults> coverageResultsMap = new JacocoExecutor(this.program, this.configuration, this.currentClassTestToBeAmplified).executeJacoco(
-				this.currentClassTestToBeAmplified, methodNames);
-		final List<String> pathExecuted = new ArrayList<>();
-		final List<CtMethod<?>> methodsKept = amplifiedTestToBeKept.stream()
-				.filter(ctMethod ->
-						this.selectedToBeAmplifiedCoverageResultsMap.get(
-								getFirstParentThatHasBeenRun(ctMethod).getSimpleName()) == null ||
-								coverageResultsMap.get(ctMethod.getSimpleName()).isBetterThan(
-								this.selectedToBeAmplifiedCoverageResultsMap.get(
-										getFirstParentThatHasBeenRun(ctMethod).getSimpleName())) &&
-								!computePathExecuted.apply(coverageResultsMap.get(ctMethod.getSimpleName()).getCoverageBuilder())
-								.equals(computePathExecuted.apply(this.selectedToBeAmplifiedCoverageResultsMap.get(
-										getFirstParentThatHasBeenRun(ctMethod).getSimpleName()).getCoverageBuilder()))
-				)
-				.filter(ctMethod -> {
-					final String pathByExecInstructions = computePathExecuted.apply(coverageResultsMap.get(ctMethod.getSimpleName()).getCoverageBuilder());
-					if (pathExecuted.contains(pathByExecInstructions)) {
-						return false;
-					} else {
-						pathExecuted.add(pathByExecInstructions);
-						return true;
-					}
-				})
-				.collect(Collectors.toList());
+    @Override
+    public List<CtMethod<?>> selectToKeep(List<CtMethod<?>> amplifiedTestToBeKept) {
+        if (amplifiedTestToBeKept.isEmpty()) {
+            return amplifiedTestToBeKept;
+        }
+        final List<String> methodNames = amplifiedTestToBeKept.stream().map(CtNamedElement::getSimpleName).collect(Collectors.toList());
+        final Map<String, CoverageResults> coverageResultsMap = new JacocoExecutor(this.program, this.configuration, this.currentClassTestToBeAmplified).executeJacoco(
+                this.currentClassTestToBeAmplified, methodNames);
+        final List<String> pathExecuted = new ArrayList<>();
+        final List<CtMethod<?>> methodsKept = amplifiedTestToBeKept.stream()
+                .filter(ctMethod ->
+                        this.selectedToBeAmplifiedCoverageResultsMap.get(
+                                getFirstParentThatHasBeenRun(ctMethod).getSimpleName()) == null ||
+                                coverageResultsMap.get(ctMethod.getSimpleName()).isBetterThan(
+                                        this.selectedToBeAmplifiedCoverageResultsMap.get(
+                                                getFirstParentThatHasBeenRun(ctMethod).getSimpleName())) &&
+                                        !computePathExecuted.apply(coverageResultsMap.get(ctMethod.getSimpleName()).getCoverageBuilder())
+                                                .equals(computePathExecuted.apply(this.selectedToBeAmplifiedCoverageResultsMap.get(
+                                                        getFirstParentThatHasBeenRun(ctMethod).getSimpleName()).getCoverageBuilder()))
+                )
+                .filter(ctMethod -> {
+                    final String pathByExecInstructions = computePathExecuted.apply(coverageResultsMap.get(ctMethod.getSimpleName()).getCoverageBuilder());
+                    if (pathExecuted.contains(pathByExecInstructions)) {
+                        return false;
+                    } else {
+                        pathExecuted.add(pathByExecInstructions);
+                        return true;
+                    }
+                })
+                .collect(Collectors.toList());
 
-		this.selectedToBeAmplifiedCoverageResultsMap.putAll(methodsKept.stream()
-				.map(CtNamedElement::getSimpleName)
-				.collect(
-						Collectors.toMap(Function.identity(), coverageResultsMap::get)
-				)
-		);
+        this.selectedToBeAmplifiedCoverageResultsMap.putAll(methodsKept.stream()
+                .map(CtNamedElement::getSimpleName)
+                .collect(
+                        Collectors.toMap(Function.identity(), coverageResultsMap::get)
+                )
+        );
 
-		this.selectedAmplifiedTest.addAll(new ArrayList<>(methodsKept));
-		return methodsKept;
-	}
+        this.selectedAmplifiedTest.addAll(new ArrayList<>(methodsKept));
+        return methodsKept;
+    }
 
-	private CtMethod<?> getFirstParentThatHasBeenRun(CtMethod<?> test) {
-		CtMethod<?> currentParent = AmplificationHelper.getAmpTestToParent().get(test);
-		while (AmplificationHelper.getAmpTestToParent().get(currentParent) != null) {
-			if (this.selectedToBeAmplifiedCoverageResultsMap.get(currentParent.getSimpleName()) != null) {
-				return currentParent;
-			} else {
-				currentParent = AmplificationHelper.getAmpTestToParent().get(currentParent);
-			}
-		}
-		return currentParent;
-	}
+    private CtMethod<?> getFirstParentThatHasBeenRun(CtMethod<?> test) {
+        CtMethod<?> currentParent = AmplificationHelper.getAmpTestToParent().get(test);
+        while (AmplificationHelper.getAmpTestToParent().get(currentParent) != null) {
+            if (this.selectedToBeAmplifiedCoverageResultsMap.get(currentParent.getSimpleName()) != null) {
+                return currentParent;
+            } else {
+                currentParent = AmplificationHelper.getAmpTestToParent().get(currentParent);
+            }
+        }
+        return currentParent;
+    }
 
-	@Override
-	public void report() {
-		final String nl = System.getProperty("line.separator");
-		StringBuilder report = new StringBuilder();
-		report.append(nl).append("======= REPORT =======").append(nl);
-		report.append("Initial instruction coverage: ").append(this.initialCoverage.instructionsCovered)
-				.append(" / ").append(this.initialCoverage.instructionsTotal).append(nl)
-				.append(String.format("%.2f", 100.0D * ((double) this.initialCoverage.instructionsCovered /
-						(double) this.initialCoverage.instructionsTotal))).append("%").append(nl);
-		report.append("Amplification results with ").append(this.selectedAmplifiedTest.size())
-				.append(" amplified tests.").append(nl);
+    @Override
+    public void report() {
+        final String nl = System.getProperty("line.separator");
+        StringBuilder report = new StringBuilder();
+        report.append(nl).append("======= REPORT =======").append(nl);
+        report.append("Initial instruction coverage: ").append(this.initialCoverage.instructionsCovered)
+                .append(" / ").append(this.initialCoverage.instructionsTotal).append(nl)
+                .append(String.format("%.2f", 100.0D * ((double) this.initialCoverage.instructionsCovered /
+                        (double) this.initialCoverage.instructionsTotal))).append("%").append(nl);
+        report.append("Amplification results with ").append(this.selectedAmplifiedTest.size())
+                .append(" amplified tests.").append(nl);
 
-		final CtType<?> clone = this.currentClassTestToBeAmplified.clone();
-		this.currentClassTestToBeAmplified.getPackage().addType(clone);
-		this.selectedAmplifiedTest.forEach(clone::addMethod);
-		try {
-			FileUtils.deleteDirectory(new File(DSpotCompiler.pathToTmpTestSources));
-		} catch (IOException ignored) {
-			//ignored
-		}
-		DSpotUtils.printJavaFileWithComment(clone, new File(DSpotCompiler.pathToTmpTestSources));
-		this.currentClassTestToBeAmplified.getPackage().removeType(clone);
+        final CtType<?> clone = this.currentClassTestToBeAmplified.clone();
+        this.currentClassTestToBeAmplified.getPackage().addType(clone);
+        this.selectedAmplifiedTest.forEach(clone::addMethod);
+        try {
+            FileUtils.deleteDirectory(new File(DSpotCompiler.pathToTmpTestSources));
+        } catch (IOException ignored) {
+            //ignored
+        }
+        DSpotUtils.printJavaFileWithComment(clone, new File(DSpotCompiler.pathToTmpTestSources));
+        this.currentClassTestToBeAmplified.getPackage().removeType(clone);
 
-		final String fileSeparator = System.getProperty("file.separator");
-		final String classpath = AutomaticBuilderFactory
-				.getAutomaticBuilder(this.configuration)
-				.buildClasspath(this.program.getProgramDir())
-				+ System.getProperty("path.separator") +
-				this.program.getProgramDir() + fileSeparator + this.program.getClassesDir()
-				+ System.getProperty("path.separator") +
-				this.program.getProgramDir() + fileSeparator + this.program.getTestClassesDir();
+        final String fileSeparator = System.getProperty("file.separator");
+        final String classpath = AutomaticBuilderFactory
+                .getAutomaticBuilder(this.configuration)
+                .buildClasspath(this.program.getProgramDir())
+                + System.getProperty("path.separator") +
+                this.program.getProgramDir() + fileSeparator + this.program.getClassesDir()
+                + System.getProperty("path.separator") +
+                this.program.getProgramDir() + fileSeparator + this.program.getTestClassesDir();
 
-		DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
-				new File(this.program.getProgramDir() + fileSeparator + this.program.getTestClassesDir()));
+        DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
+                new File(this.program.getProgramDir() + fileSeparator + this.program.getTestClassesDir()));
 
-		final CoverageResults coverageResults = new JacocoExecutor(this.program, this.configuration, this.currentClassTestToBeAmplified)
-				.executeJacoco(this.currentClassTestToBeAmplified);
+        final CoverageResults coverageResults = new JacocoExecutor(this.program, this.configuration, this.currentClassTestToBeAmplified)
+                .executeJacoco(this.currentClassTestToBeAmplified);
 
-		report.append("Amplified instruction coverage: ").append(coverageResults.instructionsCovered)
-				.append(" / ").append(coverageResults.instructionsTotal).append(nl)
-				.append(String.format("%.2f", 100.0D * ((double) coverageResults.instructionsCovered /
-						(double) coverageResults.instructionsTotal))).append("%").append(nl);
+        report.append("Amplified instruction coverage: ").append(coverageResults.instructionsCovered)
+                .append(" / ").append(coverageResults.instructionsTotal).append(nl)
+                .append(String.format("%.2f", 100.0D * ((double) coverageResults.instructionsCovered /
+                        (double) coverageResults.instructionsTotal))).append("%").append(nl);
 
-		System.out.println(report.toString());
+        System.out.println(report.toString());
 
-		File reportDir = new File(this.configuration.getOutputDirectory());
-		if (!reportDir.exists()) {
-			reportDir.mkdir();
-		}
+        File reportDir = new File(this.configuration.getOutputDirectory());
+        if (!reportDir.exists()) {
+            reportDir.mkdir();
+        }
 
-		try (FileWriter writer = new FileWriter(this.configuration.getOutputDirectory() +
-				fileSeparator + this.currentClassTestToBeAmplified.getQualifiedName()
-				+ "_jacoco_instr_coverage_report.txt", false)) {
-			writer.write(report.toString());
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+        try (FileWriter writer = new FileWriter(this.configuration.getOutputDirectory() +
+                fileSeparator + this.currentClassTestToBeAmplified.getQualifiedName()
+                + "_jacoco_instr_coverage_report.txt", false)) {
+            writer.write(report.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-		jsonReport(coverageResults);
+        jsonReport(coverageResults);
 
-		this.currentClassTestToBeAmplified = null;
-	}
+        this.currentClassTestToBeAmplified = null;
+    }
 
-	private void jsonReport(CoverageResults coverageResults) {
-		TestClassJSON testClassJSON;
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		final File file = new File(this.configuration.getOutputDirectory() + "/" +
-				this.currentClassTestToBeAmplified.getQualifiedName() + "_jacoco_instr_coverage.json");
-		if (file.exists()) {
-			try {
-				testClassJSON = gson.fromJson(new FileReader(file), TestClassJSON.class);
-			} catch (FileNotFoundException e) {
-				throw new RuntimeException(e);
-			}
-		} else {
-			testClassJSON = new TestClassJSON(this.currentClassTestToBeAmplified.getQualifiedName(),
-					this.currentClassTestToBeAmplified.getMethods().size(),
-					this.initialCoverage.instructionsCovered, this.initialCoverage.instructionsTotal,
-					coverageResults.instructionsCovered, coverageResults.instructionsTotal
-			);
-		}
-		this.selectedAmplifiedTest.forEach(ctMethod ->
-				new TestCaseJSON(ctMethod.getSimpleName(),
-						Counter.getInputOfSinceOrigin(ctMethod),
-						Counter.getAssertionOfSinceOrigin(ctMethod),
-						this.selectedToBeAmplifiedCoverageResultsMap.get(ctMethod.getSimpleName()).instructionsCovered,
-						this.selectedToBeAmplifiedCoverageResultsMap.get(ctMethod.getSimpleName()).instructionsTotal
-				)
-		);
-		try (FileWriter writer = new FileWriter(file, false)) {
-			writer.write(gson.toJson(testClassJSON));
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    private void jsonReport(CoverageResults coverageResults) {
+        TestClassJSON testClassJSON;
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        final File file = new File(this.configuration.getOutputDirectory() + "/" +
+                this.currentClassTestToBeAmplified.getQualifiedName() + "_jacoco_instr_coverage.json");
+        if (file.exists()) {
+            try {
+                testClassJSON = gson.fromJson(new FileReader(file), TestClassJSON.class);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            testClassJSON = new TestClassJSON(this.currentClassTestToBeAmplified.getQualifiedName(),
+                    this.currentClassTestToBeAmplified.getMethods().size(),
+                    this.initialCoverage.instructionsCovered, this.initialCoverage.instructionsTotal,
+                    coverageResults.instructionsCovered, coverageResults.instructionsTotal
+            );
+        }
+        this.selectedAmplifiedTest.forEach(ctMethod ->
+                new TestCaseJSON(ctMethod.getSimpleName(),
+                        Counter.getInputOfSinceOrigin(ctMethod),
+                        Counter.getAssertionOfSinceOrigin(ctMethod),
+                        this.selectedToBeAmplifiedCoverageResultsMap.get(ctMethod.getSimpleName()).instructionsCovered,
+                        this.selectedToBeAmplifiedCoverageResultsMap.get(ctMethod.getSimpleName()).instructionsTotal
+                )
+        );
+        try (FileWriter writer = new FileWriter(file, false)) {
+            writer.write(gson.toJson(testClassJSON));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -12,6 +12,7 @@ import fr.inria.stamp.coverage.clover.CloverExecutor;
 import fr.inria.stamp.runner.coverage.Coverage;
 import org.apache.commons.io.FileUtils;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtNamedElement;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
@@ -74,7 +75,18 @@ public class CloverCoverageSelector extends TakeAllSelector {
                     DSpotUtils.getAllTestClasses(configuration)
             );
         }
-        return testsToBeAmplified;
+        if (testsToBeAmplified.size() > 1) {
+            final List<CtMethod<?>> collect = testsToBeAmplified.stream()
+                    .filter(this.selectedAmplifiedTest::contains)
+                    .collect(Collectors.toList());
+            if (collect.isEmpty()) {
+                return testsToBeAmplified;
+            } else {
+                return collect;
+            }
+        } else {
+            return testsToBeAmplified;
+        }
     }
 
     @Override
@@ -95,9 +107,12 @@ public class CloverCoverageSelector extends TakeAllSelector {
         final Map<String, Map<String, List<Integer>>> lineCoveragePerTestMethods =
                 CloverExecutor.execute(this.configuration, PATH_TO_COPIED_FILES, clone.getQualifiedName());
 
-        final List<CtMethod<?>> selectedTests = lineCoveragePerTestMethods.keySet().stream()
+        final List<CtMethod<?>> selectedTests = lineCoveragePerTestMethods.keySet()
+                .stream()
                 .filter(testMethodName ->
-                        lineCoveragePerTestMethods.get(testMethodName).keySet().stream()
+                        lineCoveragePerTestMethods.get(testMethodName)
+                                .keySet()
+                                .stream()
                                 .anyMatch(className ->
                                         lineCoveragePerTestMethods.get(testMethodName).get(className)
                                                 .stream()
@@ -112,8 +127,25 @@ public class CloverCoverageSelector extends TakeAllSelector {
                 .map(ctMethods -> ctMethods.get(0))
                 .collect(Collectors.toList());
 
-        this.selectedAmplifiedTest.addAll(selectedTests);
+        // update covered branch
+        selectedTests.stream()
+                .map(CtNamedElement::getSimpleName)
+                .forEach(nameMethod -> {
+                    final Map<String, List<Integer>> coverageOfTestMethod =
+                            lineCoveragePerTestMethods.get(nameMethod);
+                    coverageOfTestMethod.keySet()
+                            .forEach(fullQualifiedName ->
+                                    this.originalLineCoveragePerClass
+                                            .get(this.originalLineCoveragePerClass
+                                                    .keySet()
+                                                    .stream()
+                                                    .filter(ctType -> ctType.getQualifiedName().equals(fullQualifiedName))
+                                                    .findFirst()
+                                                    .get())
+                                            .addAll(coverageOfTestMethod.get(fullQualifiedName)));
+                });
 
+        this.selectedAmplifiedTest.addAll(selectedTests);
         return selectedTests;
     }
 
@@ -166,6 +198,9 @@ public class CloverCoverageSelector extends TakeAllSelector {
         final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration)
                 .buildClasspath(program.getProgramDir()) +
                 AmplificationHelper.PATH_SEPARATOR + classesOfProject;
+
+        DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
+                new File(this.program.getProgramDir() + "/" + this.program.getTestClassesDir()));
 
         return EntryPoint.runCoverageOnTestClasses(classpath, classesOfProject,
                 DSpotUtils.getAllTestClasses(configuration)
