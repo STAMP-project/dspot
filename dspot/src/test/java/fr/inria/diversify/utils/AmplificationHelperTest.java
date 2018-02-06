@@ -3,6 +3,7 @@ package fr.inria.diversify.utils;
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.dspot.AbstractTest;
 import org.junit.Test;
+import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.*;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
@@ -56,7 +57,7 @@ public class AmplificationHelperTest extends AbstractTest {
 
         /*
             test that the reduction, using hashcode is correct.
-            The method should return a list with very different test
+            The method should return a list with different test
          */
 
         AmplificationHelper.MAX_NUMBER_OF_TESTS = 2;
@@ -72,12 +73,18 @@ public class AmplificationHelperTest extends AbstractTest {
         methods.add(methodString);
         methods.add(methodString);
         methods.add(methodString);
+        methods.add(methodString);
+        methods.add(methodString);
+        final CtMethod clone = methodString.clone();
+        final CtLiteral originalLiteral = clone.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
+        originalLiteral.replace(Utils.getFactory().createLiteral(originalLiteral.getValue() + "a"));
+        methods.add(clone);
+        methods.add(clone);
+        methods.add(clone);
         methods.add(methodInteger);
 
         final List<CtMethod<?>> reduce = AmplificationHelper.reduce(methods);
         assertEquals(2, reduce.size());
-        assertTrue(reduce.contains(methodInteger));
-        assertTrue(reduce.contains(methodString));
 
         AmplificationHelper.MAX_NUMBER_OF_TESTS = 200;
     }
