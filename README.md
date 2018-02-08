@@ -12,6 +12,8 @@ It automatically generates new JUnit tests by modifying existing ones.
 **How does Dspot work?** DSpot applies transformation operators on existing tests.
 The transformations result in new inputs and new explored paths. They also consist of adding new assertions.
 
+**DSpot** support only Java project builds with **Maven** (default) and **Gradle** project (see the `--automatic-builder` option)
+
 ### Output of DSpot
 
 DSpot produces 3 outputs in the <outputDirectory> (default: `output_diversify`) specified in the properties file.
@@ -164,7 +166,7 @@ java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main -p path/To
 ### Command Line Usage
 ```
 Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
-                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | ExecutedMutantSelector | BranchCoverageTestSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [(-g|--max-test-amplified) <integer>] [-d|--descartes] [-k|--evosuite] [(-t|--test) my.package.MyClassTest1:my.package.MyClassTest2:...:my.package.MyClassTestN ] [(-c|--cases) testCases1:testCases2:...:testCasesN ] [(-o|--output-path) <output>] [(-m|--path-pit-result) <./path/to/mutations.csv>] [(-b|--automatic-builder) <MavenBuilder | GradleBuilder>] [--useReflection] [(-j|--maven-home) <path to maven home>] [(-r|--randomSeed) <long integer>] [(-v|--timeOut) <long integer>] [--verbose] [-e|--example] [-h|--help]
+                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | ExecutedMutantSelector | CloverCoverageSelector | BranchCoverageTestSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [(-g|--max-test-amplified) <integer>] [-d|--descartes] [-k|--evosuite] [(-t|--test) my.package.MyClassTest1:my.package.MyClassTest2:...:my.package.MyClassTestN ] [(-c|--cases) testCases1:testCases2:...:testCasesN ] [(-o|--output-path) <output>] [-q|--clean] [(-m|--path-pit-result) <./path/to/mutations.csv>] [(-b|--automatic-builder) <MavenBuilder | GradleBuilder>] [--useReflection] [(-j|--maven-home) <path to maven home>] [(-r|--randomSeed) <long integer>] [(-v|--timeOut) <long integer>] [--verbose] [-e|--example] [-h|--help]
 
   [(-p|--path-to-properties) <./path/to/myproject.properties>]
         [mandatory] specify the path to the configuration file (format Java
@@ -172,9 +174,10 @@ Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
 
   [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ]
         [optional] specify the list of amplifiers to use. Default with all
-        available amplifiers. Possible values: NumberLiteralAmplifier |
-        MethodAdd | MethodRemove | TestDataMutator | StatementAdd | None
-        (default: None)
+        available amplifiers. Possible values: StringLiteralAmplifier |
+        NumberLiteralAmplifier | CharLiteralAmplifier | BooleanLiteralAmplifier
+        | AllLiteralAmplifier | MethodAdd | MethodRemove | TestDataMutator |
+        StatementAdd | None (default: None)
 
   [(-i|--iteration) <iteration>]
         [optional] specify the number of amplification iteration. A larger
@@ -182,13 +185,17 @@ Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
         iterations mah help to kill more mutants). This has an impact on the
         execution time: the more iterations, the longer DSpot runs. (default: 3)
 
-  [(-s|--test-criterion) <PitMutantScoreSelector | ExecutedMutantSelector | BranchCoverageTestSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>]
+  [(-s|--test-criterion) <PitMutantScoreSelector | ExecutedMutantSelector | CloverCoverageSelector | BranchCoverageTestSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>]
         [optional] specify the test adequacy criterion to be maximized with
         amplification (default: PitMutantScoreSelector)
 
   [(-g|--max-test-amplified) <integer>]
         [optional] specify the maximum number of amplified test that dspot keep
         (before generating assertion) (default: 200)
+
+  [-d|--descartes]
+
+  [-k|--evosuite]
 
   [(-t|--test) my.package.MyClassTest1:my.package.MyClassTest2:...:my.package.MyClassTestN ]
         [optional] fully qualified names of test classes to be amplified. If the
@@ -200,6 +207,10 @@ Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
 
   [(-o|--output-path) <output>]
         [optional] specify the output folder (default: dspot-report)
+
+  [-q|--clean]
+        [optional] if enabled, DSpot will remove the out directory if exists,
+        else it will append the results to the exist files. (default: off)
 
   [(-m|--path-pit-result) <./path/to/mutations.csv>]
         [optional, expert mode] specify the path to the .csv of the original
