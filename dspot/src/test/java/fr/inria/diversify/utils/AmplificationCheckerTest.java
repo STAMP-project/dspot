@@ -9,7 +9,9 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -54,10 +56,8 @@ public class AmplificationCheckerTest {
         final List<CtInvocation> invocations = classTest.getMethodsByName("test")
                 .get(0)
                 .getElements(new TypeFilter<>(CtInvocation.class));
-        invocations.forEach(invocation ->
-                assertTrue(invocation.toString()  + " should match on isAssert",
-                    AmplificationChecker.isAssert(invocation)
-        ));
+        final List<CtInvocation> collect = invocations.stream().filter(AmplificationChecker::isAssert).collect(Collectors.toList());
+        assertEquals(5, collect.size());
     }
 
 }
