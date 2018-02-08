@@ -1,11 +1,18 @@
 package fr.inria.stamp;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import fr.inria.diversify.dspot.Amplification;
+import fr.inria.diversify.dspot.selector.json.coverage.TestClassJSON;
+import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import spoon.Launcher;
+import spoon.reflect.declaration.CtClass;
 
 import java.io.*;
 import java.text.DecimalFormat;
@@ -311,4 +318,107 @@ public class MainTest {
             "Amplified instruction coverage: 37 / 37" + nl +
             "100" + DECIMAL_SEPARATOR + "00%" + nl;
 
+
+    @Test
+    public void testOverrideExistingResults() throws Exception {
+
+        /*
+            Test that we can append result in different runs of DSpot, or not, according to the --clean (-q) flag
+            Here, we run 4 time DSpot.
+                    - 1 time with a lot of Amplifiers: result with a lof of amplified test
+                    - then we if append result of run 2 and run 3, we obtain the same result than the 1
+                    - the fourth is the same of the third time, but not appended to the result of the second
+         */
+
+        Main.main(new String[]{
+                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
+                "--test-criterion", "JacocoCoverageSelector",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdd",
+                "--iteration", "1",
+                "--randomSeed", "72",
+                "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
+                "--test", "example.TestSuiteExample",
+                "--cases", "test2",
+                "--output-path", "target/trash",
+                "--max-test-amplified", "200"
+        });
+        Launcher launcher = new Launcher();
+        launcher.getEnvironment().setNoClasspath(true);
+        launcher.getEnvironment().setAutoImports(true);
+        launcher.addInputResource("target/trash/example/TestSuiteExampleAmpl.java");
+        launcher.buildModel();
+        final CtClass<?> testClass1 = launcher.getFactory().Class().get("example.TestSuiteExampleAmpl");
+
+        Main.main(new String[]{
+                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
+                "--test-criterion", "JacocoCoverageSelector",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator",
+                "--iteration", "1",
+                "--randomSeed", "72",
+                "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
+                "--test", "example.TestSuiteExample",
+                "--cases", "test2",
+                "--output-path", "target/trash",
+                "--max-test-amplified", "200",
+                "--clean"
+        });
+        launcher = new Launcher();
+        launcher.getEnvironment().setNoClasspath(true);
+        launcher.getEnvironment().setAutoImports(true);
+        launcher.addInputResource("target/trash/example/TestSuiteExampleAmpl.java");
+        launcher.buildModel();
+        final CtClass<?> testClass2 = launcher.getFactory().Class().get("example.TestSuiteExampleAmpl");
+
+
+        // Assert that we do not have result from the first run
+        Main.main(new String[]{
+                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
+                "--test-criterion", "JacocoCoverageSelector",
+                "--amplifiers", "StatementAdd",
+                "--iteration", "1",
+                "--randomSeed", "72",
+                "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
+                "--test", "example.TestSuiteExample",
+                "--cases", "test2",
+                "--output-path", "target/trash",
+                "--max-test-amplified", "200",
+        });
+        launcher = new Launcher();
+        launcher.getEnvironment().setNoClasspath(true);
+        launcher.getEnvironment().setAutoImports(true);
+        launcher.addInputResource("target/trash/example/TestSuiteExampleAmpl.java");
+        launcher.buildModel();
+        final CtClass<?> testClass3 = launcher.getFactory().Class().get("example.TestSuiteExampleAmpl");
+        Main.main(new String[]{
+                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
+                "--test-criterion", "JacocoCoverageSelector",
+                "--amplifiers", "StatementAdd",
+                "--iteration", "1",
+                "--randomSeed", "72",
+                "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
+                "--test", "example.TestSuiteExample",
+                "--cases", "test2",
+                "--output-path", "target/trash",
+                "--max-test-amplified", "200",
+                "--clean"
+        });
+        launcher = new Launcher();
+        launcher.getEnvironment().setNoClasspath(true);
+        launcher.getEnvironment().setAutoImports(true);
+        launcher.addInputResource("target/trash/example/TestSuiteExampleAmpl.java");
+        launcher.buildModel();
+        final CtClass<?> testClass4 = launcher.getFactory().Class().get("example.TestSuiteExampleAmpl");
+        // 2 + 3 = 1
+        assertTrue(testClass1.getMethods().equals(testClass3.getMethods()));
+        // all 2 in 1
+        assertTrue(testClass2.getMethods().stream().allMatch(testClass1.getMethods()::contains));
+        // all 2 in 3
+        assertTrue(testClass2.getMethods().stream().allMatch(testClass3.getMethods()::contains));
+        // all 3 in 1
+        assertTrue(testClass3.getMethods().stream().allMatch(testClass1.getMethods()::contains));
+        // all 4 in 1
+        assertTrue(testClass4.getMethods().stream().allMatch(testClass1.getMethods()::contains));
+        // all 4 in 3
+        assertTrue(testClass4.getMethods().stream().allMatch(testClass3.getMethods()::contains));
+    }
 }
