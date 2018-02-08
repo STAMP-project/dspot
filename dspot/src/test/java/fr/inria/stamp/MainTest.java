@@ -408,17 +408,9 @@ public class MainTest {
         launcher.addInputResource("target/trash/example/TestSuiteExampleAmpl.java");
         launcher.buildModel();
         final CtClass<?> testClass4 = launcher.getFactory().Class().get("example.TestSuiteExampleAmpl");
-        // 2 + 3 = 1
-        assertTrue(testClass1.getMethods().equals(testClass3.getMethods()));
-        // all 2 in 1
-        assertTrue(testClass2.getMethods().stream().allMatch(testClass1.getMethods()::contains));
-        // all 2 in 3
-        assertTrue(testClass2.getMethods().stream().allMatch(testClass3.getMethods()::contains));
-        // all 3 in 1
-        assertTrue(testClass3.getMethods().stream().allMatch(testClass1.getMethods()::contains));
-        // all 4 in 1
-        assertTrue(testClass4.getMethods().stream().allMatch(testClass1.getMethods()::contains));
-        // all 4 in 3
-        assertTrue(testClass4.getMethods().stream().allMatch(testClass3.getMethods()::contains));
+        assertEquals(5, testClass1.getMethods().size());
+        assertEquals(4, testClass2.getMethods().size());
+        assertEquals(5, testClass3.getMethods().size());
+        assertEquals(1, testClass4.getMethods().size());
     }
 }
