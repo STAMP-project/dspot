@@ -149,7 +149,9 @@ public class JSAPOptions {
                 jsapConfig.getInt("timeOut"),
                 jsapConfig.getString("builder"),
                 jsapConfig.getString("mavenHome"),
-                jsapConfig.getInt("maxTestAmplified"));
+                jsapConfig.getInt("maxTestAmplified"),
+                jsapConfig.getBoolean("clean")
+        );
     }
 
     public static Stream<Amplifier> stringToAmplifier(String amplifier) {
@@ -239,6 +241,11 @@ public class JSAPOptions {
         output.setLongFlag("output-path");
         output.setHelp("[optional] specify the output folder (default: dspot-report)");
 
+        Switch cleanOutput = new Switch("clean");
+        cleanOutput.setShortFlag('q');
+        cleanOutput.setLongFlag("clean");
+        cleanOutput.setHelp("[optional] if enabled, DSpot will remove the out directory if exists, else it will append the results to the exist files. (default: off)");
+
         FlaggedOption mutantScore = new FlaggedOption("mutant");
         mutantScore.setStringParser(JSAP.STRING_PARSER);
         mutantScore.setAllowMultipleDeclarations(false);
@@ -322,6 +329,7 @@ public class JSAPOptions {
             jsap.registerParameter(specificTestCase);
             jsap.registerParameter(testCases);
             jsap.registerParameter(output);
+            jsap.registerParameter(cleanOutput);
             jsap.registerParameter(mutantScore);
             jsap.registerParameter(automaticBuilder);
             jsap.registerParameter(useReflection);
