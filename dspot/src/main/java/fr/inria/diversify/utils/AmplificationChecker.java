@@ -41,8 +41,8 @@ public class AmplificationChecker {
         final String nameOfMethodCalled = invocation.getExecutable().getSimpleName();
         return nameOfMethodCalled.toLowerCase().contains("assert") ||
                 nameOfMethodCalled.toLowerCase().startsWith("fail") ||
-                !(invocation.getExecutable().getDeclaration() != null &&
-                        invocation.getExecutable()
+                (invocation.getExecutable().getDeclaration() != null &&
+                        !invocation.getExecutable()
                                 .getDeclaration()
                                 .getElements(new HasAssertInvocationFilter(3))
                                 .isEmpty()
