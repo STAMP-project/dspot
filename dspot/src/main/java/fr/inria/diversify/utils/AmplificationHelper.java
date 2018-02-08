@@ -19,7 +19,9 @@ import spoon.reflect.visitor.ImportScannerImpl;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.io.File;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -246,38 +248,25 @@ public class AmplificationHelper {
     // We use the hashCode of CtMethod to do this
     // We select CtMethod that have very different hashCode
     // We use the Standard deviation and takes only CtMethod that have hashcode different of at least this value
-    public static List<CtMethod<?>> reduce(CtType<?> classTest, List<CtMethod<?>> newTests) {
+    public static List<CtMethod<?>> reduce(List<CtMethod<?>> newTests) {
         if (newTests.size() > MAX_NUMBER_OF_TESTS) {
             LOGGER.warn("Too many tests has been generated: {}", newTests.size());
-
-            // TODO checks that we do not add too much methods
-            final CtType<?> clone = classTest.clone();
-            newTests.stream().forEach(clone::addMethod);
-            final ArrayList<CtMethod<?>> ctMethods = new ArrayList<>(newTests);
-
-            final List<Double> averages = newTests.stream()
-                    .map(test1 -> {
-                        DSpotUtils.printProgress(newTests.indexOf(test1), newTests.size());
-                                final double average = ctMethods.stream()
-                                        .filter(ctMethod -> !ctMethod.equals(test1))
-                                        .map(test2 -> (double) levenshteinDistance(test1.toString(), test2.toString()))
-                                        .mapToDouble(value -> value)
-                                        .average()
-                                        .orElse(0.0D);
-                                ctMethods.remove(test1);
-                                return average;
-                            }
-                    ).collect(Collectors.toList());
-
-            final List<CtMethod<?>> reducedTests = averages.stream()
-                    .sorted((o1, o2) -> -Double.compare(o1, o2))
-                    .limit(MAX_NUMBER_OF_TESTS)
-                    .map(averages::indexOf)
+            final List<Integer> values = newTests.stream()
+                    .map(CtMethod::toString)
+                    .map(String::getBytes)
+                    .map(AmplificationHelper::convert)
+                    .map(Arrays::stream)
+                    .map(IntStream::sum)
+                    .collect(Collectors.toList());
+            final double standardDeviation = standardDeviation(values);
+            final List<CtMethod<?>> reducedTests = values.stream()
+                    .filter(integer -> Math.abs(values.get(0) - integer) >= standardDeviation)
+                    .map(values::indexOf)
                     .map(newTests::get)
                     .collect(Collectors.toList());
-
+            reducedTests.add(newTests.get(0));
             LOGGER.info("Number of generated test reduced to {}", reducedTests.size());
-            return reduce(classTest, reducedTests);
+            return reduce(reducedTests);
         } else {
             ampTestToParent.putAll(newTests.stream()
                     .collect(HashMap::new,
@@ -289,47 +278,24 @@ public class AmplificationHelper {
         }
     }
 
-    // Retrieve from https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#Java
-    private static Integer levenshteinDistance(CharSequence lhs, CharSequence rhs) {
-        int len0 = lhs.length() + 1;
-        int len1 = rhs.length() + 1;
-
-        // the array of distances
-        int[] cost = new int[len0];
-        int[] newcost = new int[len0];
-
-        // initial cost of skipping prefix in String s0
-        for (int i = 0; i < len0; i++) cost[i] = i;
-
-        // dynamically computing the array of distances
-
-        // transformation cost for each letter in s1
-        for (int j = 1; j < len1; j++) {
-            // initial cost of skipping prefix in String s1
-            newcost[0] = j;
-
-            // transformation cost for each letter in s0
-            for (int i = 1; i < len0; i++) {
-                // matching current letters in both strings
-                int match = (lhs.charAt(i - 1) == rhs.charAt(j - 1)) ? 0 : 1;
-
-                // computing cost for each transformation
-                int cost_replace = cost[i - 1] + match;
-                int cost_insert = cost[i] + 1;
-                int cost_delete = newcost[i - 1] + 1;
-
-                // keep minimum cost
-                newcost[i] = Math.min(Math.min(cost_insert, cost_delete), cost_replace);
-            }
-
-            // swap cost/newcost arrays
-            int[] swap = cost;
-            cost = newcost;
-            newcost = swap;
+    private static int[] convert(byte[] byteArray) {
+        final int[] array = new int[byteArray.length];
+        for (int i = 0; i < byteArray.length; i++) {
+            array[i] = (int) byteArray[i];
         }
+        return array;
+    }
 
-        // the distance is the cost for transforming all letters in both strings
-        return cost[len0 - 1];
+    private static double standardDeviation(List<Integer> hashCodes) {
+        final double mean = hashCodes.stream()
+                .mapToInt(value -> value)
+                .average()
+                .orElse(0.0D);
+        return Math.sqrt(hashCodes.stream()
+                .mapToDouble(value -> value)
+                .map(value -> Math.pow(Math.abs((value - mean)), 2.0D))
+                .sum()
+                / hashCodes.size());
     }
 
 }

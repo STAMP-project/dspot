@@ -82,7 +82,7 @@ public class AmplificationHelperTest extends AbstractTest {
         methods.add(clone);
         methods.add(methodInteger);
 
-        final List<CtMethod<?>> reduce = AmplificationHelper.reduce(classTest, methods);
+        final List<CtMethod<?>> reduce = AmplificationHelper.reduce(methods);
         assertEquals(2, reduce.size());
 
         AmplificationHelper.MAX_NUMBER_OF_TESTS = 200;
