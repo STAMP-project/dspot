@@ -19,12 +19,10 @@ import spoon.reflect.visitor.ImportScannerImpl;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.io.File;
 import java.util.*;
-import java.util.function.BinaryOperator;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * Created by Benjamin DANGLOT
@@ -248,32 +246,38 @@ public class AmplificationHelper {
     // We use the hashCode of CtMethod to do this
     // We select CtMethod that have very different hashCode
     // We use the Standard deviation and takes only CtMethod that have hashcode different of at least this value
-    public static List<CtMethod<?>> reduce(List<CtMethod<?>> newTests) {
+    public static List<CtMethod<?>> reduce(CtType<?> classTest, List<CtMethod<?>> newTests) {
         if (newTests.size() > MAX_NUMBER_OF_TESTS) {
             LOGGER.warn("Too many tests has been generated: {}", newTests.size());
-            final List<List<Double>> distances = newTests.stream()
-                    .map(test1 -> newTests.stream()
-                            .map(test2 -> (double) levenshteinDistance(test1.toString(), test2.toString()))
-                            .collect(Collectors.toList())
-                    ).collect(Collectors.toList());
+
+            // TODO checks that we do not add too much methods
+            final CtType<?> clone = classTest.clone();
+            newTests.stream().forEach(clone::addMethod);
+            final ArrayList<CtMethod<?>> ctMethods = new ArrayList<>(newTests);
 
             final List<Double> averages = newTests.stream()
-                    .map(test1 -> newTests.stream()
-                            .filter(ctMethod -> !ctMethod.equals(test1))
-                            .map(test2 -> (double) levenshteinDistance(test1.toString(), test2.toString()))
-                            .mapToDouble(value -> value)
-                            .average()
-                            .orElse(0.0D)
+                    .map(test1 -> {
+                        DSpotUtils.printProgress(newTests.indexOf(test1), newTests.size());
+                                final double average = ctMethods.stream()
+                                        .filter(ctMethod -> !ctMethod.equals(test1))
+                                        .map(test2 -> (double) levenshteinDistance(test1.toString(), test2.toString()))
+                                        .mapToDouble(value -> value)
+                                        .average()
+                                        .orElse(0.0D);
+                                ctMethods.remove(test1);
+                                return average;
+                            }
                     ).collect(Collectors.toList());
 
             final List<CtMethod<?>> reducedTests = averages.stream()
-                    .sorted((o1, o2) -> - Double.compare(o1, o2))
+                    .sorted((o1, o2) -> -Double.compare(o1, o2))
                     .limit(MAX_NUMBER_OF_TESTS)
                     .map(averages::indexOf)
                     .map(newTests::get)
                     .collect(Collectors.toList());
+
             LOGGER.info("Number of generated test reduced to {}", reducedTests.size());
-            return reduce(reducedTests);
+            return reduce(classTest, reducedTests);
         } else {
             ampTestToParent.putAll(newTests.stream()
                     .collect(HashMap::new,

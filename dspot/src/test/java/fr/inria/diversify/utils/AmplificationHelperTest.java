@@ -9,7 +9,6 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -83,7 +82,7 @@ public class AmplificationHelperTest extends AbstractTest {
         methods.add(clone);
         methods.add(methodInteger);
 
-        final List<CtMethod<?>> reduce = AmplificationHelper.reduce(methods);
+        final List<CtMethod<?>> reduce = AmplificationHelper.reduce(classTest, methods);
         assertEquals(2, reduce.size());
 
         AmplificationHelper.MAX_NUMBER_OF_TESTS = 200;
