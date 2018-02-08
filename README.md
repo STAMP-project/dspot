@@ -7,18 +7,18 @@ DSpot automatically improves existing JUnit test suites.
 It automatically generates new JUnit tests by modifying existing ones.
 
 - Input: DSpot take as input a Java project with an existing test suite.
-- Output: DSpot produces a new test cases, given on the command line and in a new file. Those new test cases kill new mutants, which means that Dspot help you to catch more regressions and to improve your mutation score.
+- Output: DSpot produces new test cases, given on the command line and in a new file. Those new test cases kill new mutants, which means that Dspot helps you to catch more regressions and to improve your mutation score.
 
 **How does Dspot work?** DSpot applies transformation operators on existing tests.
 The transformations result in new inputs and new explored paths. They also consist of adding new assertions.
 
 ### Output of DSpot
 
-DSpot produces 3 outputs in the <outputDirectory> (default: `output_diversify`) specified in the properties file.
+DSpot produces 3 outputs in the <outputDirectory> (default: `output_diversify`) specified in the properties file:
 
-* a textual report of the result of the amplification also printed  on the standard output 
-* a json file summarizing the amplification 
-* the amplified tests augmented with comments (see `DSpotUtils.printJavaFileWithComment()`)
+* a textual report of the result of the amplification also printed  on the standard output,
+* a json file summarizing the amplification,
+* the amplified tests augmented with comments (see `DSpotUtils.printJavaFileWithComment()`).
 
 ### Running on your own project
 
@@ -36,8 +36,8 @@ myproject/
     |_ pom.xml
 ```
 
-Let's imagine you wish to run DSpot on `module1`. You'd need to create a properties file (e.g. `dspot.properties`),
-that you can located under `module1` and containing (for example):
+Let's imagine you wish to run DSpot on `module1`. You need to create a properties file (e.g. `dspot.properties`),
+that you can locate under `module1` and containing (for example):
 
 ```properties
 # Relative path to the project root.
@@ -114,7 +114,7 @@ outputDirectory=dspot-out/
 filter=example
 ```
 
-The result of the amplification of charAt consists of 6 new tests, as shown in the output below. Those new tests are
+The result of the amplification of charAt consists of 6 new tests, as shown in the output below. These new tests are
 written to the output folder specified by configuration property `outputDirectory` (`./dspot-out/`).
 
 ```
@@ -143,7 +143,7 @@ cd dspot
 mvn compile
 ```
 
-3) DSpot use the environnment variable MAVEN_HOME, ensure that this variable points to your maven installation. Example:
+3) DSpot uses the environnment variable MAVEN_HOME, ensure that this variable points to your maven installation. Example:
 ```
 export MAVEN_HOME=path/to/maven/
 ```
@@ -177,9 +177,9 @@ Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
         (default: None)
 
   [(-i|--iteration) <iteration>]
-        [optional] specify the number of amplification iteration. A larger
+        [optional] specify the number of amplification iterations. A larger
         number may help to improve the test criterion (eg a larger number of
-        iterations mah help to kill more mutants). This has an impact on the
+        iterations may help to kill more mutants). This has an impact on the
         execution time: the more iterations, the longer DSpot runs. (default: 3)
 
   [(-s|--test-criterion) <PitMutantScoreSelector | ExecutedMutantSelector | BranchCoverageTestSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>]
@@ -187,7 +187,7 @@ Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
         amplification (default: PitMutantScoreSelector)
 
   [(-g|--max-test-amplified) <integer>]
-        [optional] specify the maximum number of amplified test that dspot keep
+        [optional] specify the maximum number of amplified tests that dspot keeps
         (before generating assertion) (default: 200)
 
   [(-t|--test) my.package.MyClassTest1:my.package.MyClassTest2:...:my.package.MyClassTestN ]
@@ -231,7 +231,7 @@ Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
         run the example of DSpot and leave
 
   [-h|--help]
-        shows this help
+        show this help
 ```
 
 ###### Available Properties
@@ -244,13 +244,13 @@ Here is the list of configuration properties of DSpot:
   * testSrc: relative path (from project properties) to the test source root directory.
 * recommended properties:
   * outputDirectory: path to the out of dspot. (default: output)
-  * javaVersion: version used of java (default: 5)
+  * javaVersion: version used of Java (default: 5)
   * maven.home: path to the executable maven. If no value is specified, it will try some defaults values
     (for instance: `/usr/share/maven/`, `usr/local/Cellar/maven/3.3.9/libexec/` ...).
 * optional properties:
   * filter: string to filter on package or classes.
-  * maven.localRepository: path to the local repository of maven (.m2), if you need specific settings.
-  * excludedClasses: dspot will not amplify the excluded test classes.
+  * maven.localRepository: path to the local repository of Maven (.m2), if you need specific settings.
+  * excludedClasses: DSpot will not amplify the excluded test classes.
   * additionalClasspathElements: add elements to the classpath. (e.g. a jar file)
   * excludedClasses: list of full qualified name of test classes to be excluded
    by DSpot (see this [property file](https://github.com/STAMP-project/dspot/blob/master/dspot/src/test/resources/sample/sample.properties))
@@ -261,30 +261,30 @@ Here is the list of configuration properties of DSpot:
 
 The whole procedure of amplification is done by the `fr.inria.diversify.dspot.DSpot` class. 
 You must at least provide the path to the properties file of your project at the construction of the object.
-You can specify the number of times each amplifier will be applies to the test cases (default 3).
+You can specify the number of times each amplifier will be applied to the test cases (default 3).
 You can specify which amplifiers (as a list) you want to use. By default, DSpot uses: 
 
     * TestDataMutator: which transforms literals.
-    * TestMethodCallAdder: which duplicatse an existing method call in the test case.
+    * TestMethodCallAdder: which duplicates an existing method call in the test case.
     * TestMethodCallRemover: which removes a method call in the test case.
     * StatementAdd: which adds calls to accessible methods on existing objects and creates new instances.
 
 #### Test Selectors
 
-A test selector is responsible the tests to be amplified in an amplification iteration.
+A test selector is responsible for the tests to be amplified in an amplification iteration.
 There are two test selectors:
 
 * BranchCoverageTestSelector: it selects amplified tests that increase the coverage, or produce a new unique execution
-path. BranchCoverageTestSelector produces a json which contains for each amplified test class, the name of the generated
-tests. For each test, the json file gives the number of added inputs, added assertions and the coverage measured in \# 
+path. BranchCoverageTestSelector produces a JSon file which contains, for each amplified test class, the name of the generated
+tests. For each test, the JSon file gives the number of added inputs, added assertions and the coverage measured in \# 
 of method calls
 * PitMutantScoreSelector: it selects amplified tests that increase the mutant score, _i.e._ kills more mutants than the 
 original tests. The mutants are generated with [Pitest](http://pitest.org/). Warning, the selector takes more time than
-the first one. This selector produces a json which contains for the amplified classed, the name of of each generated 
+the first one. This selector produces a JSon file which contains for the amplified classed, the name of each generated 
 test, the number of added inputs, of added assertions, and the number of newly killed mutants. For each newly killed 
 mutant killed, it gives:
-    * the ID of the mutant operators (see [Mutator](http://pitest.org/quickstart/mutators/))
-    * the name of the method where the mutant is inserted.
+    * the ID of the mutant operators (see [Mutator](http://pitest.org/quickstart/mutators/)),
+    * the name of the method where the mutant is inserted,
     * the line where the mutant is inserted.
 
 ### Licence
