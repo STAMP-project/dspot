@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
+@Deprecated
 public class TestRunnerFactory {
 
     // TODO this is a poor contract, and need to be enhanced

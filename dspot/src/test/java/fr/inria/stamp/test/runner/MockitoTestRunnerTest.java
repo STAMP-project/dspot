@@ -12,6 +12,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 02/07/17.
  */
+@Deprecated
 public class MockitoTestRunnerTest {
 
     @Test

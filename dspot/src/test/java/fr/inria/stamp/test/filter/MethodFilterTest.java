@@ -16,6 +16,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 04/07/17
  */
+@Deprecated
 public class MethodFilterTest {
 
 	@Test

@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
  * benjamin.danglot@inria.fr
  * on 30/06/17
  */
+@Deprecated
 public class TestListener extends RunListener {
 
     private List<Description> runningTests = new ArrayList<>();

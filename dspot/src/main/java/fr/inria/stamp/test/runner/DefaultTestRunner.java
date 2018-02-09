@@ -19,6 +19,7 @@ import java.util.concurrent.*;
  * benjamin.danglot@inria.fr
  * on 30/06/17
  */
+@Deprecated
 public class DefaultTestRunner extends AbstractTestRunner {
 
 	DefaultTestRunner(URLClassLoader classLoader) {
