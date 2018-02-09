@@ -248,47 +248,62 @@ public class AmplificationHelper {
     // We use the hashCode of CtMethod to do this
     // We select CtMethod that have very different hashCode
     // We use the Standard deviation and takes only CtMethod that have hashcode different of at least this value
-    public static List<CtMethod<?>> reduce(List<CtMethod<?>> newTests) {
-        if (newTests.size() > MAX_NUMBER_OF_TESTS) {
-            LOGGER.warn("Too many tests has been generated: {}", newTests.size());
-            final List<Integer> values = newTests.stream()
-                    .map(CtMethod::toString)
-                    .map(String::getBytes)
-                    .map(AmplificationHelper::convert)
-                    .map(Arrays::stream)
-                    .map(IntStream::sum)
-                    .collect(Collectors.toList());
-            final double standardDeviation = standardDeviation(values);
-            final List<CtMethod<?>> reducedTests = values.stream()
-                    .filter(integer -> Math.abs(values.get(0) - integer) >= standardDeviation)
-                    .map(values::indexOf)
-                    .map(newTests::get)
-                    .collect(Collectors.toList());
-            reducedTests.add(newTests.get(0));
+    public static List<CtMethod<?>> reduce(List<CtMethod<?>> tests) {
+        final List<CtMethod<?>> reducedTests = new ArrayList<>();
+        if (tests.size() > MAX_NUMBER_OF_TESTS) {
+            LOGGER.warn("Too many tests has been generated: {}", tests.size());
+            reducedTests.addAll(_reduce(tests));
+            if (reducedTests.size() > MAX_NUMBER_OF_TESTS) {
+                return reduce(reducedTests);
+            }
+            tests.removeAll(reducedTests);
+            List<CtMethod<?>> tmp = _reduce(tests);
+            while (tmp.size() + reducedTests.size() < MAX_NUMBER_OF_TESTS) {
+                reducedTests.addAll(tmp);
+                tests.removeAll(reducedTests);
+                tmp = _reduce(tests);
+            }
             LOGGER.info("Number of generated test reduced to {}", reducedTests.size());
-            return reduce(reducedTests);
-        } else {
-            ampTestToParent.putAll(newTests.stream()
-                    .collect(HashMap::new,
-                            (parentsReduced, ctMethod) -> parentsReduced.put(ctMethod, tmpAmpTestToParent.get(ctMethod)),
-                            HashMap::putAll)
-            );
-            tmpAmpTestToParent.clear();
-            return newTests;
         }
+        if (reducedTests.isEmpty()) {
+            reducedTests.addAll(tests);
+        }
+        ampTestToParent.putAll(reducedTests.stream()
+                .collect(HashMap::new,
+                        (parentsReduced, ctMethod) -> parentsReduced.put(ctMethod, tmpAmpTestToParent.get(ctMethod)),
+                        HashMap::putAll)
+        );
+        tmpAmpTestToParent.clear();
+        return reducedTests;
     }
 
-    private static int[] convert(byte[] byteArray) {
-        final int[] array = new int[byteArray.length];
-        for (int i = 0; i < byteArray.length; i++) {
-            array[i] = (int) byteArray[i];
-        }
-        return array;
+    private static List<CtMethod<?>> _reduce(List<CtMethod<?>> tests) {
+        final List<Long> values = tests.stream()
+                .map(CtMethod::toString)
+                .map(String::getBytes)
+                .map(AmplificationHelper::convert)
+                .collect(Collectors.toList());
+        final double standardDeviation = standardDeviation(values);
+        final List<CtMethod<?>> reducedTests = values.stream()
+                .filter(integer -> Math.abs(values.get(0) - integer) >= standardDeviation)
+                .map(values::indexOf)
+                .map(tests::get)
+                .collect(Collectors.toList());
+        reducedTests.add(tests.get(0));
+        return reducedTests;
     }
 
-    private static double standardDeviation(List<Integer> hashCodes) {
+    private static long convert(byte[] byteArray) {
+        long sum = 0L;
+        for (byte aByteArray : byteArray) {
+            sum += (int) aByteArray;
+        }
+        return sum;
+    }
+
+    private static double standardDeviation(List<Long> hashCodes) {
         final double mean = hashCodes.stream()
-                .mapToInt(value -> value)
+                .mapToLong(value -> value)
                 .average()
                 .orElse(0.0D);
         return Math.sqrt(hashCodes.stream()
