@@ -10,6 +10,7 @@ import spoon.reflect.code.CtStatement;
 import spoon.reflect.code.CtStatementList;
 import spoon.reflect.code.CtUnaryOperator;
 import spoon.reflect.code.CtVariableRead;
+import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
@@ -58,7 +59,11 @@ public class AssertionRemover {
                 invocation.insertBefore(localVariable);
             }
         });
-        invocation.getParent(CtStatementList.class).removeStatement(invocation);
+        CtElement currentParent = invocation;
+        while (! (currentParent.getParent() instanceof CtStatementList)) {
+            currentParent = currentParent.getParent();
+        }
+        ((CtStatementList) currentParent.getParent()).removeStatement((CtStatement) currentParent);
     }
 
 }
