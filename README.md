@@ -61,24 +61,24 @@ filter=example
 You can then execute DSpot by using:
 
 ```
-java -cp /path/to/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties dspot.properties
+java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --path-to-properties dspot.properties
 # or in maven
 mvn exec:java -Dexec.mainClass="fr.inria.stamp.Main" -Dexec.args="--path-to-properties dspot.properties"
 ```
 
 Amplify a specific test class
 ```
-java -cp /path/to/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties dspot.properties --test my.package.TestClass
+java -jar /path/to/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties dspot.properties --test my.package.TestClass
 ```
 Amplify specific test classes according to a regex
 ```
-java -cp /path/to/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties dspot.properties --test my.package.*
-java -cp /path/to/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties dspot.properties --test my.package.Example*
+java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --path-to-properties dspot.properties --test my.package.*
+java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --path-to-properties dspot.properties --test my.package.Example*
 ```
 
 Amplify a specific test method from a specific test class
 ```
-java -cp /path/to/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties dspot.properties --test my.package.TestClass --cases testMethod
+java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --path-to-properties dspot.properties --test my.package.TestClass --cases testMethod
 ```
 
 ### Getting Started Example
