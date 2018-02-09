@@ -16,6 +16,7 @@ import java.util.Collections;
  * benjamin.danglot@inria.fr
  * on 30/06/17
  */
+@Deprecated
 public abstract class AbstractTestRunner implements TestRunner {
 
     protected URLClassLoader classLoader;

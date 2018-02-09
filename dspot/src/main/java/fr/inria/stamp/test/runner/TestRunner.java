@@ -10,6 +10,7 @@ import java.util.Collection;
  * benjamin.danglot@inria.fr
  * on 12/06/17
  */
+@Deprecated
 public interface TestRunner {
 
     TestListener run(String fullQualifiedName, String testMethodName);

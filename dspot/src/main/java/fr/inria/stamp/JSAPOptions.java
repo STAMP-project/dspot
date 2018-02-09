@@ -136,7 +136,7 @@ public class JSAPOptions {
         GradlePitTaskAndOptions.descartesMode = jsapConfig.getBoolean("descartes");
         GradlePitTaskAndOptions.evosuiteMode = jsapConfig.getBoolean("evosuite");
 
-        TestRunnerFactory.useReflectiveTestRunner = jsapConfig.getBoolean("useReflection");
+        TestRunnerFactory.useReflectiveTestRunner = false;
 
         return new Configuration(jsapConfig.getString("path"),
                 buildAmplifiersFromString(jsapConfig.getStringArray("amplifiers")),
@@ -313,11 +313,6 @@ public class JSAPOptions {
         maxTestAmplified.setHelp("[optional] specify the maximum number of amplified test that dspot keep (before generating assertion)");
         maxTestAmplified.setDefault("200");
 
-        Switch useReflection = new Switch("useReflection");
-        useReflection.setLongFlag("useReflection");
-        useReflection.setDefault("false");
-        useReflection.setHelp("Use a totally isolate test runner. WARNING this test runner does not support the usage of the JacocoCoverageSelector");
-
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
@@ -332,7 +327,6 @@ public class JSAPOptions {
             jsap.registerParameter(cleanOutput);
             jsap.registerParameter(mutantScore);
             jsap.registerParameter(automaticBuilder);
-            jsap.registerParameter(useReflection);
             jsap.registerParameter(mavenHome);
             jsap.registerParameter(seed);
             jsap.registerParameter(timeOut);

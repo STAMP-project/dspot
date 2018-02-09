@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
  * benjamin.danglot@inria.fr
  * on 04/07/17
  */
+@Deprecated
 public class MethodFilter extends Filter {
 
 	private Collection<String> testMethodNames;

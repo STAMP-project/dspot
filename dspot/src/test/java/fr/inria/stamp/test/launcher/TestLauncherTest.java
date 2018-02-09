@@ -24,6 +24,7 @@ import static org.junit.Assert.fail;
  * benjamin.danglot@inria.fr
  * on 06/07/17
  */
+@Deprecated
 public class TestLauncherTest {
 
 	@Test

@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 30/06/17
  */
+@Deprecated
 public class TestListenerTest {
 
     @Test

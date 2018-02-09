@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
 
+@Deprecated
 public class ReflectiveTestRunner extends AbstractTestRunner {
 
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ReflectiveTestRunner.class);

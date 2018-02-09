@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
  * benjamin.danglot@inria.fr
  * on 05/07/17
  */
+@Deprecated
 public class TestLauncher {
 
 	public static TestListener run(InputConfiguration configuration,
