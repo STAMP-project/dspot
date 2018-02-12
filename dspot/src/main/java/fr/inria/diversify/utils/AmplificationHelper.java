@@ -13,13 +13,15 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtPackage;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.reference.CtPackageReference;
-import spoon.reflect.reference.CtReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.ImportScanner;
 import spoon.reflect.visitor.ImportScannerImpl;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -208,7 +210,7 @@ public class AmplificationHelper {
         DSpotUtils.addComment(amplifiedTest,
                 "amplification of " +
                         (topParent.getDeclaringType() != null ?
-                        topParent.getDeclaringType().getQualifiedName() + "#" : "") + topParent.getSimpleName(),
+                                topParent.getDeclaringType().getQualifiedName() + "#" : "") + topParent.getSimpleName(),
                 CtComment.CommentType.BLOCK);
         return amplifiedTest;
     }
@@ -241,19 +243,74 @@ public class AmplificationHelper {
     //empirically 200 seems to be enough
     public static int MAX_NUMBER_OF_TESTS = 200;
 
-    public static List<CtMethod<?>> reduce(List<CtMethod<?>> newTests) {
-        if (newTests.size() > MAX_NUMBER_OF_TESTS) {
-            LOGGER.warn("Too many tests has been generated: {}", newTests.size());
-            Collections.shuffle(newTests, AmplificationHelper.getRandom());
-            newTests = newTests.subList(0, MAX_NUMBER_OF_TESTS);
-            LOGGER.info("Number of generated test reduced to {}", MAX_NUMBER_OF_TESTS);
+
+    // What we want here, is diversity.
+    // We use the hashCode of CtMethod to do this
+    // We select CtMethod that have very different hashCode
+    // We use the Standard deviation and takes only CtMethod that have hashcode different of at least this value
+    public static List<CtMethod<?>> reduce(List<CtMethod<?>> tests) {
+        final List<CtMethod<?>> reducedTests = new ArrayList<>();
+        if (tests.size() > MAX_NUMBER_OF_TESTS) {
+            LOGGER.warn("Too many tests has been generated: {}", tests.size());
+            reducedTests.addAll(_reduce(tests));
+            if (reducedTests.size() > MAX_NUMBER_OF_TESTS) {
+                return reduce(reducedTests);
+            }
+            tests.removeAll(reducedTests);
+            List<CtMethod<?>> tmp = _reduce(tests);
+            while (tmp.size() + reducedTests.size() < MAX_NUMBER_OF_TESTS) {
+                reducedTests.addAll(tmp);
+                tests.removeAll(reducedTests);
+                tmp = _reduce(tests);
+            }
+            LOGGER.info("Number of generated test reduced to {}", reducedTests.size());
         }
-        ampTestToParent.putAll(newTests.stream()
+        if (reducedTests.isEmpty()) {
+            reducedTests.addAll(tests);
+        }
+        ampTestToParent.putAll(reducedTests.stream()
                 .collect(HashMap::new,
                         (parentsReduced, ctMethod) -> parentsReduced.put(ctMethod, tmpAmpTestToParent.get(ctMethod)),
                         HashMap::putAll)
         );
         tmpAmpTestToParent.clear();
-        return newTests;
+        return reducedTests;
     }
+
+    private static List<CtMethod<?>> _reduce(List<CtMethod<?>> tests) {
+        final List<Long> values = tests.stream()
+                .map(CtMethod::toString)
+                .map(String::getBytes)
+                .map(AmplificationHelper::convert)
+                .collect(Collectors.toList());
+        final double standardDeviation = standardDeviation(values);
+        final List<CtMethod<?>> reducedTests = values.stream()
+                .filter(integer -> Math.abs(values.get(0) - integer) >= standardDeviation)
+                .map(values::indexOf)
+                .map(tests::get)
+                .collect(Collectors.toList());
+        reducedTests.add(tests.get(0));
+        return reducedTests;
+    }
+
+    private static long convert(byte[] byteArray) {
+        long sum = 0L;
+        for (byte aByteArray : byteArray) {
+            sum += (int) aByteArray;
+        }
+        return sum;
+    }
+
+    private static double standardDeviation(List<Long> hashCodes) {
+        final double mean = hashCodes.stream()
+                .mapToLong(value -> value)
+                .average()
+                .orElse(0.0D);
+        return Math.sqrt(hashCodes.stream()
+                .mapToDouble(value -> value)
+                .map(value -> Math.pow(Math.abs((value - mean)), 2.0D))
+                .sum()
+                / hashCodes.size());
+    }
+
 }

@@ -7,6 +7,7 @@ import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
 
@@ -16,15 +17,14 @@ public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
         Set<CtLiteral<String>> values = new HashSet<>();
         String value = (String) existingLiteral.getValue();
         // TODO idk if we should add all values around
-        values.addAll(this.testClassToBeAmplified.getElements(
-                new TypeFilter<CtLiteral<String>>(CtLiteral.class) {
-                    @Override
-                    public boolean matches(CtLiteral<String> element) {
-                        return element.getValue() instanceof String &&
-                                element.getValue() != null &&
-                                !element.equals(existingLiteral);
-                    }
-                }));
+
+        values.addAll(this.testClassToBeAmplified.getElements(new TypeFilter<CtLiteral<String>>(CtLiteral.class))
+                .stream()
+                .filter(element -> element.getValue() instanceof String &&
+                        element.getValue() != null &&
+                        !element.equals(existingLiteral))
+                .map(CtLiteral::clone)
+                .collect(Collectors.toList()));
         if (value != null) {
             if (value.length() > 2) {
                 int length = value.length();
