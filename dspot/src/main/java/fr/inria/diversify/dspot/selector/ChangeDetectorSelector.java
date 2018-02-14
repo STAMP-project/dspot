@@ -14,6 +14,7 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,12 +32,18 @@ public class ChangeDetectorSelector extends TakeAllSelector {
         super.init(configuration);
         final String configurationPath = configuration.getProperty("configPath");
         final String pathToFolder = configuration.getProperty("folderPath");
-        InputConfiguration inputConfiguration = null;
+        InputConfiguration inputConfiguration;
         try {
             inputConfiguration = new InputConfiguration(configurationPath);
             InputProgram inputProgram = InputConfiguration.initInputProgram(inputConfiguration);
             inputConfiguration.setInputProgram(inputProgram);
-            inputProgram.setProgramDir(pathToFolder);
+            this.pathToChangedVersionOfProgram = pathToFolder +
+                    DSpotUtils.shouldAddSeparator.apply(pathToFolder) +
+                    (inputConfiguration.getProperty("targetModule") != null ?
+                            inputConfiguration.getProperty("targetModule") +
+                                    DSpotUtils.shouldAddSeparator.apply(pathToFolder)
+                            : "");
+            inputProgram.setProgramDir(this.pathToChangedVersionOfProgram);
             String dependencies = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration)
                     .buildClasspath(inputProgram.getProgramDir());
             File output = new File(inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir());
@@ -45,14 +52,6 @@ public class ChangeDetectorSelector extends TakeAllSelector {
             } catch (IllegalArgumentException ignored) {
                 //the target directory does not exist, do not need to clean it
             }
-
-
-            this.pathToChangedVersionOfProgram = pathToFolder +
-                    DSpotUtils.shouldAddSeparator.apply(pathToFolder) +
-                    (inputConfiguration.getProperty("targetModule") != null ?
-                            inputConfiguration.getProperty("targetModule") +
-                                    DSpotUtils.shouldAddSeparator.apply(pathToFolder)
-                            : "");
 
             DSpotCompiler.compile(this.pathToChangedVersionOfProgram +
                             inputProgram.getRelativeSourceCodeDir() +
