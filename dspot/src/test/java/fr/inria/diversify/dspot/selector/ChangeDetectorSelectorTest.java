@@ -3,6 +3,7 @@ package fr.inria.diversify.dspot.selector;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.amplifier.StatementAdd;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.stamp.Main;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import spoon.reflect.declaration.CtType;
@@ -42,6 +43,8 @@ public class ChangeDetectorSelectorTest {
     @Test
     public void testOnMultiModuleProject() throws Exception {
 
+        Main.verbose = true;
+
 		/*
             Test that we can use the Change Detector on a multi module project
 				The amplification is still done on one single module.
@@ -72,5 +75,7 @@ public class ChangeDetectorSelectorTest {
                 Collections.singletonList(new StatementAdd()),
                 changeDetectorSelector);
         assertFalse(dSpot.amplifyAllTests().isEmpty());
+
+        Main.verbose = false;
     }
 }
