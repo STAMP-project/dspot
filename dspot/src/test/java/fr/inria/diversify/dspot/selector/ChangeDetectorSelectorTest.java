@@ -33,7 +33,25 @@ public class ChangeDetectorSelectorTest {
 		assertEquals(6, dSpot.getInputProgram().getFactory().Type().get("example.TestSuiteExample").getMethods().size());
 		final CtType<?> ctType = dSpot.amplifyTest("example.TestSuiteExample").get(0); // TODO
 		assertFalse(ctType.getMethods().isEmpty());// TODO this is not deterministic.
-		// TODO We verify that DSpot has been able to detect the chagnes between the two version
+		// TODO We verify that DSpot has been able to detect the changes between the two version
 		// TODO at least with one amplified test, i.e. the list of method returned amplified test is not empty
+	}
+
+	@Test
+	public void testOnMultiModuleProject() throws Exception {
+
+		/*
+			Test that we can use the Change Detector on a multi module project
+				The amplification is still done on one single module.
+				DSpot should be able to return an amplified test that catch changes.
+		 */
+
+		final String configurationPath = "src/test/resources/multiple-pom/deep-pom-modules.properties";
+		final ChangeDetectorSelector changeDetectorSelector = new ChangeDetectorSelector();
+		final InputConfiguration configuration = new InputConfiguration(configurationPath);
+		final DSpot dSpot = new DSpot(configuration, 1,
+				Collections.singletonList(new StatementAdd()),
+				changeDetectorSelector);
+		assertFalse(dSpot.amplifyAllTests().isEmpty());
 	}
 }
