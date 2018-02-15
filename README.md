@@ -193,10 +193,6 @@ Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
         [optional] specify the maximum number of amplified tests that dspot keeps
         (before generating assertion) (default: 200)
 
-  [-d|--descartes]
-
-  [-k|--evosuite]
-
   [(-t|--test) my.package.MyClassTest1:my.package.MyClassTest2:...:my.package.MyClassTestN ]
         [optional] fully qualified names of test classes to be amplified. If the
         value is all, DSpot will amplify the whole test suite. You can also use
@@ -264,12 +260,61 @@ Here is the list of configuration properties of DSpot:
   * excludedTestCases: list of test name method to be excluded
   by DSpot (see this [property file](https://github.com/STAMP-project/dspot/blob/master/dspot/src/test/resources/sample/sample.properties))
 
-### API
+### Running **DSpot** from your own application
 
-The whole procedure of amplification is done by the `fr.inria.diversify.dspot.DSpot` class. 
-You must at least provide the path to the properties file of your project at the construction of the object.
-You can specify the number of times each amplifier will be applied to the test cases (default 3).
-You can specify which amplifiers (as a list) you want to use. By default, DSpot uses: 
+In this section, we expose the API of **DSpot**. To amplify your tests with **DSpot** you must do XX steps:
+
+#### 1. Instantiate `InputConfiguration` and `InputProgram`
+
+First of all, you have to create an `InputConfiguration`. Only the path to your _properties_ is required:
+
+```java
+String propertiesFilePath = <pathToYourPropertiesFile>;
+InputConfiguration inputConfiguration = new InputConfiguration(propertiesFilePath);
+```
+
+Then you have to build the `InputProgram`, this is done by attaching the `InputProgram` to your `InputConfiguration`:
+
+```java
+InputProgram program = new InputProgram();
+inputConfiguration.setInputProgram(program);
+```
+
+#### 2. Instantiate `DSpot`
+
+Then, you are ready to construct the `DSpot` that will allow you to amplify your test.
+There are a lot of constructor available, all of them allow you to custom your `DSpot` object, and so your amplification.
+
+Following the shortest constructor which all default values of `DSpot`, and the longest, which allow to custom all values of `DSpot`:
+
+```java
+DSpot dspot = new DSpot(InputConfiguration);
+DSpot dspot = new DSpot(
+    InputConfiguration inputConfiguration, // input configuration built at step 1
+    int numberOfIterations, // number of time that the main loop will be applied (-i | --iteration option of the CLI)
+    List<Amplifier> amplifiers, // list of the amplifiers to be used (-a | --amplifiers option of the CLI)
+    TestSelector testSelector // test selector criterion (-s | --test-selector option of the CLI)
+);
+```
+
+Following sections describe Amplifiers and Selectors.
+
+#### 3. Amplify!
+
+Now that you have your `DSpot`, you will be able to amplify your tests.
+`DSpot` has several methods to amplify, but all of them starts with amplify key-word:
+
+```java
+dspot.amplifyTest(String regex); // will amplify all test classes that match the given regex
+dspot.amplifyTest(String fulQualifiedName, List<String> testCasesName); // will amplify test cases that have their name in testCasesName in the test class fulQualifiedName
+dspot.amplifyAllTests(); // will amplify all test in the test suite.
+```
+
+Done! **DSpot** will do all the rest and you will find the result in the specified output directory of your properties file.
+
+#### Amplifiers
+
+By default, DSpot uses:
 
     * TestDataMutator: which transforms literals.
     * TestMethodCallAdder: which duplicates an existing method call in the test case.
