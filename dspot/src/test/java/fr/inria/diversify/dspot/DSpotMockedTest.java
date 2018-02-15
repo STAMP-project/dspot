@@ -39,10 +39,7 @@ public class DSpotMockedTest extends MavenAbstractTest {
 		InputProgram program = new InputProgram();
 		configuration.setInputProgram(program);
 		DSpot dspot = new DSpot(configuration, 1,
-				Arrays.asList(new TestDataMutator(),
-						new TestMethodCallAdder(),
-						new TestMethodCallRemover(),
-						new StatementAdd())
+				Arrays.asList(new StatementAdd())
 		);
 		try {
 			FileUtils.cleanDirectory(new File(configuration.getOutputDirectory()));
@@ -51,10 +48,11 @@ public class DSpotMockedTest extends MavenAbstractTest {
 		}
 		assertEquals(6, dspot.getInputProgram().getFactory().Class().get("info.sanaulla.dal.BookDALTest").getMethods().size());
 
-		CtType<?> amplifiedTest = dspot.amplifyTest("info.sanaulla.dal.BookDALTest", Collections.singletonList("testAddBook"));
+		CtType<?> amplifiedTest = dspot.amplifyTest("info.sanaulla.dal.BookDALTest", Collections.singletonList("testGetBook"));
 
-		assertEquals(2, amplifiedTest.getMethods().stream().filter(AmplificationChecker::isTest).count());
-        assertTrue(!amplifiedTest.getMethodsByName("testAddBook_add1").isEmpty());
+		assertEquals(1, amplifiedTest.getMethods().stream().filter(AmplificationChecker::isTest).count());
+		System.out.println(amplifiedTest);
+		assertTrue(!amplifiedTest.getMethodsByName("testGetBook_sd8").isEmpty());
 	}
 
 	@Override
