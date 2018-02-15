@@ -262,9 +262,9 @@ Here is the list of configuration properties of DSpot:
 
 ### Running **DSpot** from your own application
 
-In this section, we expose the API of **DSpot**. To amplify your tests with **DSpot** you must do XX steps:
+In this section, we expose the API of **DSpot**. To amplify your tests with **DSpot** you must do 3 steps:
 
-#### 1. Instantiate `InputConfiguration` and `InputProgram`
+1. Instantiate `InputConfiguration` and `InputProgram`
 
 First of all, you have to create an `InputConfiguration`. Only the path to your _properties_ is required:
 
@@ -280,12 +280,12 @@ InputProgram program = new InputProgram();
 inputConfiguration.setInputProgram(program);
 ```
 
-#### 2. Instantiate `DSpot`
+2. Instantiate `DSpot`
 
 Then, you are ready to construct the `DSpot` that will allow you to amplify your test.
 There are a lot of constructor available, all of them allow you to custom your `DSpot` object, and so your amplification.
 
-Following the shortest constructor which all default values of `DSpot`, and the longest, which allow to custom all values of `DSpot`:
+Following the shortest constructor with all default values of `DSpot`, and the longest, which allows to custom all values of `DSpot`:
 
 ```java
 DSpot dspot = new DSpot(InputConfiguration);
@@ -299,7 +299,7 @@ DSpot dspot = new DSpot(
 
 Following sections describe Amplifiers and Selectors.
 
-#### 3. Amplify!
+3. Amplify!
 
 Now that you have your `DSpot`, you will be able to amplify your tests.
 `DSpot` has several methods to amplify, but all of them starts with amplify key-word:
@@ -312,33 +312,43 @@ dspot.amplifyAllTests(); // will amplify all test in the test suite.
 
 Done! **DSpot** will do all the rest and you will find the result in the specified output directory of your properties file.
 
-#### Amplifiers
+#### Amplifiers (-a | --amplifiers)
 
-By default, DSpot uses:
+By default, **DSpot** uses no amplifier because the simplest amplification that can be done is the generation of assertions on existing tests, _i.e._ it will improve the oracle and the potential of the test suite to capture bugs.
 
-    * TestDataMutator: which transforms literals.
-    * TestMethodCallAdder: which duplicates an existing method call in the test case.
-    * TestMethodCallRemover: which removes a method call in the test case.
-    * StatementAdd: which adds calls to accessible methods on existing objects and creates new instances.
+However, **DSpot** provide different kind of `Amplifier`:
 
-#### Test Selectors
+   * `StringLiteralAmplifier`: modifies string literals: remove, add and replace one random char, generate random string and empty string
+   * `NumberLiteralAmplifier`: modifies number literals: replace by boundaries (_e.g._ Integer_MAX_VALUE for int), increment and decrement values
+   * `CharLiteralAmplifier`: modifies char literals: replace by special chars (_e.g._ '\0')
+   * `BooleanLiteralAmplifier`: modifies boolean literals: nagate the value
+   * `AllLiteralAmplifier`: combines all literals amplifiers, _i.e._ StringLiteralAmplifier, NumberLiteralAmplifier, CharLiteralAmplifier and BooleanLiteralAmplifier
+   * `MethodAdd`: duplicates an existing method call
+   * `MethodRemove`: removes an existing method call
+   * `StatementAdd`: adds a method call, and generate required parameter
+   * `ReplacementAmplifier`: replaces a local variable by a generated one
+   * `TestDataMutator`: old amplifier of literals (all types, deprecated)
 
-A test selector is responsible for the tests to be amplified in an amplification iteration.
-There are two test selectors:
+All amplifiers are just instanciable without any parameters, _e.g._ new StringLiteralAmplifier.
 
-* BranchCoverageTestSelector: it selects amplified tests that increase the coverage, or produce a new unique execution
-path. BranchCoverageTestSelector produces a JSon file which contains, for each amplified test class, the name of the generated
-tests. For each test, the JSon file gives the number of added inputs, added assertions and the coverage measured in \# 
-of method calls
-* PitMutantScoreSelector: it selects amplified tests that increase the mutant score, _i.e._ kills more mutants than the 
-original tests. The mutants are generated with [Pitest](http://pitest.org/). Warning, the selector takes more time than
-the first one. This selector produces a JSon file which contains for the amplified classed, the name of each generated 
-test, the number of added inputs, of added assertions, and the number of newly killed mutants. For each newly killed 
-mutant killed, it gives:
-    * the ID of the mutant operators (see [Mutator](http://pitest.org/quickstart/mutators/)),
-    * the name of the method where the mutant is inserted,
-    * the line where the mutant is inserted.
+For the amplifiers, you can give them at the constructor of your `DSpot` object, or use the `DSpot#addAmplifier(Amplifier)` method.
 
+#### Test Selectors (-s | --test-criterion)
+
+In **DSpot**, test selectors can be seen as a fitness: it measures the quality of amplified, and keeps only amplified tests that are worthy according to this selector.
+
+The default selector is `CloverCoverageSelector`. This selector is based on [**OpenClover**](http://openclover.org/), which is a tool to compute the coverage. **DSpot** will keep only tests that increase the code coverage.
+
+Following the list of avalaible test selector:
+
+   * `CloverCoverageSelector`: uses [**OpenClover**](http://openclover.org/) to compute branch coverage, and selects amplified tests that increase it.
+   * `JacocoCoverageSelector`: uses [**JaCoCo**](http://www.eclemma.org/jacoco/) to compute instruction coverage and executed paths (the order matters). Selects test that increase the coverage and has unique executed path.
+   * `PitMutantScoreSelector`: uses [**PIT**](http://pitest.org/) to computes the mutation score, and selects amplified tests that kill mutants that was not kill by the original test suite.
+   * `ExecutedMutantSelector`: uses [**PIT**](http://pitest.org/) to computes the number of executed mutants. It uses the number of mutants as a proxy for the instruction coverage. It selects amplfied test that execute new mutants. **WARNING!!** this selector takes a lot of time, and is not worth it, please look at CloverCoverageSelector or JacocoCoverageSelector.
+   * `TakeAllSelector`: keeps all amplified tests not matter the quality.
+   * `ChangeDetectorSelector`: runs against a second version of the same program, and selects amplified tests that fail. This selector selects only amplified test that are able to show a difference of a behavior betweeen two versions of the same program.
+   * `BranchCoverageTestSelector`: uses a custom way to compute the branch coverage. **DEPRECATED**
+   
 ### Licence
 
 DSpot is published under LGPL-3.0 (see [Licence.md](https://github.com/STAMP-project/dspot/blob/master/Licence.md) for 
