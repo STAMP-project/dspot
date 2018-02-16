@@ -260,10 +260,9 @@ Here is the list of configuration properties of DSpot:
   * excludedTestCases: list of test name method to be excluded
   by DSpot (see this [property file](https://github.com/STAMP-project/dspot/blob/master/dspot/src/test/resources/sample/sample.properties))
 
-### Running **DSpot** from your own application
+### Using DSpot as an API
 
-In this section, we expose the API of **DSpot**. To amplify your tests with **DSpot** you must do 3 steps:
-
+In this section, we explain the API of **DSpot**. To amplify your tests with **DSpot** you must do 3 steps:
 First of all, you have to create an `InputConfiguration`. Only the path to your _properties_ is required:
 
 ```java
