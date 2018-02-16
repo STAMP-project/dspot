@@ -264,11 +264,10 @@ Here is the list of configuration properties of DSpot:
 
 In this section, we expose the API of **DSpot**. To amplify your tests with **DSpot** you must do 3 steps:
 
-1. Instantiate `InputConfiguration` and `InputProgram`
-
 First of all, you have to create an `InputConfiguration`. Only the path to your _properties_ is required:
 
 ```java
+// 1. Instantiate `InputConfiguration` and `InputProgram`
 String propertiesFilePath = <pathToYourPropertiesFile>;
 InputConfiguration inputConfiguration = new InputConfiguration(propertiesFilePath);
 ```
@@ -279,15 +278,12 @@ Then you have to build the `InputProgram`, this is done by attaching the `InputP
 InputProgram program = new InputProgram();
 inputConfiguration.setInputProgram(program);
 ```
-
-2. Instantiate `DSpot`
-
-Then, you are ready to construct the `DSpot` that will allow you to amplify your test.
+Then, you are ready to construct the `DSpot` object that will allow you to amplify your test.
 There are a lot of constructor available, all of them allow you to custom your `DSpot` object, and so your amplification.
-
 Following the shortest constructor with all default values of `DSpot`, and the longest, which allows to custom all values of `DSpot`:
 
 ```java
+// 2. Instantiate `DSpot` object
 DSpot dspot = new DSpot(InputConfiguration);
 DSpot dspot = new DSpot(
     InputConfiguration inputConfiguration, // input configuration built at step 1
@@ -297,20 +293,15 @@ DSpot dspot = new DSpot(
 );
 ```
 
-Following sections describe Amplifiers and Selectors.
-
-3. Amplify!
-
 Now that you have your `DSpot`, you will be able to amplify your tests.
 `DSpot` has several methods to amplify, but all of them starts with amplify key-word:
 
 ```java
+// 3. start ampification
 dspot.amplifyTest(String regex); // will amplify all test classes that match the given regex
 dspot.amplifyTest(String fulQualifiedName, List<String> testCasesName); // will amplify test cases that have their name in testCasesName in the test class fulQualifiedName
 dspot.amplifyAllTests(); // will amplify all test in the test suite.
 ```
-
-Done! **DSpot** will do all the rest and you will find the result in the specified output directory of your properties file.
 
 #### Amplifiers (-a | --amplifiers)
 
