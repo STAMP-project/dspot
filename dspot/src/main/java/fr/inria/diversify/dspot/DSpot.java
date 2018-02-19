@@ -6,6 +6,7 @@ import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
+import fr.inria.diversify.dspot.selector.CloverCoverageSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.dspot.support.json.ClassTimeJSON;
 import fr.inria.diversify.dspot.support.Counter;
@@ -60,7 +61,7 @@ public class DSpot {
     private ProjectTimeJSON projectTimeJSON;
 
     public DSpot(InputConfiguration inputConfiguration) throws Exception {
-        this(inputConfiguration, 3, Collections.emptyList(), new BranchCoverageTestSelector(10));
+        this(inputConfiguration, 3, Collections.emptyList(), new CloverCoverageSelector());
     }
 
     public DSpot(InputConfiguration configuration, int numberOfIterations) throws Exception {
@@ -80,7 +81,7 @@ public class DSpot {
     }
 
     public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers) throws Exception {
-        this(inputConfiguration, numberOfIterations, amplifiers, new BranchCoverageTestSelector(10));
+        this(inputConfiguration, numberOfIterations, amplifiers, new CloverCoverageSelector());
     }
 
     public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws Exception {

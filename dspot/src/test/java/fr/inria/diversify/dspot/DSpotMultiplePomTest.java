@@ -1,7 +1,10 @@
 package fr.inria.diversify.dspot;
 
+import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 
+import fr.inria.stamp.EntryPoint;
+import fr.inria.stamp.Main;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -37,10 +40,16 @@ public class DSpotMultiplePomTest {
             Contract: DSpot is able to amplify a multi-module project
          */
 
+        Main.verbose = true;
+        EntryPoint.verbose = true;
+
         final InputConfiguration configuration = new InputConfiguration("src/test/resources/multiple-pom/deep-pom-modules.properties");
-        final DSpot dspot = new DSpot(configuration);
+        final DSpot dspot = new DSpot(configuration, new BranchCoverageTestSelector(10));
         final List<CtType> ctTypes = dspot.amplifyAllTests();
         assertFalse(ctTypes.isEmpty());
+
+        EntryPoint.verbose = false;
+        Main.verbose = false;
     }
 
     @After

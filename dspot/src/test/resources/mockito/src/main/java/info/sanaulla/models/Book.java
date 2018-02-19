@@ -32,6 +32,10 @@ public class Book {
     this.image = image;
  
   }
+
+  public String method() {
+    return "method";
+  }
  
   public String getIsbn() {
     return isbn;
