@@ -122,8 +122,8 @@ public class MethodsAssertGenerator {
                             );
                         }
                 ).collect(Collectors.toList());
-        final List<CtMethod<?>> testToRuns = new ArrayList<>();
-        IntStream.range(0, 3).forEach(i -> testToRuns.addAll(
+        final List<CtMethod<?>> testsToRun = new ArrayList<>();
+        IntStream.range(0, 3).forEach(i -> testsToRun.addAll(
                 testCasesWithLogs.stream()
                         .map(CtMethod::clone)
                         .map(ctMethod -> {
@@ -137,10 +137,10 @@ public class MethodsAssertGenerator {
                         .collect(Collectors.toList())
         ));
         ObjectLog.reset();
-        LOGGER.info("Run instrumented tests. ({})", testToRuns.size());
+        LOGGER.info("Run instrumented tests. ({})", testsToRun.size());
         final TestListener result = TestCompiler.compileAndRun(clone,
                 this.compiler,
-                testToRuns,
+                testsToRun,
                 this.configuration
         );
         if (result == null || !result.getFailingTests().isEmpty()) {

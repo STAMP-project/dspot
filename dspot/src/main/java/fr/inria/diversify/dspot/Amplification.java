@@ -103,22 +103,22 @@ public class Amplification {
 
 		for (int i = 0; i < maxIteration; i++) {
 			LOGGER.info("iteration {}:", i);
-			List<CtMethod<?>> testToBeAmplified = testSelector.selectToAmplify(currentTestList);
-			if (testToBeAmplified.isEmpty()) {
+			List<CtMethod<?>> testsToBeAmplified = testSelector.selectToAmplify(currentTestList);
+			if (testsToBeAmplified.isEmpty()) {
 				LOGGER.info("No test could be generated from selected test");
 				continue;
 			}
 			LOGGER.info("{} tests selected to be amplified over {} available tests",
-					testToBeAmplified.size(),
+					testsToBeAmplified.size(),
 					currentTestList.size()
 			);
 
-			currentTestList = AmplificationHelper.reduce(amplifyTests(testToBeAmplified));
-			List<CtMethod<?>> testWithAssertions = assertGenerator.generateAsserts(classTest, currentTestList);
-			if (testWithAssertions.isEmpty()) {
+			currentTestList = AmplificationHelper.reduce(amplifyTests(testsToBeAmplified));
+			List<CtMethod<?>> testsWithAssertions = assertGenerator.generateAsserts(classTest, currentTestList);
+			if (testsWithAssertions.isEmpty()) {
 				continue;
 			} else {
-				currentTestList = testWithAssertions;
+				currentTestList = testsWithAssertions;
 			}
 			TestListener result = compileAndRunTests(classTest, currentTestList);
 			if (result == null) {
