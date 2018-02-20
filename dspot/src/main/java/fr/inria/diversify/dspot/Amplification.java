@@ -55,10 +55,33 @@ public class Amplification {
 		this.assertGenerator = new AssertGenerator(this.configuration, this.compiler);
 	}
 
+	/**
+	 * Amplification of every method of a test class.
+	 *
+	 * <p>See {@link #amplification(CtType, CtMethod, int)} for the details of amplification.
+	 *
+	 * @param classTest Test class
+	 * @param maxIteration Number of amplification iterations
+	 * @throws IOException
+	 * @throws InterruptedException
+	 * @throws ClassNotFoundException
+	 */
 	public void amplification(CtType<?> classTest, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
 		amplification(classTest, AmplificationHelper.getAllTest(classTest), maxIteration);
 	}
 
+	/**
+	 * Amplification of multiple methods.
+	 *
+	 * <p>See {@link #amplification(CtType, CtMethod, int)} for the details of amplification.
+	 *
+	 * @param classTest Test class
+	 * @param methods Methods to amplify
+	 * @param maxIteration Number of amplification iterations
+	 * @throws IOException
+	 * @throws InterruptedException
+	 * @throws ClassNotFoundException
+	 */
 	public void amplification(CtType<?> classTest, List<CtMethod<?>> methods, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
 		List<CtMethod<?>> tests = methods.stream()
 				.filter(mth -> AmplificationChecker.isTest(mth, this.configuration.getInputProgram().getRelativeTestSourceCodeDir()))
@@ -95,6 +118,21 @@ public class Amplification {
 		}
 	}
 
+	/**
+	 * Amplification of a single test.
+	 *
+	 * <p>DSpot combines the different kinds of I-Amplification iteratively: at each iteration all kinds of
+	 * I-Amplification are applied, resulting in new tests. From one iteration to another, DSpot reuses the
+	 * previously amplified tests, and further applies I-Amplification.
+	 *
+	 * @param classTest Test class
+	 * @param test Method to amplify
+	 * @param maxIteration Number of amplification iterations
+	 * @return Valid amplified tests
+	 * @throws IOException
+	 * @throws InterruptedException
+	 * @throws ClassNotFoundException
+	 */
 	private List<CtMethod<?>> amplification(CtType<?> classTest, CtMethod test, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
 		List<CtMethod<?>> currentTestList = new ArrayList<>();
 		currentTestList.add(test);
@@ -146,6 +184,17 @@ public class Amplification {
 		LOGGER.info("total amp test: {}, global: {}", amplification.size(), ampTestCount);
 	}
 
+	/**
+	 * Adds new assertions in multiple tests.
+	 *
+	 * <p>Makes sure the test suite is valid before the assertion amplification {@link AssertGenerator#generateAsserts(CtType, List)}.
+	 *
+	 * @param classTest Test class
+	 * @param tests New test methods
+	 * @retur Valid amplified tests
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	private List<CtMethod<?>> preAmplification(CtType classTest, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
 		TestListener result = compileAndRunTests(classTest, tests);
 		if (result == null) {
@@ -193,6 +242,12 @@ public class Amplification {
 		}
 	}
 
+	/**
+	 * Input amplification of multiple tests.
+	 *
+	 * @param tests Test methods
+	 * @return New generated tests
+	 */
 	private List<CtMethod<?>> amplifyTests(List<CtMethod<?>> tests) {
 		LOGGER.info("Amplification of inputs...");
 		List<CtMethod<?>> amplifiedTests = tests.stream()
@@ -206,6 +261,12 @@ public class Amplification {
 		return amplifiedTests;
 	}
 
+	/**
+	 * Input amplification for a single test.
+	 *
+	 * @param test Test method
+	 * @return New generated tests
+	 */
 	private List<CtMethod<?>> amplifyTest(CtMethod test) {
 		return amplifiers.stream()
 				.flatMap(amplifier -> amplifier.apply(test).stream()).
@@ -221,6 +282,13 @@ public class Amplification {
 		amplifiers.forEach(amp -> amp.reset(parentClass));
 	}
 
+	/**
+	 * Adds test methods to the test class and run them.
+	 *
+	 * @param classTest Test class
+	 * @param currentTestList New test methods to run
+	 * @return Results of tests run or <code>null</code> if a test failed or could not be run (uncompilable)
+	 */
 	private TestListener compileAndRunTests(CtType classTest, List<CtMethod<?>> currentTestList) {
 		CtType amplifiedTestClass = this.testSelector.buildClassForSelection(classTest, currentTestList);
 		final TestListener result = TestCompiler.compileAndRun(

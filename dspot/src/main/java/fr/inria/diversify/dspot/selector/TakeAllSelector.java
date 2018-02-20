@@ -67,6 +67,13 @@ public class TakeAllSelector implements TestSelector {
 		return this.selectedAmplifiedTest;
 	}
 
+	/**
+	 * Clones the test class and adds the test methods.
+	 *
+	 * @param original Test class
+	 * @param methods Test methods
+	 * @returna Test class with new methods
+	 */
 	@Override
 	public CtType buildClassForSelection(CtType original, List<CtMethod<?>> methods) {
 		CtType clone = original.clone();

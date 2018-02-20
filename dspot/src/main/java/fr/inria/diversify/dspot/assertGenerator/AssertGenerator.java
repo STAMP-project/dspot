@@ -41,6 +41,22 @@ public class AssertGenerator {
         return generateAsserts(testClass, new ArrayList<>(testClass.getMethods()));
     }
 
+    /**
+     * Adds new assertions in multiple tests.
+     *
+     * <p>Assertion Amplification process.
+     * <ol>
+     *   <li>Instrumentation to collect the state of the program after execution (but before assertions).</li>
+     *   <li>Collection of actual values by running the tests.</li>
+     *   <li>Generation of new assertions in place of observation points.</li>
+     * </ol>
+     *
+     * @param testClass Test class
+     * @param tests Test methods to amplify
+     * @return New amplified tests
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     public List<CtMethod<?>> generateAsserts(CtType<?> testClass, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
         CtType cloneClass = testClass.clone();
         cloneClass.setParent(testClass.getParent());
