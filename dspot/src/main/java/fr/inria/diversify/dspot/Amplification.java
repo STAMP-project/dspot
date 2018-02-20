@@ -151,7 +151,7 @@ public class Amplification {
 					currentTestList.size()
 			);
 
-			currentTestList = AmplificationHelper.reduce(amplifyTests(testsToBeAmplified));
+			currentTestList = AmplificationHelper.reduce(inputAmplifyTests(testsToBeAmplified));
 			List<CtMethod<?>> testsWithAssertions = assertGenerator.generateAsserts(classTest, currentTestList);
 			if (testsWithAssertions.isEmpty()) {
 				continue;
@@ -248,12 +248,12 @@ public class Amplification {
 	 * @param tests Test methods
 	 * @return New generated tests
 	 */
-	private List<CtMethod<?>> amplifyTests(List<CtMethod<?>> tests) {
+	private List<CtMethod<?>> inputAmplifyTests(List<CtMethod<?>> tests) {
 		LOGGER.info("Amplification of inputs...");
 		List<CtMethod<?>> amplifiedTests = tests.stream()
 				.flatMap(test -> {
 					DSpotUtils.printProgress(tests.indexOf(test), tests.size());
-					return amplifyTest(test).stream();
+					return inputAmplifyTest(test).stream();
 				})
 				.filter(test -> test != null && !test.getBody().getStatements().isEmpty())
 				.collect(Collectors.toList());
@@ -267,7 +267,7 @@ public class Amplification {
 	 * @param test Test method
 	 * @return New generated tests
 	 */
-	private List<CtMethod<?>> amplifyTest(CtMethod test) {
+	private List<CtMethod<?>> inputAmplifyTest(CtMethod test) {
 		return amplifiers.stream()
 				.flatMap(amplifier -> amplifier.apply(test).stream()).
 						map(CtMethod::getBody)
