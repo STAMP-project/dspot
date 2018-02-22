@@ -1,7 +1,6 @@
 package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.dspot.amplifier.value.ConstructorCreator;
-import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.utils.AmplificationHelper;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.declaration.CtMethod;

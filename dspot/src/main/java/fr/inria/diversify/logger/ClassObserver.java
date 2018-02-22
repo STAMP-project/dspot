@@ -99,8 +99,7 @@ public class ClassObserver {
         return classToId.get(aClass);
     }
 
-    protected String join(List<String> list, String conjunction)
-    {
+    protected String join(List<String> list, String conjunction) {
         StringBuilder sb = new StringBuilder();
         boolean first = true;
         for (String item : list)

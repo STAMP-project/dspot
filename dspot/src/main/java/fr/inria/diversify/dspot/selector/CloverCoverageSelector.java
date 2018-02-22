@@ -12,20 +12,17 @@ import fr.inria.stamp.coverage.clover.CloverExecutor;
 import fr.inria.stamp.runner.coverage.Coverage;
 import org.apache.commons.io.FileUtils;
 import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.declaration.CtNamedElement;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Created by Benjamin DANGLOT

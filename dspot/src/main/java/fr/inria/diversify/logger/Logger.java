@@ -24,7 +24,9 @@ public class Logger {
     }
 
     protected static LogWriter getLog(Thread thread) {
-        if ( logs == null ) { logs = new HashMap<Thread, LogWriter>(); }
+        if ( logs == null ) {
+            logs = new HashMap<Thread, LogWriter>();
+        }
         if ( logs.containsKey(thread) ) {
             return logs.get(thread);
         } else {

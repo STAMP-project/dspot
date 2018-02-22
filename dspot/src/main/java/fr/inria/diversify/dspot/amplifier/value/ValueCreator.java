@@ -10,7 +10,6 @@ import spoon.reflect.code.CtNewArray;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtArrayTypeReference;
 import spoon.reflect.reference.CtTypeReference;
-import spoon.support.SpoonClassNotFoundException;
 
 import java.util.Collection;
 import java.util.Collections;
