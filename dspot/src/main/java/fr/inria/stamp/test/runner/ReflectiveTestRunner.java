@@ -26,6 +26,8 @@ public class ReflectiveTestRunner extends AbstractTestRunner {
 
     ReflectiveTestRunner(URLClassLoader classLoader) {
         super(classLoader);
+        DSpotUtils.copyPackageFromResources("fr/inria/stamp/test/listener/",
+                "TestListener");
     }
 
     ReflectiveTestRunner(String classpath) {
