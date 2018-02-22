@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>fr.inria.stamp</groupId>
+    <groupId>eu.stamp</groupId>
     <artifactId>dspot-parent</artifactId>
     <version>1.0.7-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -16,22 +16,6 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <github.global.server>github</github.global.server>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>stamp-maven-repository-mvn-repo</id>
-            <url>https://stamp-project.github.io/stamp-maven-repository/</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>gradle-repo</id>
-            <name>Gradle Tooling API repository</name>
-            <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
-        </repository>
-    </repositories>
 
     <distributionManagement>
         <repository>

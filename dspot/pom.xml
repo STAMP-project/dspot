@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>fr.inria.stamp</groupId>
+        <groupId>eu.stamp</groupId>
         <artifactId>dspot-parent</artifactId>
         <version>1.0.7-SNAPSHOT</version>
     </parent>
@@ -36,14 +36,14 @@
     </scm>
 
     <repositories>
-        <repository>
+      <!--  <repository>
             <id>stamp-maven-repository-mvn-repo</id>
             <url>https://stamp-project.github.io/stamp-maven-repository/</url>
             <snapshots>
                 <enabled>true</enabled>
                 <updatePolicy>always</updatePolicy>
             </snapshots>
-        </repository>
+        </repository>-->
         <repository>
             <id>gradle-repo</id>
             <name>Gradle Tooling API repository</name>
@@ -107,12 +107,6 @@
         </dependency>
 
         <dependency>
-            <groupId>fr.inria.stamp</groupId>
-            <artifactId>descartes</artifactId>
-            <version>0.1-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.gradle</groupId>
             <artifactId>gradle-tooling-api</artifactId>
             <version>4.0.1</version>
@@ -125,10 +119,20 @@
         </dependency>
 
         <dependency>
-            <groupId>fr.inria.stamp</groupId>
+            <groupId>eu.stamp</groupId>
             <artifactId>test-runner</artifactId>
-            <version>1.0.0</version>
-            <classifier>jar-with-dependencies</classifier>
+            <version>1.0.0-SNAPSHOT</version>
+            <!--<classifier>jar-with-dependencies</classifier>-->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
