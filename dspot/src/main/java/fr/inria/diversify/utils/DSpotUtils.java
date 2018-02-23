@@ -70,6 +70,7 @@ public class DSpotUtils {
             copyPackageFromResources(
                     "fr/inria/diversify/logger", "ClassObserver",
                     "KeyWord", "Logger", "LogWriter", "PathBuilder", "Pool", "ShutdownHookLog");
+            copyPackageFromResources("fr/inria/stamp/test/listener/", "TestListener");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

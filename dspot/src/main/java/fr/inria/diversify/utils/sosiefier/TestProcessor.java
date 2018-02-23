@@ -127,8 +127,9 @@ public abstract class TestProcessor extends AbstractProcessor<CtMethod> {
     }
 
     protected boolean isAssertInstance(Class cl) {
-        if (cl.equals(org.junit.Assert.class) || cl.equals(junit.framework.Assert.class))
+        if (cl.equals(org.junit.Assert.class) || cl.equals(junit.framework.Assert.class)) {
             return true;
+        }
         Class superCl = cl.getSuperclass();
         if(superCl != null) {
             return isAssertInstance(superCl);

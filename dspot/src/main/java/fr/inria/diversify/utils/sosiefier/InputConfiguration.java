@@ -76,24 +76,20 @@ public class InputConfiguration {
         }
     }
 
-    public InputConfiguration(File project, File srcDir, File testDir, File classesDir, File testClassesDir, 
+    public InputConfiguration(File project, File srcDir, File testDir, File classesDir, File testClassesDir,
 			File tempDir, String filter, File mavenHome) throws IOException {
 		this();
-		
 		getProperties().setProperty("project", project.getAbsolutePath());
 		getProperties().setProperty("src", getRelativePath(srcDir));
 		getProperties().setProperty("testSrc", getRelativePath(testDir));
-		//TODO 
 //		getProperties().setProperty("testResources", getRelativePath(testResourcesDir));
 //		getProperties().setProperty("srcResources", getRelativePath(srcResourcesDir));
 		getProperties().setProperty("maven.home", mavenHome.getAbsolutePath());
 		getProperties().setProperty("classes", getRelativePath(classesDir));
-		
 		getProperties().setProperty("tmpDir", getRelativePath(tempDir));
 		getProperties().setProperty("filter", filter);
-
 	}
-    
+
     private String getRelativePath(File path) {
 		String projectAbsolutePath = getProperties().getProperty("project");
 		return path.getAbsolutePath().replace(projectAbsolutePath, "");
@@ -101,7 +97,9 @@ public class InputConfiguration {
 
     public InputConfiguration(String file) throws IOException {
         this(new FileInputStream(file));
-        if (rootPath == null || rootPath.equals("")) rootPath = System.getProperty("user.dir");
+        if (rootPath == null || rootPath.equals("")) {
+            rootPath = System.getProperty("user.dir");
+        }
     }
 
     /**
@@ -250,12 +248,15 @@ public class InputConfiguration {
     }*/
 
     protected void setCodeFragmentClass() {
-        if (getProperties().getProperty("processor").equals("fr.inria.diversify.codeFragmentProcessor.StatementProcessor"))
+        if (getProperties().getProperty("processor").equals("fr.inria.diversify.codeFragmentProcessor.StatementProcessor")) {
             getProperties().setProperty("CodeFragmentClass", "fr.inria.diversify.codeFragment.Statement");
-        if (getProperties().getProperty("processor").equals("fr.inria.diversify.codeFragmentProcessor.ExpressionProcessor"))
+        }
+        if (getProperties().getProperty("processor").equals("fr.inria.diversify.codeFragmentProcessor.ExpressionProcessor")) {
             getProperties().setProperty("CodeFragmentClass", "fr.inria.diversify.codeFragment.Expression");
-        if (getProperties().getProperty("processor").equals("fr.inria.diversify.codeFragmentProcessor.BlockProcessor"))
+        }
+        if (getProperties().getProperty("processor").equals("fr.inria.diversify.codeFragmentProcessor.BlockProcessor")) {
             getProperties().setProperty("CodeFragmentClass", "fr.inria.diversify.codeFragment.Block");
+        }
     }
 
     protected void setDefaultProperties() {
@@ -297,9 +298,14 @@ public class InputConfiguration {
 
     protected String getAbsolutePath(String path) {
         Path p = Paths.get(path);
-        if ( new File(path).exists() || p.isAbsolute() ) return path;
-        if (rootPath != null && !rootPath.equals("")) p = Paths.get(rootPath + "/" + path);
-        else p = Paths.get(path);
+        if ( new File(path).exists() || p.isAbsolute() ) {
+            return path;
+        }
+        if (rootPath != null && !rootPath.equals("")) {
+            p = Paths.get(rootPath + "/" + path);
+        } else {
+            p = Paths.get(path);
+        }
         return p.normalize().toString().replace(File.separator, "/");
     }
 
@@ -310,9 +316,12 @@ public class InputConfiguration {
 
     private void checkPath(String desc, String path, boolean mustExist) {
         if (path == null) {
-            if (mustExist) addError(desc + " at " + path + " does not exists");
-        } else if (!new File(path).exists() && (mustExist || !path.equals("")))
+            if (mustExist) {
+                addError(desc + " at " + path + " does not exists");
+            }
+        } else if (!new File(path).exists() && (mustExist || !path.equals(""))) {
             addError(desc + " at " + path + " does not exists");
+        }
     }
 
     /**

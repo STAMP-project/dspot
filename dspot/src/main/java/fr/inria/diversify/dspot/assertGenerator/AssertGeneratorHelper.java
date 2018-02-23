@@ -12,7 +12,6 @@ import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**

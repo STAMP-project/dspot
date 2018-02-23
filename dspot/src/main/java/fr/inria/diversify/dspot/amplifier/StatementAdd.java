@@ -3,7 +3,6 @@ package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.dspot.amplifier.value.ValueCreatorHelper;
-import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.TypeUtils;

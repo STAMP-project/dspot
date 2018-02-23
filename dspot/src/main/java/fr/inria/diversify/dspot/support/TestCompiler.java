@@ -67,7 +67,6 @@ public class TestCompiler {
 		} else {
 			LOGGER.warn("{} errors during compilation, discarding involved test methods", problems.size());
 			try {
-				
 				final CtClass<?> newModelCtClass = getNewModelCtClass(compiler.getSourceOutputDirectory().getAbsolutePath(),
 						classTest.getQualifiedName());
 

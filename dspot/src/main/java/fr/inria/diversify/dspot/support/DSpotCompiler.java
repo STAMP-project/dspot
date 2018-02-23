@@ -95,8 +95,6 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		if (! new File("target/dspot/dependencies/compare").exists()) {
 			DSpotUtils.copyPackageFromResources("fr/inria/diversify/compare/",
 					"MethodsHandler", "ObjectLog", "Observation", "Utils");
-			DSpotUtils.copyPackageFromResources("fr/inria/stamp/test/listener/",
-					"TestListener");
 		}
 		String[] sourcesArray = (pathToSources + PATH_SEPARATOR + "target/dspot/dependencies/").split(PATH_SEPARATOR);
 		Arrays.stream(sourcesArray).forEach(launcher::addInputResource);
