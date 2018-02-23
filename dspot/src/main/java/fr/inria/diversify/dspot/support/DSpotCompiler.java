@@ -5,6 +5,7 @@ import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.Main;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import spoon.Launcher;
+import spoon.OutputType;
 import spoon.SpoonModelBuilder;
 import spoon.compiler.builder.*;
 import spoon.support.compiler.FileSystemFolder;
@@ -89,8 +90,9 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
 	public static Launcher getSpoonModelOf(String pathToSources, String pathToDependencies) {
 		Launcher launcher = new Launcher();
-		launcher.getEnvironment().setNoClasspath(false);
+		launcher.getEnvironment().setNoClasspath(true);
 		launcher.getEnvironment().setCommentEnabled(true);
+		launcher.getEnvironment().setOutputType(OutputType.CLASSES);
 
 		if (! new File("target/dspot/dependencies/compare").exists()) {
 			DSpotUtils.copyPackageFromResources("fr/inria/diversify/compare/",
@@ -111,8 +113,9 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		if (Main.verbose) {
 			launcher.getEnvironment().setLevel("DEBUG");
 		}
-		launcher.getEnvironment().setNoClasspath(false);
+		launcher.getEnvironment().setNoClasspath(true);
 		launcher.getEnvironment().setCommentEnabled(true);
+		launcher.getEnvironment().setOutputType(OutputType.CLASSES);
 
 		if (! new File("target/dspot/dependencies/compare").exists()) {
 			DSpotUtils.copyPackageFromResources("fr/inria/diversify/compare/",
