@@ -69,7 +69,6 @@ public class Amplification {
 		}
 
 		LOGGER.info("amplification of {} ({} test)", classTest.getQualifiedName(), tests.size());
-		testSelector.reset();
 		List<CtMethod<?>> ampTest = new ArrayList<>();
 
 		updateAmplifiedTestList(ampTest, preAmplification(classTest, tests));
@@ -78,7 +77,6 @@ public class Amplification {
 		for (int i = 0; i < tests.size(); i++) {
 			CtMethod test = tests.get(i);
 			LOGGER.info("amp {} ({}/{})", test.getSimpleName(), i + 1, tests.size());
-			testSelector.reset();
 			TestListener result = compileAndRunTests(classTest, Collections.singletonList(tests.get(i)));
 			if (result != null) {
 				if (result.getFailingTests().isEmpty()
@@ -177,7 +175,6 @@ public class Amplification {
 					});
 			return preAmplification(classTest, tests);
 		} else {
-			testSelector.update();
 			LOGGER.info("Try to add assertions before amplification");
 			final List<CtMethod<?>> amplifiedTestToBeKept = assertGenerator.generateAsserts(
 					classTest, testSelector.selectToAmplify(tests));
@@ -240,8 +237,6 @@ public class Amplification {
 						numberOfSubClasses != result.getRunningTests().size())) {
 			return null;
 		} else {
-			LOGGER.info("update test testCriterion");
-			testSelector.update();
 			return result;
 		}
 	}
