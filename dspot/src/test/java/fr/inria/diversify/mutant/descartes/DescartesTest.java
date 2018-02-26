@@ -1,6 +1,7 @@
 package fr.inria.diversify.mutant.descartes;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -18,9 +19,12 @@ import static org.junit.Assert.*;
  */
 public class DescartesTest {
 
+    // TODO implement
+
     private static final String nl = System.getProperty("line.separator");
 
-//    @Test
+    @Test
+    @Ignore
     public void testInjectionOfDescartesIfNeeded() throws Exception {
         final String pathname = "target/dspot/trash/pom.xml";
         try {
