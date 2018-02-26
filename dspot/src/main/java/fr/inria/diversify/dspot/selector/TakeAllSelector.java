@@ -2,6 +2,8 @@ package fr.inria.diversify.dspot.selector;
 
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
+import fr.inria.stamp.minimization.GeneralMinimizer;
+import fr.inria.stamp.minimization.Minimizer;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -49,7 +51,7 @@ public class TakeAllSelector implements TestSelector {
 	}
 
 	@Override
-	public void report() {
+	public void report() {git
 		System.out.println("Amplification results with " + this.selectedAmplifiedTest.size() + " new tests.");
 		reset();
 	}
@@ -63,18 +65,8 @@ public class TakeAllSelector implements TestSelector {
 		this.currentClassTestToBeAmplified = null;
 	}
 
-	/**
-	 * Clones the test class and adds the test methods.
-	 *
-	 * @param original Test class
-	 * @param methods Test methods
-	 * @return Test class with new methods
-	 */
 	@Override
-	public CtType buildClassForSelection(CtType original, List<CtMethod<?>> methods) {
-		CtType clone = original.clone();
-		original.getPackage().addType(clone);
-		methods.forEach(clone::addMethod);
-		return clone;
+	public Minimizer getMinimizer() {
+		return new GeneralMinimizer();
 	}
 }

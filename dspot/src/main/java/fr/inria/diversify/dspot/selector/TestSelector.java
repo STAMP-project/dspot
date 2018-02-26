@@ -1,8 +1,8 @@
 package fr.inria.diversify.dspot.selector;
 
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.stamp.minimization.Minimizer;
 import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.declaration.CtType;
 
 import java.util.List;
 
@@ -23,6 +23,6 @@ public interface TestSelector {
 
     List<CtMethod<?>> getAmplifiedTestCases();
 
-    CtType buildClassForSelection(CtType original, List<CtMethod<?>> methods);
+    Minimizer getMinimizer();
 
 }

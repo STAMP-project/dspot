@@ -15,6 +15,8 @@ import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.stamp.minimization.Minimizer;
+import fr.inria.stamp.minimization.PitMutantMinimizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
@@ -270,5 +272,10 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                         qualifiedName.equals(pitResult.getFullQualifiedNameOfKiller())
                 )
                 .count();
+    }
+
+    @Override
+    public Minimizer getMinimizer() {
+        return new PitMutantMinimizer();
     }
 }
