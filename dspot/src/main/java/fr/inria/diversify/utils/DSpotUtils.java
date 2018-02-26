@@ -40,6 +40,8 @@ import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
  */
 public class DSpotUtils {
 
+    public static boolean withComment = false;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DSpotUtils.class);
 
     private static StringBuilder progress = new StringBuilder(60);
@@ -83,11 +85,11 @@ public class DSpotUtils {
                 .toArray(String[]::new);
     }
 
-    public static void printJavaFileWithComment(CtType<?> type, File directory) {
+    public static void printCtTypeToGivenDirectory(CtType<?> type, File directory) {
         Factory factory = type.getFactory();
         Environment env = factory.getEnvironment();
         env.setAutoImports(true);
-        env.setCommentEnabled(true);
+        env.setCommentEnabled(withComment);
         JavaOutputProcessor processor = new JavaOutputProcessor(new DefaultJavaPrettyPrinter(env));
         processor.setFactory(factory);
         processor.setOutputDirectory(directory);
@@ -98,9 +100,9 @@ public class DSpotUtils {
     public static void printAmplifiedTestClass(CtType<?> type, File directory) {
         final String pathname = directory.getAbsolutePath() + "/" + type.getQualifiedName().replaceAll("\\.", "/") + ".java";
         if (new File(pathname).exists()) {
-            printJavaFileWithComment(addGeneratedTestToExistingClass(type, pathname), directory);
+            printCtTypeToGivenDirectory(addGeneratedTestToExistingClass(type, pathname), directory);
         } else {
-            printJavaFileWithComment(type, directory);
+            printCtTypeToGivenDirectory(type, directory);
         }
     }
 
@@ -117,7 +119,7 @@ public class DSpotUtils {
     }
 
     public static void printAllClasses(Factory factory, File out) {
-        factory.Class().getAll().forEach(type -> printJavaFileWithComment(type, out));
+        factory.Class().getAll().forEach(type -> printCtTypeToGivenDirectory(type, out));
     }
 
     public static void addComment(CtElement element, String content, CtComment.CommentType type) {

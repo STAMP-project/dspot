@@ -12,6 +12,7 @@ import fr.inria.diversify.dspot.selector.TakeAllSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.mutant.pit.GradlePitTaskAndOptions;
 import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
+import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.test.runner.TestRunnerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,13 +131,8 @@ public class JSAPOptions {
             testCriterion = SelectorEnum.valueOf(jsapConfig.getString("test-criterion")).buildSelector();
         }
 
-        MavenPitCommandAndOptions.descartesMode = jsapConfig.getBoolean("descartes");
-        MavenPitCommandAndOptions.evosuiteMode = jsapConfig.getBoolean("evosuite");
-
-        GradlePitTaskAndOptions.descartesMode = jsapConfig.getBoolean("descartes");
-        GradlePitTaskAndOptions.evosuiteMode = jsapConfig.getBoolean("evosuite");
-
         TestRunnerFactory.useReflectiveTestRunner = false;
+        DSpotUtils.withComment = jsapConfig.getBoolean("comment");
 
         return new Configuration(jsapConfig.getString("path"),
                 buildAmplifiersFromString(jsapConfig.getStringArray("amplifiers")),
@@ -300,17 +296,10 @@ public class JSAPOptions {
         mavenHome.setUsageName("path to maven home");
         mavenHome.setHelp("specify the path to the maven home");
 
-        Switch descartesMode = new Switch("descartes");
-        descartesMode.setShortFlag('d');
-        descartesMode.setLongFlag("descartes");
-
-        Switch evosuiteMode = new Switch("evosuite");
-        evosuiteMode.setShortFlag('k');
-        evosuiteMode.setLongFlag("evosuite");
-
         Switch verbose = new Switch("verbose");
         verbose.setLongFlag("verbose");
         verbose.setDefault("false");
+        verbose.setHelp("Enable verbose mode of DSpot.");
 
         FlaggedOption maxTestAmplified = new FlaggedOption("maxTestAmplified");
         maxTestAmplified.setStringParser(JSAP.INTEGER_PARSER);
@@ -320,14 +309,17 @@ public class JSAPOptions {
         maxTestAmplified.setHelp("[optional] specify the maximum number of amplified test that dspot keep (before generating assertion)");
         maxTestAmplified.setDefault("200");
 
+        Switch withComment = new Switch("comment");
+        withComment.setLongFlag("with-comment");
+        withComment.setDefault("false");
+        withComment.setHelp("Enable comment on amplified test: details steps of the Amplification.");
+
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
             jsap.registerParameter(iteration);
             jsap.registerParameter(selector);
             jsap.registerParameter(maxTestAmplified);
-            jsap.registerParameter(descartesMode);
-            jsap.registerParameter(evosuiteMode);
             jsap.registerParameter(specificTestCase);
             jsap.registerParameter(testCases);
             jsap.registerParameter(output);
@@ -338,6 +330,7 @@ public class JSAPOptions {
             jsap.registerParameter(seed);
             jsap.registerParameter(timeOut);
             jsap.registerParameter(verbose);
+            jsap.registerParameter(withComment);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {
