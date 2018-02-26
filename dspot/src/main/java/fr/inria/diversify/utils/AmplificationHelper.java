@@ -48,6 +48,8 @@ public class AmplificationHelper {
 
     private static int timeOutInMs = 10000;
 
+    public static boolean withComment = false;
+
     public static void setTimeOutInMs(int newTimeOutInMs) {
         timeOutInMs = newTimeOutInMs;
     }

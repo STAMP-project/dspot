@@ -131,7 +131,7 @@ public class TestCompiler {
 	@Deprecated
 	private static void printAndDelete(DSpotCompiler compiler, CtType classTest) {
 		try {
-			DSpotUtils.printJavaFileWithComment(classTest, compiler.getSourceOutputDirectory());
+			DSpotUtils.printCtTypeToGivenDirectory(classTest, compiler.getSourceOutputDirectory());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

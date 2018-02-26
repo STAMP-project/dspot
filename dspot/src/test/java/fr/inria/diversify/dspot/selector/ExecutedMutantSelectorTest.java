@@ -48,7 +48,7 @@ public class ExecutedMutantSelectorTest {
                 Collections.singletonList(Utils.findMethod("example.TestSuiteExample", "test8")));
 
         // pretty print it
-        DSpotUtils.printJavaFileWithComment(amplifyTest, new File(DSpotCompiler.pathToTmpTestSources));
+        DSpotUtils.printCtTypeToGivenDirectory(amplifyTest, new File(DSpotCompiler.pathToTmpTestSources));
 
         // then compile
         final String classpath = AutomaticBuilderFactory
