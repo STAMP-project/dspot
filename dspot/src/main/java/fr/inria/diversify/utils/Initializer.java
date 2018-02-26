@@ -5,10 +5,7 @@ import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
-import fr.inria.diversify.utils.sosiefier.ProcessorUtil;
 import org.apache.commons.io.FileUtils;
-import spoon.Launcher;
-import spoon.SpoonModelBuilder;
 
 import java.io.File;
 import java.io.IOException;

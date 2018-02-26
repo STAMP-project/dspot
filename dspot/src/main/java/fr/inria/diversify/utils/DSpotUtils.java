@@ -1,7 +1,5 @@
 package fr.inria.diversify.utils;
 
-import fr.inria.diversify.utils.sosiefier.AddBlockEverywhereProcessor;
-import fr.inria.diversify.utils.sosiefier.BranchCoverageProcessor;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.Main;
@@ -58,21 +56,6 @@ public class DSpotUtils {
             System.out.flush();
             System.out.println();
             progress = new StringBuilder(60);
-        }
-    }
-
-    public static void addBranchLogger(InputProgram inputProgram, Factory factory) {
-        try {
-            applyProcessor(factory, new AddBlockEverywhereProcessor(inputProgram));
-            BranchCoverageProcessor branchCoverageProcessor = new BranchCoverageProcessor(inputProgram, inputProgram.getProgramDir(), true);
-            branchCoverageProcessor.setLogger(fr.inria.diversify.logger.Logger.class.getCanonicalName());
-            applyProcessor(factory, branchCoverageProcessor);
-            copyPackageFromResources(
-                    "fr/inria/diversify/logger", "ClassObserver",
-                    "KeyWord", "Logger", "LogWriter", "PathBuilder", "Pool", "ShutdownHookLog");
-            copyPackageFromResources("fr/inria/stamp/test/listener/", "TestListener");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 
