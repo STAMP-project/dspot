@@ -1,6 +1,6 @@
 package fr.inria.diversify.dspot;
 
-import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
+import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 
 import fr.inria.stamp.EntryPoint;
@@ -44,7 +44,7 @@ public class DSpotMultiplePomTest {
         EntryPoint.verbose = true;
 
         final InputConfiguration configuration = new InputConfiguration("src/test/resources/multiple-pom/deep-pom-modules.properties");
-        final DSpot dspot = new DSpot(configuration, new BranchCoverageTestSelector(10));
+        final DSpot dspot = new DSpot(configuration, new JacocoCoverageSelector());
         final List<CtType> ctTypes = dspot.amplifyAllTests();
         assertFalse(ctTypes.isEmpty());
 

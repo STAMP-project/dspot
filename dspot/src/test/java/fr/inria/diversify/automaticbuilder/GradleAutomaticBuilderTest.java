@@ -121,7 +121,7 @@ public class GradleAutomaticBuilderTest {
     private String[] getArgsWithGradleBuilder() throws IOException {
         return new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
-                "--test-criterion", "BranchCoverageTestSelector",
+                "--test-criterion", "JacocoCoverageSelector",
                 "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdd",
                 "--iteration", "1",
                 "--randomSeed", "72",

@@ -1,6 +1,5 @@
 package fr.inria.stamp.test.runner;
 
-import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.stamp.test.filter.MethodFilter;
 import fr.inria.stamp.test.listener.TestListener;
@@ -68,8 +67,6 @@ public class DefaultTestRunner extends AbstractTestRunner {
 		} finally {
 			submit.cancel(true);
 			executor.shutdownNow();
-			Logger.stopLogging();
-			Logger.close();
 		}
 		return listener;
 	}
