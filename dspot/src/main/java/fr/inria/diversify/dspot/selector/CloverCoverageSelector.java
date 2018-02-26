@@ -99,7 +99,7 @@ public class CloverCoverageSelector extends TakeAllSelector {
                 .filter(AmplificationChecker::isTest)
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
-        DSpotUtils.printJavaFileWithComment(clone, new File(PATH_TO_COPIED_FILES));
+        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(PATH_TO_COPIED_FILES));
         final Map<String, Map<String, List<Integer>>> lineCoveragePerTestMethods =
                 CloverExecutor.execute(this.configuration, PATH_TO_COPIED_FILES, clone.getQualifiedName());
         final List<CtMethod<?>> selectedTests = this.selectTests(clone, lineCoveragePerTestMethods);
@@ -170,7 +170,7 @@ public class CloverCoverageSelector extends TakeAllSelector {
                 .forEach(clone::removeMethod);
         this.selectedAmplifiedTest.forEach(clone::addMethod);
 
-        DSpotUtils.printJavaFileWithComment(clone, new File(DSpotCompiler.pathToTmpTestSources));
+        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.pathToTmpTestSources));
 
         final String classesOfProject = program.getProgramDir() + program.getClassesDir() +
                 AmplificationHelper.PATH_SEPARATOR + program.getProgramDir() + program.getTestClassesDir();

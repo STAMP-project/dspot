@@ -22,6 +22,7 @@ import java.util.List;
  * benjamin.danglot@inria.fr
  * on 23/03/17
  */
+@Deprecated
 public class DescartesInjector {
 
     private final static String[] mutators = {"null", "void", "0", "false"};

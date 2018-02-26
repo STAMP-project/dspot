@@ -7,8 +7,10 @@ package fr.inria.diversify.mutant.pit;
  */
 public class MavenPitCommandAndOptions {
 
+    @Deprecated
     public static boolean descartesMode = false;
 
+    @Deprecated
     public static boolean evosuiteMode = false;
 
     public static final String PRE_GOAL_PIT = ""; // TODO those pre-goals are necessary while we do not know how to compile with spoon

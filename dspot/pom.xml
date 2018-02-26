@@ -249,6 +249,7 @@
                         <exclude>**/fr/inria/diversify/dspot/amplifier/ObjectGenerator.*</exclude> <!-- generator of tests -->
                         <exclude>**/fr/inria/diversify/utils/sosiefier/*</exclude> <!-- old classes from sosiefier -->
                         <exclude>**/com/atlassian/clover/reporters/html/*</exclude> <!-- we override this class to get specific information -->
+                        <exclude>**/fr/inria/diversify/mutant/descartes/*</exclude> <!-- descartes is not supported anymore -->
                     </excludes>
                 </configuration>
             </plugin>

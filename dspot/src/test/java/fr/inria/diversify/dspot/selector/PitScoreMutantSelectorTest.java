@@ -16,13 +16,11 @@ import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.Main;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -78,7 +76,7 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
         int numberOfGeneratedTest2 = Amplification.ampTestCount - numberOfGeneratedTest;
         assertEquals(amplifiedTest.getMethods().size(), exampleOriginalTestClass.getMethods().size() + numberOfGeneratedTest2, numberOfGeneratedTest - 1);
 
-        DSpotUtils.printJavaFileWithComment(amplifiedTest, new File(DSpotCompiler.pathToTmpTestSources));
+        DSpotUtils.printCtTypeToGivenDirectory(amplifiedTest, new File(DSpotCompiler.pathToTmpTestSources));
         final String classpath = AutomaticBuilderFactory
                 .getAutomaticBuilder(configuration)
                 .buildClasspath(dspot.getInputProgram().getProgramDir())

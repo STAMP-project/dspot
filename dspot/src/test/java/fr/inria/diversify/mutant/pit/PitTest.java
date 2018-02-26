@@ -5,6 +5,7 @@ import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.dspot.*;
 import fr.inria.diversify.utils.AmplificationHelper;
+import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 
@@ -27,6 +28,7 @@ public class PitTest extends MavenAbstractTest {
 
     //TODO is flaky
     @Test
+    @Ignore
     public void testPitEvosuiteMode() throws Exception {
 
         /* by evosuite mode, we mean the common subset of mutation operators between pitest and evosuite */

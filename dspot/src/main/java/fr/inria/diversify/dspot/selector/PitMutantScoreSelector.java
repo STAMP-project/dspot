@@ -95,7 +95,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
-        DSpotUtils.printJavaFileWithComment(clone, new File(DSpotCompiler.pathToTmpTestSources));
+        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.pathToTmpTestSources));
         final AutomaticBuilder automaticBuilder = AutomaticBuilderFactory
                 .getAutomaticBuilder(this.configuration);
         final String classpath = AutomaticBuilderFactory

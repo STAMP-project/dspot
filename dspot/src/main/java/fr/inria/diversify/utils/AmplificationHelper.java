@@ -41,11 +41,14 @@ public class AmplificationHelper {
 
     private static Map<CtMethod, CtMethod> tmpAmpTestToParent = new HashMap<>();
 
+    @Deprecated
     private static Map<CtType, Set<CtType>> importByClass = new HashMap<>();
 
     private static Random random = new Random(23L);
 
     private static int timeOutInMs = 10000;
+
+    public static boolean withComment = false;
 
     public static void setTimeOutInMs(int newTimeOutInMs) {
         timeOutInMs = newTimeOutInMs;
@@ -98,6 +101,7 @@ public class AmplificationHelper {
         return tests;
     }
 
+    @Deprecated
     public static Set<CtType> computeClassProvider(CtType testClass) {
         List<CtType> types = Query.getElements(testClass.getParent(CtPackage.class), new TypeFilter(CtType.class));
         types = types.stream()
@@ -118,6 +122,7 @@ public class AmplificationHelper {
         return new HashSet<>(types);
     }
 
+    @Deprecated
     public static Set<CtType> getImport(CtType type) {
         if (!AmplificationHelper.importByClass.containsKey(type)) {
             ImportScanner importScanner = new ImportScannerImpl();
@@ -182,11 +187,13 @@ public class AmplificationHelper {
         return cloned_method;
     }
 
-    public static List<CtMethod<?>> filterTest(List<CtMethod<?>> newTests, TestListener result) {
-        final List<String> goodTests = result.getPassingTests().stream()
-                .map(Description::getMethodName).collect(Collectors.toList());
+    public static List<CtMethod<?>> getPassingTests(List<CtMethod<?>> newTests, TestListener result) {
+        final List<String> passingTests = result.getPassingTests()
+                .stream()
+                .map(Description::getMethodName)
+                .collect(Collectors.toList());
         return newTests.stream()
-                .filter(test -> goodTests.contains(test.getSimpleName()))
+                .filter(test -> passingTests.contains(test.getSimpleName()))
                 .collect(Collectors.toList());
     }
 
@@ -240,11 +247,14 @@ public class AmplificationHelper {
     //empirically 200 seems to be enough
     public static int MAX_NUMBER_OF_TESTS = 200;
 
-
-    // What we want here, is diversity.
-    // We use the hashCode of CtMethod to do this
-    // We select CtMethod that have very different hashCode
-    // We use the Standard deviation and takes only CtMethod that have hashcode different of at least this value
+    // this methods aims at reducing the number of amplified test.
+    // we seek diversity in this method
+    // to approximate diversity, we use the textual representation of amplified tests
+    // since all the amplified tests came from the same original-manuel test case
+    // they have a "lot" of common
+    // we use the sum of the bytes return by the getBytes() method of the string representing amplified test
+    // then compute the standard deviation on this sum
+    // and keep only amplified test that have this value greater or equal of the std deviation
     public static List<CtMethod<?>> reduce(List<CtMethod<?>> tests) {
         final List<CtMethod<?>> reducedTests = new ArrayList<>();
         if (tests.size() > MAX_NUMBER_OF_TESTS) {
@@ -255,7 +265,7 @@ public class AmplificationHelper {
             }
             tests.removeAll(reducedTests);
             List<CtMethod<?>> tmp = _reduce(tests);
-            while (tmp.size() + reducedTests.size() < MAX_NUMBER_OF_TESTS) {
+            while (tmp.size() + reducedTests.size() < MAX_NUMBER_OF_TESTS) { // loop until we have the max number of tests
                 reducedTests.addAll(tmp);
                 tests.removeAll(reducedTests);
                 tmp = _reduce(tests);
@@ -279,14 +289,15 @@ public class AmplificationHelper {
                 .map(CtMethod::toString)
                 .map(String::getBytes)
                 .map(AmplificationHelper::convert)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()); // compute the sum of toString().getBytes()
         final double standardDeviation = standardDeviation(values);
         final List<CtMethod<?>> reducedTests = values.stream()
                 .filter(integer -> Math.abs(values.get(0) - integer) >= standardDeviation)
                 .map(values::indexOf)
                 .map(tests::get)
-                .collect(Collectors.toList());
-        reducedTests.add(tests.get(0));
+                .collect(Collectors.toList()); // keep tests that have a difference with
+                                               // the first element greater than the std dev
+        reducedTests.add(tests.get(0)); // add the first element, which the "reference"
         return reducedTests;
     }
 

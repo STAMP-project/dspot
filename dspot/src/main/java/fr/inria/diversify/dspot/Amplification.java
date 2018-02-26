@@ -171,7 +171,7 @@ public class Amplification {
 						.filter(ctMethod -> !failingTestCase.contains(ctMethod.getSimpleName()))
 						.collect(Collectors.toList());
 			}
-			currentTestList = AmplificationHelper.filterTest(currentTestList, result);
+			currentTestList = AmplificationHelper.getPassingTests(currentTestList, result);
 			LOGGER.info("{} test method(s) has been successfully generated", currentTestList.size());
 			amplifiedTests.addAll(testSelector.selectToKeep(currentTestList));
 		}
