@@ -41,6 +41,7 @@ public class AmplificationHelper {
 
     private static Map<CtMethod, CtMethod> tmpAmpTestToParent = new HashMap<>();
 
+    @Deprecated
     private static Map<CtType, Set<CtType>> importByClass = new HashMap<>();
 
     private static Random random = new Random(23L);
@@ -98,6 +99,7 @@ public class AmplificationHelper {
         return tests;
     }
 
+    @Deprecated
     public static Set<CtType> computeClassProvider(CtType testClass) {
         List<CtType> types = Query.getElements(testClass.getParent(CtPackage.class), new TypeFilter(CtType.class));
         types = types.stream()
@@ -118,6 +120,7 @@ public class AmplificationHelper {
         return new HashSet<>(types);
     }
 
+    @Deprecated
     public static Set<CtType> getImport(CtType type) {
         if (!AmplificationHelper.importByClass.containsKey(type)) {
             ImportScanner importScanner = new ImportScannerImpl();
