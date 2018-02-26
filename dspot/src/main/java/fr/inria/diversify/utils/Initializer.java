@@ -22,8 +22,7 @@ import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
  */
 public class Initializer {
 
-	//TODO the BranchCoverageSelector will be removed and replaced by Jacoco. The boolean will be removed at this moment.
-	public static void initialize(InputConfiguration configuration, @Deprecated boolean isBranchCoverageSelector)
+	public static void initialize(InputConfiguration configuration)
 			throws IOException, InterruptedException {
 		AutomaticBuilderFactory.reset();
 		InputProgram program = InputConfiguration.initInputProgram(configuration);
@@ -46,19 +45,7 @@ public class Initializer {
 			//the target directory does not exist, do not need to clean it
 		}
 
-		boolean status;
-		//We need to use separate factory here, because the BranchProcessor will process test also
-		//TODO this is used only with the BranchCoverageSelector
-		if (isBranchCoverageSelector) {
-			Launcher spoonModel = DSpotCompiler.getSpoonModelOf(program.getAbsoluteSourceCodeDir(), dependencies);
-			DSpotUtils.addBranchLogger(program, spoonModel.getFactory());
-			ProcessorUtil.writeInfoFile(program.getProgramDir());
-			SpoonModelBuilder modelBuilder = spoonModel.getModelBuilder();
-			modelBuilder.setBinaryOutputDirectory(output);
-			status = modelBuilder.compile(SpoonModelBuilder.InputType.CTTYPES);
-		} else {
-			status = DSpotCompiler.compile(program.getAbsoluteSourceCodeDir(), dependencies, output);
-		}
+		boolean status = DSpotCompiler.compile(program.getAbsoluteSourceCodeDir(), dependencies, output);
 		boolean statusTest = DSpotCompiler.compile(program.getAbsoluteTestSourceCodeDir(),
 				output.getAbsolutePath() + PATH_SEPARATOR + dependencies, outputTest);
 

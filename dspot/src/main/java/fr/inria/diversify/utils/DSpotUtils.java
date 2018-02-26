@@ -197,7 +197,7 @@ public class DSpotUtils {
     public static Function<InputConfiguration, String> computeProgramDirectory = configuration ->
             configuration.getProperty("project") + shouldAddSeparator.apply(configuration.getProperty("project")) +
                     (configuration.getProperty("targetModule") != null ?
-                            configuration.getProperty("targetModule") + shouldAddSeparator.apply(configuration.getProperty("project")) : "");
+                            configuration.getProperty("targetModule") + shouldAddSeparator.apply(configuration.getProperty("targetModule")) : "");
 
     private static void copyDirectory(String pathToProgramDir, String resourcesToBeCopied, String pathDirectoryToCopy) {
         FileUtils.listFiles(new File(pathToProgramDir + resourcesToBeCopied),

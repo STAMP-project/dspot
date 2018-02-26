@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.dspot.amplifier.*;
-import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
 import fr.inria.diversify.dspot.selector.CloverCoverageSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.dspot.support.json.ClassTimeJSON;
@@ -86,7 +85,7 @@ public class DSpot {
 
     public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws Exception {
 
-        Initializer.initialize(inputConfiguration, testSelector instanceof BranchCoverageTestSelector);
+        Initializer.initialize(inputConfiguration);
         this.inputConfiguration = inputConfiguration;
         this.inputProgram = inputConfiguration.getInputProgram();
 

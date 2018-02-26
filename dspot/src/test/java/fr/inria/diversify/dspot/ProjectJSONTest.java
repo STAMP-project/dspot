@@ -2,7 +2,7 @@ package fr.inria.diversify.dspot;
 
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
-import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
+import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -50,7 +50,7 @@ public class ProjectJSONTest {
 		DSpot dspot = new DSpot(new InputConfiguration("src/test/resources/sample/sample.properties"),
 				1,
 				Collections.singletonList(new TestDataMutator()),
-				new BranchCoverageTestSelector(200)
+				new JacocoCoverageSelector()
 		);
 
 		dspot.amplifyTest("fr.inria.amp.TestJavaPoet");
