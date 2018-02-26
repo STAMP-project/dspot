@@ -10,8 +10,6 @@ import fr.inria.diversify.dspot.selector.PitMutantScoreSelector;
 import fr.inria.diversify.dspot.selector.ExecutedMutantSelector;
 import fr.inria.diversify.dspot.selector.TakeAllSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
-import fr.inria.diversify.mutant.pit.GradlePitTaskAndOptions;
-import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.test.runner.TestRunnerFactory;
 import org.slf4j.Logger;
