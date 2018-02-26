@@ -37,6 +37,7 @@ import static java.util.ResourceBundle.clearCache;
  * benjamin.danglot@inria.fr
  * on 13/07/17
  */
+@Deprecated // TODO should be replaced by EntryPoint from eu.stamp.testrunner project
 public class JacocoExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JacocoExecutor.class);
