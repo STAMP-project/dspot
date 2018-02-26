@@ -1,6 +1,5 @@
 package fr.inria.stamp.test.launcher;
 
-import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.test.listener.TestListener;
 import fr.inria.stamp.test.runner.TestRunnerFactory;
@@ -11,7 +10,6 @@ import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.reference.CtTypeReference;
 
-import java.io.File;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,8 +29,6 @@ public class TestLauncher {
 								   CtType<?> testClass,
 								   Collection<String> testMethodNames,
                                    RunListener... listeners) {
-		Logger.reset();
-		Logger.setLogDir(new File(configuration.getInputProgram().getProgramDir() + "/log"));
 		if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) {
 			final CtTypeReference<?> referenceToAbstractClass = testClass.getReference();
 			return testClass.getFactory().Class().getAll().stream()
@@ -59,8 +55,6 @@ public class TestLauncher {
                                    CtType<?> testClass,
                                    Collection<String> testMethodNames,
                                    RunListener... listeners) {
-		Logger.reset();
-		Logger.setLogDir(new File(configuration.getInputProgram().getProgramDir() + "/log"));
 		if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) {
 			final CtTypeReference<?> referenceToAbstractClass = testClass.getReference();
 			return testClass.getFactory().Class().getAll().stream()

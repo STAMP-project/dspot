@@ -1,6 +1,5 @@
 package fr.inria.stamp.test.runner;
 
-import fr.inria.diversify.logger.Logger;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.notification.RunListener;
@@ -95,8 +94,6 @@ public class ReflectiveTestRunner extends AbstractTestRunner {
         } finally {
             submit.cancel(true);
             executor.shutdownNow();
-            Logger.stopLogging();
-            Logger.close();
         }
     }
 
