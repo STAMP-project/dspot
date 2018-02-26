@@ -28,7 +28,7 @@ public class GeneralMinimizerTest extends AbstractTest {
         final GeneralMinimizer generalMinimizer = new GeneralMinimizer();
         final CtMethod<?> minimize = generalMinimizer.minimize(Utils.findMethod("fr.inria.amplified.AmplifiedTest", "amplifiedTest"));
         final String expectedBody = "{" + AmplificationHelper.LINE_SEPARATOR +
-                "assertEquals(5, 5);" + AmplificationHelper.LINE_SEPARATOR +
+                "    org.junit.Assert.assertEquals(5, 5);" + AmplificationHelper.LINE_SEPARATOR +
                 "}";
         assertEquals(expectedBody, minimize.getBody().toString());
     }

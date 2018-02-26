@@ -10,7 +10,7 @@ import spoon.reflect.declaration.CtMethod;
 public interface Minimizer {
 
     /**
-     * this Method meant to remove all useless statement according to a given test criterion
+     * this method aims to remove all useless statement according to a given test criterion
      * @param amplifiedTestToBeMinimized
      * @return
      */
