@@ -53,6 +53,24 @@ public class MethodsAssertGenerator {
         this.factory = configuration.getInputProgram().getFactory();
     }
 
+    /**
+     * Generates assertions and try/catch/fail blocks for multiple tests.
+     *
+     * <p>Assertion Amplification process.
+     * <ol>
+     *   <li>Instrumentation to collect the state of the program after execution (but before assertions).</li>
+     *   <li>Collection of actual values by running the tests.</li>
+     *   <li>Generation of new assertions in place of observation points.
+     *       Generation of catch blocks if a test raises an exception.</li>
+     * </ol>
+     * The details of the first two points are in {@link #addAssertions(CtType, List)}.
+     *
+     * @param testClass Test class
+     * @param tests Test methods
+     * @return New tests with new assertions
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     public List<CtMethod<?>> generateAsserts(CtType testClass, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
         LOGGER.info("Run tests. ({})", tests.size());
         final TestListener result = TestCompiler.compileAndRun(testClass,
@@ -109,6 +127,20 @@ public class MethodsAssertGenerator {
     }
 
 
+    /**
+     * Adds new assertions in multiple tests.
+     *
+     * <p>Instruments the tests to have observation points.
+     * Details in {@link AssertGeneratorHelper#createTestWithLog(CtMethod, String)}.
+     *
+     * <p>Details of the assertion generation in {@link #buildTestWithAssert(CtMethod, Map)}.
+     *
+     * @param testClass Test class
+     * @param testCases Passing test methods
+     * @return New tests with new assertions generated from observation points values
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     private List<CtMethod<?>> addAssertions(CtType<?> testClass, List<CtMethod<?>> testCases) throws IOException, ClassNotFoundException {
         CtType clone = testClass.clone();
         testClass.getPackage().addType(clone);
@@ -122,8 +154,8 @@ public class MethodsAssertGenerator {
                             );
                         }
                 ).collect(Collectors.toList());
-        final List<CtMethod<?>> testToRuns = new ArrayList<>();
-        IntStream.range(0, 3).forEach(i -> testToRuns.addAll(
+        final List<CtMethod<?>> testsToRun = new ArrayList<>();
+        IntStream.range(0, 3).forEach(i -> testsToRun.addAll(
                 testCasesWithLogs.stream()
                         .map(CtMethod::clone)
                         .map(ctMethod -> {
@@ -137,10 +169,10 @@ public class MethodsAssertGenerator {
                         .collect(Collectors.toList())
         ));
         ObjectLog.reset();
-        LOGGER.info("Run instrumented tests. ({})", testToRuns.size());
+        LOGGER.info("Run instrumented tests. ({})", testsToRun.size());
         final TestListener result = TestCompiler.compileAndRun(clone,
                 this.compiler,
-                testToRuns,
+                testsToRun,
                 this.configuration
         );
         if (result == null || !result.getFailingTests().isEmpty()) {
@@ -154,6 +186,13 @@ public class MethodsAssertGenerator {
         }
     }
 
+    /**
+     * Adds new assertions to a test from observation points.
+     *
+     * @param test Test method
+     * @param observations Observation points of the test suite
+     * @return Test with new assertions
+     */
     @SuppressWarnings("unchecked")
     private CtMethod<?> buildTestWithAssert(CtMethod test, Map<String, Observation> observations) {
         CtMethod testWithAssert = AmplificationHelper.cloneMethodTest(test, "");
@@ -225,6 +264,13 @@ public class MethodsAssertGenerator {
         }
     }
 
+    /**
+     * Adds surrounding try/catch/fail in a failing test.
+     *
+     * @param test Failing test method to amplify
+     * @param failure Test's failure description
+     * @return New amplified test
+     */
     protected CtMethod<?> makeFailureTest(CtMethod<?> test, Failure failure) {
         CtMethod cloneMethodTest = AmplificationHelper.cloneMethodTest(test, "");
         cloneMethodTest.setSimpleName(test.getSimpleName());

@@ -32,25 +32,46 @@ public class AssertGenerator {
         this.assertionRemover = new AssertionRemover();
     }
 
+    /**
+     * Adds new assertions to all methods of a test class.
+     *
+     * <p>See {@link #generateAsserts(CtType, List)}.
+     *
+     * @param testClass Test class
+     * @return New amplified tests
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     public List<CtMethod<?>> generateAsserts(CtType<?> testClass) throws IOException, ClassNotFoundException {
         return generateAsserts(testClass, new ArrayList<>(testClass.getMethods()));
     }
 
+    /**
+     * Adds new assertions in multiple tests.
+     *
+     * <p>Details of the assertions generation in {@link MethodsAssertGenerator#generateAsserts(CtType, List)}.
+     *
+     * @param testClass Test class
+     * @param tests Test methods to amplify
+     * @return New amplified tests
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     public List<CtMethod<?>> generateAsserts(CtType<?> testClass, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
         CtType cloneClass = testClass.clone();
         cloneClass.setParent(testClass.getParent());
-        List<CtMethod<?>> testWithoutAssertions = tests.stream()
+        List<CtMethod<?>> testsWithoutAssertions = tests.stream()
                 .map(this.assertionRemover::removeAssertion)
                 .collect(Collectors.toList());
-        testWithoutAssertions.forEach(cloneClass::addMethod);
+        testsWithoutAssertions.forEach(cloneClass::addMethod);
         MethodsAssertGenerator ags = new MethodsAssertGenerator(testClass, this.configuration, compiler);
-        final List<CtMethod<?>> amplifiedTestWithAssertion =
-                ags.generateAsserts(cloneClass, testWithoutAssertions);
-        if (amplifiedTestWithAssertion.isEmpty()) {
+        final List<CtMethod<?>> amplifiedTestsWithAssertions =
+                ags.generateAsserts(cloneClass, testsWithoutAssertions);
+        if (amplifiedTestsWithAssertions.isEmpty()) {
             LOGGER.info("Could not generate any test with assertions");
         } else {
-            LOGGER.info("{} new tests with assertions generated", amplifiedTestWithAssertion.size());
+            LOGGER.info("{} new tests with assertions generated", amplifiedTestsWithAssertions.size());
         }
-        return amplifiedTestWithAssertion;
+        return amplifiedTestsWithAssertions;
     }
 }

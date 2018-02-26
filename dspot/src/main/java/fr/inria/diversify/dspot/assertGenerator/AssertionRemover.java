@@ -26,6 +26,12 @@ public class AssertionRemover {
 
     private final int [] counter = new int[]{0};
 
+    /**
+     * Removes all assertions from a test.
+     *
+     * @param testMethod Test method
+     * @return Test's clone without any assertion
+     */
     public CtMethod<?> removeAssertion(CtMethod<?> testMethod) {
         CtMethod<?> testWithoutAssertion = AmplificationHelper.cloneMethodTest(testMethod, "");
         testWithoutAssertion.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
@@ -37,6 +43,11 @@ public class AssertionRemover {
         return testWithoutAssertion;
     }
 
+    /**
+     * Replaces an invocation with its arguments.
+     *
+     * @param invocation Invocation
+     */
     public void removeAssertion(CtInvocation<?> invocation) {
         final Factory factory = invocation.getFactory();
         invocation.getArguments().forEach(argument -> {
