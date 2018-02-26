@@ -78,7 +78,7 @@ public class GradleAutomaticBuilderWithDescartesTest {
     private String[] getArgsWithGradleBuilder() throws IOException {
         return new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
-                "--descartes",
+//                "--descartes",
                 "--iteration", "1",
                 "--randomSeed", "72",
                 "--automatic-builder", "GradleBuilder",

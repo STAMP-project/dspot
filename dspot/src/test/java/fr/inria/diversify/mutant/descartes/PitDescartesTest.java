@@ -13,6 +13,7 @@ import fr.inria.stamp.Main;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtType;
@@ -40,6 +41,7 @@ public class PitDescartesTest {
     }
 
     @Test
+    @Ignore
     public void testPitDescartesMode() throws Exception {
         assertFalse(MavenPitCommandAndOptions.descartesMode);
         MavenPitCommandAndOptions.descartesMode = true;
