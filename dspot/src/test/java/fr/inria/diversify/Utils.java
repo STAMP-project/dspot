@@ -65,7 +65,7 @@ public class Utils {
 			}
 			currentInputConfigurationLoaded = pathToConfFile;
 			inputConfiguration = new InputConfiguration(pathToConfFile);
-			Initializer.initialize(inputConfiguration, false);
+			Initializer.initialize(inputConfiguration);
 			inputProgram = inputConfiguration.getInputProgram();
 			builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 			String dependencies = builder.buildClasspath(inputProgram.getProgramDir());
