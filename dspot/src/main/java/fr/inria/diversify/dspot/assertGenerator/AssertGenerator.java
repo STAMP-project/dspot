@@ -37,6 +37,16 @@ public class AssertGenerator {
         this.assertionRemover = new AssertionRemover();
     }
 
+    /**
+     * Adds new assertions to all methods of a test class.
+     *
+     * <p>See {@link #generateAsserts(CtType, List)}.
+     *
+     * @param testClass Test class
+     * @return New amplified tests
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     public List<CtMethod<?>> generateAsserts(CtType<?> testClass) throws IOException, ClassNotFoundException {
         return generateAsserts(testClass, new ArrayList<>(testClass.getMethods()));
     }
@@ -44,12 +54,7 @@ public class AssertGenerator {
     /**
      * Adds new assertions in multiple tests.
      *
-     * <p>Assertion Amplification process.
-     * <ol>
-     *   <li>Instrumentation to collect the state of the program after execution (but before assertions).</li>
-     *   <li>Collection of actual values by running the tests.</li>
-     *   <li>Generation of new assertions in place of observation points.</li>
-     * </ol>
+     * <p>Details of the assertions generation in {@link MethodsAssertGenerator#generateAsserts(CtType, List)}.
      *
      * @param testClass Test class
      * @param tests Test methods to amplify

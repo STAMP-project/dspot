@@ -72,7 +72,7 @@ public class TakeAllSelector implements TestSelector {
 	 *
 	 * @param original Test class
 	 * @param methods Test methods
-	 * @returna Test class with new methods
+	 * @return Test class with new methods
 	 */
 	@Override
 	public CtType buildClassForSelection(CtType original, List<CtMethod<?>> methods) {
