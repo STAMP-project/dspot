@@ -288,7 +288,7 @@ public class Amplification {
 	 * @return Results of tests run or <code>null</code> if a test failed or could not be run (uncompilable)
 	 */
 	private TestListener compileAndRunTests(CtType classTest, List<CtMethod<?>> currentTestList) {
-		CtType amplifiedTestClass = this.testSelector.buildClassForSelection(classTest, currentTestList);
+		CtType amplifiedTestClass = AmplificationHelper.cloneTestClassAndAddGivenTest(classTest, currentTestList);
 		final TestListener result = TestCompiler.compileAndRun(
 				amplifiedTestClass,
 				this.compiler,
@@ -309,4 +309,6 @@ public class Amplification {
 			return result;
 		}
 	}
+
+
 }

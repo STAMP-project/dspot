@@ -92,6 +92,20 @@ public class AmplificationHelper {
         return amplifiedTest;
     }
 
+    /**
+     * Clones the test class and adds the test methods.
+     *
+     * @param original Test class
+     * @param methods Test methods
+     * @return Test class with new methods
+     */
+    public static CtType cloneTestClassAndAddGivenTest(CtType original, List<CtMethod<?>> methods) {
+        CtType clone = original.clone();
+        original.getPackage().addType(clone);
+        methods.forEach(clone::addMethod);
+        return clone;
+    }
+
     public static Map<CtMethod, CtMethod> getAmpTestToParent() {
         return ampTestToParent;
     }
