@@ -2,7 +2,6 @@ package fr.inria.stamp;
 
 import com.martiansoftware.jsap.*;
 import fr.inria.diversify.dspot.amplifier.*;
-import fr.inria.diversify.dspot.selector.BranchCoverageTestSelector;
 import fr.inria.diversify.dspot.selector.ChangeDetectorSelector;
 import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
 import fr.inria.diversify.dspot.selector.CloverCoverageSelector;
@@ -35,12 +34,6 @@ public class JSAPOptions {
     public static final JSAP options = initJSAP();
 
     public enum SelectorEnum {
-        BranchCoverageTestSelector {
-            @Override
-            public TestSelector buildSelector() {
-                return new BranchCoverageTestSelector(10);
-            }
-        },
         PitMutantScoreSelector {
             @Override
             public TestSelector buildSelector() {
@@ -227,7 +220,7 @@ public class JSAPOptions {
         selector.setLongFlag("test-criterion");
         selector.setShortFlag('s');
         selector.setStringParser(JSAP.STRING_PARSER);
-        selector.setUsageName("PitMutantScoreSelector | ExecutedMutantSelector | CloverCoverageSelector | BranchCoverageTestSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector");
+        selector.setUsageName("PitMutantScoreSelector | ExecutedMutantSelector | CloverCoverageSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector");
         selector.setHelp("[optional] specify the test adequacy criterion to be maximized with amplification");
         selector.setDefault("PitMutantScoreSelector");
 
