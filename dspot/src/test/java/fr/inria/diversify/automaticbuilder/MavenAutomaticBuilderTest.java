@@ -95,6 +95,32 @@ public class MavenAutomaticBuilderTest {
         }
     }
 
+    @Test
+    public void testSpecificClass() throws Exception {
+        Utils.init("src/test/resources/test-projects/test-projects.properties");
+
+        Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir(), Utils.findClass("example.TestSuiteExample2"));
+        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir() + Utils.getBuilder().getOutputDirectoryPit());
+
+        assertNotNull(pitResults);
+        assertEquals(28, pitResults.size());
+        assertEquals(9, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
+        assertEquals(15, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count());
+    }
+
+    @Test
+    public void testMultipleClasses() throws Exception {
+        Utils.init("src/test/resources/test-projects/test-projects.properties");
+
+        Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir(), Utils.findClass("example.TestSuiteExample2"), Utils.findClass("example.TestSuiteExample"));
+        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir() + Utils.getBuilder().getOutputDirectoryPit());
+
+        assertNotNull(pitResults);
+        assertEquals(28, pitResults.size());
+        assertEquals(9, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
+        assertEquals(15, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count());
+    }
+
     @Ignore
     @Test
     public void testOnAbstractClass() throws Exception {

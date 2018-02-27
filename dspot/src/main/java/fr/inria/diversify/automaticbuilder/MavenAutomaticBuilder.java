@@ -14,8 +14,6 @@ import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.declaration.ModifierKind;
-import spoon.reflect.reference.CtTypeReference;
 
 import java.io.*;
 import java.util.Arrays;
@@ -91,7 +89,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 	}
 
 	@Override
-	public void runPit(String pathToRootOfProject, CtType<?> testClass) {
+	public void runPit(String pathToRootOfProject, CtType<?>... testClasses) {
 		try {
 			org.apache.commons.io.FileUtils.deleteDirectory(new File(pathToRootOfProject + "/target/pit-reports"));
 		} catch (Exception ignored) {
@@ -106,7 +104,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 					OPT_VALUE_FORMAT, //
 					OPT_VALUE_TIMEOUT, //
 					OPT_VALUE_MEMORY, //
-					OPT_TARGET_TESTS + ctTypeToFullQualifiedName(testClass), //
+					OPT_TARGET_TESTS + Arrays.stream(testClasses).map(DSpotUtils::ctTypeToFullQualifiedName).collect(Collectors.joining(",")), //
 					OPT_ADDITIONAL_CP_ELEMENTS + "target/dspot/dependencies/" +
 							(configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
 									"," + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) : "") , //
@@ -131,18 +129,6 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 	 * Will convert a CtType into a list of test classes full qualified names
 	 * in case of abstract test classes, otherwise returns only the full qualified name
 	 **/
-	private String ctTypeToFullQualifiedName(CtType<?> testClass) {
-		if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) {
-			CtTypeReference<?> referenceOfSuperClass = testClass.getReference();
-			return testClass.getFactory().Class().getAll()
-					.stream()
-					.filter(ctType -> referenceOfSuperClass.equals(ctType.getSuperclass()))
-					.map(CtType::getQualifiedName)
-					.collect(Collectors.joining(","));
-		} else {
-			return testClass.getQualifiedName();
-		}
-	}
 
 	@Override
 	public void runPit(String pathToRootOfProject) {
