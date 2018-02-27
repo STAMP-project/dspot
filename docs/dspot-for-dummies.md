@@ -57,12 +57,12 @@ javaVersion=8
 # (optional) path to the output folder, default to "output_diversify"
 outputDirectory=dspot-out/
 # (optional) filter on the package name containing tests to be amplified ("example" => "example.*")
-filter=fr.inria.stamp.examples.dhell*
+filter=eu.stamp.examples.dhell*
 ```
 
 2. Execute DSpot
 ```
-java -jar ../dspot/dspot/target/dspot-1.0.5-SNAPSHOT-jar-with-dependencies.jar -p ./dspot.properties -i 1 -t fr.inria.stamp.examples.dhell.HelloAppTest -a MethodAdd
+java -jar ../dspot/dspot/target/dspot-1.0.5-SNAPSHOT-jar-with-dependencies.jar -p ./dspot.properties -i 1 -t eu.stamp.examples.dhell.HelloAppTest -a MethodAdd
 ```
 The execution uses these parameters:
 * jar: [mandatory] specify the path to the DSpot library
@@ -160,13 +160,13 @@ javaVersion=8
 # (optional) path to the output folder, default to "output_diversify"
 outputDirectory=dspot-out/
 # (optional) filter on the package name containing tests to be amplified ("example" => "example.*"
-filter=fr.inria.stamp.examples.dhell*
+filter=eu.stamp.examples.dhell*
 ```
 
 2. Execute DSpot
 ```
 cd dspot
-java -jar target/dspot-1.0.0-jar-with-dependencies.jar  -p ../dheg/dspot.properties -i 1 -t fr.inria.stamp.examples.dhell.HelloAppTest -b GradleBuilder -a MethodAdd
+java -jar target/dspot-1.0.0-jar-with-dependencies.jar  -p ../dheg/dspot.properties -i 1 -t eu.stamp.examples.dhell.HelloAppTest -b GradleBuilder -a MethodAdd
 ```
 The execution uses these parameters:
 * p: [mandatory] specify the path to the configuration file.
