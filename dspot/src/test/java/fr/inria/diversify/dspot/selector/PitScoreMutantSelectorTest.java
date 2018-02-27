@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -74,7 +75,10 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
         int numberOfGeneratedTest = Amplification.ampTestCount;
         CtType<?> amplifiedTest = dspot.amplifyTest("example.TestSuiteExample", Collections.singletonList("test2"));
         int numberOfGeneratedTest2 = Amplification.ampTestCount - numberOfGeneratedTest;
-        assertEquals(amplifiedTest.getMethods().size(), exampleOriginalTestClass.getMethods().size() + numberOfGeneratedTest2, numberOfGeneratedTest - 1);
+//        assertEquals(amplifiedTest.getMethods().size(), exampleOriginalTestClass.getMethods().size() + numberOfGeneratedTest2, numberOfGeneratedTest - 1);
+        System.err.println(amplifiedTest);
+
+        assertFalse(true);
 
         DSpotUtils.printCtTypeToGivenDirectory(amplifiedTest, new File(DSpotCompiler.pathToTmpTestSources));
         final String classpath = AutomaticBuilderFactory

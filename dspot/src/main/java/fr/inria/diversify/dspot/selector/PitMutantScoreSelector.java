@@ -276,6 +276,6 @@ public class PitMutantScoreSelector extends TakeAllSelector {
 
     @Override
     public Minimizer getMinimizer() {
-        return new PitMutantMinimizer(this.testThatKilledMutants);
+        return new PitMutantMinimizer(this.currentClassTestToBeAmplified, this.configuration, this.testThatKilledMutants);
     }
 }

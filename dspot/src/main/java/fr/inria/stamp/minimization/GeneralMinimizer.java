@@ -1,5 +1,7 @@
 package fr.inria.stamp.minimization;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.code.CtVariableRead;
 import spoon.reflect.declaration.CtMethod;
@@ -14,11 +16,20 @@ import java.util.List;
  */
 public class GeneralMinimizer implements Minimizer {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeneralMinimizer.class);
+
     @Override
     public CtMethod<?> minimize(CtMethod<?> amplifiedTestToBeMinimized) {
-        inlineLocalVariable(amplifiedTestToBeMinimized);
-        // TODO implement
-        return amplifiedTestToBeMinimized;
+        final CtMethod<?> clone = amplifiedTestToBeMinimized.clone();
+        final long time = System.currentTimeMillis();
+        inlineLocalVariable(clone);
+        LOGGER.info("Reduce {}, {} statements to {} statements in {} ms.",
+                amplifiedTestToBeMinimized.getSimpleName(),
+                amplifiedTestToBeMinimized.getBody().getStatements().size(),
+                clone.getBody().getStatements().size(),
+                System.currentTimeMillis() - time
+        );
+        return clone;
     }
 
     private void inlineLocalVariable(CtMethod<?> amplifiedTestToBeMinimized) {
