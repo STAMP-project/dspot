@@ -2,14 +2,19 @@ package fr.inria.diversify.dspot.selector;
 
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.amplifier.StatementAdd;
+import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.Main;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import spoon.reflect.declaration.CtType;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -38,6 +43,14 @@ public class ChangeDetectorSelectorTest {
         assertFalse(ctType.getMethods().isEmpty());// TODO this is not deterministic.
         // TODO We verify that DSpot has been able to detect the changes between the two version
         // TODO at least with one amplified test, i.e. the list of method returned amplified test is not empty
+        try (BufferedReader buffer = new BufferedReader(new FileReader("target/trash/example.TestSuiteExample_change_report.txt"))) {
+            assertEquals("======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
+                    "2 amplified test fails on the new versions.",
+                    buffer.lines()
+                            .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
