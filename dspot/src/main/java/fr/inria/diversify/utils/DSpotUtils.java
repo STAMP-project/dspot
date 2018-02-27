@@ -14,7 +14,9 @@ import spoon.reflect.code.CtComment;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.factory.Factory;
+import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.DefaultJavaPrettyPrinter;
 import spoon.support.JavaOutputProcessor;
 import spoon.support.QueueProcessingManager;
@@ -27,6 +29,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
 
@@ -260,5 +263,18 @@ public class DSpotUtils {
             resource += PATH_SEPARATOR + "src/test/resources/";
         }
         copyGivenResources(resource, program.getClassesDir(), configuration);
+    }
+
+    public static String ctTypeToFullQualifiedName(CtType<?> testClass) {
+        if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) {
+            CtTypeReference<?> referenceOfSuperClass = testClass.getReference();
+            return testClass.getFactory().Class().getAll()
+                    .stream()
+                    .filter(ctType -> referenceOfSuperClass.equals(ctType.getSuperclass()))
+                    .map(CtType::getQualifiedName)
+                    .collect(Collectors.joining(","));
+        } else {
+            return testClass.getQualifiedName();
+        }
     }
 }

@@ -14,8 +14,6 @@ import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.declaration.ModifierKind;
-import spoon.reflect.reference.CtTypeReference;
 
 import java.io.*;
 import java.util.Arrays;

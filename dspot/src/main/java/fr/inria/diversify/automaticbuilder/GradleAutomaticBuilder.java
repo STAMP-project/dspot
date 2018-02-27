@@ -20,8 +20,6 @@ import org.gradle.tooling.ProjectConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.declaration.ModifierKind;
-import spoon.reflect.reference.CtTypeReference;
 
 import static fr.inria.diversify.mutant.pit.GradlePitTaskAndOptions.*;
 
