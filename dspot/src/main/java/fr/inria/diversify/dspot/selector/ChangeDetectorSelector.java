@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.selector;
 
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
+import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
@@ -14,6 +15,7 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -95,7 +97,15 @@ public class ChangeDetectorSelector extends TakeAllSelector {
 
     @Override
     public void report() {
-        System.out.println("======= REPORT =======");
-        System.out.println(this.selectedAmplifiedTest.size() + " amplified test fails on the new versions.");
+        final String output = "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
+                this.selectedAmplifiedTest.size() + " amplified test fails on the new versions." +
+                    AmplificationHelper.LINE_SEPARATOR;
+        System.out.println(output);
+        try (FileWriter writer = new FileWriter(new File(this.configuration.getOutputDirectory() + "/" +
+                this.currentClassTestToBeAmplified.getQualifiedName() + "_change_report.txt"))) {
+            writer.write(output);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
