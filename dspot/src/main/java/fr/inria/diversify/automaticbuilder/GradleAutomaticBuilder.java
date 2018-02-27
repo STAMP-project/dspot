@@ -4,12 +4,14 @@ import java.io.*;
 
 import java.nio.file.*;
 
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import java.util.stream.Collectors;
 
 import fr.inria.diversify.mutant.pit.GradlePitTaskAndOptions;
+import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnector;
@@ -89,10 +91,10 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
     }
 
     @Override
-    public void runPit(String pathToRootOfProject, CtType<?> testClass) {
+    public void runPit(String pathToRootOfProject, CtType<?>... testClasses) {
         try {
             LOGGER.info("Injecting  Gradle task to run Pit...");
-            injectPitTask(pathToRootOfProject, testClass);
+            injectPitTask(pathToRootOfProject, testClasses);
 
             LOGGER.info("Running Pit...");
 
@@ -162,13 +164,13 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
         injectPitTask(pathToRootOfProject, null);
     }
 
-    private void injectPitTask(String pathToRootOfProject, CtType<?> testClass) throws IOException {
+    private void injectPitTask(String pathToRootOfProject, CtType<?>... testClasses) throws IOException {
 
         String originalGradleBuildFilename = pathToRootOfProject + File.separator + GRADLE_BUILD_FILE;
         File gradleBuildFile = new File(originalGradleBuildFilename);
         makeBackup(gradleBuildFile);
 
-        String pitTask = getPitTask(testClass);
+        String pitTask = getPitTask(testClasses);
 
         Files.write(Paths.get(originalGradleBuildFilename), pitTask.getBytes(), StandardOpenOption.APPEND);
 
@@ -210,21 +212,6 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
         }
     }
 
-    private String ctTypeToFullQualifiedName(CtType<?> testClass) {
-        if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) {
-            CtTypeReference<?> referenceOfSuperClass = testClass.getReference();
-            return testClass.getFactory().Class().getAll()
-                    .stream()
-                    .filter(ctType -> referenceOfSuperClass.equals(ctType.getSuperclass()))
-                    .map(CtType::getQualifiedName)
-                    .collect(Collectors.joining(","));
-        } else {
-            return testClass.getQualifiedName();
-        }
-    }
-
-
-
     private String getPrintClasspathTask() {
         return NEW_LINE + NEW_LINE + "task printClasspath4DSpot {" + NEW_LINE +
                 "    doLast {" + NEW_LINE +
@@ -238,8 +225,8 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
     }
 
 
-    private String getPitTask(CtType<?> testClass) {
-        return getPitTaskConfiguration() + getPitTaskOptions(testClass);
+    private String getPitTask(CtType<?>... testClasses) {
+        return getPitTaskConfiguration() + getPitTaskOptions(testClasses);
     }
 
     private String getPitTaskConfiguration() {
@@ -263,7 +250,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
                 "apply plugin: 'info.solidsoft.pitest'" + NEW_LINE;
     }
 
-    private String getPitTaskOptions(CtType<?> testClass) {
+    private String getPitTaskOptions(CtType<?>... testClasses) {
         return  NEW_LINE + NEW_LINE + "pitest {" + NEW_LINE +
                 "    " + OPT_TARGET_CLASSES + "['" + configuration.getProperty("filter") + "']" + NEW_LINE +
                 "    " + OPT_WITH_HISTORY + "true" + NEW_LINE +
@@ -273,7 +260,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
                         "    " + PROPERTY_VALUE_TIMEOUT + " = " + configuration.getProperty(PROPERTY_VALUE_TIMEOUT) : "") + NEW_LINE +
                 (configuration.getProperty(PROPERTY_VALUE_JVM_ARGS) != null ?
                         "    " + PROPERTY_VALUE_JVM_ARGS + " = " + configuration.getProperty(PROPERTY_VALUE_JVM_ARGS) : "") + NEW_LINE +
-                (testClass != null ? "    " + OPT_TARGET_TESTS + "['" + ctTypeToFullQualifiedName(testClass) + "']": "") + NEW_LINE +
+                (testClasses != null ? "    " + OPT_TARGET_TESTS + "['" + Arrays.stream(testClasses).map(DSpotUtils::ctTypeToFullQualifiedName).collect(Collectors.joining(",")) + "']": "") + NEW_LINE +
                 (configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
                         "    " + OPT_ADDITIONAL_CP_ELEMENTS + "['" + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) + "']":"") + NEW_LINE +
                 (descartesMode ? "    " + OPT_MUTATION_ENGINE + NEW_LINE + "    " + getDescartesMutators() :

@@ -18,7 +18,7 @@ public interface AutomaticBuilder {
 
     void reset();
 
-    void runPit(String pathToRootOfProject, CtType<?> testClass);
+    void runPit(String pathToRootOfProject, CtType<?>... testClasses);
 
     void runPit(String pathToRootOfProject);
 
