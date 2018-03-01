@@ -38,7 +38,7 @@ public class TestJacocoExecutor {
 		CoverageResults coverageResults = jacocoExecutor.executeJacoco(jmockitTest);
 		assertTrue(60 <= coverageResults.instructionsCovered &&
 				coverageResults.instructionsCovered <= 70);
-		assertEquals(78, coverageResults.instructionsTotal);
+		assertEquals(81, coverageResults.instructionsTotal);
 	}
 
 	@Test
@@ -52,7 +52,7 @@ public class TestJacocoExecutor {
 		CoverageResults coverageResults = jacocoExecutor.executeJacoco(easyMockTest);
 		assertTrue(50 <= coverageResults.instructionsCovered &&
 				coverageResults.instructionsCovered <= 60);
-		assertEquals(78, coverageResults.instructionsTotal);
+		assertEquals(81, coverageResults.instructionsTotal);
 	}
 
 	@Test

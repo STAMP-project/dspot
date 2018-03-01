@@ -25,13 +25,8 @@ public abstract class AbstractTest {
 
     @Before
     public void setUp() throws Exception {
-        try {
-            FileUtils.forceDelete(new File("target/dspot/"));
-        } catch (Exception ignored) {
-
-        }
-        AmplificationHelper.setSeedRandom(72L);
         Utils.init(getPathToPropertiesFile());
+        AmplificationHelper.setSeedRandom(72L);
         ValueCreator.count = 0;
     }
 

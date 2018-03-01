@@ -2,11 +2,14 @@ package fr.inria.diversify;
 
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
+import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
+import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.Initializer;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtClass;
@@ -48,9 +51,9 @@ public class Utils {
 		return builder;
 	}
 
+	@Deprecated
 	public static void reset() {
-		currentInputConfigurationLoaded = null;
-		AutomaticBuilderFactory.reset();
+
 	}
 
 	public static void init(String pathToConfFile) {
@@ -58,6 +61,16 @@ public class Utils {
 			return;
 		}
 		try {
+			try {
+				FileUtils.forceDelete(new File("target/dspot/"));
+			} catch (Exception ignored) {
+
+			}
+			try {
+				FileUtils.forceDelete(new File(inputConfiguration.getInputProgram().getProgramDir() + "/target"));
+			} catch (Exception ignored) {
+
+			}
 			AutomaticBuilderFactory.reset();
 			if (! new File("target/dspot/dependencies/compare").exists()) {
 				DSpotUtils.copyPackageFromResources("fr/inria/diversify/compare/",

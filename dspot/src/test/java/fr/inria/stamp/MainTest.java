@@ -1,10 +1,5 @@
 package fr.inria.stamp;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import fr.inria.diversify.dspot.Amplification;
-import fr.inria.diversify.dspot.selector.json.coverage.TestClassJSON;
-import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import org.apache.commons.io.FileUtils;
@@ -306,7 +301,7 @@ public class MainTest {
             "======= REPORT =======" + nl +
             "Initial instruction coverage: 33 / 37" + nl +
             "89" + DECIMAL_SEPARATOR + "19%" + nl +
-            "Amplification results with 27 amplified tests." + nl +
+            "Amplification results with 22 amplified tests." + nl +
             "Amplified instruction coverage: 37 / 37" + nl +
             "100" + DECIMAL_SEPARATOR + "00%" + nl;
 
@@ -314,7 +309,7 @@ public class MainTest {
             "======= REPORT =======" + nl +
             "Initial instruction coverage: 33 / 37" + nl +
             "89" + DECIMAL_SEPARATOR + "19%" + nl +
-            "Amplification results with 31 amplified tests." + nl +
+            "Amplification results with 28 amplified tests." + nl +
             "Amplified instruction coverage: 37 / 37" + nl +
             "100" + DECIMAL_SEPARATOR + "00%" + nl;
 
