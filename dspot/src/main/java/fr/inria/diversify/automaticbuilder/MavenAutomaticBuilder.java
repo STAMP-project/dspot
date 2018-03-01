@@ -33,9 +33,12 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
 	private InputConfiguration configuration;
 
+	@Deprecated
 	private String backUpPom;
 
 	private String mavenHome;
+
+	private String classpath;
 
 	private static final String FILE_SEPARATOR = "/";
 
@@ -58,22 +61,36 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
 	@Override
 	public void compile(String pathToRootOfProject) {
-		this.runGoals(pathToRootOfProject, "clean", "test", "-DskipTests");
+		this.runGoals(pathToRootOfProject, "clean",
+				"test",
+				"-DskipTests",
+				"dependency:build-classpath",
+				"-Dmdep.outputFile=" + "target/dspot/classpath"
+		);
+		final File classpathFile = new File(pathToRootOfProject + "/target/dspot/classpath");
+		try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
+			this.classpath = buffer.lines().collect(Collectors.joining());
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
 	public String buildClasspath(String pathToRootOfProject) {
-		try {
-			final File classpathFile = new File(pathToRootOfProject + "/target/dspot/classpath");
-			if (!classpathFile.exists()) {
-				this.runGoals(pathToRootOfProject, "dependency:build-classpath", "-Dmdep.outputFile=" + "target/dspot/classpath");
+		if (this.classpath == null) {
+			try {
+				final File classpathFile = new File(pathToRootOfProject + "/target/dspot/classpath");
+				if (!classpathFile.exists()) {
+					this.runGoals(pathToRootOfProject, "dependency:build-classpath", "-Dmdep.outputFile=" + "target/dspot/classpath");
+				}
+				try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
+					this.classpath = buffer.lines().collect(Collectors.joining());
+				}
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
-			try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
-				return buffer.lines().collect(Collectors.joining());
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
 		}
+		return this.classpath;
 	}
 
 	@Override

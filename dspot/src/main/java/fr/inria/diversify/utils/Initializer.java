@@ -30,30 +30,10 @@ public class Initializer {
 	public static void initialize(InputConfiguration configuration, InputProgram program) {
 		AutomaticBuilderFactory.reset();
 		AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(configuration);
-		String dependencies = builder.buildClasspath(program.getProgramDir());
-		dependencies += PATH_SEPARATOR + "target/dspot/dependencies/";
-
-		if (configuration.getProperty("additionalClasspathElements") != null) {
-			dependencies += PATH_SEPARATOR + program.getProgramDir() + configuration.getProperty("additionalClasspathElements");
-		}
-
-		File output = new File(program.getProgramDir() + "/" + program.getClassesDir());
-		File outputTest = new File(program.getProgramDir() + "/" + program.getTestClassesDir());
-		try {
-			FileUtils.cleanDirectory(output);
-			FileUtils.cleanDirectory(outputTest);
-		} catch (Exception ignored) {
-			//the target directory does not exist, do not need to clean it
-		}
-
-		boolean status = DSpotCompiler.compile(program.getAbsoluteSourceCodeDir(), dependencies, output);
-		boolean statusTest = DSpotCompiler.compile(program.getAbsoluteTestSourceCodeDir(),
-				output.getAbsolutePath() + PATH_SEPARATOR + dependencies, outputTest);
-
-		DSpotUtils.copyResources(configuration);
-
-		if (! (status && statusTest)) {
-			//throw new RuntimeException("Error during compilation");
+		builder.compile(program.getProgramDir());
+		if (!new File("target/dspot/dependencies/compare").exists()) {
+			DSpotUtils.copyPackageFromResources("fr/inria/diversify/compare/",
+					"MethodsHandler", "ObjectLog", "Observation", "Utils");
 		}
 	}
 
