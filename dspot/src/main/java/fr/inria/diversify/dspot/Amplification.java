@@ -91,10 +91,10 @@ public class Amplification {
 			return;
 		}
 
-		LOGGER.info("amplification of {} ({} test)", classTest.getQualifiedName(), tests.size());
-		List<CtMethod<?>> ampTest = new ArrayList<>();
-
-		updateAmplifiedTestList(ampTest, preAmplification(classTest, tests));
+		LOGGER.info("amplification of {} ({} test(s))", classTest.getQualifiedName(), tests.size());
+		preAmplification(classTest, tests);
+        LOGGER.info("{} amplified test(s) has been selected, global: {}", this.testSelector.getAmplifiedTestCases().size() - ampTestCount, this.testSelector.getAmplifiedTestCases().size());
+        ampTestCount = this.testSelector.getAmplifiedTestCases().size();
 		resetAmplifiers(classTest);
 
 		for (int i = 0; i < tests.size(); i++) {
@@ -104,8 +104,9 @@ public class Amplification {
 			if (result != null) {
 				if (result.getFailingTests().isEmpty()
 						&& !result.getRunningTests().isEmpty()) {
-					updateAmplifiedTestList(ampTest,
-							amplification(classTest, test, maxIteration));
+							amplification(classTest, test, maxIteration);
+                    LOGGER.info("{} amplified test(s) has been selected, global: {}", this.testSelector.getAmplifiedTestCases().size() - ampTestCount, this.testSelector.getAmplifiedTestCases().size());
+                    ampTestCount = this.testSelector.getAmplifiedTestCases().size();
 				} else {
 					LOGGER.info("{} / {} test cases failed!",
 							result.getFailingTests().size(),
