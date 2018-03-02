@@ -21,10 +21,14 @@ public class Initializer {
 
 	public static void initialize(InputConfiguration configuration)
 			throws IOException, InterruptedException {
-		AutomaticBuilderFactory.reset();
 		InputProgram program = InputConfiguration.initInputProgram(configuration);
 		program.setProgramDir(DSpotUtils.computeProgramDirectory.apply(configuration));
 		configuration.setInputProgram(program);
+		Initializer.initialize(configuration, program);
+	}
+
+	public static void initialize(InputConfiguration configuration, InputProgram program) {
+		AutomaticBuilderFactory.reset();
 		AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(configuration);
 		String dependencies = builder.buildClasspath(program.getProgramDir());
 		dependencies += PATH_SEPARATOR + "target/dspot/dependencies/";
@@ -49,7 +53,7 @@ public class Initializer {
 		DSpotUtils.copyResources(configuration);
 
 		if (! (status && statusTest)) {
-			throw new RuntimeException("Error during compilation");
+			//throw new RuntimeException("Error during compilation");
 		}
 	}
 
