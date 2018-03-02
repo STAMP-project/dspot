@@ -69,12 +69,16 @@ public class ObjectLog {
 			FutureTask task = null;
 			try {
 				for (Method method : methodsHandler.getAllMethods(o)) {
-					task = new FutureTask<>(() -> method.invoke(o));
-					executor.execute(task);
-					final Object result = task.get(1, TimeUnit.SECONDS);
-					String castType = o.getClass().getCanonicalName();
-					_log(result, "((" + castType + ")"
-							+ stringObject + ")." + method.getName() + "()", positionId, deep + 1);
+					try {
+						task = new FutureTask<>(() -> method.invoke(o));
+						executor.execute(task);
+						final Object result = task.get(1, TimeUnit.SECONDS);
+						String castType = o.getClass().getCanonicalName();
+						_log(result, "((" + castType + ")"
+								+ stringObject + ")." + method.getName() + "()", positionId, deep + 1);
+					} catch (Exception ignored) {
+						// ignored, we skip this iteration and continue;
+					}
 				}
 			} catch (Exception e) {
 				throw new RuntimeException(e);
