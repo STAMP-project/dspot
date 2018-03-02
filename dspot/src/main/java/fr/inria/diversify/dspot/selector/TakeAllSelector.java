@@ -37,6 +37,7 @@ public class TakeAllSelector implements TestSelector {
 	public List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified) {
 		if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
 			this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
+			this.selectedAmplifiedTest.clear();
 		}
 		return testsToBeAmplified;
 	}
@@ -49,12 +50,17 @@ public class TakeAllSelector implements TestSelector {
 
 	@Override
 	public void report() {
-		System.out.println("Ampification results with " + this.selectedAmplifiedTest.size() + " new tests.");
+		System.out.println("Amplification results with " + this.selectedAmplifiedTest.size() + " new tests.");
+		reset();
 	}
 
 	@Override
 	public List<CtMethod<?>> getAmplifiedTestCases() {
 		return this.selectedAmplifiedTest;
+	}
+
+	protected void reset() {
+		this.currentClassTestToBeAmplified = null;
 	}
 
 	/**
