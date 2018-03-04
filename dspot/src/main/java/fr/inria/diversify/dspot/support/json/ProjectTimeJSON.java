@@ -1,7 +1,7 @@
 package fr.inria.diversify.dspot.support.json;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Created by Benjamin DANGLOT
@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class ProjectTimeJSON {
 
-    public final List<ClassTimeJSON> classTimes = new ArrayList<>();
+    public final Set<ClassTimeJSON> classTimes = new LinkedHashSet<>();
     public final String projectName;
 
     public ProjectTimeJSON(String projectName) {
@@ -18,6 +18,9 @@ public class ProjectTimeJSON {
     }
 
     public void add(ClassTimeJSON classTimeJSON) {
+        if (this.classTimes.contains(classTimeJSON)) {
+            this.classTimes.remove(classTimeJSON);
+        }
         this.classTimes.add(classTimeJSON);
     }
 
