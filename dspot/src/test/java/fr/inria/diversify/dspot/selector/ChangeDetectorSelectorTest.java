@@ -54,25 +54,8 @@ public class ChangeDetectorSelectorTest {
         }
 
         try (BufferedReader buffer = new BufferedReader(new FileReader("target/trash/example.TestSuiteExample_stacktraces.txt"))) {
-            assertEquals(
-                    "java.lang.StringIndexOutOfBoundsException: String index out of range: -2147483648"+ AmplificationHelper.LINE_SEPARATOR +
-                            "\tat java.lang.String.charAt(String.java:658)"+ AmplificationHelper.LINE_SEPARATOR +
-                            "\tat example.Example.charAt(Example.java:18)"+ AmplificationHelper.LINE_SEPARATOR +
-                            "\tat example.TestSuiteExample.test2litNum4(TestSuiteExample.java:29)"+ AmplificationHelper.LINE_SEPARATOR +
-                            "\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)"+ AmplificationHelper.LINE_SEPARATOR +
-                            "\tat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)"+ AmplificationHelper.LINE_SEPARATOR +
-                            "\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)"+ AmplificationHelper.LINE_SEPARATOR +
-                            "\tat java.lang.reflect.Method.invoke(Method.java:498)"+ AmplificationHelper.LINE_SEPARATOR +
-                            "\tat org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)"+ AmplificationHelper.LINE_SEPARATOR +
-                            "\tat org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)"+ AmplificationHelper.LINE_SEPARATOR +
-                            "\tat org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)"+ AmplificationHelper.LINE_SEPARATOR +
-                            "\tat org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)"+ AmplificationHelper.LINE_SEPARATOR +
-                            "\tat org.junit.internal.runners.statements.FailOnTimeout$CallableStatement.call(FailOnTimeout.java:298)"+ AmplificationHelper.LINE_SEPARATOR +
-                            "\tat org.junit.internal.runners.statements.FailOnTimeout$CallableStatement.call(FailOnTimeout.java:292)"+ AmplificationHelper.LINE_SEPARATOR +
-                            "\tat java.util.concurrent.FutureTask.run(FutureTask.java:266)"+ AmplificationHelper.LINE_SEPARATOR +
-                            "\tat java.lang.Thread.run(Thread.java:745)",
-                    buffer.lines()
-                            .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)));
+            assertTrue(
+                    buffer.readLine().startsWith("java.lang.StringIndexOutOfBoundsException: String index out of range: -2147483648"));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
