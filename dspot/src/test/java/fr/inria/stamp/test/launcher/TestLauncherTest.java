@@ -294,7 +294,7 @@ public class TestLauncherTest {
 	public void testLauncherWithResources() throws Exception {
 		Utils.init("src/test/resources/project-with-resources/project-with-resources.properties");
 		final CtClass aClass = Utils.findClass("resolver.ClasspathResolverTest");
-		final String classPath = AmplificationHelper.getClassPath(Utils.getCompiler(), Utils.getInputProgram());
+		final String classPath = AmplificationHelper.getClassPath(Utils.getCompiler(), Utils.getInputConfiguration());
 		final TestListener run = TestLauncher.run(Utils.getInputConfiguration(), classPath, aClass);
 		assertEquals(10, run.getPassingTests().size());
 		assertEquals(10, run.getRunningTests().size());
@@ -305,7 +305,7 @@ public class TestLauncherTest {
 	public void testLauncherWithResourcesInsideTheSourcesFolders() throws Exception {
 		Utils.init("src/test/resources/project-with-resources/project-with-resources.properties");
 		final CtClass aClass = Utils.findClass("textresources.in.sources.TestResourcesInSources");
-		final String classPath = AmplificationHelper.getClassPath(Utils.getCompiler(), Utils.getInputProgram());
+		final String classPath = AmplificationHelper.getClassPath(Utils.getCompiler(), Utils.getInputConfiguration());
 		final TestListener run = TestLauncher.run(Utils.getInputConfiguration(), classPath, aClass);
 		assertEquals(1, run.getPassingTests().size());
 		assertEquals(1, run.getRunningTests().size());
@@ -323,7 +323,7 @@ public class TestLauncherTest {
 		Utils.init("src/test/resources/sample/sample.properties");
 		AmplificationHelper.setTimeOutInMs(0);
 		final CtClass aClass = Utils.findClass("fr.inria.systemproperties.SystemPropertiesTest");
-		final String classPath = AmplificationHelper.getClassPath(Utils.getCompiler(), Utils.getInputProgram());
+		final String classPath = AmplificationHelper.getClassPath(Utils.getCompiler(), Utils.getInputConfiguration());
 		try {
 			TestLauncher.run(Utils.getInputConfiguration(), classPath, aClass);
 			fail("testTimeoutTuning should have thrown a java.util.concurrent.TimeoutException");
@@ -354,7 +354,7 @@ public class TestLauncherTest {
 
 		Utils.init("src/test/resources/sample/sample.properties");
 		final CtClass aClass = Utils.findClass("fr.inria.systemproperties.SystemPropertiesTest");
-		final String classPath = AmplificationHelper.getClassPath(Utils.getCompiler(), Utils.getInputProgram());
+		final String classPath = AmplificationHelper.getClassPath(Utils.getCompiler(), Utils.getInputConfiguration());
 		final TestListener run = TestLauncher.run(Utils.getInputConfiguration(), classPath, aClass);
 		assertEquals(1, run.getPassingTests().size());
 		assertEquals(1, run.getRunningTests().size());
@@ -371,7 +371,7 @@ public class TestLauncherTest {
 		TestRunnerFactory.useReflectiveTestRunner = true;
 		Utils.init("src/test/resources/sample/sample.properties");
 		final CtClass aClass = Utils.findClass("fr.inria.systemproperties.SystemPropertiesTest");
-		final String classPath = AmplificationHelper.getClassPath(Utils.getCompiler(), Utils.getInputProgram());
+		final String classPath = AmplificationHelper.getClassPath(Utils.getCompiler(), Utils.getInputConfiguration());
 		final TestListener run = TestLauncher.run(Utils.getInputConfiguration(), classPath, aClass);
 		assertEquals(1, run.getPassingTests().size());
 		assertEquals(1, run.getRunningTests().size());

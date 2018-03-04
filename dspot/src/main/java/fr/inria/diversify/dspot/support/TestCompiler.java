@@ -46,7 +46,7 @@ public class TestCompiler {
 			if (testsToRun.isEmpty()) {
 				return null;
 			}
-			final String classPath = AmplificationHelper.getClassPath(compiler, configuration.getInputProgram());
+			final String classPath = AmplificationHelper.getClassPath(compiler, configuration);
 			return TestLauncher.runFromSpoonNodes(configuration, classPath, testClass, testsToRun);
 		}
 	}
