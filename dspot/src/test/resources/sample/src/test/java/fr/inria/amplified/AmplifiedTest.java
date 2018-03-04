@@ -13,7 +13,7 @@ public class AmplifiedTest {
 
     @Test
     public void amplifiedTest() throws Exception {
-        int integer5 = 5;
-        assertEquals(5, integer5);
+        int __DSPOT_1 = 5;
+        assertEquals(5, __DSPOT_1);
     }
 }
