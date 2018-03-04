@@ -8,6 +8,8 @@ import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.Initializer;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
+import fr.inria.stamp.minimization.GeneralMinimizer;
+import fr.inria.stamp.minimization.Minimizer;
 import fr.inria.stamp.test.launcher.TestLauncher;
 import fr.inria.stamp.test.listener.TestListener;
 import org.codehaus.plexus.util.FileUtils;
@@ -134,23 +136,13 @@ public class ChangeDetectorSelector implements TestSelector {
         return new ArrayList<>(this.failurePerAmplifiedTest.keySet());
     }
 
-    protected void reset() {
-        this.currentClassTestToBeAmplified = null;
+    @Override
+    public Minimizer getMinimizer() {
+        return new GeneralMinimizer();
     }
 
-    /**
-     * Clones the test class and adds the test methods.
-     *
-     * @param original Test class
-     * @param methods  Test methods
-     * @return Test class with new methods
-     */
-    @Override
-    public CtType buildClassForSelection(CtType original, List<CtMethod<?>> methods) {
-        CtType clone = original.clone();
-        original.getPackage().addType(clone);
-        methods.forEach(clone::addMethod);
-        return clone;
+    protected void reset() {
+        this.currentClassTestToBeAmplified = null;
     }
 
     @Override

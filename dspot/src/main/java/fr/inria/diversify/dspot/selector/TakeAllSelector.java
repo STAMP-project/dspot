@@ -51,7 +51,7 @@ public class TakeAllSelector implements TestSelector {
 	}
 
 	@Override
-	public void report() {git
+	public void report() {
 		System.out.println("Amplification results with " + this.selectedAmplifiedTest.size() + " new tests.");
 		reset();
 	}
