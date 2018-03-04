@@ -25,4 +25,10 @@ public class TestClassWithoutAssert {
         cl.getFalse();
         cl.getFalse();
     }
+
+    @Test
+    public void test3() throws Exception {
+        final fr.inria.sample.ClassWithMap classWithMap = new fr.inria.sample.ClassWithMap();
+        classWithMap.getFullMap();
+    }
 }

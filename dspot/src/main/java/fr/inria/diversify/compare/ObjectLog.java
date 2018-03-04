@@ -64,7 +64,7 @@ public class ObjectLog {
 	}
 
 	private void observeNotNullObject(Object o, String stringObject, String positionId, int deep) {
-		if (deep < maxDeep) {
+		if (deep < maxDeep && !o.getClass().getName().toLowerCase().contains("mock")) {
 			ExecutorService executor = Executors.newSingleThreadExecutor();
 			FutureTask task = null;
 			try {
