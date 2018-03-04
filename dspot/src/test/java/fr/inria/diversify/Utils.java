@@ -2,9 +2,7 @@ package fr.inria.diversify;
 
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
-import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.Initializer;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
@@ -62,7 +60,7 @@ public class Utils {
 		}
 		try {
 			try {
-				FileUtils.forceDelete(new File("target/dspot/"));
+				FileUtils.forceDelete(new File("target/dspot/tmp_test_sources/"));
 			} catch (Exception ignored) {
 
 			}

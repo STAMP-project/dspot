@@ -16,6 +16,7 @@ import spoon.reflect.code.CtComment;
 import spoon.reflect.declaration.*;
 import spoon.support.reflect.declaration.CtMethodImpl;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,6 +38,11 @@ public class TestCompiler {
 		final String dependencies = inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + System.getProperty("path.separator") +
 				inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir() + System.getProperty("path.separator") +
 				"target/dspot/dependencies/";
+
+		System.out.println(new File("target/dspot/dependencies").exists());
+		if (new File("target/dspot/dependencies").exists()) {
+			System.out.println(Arrays.stream(new File("target/dspot/dependencies").listFiles()).map(file -> file.getName()).collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)));
+		}
 		final List<CtMethod<?>> uncompilableMethods = TestCompiler.compile(compiler, testClass, dependencies);
 		if (uncompilableMethods.contains(TestCompiler.METHOD_CODE_RETURN)) {
 			return null;
