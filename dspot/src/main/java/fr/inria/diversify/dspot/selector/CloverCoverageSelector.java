@@ -165,9 +165,6 @@ public class CloverCoverageSelector extends TakeAllSelector {
         // computing the amplified test coverage
         CtType<?> clone = this.currentClassTestToBeAmplified.clone();
         clone.setParent(this.currentClassTestToBeAmplified.getParent());
-        this.currentClassTestToBeAmplified.getMethods().stream()
-                .filter(AmplificationChecker::isTest)
-                .forEach(clone::removeMethod);
         this.selectedAmplifiedTest.forEach(clone::addMethod);
 
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.pathToTmpTestSources));
@@ -183,7 +180,7 @@ public class CloverCoverageSelector extends TakeAllSelector {
                 new File(this.program.getProgramDir() + "/" + this.program.getTestClassesDir()));
 
         return EntryPoint.runCoverageOnTestClasses(classpath, classesOfProject,
-                DSpotUtils.getAllTestClasses(configuration)
+                clone.getQualifiedName()
         );
     }
 
