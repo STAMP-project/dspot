@@ -8,23 +8,20 @@ import java.util.*;
 public class MethodsHandler {
 
     private Map<Class<?>, List<Method>> cache;
-    private static final Map<String, Class> ignoredMethods;
+    private static final List<String> ignoredMethods;
 
     static {
-        Class cl = Object.class;
-        ignoredMethods = new HashMap<>();
-        ignoredMethods.put("equals", cl);
-        ignoredMethods.put("hashCode", cl);
-        ignoredMethods.put("notify", cl);
-        ignoredMethods.put("notifyAll", cl);
-        ignoredMethods.put("wait", cl);
-        ignoredMethods.put("getClass", cl);
-        ignoredMethods.put("toString", cl);
-        ignoredMethods.put("display", cl);
-
-        ignoredMethods.put("clone", cl);
-
-        ignoredMethods.put("hasExtensions", cl);
+        ignoredMethods = new ArrayList<>();
+        ignoredMethods.add("equals");
+        ignoredMethods.add("hashCode");
+        ignoredMethods.add("notify");
+        ignoredMethods.add("notifyAll");
+        ignoredMethods.add("wait");
+        ignoredMethods.add("getClass");
+        ignoredMethods.add("toString");
+        ignoredMethods.add("display");
+        ignoredMethods.add("clone");
+        ignoredMethods.add("hasExtensions");
     }
 
     public MethodsHandler() {
@@ -41,7 +38,7 @@ public class MethodsHandler {
     private void findMethods(Object o) {
         List<Method> methodsList = new ArrayList<Method>();
         for (Method m : o.getClass().getMethods()) {
-            if (ignoredMethods.get(m.getName()) == null && isValidMethod(m)) {
+            if (!ignoredMethods.contains(m.getName()) && isValidMethod(m)) {
                 methodsList.add(m);
             }
         }
@@ -55,7 +52,7 @@ public class MethodsHandler {
             return false;
         }
         Class<?>[] parameterTypes = m.getParameterTypes();
-        return parameterTypes.length == 0; // we only consider tests that take no parameters
+        return parameterTypes.length == 0; // we only consider methods that take no parameter
     }
 
     private static boolean isVoid(Class<?> type) {
