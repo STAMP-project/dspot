@@ -152,15 +152,20 @@ public class AssertBuilder {
                 false
         );
         final CtExecutableReference containsKey = factory.Type().get(Map.class).getMethodsByName("containsKey").get(0).getReference();
-        // TODO we must assert on values also
         final CtExecutableReference get = factory.Type().get(Map.class).getMethodsByName("get").get(0).getReference();
-        return (List<CtStatement>) value.keySet().stream().map(factory::createLiteral)
-                .flatMap(o ->
+        return (List<CtStatement>) value.keySet().stream()
+                .flatMap(key ->
                         Arrays.stream(new CtInvocation<?>[]{
                                         buildInvocation(factory, "assertTrue",
                                                 Collections.singletonList(factory.createInvocation(variableRead,
-                                                        containsKey, (CtLiteral) o
+                                                        containsKey, factory.createLiteral(key)
                                                         )
+                                                )
+                                        ),
+                                        buildInvocation(factory, "assertEquals",
+                                                Arrays.asList(factory.createLiteral(value.get(key)),
+                                                        factory.createInvocation(variableRead,
+                                                                get, factory.createLiteral(key))
                                                 )
                                         )
                                 }
