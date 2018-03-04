@@ -48,6 +48,8 @@ public class PitMutantMinimizer extends GeneralMinimizer {
     @Override
     public CtMethod<?> minimize(CtMethod<?> amplifiedTestToBeMinimized) {
         CtMethod<?> reduced = super.minimize(amplifiedTestToBeMinimized);
+        return reduced;
+        /* TODO implement something faster, such as proposed by sbihel see #54
         final long time = System.currentTimeMillis();
         final List<CtInvocation<?>> assertions = reduced.getElements(
                 new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
@@ -79,6 +81,7 @@ public class PitMutantMinimizer extends GeneralMinimizer {
         );
 
         return amplifiedTestToBeMinimized;
+        */
     }
 
     private CtMethod<?> removeGivenAssertions(CtMethod<?> amplifiedTest, CtStatement assertion) {

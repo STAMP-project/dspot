@@ -75,10 +75,7 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
         int numberOfGeneratedTest = Amplification.ampTestCount;
         CtType<?> amplifiedTest = dspot.amplifyTest("example.TestSuiteExample", Collections.singletonList("test2"));
         int numberOfGeneratedTest2 = Amplification.ampTestCount - numberOfGeneratedTest;
-//        assertEquals(amplifiedTest.getMethods().size(), exampleOriginalTestClass.getMethods().size() + numberOfGeneratedTest2, numberOfGeneratedTest - 1);
-        System.err.println(amplifiedTest);
-
-        assertFalse(true);
+        assertEquals(amplifiedTest.getMethods().size(), exampleOriginalTestClass.getMethods().size() + numberOfGeneratedTest2, numberOfGeneratedTest - 1);
 
         DSpotUtils.printCtTypeToGivenDirectory(amplifiedTest, new File(DSpotCompiler.pathToTmpTestSources));
         final String classpath = AutomaticBuilderFactory

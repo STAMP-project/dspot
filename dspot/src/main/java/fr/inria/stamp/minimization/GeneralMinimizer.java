@@ -34,12 +34,7 @@ public class GeneralMinimizer implements Minimizer {
 
     private void inlineLocalVariable(CtMethod<?> amplifiedTestToBeMinimized) {
         final List<CtLocalVariable> localVariables =
-                amplifiedTestToBeMinimized.getElements(new TypeFilter<CtLocalVariable>(CtLocalVariable.class) {
-                    @Override
-                    public boolean matches(CtLocalVariable element) {
-                        return element.getSimpleName().startsWith("__DSPOT_") && super.matches(element);
-                    }
-                });
+                amplifiedTestToBeMinimized.getElements(new TypeFilter<>(CtLocalVariable.class));
         final List<CtVariableRead> variableReads =
                 amplifiedTestToBeMinimized.getElements(new TypeFilter<CtVariableRead>(CtVariableRead.class) {
                     @Override
