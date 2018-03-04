@@ -14,4 +14,21 @@ public class ClassTimeJSON {
         this.fullQualifiedName = fullQualifiedName;
         this.timeInMs = timeInMs;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        } else if (o == null || getClass() != o.getClass()) {
+            return false;
+        } else {
+            ClassTimeJSON that = (ClassTimeJSON) o;
+            return fullQualifiedName != null ? fullQualifiedName.equals(that.fullQualifiedName) : that.fullQualifiedName == null;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return this.fullQualifiedName.hashCode();
+    }
 }

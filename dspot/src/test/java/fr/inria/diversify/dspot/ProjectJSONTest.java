@@ -66,6 +66,13 @@ public class ProjectJSONTest {
 			assertTrue(jsonAsString.contains(expectedFirstProjectJSON[2]));
 			assertTrue(jsonAsString.endsWith(expectedFirstProjectJSON[3]));
 		}
+
+		dspot.amplifyTest("fr.inria.amp.TestJavaPoet");
+		try (BufferedReader buffer = new BufferedReader(new FileReader(file))) {
+			final String jsonAsString = buffer.lines().collect(Collectors.joining(nl));
+			assertTrue(jsonAsString.startsWith(expectedFirstProjectJSON[0]));
+			assertTrue(jsonAsString.endsWith(expectedFirstProjectJSON[1]));
+		}
 	}
 
 	//we cannot predict the time of the computation of dspot, we split the output string into two parts: head and tail.
