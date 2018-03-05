@@ -38,10 +38,9 @@ public class TestCompiler {
 		final String dependencies = inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + System.getProperty("path.separator") +
 				inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir() + System.getProperty("path.separator") +
 				"target/dspot/dependencies/";
-
-		System.out.println(new File("target/dspot/dependencies").exists());
-		if (new File("target/dspot/dependencies").exists()) {
-			System.out.println(Arrays.stream(new File("target/dspot/dependencies").listFiles()).map(file -> file.getName()).collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)));
+		if (! new File("target/dspot/dependencies/compare").exists()) {
+			DSpotUtils.copyPackageFromResources("fr/inria/diversify/compare/",
+					"MethodsHandler", "ObjectLog", "Observation", "Utils");
 		}
 		final List<CtMethod<?>> uncompilableMethods = TestCompiler.compile(compiler, testClass, dependencies);
 		if (uncompilableMethods.contains(TestCompiler.METHOD_CODE_RETURN)) {

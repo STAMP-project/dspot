@@ -1,7 +1,6 @@
 package fr.inria.diversify.utils;
 
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.minimization.Minimizer;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.test.listener.TestListener;
