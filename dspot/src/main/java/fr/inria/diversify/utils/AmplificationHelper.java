@@ -2,6 +2,7 @@ package fr.inria.diversify.utils;
 
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
+import fr.inria.stamp.minimization.Minimizer;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
@@ -48,8 +49,6 @@ public class AmplificationHelper {
 
     private static int timeOutInMs = 10000;
 
-    public static boolean withComment = false;
-
     public static void setTimeOutInMs(int newTimeOutInMs) {
         timeOutInMs = newTimeOutInMs;
     }
@@ -73,14 +72,14 @@ public class AmplificationHelper {
         importByClass.clear();
     }
 
-    public static CtType createAmplifiedTest(List<CtMethod<?>> ampTest, CtType<?> classTest) {
+    public static CtType createAmplifiedTest(List<CtMethod<?>> ampTest, CtType<?> classTest, Minimizer minimizer) {
         CtType amplifiedTest = classTest.clone();
         final String amplifiedName = classTest.getSimpleName().startsWith("Test") ?
                 classTest.getSimpleName() + "Ampl" :
                 "Ampl" + classTest.getSimpleName();
         amplifiedTest.setSimpleName(amplifiedName);
         classTest.getMethods().stream().filter(AmplificationChecker::isTest).forEach(amplifiedTest::removeMethod);
-        ampTest.forEach(amplifiedTest::addMethod);
+        ampTest.stream().map(minimizer::minimize).forEach(amplifiedTest::addMethod);
         final CtTypeReference classTestReference = classTest.getReference();
         amplifiedTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
             @Override
@@ -90,6 +89,20 @@ public class AmplificationHelper {
         }).forEach(ctTypeReference -> ctTypeReference.setSimpleName(amplifiedName));
         classTest.getPackage().addType(amplifiedTest);
         return amplifiedTest;
+    }
+
+    /**
+     * Clones the test class and adds the test methods.
+     *
+     * @param original Test class
+     * @param methods Test methods
+     * @return Test class with new methods
+     */
+    public static CtType cloneTestClassAndAddGivenTest(CtType original, List<CtMethod<?>> methods) {
+        CtType clone = original.clone();
+        original.getPackage().addType(clone);
+        methods.forEach(clone::addMethod);
+        return clone;
     }
 
     public static Map<CtMethod, CtMethod> getAmpTestToParent() {

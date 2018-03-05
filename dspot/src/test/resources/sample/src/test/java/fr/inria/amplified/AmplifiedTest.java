@@ -1,0 +1,19 @@
+package fr.inria.amplified;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+/**
+ * Created by Benjamin DANGLOT
+ * benjamin.danglot@inria.fr
+ * on 26/02/18
+ */
+public class AmplifiedTest {
+
+    @Test
+    public void amplifiedTest() throws Exception {
+        int __DSPOT_1 = 5;
+        assertEquals(5, __DSPOT_1);
+    }
+}

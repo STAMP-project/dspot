@@ -3,6 +3,7 @@ package fr.inria.diversify.dspot.assertGenerator;
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.AbstractTest;
+import fr.inria.stamp.minimization.NoMinimizer;
 import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
@@ -36,7 +37,7 @@ public class AssertGeneratorTest extends AbstractTest {
 
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         AssertGenerator assertGenerator = new AssertGenerator(Utils.getInputConfiguration(), Utils.getCompiler());
-        CtType<?> ctType = AmplificationHelper.createAmplifiedTest(assertGenerator.generateAsserts(testClass), testClass);
+        CtType<?> ctType = AmplificationHelper.createAmplifiedTest(assertGenerator.generateAsserts(testClass), testClass, new NoMinimizer());
         assertEquals(expectedBody, ((CtMethod)ctType.getMethodsByName("test1").stream().findFirst().get()).getBody().toString());
     }
 

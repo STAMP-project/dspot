@@ -188,9 +188,9 @@ public class DSpot {
             final long elapsedTime = System.currentTimeMillis() - time;
             LOGGER.info("elapsedTime {}", elapsedTime);
             this.projectTimeJSON.add(new ClassTimeJSON(test.getQualifiedName(), elapsedTime));
+            CtType<?> amplification = AmplificationHelper.createAmplifiedTest(testSelector.getAmplifiedTestCases(), test, testSelector.getMinimizer());
             testSelector.report();
             final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
-            CtType<?> amplification = AmplificationHelper.createAmplifiedTest(testSelector.getAmplifiedTestCases(), test);
             LOGGER.info("Print {} with {} amplified test cases in {}", amplification.getSimpleName(),
                     testSelector.getAmplifiedTestCases().size(), this.inputConfiguration.getOutputDirectory());
             DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory);
