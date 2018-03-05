@@ -73,9 +73,12 @@ public class ObjectLog {
 						task = new FutureTask<>(() -> method.invoke(o));
 						executor.execute(task);
 						final Object result = task.get(1, TimeUnit.SECONDS);
-						String castType = o.getClass().getCanonicalName();
-						_log(result, "((" + castType + ")"
-								+ stringObject + ")." + method.getName() + "()", positionId, deep + 1);
+						if (o.getClass().isAnonymousClass()) {
+							_log(result, "(" + stringObject + ")." + method.getName() + "()", positionId, deep + 1);
+						} else {
+							_log(result, "((" + o.getClass().getCanonicalName() + ")"
+									+ stringObject + ")." + method.getName() + "()", positionId, deep + 1);
+						}
 					} catch (Exception ignored) {
 						// ignored, we skip this iteration and continue;
 					}

@@ -182,6 +182,9 @@
                                 <include>multiple-pom/target/</include>
                                 <include>multiple-pom/module-1/module-2-1/target/</include>
                                 <include>multiple-pom/module-1/module-2-2/target/</include>
+                                <include>multiple-pom_1/target/</include>
+                                <include>multiple-pom_1/module-1/module-2-1/target/</include>
+                                <include>multiple-pom_1/module-1/module-2-2/target/</include>
                                 <include>sample/target/</include>
                                 <include>test-projects/target/</include>
                                 <include>test-projects/build/</include>

@@ -29,11 +29,6 @@ public abstract class MavenAbstractTest {
         }
     }
 
-    @After
-    public void tearDown() throws Exception {
-        AutomaticBuilderFactory.reset();
-    }
-
     public abstract String getPathToPropertiesFile();
 
 }
