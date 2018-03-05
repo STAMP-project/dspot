@@ -1,6 +1,5 @@
 package fr.inria.diversify.dspot;
 
-import com.sun.corba.se.impl.orb.ParserTable;
 import fr.inria.diversify.dspot.amplifier.Amplifier;
 import fr.inria.diversify.dspot.assertGenerator.AssertGenerator;
 import fr.inria.diversify.dspot.selector.TestSelector;
