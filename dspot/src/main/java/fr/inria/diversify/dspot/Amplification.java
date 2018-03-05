@@ -195,7 +195,7 @@ public class Amplification {
 	 * @throws ClassNotFoundException
 	 */
 	private List<CtMethod<?>> preAmplification(CtType classTest, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
-		TestListener result = compileAndRunTests(classTest, tests);
+		TestListener result = compileAndRunTestsNoFail(classTest, tests);
 		if (result == null) {
 			LOGGER.warn("Need a green test suite to run dspot");
 			return Collections.emptyList();
@@ -229,7 +229,7 @@ public class Amplification {
 			final List<CtMethod<?>> amplifiedTestToBeKept = assertGenerator.generateAsserts(
 					classTest, testSelector.selectToAmplify(tests));
 			if (!amplifiedTestToBeKept.isEmpty()) {
-				result = compileAndRunTests(classTest, amplifiedTestToBeKept);
+				result = compileAndRunTestsNoFail(classTest, amplifiedTestToBeKept);
 				if (result == null) {
 					LOGGER.warn("Need a green test suite to run dspot");
 					return Collections.emptyList();
@@ -285,16 +285,27 @@ public class Amplification {
 	 *
 	 * @param classTest Test class
 	 * @param currentTestList New test methods to run
-	 * @return Results of tests run or <code>null</code> if a test failed or could not be run (uncompilable)
+	 * @return Results of tests' run
 	 */
 	private TestListener compileAndRunTests(CtType classTest, List<CtMethod<?>> currentTestList) {
 		CtType amplifiedTestClass = AmplificationHelper.cloneTestClassAndAddGivenTest(classTest, currentTestList);
-		final TestListener result = TestCompiler.compileAndRun(
+		return TestCompiler.compileAndRun(
 				amplifiedTestClass,
 				this.compiler,
 				currentTestList,
 				this.configuration
 		);
+	}
+
+	/**
+	 * Adds test methods to the test class and run them. Does not allow partially failing test classes.
+	 *
+	 * @param classTest Test class
+	 * @param currentTestList New test methods to run
+	 * @return Results of tests run or {@code null} if a test failed or could not be run (uncompilable)
+	 */
+	private TestListener compileAndRunTestsNoFail(CtType classTest, List<CtMethod<?>> currentTestList) {
+		final TestListener result = compileAndRunTests(classTest, currentTestList);
 		final long numberOfSubClasses = classTest.getFactory().Class().getAll().stream()
 				.filter(subClass -> classTest.getReference().equals(subClass.getSuperclass()))
 				.count();
@@ -309,6 +320,4 @@ public class Amplification {
 			return result;
 		}
 	}
-
-
 }
