@@ -114,7 +114,10 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 		}
 		try {
 			String[] phases = new String[]{PRE_GOAL_PIT, //
-					CMD_PIT_MUTATION_COVERAGE, //
+					CMD_PIT_MUTATION_COVERAGE + ":" +
+							(configuration.getProperties().get("pitVersion") != null ?
+									configuration.getProperties().get("pitVersion") : PIT_VERSION
+							) + ":" + GOAL_PIT_MUTATION_COVERAGE, //
 					OPT_WITH_HISTORY, //
 					OPT_TARGET_CLASSES + configuration.getProperty("filter"), //
 					OPT_VALUE_REPORT_DIR, //
@@ -156,7 +159,10 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 		}
 		try {
 			String[] phases = new String[]{PRE_GOAL_PIT, //
-					CMD_PIT_MUTATION_COVERAGE, //
+					CMD_PIT_MUTATION_COVERAGE + ":" +
+							(configuration.getProperties().get("pitVersion") != null ?
+									configuration.getProperties().get("pitVersion") : PIT_VERSION
+							) + ":" + GOAL_PIT_MUTATION_COVERAGE, //
 					OPT_WITH_HISTORY, //
 					OPT_TARGET_CLASSES + configuration.getProperty("filter"), //
 					OPT_VALUE_REPORT_DIR, //

@@ -37,7 +37,11 @@ public class MavenPitCommandAndOptions {
 
     public static final String OPT_MUTATION_ENGINE_DEFAULT = "-DmutationEngines=gregor";
 
-    public static final String CMD_PIT_MUTATION_COVERAGE = "org.pitest:pitest-maven:1.3.0:mutationCoverage";
+    public static final String CMD_PIT_MUTATION_COVERAGE = "org.pitest:pitest-maven";
+
+    public static final String PIT_VERSION = "1.3.0";
+
+    public static final String GOAL_PIT_MUTATION_COVERAGE = "mutationCoverage";
 
     public static final String OPT_VALUE_TIMEOUT = "-DtimeoutConst=10000";
 
