@@ -111,7 +111,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 				AssertGeneratorHelper.createTestWithLog(test1,"fr.inria.sample");
 
 		final String expectedMethod = "@org.junit.Test(timeout = 10000)" + nl  +
-				"public void test1_withlog() {" + nl  +
+				"public void test1_withlog() throws java.lang.Exception {" + nl  +
 				"    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl  +
 				"    fr.inria.diversify.compare.ObjectLog.log(cl, \"cl\", \"test1__1\");" + nl  +
 				"    cl.getFalse();" + nl  +
@@ -130,7 +130,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 				AssertGeneratorHelper.createTestWithLog(test1,"fr.inria.sample");
 
 		final String expectedMethodWithLog = "@org.junit.Test(timeout = 10000)" + nl  +
-				"public void test1_withlog() {" + nl  +
+				"public void test1_withlog() throws java.lang.Exception {" + nl  +
 				"    int a = 0;" + nl  +
 				"    int b = 1;" + nl  +
 				"    int o_test1__3 = new java.util.Comparator<java.lang.Integer>() {" + nl  +
@@ -155,7 +155,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 				AssertGeneratorHelper.createTestWithLog(test2,"fr.inria.sample");
 
 		final String expectedMethod = "@org.junit.Test(timeout = 10000)" + nl  +
-				"public void test2_withlog() {" + nl  +
+				"public void test2_withlog() throws java.lang.Exception {" + nl  +
 				"    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl  +
 				"    fr.inria.diversify.compare.ObjectLog.log(cl, \"cl\", \"test2__1\");" + nl  +
 				"    cl.getFalse();" + nl  +

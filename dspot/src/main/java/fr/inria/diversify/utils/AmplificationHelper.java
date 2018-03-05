@@ -184,6 +184,8 @@ public class AmplificationHelper {
 
         cloned_method.addAnnotation(testAnnotation);
 
+        cloned_method.addThrownType(method.getFactory().Type().createReference(Exception.class));
+
         return cloned_method;
     }
 
