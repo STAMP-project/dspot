@@ -35,7 +35,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
-import static org.codehaus.plexus.util.FileUtils.forceDelete;
 
 /**
  * User: Simon
@@ -199,12 +198,10 @@ public class DSpot {
             try {
                 String pathToDotClass = compiler.getBinaryOutputDirectory().getAbsolutePath() + "/" +
                         test.getQualifiedName().replaceAll("\\.", "/") + ".class";
-                forceDelete(pathToDotClass);
+                FileUtils.forceDelete(new File(pathToDotClass));
             } catch (IOException ignored) {
                 //ignored
             }
-//            FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
-//            Initializer.compileTest(this.inputConfiguration);
             writeTimeJson();
             return amplification;
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
