@@ -4,6 +4,9 @@ import fr.inria.diversify.Utils;
 import fr.inria.diversify.dspot.AbstractTest;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
+import fr.inria.stamp.Main;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -19,6 +22,20 @@ import static org.junit.Assert.assertTrue;
  * on 3/4/17
  */
 public class MethodsAssertGeneratorTest extends AbstractTest {
+
+	@Override
+	@Before
+	public void setUp() throws Exception {
+		Main.verbose = true;
+		super.setUp();
+	}
+
+	@Override
+	@After
+	public void tearDown() throws Exception {
+		super.tearDown();
+		Main.verbose = false;
+	}
 
 	@Test
 	public void testOnInfiniteLoop() throws Exception {

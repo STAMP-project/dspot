@@ -16,6 +16,7 @@ import spoon.reflect.code.CtComment;
 import spoon.reflect.declaration.*;
 import spoon.support.reflect.declaration.CtMethodImpl;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,6 +38,10 @@ public class TestCompiler {
 		final String dependencies = inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + System.getProperty("path.separator") +
 				inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir() + System.getProperty("path.separator") +
 				"target/dspot/dependencies/";
+		if (! new File("target/dspot/dependencies/compare").exists()) {
+			DSpotUtils.copyPackageFromResources("fr/inria/diversify/compare/",
+					"MethodsHandler", "ObjectLog", "Observation", "Utils");
+		}
 		final List<CtMethod<?>> uncompilableMethods = TestCompiler.compile(compiler, testClass, dependencies);
 		if (uncompilableMethods.contains(TestCompiler.METHOD_CODE_RETURN)) {
 			return null;
@@ -46,7 +51,7 @@ public class TestCompiler {
 			if (testsToRun.isEmpty()) {
 				return null;
 			}
-			final String classPath = AmplificationHelper.getClassPath(compiler, configuration.getInputProgram());
+			final String classPath = AmplificationHelper.getClassPath(compiler, configuration);
 			return TestLauncher.runFromSpoonNodes(configuration, classPath, testClass, testsToRun);
 		}
 	}

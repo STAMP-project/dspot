@@ -195,8 +195,13 @@ public class DSpot {
                     testSelector.getAmplifiedTestCases().size(), this.inputConfiguration.getOutputDirectory());
             DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory);
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
-            FileUtils.cleanDirectory(compiler.getBinaryOutputDirectory());
-            Initializer.compileTest(this.inputConfiguration);
+            try {
+                String pathToDotClass = compiler.getBinaryOutputDirectory().getAbsolutePath() + "/" +
+                        test.getQualifiedName().replaceAll("\\.", "/") + ".class";
+                FileUtils.forceDelete(new File(pathToDotClass));
+            } catch (IOException ignored) {
+                //ignored
+            }
             writeTimeJson();
             return amplification;
         } catch (IOException | InterruptedException | ClassNotFoundException e) {

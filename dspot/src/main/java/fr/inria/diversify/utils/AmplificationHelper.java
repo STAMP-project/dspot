@@ -1,8 +1,8 @@
 package fr.inria.diversify.utils;
 
 import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.minimization.Minimizer;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
@@ -251,12 +251,13 @@ public class AmplificationHelper {
                 .collect(Collectors.toList());
     }
 
-    public static String getClassPath(DSpotCompiler compiler, InputProgram inputProgram) {
-        String classpath = compiler.getBinaryOutputDirectory().getAbsolutePath();
-        classpath += PATH_SEPARATOR + inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir();
-        classpath += PATH_SEPARATOR + inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir();
-        classpath += PATH_SEPARATOR + compiler.getDependencies();
-        return classpath;
+    public static String getClassPath(DSpotCompiler compiler, InputConfiguration configuration) {
+        return Arrays.stream(new String[] {
+            compiler.getBinaryOutputDirectory().getAbsolutePath(),
+                    configuration.getInputProgram().getProgramDir() + "/" + configuration.getInputProgram().getClassesDir(),
+                    compiler.getDependencies(),
+        }
+        ).collect(Collectors.joining(PATH_SEPARATOR));
     }
 
     //empirically 200 seems to be enough

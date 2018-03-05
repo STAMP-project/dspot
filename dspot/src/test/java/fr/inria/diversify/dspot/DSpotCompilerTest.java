@@ -31,7 +31,11 @@ public class DSpotCompilerTest {
 
     @Before
     public void setUp() throws Exception {
-        FileUtils.forceDelete(new File("target/dspot/tmp_test_sources/"));
+        try {
+            FileUtils.forceDelete(new File("target/dspot/tmp_test_sources/"));
+        } catch (Exception ignored) {
+            //ignored
+        }
     }
 
     @Test

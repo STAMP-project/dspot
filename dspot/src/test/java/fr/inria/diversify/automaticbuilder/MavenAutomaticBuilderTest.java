@@ -146,7 +146,7 @@ public class MavenAutomaticBuilderTest {
         final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertNotNull(pitResults);
-        assertEquals(85, pitResults.size());
+        assertEquals(88, pitResults.size());
 
     }
 }

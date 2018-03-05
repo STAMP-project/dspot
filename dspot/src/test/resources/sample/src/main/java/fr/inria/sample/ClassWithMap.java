@@ -1,7 +1,5 @@
 package fr.inria.sample;
 
-import edu.emory.mathcs.backport.java.util.Collections;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -10,9 +8,9 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * User: Simon
- * Date: 25/11/16
- * Time: 10:55
+ * Created by Benjamin DANGLOT
+ * benjamin.danglot@inria.fr
+ * on 04/03/18.
  */
 public class ClassWithMap {
 
