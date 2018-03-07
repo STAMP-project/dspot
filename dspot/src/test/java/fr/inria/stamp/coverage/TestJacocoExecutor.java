@@ -17,19 +17,8 @@ import static org.junit.Assert.assertTrue;
  */
 public class TestJacocoExecutor {
 
-	@Before
-	public void setUp() throws Exception {
-		Utils.reset();
-	}
-
-	@After
-	public void tearDown() throws Exception {
-		Utils.reset();
-	}
-
 	@Test
 	public void testJacocoExecutorOnJMockit() throws Exception {
-		Utils.reset();
 		Utils.init("src/test/resources/jmockit/mock.properties");
 
 		final CtClass<?> jmockitTest = Utils.findClass("org.baeldung.mocks.jmockit.LoginControllerIntegrationTest");
@@ -43,7 +32,6 @@ public class TestJacocoExecutor {
 
 	@Test
 	public void testJacocoExecutorOnEasyMock() throws Exception {
-		Utils.reset();
 		Utils.init("src/test/resources/easymock/mock.properties");
 
 		final CtClass<?> easyMockTest = Utils.findClass("org.baeldung.mocks.easymock.LoginControllerIntegrationTest");
@@ -57,7 +45,6 @@ public class TestJacocoExecutor {
 
 	@Test
 	public void testJacocoExecutor() throws Exception {
-		Utils.reset();
 		Utils.init("src/test/resources/test-projects/test-projects.properties");
 		final CtClass<?> testClass = Utils.findClass("example.TestSuiteExample");
 		JacocoExecutor jacocoExecutor = new JacocoExecutor(Utils.getInputProgram(), Utils.getInputConfiguration(), testClass);
@@ -73,7 +60,6 @@ public class TestJacocoExecutor {
 	@Test
 	@Ignore
 	public void testJacocoExecutorOnMockito() throws Exception {
-		Utils.reset();
 		Utils.init("src/test/resources/mockito/mockito.properties");
 		final CtClass<?> testClass = Utils.findClass("info.sanaulla.dal.BookDALTest");
 		JacocoExecutor jacocoExecutor = new JacocoExecutor(Utils.getInputProgram(), Utils.getInputConfiguration(), testClass);
@@ -89,7 +75,6 @@ public class TestJacocoExecutor {
 	@Test
 	@Ignore
 	public void testJacocoExecutorOnMockito2() throws Exception {
-		Utils.reset();
 		Utils.init("src/test/resources/mockito2/mock.properties");
 
 		final CtClass<?> mockitoTest = Utils.findClass("org.baeldung.mocks.mockito.LoginControllerIntegrationTest");

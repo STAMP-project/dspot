@@ -1,11 +1,9 @@
 package fr.inria.diversify.dspot;
 
-import fr.inria.diversify.Utils;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
 import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,11 +30,6 @@ public class ProjectJSONTest {
 		} catch (Exception ignored) {
 
 		}
-	}
-
-	@After
-	public void tearDown() throws Exception {
-		Utils.reset();
 	}
 
 	@Test

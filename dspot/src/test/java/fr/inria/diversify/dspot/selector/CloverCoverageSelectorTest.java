@@ -27,7 +27,6 @@ public class CloverCoverageSelectorTest {
             This selector aims at keeping amplified test that execute new lines in the source code.
          */
 
-        Utils.reset();
         Utils.init("src/test/resources/test-projects/test-projects.properties");
         EntryPoint.verbose = true;
 

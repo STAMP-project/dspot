@@ -40,7 +40,6 @@ public class TestLauncherTest {
 
 		}
 
-		Utils.reset();
 		Utils.init("src/test/resources/jmockit/mock.properties");
 
         final String classpath = Utils.getBuilder().buildClasspath(Utils.getInputProgram().getProgramDir())
@@ -70,7 +69,6 @@ public class TestLauncherTest {
 
 		}
 
-		Utils.reset();
 		Utils.init("src/test/resources/easymock/mock.properties");
 		final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration())
 				.buildClasspath(Utils.getInputProgram().getProgramDir())
@@ -100,7 +98,6 @@ public class TestLauncherTest {
 
 		}
 
-		Utils.reset();
 		Utils.init("src/test/resources/mockito/mockito.properties");
 		final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration())
 				.buildClasspath(Utils.getInputProgram().getProgramDir())
@@ -130,7 +127,6 @@ public class TestLauncherTest {
 
 		}
 
-		Utils.reset();
 		Utils.init("src/test/resources/mockito2/mock.properties");
 		final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration())
 				.buildClasspath(Utils.getInputProgram().getProgramDir())
