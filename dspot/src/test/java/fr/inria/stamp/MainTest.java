@@ -230,7 +230,7 @@ public class MainTest {
         assertTrue(new File("target/trash/example/TestSuiteExampleAmpl.java").exists());
         try (BufferedReader reader = new BufferedReader(new FileReader(reportFile))) {
             String content = reader.lines().reduce("", (acc, line) -> acc + line + nl);
-            assertEquals(expectedReportOneClassOneMethod, content);
+            assertEquals(expectedReportOneClassTwoMethods, content);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -241,6 +241,14 @@ public class MainTest {
             "Initial instruction coverage: 33 / 37" + nl +
             "89" + DECIMAL_SEPARATOR + "19%" + nl +
             "Amplification results with 5 amplified tests." + nl +
+            "Amplified instruction coverage: 37 / 37" + nl +
+            "100" + DECIMAL_SEPARATOR + "00%" + nl;
+
+    private static final String expectedReportOneClassTwoMethods = nl +
+            "======= REPORT =======" + nl +
+            "Initial instruction coverage: 33 / 37" + nl +
+            "89" + DECIMAL_SEPARATOR + "19%" + nl +
+            "Amplification results with 9 amplified tests." + nl +
             "Amplified instruction coverage: 37 / 37" + nl +
             "100" + DECIMAL_SEPARATOR + "00%" + nl;
 
