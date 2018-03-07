@@ -42,6 +42,7 @@ public class AssertGenerator {
      * @throws IOException
      * @throws ClassNotFoundException
      */
+    @Deprecated
     public List<CtMethod<?>> generateAsserts(CtType<?> testClass) throws IOException, ClassNotFoundException {
         return generateAsserts(testClass, new ArrayList<>(testClass.getMethods()));
     }
@@ -58,6 +59,9 @@ public class AssertGenerator {
      * @throws ClassNotFoundException
      */
     public List<CtMethod<?>> generateAsserts(CtType<?> testClass, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
+        if (tests.isEmpty()) {
+            return tests;
+        }
         CtType cloneClass = testClass.clone();
         cloneClass.setParent(testClass.getParent());
         List<CtMethod<?>> testsWithoutAssertions = tests.stream()
