@@ -56,6 +56,7 @@ public class AssertionRemover {
                 clone = ((CtUnaryOperator) clone).getOperand();
             }
             if (clone instanceof CtStatement) {
+                clone.getTypeCasts().clear();
                 invocation.insertBefore((CtStatement) clone);
             } else if (! (clone instanceof CtLiteral || clone instanceof CtVariableRead)) {
                 CtTypeReference<?> typeOfParameter = clone.getType();

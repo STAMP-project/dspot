@@ -18,8 +18,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Created by Benjamin DANGLOT
@@ -72,24 +72,20 @@ public class JSAPOptions {
     }
 
     public enum AmplifierEnum {
-        MethodAdd(Collections.singletonList(new TestMethodCallAdder())),
-        MethodRemove(Collections.singletonList(new TestMethodCallRemover())),
-        TestDataMutator(Collections.singletonList(new TestDataMutator())),
-        StatementAdd(Collections.singletonList(new StatementAdd())),
-        StringLiteralAmplifier(Collections.singletonList(new StringLiteralAmplifier())),
-        NumberLiteralAmplifier(Collections.singletonList(new NumberLiteralAmplifier())),
-        BooleanLiteralAmplifier(Collections.singletonList(new BooleanLiteralAmplifier())),
-        CharLiteralAmplifier(Collections.singletonList(new CharLiteralAmplifier())),
-        AllLiteralAmplifiers(Arrays.asList(new StringLiteralAmplifier(),
-                new NumberLiteralAmplifier(),
-                new BooleanLiteralAmplifier(),
-                new CharLiteralAmplifier())
-        ),
+        MethodAdd(new TestMethodCallAdder()),
+        MethodRemove(new TestMethodCallRemover()),
+        TestDataMutator(new TestDataMutator()),
+        StatementAdd(new StatementAdd()),
+        StringLiteralAmplifier(new StringLiteralAmplifier()),
+        NumberLiteralAmplifier(new NumberLiteralAmplifier()),
+        BooleanLiteralAmplifier(new BooleanLiteralAmplifier()),
+        CharLiteralAmplifier(new CharLiteralAmplifier()),
+        AllLiteralAmplifiers(new AllLiteralAmplifiers()),
         None(null);
-        public final List<Amplifier> amplifiers;
+        public final Amplifier amplifier;
 
-        private AmplifierEnum(List<Amplifier> amplifiers) {
-            this.amplifiers = amplifiers;
+        private AmplifierEnum(Amplifier amplifier) {
+            this.amplifier = amplifier;
         }
     }
 
@@ -141,14 +137,14 @@ public class JSAPOptions {
         );
     }
 
-    public static Stream<Amplifier> stringToAmplifier(String amplifier) {
+    public static Amplifier stringToAmplifier(String amplifier) {
         try {
-            return AmplifierEnum.valueOf(amplifier).amplifiers.stream();
+            return AmplifierEnum.valueOf(amplifier).amplifier;
         } catch (IllegalArgumentException e) {
             LOGGER.warn("Wrong values for amplifiers: {} is not recognized", amplifier);
             LOGGER.warn("Possible values are: StringLiteralAmplifier | NumberLiteralAmplifier | CharLiteralAmplifier | BooleanLiteralAmplifier | AllLiteralAmplifiers | MethodAdd | MethodRemove | TestDataMutator | StatementAdd | None");
             LOGGER.warn("No amplifier has been added for {}", amplifier);
-            return Stream.of();
+            return null;
         }
     }
 
@@ -157,7 +153,8 @@ public class JSAPOptions {
             return Collections.emptyList();
         } else {
             return Arrays.stream(amplifiersAsString)
-                    .flatMap(JSAPOptions::stringToAmplifier)
+                    .map(JSAPOptions::stringToAmplifier)
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
         }
     }
@@ -218,15 +215,15 @@ public class JSAPOptions {
         selector.setHelp("[optional] specify the test adequacy criterion to be maximized with amplification");
         selector.setDefault("PitMutantScoreSelector");
 
-        FlaggedOption specificTestCase = new FlaggedOption("test");
-        specificTestCase.setStringParser(JSAP.STRING_PARSER);
-        specificTestCase.setShortFlag('t');
-        specificTestCase.setList(true);
-        specificTestCase.setAllowMultipleDeclarations(false);
-        specificTestCase.setLongFlag("test");
-        specificTestCase.setDefault("all");
-        specificTestCase.setUsageName("my.package.MyClassTest");
-        specificTestCase.setHelp("[optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite. You can also use regex to describe a set of test classes.");
+        FlaggedOption specificTestClass = new FlaggedOption("test");
+        specificTestClass.setStringParser(JSAP.STRING_PARSER);
+        specificTestClass.setShortFlag('t');
+        specificTestClass.setList(true);
+        specificTestClass.setAllowMultipleDeclarations(false);
+        specificTestClass.setLongFlag("test");
+        specificTestClass.setDefault("all");
+        specificTestClass.setUsageName("my.package.MyClassTest");
+        specificTestClass.setHelp("[optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite. You can also use regex to describe a set of test classes.");
 
         FlaggedOption output = new FlaggedOption("output");
         output.setStringParser(JSAP.STRING_PARSER);
@@ -311,7 +308,7 @@ public class JSAPOptions {
             jsap.registerParameter(iteration);
             jsap.registerParameter(selector);
             jsap.registerParameter(maxTestAmplified);
-            jsap.registerParameter(specificTestCase);
+            jsap.registerParameter(specificTestClass);
             jsap.registerParameter(testCases);
             jsap.registerParameter(output);
             jsap.registerParameter(cleanOutput);

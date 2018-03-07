@@ -210,11 +210,45 @@ public class MainTest {
         }
     }
 
+    @Test
+    public void testOneClassTwoMethods() throws Throwable {
+        Main.main(new String[]{
+                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
+                "--test-criterion", "JacocoCoverageSelector",
+                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdd",
+                "--iteration", "1",
+                "--randomSeed", "72",
+                "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
+                "--test", "example.TestSuiteExample",
+                "--cases", "test2" + PATH_SEPARATOR + "test3",
+                "--output-path", "target/trash",
+                "--max-test-amplified", "200"
+        });
+        final File reportFile = new File("target/trash/example.TestSuiteExample_jacoco_instr_coverage_report.txt");
+        assertTrue(reportFile.exists());
+        assertTrue(new File("target/trash/example.TestSuiteExample_jacoco_instr_coverage.json").exists());
+        assertTrue(new File("target/trash/example/TestSuiteExampleAmpl.java").exists());
+        try (BufferedReader reader = new BufferedReader(new FileReader(reportFile))) {
+            String content = reader.lines().reduce("", (acc, line) -> acc + line + nl);
+            assertEquals(expectedReportOneClassTwoMethods, content);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static final String expectedReportOneClassOneMethod = nl +
             "======= REPORT =======" + nl +
             "Initial instruction coverage: 33 / 37" + nl +
             "89" + DECIMAL_SEPARATOR + "19%" + nl +
             "Amplification results with 5 amplified tests." + nl +
+            "Amplified instruction coverage: 37 / 37" + nl +
+            "100" + DECIMAL_SEPARATOR + "00%" + nl;
+
+    private static final String expectedReportOneClassTwoMethods = nl +
+            "======= REPORT =======" + nl +
+            "Initial instruction coverage: 33 / 37" + nl +
+            "89" + DECIMAL_SEPARATOR + "19%" + nl +
+            "Amplification results with 9 amplified tests." + nl +
             "Amplified instruction coverage: 37 / 37" + nl +
             "100" + DECIMAL_SEPARATOR + "00%" + nl;
 
