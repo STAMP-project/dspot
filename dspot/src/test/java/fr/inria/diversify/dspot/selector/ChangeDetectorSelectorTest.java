@@ -12,9 +12,7 @@ import spoon.reflect.declaration.CtType;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
