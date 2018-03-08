@@ -9,7 +9,6 @@ import fr.inria.diversify.utils.Initializer;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.minimization.ChangeMinimizer;
-import fr.inria.stamp.minimization.GeneralMinimizer;
 import fr.inria.stamp.minimization.Minimizer;
 import fr.inria.stamp.test.launcher.TestLauncher;
 import fr.inria.stamp.test.listener.TestListener;
