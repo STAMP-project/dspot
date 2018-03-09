@@ -49,9 +49,8 @@ public class Utils {
 		return builder;
 	}
 
-	@Deprecated
 	public static void reset() {
-
+		currentInputConfigurationLoaded = null;
 	}
 
 	public static void init(String pathToConfFile) {

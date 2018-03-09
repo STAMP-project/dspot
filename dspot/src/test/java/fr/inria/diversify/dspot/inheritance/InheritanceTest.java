@@ -1,11 +1,9 @@
 package fr.inria.diversify.dspot.inheritance;
 
-import fr.inria.diversify.Utils;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
 import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
-import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtType;
 
@@ -20,11 +18,6 @@ import static org.junit.Assert.assertEquals;
  * on 2/6/17
  */
 public class InheritanceTest {
-
-    @Before
-    public void setUp() throws Exception {
-        Utils.reset();
-    }
 
     @Test
     public void testInheritanceMethod() throws Exception {

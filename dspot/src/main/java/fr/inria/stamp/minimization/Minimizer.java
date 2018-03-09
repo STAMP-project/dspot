@@ -12,7 +12,7 @@ public interface Minimizer {
     /**
      * this method aims to remove all useless statement according to a given test criterion
      * @param amplifiedTestToBeMinimized
-     * @return
+     * @return a minimized version of amplifiedTestToBeMinimized
      */
     CtMethod<?> minimize(CtMethod<?> amplifiedTestToBeMinimized);
 

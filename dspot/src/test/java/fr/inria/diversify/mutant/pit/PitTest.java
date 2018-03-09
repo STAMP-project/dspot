@@ -65,6 +65,7 @@ public class PitTest extends MavenAbstractTest {
             Run the PitRunner on the test-project example.
                 Checks that the PitRunner return well the results, and verify state of mutant.
          */
+        Utils.reset();
         AmplificationHelper.setSeedRandom(23L);
         MavenPitCommandAndOptions.descartesMode = false;
         MavenPitCommandAndOptions.evosuiteMode = false;

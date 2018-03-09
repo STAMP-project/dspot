@@ -29,9 +29,4 @@ public abstract class AbstractTest {
         AmplificationHelper.setSeedRandom(72L);
         ValueCreator.count = 0;
     }
-
-    @After
-    public void tearDown() throws Exception {
-        Utils.reset();
-    }
 }

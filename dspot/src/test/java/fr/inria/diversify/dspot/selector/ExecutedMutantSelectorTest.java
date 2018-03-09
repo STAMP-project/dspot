@@ -29,7 +29,6 @@ public class ExecutedMutantSelectorTest {
 
     @Before
     public void setUp() throws Exception {
-        Utils.reset();
         Utils.init("src/test/resources/test-projects/test-projects.properties");
     }
 

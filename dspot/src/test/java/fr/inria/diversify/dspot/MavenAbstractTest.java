@@ -21,7 +21,6 @@ public abstract class MavenAbstractTest {
 
     @Before
     public void setUp() throws Exception {
-        Utils.reset();
         try {
             FileUtils.forceDelete(new File("target/dspot/"));
         } catch (Exception ignored) {

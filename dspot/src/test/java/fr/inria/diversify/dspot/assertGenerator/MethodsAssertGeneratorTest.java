@@ -30,10 +30,8 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
 		super.setUp();
 	}
 
-	@Override
 	@After
 	public void tearDown() throws Exception {
-		super.tearDown();
 		Main.verbose = false;
 	}
 

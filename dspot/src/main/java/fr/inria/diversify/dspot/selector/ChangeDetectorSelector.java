@@ -8,7 +8,7 @@ import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.Initializer;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
-import fr.inria.stamp.minimization.GeneralMinimizer;
+import fr.inria.stamp.minimization.ChangeMinimizer;
 import fr.inria.stamp.minimization.Minimizer;
 import fr.inria.stamp.test.launcher.TestLauncher;
 import fr.inria.stamp.test.listener.TestListener;
@@ -66,7 +66,7 @@ public class ChangeDetectorSelector implements TestSelector {
                                     DSpotUtils.shouldAddSeparator.apply(pathToFolder)
                             : "");
             inputProgram.setProgramDir(this.pathToChangedVersionOfProgram);
-            Initializer.initialize(configuration, inputProgram);
+            Initializer.initialize(inputConfiguration, inputProgram);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -138,7 +138,11 @@ public class ChangeDetectorSelector implements TestSelector {
 
     @Override
     public Minimizer getMinimizer() {
-        return new GeneralMinimizer();
+        return new ChangeMinimizer(this.currentClassTestToBeAmplified,
+                this.configuration, this.program,
+                this.pathToChangedVersionOfProgram,
+                this.failurePerAmplifiedTest
+        );
     }
 
     protected void reset() {

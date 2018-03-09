@@ -51,9 +51,8 @@ public class GeneralMinimizer implements Minimizer {
                 .filter(localVariable ->
                         variableReads.stream()
                                 .map(CtVariableRead::getVariable)
-                                .filter(variableRead ->
-                                        variableRead.equals(localVariable.getReference())
-                                ).count() == 1
+                                .filter(variableRead -> variableRead.equals(localVariable.getReference()))
+                                .count() == 1
                 ).map(localVariable -> {
             variableReads.stream()
                     .filter(variableRead ->
@@ -63,6 +62,7 @@ public class GeneralMinimizer implements Minimizer {
                     .replace(localVariable.getAssignment().clone());
             return localVariable;
         }).forEach(amplifiedTestToBeMinimized.getBody()::removeStatement);
+        //TODO we can inline all local variables that are used only in assertion
     }
 
 }
