@@ -54,6 +54,11 @@ public class Utils {
 	}
 
 	public static void init(String pathToConfFile) {
+		try {
+			FileUtils.forceDelete(new File(inputConfiguration.getOutputDirectory()));
+		} catch (Exception ignored) {
+
+		}
 		if (pathToConfFile.equals(currentInputConfigurationLoaded)) {
 			return;
 		}

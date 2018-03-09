@@ -1,8 +1,10 @@
 package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.Utils;
+import fr.inria.diversify.dspot.Amplification;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.AbstractTest;
+import fr.inria.diversify.utils.DSpotUtils;
 import org.junit.Test;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtClass;
@@ -30,7 +32,7 @@ public class TestMethodCallAdderTest extends AbstractTest {
         CtClass<Object> testClass = Utils.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
 
         TestMethodCallAdder methodCallAdder = new TestMethodCallAdder();
-        methodCallAdder.reset(null);
+        methodCallAdder.reset(testClass);
 
         final CtMethod<?> originalMethod = testClass.getMethods().stream().filter(m -> "testAddCall".equals(m.getSimpleName())).findFirst().get();
         List<CtMethod> amplifiedMethods = methodCallAdder.apply(originalMethod);
@@ -41,7 +43,7 @@ public class TestMethodCallAdderTest extends AbstractTest {
             CtMethod amplifiedMethod = amplifiedMethods.get(i);
             assertEquals(originalMethod.getBody().getStatements().size() + 1, amplifiedMethod.getBody().getStatements().size());
             CtStatement expectedStatement = originalMethod.getBody().getStatements().get(i + 1);//+1 to skip the construction statement.
-            assertEquals("// MethodCallAdder" + nl + expectedStatement.toString(),
+            assertEquals(expectedStatement.toString(),
                     amplifiedMethod.getBody().getStatements().get(i + 1).toString());
             assertEquals(expectedStatement.toString(),
                     amplifiedMethod.getBody().getStatements().get(i + 2).toString());
