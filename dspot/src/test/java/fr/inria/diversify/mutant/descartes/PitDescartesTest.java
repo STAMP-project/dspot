@@ -1,22 +1,18 @@
 package fr.inria.diversify.mutant.descartes;
 
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
-import fr.inria.diversify.dspot.amplifier.StatementAdd;
-import fr.inria.diversify.dspot.amplifier.TestDataMutator;
+import fr.inria.diversify.dspot.amplifier.NumberLiteralAmplifier;
+import fr.inria.diversify.dspot.amplifier.StringLiteralAmplifier;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.selector.PitMutantScoreSelector;
-import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.Main;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtType;
 
 import java.io.*;
 import java.util.Arrays;
@@ -31,41 +27,50 @@ import static org.junit.Assert.*;
  */
 public class PitDescartesTest {
 
-    // TODO implement
-
     @Before
     public void setUp() throws Exception {
         AmplificationHelper.setSeedRandom(23L);
-        FileUtils.deleteDirectory(new File("target/dspot/trash"));
-        FileUtils.deleteDirectory(new File("src/test/resources/descartes/target"));
+        try {
+            FileUtils.deleteDirectory(new File("target/dspot"));
+        } catch (Exception ignored) {
+
+        }
+        try {
+        FileUtils.deleteDirectory(new File("src/test/resources/test-projects/target/"));
+        } catch (Exception ignored) {
+
+        }
         Main.verbose = true;
-        MavenPitCommandAndOptions.descartesMode = false;
+        PitMutantScoreSelector.descartesMode = false;
     }
 
     @Test
-    @Ignore
     public void testPitDescartesMode() throws Exception {
-        assertFalse(MavenPitCommandAndOptions.descartesMode);
-        MavenPitCommandAndOptions.descartesMode = true;
-        InputConfiguration configuration = new InputConfiguration("src/test/resources/descartes/descartes.properties");
+
+        /*
+            weak contract: this test should not throw any exception and end properly
+                the increase of the mutation score and the selection is delegated to dedicated test
+                here we test that the descartes mode runs
+         */
+
+        assertFalse(PitMutantScoreSelector.descartesMode);
+        PitMutantScoreSelector.descartesMode = true;
+        PitMutantScoreSelector.pitVersion = "1.2.0";
+        InputConfiguration configuration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
         DSpot dspot = new DSpot(configuration, 1,
-                new PitMutantScoreSelector("src/test/resources/descartes/mutations.csv"));
-        final CtClass<Object> originalTestClass = dspot.getInputProgram().getFactory().Class().get("fr.inria.stamp.mutationtest.test.TestCalculator");
-        assertEquals(2, originalTestClass.getMethods().size());
-        final CtType ctType = dspot.amplifyTest(
-                "fr.inria.stamp.mutationtest.test.TestCalculator",
-                Collections.singletonList("Integraltypestest")
-        );
-//        assertTrue(originalTestClass.getMethods().size() < ctType.getMethods().size()); // TODO
+                Arrays.asList(new StringLiteralAmplifier(), new NumberLiteralAmplifier()),
+                new PitMutantScoreSelector());
+        dspot.amplifyTest("example.TestSuiteExample", Collections.singletonList("test2"));
         FileUtils.cleanDirectory(new File(configuration.getOutputDirectory()));
-        assertTrue(MavenPitCommandAndOptions.descartesMode);
+        assertTrue(PitMutantScoreSelector.descartesMode);
     }
 
     @After
     public void tearDown() throws Exception {
         AutomaticBuilderFactory.reset();
         Main.verbose = false;
-        MavenPitCommandAndOptions.descartesMode = false;
+        PitMutantScoreSelector.pitVersion = "1.3.0";
+        PitMutantScoreSelector.descartesMode = false;
     }
 }
 
