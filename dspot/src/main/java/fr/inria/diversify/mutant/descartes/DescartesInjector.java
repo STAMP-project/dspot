@@ -1,5 +1,7 @@
 package fr.inria.diversify.mutant.descartes;
 
+import fr.inria.diversify.dspot.selector.PitMutantScoreSelector;
+import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -22,10 +24,7 @@ import java.util.List;
  * benjamin.danglot@inria.fr
  * on 23/03/17
  */
-@Deprecated
 public class DescartesInjector {
-
-    private final static String[] mutators = {"null", "void", "0", "false"};
 
     private static Node getNodeNamedFromOrBuildIfDoesnotExist(Document doc, Node startNode, String name) {
         Node currentNode = DescartesChecker.getNodeNamedFrom(startNode, name);
@@ -49,13 +48,13 @@ public class DescartesInjector {
 
     private static Node buildDependencyToPitTest(Document doc) {
         final Element dependency = doc.createElement("dependency");
-        buildNodesDependency(doc, "org.pitest", "pitest-maven", "1.1.11").forEach(dependency::appendChild);
+        buildNodesDependency(doc, "org.pitest", "pitest-maven", PitMutantScoreSelector.pitVersion).forEach(dependency::appendChild);
         return dependency;
     }
 
     private static Node buildPlugin(Document doc) {
         final Element plugin = doc.createElement("plugin");
-        buildNodesDependency(doc, "org.pitest", "pitest-maven", "1.1.11").forEach(plugin::appendChild);
+        buildNodesDependency(doc, "org.pitest", "pitest-maven", PitMutantScoreSelector.pitVersion).forEach(plugin::appendChild);
         plugin.appendChild(buildConfiguration(doc));
         plugin.appendChild(buildDependencies(doc));
         return plugin;
@@ -63,7 +62,7 @@ public class DescartesInjector {
 
     private static Node buildDependency(Document doc) {
         final Element dependency = doc.createElement("dependency");
-        buildNodesDependency(doc, "fr.inria.stamp", "descartes", "0.1-SNAPSHOT").forEach(dependency::appendChild);
+        buildNodesDependency(doc, "fr.inria.stamp", "descartes", PitMutantScoreSelector.descartesVersion).forEach(dependency::appendChild);
         return dependency;
     }
 
@@ -80,7 +79,7 @@ public class DescartesInjector {
     }
 
     private static List<Node> buildListOfMutators(Document doc) {
-        return Arrays.stream(mutators)
+        return Arrays.stream(MavenPitCommandAndOptions.VALUE_MUTATORS_DESCARTES)
                 .collect(ArrayList<Node>::new,
                         (nodes, name) -> nodes.add(buildMutators(doc, name)),
                         ArrayList<Node>::addAll

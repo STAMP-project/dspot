@@ -1,8 +1,8 @@
 package fr.inria.diversify.dspot.amplifier;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import spoon.reflect.code.CtLiteral;
 
+import java.util.Collections;
 import java.util.Set;
 
 public class BooleanLiteralAmplifier extends AbstractLiteralAmplifier<Boolean> {

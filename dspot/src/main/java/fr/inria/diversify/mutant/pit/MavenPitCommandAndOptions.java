@@ -7,14 +7,6 @@ package fr.inria.diversify.mutant.pit;
  */
 public class MavenPitCommandAndOptions {
 
-    @Deprecated
-    public static boolean descartesMode = false;
-
-    @Deprecated
-    public static boolean evosuiteMode = false;
-
-    public static final String PRE_GOAL_PIT = ""; // TODO those pre-goals are necessary while we do not know how to compile with spoon
-
     public static final String OPT_WITH_HISTORY = "-DwithHistory";
 
     public static final String OPT_VALUE_REPORT_DIR = "-DreportsDirectory=target/pit-reports";
@@ -39,8 +31,6 @@ public class MavenPitCommandAndOptions {
 
     public static final String CMD_PIT_MUTATION_COVERAGE = "org.pitest:pitest-maven";
 
-    public static final String PIT_VERSION = "1.3.0";
-
     public static final String GOAL_PIT_MUTATION_COVERAGE = "mutationCoverage";
 
     public static final String OPT_VALUE_TIMEOUT = "-DtimeoutConst=10000";
@@ -50,18 +40,6 @@ public class MavenPitCommandAndOptions {
     public static final String OPT_MUTATORS = "-Dmutators=";
 
     public static final String VALUE_MUTATORS_ALL = "ALL";
-
-    public static final String[] VALUE_MUTATORS_EVOSUITE = new String[]{
-            "VOID_METHOD_CALLS",
-            "NON_VOID_METHOD_CALLS",
-            "EXPERIMENTAL_MEMBER_VARIABLE",
-            "INCREMENTS",
-            "INVERT_NEGS",
-            "MATH",
-            "NEGATE_CONDITIONALS",
-            "CONDITIONALS_BOUNDARY",
-            "INLINE_CONSTS"
-    };
 
     /**
      * Mutant operator copied from dhell

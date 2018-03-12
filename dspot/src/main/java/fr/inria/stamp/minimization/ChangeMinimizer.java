@@ -1,6 +1,5 @@
 package fr.inria.stamp.minimization;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.utils.AmplificationChecker;
@@ -18,6 +17,7 @@ import spoon.reflect.declaration.CtType;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 

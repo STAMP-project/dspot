@@ -1,7 +1,5 @@
 package fr.inria.diversify.dspot.selector;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
-import edu.emory.mathcs.backport.java.util.Collections;
 import fr.inria.diversify.Utils;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.amplifier.Amplifier;
@@ -10,6 +8,9 @@ import fr.inria.diversify.dspot.amplifier.TestDataMutator;
 import fr.inria.stamp.EntryPoint;
 import org.junit.Test;
 import spoon.reflect.declaration.CtType;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.Assert.assertFalse;
 

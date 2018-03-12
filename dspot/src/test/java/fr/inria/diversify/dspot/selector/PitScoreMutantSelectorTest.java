@@ -53,9 +53,6 @@ public class PitScoreMutantSelectorTest extends MavenAbstractTest {
 
         Main.verbose = true;
 
-        MavenPitCommandAndOptions.evosuiteMode = false;
-        MavenPitCommandAndOptions.descartesMode = false;
-
         List<PitResult> pitResults = PitResultParser.parse(new File("src/test/resources/test-projects/originalpit/mutations.csv"));
         assertTrue(null != pitResults);
 
