@@ -180,9 +180,9 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         StatementAdd | None (default: None)
 
   [(-i|--iteration) <iteration>]
-        [optional] specify the number of amplification iteration. A larger
+        [optional] specify the number of amplification iterations. A larger
         number may help to improve the test criterion (eg a larger number of
-        iterations mah help to kill more mutants). This has an impact on the
+        iterations may help to kill more mutants). This has an impact on the
         execution time: the more iterations, the longer DSpot runs. (default: 3)
 
   [(-s|--test-criterion) <PitMutantScoreSelector | ExecutedMutantSelector | CloverCoverageSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>]
@@ -190,8 +190,8 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         amplification (default: PitMutantScoreSelector)
 
   [(-g|--max-test-amplified) <integer>]
-        [optional] specify the maximum number of amplified test that dspot keep
-        (before generating assertion) (default: 200)
+        [optional] specify the maximum number of amplified tests that dspot
+        keeps (before generating assertion) (default: 200)
 
   [(-t|--test) my.package.MyClassTest1:my.package.MyClassTest2:...:my.package.MyClassTestN ]
         [optional] fully qualified names of test classes to be amplified. If the
@@ -238,7 +238,7 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         run the example of DSpot and leave
 
   [-h|--help]
-        shows this help
+        show this help
 ```
 
 ###### Available Properties
