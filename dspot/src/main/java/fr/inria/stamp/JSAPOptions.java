@@ -161,7 +161,7 @@ public class JSAPOptions {
 
     private static void showUsage() {
         System.err.println();
-        System.err.println("Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar");
+        System.err.println("Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar");
         System.err.println("                          " + options.getUsage());
         System.err.println();
         System.err.println(options.getHelp());

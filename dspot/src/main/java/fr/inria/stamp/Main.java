@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import fr.inria.stamp.diff.SelectorOnDiff;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +17,7 @@ import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
+import spoon.reflect.declaration.CtType;
 
 /**
  * Created by Benjamin DANGLOT benjamin.danglot@inria.fr on 2/9/17
@@ -60,12 +63,14 @@ public class Main {
         createOutputDirectories(inputConfiguration, configuration.clean);
         if ("all".equals(configuration.testClasses.get(0))) {
             amplifyAll(dspot, inputConfiguration);
+        } else if ("diff".equals(configuration.testClasses.get(0))) {
+            amplifyTestClasses(dspot, SelectorOnDiff.findTestClassesAccordingToADiff(inputConfiguration));
         } else {
             configuration.testClasses.forEach(testCase -> {
                 if (!configuration.namesOfTestCases.isEmpty()) {
-                    amplifyOne(dspot, testCase, configuration.namesOfTestCases);
+                    amplifyOneTestClass(dspot, testCase, configuration.namesOfTestCases);
                 } else {
-                    amplifyOne(dspot, testCase, Collections.emptyList());
+                    amplifyOneTestClass(dspot, testCase, Collections.emptyList());
                 }
             });
         }
@@ -90,7 +95,17 @@ public class Main {
         }
     }
 
-    private static void amplifyOne(DSpot dspot, String fullQualifiedNameTestClass, List<String> testCases) {
+    private static void amplifyTestClasses(DSpot dspot, List<CtType> testClasses) {
+        long time = System.currentTimeMillis();
+        try {
+            testClasses.forEach(dspot::amplifyTest);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(System.currentTimeMillis() - time + " ms");
+    }
+
+    private static void amplifyOneTestClass(DSpot dspot, String fullQualifiedNameTestClass, List<String> testCases) {
         long time = System.currentTimeMillis();
         try {
             if (testCases.isEmpty()) {
