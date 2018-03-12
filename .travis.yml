@@ -14,6 +14,7 @@ install:
   - export MAVEN_HOME=`mvn --version | grep 'Maven home' | sed -e 's/Maven h.* //'`
 
 script:
+  - git clone https://github.com/STAMP-project/pitest-descartes && cd pitest-descartes && mvn install -DskipTests && cd ..
   - mvn clean install
   - cd dspot && java -jar target/dspot-$DSPOT_VERSION-jar-with-dependencies.jar --example
 
