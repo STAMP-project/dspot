@@ -4,8 +4,11 @@ import edu.emory.mathcs.backport.java.util.Collections;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.stamp.Main;
 import gumtree.spoon.AstComparator;
 import gumtree.spoon.diff.Diff;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
@@ -27,6 +30,8 @@ import java.util.stream.Collectors;
  */
 public class SelectorOnDiff {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SelectorOnDiff.class);
+
     public static int MAX_NUMBER_TEST_CLASSES = 5;
 
     private static int MAX_NUMBER_TEST_CASES = 20;
@@ -41,6 +46,17 @@ public class SelectorOnDiff {
                 (configuration.getProperties().getProperty("targetModule") != null ?
                         configuration.getProperties().getProperty("targetModule") != null : "");
         // TODO must use the configuration to compute path to src and testSrc, in case of non-standard path
+        if (configuration.getProperties().get("maxSelectedTestClasses") != null) {
+            MAX_NUMBER_TEST_CLASSES = Integer.parseInt(String.valueOf(configuration.getProperties().get("maxSelectedTestClasses")));
+        }
+        if (Main.verbose) {
+            LOGGER.info("Selecting according to a diff between {} and {} ({})",
+                    pathToFirstVersion,
+                    pathToSecondVersion,
+                    baseSha
+            );
+        }
+
         return findTestClassesAccordingToADiff(factory, baseSha,
                 pathToFirstVersion,
                 pathToSecondVersion
@@ -48,9 +64,9 @@ public class SelectorOnDiff {
     }
 
     private static List<CtType> findTestClassesAccordingToADiff(Factory factory,
-                                                                 String baseSha,
-                                                                 String pathToFirstVersion,
-                                                                 String pathToSecondVersion) {
+                                                                String baseSha,
+                                                                String pathToFirstVersion,
+                                                                String pathToSecondVersion) {
         //get the modified methods
         final Set<String> modifiedJavaFiles = pathToModifiedJavaFile(baseSha, pathToSecondVersion);
 
@@ -58,6 +74,7 @@ public class SelectorOnDiff {
         final List<CtType> modifiedTestClasses =
                 getModifiedTestClasses(factory, pathToFirstVersion, pathToSecondVersion, modifiedJavaFiles);
         if (!modifiedTestClasses.isEmpty()) {
+            LOGGER.info("Selection done on modified test classes");
             return reduceIfNeeded(modifiedTestClasses);
         }
         // find all modified methods
@@ -83,7 +100,8 @@ public class SelectorOnDiff {
                 }).stream().map(ctMethod -> ctMethod.getParent(CtType.class))
                 .distinct()
                 .collect(Collectors.toList());
-        if (! testClassesThatContainsTestNamedForModifiedMethod.isEmpty()){
+        if (!testClassesThatContainsTestNamedForModifiedMethod.isEmpty()) {
+            LOGGER.info("Selection done on method name convention");
             return reduceIfNeeded(testClassesThatContainsTestNamedForModifiedMethod);
         }
 
@@ -110,16 +128,22 @@ public class SelectorOnDiff {
         // TODO we may need another way to limit the number of used tests
         // TODO we can use the number of test classes
         // TODO or we could use the number of test cases
+        LOGGER.info("Selection done: using tests that execute modified method");
         return reduceIfNeeded(selectedTestClasses);
     }
 
     private static List<CtType> reduceIfNeeded(List<CtType> selectedTestClasses) {
         if (selectedTestClasses.size() > MAX_NUMBER_TEST_CLASSES) {
             Collections.shuffle(selectedTestClasses, AmplificationHelper.getRandom());
-            return selectedTestClasses.subList(0, MAX_NUMBER_TEST_CLASSES);
-        } else {
-            return selectedTestClasses;
+            selectedTestClasses = selectedTestClasses.subList(0, MAX_NUMBER_TEST_CLASSES);
         }
+        LOGGER.info("{} test classes selected:{}{}",
+                selectedTestClasses.size(),
+                AmplificationHelper.LINE_SEPARATOR,
+                selectedTestClasses.stream().map(CtType::getQualifiedName)
+                        .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR))
+        );
+        return selectedTestClasses;
     }
 
     private static List<CtType> getModifiedTestClasses(Factory factory,
@@ -129,7 +153,7 @@ public class SelectorOnDiff {
         return modifiedJavaFiles.stream()
                 .filter(pathToClass ->
                         new File(pathToFirstVersion + pathToClass.substring(1)).exists() &&
-                        new File(pathToSecondVersion + pathToClass.substring(1)).exists() // it is present in both versions
+                                new File(pathToSecondVersion + pathToClass.substring(1)).exists() // it is present in both versions
                 ).filter(pathToClass -> {
                     final String[] split = pathToClass.split("/");
                     return (split[split.length - 1].split("\\.")[0].endsWith("Test") || // the class in a test class
@@ -140,6 +164,7 @@ public class SelectorOnDiff {
                 .collect(Collectors.toList());
     }
 
+    @SuppressWarnings("unchecked")
     private static Set<CtMethod> getModifiedMethod(String pathFile1, String pathFile2) {
         try {
             final File file1 = new File(pathFile1);
@@ -152,8 +177,9 @@ public class SelectorOnDiff {
                     .stream()
                     .map(operation -> operation.getSrcNode().getParent(CtMethod.class))
                     .collect(Collectors.toSet());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (Exception ignored) {
+            // if something bad happen, we do not care, we go for next file
+            return Collections.emptySet();
         }
     }
 
@@ -177,6 +203,13 @@ public class SelectorOnDiff {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+
+        if (Main.verbose) {
+            LOGGER.info("Modified files:{}{}", AmplificationHelper.LINE_SEPARATOR,
+                    modifiedJavaFiles.stream().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR))
+            );
+        }
+
         return modifiedJavaFiles;
     }
 
