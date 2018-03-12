@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import fr.inria.stamp.diff.SelectorOnDiff;
 import org.apache.commons.io.FileUtils;

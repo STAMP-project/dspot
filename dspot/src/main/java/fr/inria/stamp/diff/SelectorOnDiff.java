@@ -68,6 +68,25 @@ public class SelectorOnDiff {
                                 pathToSecondVersion + s.substring(1)
                         ).stream()
                 ).collect(Collectors.toSet());
+
+        // find test cases that contains the name of the modified methods
+        final List<CtType> testClassesThatContainsTestNamedForModifiedMethod = factory.Package().getRootPackage()
+                .getElements(new TypeFilter<CtMethod>(CtMethod.class) {
+                    @Override
+                    public boolean matches(CtMethod element) {
+                        return AmplificationChecker.isTest(element) &&
+                                modifiedMethods.stream()
+                                        .anyMatch(ctMethod ->
+                                                element.getSimpleName().contains(ctMethod.getSimpleName())
+                                        );
+                    }
+                }).stream().map(ctMethod -> ctMethod.getParent(CtType.class))
+                .distinct()
+                .collect(Collectors.toList());
+        if (! testClassesThatContainsTestNamedForModifiedMethod.isEmpty()){
+            return reduceIfNeeded(testClassesThatContainsTestNamedForModifiedMethod);
+        }
+
         //find all test classes that execute those methods
         final List<CtType> selectedTestClasses = factory.Package().getRootPackage()
                 .getElements(new TypeFilter<CtExecutableReference>(CtExecutableReference.class) {
@@ -139,7 +158,7 @@ public class SelectorOnDiff {
     }
 
     private static Set<String> pathToModifiedJavaFile(String baseSha, String pathToChangedVersion) {
-        Process p = null;
+        Process p;
         try {
             p = Runtime.getRuntime().exec(
                     "git diff " + baseSha,
