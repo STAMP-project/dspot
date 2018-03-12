@@ -161,7 +161,7 @@ public class JSAPOptions {
 
     private static void showUsage() {
         System.err.println();
-        System.err.println("Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar");
+        System.err.println("Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar");
         System.err.println("                          " + options.getUsage());
         System.err.println();
         System.err.println(options.getHelp());
@@ -174,7 +174,7 @@ public class JSAPOptions {
         Switch help = new Switch("help");
         help.setLongFlag("help");
         help.setShortFlag('h');
-        help.setHelp("shows this help");
+        help.setHelp("show this help");
 
         Switch example = new Switch("example");
         example.setLongFlag("example");
@@ -204,7 +204,7 @@ public class JSAPOptions {
         iteration.setShortFlag('i');
         iteration.setLongFlag("iteration");
         iteration.setAllowMultipleDeclarations(false);
-        iteration.setHelp("[optional] specify the number of amplification iteration. A larger number may help to improve the test criterion (eg a larger number of iterations mah help to kill more mutants). This has an impact on the execution time: the more iterations, the longer DSpot runs.");
+        iteration.setHelp("[optional] specify the number of amplification iterations. A larger number may help to improve the test criterion (eg a larger number of iterations may help to kill more mutants). This has an impact on the execution time: the more iterations, the longer DSpot runs.");
 
         FlaggedOption selector = new FlaggedOption("test-criterion");
         selector.setAllowMultipleDeclarations(false);
@@ -294,7 +294,7 @@ public class JSAPOptions {
         maxTestAmplified.setLongFlag("max-test-amplified");
         maxTestAmplified.setShortFlag('g');
         maxTestAmplified.setUsageName("integer");
-        maxTestAmplified.setHelp("[optional] specify the maximum number of amplified test that dspot keep (before generating assertion)");
+        maxTestAmplified.setHelp("[optional] specify the maximum number of amplified tests that dspot keeps (before generating assertion)");
         maxTestAmplified.setDefault("200");
 
         Switch withComment = new Switch("comment");
