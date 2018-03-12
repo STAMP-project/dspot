@@ -52,7 +52,7 @@ public class SelectorOnDiff {
         if (Main.verbose) {
             LOGGER.info("Selecting according to a diff between {} and {} ({})",
                     pathToFirstVersion,
-                    pathToFirstVersion,
+                    pathToSecondVersion,
                     baseSha
             );
         }
@@ -164,6 +164,7 @@ public class SelectorOnDiff {
                 .collect(Collectors.toList());
     }
 
+    @SuppressWarnings("unchecked")
     private static Set<CtMethod> getModifiedMethod(String pathFile1, String pathFile2) {
         try {
             final File file1 = new File(pathFile1);
@@ -176,8 +177,9 @@ public class SelectorOnDiff {
                     .stream()
                     .map(operation -> operation.getSrcNode().getParent(CtMethod.class))
                     .collect(Collectors.toSet());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (Exception ignored) {
+            // if something bad happen, we do not care, we go for next file
+            return Collections.emptySet();
         }
     }
 
