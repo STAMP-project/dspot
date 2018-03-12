@@ -43,32 +43,34 @@ public class PitResultParser {
         try (BufferedReader buffer = new BufferedReader(new FileReader(fileResults))) {
             buffer.lines().forEach(line -> {
                 String[] splittedLines = line.split(",");
-                PitResult.State state;
-                try {
-                    state = PitResult.State.valueOf(splittedLines[5]);
-                } catch (Exception e) {
-                    state = PitResult.State.NO_COVERAGE;
-                }
-                String fullQualifiedNameOfMutatedClass = splittedLines[1];
-                String fullQualifiedNameMutantOperator = splittedLines[2];
-                String fullQualifiedNameMethod;
-                String fullQualifiedNameClass;
-                if ("none".equals(splittedLines[6])) {
-                    fullQualifiedNameMethod = "none";
-                    fullQualifiedNameClass = "none";
-                } else {
-                    final String[] nameOfTheKiller = splittedLines[6].split("\\(");
-                    if (nameOfTheKiller.length > 1) {
-                        fullQualifiedNameMethod = nameOfTheKiller[0];
-                        fullQualifiedNameClass = nameOfTheKiller[1].substring(0, nameOfTheKiller[1].length() - 1);
-                    } else {
-                        fullQualifiedNameMethod = "none";
-                        fullQualifiedNameClass = nameOfTheKiller[0].substring(0, nameOfTheKiller[0].length() / 2);
+                if (splittedLines.length == 7) {
+                    PitResult.State state;
+                    try {
+                        state = PitResult.State.valueOf(splittedLines[5]);
+                    } catch (Exception e) {
+                        state = PitResult.State.NO_COVERAGE;
                     }
+                    String fullQualifiedNameOfMutatedClass = splittedLines[1];
+                    String fullQualifiedNameMutantOperator = splittedLines[2];
+                    String fullQualifiedNameMethod;
+                    String fullQualifiedNameClass;
+                    if ("none".equals(splittedLines[6])) {
+                        fullQualifiedNameMethod = "none";
+                        fullQualifiedNameClass = "none";
+                    } else {
+                        final String[] nameOfTheKiller = splittedLines[6].split("\\(");
+                        if (nameOfTheKiller.length > 1) {
+                            fullQualifiedNameMethod = nameOfTheKiller[0];
+                            fullQualifiedNameClass = nameOfTheKiller[1].substring(0, nameOfTheKiller[1].length() - 1);
+                        } else {
+                            fullQualifiedNameMethod = "none";
+                            fullQualifiedNameClass = nameOfTheKiller[0].substring(0, nameOfTheKiller[0].length() / 2);
+                        }
+                    }
+                    int lineNumber = Integer.parseInt(splittedLines[4]);
+                    String location = splittedLines[3];
+                    results.add(new PitResult(fullQualifiedNameOfMutatedClass, state, fullQualifiedNameMutantOperator, fullQualifiedNameMethod, fullQualifiedNameClass, lineNumber, location));
                 }
-                int lineNumber = Integer.parseInt(splittedLines[4]);
-                String location = splittedLines[3];
-                results.add(new PitResult(fullQualifiedNameOfMutatedClass, state, fullQualifiedNameMutantOperator, fullQualifiedNameMethod, fullQualifiedNameClass, lineNumber, location));
             });
         } catch (Exception e) {
             throw new RuntimeException(e);
