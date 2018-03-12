@@ -1,8 +1,10 @@
 package fr.inria.diversify.automaticbuilder;
 
+import fr.inria.diversify.dspot.selector.PitMutantScoreSelector;
 import fr.inria.diversify.mutant.descartes.DescartesChecker;
 import fr.inria.diversify.mutant.descartes.DescartesInjector;
 import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
+import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.Main;
@@ -33,29 +35,30 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
 	private InputConfiguration configuration;
 
-	@Deprecated
-	private String backUpPom;
-
 	private String mavenHome;
 
 	private String classpath;
+
+	private String contentOfOriginalPom;
 
 	private static final String FILE_SEPARATOR = "/";
 
 	private static final String POM_FILE = "pom.xml";
 
-	MavenAutomaticBuilder(@Deprecated InputConfiguration configuration) {
+	MavenAutomaticBuilder(InputConfiguration configuration) {
 		this.mavenHome = DSpotUtils.buildMavenHome(configuration);
 		this.configuration = configuration;
-		final String pathToPomFile = configuration.getInputProgram().getProgramDir() + FILE_SEPARATOR + POM_FILE;
-		try (final BufferedReader bufferedReader = new BufferedReader(new FileReader(pathToPomFile))) {
-			this.backUpPom = bufferedReader.lines().collect(Collectors.joining(System.getProperty("line.separator")));
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		if (MavenPitCommandAndOptions.descartesMode &&
-				DescartesChecker.shouldInjectDescartes(pathToPomFile)) {
-			DescartesInjector.injectDescartesIntoPom(pathToPomFile);
+		final String pathToPom = this.configuration.getInputProgram().getProgramDir() + "/" + POM_FILE;
+		if (PitMutantScoreSelector.descartesMode &&
+				DescartesChecker.shouldInjectDescartes(pathToPom)) {
+			try (final BufferedReader buffer = new BufferedReader(new FileReader(pathToPom))) {
+				this.contentOfOriginalPom = buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
+			} catch (Exception ignored) {
+
+			}
+			DescartesInjector.injectDescartesIntoPom(pathToPom);
+		} else {
+			this.contentOfOriginalPom = null;
 		}
 	}
 
@@ -95,13 +98,14 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
 	@Override
 	public void reset() {
-		final String pathToPomFile = configuration.getInputProgram().getProgramDir() + FILE_SEPARATOR + POM_FILE;
-		try {
-			final FileWriter writer = new FileWriter(pathToPomFile, false);
-			writer.write(this.backUpPom);
-			writer.close();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+		if (contentOfOriginalPom != null) {
+			final String pathToPom = this.configuration.getInputProgram().getProgramDir() + "/" + POM_FILE;
+			try (FileWriter writer = new FileWriter(pathToPom)) {
+				writer.write(this.contentOfOriginalPom);
+				this.contentOfOriginalPom =  null;
+			} catch (Exception ignored) {
+
+			}
 		}
 	}
 
@@ -115,9 +119,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 		try {
 			String[] phases = new String[]{PRE_GOAL_PIT, //
 					CMD_PIT_MUTATION_COVERAGE + ":" +
-							(configuration.getProperties().get("pitVersion") != null ?
-									configuration.getProperties().get("pitVersion") : PIT_VERSION
-							) + ":" + GOAL_PIT_MUTATION_COVERAGE, //
+							PitMutantScoreSelector.pitVersion + ":" + GOAL_PIT_MUTATION_COVERAGE, //
 					OPT_WITH_HISTORY, //
 					OPT_TARGET_CLASSES + configuration.getProperty("filter"), //
 					OPT_VALUE_REPORT_DIR, //
@@ -128,11 +130,8 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 					OPT_ADDITIONAL_CP_ELEMENTS + "target/dspot/dependencies/" +
 							(configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
 									"," + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) : "") , //
-					descartesMode ? OPT_MUTATION_ENGINE_DESCARTES : OPT_MUTATION_ENGINE_DEFAULT,
-					OPT_MUTATORS + (evosuiteMode ?
-									Arrays.stream(VALUE_MUTATORS_EVOSUITE).collect(Collectors.joining(",")) :
-									descartesMode ? Arrays.stream(VALUE_MUTATORS_DESCARTES).collect(Collectors.joining(",")) :
-								VALUE_MUTATORS_ALL), //
+					PitMutantScoreSelector.descartesMode ? OPT_MUTATION_ENGINE_DESCARTES : OPT_MUTATION_ENGINE_DEFAULT,
+					PitMutantScoreSelector.descartesMode ? "" : OPT_MUTATORS + VALUE_MUTATORS_ALL, //
 					configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) != null ?
 							OPT_EXCLUDED_CLASSES + configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) :
 							""//
@@ -159,21 +158,15 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 		}
 		try {
 			String[] phases = new String[]{PRE_GOAL_PIT, //
-					CMD_PIT_MUTATION_COVERAGE + ":" +
-							(configuration.getProperties().get("pitVersion") != null ?
-									configuration.getProperties().get("pitVersion") : PIT_VERSION
-							) + ":" + GOAL_PIT_MUTATION_COVERAGE, //
+					CMD_PIT_MUTATION_COVERAGE + ":" + PitMutantScoreSelector.pitVersion + ":" + GOAL_PIT_MUTATION_COVERAGE, //
 					OPT_WITH_HISTORY, //
 					OPT_TARGET_CLASSES + configuration.getProperty("filter"), //
 					OPT_VALUE_REPORT_DIR, //
 					OPT_VALUE_FORMAT, //
 					OPT_VALUE_TIMEOUT, //
 					OPT_VALUE_MEMORY, //
-					descartesMode ? OPT_MUTATION_ENGINE_DESCARTES : OPT_MUTATION_ENGINE_DEFAULT,
-					OPT_MUTATORS + (evosuiteMode ?
-							Arrays.stream(VALUE_MUTATORS_EVOSUITE).collect(Collectors.joining(",")) :
-							descartesMode ? Arrays.stream(VALUE_MUTATORS_DESCARTES).collect(Collectors.joining(",")) :
-									VALUE_MUTATORS_ALL), //
+					PitMutantScoreSelector.descartesMode ? OPT_MUTATION_ENGINE_DESCARTES : OPT_MUTATION_ENGINE_DEFAULT,
+					PitMutantScoreSelector.descartesMode? "" : OPT_MUTATORS + VALUE_MUTATORS_ALL, //
 					OPT_ADDITIONAL_CP_ELEMENTS + "target/dspot/dependencies/" +
 							(configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
 									"," + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) : "") , //

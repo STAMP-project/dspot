@@ -33,6 +33,12 @@ import java.util.stream.Collectors;
  */
 public class PitMutantScoreSelector extends TakeAllSelector {
 
+    public static String pitVersion = "1.3.0";
+
+    public static String descartesVersion = "0.2-SNAPSHOT";
+
+    public static boolean descartesMode = false;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PitMutantScoreSelector.class);
 
     private int numberOfMutant;
@@ -55,6 +61,11 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     @Override
     public void init(InputConfiguration configuration) {
         super.init(configuration);
+        if (configuration.getProperties().get("pitVersion") != null) {
+            pitVersion = (String) configuration.getProperties().get("pitVersion");
+        } else if (descartesMode) {
+            pitVersion = "1.2.0";
+        }
         if (this.originalKilledMutants == null) {
             final AutomaticBuilder automaticBuilder = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration);
             automaticBuilder.runPit(this.program.getProgramDir());

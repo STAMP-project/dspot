@@ -1,5 +1,6 @@
 package fr.inria.diversify.mutant.descartes;
 
+import fr.inria.diversify.dspot.selector.PitMutantScoreSelector;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -15,7 +16,6 @@ import java.util.*;
  * benjamin.danglot@inria.fr
  * on 24/03/17
  */
-@Deprecated
 public class DescartesChecker {
 
     public static boolean shouldInjectDescartes(String pathToPom) {
@@ -43,7 +43,7 @@ public class DescartesChecker {
         if (dependencies == null) {
             return true;
         }
-        final List<String> expectedValues = new ArrayList<>(Arrays.asList("org.pitest", "pitest-maven", "1.1.11"));
+        final List<String> expectedValues = new ArrayList<>(Arrays.asList("org.pitest", "pitest-maven", PitMutantScoreSelector.pitVersion));
         Optional<Node> checkDependency = getAllChildNodeNamedFrom(dependencies, "dependency").stream()
                 .filter(dependency ->
                         checkThatHasTheGoodDependency(dependency, expectedValues)
@@ -95,7 +95,7 @@ public class DescartesChecker {
         if (plugins == null) {
             return null;
         }
-        final List<String> expectedValues = new ArrayList<>(Arrays.asList("org.pitest", "pitest-maven", "1.1.11"));
+        final List<String> expectedValues = new ArrayList<>(Arrays.asList("org.pitest", "pitest-maven", PitMutantScoreSelector.pitVersion));
         Optional<Node> checkDependency = getChildThatHasTheGoodDependency(plugins, expectedValues, "plugin");
         if (!checkDependency.isPresent()) {
             return null;
@@ -109,7 +109,7 @@ public class DescartesChecker {
                     .filter(plugin ->
                             checkThatHasTheGoodDependency(plugin, expectedValues)
                     )
-                    .findFirst();
+                .findFirst();
     }
 
     private static boolean checkPlugin(Node root) {
@@ -134,7 +134,7 @@ public class DescartesChecker {
             return true;
         }
 
-        final List<String> expectedValues = new ArrayList<>(Arrays.asList("fr.inria.stamp", "descartes", "0.1-SNAPSHOT"));
+        final List<String> expectedValues = new ArrayList<>(Arrays.asList("fr.inria.stamp", "descartes", PitMutantScoreSelector.descartesVersion));
         return !getChildThatHasTheGoodDependency(dependencies1, expectedValues, "dependency").isPresent();
     }
 
