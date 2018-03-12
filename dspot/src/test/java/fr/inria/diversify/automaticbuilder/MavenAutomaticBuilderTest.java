@@ -30,8 +30,6 @@ public class MavenAutomaticBuilderTest {
     @Before
     public void setUp() throws Exception {
         Main.verbose = true;
-        MavenPitCommandAndOptions.evosuiteMode = false;
-        MavenPitCommandAndOptions.descartesMode = false;
     }
 
     @After
