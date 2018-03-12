@@ -118,6 +118,8 @@ public class JSAPOptions {
             testCriterion = SelectorEnum.valueOf(jsapConfig.getString("test-criterion")).buildSelector();
         }
 
+        PitMutantScoreSelector.descartesMode = jsapConfig.getBoolean("descartes");
+
         TestRunnerFactory.useReflectiveTestRunner = false;
         DSpotUtils.withComment = jsapConfig.getBoolean("comment");
 
@@ -233,7 +235,6 @@ public class JSAPOptions {
         output.setHelp("[optional] specify the output folder (default: dspot-report)");
 
         Switch cleanOutput = new Switch("clean");
-        cleanOutput.setShortFlag('q');
         cleanOutput.setLongFlag("clean");
         cleanOutput.setHelp("[optional] if enabled, DSpot will remove the out directory if exists, else it will append the results to the exist files. (default: off)");
 
@@ -256,7 +257,6 @@ public class JSAPOptions {
         FlaggedOption seed = new FlaggedOption("seed");
         seed.setStringParser(JSAP.LONG_PARSER);
         seed.setLongFlag("randomSeed");
-        seed.setShortFlag('r');
         seed.setUsageName("long integer");
         seed.setHelp("specify a seed for the random object (used for all randomized operation)");
         seed.setDefault("23");
@@ -264,7 +264,6 @@ public class JSAPOptions {
         FlaggedOption timeOut = new FlaggedOption("timeOut");
         timeOut.setStringParser(JSAP.INTEGER_PARSER);
         timeOut.setLongFlag("timeOut");
-        timeOut.setShortFlag('v');
         timeOut.setUsageName("long integer");
         timeOut.setHelp("specify the timeout value of the degenerated tests in millisecond");
         timeOut.setDefault("10000");
@@ -272,7 +271,6 @@ public class JSAPOptions {
         FlaggedOption automaticBuilder = new FlaggedOption("builder");
         automaticBuilder.setStringParser(JSAP.STRING_PARSER);
         automaticBuilder.setLongFlag("automatic-builder");
-        automaticBuilder.setShortFlag('b');
         automaticBuilder.setUsageName("MavenBuilder | GradleBuilder");
         automaticBuilder.setHelp("[optional] specify the automatic builder to build the project");
         automaticBuilder.setDefault("MavenBuilder");
@@ -280,7 +278,6 @@ public class JSAPOptions {
         FlaggedOption mavenHome = new FlaggedOption("mavenHome");
         mavenHome.setStringParser(JSAP.STRING_PARSER);
         mavenHome.setLongFlag("maven-home");
-        mavenHome.setShortFlag('j');
         mavenHome.setUsageName("path to maven home");
         mavenHome.setHelp("specify the path to the maven home");
 
@@ -292,7 +289,6 @@ public class JSAPOptions {
         FlaggedOption maxTestAmplified = new FlaggedOption("maxTestAmplified");
         maxTestAmplified.setStringParser(JSAP.INTEGER_PARSER);
         maxTestAmplified.setLongFlag("max-test-amplified");
-        maxTestAmplified.setShortFlag('g');
         maxTestAmplified.setUsageName("integer");
         maxTestAmplified.setHelp("[optional] specify the maximum number of amplified test that dspot keep (before generating assertion)");
         maxTestAmplified.setDefault("200");
@@ -301,6 +297,11 @@ public class JSAPOptions {
         withComment.setLongFlag("with-comment");
         withComment.setDefault("false");
         withComment.setHelp("Enable comment on amplified test: details steps of the Amplification.");
+
+        Switch descartes = new Switch("descartes");
+        descartes.setLongFlag("descartes");
+        descartes.setDefault("false");
+        descartes.setHelp("Enable the descartes engine for Pit Mutant Score Selector.");
 
         try {
             jsap.registerParameter(pathToConfigFile);
@@ -313,6 +314,7 @@ public class JSAPOptions {
             jsap.registerParameter(output);
             jsap.registerParameter(cleanOutput);
             jsap.registerParameter(mutantScore);
+            jsap.registerParameter(descartes);
             jsap.registerParameter(automaticBuilder);
             jsap.registerParameter(mavenHome);
             jsap.registerParameter(seed);
