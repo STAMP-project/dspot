@@ -165,8 +165,8 @@ java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main -p path/To
 
 ### Command Line Usage
 ```
-Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
-                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | ExecutedMutantSelector | CloverCoverageSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [(-g|--max-test-amplified) <integer>] [-d|--descartes] [-k|--evosuite] [(-t|--test) my.package.MyClassTest1:my.package.MyClassTest2:...:my.package.MyClassTestN ] [(-c|--cases) testCases1:testCases2:...:testCasesN ] [(-o|--output-path) <output>] [-q|--clean] [(-m|--path-pit-result) <./path/to/mutations.csv>] [(-b|--automatic-builder) <MavenBuilder | GradleBuilder>] [(-j|--maven-home) <path to maven home>] [(-r|--randomSeed) <long integer>] [(-v|--timeOut) <long integer>] [--verbose] [-e|--example] [-h|--help]
+Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
+                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | ExecutedMutantSelector | CloverCoverageSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [(-g|--max-test-amplified) <integer>] [(-t|--test) my.package.MyClassTest1:my.package.MyClassTest2:...:my.package.MyClassTestN ] [(-c|--cases) testCases1:testCases2:...:testCasesN ] [(-o|--output-path) <output>] [-q|--clean] [(-m|--path-pit-result) <./path/to/mutations.csv>] [(-b|--automatic-builder) <MavenBuilder | GradleBuilder>] [(-j|--maven-home) <path to maven home>] [(-r|--randomSeed) <long integer>] [(-v|--timeOut) <long integer>] [--verbose] [--with-comment] [-e|--example] [-h|--help]
 
   [(-p|--path-to-properties) <./path/to/myproject.properties>]
         [mandatory] specify the path to the configuration file (format Java
@@ -176,21 +176,21 @@ Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
         [optional] specify the list of amplifiers to use. Default with all
         available amplifiers. Possible values: StringLiteralAmplifier |
         NumberLiteralAmplifier | CharLiteralAmplifier | BooleanLiteralAmplifier
-        | AllLiteralAmplifier | MethodAdd | MethodRemove | TestDataMutator |
+        | AllLiteralAmplifiers | MethodAdd | MethodRemove | TestDataMutator |
         StatementAdd | None (default: None)
 
   [(-i|--iteration) <iteration>]
-        [optional] specify the number of amplification iterations. A larger
+        [optional] specify the number of amplification iteration. A larger
         number may help to improve the test criterion (eg a larger number of
-        iterations may help to kill more mutants). This has an impact on the
+        iterations mah help to kill more mutants). This has an impact on the
         execution time: the more iterations, the longer DSpot runs. (default: 3)
 
-  [(-s|--test-criterion) <PitMutantScoreSelector | ExecutedMutantSelector | CloverCoverageSelector | BranchCoverageTestSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>]
+  [(-s|--test-criterion) <PitMutantScoreSelector | ExecutedMutantSelector | CloverCoverageSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>]
         [optional] specify the test adequacy criterion to be maximized with
         amplification (default: PitMutantScoreSelector)
 
   [(-g|--max-test-amplified) <integer>]
-        [optional] specify the maximum number of amplified tests that dspot keeps
+        [optional] specify the maximum number of amplified test that dspot keep
         (before generating assertion) (default: 200)
 
   [(-t|--test) my.package.MyClassTest1:my.package.MyClassTest2:...:my.package.MyClassTestN ]
@@ -229,12 +229,16 @@ Usage: java -jar target/dspot-1.0.0-jar-with-dependencies.jar
         (default: 10000)
 
   [--verbose]
+        Enable verbose mode of DSpot.
+
+  [--with-comment]
+        Enable comment on amplified test: details steps of the Amplification.
 
   [-e|--example]
         run the example of DSpot and leave
 
   [-h|--help]
-        show this help
+        shows this help
 ```
 
 ###### Available Properties
@@ -337,7 +341,22 @@ Following the list of avalaible test selector:
    * `ExecutedMutantSelector`: uses [**PIT**](http://pitest.org/) to computes the number of executed mutants. It uses the number of mutants as a proxy for the instruction coverage. It selects amplfied test that execute new mutants. **WARNING!!** this selector takes a lot of time, and is not worth it, please look at CloverCoverageSelector or JacocoCoverageSelector.
    * `TakeAllSelector`: keeps all amplified tests not matter the quality.
    * `ChangeDetectorSelector`: runs against a second version of the same program, and selects amplified tests that fail. This selector selects only amplified test that are able to show a difference of a behavior betweeen two versions of the same program.
-   
+
+#### Selector on Diff from GitHub
+
+**DSpot** can perform amplification according to a diff, from github. This is useful to enhance existing test suite on pull request for instance.
+
+**DSpot** will select existing test classes according to a diff as follow:
+
+1. If any test class has been modified between the two versions, **DSpot** selects them.
+2. If there is not, **DSpot** analyzes statical the test suite and selects test classes that invoke modified methods. The maximum number of selected test classes is the value of `fr.inria.stamp.diff.SelectorOnDiff.MAX_NUMBER_TEST_CLASSES`, randomly.
+
+The requirements this feature is the following:
+
+1. You must enable the mode by giving `diff` as value of the flag --test (-t), _i.e._ `--test diff`
+2. You must have specify baseSha, on which **DSpot** must compute the diff. **DSpot** executes: `git diff <baseSha>` to find which java file has been modified. To do this, you must specify the sha in the property file, by setting the property: `baseSha`, _e.g._ `baseSha=97393d96ea58110785e342fade2e054925c608ad`
+3. You must have locally both version of the program. One that you want to use amplify, and the other on which you want to compute the diff. The first is specified using the property `project` as explained in a classical way to amplify. The second is specified using the property `folderPath`.
+
 ### Licence
 
 DSpot is published under LGPL-3.0 (see [Licence.md](https://github.com/STAMP-project/dspot/blob/master/Licence.md) for 
