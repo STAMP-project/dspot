@@ -263,14 +263,19 @@ public class AmplificationHelper {
     //empirically 200 seems to be enough
     public static int MAX_NUMBER_OF_TESTS = 200;
 
-    // this methods aims at reducing the number of amplified test.
-    // we seek diversity in this method
-    // to approximate diversity, we use the textual representation of amplified tests
-    // since all the amplified tests came from the same original-manuel test case
-    // they have a "lot" of common
-    // we use the sum of the bytes return by the getBytes() method of the string representing amplified test
-    // then compute the standard deviation on this sum
-    // and keep only amplified test that have this value greater or equal of the std deviation
+    /**
+     * Reduces the number of amplified tests to a practical threshold (see {@link #MAX_NUMBER_OF_TESTS}).
+     *
+     * The reduction aims at keeping a maximum of diversity.
+     *
+     * Diversity is measured with the textual representation of amplified tests. Since all the amplified tests come from
+     * the same original test, they have a <em>lot</em> in common. We use the sum of the bytes returned by the
+     * {@link String#getBytes()} method and then compute the standard deviation on this sum. We only keep amplified
+     * tests with a byte sum greater or equal to this standard deviation.
+     *
+     * @param tests List of tests to be reduced
+     * @return A subset of the input tests
+     */
     public static List<CtMethod<?>> reduce(List<CtMethod<?>> tests) {
         final List<CtMethod<?>> reducedTests = new ArrayList<>();
         if (tests.size() > MAX_NUMBER_OF_TESTS) {
