@@ -2,13 +2,16 @@ package fr.inria.stamp.demo.json;
 
 public class DataJSON {
 
-    public final int nbMutantKilled;
-    public final int nbAssertionsAdded;
-    public final int nbTests;
+    public final long nbMutantCovered;
+    public final long nbMutantKilled;
+    public final long nbTests;
+    public final long nbAssertionsAdded;
 
-    public DataJSON(int nbMutantKilled, int nbAssertionsAdded, int nbTests) {
+    public DataJSON(long nbMutantCovered, long nbMutantKilled, long nbTests, long nbAssertionsAdded) {
+        this.nbMutantCovered = nbMutantCovered;
         this.nbMutantKilled = nbMutantKilled;
-        this.nbAssertionsAdded = nbAssertionsAdded;
         this.nbTests = nbTests;
+        this.nbAssertionsAdded = nbAssertionsAdded;
+
     }
 }

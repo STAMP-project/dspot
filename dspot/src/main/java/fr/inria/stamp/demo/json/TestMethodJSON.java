@@ -1,5 +1,6 @@
 package fr.inria.stamp.demo.json;
 
+@Deprecated
 public class TestMethodJSON {
 
     public final String clazz;
