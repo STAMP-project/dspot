@@ -1,5 +1,6 @@
 package fr.inria.stamp.demo.json;
 
+@Deprecated
 public class DemoDataJSON {
 
     public final String project_name;
