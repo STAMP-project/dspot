@@ -15,6 +15,7 @@ import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.stamp.demo.DemoCounter;
 import fr.inria.stamp.minimization.Minimizer;
 import fr.inria.stamp.minimization.PitMutantMinimizer;
 import org.slf4j.Logger;
@@ -169,6 +170,13 @@ public class PitMutantScoreSelector extends TakeAllSelector {
 
     @Override
     public void report() {
+        // TODO INSTRUMENTATION FOR DSPOT DEMO
+        final List<CtMethod<?>> amplifiedTestMethods = new ArrayList<>(this.testThatKilledMutants.keySet());
+        DemoCounter.count(this.originalKilledMutants,
+                this.configuration,
+                this.currentClassTestToBeAmplified,
+                amplifiedTestMethods
+        );
         reportStdout();
         reportJSONMutants();
         //clean up for the next class
