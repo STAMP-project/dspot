@@ -1,5 +1,6 @@
 package fr.inria.stamp.demo.json;
 
+@Deprecated
 public class ConfigurationJSON {
 
     public final int number_generated_tests;
