@@ -32,11 +32,11 @@ public class PitMutantMinimizer extends GeneralMinimizer {
 
     private final InputConfiguration configuration;
     private CtType<?> testClass;
-    private Map<CtMethod, Set<PitResult>> testThatKilledMutants;
+    private Map<CtMethod<?>, Set<PitResult>> testThatKilledMutants;
 
     public PitMutantMinimizer(CtType<?> testClass,
                               InputConfiguration configuration,
-                              Map<CtMethod, Set<PitResult>> testThatKilledMutants) {
+                              Map<CtMethod<?>, Set<PitResult>> testThatKilledMutants) {
         this.testThatKilledMutants = testThatKilledMutants;
         this.testClass = testClass;
         this.configuration = configuration;

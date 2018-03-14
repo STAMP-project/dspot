@@ -40,7 +40,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
 
     private List<PitResult> originalKilledMutants;
 
-    private Map<CtMethod, Set<PitResult>> testThatKilledMutants;
+    private Map<CtMethod<?>, Set<PitResult>> testThatKilledMutants;
 
     private List<PitResult> mutantNotTestedByOriginal;
 
@@ -171,9 +171,9 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     @Override
     public void report() {
         // TODO INSTRUMENTATION FOR DSPOT DEMO
-        final List<CtMethod<?>> amplifiedTestMethods = new ArrayList<>(this.testThatKilledMutants.keySet());
-        DemoCounter.count(this.originalKilledMutants,
-                this.configuration,
+        final Set<CtMethod<?>> ctMethods = this.testThatKilledMutants.keySet();
+        final List<CtMethod<?>> amplifiedTestMethods = new ArrayList<>(ctMethods);
+        DemoCounter.count(this.configuration,
                 this.currentClassTestToBeAmplified,
                 amplifiedTestMethods
         );

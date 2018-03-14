@@ -22,19 +22,28 @@ import spoon.reflect.visitor.filter.TypeFilter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class DemoCounter {
 
+    @Deprecated
     public static final int MAX_NUMBER_OF_ADDED_TEST = 20;
 
-    public static final int MAX_NUMBER_OF_ASSERTIONS = 5;
+    @Deprecated
+    public static final int MAX_NUMBER_OF_ASSERTIONS = 10;
+    public static final TypeFilter<CtInvocation> ASSERTIONS_FILTER = new TypeFilter<CtInvocation>(CtInvocation.class) {
+        @Override
+        public boolean matches(CtInvocation element) {
+            return AmplificationChecker.isAssert(element);
+        }
+    };
 
-    public static void count(List<PitResult> originalMutationAnalysis,
-                             InputConfiguration configuration,
+    public static void count(InputConfiguration configuration,
                              CtType<?> testClass,
                              List<CtMethod<?>> amplifiedTestMethods) {
+        final List<PitResult> originalMutationAnalysis = runPit(configuration, testClass);
         final long originalNbMutantSurvived = getNumberOfGivenState(originalMutationAnalysis, PitResult.State.SURVIVED);
         final long originalNbMutantKilled = getNumberOfGivenState(originalMutationAnalysis, PitResult.State.KILLED);
         final TestClassDataJSON testClassDataJSON = new TestClassDataJSON(
@@ -42,14 +51,20 @@ public class DemoCounter {
                 originalNbMutantSurvived + originalNbMutantKilled,
                 originalNbMutantKilled
         );
-        for (int i = 0; i < MAX_NUMBER_OF_ADDED_TEST; i++) {
+
+        final Integer maxNumberofAssertions = amplifiedTestMethods.stream()
+                .map(ctMethod -> ctMethod.getElements(ASSERTIONS_FILTER).size())
+                .max(Comparator.naturalOrder())
+                .get();
+
+        for (int i = 1; i < amplifiedTestMethods.size() ; i++) {
             // prepare new test class to be run
             final List<CtMethod<?>> subListOfAmplifiedTests =
                     amplifiedTestMethods.subList(1, i)
                             .stream()
                             .map(CtMethod::clone)
                             .collect(Collectors.toList());
-            for (int a = 0; a < MAX_NUMBER_OF_ASSERTIONS; a++) {
+            for (int a = 0; a < maxNumberofAssertions; a++) {
                 reduceAssertions(subListOfAmplifiedTests, a);
                 CtType clone = testClass.clone();
                 clone.setParent(testClass.getParent());
@@ -57,11 +72,11 @@ public class DemoCounter {
                 final List<PitResult> pitResults = runPit(configuration, clone);
                 final long nbMutantSurvived = getNumberOfGivenState(pitResults, PitResult.State.SURVIVED);
                 final long nbMutantKilled = getNumberOfGivenState(pitResults, PitResult.State.KILLED);
-                testClassDataJSON.data.add(new DataJSON(nbMutantSurvived + nbMutantKilled, nbMutantKilled,i,a));
+                testClassDataJSON.data.add(new DataJSON(nbMutantSurvived + nbMutantKilled, nbMutantKilled, i, a));
             }
         }
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        final File file = new File(configuration.getOutputDirectory() + "/"  + testClass.getQualifiedName() + ".json");
+        final File file = new File(configuration.getOutputDirectory() + "/" + testClass.getQualifiedName() + ".json");
         try (FileWriter writer = new FileWriter(file, false)) {
             writer.write(gson.toJson(testClassDataJSON));
         } catch (IOException e) {
@@ -76,13 +91,8 @@ public class DemoCounter {
     private static void reduceAssertions(List<CtMethod<?>> subListOfAmplifiedTests, int a) {
         for (CtMethod<?> subListOfAmplifiedTest : subListOfAmplifiedTests) {
             final List<CtInvocation> assertions =
-                    subListOfAmplifiedTest.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
-                        @Override
-                        public boolean matches(CtInvocation element) {
-                            return AmplificationChecker.isAssert(element);
-                        }
-                    });
-            final List<CtInvocation> assertionsToKeep = assertions.subList(0, a);
+                    subListOfAmplifiedTest.getElements(ASSERTIONS_FILTER);
+            final List<CtInvocation> assertionsToKeep = assertions.subList(0, Math.min(a, assertions.size()));
             assertions.stream()
                     .filter(assertion -> !assertionsToKeep.contains(assertion))
                     .forEach(subListOfAmplifiedTest.getBody()::removeStatement);
