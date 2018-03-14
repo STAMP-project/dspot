@@ -4,7 +4,6 @@ package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
-import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.utils.DSpotUtils;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
@@ -79,7 +78,7 @@ public class TestDataMutator implements Amplifier {
 
 	private CtMethod createNumberMutant(CtMethod method, int original_lit_index, Number newValue) {
 		//clone the method
-		CtMethod cloned_method = AmplificationHelper.cloneMethodTest(method, "_literalMutationNumber");
+		CtMethod cloned_method = AmplificationHelper.cloneMethodTestIAmp(method, "_literalMutationNumber");
 		//get the lit_indexth literal of the cloned method
 		CtLiteral newLiteral = Query.getElements(cloned_method.getBody(), new LiteralToBeMutedFilter())
 				.get(original_lit_index);
@@ -106,7 +105,6 @@ public class TestDataMutator implements Amplifier {
 			}
 		}
 		toReplace.replace(newLiteral);
-		Counter.updateInputOf(cloned_method, 1);
 		DSpotUtils.addComment(toReplace, "TestDataMutator on numbers", CtComment.CommentType.INLINE);
 		return cloned_method;
 	}
@@ -125,8 +123,7 @@ public class TestDataMutator implements Amplifier {
 	}
 
 	private CtMethod createStringMutant(CtMethod method, int original_lit_index, String newValue) {
-		CtMethod cloned_method = AmplificationHelper.cloneMethodTest(method, "_literalMutationString");
-		Counter.updateInputOf(cloned_method, 1);
+		CtMethod cloned_method = AmplificationHelper.cloneMethodTestIAmp(method, "_literalMutationString");
 		CtLiteral toReplace = Query.getElements(cloned_method.getBody(), new LiteralToBeMutedFilter())
 				.get(original_lit_index);
 		toReplace.replace(cloned_method.getFactory().Code().createLiteral(newValue));
@@ -141,8 +138,7 @@ public class TestDataMutator implements Amplifier {
 	}
 
 	private CtMethod createCharacterMutant(CtMethod method, int original_lit_index, Character newValue) {
-		CtMethod cloned_method = AmplificationHelper.cloneMethodTest(method, "_literalMutationChar");
-		Counter.updateInputOf(cloned_method, 1);
+		CtMethod cloned_method = AmplificationHelper.cloneMethodTestIAmp(method, "_literalMutationChar");
 		CtLiteral toReplace = Query.getElements(cloned_method.getBody(), new LiteralToBeMutedFilter())
 				.get(original_lit_index);
 		toReplace.replace(cloned_method.getFactory().Code().createLiteral(newValue));
@@ -210,7 +206,7 @@ public class TestDataMutator implements Amplifier {
 
 	private CtMethod createBooleanMutant(CtMethod test, CtLiteral booleanLiteral) {
 		Boolean value = (Boolean) booleanLiteral.getValue();
-		CtMethod cloned_method = AmplificationHelper.cloneMethodTest(test, "_literalMutationBoolean");
+		CtMethod cloned_method = AmplificationHelper.cloneMethodTestIAmp(test, "_literalMutationBoolean");
 		CtLiteral newValue = cloned_method.getElements(new TypeFilter<CtLiteral>(CtLiteral.class) {
 			@Override
 			public boolean matches(CtLiteral element) {
@@ -219,7 +215,6 @@ public class TestDataMutator implements Amplifier {
 		}).get(0);
 		newValue.setValue(!value);
 		newValue.setTypeCasts(booleanLiteral.getTypeCasts());
-		Counter.updateInputOf(cloned_method, 1);
 		DSpotUtils.addComment(newValue, "TestDataMutator on boolean", CtComment.CommentType.INLINE);
 		return cloned_method;
 	}

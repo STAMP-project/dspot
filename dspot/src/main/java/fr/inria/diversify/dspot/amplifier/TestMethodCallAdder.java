@@ -2,7 +2,6 @@ package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
-import fr.inria.diversify.dspot.support.Counter;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
@@ -47,7 +46,7 @@ public class TestMethodCallAdder implements Amplifier {
     }
 
     private CtMethod apply(CtMethod method, int invocation_index) {
-        CtMethod<?> cloned_method = AmplificationHelper.cloneMethodTest(method, "_add");
+        CtMethod<?> cloned_method = AmplificationHelper.cloneMethodTestIAmp(method, "_add");
         //add the cloned method in the same class as the original method
         //get the lit_indexth literal of the cloned method
         CtInvocation stmt = Query.getElements(cloned_method, new TypeFilter<>(CtInvocation.class)).get(invocation_index);
@@ -55,7 +54,6 @@ public class TestMethodCallAdder implements Amplifier {
         final CtStatement parent = getParent(stmt);
         parent.insertBefore(cloneStmt);
         cloneStmt.setParent(parent.getParent(CtBlock.class));
-        Counter.updateInputOf(cloned_method, 1);
 //        DSpotUtils.addComment(cloneStmt, "MethodCallAdder", CtComment.CommentType.INLINE);
         return cloned_method;
     }

@@ -2,6 +2,7 @@ package fr.inria.diversify.utils;
 
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.stamp.minimization.Minimizer;
+import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Description;
@@ -172,7 +173,7 @@ public class AmplificationHelper {
         return cloned_method;
     }
 
-    public static CtMethod cloneMethodTest(CtMethod method, String suffix) {
+    private static CtMethod cloneMethodTest(CtMethod method, String suffix) {
         CtMethod cloned_method = cloneMethod(method, suffix);
         CtAnnotation testAnnotation = cloned_method.getAnnotations().stream()
                 .filter(annotation -> annotation.toString().contains("Test"))
@@ -199,6 +200,18 @@ public class AmplificationHelper {
 
         cloned_method.addThrownType(method.getFactory().Type().createReference(Exception.class));
 
+        return cloned_method;
+    }
+
+    public static CtMethod cloneMethodTestIAmp(CtMethod method, String suffix) {
+        CtMethod cloned_method = cloneMethodTest(method, suffix);
+        Counter.updateInputOf(cloned_method, 1);
+        return cloned_method;
+    }
+
+    public static CtMethod cloneMethodTestAAmp(CtMethod method, String suffix) {
+        CtMethod cloned_method = cloneMethodTest(method, suffix);
+        Counter.updateAssertionOf(cloned_method, 1);
         return cloned_method;
     }
 

@@ -33,7 +33,7 @@ public class AssertionRemover {
      * @return Test's clone without any assertion
      */
     public CtMethod<?> removeAssertion(CtMethod<?> testMethod) {
-        CtMethod<?> testWithoutAssertion = AmplificationHelper.cloneMethodTest(testMethod, "");
+        CtMethod<?> testWithoutAssertion = AmplificationHelper.cloneMethodTestAAmp(testMethod, "");
         testWithoutAssertion.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
             @Override
             public boolean matches(CtInvocation element) {
