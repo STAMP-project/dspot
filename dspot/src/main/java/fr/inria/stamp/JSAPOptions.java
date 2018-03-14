@@ -81,6 +81,7 @@ public class JSAPOptions {
         BooleanLiteralAmplifier(new BooleanLiteralAmplifier()),
         CharLiteralAmplifier(new CharLiteralAmplifier()),
         AllLiteralAmplifiers(new AllLiteralAmplifiers()),
+        ReplacementAmplifier(new ReplacementAmplifier()),
         None(null);
         public final Amplifier amplifier;
 
