@@ -1,0 +1,403 @@
+{
+  "qualifiedName": "com.squareup.javapoet.ParameterSpecTest",
+  "originalNbMutantCovered": 664,
+  "originalNbMutantKilled": 217,
+  "data": [
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 217,
+      "nbTests": 1,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 217,
+      "nbTests": 1,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 217,
+      "nbTests": 1,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 217,
+      "nbTests": 2,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 217,
+      "nbTests": 2,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 217,
+      "nbTests": 2,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 218,
+      "nbTests": 3,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 218,
+      "nbTests": 3,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 218,
+      "nbTests": 3,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 218,
+      "nbTests": 4,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 218,
+      "nbTests": 4,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 218,
+      "nbTests": 4,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 218,
+      "nbTests": 5,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 218,
+      "nbTests": 5,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 218,
+      "nbTests": 5,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 219,
+      "nbTests": 6,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 219,
+      "nbTests": 6,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 219,
+      "nbTests": 6,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 219,
+      "nbTests": 7,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 219,
+      "nbTests": 7,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 219,
+      "nbTests": 7,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 219,
+      "nbTests": 8,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 219,
+      "nbTests": 8,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 219,
+      "nbTests": 8,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 219,
+      "nbTests": 9,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 219,
+      "nbTests": 9,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 219,
+      "nbTests": 9,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 219,
+      "nbTests": 10,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 219,
+      "nbTests": 10,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 664,
+      "nbMutantKilled": 219,
+      "nbTests": 10,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 11,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 11,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 11,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 12,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 12,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 12,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 13,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 13,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 13,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 14,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 14,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 14,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 15,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 15,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 15,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 16,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 16,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 16,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 17,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 17,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 17,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 18,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 18,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 18,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 19,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 19,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 19,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 20,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 20,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 20,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 21,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 21,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 21,
+      "nbAssertionsAdded": 2
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 22,
+      "nbAssertionsAdded": 0
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 22,
+      "nbAssertionsAdded": 1
+    },
+    {
+      "nbMutantCovered": 674,
+      "nbMutantKilled": 222,
+      "nbTests": 22,
+      "nbAssertionsAdded": 2
+    }
+  ]
+}
