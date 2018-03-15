@@ -39,8 +39,14 @@ public class AmplificationHelper {
 
     private static int cloneNumber = 1;
 
+    /**
+     * Link between an amplified test and its parent (i.e. the original test).
+     */
     private static Map<CtMethod, CtMethod> ampTestToParent = new HashMap<>();
 
+    /**
+     * Buffer for {@link #ampTestToParent} to avoid adding discarded tests.
+     */
     private static Map<CtMethod, CtMethod> tmpAmpTestToParent = new HashMap<>();
 
     @Deprecated
@@ -110,11 +116,19 @@ public class AmplificationHelper {
         return ampTestToParent.get(ampTest);
     }
 
+    /**
+     * Load all the buffer.
+     */
     private static void loadParentMapBuffer() {
         ampTestToParent.putAll(tmpAmpTestToParent);
         tmpAmpTestToParent.clear();
     }
 
+    /**
+     * Load only a subset of the buffer.
+     *
+     * @param testsToKeep Test methods to load
+     */
     private static void loadParentMapBuffer(List<CtMethod<?>> testsToKeep) {
         ampTestToParent.putAll(testsToKeep.stream()
                 .collect(HashMap::new,
