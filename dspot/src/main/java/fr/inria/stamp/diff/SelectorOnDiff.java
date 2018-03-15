@@ -41,10 +41,10 @@ public class SelectorOnDiff {
         final String baseSha = configuration.getProperties().getProperty("baseSha");
         final String pathToFirstVersion = configuration.getProperties().getProperty("project") +
                 (configuration.getProperties().getProperty("targetModule") != null ?
-                        configuration.getProperties().getProperty("targetModule") != null : "");
+                        configuration.getProperties().getProperty("targetModule") : "");
         final String pathToSecondVersion = configuration.getProperties().getProperty("folderPath") +
                 (configuration.getProperties().getProperty("targetModule") != null ?
-                        configuration.getProperties().getProperty("targetModule") != null : "");
+                        configuration.getProperties().getProperty("targetModule") : "");
         // TODO must use the configuration to compute path to src and testSrc, in case of non-standard path
         if (configuration.getProperties().get("maxSelectedTestClasses") != null) {
             MAX_NUMBER_TEST_CLASSES = Integer.parseInt(String.valueOf(configuration.getProperties().get("maxSelectedTestClasses")));
@@ -57,13 +57,17 @@ public class SelectorOnDiff {
             );
         }
 
-        return findTestClassesAccordingToADiff(factory, baseSha,
+        return findTestClassesAccordingToADiff(
+                configuration,
+                factory,
+                baseSha,
                 pathToFirstVersion,
                 pathToSecondVersion
         );
     }
 
-    private static List<CtType> findTestClassesAccordingToADiff(Factory factory,
+    private static List<CtType> findTestClassesAccordingToADiff(InputConfiguration configuration,
+                                                                Factory factory,
                                                                 String baseSha,
                                                                 String pathToFirstVersion,
                                                                 String pathToSecondVersion) {
@@ -72,7 +76,7 @@ public class SelectorOnDiff {
 
         // keep modified test in the PR: must be present in both versions of the program
         final List<CtType> modifiedTestClasses =
-                getModifiedTestClasses(factory, pathToFirstVersion, pathToSecondVersion, modifiedJavaFiles);
+                getModifiedTestClasses(configuration, factory, modifiedJavaFiles);
         if (!modifiedTestClasses.isEmpty()) {
             LOGGER.info("Selection done on modified test classes");
             return reduceIfNeeded(modifiedTestClasses);
@@ -146,20 +150,30 @@ public class SelectorOnDiff {
         return selectedTestClasses;
     }
 
-    private static List<CtType> getModifiedTestClasses(Factory factory,
-                                                       String pathToFirstVersion,
-                                                       String pathToSecondVersion,
+    private final static int computeSizeOfSubstring(InputConfiguration configuration) {
+        final int testSrcLength = configuration.getProperties()
+                .getProperty("testSrc", "src/test/java/").length();
+        final int modulePathLength = configuration.getProperties().getProperty("targetModule", "").length();
+        return 2 + modulePathLength + testSrcLength; // a/targetModulePath/testSrcFolder
+    }
+
+    private static List<CtType> getModifiedTestClasses(final InputConfiguration configuration,
+                                                       Factory factory,
                                                        Set<String> modifiedJavaFiles) {
         return modifiedJavaFiles.stream()
                 .filter(pathToClass ->
-                        new File(pathToFirstVersion + pathToClass.substring(1)).exists() &&
-                                new File(pathToSecondVersion + pathToClass.substring(1)).exists() // it is present in both versions
+                        new File(configuration.getProperties().getProperty("project") + pathToClass.substring(1)).exists() &&
+                                new File(configuration.getProperties().getProperty("folderPath") + pathToClass.substring(1)).exists() // it is present in both versions
                 ).filter(pathToClass -> {
                     final String[] split = pathToClass.split("/");
                     return (split[split.length - 1].split("\\.")[0].endsWith("Test") || // the class in a test class
                             split[split.length - 1].split("\\.")[0].startsWith("Test"));
                 })
-                .map(pathToClass -> pathToClass.substring("a/src/main/java/".length()).split("\\.")[0].replace("/", "."))// TODO maybe be more flexible on the src/main/java (use the InputConfiguration)
+                .map(pathToClass ->
+                        pathToClass.substring(computeSizeOfSubstring(configuration))
+                                .split("\\.")[0]
+                                .replace("/", ".")
+                )// TODO maybe be more flexible on the src/main/java (use the InputConfiguration)
                 .map(nameOfModifiedTestClass -> factory.Class().get(nameOfModifiedTestClass))
                 .collect(Collectors.toList());
     }
