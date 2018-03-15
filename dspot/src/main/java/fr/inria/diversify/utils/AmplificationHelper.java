@@ -110,6 +110,20 @@ public class AmplificationHelper {
         return ampTestToParent.get(ampTest);
     }
 
+    private static void loadParentMapBuffer() {
+        ampTestToParent.putAll(tmpAmpTestToParent);
+        tmpAmpTestToParent.clear();
+    }
+
+    private static void loadParentMapBuffer(List<CtMethod<?>> testsToKeep) {
+        ampTestToParent.putAll(testsToKeep.stream()
+                .collect(HashMap::new,
+                        (accumulator, testMethod) -> accumulator.put(testMethod, tmpAmpTestToParent.get(testMethod)),
+                        HashMap::putAll)
+        );
+        tmpAmpTestToParent.clear();
+    }
+
     @Deprecated
     public static Set<CtType> computeClassProvider(CtType testClass) {
         List<CtType> types = Query.getElements(testClass.getParent(CtPackage.class), new TypeFilter(CtType.class));
@@ -247,6 +261,7 @@ public class AmplificationHelper {
     public static CtMethod cloneMethodTestAAmp(CtMethod method, String suffix) {
         CtMethod cloned_method = cloneMethodTest(method, suffix);
         Counter.updateAssertionOf(cloned_method, 1);
+        loadParentMapBuffer();  // load directly because these tests will not be discarded
         return cloned_method;
     }
 
@@ -344,12 +359,7 @@ public class AmplificationHelper {
         if (reducedTests.isEmpty()) {
             reducedTests.addAll(tests);
         }
-        ampTestToParent.putAll(reducedTests.stream()
-                .collect(HashMap::new,
-                        (parentsReduced, ctMethod) -> parentsReduced.put(ctMethod, tmpAmpTestToParent.get(ctMethod)),
-                        HashMap::putAll)
-        );
-        tmpAmpTestToParent.clear();
+        loadParentMapBuffer(reducedTests);
         return reducedTests;
     }
 
