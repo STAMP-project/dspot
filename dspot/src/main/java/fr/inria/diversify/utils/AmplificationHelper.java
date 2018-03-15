@@ -323,43 +323,12 @@ public class AmplificationHelper {
                 .orElse(null);
     }
 
-    @Deprecated
-    private static List<CtMethod<?>> _reduce(List<CtMethod<?>> tests) {
-        final List<Long> values = tests.stream()
-                .map(CtMethod::toString)
-                .map(String::getBytes)
-                .map(AmplificationHelper::convert)
-                .collect(Collectors.toList()); // compute the sum of toString().getBytes()
-        final double standardDeviation = standardDeviation(values);
-        final List<CtMethod<?>> reducedTests = values.stream()
-                .filter(integer -> Math.abs(values.get(0) - integer) >= standardDeviation)
-                .map(values::indexOf)
-                .map(tests::get)
-                .collect(Collectors.toList()); // keep tests that have a difference with
-        // the first element greater than the std dev
-        reducedTests.add(tests.get(0)); // add the first element, which the "reference"
-        return reducedTests;
-    }
-
     private static long convert(byte[] byteArray) {
         long sum = 0L;
         for (byte aByteArray : byteArray) {
             sum += (int) aByteArray;
         }
         return sum;
-    }
-
-    @Deprecated
-    private static double standardDeviation(List<Long> hashCodes) {
-        final double mean = hashCodes.stream()
-                .mapToLong(value -> value)
-                .average()
-                .orElse(0.0D);
-        return Math.sqrt(hashCodes.stream()
-                .mapToDouble(value -> value)
-                .map(value -> Math.pow(Math.abs((value - mean)), 2.0D))
-                .sum()
-                / hashCodes.size());
     }
 
     public static final TypeFilter<CtInvocation<?>> ASSERTIONS_FILTER = new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
