@@ -86,7 +86,32 @@ public class ChangeMinimizer extends GeneralMinimizer {
                 changeMinimize.getBody().getStatements().size(),
                 System.currentTimeMillis() - time
         );
+
+        // now that we reduce the amplified test, we must update the stack trace
+        updateStackTrace(amplifiedTestToBeMinimized, changeMinimize);
+
         return changeMinimize;
+    }
+
+    private void updateStackTrace(CtMethod<?> amplifiedTestToBeMinimized, CtMethod<?> changeMinimize) {
+        CtType<?> clone = this.testClass.clone();
+        // must compile
+        if (!printAndCompile(clone, changeMinimize)) {
+            throw new RuntimeException("The minimizer created an uncompilable test method.");
+        }
+        // must have (the same?) failure
+        final Failure failure = TestLauncher.run(this.configuration,
+                classpath +
+                        AmplificationHelper.PATH_SEPARATOR +
+                        this.pathToChangedVersionOfProgram + "/" + this.program.getClassesDir() +
+                        AmplificationHelper.PATH_SEPARATOR +
+                        this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir(),
+                clone,
+                Collections.singletonList(changeMinimize.getSimpleName()))
+                .getFailingTests().get(0);
+        failurePerAmplifiedTest.remove(amplifiedTestToBeMinimized);
+        failurePerAmplifiedTest.put(changeMinimize, failure);
+        System.out.println("");
     }
 
     private void tryToRemoveAssertion(CtMethod<?> amplifiedTestToBeMinimized,
