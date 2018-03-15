@@ -37,7 +37,7 @@ public class TestMethodCallRemover implements Amplifier {
                 invocation_index++;
             }
         }
-        return AmplificationHelper.updateAmpTestToParent(methods, method);
+        return methods;
     }
 
     @Override

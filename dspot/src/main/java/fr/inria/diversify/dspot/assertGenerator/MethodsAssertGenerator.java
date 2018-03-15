@@ -257,7 +257,6 @@ public class MethodsAssertGenerator {
         }
         Counter.updateAssertionOf(testWithAssert, numberOfAddedAssertion - 1);
         if (!testWithAssert.equals(test)) {
-            AmplificationHelper.getAmpTestToParent().put(testWithAssert, test);
             return testWithAssert;
         } else {
             return null;
@@ -310,8 +309,6 @@ public class MethodsAssertGenerator {
 
         cloneMethodTest.setBody(body);
         cloneMethodTest.setSimpleName(cloneMethodTest.getSimpleName() + "_failAssert" + (numberOfFail++));
-
-        AmplificationHelper.getAmpTestToParent().put(cloneMethodTest, test);
 
         return cloneMethodTest;
     }

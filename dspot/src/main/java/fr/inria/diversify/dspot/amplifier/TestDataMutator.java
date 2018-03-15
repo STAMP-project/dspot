@@ -65,7 +65,7 @@ public class TestDataMutator implements Amplifier {
 			}
 			lit_index++;
 		}
-		return AmplificationHelper.updateAmpTestToParent(methods, method);
+		return methods;
 	}
 
 	public void reset(CtType testClass) {

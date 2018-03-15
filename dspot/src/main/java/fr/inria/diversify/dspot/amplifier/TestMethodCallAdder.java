@@ -37,7 +37,7 @@ public class TestMethodCallAdder implements Amplifier {
                 invocation_index++;
             }
         }
-        return AmplificationHelper.updateAmpTestToParent(methods, method);
+        return methods;
     }
 
     @Override

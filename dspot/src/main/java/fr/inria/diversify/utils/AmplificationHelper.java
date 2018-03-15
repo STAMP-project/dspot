@@ -110,11 +110,6 @@ public class AmplificationHelper {
         return ampTestToParent;
     }
 
-    public static List<CtMethod> updateAmpTestToParent(List<CtMethod> tests, CtMethod parentTest) {
-        tests.forEach(test -> tmpAmpTestToParent.put(test, parentTest));
-        return tests;
-    }
-
     @Deprecated
     public static Set<CtType> computeClassProvider(CtType testClass) {
         List<CtType> types = Query.getElements(testClass.getParent(CtPackage.class), new TypeFilter(CtType.class));
@@ -191,6 +186,8 @@ public class AmplificationHelper {
      */
     private static CtMethod cloneMethodTest(CtMethod method, String suffix) {
         CtMethod cloned_method = cloneMethod(method, suffix);
+        tmpAmpTestToParent.put(cloned_method, method);
+
         CtAnnotation testAnnotation = cloned_method.getAnnotations().stream()
                 .filter(annotation -> annotation.toString().contains("Test"))
                 .findFirst().orElse(null);
