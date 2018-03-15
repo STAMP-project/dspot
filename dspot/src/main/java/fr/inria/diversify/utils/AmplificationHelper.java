@@ -157,6 +157,13 @@ public class AmplificationHelper {
         return AmplificationHelper.importByClass.get(type);
     }
 
+    /**
+     * Clones a method.
+     *
+     * @param method Method to be cloned
+     * @param suffix Suffix for the cloned method's name
+     * @return The cloned method
+     */
     private static CtMethod cloneMethod(CtMethod method, String suffix) {
         CtMethod cloned_method = method.clone();
         //rename the clone
@@ -173,6 +180,15 @@ public class AmplificationHelper {
         return cloned_method;
     }
 
+    /**
+     * Clones a test method.
+     *
+     * Performs necessary integration with JUnit and adds timeout.
+     *
+     * @param method Method to be cloned
+     * @param suffix Suffix for the cloned method's name
+     * @return The cloned method
+     */
     private static CtMethod cloneMethodTest(CtMethod method, String suffix) {
         CtMethod cloned_method = cloneMethod(method, suffix);
         CtAnnotation testAnnotation = cloned_method.getAnnotations().stream()
@@ -203,12 +219,34 @@ public class AmplificationHelper {
         return cloned_method;
     }
 
+    /**
+     * Clones a test method for input-amplification purposes.
+     *
+     * Updates the counter of amplifications applied, assuming one cloning per amplification.
+     *
+     * See {@link #cloneMethodTest(CtMethod, String)} for the cloning details.
+     *
+     * @param method Method to be cloned
+     * @param suffix Suffix for the cloned method's name
+     * @return The cloned method
+     */
     public static CtMethod cloneMethodTestIAmp(CtMethod method, String suffix) {
         CtMethod cloned_method = cloneMethodTest(method, suffix);
         Counter.updateInputOf(cloned_method, 1);
         return cloned_method;
     }
 
+    /**
+     * Clones a test method for assertion-amplification purposes.
+     *
+     * Updates the counter of amplifications applied, assuming one cloning per amplification.
+     *
+     * See {@link #cloneMethodTest(CtMethod, String)} for the cloning details.
+     *
+     * @param method Method to be cloned
+     * @param suffix Suffix for the cloned method's name
+     * @return The cloned method
+     */
     public static CtMethod cloneMethodTestAAmp(CtMethod method, String suffix) {
         CtMethod cloned_method = cloneMethodTest(method, suffix);
         Counter.updateAssertionOf(cloned_method, 1);
