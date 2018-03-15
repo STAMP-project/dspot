@@ -7,6 +7,7 @@ import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
+import fr.inria.stamp.Main;
 import fr.inria.stamp.test.launcher.TestLauncher;
 import org.junit.runner.notification.Failure;
 import org.slf4j.Logger;
@@ -64,24 +65,53 @@ public class ChangeMinimizer extends GeneralMinimizer {
         final CtMethod<?> changeMinimize = generalMinimize.clone();
         final long time = System.currentTimeMillis();
         final Failure failureToKeep = this.failurePerAmplifiedTest.get(amplifiedTestToBeMinimized);
-        changeMinimize.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
+        final List<CtInvocation> assertions = changeMinimize.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
             @Override
             public boolean matches(CtInvocation element) {
                 return AmplificationChecker.isAssert(element);
             }
-        }).forEach(invocation ->
-                tryToRemoveAssertion(changeMinimize,
-                        invocation,
-                        failureToKeep
-                )
+        });
+        LOGGER.info("Minimizing {} assertions.", assertions.size());
+        assertions.forEach(invocation -> {
+                    DSpotUtils.printProgress(assertions.indexOf(invocation), assertions.size());
+                    tryToRemoveAssertion(changeMinimize,
+                            invocation,
+                            failureToKeep
+                    );
+                }
         );
         LOGGER.info("Reduce {}, {} statements to {} statements in {} ms.",
                 amplifiedTestToBeMinimized.getSimpleName(),
                 generalMinimize.getBody().getStatements().size(),
-                changeMinimize .getBody().getStatements().size(),
+                changeMinimize.getBody().getStatements().size(),
                 System.currentTimeMillis() - time
         );
+
+        // now that we reduce the amplified test, we must update the stack trace
+        updateStackTrace(amplifiedTestToBeMinimized, changeMinimize);
+
         return changeMinimize;
+    }
+
+    private void updateStackTrace(CtMethod<?> amplifiedTestToBeMinimized, CtMethod<?> changeMinimize) {
+        CtType<?> clone = this.testClass.clone();
+        // must compile
+        if (!printAndCompile(clone, changeMinimize)) {
+            throw new RuntimeException("The minimizer created an uncompilable test method.");
+        }
+        // must have (the same?) failure
+        final Failure failure = TestLauncher.run(this.configuration,
+                classpath +
+                        AmplificationHelper.PATH_SEPARATOR +
+                        this.pathToChangedVersionOfProgram + "/" + this.program.getClassesDir() +
+                        AmplificationHelper.PATH_SEPARATOR +
+                        this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir(),
+                clone,
+                Collections.singletonList(changeMinimize.getSimpleName()))
+                .getFailingTests().get(0);
+        failurePerAmplifiedTest.remove(amplifiedTestToBeMinimized);
+        failurePerAmplifiedTest.put(changeMinimize, failure);
+        System.out.println("");
     }
 
     private void tryToRemoveAssertion(CtMethod<?> amplifiedTestToBeMinimized,
@@ -115,17 +145,19 @@ public class ChangeMinimizer extends GeneralMinimizer {
 
     private boolean printAndCompile(CtType<?> clone, CtMethod<?> amplifiedTestToBeMinimized) {
         clone.setParent(this.testClass.getParent());
+        Main.verbose = false;
         this.testClass.getMethods().stream()
                 .filter(AmplificationChecker::isTest)
                 .forEach(clone::removeMethod);
         clone.addMethod(amplifiedTestToBeMinimized);
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.pathToTmpTestSources));
-        return DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources,
-                classpath
-                        + AmplificationHelper.PATH_SEPARATOR +
+        final boolean compile = DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources,
+                classpath + AmplificationHelper.PATH_SEPARATOR +
                         this.program.getProgramDir() + "/" + this.program.getClassesDir()
                         + AmplificationHelper.PATH_SEPARATOR +
                         this.program.getProgramDir() + "/" + this.program.getTestClassesDir(),
                 new File(this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir()));
+        Main.verbose = true;
+        return compile;
     }
 }
