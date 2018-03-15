@@ -43,7 +43,12 @@ public class GeneralMinimizer implements Minimizer {
     }
 
     private void removeRedundantAssertions(CtMethod<?> amplifiedTestToBeMinimized) {
-        final List<CtInvocation<?>> assertions = amplifiedTestToBeMinimized.getElements(AmplificationHelper.ASSERTIONS_FILTER);
+        final List<CtInvocation<?>> assertions = amplifiedTestToBeMinimized.getElements(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
+            @Override
+            public boolean matches(CtInvocation<?> element) {
+                return AmplificationChecker.isAssert(element);
+            }
+        });
         final List<CtInvocation<?>> duplicatesAssertions = findDuplicates(assertions); // One of them might be removed
         final List<CtStatement> statements = amplifiedTestToBeMinimized.getBody().getStatements();
         final CtVariableReference variable = ((CtVariableRead<?>) duplicatesAssertions.get(0)
