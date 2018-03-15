@@ -8,6 +8,7 @@ import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtComment;
+import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtImport;
 import spoon.reflect.declaration.CtMethod;
@@ -275,16 +276,26 @@ public class AmplificationHelper {
         final List<CtMethod<?>> reducedTests = new ArrayList<>();
         if (tests.size() > MAX_NUMBER_OF_TESTS) {
             LOGGER.warn("Too many tests has been generated: {}", tests.size());
-            reducedTests.addAll(_reduce(tests));
-            if (reducedTests.size() > MAX_NUMBER_OF_TESTS) {
-                return reduce(reducedTests);
+            final Map<Long, List<CtMethod<?>>> valuesToMethod = new HashMap<>();
+            for (CtMethod<?> test : tests) {
+                final long value = AmplificationHelper.convert(test.toString().getBytes());
+                if (!valuesToMethod.containsKey(value)) {
+                    valuesToMethod.put(value, new ArrayList<>());
+                }
+                valuesToMethod.get(value).add(test);
             }
-            tests.removeAll(reducedTests);
-            List<CtMethod<?>> tmp = _reduce(tests);
-            while (tmp.size() + reducedTests.size() < MAX_NUMBER_OF_TESTS) { // loop until we have the max number of tests
-                reducedTests.addAll(tmp);
-                tests.removeAll(reducedTests);
-                tmp = _reduce(tests);
+            final Long average = average(valuesToMethod.keySet());
+            while (reducedTests.size() < MAX_NUMBER_OF_TESTS) {
+                final Long furthest = furthest(valuesToMethod.keySet(), average);
+                reducedTests.add(valuesToMethod.get(furthest).get(0));
+                if (valuesToMethod.get(furthest).isEmpty()) {
+                    valuesToMethod.remove(furthest);
+                } else {
+                    valuesToMethod.get(furthest).remove(0);
+                    if (valuesToMethod.get(furthest).isEmpty()) {
+                        valuesToMethod.remove(furthest);
+                    }
+                }
             }
             LOGGER.info("Number of generated test reduced to {}", reducedTests.size());
         }
@@ -300,6 +311,19 @@ public class AmplificationHelper {
         return reducedTests;
     }
 
+    /** Returns the average of a collection of double */
+    private static Long average(Collection<Long> values) {
+        return values.stream().collect(Collectors.averagingLong(Long::longValue)).longValue();
+    }
+
+    /** Returns the first, most distant element of a collection from a defined value. */
+    private static Long furthest(Collection<Long > values, Long average) {
+        return values.stream()
+                .max(Comparator.comparingLong(d -> Math.abs(d - average)))
+                .orElse(null);
+    }
+
+    @Deprecated
     private static List<CtMethod<?>> _reduce(List<CtMethod<?>> tests) {
         final List<Long> values = tests.stream()
                 .map(CtMethod::toString)
@@ -312,7 +336,7 @@ public class AmplificationHelper {
                 .map(values::indexOf)
                 .map(tests::get)
                 .collect(Collectors.toList()); // keep tests that have a difference with
-                                               // the first element greater than the std dev
+        // the first element greater than the std dev
         reducedTests.add(tests.get(0)); // add the first element, which the "reference"
         return reducedTests;
     }
@@ -325,6 +349,7 @@ public class AmplificationHelper {
         return sum;
     }
 
+    @Deprecated
     private static double standardDeviation(List<Long> hashCodes) {
         final double mean = hashCodes.stream()
                 .mapToLong(value -> value)
@@ -336,5 +361,12 @@ public class AmplificationHelper {
                 .sum()
                 / hashCodes.size());
     }
+
+    public static final TypeFilter<CtInvocation<?>> ASSERTIONS_FILTER = new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
+        @Override
+        public boolean matches(CtInvocation<?> element) {
+            return AmplificationChecker.isAssert(element);
+        }
+    };
 
 }

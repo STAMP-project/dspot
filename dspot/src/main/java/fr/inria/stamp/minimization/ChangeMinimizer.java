@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.File;
 import java.util.Collections;
@@ -65,12 +64,7 @@ public class ChangeMinimizer extends GeneralMinimizer {
         final CtMethod<?> changeMinimize = generalMinimize.clone();
         final long time = System.currentTimeMillis();
         final Failure failureToKeep = this.failurePerAmplifiedTest.get(amplifiedTestToBeMinimized);
-        final List<CtInvocation> assertions = changeMinimize.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
-            @Override
-            public boolean matches(CtInvocation element) {
-                return AmplificationChecker.isAssert(element);
-            }
-        });
+        final List<CtInvocation> assertions = changeMinimize.filterChildren(AmplificationHelper.ASSERTIONS_FILTER).list();
         LOGGER.info("Minimizing {} assertions.", assertions.size());
         assertions.forEach(invocation -> {
                     DSpotUtils.printProgress(assertions.indexOf(invocation), assertions.size());

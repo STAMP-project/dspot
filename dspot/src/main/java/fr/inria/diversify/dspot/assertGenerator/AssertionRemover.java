@@ -1,6 +1,5 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
-import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
@@ -14,7 +13,6 @@ import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
-import spoon.reflect.visitor.filter.TypeFilter;
 
 /**
  * Created by Benjamin DANGLOT
@@ -34,12 +32,8 @@ public class AssertionRemover {
      */
     public CtMethod<?> removeAssertion(CtMethod<?> testMethod) {
         CtMethod<?> testWithoutAssertion = AmplificationHelper.cloneMethodTest(testMethod, "");
-        testWithoutAssertion.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
-            @Override
-            public boolean matches(CtInvocation element) {
-                return AmplificationChecker.isAssert(element);
-            }
-        }).forEach(this::removeAssertion);
+        testWithoutAssertion.getElements(AmplificationHelper.ASSERTIONS_FILTER)
+                .forEach(this::removeAssertion);
         return testWithoutAssertion;
     }
 
