@@ -64,7 +64,7 @@ public class Counter {
         CtMethod<?> currentMethod = method;
         CtMethod<?> parent;
         int countAssertion = getAssertionOf(currentMethod);
-        while ((parent = AmplificationHelper.getAmpTestToParent().get(currentMethod)) != null) {
+        while ((parent = AmplificationHelper.getAmpTestParent(currentMethod)) != null) {
             currentMethod = parent;
             countAssertion += getAssertionOf(currentMethod);
         }
@@ -75,7 +75,7 @@ public class Counter {
         CtMethod currentMethod = method;
         CtMethod parent;
         int countAssertion = 0;
-        while ((parent = AmplificationHelper.getAmpTestToParent().get(currentMethod)) != null) {
+        while ((parent = AmplificationHelper.getAmpTestParent(currentMethod)) != null) {
             countAssertion += getInputOf(currentMethod);
             currentMethod = parent;
         }

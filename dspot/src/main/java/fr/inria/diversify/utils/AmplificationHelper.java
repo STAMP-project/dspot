@@ -106,8 +106,8 @@ public class AmplificationHelper {
         return clone;
     }
 
-    public static Map<CtMethod, CtMethod> getAmpTestToParent() {
-        return ampTestToParent;
+    public static CtMethod getAmpTestParent(CtMethod ampTest) {
+        return ampTestToParent.get(ampTest);
     }
 
     @Deprecated
@@ -285,7 +285,7 @@ public class AmplificationHelper {
     public static CtMethod getTopParent(CtMethod test) {
         CtMethod topParent;
         CtMethod currentTest = test;
-        while ((topParent = getAmpTestToParent().get(currentTest)) != null) {
+        while ((topParent = getAmpTestParent(currentTest)) != null) {
             currentTest = topParent;
         }
         return currentTest;
