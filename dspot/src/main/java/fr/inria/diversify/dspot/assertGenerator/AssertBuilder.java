@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
  */
 public class AssertBuilder {
 
+    public static final int MAX_NUMBER_OF_CHECKED_ELEMENT_IN_LIST = 5;
     private static String junitAssertClassName = "org.junit.Assert";
 
     static List<CtStatement> buildAssert(Factory factory, Set<String> notDeterministValues, Map<String, Object> observations) {
@@ -132,7 +133,9 @@ public class AssertBuilder {
                 false
         );
         final CtExecutableReference contains = factory.Type().get(Collection.class).getMethodsByName("contains").get(0).getReference();
-        return (List<CtStatement>) value.stream().map(factory::createLiteral)
+        return (List<CtStatement>) value.stream()
+                .limit(Math.min(value.size(), MAX_NUMBER_OF_CHECKED_ELEMENT_IN_LIST))
+                .map(factory::createLiteral)
                 .map(o ->
                         buildInvocation(factory, "assertTrue",
                                 Collections.singletonList(factory.createInvocation(variableRead,
