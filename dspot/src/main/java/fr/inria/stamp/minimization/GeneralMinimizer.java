@@ -1,7 +1,6 @@
 package fr.inria.stamp.minimization;
 
 import fr.inria.diversify.utils.AmplificationChecker;
-import fr.inria.diversify.utils.AmplificationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtInvocation;
@@ -51,21 +50,22 @@ public class GeneralMinimizer implements Minimizer {
         });
         final List<CtInvocation<?>> duplicatesAssertions = findDuplicates(assertions); // One of them might be removed
         final List<CtStatement> statements = amplifiedTestToBeMinimized.getBody().getStatements();
-        final CtVariableReference variable = ((CtVariableRead<?>) duplicatesAssertions.get(0)
-                .filterChildren(new TypeFilter<CtVariableRead<?>>(CtVariableRead.class))
-                .first())
-                .getVariable();
         duplicatesAssertions.forEach(duplicatesAssertion ->
                 removeUselessDuplicateAssertions(
                         amplifiedTestToBeMinimized,
                         duplicatesAssertion,
-                        statements,
-                        variable
+                        statements
                 )
         );
     }
 
-    private void removeUselessDuplicateAssertions(CtMethod<?> amplifiedTestToBeMinimized, CtInvocation<?> duplicatesAssertion, List<CtStatement> statements, CtVariableReference variable) {
+    private void removeUselessDuplicateAssertions(CtMethod<?> amplifiedTestToBeMinimized,
+                                                  CtInvocation<?> duplicatesAssertion,
+                                                  List<CtStatement> statements) {
+        final CtVariableReference variable  = ((CtVariableRead<?>) duplicatesAssertion
+                .filterChildren(new TypeFilter<CtVariableRead<?>>(CtVariableRead.class))
+                .first())
+                .getVariable();
         boolean canBeRemoved = true;
         for (int i = statements.indexOf(duplicatesAssertion) + 1;
              i < statements.lastIndexOf(duplicatesAssertion) - 1; i++) {
