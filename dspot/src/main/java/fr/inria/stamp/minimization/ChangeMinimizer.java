@@ -105,7 +105,6 @@ public class ChangeMinimizer extends GeneralMinimizer {
                 .getFailingTests().get(0);
         failurePerAmplifiedTest.remove(amplifiedTestToBeMinimized);
         failurePerAmplifiedTest.put(changeMinimize, failure);
-        System.out.println("");
     }
 
     private void tryToRemoveAssertion(CtMethod<?> amplifiedTestToBeMinimized,
@@ -134,7 +133,11 @@ public class ChangeMinimizer extends GeneralMinimizer {
                 clone,
                 Collections.singletonList(amplifiedTestToBeMinimized.getSimpleName()))
                 .getFailingTests();
-        return !failingTests.isEmpty();// && failingTests.get(0).equals(failure);
+        return !failingTests.isEmpty() &&
+                ((failingTests.get(0) == null && failure.getMessage() == null) ||
+                        failingTests.get(0).getMessage() != null &&
+                                failingTests.get(0).getMessage().equals(failure.getMessage())
+                );
     }
 
     private boolean printAndCompile(CtType<?> clone, CtMethod<?> amplifiedTestToBeMinimized) {
