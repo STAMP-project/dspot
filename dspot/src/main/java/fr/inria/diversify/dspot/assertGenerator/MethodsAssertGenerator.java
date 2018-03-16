@@ -255,7 +255,7 @@ public class MethodsAssertGenerator {
                     }
                 }
         }
-        Counter.updateAssertionOf(testWithAssert, numberOfAddedAssertion - 1);
+        Counter.updateAssertionOf(testWithAssert, numberOfAddedAssertion);
         if (!testWithAssert.equals(test)) {
             return testWithAssert;
         } else {
