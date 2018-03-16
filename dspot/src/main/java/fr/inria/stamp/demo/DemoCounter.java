@@ -28,34 +28,32 @@ import java.util.stream.Collectors;
 
 public class DemoCounter {
 
-    @Deprecated
-    public static final int MAX_NUMBER_OF_ADDED_TEST = 20;
-
-    @Deprecated
-    public static final int MAX_NUMBER_OF_ASSERTIONS = 10;
-    public static final TypeFilter<CtInvocation> ASSERTIONS_FILTER = new TypeFilter<CtInvocation>(CtInvocation.class) {
-        @Override
-        public boolean matches(CtInvocation element) {
-            return AmplificationChecker.isAssert(element);
-        }
-    };
-
     public static void count(InputConfiguration configuration,
                              CtType<?> testClass,
                              List<CtMethod<?>> amplifiedTestMethods) {
         final List<PitResult> originalMutationAnalysis = runPit(configuration, testClass);
         final long originalNbMutantSurvived = getNumberOfGivenState(originalMutationAnalysis, PitResult.State.SURVIVED);
         final long originalNbMutantKilled = getNumberOfGivenState(originalMutationAnalysis, PitResult.State.KILLED);
+
+        final Integer maxNumberofAssertions = amplifiedTestMethods.stream()
+                .map(ctMethod -> ctMethod.getElements(AmplificationHelper.ASSERTIONS_FILTER).size())
+                .max(Comparator.naturalOrder())
+                .get();
+
         final TestClassDataJSON testClassDataJSON = new TestClassDataJSON(
                 testClass.getQualifiedName(),
                 originalNbMutantSurvived + originalNbMutantKilled,
-                originalNbMutantKilled
+                originalNbMutantKilled,
+                amplifiedTestMethods.size(),
+                maxNumberofAssertions
         );
 
-        final Integer maxNumberofAssertions = amplifiedTestMethods.stream()
-                .map(ctMethod -> ctMethod.getElements(ASSERTIONS_FILTER).size())
-                .max(Comparator.naturalOrder())
-                .get();
+        {
+            final List<PitResult> pitResults = runPit(configuration, testClass);
+            final long nbMutantSurvived = getNumberOfGivenState(pitResults, PitResult.State.SURVIVED);
+            final long nbMutantKilled = getNumberOfGivenState(pitResults, PitResult.State.KILLED);
+            testClassDataJSON.data.add(new DataJSON(nbMutantSurvived + nbMutantKilled, nbMutantKilled, 0, 0));
+        }
 
         for (int i = 1; i < amplifiedTestMethods.size() ; i++) {
             // prepare new test class to be run
@@ -90,9 +88,9 @@ public class DemoCounter {
 
     private static void reduceAssertions(List<CtMethod<?>> subListOfAmplifiedTests, int a) {
         for (CtMethod<?> subListOfAmplifiedTest : subListOfAmplifiedTests) {
-            final List<CtInvocation> assertions =
-                    subListOfAmplifiedTest.getElements(ASSERTIONS_FILTER);
-            final List<CtInvocation> assertionsToKeep = assertions.subList(0, Math.min(a, assertions.size()));
+            final List<CtInvocation<?>> assertions =
+                    subListOfAmplifiedTest.getElements(AmplificationHelper.ASSERTIONS_FILTER);
+            final List<CtInvocation<?>> assertionsToKeep = assertions.subList(0, Math.min(a, assertions.size()));
             assertions.stream()
                     .filter(assertion -> !assertionsToKeep.contains(assertion))
                     .forEach(subListOfAmplifiedTest.getBody()::removeStatement);
