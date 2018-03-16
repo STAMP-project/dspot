@@ -138,8 +138,10 @@ public class ChangeDetectorSelector implements TestSelector {
 
     @Override
     public Minimizer getMinimizer() {
-        return new ChangeMinimizer(this.currentClassTestToBeAmplified,
-                this.configuration, this.program,
+        return new ChangeMinimizer(
+                this.currentClassTestToBeAmplified,
+                this.configuration,
+                this.program,
                 this.pathToChangedVersionOfProgram,
                 this.failurePerAmplifiedTest
         );

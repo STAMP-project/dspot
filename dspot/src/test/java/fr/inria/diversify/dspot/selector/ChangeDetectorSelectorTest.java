@@ -30,6 +30,12 @@ public class ChangeDetectorSelectorTest {
     @Test
     public void test() throws Exception {
 
+        try {
+            FileUtils.forceDelete(new File("target/dspot/"));
+        } catch (Exception ignored) {
+
+        }
+
         final String configurationPath = "src/test/resources/regression/test-projects_0/test-projects.properties";
         final ChangeDetectorSelector changeDetectorSelector = new ChangeDetectorSelector();
 
