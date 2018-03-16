@@ -2,6 +2,7 @@ package fr.inria.diversify.utils;
 
 import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.stamp.minimization.Minimizer;
+import fr.inria.diversify.dspot.support.Counter;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.runner.Description;
@@ -39,8 +40,14 @@ public class AmplificationHelper {
 
     private static int cloneNumber = 1;
 
+    /**
+     * Link between an amplified test and its parent (i.e. the original test).
+     */
     private static Map<CtMethod, CtMethod> ampTestToParent = new HashMap<>();
 
+    /**
+     * Buffer for {@link #ampTestToParent} to avoid adding discarded tests.
+     */
     private static Map<CtMethod, CtMethod> tmpAmpTestToParent = new HashMap<>();
 
     @Deprecated
@@ -106,13 +113,30 @@ public class AmplificationHelper {
         return clone;
     }
 
-    public static Map<CtMethod, CtMethod> getAmpTestToParent() {
-        return ampTestToParent;
+    public static CtMethod getAmpTestParent(CtMethod ampTest) {
+        return ampTestToParent.get(ampTest);
     }
 
-    public static List<CtMethod> updateAmpTestToParent(List<CtMethod> tests, CtMethod parentTest) {
-        tests.forEach(test -> tmpAmpTestToParent.put(test, parentTest));
-        return tests;
+    /**
+     * Load all the buffer.
+     */
+    private static void loadParentMapBuffer() {
+        ampTestToParent.putAll(tmpAmpTestToParent);
+        tmpAmpTestToParent.clear();
+    }
+
+    /**
+     * Load only a subset of the buffer.
+     *
+     * @param testsToKeep Test methods to load
+     */
+    private static void loadParentMapBuffer(List<CtMethod<?>> testsToKeep) {
+        ampTestToParent.putAll(testsToKeep.stream()
+                .collect(HashMap::new,
+                        (accumulator, testMethod) -> accumulator.put(testMethod, tmpAmpTestToParent.get(testMethod)),
+                        HashMap::putAll)
+        );
+        tmpAmpTestToParent.clear();
     }
 
     @Deprecated
@@ -157,6 +181,13 @@ public class AmplificationHelper {
         return AmplificationHelper.importByClass.get(type);
     }
 
+    /**
+     * Clones a method.
+     *
+     * @param method Method to be cloned
+     * @param suffix Suffix for the cloned method's name
+     * @return The cloned method
+     */
     private static CtMethod cloneMethod(CtMethod method, String suffix) {
         CtMethod cloned_method = method.clone();
         //rename the clone
@@ -173,8 +204,18 @@ public class AmplificationHelper {
         return cloned_method;
     }
 
-    public static CtMethod cloneMethodTest(CtMethod method, String suffix) {
+    /**
+     * Clones a test method.
+     *
+     * Performs necessary integration with JUnit and adds timeout.
+     *
+     * @param method Method to be cloned
+     * @param suffix Suffix for the cloned method's name
+     * @return The cloned method
+     */
+    private static CtMethod cloneMethodTest(CtMethod method, String suffix) {
         CtMethod cloned_method = cloneMethod(method, suffix);
+
         CtAnnotation testAnnotation = cloned_method.getAnnotations().stream()
                 .filter(annotation -> annotation.toString().contains("Test"))
                 .findFirst().orElse(null);
@@ -201,6 +242,55 @@ public class AmplificationHelper {
         cloned_method.addThrownType(method.getFactory().Type().createReference(Exception.class));
 
         return cloned_method;
+    }
+
+    /**
+     * Clones a test method for input-amplification purposes.
+     *
+     * Updates the counter of amplifications applied.
+     *
+     * See {@link #cloneMethodTest(CtMethod, String)} for the cloning details.
+     *
+     * @param method Method to be cloned
+     * @param suffix Suffix for the cloned method's name
+     * @param nbAmp Number of input amplifications applied
+     * @return The cloned method
+     */
+    public static CtMethod cloneMethodTestIAmp(CtMethod method, String suffix, int nbAmp) {
+        CtMethod cloned_method = cloneMethodTest(method, suffix);
+        tmpAmpTestToParent.put(cloned_method, method);
+        Counter.updateInputOf(cloned_method, nbAmp);
+        return cloned_method;
+    }
+
+    /**
+     * Clones a test method for assertion-amplification purposes.
+     *
+     * Updates the counter of amplifications applied.
+     *
+     * See {@link #cloneMethodTest(CtMethod, String)} for the cloning details.
+     *
+     * @param method Method to be cloned
+     * @param suffix Suffix for the cloned method's name
+     * @param nbAssertions Number of added assertions
+     * @return The cloned method
+     */
+    public static CtMethod cloneMethodTestAAmp(CtMethod method, String suffix, int nbAssertions) {
+        CtMethod cloned_method = cloneMethodTest(method, suffix);
+        tmpAmpTestToParent.put(cloned_method, method);
+        Counter.updateAssertionOf(cloned_method, nbAssertions);
+        loadParentMapBuffer();  // load directly because these tests will not be discarded
+        return cloned_method;
+    }
+
+    /**
+     * Simply clones a test method.
+     *
+     * @param method Method to be cloned
+     * @return The cloned method
+     */
+    public static CtMethod cloneMethodTestNoAmp(CtMethod method) {
+        return cloneMethodTest(method, "");
     }
 
     public static List<CtMethod<?>> getPassingTests(List<CtMethod<?>> newTests, TestListener result) {
@@ -238,7 +328,7 @@ public class AmplificationHelper {
     public static CtMethod getTopParent(CtMethod test) {
         CtMethod topParent;
         CtMethod currentTest = test;
-        while ((topParent = getAmpTestToParent().get(currentTest)) != null) {
+        while ((topParent = getAmpTestParent(currentTest)) != null) {
             currentTest = topParent;
         }
         return currentTest;
@@ -264,18 +354,22 @@ public class AmplificationHelper {
     //empirically 200 seems to be enough
     public static int MAX_NUMBER_OF_TESTS = 200;
 
-    // this methods aims at reducing the number of amplified test.
-    // we seek diversity in this method
-    // to approximate diversity, we use the textual representation of amplified tests
-    // since all the amplified tests came from the same original-manuel test case
-    // they have a "lot" of common
-    // we use the sum of the bytes return by the getBytes() method of the string representing amplified test
-    // then compute the standard deviation on this sum
-    // and keep only amplified test that have this value greater or equal of the std deviation
+    /**
+     * Reduces the number of amplified tests to a practical threshold (see {@link #MAX_NUMBER_OF_TESTS}).
+     *
+     * <p>The reduction aims at keeping a maximum of diversity. Because all the amplified tests come from the same
+     * original test, they have a <em>lot</em> in common.
+     *
+     * <p>Diversity is measured with the textual representation of amplified tests. We use the sum of the bytes returned
+     * by the {@link String#getBytes()} method and keep the amplified tests with the most distant values.
+     *
+     * @param tests List of tests to be reduced
+     * @return A subset of the input tests
+     */
     public static List<CtMethod<?>> reduce(List<CtMethod<?>> tests) {
         final List<CtMethod<?>> reducedTests = new ArrayList<>();
         if (tests.size() > MAX_NUMBER_OF_TESTS) {
-            LOGGER.warn("Too many tests has been generated: {}", tests.size());
+            LOGGER.warn("Too many tests have been generated: {}", tests.size());
             final Map<Long, List<CtMethod<?>>> valuesToMethod = new HashMap<>();
             for (CtMethod<?> test : tests) {
                 final long value = AmplificationHelper.convert(test.toString().getBytes());
@@ -302,12 +396,7 @@ public class AmplificationHelper {
         if (reducedTests.isEmpty()) {
             reducedTests.addAll(tests);
         }
-        ampTestToParent.putAll(reducedTests.stream()
-                .collect(HashMap::new,
-                        (parentsReduced, ctMethod) -> parentsReduced.put(ctMethod, tmpAmpTestToParent.get(ctMethod)),
-                        HashMap::putAll)
-        );
-        tmpAmpTestToParent.clear();
+        loadParentMapBuffer(reducedTests);
         return reducedTests;
     }
 

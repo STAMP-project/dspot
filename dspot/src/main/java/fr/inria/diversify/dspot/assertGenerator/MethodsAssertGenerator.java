@@ -195,7 +195,7 @@ public class MethodsAssertGenerator {
      */
     @SuppressWarnings("unchecked")
     private CtMethod<?> buildTestWithAssert(CtMethod test, Map<String, Observation> observations) {
-        CtMethod testWithAssert = AmplificationHelper.cloneMethodTest(test, "");
+        CtMethod testWithAssert = AmplificationHelper.cloneMethodTestAAmp(test, "", 0);
         int numberOfAddedAssertion = 0;
         List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter(CtStatement.class));
         for (String id : observations.keySet()) {
@@ -257,7 +257,6 @@ public class MethodsAssertGenerator {
         }
         Counter.updateAssertionOf(testWithAssert, numberOfAddedAssertion);
         if (!testWithAssert.equals(test)) {
-            AmplificationHelper.getAmpTestToParent().put(testWithAssert, test);
             return testWithAssert;
         } else {
             return null;
@@ -272,7 +271,7 @@ public class MethodsAssertGenerator {
      * @return New amplified test
      */
     protected CtMethod<?> makeFailureTest(CtMethod<?> test, Failure failure) {
-        CtMethod cloneMethodTest = AmplificationHelper.cloneMethodTest(test, "");
+        CtMethod cloneMethodTest = AmplificationHelper.cloneMethodTestAAmp(test, "", 1);
         cloneMethodTest.setSimpleName(test.getSimpleName());
         Factory factory = cloneMethodTest.getFactory();
 
@@ -310,9 +309,6 @@ public class MethodsAssertGenerator {
 
         cloneMethodTest.setBody(body);
         cloneMethodTest.setSimpleName(cloneMethodTest.getSimpleName() + "_failAssert" + (numberOfFail++));
-        Counter.updateAssertionOf(cloneMethodTest, 1);
-
-        AmplificationHelper.getAmpTestToParent().put(cloneMethodTest, test);
 
         return cloneMethodTest;
     }
