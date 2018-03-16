@@ -195,7 +195,7 @@ public class MethodsAssertGenerator {
      */
     @SuppressWarnings("unchecked")
     private CtMethod<?> buildTestWithAssert(CtMethod test, Map<String, Observation> observations) {
-        CtMethod testWithAssert = AmplificationHelper.cloneMethodTestAAmp(test, "");
+        CtMethod testWithAssert = AmplificationHelper.cloneMethodTestAAmp(test, "", 0);
         int numberOfAddedAssertion = 0;
         List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter(CtStatement.class));
         for (String id : observations.keySet()) {
@@ -271,7 +271,7 @@ public class MethodsAssertGenerator {
      * @return New amplified test
      */
     protected CtMethod<?> makeFailureTest(CtMethod<?> test, Failure failure) {
-        CtMethod cloneMethodTest = AmplificationHelper.cloneMethodTestAAmp(test, "");
+        CtMethod cloneMethodTest = AmplificationHelper.cloneMethodTestAAmp(test, "", 1);
         cloneMethodTest.setSimpleName(test.getSimpleName());
         Factory factory = cloneMethodTest.getFactory();
 

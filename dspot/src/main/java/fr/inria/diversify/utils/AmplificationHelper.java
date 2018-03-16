@@ -247,23 +247,6 @@ public class AmplificationHelper {
     /**
      * Clones a test method for input-amplification purposes.
      *
-     * Updates the counter of amplifications applied, assuming one cloning per amplification.
-     *
-     * See {@link #cloneMethodTest(CtMethod, String)} for the cloning details.
-     *
-     * @param method Method to be cloned
-     * @param suffix Suffix for the cloned method's name
-     * @return The cloned method
-     */
-    public static CtMethod cloneMethodTestIAmp(CtMethod method, String suffix) {
-        CtMethod cloned_method = cloneMethodTest(method, suffix);
-        Counter.updateInputOf(cloned_method, 1);
-        return cloned_method;
-    }
-
-    /**
-     * Clones a test method for input-amplification purposes.
-     *
      * Updates the counter of amplifications applied.
      *
      * See {@link #cloneMethodTest(CtMethod, String)} for the cloning details.
@@ -282,23 +265,6 @@ public class AmplificationHelper {
     /**
      * Clones a test method for assertion-amplification purposes.
      *
-     * Does not increment the counter of amplifications.
-     *
-     * See {@link #cloneMethodTest(CtMethod, String)} for the cloning details.
-     *
-     * @param method Method to be cloned
-     * @param suffix Suffix for the cloned method's name
-     * @return The cloned method
-     */
-    public static CtMethod cloneMethodTestAAmp(CtMethod method, String suffix) {
-        CtMethod cloned_method = cloneMethodTest(method, suffix);
-        loadParentMapBuffer();  // load directly because these tests will not be discarded
-        return cloned_method;
-    }
-
-    /**
-     * Clones a test method for assertion-amplification purposes.
-     *
      * Updates the counter of amplifications applied.
      *
      * See {@link #cloneMethodTest(CtMethod, String)} for the cloning details.
@@ -309,8 +275,9 @@ public class AmplificationHelper {
      * @return The cloned method
      */
     public static CtMethod cloneMethodTestAAmp(CtMethod method, String suffix, int nbAssertions) {
-        CtMethod cloned_method = cloneMethodTestAAmp(method, suffix);
+        CtMethod cloned_method = cloneMethodTest(method, suffix);
         Counter.updateAssertionOf(cloned_method, nbAssertions);
+        loadParentMapBuffer();  // load directly because these tests will not be discarded
         return cloned_method;
     }
 

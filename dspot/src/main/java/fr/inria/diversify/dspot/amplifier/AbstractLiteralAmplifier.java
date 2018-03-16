@@ -69,7 +69,7 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
         return literals.stream()
                 .flatMap(literal ->
                         this.amplify(literal).stream().map(newValue -> {
-                            CtMethod clone = AmplificationHelper.cloneMethodTestIAmp(testMethod, getSuffix());
+                            CtMethod clone = AmplificationHelper.cloneMethodTestIAmp(testMethod, getSuffix(), 1);
                             clone.getElements(literalTypeFilter).get(literals.indexOf(literal)).replace(newValue);
                             return clone;
                         })

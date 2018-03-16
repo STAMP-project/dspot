@@ -47,7 +47,7 @@ public class TestMethodCallRemover implements Amplifier {
 
     private CtMethod apply(CtMethod method, int invocation_index) {
         //clone the method
-        CtMethod<?> cloned_method = AmplificationHelper.cloneMethodTestIAmp(method, "_remove");
+        CtMethod<?> cloned_method = AmplificationHelper.cloneMethodTestIAmp(method, "_remove", 1);
 
         //get the lit_indexth literal of the cloned method
         CtInvocation stmt = Query.getElements(cloned_method, new TypeFilter<>(CtInvocation.class)).get(invocation_index);

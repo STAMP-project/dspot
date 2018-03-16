@@ -78,7 +78,7 @@ public class TestDataMutator implements Amplifier {
 
 	private CtMethod createNumberMutant(CtMethod method, int original_lit_index, Number newValue) {
 		//clone the method
-		CtMethod cloned_method = AmplificationHelper.cloneMethodTestIAmp(method, "_literalMutationNumber");
+		CtMethod cloned_method = AmplificationHelper.cloneMethodTestIAmp(method, "_literalMutationNumber", 1);
 		//get the lit_indexth literal of the cloned method
 		CtLiteral newLiteral = Query.getElements(cloned_method.getBody(), new LiteralToBeMutedFilter())
 				.get(original_lit_index);
@@ -123,7 +123,7 @@ public class TestDataMutator implements Amplifier {
 	}
 
 	private CtMethod createStringMutant(CtMethod method, int original_lit_index, String newValue) {
-		CtMethod cloned_method = AmplificationHelper.cloneMethodTestIAmp(method, "_literalMutationString");
+		CtMethod cloned_method = AmplificationHelper.cloneMethodTestIAmp(method, "_literalMutationString", 1);
 		CtLiteral toReplace = Query.getElements(cloned_method.getBody(), new LiteralToBeMutedFilter())
 				.get(original_lit_index);
 		toReplace.replace(cloned_method.getFactory().Code().createLiteral(newValue));
@@ -138,7 +138,7 @@ public class TestDataMutator implements Amplifier {
 	}
 
 	private CtMethod createCharacterMutant(CtMethod method, int original_lit_index, Character newValue) {
-		CtMethod cloned_method = AmplificationHelper.cloneMethodTestIAmp(method, "_literalMutationChar");
+		CtMethod cloned_method = AmplificationHelper.cloneMethodTestIAmp(method, "_literalMutationChar", 1);
 		CtLiteral toReplace = Query.getElements(cloned_method.getBody(), new LiteralToBeMutedFilter())
 				.get(original_lit_index);
 		toReplace.replace(cloned_method.getFactory().Code().createLiteral(newValue));
@@ -206,7 +206,7 @@ public class TestDataMutator implements Amplifier {
 
 	private CtMethod createBooleanMutant(CtMethod test, CtLiteral booleanLiteral) {
 		Boolean value = (Boolean) booleanLiteral.getValue();
-		CtMethod cloned_method = AmplificationHelper.cloneMethodTestIAmp(test, "_literalMutationBoolean");
+		CtMethod cloned_method = AmplificationHelper.cloneMethodTestIAmp(test, "_literalMutationBoolean", 1);
 		CtLiteral newValue = cloned_method.getElements(new TypeFilter<CtLiteral>(CtLiteral.class) {
 			@Override
 			public boolean matches(CtLiteral element) {
