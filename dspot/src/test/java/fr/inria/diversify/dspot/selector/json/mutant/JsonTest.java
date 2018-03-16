@@ -2,15 +2,12 @@ package fr.inria.diversify.dspot.selector.json.mutant;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import fr.inria.diversify.dspot.selector.json.mutant.MutantJSON;
-import fr.inria.diversify.dspot.selector.json.mutant.TestCaseJSON;
-import fr.inria.diversify.dspot.selector.json.mutant.TestClassJSON;
+import fr.inria.diversify.utils.AmplificationHelper;
 import org.junit.Test;
 
 import java.io.*;
 import java.util.Collections;
 
-import static fr.inria.diversify.dspot.AbstractTest.nl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -47,24 +44,24 @@ public class JsonTest {
 
     // do not use system separator because gson generate json with \n
 
-    private final String expectedJson = "{" + "" + nl  +
-            "  \"nbMutantKilledOriginally\": 23," + "" + nl  +
-            "  \"name\": \"MyTestClass\"," + "" + nl  +
-            "  \"nbOriginalTestCases\": 1," + "" + nl +
-            "  \"testCases\": [" + "" + nl  +
-            "    {" + "" + nl  +
-            "      \"name\": \"myTestCase\"," + "" + nl  +
-            "      \"nbAssertionAdded\": 1," + "" + nl  +
-            "      \"nbInputAdded\": 1," + "" + nl  +
-            "      \"nbMutantKilled\": 1," + "" + nl  +
-            "      \"mutantsKilled\": [" + "" + nl  +
-            "        {" + "" + nl  +
-            "          \"ID\": \"IdMutant\"," + "" + nl  +
-            "          \"lineNumber\": 1," + "" + nl  +
-            "          \"locationMethod\": \"method\"" + "" + nl  +
-            "        }" + "" + nl  +
-            "      ]" + "" + nl  +
-            "    }" + "" + nl  +
-            "  ]" + "" + nl  +
+    private final String expectedJson = "{" + "" + AmplificationHelper.LINE_SEPARATOR  +
+            "  \"nbMutantKilledOriginally\": 23," + "" + AmplificationHelper.LINE_SEPARATOR  +
+            "  \"name\": \"MyTestClass\"," + "" + AmplificationHelper.LINE_SEPARATOR  +
+            "  \"nbOriginalTestCases\": 1," + "" + AmplificationHelper.LINE_SEPARATOR +
+            "  \"testCases\": [" + "" + AmplificationHelper.LINE_SEPARATOR  +
+            "    {" + "" + AmplificationHelper.LINE_SEPARATOR  +
+            "      \"name\": \"myTestCase\"," + "" + AmplificationHelper.LINE_SEPARATOR  +
+            "      \"nbAssertionAdded\": 1," + "" + AmplificationHelper.LINE_SEPARATOR  +
+            "      \"nbInputAdded\": 1," + "" + AmplificationHelper.LINE_SEPARATOR  +
+            "      \"nbMutantKilled\": 1," + "" + AmplificationHelper.LINE_SEPARATOR  +
+            "      \"mutantsKilled\": [" + "" + AmplificationHelper.LINE_SEPARATOR  +
+            "        {" + "" + AmplificationHelper.LINE_SEPARATOR  +
+            "          \"ID\": \"IdMutant\"," + "" + AmplificationHelper.LINE_SEPARATOR  +
+            "          \"lineNumber\": 1," + "" + AmplificationHelper.LINE_SEPARATOR  +
+            "          \"locationMethod\": \"method\"" + "" + AmplificationHelper.LINE_SEPARATOR  +
+            "        }" + "" + AmplificationHelper.LINE_SEPARATOR  +
+            "      ]" + "" + AmplificationHelper.LINE_SEPARATOR  +
+            "    }" + "" + AmplificationHelper.LINE_SEPARATOR  +
+            "  ]" + "" + AmplificationHelper.LINE_SEPARATOR  +
             "}";
 }

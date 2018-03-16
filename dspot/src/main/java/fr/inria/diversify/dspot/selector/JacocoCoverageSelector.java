@@ -5,8 +5,8 @@ import com.google.gson.GsonBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.dspot.selector.json.coverage.TestCaseJSON;
 import fr.inria.diversify.dspot.selector.json.coverage.TestClassJSON;
-import fr.inria.diversify.dspot.support.Counter;
-import fr.inria.diversify.dspot.support.DSpotCompiler;
+import fr.inria.diversify.utils.Counter;
+import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
@@ -140,7 +140,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
         return methodsKept;
     }
 
-    private CtMethod<?> getFirstParentThatHasBeenRun(CtMethod<?> test) {
+    protected CtMethod<?> getFirstParentThatHasBeenRun(CtMethod<?> test) {
         CtMethod<?> currentParent = AmplificationHelper.getAmpTestToParent().get(test);
         while (AmplificationHelper.getAmpTestToParent().get(currentParent) != null) {
             if (this.selectedToBeAmplifiedCoverageResultsMap.get(currentParent.getSimpleName()) != null) {

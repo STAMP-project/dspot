@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot.support;
+package fr.inria.diversify.utils.compilation;
 
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;

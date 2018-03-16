@@ -7,8 +7,8 @@ import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.dspot.selector.json.mutant.MutantJSON;
 import fr.inria.diversify.dspot.selector.json.mutant.TestCaseJSON;
 import fr.inria.diversify.dspot.selector.json.mutant.TestClassJSON;
-import fr.inria.diversify.dspot.support.Counter;
-import fr.inria.diversify.dspot.support.DSpotCompiler;
+import fr.inria.diversify.utils.Counter;
+import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.diversify.utils.AmplificationChecker;
@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
  * benjamin.danglot@inria.fr
  * on 15/12/17
  */
+@Deprecated
 public class ExecutedMutantSelector extends TakeAllSelector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PitMutantScoreSelector.class);

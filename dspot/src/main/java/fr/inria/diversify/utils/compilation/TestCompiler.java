@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot.support;
+package fr.inria.diversify.utils.compilation;
 
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;

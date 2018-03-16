@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot.support;
+package fr.inria.diversify.utils.compilation;
 
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.sosiefier.InputProgram;

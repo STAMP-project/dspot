@@ -2,7 +2,7 @@ package fr.inria.stamp.minimization;
 
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
-import fr.inria.diversify.dspot.support.DSpotCompiler;
+import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.diversify.utils.AmplificationChecker;

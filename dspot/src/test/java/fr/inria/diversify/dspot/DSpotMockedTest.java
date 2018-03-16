@@ -1,9 +1,7 @@
 package fr.inria.diversify.dspot;
 
+import fr.inria.AbstractTest;
 import fr.inria.diversify.dspot.amplifier.StatementAdd;
-import fr.inria.diversify.dspot.amplifier.TestDataMutator;
-import fr.inria.diversify.dspot.amplifier.TestMethodCallAdder;
-import fr.inria.diversify.dspot.amplifier.TestMethodCallRemover;
 import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
@@ -25,7 +23,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 29/04/17
  */
-public class DSpotMockedTest extends MavenAbstractTest {
+public class DSpotMockedTest extends AbstractTest {
 
 	@Test
 	public void test() throws Exception {
@@ -35,7 +33,7 @@ public class DSpotMockedTest extends MavenAbstractTest {
          */
 		ValueCreator.count = 0;
 		AmplificationHelper.setSeedRandom(23L);
-		InputConfiguration configuration = new InputConfiguration(pathToPropertiesFile);
+		InputConfiguration configuration = new InputConfiguration(getPathToPropertiesFile());
 		InputProgram program = new InputProgram();
 		configuration.setInputProgram(program);
 		DSpot dspot = new DSpot(configuration, 1,

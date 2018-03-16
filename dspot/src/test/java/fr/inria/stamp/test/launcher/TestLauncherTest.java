@@ -1,6 +1,6 @@
 package fr.inria.stamp.test.launcher;
 
-import fr.inria.diversify.Utils;
+import fr.inria.Utils;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;

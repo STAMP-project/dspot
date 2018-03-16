@@ -5,7 +5,7 @@ import com.atlassian.clover.reporters.html.HtmlReporter;
 import com.atlassian.clover.reporters.json.JSONException;
 import com.atlassian.clover.reporters.json.JSONObject;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
-import fr.inria.diversify.dspot.support.DSpotCompiler;
+import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;

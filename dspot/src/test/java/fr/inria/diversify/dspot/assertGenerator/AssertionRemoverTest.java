@@ -1,8 +1,9 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
-import fr.inria.diversify.Utils;
-import fr.inria.diversify.dspot.AbstractTest;
+import fr.inria.Utils;
+import fr.inria.AbstractTest;
 import fr.inria.diversify.utils.AmplificationChecker;
+import fr.inria.diversify.utils.AmplificationHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
@@ -10,7 +11,6 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -31,10 +31,10 @@ public class AssertionRemoverTest extends AbstractTest {
 			}
 		}).forEach(assertionRemover::removeAssertion);
 
-		final String expectedMethod = "@org.junit.Test" + nl +
-				"public void test1() {" + nl +
-				"    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl +
-				"    cl.getTrue();" + nl +
+		final String expectedMethod = "@org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
+				"public void test1() {" + AmplificationHelper.LINE_SEPARATOR +
+				"    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + AmplificationHelper.LINE_SEPARATOR +
+				"    cl.getTrue();" + AmplificationHelper.LINE_SEPARATOR +
 				"}";
 		assertEquals(expectedMethod , testClass.getMethodsByName("test1").get(0).toString());
 	}
@@ -55,16 +55,16 @@ public class AssertionRemoverTest extends AbstractTest {
 			}
 		}).forEach(assertionRemover::removeAssertion);
 
-		final String expectedMethod = "@org.junit.Test" + nl +
-				"public void test1() {" + nl +
-				"    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + nl +
-				"    cl.getTrue();" + nl +
-				"    int one = 1;" + nl +
-				"    switch (one) {" + nl +
-				"        case 1 :" + nl +
-				"            fr.inria.assertionremover.TestClassWithAssertToBeRemoved.getNegation(cl.getFalse());" + nl +
-				"            break;" + nl +
-				"    }" + nl +
+		final String expectedMethod = "@org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
+				"public void test1() {" + AmplificationHelper.LINE_SEPARATOR +
+				"    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + AmplificationHelper.LINE_SEPARATOR +
+				"    cl.getTrue();" + AmplificationHelper.LINE_SEPARATOR +
+				"    int one = 1;" + AmplificationHelper.LINE_SEPARATOR +
+				"    switch (one) {" + AmplificationHelper.LINE_SEPARATOR +
+				"        case 1 :" + AmplificationHelper.LINE_SEPARATOR +
+				"            fr.inria.assertionremover.TestClassWithAssertToBeRemoved.getNegation(cl.getFalse());" + AmplificationHelper.LINE_SEPARATOR +
+				"            break;" + AmplificationHelper.LINE_SEPARATOR +
+				"    }" + AmplificationHelper.LINE_SEPARATOR +
 				"}";
 		assertEquals(expectedMethod , testClass.getMethodsByName("test1").get(0).toString());
 	}
@@ -85,10 +85,10 @@ public class AssertionRemoverTest extends AbstractTest {
 			}
 		}).forEach(assertionRemover::removeAssertion);
 
-		final String expectedMethod = "@org.junit.Test" + nl +
-				"public void test2() throws java.lang.Exception {" + nl +
-				"    int a = -1;" + nl +
-				"    int b = 1;" + nl +
+		final String expectedMethod = "@org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
+				"public void test2() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
+				"    int a = -1;" + AmplificationHelper.LINE_SEPARATOR +
+				"    int b = 1;" + AmplificationHelper.LINE_SEPARATOR +
 				"}";
 		assertEquals(expectedMethod , testClass.getMethodsByName("test2").get(0).toString());
 	}

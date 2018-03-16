@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot;
 
-import fr.inria.diversify.Utils;
+import fr.inria.AbstractTest;
+import fr.inria.Utils;
 import fr.inria.diversify.dspot.amplifier.Amplifier;
 import fr.inria.diversify.dspot.amplifier.TestMethodCallAdder;
 import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;

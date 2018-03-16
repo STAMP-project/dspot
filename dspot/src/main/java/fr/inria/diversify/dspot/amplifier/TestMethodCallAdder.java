@@ -2,7 +2,7 @@ package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
-import fr.inria.diversify.dspot.support.Counter;
+import fr.inria.diversify.utils.Counter;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;

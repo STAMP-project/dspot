@@ -1,9 +1,8 @@
 package fr.inria.diversify.dspot.amplifier;
 
-import fr.inria.diversify.Utils;
-import fr.inria.diversify.dspot.AbstractTest;
+import fr.inria.Utils;
+import fr.inria.AbstractTest;
 import org.junit.Test;
-import fr.inria.diversify.utils.AmplificationHelper;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
