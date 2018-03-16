@@ -27,7 +27,7 @@ public class AssertGeneratorHelper {
     }
 
     static CtMethod<?> createTestWithLog(CtMethod test, final String filter) {
-        CtMethod clone = AmplificationHelper.cloneMethodTestAAmp(test, "", 0);
+        CtMethod clone = AmplificationHelper.cloneMethodTestNoAmp(test);
         clone.setSimpleName(test.getSimpleName() + "_withlog");
         final List<CtStatement> allStatement = clone.getElements(new TypeFilter<>(CtStatement.class));
         allStatement.stream()

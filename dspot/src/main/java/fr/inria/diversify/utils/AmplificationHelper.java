@@ -215,7 +215,6 @@ public class AmplificationHelper {
      */
     private static CtMethod cloneMethodTest(CtMethod method, String suffix) {
         CtMethod cloned_method = cloneMethod(method, suffix);
-        tmpAmpTestToParent.put(cloned_method, method);
 
         CtAnnotation testAnnotation = cloned_method.getAnnotations().stream()
                 .filter(annotation -> annotation.toString().contains("Test"))
@@ -259,6 +258,7 @@ public class AmplificationHelper {
      */
     public static CtMethod cloneMethodTestIAmp(CtMethod method, String suffix, int nbAmp) {
         CtMethod cloned_method = cloneMethodTest(method, suffix);
+        tmpAmpTestToParent.put(cloned_method, method);
         Counter.updateInputOf(cloned_method, nbAmp);
         return cloned_method;
     }
@@ -277,9 +277,20 @@ public class AmplificationHelper {
      */
     public static CtMethod cloneMethodTestAAmp(CtMethod method, String suffix, int nbAssertions) {
         CtMethod cloned_method = cloneMethodTest(method, suffix);
+        tmpAmpTestToParent.put(cloned_method, method);
         Counter.updateAssertionOf(cloned_method, nbAssertions);
         loadParentMapBuffer();  // load directly because these tests will not be discarded
         return cloned_method;
+    }
+
+    /**
+     * Simply clones a test method.
+     *
+     * @param method Method to be cloned
+     * @return The cloned method
+     */
+    public static CtMethod cloneMethodTestNoAmp(CtMethod method) {
+        return cloneMethodTest(method, "");
     }
 
     public static List<CtMethod<?>> getPassingTests(List<CtMethod<?>> newTests, TestListener result) {
