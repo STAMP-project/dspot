@@ -346,12 +346,11 @@ public class AmplificationHelper {
     /**
      * Reduces the number of amplified tests to a practical threshold (see {@link #MAX_NUMBER_OF_TESTS}).
      *
-     * The reduction aims at keeping a maximum of diversity.
+     * <p>The reduction aims at keeping a maximum of diversity. Because all the amplified tests come from the same
+     * original test, they have a <em>lot</em> in common.
      *
-     * Diversity is measured with the textual representation of amplified tests. Since all the amplified tests come from
-     * the same original test, they have a <em>lot</em> in common. We use the sum of the bytes returned by the
-     * {@link String#getBytes()} method and then compute the standard deviation on this sum. We only keep amplified
-     * tests with a byte sum greater or equal to this standard deviation.
+     * <p>Diversity is measured with the textual representation of amplified tests. We use the sum of the bytes returned
+     * by the {@link String#getBytes()} method and keep the amplified tests with the most distant values.
      *
      * @param tests List of tests to be reduced
      * @return A subset of the input tests
@@ -359,7 +358,7 @@ public class AmplificationHelper {
     public static List<CtMethod<?>> reduce(List<CtMethod<?>> tests) {
         final List<CtMethod<?>> reducedTests = new ArrayList<>();
         if (tests.size() > MAX_NUMBER_OF_TESTS) {
-            LOGGER.warn("Too many tests has been generated: {}", tests.size());
+            LOGGER.warn("Too many tests have been generated: {}", tests.size());
             final Map<Long, List<CtMethod<?>>> valuesToMethod = new HashMap<>();
             for (CtMethod<?> test : tests) {
                 final long value = AmplificationHelper.convert(test.toString().getBytes());
