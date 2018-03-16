@@ -21,56 +21,61 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
 
     protected CtType<?> testClassToBeAmplified;
 
-    private final TypeFilter<CtLiteral<T>> literalTypeFilter = new TypeFilter<CtLiteral<T>>(CtLiteral.class) {
+    private final TypeFilter<CtLiteral<T>> LITERAL_TYPE_FILTER = new TypeFilter<CtLiteral<T>>(CtLiteral.class) {
         @Override
         public boolean matches(CtLiteral<T> literal) {
-            Class<?> clazzOfLiteral = null;
-            if ((literal.getParent() instanceof CtInvocation &&
-                    AmplificationChecker.isAssert((CtInvocation) literal.getParent()))
-                    || literal.getParent(CtAnnotation.class) != null) {
-                return false;
-            } else if (literal.getValue() == null) {
-                if (literal.getParent() instanceof CtInvocation<?>) {
-                    final CtInvocation<?> parent = (CtInvocation<?>) literal.getParent();
-                    final CtExpression<?> ctExpression = parent
-                            .getArguments()
-                            .stream()
-                            .filter(parameter -> parameter.equals(literal))
-                            .findFirst()
-                            .get();
-                    clazzOfLiteral = parent.getExecutable()
-                            .getDeclaration()
-                            .getParameters()
-                            .get(parent
-                                    .getArguments()
-                                    .indexOf(ctExpression)
-                            ).getType()
-                            .getActualClass();
-                } else if (literal.getParent() instanceof CtAssignment) {
-                    clazzOfLiteral = ((CtAssignment) literal.getParent())
-                            .getAssigned()
-                            .getType()
-                            .getActualClass();
-                } else if (literal.getParent() instanceof CtLocalVariable) {
-                    clazzOfLiteral = ((CtLocalVariable) literal.getParent())
-                            .getType()
-                            .getActualClass();
+            try {
+                Class<?> clazzOfLiteral = null;
+                if ((literal.getParent() instanceof CtInvocation &&
+                        AmplificationChecker.isAssert((CtInvocation) literal.getParent()))
+                        || literal.getParent(CtAnnotation.class) != null) {
+                    return false;
+                } else if (literal.getValue() == null) {
+                    if (literal.getParent() instanceof CtInvocation<?>) {
+                        final CtInvocation<?> parent = (CtInvocation<?>) literal.getParent();
+                        final CtExpression<?> ctExpression = parent
+                                .getArguments()
+                                .stream()
+                                .filter(parameter -> parameter.equals(literal))
+                                .findFirst()
+                                .get();
+                        clazzOfLiteral = parent.getExecutable()
+                                .getDeclaration()
+                                .getParameters()
+                                .get(parent
+                                        .getArguments()
+                                        .indexOf(ctExpression)
+                                ).getType()
+                                .getActualClass();
+                    } else if (literal.getParent() instanceof CtAssignment) {
+                        clazzOfLiteral = ((CtAssignment) literal.getParent())
+                                .getAssigned()
+                                .getType()
+                                .getActualClass();
+                    } else if (literal.getParent() instanceof CtLocalVariable) {
+                        clazzOfLiteral = ((CtLocalVariable) literal.getParent())
+                                .getType()
+                                .getActualClass();
+                    }
+                } else {
+                    clazzOfLiteral = literal.getValue().getClass();
                 }
-            } else {
-                clazzOfLiteral = literal.getValue().getClass();
+                return getTargetedClass().isAssignableFrom(clazzOfLiteral);
+            } catch (Exception e) {
+                // maybe need a warning ?
+                return false;
             }
-            return getTargetedClass().isAssignableFrom(clazzOfLiteral);
         }
     };
 
     @Override
     public List<CtMethod> apply(CtMethod testMethod) {
-        List<CtLiteral<T>> literals = testMethod.getElements(literalTypeFilter);
+        List<CtLiteral<T>> literals = testMethod.getElements(LITERAL_TYPE_FILTER);
         return literals.stream()
                 .flatMap(literal ->
                         this.amplify(literal).stream().map(newValue -> {
                             CtMethod clone = AmplificationHelper.cloneMethodTest(testMethod, getSuffix());
-                            clone.getElements(literalTypeFilter).get(literals.indexOf(literal)).replace(newValue);
+                            clone.getElements(LITERAL_TYPE_FILTER).get(literals.indexOf(literal)).replace(newValue);
                             return clone;
                         })
                 ).collect(Collectors.toList());
