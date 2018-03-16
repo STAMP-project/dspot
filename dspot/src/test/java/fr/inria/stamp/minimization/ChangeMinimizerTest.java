@@ -8,6 +8,7 @@ import fr.inria.diversify.utils.Initializer;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
 import org.junit.Test;
+import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
@@ -53,6 +54,10 @@ public class ChangeMinimizerTest extends AbstractTest {
         inputProgram.setProgramDir(pathToChangedVersionOfProgram);
         Initializer.initialize(Utils.getInputConfiguration(), inputProgram);
         final HashMap<CtMethod<?>, Failure> failurePerAmplifiedTest = new HashMap<>();
+        final CtMethod<?> test2 = Utils.findMethod(testClass, "test2");
+        failurePerAmplifiedTest.put(test2,
+                new Failure(Description.EMPTY, new StringIndexOutOfBoundsException(-1))
+        );
         final ChangeMinimizer changeMinimizer = new ChangeMinimizer(
                 testClass,
                 inputConfiguration,
@@ -60,8 +65,6 @@ public class ChangeMinimizerTest extends AbstractTest {
                 pathToChangedVersionOfProgram,
                 failurePerAmplifiedTest
         );
-
-        final CtMethod<?> test2 = Utils.findMethod(testClass, "test2");
         final CtInvocation assertion = test2.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
             @Override
             public boolean matches(CtInvocation element) {
