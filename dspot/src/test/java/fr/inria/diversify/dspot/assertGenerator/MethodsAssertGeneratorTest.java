@@ -37,11 +37,13 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
 
 	@Test
 	public void testOnInfiniteLoop() throws Exception {
+		AmplificationHelper.setTimeOutInMs(1000);
 		final CtClass testClass = Utils.findClass("fr.inria.infinite.LoopTest");
 		MethodsAssertGenerator mag = new MethodsAssertGenerator(testClass, Utils.getInputConfiguration(), Utils.getCompiler());
 		CtMethod test = Utils.findMethod("fr.inria.infinite.LoopTest", "testLoop");
 		List<CtMethod<?>> test_buildNewAssert = mag.generateAsserts(testClass, Collections.singletonList(test));
 		assertTrue(test_buildNewAssert.isEmpty());
+		AmplificationHelper.setTimeOutInMs(10000);
 	}
 
 	@Test
