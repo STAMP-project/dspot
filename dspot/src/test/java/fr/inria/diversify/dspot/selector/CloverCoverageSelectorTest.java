@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.selector;
 
 import fr.inria.Utils;
 import fr.inria.diversify.utils.AmplificationHelper;
+import org.junit.Before;
 import spoon.reflect.declaration.CtMethod;
 
 /**
@@ -11,6 +12,13 @@ import spoon.reflect.declaration.CtMethod;
  */
 @SuppressWarnings("unchecked")
 public class CloverCoverageSelectorTest extends AbstractSelectorTest {
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        Utils.reset();
+        super.setUp();
+    }
 
     @Override
     protected TestSelector getTestSelector() {
@@ -27,13 +35,14 @@ public class CloverCoverageSelectorTest extends AbstractSelectorTest {
 
     @Override
     protected String getPathToReportFile() {
-        return "target/trash/example.TestSuiteExample_change_report.txt";
+        return "target/trash/example.TestSuiteExample_clover_coverage.txt";
     }
 
     @Override
     protected String getContentReportFile() {
-        return  "======= REPORT ======="+ AmplificationHelper.LINE_SEPARATOR +
-                "1 amplified test fails on the new versions."+ AmplificationHelper.LINE_SEPARATOR +
-                "test2(example.TestSuiteExample): String index out of range: -1";
+        return  "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
+                "Initial Coverage: 33 / 37" + AmplificationHelper.LINE_SEPARATOR +
+                "The amplification results with: 1 amplified test cases" + AmplificationHelper.LINE_SEPARATOR +
+                "Amplified Coverage: 37 / 37";
     }
 }

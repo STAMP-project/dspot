@@ -4,12 +4,12 @@ import fr.inria.Utils;
 import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -43,7 +43,6 @@ public abstract class AbstractSelectorTest {
     protected abstract String getContentReportFile();
 
     protected TestSelector testSelectorUnderTest;
-
 
     @Before
     public void setUp() throws Exception {

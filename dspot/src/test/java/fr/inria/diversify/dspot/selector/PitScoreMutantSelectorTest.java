@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.selector;
 
 import fr.inria.Utils;
 import fr.inria.diversify.utils.AmplificationHelper;
+import org.junit.Before;
 import spoon.reflect.declaration.CtMethod;
 
 /**
@@ -16,6 +17,13 @@ public class PitScoreMutantSelectorTest extends AbstractSelectorTest {
                 - The amplified test should increase the mutation score of the test suite.
                     we compare the mutation score before and after.
          */
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        Utils.reset(); // TODO somewhere, there is some states that is why we need to reset here.
+        super.setUp();
+    }
 
     @Override
     protected TestSelector getTestSelector() {
@@ -36,10 +44,11 @@ public class PitScoreMutantSelectorTest extends AbstractSelectorTest {
 
     @Override
     protected String getContentReportFile() {
-        return "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
+        return AmplificationHelper.LINE_SEPARATOR +
+                "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
                 "PitMutantScoreSelector: " + AmplificationHelper.LINE_SEPARATOR +
-                "The original test suite kills 13 mutants" + AmplificationHelper.LINE_SEPARATOR +
-                "The amplification results with 4 new tests" + AmplificationHelper.LINE_SEPARATOR +
-                "it kills 7 more mutants" + AmplificationHelper.LINE_SEPARATOR;
+                "The original test suite kills 15 mutants" + AmplificationHelper.LINE_SEPARATOR +
+                "The amplification results with 1 new tests" + AmplificationHelper.LINE_SEPARATOR +
+                "it kills 1 more mutants";
     }
 }
