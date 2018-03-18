@@ -69,15 +69,15 @@ public class Utils {
 		} catch (Exception ignored) {
 
 		}
+		try {
+			FileUtils.forceDelete(new File("target/dspot/tmp_test_sources/"));
+		} catch (Exception ignored) {
+
+		}
 		if (pathToConfFile.equals(currentInputConfigurationLoaded)) {
 			return;
 		}
 		try {
-			try {
-				FileUtils.forceDelete(new File("target/dspot/tmp_test_sources/"));
-			} catch (Exception ignored) {
-
-			}
 			AutomaticBuilderFactory.reset();
 			if (! new File("target/dspot/dependencies/compare").exists()) {
 				DSpotUtils.copyPackageFromResources("fr/inria/diversify/compare/",
