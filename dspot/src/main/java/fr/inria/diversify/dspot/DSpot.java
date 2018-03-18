@@ -83,7 +83,10 @@ public class DSpot {
         this(inputConfiguration, numberOfIterations, amplifiers, new CloverCoverageSelector());
     }
 
-    public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws Exception {
+    public DSpot(InputConfiguration inputConfiguration,
+                 int numberOfIterations,
+                 List<Amplifier> amplifiers,
+                 TestSelector testSelector) throws Exception {
 
         Initializer.initialize(inputConfiguration);
         this.inputConfiguration = inputConfiguration;
@@ -119,27 +122,32 @@ public class DSpot {
         this.amplifiers.add(amplifier);
     }
 
-    public List<CtType> amplifyAllTests() throws InterruptedException, IOException, ClassNotFoundException {
-        final List<CtType> amplifiedTest = inputProgram.getFactory().Class().getAll().stream()
+    public List<CtType> amplifyAllTests() {
+        return this.amplifyAllTests(inputProgram.getFactory().Class().getAll().stream()
                 .filter(ctClass -> !ctClass.getModifiers().contains(ModifierKind.ABSTRACT))
                 .filter(ctClass ->
                         ctClass.getMethods().stream()
                                 .anyMatch(AmplificationChecker::isTest))
+                .collect(Collectors.toList()));
+    }
+
+    public List<CtType> amplifyAllTestsNames(List<String> fullQualifiedNameTestClasses) {
+        return amplifyAllTests(inputProgram.getFactory().Class().getAll().stream()
+                .filter(ctClass -> !ctClass.getModifiers().contains(ModifierKind.ABSTRACT))
+                .filter(ctClass ->
+                        ctClass.getMethods().stream()
+                                .anyMatch(AmplificationChecker::isTest))
+                .filter(ctType -> fullQualifiedNameTestClasses.contains(ctType.getQualifiedName()))
+                .collect(Collectors.toList()));
+    }
+
+    public List<CtType> amplifyAllTests(List<CtType> testClasses) {
+        final List<CtType> amplifiedTestClasses = testClasses.stream()
+                .filter(this.isExcluded)
                 .map(this::amplifyTest)
                 .collect(Collectors.toList());
         writeTimeJson();
-        return amplifiedTest;
-    }
-
-    private void writeTimeJson() {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        final File file = new File(this.inputConfiguration.getOutputDirectory() +
-                "/" + this.projectTimeJSON.projectName + ".json");
-        try (FileWriter writer = new FileWriter(file, false)) {
-            writer.write(gson.toJson(this.projectTimeJSON));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return amplifiedTestClasses;
     }
 
     public List<CtType> amplifyTest(String targetTestClasses) {
@@ -157,23 +165,14 @@ public class DSpot {
                 .collect(Collectors.toList());
     }
 
-    private final Predicate<CtType> isExcluded = ctType ->
-            this.inputConfiguration.getProperty("excludedClasses") == null ||
-            Arrays.stream(this.inputConfiguration.getProperty("excludedClasses").split(","))
-                    .map(Pattern::compile)
-                    .map(pattern -> pattern.matcher(ctType.getQualifiedName()))
-                    .noneMatch(Matcher::matches);
-
-
     public CtType amplifyTest(CtType test) {
         return this.amplifyTest(test, AmplificationHelper.getAllTest(test));
     }
 
-    public CtType amplifyTest(String fullQualifiedName, List<String> methods) throws InterruptedException, IOException, ClassNotFoundException {
-        CtType<Object> clone = this.compiler.getLauncher().getFactory().Type().get(fullQualifiedName).clone();
-        clone.setParent(this.compiler.getLauncher().getFactory().Type().get(fullQualifiedName).getParent());
-        return amplifyTest(clone, methods.stream()
-                .map(methodName -> clone.getMethodsByName(methodName).get(0))
+    public CtType amplifyTest(String fullQualifiedName, List<String> methods) {
+        final CtType<?> testClass = this.compiler.getLauncher().getFactory().Type().get(fullQualifiedName);
+        return amplifyTest(testClass, methods.stream()
+                .map(methodName -> testClass.getMethodsByName(methodName).get(0))
                 .filter(AmplificationChecker::isTest)
                 .collect(Collectors.toList()));
     }
@@ -188,7 +187,7 @@ public class DSpot {
             final long elapsedTime = System.currentTimeMillis() - time;
             LOGGER.info("elapsedTime {}", elapsedTime);
             this.projectTimeJSON.add(new ClassTimeJSON(test.getQualifiedName(), elapsedTime));
-            CtType<?> amplification = AmplificationHelper.createAmplifiedTest(testSelector.getAmplifiedTestCases(), test, testSelector.getMinimizer());
+            CtType<?> amplification = AmplificationHelper.createAmplifiedTest(testSelector.getAmplifiedTestCases(), test.clone(), testSelector.getMinimizer());
             testSelector.report();
             final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
             LOGGER.info("Print {} with {} amplified test cases in {}", amplification.getSimpleName(),
@@ -224,5 +223,23 @@ public class DSpot {
 
     public InputProgram getInputProgram() {
         return inputProgram;
+    }
+
+    private final Predicate<CtType> isExcluded = ctType ->
+            this.inputConfiguration.getProperty("excludedClasses") == null ||
+                    Arrays.stream(this.inputConfiguration.getProperty("excludedClasses").split(","))
+                            .map(Pattern::compile)
+                            .map(pattern -> pattern.matcher(ctType.getQualifiedName()))
+                            .noneMatch(Matcher::matches);
+
+    private void writeTimeJson() {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        final File file = new File(this.inputConfiguration.getOutputDirectory() +
+                "/" + this.projectTimeJSON.projectName + ".json");
+        try (FileWriter writer = new FileWriter(file, false)) {
+            writer.write(gson.toJson(this.projectTimeJSON));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
