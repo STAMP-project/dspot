@@ -65,5 +65,6 @@ public class TakeAllSelectorTest extends AbstractSelectorTest {
 				)
 		);
 		assertFalse(this.testSelectorUnderTest.getAmplifiedTestCases().isEmpty());
+		this.testSelectorUnderTest.report();
 	}
 }
