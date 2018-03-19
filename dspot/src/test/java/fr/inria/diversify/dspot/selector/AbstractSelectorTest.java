@@ -3,6 +3,7 @@ package fr.inria.diversify.dspot.selector;
 import fr.inria.Utils;
 import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.utils.AmplificationHelper;
+import fr.inria.stamp.minimization.Minimizer;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -44,6 +45,8 @@ public abstract class AbstractSelectorTest {
 
     protected TestSelector testSelectorUnderTest;
 
+    protected abstract Class<?> getClassMinimizer();
+
     @Before
     public void setUp() throws Exception {
         final String configurationPath = getPathToProperties();
@@ -78,6 +81,6 @@ public abstract class AbstractSelectorTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
+        assertTrue(this.testSelectorUnderTest.getMinimizer().getClass() == getClassMinimizer());
     }
 }

@@ -2,7 +2,6 @@ package fr.inria.diversify.utils;
 
 import fr.inria.Utils;
 import fr.inria.AbstractTest;
-import fr.inria.stamp.minimization.NoMinimizer;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.*;
@@ -32,7 +31,7 @@ public class AmplificationHelperTest extends AbstractTest {
                 .collect(Collectors.toList());
         fakeAmplifiedMethod.forEach(ctMethod -> ctMethod.setSimpleName("ampl" + ctMethod.getSimpleName()));
 
-        CtType<?> amplifiedTest = AmplificationHelper.createAmplifiedTest(fakeAmplifiedMethod, classTest, new NoMinimizer());
+        CtType<?> amplifiedTest = AmplificationHelper.createAmplifiedTest(fakeAmplifiedMethod, classTest, null);
         assertEquals(16, amplifiedTest.getMethods().size());
 
         assertFalse(classTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {

@@ -16,4 +16,19 @@ public class AmplifiedTest {
         int __DSPOT_1 = 5;
         assertEquals(5, __DSPOT_1);
     }
+
+    @Test
+    public void amplifiedTest2() throws Exception {
+        Integer __DSPOT_1 = 5;
+        assertEquals(5, __DSPOT_1.intValue());
+        System.out.println(__DSPOT_1.intValue());
+        assertEquals(5, __DSPOT_1.intValue());
+    }
+
+    @Test
+    public void amplifiedTest3() throws Exception {
+        Integer __DSPOT_1 = 5;
+        assertEquals(5, __DSPOT_1.intValue());
+        assertEquals(5, __DSPOT_1.intValue());
+    }
 }

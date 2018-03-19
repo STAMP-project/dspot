@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.selector;
 
 import fr.inria.Utils;
 import fr.inria.diversify.utils.AmplificationHelper;
+import fr.inria.stamp.minimization.GeneralMinimizer;
 import org.junit.Before;
 import spoon.reflect.declaration.CtMethod;
 
@@ -44,5 +45,10 @@ public class CloverCoverageSelectorTest extends AbstractSelectorTest {
                 "Initial Coverage: 33 / 37" + AmplificationHelper.LINE_SEPARATOR +
                 "The amplification results with: 1 amplified test cases" + AmplificationHelper.LINE_SEPARATOR +
                 "Amplified Coverage: 37 / 37";
+    }
+
+    @Override
+    protected Class<?> getClassMinimizer() {
+        return GeneralMinimizer.class;
     }
 }

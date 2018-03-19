@@ -6,6 +6,7 @@ import fr.inria.diversify.dspot.amplifier.StatementAdd;
 import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.stamp.minimization.GeneralMinimizer;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,6 +48,11 @@ public class TakeAllSelectorTest extends AbstractSelectorTest {
 	@Override
 	protected String getContentReportFile() {
 		return "";
+	}
+
+	@Override
+	protected Class<?> getClassMinimizer() {
+		return GeneralMinimizer.class;
 	}
 
 	@Test

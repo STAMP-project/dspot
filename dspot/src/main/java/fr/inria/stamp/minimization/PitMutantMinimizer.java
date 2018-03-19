@@ -1,23 +1,12 @@
 package fr.inria.stamp.minimization;
 
-import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
-import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
-import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.mutant.pit.PitResult;
-import fr.inria.diversify.mutant.pit.PitResultParser;
-import fr.inria.diversify.utils.AmplificationChecker;
-import fr.inria.diversify.utils.AmplificationHelper;
-import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
-import fr.inria.diversify.utils.sosiefier.InputProgram;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
-import java.io.File;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -78,7 +67,6 @@ public class PitMutantMinimizer extends GeneralMinimizer {
         );
 
         return amplifiedTestToBeMinimized;
-        */
     }
 
     private CtMethod<?> removeGivenAssertions(CtMethod<?> amplifiedTest, CtStatement assertion) {
@@ -117,5 +105,6 @@ public class PitMutantMinimizer extends GeneralMinimizer {
                 .getAutomaticBuilder(this.configuration)
                 .runPit(program.getProgramDir(), clone);
         return PitResultParser.parseAndDelete(program.getProgramDir() + automaticBuilder.getOutputDirectoryPit());
+                */
     }
 }

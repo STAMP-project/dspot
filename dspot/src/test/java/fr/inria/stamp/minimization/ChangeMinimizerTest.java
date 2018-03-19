@@ -32,11 +32,12 @@ public class ChangeMinimizerTest extends AbstractTest {
         return "src/test/resources/regression/test-projects_0/test-projects.properties";
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void test() throws Exception {
 
         /*
-
+            ChangeMinimizer keeps only the assertions that trigger the failure on the second version
          */
 
         final CtClass testClass = Utils.findClass("example.TestSuiteExample");
