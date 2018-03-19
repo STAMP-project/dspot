@@ -38,7 +38,7 @@ public class TestMethodCallAdder implements Amplifier {
                 invocation_index++;
             }
         }
-        return AmplificationHelper.updateAmpTestToParent(methods, method);
+        return methods;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class TestMethodCallAdder implements Amplifier {
     }
 
     private CtMethod apply(CtMethod method, int invocation_index) {
-        CtMethod<?> cloned_method = AmplificationHelper.cloneMethodTest(method, "_add");
+        CtMethod<?> cloned_method = AmplificationHelper.cloneTestMethodForAmp(method, "_add");
         //add the cloned method in the same class as the original method
         //get the lit_indexth literal of the cloned method
         CtInvocation stmt = Query.getElements(cloned_method, new TypeFilter<>(CtInvocation.class)).get(invocation_index);

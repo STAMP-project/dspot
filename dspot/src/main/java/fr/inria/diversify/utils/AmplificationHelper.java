@@ -109,13 +109,12 @@ public class AmplificationHelper {
         return clone;
     }
 
-    public static Map<CtMethod, CtMethod> getAmpTestToParent() {
-        return ampTestToParent;
+    public static CtMethod getAmpTestParent(CtMethod amplifiedTest) {
+        return ampTestToParent.get(amplifiedTest);
     }
 
-    public static List<CtMethod> updateAmpTestToParent(List<CtMethod> tests, CtMethod parentTest) {
-        tests.forEach(test -> ampTestToParent.put(test, parentTest));
-        return tests;
+    public static CtMethod removeAmpTestParent(CtMethod amplifiedTest) {
+        return ampTestToParent.remove(amplifiedTest);
     }
 
     @Deprecated
@@ -192,7 +191,7 @@ public class AmplificationHelper {
      * @param suffix Suffix for the cloned method's name
      * @return The cloned method
      */
-    public static CtMethod cloneMethodTest(CtMethod method, String suffix) {
+    private static CtMethod cloneTestMethod(CtMethod method, String suffix) {
         CtMethod cloned_method = cloneMethod(method, suffix);
         CtAnnotation testAnnotation = cloned_method.getAnnotations().stream()
                 .filter(annotation -> annotation.toString().contains("Test"))
@@ -220,6 +219,16 @@ public class AmplificationHelper {
         cloned_method.addThrownType(method.getFactory().Type().createReference(Exception.class));
 
         return cloned_method;
+    }
+
+    public static CtMethod cloneTestMethodForAmp(CtMethod method, String suffix) {
+        CtMethod clonedMethod = cloneTestMethod(method, suffix);
+        ampTestToParent.put(clonedMethod, method);
+        return clonedMethod;
+    }
+
+    public static CtMethod cloneTestMethodNoAmp(CtMethod method) {
+        return cloneTestMethod(method, "");
     }
 
     public static List<CtMethod<?>> getPassingTests(List<CtMethod<?>> newTests, TestListener result) {
@@ -257,7 +266,7 @@ public class AmplificationHelper {
     public static CtMethod getTopParent(CtMethod test) {
         CtMethod topParent;
         CtMethod currentTest = test;
-        while ((topParent = getAmpTestToParent().get(currentTest)) != null) {
+        while ((topParent = getAmpTestParent(currentTest)) != null) {
             currentTest = topParent;
         }
         return currentTest;

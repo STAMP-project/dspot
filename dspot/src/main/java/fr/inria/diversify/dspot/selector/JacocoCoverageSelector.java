@@ -141,12 +141,12 @@ public class JacocoCoverageSelector extends TakeAllSelector {
     }
 
     protected CtMethod<?> getFirstParentThatHasBeenRun(CtMethod<?> test) {
-        CtMethod<?> currentParent = AmplificationHelper.getAmpTestToParent().get(test);
-        while (AmplificationHelper.getAmpTestToParent().get(currentParent) != null) {
+        CtMethod<?> currentParent = AmplificationHelper.getAmpTestParent(test);
+        while (AmplificationHelper.getAmpTestParent(currentParent) != null) {
             if (this.selectedToBeAmplifiedCoverageResultsMap.get(currentParent.getSimpleName()) != null) {
                 return currentParent;
             } else {
-                currentParent = AmplificationHelper.getAmpTestToParent().get(currentParent);
+                currentParent = AmplificationHelper.getAmpTestParent(currentParent);
             }
         }
         return currentParent;
