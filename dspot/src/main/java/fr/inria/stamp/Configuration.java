@@ -20,8 +20,22 @@ public class Configuration {
     public final String mavenHome;
     public final Integer maxTestAmplified;
     public final boolean clean;
+    public final boolean minimize;
 
-    public Configuration(String pathToConfigurationFile, List<Amplifier> amplifiers, int nbIteration, List<String> testClasses, String pathToOutput, TestSelector selector, List<String> testCases, long seed, int timeOutInMs, String automaticBuilderName, String mavenHome, Integer maxTestAmplified, boolean clean) {
+    public Configuration(String pathToConfigurationFile,
+                         List<Amplifier> amplifiers,
+                         int nbIteration,
+                         List<String> testClasses,
+                         String pathToOutput,
+                         TestSelector selector,
+                         List<String> testCases,
+                         long seed,
+                         int timeOutInMs,
+                         String automaticBuilderName,
+                         String mavenHome,
+                         Integer maxTestAmplified,
+                         boolean clean,
+                         boolean minimize) {
         this.pathToConfigurationFile = pathToConfigurationFile;
         this.amplifiers = amplifiers;
         this.nbIteration = nbIteration;
@@ -35,5 +49,6 @@ public class Configuration {
         this.mavenHome = mavenHome;
         this.maxTestAmplified = maxTestAmplified;
         this.clean = clean;
+        this.minimize = minimize;
     }
 }

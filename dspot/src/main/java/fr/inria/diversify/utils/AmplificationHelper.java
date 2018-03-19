@@ -53,6 +53,8 @@ public class AmplificationHelper {
 
     private static int timeOutInMs = 10000;
 
+    public static boolean minimize;
+
     public static void setTimeOutInMs(int newTimeOutInMs) {
         timeOutInMs = newTimeOutInMs;
     }
@@ -83,7 +85,11 @@ public class AmplificationHelper {
                 "Ampl" + classTest.getSimpleName();
         amplifiedTest.setSimpleName(amplifiedName);
         classTest.getMethods().stream().filter(AmplificationChecker::isTest).forEach(amplifiedTest::removeMethod);
-        ampTest.stream().map(minimizer::minimize).forEach(amplifiedTest::addMethod);
+        if (minimize) {
+            ampTest.stream().map(minimizer::minimize).forEach(amplifiedTest::addMethod);
+        } else {
+            ampTest.forEach(amplifiedTest::addMethod);
+        }
         final CtTypeReference classTestReference = classTest.getReference();
         amplifiedTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
             @Override

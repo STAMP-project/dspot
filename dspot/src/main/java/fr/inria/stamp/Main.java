@@ -44,6 +44,7 @@ public class Main {
 
     public static void run(Configuration configuration, InputConfiguration inputConfiguration) throws Exception {
         AmplificationHelper.setSeedRandom(23L);
+        AmplificationHelper.minimize = configuration.minimize;
         InputProgram program = new InputProgram();
         inputConfiguration.setInputProgram(program);
         inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
