@@ -3,6 +3,7 @@ package fr.inria;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.utils.AmplificationChecker;
+import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.Initializer;
@@ -78,6 +79,7 @@ public class Utils {
 			return;
 		}
 		try {
+			AmplificationHelper.minimize = false;
 			AutomaticBuilderFactory.reset();
 			if (! new File("target/dspot/dependencies/compare").exists()) {
 				DSpotUtils.copyPackageFromResources("fr/inria/diversify/compare/",

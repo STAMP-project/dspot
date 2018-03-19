@@ -3,6 +3,8 @@ package fr.inria.diversify.dspot.selector;
 import fr.inria.Utils;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.stamp.Main;
+import fr.inria.stamp.minimization.ChangeMinimizer;
+import fr.inria.stamp.minimization.Minimizer;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
@@ -10,6 +12,7 @@ import spoon.reflect.declaration.CtMethod;
 import java.io.File;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Benjamin DANGLOT
@@ -41,6 +44,11 @@ public class ChangeDetectorSelectorTest extends AbstractSelectorTest {
         return  "======= REPORT ======="+ AmplificationHelper.LINE_SEPARATOR +
                 "1 amplified test fails on the new versions."+ AmplificationHelper.LINE_SEPARATOR +
                 "test2(example.TestSuiteExample): String index out of range: -1";
+    }
+
+    @Override
+    protected Class<?> getClassMinimizer() {
+        return ChangeMinimizer.class;
     }
 
     @Test

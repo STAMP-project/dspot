@@ -2,6 +2,7 @@ package fr.inria.diversify.dspot.selector;
 
 import fr.inria.Utils;
 import fr.inria.diversify.utils.AmplificationHelper;
+import fr.inria.stamp.minimization.PitMutantMinimizer;
 import org.junit.Before;
 import spoon.reflect.declaration.CtMethod;
 
@@ -50,5 +51,10 @@ public class PitScoreMutantSelectorTest extends AbstractSelectorTest {
                 "The original test suite kills 15 mutants" + AmplificationHelper.LINE_SEPARATOR +
                 "The amplification results with 1 new tests" + AmplificationHelper.LINE_SEPARATOR +
                 "it kills 1 more mutants";
+    }
+
+    @Override
+    protected Class<?> getClassMinimizer() {
+        return PitMutantMinimizer.class;
     }
 }

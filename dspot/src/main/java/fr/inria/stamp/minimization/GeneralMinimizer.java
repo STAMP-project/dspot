@@ -73,7 +73,7 @@ public class GeneralMinimizer implements Minimizer {
                 .getVariable();
         boolean canBeRemoved = true;
         for (int i = statements.indexOf(duplicatesAssertion) + 1;
-             i < statements.lastIndexOf(duplicatesAssertion) - 1; i++) {
+             i < statements.lastIndexOf(duplicatesAssertion); i++) {
             if (!AmplificationChecker.isAssert(statements.get(i))) {
                 final CtVariableRead<?> first = (CtVariableRead<?>) statements.get(i)
                         .filterChildren(new TypeFilter<CtVariableRead<?>>(CtVariableRead.class) {

@@ -56,6 +56,7 @@ public class MavenAutomaticBuilderTest {
                 "junit-4.11.jar"));
     }
 
+    @Ignore // Overlapping with testOnProjectWithResources
     @Test
     public void testRunPit() throws Exception {
 

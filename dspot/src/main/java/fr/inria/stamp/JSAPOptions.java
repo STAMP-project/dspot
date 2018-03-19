@@ -135,7 +135,8 @@ public class JSAPOptions {
                 jsapConfig.getString("builder"),
                 jsapConfig.getString("mavenHome"),
                 jsapConfig.getInt("maxTestAmplified"),
-                jsapConfig.getBoolean("clean")
+                jsapConfig.getBoolean("clean"),
+                jsapConfig.getBoolean("minimize")
         );
     }
 
@@ -303,6 +304,11 @@ public class JSAPOptions {
         descartes.setDefault("false");
         descartes.setHelp("Enable the descartes engine for Pit Mutant Score Selector.");
 
+        Switch minimize = new Switch("minimize");
+        minimize.setLongFlag("minimize");
+        minimize.setDefault("true");
+        minimize.setHelp("Enable the minimization of amplified tests.");
+
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
@@ -321,6 +327,7 @@ public class JSAPOptions {
             jsap.registerParameter(timeOut);
             jsap.registerParameter(verbose);
             jsap.registerParameter(withComment);
+            jsap.registerParameter(minimize);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {
