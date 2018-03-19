@@ -42,8 +42,14 @@ public class AmplificationHelper {
 
     private static int cloneNumber = 1;
 
+    /**
+     * Link between an amplified test and its parent (i.e. the original test).
+     */
     private static Map<CtMethod, CtMethod> ampTestToParent = new HashMap<>();
 
+    /**
+     * Buffer for {@link #ampTestToParent} to avoid adding discarded tests.
+     */
     private static Map<CtMethod, CtMethod> tmpAmpTestToParent = new HashMap<>();
 
     @Deprecated
@@ -160,6 +166,13 @@ public class AmplificationHelper {
         return AmplificationHelper.importByClass.get(type);
     }
 
+    /**
+     * Clones a method.
+     *
+     * @param method Method to be cloned
+     * @param suffix Suffix for the cloned method's name
+     * @return The cloned method
+     */
     private static CtMethod cloneMethod(CtMethod method, String suffix) {
         CtMethod cloned_method = method.clone();
         //rename the clone
@@ -176,6 +189,15 @@ public class AmplificationHelper {
         return cloned_method;
     }
 
+    /**
+     * Clones a test method.
+     *
+     * Performs necessary integration with JUnit and adds timeout.
+     *
+     * @param method Method to be cloned
+     * @param suffix Suffix for the cloned method's name
+     * @return The cloned method
+     */
     public static CtMethod cloneMethodTest(CtMethod method, String suffix) {
         CtMethod cloned_method = cloneMethod(method, suffix);
         CtAnnotation testAnnotation = cloned_method.getAnnotations().stream()
@@ -267,18 +289,22 @@ public class AmplificationHelper {
     //empirically 200 seems to be enough
     public static int MAX_NUMBER_OF_TESTS = 200;
 
-    // this methods aims at reducing the number of amplified test.
-    // we seek diversity in this method
-    // to approximate diversity, we use the textual representation of amplified tests
-    // since all the amplified tests came from the same original-manuel test case
-    // they have a "lot" of common
-    // we use the sum of the bytes return by the getBytes() method of the string representing amplified test
-    // then compute the standard deviation on this sum
-    // and keep only amplified test that have this value greater or equal of the std deviation
+    /**
+     * Reduces the number of amplified tests to a practical threshold (see {@link #MAX_NUMBER_OF_TESTS}).
+     *
+     * <p>The reduction aims at keeping a maximum of diversity. Because all the amplified tests come from the same
+     * original test, they have a <em>lot</em> in common.
+     *
+     * <p>Diversity is measured with the textual representation of amplified tests. We use the sum of the bytes returned
+     * by the {@link String#getBytes()} method and keep the amplified tests with the most distant values.
+     *
+     * @param tests List of tests to be reduced
+     * @return A subset of the input tests
+     */
     public static List<CtMethod<?>> reduce(List<CtMethod<?>> tests) {
         final List<CtMethod<?>> reducedTests = new ArrayList<>();
         if (tests.size() > MAX_NUMBER_OF_TESTS) {
-            LOGGER.warn("Too many tests has been generated: {}", tests.size());
+            LOGGER.warn("Too many tests have been generated: {}", tests.size());
             final Map<Long, List<CtMethod<?>>> valuesToMethod = new HashMap<>();
             for (CtMethod<?> test : tests) {
                 final long value = AmplificationHelper.convert(test.toString().getBytes());
