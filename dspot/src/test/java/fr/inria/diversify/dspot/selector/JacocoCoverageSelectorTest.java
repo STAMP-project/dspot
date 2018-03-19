@@ -25,6 +25,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class JacocoCoverageSelectorTest {
 
+	// TODO Should extends AbstractSelectorTest
+
 	public static final String nl = System.getProperty("line.separator");
 
 	private static final char DECIMAL_SEPARATOR = (((DecimalFormat) DecimalFormat.getInstance()).getDecimalFormatSymbols().getDecimalSeparator());

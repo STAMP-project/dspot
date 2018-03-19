@@ -1,7 +1,7 @@
 package fr.inria.diversify.utils;
 
-import fr.inria.diversify.Utils;
-import fr.inria.diversify.utils.AmplificationChecker;
+import fr.inria.AbstractTest;
+import fr.inria.Utils;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
@@ -20,11 +20,10 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 19/04/17
  */
-public class AmplificationCheckerTest {
+public class AmplificationCheckerTest extends AbstractTest {
 
     @Test
     public void testIsTest() throws Exception {
-        Utils.init("src/test/resources/sample/sample.properties");
         CtClass<Object> classTest = Utils.getFactory().Class().get("fr.inria.helper.ClassWithInnerClass");
         final CtMethod<?> test = classTest.getMethodsByName("test").get(0);
         assertTrue(AmplificationChecker.isTest(test));
@@ -51,7 +50,6 @@ public class AmplificationCheckerTest {
 			Also, the isAssert method will math invocation on methods that contain assertions
 		 */
 
-        Utils.init("src/test/resources/sample/sample.properties");
         CtClass<?> classTest = Utils.getFactory().Class().get("fr.inria.helper.TestWithMultipleAsserts");
         final List<CtInvocation> invocations = classTest.getMethodsByName("test")
                 .get(0)

@@ -1,6 +1,6 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
-import fr.inria.diversify.dspot.support.DSpotCompiler;
+import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

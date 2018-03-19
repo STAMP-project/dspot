@@ -1,6 +1,5 @@
-package fr.inria.diversify.dspot.support;
+package fr.inria.diversify.utils;
 
-import fr.inria.diversify.utils.AmplificationHelper;
 import spoon.reflect.declaration.CtMethod;
 
 import java.util.HashMap;

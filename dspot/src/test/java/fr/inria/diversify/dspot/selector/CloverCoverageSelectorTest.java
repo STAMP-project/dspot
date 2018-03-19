@@ -1,45 +1,48 @@
 package fr.inria.diversify.dspot.selector;
 
-import fr.inria.diversify.Utils;
-import fr.inria.diversify.dspot.DSpot;
-import fr.inria.diversify.dspot.amplifier.Amplifier;
-import fr.inria.diversify.dspot.amplifier.StatementAdd;
-import fr.inria.diversify.dspot.amplifier.TestDataMutator;
-import fr.inria.stamp.EntryPoint;
-import org.junit.Test;
-import spoon.reflect.declaration.CtType;
-
-import java.util.Arrays;
-import java.util.Collections;
-
-import static org.junit.Assert.assertFalse;
+import fr.inria.Utils;
+import fr.inria.diversify.utils.AmplificationHelper;
+import org.junit.Before;
+import spoon.reflect.declaration.CtMethod;
 
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
  * on 22/12/17
  */
-public class CloverCoverageSelectorTest {
+@SuppressWarnings("unchecked")
+public class CloverCoverageSelectorTest extends AbstractSelectorTest {
 
-    @Test
-    public void test() throws Exception {
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        Utils.reset();
+        super.setUp();
+    }
 
-        /*
-            This selector aims at keeping amplified test that execute new lines in the source code.
-         */
+    @Override
+    protected TestSelector getTestSelector() {
+        return new CloverCoverageSelector();
+    }
 
-        Utils.init("src/test/resources/test-projects/test-projects.properties");
-        EntryPoint.verbose = true;
+    @Override
+    protected CtMethod<?> getAmplifiedTest() {
+        final CtMethod<?> clone = getTest().clone();
+        Utils.replaceGivenLiteralByNewValue(clone, 'a');
+        Utils.replaceGivenLiteralByNewValue(clone, 0);
+        return clone;
+    }
 
-        final DSpot dspot = new DSpot(Utils.getInputConfiguration(),
-                1,
-                Arrays.asList(new Amplifier[]{new TestDataMutator(), new StatementAdd()}),
-                new CloverCoverageSelector()
-        );
-        final CtType ctType = dspot.amplifyTest(Utils.findClass("example.TestSuiteExample"),
-                Collections.singletonList(Utils.findMethod("example.TestSuiteExample", "test2"))
-        );
-        assertFalse(ctType.getMethodsByName("test2_literalMutationNumber9").isEmpty());
-        EntryPoint.verbose = false;
+    @Override
+    protected String getPathToReportFile() {
+        return "target/trash/example.TestSuiteExample_clover_coverage.txt";
+    }
+
+    @Override
+    protected String getContentReportFile() {
+        return  "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
+                "Initial Coverage: 33 / 37" + AmplificationHelper.LINE_SEPARATOR +
+                "The amplification results with: 1 amplified test cases" + AmplificationHelper.LINE_SEPARATOR +
+                "Amplified Coverage: 37 / 37";
     }
 }

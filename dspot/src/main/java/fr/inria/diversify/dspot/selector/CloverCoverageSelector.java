@@ -1,7 +1,7 @@
 package fr.inria.diversify.dspot.selector;
 
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
-import fr.inria.diversify.dspot.support.DSpotCompiler;
+import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
@@ -151,7 +151,7 @@ public class CloverCoverageSelector extends TakeAllSelector {
 
         if (this.currentClassTestToBeAmplified != null) {
             try (FileWriter writer = new FileWriter(this.configuration.getOutputDirectory() + "/" +
-                    this.currentClassTestToBeAmplified.getQualifiedName() + "_clover_coverage", false)) {
+                    this.currentClassTestToBeAmplified.getQualifiedName() + "_clover_coverage.txt", false)) {
                 writer.write(report.toString());
             } catch (IOException e) {
                 throw new RuntimeException(e);

@@ -1,4 +1,4 @@
-package fr.inria.diversify.mutant.descartes;
+package fr.inria.diversify.dspot.selector;
 
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.dspot.amplifier.NumberLiteralAmplifier;
@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
  * benjamin.danglot@inria.fr
  * on 24/03/17
  */
-public class PitDescartesTest {
+public class PitScoreMutantSelectorDescartesTest {
 
     @Before
     public void setUp() throws Exception {

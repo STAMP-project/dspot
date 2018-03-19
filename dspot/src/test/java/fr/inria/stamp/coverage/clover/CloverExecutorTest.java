@@ -1,7 +1,7 @@
 package fr.inria.stamp.coverage.clover;
 
-import fr.inria.diversify.Utils;
-import fr.inria.diversify.dspot.AbstractTest;
+import fr.inria.Utils;
+import fr.inria.AbstractTest;
 import org.junit.Test;
 
 import java.util.List;

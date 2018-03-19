@@ -1,8 +1,8 @@
-package fr.inria.diversify.dspot.resources;
+package fr.inria.diversify.dspot;
 
-import fr.inria.diversify.Utils;
+import fr.inria.Utils;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
-import fr.inria.diversify.dspot.AbstractTest;
+import fr.inria.AbstractTest;
 import fr.inria.stamp.test.launcher.TestLauncher;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.Test;

@@ -1,8 +1,6 @@
 package fr.inria.stamp.coverage;
 
-import fr.inria.diversify.Utils;
-import org.junit.After;
-import org.junit.Before;
+import fr.inria.Utils;
 import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;

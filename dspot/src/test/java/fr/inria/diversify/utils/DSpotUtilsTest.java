@@ -18,12 +18,12 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 2/20/17
  */
-public class PrintTest {
+public class DSpotUtilsTest {
 
     private final static File outputDirectory = new File("target/trash/");
 
     @Test
-    public void test() throws Exception {
+    public void testPrintAmplifiedTestClass() throws Exception {
         final File javaFile = new File(outputDirectory.getAbsolutePath() + "/" + "example.TestSuiteExample".replaceAll("\\.", "\\/") + ".java");
         try {
             FileUtils.forceDelete(javaFile);

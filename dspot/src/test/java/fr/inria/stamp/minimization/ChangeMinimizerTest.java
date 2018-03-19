@@ -1,7 +1,7 @@
 package fr.inria.stamp.minimization;
 
-import fr.inria.diversify.Utils;
-import fr.inria.diversify.dspot.AbstractTest;
+import fr.inria.Utils;
+import fr.inria.AbstractTest;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.Initializer;

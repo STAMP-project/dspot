@@ -1,4 +1,4 @@
-package fr.inria.diversify.dspot.support.json;
+package fr.inria.diversify.utils.json;
 
 import java.util.LinkedHashSet;
 import java.util.Set;

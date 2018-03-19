@@ -1,8 +1,6 @@
-package fr.inria.diversify.dspot;
+package fr.inria.diversify.utils.compilation;
 
 import fr.inria.diversify.dspot.amplifier.Amplifier;
-import fr.inria.diversify.dspot.support.DSpotCompiler;
-import fr.inria.diversify.dspot.support.TestCompiler;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;

@@ -1,7 +1,6 @@
 package fr.inria.diversify.automaticbuilder;
 
-import fr.inria.diversify.Utils;
-import fr.inria.diversify.mutant.pit.MavenPitCommandAndOptions;
+import fr.inria.Utils;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.stamp.Main;

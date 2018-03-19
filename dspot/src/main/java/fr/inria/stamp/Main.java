@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import fr.inria.stamp.diff.SelectorOnDiff;
 import org.apache.commons.io.FileUtils;
@@ -60,19 +61,25 @@ public class Main {
         AmplificationHelper.setTimeOutInMs(configuration.timeOutInMs);
 
         createOutputDirectories(inputConfiguration, configuration.clean);
+
+        final long startTime = System.currentTimeMillis();
+        final List<CtType> amplifiedTestClasses;
         if ("all".equals(configuration.testClasses.get(0))) {
-            amplifyAll(dspot, inputConfiguration);
+            amplifiedTestClasses = dspot.amplifyAllTests();
         } else if ("diff".equals(configuration.testClasses.get(0))) {
-            amplifyTestClasses(dspot, SelectorOnDiff.findTestClassesAccordingToADiff(inputConfiguration));
+            amplifiedTestClasses = dspot.amplifyAllTests(SelectorOnDiff.findTestClassesAccordingToADiff(inputConfiguration));
         } else {
-            configuration.testClasses.forEach(testCase -> {
-                if (!configuration.namesOfTestCases.isEmpty()) {
-                    amplifyOneTestClass(dspot, testCase, configuration.namesOfTestCases);
-                } else {
-                    amplifyOneTestClass(dspot, testCase, Collections.emptyList());
-                }
-            });
+            if (configuration.testCases.isEmpty()) {
+                amplifiedTestClasses = dspot.amplifyAllTestsNames(configuration.testClasses);
+            } else {
+                amplifiedTestClasses = configuration.testClasses.stream().map(testClasses ->
+                        dspot.amplifyTest(testClasses, configuration.testCases)
+                ).collect(Collectors.toList());
+            }
         }
+        LOGGER.info("Amplification {}.", amplifiedTestClasses.isEmpty() ? "failed" : "succeed");
+        final long elapsedTime = System.currentTimeMillis() - startTime;
+        LOGGER.info("Elapsed time {} ms", elapsedTime);
     }
 
     public static void run(Configuration configuration) throws Exception {
@@ -80,7 +87,7 @@ public class Main {
         run(configuration, inputConfiguration);
     }
 
-    private static void createOutputDirectories(InputConfiguration inputConfiguration, boolean clean) {
+    public static void createOutputDirectories(InputConfiguration inputConfiguration, boolean clean) {
         final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
         try {
             if (clean && outputDirectory.exists()) {
@@ -92,49 +99,6 @@ public class Main {
         } catch (IOException ignored) {
             // ignored
         }
-    }
-
-    private static void amplifyTestClasses(DSpot dspot, List<CtType> testClasses) {
-        long time = System.currentTimeMillis();
-        try {
-            testClasses.forEach(dspot::amplifyTest);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println(System.currentTimeMillis() - time + " ms");
-    }
-
-    private static void amplifyOneTestClass(DSpot dspot, String fullQualifiedNameTestClass, List<String> testCases) {
-        long time = System.currentTimeMillis();
-        try {
-            if (testCases.isEmpty()) {
-                dspot.amplifyTest(fullQualifiedNameTestClass);
-            } else {
-                dspot.amplifyTest(fullQualifiedNameTestClass, testCases);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println(System.currentTimeMillis() - time + " ms");
-    }
-
-    private static void amplifyAll(DSpot dspot, InputConfiguration configuration) {
-        long time = System.currentTimeMillis();
-        final File outputDirectory = new File(configuration.getOutputDirectory() + "/");
-        if (!outputDirectory.exists()) {
-            if (!new File("results").exists()) {
-                new File("results").mkdir();
-            }
-            if (!outputDirectory.exists()) {
-                outputDirectory.mkdir();
-            }
-        }
-        try {
-            dspot.amplifyAllTests();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println(System.currentTimeMillis() - time + " ms");
     }
 
     static void runExample() {

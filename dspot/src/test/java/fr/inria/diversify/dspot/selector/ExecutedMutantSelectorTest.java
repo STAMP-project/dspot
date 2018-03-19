@@ -1,16 +1,17 @@
 package fr.inria.diversify.dspot.selector;
 
-import fr.inria.diversify.Utils;
+import fr.inria.Utils;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
-import fr.inria.diversify.dspot.support.DSpotCompiler;
+import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.stamp.Main;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.declaration.CtType;
 
@@ -25,6 +26,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 15/12/17
  */
+@Deprecated
 public class ExecutedMutantSelectorTest {
 
     @Before
@@ -32,6 +34,7 @@ public class ExecutedMutantSelectorTest {
         Utils.init("src/test/resources/test-projects/test-projects.properties");
     }
 
+    @Ignore
     @Test
     public void test() throws Exception {
 
