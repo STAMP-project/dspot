@@ -47,11 +47,6 @@ public class AmplificationHelper {
      */
     private static Map<CtMethod, CtMethod> ampTestToParent = new HashMap<>();
 
-    /**
-     * Buffer for {@link #ampTestToParent} to avoid adding discarded tests.
-     */
-    private static Map<CtMethod, CtMethod> tmpAmpTestToParent = new HashMap<>();
-
     @Deprecated
     private static Map<CtType, Set<CtType>> importByClass = new HashMap<>();
 
@@ -77,7 +72,6 @@ public class AmplificationHelper {
 
     public static void reset() {
         cloneNumber = 1;
-        tmpAmpTestToParent.clear();
         ampTestToParent.clear();
         importByClass.clear();
     }
@@ -120,7 +114,7 @@ public class AmplificationHelper {
     }
 
     public static List<CtMethod> updateAmpTestToParent(List<CtMethod> tests, CtMethod parentTest) {
-        tests.forEach(test -> tmpAmpTestToParent.put(test, parentTest));
+        tests.forEach(test -> ampTestToParent.put(test, parentTest));
         return tests;
     }
 
@@ -316,7 +310,9 @@ public class AmplificationHelper {
             final Long average = average(valuesToMethod.keySet());
             while (reducedTests.size() < MAX_NUMBER_OF_TESTS) {
                 final Long furthest = furthest(valuesToMethod.keySet(), average);
-                reducedTests.add(valuesToMethod.get(furthest).get(0));
+                CtMethod<?> discardedTest = valuesToMethod.get(furthest).get(0);
+                reducedTests.add(discardedTest);
+                ampTestToParent.remove(discardedTest);
                 if (valuesToMethod.get(furthest).isEmpty()) {
                     valuesToMethod.remove(furthest);
                 } else {
@@ -331,12 +327,6 @@ public class AmplificationHelper {
         if (reducedTests.isEmpty()) {
             reducedTests.addAll(tests);
         }
-        ampTestToParent.putAll(reducedTests.stream()
-                .collect(HashMap::new,
-                        (parentsReduced, ctMethod) -> parentsReduced.put(ctMethod, tmpAmpTestToParent.get(ctMethod)),
-                        HashMap::putAll)
-        );
-        tmpAmpTestToParent.clear();
         return reducedTests;
     }
 
