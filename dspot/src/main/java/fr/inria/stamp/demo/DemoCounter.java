@@ -53,6 +53,7 @@ public class DemoCounter {
             final long nbMutantSurvived = getNumberOfGivenState(pitResults, PitResult.State.SURVIVED);
             final long nbMutantKilled = getNumberOfGivenState(pitResults, PitResult.State.KILLED);
             testClassDataJSON.data.add(new DataJSON(nbMutantSurvived + nbMutantKilled, nbMutantKilled, 0, 0));
+            createDetailledTestClassDataJson(configuration, testClass.getQualifiedName(), 0, 0, pitResults);
         }
 
         for (int i = 1; i < amplifiedTestMethods.size() ; i++) {
