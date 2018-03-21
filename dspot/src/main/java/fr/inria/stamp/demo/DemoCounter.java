@@ -55,7 +55,7 @@ public class DemoCounter {
             testClassDataJSON.data.add(new DataJSON(nbMutantSurvived + nbMutantKilled, nbMutantKilled, 0, 0));
         }
 
-        for (int i = 1; i < amplifiedTestMethods.size(); i++) {
+        for (int i = 1; i < amplifiedTestMethods.size() ; i++) {
             // prepare new test class to be run
             final List<CtMethod<?>> subListOfAmplifiedTests =
                     amplifiedTestMethods.subList(1, i)
