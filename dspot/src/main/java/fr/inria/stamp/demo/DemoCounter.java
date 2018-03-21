@@ -4,20 +4,20 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
-import fr.inria.diversify.dspot.support.DSpotCompiler;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
-import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
+import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.demo.json.DataJSON;
+import fr.inria.stamp.demo.json.MutantDataJSON;
 import fr.inria.stamp.demo.json.TestClassDataJSON;
+import fr.inria.stamp.demo.json.TestClassDetailedDataJSON;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -55,7 +55,7 @@ public class DemoCounter {
             testClassDataJSON.data.add(new DataJSON(nbMutantSurvived + nbMutantKilled, nbMutantKilled, 0, 0));
         }
 
-        for (int i = 1; i < amplifiedTestMethods.size() ; i++) {
+        for (int i = 1; i < amplifiedTestMethods.size(); i++) {
             // prepare new test class to be run
             final List<CtMethod<?>> subListOfAmplifiedTests =
                     amplifiedTestMethods.subList(1, i)
@@ -71,12 +71,36 @@ public class DemoCounter {
                 final long nbMutantSurvived = getNumberOfGivenState(pitResults, PitResult.State.SURVIVED);
                 final long nbMutantKilled = getNumberOfGivenState(pitResults, PitResult.State.KILLED);
                 testClassDataJSON.data.add(new DataJSON(nbMutantSurvived + nbMutantKilled, nbMutantKilled, i, a));
+                createDetailledTestClassDataJson(configuration, testClass.getQualifiedName(), i, a, pitResults);
             }
         }
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         final File file = new File(configuration.getOutputDirectory() + "/" + testClass.getQualifiedName() + ".json");
         try (FileWriter writer = new FileWriter(file, false)) {
             writer.write(gson.toJson(testClassDataJSON));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void createDetailledTestClassDataJson(InputConfiguration configuration,
+                                                         String qualifiedName,
+                                                         int i,
+                                                         int a,
+                                                         List<PitResult> pitResults) {
+        final TestClassDetailedDataJSON testClassDetailedDataJSON = new TestClassDetailedDataJSON(a, i, qualifiedName);
+        pitResults.forEach(pitResult ->
+                testClassDetailedDataJSON.mutants.add(new MutantDataJSON(
+                        pitResult.getFullQualifiedNameOfMutatedClass(),
+                        pitResult.getNameOfMutatedMethod(),
+                        pitResult.getLineNumber(),
+                        pitResult.getStateOfMutant().toString()
+                ))
+        );
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        final File file = new File(configuration.getOutputDirectory() + "/" + qualifiedName + "_" + a  + "_" + i + ".json");
+        try (FileWriter writer = new FileWriter(file, false)) {
+            writer.write(gson.toJson(testClassDetailedDataJSON));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

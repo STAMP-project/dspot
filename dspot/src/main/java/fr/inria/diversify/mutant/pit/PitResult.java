@@ -65,6 +65,10 @@ public class PitResult {
         return fullQualifiedNameOfKiller;
     }
 
+    public String getFullQualifiedNameOfMutatedClass() {
+        return fullQualifiedNameOfMutatedClass;
+    }
+
     public CtMethod getMethod(CtType<?> ctClass) {
         if ("none".equals(this.simpleNameMethod)) {
             return null;

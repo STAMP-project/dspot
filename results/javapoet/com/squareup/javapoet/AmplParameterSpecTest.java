@@ -682,7 +682,7 @@ public class AmplParameterSpecTest {
             a = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.STATIC).build();
             b = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.STATIC).build();
             boolean o_equalsAndHashCode_add49__15 = ParameterSpec.builder(int.class, "").build().equals(ParameterSpec.builder(int.class, "foo").build());
-            org.junit.Assert.fail("equalsAndHashCode_add49litString499 should have thrown IllegalArgumentException");
+            Assert.fail("equalsAndHashCode_add49litString499 should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException eee) {
         }
     }
@@ -695,7 +695,7 @@ public class AmplParameterSpecTest {
             a = ParameterSpec.builder(int.class, "M-k,I]-r8/").addModifiers(Modifier.STATIC).build();
             b = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.STATIC).build();
             boolean o_equalsAndHashCode_add49__15 = ParameterSpec.builder(int.class, "foo").build().equals(ParameterSpec.builder(int.class, "foo").build());
-            org.junit.Assert.fail("equalsAndHashCode_add49litString515 should have thrown IllegalArgumentException");
+            Assert.fail("equalsAndHashCode_add49litString515 should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException eee) {
         }
     }
@@ -709,7 +709,7 @@ public class AmplParameterSpecTest {
         String o_equalsAndHashCode_sd28__15 = a.toString();
         Assert.assertEquals("static int i", o_equalsAndHashCode_sd28__15);
         int o_equalsAndHashCode_sd28_sd1758__17 = a.hashCode();
-        Assert.assertEquals(-130075578, ((int) (o_equalsAndHashCode_sd28_sd1758__17)));
+        Assert.assertEquals((-130075578), ((int) (o_equalsAndHashCode_sd28_sd1758__17)));
         Assert.assertEquals("static int i", o_equalsAndHashCode_sd28__15);
     }
 
@@ -742,7 +742,7 @@ public class AmplParameterSpecTest {
             a = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.STATIC).build();
             b = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.STATIC).build();
             String o_equalsAndHashCode_sd28__15 = ParameterSpec.builder(int.class, "annotationSpecs == null").build().toString();
-            org.junit.Assert.fail("equalsAndHashCode_sd28litString1741 should have thrown IllegalArgumentException");
+            Assert.fail("equalsAndHashCode_sd28litString1741 should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException eee) {
         }
     }
@@ -755,7 +755,7 @@ public class AmplParameterSpecTest {
         b = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.STATIC).build();
         int o_equalsAndHashCode_sd30__15 = b.hashCode();
         int o_equalsAndHashCode_sd30_sd307__19 = b.hashCode();
-        Assert.assertEquals(-130075578, ((int) (o_equalsAndHashCode_sd30_sd307__19)));
+        Assert.assertEquals((-130075578), ((int) (o_equalsAndHashCode_sd30_sd307__19)));
     }
 
     @Test(timeout = 10000)
@@ -785,7 +785,7 @@ public class AmplParameterSpecTest {
             ParameterSpec b = ParameterSpec.builder(int.class, "foo").build();
             a = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.STATIC).build();
             b = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.STATIC).build();
-            org.junit.Assert.fail("equalsAndHashCodelitString13 should have thrown IllegalArgumentException");
+            Assert.fail("equalsAndHashCodelitString13 should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException eee) {
         }
     }
@@ -797,7 +797,7 @@ public class AmplParameterSpecTest {
             ParameterSpec b = ParameterSpec.builder(int.class, "foo").build();
             a = ParameterSpec.builder(int.class, "").addModifiers(Modifier.STATIC).build();
             b = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.STATIC).build();
-            org.junit.Assert.fail("equalsAndHashCodelitString19 should have thrown IllegalArgumentException");
+            Assert.fail("equalsAndHashCodelitString19 should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException eee) {
         }
     }
@@ -853,6 +853,25 @@ public class AmplParameterSpecTest {
         } catch (Exception e) {
             String o_nullAnnotationsAddition_add4236__6 = e.getMessage();
             Assert.assertEquals("not a valid name: annotationSpecs == null", e.getMessage());
+        }
+    }
+
+    @Test(timeout = 10000)
+    public void equalsAndHashCode_add41() throws Exception {
+        ParameterSpec a = ParameterSpec.builder(int.class, "foo").build();
+        int o_equalsAndHashCode_add41__7 = ParameterSpec.builder(int.class, "foo").build().hashCode();
+        Assert.assertEquals(1955995925, ((int) (o_equalsAndHashCode_add41__7)));
+        a = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.STATIC).build();
+        b = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.STATIC).build();
+    }
+
+    @Test(timeout = 10000)
+    public void nullAnnotationsAddition_add212() throws Exception {
+        try {
+            ParameterSpec.builder(int.class, "foo").addAnnotations(null);
+        } catch (Exception e) {
+            String o_nullAnnotationsAddition_add212__6 = e.getMessage();
+            Assert.assertEquals("annotationSpecs == null", e.getMessage());
         }
     }
 }

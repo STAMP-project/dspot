@@ -2,7 +2,7 @@
 
 package fr.inria.diversify.dspot.amplifier;
 
-import fr.inria.diversify.utils.AmplificationChecker;
+import fr.inria.diversify.utils	.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.Counter;
 import fr.inria.diversify.utils.DSpotUtils;
