@@ -95,8 +95,9 @@ public class DemoCounter {
                         pitResult.getFullQualifiedNameOfMutatedClass(),
                         pitResult.getNameOfMutatedMethod(),
                         pitResult.getLineNumber(),
-                        pitResult.getStateOfMutant().toString()
-                ))
+                        pitResult.getStateOfMutant().toString(),
+                        pitResult.getFullQualifiedNameMutantOperator())
+                )
         );
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         final File file = new File(configuration.getOutputDirectory() + "/" + qualifiedName + "_" + a  + "_" + i + ".json");
