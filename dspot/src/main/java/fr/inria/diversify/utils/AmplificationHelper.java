@@ -319,8 +319,7 @@ public class AmplificationHelper {
             final Long average = average(valuesToMethod.keySet());
             while (reducedTests.size() < MAX_NUMBER_OF_TESTS) {
                 final Long furthest = furthest(valuesToMethod.keySet(), average);
-                CtMethod<?> discardedTest = valuesToMethod.get(furthest).get(0);
-                reducedTests.add(discardedTest);
+                reducedTests.add(valuesToMethod.get(furthest).get(0));
                 if (valuesToMethod.get(furthest).isEmpty()) {
                     valuesToMethod.remove(furthest);
                 } else {
@@ -334,6 +333,10 @@ public class AmplificationHelper {
         }
         if (reducedTests.isEmpty()) {
             reducedTests.addAll(tests);
+        } else {
+            tests.stream()
+                    .filter(test -> !reducedTests.contains(test))
+                    .forEach(discardedTest -> ampTestToParent.remove(discardedTest));
         }
         return reducedTests;
     }
