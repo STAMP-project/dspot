@@ -9,7 +9,7 @@ import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
-import fr.inria.stamp.EntryPoint;
+import eu.stamp.project.testrunner.EntryPoint;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
