@@ -45,7 +45,7 @@ public class AmplificationHelper {
     /**
      * Link between an amplified test and its parent (i.e. the original test).
      */
-    private static Map<CtMethod, CtMethod> ampTestToParent = new HashMap<>();
+    private static Map<CtMethod<?>, CtMethod> ampTestToParent = new IdentityHashMap<>();
 
     @Deprecated
     private static Map<CtType, Set<CtType>> importByClass = new HashMap<>();
@@ -321,7 +321,6 @@ public class AmplificationHelper {
                 final Long furthest = furthest(valuesToMethod.keySet(), average);
                 CtMethod<?> discardedTest = valuesToMethod.get(furthest).get(0);
                 reducedTests.add(discardedTest);
-                ampTestToParent.remove(discardedTest);
                 if (valuesToMethod.get(furthest).isEmpty()) {
                     valuesToMethod.remove(furthest);
                 } else {
