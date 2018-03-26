@@ -224,7 +224,6 @@ public class AmplificationHelper {
     public static CtMethod cloneTestMethodForAmp(CtMethod method, String suffix) {
         CtMethod clonedMethod = cloneTestMethod(method, suffix);
         ampTestToParent.put(clonedMethod, method);
-        assert ampTestToParent.containsKey(clonedMethod);
         return clonedMethod;
     }
 
