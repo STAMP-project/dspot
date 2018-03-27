@@ -35,7 +35,7 @@ public class DemoCounter {
         final long originalNbMutantSurvived = getNumberOfGivenState(originalMutationAnalysis, PitResult.State.SURVIVED);
         final long originalNbMutantKilled = getNumberOfGivenState(originalMutationAnalysis, PitResult.State.KILLED);
 
-        final Integer maxNumberofAssertions = amplifiedTestMethods.stream()
+        final Integer maxNumberOfAssertions = amplifiedTestMethods.stream()
                 .map(ctMethod -> ctMethod.getElements(AmplificationHelper.ASSERTIONS_FILTER).size())
                 .max(Comparator.naturalOrder())
                 .get();
@@ -45,25 +45,25 @@ public class DemoCounter {
                 originalNbMutantSurvived + originalNbMutantKilled,
                 originalNbMutantKilled,
                 amplifiedTestMethods.size(),
-                maxNumberofAssertions
+                maxNumberOfAssertions
         );
 
-        {
+    /*    {
             final List<PitResult> pitResults = runPit(configuration, testClass);
             final long nbMutantSurvived = getNumberOfGivenState(pitResults, PitResult.State.SURVIVED);
             final long nbMutantKilled = getNumberOfGivenState(pitResults, PitResult.State.KILLED);
             testClassDataJSON.data.add(new DataJSON(nbMutantSurvived + nbMutantKilled, nbMutantKilled, 0, 0));
             createDetailledTestClassDataJson(configuration, testClass.getQualifiedName(), 0, 0, pitResults);
-        }
+        }*/
 
-        for (int i = 1; i < amplifiedTestMethods.size() ; i++) {
+        for (int i = 0; i < amplifiedTestMethods.size() ; i++) {
             // prepare new test class to be run
             final List<CtMethod<?>> subListOfAmplifiedTests =
-                    amplifiedTestMethods.subList(1, i)
+                    amplifiedTestMethods.subList(0, i)
                             .stream()
                             .map(CtMethod::clone)
                             .collect(Collectors.toList());
-            for (int a = 0; a < maxNumberofAssertions; a++) {
+            for (int a = 0; a <= maxNumberOfAssertions; a++) {
                 reduceAssertions(subListOfAmplifiedTests, a);
                 CtType clone = testClass.clone();
                 clone.setParent(testClass.getParent());

@@ -94,9 +94,39 @@ public class AmplParameterSpecTest {
             ParameterSpec b = ParameterSpec.builder(int.class, "foo").build();
             a = ParameterSpec.builder(int.class, "annotationSpecs == null").addModifiers(Modifier.STATIC).build();
             b = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.STATIC).build();
-            org.junit.Assert.fail("equalsAndHashCodelitString16 should have thrown IllegalArgumentException");
+            Assert.fail("equalsAndHashCodelitString16 should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException eee) {
         }
+    }
+
+    @Test(timeout = 10000)
+    public void equalsAndHashCode_add51() throws Exception {
+        ParameterSpec b = ParameterSpec.builder(int.class, "foo").build();
+        a = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.STATIC).build();
+        b = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.STATIC).build();
+        int o_equalsAndHashCode_add51__15 = ParameterSpec.builder(int.class, "foo").build().hashCode();
+        Assert.assertEquals((-130075578), ((int) (o_equalsAndHashCode_add51__15)));
+    }
+
+    @Test(timeout = 10000)
+    public void equalsAndHashCodelitString22_failAssert9() throws Exception {
+        try {
+            ParameterSpec a = ParameterSpec.builder(int.class, "foo").build();
+            ParameterSpec b = ParameterSpec.builder(int.class, "foo").build();
+            a = ParameterSpec.builder(int.class, "2").addModifiers(Modifier.STATIC).build();
+            b = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.STATIC).build();
+            Assert.fail("equalsAndHashCodelitString22 should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException eee) {
+        }
+    }
+
+    @Test(timeout = 10000)
+    public void equalsAndHashCode_add41() throws Exception {
+        ParameterSpec a = ParameterSpec.builder(int.class, "foo").build();
+        int o_equalsAndHashCode_add41__7 = ParameterSpec.builder(int.class, "foo").build().hashCode();
+        Assert.assertEquals(1955995925, ((int) (o_equalsAndHashCode_add41__7)));
+        a = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.STATIC).build();
+        b = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.STATIC).build();
     }
 }
 

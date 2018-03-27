@@ -2,7 +2,7 @@
   "classTimes": [
     {
       "fullQualifiedName": "com.squareup.javapoet.ParameterSpecTest",
-      "timeInMs": 62211
+      "timeInMs": 58761
     }
   ],
   "projectName": "javapoet"
