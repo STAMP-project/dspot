@@ -21,6 +21,39 @@ import static org.junit.Assert.assertEquals;
 public class StatementAddTest extends AbstractTest {
 
     @Test
+    public void testWithLoop() throws Exception {
+
+        /*
+            Test that StatementAdd amplifier is able to add statement inside a loop if this loop has not brackets
+         */
+
+        final String packageName = "fr.inria.statementadd";
+        InputProgram inputProgram = Utils.getInputProgram();
+        final Factory factory = inputProgram.getFactory();
+        inputProgram.setFactory(factory);
+        AmplificationHelper.setSeedRandom(32L);
+        StatementAdd amplifier = new StatementAdd(packageName);
+        amplifier.reset(factory.Class().get(packageName + ".ClassTarget"));
+
+        CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTarget"), "testWithLoop");
+        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod);
+
+        System.out.println(amplifiedMethods);
+
+        assertEquals("@org.junit.Test(timeout = 10000)\n" +
+                "public void testWithLoop_sd1() throws java.lang.Exception {\n" +
+                "    java.util.List<fr.inria.statementadd.TestClassTarget.Internal> internalList = new java.util.ArrayList<>();\n" +
+                "    internalList.add(new fr.inria.statementadd.TestClassTarget.Internal());\n" +
+                "    for (fr.inria.statementadd.TestClassTarget.Internal i : internalList) {\n" +
+                "        int __DSPOT_i_0 = -1167796541;\n" +
+                "        i.compute(0);\n" +
+                "        // StatementAdd: add invocation of a method\n" +
+                "        i.compute(__DSPOT_i_0);\n" +
+                "    }\n" +
+                "}", amplifiedMethods.get(0).toString());
+    }
+
+    @Test
     public void testOnClassWithJavaObjects() throws Exception {
 
         /*
