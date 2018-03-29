@@ -202,9 +202,12 @@ public class MethodsAssertGenerator {
             if (!id.split("__")[0].equals(testWithAssert.getSimpleName())) {
                 continue;
             }
-            final List<CtStatement> assertStatements = AssertBuilder.buildAssert(factory,
+            final List<CtStatement> assertStatements = AssertBuilder.buildAssert(
+                    factory,
                     observations.get(id).getNotDeterministValues(),
-                    observations.get(id).getObservationValues());
+                    observations.get(id).getObservationValues(),
+                    Double.parseDouble(configuration.getProperties().getProperty("delta", "0.1"))
+            );
 
             if (assertStatements.stream()
                     .map(Object::toString)

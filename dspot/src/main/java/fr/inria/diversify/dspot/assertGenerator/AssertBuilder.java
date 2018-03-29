@@ -7,6 +7,7 @@ import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -19,9 +20,16 @@ public class AssertBuilder {
     public static final int MAX_NUMBER_OF_CHECKED_ELEMENT_IN_LIST = 5;
     private static String junitAssertClassName = "org.junit.Assert";
 
-    static List<CtStatement> buildAssert(Factory factory, Set<String> notDeterministValues, Map<String, Object> observations) {
+    private static final Predicate<Object> isFloating = value ->
+            value instanceof Double || value.getClass() == double.class ||
+                    value instanceof Float || value.getClass() == float.class;
+
+    static List<CtStatement> buildAssert(Factory factory,
+                                         Set<String> notDeterministValues,
+                                         Map<String, Object> observations,
+                                         Double delta) {
         return observations.keySet().stream()
-                .filter(key -> !notDeterministValues.contains(key))
+                .filter(key -> !notDeterministValues.contains(key)) // TODO we may want to generate assertion on not deterministic values when it is floats
                 .collect(ArrayList<CtStatement>::new,
                         (expressions, key) -> {
                             Object value = observations.get(key);
@@ -70,9 +78,18 @@ public class AssertBuilder {
                                     }
                                 } else {
                                     addTypeCastIfNeeded(variableRead, value);
-                                    expressions.add(buildInvocation(factory, "assertEquals",
-                                            Arrays.asList(printPrimitiveString(factory, value),
-                                                    variableRead)));
+                                    if (isFloating.test(value)) {
+                                        expressions.add(buildInvocation(factory, "assertEquals",
+                                                Arrays.asList(
+                                                        printPrimitiveString(factory, value),
+                                                        variableRead,
+                                                        factory.createLiteral(delta)
+                                                )));
+                                    } else {
+                                        expressions.add(buildInvocation(factory, "assertEquals",
+                                                Arrays.asList(printPrimitiveString(factory, value),
+                                                        variableRead)));
+                                    }
                                 }
                                 variableRead.setType(factory.Type().createReference(value.getClass()));
                             }
@@ -177,7 +194,7 @@ public class AssertBuilder {
     }
 
     private static CtExpression printPrimitiveString(Factory factory, Object value) {
-        if (value == null || value instanceof String ||
+        if (value instanceof String ||
                 value instanceof Short ||
                 value.getClass() == short.class ||
                 value instanceof Double ||
