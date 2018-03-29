@@ -60,6 +60,12 @@ public class AssertGeneratorHelper {
         if (!(statement.getParent() instanceof CtBlock)) {
             return false;
         }
+
+        // contract: for now, we do not log values inside loop
+        if (statement.getParent(CtLoop.class) != null) {
+            return false;
+        }
+
         if (statement instanceof CtInvocation) {
             CtInvocation invocation = (CtInvocation) statement;
             //type tested by the test class

@@ -25,7 +25,8 @@ public class MethodsHandler {
 
         // since we generate contains(), we don't need to observe iterators
         forbiddenMethods.add("iterator");
-        forbiddenMethods.add("splitIterator");
+        forbiddenMethods.add("spliterator");
+        forbiddenMethods.add("listIterator");
         forbiddenMethods.add("stream");
         forbiddenMethods.add("parallelStream");
     }
