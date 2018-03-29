@@ -27,12 +27,14 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
 	@Before
 	public void setUp() throws Exception {
 		Main.verbose = true;
+		DSpotUtils.withComment = false;
 		super.setUp();
 	}
 
 	@After
 	public void tearDown() throws Exception {
 		Main.verbose = false;
+		DSpotUtils.withComment = false;
 	}
 
 	@Test
@@ -117,8 +119,6 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
 		CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithoutAssert", "test1");
 		List<CtMethod<?>> test1_buildNewAssert = mag.generateAsserts(testClass, Collections.singletonList(test1));
 		assertEquals(expectedBodyWithComment, test1_buildNewAssert.get(0).getBody().toString());
-
-		DSpotUtils.withComment = false;
 	}
 
 	@Test
