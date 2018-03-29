@@ -8,47 +8,54 @@ import java.util.*;
 public class MethodsHandler {
 
     private Map<Class<?>, List<Method>> cache;
-    private static final List<String> ignoredMethods;
+    private static final List<String> forbiddenMethods;
 
     static {
-        ignoredMethods = new ArrayList<>();
-        ignoredMethods.add("equals");
-        ignoredMethods.add("hashCode");
-        ignoredMethods.add("notify");
-        ignoredMethods.add("notifyAll");
-        ignoredMethods.add("wait");
-        ignoredMethods.add("getClass");
-        ignoredMethods.add("toString");
-        ignoredMethods.add("display");
-        ignoredMethods.add("clone");
-        ignoredMethods.add("hasExtensions");
+        forbiddenMethods = new ArrayList<>();
+        forbiddenMethods.add("equals");
+        forbiddenMethods.add("hashCode");
+        forbiddenMethods.add("notify");
+        forbiddenMethods.add("notifyAll");
+        forbiddenMethods.add("wait");
+        forbiddenMethods.add("getClass");
+        forbiddenMethods.add("toString");
+        forbiddenMethods.add("display");
+        forbiddenMethods.add("clone");
+        forbiddenMethods.add("hasExtensions");
+
+        // since we generate contains(), we don't need to observe iterators
+        forbiddenMethods.add("iterator");
+        forbiddenMethods.add("splitIterator");
+        forbiddenMethods.add("stream");
+        forbiddenMethods.add("parallelStream");
     }
 
     public MethodsHandler() {
         this.cache = new HashMap<>();
     }
 
-    public List<Method> getAllMethods(Object o) {
-        if (!cache.containsKey(o.getClass())) {
-            findMethods(o);
+    public List<Method> getAllMethods(Class<?> clazz) {
+        if (!cache.containsKey(clazz)) {
+            findMethods(clazz);
         }
-        return cache.get(o.getClass());
+        return cache.get(clazz);
     }
 
-    private void findMethods(Object o) {
+    private void findMethods(Class<?> clazz) {
         List<Method> methodsList = new ArrayList<Method>();
-        for (Method m : o.getClass().getMethods()) {
-            if (!ignoredMethods.contains(m.getName()) && isValidMethod(m)) {
+        for (Method m : clazz.getMethods()) {
+            if (!forbiddenMethods.contains(m.getName()) && isValidMethod(m)) {
                 methodsList.add(m);
             }
         }
-        cache.put(o.getClass(), methodsList);
+        cache.put(clazz, methodsList);
     }
 
     private boolean isValidMethod(Method m) {
         if (!Modifier.isPublic(m.getModifiers())
                 || Modifier.isStatic(m.getModifiers())
-                || isVoid(m.getReturnType())) {
+                || isVoid(m.getReturnType())
+                || m.getReturnType() == Class.class) {
             return false;
         }
         Class<?>[] parameterTypes = m.getParameterTypes();
