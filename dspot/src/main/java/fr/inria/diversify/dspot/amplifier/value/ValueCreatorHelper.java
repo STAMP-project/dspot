@@ -2,9 +2,11 @@ package fr.inria.diversify.dspot.amplifier.value;
 
 import fr.inria.diversify.utils.AmplificationChecker;
 import spoon.reflect.declaration.CtConstructor;
+import spoon.reflect.declaration.CtParameter;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.reference.CtTypeReference;
+import spoon.reflect.reference.CtWildcardReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
 
@@ -48,11 +50,21 @@ public class ValueCreatorHelper {
     private static boolean canGenerateConstructionOf(CtTypeReference type) {
         CtType<?> typeDeclaration = type.getDeclaration() == null ? type.getTypeDeclaration() : type.getDeclaration();
         return typeDeclaration != null &&
+                (type.getActualTypeArguments().isEmpty() || // There is no type arguments
+                        !type.getActualTypeArguments().isEmpty() && // or there is, and
+                                type.getActualTypeArguments().stream().noneMatch( // none is Wildcard, e.g. <E extends Object>
+                                        reference -> reference instanceof CtWildcardReference
+                                )
+                ) &&
                 !type.getModifiers().contains(ModifierKind.ABSTRACT) &&
-                !typeDeclaration.getElements(new TypeFilter<CtConstructor>(CtConstructor.class) {
+                !typeDeclaration.getElements(new TypeFilter<CtConstructor<?>>(CtConstructor.class) {
                     @Override
-                    public boolean matches(CtConstructor element) {
-                        return element.hasModifier(ModifierKind.PUBLIC);
+                    public boolean matches(CtConstructor<?> element) {
+                        return element.hasModifier(ModifierKind.PUBLIC) &&
+                                element.getParameters()
+                                        .stream()
+                                        .map(CtParameter::getType)
+                                        .allMatch(ValueCreatorHelper::canGenerateConstructionOf);
                     }
                 }).isEmpty();
     }
