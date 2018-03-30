@@ -8,6 +8,7 @@ import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -59,6 +60,7 @@ public class ConstructorCreator {
     static CtExpression generateConstructionOf(CtTypeReference type, CtExpression<?>... expressionsToAvoid) {
         CtType<?> typeDeclaration = type.getDeclaration() == null ? type.getTypeDeclaration() : type.getDeclaration();
         if (typeDeclaration != null) {
+            // We take public constructor that have only parameter that can be generated
             final List<CtConstructor<?>> constructors = typeDeclaration.getElements(new TypeFilter<CtConstructor<?>>(CtConstructor.class) {
                 @Override
                 public boolean matches(CtConstructor<?> element) {
@@ -72,9 +74,8 @@ public class ConstructorCreator {
                 CtConstructorCall<?> constructorCall = type.getFactory().createConstructorCall();
                 constructorCall.setType(type);
                 final CtConstructor<?> selectedConstructor = constructors.get(AmplificationHelper.getRandom().nextInt(constructors.size()));
-                selectedConstructor.getParameters().forEach(parameter -> {
-                            constructorCall.addArgument(ValueCreator.generateRandomValue(parameter.getType()));
-                        }
+                selectedConstructor.getParameters().forEach(parameter ->
+                            constructorCall.addArgument(ValueCreator.generateRandomValue(parameter.getType()))
                 );
                 return constructorCall;
             } else {
