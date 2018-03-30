@@ -42,7 +42,7 @@ public class StatementAddTest extends AbstractTest {
 
         assertEquals("@org.junit.Test(timeout = 10000)\n" +
                 "public void testWithLoop_sd1() throws java.lang.Exception {\n" +
-                "    java.util.List<fr.inria.statementadd.TestClassTarget.Internal> internalList = new java.util.ArrayList<>();\n" +
+                "    java.util.ArrayList<fr.inria.statementadd.TestClassTarget.Internal> internalList = new java.util.ArrayList<>();\n" +
                 "    internalList.add(new fr.inria.statementadd.TestClassTarget.Internal());\n" +
                 "    for (fr.inria.statementadd.TestClassTarget.Internal i : internalList) {\n" +
                 "        int __DSPOT_i_0 = -1167796541;\n" +

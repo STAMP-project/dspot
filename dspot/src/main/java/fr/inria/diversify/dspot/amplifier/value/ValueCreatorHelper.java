@@ -66,6 +66,7 @@ public class ValueCreatorHelper {
                                         .map(CtParameter::getType)
                                         .allMatch(ValueCreatorHelper::canGenerateConstructionOf);
                     }
-                }).isEmpty();
+                }).isEmpty() ||
+                !type.getFactory().getModel().getElements(new ConstructorCreator.FILTER_FACTORY_METHOD(type)).isEmpty();
     }
 }

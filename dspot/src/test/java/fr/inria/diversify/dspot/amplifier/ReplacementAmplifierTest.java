@@ -34,14 +34,13 @@ public class ReplacementAmplifierTest extends AbstractTest {
         List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod);
 
         assertEquals(1, amplifiedMethods.size());
-        assertEquals("@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
-                "public void testWithLoop_replacement1() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
+        assertEquals("{" + AmplificationHelper.LINE_SEPARATOR +
                 "    java.util.ArrayList<fr.inria.statementadd.TestClassTarget.Internal> internalList = new java.util.ArrayList<fr.inria.statementadd.TestClassTarget.Internal>(1891812663);" + AmplificationHelper.LINE_SEPARATOR +
                 "    internalList.add(new fr.inria.statementadd.TestClassTarget.Internal());" + AmplificationHelper.LINE_SEPARATOR +
                 "    for (fr.inria.statementadd.TestClassTarget.Internal i : internalList)" + AmplificationHelper.LINE_SEPARATOR +
                 "        i.compute(0);" + AmplificationHelper.LINE_SEPARATOR +
                 "" + AmplificationHelper.LINE_SEPARATOR +
-                "}", amplifiedMethods.get(0).toString());
+                "}", amplifiedMethods.get(0).getBody().toString());
     }
 
     @Test
@@ -75,10 +74,9 @@ public class ReplacementAmplifierTest extends AbstractTest {
         final ReplacementAmplifier replacementAmplifier = new ReplacementAmplifier();
         final CtMethod originalTest = Utils.findMethod("fr.inria.factory.FactoryTest", "test");
         final List<CtMethod> test = replacementAmplifier.apply(originalTest);
-        final String expectedMethod = "@org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
-                "public void test_replacement1() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
+        final String expectedMethod = "{" + AmplificationHelper.LINE_SEPARATOR +
                 "    final fr.inria.factory.FactoryTest.aClass aClass = build(-1183186497);" + AmplificationHelper.LINE_SEPARATOR +
                 "}";
-        assertEquals(expectedMethod, test.get(0).toString());
+        assertEquals(expectedMethod, test.get(0).getBody().toString());
     }
 }
