@@ -28,6 +28,6 @@ public class TestValueCreatorHelper extends AbstractTest {
         assertFalse(ValueCreatorHelper.canGenerateAValueForType(factory.Class().get("fr.inria.inheritance.Inherited").getReference()));
         assertFalse(ValueCreatorHelper.canGenerateAValueForType(factory.Type().createReference(Iterator.class)));
         ArrayList<? extends Object> list = new ArrayList<>();
-        assertFalse(ValueCreatorHelper.canGenerateAValueForType(factory.Type().createReference(list.getClass())));
+        assertTrue(ValueCreatorHelper.canGenerateAValueForType(factory.Type().createReference(list.getClass())));
     }
 }
