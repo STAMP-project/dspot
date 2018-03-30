@@ -1,17 +1,21 @@
 package fr.inria.diversify.dspot.amplifier;
 
+import fr.inria.AbstractTest;
 import fr.inria.Utils;
 import fr.inria.diversify.utils.AmplificationHelper;
-import fr.inria.AbstractTest;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
 import org.junit.Test;
+import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
+import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Benjamin DANGLOT
@@ -38,19 +42,16 @@ public class StatementAddTest extends AbstractTest {
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTarget"), "testWithLoop");
         List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod);
 
-        System.out.println(amplifiedMethods);
-
-        assertEquals("@org.junit.Test(timeout = 10000)\n" +
-                "public void testWithLoop_sd1() throws java.lang.Exception {\n" +
-                "    java.util.ArrayList<fr.inria.statementadd.TestClassTarget.Internal> internalList = new java.util.ArrayList<>();\n" +
-                "    internalList.add(new fr.inria.statementadd.TestClassTarget.Internal());\n" +
-                "    for (fr.inria.statementadd.TestClassTarget.Internal i : internalList) {\n" +
-                "        int __DSPOT_i_0 = -1167796541;\n" +
-                "        i.compute(0);\n" +
-                "        // StatementAdd: add invocation of a method\n" +
-                "        i.compute(__DSPOT_i_0);\n" +
-                "    }\n" +
-                "}", amplifiedMethods.get(0).toString());
+        assertEquals("{" + AmplificationHelper.LINE_SEPARATOR +
+                "    java.util.ArrayList<fr.inria.statementadd.TestClassTarget.Internal> internalList = new java.util.ArrayList<>();" + AmplificationHelper.LINE_SEPARATOR +
+                "    internalList.add(new fr.inria.statementadd.TestClassTarget.Internal());" + AmplificationHelper.LINE_SEPARATOR +
+                "    for (fr.inria.statementadd.TestClassTarget.Internal i : internalList) {" + AmplificationHelper.LINE_SEPARATOR +
+                "        int __DSPOT_i_0 = -1167796541;" + AmplificationHelper.LINE_SEPARATOR +
+                "        i.compute(0);" + AmplificationHelper.LINE_SEPARATOR +
+                "        // StatementAdd: add invocation of a method" + AmplificationHelper.LINE_SEPARATOR +
+                "        i.compute(__DSPOT_i_0);" + AmplificationHelper.LINE_SEPARATOR +
+                "    }" + AmplificationHelper.LINE_SEPARATOR +
+                "}", amplifiedMethods.get(0).getBody().toString());
     }
 
     @Test
@@ -71,9 +72,23 @@ public class StatementAddTest extends AbstractTest {
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTarget"), "test");
         List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod);
 
-        System.out.println(amplifiedMethods);
-
         assertEquals(7, amplifiedMethods.size());
+
+        List<String> expectedCalledMethod = Arrays.asList(
+                "getList",
+                "getSizeOf",
+                "getSizeOfTypedCollection",
+                "getSizeOfTypedMap"
+        );
+        assertTrue(amplifiedMethods.stream()
+                .allMatch(amplifiedMethod ->
+                        amplifiedMethod.filterChildren(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
+                            @Override
+                            public boolean matches(CtInvocation<?> element) {
+                                return expectedCalledMethod.contains(element.getExecutable().getSimpleName());
+                            }
+                        }).first() != null
+                ));
     }
 
     @Test
@@ -92,6 +107,23 @@ public class StatementAddTest extends AbstractTest {
         System.out.println(amplifiedMethods);
 
         assertEquals(5, amplifiedMethods.size());
+
+        List<String> expectedCalledMethod = Arrays.asList(
+                "methodWithArrayParatemeter",
+                "methodWithArrayParatemeterFromDomain",
+                "methodWithDomainParameter",
+                "methodWithReturn",
+                "method1"
+        );
+        assertTrue(amplifiedMethods.stream()
+                .allMatch(amplifiedMethod ->
+                        amplifiedMethod.filterChildren(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
+                            @Override
+                            public boolean matches(CtInvocation<?> element) {
+                                return expectedCalledMethod.contains(element.getExecutable().getSimpleName());
+                            }
+                        }).first() != null
+                ));
     }
 
     @Test
@@ -110,6 +142,20 @@ public class StatementAddTest extends AbstractTest {
         System.out.println(amplifiedMethods);
 
         assertEquals(2, amplifiedMethods.size());
+
+        List<String> expectedCalledMethod = Arrays.asList(
+                "plusOne",
+                "minusOne"
+        );
+        assertTrue(amplifiedMethods.stream()
+                .allMatch(amplifiedMethod ->
+                        amplifiedMethod.filterChildren(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
+                            @Override
+                            public boolean matches(CtInvocation<?> element) {
+                                return expectedCalledMethod.contains(element.getExecutable().getSimpleName());
+                            }
+                        }).first() != null
+                ));
     }
 
     @Test
@@ -134,6 +180,24 @@ public class StatementAddTest extends AbstractTest {
         System.out.println(amplifiedMethods);
 
         assertEquals(6, amplifiedMethods.size());
+
+        List<String> expectedCalledMethod = Arrays.asList(
+                "method",
+                "methodWithDomainParameter",
+                "methodWithPrimitifParameters",
+                "methodWithPrimitifParameters",
+                "methodWithReturn",
+                "method1"
+        );
+        assertTrue(amplifiedMethods.stream()
+                .allMatch(amplifiedMethod ->
+                        amplifiedMethod.filterChildren(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
+                            @Override
+                            public boolean matches(CtInvocation<?> element) {
+                                return expectedCalledMethod.contains(element.getExecutable().getSimpleName());
+                            }
+                        }).first() != null
+                ));
     }
 
 }
