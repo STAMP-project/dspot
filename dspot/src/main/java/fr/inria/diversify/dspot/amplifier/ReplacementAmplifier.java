@@ -1,6 +1,7 @@
 package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.dspot.amplifier.value.ValueCreator;
+import fr.inria.diversify.dspot.amplifier.value.ValueCreatorHelper;
 import fr.inria.diversify.utils.AmplificationHelper;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtExpression;
@@ -19,7 +20,9 @@ public class ReplacementAmplifier implements Amplifier {
         return testMethod.getElements(new TypeFilter<CtLocalVariable>(CtLocalVariable.class) {
             @Override
             public boolean matches(CtLocalVariable element) {
-                return !element.getSimpleName().contains("DSPOT") && element.getParent() instanceof CtBlock;
+                return !element.getSimpleName().contains("DSPOT") &&
+                        element.getParent() instanceof CtBlock &&
+                        ValueCreatorHelper.canGenerateAValueForType(element.getType());
             }
         }).stream()
                 .map(ctLocalVariable -> {
