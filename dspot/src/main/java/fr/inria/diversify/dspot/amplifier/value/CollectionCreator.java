@@ -8,6 +8,7 @@ import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtTypeReference;
+import spoon.reflect.reference.CtWildcardReference;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,7 +22,8 @@ import java.util.stream.Collectors;
 public class CollectionCreator {
 
     static CtExpression<?> generateCollection(CtTypeReference type, String nameMethod, Class<?> typeOfCollection) {
-        if (AmplificationHelper.getRandom().nextBoolean()) {
+        if (type.getActualTypeArguments().stream().anyMatch(reference -> reference instanceof CtWildcardReference)
+                || AmplificationHelper.getRandom().nextBoolean()) {
             return generateEmptyCollection(type, "empty" + nameMethod, typeOfCollection);
         } else {
             return generateSingletonList(type,
@@ -65,6 +67,14 @@ public class CollectionCreator {
         executableReference.setSimpleName(singletonListMethod.getSimpleName());
         executableReference.setDeclaringType(collectionsType.getReference());
         executableReference.setType(factory.createCtTypeReference(typeOfCollection));
+        if (type.getActualTypeArguments().isEmpty()) {
+//          supporting Collections.<type>emptyList()
+            executableReference.addActualTypeArgument(type);
+        } else if (type.getActualTypeArguments()
+                .stream()
+                .noneMatch(reference -> reference instanceof CtWildcardReference)){// in case type is a list, we copy the Actual arguments
+            executableReference.setActualTypeArguments(type.getActualTypeArguments());
+        }
         return factory.createInvocation(accessToCollections, executableReference);
     }
 

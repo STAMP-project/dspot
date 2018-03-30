@@ -30,9 +30,7 @@ public class TestValueCreator extends AbstractTest {
 		final CtTypeReference<?> reference = factory.Class().get(new ArrayList<String>().getClass()).getReference();
 		reference.addActualTypeArgument(factory.Type().createReference(String.class));
 
-		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_0 = java.util.Collections.emptyList()",
-				ValueCreator.createRandomLocalVar(reference).toString());
-		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_1 = java.util.Collections.singletonList(\"mEp_A=f&o(QqZ.%_r;?r\")",
+		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_0 = new java.util.ArrayList<java.lang.String>(java.util.Collections.emptyList())",
 				ValueCreator.createRandomLocalVar(reference).toString());
 	}
 

@@ -138,12 +138,18 @@ public class StatementAdd implements Amplifier {
         final Factory factory = testMethod.getFactory();
         CtMethod methodClone = AmplificationHelper.cloneTestMethodForAmp(testMethod, "_sd");
 
-        CtBlock body = methodClone.getElements(new TypeFilter<>(CtStatement.class))
+        CtBodyHolder parent = methodClone.getElements(new TypeFilter<>(CtStatement.class))
                 .stream()
                 .filter(statement -> statement.equals(position))
                 .findFirst()
                 .get()
-                .getParent(CtBlock.class);
+                .getParent(CtBodyHolder.class);
+
+        if (!(parent.getBody() instanceof CtBlock)) {
+            parent.setBody(factory.createCtBlock(parent.getBody()));
+        }
+
+        CtBlock body = (CtBlock) parent.getBody();
 
         List<CtParameter<?>> parameters = methodToInvokeToAdd.getParameters();
         List<CtExpression<?>> arguments = new ArrayList<>(parameters.size());

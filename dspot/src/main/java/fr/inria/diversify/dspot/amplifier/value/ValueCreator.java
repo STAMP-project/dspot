@@ -48,8 +48,13 @@ public class ValueCreator {
                 } else if (type.getActualClass() == String.class) {
                     return type.getFactory().createLiteral(AmplificationHelper.getRandomString(20));
                 } else if (type.getActualClass() == Collection.class ||
-                        type.getActualClass() == List.class ||
-                        type.getSuperInterfaces().contains(type.getFactory().Type().get(List.class).getReference())) {
+                        type.getActualClass() == List.class
+                        // TODO I can't remember why I did this.
+                        // TODO The problem is that DSpot generates now:
+                        // TODO ArrayList<> l = Collections.emptyList();
+                        // TODO Which is incorrect
+//                        || type.getSuperInterfaces().contains(type.getFactory().Type().get(List.class).getReference())
+                        ) {
                     return CollectionCreator.generateCollection(type, "List", List.class);
                 } else if (type.getActualClass() == Set.class) {
                     return CollectionCreator.generateCollection(type, "Set", Set.class);
