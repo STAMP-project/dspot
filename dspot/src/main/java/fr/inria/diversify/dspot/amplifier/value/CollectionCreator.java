@@ -22,7 +22,8 @@ import java.util.stream.Collectors;
 public class CollectionCreator {
 
     static CtExpression<?> generateCollection(CtTypeReference type, String nameMethod, Class<?> typeOfCollection) {
-        if (AmplificationHelper.getRandom().nextBoolean()) {
+        if (type.getActualTypeArguments().stream().anyMatch(reference -> reference instanceof CtWildcardReference)
+                || AmplificationHelper.getRandom().nextBoolean()) {
             return generateEmptyCollection(type, "empty" + nameMethod, typeOfCollection);
         } else {
             return generateSingletonList(type,
@@ -67,7 +68,7 @@ public class CollectionCreator {
         executableReference.setDeclaringType(collectionsType.getReference());
         executableReference.setType(factory.createCtTypeReference(typeOfCollection));
         if (type.getActualTypeArguments().isEmpty()) {
-            // supporting Collections.<type>emptyList()
+//          supporting Collections.<type>emptyList()
             executableReference.addActualTypeArgument(type);
         } else if (type.getActualTypeArguments()
                 .stream()

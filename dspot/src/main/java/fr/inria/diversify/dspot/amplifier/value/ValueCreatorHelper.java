@@ -75,7 +75,6 @@ public class ValueCreatorHelper {
                                 type.getActualTypeArguments().stream().noneMatch( // none is Wildcard, e.g. <E extends Object>
                                         reference -> reference instanceof CtWildcardReference
                                 )
-                ) &&
-                !type.getModifiers().contains(ModifierKind.ABSTRACT) && canBeConstructed;
+                ) && !type.getModifiers().contains(ModifierKind.ABSTRACT) && canBeConstructed;
     }
 }
