@@ -18,7 +18,7 @@ public class TestCollectionCreator extends AbstractTest {
     @Test
     public void testCreateCollection() throws Exception {
         final CtTypeReference typeList = Utils.findMethod("fr.inria.statementadd.ClassTarget", "getList").getType();
-        assertEquals("java.util.Collections.emptyList()" ,
+        assertEquals("java.util.Collections.<fr.inria.statementadd.ClassParameterAmplify>emptyList()" ,
                 CollectionCreator.generateCollection(
                         typeList,
                         "List",

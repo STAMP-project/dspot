@@ -68,7 +68,7 @@ public class ConstructorCreator {
                             element.getParameters().stream()
                                     .map(CtParameter::getType)
                                     .allMatch(ValueCreatorHelper::canGenerateAValueForType);
-                }
+                }   
             });
             if (!constructors.isEmpty()) {
                 CtConstructorCall<?> constructorCall = type.getFactory().createConstructorCall();

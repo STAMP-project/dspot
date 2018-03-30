@@ -3,7 +3,6 @@ package fr.inria.statementadd;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class TestClassTarget {
@@ -21,7 +20,7 @@ public class TestClassTarget {
 
 	@Test
 	public void testWithLoop() throws Exception {
-		List<Internal> internalList = new ArrayList<>();
+		ArrayList<Internal> internalList = new ArrayList<>();
 		internalList.add(new Internal());
 		for (Internal i : internalList)
 			i.compute(0);
