@@ -2,9 +2,11 @@ package fr.inria.diversify.dspot.amplifier.value;
 
 import fr.inria.diversify.utils.AmplificationChecker;
 import spoon.reflect.declaration.CtConstructor;
+import spoon.reflect.declaration.CtParameter;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.reference.CtTypeReference;
+import spoon.reflect.reference.CtWildcardReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
 
@@ -47,13 +49,32 @@ public class ValueCreatorHelper {
 
     private static boolean canGenerateConstructionOf(CtTypeReference type) {
         CtType<?> typeDeclaration = type.getDeclaration() == null ? type.getTypeDeclaration() : type.getDeclaration();
-        return typeDeclaration != null &&
-                !type.getModifiers().contains(ModifierKind.ABSTRACT) &&
-                !typeDeclaration.getElements(new TypeFilter<CtConstructor>(CtConstructor.class) {
-                    @Override
-                    public boolean matches(CtConstructor element) {
-                        return element.hasModifier(ModifierKind.PUBLIC);
-                    }
-                }).isEmpty();
+
+        if (typeDeclaration == null) {
+            return false;
+        }
+
+        final boolean canBeConstructed = (!typeDeclaration.getElements(new TypeFilter<CtConstructor<?>>(CtConstructor.class) {
+            // we can use at least one constructor
+            @Override
+            public boolean matches(CtConstructor<?> element) {
+                return element.hasModifier(ModifierKind.PUBLIC) &&
+                        element.getParameters()
+                                .stream()
+                                .map(CtParameter::getType)
+                                .filter(reference -> ! reference.equals(type))
+                                .allMatch(ValueCreatorHelper::canGenerateAValueForType);
+            }
+        }).isEmpty()) ||
+                // or we can use a factor method
+                !(type.getFactory().getModel().getElements(new ConstructorCreator.FILTER_FACTORY_METHOD(type)).isEmpty());
+        // above, when we say use, it means that we can find one element that match filters, i.e. the returned list is not empty
+
+        return (type.getActualTypeArguments().isEmpty() || // There is no type arguments
+                        !type.getActualTypeArguments().isEmpty() && // or there is, and
+                                type.getActualTypeArguments().stream().noneMatch( // none is Wildcard, e.g. <E extends Object>
+                                        reference -> reference instanceof CtWildcardReference
+                                )
+                ) && !type.getModifiers().contains(ModifierKind.ABSTRACT) && canBeConstructed;
     }
 }

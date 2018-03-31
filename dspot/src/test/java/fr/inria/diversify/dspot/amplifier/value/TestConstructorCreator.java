@@ -6,7 +6,9 @@ import org.junit.Test;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.factory.Factory;
+import spoon.reflect.reference.CtTypeReference;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -18,6 +20,24 @@ import static org.junit.Assert.assertNull;
  * on 10/10/17
  */
 public class TestConstructorCreator extends AbstractTest {
+
+    @Test
+    public void testGenerateAllConstructorOfListOfSpecificObject() throws Exception {
+
+        /*
+            Test the good behavior when developers use specific implementation of List.
+         */
+
+        final Factory factory = Utils.getFactory();
+
+        final CtTypeReference<ArrayList> listReference = factory.Type().createReference(ArrayList.class);
+        listReference.addActualTypeArgument(factory.Type().get("fr.inria.statementadd.ClassParameterAmplify").getReference());
+
+        final List<CtExpression> constructionOf =
+                ConstructorCreator.generateAllConstructionOf(listReference);
+
+        assertEquals(1, constructionOf.size());
+    }
 
     @Test
     public void testGenerateAllConstructorOf() throws Exception {

@@ -77,7 +77,7 @@ public class StatementAdd implements Amplifier {
                                 "__DSPOT_invoc_" + indexOfInvocation,
                                 invocation.clone());
                         CtExpression<?> target = createLocalVarRef(localVar);
-                        CtMethod methodClone = AmplificationHelper.cloneMethodTest(method, "");
+                        CtMethod methodClone = AmplificationHelper.cloneTestMethodForAmp(method, "");
                         replaceInvocationByLocalVariable(
                                 methodClone.getElements(new TypeFilter<>(CtStatement.class)).get(indexOfInvocation),
                                 localVar
@@ -136,14 +136,20 @@ public class StatementAdd implements Amplifier {
 
     private CtMethod addInvocation(CtMethod<?> testMethod, CtMethod<?> methodToInvokeToAdd, CtExpression<?> target, CtStatement position) {
         final Factory factory = testMethod.getFactory();
-        CtMethod methodClone = AmplificationHelper.cloneMethodTest(testMethod, "_sd");
+        CtMethod methodClone = AmplificationHelper.cloneTestMethodForAmp(testMethod, "_sd");
 
-        CtBlock body = methodClone.getElements(new TypeFilter<>(CtStatement.class))
+        CtBodyHolder parent = methodClone.getElements(new TypeFilter<>(CtStatement.class))
                 .stream()
                 .filter(statement -> statement.equals(position))
                 .findFirst()
                 .get()
-                .getParent(CtBlock.class);
+                .getParent(CtBodyHolder.class);
+
+        if (!(parent.getBody() instanceof CtBlock)) {
+            parent.setBody(factory.createCtBlock(parent.getBody()));
+        }
+
+        CtBlock body = (CtBlock) parent.getBody();
 
         List<CtParameter<?>> parameters = methodToInvokeToAdd.getParameters();
         List<CtExpression<?>> arguments = new ArrayList<>(parameters.size());

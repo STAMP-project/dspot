@@ -108,16 +108,16 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                 this.currentClassTestToBeAmplified, methodNames);
         final List<String> pathExecuted = new ArrayList<>();
         final List<CtMethod<?>> methodsKept = amplifiedTestToBeKept.stream()
-                .filter(ctMethod ->
-                        this.selectedToBeAmplifiedCoverageResultsMap.get(
-                                getFirstParentThatHasBeenRun(ctMethod).getSimpleName()) == null ||
-                                coverageResultsMap.get(ctMethod.getSimpleName()).isBetterThan(
-                                        this.selectedToBeAmplifiedCoverageResultsMap.get(
-                                                getFirstParentThatHasBeenRun(ctMethod).getSimpleName())) &&
-                                        !computePathExecuted.apply(coverageResultsMap.get(ctMethod.getSimpleName()).getCoverageBuilder())
-                                                .equals(computePathExecuted.apply(this.selectedToBeAmplifiedCoverageResultsMap.get(
-                                                        getFirstParentThatHasBeenRun(ctMethod).getSimpleName()).getCoverageBuilder()))
-                )
+                .filter(ctMethod -> {
+                    final String simpleNameOfFirstParent = getFirstParentThatHasBeenRun(ctMethod).getSimpleName();
+                    return this.selectedToBeAmplifiedCoverageResultsMap.get(simpleNameOfFirstParent) == null ||
+                            coverageResultsMap.get(ctMethod.getSimpleName()).isBetterThan(
+                                    this.selectedToBeAmplifiedCoverageResultsMap.get(
+                                            simpleNameOfFirstParent)) &&
+                                    !computePathExecuted.apply(coverageResultsMap.get(ctMethod.getSimpleName()).getCoverageBuilder())
+                                            .equals(computePathExecuted.apply(this.selectedToBeAmplifiedCoverageResultsMap.get(
+                                                    simpleNameOfFirstParent).getCoverageBuilder()));
+                })
                 .filter(ctMethod -> {
                     final String pathByExecInstructions = computePathExecuted.apply(coverageResultsMap.get(ctMethod.getSimpleName()).getCoverageBuilder());
                     if (pathExecuted.contains(pathByExecInstructions)) {
@@ -141,12 +141,12 @@ public class JacocoCoverageSelector extends TakeAllSelector {
     }
 
     protected CtMethod<?> getFirstParentThatHasBeenRun(CtMethod<?> test) {
-        CtMethod<?> currentParent = AmplificationHelper.getAmpTestToParent().get(test);
-        while (AmplificationHelper.getAmpTestToParent().get(currentParent) != null) {
+        CtMethod<?> currentParent = AmplificationHelper.getAmpTestParent(test);
+        while (AmplificationHelper.getAmpTestParent(currentParent) != null) {
             if (this.selectedToBeAmplifiedCoverageResultsMap.get(currentParent.getSimpleName()) != null) {
                 return currentParent;
             } else {
-                currentParent = AmplificationHelper.getAmpTestToParent().get(currentParent);
+                currentParent = AmplificationHelper.getAmpTestParent(currentParent);
             }
         }
         return currentParent;

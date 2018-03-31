@@ -3,7 +3,7 @@ package fr.inria.diversify.dspot;
 import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 
-import fr.inria.stamp.EntryPoint;
+import eu.stamp.project.testrunner.EntryPoint;
 import fr.inria.stamp.Main;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;

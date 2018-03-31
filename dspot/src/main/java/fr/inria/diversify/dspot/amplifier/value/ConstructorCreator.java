@@ -59,6 +59,7 @@ public class ConstructorCreator {
     static CtExpression generateConstructionOf(CtTypeReference type, CtExpression<?>... expressionsToAvoid) {
         CtType<?> typeDeclaration = type.getDeclaration() == null ? type.getTypeDeclaration() : type.getDeclaration();
         if (typeDeclaration != null) {
+            // We take public constructor that have only parameter that can be generated
             final List<CtConstructor<?>> constructors = typeDeclaration.getElements(new TypeFilter<CtConstructor<?>>(CtConstructor.class) {
                 @Override
                 public boolean matches(CtConstructor<?> element) {
@@ -72,9 +73,8 @@ public class ConstructorCreator {
                 CtConstructorCall<?> constructorCall = type.getFactory().createConstructorCall();
                 constructorCall.setType(type);
                 final CtConstructor<?> selectedConstructor = constructors.get(AmplificationHelper.getRandom().nextInt(constructors.size()));
-                selectedConstructor.getParameters().forEach(parameter -> {
-                            constructorCall.addArgument(ValueCreator.generateRandomValue(parameter.getType()));
-                        }
+                selectedConstructor.getParameters().forEach(parameter ->
+                            constructorCall.addArgument(ValueCreator.generateRandomValue(parameter.getType()))
                 );
                 return constructorCall;
             } else {
@@ -97,22 +97,29 @@ public class ConstructorCreator {
     // we may need to be more exhaustive in the name convention of factories
     private static final String[] NAME_OF_FACTORY_METHOD = {"build", "create"};
 
+    static final class FILTER_FACTORY_METHOD extends TypeFilter<CtMethod<?>> {
+        private final CtTypeReference type;
+        public FILTER_FACTORY_METHOD(CtTypeReference type) {
+            super(CtMethod.class);
+            this.type = type;
+        }
+        @Override
+        public boolean matches(CtMethod<?> element) {
+            return element.getModifiers().contains(ModifierKind.STATIC) &&
+                    Arrays.stream(NAME_OF_FACTORY_METHOD)
+                            .anyMatch(element.getSimpleName().toLowerCase()::contains) &&
+                    element.getType().equals(type) &&
+                    element.getParameters().stream()
+                            .map(CtParameter::getType)
+                            .allMatch(ValueCreatorHelper::canGenerateAValueForType);
+        }
+    }
+
     static List<CtExpression<?>> generateConstructorUsingFactory(CtTypeReference type) {
         // this method will return an invocation of method that return the given type.
         // the usage of Factory classes/methods is well spread
         final Factory factory = type.getFactory();
-        final List<CtMethod<?>> factoryMethod = factory.getModel().getElements(new TypeFilter<CtMethod<?>>(CtMethod.class) {
-            @Override
-            public boolean matches(CtMethod<?> element) {
-                return element.getModifiers().contains(ModifierKind.STATIC) &&
-                        Arrays.stream(NAME_OF_FACTORY_METHOD)
-                                .anyMatch(element.getSimpleName().toLowerCase()::contains) &&
-                        element.getType().equals(type) &&
-                        element.getParameters().stream()
-                                .map(CtParameter::getType)
-                                .allMatch(ValueCreatorHelper::canGenerateAValueForType);
-            }
-        });
+        final List<CtMethod<?>> factoryMethod = factory.getModel().getElements(new FILTER_FACTORY_METHOD(type));
         return factoryMethod.stream()
                 .map(method ->
                         factory.createInvocation(factory.createTypeAccess(method.getParent(CtType.class).getReference(), true),

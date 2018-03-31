@@ -168,13 +168,13 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     }
 
     private boolean killsMoreMutantThanParents(CtMethod test, PitResult result) {
-        CtMethod parent = AmplificationHelper.getAmpTestToParent().get(test);
+        CtMethod parent = AmplificationHelper.getAmpTestParent(test);
         while (parent != null) {
             if (this.testThatKilledMutants.get(parent) != null &&
                     this.testThatKilledMutants.get(parent).contains(result)) {
                 return false;
             }
-            parent = AmplificationHelper.getAmpTestToParent().get(parent);
+            parent = AmplificationHelper.getAmpTestParent(parent);
         }
         return true;
     }

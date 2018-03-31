@@ -10,6 +10,7 @@ import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +23,43 @@ import static org.junit.Assert.assertEquals;
  * on 12/06/17
  */
 public class AssertGeneratorHelperTest extends AbstractTest {
+
+    @Test
+    public void testOnLoops() throws Exception {
+
+        /*
+            Test the instrumentation on values used in loops
+            For now, we do not log such values
+            TODO implements the A-amplification on values inside loops
+         */
+        assertEquals("@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR+
+                        "public void test2_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR+
+                        "    java.util.List<fr.inria.sample.TestClassWithLoop.MyClass> list = new java.util.ArrayList<>();" + AmplificationHelper.LINE_SEPARATOR+
+                        "    boolean o_test2__3 = list.add(new fr.inria.sample.TestClassWithLoop.MyClass());" + AmplificationHelper.LINE_SEPARATOR+
+                        "    fr.inria.diversify.compare.ObjectLog.log(o_test2__3, \"o_test2__3\", \"test2__3\");" + AmplificationHelper.LINE_SEPARATOR+
+                        "    boolean o_test2__5 = list.add(new fr.inria.sample.TestClassWithLoop.MyClass());" + AmplificationHelper.LINE_SEPARATOR+
+                        "    fr.inria.diversify.compare.ObjectLog.log(o_test2__5, \"o_test2__5\", \"test2__5\");" + AmplificationHelper.LINE_SEPARATOR+
+                        "    boolean o_test2__7 = list.add(new fr.inria.sample.TestClassWithLoop.MyClass());" + AmplificationHelper.LINE_SEPARATOR+
+                        "    fr.inria.diversify.compare.ObjectLog.log(o_test2__7, \"o_test2__7\", \"test2__7\");" + AmplificationHelper.LINE_SEPARATOR+
+                        "    for (fr.inria.sample.TestClassWithLoop.MyClass myClass : list) {" + AmplificationHelper.LINE_SEPARATOR+
+                        "        myClass.getInteger();" + AmplificationHelper.LINE_SEPARATOR+
+                        "    }" + AmplificationHelper.LINE_SEPARATOR+
+                        "    for (fr.inria.sample.TestClassWithLoop.MyClass myClass : list) {" + AmplificationHelper.LINE_SEPARATOR+
+                        "        myClass.inc();" + AmplificationHelper.LINE_SEPARATOR+
+                        "    }" + AmplificationHelper.LINE_SEPARATOR+
+                        "    for (fr.inria.sample.TestClassWithLoop.MyClass myClass : list) {" + AmplificationHelper.LINE_SEPARATOR+
+                        "        myClass.getInteger();" + AmplificationHelper.LINE_SEPARATOR+
+                        "    }" + AmplificationHelper.LINE_SEPARATOR+
+                        "    fr.inria.diversify.compare.ObjectLog.log(o_test2__3, \"o_test2__3\", \"test2__3___end\");" + AmplificationHelper.LINE_SEPARATOR+
+                        "    fr.inria.diversify.compare.ObjectLog.log(o_test2__5, \"o_test2__5\", \"test2__5___end\");" + AmplificationHelper.LINE_SEPARATOR+
+                        "    fr.inria.diversify.compare.ObjectLog.log(o_test2__7, \"o_test2__7\", \"test2__7___end\");" + AmplificationHelper.LINE_SEPARATOR+
+                        "}",
+                AssertGeneratorHelper.createTestWithLog(
+                        new AssertionRemover().removeAssertion(Utils.findMethod("fr.inria.sample.TestClassWithLoop", "test2")),
+                        "fr.inria.sample"
+                ).toString()
+        );
+    }
 
     /**
      * this test aims at verifying that dspot does not generate assertion for generated object.

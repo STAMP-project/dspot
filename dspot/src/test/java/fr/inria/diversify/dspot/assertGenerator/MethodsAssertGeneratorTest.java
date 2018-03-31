@@ -27,12 +27,14 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
 	@Before
 	public void setUp() throws Exception {
 		Main.verbose = true;
+		DSpotUtils.withComment = false;
 		super.setUp();
 	}
 
 	@After
 	public void tearDown() throws Exception {
 		Main.verbose = false;
+		DSpotUtils.withComment = false;
 	}
 
 	@Test
@@ -117,8 +119,6 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
 		CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithoutAssert", "test1");
 		List<CtMethod<?>> test1_buildNewAssert = mag.generateAsserts(testClass, Collections.singletonList(test1));
 		assertEquals(expectedBodyWithComment, test1_buildNewAssert.get(0).getBody().toString());
-
-		DSpotUtils.withComment = false;
 	}
 
 	@Test
@@ -182,13 +182,13 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
 			"    org.junit.Assert.assertEquals('a', ((char) (((fr.inria.sample.ClassWithBoolean)cl).getChar())));" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getListWithElements().contains(\"a\"));" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getListWithElements().contains(\"b\"));" + AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertEquals(1.0, ((double) (((fr.inria.sample.ClassWithBoolean)cl).getDouble())));" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertEquals(1.0, ((double) (((fr.inria.sample.ClassWithBoolean)cl).getDouble())), 0.1);" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertNull(((fr.inria.sample.ClassWithBoolean)cl).getNull());" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertEquals(1, ((byte) (((fr.inria.sample.ClassWithBoolean)cl).getByte())));" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertEquals(1, ((int) (((fr.inria.sample.ClassWithBoolean)cl).getInt())));" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getEmptyList().isEmpty());" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertFalse(((fr.inria.sample.ClassWithBoolean)cl).getFalse());" + AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertEquals(1.0F, ((float) (((fr.inria.sample.ClassWithBoolean)cl).getFloat())));" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertEquals(1.0F, ((float) (((fr.inria.sample.ClassWithBoolean)cl).getFloat())), 0.1);" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertEquals(1, ((short) (((fr.inria.sample.ClassWithBoolean)cl).getShort())));" + AmplificationHelper.LINE_SEPARATOR +
 			"    cl.getFalse();" + AmplificationHelper.LINE_SEPARATOR +
 			"    cl.getBoolean();" + AmplificationHelper.LINE_SEPARATOR +
@@ -201,13 +201,13 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
 			"    org.junit.Assert.assertEquals('a', ((char) (((fr.inria.sample.ClassWithBoolean)cl).getChar())));" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getListWithElements().contains(\"a\"));" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getListWithElements().contains(\"b\"));" + AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertEquals(1.0, ((double) (((fr.inria.sample.ClassWithBoolean)cl).getDouble())));" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertEquals(1.0, ((double) (((fr.inria.sample.ClassWithBoolean)cl).getDouble())), 0.1);" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertNull(((fr.inria.sample.ClassWithBoolean)cl).getNull());" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertEquals(1, ((byte) (((fr.inria.sample.ClassWithBoolean)cl).getByte())));" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertEquals(1, ((int) (((fr.inria.sample.ClassWithBoolean)cl).getInt())));" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getEmptyList().isEmpty());" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertFalse(((fr.inria.sample.ClassWithBoolean)cl).getFalse());" + AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertEquals(1.0F, ((float) (((fr.inria.sample.ClassWithBoolean)cl).getFloat())));" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertEquals(1.0F, ((float) (((fr.inria.sample.ClassWithBoolean)cl).getFloat())), 0.1);" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertEquals(1, ((short) (((fr.inria.sample.ClassWithBoolean)cl).getShort())));" + AmplificationHelper.LINE_SEPARATOR +
 			"}";
 
@@ -228,7 +228,7 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
 			"    // AssertGenerator add assertion" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getListWithElements().contains(\"b\"));" + AmplificationHelper.LINE_SEPARATOR +
 			"    // AssertGenerator add assertion" + AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertEquals(1.0, ((double) (((fr.inria.sample.ClassWithBoolean)cl).getDouble())));" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertEquals(1.0, ((double) (((fr.inria.sample.ClassWithBoolean)cl).getDouble())), 0.1);" + AmplificationHelper.LINE_SEPARATOR +
 			"    // AssertGenerator add assertion" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertNull(((fr.inria.sample.ClassWithBoolean)cl).getNull());" + AmplificationHelper.LINE_SEPARATOR +
 			"    // AssertGenerator add assertion" + AmplificationHelper.LINE_SEPARATOR +
@@ -240,7 +240,7 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
 			"    // AssertGenerator add assertion" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertFalse(((fr.inria.sample.ClassWithBoolean)cl).getFalse());" + AmplificationHelper.LINE_SEPARATOR +
 			"    // AssertGenerator add assertion" + AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertEquals(1.0F, ((float) (((fr.inria.sample.ClassWithBoolean)cl).getFloat())));" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertEquals(1.0F, ((float) (((fr.inria.sample.ClassWithBoolean)cl).getFloat())), 0.1);" + AmplificationHelper.LINE_SEPARATOR +
 			"    // AssertGenerator add assertion" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertEquals(1, ((short) (((fr.inria.sample.ClassWithBoolean)cl).getShort())));" + AmplificationHelper.LINE_SEPARATOR +
 			"    cl.getFalse();" + AmplificationHelper.LINE_SEPARATOR +
@@ -262,7 +262,7 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
 			"    // AssertGenerator add assertion" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getListWithElements().contains(\"b\"));" + AmplificationHelper.LINE_SEPARATOR +
 			"    // AssertGenerator add assertion" + AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertEquals(1.0, ((double) (((fr.inria.sample.ClassWithBoolean)cl).getDouble())));" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertEquals(1.0, ((double) (((fr.inria.sample.ClassWithBoolean)cl).getDouble())), 0.1);" + AmplificationHelper.LINE_SEPARATOR +
 			"    // AssertGenerator add assertion" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertNull(((fr.inria.sample.ClassWithBoolean)cl).getNull());" + AmplificationHelper.LINE_SEPARATOR +
 			"    // AssertGenerator add assertion" + AmplificationHelper.LINE_SEPARATOR +
@@ -274,7 +274,7 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
 			"    // AssertGenerator add assertion" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertFalse(((fr.inria.sample.ClassWithBoolean)cl).getFalse());" + AmplificationHelper.LINE_SEPARATOR +
 			"    // AssertGenerator add assertion" + AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertEquals(1.0F, ((float) (((fr.inria.sample.ClassWithBoolean)cl).getFloat())));" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertEquals(1.0F, ((float) (((fr.inria.sample.ClassWithBoolean)cl).getFloat())), 0.1);" + AmplificationHelper.LINE_SEPARATOR +
 			"    // AssertGenerator add assertion" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertEquals(1, ((short) (((fr.inria.sample.ClassWithBoolean)cl).getShort())));" + AmplificationHelper.LINE_SEPARATOR +
 			"}";

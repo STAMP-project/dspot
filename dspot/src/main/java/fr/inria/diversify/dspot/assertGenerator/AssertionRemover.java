@@ -31,7 +31,7 @@ public class AssertionRemover {
      * @return Test's clone without any assertion
      */
     public CtMethod<?> removeAssertion(CtMethod<?> testMethod) {
-        CtMethod<?> testWithoutAssertion = AmplificationHelper.cloneMethodTest(testMethod, "");
+        CtMethod<?> testWithoutAssertion = AmplificationHelper.cloneTestMethodNoAmp(testMethod);
         testWithoutAssertion.getElements(AmplificationHelper.ASSERTIONS_FILTER)
                 .forEach(this::removeAssertion);
         return testWithoutAssertion;

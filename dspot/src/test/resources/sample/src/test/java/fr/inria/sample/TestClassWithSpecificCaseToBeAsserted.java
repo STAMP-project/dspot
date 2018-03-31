@@ -1,7 +1,6 @@
 
 package fr.inria.sample;
 
-import java.io.File;
 import java.util.Comparator;
 
 import org.junit.Test;

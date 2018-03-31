@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>fr.inria.stamp</groupId>
+        <groupId>eu.stamp-project</groupId>
         <artifactId>dspot-parent</artifactId>
         <version>1.0.7-SNAPSHOT</version>
     </parent>
@@ -16,24 +16,6 @@
     <name>DSpot</name>
     <description>Dspot is a tool to automatically improve a Java test suite. It uses dynamic analysis to identify missing assertions and inputs. Make your tests better! Amplify your test suite! Now!</description>
     <url>https://github.com/STAMP-project/dspot</url>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <default.encoding>UTF-8</default.encoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
-
-    <licenses>
-        <license>
-            <name>GNU Lesser General Public License v3.0</name>
-            <url>https://github.com/STAMP-project/dspot/blob/master/Licence.md</url>
-        </license>
-    </licenses>
-
-    <scm>
-        <url>https://github.com/STAMP-project/dspot</url>
-    </scm>
 
     <repositories>
         <repository>
@@ -48,12 +30,6 @@
             <id>gradle-repo</id>
             <name>Gradle Tooling API repository</name>
             <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
-        </repository>
-        <repository>
-            <id>gforge.inria.fr-snapshot</id>
-            <name>Maven Repository for Spoon Snapshot</name>
-            <url>http://spoon.gforge.inria.fr/repositories/snapshots/</url>
-            <snapshots />
         </repository>
     </repositories>
 
@@ -98,7 +74,6 @@
             <scope>compile</scope>
         </dependency>
 
-
         <!-- https://mvnrepository.com/artifact/org.jacoco/org.jacoco.core -->
         <dependency>
             <groupId>org.jacoco</groupId>
@@ -125,9 +100,9 @@
         </dependency>
 
         <dependency>
-            <groupId>fr.inria.stamp</groupId>
+            <groupId>eu.stamp-project</groupId>
             <artifactId>test-runner</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
             <classifier>jar-with-dependencies</classifier>
         </dependency>
 

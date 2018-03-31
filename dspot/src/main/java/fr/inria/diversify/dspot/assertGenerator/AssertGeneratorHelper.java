@@ -27,7 +27,7 @@ public class AssertGeneratorHelper {
     }
 
     static CtMethod<?> createTestWithLog(CtMethod test, final String filter) {
-        CtMethod clone = AmplificationHelper.cloneMethodTest(test, "");
+        CtMethod clone = AmplificationHelper.cloneTestMethodNoAmp(test);
         clone.setSimpleName(test.getSimpleName() + "_withlog");
         final List<CtStatement> allStatement = clone.getElements(new TypeFilter<>(CtStatement.class));
         allStatement.stream()
@@ -60,6 +60,12 @@ public class AssertGeneratorHelper {
         if (!(statement.getParent() instanceof CtBlock)) {
             return false;
         }
+
+        // contract: for now, we do not log values inside loop
+        if (statement.getParent(CtLoop.class) != null) {
+            return false;
+        }
+
         if (statement instanceof CtInvocation) {
             CtInvocation invocation = (CtInvocation) statement;
             //type tested by the test class
