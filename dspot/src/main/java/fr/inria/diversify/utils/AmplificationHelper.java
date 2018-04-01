@@ -14,12 +14,14 @@ import spoon.reflect.declaration.CtImport;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtPackage;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtPackageReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.ImportScanner;
 import spoon.reflect.visitor.ImportScannerImpl;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
+import spoon.support.reflect.declaration.CtClassImpl;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -166,6 +168,43 @@ public class AmplificationHelper {
     }
 
     /**
+     * <p>Convert a JUnit3 test class into a JUnit4.
+     * This is done in two steps:
+     *      <ol>
+     *          <li>Remove the "extends TestCase"</li>
+     *          <li>Add an @Test annotation, with a default value for the timeout</li>
+     *      </ol>
+     * The timeout is added at this step since the converted test classes, and its test methods,
+     * will be amplified
+     * </p>
+     * @param testClassJUnit3 test class to be converted
+     * @return the same test class but in JUnit4
+     */
+    @SuppressWarnings("unchecked")
+    public static CtType<?> convert(CtType<?> testClassJUnit3) {
+        if (AmplificationChecker.isTestJUnit4(testClassJUnit3)) {
+            return testClassJUnit3;
+        }
+
+        // remove "extends TestCases"
+        if (testClassJUnit3.getSuperclass() != null &&
+                "junit.framework.TestCase".equals(
+                        testClassJUnit3.getSuperclass().getQualifiedName())
+                ) {
+            ((CtClassImpl) testClassJUnit3).setSuperclass(null);
+        }
+
+        // convert JUnit3 into JUnit4 test methods
+        testClassJUnit3
+                .getElements(AmplificationChecker.IS_TEST_TYPE_FILTER)
+                .forEach(testMethod ->
+                        AmplificationHelper.prepareTestMethod(testMethod, testClassJUnit3.getFactory())
+                );
+
+        return testClassJUnit3;
+    }
+
+    /**
      * Clones a method.
      *
      * @param method Method to be cloned
@@ -202,16 +241,21 @@ public class AmplificationHelper {
         CtAnnotation testAnnotation = cloned_method.getAnnotations().stream()
                 .filter(annotation -> annotation.toString().contains("Test"))
                 .findFirst().orElse(null);
-
         if (testAnnotation != null) {
             cloned_method.removeAnnotation(testAnnotation);
         }
+        final Factory factory = method.getFactory();
+        prepareTestMethod(cloned_method, factory);
+        return cloned_method;
+    }
 
-        testAnnotation = method.getFactory().Core().createAnnotation();
-        CtTypeReference<Object> ref = method.getFactory().Core().createTypeReference();
+    public static void prepareTestMethod(CtMethod cloned_method, Factory factory) {
+        CtAnnotation testAnnotation;
+        testAnnotation = factory.Core().createAnnotation();
+        CtTypeReference<Object> ref = factory.Core().createTypeReference();
         ref.setSimpleName("Test");
 
-        CtPackageReference refPackage = method.getFactory().Core().createPackageReference();
+        CtPackageReference refPackage = factory.Core().createPackageReference();
         refPackage.setSimpleName("org.junit");
         ref.setPackage(refPackage);
         testAnnotation.setAnnotationType(ref);
@@ -222,9 +266,7 @@ public class AmplificationHelper {
 
         cloned_method.addAnnotation(testAnnotation);
 
-        cloned_method.addThrownType(method.getFactory().Type().createReference(Exception.class));
-
-        return cloned_method;
+        cloned_method.addThrownType(factory.Type().createReference(Exception.class));
     }
 
     public static CtMethod cloneTestMethodForAmp(CtMethod method, String suffix) {
