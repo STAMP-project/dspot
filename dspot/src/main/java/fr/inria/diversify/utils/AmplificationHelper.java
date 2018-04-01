@@ -181,7 +181,7 @@ public class AmplificationHelper {
      * @return the same test class but in JUnit4
      */
     @SuppressWarnings("unchecked")
-    public static CtType<?> convert(CtType<?> testClassJUnit3) {
+    public static CtType<?> convertToJUnit4(CtType<?> testClassJUnit3) {
         if (AmplificationChecker.isTestJUnit4(testClassJUnit3)) {
             return testClassJUnit3;
         }
@@ -194,7 +194,7 @@ public class AmplificationHelper {
             ((CtClassImpl) testClassJUnit3).setSuperclass(null);
         }
 
-        // convert JUnit3 into JUnit4 test methods
+        // convertToJUnit4 JUnit3 into JUnit4 test methods
         testClassJUnit3
                 .getElements(AmplificationChecker.IS_TEST_TYPE_FILTER)
                 .forEach(testMethod ->
@@ -358,7 +358,7 @@ public class AmplificationHelper {
             LOGGER.warn("Too many tests have been generated: {}", tests.size());
             final Map<Long, List<CtMethod<?>>> valuesToMethod = new HashMap<>();
             for (CtMethod<?> test : tests) {
-                final long value = AmplificationHelper.convert(test.toString().getBytes());
+                final long value = AmplificationHelper.convertToJUnit4(test.toString().getBytes());
                 if (!valuesToMethod.containsKey(value)) {
                     valuesToMethod.put(value, new ArrayList<>());
                 }
@@ -401,7 +401,7 @@ public class AmplificationHelper {
                 .orElse(null);
     }
 
-    private static long convert(byte[] byteArray) {
+    private static long convertToJUnit4(byte[] byteArray) {
         long sum = 0L;
         for (byte aByteArray : byteArray) {
             sum += (int) aByteArray;

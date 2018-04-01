@@ -2,7 +2,6 @@ package fr.inria.diversify.utils;
 
 import fr.inria.Utils;
 import fr.inria.AbstractTest;
-import fr.inria.stamp.ConverterJUnit3ToJUnit4;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.*;
@@ -25,7 +24,7 @@ public class AmplificationHelperTest extends AbstractTest {
     @Test
     public void testConvert() throws Exception {
         final CtClass testClassJUnit3 = Utils.findClass("fr.inria.helper.ClassJunit3");
-        final CtType<?> converted = AmplificationHelper.convert(testClassJUnit3);
+        final CtType<?> converted = AmplificationHelper.convertToJUnit4(testClassJUnit3);
         System.out.println(converted);
         assertEquals("public class ClassJunit3 {\n" +
                         "    class MyInnerClass {\n" +
@@ -42,7 +41,7 @@ public class AmplificationHelperTest extends AbstractTest {
                 converted.toString());
 
         final CtClass secondTestClassJUnit3 = Utils.findClass("fr.inria.helper.SecondClassJUnit3");
-        final CtType<?> secondConverted = AmplificationHelper.convert(secondTestClassJUnit3);
+        final CtType<?> secondConverted = AmplificationHelper.convertToJUnit4(secondTestClassJUnit3);
         System.out.println(secondConverted);
         assertEquals("/**\n" +
                         " * Created by Benjamin DANGLOT\n" +
