@@ -8,6 +8,7 @@ import spoon.SpoonException;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
@@ -28,10 +29,8 @@ public class AmplificationChecker {
         return literal.getParent(CtCase.class) != null;
     }
 
-    @Deprecated
     public static boolean isAssert(CtStatement stmt) {
-        return stmt instanceof CtInvocation &&
-                isAssert((CtInvocation) stmt);
+        return stmt instanceof CtInvocation && isAssert((CtInvocation) stmt);
     }
 
     public static boolean isAssert(CtInvocation invocation) {
@@ -47,15 +46,6 @@ public class AmplificationChecker {
                                 .getElements(new HasAssertInvocationFilter(3))
                                 .isEmpty()
                 );
-    }
-
-    @Deprecated
-    public static boolean isAssertInstance(Class cl) {
-        if (cl.equals(org.junit.Assert.class) || cl.equals(junit.framework.Assert.class)) {
-            return true;
-        }
-        Class superCl = cl.getSuperclass();
-        return superCl != null && isAssertInstance(superCl);
     }
 
     public static boolean canBeAdded(CtInvocation invocation) {
@@ -79,11 +69,20 @@ public class AmplificationChecker {
                 AmplificationChecker.isAssert(lit.getParent(CtInvocation.class));
     }
 
+    public static final TypeFilter<CtMethod<?>> IS_TEST_TYPE_FILTER = new TypeFilter<CtMethod<?>>(CtMethod.class) {
+        @Override
+        public boolean matches(CtMethod<?> element) {
+            return AmplificationChecker.isTest(element);
+        }
+    };
+
     public static boolean isTest(CtMethod<?> candidate) {
         CtClass<?> parent = candidate.getParent(CtClass.class);
+        // if the test method has @Ignore, is not a test
         if (candidate.getAnnotation(org.junit.Ignore.class) != null) {
             return false;
         }
+        // if the test method is not visible, or has no body, or has parameters, is not a test
         if (candidate.isImplicit()
                 || candidate.getVisibility() == null
                 || !candidate.getVisibility().equals(ModifierKind.PUBLIC)
@@ -94,6 +93,7 @@ public class AmplificationChecker {
         }
 
 
+        // Look for any assertion inside the test method
         List<CtInvocation> listOfAssertion =
                 candidate.getBody().getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
                     @Override
@@ -102,23 +102,28 @@ public class AmplificationChecker {
                     }
                 });
 
+        // If there are no assertions, look up inside the method called for assertions
         if (listOfAssertion.isEmpty()) {
-            listOfAssertion.addAll(candidate.getBody().getElements(new HasAssertInvocationFilter(3)));
+            listOfAssertion.addAll(
+                    candidate.getBody().getElements(new HasAssertInvocationFilter(3))
+            );
         }
 
-        if (!listOfAssertion.isEmpty()) {
+        if (!listOfAssertion.isEmpty()) { // there is at least one assertion
             return true;
         }
 
         return (candidate.getAnnotation(org.junit.Test.class) != null ||
-                ((candidate.getSimpleName().contains("test") ||
-                        candidate.getSimpleName().contains("should")) && !isTestJUnit4(parent)));
+                // matching JUnit3 test: the parent is not JUnit4 and the method's name starts with test or should
+                ((candidate.getSimpleName().contains("test") || candidate.getSimpleName().contains("should"))
+                        && !isTestJUnit4(parent))
+        );
     }
 
     private static class HasAssertInvocationFilter extends TypeFilter<CtInvocation> {
         int deep;
 
-        public HasAssertInvocationFilter(int deep) {
+        HasAssertInvocationFilter(int deep) {
             super(CtInvocation.class);
             this.deep = deep;
         }
@@ -129,8 +134,6 @@ public class AmplificationChecker {
                     (hasAssertCall.test(element) || containsMethodCallToAssertion(element, this.deep));
         }
     }
-
-    ;
 
     private static final Predicate<CtInvocation<?>> hasAssertCall = invocation ->
             invocation.getExecutable() != null && invocation.getExecutable().getDeclaringType() != null &&
@@ -152,7 +155,7 @@ public class AmplificationChecker {
         return method != null && !method.getElements(new HasAssertInvocationFilter(deep - 1)).isEmpty();
     }
 
-    private static boolean isTestJUnit4(CtClass<?> classTest) {
+    public static boolean isTestJUnit4(CtType<?> classTest) {
         return classTest.getMethods().stream()
                 .anyMatch(ctMethod ->
                         ctMethod.getAnnotation(org.junit.Test.class) != null
