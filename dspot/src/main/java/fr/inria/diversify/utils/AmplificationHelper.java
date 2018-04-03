@@ -4,16 +4,21 @@ import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.stamp.minimization.Minimizer;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.test.listener.TestListener;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtComment;
 import spoon.reflect.code.CtInvocation;
+import spoon.reflect.code.CtSuperAccess;
 import spoon.reflect.declaration.CtAnnotation;
+import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtImport;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtPackage;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtPackageReference;
 import spoon.reflect.reference.CtTypeReference;
@@ -107,7 +112,7 @@ public class AmplificationHelper {
      * Clones the test class and adds the test methods.
      *
      * @param original Test class
-     * @param methods Test methods
+     * @param methods  Test methods
      * @return Test class with new methods
      */
     public static CtType cloneTestClassAndAddGivenTest(CtType original, List<CtMethod<?>> methods) {
@@ -170,13 +175,14 @@ public class AmplificationHelper {
     /**
      * <p>Convert a JUnit3 test class into a JUnit4.
      * This is done in two steps:
-     *      <ol>
-     *          <li>Remove the "extends TestCase"</li>
-     *          <li>Add an @Test annotation, with a default value for the timeout</li>
-     *      </ol>
+     * <ol>
+     * <li>Remove the "extends TestCase"</li>
+     * <li>Add an @Test annotation, with a default value for the timeout</li>
+     * </ol>
      * The timeout is added at this step since the converted test classes, and its test methods,
      * will be amplified
      * </p>
+     *
      * @param testClassJUnit3 test class to be converted
      * @return the same test class but in JUnit4
      */
@@ -185,12 +191,14 @@ public class AmplificationHelper {
         if (AmplificationChecker.isTestJUnit4(testClassJUnit3)) {
             return testClassJUnit3;
         }
+        final Factory factory = testClassJUnit3.getFactory();
+
+        // convert setUp and tearDown
+        convertGivenMethodWithGivenClass(testClassJUnit3, "setUp", Before.class);
+        convertGivenMethodWithGivenClass(testClassJUnit3, "tearDown", After.class);
 
         // remove "extends TestCases"
-        if (testClassJUnit3.getSuperclass() != null &&
-                "junit.framework.TestCase".equals(
-                        testClassJUnit3.getSuperclass().getQualifiedName())
-                ) {
+        if (AmplificationChecker.inheritFromTestCase(testClassJUnit3)){
             ((CtClassImpl) testClassJUnit3).setSuperclass(null);
         }
 
@@ -198,11 +206,66 @@ public class AmplificationHelper {
         testClassJUnit3
                 .getElements(AmplificationChecker.IS_TEST_TYPE_FILTER)
                 .forEach(testMethod ->
-                        AmplificationHelper.prepareTestMethod(testMethod, testClassJUnit3.getFactory())
+                        AmplificationHelper.prepareTestMethod(testMethod, factory)
                 );
 
+        // convert call to junit.framework.Assert calls to org.junit.Assert
+        testClassJUnit3.filterChildren(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
+            @Override
+            public boolean matches(CtInvocation<?> invocation) {
+                return invocation.getTarget() != null &&
+                        (invocation.getExecutable().getSimpleName().startsWith("assert") ||
+                                invocation.getExecutable().getSimpleName().startsWith("fail")) &&
+                        invocation.getTarget().getReferencedTypes().stream()
+                                .anyMatch(reference ->
+                                        reference.equals(
+                                                factory.Type().createReference(junit.framework.TestCase.class)
+                                        ) || reference.equals(
+                                                factory.Type().createReference(junit.framework.Assert.class)
+                                        ));
+            }
+        }).forEach(invocation -> ((CtInvocation) invocation).setTarget(
+                factory.createTypeAccess(factory.Type().createReference(org.junit.Assert.class))
+                )
+        );
         return testClassJUnit3;
     }
+
+    private static void convertGivenMethodWithGivenClass(CtType<?> testClass, String methodName,
+                                                         final Class annotationClass) {
+        testClass.getElements(new FILTER_OVERRIDE_METHOD_WITH_NAME(methodName))
+                .forEach(ctMethod -> {
+                    ctMethod.removeModifier(ModifierKind.PROTECTED);
+                    ctMethod.addModifier(ModifierKind.PUBLIC);
+                    ctMethod.removeAnnotation(ctMethod.getAnnotations().get(0));
+                    testClass.getFactory().Annotation().annotate(ctMethod, annotationClass);
+                    if (AmplificationChecker.inheritFromTestCase(testClass)){
+                        ctMethod.getElements(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
+                            @Override
+                            public boolean matches(CtInvocation<?> element) {
+                                return element.getTarget() instanceof CtSuperAccess;
+                            }
+                        }).forEach(ctMethod.getBody()::removeStatement);
+                    }
+                });
+    }
+
+    private final static class FILTER_OVERRIDE_METHOD_WITH_NAME extends TypeFilter<CtMethod<?>> {
+        private final String name;
+
+        FILTER_OVERRIDE_METHOD_WITH_NAME(String name) {
+            super(CtMethod.class);
+            this.name = name;
+        }
+
+        @Override
+        public boolean matches(CtMethod<?> element) {
+            return element.getAnnotations().size() == 1 &&
+                    element.getAnnotation(Override.class) != null &&
+                    element.getSimpleName().equals(this.name);
+        }
+    }
+
 
     /**
      * Clones a method.
@@ -229,7 +292,7 @@ public class AmplificationHelper {
 
     /**
      * Clones a test method.
-     *
+     * <p>
      * Performs necessary integration with JUnit and adds timeout.
      *
      * @param method Method to be cloned
@@ -329,11 +392,11 @@ public class AmplificationHelper {
     }
 
     public static String getClassPath(DSpotCompiler compiler, InputConfiguration configuration) {
-        return Arrays.stream(new String[] {
-            compiler.getBinaryOutputDirectory().getAbsolutePath(),
-                    configuration.getInputProgram().getProgramDir() + "/" + configuration.getInputProgram().getClassesDir(),
-                    compiler.getDependencies(),
-        }
+        return Arrays.stream(new String[]{
+                        compiler.getBinaryOutputDirectory().getAbsolutePath(),
+                        configuration.getInputProgram().getProgramDir() + "/" + configuration.getInputProgram().getClassesDir(),
+                        compiler.getDependencies(),
+                }
         ).collect(Collectors.joining(PATH_SEPARATOR));
     }
 
@@ -342,10 +405,10 @@ public class AmplificationHelper {
 
     /**
      * Reduces the number of amplified tests to a practical threshold (see {@link #MAX_NUMBER_OF_TESTS}).
-     *
+     * <p>
      * <p>The reduction aims at keeping a maximum of diversity. Because all the amplified tests come from the same
      * original test, they have a <em>lot</em> in common.
-     *
+     * <p>
      * <p>Diversity is measured with the textual representation of amplified tests. We use the sum of the bytes returned
      * by the {@link String#getBytes()} method and keep the amplified tests with the most distant values.
      *
@@ -358,7 +421,7 @@ public class AmplificationHelper {
             LOGGER.warn("Too many tests have been generated: {}", tests.size());
             final Map<Long, List<CtMethod<?>>> valuesToMethod = new HashMap<>();
             for (CtMethod<?> test : tests) {
-                final long value = AmplificationHelper.convertToJUnit4(test.toString().getBytes());
+                final long value = AmplificationHelper.sumByteArrayToLong(test.toString().getBytes());
                 if (!valuesToMethod.containsKey(value)) {
                     valuesToMethod.put(value, new ArrayList<>());
                 }
@@ -389,19 +452,23 @@ public class AmplificationHelper {
         return reducedTests;
     }
 
-    /** Returns the average of a collection of double */
+    /**
+     * Returns the average of a collection of double
+     */
     private static Long average(Collection<Long> values) {
         return values.stream().collect(Collectors.averagingLong(Long::longValue)).longValue();
     }
 
-    /** Returns the first, most distant element of a collection from a defined value. */
-    private static Long furthest(Collection<Long > values, Long average) {
+    /**
+     * Returns the first, most distant element of a collection from a defined value.
+     */
+    private static Long furthest(Collection<Long> values, Long average) {
         return values.stream()
                 .max(Comparator.comparingLong(d -> Math.abs(d - average)))
                 .orElse(null);
     }
 
-    private static long convertToJUnit4(byte[] byteArray) {
+    private static long sumByteArrayToLong(byte[] byteArray) {
         long sum = 0L;
         for (byte aByteArray : byteArray) {
             sum += (int) aByteArray;

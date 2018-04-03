@@ -120,6 +120,17 @@ public class AmplificationChecker {
         );
     }
 
+    /**
+     * checks if the given test class inherit from junit.framework.TestCase, <i>i.e.</i> is JUnit3 test class.
+     * @param testClass
+     * @return true if the given test class inherit from junit.framework.TestCase, false otherwise
+     */
+    public static boolean inheritFromTestCase(CtType<?> testClass) {
+        return testClass.getSuperclass() != null &&
+                "junit.framework.TestCase".equals(
+                        testClass.getSuperclass().getQualifiedName());
+    }
+
     private static class HasAssertInvocationFilter extends TypeFilter<CtInvocation> {
         int deep;
 
