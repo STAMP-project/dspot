@@ -1,6 +1,6 @@
 package fr.inria.helper;
 
-import static org.junit.Assert.assertEquals;
+import static junit.framework.TestCase.assertEquals;
 
 public class ClassJunit3 {
 

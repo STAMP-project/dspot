@@ -26,38 +26,46 @@ public class AmplificationHelperTest extends AbstractTest {
         final CtClass testClassJUnit3 = Utils.findClass("fr.inria.helper.ClassJunit3");
         final CtType<?> converted = AmplificationHelper.convertToJUnit4(testClassJUnit3);
         System.out.println(converted);
-        assertEquals("public class ClassJunit3 {\n" +
-                        "    class MyInnerClass {\n" +
-                        "        int value;\n" +
-                        "    }\n" +
-                        "\n" +
-                        "    @org.junit.Test(timeout = 10000)\n" +
-                        "    public void test() throws java.lang.Exception {\n" +
-                        "        fr.inria.helper.ClassJunit3.MyInnerClass innerClass = new fr.inria.helper.ClassJunit3.MyInnerClass();\n" +
-                        "        innerClass.value = 4;\n" +
-                        "        org.junit.Assert.assertEquals(4, innerClass.value);\n" +
-                        "    }\n" +
+        assertEquals("public class ClassJunit3 {" + AmplificationHelper.LINE_SEPARATOR +
+                        "    class MyInnerClass {" + AmplificationHelper.LINE_SEPARATOR +
+                        "        int value;" + AmplificationHelper.LINE_SEPARATOR +
+                        "    }" + AmplificationHelper.LINE_SEPARATOR +
+                        "" + AmplificationHelper.LINE_SEPARATOR +
+                        "    @org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
+                        "    public void test() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
+                        "        fr.inria.helper.ClassJunit3.MyInnerClass innerClass = new fr.inria.helper.ClassJunit3.MyInnerClass();" + AmplificationHelper.LINE_SEPARATOR +
+                        "        innerClass.value = 4;" + AmplificationHelper.LINE_SEPARATOR +
+                        "        org.junit.Assert.assertEquals(4, innerClass.value);" + AmplificationHelper.LINE_SEPARATOR +
+                        "    }" + AmplificationHelper.LINE_SEPARATOR +
                         "}",
                 converted.toString());
 
         final CtClass secondTestClassJUnit3 = Utils.findClass("fr.inria.helper.SecondClassJUnit3");
         final CtType<?> secondConverted = AmplificationHelper.convertToJUnit4(secondTestClassJUnit3);
         System.out.println(secondConverted);
-        assertEquals("/**\n" +
-                        " * Created by Benjamin DANGLOT\n" +
-                        " * benjamin.danglot@inria.fr\n" +
-                        " * on 01/04/18\n" +
-                        " */\n" +
-                        "public class SecondClassJUnit3 {\n" +
-                        "    @org.junit.Test(timeout = 10000)\n" +
-                        "    public void test() throws java.lang.Exception {\n" +
-                        "        junit.framework.TestCase.assertEquals(3, 3);\n" +
-                        "    }\n" +
-                        "\n" +
-                        "    @org.junit.Test(timeout = 10000)\n" +
-                        "    public void should() throws java.lang.Exception {\n" +
-                        "        junit.framework.TestCase.assertTrue(true);\n" +
-                        "    }\n" +
+        assertEquals("/**" + AmplificationHelper.LINE_SEPARATOR +
+                        " * Created by Benjamin DANGLOT" + AmplificationHelper.LINE_SEPARATOR +
+                        " * benjamin.danglot@inria.fr" + AmplificationHelper.LINE_SEPARATOR +
+                        " * on 01/04/18" + AmplificationHelper.LINE_SEPARATOR +
+                        " */" + AmplificationHelper.LINE_SEPARATOR +
+                        "public class SecondClassJUnit3 {" + AmplificationHelper.LINE_SEPARATOR +
+                        "    @org.junit.After" + AmplificationHelper.LINE_SEPARATOR +
+                        "    public void tearDown() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
+                        "    }" + AmplificationHelper.LINE_SEPARATOR +
+                        "" + AmplificationHelper.LINE_SEPARATOR +
+                        "    @org.junit.Before" + AmplificationHelper.LINE_SEPARATOR +
+                        "    public void setUp() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
+                        "    }" + AmplificationHelper.LINE_SEPARATOR +
+                        "" + AmplificationHelper.LINE_SEPARATOR +
+                        "    @org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
+                        "    public void test() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
+                        "        org.junit.Assert.assertEquals(3, 3);" + AmplificationHelper.LINE_SEPARATOR +
+                        "    }" + AmplificationHelper.LINE_SEPARATOR +
+                        "" + AmplificationHelper.LINE_SEPARATOR +
+                        "    @org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
+                        "    public void should() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
+                        "        org.junit.Assert.assertTrue(true);" + AmplificationHelper.LINE_SEPARATOR +
+                        "    }" + AmplificationHelper.LINE_SEPARATOR +
                         "}",
                 secondConverted.toString());
     }
