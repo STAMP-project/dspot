@@ -1,8 +1,8 @@
 package fr.inria.diversify.utils;
 
 import fr.inria.diversify.utils.compilation.DSpotCompiler;
-import fr.inria.stamp.minimization.Minimizer;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.stamp.minimization.Minimizer;
 import fr.inria.stamp.test.listener.TestListener;
 import org.junit.After;
 import org.junit.Before;
@@ -13,7 +13,6 @@ import spoon.reflect.code.CtComment;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtSuperAccess;
 import spoon.reflect.declaration.CtAnnotation;
-import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtImport;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtPackage;
@@ -29,7 +28,18 @@ import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.reflect.declaration.CtClassImpl;
 
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
