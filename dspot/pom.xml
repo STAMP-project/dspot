@@ -14,8 +14,6 @@
     <packaging>jar</packaging>
 
     <name>DSpot</name>
-    <description>Dspot is a tool to automatically improve a Java test suite. It uses dynamic analysis to identify missing assertions and inputs. Make your tests better! Amplify your test suite! Now!</description>
-    <url>https://github.com/STAMP-project/dspot</url>
 
     <repositories>
         <repository>
@@ -82,9 +80,9 @@
         </dependency>
 
         <dependency>
-            <groupId>fr.inria.stamp</groupId>
+            <groupId>eu.stamp-project</groupId>
             <artifactId>descartes</artifactId>
-            <version>0.1-SNAPSHOT</version>
+            <version>1.1</version>
         </dependency>
 
         <dependency>

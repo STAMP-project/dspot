@@ -15,10 +15,9 @@
     <version>1.0.7-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-
-    <name>${project.groupId}:${project.artifactId}</name>
-    <description>A runner for JUnit test.</description>
-    <url>http://github.com/STAMP-project/testrunner.git</url>
+    <name>DSpot - Parent</name>
+    <description>DSpot is a tool to automatically improve a Java test suite. It uses dynamic analysis to identify missing assertions and inputs. Make your tests better! Amplify your test suite! Now!</description>
+    <url>https://github.com/STAMP-project/dspot</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -40,6 +39,9 @@
     </issueManagement>
 
     <developers>
+        <developer>
+            <name>Simon Allier</name>
+        </developer>
         <developer>
             <name>Benjamin Danglot</name>
             <email>benjamin.danglot@inria.fr</email>
