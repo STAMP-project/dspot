@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>eu.stamp-project</groupId>
 		<artifactId>dspot-parent</artifactId>
-		<version>1.0.7</version>
+		<version>1.0.8-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>dspot-maven</artifactId>
