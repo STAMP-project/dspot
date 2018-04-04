@@ -8,20 +8,21 @@ import java.util.*;
 public class MethodsHandler {
 
     private Map<Class<?>, List<Method>> cache;
+
     private static final List<String> forbiddenMethods;
 
     static {
         forbiddenMethods = new ArrayList<>();
         forbiddenMethods.add("equals");
-        forbiddenMethods.add("hashCode");
         forbiddenMethods.add("notify");
         forbiddenMethods.add("notifyAll");
         forbiddenMethods.add("wait");
         forbiddenMethods.add("getClass");
-        forbiddenMethods.add("toString");
         forbiddenMethods.add("display");
         forbiddenMethods.add("clone");
         forbiddenMethods.add("hasExtensions");
+        forbiddenMethods.add("hashCode");
+        forbiddenMethods.add("toString");
 
         // since we generate contains(), we don't need to observe iterators
         forbiddenMethods.add("iterator");
@@ -45,7 +46,7 @@ public class MethodsHandler {
     private void findMethods(Class<?> clazz) {
         List<Method> methodsList = new ArrayList<Method>();
         for (Method m : clazz.getMethods()) {
-            if (!forbiddenMethods.contains(m.getName()) && isValidMethod(m)) {
+            if (isValidMethod(m)) {
                 methodsList.add(m);
             }
         }
@@ -59,8 +60,11 @@ public class MethodsHandler {
                 || m.getReturnType() == Class.class) {
             return false;
         }
-        Class<?>[] parameterTypes = m.getParameterTypes();
-        return parameterTypes.length == 0; // we only consider methods that take no parameter
+        // we only consider methods that take no parameter
+        return (!forbiddenMethods.contains(m.getName()) ||
+                ( (!m.getDeclaringClass().equals(Object.class) && !m.getDeclaringClass().equals(Enum.class))
+                        && (m.getName().equals("hashCode") || m.getName().equals("toString"))))
+                        && m.getParameterTypes().length == 0;
     }
 
     private static boolean isVoid(Class<?> type) {
