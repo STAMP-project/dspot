@@ -8,6 +8,8 @@ import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.test.listener.TestListener;
 import fr.inria.stamp.test.runner.TestRunnerFactory;
 import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
@@ -26,6 +28,16 @@ import static org.junit.Assert.fail;
  */
 @Deprecated
 public class TestLauncherTest {
+
+	@Before
+	public void setUp() throws Exception {
+		AmplificationHelper.setTimeOutInMs(10000);
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		AmplificationHelper.setTimeOutInMs(10000);
+	}
 
 	@Test
 	public void testOnJMockit() throws Exception {
@@ -309,6 +321,7 @@ public class TestLauncherTest {
 		assertTrue(run.getFailingTests().isEmpty());
 	}
 
+	// TODO It might be flaky
 	@Test
 	public void testTimeoutTuning() throws Exception {
 		/*
@@ -318,7 +331,7 @@ public class TestLauncherTest {
 		 */
 		Utils.init("src/test/resources/sample/sample.properties");
 		AmplificationHelper.setTimeOutInMs(0);
-		final CtClass aClass = Utils.findClass("fr.inria.systemproperties.SystemPropertiesTest");
+		final CtClass aClass = Utils.findClass("fr.inria.sample.LongTestClass");
 		final String classPath = AmplificationHelper.getClassPath(Utils.getCompiler(), Utils.getInputConfiguration());
 		try {
 			TestLauncher.run(Utils.getInputConfiguration(), classPath, aClass);
