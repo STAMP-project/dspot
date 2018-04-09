@@ -147,6 +147,7 @@ public class DSpotUtils {
 
 	public static final String pathToDSpotDependencies = "target/dspot/dependencies/";
 
+	// TODO refactor this, the classToCopy are always the same when the ReflectiveTestRunner will be remove
 	public static void copyPackageFromResources(String packagePath, String... classToCopy) {
 		final String pathToTestClassesDirectory = pathToDSpotDependencies + "/" + packagePath + "/";
 		final String directory = packagePath.split("/")[packagePath.split("/").length - 1];

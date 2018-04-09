@@ -33,7 +33,7 @@ public class Initializer {
 		builder.compile(program.getProgramDir());
 		if (!new File("target/dspot/dependencies/compare").exists()) {
 			DSpotUtils.copyPackageFromResources("fr/inria/diversify/compare/",
-					"MethodsHandler", "ObjectLog", "Observation", "Utils");
+					"MethodsHandler", "ObjectLog", "Observation", "Utils", "FailToObserveException");
 		}
 	}
 

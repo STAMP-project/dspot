@@ -2,6 +2,9 @@ package fr.inria.diversify.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import eu.stamp.project.testrunner.EntryPoint;
+import eu.stamp.project.testrunner.runner.coverage.Coverage;
+import eu.stamp.project.testrunner.runner.coverage.CoveragePerTestMethod;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.dspot.selector.json.coverage.TestCaseJSON;
 import fr.inria.diversify.dspot.selector.json.coverage.TestClassJSON;
@@ -13,9 +16,6 @@ import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.coverage.CoverageResults;
 import fr.inria.stamp.coverage.JacocoExecutor;
 import org.apache.commons.io.FileUtils;
-import org.jacoco.core.analysis.CoverageBuilder;
-import org.jacoco.core.analysis.ICounter;
-import org.jacoco.core.analysis.ILine;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
 import spoon.reflect.declaration.CtType;
@@ -28,9 +28,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * Created by Benjamin DANGLOT
@@ -39,9 +39,9 @@ import java.util.stream.IntStream;
  */
 public class JacocoCoverageSelector extends TakeAllSelector {
 
-    private Map<String, CoverageResults> selectedToBeAmplifiedCoverageResultsMap;
+    private Map<String, Coverage> selectedToBeAmplifiedCoverageResultsMap;
 
-    private CoverageResults initialCoverage;
+    private Coverage initialCoverage;
 
     @Override
     public void init(InputConfiguration configuration) {
@@ -53,19 +53,29 @@ public class JacocoCoverageSelector extends TakeAllSelector {
     public List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified) {
         if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
             this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
-            this.initialCoverage = new JacocoExecutor(this.program, this.configuration, this.currentClassTestToBeAmplified).executeJacoco(this.currentClassTestToBeAmplified);
+            final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).buildClasspath(this.program.getProgramDir());
+            final String targetClasses = this.program.getProgramDir() + "/" + this.program.getClassesDir() +
+                    AmplificationHelper.PATH_SEPARATOR +
+                    this.program.getProgramDir() + "/" + this.program.getTestClassesDir();
+            try {
+                initialCoverage = EntryPoint.runCoverageOnTestClasses(
+                        classpath + AmplificationHelper.LINE_SEPARATOR + targetClasses,
+                        targetClasses,
+                        this.currentClassTestToBeAmplified.getQualifiedName()
+                );
+            } catch (TimeoutException e) {
+                throw new RuntimeException(e);
+            }
             this.selectedToBeAmplifiedCoverageResultsMap = null;
             this.selectedAmplifiedTest.clear();
         }
-        final List<String> methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).collect(Collectors.toList());
-        final Map<String, CoverageResults> coverageResultsMap = new JacocoExecutor(this.program, this.configuration, this.currentClassTestToBeAmplified)
-                .executeJacoco(this.currentClassTestToBeAmplified, methodNames);
+        final CoveragePerTestMethod coveragePerTestMethod = computeCoverageForGivenTestMethdods(testsToBeAmplified);
         final List<String> pathExecuted = new ArrayList<>();
         final List<CtMethod<?>> filteredTests = testsToBeAmplified.stream()
                 .filter(ctMethod -> ctMethod != null &&
-                        coverageResultsMap.get(ctMethod.getSimpleName()) != null)
+                        coveragePerTestMethod.getCoverageOf(ctMethod.getSimpleName()) != null)
                 .filter(ctMethod -> {
-                    final String pathByExecInstructions = computePathExecuted.apply(coverageResultsMap.get(ctMethod.getSimpleName()).getCoverageBuilder());
+                    final String pathByExecInstructions = coveragePerTestMethod.getCoverageOf(ctMethod.getSimpleName()).getExecutionPath();
                     if (pathExecuted.contains(pathByExecInstructions)) {
                         return false;
                     } else {
@@ -73,53 +83,53 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                         return true;
                     }
                 }).collect(Collectors.toList());
-
         if (this.selectedToBeAmplifiedCoverageResultsMap == null) {
             final List<String> filteredMethodNames = filteredTests.stream()
                     .map(CtNamedElement::getSimpleName)
                     .collect(Collectors.toList());
-            this.selectedToBeAmplifiedCoverageResultsMap = coverageResultsMap.keySet()
+            this.selectedToBeAmplifiedCoverageResultsMap = coveragePerTestMethod.getCoverageResultsMap()
+                    .keySet()
                     .stream()
                     .filter(filteredMethodNames::contains)
-                    .collect(Collectors.toMap(Function.identity(), coverageResultsMap::get));
+                    .collect(Collectors.toMap(Function.identity(), coveragePerTestMethod.getCoverageResultsMap()::get));
         }
         return filteredTests;
     }
 
-    private Function<CoverageBuilder, String> computePathExecuted = coverageBuilder ->
-            coverageBuilder.getClasses()
-                    .stream()
-                    .map(iClassCoverage ->
-                            IntStream.range(iClassCoverage.getFirstLine(), iClassCoverage.getLastLine())
-                                    .mapToObj(iClassCoverage::getLine)
-                                    .map(ILine::getInstructionCounter)
-                                    .map(ICounter::getCoveredCount)
-                                    .map(Object::toString)
-                                    .collect(Collectors.joining(","))
-                    ).collect(Collectors.joining(";"));
+    private CoveragePerTestMethod computeCoverageForGivenTestMethdods(List<CtMethod<?>> testsToBeAmplified) {
+        final String[] methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).toArray(String[]::new);
+        final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).buildClasspath(this.program.getProgramDir());
+        final String targetClasses = this.program.getProgramDir() + "/" + this.program.getClassesDir() +
+                AmplificationHelper.PATH_SEPARATOR +
+                this.program.getProgramDir() + "/" + this.program.getTestClassesDir();
+        try {
+            return EntryPoint.runCoveragePerTestMethods(
+                    classpath + AmplificationHelper.PATH_SEPARATOR + targetClasses,
+                    targetClasses,
+                    this.currentClassTestToBeAmplified.getQualifiedName(),
+                    methodNames
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     public List<CtMethod<?>> selectToKeep(List<CtMethod<?>> amplifiedTestToBeKept) {
         if (amplifiedTestToBeKept.isEmpty()) {
             return amplifiedTestToBeKept;
         }
-        final List<String> methodNames = amplifiedTestToBeKept.stream().map(CtNamedElement::getSimpleName).collect(Collectors.toList());
-        final Map<String, CoverageResults> coverageResultsMap = new JacocoExecutor(this.program, this.configuration, this.currentClassTestToBeAmplified).executeJacoco(
-                this.currentClassTestToBeAmplified, methodNames);
+        final CoveragePerTestMethod coveragePerTestMethod = computeCoverageForGivenTestMethdods(amplifiedTestToBeKept);
         final List<String> pathExecuted = new ArrayList<>();
         final List<CtMethod<?>> methodsKept = amplifiedTestToBeKept.stream()
                 .filter(ctMethod -> {
                     final String simpleNameOfFirstParent = getFirstParentThatHasBeenRun(ctMethod).getSimpleName();
                     return this.selectedToBeAmplifiedCoverageResultsMap.get(simpleNameOfFirstParent) == null ||
-                            coverageResultsMap.get(ctMethod.getSimpleName()).isBetterThan(
-                                    this.selectedToBeAmplifiedCoverageResultsMap.get(
-                                            simpleNameOfFirstParent)) &&
-                                    !computePathExecuted.apply(coverageResultsMap.get(ctMethod.getSimpleName()).getCoverageBuilder())
-                                            .equals(computePathExecuted.apply(this.selectedToBeAmplifiedCoverageResultsMap.get(
-                                                    simpleNameOfFirstParent).getCoverageBuilder()));
+                            coveragePerTestMethod.getCoverageOf(ctMethod.getSimpleName()).isBetterThan(
+                                    this.selectedToBeAmplifiedCoverageResultsMap.get(simpleNameOfFirstParent));
                 })
                 .filter(ctMethod -> {
-                    final String pathByExecInstructions = computePathExecuted.apply(coverageResultsMap.get(ctMethod.getSimpleName()).getCoverageBuilder());
+                    final String pathByExecInstructions = coveragePerTestMethod.getCoverageOf(ctMethod.getSimpleName()).getExecutionPath();
                     if (pathExecuted.contains(pathByExecInstructions)) {
                         return false;
                     } else {
@@ -132,7 +142,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
         this.selectedToBeAmplifiedCoverageResultsMap.putAll(methodsKept.stream()
                 .map(CtNamedElement::getSimpleName)
                 .collect(
-                        Collectors.toMap(Function.identity(), coverageResultsMap::get)
+                        Collectors.toMap(Function.identity(), coveragePerTestMethod.getCoverageResultsMap()::get)
                 )
         );
 
@@ -157,10 +167,10 @@ public class JacocoCoverageSelector extends TakeAllSelector {
         final String nl = System.getProperty("line.separator");
         StringBuilder report = new StringBuilder();
         report.append(nl).append("======= REPORT =======").append(nl);
-        report.append("Initial instruction coverage: ").append(this.initialCoverage.instructionsCovered)
-                .append(" / ").append(this.initialCoverage.instructionsTotal).append(nl)
-                .append(String.format("%.2f", 100.0D * ((double) this.initialCoverage.instructionsCovered /
-                        (double) this.initialCoverage.instructionsTotal))).append("%").append(nl);
+        report.append("Initial instruction coverage: ").append(this.initialCoverage.getInstructionsCovered())
+                .append(" / ").append(this.initialCoverage.getInstructionsTotal()).append(nl)
+                .append(String.format("%.2f", 100.0D * ((double) this.initialCoverage.getInstructionsCovered() /
+                        (double) this.initialCoverage.getInstructionsTotal()))).append("%").append(nl);
         report.append("Amplification results with ").append(this.selectedAmplifiedTest.size())
                 .append(" amplified tests.").append(nl);
 
@@ -229,7 +239,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
         } else {
             testClassJSON = new TestClassJSON(this.currentClassTestToBeAmplified.getQualifiedName(),
                     this.currentClassTestToBeAmplified.getMethods().size(),
-                    this.initialCoverage.instructionsCovered, this.initialCoverage.instructionsTotal,
+                    this.initialCoverage.getInstructionsCovered(), this.initialCoverage.getInstructionsTotal(),
                     coverageResults.instructionsCovered, coverageResults.instructionsTotal
             );
         }
@@ -237,8 +247,8 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                 new TestCaseJSON(ctMethod.getSimpleName(),
                         Counter.getInputOfSinceOrigin(ctMethod),
                         Counter.getAssertionOfSinceOrigin(ctMethod),
-                        this.selectedToBeAmplifiedCoverageResultsMap.get(ctMethod.getSimpleName()).instructionsCovered,
-                        this.selectedToBeAmplifiedCoverageResultsMap.get(ctMethod.getSimpleName()).instructionsTotal
+                        this.selectedToBeAmplifiedCoverageResultsMap.get(ctMethod.getSimpleName()).getInstructionsCovered(),
+                        this.selectedToBeAmplifiedCoverageResultsMap.get(ctMethod.getSimpleName()).getInstructionsTotal()
                 )
         );
         try (FileWriter writer = new FileWriter(file, false)) {

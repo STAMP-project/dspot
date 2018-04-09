@@ -4,18 +4,16 @@ import fr.inria.diversify.automaticbuilder.AutomaticBuilder;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
-import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.Initializer;
+import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
 import org.apache.commons.io.FileUtils;
-import org.pitest.reloc.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
@@ -83,7 +81,7 @@ public class Utils {
 			AutomaticBuilderFactory.reset();
 			if (! new File("target/dspot/dependencies/compare").exists()) {
 				DSpotUtils.copyPackageFromResources("fr/inria/diversify/compare/",
-						"MethodsHandler", "ObjectLog", "Observation", "Utils");
+						"MethodsHandler", "ObjectLog", "Observation", "Utils", "FailToObserveException");
 			}
 			currentInputConfigurationLoaded = pathToConfFile;
 			inputConfiguration = new InputConfiguration(pathToConfFile);

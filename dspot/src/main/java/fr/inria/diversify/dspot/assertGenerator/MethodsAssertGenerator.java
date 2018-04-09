@@ -1,20 +1,23 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
+import eu.stamp.project.testrunner.runner.test.TestListener;
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
 import fr.inria.diversify.utils.AmplificationHelper;
-import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.Counter;
+import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.utils.compilation.TestCompiler;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
-import fr.inria.stamp.test.listener.TestListener;
-import org.junit.runner.Description;
-import org.junit.runner.notification.Failure;
-import org.junit.runners.model.TestTimedOutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spoon.reflect.code.*;
+import spoon.reflect.code.CtBlock;
+import spoon.reflect.code.CtCatch;
+import spoon.reflect.code.CtComment;
+import spoon.reflect.code.CtInvocation;
+import spoon.reflect.code.CtLocalVariable;
+import spoon.reflect.code.CtStatement;
+import spoon.reflect.code.CtTry;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
@@ -23,7 +26,11 @@ import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -73,31 +80,28 @@ public class MethodsAssertGenerator {
      */
     public List<CtMethod<?>> generateAsserts(CtType testClass, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
         LOGGER.info("Run tests. ({})", tests.size());
-        final TestListener result = TestCompiler.compileAndRun(testClass,
+        final TestListener testResult = TestCompiler.compileAndRun(testClass,
                 this.compiler,
                 tests,
                 this.configuration
         );
-        if (result == null) {
+        if (testResult == null) {
             return Collections.emptyList();
         } else {
-            final List<String> failuresMethodName = result.getFailingTests()
+            final List<String> failuresMethodName = testResult.getFailingTests()
                     .stream()
-                    .map(Failure::getDescription)
-                    .map(Description::getMethodName)
+                    .map(failure -> failure.testCaseName)
                     .collect(Collectors.toList());
-            final List<String> passingMethodName = result.getPassingTests()
-                    .stream()
-                    .map(Description::getMethodName)
-                    .collect(Collectors.toList());
+
+            final List<String> passingTestsName = testResult.getPassingTests();
 
             final List<CtMethod<?>> generatedTestWithAssertion = new ArrayList<>();
             // add assertion on passing tests
-            if (!passingMethodName.isEmpty()) {
-                LOGGER.info("{} test pass, generating assertion...", passingMethodName.size());
+            if (!passingTestsName.isEmpty()) {
+                LOGGER.info("{} test pass, generating assertion...", passingTestsName.size());
                 List<CtMethod<?>> passingTests = addAssertions(testClass,
                         tests.stream()
-                                .filter(ctMethod -> passingMethodName.contains(ctMethod.getSimpleName()))
+                                .filter(ctMethod -> passingTestsName.contains(ctMethod.getSimpleName()))
                                 .collect(Collectors.toList()))
                         .stream()
                         .filter(Objects::nonNull)
@@ -114,7 +118,7 @@ public class MethodsAssertGenerator {
                         .filter(ctMethod ->
                                 failuresMethodName.contains(ctMethod.getSimpleName()))
                         .map(ctMethod ->
-                                makeFailureTest(ctMethod, result.getFailureOf(ctMethod.getSimpleName()))
+                                makeFailureTest(ctMethod, testResult.getFailureOf(ctMethod.getSimpleName()))
                         )
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList());
@@ -170,6 +174,7 @@ public class MethodsAssertGenerator {
         ));
         ObjectLog.reset();
         LOGGER.info("Run instrumented tests. ({})", testsToRun.size());
+        AssertGeneratorHelper.addAfterClassMethod(clone);
         final TestListener result = TestCompiler.compileAndRun(clone,
                 this.compiler,
                 testsToRun,
@@ -274,32 +279,29 @@ public class MethodsAssertGenerator {
      * @param failure Test's failure description
      * @return New amplified test
      */
-    protected CtMethod<?> makeFailureTest(CtMethod<?> test, Failure failure) {
+    protected CtMethod<?> makeFailureTest(CtMethod<?> test, eu.stamp.project.testrunner.runner.test.Failure failure) {
         CtMethod cloneMethodTest = AmplificationHelper.cloneTestMethodForAmp(test, "");
         cloneMethodTest.setSimpleName(test.getSimpleName());
         Factory factory = cloneMethodTest.getFactory();
 
-        Throwable exception = failure.getException();
-        if (exception instanceof TestTimedOutException || // TestTimedOutException means infinite loop
-                exception instanceof AssertionError) { // AssertionError means that some assertion remained in the test: TODO
+        // TestTimedOutException means infinite loop
+        // AssertionError means that some assertion remained in the test: TODO
+        if ("org.junit.runners.model.TestTimedOutException".equals(failure.fullQualifiedNameOfException) ||
+                "java.lang.AssertionError".equals(failure.fullQualifiedNameOfException)) {
             return null;
         }
 
-        Class exceptionClass;
-        if (exception == null) {
-            exceptionClass = Exception.class;
-        } else {
-            exceptionClass = exception.getClass();
-        }
+        final String[] split = failure.fullQualifiedNameOfException.split("\\.");
+        final String simpleNameOfException = split[split.length - 1];
 
         CtTry tryBlock = factory.Core().createTry();
         tryBlock.setBody(cloneMethodTest.getBody());
-        String snippet = "org.junit.Assert.fail(\"" + test.getSimpleName() + " should have thrown " + exceptionClass.getSimpleName() + "\")";
+        String snippet = "org.junit.Assert.fail(\"" + test.getSimpleName() + " should have thrown " + simpleNameOfException + "\")";
         tryBlock.getBody().addStatement(factory.Code().createCodeSnippetStatement(snippet));
         DSpotUtils.addComment(tryBlock, "AssertGenerator generate try/catch block with fail statement", CtComment.CommentType.INLINE);
 
         CtCatch ctCatch = factory.Core().createCatch();
-        CtTypeReference exceptionType = factory.Type().createReference(exceptionClass);
+        CtTypeReference exceptionType = factory.Type().createReference(failure.fullQualifiedNameOfException);
         ctCatch.setParameter(factory.Code().createCatchVariable(exceptionType, "eee"));
 
         ctCatch.setBody(factory.Core().createBlock());
