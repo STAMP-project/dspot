@@ -64,8 +64,7 @@ public class TestCompiler {
                 inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir() + System.getProperty("path.separator") +
                 "target/dspot/dependencies/";
         if (!new File("target/dspot/dependencies/compare").exists()) {
-            DSpotUtils.copyPackageFromResources("fr/inria/diversify/compare/",
-                    "MethodsHandler", "ObjectLog", "Observation", "Utils", "FailToObserveException");
+            DSpotUtils.copyPackageFromResources();
         }
         final List<CtMethod<?>> uncompilableMethods = TestCompiler.compile(compiler, testClass, dependencies);
         if (uncompilableMethods.contains(TestCompiler.METHOD_CODE_RETURN)) {

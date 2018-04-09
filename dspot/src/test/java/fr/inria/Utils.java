@@ -80,8 +80,7 @@ public class Utils {
 			AmplificationHelper.minimize = false;
 			AutomaticBuilderFactory.reset();
 			if (! new File("target/dspot/dependencies/compare").exists()) {
-				DSpotUtils.copyPackageFromResources("fr/inria/diversify/compare/",
-						"MethodsHandler", "ObjectLog", "Observation", "Utils", "FailToObserveException");
+				DSpotUtils.copyPackageFromResources();
 			}
 			currentInputConfigurationLoaded = pathToConfFile;
 			inputConfiguration = new InputConfiguration(pathToConfFile);

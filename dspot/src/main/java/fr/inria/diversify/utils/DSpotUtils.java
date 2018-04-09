@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.Launcher;
 import spoon.compiler.Environment;
-import spoon.processing.Processor;
 import spoon.reflect.code.CtComment;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtElement;
@@ -19,7 +18,6 @@ import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.DefaultJavaPrettyPrinter;
 import spoon.support.JavaOutputProcessor;
-import spoon.support.QueueProcessingManager;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -110,10 +108,8 @@ public class DSpotUtils {
 		}
 	}
 
-	@Deprecated
 	public static String mavenHome;
 
-	@Deprecated
 	public static String buildMavenHome(InputConfiguration inputConfiguration) {
 		if (mavenHome == null) {
 			if (inputConfiguration != null && inputConfiguration.getProperty("maven.home") != null) {
@@ -139,16 +135,13 @@ public class DSpotUtils {
 		return mavenHome != null;
 	}
 
-	private static void applyProcessor(Factory factory, Processor processor) {
-		QueueProcessingManager pm = new QueueProcessingManager(factory);
-		pm.addProcessor(processor);
-		pm.process(factory.Package().getRootPackage());
-	}
-
 	public static final String pathToDSpotDependencies = "target/dspot/dependencies/";
 
-	// TODO refactor this, the classToCopy are always the same when the ReflectiveTestRunner will be remove
-	public static void copyPackageFromResources(String packagePath, String... classToCopy) {
+	public static final String packagePath = "fr/inria/diversify/compare/";
+
+	public static final String[] classesToCopy = new String[]{"MethodsHandler", "ObjectLog", "Observation", "Utils", "FailToObserveException"};
+
+	public static void copyPackageFromResources() {
 		final String pathToTestClassesDirectory = pathToDSpotDependencies + "/" + packagePath + "/";
 		final String directory = packagePath.split("/")[packagePath.split("/").length - 1];
 		try {
@@ -156,7 +149,7 @@ public class DSpotUtils {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		Arrays.stream(classToCopy).forEach(file -> {
+		Arrays.stream(classesToCopy).forEach(file -> {
 			OutputStream resStreamOut = null;
 			try {
 				final InputStream resourceAsStream = Thread.currentThread().getContextClassLoader()
@@ -181,6 +174,7 @@ public class DSpotUtils {
 			+ (configuration.getProperty("targetModule") != null ? configuration.getProperty("targetModule")
 					+ shouldAddSeparator.apply(configuration.getProperty("targetModule")) : "");
 
+	@Deprecated
 	private static void copyDirectory(String pathToProgramDir, String resourcesToBeCopied, String pathDirectoryToCopy) {
 		FileUtils.listFiles(new File(pathToProgramDir + resourcesToBeCopied), new FileFileFilter() {
 			@Override
@@ -195,6 +189,7 @@ public class DSpotUtils {
 		}).forEach(file -> DSpotUtils.copyFile(pathToProgramDir, resourcesToBeCopied, pathDirectoryToCopy, file));
 	}
 
+	@Deprecated
 	private static void copyFile(String pathToProgramDir, String pathToResourceToBeCopied, String pathDirectoryToCopy,
 			File fileToBeCopied) {
 		try {
@@ -212,6 +207,7 @@ public class DSpotUtils {
 		}
 	}
 
+	@Deprecated
 	private static void copyGivenResources(String resources, String outputDirectory, InputConfiguration configuration) {
 		final InputProgram program = configuration.getInputProgram();
 		Arrays.stream(resources.split(PATH_SEPARATOR)).forEach(resource -> {
@@ -224,6 +220,7 @@ public class DSpotUtils {
 		});
 	}
 
+	@Deprecated
 	public static void copyResources(InputConfiguration configuration) {
 		final InputProgram program = configuration.getInputProgram();
 		String resource = configuration.getProperty("srcResources");
