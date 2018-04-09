@@ -11,7 +11,6 @@ import fr.inria.diversify.dspot.selector.TakeAllSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
-import fr.inria.stamp.test.runner.TestRunnerFactory;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,7 +122,6 @@ public class JSAPOptions {
 
         PitMutantScoreSelector.descartesMode = jsapConfig.getBoolean("descartes");
 
-        TestRunnerFactory.useReflectiveTestRunner = false;
         DSpotUtils.withComment = jsapConfig.getBoolean("comment");
 
         return new Configuration(jsapConfig.getString("path"),

@@ -98,7 +98,7 @@ public class Amplification {
 		for (int i = 0; i < tests.size(); i++) {
 			CtMethod test = tests.get(i);
 			LOGGER.info("amp {} ({}/{})", test.getSimpleName(), i + 1, tests.size());
-			final eu.stamp.project.testrunner.runner.test.TestListener result = compileAndRunTests(classTest, Collections.singletonList(tests.get(i)));
+			final TestListener result = compileAndRunTests(classTest, Collections.singletonList(tests.get(i)));
 			if (result != null) {
 				if (result.getFailingTests().isEmpty()
 						&& !result.getRunningTests().isEmpty()) {
@@ -155,7 +155,7 @@ public class Amplification {
 			} else {
 				currentTestList = testsWithAssertions;
 			}
-			final eu.stamp.project.testrunner.runner.test.TestListener result = compileAndRunTests(classTest, currentTestList);
+			final TestListener result = compileAndRunTests(classTest, currentTestList);
 			if (result == null) {
 				continue;
 			} else if (!result.getFailingTests().isEmpty()) {
@@ -287,7 +287,7 @@ public class Amplification {
 	 * @param currentTestList New test methods to run
 	 * @return Results of tests' run
 	 */
-	private eu.stamp.project.testrunner.runner.test.TestListener compileAndRunTests(CtType classTest, List<CtMethod<?>> currentTestList) {
+	private TestListener compileAndRunTests(CtType classTest, List<CtMethod<?>> currentTestList) {
 		CtType amplifiedTestClass = AmplificationHelper.cloneTestClassAndAddGivenTest(classTest, currentTestList);
 		return TestCompiler.compileAndRun(
 				amplifiedTestClass,

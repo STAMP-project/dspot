@@ -56,7 +56,7 @@ public class ChangeMinimizerTest extends AbstractTest {
         final HashMap<CtMethod<?>, Failure> failurePerAmplifiedTest = new HashMap<>();
         final CtMethod<?> test2 = Utils.findMethod(testClass, "test2");
         failurePerAmplifiedTest.put(test2,
-                new Failure("test2", new StringIndexOutOfBoundsException(-1))
+                new Failure("test2", testClass.getQualifiedName(), new StringIndexOutOfBoundsException(-1))
         );
         final ChangeMinimizer changeMinimizer = new ChangeMinimizer(
                 testClass,

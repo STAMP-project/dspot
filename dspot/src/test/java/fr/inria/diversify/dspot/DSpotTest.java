@@ -9,7 +9,6 @@ import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import org.junit.AfterClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -26,7 +25,6 @@ import static org.junit.Assert.assertEquals;
  */
 public class DSpotTest extends AbstractTest {
 
-    @Ignore // TODO
     @Test
     public void testInheritanceMethod() throws Exception {
 
@@ -38,6 +36,7 @@ public class DSpotTest extends AbstractTest {
         DSpot dspot = new DSpot(configuration, 3, Collections.singletonList(new TestDataMutator()), new JacocoCoverageSelector());
         CtType<?> ctType = dspot.amplifyTest("fr.inria.inheritance.Inherited").get(0);
         assertEquals(1, ctType.getMethods().size());
+        System.out.println(ctType);
     }
 
     @Test
