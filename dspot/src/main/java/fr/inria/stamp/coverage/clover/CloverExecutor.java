@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by Benjamin DANGLOT
@@ -77,7 +78,11 @@ public class CloverExecutor {
                 binaryOutputDirectory
         );
 
-        EntryPoint.runTestClasses(finalClasspath, testClassesNames);
+        try {
+            EntryPoint.runTestClasses(finalClasspath, testClassesNames);
+        } catch (TimeoutException e) {
+            throw new RuntimeException(e);
+        }
 
         HtmlReporter.runReport(new String[]{
                 "-i", rootDirectoryOfCloverFiles.getAbsolutePath() + DATABASE_FILE,

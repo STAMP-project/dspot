@@ -1,21 +1,20 @@
 package fr.inria.diversify.dspot.selector;
 
+import eu.stamp.project.testrunner.EntryPoint;
+import eu.stamp.project.testrunner.runner.test.Failure;
+import eu.stamp.project.testrunner.runner.test.TestListener;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
-import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.Initializer;
+import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.minimization.ChangeMinimizer;
 import fr.inria.stamp.minimization.Minimizer;
-import fr.inria.stamp.test.launcher.TestLauncher;
-import fr.inria.stamp.test.listener.TestListener;
 import org.codehaus.plexus.util.FileUtils;
-import org.junit.runner.notification.Failure;
 import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.declaration.CtNamedElement;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
@@ -25,7 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by Benjamin DANGLOT
@@ -108,22 +107,28 @@ public class ChangeDetectorSelector implements TestSelector {
                         this.program.getProgramDir() + "/" + this.program.getTestClassesDir(),
                 new File(this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir()));
 
-        final TestListener results = TestLauncher.run(this.configuration,
-                classpath + AmplificationHelper.PATH_SEPARATOR +
-                        this.pathToChangedVersionOfProgram + "/" + this.program.getClassesDir()
-                        + AmplificationHelper.PATH_SEPARATOR +
-                        this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir(),
-                clone, amplifiedTestToBeKept.stream()
-                        .map(CtNamedElement::getSimpleName)
-                        .collect(Collectors.toList())
-        );
+        final TestListener results;
+        try {
+            results = EntryPoint.runTests(classpath + AmplificationHelper.PATH_SEPARATOR +
+                            this.pathToChangedVersionOfProgram + "/" + this.program.getClassesDir()
+                            + AmplificationHelper.PATH_SEPARATOR +
+                            this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir(),
+                    clone.getQualifiedName(),
+                    amplifiedTestToBeKept.stream()
+                            .map(CtMethod::getSimpleName)
+                            .toArray(String[]::new)
+
+            );
+        } catch (TimeoutException e) {
+            throw new RuntimeException(e);
+        }
         if (!results.getFailingTests().isEmpty()) {
             results.getFailingTests()
                     .forEach(failure ->
                             this.failurePerAmplifiedTest.put(
                                     amplifiedTestToBeKept.stream()
                                             .filter(ctMethod ->
-                                                    ctMethod.getSimpleName().equals(failure.getDescription().getMethodName())
+                                                    ctMethod.getSimpleName().equals(failure.testCaseName)
                                             ).findFirst()
                                             .get(), failure)
                     );
@@ -180,9 +185,8 @@ public class ChangeDetectorSelector implements TestSelector {
                 this.currentClassTestToBeAmplified.getQualifiedName() + "_stacktraces.txt"))) {
             final PrintWriter printWriter = new PrintWriter(writer);
             this.failurePerAmplifiedTest.keySet()
-                    .forEach(amplifiedTest -> this.failurePerAmplifiedTest.get(amplifiedTest)
-                            .getException()
-                            .printStackTrace(printWriter)
+                    .forEach(amplifiedTest ->
+                            printWriter.write(this.failurePerAmplifiedTest.get(amplifiedTest).stackTrace)
                     );
         } catch (Exception e) {
             throw new RuntimeException(e);

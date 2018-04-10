@@ -1,15 +1,14 @@
 package fr.inria.stamp.minimization;
 
-import fr.inria.Utils;
+import eu.stamp.project.testrunner.runner.test.Failure;
 import fr.inria.AbstractTest;
+import fr.inria.Utils;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.Initializer;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
 import org.junit.Test;
-import org.junit.runner.Description;
-import org.junit.runner.notification.Failure;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtClass;
@@ -57,7 +56,7 @@ public class ChangeMinimizerTest extends AbstractTest {
         final HashMap<CtMethod<?>, Failure> failurePerAmplifiedTest = new HashMap<>();
         final CtMethod<?> test2 = Utils.findMethod(testClass, "test2");
         failurePerAmplifiedTest.put(test2,
-                new Failure(Description.EMPTY, new StringIndexOutOfBoundsException(-1))
+                new Failure("test2", testClass.getQualifiedName(), new StringIndexOutOfBoundsException(-1))
         );
         final ChangeMinimizer changeMinimizer = new ChangeMinimizer(
                 testClass,

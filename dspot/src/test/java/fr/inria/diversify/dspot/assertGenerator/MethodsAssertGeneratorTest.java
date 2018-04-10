@@ -28,6 +28,7 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
 	public void setUp() throws Exception {
 		Main.verbose = true;
 		DSpotUtils.withComment = false;
+		AmplificationHelper.setTimeOutInMs(10000);
 		super.setUp();
 	}
 
@@ -35,6 +36,7 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
 	public void tearDown() throws Exception {
 		Main.verbose = false;
 		DSpotUtils.withComment = false;
+		AmplificationHelper.setTimeOutInMs(10000);
 	}
 
 	@Test
@@ -45,7 +47,6 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
 		CtMethod test = Utils.findMethod("fr.inria.infinite.LoopTest", "testLoop");
 		List<CtMethod<?>> test_buildNewAssert = mag.generateAsserts(testClass, Collections.singletonList(test));
 		assertTrue(test_buildNewAssert.isEmpty());
-		AmplificationHelper.setTimeOutInMs(10000);
 	}
 
 	@Test

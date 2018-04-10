@@ -1,7 +1,7 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
-import fr.inria.Utils;
 import fr.inria.AbstractTest;
+import fr.inria.Utils;
 import fr.inria.diversify.dspot.amplifier.StatementAdd;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
@@ -10,11 +10,12 @@ import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -23,6 +24,56 @@ import static org.junit.Assert.assertEquals;
  * on 12/06/17
  */
 public class AssertGeneratorHelperTest extends AbstractTest {
+
+    @Test
+    public void testAddAfterClassMethod() throws Exception {
+
+        /*
+            test the method addAfterClassMethod
+                1 - it generates the whole method, since it does not exist
+                2 - it adds at the end of the existing method an invocation to save() of ObjectLog
+         */
+
+        final CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithLoop");
+        assertFalse(testClass.getMethods()
+                .stream()
+                .anyMatch(method ->
+                        method.getAnnotations()
+                                .stream()
+                                .anyMatch(ctAnnotation ->
+                                        "org.junit.AfterClass".equals(ctAnnotation.getAnnotationType().getQualifiedName())
+                                )
+                ));
+
+        AssertGeneratorHelper.addAfterClassMethod(testClass);
+        final CtMethod<?> afterClassMethod = testClass.getMethods()
+                .stream()
+                .filter(method ->
+                        method.getAnnotations()
+                                .stream()
+                                .anyMatch(ctAnnotation ->
+                                        "org.junit.AfterClass".equals(ctAnnotation.getAnnotationType().getQualifiedName())
+                                )
+                ).findFirst()
+                .orElseThrow(() -> new AssertionError("Should have a value of a method with the org.junit.AfterClass annotation"));
+
+        afterClassMethod.getBody().removeStatement(afterClassMethod .getBody().getLastStatement());
+        assertTrue(afterClassMethod.getBody()
+                .getStatements()
+                .stream()
+                .noneMatch(statement ->
+                        statement.toString().endsWith("ObjectLog.save()")
+                )
+        );
+        AssertGeneratorHelper.addAfterClassMethod(testClass);
+        assertTrue(afterClassMethod.getBody()
+                .getStatements()
+                .stream()
+                .anyMatch(statement ->
+                        statement.toString().endsWith("ObjectLog.save()")
+                )
+        );
+    }
 
     @Test
     public void testOnLoops() throws Exception {

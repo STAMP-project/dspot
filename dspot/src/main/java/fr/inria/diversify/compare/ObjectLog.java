@@ -1,6 +1,11 @@
 package fr.inria.diversify.compare;
 
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,10 +90,6 @@ public class ObjectLog {
         observations.get(id).add(observedObjectAsString, actualValue);
     }
 
-    private class FailToObserveException extends Exception {
-
-    }
-
     private Object chainInvocationOfMethods(List<Method> methodsToInvoke, Object startingObject) throws FailToObserveException {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         FutureTask task = null;
@@ -101,7 +102,7 @@ public class ObjectLog {
             } catch (Exception e) {
                 throw new FailToObserveException();
             }
-            for (int i = 1 ; i < methodsToInvoke.size() ; i++) {
+            for (int i = 1; i < methodsToInvoke.size(); i++) {
                 Method method = methodsToInvoke.get(i);
                 try {
                     final Object finalCurrentObject = currentObject;
@@ -163,7 +164,37 @@ public class ObjectLog {
     }
 
     public static Map<String, Observation> getObservations() {
-        return singleton.observations;
+        if (singleton.observations.isEmpty()) {
+            return load();
+        } else {
+            return singleton.observations;
+        }
+    }
+
+    private static final String OBSERVATIONS_PATH_FILE_NAME = "target/dspot/observations.ser";
+
+    public static void save() {
+        try (FileOutputStream fout = new FileOutputStream(OBSERVATIONS_PATH_FILE_NAME)) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(fout)) {
+                oos.writeObject(singleton.observations);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Map<String, Observation> load() {
+        try (FileInputStream fi = new FileInputStream(new File(OBSERVATIONS_PATH_FILE_NAME))) {
+            try (ObjectInputStream oi = new ObjectInputStream(fi)) {
+                return (Map) oi.readObject();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } catch (Exception e){
+           throw new RuntimeException(e);
+        }
     }
 
 }

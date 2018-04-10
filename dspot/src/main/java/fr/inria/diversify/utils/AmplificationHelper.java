@@ -1,12 +1,11 @@
 package fr.inria.diversify.utils;
 
+import eu.stamp.project.testrunner.runner.test.TestListener;
 import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.minimization.Minimizer;
-import fr.inria.stamp.test.listener.TestListener;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtComment;
@@ -353,10 +352,7 @@ public class AmplificationHelper {
     }
 
     public static List<CtMethod<?>> getPassingTests(List<CtMethod<?>> newTests, TestListener result) {
-        final List<String> passingTests = result.getPassingTests()
-                .stream()
-                .map(Description::getMethodName)
-                .collect(Collectors.toList());
+        final List<String> passingTests = result.getPassingTests();
         return newTests.stream()
                 .filter(test -> passingTests.contains(test.getSimpleName()))
                 .collect(Collectors.toList());
