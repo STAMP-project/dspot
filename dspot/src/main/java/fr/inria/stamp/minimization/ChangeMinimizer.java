@@ -10,7 +10,6 @@ import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
-import fr.inria.stamp.Main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtInvocation;
@@ -146,7 +145,6 @@ public class ChangeMinimizer extends GeneralMinimizer {
 
     private boolean printAndCompile(CtType<?> clone, CtMethod<?> amplifiedTestToBeMinimized) {
         clone.setParent(this.testClass.getParent());
-        Main.verbose = false;
         this.testClass.getMethods().stream()
                 .filter(AmplificationChecker::isTest)
                 .forEach(clone::removeMethod);
@@ -158,7 +156,6 @@ public class ChangeMinimizer extends GeneralMinimizer {
                         + AmplificationHelper.PATH_SEPARATOR +
                         this.program.getProgramDir() + "/" + this.program.getTestClassesDir(),
                 new File(this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir()));
-        Main.verbose = true;
         return compile;
     }
 }
