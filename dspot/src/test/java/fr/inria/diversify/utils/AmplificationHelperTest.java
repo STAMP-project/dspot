@@ -35,12 +35,7 @@ public class AmplificationHelperTest extends AbstractTest {
                 Utils.getInputConfiguration(),
                 Utils.getInputProgram()
         );
-        assertEquals("/**" + AmplificationHelper.LINE_SEPARATOR +
-                " * Created by Benjamin DANGLOT" + AmplificationHelper.LINE_SEPARATOR +
-                " * benjamin.danglot@inria.fr" + AmplificationHelper.LINE_SEPARATOR +
-                " * on 10/04/18" + AmplificationHelper.LINE_SEPARATOR +
-                " */" + AmplificationHelper.LINE_SEPARATOR +
-                "public class SubClassOfJUnit3 extends fr.inria.helper.SecondClassJUnit3 {" + AmplificationHelper.LINE_SEPARATOR +
+        assertEquals("public class SubClassOfJUnit3 extends fr.inria.helper.SecondClassJUnit3 {" + AmplificationHelper.LINE_SEPARATOR +
                 "    @java.lang.Override" + AmplificationHelper.LINE_SEPARATOR +
                 "    @org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "    public void test() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
@@ -53,12 +48,7 @@ public class AmplificationHelperTest extends AbstractTest {
                 "    }" + AmplificationHelper.LINE_SEPARATOR +
                 "}", converted.toString());
 
-        assertEquals("/**" + AmplificationHelper.LINE_SEPARATOR +
-                        " * Created by Benjamin DANGLOT" + AmplificationHelper.LINE_SEPARATOR +
-                        " * benjamin.danglot@inria.fr" + AmplificationHelper.LINE_SEPARATOR +
-                        " * on 01/04/18" + AmplificationHelper.LINE_SEPARATOR +
-                        " */" + AmplificationHelper.LINE_SEPARATOR +
-                        "public class SecondClassJUnit3 {" + AmplificationHelper.LINE_SEPARATOR +
+        assertEquals("public class SecondClassJUnit3 {" + AmplificationHelper.LINE_SEPARATOR +
                         "    @org.junit.After" + AmplificationHelper.LINE_SEPARATOR +
                         "    public void tearDown() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
                         "    }" + AmplificationHelper.LINE_SEPARATOR +
@@ -108,12 +98,7 @@ public class AmplificationHelperTest extends AbstractTest {
                 Utils.getInputProgram()
         );
         System.out.println(secondConverted);
-        assertEquals("/**" + AmplificationHelper.LINE_SEPARATOR +
-                        " * Created by Benjamin DANGLOT" + AmplificationHelper.LINE_SEPARATOR +
-                        " * benjamin.danglot@inria.fr" + AmplificationHelper.LINE_SEPARATOR +
-                        " * on 01/04/18" + AmplificationHelper.LINE_SEPARATOR +
-                        " */" + AmplificationHelper.LINE_SEPARATOR +
-                        "public class SecondClassJUnit3 {" + AmplificationHelper.LINE_SEPARATOR +
+        assertEquals("public class SecondClassJUnit3 {" + AmplificationHelper.LINE_SEPARATOR +
                         "    @org.junit.After" + AmplificationHelper.LINE_SEPARATOR +
                         "    public void tearDown() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
                         "    }" + AmplificationHelper.LINE_SEPARATOR +
