@@ -1,6 +1,7 @@
-package fr.inria.diversify.dspot.maven;
+package eu.stamp_project;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -22,7 +23,7 @@ public class DSpotMojo extends AbstractMojo {
 
 	// Command Line parameters -> fr.inria.stamp.Configuration
 
-	private static final String BUILDER = "Maven";
+	private static final String BUILDER = "MavenBuilder";
 
 	@Parameter(defaultValue = "MethodAdd", property = "amplifiers")
 	private List<String> amplifiers;
@@ -33,11 +34,23 @@ public class DSpotMojo extends AbstractMojo {
 	@Parameter(defaultValue = "PitMutantScoreSelector", property = "test-criterion")
 	private String testCriterion;
 
+	@Parameter(defaultValue = "200", property = "max-test-amplified")
+	private Integer maxTestAmplified;
+	
 	@Parameter(defaultValue = "all", property = "test")
 	private List<String> namesOfTestCases;
+	
+	@Parameter( property = "cases")
+	private List<String> namesOfTestMethods;
 
 	@Parameter(defaultValue = "${project.build.directory}/dspot-report", property = "output-path")
 	private String outputPath;
+
+	@Parameter(defaultValue = "false", property = "clean")
+	private Boolean clean;
+
+	@Parameter(property = "descartes")
+	private Boolean descartes;
 
 	@Parameter(defaultValue = "23", property = "randomSeed")
 	private Long randomSeed;
@@ -56,19 +69,18 @@ public class DSpotMojo extends AbstractMojo {
 	@Parameter(defaultValue = "${project.build.sourceDirectory}", property = "src")
 	private File srcDir;
 
-	@Parameter(defaultValue = "${project.build.testSourceDirectory}", property = "test")
+	@Parameter(defaultValue = "${project.build.testSourceDirectory}", property = "test-src")
 	private File testDir;
 
 	@Parameter(defaultValue = "${project.build.outputDirectory}", property = "classes")
 	private File classesDir;
 
-	@Parameter(defaultValue = "${project.build.testOutputDirectory}", property = "testClasses")
+	@Parameter(defaultValue = "${project.build.testOutputDirectory}", property = "test-classes")
 	private File testClassesDir;
 
-	@Parameter(defaultValue = "${project.build.directory}/tempDir", property = "tempDir")
+	@Parameter(defaultValue = "${project.build.directory}/tempDir", property = "temp-dir")
 	private File tempDir;
 
-	// TODO: Command line option
 	@Parameter(defaultValue = "example.*", property = "filter")
 	private String filter;
 
@@ -85,9 +97,10 @@ public class DSpotMojo extends AbstractMojo {
 				// Iteration
 				getIteration(),
 				// testClases
-				getNamesOfTestCases(), getOutputPath().toString(), SelectorEnum.valueOf(getSelector()).buildSelector(),
-				getNamesOfTestCases(), getRandomSeed().longValue(), getTimeOutInMs().intValue(), BUILDER,
-				getMavenHome().getAbsolutePath(), 10, false, false);
+				getNamesOfTestCases(), getOutputPath(), SelectorEnum.valueOf(getSelector()).buildSelector(),
+				new ArrayList<String>(), 
+				getRandomSeed().longValue(), getTimeOutInMs().intValue(), BUILDER,
+				getMavenHome().getAbsolutePath(), 200, false, true);
 
 		InputConfiguration inputConfiguration;
 		try {
