@@ -1,8 +1,10 @@
 package fr.inria.diversify.utils;
 
 import eu.stamp.project.testrunner.runner.test.TestListener;
+import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
 import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.minimization.Minimizer;
 import org.junit.After;
 import org.junit.Before;
@@ -26,6 +28,7 @@ import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.reflect.declaration.CtClassImpl;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -189,14 +192,18 @@ public class AmplificationHelper {
      * <li>Add an @Test annotation, with a default value for the timeout</li>
      * </ol>
      * The timeout is added at this step since the converted test classes, and its test methods,
-     * will be amplified
+     * will be amplified.
+     * This method convert also super classes in case they inherit from TestCase.
+     * This method recompile every converted test class, because they will be executed.
      * </p>
      *
      * @param testClassJUnit3 test class to be converted
      * @return the same test class but in JUnit4
      */
     @SuppressWarnings("unchecked")
-    public static CtType<?> convertToJUnit4(CtType<?> testClassJUnit3) {
+    public static CtType<?> convertToJUnit4(CtType<?> testClassJUnit3,
+                                            InputConfiguration configuration,
+                                            InputProgram program) {
         if (AmplificationChecker.isTestJUnit4(testClassJUnit3)) {
             return testClassJUnit3;
         }
@@ -207,8 +214,35 @@ public class AmplificationHelper {
         convertGivenMethodWithGivenClass(testClassJUnit3, "tearDown", After.class);
 
         // remove "extends TestCases"
-        if (AmplificationChecker.inheritFromTestCase(testClassJUnit3)){
+        if (AmplificationChecker.inheritFromTestCase(testClassJUnit3)) {
             ((CtClassImpl) testClassJUnit3).setSuperclass(null);
+        } else {
+            if (testClassJUnit3.getSuperclass() != null) {
+                CtType<?> superclass = testClassJUnit3.getSuperclass().getDeclaration();
+                while (superclass != null) {
+                    if (AmplificationChecker.inheritFromTestCase(superclass)) {
+                        final CtType<?> convertedSuperclass =
+                                AmplificationHelper.convertToJUnit4(superclass, configuration, program);
+                        DSpotUtils.printCtTypeToGivenDirectory(convertedSuperclass,
+                                new File(program.getProgramDir() + "/" + program.getTestClassesDir()));
+                        final String classpath = AutomaticBuilderFactory
+                                .getAutomaticBuilder(configuration)
+                                .buildClasspath(program.getProgramDir())
+                                + AmplificationHelper.PATH_SEPARATOR +
+                                program.getProgramDir() + "/" + program.getClassesDir()
+                                + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/"
+                                + AmplificationHelper.PATH_SEPARATOR +
+                                program.getProgramDir() + "/" + program.getTestClassesDir();
+
+                        DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
+                                new File(program.getProgramDir() + "/" + program.getTestClassesDir()));
+                    }
+                    if (superclass.getSuperclass() == null) {
+                        break;
+                    }
+                    superclass = superclass.getSuperclass().getDeclaration();
+                }
+            }
         }
 
         // convertToJUnit4 JUnit3 into JUnit4 test methods
@@ -248,7 +282,7 @@ public class AmplificationHelper {
                     ctMethod.addModifier(ModifierKind.PUBLIC);
                     ctMethod.removeAnnotation(ctMethod.getAnnotations().get(0));
                     testClass.getFactory().Annotation().annotate(ctMethod, annotationClass);
-                    if (AmplificationChecker.inheritFromTestCase(testClass)){
+                    if (AmplificationChecker.inheritFromTestCase(testClass)) {
                         ctMethod.getElements(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
                             @Override
                             public boolean matches(CtInvocation<?> element) {
