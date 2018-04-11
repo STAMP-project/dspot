@@ -179,6 +179,7 @@ public class DSpot {
 
     public CtType amplifyTest(CtType test, List<CtMethod<?>> methods) {
         try {
+            test = AmplificationHelper.convertToJUnit4(test, this.inputConfiguration, this.inputProgram);
             Counter.reset();
             Amplification testAmplification = new Amplification(this.inputConfiguration, this.amplifiers, this.testSelector, this.compiler);
             final List<CtMethod<?>> filteredTestCases = this.filterTestCases(methods);

@@ -1,17 +1,15 @@
 package fr.inria.diversify.dspot;
 
+import eu.stamp.project.testrunner.runner.test.TestListener;
 import fr.inria.diversify.dspot.amplifier.Amplifier;
 import fr.inria.diversify.dspot.assertGenerator.AssertGenerator;
 import fr.inria.diversify.dspot.selector.TestSelector;
-import fr.inria.diversify.utils.compilation.DSpotCompiler;
-import fr.inria.diversify.utils.compilation.TestCompiler;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
+import fr.inria.diversify.utils.compilation.DSpotCompiler;
+import fr.inria.diversify.utils.compilation.TestCompiler;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
-import fr.inria.stamp.test.listener.TestListener;
-import org.junit.runner.Description;
-import org.junit.runner.notification.Failure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
@@ -100,7 +98,7 @@ public class Amplification {
 		for (int i = 0; i < tests.size(); i++) {
 			CtMethod test = tests.get(i);
 			LOGGER.info("amp {} ({}/{})", test.getSimpleName(), i + 1, tests.size());
-			TestListener result = compileAndRunTests(classTest, Collections.singletonList(tests.get(i)));
+			final TestListener result = compileAndRunTests(classTest, Collections.singletonList(tests.get(i)));
 			if (result != null) {
 				if (result.getFailingTests().isEmpty()
 						&& !result.getRunningTests().isEmpty()) {
@@ -157,15 +155,16 @@ public class Amplification {
 			} else {
 				currentTestList = testsWithAssertions;
 			}
-			TestListener result = compileAndRunTests(classTest, currentTestList);
+			final TestListener result = compileAndRunTests(classTest, currentTestList);
 			if (result == null) {
 				continue;
 			} else if (!result.getFailingTests().isEmpty()) {
 				LOGGER.warn("Discarding failing test cases");
-				final Set<String> failingTestCase = result.getFailingTests().stream()
-						.map(Failure::getDescription)
-						.map(Description::getMethodName)
-						.collect(Collectors.toSet());
+				final Set<String> failingTestCase =
+						result.getFailingTests()
+								.stream()
+								.map(failure -> failure.testCaseName)
+								.collect(Collectors.toSet());
 				currentTestList = currentTestList.stream()
 						.filter(ctMethod -> !failingTestCase.contains(ctMethod.getSimpleName()))
 						.collect(Collectors.toList());
@@ -177,6 +176,7 @@ public class Amplification {
 		return amplifiedTests;
 	}
 
+	@Deprecated
 	private void updateAmplifiedTestList(List<CtMethod<?>> ampTest, List<CtMethod<?>> amplification) {
 		ampTest.addAll(amplification);
 		ampTestCount += amplification.size();
@@ -209,9 +209,9 @@ public class Amplification {
 			);
 			LOGGER.warn("Discarding following test cases for the amplification");
 
-			result.getFailingTests().stream()
-					.map(Failure::getDescription)
-					.map(Description::getMethodName)
+			result.getFailingTests()
+					.stream()
+					.map(failure -> failure.testCaseName)
 					.forEach(failure -> {
 						try {
 							CtMethod testToRemove = tests.stream()

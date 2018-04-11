@@ -1,6 +1,7 @@
 package fr.inria.stamp;
 
 import com.martiansoftware.jsap.*;
+import eu.stamp.project.testrunner.EntryPoint;
 import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.ChangeDetectorSelector;
 import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
@@ -11,7 +12,6 @@ import fr.inria.diversify.dspot.selector.TakeAllSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
-import fr.inria.stamp.test.runner.TestRunnerFactory;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,6 +95,7 @@ public class JSAPOptions {
     public static Configuration parse(String[] args) {
         JSAPResult jsapConfig = options.parse(args);
         Main.verbose = jsapConfig.getBoolean("verbose");
+        EntryPoint.verbose = Main.verbose;
         if (!jsapConfig.success() || jsapConfig.getBoolean("help")) {
             System.err.println();
             for (Iterator<?> errs = jsapConfig.getErrorMessageIterator(); errs.hasNext(); ) {
@@ -123,7 +124,6 @@ public class JSAPOptions {
 
         PitMutantScoreSelector.descartesMode = jsapConfig.getBoolean("descartes");
 
-        TestRunnerFactory.useReflectiveTestRunner = false;
         DSpotUtils.withComment = jsapConfig.getBoolean("comment");
 
         return new Configuration(jsapConfig.getString("path"),

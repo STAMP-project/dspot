@@ -3,6 +3,8 @@ DSpot: a Test Amplification Tool for Java [![Build Status](https://travis-ci.org
 
 ### For a more step by step documentation, see the [wiki](https://github.com/STAMP-project/dspot/wiki).
 
+### [Riot chat room](https://riot.im/app/#/room/!vnCyWaGJbxESAkzyqh:matrix.org)
+
 ### What is Dspot?
 
 DSpot automatically improves existing JUnit test suites.

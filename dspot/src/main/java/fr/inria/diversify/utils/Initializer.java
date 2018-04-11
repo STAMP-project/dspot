@@ -32,8 +32,7 @@ public class Initializer {
 		AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(configuration);
 		builder.compile(program.getProgramDir());
 		if (!new File("target/dspot/dependencies/compare").exists()) {
-			DSpotUtils.copyPackageFromResources("fr/inria/diversify/compare/",
-					"MethodsHandler", "ObjectLog", "Observation", "Utils");
+			DSpotUtils.copyPackageFromResources();
 		}
 	}
 

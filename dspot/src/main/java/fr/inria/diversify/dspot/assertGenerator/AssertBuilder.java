@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class AssertBuilder {
 
     public static final int MAX_NUMBER_OF_CHECKED_ELEMENT_IN_LIST = 5;
-    private static String junitAssertClassName = "org.junit.Assert";
+    private final static String JUNIT_ASSERT_CLASS_NAME = "org.junit.Assert";
 
     private static final Predicate<Object> isFloating = value ->
             value instanceof Double || value.getClass() == double.class ||
@@ -135,7 +135,7 @@ public class AssertBuilder {
 
 
         String forLoop = "\tfor(int ii = 0; ii <" + arrayLocalVar1 + ".length; ii++) {\n\t\t"
-                + junitAssertClassName + ".assertEquals(" + arrayLocalVar1 + "[ii], " + arrayLocalVar2 + "[ii]);\n\t}";
+                + JUNIT_ASSERT_CLASS_NAME + ".assertEquals(" + arrayLocalVar1 + "[ii], " + arrayLocalVar2 + "[ii]);\n\t}";
 
         return factory.createCodeSnippetStatement(type + " " + arrayLocalVar1 + " = " + primitiveArrayToString(array) + ";\n\t"
                 + type + " " + arrayLocalVar2 + " = " + "(" + type + ")" + expression + ";\n"

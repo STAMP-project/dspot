@@ -1,15 +1,15 @@
 package fr.inria.stamp.minimization;
 
+import eu.stamp.project.testrunner.EntryPoint;
+import eu.stamp.project.testrunner.runner.test.Failure;
+import eu.stamp.project.testrunner.runner.test.TestListener;
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
-import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
+import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
-import fr.inria.stamp.Main;
-import fr.inria.stamp.test.launcher.TestLauncher;
-import org.junit.runner.notification.Failure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtInvocation;
@@ -17,9 +17,9 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by Benjamin DANGLOT
@@ -94,17 +94,20 @@ public class ChangeMinimizer extends GeneralMinimizer {
             throw new RuntimeException("The minimizer created an uncompilable test method.");
         }
         // must have (the same?) failure
-        final Failure failure = TestLauncher.run(this.configuration,
-                classpath +
-                        AmplificationHelper.PATH_SEPARATOR +
-                        this.pathToChangedVersionOfProgram + "/" + this.program.getClassesDir() +
-                        AmplificationHelper.PATH_SEPARATOR +
-                        this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir(),
-                clone,
-                Collections.singletonList(changeMinimize.getSimpleName()))
-                .getFailingTests().get(0);
-        failurePerAmplifiedTest.remove(amplifiedTestToBeMinimized);
-        failurePerAmplifiedTest.put(changeMinimize, failure);
+        try {
+            final TestListener result = EntryPoint.runTests(classpath +
+                            AmplificationHelper.PATH_SEPARATOR +
+                            this.pathToChangedVersionOfProgram + "/" + this.program.getClassesDir() +
+                            AmplificationHelper.PATH_SEPARATOR +
+                            this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir(),
+                    clone.getQualifiedName(),
+                    changeMinimize.getSimpleName());
+            final Failure failure = result.getFailingTests().get(0);
+            failurePerAmplifiedTest.remove(amplifiedTestToBeMinimized);
+            failurePerAmplifiedTest.put(changeMinimize, failure);
+        } catch (TimeoutException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void tryToRemoveAssertion(CtMethod<?> amplifiedTestToBeMinimized,
@@ -123,26 +126,25 @@ public class ChangeMinimizer extends GeneralMinimizer {
         if (!printAndCompile(clone, amplifiedTestToBeMinimized)) {
             return false;
         }
-        // must have (the same?) failure
-        final List<Failure> failingTests = TestLauncher.run(this.configuration,
-                classpath +
-                        AmplificationHelper.PATH_SEPARATOR +
-                        this.pathToChangedVersionOfProgram + "/" + this.program.getClassesDir() +
-                        AmplificationHelper.PATH_SEPARATOR +
-                        this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir(),
-                clone,
-                Collections.singletonList(amplifiedTestToBeMinimized.getSimpleName()))
-                .getFailingTests();
-        return !failingTests.isEmpty() &&
-                ((failingTests.get(0) == null && failure.getMessage() == null) ||
-                        failingTests.get(0).getMessage() != null &&
-                                failingTests.get(0).getMessage().equals(failure.getMessage())
-                );
+        try {
+            final TestListener result = EntryPoint.runTests(classpath +
+                            AmplificationHelper.PATH_SEPARATOR +
+                            this.pathToChangedVersionOfProgram + "/" + this.program.getClassesDir() +
+                            AmplificationHelper.PATH_SEPARATOR +
+                            this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir(),
+                    clone.getQualifiedName(),
+                    amplifiedTestToBeMinimized.getSimpleName());
+
+            final List<Failure> failingTests = result.getFailingTests();
+            return failingTests.contains(failure);
+        } catch (TimeoutException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private boolean printAndCompile(CtType<?> clone, CtMethod<?> amplifiedTestToBeMinimized) {
         clone.setParent(this.testClass.getParent());
-        Main.verbose = false;
         this.testClass.getMethods().stream()
                 .filter(AmplificationChecker::isTest)
                 .forEach(clone::removeMethod);
@@ -154,7 +156,6 @@ public class ChangeMinimizer extends GeneralMinimizer {
                         + AmplificationHelper.PATH_SEPARATOR +
                         this.program.getProgramDir() + "/" + this.program.getTestClassesDir(),
                 new File(this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir()));
-        Main.verbose = true;
         return compile;
     }
 }

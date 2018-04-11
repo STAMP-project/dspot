@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -12,13 +10,12 @@
 
     <groupId>eu.stamp-project</groupId>
     <artifactId>dspot-parent</artifactId>
-    <version>1.0.7-SNAPSHOT</version>
+    <version>1.0.8-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-
-    <name>${project.groupId}:${project.artifactId}</name>
-    <description>A runner for JUnit test.</description>
-    <url>http://github.com/STAMP-project/testrunner.git</url>
+    <name>DSpot - Parent</name>
+    <description>DSpot is a tool to automatically improve a Java test suite. It uses dynamic analysis to identify missing assertions and inputs. Make your tests better! Amplify your test suite! Now!</description>
+    <url>https://github.com/STAMP-project/dspot</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -40,6 +37,9 @@
     </issueManagement>
 
     <developers>
+        <developer>
+            <name>Simon Allier</name>
+        </developer>
         <developer>
             <name>Benjamin Danglot</name>
             <email>benjamin.danglot@inria.fr</email>

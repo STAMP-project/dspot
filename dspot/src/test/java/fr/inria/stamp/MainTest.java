@@ -11,7 +11,6 @@ import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
 
 import java.io.*;
-import java.text.DecimalFormat;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;

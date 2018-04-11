@@ -50,7 +50,6 @@ public class Observation implements Serializable {
             if (isArray1) {
                 try {
                     String type = o1.getClass().getCanonicalName();
-
                     if (type.equals("int[]")) {
                         return Arrays.equals((int[]) o1, (int[]) o2);
                     }

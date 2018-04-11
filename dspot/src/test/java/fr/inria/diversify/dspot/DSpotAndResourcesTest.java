@@ -1,13 +1,12 @@
 package fr.inria.diversify.dspot;
 
+import eu.stamp.project.testrunner.EntryPoint;
+import eu.stamp.project.testrunner.runner.test.TestListener;
+import fr.inria.AbstractTest;
 import fr.inria.Utils;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
-import fr.inria.AbstractTest;
-import fr.inria.stamp.test.launcher.TestLauncher;
-import fr.inria.stamp.test.listener.TestListener;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
-
 
 import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
 import static org.junit.Assert.assertEquals;
@@ -34,10 +33,13 @@ public class DSpotAndResourcesTest extends AbstractTest {
 				program.getProgramDir() + program.getTestClassesDir() + PATH_SEPARATOR +
 				Utils.getBuilder().buildClasspath(program.getProgramDir());
 
-		final TestListener result = TestLauncher.runFromSpoonNodes(
-				Utils.getInputConfiguration(),
+		final TestListener result = EntryPoint.runTests(
 				classpath,
-				classUsingResources, classUsingResources.getMethodsByName("testResources"));
+				classUsingResources.getQualifiedName(),
+				classUsingResources.getMethodsByName("testResources")
+						.get(0)
+						.getSimpleName()
+		);
 
 		assertTrue(result.getFailingTests().isEmpty());
 		assertEquals(1, result.getRunningTests().size());

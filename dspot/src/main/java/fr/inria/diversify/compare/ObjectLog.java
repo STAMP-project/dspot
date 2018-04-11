@@ -1,8 +1,15 @@
 package fr.inria.diversify.compare;
 
 
-import java.lang.reflect.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -15,7 +22,9 @@ import java.util.concurrent.TimeUnit;
  * Time: 14:31
  */
 public class ObjectLog {
+
     private static ObjectLog singleton;
+
     private Map<String, Observation> observations;
     private MethodsHandler methodsHandler;
     private int maxDeep = 4;
@@ -36,77 +45,156 @@ public class ObjectLog {
         singleton = new ObjectLog();
     }
 
-    public static void log(Object object, String stringObject, String positionId) {
-        getSingleton()._log(object, object.getClass(), stringObject, positionId, 0);
+    public static void log(Object objectToObserve, String objectObservedAsString, String id) {
+        getSingleton()._log(
+                objectToObserve,
+                objectToObserve,
+                objectToObserve.getClass(),
+                objectObservedAsString,
+                id,
+                0,
+                new ArrayList<>()
+        );
     }
 
-    private void _log(Object object, Class<?> clazz, String stringObject, String positionId, int deep) {
+    private void _log(Object startingObject,
+                      Object objectToObserve,
+                      Class<?> currentObservedClass,
+                      String observedObjectAsString,
+                      String id,
+                      int deep,
+                      List<Method> methodsToReachCurrentObject) {
         if (deep < maxDeep) {
-            if (object == null) {
-                addObservation(positionId, stringObject, null);
-            } else if (Utils.isPrimitive(object)) {
-                addObservation(positionId, stringObject, object);
-            } else if (Utils.isPrimitiveArray(object)) {
-                addObservation(positionId, stringObject, object);
-            } else if (Utils.isPrimitiveCollectionOrMap(object)) {
-                addObservation(positionId, stringObject, object);
-            } else {
-                observeNotNullObject(object, clazz, stringObject, positionId, deep);
+            if (objectToObserve == null ||
+                    Utils.isPrimitive(objectToObserve) ||
+                    Utils.isPrimitiveArray(objectToObserve) ||
+                    Utils.isPrimitiveCollectionOrMap(objectToObserve)) {
+                addObservation(id, observedObjectAsString, objectToObserve);
+            } else if (!objectToObserve.getClass().getName().toLowerCase().contains("mock")) {
+                observeNotNullObject(
+                        startingObject,
+                        currentObservedClass,
+                        observedObjectAsString,
+                        id,
+                        deep,
+                        methodsToReachCurrentObject
+                );
             }
         }
     }
 
-    private void addObservation(String positionId, String stringObject, Object value) {
-        if (!observations.containsKey(positionId)) {
-            observations.put(positionId, new Observation());
+    private void addObservation(String id, String observedObjectAsString, Object actualValue) {
+        if (!observations.containsKey(id)) {
+            observations.put(id, new Observation());
         }
-        observations.get(positionId).add(stringObject, value);
+        observations.get(id).add(observedObjectAsString, actualValue);
     }
 
-    private void observeNotNullObject(Object o,
-                                      Class<?> clazz,
-                                      String stringObject,
-                                      String positionId,
-                                      int deep) {
-        if (deep < maxDeep && !o.getClass().getName().toLowerCase().contains("mock")) {
-            ExecutorService executor = Executors.newSingleThreadExecutor();
-            FutureTask task = null;
+    private Object chainInvocationOfMethods(List<Method> methodsToInvoke, Object startingObject) throws FailToObserveException {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        FutureTask task = null;
+        Object currentObject = null;
+        try {
             try {
-                for (Method method : methodsHandler.getAllMethods(clazz)) {
-                    try {
-                        task = new FutureTask<>(() -> method.invoke(o));
-                        executor.execute(task);
-                        final Object result = task.get(1, TimeUnit.SECONDS);
-                        if (o.getClass().isAnonymousClass()) {
-                            _log(result,
-                                    method.getReturnType(),
-                                    "(" + stringObject + ")." + method.getName() + "()",
-                                    positionId, deep + 1
-                            );
-                        } else {
-                            _log(result,
-                                    method.getReturnType(),
-                                    "((" + clazz.getCanonicalName() + ")" + stringObject + ")." + method.getName() + "()",
-                                    positionId, deep + 1
-                            );
-                        }
-                    } catch (Exception ignored) {
-                        // ignored, we skip this iteration and continue;
-                    }
-                }
+                task = new FutureTask<>(() -> methodsToInvoke.get(0).invoke(startingObject));
+                executor.execute(task);
+                currentObject = task.get(1, TimeUnit.SECONDS);
             } catch (Exception e) {
-                throw new RuntimeException(e);
-            } finally {
-                if (task != null) {
-                    task.cancel(true);
-                }
-                executor.shutdown();
+                throw new FailToObserveException();
             }
+            for (int i = 1; i < methodsToInvoke.size(); i++) {
+                Method method = methodsToInvoke.get(i);
+                try {
+                    final Object finalCurrentObject = currentObject;
+                    task = new FutureTask<>(() -> method.invoke(finalCurrentObject));
+                    executor.execute(task);
+                    currentObject = task.get(1, TimeUnit.SECONDS);
+                } catch (Exception e) {
+                    throw new FailToObserveException();
+                }
+            }
+        } finally {
+            if (task != null) {
+                task.cancel(true);
+            }
+            executor.shutdown();
+        }
+        return currentObject;
+    }
+
+    private void observeNotNullObject(Object startingObject,
+                                      Class<?> currentObservedClass,
+                                      String stringObject,
+                                      String id,
+                                      int deep,
+                                      List<Method> methodsToReachCurrentObject) {
+        try {
+            for (Method method : methodsHandler.getAllMethods(currentObservedClass)) {
+                try {
+                    final ArrayList<Method> tmpListOfMethodsToReachCurrentObject = new ArrayList<>(methodsToReachCurrentObject);
+                    tmpListOfMethodsToReachCurrentObject.add(method);
+                    final Object result = chainInvocationOfMethods(tmpListOfMethodsToReachCurrentObject, startingObject);
+                    if (startingObject.getClass().isAnonymousClass()) {
+                        _log(startingObject,
+                                result,
+                                method.getReturnType(),
+                                "(" + stringObject + ")." + method.getName() + "()",
+                                id,
+                                deep + 1,
+                                tmpListOfMethodsToReachCurrentObject
+                        );
+                    } else {
+                        _log(startingObject,
+                                result,
+                                method.getReturnType(),
+                                "((" + currentObservedClass.getCanonicalName() + ")" + stringObject + ")." + method.getName() + "()",
+                                id,
+                                deep + 1,
+                                tmpListOfMethodsToReachCurrentObject
+                        );
+                    }
+                    tmpListOfMethodsToReachCurrentObject.remove(method);
+                } catch (FailToObserveException ignored) {
+                    // ignored, we just do nothing...
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
     public static Map<String, Observation> getObservations() {
-        return singleton.observations;
+        if (singleton.observations.isEmpty()) {
+            return load();
+        } else {
+            return singleton.observations;
+        }
+    }
+
+    private static final String OBSERVATIONS_PATH_FILE_NAME = "target/dspot/observations.ser";
+
+    public static void save() {
+        try (FileOutputStream fout = new FileOutputStream(OBSERVATIONS_PATH_FILE_NAME)) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(fout)) {
+                oos.writeObject(singleton.observations);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Map<String, Observation> load() {
+        try (FileInputStream fi = new FileInputStream(new File(OBSERVATIONS_PATH_FILE_NAME))) {
+            try (ObjectInputStream oi = new ObjectInputStream(fi)) {
+                return (Map) oi.readObject();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } catch (Exception e){
+           throw new RuntimeException(e);
+        }
     }
 
 }

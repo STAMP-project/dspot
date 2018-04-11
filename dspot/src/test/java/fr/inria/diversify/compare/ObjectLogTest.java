@@ -1,5 +1,6 @@
 package fr.inria.diversify.compare;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Map;
@@ -15,6 +16,11 @@ import static org.junit.Assert.assertTrue;
  * on 05/05/17
  */
 public class ObjectLogTest {
+
+    @Before
+    public void setUp() throws Exception {
+        ObjectLog.reset();
+    }
 
     private static class MyInternalClass {
         private int a;
@@ -50,7 +56,6 @@ public class ObjectLogTest {
 
     @Test
     public void test() throws Exception {
-        ObjectLog.reset();
         final Integer result = ObjectLogTest.add(new Integer(3), new Integer(20));
         ObjectLogTest.add(new Integer(3), new Integer(20));
         ObjectLogTest.add(new Integer(3), new Integer(20));

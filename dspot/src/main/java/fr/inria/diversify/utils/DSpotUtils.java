@@ -1,15 +1,11 @@
 package fr.inria.diversify.utils;
 
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
-import fr.inria.diversify.utils.sosiefier.InputProgram;
-import fr.inria.stamp.Main;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.Launcher;
 import spoon.compiler.Environment;
-import spoon.processing.Processor;
 import spoon.reflect.code.CtComment;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtElement;
@@ -19,7 +15,6 @@ import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.DefaultJavaPrettyPrinter;
 import spoon.support.JavaOutputProcessor;
-import spoon.support.QueueProcessingManager;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,8 +25,6 @@ import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
 
 /**
  * User: Simon Date: 18/05/16 Time: 16:10
@@ -110,10 +103,8 @@ public class DSpotUtils {
 		}
 	}
 
-	@Deprecated
 	public static String mavenHome;
 
-	@Deprecated
 	public static String buildMavenHome(InputConfiguration inputConfiguration) {
 		if (mavenHome == null) {
 			if (inputConfiguration != null && inputConfiguration.getProperty("maven.home") != null) {
@@ -139,15 +130,13 @@ public class DSpotUtils {
 		return mavenHome != null;
 	}
 
-	private static void applyProcessor(Factory factory, Processor processor) {
-		QueueProcessingManager pm = new QueueProcessingManager(factory);
-		pm.addProcessor(processor);
-		pm.process(factory.Package().getRootPackage());
-	}
-
 	public static final String pathToDSpotDependencies = "target/dspot/dependencies/";
 
-	public static void copyPackageFromResources(String packagePath, String... classToCopy) {
+	public static final String packagePath = "fr/inria/diversify/compare/";
+
+	public static final String[] classesToCopy = new String[]{"MethodsHandler", "ObjectLog", "Observation", "Utils", "FailToObserveException"};
+
+	public static void copyPackageFromResources() {
 		final String pathToTestClassesDirectory = pathToDSpotDependencies + "/" + packagePath + "/";
 		final String directory = packagePath.split("/")[packagePath.split("/").length - 1];
 		try {
@@ -155,7 +144,7 @@ public class DSpotUtils {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		Arrays.stream(classToCopy).forEach(file -> {
+		Arrays.stream(classesToCopy).forEach(file -> {
 			OutputStream resStreamOut = null;
 			try {
 				final InputStream resourceAsStream = Thread.currentThread().getContextClassLoader()
@@ -179,67 +168,6 @@ public class DSpotUtils {
 			.getProperty("project") + shouldAddSeparator.apply(configuration.getProperty("project"))
 			+ (configuration.getProperty("targetModule") != null ? configuration.getProperty("targetModule")
 					+ shouldAddSeparator.apply(configuration.getProperty("targetModule")) : "");
-
-	private static void copyDirectory(String pathToProgramDir, String resourcesToBeCopied, String pathDirectoryToCopy) {
-		FileUtils.listFiles(new File(pathToProgramDir + resourcesToBeCopied), new FileFileFilter() {
-			@Override
-			public boolean accept(File file) {
-				return !file.getAbsolutePath().endsWith("java");
-			}
-		}, new FileFileFilter() {
-			@Override
-			public boolean accept(File file) {
-				return true;
-			}
-		}).forEach(file -> DSpotUtils.copyFile(pathToProgramDir, resourcesToBeCopied, pathDirectoryToCopy, file));
-	}
-
-	private static void copyFile(String pathToProgramDir, String pathToResourceToBeCopied, String pathDirectoryToCopy,
-			File fileToBeCopied) {
-		try {
-			if (Main.verbose) {
-				LOGGER.info("copy {} to {}", fileToBeCopied.getPath(), pathDirectoryToCopy + "/" + fileToBeCopied
-						.getPath().substring(pathToProgramDir.length() + pathToResourceToBeCopied.length()));
-			}
-			FileUtils.copyFile(fileToBeCopied, new File(pathDirectoryToCopy + "/" + fileToBeCopied.getPath()
-					.substring(pathToProgramDir.length() + pathToResourceToBeCopied.length())));
-		} catch (Exception ignored) {
-			if (!(pathToResourceToBeCopied.equals("src/main/resources/")
-					|| pathToResourceToBeCopied.equals("src/test/resources/"))) {
-				LOGGER.warn("Something went wrong why trying to copying {}", pathToResourceToBeCopied);
-			}
-		}
-	}
-
-	private static void copyGivenResources(String resources, String outputDirectory, InputConfiguration configuration) {
-		final InputProgram program = configuration.getInputProgram();
-		Arrays.stream(resources.split(PATH_SEPARATOR)).forEach(resource -> {
-			if (new File(program.getProgramDir() + resource).isDirectory()) {
-				copyDirectory(program.getProgramDir(), resource, program.getProgramDir() + outputDirectory);
-			} else {
-				copyFile(program.getProgramDir(), resource, program.getProgramDir() + outputDirectory,
-						new File(program.getProgramDir() + resource));
-			}
-		});
-	}
-
-	public static void copyResources(InputConfiguration configuration) {
-		final InputProgram program = configuration.getInputProgram();
-		String resource = configuration.getProperty("srcResources");
-		if (resource == null || resource.isEmpty()) {
-			resource = "src/main/resources/";
-		} else if (!resource.contains("src/main/resources/")) {
-			resource += PATH_SEPARATOR + "src/main/resources/";
-		}
-		copyGivenResources(resource, program.getClassesDir(), configuration);
-		resource = configuration.getProperty("testResources");
-		if (resource == null || resource.isEmpty()) {
-			resource = "src/test/resources/";
-		} else if (!resource.contains("src/test/resources/")) {
-			resource += PATH_SEPARATOR + "src/test/resources/";
-		}
-		copyGivenResources(resource, program.getClassesDir(), configuration);
-	}
 
 	public static String ctTypeToFullQualifiedName(CtType<?> testClass) {
 		if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) {
