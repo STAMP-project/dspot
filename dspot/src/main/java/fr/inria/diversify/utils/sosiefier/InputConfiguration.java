@@ -88,11 +88,14 @@ public class InputConfiguration {
 		getProperties().setProperty("classes", getRelativePath(classesDir));
 		getProperties().setProperty("tmpDir", getRelativePath(tempDir));
 		getProperties().setProperty("filter", filter);
+		getProperties().setProperty("javaVersion", "8");
+		rootPath = project.getAbsolutePath();
 	}
 
     private String getRelativePath(File path) {
-		String projectAbsolutePath = getProperties().getProperty("project");
-		return path.getAbsolutePath().replace(projectAbsolutePath, "");
+    	String base = getProperties().getProperty("project");
+    	String relative = new File(base).toURI().relativize(path.toURI()).getPath();
+		return relative;
 	}
 
     public InputConfiguration(String file) throws IOException {
