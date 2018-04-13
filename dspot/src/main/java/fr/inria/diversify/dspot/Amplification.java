@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -247,7 +248,7 @@ public class Amplification {
 		List<CtMethod<?>> amplifiedTests = tests.parallelStream()
 				.flatMap(test -> {
 					DSpotUtils.printProgress(tests.indexOf(test), tests.size());
-					return inputAmplifyTest(test).stream();
+					return inputAmplifyTest(test);
 				}).collect(Collectors.toList());
 		LOGGER.info("{} new tests generated", amplifiedTests.size());
 		return amplifiedTests;
@@ -264,14 +265,15 @@ public class Amplification {
 	 * @param test Test method
 	 * @return New generated tests
 	 */
-	private List<CtMethod<?>> inputAmplifyTest(CtMethod test) {
+	private Stream<CtMethod<?>> inputAmplifyTest(CtMethod<?> test) {
+		final CtMethod topParent = AmplificationHelper.getTopParent(test);
 		return amplifiers.parallelStream()
 				.flatMap(amplifier -> amplifier.apply(test).stream())
 				.filter(amplifiedTest -> amplifiedTest != null && !amplifiedTest.getBody().getStatements().isEmpty())
 				.filter(distinctByKey(CtMethod::getBody))
 				.map(amplifiedTest ->
-						AmplificationHelper.addOriginInComment(amplifiedTest, AmplificationHelper.getTopParent(test))
-				).collect(Collectors.toList());
+						AmplificationHelper.addOriginInComment(amplifiedTest, topParent)
+				);
 	}
 
 	private void resetAmplifiers(CtType parentClass) {
