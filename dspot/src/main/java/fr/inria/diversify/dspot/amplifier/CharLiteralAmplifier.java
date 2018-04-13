@@ -10,14 +10,13 @@ import java.util.stream.Stream;
 public class CharLiteralAmplifier extends AbstractLiteralAmplifier<Character> {
 
     @Override
-    protected Set<CtLiteral<Character>> amplify(CtLiteral<Character> existingLiteral) {
+    protected Set<Character> amplify(CtLiteral<Character> existingLiteral) {
         final Character value = existingLiteral.getValue();
         return Stream.of('\0', ' ', AmplificationHelper.getRandomChar(),
                 (char) (value + 1),
                 (char) (value - 1),
                 System.getProperty("line.separator").charAt(0)
-        ).map(existingLiteral.getFactory()::createLiteral)
-                .collect(Collectors.toSet());
+        ).collect(Collectors.toSet());
     }
 
     @Override

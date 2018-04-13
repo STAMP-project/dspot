@@ -8,13 +8,9 @@ import java.util.Set;
 public class NumberLiteralAmplifier extends AbstractLiteralAmplifier<Number> {
 
     @Override
-    protected Set<CtLiteral<Number>> amplify(CtLiteral<Number> literal) {
-        Set<CtLiteral<Number>> values = new HashSet<>();
+    protected Set<Number> amplify(CtLiteral<Number> literal) {
+        Set<Number> values = new HashSet<>();
         Double value = ((Number) literal.getValue()).doubleValue();
-
-        //TODO asking myself if such transformation are useful...
-//        values.add(literal.getFactory().createLiteral(value / 2));
-//        values.add(literal.getFactory().createLiteral(value * 2));
 
         Class<?> classOfLiteral;
         if (! literal.getTypeCasts().isEmpty()){
@@ -24,54 +20,54 @@ public class NumberLiteralAmplifier extends AbstractLiteralAmplifier<Number> {
         }
 
         if (classOfLiteral == Byte.class || classOfLiteral == byte.class) {
-            values.add(literal.getFactory().createLiteral((byte)(value.byteValue() + 1)));
-            values.add(literal.getFactory().createLiteral((byte)(value.byteValue() - 1)));
-            values.add(literal.getFactory().createLiteral(Byte.MAX_VALUE));
-            values.add(literal.getFactory().createLiteral(Byte.MIN_VALUE));
-            values.add(literal.getFactory().createLiteral((byte)0));
+            values.add((byte)(value.byteValue() + 1));
+            values.add((byte)(value.byteValue() - 1));
+            values.add(Byte.MAX_VALUE);
+            values.add(Byte.MIN_VALUE);
+            values.add((byte)0);
         }
         if (classOfLiteral == Short.class || classOfLiteral == short.class) {
-            values.add(literal.getFactory().createLiteral((short)(value.shortValue() + 1)));
-            values.add(literal.getFactory().createLiteral((short)(value.shortValue() - 1)));
-            values.add(literal.getFactory().createLiteral(Short.MAX_VALUE));
-            values.add(literal.getFactory().createLiteral(Short.MIN_VALUE));
-            values.add(literal.getFactory().createLiteral((short)0));
+            values.add((short)(value.shortValue() + 1));
+            values.add((short)(value.shortValue() - 1));
+            values.add(Short.MAX_VALUE);
+            values.add(Short.MIN_VALUE);
+            values.add((short)0);
         }
         if (classOfLiteral == Integer.class || classOfLiteral == int.class) {
-            values.add(literal.getFactory().createLiteral(value.intValue() + 1));
-            values.add(literal.getFactory().createLiteral(value.intValue() - 1));
-            values.add(literal.getFactory().createLiteral(Integer.MAX_VALUE));
-            values.add(literal.getFactory().createLiteral(Integer.MIN_VALUE));
-            values.add(literal.getFactory().createLiteral(0));
+            values.add(value.intValue() + 1);
+            values.add(value.intValue() - 1);
+            values.add(Integer.MAX_VALUE);
+            values.add(Integer.MIN_VALUE);
+            values.add(0);
         }
         if (classOfLiteral == Long.class || classOfLiteral == long.class) {
-            values.add(literal.getFactory().createLiteral((long)(value.longValue() + 1)));
-            values.add(literal.getFactory().createLiteral((long)(value.longValue() - 1)));
-            values.add(literal.getFactory().createLiteral(Long.MAX_VALUE));
-            values.add(literal.getFactory().createLiteral(Long.MIN_VALUE));
-            values.add(literal.getFactory().createLiteral(0L));
+            values.add((long)(value.longValue() + 1));
+            values.add((long)(value.longValue() - 1));
+            values.add(Long.MAX_VALUE);
+            values.add(Long.MIN_VALUE);
+            values.add(0L);
         }
         if (classOfLiteral == Float.class || classOfLiteral == float.class) {
-            values.add(literal.getFactory().createLiteral(value.floatValue() + 1.0F));
-            values.add(literal.getFactory().createLiteral(value.floatValue() - 1.0F));
-            values.add(literal.getFactory().createLiteral(Float.NaN));
-            values.add(literal.getFactory().createLiteral(Float.POSITIVE_INFINITY));
-            values.add(literal.getFactory().createLiteral(Float.NEGATIVE_INFINITY));
-            values.add(literal.getFactory().createLiteral(Float.MIN_NORMAL));
-            values.add(literal.getFactory().createLiteral(Float.MAX_VALUE));
-            values.add(literal.getFactory().createLiteral(Float.MIN_VALUE));
-            values.add(literal.getFactory().createLiteral(0.0F));
+            values.add(value.floatValue() + 1.0F);
+            values.add(value.floatValue() - 1.0F);
+            values.add(Float.NaN);
+            values.add(Float.POSITIVE_INFINITY);
+            values.add(Float.NEGATIVE_INFINITY);
+            values.add(Float.MIN_NORMAL);
+            values.add(Float.MAX_VALUE);
+            values.add(Float.MIN_VALUE);
+            values.add(0.0F);
         }
         if (classOfLiteral == Double.class || classOfLiteral == double.class) {
-            values.add(literal.getFactory().createLiteral(value + 1.0D));
-            values.add(literal.getFactory().createLiteral(value - 1.0D));
-            values.add(literal.getFactory().createLiteral(Double.NaN));
-            values.add(literal.getFactory().createLiteral(Double.POSITIVE_INFINITY));
-            values.add(literal.getFactory().createLiteral(Double.NEGATIVE_INFINITY));
-            values.add(literal.getFactory().createLiteral(Double.MIN_NORMAL));
-            values.add(literal.getFactory().createLiteral(Double.MAX_VALUE));
-            values.add(literal.getFactory().createLiteral(Double.MIN_VALUE));
-            values.add(literal.getFactory().createLiteral(0.0D));
+            values.add(value + 1.0D);
+            values.add(value - 1.0D);
+            values.add(Double.NaN);
+            values.add(Double.POSITIVE_INFINITY);
+            values.add(Double.NEGATIVE_INFINITY);
+            values.add(Double.MIN_NORMAL);
+            values.add(Double.MAX_VALUE);
+            values.add(Double.MIN_VALUE);
+            values.add(0.0D);
         }
         return values;
     }

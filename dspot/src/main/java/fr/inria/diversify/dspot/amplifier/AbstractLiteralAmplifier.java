@@ -2,12 +2,17 @@ package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
+import fr.inria.diversify.utils.DSpotUtils;
+import fr.inria.stamp.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,6 +23,8 @@ import java.util.stream.Collectors;
  * on 18/09/17
  */
 public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLiteralAmplifier.class);
 
     protected CtType<?> testClassToBeAmplified;
 
@@ -71,13 +78,25 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
     @Override
     public List<CtMethod> apply(CtMethod testMethod) {
         List<CtLiteral<T>> literals = testMethod.getElements(LITERAL_TYPE_FILTER);
+        if (literals.isEmpty()) {
+            return Collections.emptyList();
+        }
+        if (Main.verbose) {
+            LOGGER.info("Applying {} on {} literals", this.toString(), literals.size());
+        }
         return literals.stream()
-                .flatMap(literal ->
-                        this.amplify(literal).stream().map(newValue -> {
-                            CtMethod clone = AmplificationHelper.cloneTestMethodForAmp(testMethod, getSuffix());
-                            clone.getElements(LITERAL_TYPE_FILTER).get(literals.indexOf(literal)).replace(newValue);
-                            return clone;
-                        })
+                .flatMap(literal -> {
+                            if (Main.verbose) {
+                                DSpotUtils.printProgress(literals.indexOf(literal), literals.size());
+                            }
+                            return this.amplify(literal).stream().map(newValue -> {
+                                final T originalValue = literal.getValue();
+                                literal.setValue(newValue);
+                                CtMethod clone = AmplificationHelper.cloneTestMethodForAmp(testMethod, getSuffix());
+                                literal.setValue(originalValue);
+                                return clone;
+                            });
+                        }
                 ).collect(Collectors.toList());
     }
 
@@ -87,10 +106,15 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
         this.testClassToBeAmplified = testClass;
     }
 
-    protected abstract Set<CtLiteral<T>> amplify(CtLiteral<T> existingLiteral);
+    protected abstract Set<T> amplify(CtLiteral<T> existingLiteral);
 
     protected abstract String getSuffix();
 
     protected abstract Class<?> getTargetedClass();
+
+    @Override
+    public String toString() {
+        return this.getClass().getName();
+    }
 
 }
