@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 
@@ -176,13 +179,6 @@ public class Amplification {
 		return amplifiedTests;
 	}
 
-	@Deprecated
-	private void updateAmplifiedTestList(List<CtMethod<?>> ampTest, List<CtMethod<?>> amplification) {
-		ampTest.addAll(amplification);
-		ampTestCount += amplification.size();
-		LOGGER.info("total amp test: {}, global: {}", amplification.size(), ampTestCount);
-	}
-
 	/**
 	 * Adds new assertions in multiple tests.
 	 *
@@ -248,15 +244,18 @@ public class Amplification {
 	 */
 	private List<CtMethod<?>> inputAmplifyTests(List<CtMethod<?>> tests) {
 		LOGGER.info("Amplification of inputs...");
-		List<CtMethod<?>> amplifiedTests = tests.stream()
+		List<CtMethod<?>> amplifiedTests = tests.parallelStream()
 				.flatMap(test -> {
 					DSpotUtils.printProgress(tests.indexOf(test), tests.size());
 					return inputAmplifyTest(test).stream();
-				})
-				.filter(test -> test != null && !test.getBody().getStatements().isEmpty())
-				.collect(Collectors.toList());
+				}).collect(Collectors.toList());
 		LOGGER.info("{} new tests generated", amplifiedTests.size());
 		return amplifiedTests;
+	}
+
+	public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+		Set<Object> seen = ConcurrentHashMap.newKeySet();
+		return t -> seen.add(keyExtractor.apply(t));
 	}
 
 	/**
@@ -266,11 +265,10 @@ public class Amplification {
 	 * @return New generated tests
 	 */
 	private List<CtMethod<?>> inputAmplifyTest(CtMethod test) {
-		return amplifiers.stream()
-				.flatMap(amplifier -> amplifier.apply(test).stream()).
-						map(CtMethod::getBody)
-				.distinct()
-				.map(body -> body.getParent(CtMethod.class))
+		return amplifiers.parallelStream()
+				.flatMap(amplifier -> amplifier.apply(test).stream())
+				.filter(amplifiedTest -> amplifiedTest != null && !amplifiedTest.getBody().getStatements().isEmpty())
+				.filter(distinctByKey(CtMethod::getBody))
 				.map(amplifiedTest ->
 						AmplificationHelper.addOriginInComment(amplifiedTest, AmplificationHelper.getTopParent(test))
 				).collect(Collectors.toList());
