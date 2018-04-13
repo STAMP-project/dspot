@@ -7,8 +7,8 @@ import java.util.Set;
 
 public class BooleanLiteralAmplifier extends AbstractLiteralAmplifier<Boolean> {
     @Override
-    protected Set<CtLiteral<Boolean>> amplify(CtLiteral<Boolean> existingLiteral) {
-        return Collections.singleton(existingLiteral.getFactory().createLiteral(!existingLiteral.getValue()));
+    protected Set<Boolean> amplify(CtLiteral<Boolean> existingLiteral) {
+        return Collections.singleton(!existingLiteral.getValue());
     }
 
     @Override

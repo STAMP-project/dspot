@@ -14,18 +14,18 @@ import java.util.stream.Collectors;
 
 public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
 
-    private List<CtLiteral<String>> existingStrings;
+    private List<String> existingStrings;
 
     public StringLiteralAmplifier() {
         this.existingStrings = new ArrayList<>();
     }
 
     @Override
-    protected Set<CtLiteral<String>> amplify(CtLiteral<String> existingLiteral) {
+    protected Set<String> amplify(CtLiteral<String> existingLiteral) {
         final Factory factory = existingLiteral.getFactory();
 
         // initialize values with existing strings
-        Set<CtLiteral<String>> values = new HashSet<>(this.existingStrings);
+        Set<String> values = new HashSet<>(this.existingStrings);
         values.remove(existingLiteral);
 
         String value = (String) existingLiteral.getValue();
@@ -34,21 +34,26 @@ public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
                 int length = value.length();
                 // add one random char
                 int index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
-                values.add(factory.createLiteral(value.substring(0, index - 1) + AmplificationHelper.getRandomChar() + value.substring(index, length)));
+                values.add(value.substring(0, index - 1) + AmplificationHelper.getRandomChar() + value.substring(index, length));
                 // replace one random char
                 index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
-                values.add(factory.createLiteral(value.substring(0, index) + AmplificationHelper.getRandomChar() + value.substring(index, length)));
+                values.add(value.substring(0, index) + AmplificationHelper.getRandomChar() + value.substring(index, length));
                 // remove one random char
                 index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
-                values.add(factory.createLiteral(value.substring(0, index) + value.substring(index + 1, length)));
+                values.add(value.substring(0, index) + value.substring(index + 1, length));
             } else {
-                values.add(factory.createLiteral("" + AmplificationHelper.getRandomChar()));
+                values.add("" + AmplificationHelper.getRandomChar());
             }
         }
         // add one random string
-        values.add(factory.createLiteral(AmplificationHelper.getRandomString(10)));
-        // add empty string
-        values.add(factory.createLiteral(""));
+        values.add(AmplificationHelper.getRandomString(10));
+
+        // add special strings
+        values.add("");
+        values.add(System.getProperty("line.separator"));
+        values.add(System.getProperty("path.separator"));
+        values.add("\0");
+
         return values;
     }
 
@@ -59,8 +64,9 @@ public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
         super.reset(testClass);
         this.existingStrings = this.testClassToBeAmplified.getElements(new TypeFilter<CtLiteral<String>>(CtLiteral.class))
                 .stream()
-                .filter(element -> element.getValue() != null && element.getValue() != null)
+                .filter(element -> element.getValue() != null && element.getValue() instanceof String)
                 .map(CtLiteral::clone)
+                .map(CtLiteral::getValue)
                 .collect(Collectors.toList());
     }
 

@@ -12,6 +12,7 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -77,6 +78,9 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
     @Override
     public List<CtMethod> apply(CtMethod testMethod) {
         List<CtLiteral<T>> literals = testMethod.getElements(LITERAL_TYPE_FILTER);
+        if (literals.isEmpty()) {
+            return Collections.emptyList();
+        }
         if (Main.verbose) {
             LOGGER.info("Applying {} on {} literals", this.toString(), literals.size());
         }
@@ -87,7 +91,7 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
                             }
                             return this.amplify(literal).stream().map(newValue -> {
                                 final T originalValue = literal.getValue();
-                                literal.replace(newValue);
+                                literal.setValue(newValue);
                                 CtMethod clone = AmplificationHelper.cloneTestMethodForAmp(testMethod, getSuffix());
                                 literal.setValue(originalValue);
                                 return clone;
@@ -102,7 +106,7 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
         this.testClassToBeAmplified = testClass;
     }
 
-    protected abstract Set<CtLiteral<T>> amplify(CtLiteral<T> existingLiteral);
+    protected abstract Set<T> amplify(CtLiteral<T> existingLiteral);
 
     protected abstract String getSuffix();
 
