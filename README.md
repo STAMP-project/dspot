@@ -273,7 +273,7 @@ Here is the list of configuration properties of DSpot:
   * maven.home: path to the executable maven. If no value is specified, it will try some defaults values
     (for instance: `/usr/share/maven/`, `usr/local/Cellar/maven/3.3.9/libexec/` ...).
 * optional properties:
-  * filter: filter on the package name containing tests to be executed (_e.g._ `example.*`) passed to Pitest. The default value is built automatically by PIT based on your pom.xml: `groupid.artifactid.*`. We suggest you to give the topest package of your project. (_e.g._ for the test-projects it would be `example.*`)
+  * filter: filter on the package name containing tests to be executed (_e.g._ `example.*`) passed to Pitest. If not set, the default value is set automatically by PIT based on the pom.xml data as follows: `filter=<groupid>.<artifactid>.*`. If you set it, we recommand to give the top-most package of your project. (_e.g._ for the test-projects it would be `example.*`)
   * maven.localRepository: path to the local repository of Maven (.m2), if you need specific settings.
   * excludedClasses: DSpot will not amplify the excluded test classes.
   * additionalClasspathElements: add elements to the classpath. (e.g. a jar file)
