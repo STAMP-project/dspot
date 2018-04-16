@@ -3,6 +3,7 @@ package fr.inria.diversify.automaticbuilder;
 import fr.inria.Utils;
 import fr.inria.diversify.mutant.pit.PitResult;
 import fr.inria.diversify.mutant.pit.PitResultParser;
+import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.Main;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -41,7 +42,7 @@ public class MavenAutomaticBuilderTest {
 
         try {
             FileUtils.forceDelete(new File("src/test/resources/test-projects//target/dspot/classpath"));
-        } catch (Exception ignored){
+        } catch (Exception ignored) {
             //ignored
         }
 
@@ -144,5 +145,21 @@ public class MavenAutomaticBuilderTest {
         assertNotNull(pitResults);
         assertEquals(88, pitResults.size());
 
+    }
+
+    @Test
+    public void testUsingStarFilter() throws Exception {
+        Main.verbose = true;
+        Utils.init("src/test/resources/test-projects/test-projects.properties");
+
+        final InputConfiguration inputConfiguration = Utils.getInputConfiguration();
+        inputConfiguration.getProperties().setProperty("filter", "*");
+        try {
+            Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir(), Utils.findClass("example.TestSuiteExample2"), Utils.findClass("example.TestSuiteExample"));
+            fail();
+        } catch (Exception e) {
+
+        }
+        Main.verbose = false;
     }
 }
