@@ -93,8 +93,6 @@ src=src/main/java/
 testSrc=src/test/java
 #java version used
 javaVersion=8
-#filter used to amplify specific test cases
-filter=example.*
 #path to the output folder
 outputDirectory=target/trash/
 # Constant amount of additional time to allow a test to run for
@@ -144,8 +142,6 @@ testSrc=src/test/java
 javaVersion=8
 # (Optional) Path to the output folder, default to "output_diversify"
 outputDirectory=dspot-out/
-# (Optional) Filter on the package name containing tests to be amplified ("example" => "example.*")
-filter=example
 ```
 
 You can then execute DSpot by using:
@@ -277,7 +273,7 @@ Here is the list of configuration properties of DSpot:
   * maven.home: path to the executable maven. If no value is specified, it will try some defaults values
     (for instance: `/usr/share/maven/`, `usr/local/Cellar/maven/3.3.9/libexec/` ...).
 * optional properties:
-  * filter: string to filter on package or classes.
+  * filter: filter on the package name containing tests to be executed (eg "example.*") passed to Pitest. Default is "*" (all test classes). If "*", ensures that the newly killed mutants are not killed by any other tests.
   * maven.localRepository: path to the local repository of Maven (.m2), if you need specific settings.
   * excludedClasses: DSpot will not amplify the excluded test classes.
   * additionalClasspathElements: add elements to the classpath. (e.g. a jar file)
