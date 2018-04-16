@@ -1,13 +1,13 @@
-# DSpot
+# DSpot
 
 [![Build Status](https://travis-ci.org/STAMP-project/dspot.svg?branch=master)](https://travis-ci.org/STAMP-project/dspot)[![Coverage Status](https://coveralls.io/repos/github/STAMP-project/dspot/badge.svg?branch=master)](https://coveralls.io/github/STAMP-project/dspot?branch=master)
 
 [Riot chat room](https://riot.im/app/#/room/!vnCyWaGJbxESAkzyqh:matrix.org)
 
 DSpot is a tool that generates missing assertions in JUnit tests.
-DSpot take as input a Java project with an existing test suite.
+DSpot takes as input a Java project with an existing test suite.
 As output, DSpot outputs new test cases on console. 
-DSpot supports Java project built with Maven and Gradle project (see the `--automatic-builder` option)
+DSpot supports Java projects built with Maven and Gradle (see the `--automatic-builder` option)
 
 ## Getting started
 
@@ -15,12 +15,12 @@ DSpot supports Java project built with Maven and Gradle project (see the `--auto
 
 You need Java and Maven.
 
-### Compilation & Deployment
+### Compilation
 
 1) Clone the project:
 ```
 git clone https://github.com/STAMP-project/dspot.git
-cd dspot
+cd dspot/dspot
 ```
 
 2) Compile DSpot
@@ -28,7 +28,7 @@ cd dspot
 mvn compile
 ```
 
-3) DSpot uses the environnment variable MAVEN_HOME, ensure that this variable points to your maven installation. Example:
+3) DSpot uses the environment variable MAVEN_HOME, ensure that this variable points to your maven installation. Example:
 ```
 export MAVEN_HOME=path/to/maven/
 ```
@@ -43,8 +43,14 @@ mvn test
 mvn package
 # check that this is successful
 ls target/dspot-*-jar-with-dependencies.jar
+```
+
+6) Run the jar
+```
 java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main -p path/To/my.properties
 ```
+
+For more info, see section **Usage** below.
 
 ### Releases
 
@@ -53,7 +59,7 @@ See <https://github.com/STAMP-project/dspot/releases>
 
 ## Contributing
 
-Dspot is licensed un LGPLv3. Pull request as are welcome.
+DSpot is licensed un LGPLv3. Pull request as are welcome.
 
 ## Usage
 
@@ -67,8 +73,8 @@ After having cloned DSpot (see the previous section), you can run the provided e
 java -jar target/dspot-LATEST-jar-with-dependencies.jar --example
 ```
 
-replacing `LATEST` by the latest version of **Dspot**, _e.g._ 1.0.4 would give :
- `dspot-1.0.4-jar-with-dependencies.jar`
+replacing `LATEST` by the latest version of DSpot, _e.g._ 1.1.0 would give :
+ `dspot-1.1.0-jar-with-dependencies.jar`
 
 This example is an implementation of the function `chartAt(s, i)` (in `src/test/resources/test-projects/`), which
 returns the char at the index _i_ in the String _s_.
@@ -80,33 +86,39 @@ DSpot first reads information about the project from the properties file
 
 ```properties
 #relative path to the project root from dspot project
-project=src/test/resources/test-projects
+project=src/test/resources/test-projects/
 #relative path to the source project from the project properties
 src=src/main/java/
 #relative path to the test source project from the project properties
 testSrc=src/test/java
 #java version used
 javaVersion=8
-# (optional) path to the output folder, default to "output_diversify"
-outputDirectory=dspot-out/
-# (optional) filter on the package name containing tests to be amplified ("example" => "example.*")
-filter=example
+#filter used to amplify specific test cases
+filter=example.*
+#path to the output folder
+outputDirectory=target/trash/
+# Constant amount of additional time to allow a test to run for
+# before considering it to be stuck in an infinite loop
+timeoutConstInMillis=10000
+#Argument string to use when PIT launches child processes. This is most commonly used
+# to increase the amount of memory available to the process,
+# but may be used to pass any valid JVM argument.
+# Use commas to separate multiple arguments, and put them within brackets
+jvmArgs=['-Xmx2048m','-Xms1024m']
 ```
 
 The result of the amplification of charAt consists of 6 new tests, as shown in the output below. These new tests are
-written to the output folder specified by configuration property `outputDirectory` (`./dspot-out/`).
+written to the output folder specified by configuration property `outputDirectory` (`./target/trash/`).
 
 ```
 ======= REPORT =======
-Branch Coverage Selector:
-Initial coverage: 83.33%
-There is 3 unique path in the original test suite
-The amplification results with 6 new tests
-The branch coverage obtained is: 100.00%
-There is 4 new unique path
+Initial instruction coverage: 33 / 37
+89.19%
+Amplification results with 22 amplified tests.
+Amplified instruction coverage: 37 / 37
+100.00%
 
-
-Print TestSuiteExampleAmpl with 6 amplified test cases in dspot-out/
+[8411] INFO DSpot - Print TestSuiteExampleAmpl with 22 amplified test cases in target/trash/
 ```
 
 ### Wiki documentation
