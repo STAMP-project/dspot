@@ -1,6 +1,5 @@
 package fr.inria.diversify.dspot.amplifier;
 
-import fr.inria.stamp.Main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
@@ -33,12 +32,7 @@ public class AllLiteralAmplifiers implements Amplifier {
     @Override
     public List<CtMethod> apply(CtMethod testMethod) {
         return this.literalAmplifiers.stream()
-                .flatMap(amplifier -> {
-                    if (Main.verbose) {
-                        LOGGER.info("Applying {}", amplifier.toString());
-                    }
-                    return amplifier.apply(testMethod).stream();
-                })
+                .flatMap(amplifier -> amplifier.apply(testMethod).stream())
                 .collect(Collectors.toList());
     }
 
