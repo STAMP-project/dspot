@@ -81,9 +81,6 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
         if (literals.isEmpty()) {
             return Collections.emptyList();
         }
-        if (Main.verbose) {
-            LOGGER.info("Applying {} on {} literals", this.toString(), literals.size());
-        }
         return literals.stream()
                 .flatMap(literal -> {
                             if (Main.verbose) {
@@ -111,10 +108,5 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
     protected abstract String getSuffix();
 
     protected abstract Class<?> getTargetedClass();
-
-    @Override
-    public String toString() {
-        return this.getClass().getName();
-    }
 
 }
