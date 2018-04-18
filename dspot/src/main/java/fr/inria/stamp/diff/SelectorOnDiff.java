@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -190,6 +191,7 @@ public class SelectorOnDiff {
             return result.getRootOperations()
                     .stream()
                     .map(operation -> operation.getSrcNode().getParent(CtMethod.class))
+                    .filter(Objects::nonNull) // it seems that gumtree can return null value
                     .collect(Collectors.toSet());
         } catch (Exception ignored) {
             // if something bad happen, we do not care, we go for next file
