@@ -43,9 +43,7 @@ public class ValueCreator {
             return generatePrimitiveRandomValue(type);
         } else {
             try {
-                if (AmplificationChecker.isArray(type)) {
-                    return generateArray(type);
-                } else if (type.getActualClass() == String.class) {
+                if (type.getActualClass() == String.class) {
                     return type.getFactory().createLiteral(AmplificationHelper.getRandomString(20));
                 } else if (type.getActualClass() == Collection.class ||
                         type.getActualClass() == List.class
@@ -60,6 +58,8 @@ public class ValueCreator {
                     return CollectionCreator.generateCollection(type, "Set", Set.class);
                 } else if (type.getActualClass() == Map.class) {
                     return CollectionCreator.generateCollection(type, "Map", Map.class);
+                } else if (AmplificationChecker.isArray(type)) {
+                    return generateArray(type);
                 }
             } catch (SpoonException exception) {
                 // couldn't load the definition of the class, it may be a client class
