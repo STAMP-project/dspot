@@ -10,6 +10,7 @@ import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
+import spoon.reflect.reference.CtArrayTypeReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
@@ -53,7 +54,7 @@ public class AmplificationChecker {
     }
 
     public static boolean isArray(CtTypeReference type) {
-        return type.toString().contains("[]");
+        return type instanceof CtArrayTypeReference;
     }
 
     public static boolean isPrimitive(CtTypeReference type) {

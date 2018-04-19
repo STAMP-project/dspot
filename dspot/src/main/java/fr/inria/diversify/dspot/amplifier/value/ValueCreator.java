@@ -45,14 +45,15 @@ public class ValueCreator {
             try {
                 if (AmplificationChecker.isArray(type)) {
                     return generateArray(type);
-                } else if (type.getActualClass() == String.class) {
+                    // now it may throw a SpoonClassNotFoundException, if it is a client class
+                } else  if (type.getActualClass() == String.class) {
                     return type.getFactory().createLiteral(AmplificationHelper.getRandomString(20));
                 } else if (type.getActualClass() == Collection.class ||
                         type.getActualClass() == List.class
-                        // TODO I can't remember why I did this.
-                        // TODO The problem is that DSpot generates now:
-                        // TODO ArrayList<> l = Collections.emptyList();
-                        // TODO Which is incorrect
+                        // I can't remember why I did this.
+                        // The problem is that DSpot generates now:
+                        // ArrayList<> l = Collections.emptyList();
+                        // Which is incorrect
 //                        || type.getSuperInterfaces().contains(type.getFactory().Type().get(List.class).getReference())
                         ) {
                     return CollectionCreator.generateCollection(type, "List", List.class);
