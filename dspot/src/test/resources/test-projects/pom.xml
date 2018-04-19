@@ -8,8 +8,8 @@
 
 	<properties>
 		<default.encoding>UTF-8</default.encoding>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 
 	<build>
@@ -23,6 +23,31 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<groupId>eu.stamp-project</groupId>
+				<artifactId>dspot-maven</artifactId>
+				<version>1.0.8-SNAPSHOT</version>
+				<configuration>
+					<amplifiers>
+						<amplifier>TestDataMutator</amplifier>
+					</amplifiers>
+					<iteration>3</iteration>
+					<selector>PitMutantScoreSelector</selector>
+					<randomSeed>23</randomSeed>
+					<timeOutInMs>10000</timeOutInMs>
+					<mavenHome>/home/bertazzo/Programmi/apache-maven-3</mavenHome>
+					<project>/home/bertazzo/Progetti/2017/dspot/new/dspot/dspot/src/test/resources/test-projects</project>
+					<srcDir>/home/bertazzo/Progetti/2017/dspot/new/dspot/dspot/src/test/resources/test-projects/src/main/java</srcDir>
+					<testDir>/home/bertazzo/Progetti/2017/dspot/new/dspot/dspot/src/test/resources/test-projects/src/test/java</testDir>
+					<classesDir>/home/bertazzo/Progetti/2017/dspot/new/dspot/dspot/src/test/resources/test-projects/target/classes</classesDir>
+					<testClassesDir>/home/bertazzo/Progetti/2017/dspot/new/dspot/dspot/src/test/resources/test-projects/target/test-classes</testClassesDir>
+					<tempDir>/home/bertazzo/Progetti/2017/dspot/new/dspot/dspot/src/test/resources/test-projects/target/tmp</tempDir>
+					<outputPath>/home/bertazzo/Progetti/2017/dspot/new/dspot/dspot/src/test/resources/test-projects/target/trash</outputPath>
+					<filter>example.*</filter>
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
 
@@ -33,4 +58,5 @@
 			<version>4.11</version>
 		</dependency>
 	</dependencies>
+
 </project>
