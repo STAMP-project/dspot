@@ -2,11 +2,11 @@ package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
-import fr.inria.diversify.utils.DSpotUtils;
-import fr.inria.stamp.Main;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import spoon.reflect.code.*;
+import spoon.reflect.code.CtAssignment;
+import spoon.reflect.code.CtExpression;
+import spoon.reflect.code.CtInvocation;
+import spoon.reflect.code.CtLiteral;
+import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -23,8 +23,6 @@ import java.util.stream.Collectors;
  * on 18/09/17
  */
 public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLiteralAmplifier.class);
 
     protected CtType<?> testClassToBeAmplified;
 
@@ -82,18 +80,15 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
             return Collections.emptyList();
         }
         return literals.stream()
-                .flatMap(literal -> {
-                            if (Main.verbose) {
-                                DSpotUtils.printProgress(literals.indexOf(literal), literals.size());
-                            }
-                            return this.amplify(literal).stream().map(newValue -> {
-                                final T originalValue = literal.getValue();
-                                literal.setValue(newValue);
-                                CtMethod clone = AmplificationHelper.cloneTestMethodForAmp(testMethod, getSuffix());
-                                literal.setValue(originalValue);
-                                return clone;
-                            });
-                        }
+                .flatMap(literal -> this.amplify(literal).stream()
+                        .map(
+                                newValue -> {
+                                    final T originalValue = literal.getValue();
+                                    literal.setValue(newValue);
+                                    CtMethod clone = AmplificationHelper.cloneTestMethodForAmp(testMethod, getSuffix());
+                                    literal.setValue(originalValue);
+                                    return clone;
+                                })
                 ).collect(Collectors.toList());
     }
 
