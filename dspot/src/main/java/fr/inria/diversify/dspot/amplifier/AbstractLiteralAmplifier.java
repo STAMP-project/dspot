@@ -51,16 +51,16 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
                                         .getArguments()
                                         .indexOf(ctExpression)
                                 ).getType()
-                                .getActualClass();
+                                .getActualClass(); // getting the class of the expected parameter
                     } else if (literal.getParent() instanceof CtAssignment) {
                         clazzOfLiteral = ((CtAssignment) literal.getParent())
                                 .getAssigned()
                                 .getType()
-                                .getActualClass();
+                                .getActualClass(); // getting the class of the assignee
                     } else if (literal.getParent() instanceof CtLocalVariable) {
                         clazzOfLiteral = ((CtLocalVariable) literal.getParent())
                                 .getType()
-                                .getActualClass();
+                                .getActualClass(); // getting the class of the local variable
                     }
                 } else {
                     clazzOfLiteral = literal.getValue().getClass();
@@ -81,8 +81,7 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
         }
         return literals.stream()
                 .flatMap(literal -> this.amplify(literal).stream()
-                        .map(
-                                newValue -> {
+                        .map(newValue -> {
                                     final T originalValue = literal.getValue();
                                     literal.setValue(newValue);
                                     CtMethod clone = AmplificationHelper.cloneTestMethodForAmp(testMethod, getSuffix());
