@@ -1,6 +1,8 @@
 package eu.stamp_project;
 
 import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,14 +33,14 @@ public class DSpotMojo extends AbstractMojo {
 	@Parameter(defaultValue = "3", property = "iteration")
 	private Integer iteration;
 
-	@Parameter(defaultValue = "PitMutantScoreSelector", property = "test-criterion")
-	private String testCriterion;
+//	@Parameter(defaultValue = "PitMutantScoreSelector", property = "test-criterion")
+//	private String testCriterion;
 
 	@Parameter(defaultValue = "200", property = "max-test-amplified")
 	private Integer maxTestAmplified;
 	
-	@Parameter(defaultValue = "all", property = "test")
-	private List<String> namesOfTestCases;
+//	@Parameter(defaultValue = "all", property = "test")
+//	private List<String> namesOfTestCases;
 	
 	@Parameter( property = "cases")
 	private List<String> namesOfTestMethods;
@@ -97,12 +99,23 @@ public class DSpotMojo extends AbstractMojo {
 				// Iteration
 				getIteration(),
 				// testClases
-				getNamesOfTestCases(), getOutputPath(), SelectorEnum.valueOf(getSelector()).buildSelector(),
+				getNamesOfTestCases(), getOutputPath(), 
+				SelectorEnum.valueOf(getSelector()).buildSelector(),
 				new ArrayList<String>(), 
-				getRandomSeed().longValue(), getTimeOutInMs().intValue(), BUILDER,
+				getRandomSeed().longValue(),
+				getTimeOutInMs().intValue(),
+				BUILDER,
 				getMavenHome().getAbsolutePath(), 200, false, true);
 
 		InputConfiguration inputConfiguration;
+		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+
+        URL[] urls = ((URLClassLoader)cl).getURLs();
+        for(URL url: urls){
+        	System.out.println(url.getFile());
+        }
+		
+
 		try {
 			inputConfiguration = new InputConfiguration(getProject(), getSrcDir(), getTestDir(), getClassesDir(),
 					getTestClassesDir(), getTempDir(), getFilter(), getMavenHome());
@@ -121,12 +134,14 @@ public class DSpotMojo extends AbstractMojo {
 		return iteration;
 	}
 
-	public String getTestCriterion() {
-		return testCriterion;
-	}
+//	public String getTestCriterion() {
+//		return testCriterion;
+//	}
 
 	public List<String> getNamesOfTestCases() {
-		return namesOfTestCases;
+		List<String> toReturn = new ArrayList<String>();
+		toReturn.add("example.TestSuiteExample");
+		return toReturn;
 	}
 
 	public String getOutputPath() {
