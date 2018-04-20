@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import fr.inria.stamp.diff.SelectorOnDiff;
@@ -42,7 +44,42 @@ public class Main {
         }
     }
 
+    private static void print(Configuration configuration, InputConfiguration inputConfiguration) {
+    	System.out.println("==== CONFIGURATION ====");
+    	System.out.println(configuration.pathToConfigurationFile);
+    	System.out.println(configuration.amplifiers);
+    	System.out.println(configuration.nbIteration);
+    	System.out.println(configuration.testClasses);
+    	System.out.println(configuration.pathToOutput);
+    	System.out.println(configuration.selector);
+    	System.out.println(configuration.testCases);
+    	System.out.println(configuration.seed);
+    	System.out.println(configuration.timeOutInMs);
+    	System.out.println(configuration.automaticBuilderName);
+    	System.out.println(configuration.mavenHome);
+    	System.out.println(configuration.maxTestAmplified);
+    	System.out.println(configuration.clean);
+    	System.out.println(configuration.minimize);
+    	System.out.println("==== INPUTCONFIGURATION ====");
+    	Properties prop = inputConfiguration.getProperties();
+    	Set keys = prop.keySet();
+    	for (Object key : keys) {
+			System.out.println(key + " = " + prop.getProperty((String)key));
+		}
+    	System.out.println("ClassesDir: " + inputConfiguration.getClassesDir());
+    	System.out.println("coverageDir: " + inputConfiguration.getCoverageDir());
+    	System.out.println("outputDirectory: " + inputConfiguration.getOutputDirectory());
+    	System.out.println("previousTransformationPath: " + inputConfiguration.getPreviousTransformationPath());
+    	System.out.println("projectPath: " + inputConfiguration.getProjectPath());
+    	System.out.println("relativeSourceCodeDir: " + inputConfiguration.getRelativeSourceCodeDir());
+    	System.out.println("relativeTestSourceCodeDir: " + inputConfiguration.getRelativeTestSourceCodeDir());
+    	System.out.println("RootPath: " + inputConfiguration.getRootPath());
+    	System.out.println("TempDir: " + inputConfiguration.getTempDir());
+    	System.out.println("ValidationErrors: " + inputConfiguration.getValidationErrors());
+    }
+
     public static void run(Configuration configuration, InputConfiguration inputConfiguration) throws Exception {
+    	print(configuration, inputConfiguration);
         AmplificationHelper.setSeedRandom(23L);
         AmplificationHelper.minimize = configuration.minimize;
         InputProgram program = new InputProgram();
