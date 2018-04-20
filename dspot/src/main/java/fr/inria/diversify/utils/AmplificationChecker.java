@@ -41,6 +41,8 @@ public class AmplificationChecker {
         final String nameOfMethodCalled = invocation.getExecutable().getSimpleName();
         return nameOfMethodCalled.toLowerCase().contains("assert") ||
                 nameOfMethodCalled.toLowerCase().startsWith("fail") ||
+                invocation.toString().toLowerCase().contains("assert") ||
+                invocation.toString().toLowerCase().contains("catchexception") || // eu.codearte.catch-exception.catch-exception
                 (invocation.getExecutable().getDeclaration() != null &&
                         !invocation.getExecutable()
                                 .getDeclaration()
@@ -122,9 +124,9 @@ public class AmplificationChecker {
     }
 
     /**
-     * checks if the given test class inherit from junit.framework.TestCase, <i>i.e.</i> is JUnit3 test class.
+     * checks if the given test class inherit from {@link junit.framework.TestCase}, <i>i.e.</i> is JUnit3 test class.
      * @param testClass
-     * @return true if the given test class inherit from junit.framework.TestCase, false otherwise
+     * @return true if the given test class inherit from {@link junit.framework.TestCase}, false otherwise
      */
     public static boolean inheritFromTestCase(CtType<?> testClass) {
         return testClass.getSuperclass() != null &&

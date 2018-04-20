@@ -24,7 +24,9 @@ public class ValueCreatorHelper {
 
     public static boolean canGenerateAValueForType(CtTypeReference type) {
         try {
-            if (AmplificationChecker.isPrimitive(type)) {
+            if (type instanceof CtWildcardReference) {
+                return false;
+            } else if (AmplificationChecker.isPrimitive(type)) {
                 return true;
             } else {
                 try {

@@ -65,6 +65,8 @@ public class AssertionRemover {
                 invocation.insertBefore(localVariable);
             }
         });
+        // must find the first statement list to remove the invocation from it, e.g. the block that contains the assertions
+        // the assertion can be inside other stuff, than directly in the block
         CtElement currentParent = invocation;
         while (! (currentParent.getParent() instanceof CtStatementList)) {
             currentParent = currentParent.getParent();
