@@ -49,6 +49,11 @@
             <version>0.28</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>1.7.1</version>
+        </dependency>
     </dependencies>
 
 </project>
