@@ -2,12 +2,17 @@ package fr.inria.diversify.dspot.amplifier;
 
 import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.AmplificationHelper;
-import spoon.reflect.code.*;
+import spoon.reflect.code.CtAssignment;
+import spoon.reflect.code.CtExpression;
+import spoon.reflect.code.CtInvocation;
+import spoon.reflect.code.CtLiteral;
+import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,16 +51,16 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
                                         .getArguments()
                                         .indexOf(ctExpression)
                                 ).getType()
-                                .getActualClass();
+                                .getActualClass(); // getting the class of the expected parameter
                     } else if (literal.getParent() instanceof CtAssignment) {
                         clazzOfLiteral = ((CtAssignment) literal.getParent())
                                 .getAssigned()
                                 .getType()
-                                .getActualClass();
+                                .getActualClass(); // getting the class of the assignee
                     } else if (literal.getParent() instanceof CtLocalVariable) {
                         clazzOfLiteral = ((CtLocalVariable) literal.getParent())
                                 .getType()
-                                .getActualClass();
+                                .getActualClass(); // getting the class of the local variable
                     }
                 } else {
                     clazzOfLiteral = literal.getValue().getClass();
@@ -71,13 +76,18 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
     @Override
     public List<CtMethod> apply(CtMethod testMethod) {
         List<CtLiteral<T>> literals = testMethod.getElements(LITERAL_TYPE_FILTER);
+        if (literals.isEmpty()) {
+            return Collections.emptyList();
+        }
         return literals.stream()
-                .flatMap(literal ->
-                        this.amplify(literal).stream().map(newValue -> {
-                            CtMethod clone = AmplificationHelper.cloneTestMethodForAmp(testMethod, getSuffix());
-                            clone.getElements(LITERAL_TYPE_FILTER).get(literals.indexOf(literal)).replace(newValue);
-                            return clone;
-                        })
+                .flatMap(literal -> this.amplify(literal).stream()
+                        .map(newValue -> {
+                                    final T originalValue = literal.getValue();
+                                    literal.setValue(newValue);
+                                    CtMethod clone = AmplificationHelper.cloneTestMethodForAmp(testMethod, getSuffix());
+                                    literal.setValue(originalValue);
+                                    return clone;
+                                })
                 ).collect(Collectors.toList());
     }
 
@@ -87,7 +97,7 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
         this.testClassToBeAmplified = testClass;
     }
 
-    protected abstract Set<CtLiteral<T>> amplify(CtLiteral<T> existingLiteral);
+    protected abstract Set<T> amplify(CtLiteral<T> existingLiteral);
 
     protected abstract String getSuffix();
 

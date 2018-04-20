@@ -1,6 +1,7 @@
 package fr.inria.stamp;
 
 import com.martiansoftware.jsap.*;
+import eu.stamp.project.testrunner.EntryPoint;
 import fr.inria.diversify.dspot.amplifier.*;
 import fr.inria.diversify.dspot.selector.ChangeDetectorSelector;
 import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
@@ -94,6 +95,7 @@ public class JSAPOptions {
     public static Configuration parse(String[] args) {
         JSAPResult jsapConfig = options.parse(args);
         Main.verbose = jsapConfig.getBoolean("verbose");
+        EntryPoint.verbose = Main.verbose;
         if (!jsapConfig.success() || jsapConfig.getBoolean("help")) {
             System.err.println();
             for (Iterator<?> errs = jsapConfig.getErrorMessageIterator(); errs.hasNext(); ) {

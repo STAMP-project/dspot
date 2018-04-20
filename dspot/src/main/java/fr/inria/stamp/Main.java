@@ -4,11 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import fr.inria.stamp.diff.SelectorOnDiff;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +19,8 @@ import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
+import fr.inria.stamp.diff.SelectorOnDiff;
+import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 /**
@@ -105,7 +107,11 @@ public class Main {
         if ("all".equals(configuration.testClasses.get(0))) {
             amplifiedTestClasses = dspot.amplifyAllTests();
         } else if ("diff".equals(configuration.testClasses.get(0))) {
-            amplifiedTestClasses = dspot.amplifyAllTests(SelectorOnDiff.findTestClassesAccordingToADiff(inputConfiguration));
+            final Map<CtType<?>, List<CtMethod<?>>> testMethodsAccordingToADiff = SelectorOnDiff.findTestMethodsAccordingToADiff(inputConfiguration);
+            amplifiedTestClasses = testMethodsAccordingToADiff.keySet()
+                    .stream()
+                    .map(ctType -> dspot.amplifyTest(ctType, testMethodsAccordingToADiff.get(ctType)))
+                    .collect(Collectors.toList());
         } else {
             if (configuration.testCases.isEmpty()) {
                 amplifiedTestClasses = dspot.amplifyAllTestsNames(configuration.testClasses);

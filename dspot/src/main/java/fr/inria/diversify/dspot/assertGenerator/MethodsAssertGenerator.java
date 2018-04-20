@@ -222,41 +222,33 @@ public class MethodsAssertGenerator {
             }
             int line = Integer.parseInt(id.split("__")[1]);
                 CtStatement lastStmt = null;
-                for (CtStatement statement : assertStatements) {
-                    DSpotUtils.addComment(statement, "AssertGenerator add assertion", CtComment.CommentType.INLINE);
+                for (CtStatement assertStatement : assertStatements) {
+                    DSpotUtils.addComment(assertStatement, "AssertGenerator add assertion", CtComment.CommentType.INLINE);
                     try {
-                        CtStatement stmt = statements.get(line);
+                        CtStatement statementToBeAsserted = statements.get(line);
                         if (lastStmt == null) {
-                            lastStmt = stmt;
+                            lastStmt = statementToBeAsserted;
                         }
-                        if (stmt instanceof CtBlock) {
+                        if (statementToBeAsserted instanceof CtBlock) {
                             break;
                         }
-                        if (stmt instanceof CtInvocation &&
-                                !AssertGeneratorHelper.isVoidReturn((CtInvocation) stmt) &&
-                                stmt.getParent() instanceof CtBlock) {
-                            CtInvocation invocationToBeReplaced = (CtInvocation) stmt.clone();
+                        if (statementToBeAsserted instanceof CtInvocation &&
+                                !AssertGeneratorHelper.isVoidReturn((CtInvocation) statementToBeAsserted) &&
+                                statementToBeAsserted.getParent() instanceof CtBlock) {
+                            CtInvocation invocationToBeReplaced = (CtInvocation) statementToBeAsserted.clone();
                             final CtLocalVariable localVariable = factory.createLocalVariable(
                                     invocationToBeReplaced.getType(), "o_" + id.split("___")[0], invocationToBeReplaced
                             );
-                            stmt.replace(localVariable);
+                            statementToBeAsserted.replace(localVariable);
                             DSpotUtils.addComment(localVariable, "AssertGenerator create local variable with return value of invocation", CtComment.CommentType.INLINE);
-                            localVariable.setParent(stmt.getParent());
-                            if (id.endsWith("end")) {
-                                testWithAssert.getBody().insertEnd(statement);
-                            } else {
-                                localVariable.insertAfter(statement);
-                            }
+                            localVariable.setParent(statementToBeAsserted.getParent());
+                            addAtCorrectPlace(id, localVariable, assertStatement, statementToBeAsserted);
                             statements.remove(line);
                             statements.add(line, localVariable);
                         } else {
-                            if (id.endsWith("end")) {
-                                stmt.getParent(CtBlock.class).insertEnd(statement);
-                            } else {
-                                lastStmt.insertAfter(statement);
-                            }
+                            addAtCorrectPlace(id, lastStmt, assertStatement, statementToBeAsserted);
                         }
-                        lastStmt = statement;
+                        lastStmt = assertStatement;
                         numberOfAddedAssertion++;
                     } catch (Exception e) {
                         throw new RuntimeException(e);
@@ -269,6 +261,17 @@ public class MethodsAssertGenerator {
         } else {
             AmplificationHelper.removeAmpTestParent(testWithAssert);
             return null;
+        }
+    }
+
+    private void addAtCorrectPlace(String id,
+                                   CtStatement lastStmt,
+                                   CtStatement assertStatement,
+                                   CtStatement statementToBeAsserted) {
+        if (id.endsWith("end")) {
+            statementToBeAsserted.getParent(CtBlock.class).insertEnd(assertStatement);
+        } else {
+            lastStmt.insertAfter(assertStatement);
         }
     }
 

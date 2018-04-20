@@ -22,9 +22,61 @@ import static org.junit.Assert.*;
 public class AmplificationHelperTest extends AbstractTest {
 
     @Test
+    public void testConvertWithSuperClassIsJUnit3() throws Exception {
+
+        /*
+            Converting a test class that inherit from a JUnit3 test class should
+            convert also this super class
+         */
+
+        final CtClass secondTestClassJUnit3 = Utils.findClass("fr.inria.helper.SecondClassJUnit3");
+        final CtClass testClassJUnit3 = Utils.findClass("fr.inria.helper.SubClassOfJUnit3");
+        final CtType<?> converted = AmplificationHelper.convertToJUnit4(testClassJUnit3,
+                Utils.getInputConfiguration(),
+                Utils.getInputProgram()
+        );
+        assertEquals("public class SubClassOfJUnit3 extends fr.inria.helper.SecondClassJUnit3 {" + AmplificationHelper.LINE_SEPARATOR +
+                "    @java.lang.Override" + AmplificationHelper.LINE_SEPARATOR +
+                "    @org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
+                "    public void test() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
+                "        org.junit.Assert.assertEquals(3, 3);" + AmplificationHelper.LINE_SEPARATOR +
+                "    }" + AmplificationHelper.LINE_SEPARATOR +
+                "" + AmplificationHelper.LINE_SEPARATOR +
+                "    @org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
+                "    public void testThatIsATest() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
+                "        org.junit.Assert.assertEquals(3, 3);" + AmplificationHelper.LINE_SEPARATOR +
+                "    }" + AmplificationHelper.LINE_SEPARATOR +
+                "}", converted.toString());
+
+        assertEquals("public class SecondClassJUnit3 {" + AmplificationHelper.LINE_SEPARATOR +
+                        "    @org.junit.After" + AmplificationHelper.LINE_SEPARATOR +
+                        "    public void tearDown() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
+                        "    }" + AmplificationHelper.LINE_SEPARATOR +
+                        "" + AmplificationHelper.LINE_SEPARATOR +
+                        "    @org.junit.Before" + AmplificationHelper.LINE_SEPARATOR +
+                        "    public void setUp() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
+                        "    }" + AmplificationHelper.LINE_SEPARATOR +
+                        "" + AmplificationHelper.LINE_SEPARATOR +
+                        "    @org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
+                        "    public void test() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
+                        "        org.junit.Assert.assertEquals(3, 3);" + AmplificationHelper.LINE_SEPARATOR +
+                        "    }" + AmplificationHelper.LINE_SEPARATOR +
+                        "" + AmplificationHelper.LINE_SEPARATOR +
+                        "    @org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
+                        "    public void should() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
+                        "        org.junit.Assert.assertTrue(true);" + AmplificationHelper.LINE_SEPARATOR +
+                        "    }" + AmplificationHelper.LINE_SEPARATOR +
+                        "}",
+                secondTestClassJUnit3.toString());
+    }
+
+    @Test
     public void testConvert() throws Exception {
         final CtClass testClassJUnit3 = Utils.findClass("fr.inria.helper.ClassJunit3");
-        final CtType<?> converted = AmplificationHelper.convertToJUnit4(testClassJUnit3);
+        final CtType<?> converted = AmplificationHelper.convertToJUnit4(testClassJUnit3,
+                Utils.getInputConfiguration(),
+                Utils.getInputProgram()
+        );
         System.out.println(converted);
         assertEquals("public class ClassJunit3 {" + AmplificationHelper.LINE_SEPARATOR +
                         "    class MyInnerClass {" + AmplificationHelper.LINE_SEPARATOR +
@@ -41,14 +93,12 @@ public class AmplificationHelperTest extends AbstractTest {
                 converted.toString());
 
         final CtClass secondTestClassJUnit3 = Utils.findClass("fr.inria.helper.SecondClassJUnit3");
-        final CtType<?> secondConverted = AmplificationHelper.convertToJUnit4(secondTestClassJUnit3);
+        final CtType<?> secondConverted = AmplificationHelper.convertToJUnit4(secondTestClassJUnit3,
+                Utils.getInputConfiguration(),
+                Utils.getInputProgram()
+        );
         System.out.println(secondConverted);
-        assertEquals("/**" + AmplificationHelper.LINE_SEPARATOR +
-                        " * Created by Benjamin DANGLOT" + AmplificationHelper.LINE_SEPARATOR +
-                        " * benjamin.danglot@inria.fr" + AmplificationHelper.LINE_SEPARATOR +
-                        " * on 01/04/18" + AmplificationHelper.LINE_SEPARATOR +
-                        " */" + AmplificationHelper.LINE_SEPARATOR +
-                        "public class SecondClassJUnit3 {" + AmplificationHelper.LINE_SEPARATOR +
+        assertEquals("public class SecondClassJUnit3 {" + AmplificationHelper.LINE_SEPARATOR +
                         "    @org.junit.After" + AmplificationHelper.LINE_SEPARATOR +
                         "    public void tearDown() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
                         "    }" + AmplificationHelper.LINE_SEPARATOR +

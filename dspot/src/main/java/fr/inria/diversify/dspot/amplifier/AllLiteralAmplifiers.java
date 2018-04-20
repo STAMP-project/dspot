@@ -1,5 +1,7 @@
 package fr.inria.diversify.dspot.amplifier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -13,6 +15,8 @@ import java.util.stream.Collectors;
  * on 07/03/18
  */
 public class AllLiteralAmplifiers implements Amplifier {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AllLiteralAmplifiers.class);
 
     private List<Amplifier> literalAmplifiers;
 

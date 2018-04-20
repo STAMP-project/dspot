@@ -1,7 +1,7 @@
 package fr.inria.diversify.dspot.amplifier.value;
 
-import fr.inria.Utils;
 import fr.inria.AbstractTest;
+import fr.inria.Utils;
 import fr.inria.diversify.utils.AmplificationHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
@@ -10,6 +10,7 @@ import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 
@@ -67,6 +68,14 @@ public class TestValueCreator extends AbstractTest {
 
 		assertEquals("__DSPOT_vc_" + count, randomLocalVar.getSimpleName());
 		assertEquals(factory.Type().createReference("fr.inria.mutation.ClassUnderTest"), randomLocalVar.getType());
+
+		final CtTypeReference<?> listReference = factory.Type().createReference("java.util.List");
+		listReference.setActualTypeArguments(Collections.singletonList(factory.Type().createArrayReference("int")));
+		randomLocalVar = ValueCreator.createRandomLocalVar(listReference);
+		count++;
+
+		assertEquals("__DSPOT_vc_" + count, randomLocalVar.getSimpleName());
+		assertEquals("java.util.List<int[]>", randomLocalVar.getType().toString());
 	}
 
 	@Test

@@ -10,7 +10,7 @@
 
     <groupId>eu.stamp-project</groupId>
     <artifactId>dspot-parent</artifactId>
-    <version>1.0.8-SNAPSHOT</version>
+    <version>1.1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>DSpot - Parent</name>
@@ -41,8 +41,16 @@
             <name>Simon Allier</name>
         </developer>
         <developer>
+            <name>Nicola Bertazzo</name>
+            <email>nicola.bertazzo@gmail.com</email>
+        </developer>
+        <developer>
             <name>Benjamin Danglot</name>
             <email>benjamin.danglot@inria.fr</email>
+        </developer>
+        <developer>
+            <name>Daniele Gagliardi</name>
+            <email>dnl.gagliardi@gmail.com</email>
         </developer>
     </developers>
 
