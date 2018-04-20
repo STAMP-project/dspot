@@ -27,7 +27,7 @@
 			<plugin>
 				<groupId>eu.stamp-project</groupId>
 				<artifactId>dspot-maven</artifactId>
-				<version>1.0.8-SNAPSHOT</version>
+				<version>1.1.1-SNAPSHOT</version>
 				<configuration>
 					<amplifiers>
 						<amplifier>TestDataMutator</amplifier>
