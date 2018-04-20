@@ -18,11 +18,17 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Created by Benjamin DANGLOT
@@ -33,11 +39,7 @@ public class SelectorOnDiff {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SelectorOnDiff.class);
 
-    public static int MAX_NUMBER_TEST_CLASSES = 5;
-
-    private static int MAX_NUMBER_TEST_CASES = 20;
-
-    public static List<CtType> findTestClassesAccordingToADiff(InputConfiguration configuration) {
+    public static Map<CtType<?>, List<CtMethod<?>>> findTestMethodsAccordingToADiff(InputConfiguration configuration) {
         final Factory factory = configuration.getInputProgram().getFactory();
         final String baseSha = configuration.getProperties().getProperty("baseSha");
         final String pathToFirstVersion = configuration.getProperties().getProperty("project") +
@@ -46,10 +48,6 @@ public class SelectorOnDiff {
         final String pathToSecondVersion = configuration.getProperties().getProperty("folderPath") +
                 (configuration.getProperties().getProperty("targetModule") != null ?
                         configuration.getProperties().getProperty("targetModule") : "");
-        // TODO must use the configuration to compute path to src and testSrc, in case of non-standard path
-        if (configuration.getProperties().get("maxSelectedTestClasses") != null) {
-            MAX_NUMBER_TEST_CLASSES = Integer.parseInt(String.valueOf(configuration.getProperties().get("maxSelectedTestClasses")));
-        }
         if (Main.verbose) {
             LOGGER.info("Selecting according to a diff between {} and {} ({})",
                     pathToFirstVersion,
@@ -58,129 +56,167 @@ public class SelectorOnDiff {
             );
         }
 
-        return findTestClassesAccordingToADiff(
-                configuration,
+        return new SelectorOnDiff(configuration,
                 factory,
                 baseSha,
                 pathToFirstVersion,
                 pathToSecondVersion
-        );
+        ).findTestMethods();
     }
 
-    private static List<CtType> findTestClassesAccordingToADiff(InputConfiguration configuration,
-                                                                Factory factory,
-                                                                String baseSha,
-                                                                String pathToFirstVersion,
-                                                                String pathToSecondVersion) {
-        //get the modified methods
-        final Set<String> modifiedJavaFiles = pathToModifiedJavaFile(baseSha, pathToSecondVersion);
+    private InputConfiguration configuration;
+    private Factory factory;
+    private String baseSha;
+    private String pathToFirstVersion;
+    private String pathToSecondVersion;
 
-        // keep modified test in the PR: must be present in both versions of the program
-        final List<CtType> modifiedTestClasses =
-                getModifiedTestClasses(configuration, factory, modifiedJavaFiles);
-        if (!modifiedTestClasses.isEmpty()) {
-            LOGGER.info("Selection done on modified test classes");
-            return reduceIfNeeded(modifiedTestClasses);
-        }
-        // find all modified methods
-        final Set<CtMethod> modifiedMethods = modifiedJavaFiles.stream()
-                .flatMap(s ->
-                        getModifiedMethod(
-                                pathToFirstVersion + s.substring(1),
-                                pathToSecondVersion + s.substring(1)
-                        ).stream()
-                ).collect(Collectors.toSet());
+    public SelectorOnDiff(InputConfiguration configuration,
+                          Factory factory,
+                          String baseSha,
+                          String pathToFirstVersion,
+                          String pathToSecondVersion) {
+        this.configuration = configuration;
+        this.factory = factory;
+        this.baseSha = baseSha;
+        this.pathToFirstVersion = pathToFirstVersion;
+        this.pathToSecondVersion = pathToSecondVersion;
+    }
 
-        // find test cases that contains the name of the modified methods
-        final List<CtType> testClassesThatContainsTestNamedForModifiedMethod = factory.Package().getRootPackage()
-                .getElements(new TypeFilter<CtMethod>(CtMethod.class) {
-                    @Override
-                    public boolean matches(CtMethod element) {
-                        return AmplificationChecker.isTest(element) &&
-                                modifiedMethods.stream()
-                                        .anyMatch(ctMethod ->
-                                                element.getSimpleName().contains(ctMethod.getSimpleName())
-                                        );
-                    }
-                }).stream().map(ctMethod -> ctMethod.getParent(CtType.class))
-                .distinct()
+    @SuppressWarnings("unchecked")
+    public Map<CtType<?>, List<CtMethod<?>>> findTestMethods() {
+        Map<CtType<?>, List<CtMethod<?>>> selection = new HashMap<>();
+        final Set<CtMethod> selectedTestMethods = new HashSet<>();
+        // get the modified files
+        final Set<String> modifiedJavaFiles = getModifiedJavaFiles();
+        // get modified methods
+        final Set<CtMethod> modifiedMethods = getModifiedMethods(modifiedJavaFiles);
+        // get modified test cases
+        final List<CtMethod> modifiedTestMethods = modifiedMethods.stream()
+                .filter(AmplificationChecker::isTest)
                 .collect(Collectors.toList());
-        if (!testClassesThatContainsTestNamedForModifiedMethod.isEmpty()) {
-            LOGGER.info("Selection done on method name convention");
-            return reduceIfNeeded(testClassesThatContainsTestNamedForModifiedMethod);
+        modifiedMethods.removeAll(modifiedTestMethods);
+        if (!modifiedTestMethods.isEmpty()) { // if any, we add them to the selection
+            LOGGER.info("Select {} modified test methods", modifiedTestMethods.size());
+            selectedTestMethods.addAll(modifiedTestMethods);
+        }
+        // get all invocations to modified methods in test methods
+        final List<CtMethod<?>> testMethodsThatExecuteDirectlyModifiedMethods =
+                getTestMethodsThatExecuteDirectlyModifiedMethods(modifiedMethods, modifiedTestMethods);
+        if (!modifiedTestMethods.isEmpty()) { // if any, we add them to the selection
+            LOGGER.info("Select {} test methods that execute directly modified methods", modifiedTestMethods.size());
+            selectedTestMethods.addAll(testMethodsThatExecuteDirectlyModifiedMethods);
+        }
+        // if we could not find any test methods above, we use naming convention
+        if (selectedTestMethods.isEmpty()) {
+            final List<CtMethod<?>> testMethodsAccordingToNameOfModifiedMethod =
+                    getTestMethodsAccordingToNameOfModifiedMethod(modifiedMethods);
+            // if any test methods has the name of a modified in its own name
+            if (!testMethodsAccordingToNameOfModifiedMethod.isEmpty()) {
+                selectedTestMethods.addAll(testMethodsAccordingToNameOfModifiedMethod);
+            } else {
+                final Set<CtMethod<?>> methodsOfTestClassesAccordingToModifiedJavaFiles =
+                        getMethodsOfTestClassesAccordingToModifiedJavaFiles(modifiedJavaFiles);
+                // we try to find test classes for modified java file,
+                // e.g. ExampleClass is modified
+                // we look for a test class named TestExampleClass or ExampleClassTest
+                // also, if one of these test classes does not contain any test, but inherit from another test class,
+                // we select the super class to be amplified
+                if (!methodsOfTestClassesAccordingToModifiedJavaFiles.isEmpty()) {
+                    selectedTestMethods.addAll(methodsOfTestClassesAccordingToModifiedJavaFiles);
+                } else {
+                    LOGGER.warn("No tests could be found for {}", modifiedJavaFiles);
+                    LOGGER.warn("DSpot will stop here, since it cannot find any tests to amplify according to the provided diff");
+                }
+            }
         }
 
-        //find all test classes that execute those methods
-        final List<CtType> selectedTestClasses = factory.Package().getRootPackage()
+        for (CtMethod selectedTestMethod : selectedTestMethods) {
+            final CtType parent = selectedTestMethod.getParent(CtType.class);
+            if (!selection.containsKey(parent)) {
+                selection.put(parent, new ArrayList<>());
+            }
+            selection.get(parent).add(selectedTestMethod);
+        }
+        return selection;
+    }
+
+    private Set<CtMethod<?>> getMethodsOfTestClassesAccordingToModifiedJavaFiles(Set<String> modifiedJavaFiles) {
+        final List<String> candidateTestClassName = modifiedJavaFiles.stream()
+                .filter(pathToClass ->
+                        new File(configuration.getProperties().getProperty("project") + pathToClass.substring(1)).exists() &&
+                                new File(configuration.getProperties().getProperty("folderPath") + pathToClass.substring(1)).exists() // it is present in both versions
+                )
+                .flatMap(pathToClass -> {
+                    final String[] split = pathToClass.substring(this.configuration.getRelativeSourceCodeDir().length() + 2).split("/");
+                    final String nameOfTestClass = split[split.length - 1].split("\\.")[0];
+                    final String qualifiedName = IntStream.range(0, split.length - 1).mapToObj(value -> split[value]).collect(Collectors.joining("."));
+                    return Stream.of(
+                            qualifiedName + "." + nameOfTestClass + "Test",
+                            qualifiedName + "." + "Test" + nameOfTestClass
+                    );
+                }).collect(Collectors.toList());
+        // test classes directly dedicated to modified java files.
+        final Set<CtMethod<?>> directTestClasses = candidateTestClassName.stream()
+                .map(testClassName -> this.factory.Type().get(testClassName))
+                .filter(testClass ->
+                        testClass != null &&
+                                (testClass.getMethods().stream().anyMatch(AmplificationChecker::isTest) ||
+                                        testClass.getSuperclass()
+                                                .getTypeDeclaration()
+                                                .getMethods()
+                                                .stream()
+                                                .anyMatch(AmplificationChecker::isTest)
+                                )
+                ).flatMap(testClass -> {
+                    if (testClass.getMethods().stream().noneMatch(AmplificationChecker::isTest)) {
+                        return testClass.getSuperclass().getTypeDeclaration().getMethods().stream();
+                    } else {
+                        return testClass.getMethods().stream();
+                    }
+                })
+                .filter(AmplificationChecker::isTest)
+                .collect(Collectors.toSet());
+        return directTestClasses;
+    }
+
+    private List<CtMethod<?>> getTestMethodsAccordingToNameOfModifiedMethod(Set<CtMethod> modifiedMethods) {
+        final Set<String> modifiedMethodsNames =
+                modifiedMethods.stream().map(CtMethod::getSimpleName).collect(Collectors.toSet());
+        return this.factory.Package().getRootPackage()
+                .getElements(new TypeFilter<CtMethod<?>>(CtMethod.class) {
+                    @Override
+                    public boolean matches(CtMethod<?> element) {
+                        return AmplificationChecker.isTest(element) &&
+                                modifiedMethodsNames.stream()
+                                        .anyMatch(element.getSimpleName()::contains);
+                    }
+                });
+    }
+
+
+    private List getTestMethodsThatExecuteDirectlyModifiedMethods(Set<CtMethod> modifiedMethods,
+                                                                  List<CtMethod> modifiedTestMethods) {
+        return this.factory.Package().getRootPackage()
                 .getElements(new TypeFilter<CtExecutableReference>(CtExecutableReference.class) {
                     @Override
                     public boolean matches(CtExecutableReference element) {
                         return modifiedMethods.contains(element.getDeclaration());
                     }
                 }).stream()
-                .map(ctExecutableReference -> ctExecutableReference.getParent(CtType.class))
-                .filter(ctType -> ctType.getMethods()
-                        .stream()
-                        .anyMatch(method -> {
-                                    try {
-                                        return AmplificationChecker.isTest((CtMethod<?>) method);
-                                    } catch (Exception e) {
-                                        return false;
-                                    }
-                                }
-                        )
-                ).collect(Collectors.toList());
-        // TODO we may need another way to limit the number of used tests
-        // TODO we can use the number of test classes
-        // TODO or we could use the number of test cases
-        LOGGER.info("Selection done: using tests that execute modified method");
-        return reduceIfNeeded(selectedTestClasses);
-    }
-
-    private static List<CtType> reduceIfNeeded(List<CtType> selectedTestClasses) {
-        if (selectedTestClasses.size() > MAX_NUMBER_TEST_CLASSES) {
-            Collections.shuffle(selectedTestClasses, AmplificationHelper.getRandom());
-            selectedTestClasses = selectedTestClasses.subList(0, MAX_NUMBER_TEST_CLASSES);
-        }
-        LOGGER.info("{} test classes selected:{}{}",
-                selectedTestClasses.size(),
-                AmplificationHelper.LINE_SEPARATOR,
-                selectedTestClasses.stream().map(CtType::getQualifiedName)
-                        .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR))
-        );
-        return selectedTestClasses;
-    }
-
-    private final static int computeSizeOfSubstring(InputConfiguration configuration) {
-        final int testSrcLength = configuration.getProperties()
-                .getProperty("testSrc", "src/test/java/").length();
-        final int modulePathLength = configuration.getProperties().getProperty("targetModule", "").length();
-        return 2 + modulePathLength + testSrcLength; // a/targetModulePath/testSrcFolder
-    }
-
-    private static List<CtType> getModifiedTestClasses(final InputConfiguration configuration,
-                                                       Factory factory,
-                                                       Set<String> modifiedJavaFiles) {
-        return modifiedJavaFiles.stream()
-                .filter(pathToClass ->
-                        new File(configuration.getProperties().getProperty("project") + pathToClass.substring(1)).exists() &&
-                                new File(configuration.getProperties().getProperty("folderPath") + pathToClass.substring(1)).exists() // it is present in both versions
-                ).filter(pathToClass -> {
-                    final String[] split = pathToClass.split("/");
-                    return (split[split.length - 1].split("\\.")[0].endsWith("Test") || // the class in a test class
-                            split[split.length - 1].split("\\.")[0].startsWith("Test"));
-                })
-                .map(pathToClass ->
-                        pathToClass.substring(computeSizeOfSubstring(configuration))
-                                .split("\\.")[0]
-                                .replace("/", ".")
-                )// TODO maybe be more flexible on the src/main/java (use the InputConfiguration)
-                .map(nameOfModifiedTestClass -> factory.Class().get(nameOfModifiedTestClass))
+                .map(ctExecutableReference -> ctExecutableReference.getParent(CtMethod.class))
+                .filter(AmplificationChecker::isTest)
+                .filter(ctMethod -> !(modifiedTestMethods.contains(ctMethod)))
                 .collect(Collectors.toList());
     }
 
-    @SuppressWarnings("unchecked")
-    private static Set<CtMethod> getModifiedMethod(String pathFile1, String pathFile2) {
+    public Set<CtMethod> getModifiedMethods(Set<String> modifiedJavaFiles) {
+        return modifiedJavaFiles.stream()
+                .flatMap(s ->
+                        getModifiedMethods(pathToFirstVersion + s.substring(1), pathToSecondVersion + s.substring(1)).stream()
+                ).collect(Collectors.toSet());
+    }
+
+    public Set<CtMethod> getModifiedMethods(String pathFile1, String pathFile2) {
         try {
             final File file1 = new File(pathFile1);
             final File file2 = new File(pathFile2);
@@ -199,13 +235,13 @@ public class SelectorOnDiff {
         }
     }
 
-    private static Set<String> pathToModifiedJavaFile(String baseSha, String pathToChangedVersion) {
+    private Set<String> getModifiedJavaFiles() {
         Process p;
         try {
             p = Runtime.getRuntime().exec(
-                    "git diff " + baseSha,
+                    "git diff " + this.baseSha,
                     new String[]{},
-                    new File(pathToChangedVersion));
+                    new File(this.pathToSecondVersion));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
