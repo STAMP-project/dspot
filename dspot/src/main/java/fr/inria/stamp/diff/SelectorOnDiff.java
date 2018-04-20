@@ -57,11 +57,11 @@ public class SelectorOnDiff {
         }
 
         return new SelectorOnDiff(configuration,
-                        factory,
-                        baseSha,
-                        pathToFirstVersion,
-                        pathToSecondVersion
-                ).findTestMethods();
+                factory,
+                baseSha,
+                pathToFirstVersion,
+                pathToSecondVersion
+        ).findTestMethods();
     }
 
     private InputConfiguration configuration;
@@ -114,7 +114,19 @@ public class SelectorOnDiff {
             if (!testMethodsAccordingToNameOfModifiedMethod.isEmpty()) {
                 selectedTestMethods.addAll(testMethodsAccordingToNameOfModifiedMethod);
             } else {
-                selectedTestMethods.addAll(getTestClassesAccordingToModifiedJavaFiles(modifiedJavaFiles));
+                final Set<CtMethod<?>> methodsOfTestClassesAccordingToModifiedJavaFiles =
+                        getMethodsOfTestClassesAccordingToModifiedJavaFiles(modifiedJavaFiles);
+                // we try to find test classes for modified java file,
+                // e.g. ExampleClass is modified
+                // we look for a test class named TestExampleClass or ExampleClassTest
+                // also, if one of these test classes does not contain any test, but inherit from another test class,
+                // we select the super class to be amplified
+                if (!methodsOfTestClassesAccordingToModifiedJavaFiles.isEmpty()) {
+                    selectedTestMethods.addAll(methodsOfTestClassesAccordingToModifiedJavaFiles);
+                } else {
+                    LOGGER.warn("No tests could be found for {}", modifiedJavaFiles);
+                    LOGGER.warn("DSpot will stop here, since it cannot find any tests to amplify according to the provided diff");
+                }
             }
         }
 
@@ -128,7 +140,7 @@ public class SelectorOnDiff {
         return selection;
     }
 
-    private Set<CtMethod<?>> getTestClassesAccordingToModifiedJavaFiles(Set<String> modifiedJavaFiles) {
+    private Set<CtMethod<?>> getMethodsOfTestClassesAccordingToModifiedJavaFiles(Set<String> modifiedJavaFiles) {
         final List<String> candidateTestClassName = modifiedJavaFiles.stream()
                 .filter(pathToClass ->
                         new File(configuration.getProperties().getProperty("project") + pathToClass.substring(1)).exists() &&
