@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -25,97 +27,132 @@ import java.util.stream.Collectors;
  */
 public class Main {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
-    public static boolean verbose = false;
+	public static boolean verbose = false;
 
-    public static void main(String[] args) throws Exception {
-        try {
-            FileUtils.forceDelete(new File("target/dspot/"));
-        } catch (Exception ignored) {
+	public static void main(String[] args) throws Exception {
+		try {
+			FileUtils.forceDelete(new File("target/dspot/"));
+		} catch (Exception ignored) {
 
-        }
-        final Configuration configuration = JSAPOptions.parse(args);
-        if (configuration == null) {
-            Main.runExample();
-        } else {
-            run(configuration);
-        }
-    }
+		}
+		final Configuration configuration = JSAPOptions.parse(args);
+		if (configuration == null) {
+			Main.runExample();
+		} else {
+			run(configuration);
+		}
+	}
 
-    public static void run(Configuration configuration, InputConfiguration inputConfiguration) throws Exception {
-        AmplificationHelper.setSeedRandom(23L);
-        AmplificationHelper.minimize = configuration.minimize;
-        InputProgram program = new InputProgram();
-        inputConfiguration.setInputProgram(program);
-        inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
-        AmplificationHelper.MAX_NUMBER_OF_TESTS = configuration.maxTestAmplified;
-        if (configuration.mavenHome != null) {
-            inputConfiguration.getProperties().put("maven.home", configuration.mavenHome);
-        }
-        if (configuration.pathToOutput != null) {
-            inputConfiguration.getProperties().setProperty("outputDirectory", configuration.pathToOutput);
-        }
-        DSpot dspot = new DSpot(inputConfiguration, configuration.nbIteration, configuration.amplifiers,
-                configuration.selector);
+	private static void print(Configuration configuration, InputConfiguration inputConfiguration) {
+		System.out.println("==== CONFIGURATION ====");
+		System.out.println(configuration.pathToConfigurationFile);
+		System.out.println(configuration.amplifiers);
+		System.out.println(configuration.nbIteration);
+		System.out.println(configuration.testClasses);
+		System.out.println(configuration.pathToOutput);
+		System.out.println(configuration.selector);
+		System.out.println(configuration.testCases);
+		System.out.println(configuration.seed);
+		System.out.println(configuration.timeOutInMs);
+		System.out.println(configuration.automaticBuilderName);
+		System.out.println(configuration.mavenHome);
+		System.out.println(configuration.maxTestAmplified);
+		System.out.println(configuration.clean);
+		System.out.println(configuration.minimize);
+		System.out.println("==== INPUTCONFIGURATION ====");
+		Properties prop = inputConfiguration.getProperties();
+		Set keys = prop.keySet();
+		for (Object key : keys) {
+			System.out.println(key + " = " + prop.getProperty((String) key));
+		}
+		System.out.println("ClassesDir: " + inputConfiguration.getClassesDir());
+		System.out.println("coverageDir: " + inputConfiguration.getCoverageDir());
+		System.out.println("outputDirectory: " + inputConfiguration.getOutputDirectory());
+		System.out.println("previousTransformationPath: " + inputConfiguration.getPreviousTransformationPath());
+		System.out.println("projectPath: " + inputConfiguration.getProjectPath());
+		System.out.println("relativeSourceCodeDir: " + inputConfiguration.getRelativeSourceCodeDir());
+		System.out.println("relativeTestSourceCodeDir: " + inputConfiguration.getRelativeTestSourceCodeDir());
+		System.out.println("RootPath: " + inputConfiguration.getRootPath());
+		System.out.println("TempDir: " + inputConfiguration.getTempDir());
+		System.out.println("ValidationErrors: " + inputConfiguration.getValidationErrors());
+	}
 
-        AmplificationHelper.setSeedRandom(configuration.seed);
-        AmplificationHelper.setTimeOutInMs(configuration.timeOutInMs);
+	public static void run(Configuration configuration, InputConfiguration inputConfiguration) throws Exception {
+		print(configuration, inputConfiguration);
+		AmplificationHelper.setSeedRandom(23L);
+		AmplificationHelper.minimize = configuration.minimize;
+		InputProgram program = new InputProgram();
+		inputConfiguration.setInputProgram(program);
+		inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
+		AmplificationHelper.MAX_NUMBER_OF_TESTS = configuration.maxTestAmplified;
+		if (configuration.mavenHome != null) {
+			inputConfiguration.getProperties().put("maven.home", configuration.mavenHome);
+		}
+		if (configuration.pathToOutput != null) {
+			inputConfiguration.getProperties().setProperty("outputDirectory", configuration.pathToOutput);
+		}
+		DSpot dspot = new DSpot(inputConfiguration, configuration.nbIteration, configuration.amplifiers,
+				configuration.selector);
 
-        createOutputDirectories(inputConfiguration, configuration.clean);
+		AmplificationHelper.setSeedRandom(configuration.seed);
+		AmplificationHelper.setTimeOutInMs(configuration.timeOutInMs);
 
-        final long startTime = System.currentTimeMillis();
-        final List<CtType> amplifiedTestClasses;
-        if ("all".equals(configuration.testClasses.get(0))) {
-            amplifiedTestClasses = dspot.amplifyAllTests();
-        } else if ("diff".equals(configuration.testClasses.get(0))) {
-            final Map<CtType<?>, List<CtMethod<?>>> testMethodsAccordingToADiff = SelectorOnDiff.findTestMethodsAccordingToADiff(inputConfiguration);
-            amplifiedTestClasses = testMethodsAccordingToADiff.keySet()
-                    .stream()
-                    .map(ctType -> dspot.amplifyTest(ctType, testMethodsAccordingToADiff.get(ctType)))
-                    .collect(Collectors.toList());
-        } else {
-            if (configuration.testCases.isEmpty()) {
-                amplifiedTestClasses = dspot.amplifyAllTestsNames(configuration.testClasses);
-            } else {
-                amplifiedTestClasses = configuration.testClasses.stream().map(testClasses ->
-                        dspot.amplifyTest(testClasses, configuration.testCases)
-                ).collect(Collectors.toList());
-            }
-        }
-        LOGGER.info("Amplification {}.", amplifiedTestClasses.isEmpty() ? "failed" : "succeed");
-        final long elapsedTime = System.currentTimeMillis() - startTime;
-        LOGGER.info("Elapsed time {} ms", elapsedTime);
-    }
+		createOutputDirectories(inputConfiguration, configuration.clean);
 
-    public static void run(Configuration configuration) throws Exception {
-        InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
-        run(configuration, inputConfiguration);
-    }
+		final long startTime = System.currentTimeMillis();
+		final List<CtType> amplifiedTestClasses;
+		if ("all".equals(configuration.testClasses.get(0))) {
+			amplifiedTestClasses = dspot.amplifyAllTests();
+		} else if ("diff".equals(configuration.testClasses.get(0))) {
+			final Map<CtType<?>, List<CtMethod<?>>> testMethodsAccordingToADiff = SelectorOnDiff
+					.findTestMethodsAccordingToADiff(inputConfiguration);
+			amplifiedTestClasses = testMethodsAccordingToADiff.keySet().stream()
+					.map(ctType -> dspot.amplifyTest(ctType, testMethodsAccordingToADiff.get(ctType)))
+					.collect(Collectors.toList());
+		} else {
+			if (configuration.testCases.isEmpty()) {
+				amplifiedTestClasses = dspot.amplifyAllTestsNames(configuration.testClasses);
+			} else {
+				amplifiedTestClasses = configuration.testClasses.stream()
+						.map(testClasses -> dspot.amplifyTest(testClasses, configuration.testCases))
+						.collect(Collectors.toList());
+			}
+		}
+		LOGGER.info("Amplification {}.", amplifiedTestClasses.isEmpty() ? "failed" : "succeed");
+		final long elapsedTime = System.currentTimeMillis() - startTime;
+		LOGGER.info("Elapsed time {} ms", elapsedTime);
+	}
 
-    public static void createOutputDirectories(InputConfiguration inputConfiguration, boolean clean) {
-        final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
-        try {
-            if (clean && outputDirectory.exists()) {
-                FileUtils.forceDelete(outputDirectory);
-            }
-            if (!outputDirectory.exists()) {
-                FileUtils.forceMkdir(outputDirectory);
-            }
-        } catch (IOException ignored) {
-            // ignored
-        }
-    }
+	public static void run(Configuration configuration) throws Exception {
+		InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
+		run(configuration, inputConfiguration);
+	}
 
-    static void runExample() {
-        try {
-            InputConfiguration configuration = new InputConfiguration(
-                    "src/test/resources/test-projects/test-projects.properties");
-            DSpot dSpot = new DSpot(configuration, 1, Collections.singletonList(new TestDataMutator()),
-                    new JacocoCoverageSelector());
-            dSpot.amplifyTest("example.TestSuiteExample");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+	public static void createOutputDirectories(InputConfiguration inputConfiguration, boolean clean) {
+		final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
+		try {
+			if (clean && outputDirectory.exists()) {
+				FileUtils.forceDelete(outputDirectory);
+			}
+			if (!outputDirectory.exists()) {
+				FileUtils.forceMkdir(outputDirectory);
+			}
+		} catch (IOException ignored) {
+			// ignored
+		}
+	}
+
+	static void runExample() {
+		try {
+			InputConfiguration configuration = new InputConfiguration(
+					"src/test/resources/test-projects/test-projects.properties");
+			DSpot dSpot = new DSpot(configuration, 1, Collections.singletonList(new TestDataMutator()),
+					new JacocoCoverageSelector());
+			dSpot.amplifyTest("example.TestSuiteExample");
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
