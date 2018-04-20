@@ -11,6 +11,7 @@ import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtLocalVariableReference;
 import spoon.reflect.reference.CtTypeReference;
+import spoon.reflect.reference.CtWildcardReference;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
@@ -63,12 +64,14 @@ public class StatementAdd implements Amplifier {
     }
 
     private List<CtMethod> useReturnValuesOfExistingMethodCall(CtMethod method) {
-        List<CtInvocation> invocations = getInvocation(method);
+        List<CtInvocation> invocations = getInvocations(method);
         final List<CtMethod> ampMethods = new ArrayList<>();
         invocations.stream()
-                .filter(invocation -> !TypeUtils.isPrimitive(invocation.getType()) ||
-                        !TypeUtils.isString(invocation.getType()))
-                .forEach(invocation -> {
+                .filter(invocation ->
+                        !(invocation.getType() instanceof CtWildcardReference) &&
+                        !TypeUtils.isPrimitive(invocation.getType()) &&
+                        !TypeUtils.isString(invocation.getType())
+                ).forEach(invocation -> {
                     List<CtMethod<?>> methodsWithTargetType = findMethodsWithTargetType(invocation.getType());
                     if (!methodsWithTargetType.isEmpty()) {
                         int indexOfInvocation = getIndexOf(method, invocation);
@@ -203,7 +206,8 @@ public class StatementAdd implements Amplifier {
 
 
 
-    private List<CtInvocation> getInvocation(CtMethod method) {
+    // return all invocations inside the given method
+    private List<CtInvocation> getInvocations(CtMethod method) {
         List<CtInvocation> statements = Query.getElements(method, new TypeFilter(CtInvocation.class));
         return statements.stream()
                 .filter(invocation -> invocation.getParent() instanceof CtBlock)
