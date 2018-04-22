@@ -55,7 +55,7 @@ public class AmplificationCheckerTest extends AbstractTest {
                 .get(0)
                 .getElements(new TypeFilter<>(CtInvocation.class));
         final List<CtInvocation> collect = invocations.stream().filter(AmplificationChecker::isAssert).collect(Collectors.toList());
-        assertEquals(5, collect.size());
+        assertEquals(11, collect.size());
     }
 
 }
