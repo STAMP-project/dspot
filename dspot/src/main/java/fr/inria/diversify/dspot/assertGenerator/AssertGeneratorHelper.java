@@ -20,6 +20,7 @@ import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtTypeReference;
+import spoon.reflect.reference.CtWildcardReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
 
@@ -34,8 +35,11 @@ import java.util.function.Predicate;
 public class AssertGeneratorHelper {
 
     static boolean isVoidReturn(CtInvocation invocation) {
-        return (invocation.getType() != null && (invocation.getType().equals(invocation.getFactory().Type().voidType()) ||
-                invocation.getType().equals(invocation.getFactory().Type().voidPrimitiveType())));
+        return (invocation.getType() != null &&
+                (invocation.getType().equals(invocation.getFactory().Type().voidType()) ||
+                        invocation.getType().equals(invocation.getFactory().Type().voidPrimitiveType())) &&
+                !(invocation.getType() instanceof CtWildcardReference)
+        );
     }
 
     static CtMethod<?> createTestWithLog(CtMethod test, final String filter) {
