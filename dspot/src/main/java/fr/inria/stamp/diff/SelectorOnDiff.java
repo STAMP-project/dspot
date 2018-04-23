@@ -39,7 +39,14 @@ public class SelectorOnDiff {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SelectorOnDiff.class);
 
-    public static Map<CtType<?>, List<CtMethod<?>>> findTestMethodsAccordingToADiff(InputConfiguration configuration) {
+    /**
+     * @param configuration of the project under amplification. This configuration must contain the following properties:
+     *                      baseSha: with the commit sha of the base branch
+     *                      project: with the path to the base project
+     *                     folderPath: with the path to the changed project
+     * @return a map that associates the full qualified name of test classes to their test methods to be amplified.
+     */
+    public static Map<String, List<String>> findTestMethodsAccordingToADiff(InputConfiguration configuration) {
         final Factory factory = configuration.getInputProgram().getFactory();
         final String baseSha = configuration.getProperties().getProperty("baseSha");
         final String pathToFirstVersion = configuration.getProperties().getProperty("project") +
@@ -70,6 +77,15 @@ public class SelectorOnDiff {
     private String pathToFirstVersion;
     private String pathToSecondVersion;
 
+    /**
+     * Constructor. Please, have look to {@link  fr.inria.stamp.diff.SelectorOnDiff#findTestMethodsAccordingToADiff(InputConfiguration)}.
+     * The usage of this constructor and the method  {@link  fr.inria.stamp.diff.SelectorOnDiff#findTestMethods()} is discouraged.
+     * @param configuration
+     * @param factory
+     * @param baseSha
+     * @param pathToFirstVersion
+     * @param pathToSecondVersion
+     */
     public SelectorOnDiff(InputConfiguration configuration,
                           Factory factory,
                           String baseSha,
@@ -82,9 +98,15 @@ public class SelectorOnDiff {
         this.pathToSecondVersion = pathToSecondVersion;
     }
 
+    /**
+     * This method does the same job than {@link  fr.inria.stamp.diff.SelectorOnDiff#findTestMethodsAccordingToADiff(InputConfiguration)} but use an instance.
+     * It is more convenient to use the static method {@link  fr.inria.stamp.diff.SelectorOnDiff#findTestMethodsAccordingToADiff(InputConfiguration)}
+     * which instantiate and set specific value rather than use this method.
+     * @return a map that associates the full qualified name of test classes to their test methods to be amplified.
+     */
     @SuppressWarnings("unchecked")
-    public Map<CtType<?>, List<CtMethod<?>>> findTestMethods() {
-        Map<CtType<?>, List<CtMethod<?>>> selection = new HashMap<>();
+    public Map<String, List<String>> findTestMethods() {
+        Map<String, List<String>> selection = new HashMap<>();
         final Set<CtMethod> selectedTestMethods = new HashSet<>();
         // get the modified files
         final Set<String> modifiedJavaFiles = getModifiedJavaFiles();
@@ -132,10 +154,10 @@ public class SelectorOnDiff {
 
         for (CtMethod selectedTestMethod : selectedTestMethods) {
             final CtType parent = selectedTestMethod.getParent(CtType.class);
-            if (!selection.containsKey(parent)) {
-                selection.put(parent, new ArrayList<>());
+            if (!selection.containsKey(parent.getQualifiedName())) {
+                selection.put(parent.getQualifiedName(), new ArrayList<>());
             }
-            selection.get(parent).add(selectedTestMethod);
+            selection.get(parent.getQualifiedName()).add(selectedTestMethod.getSimpleName());
         }
         return selection;
     }

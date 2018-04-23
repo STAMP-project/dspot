@@ -10,7 +10,6 @@ import fr.inria.stamp.diff.SelectorOnDiff;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
@@ -69,7 +68,7 @@ public class Main {
         if ("all".equals(configuration.testClasses.get(0))) {
             amplifiedTestClasses = dspot.amplifyAllTests();
         } else if ("diff".equals(configuration.testClasses.get(0))) {
-            final Map<CtType<?>, List<CtMethod<?>>> testMethodsAccordingToADiff = SelectorOnDiff.findTestMethodsAccordingToADiff(inputConfiguration);
+            final Map<String, List<String>> testMethodsAccordingToADiff = SelectorOnDiff.findTestMethodsAccordingToADiff(inputConfiguration);
             amplifiedTestClasses = testMethodsAccordingToADiff.keySet()
                     .stream()
                     .map(ctType -> dspot.amplifyTest(ctType, testMethodsAccordingToADiff.get(ctType)))
