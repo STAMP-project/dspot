@@ -1,11 +1,12 @@
 package fr.inria.diversify.utils;
 
-import junit.framework.TestCase;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.SpoonException;
-import spoon.reflect.code.*;
+import spoon.reflect.code.CtCase;
+import spoon.reflect.code.CtInvocation;
+import spoon.reflect.code.CtLiteral;
+import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -15,7 +16,6 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Created by Benjamin DANGLOT
@@ -35,6 +35,16 @@ public class AmplificationChecker {
     }
 
     public static boolean isAssert(CtInvocation invocation) {
+        return _isAssert(invocation) ||
+                (invocation.getExecutable().getDeclaration() != null &&
+                        !invocation.getExecutable()
+                                .getDeclaration()
+                                .getElements(new HasAssertInvocationFilter(3))
+                                .isEmpty()
+                );
+    }
+
+    private static boolean _isAssert(CtInvocation invocation) {
         // simplification of this method, rely on the name of the method, also,
         // we checks that this invocation is not an invocation to a method that contains assertion
         // in this case, we will match it
@@ -42,13 +52,7 @@ public class AmplificationChecker {
         return nameOfMethodCalled.toLowerCase().contains("assert") ||
                 nameOfMethodCalled.toLowerCase().startsWith("fail") ||
                 invocation.toString().toLowerCase().contains("assert") ||
-                invocation.toString().toLowerCase().contains("catchexception") || // eu.codearte.catch-exception.catch-exception
-                (invocation.getExecutable().getDeclaration() != null &&
-                        !invocation.getExecutable()
-                                .getDeclaration()
-                                .getElements(new HasAssertInvocationFilter(3))
-                                .isEmpty()
-                );
+                invocation.toString().toLowerCase().contains("catchexception");// eu.codearte.catch-exception.catch-exception
     }
 
     public static boolean canBeAdded(CtInvocation invocation) {
@@ -101,7 +105,7 @@ public class AmplificationChecker {
                 candidate.getBody().getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
                     @Override
                     public boolean matches(CtInvocation element) {
-                        return hasAssertCall.test(element);
+                        return AmplificationChecker.isAssert(element);
                     }
                 });
 
@@ -115,6 +119,7 @@ public class AmplificationChecker {
         if (!listOfAssertion.isEmpty()) { // there is at least one assertion
             return true;
         }
+
 
         return (candidate.getAnnotation(org.junit.Test.class) != null ||
                 // matching JUnit3 test: the parent is not JUnit4 and the method's name starts with test or should
@@ -145,20 +150,9 @@ public class AmplificationChecker {
         @Override
         public boolean matches(CtInvocation element) {
             return deep >= 0 &&
-                    (hasAssertCall.test(element) || containsMethodCallToAssertion(element, this.deep));
+                    (AmplificationChecker._isAssert(element) || containsMethodCallToAssertion(element, this.deep));
         }
     }
-
-    private static final Predicate<CtInvocation<?>> hasAssertCall = invocation ->
-            invocation.getExecutable() != null && invocation.getExecutable().getDeclaringType() != null &&
-                    (invocation.getExecutable().getDeclaringType().equals(
-                            invocation.getFactory().Type().createReference(Assert.class)
-                    ) ||
-                            invocation.getExecutable().getDeclaringType().equals(
-                                    invocation.getFactory().Type().createReference(junit.framework.Assert.class)
-                            ) || invocation.getExecutable().getDeclaringType().equals(
-                            invocation.getFactory().Type().createReference(TestCase.class)
-                    ));
 
     private static boolean containsMethodCallToAssertion(CtInvocation<?> invocation, int deep) {
         final CtMethod<?> method = invocation.getExecutable().getDeclaringType().getTypeDeclaration().getMethod(
