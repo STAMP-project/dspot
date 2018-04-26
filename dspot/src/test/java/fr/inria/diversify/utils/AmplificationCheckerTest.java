@@ -44,8 +44,8 @@ public class AmplificationCheckerTest extends AbstractTest {
 			isAssert method should be match all the kind of assertions:
 				For now, the supported types are:
 					assert*** (from org.junit)
-					assertThat (from google.truth)
-
+					assertThat / isEqualsTo (from google.truth)
+					then / hasSameClassAs (from assertj)
 
 			see src/test/resources/sample/src/test/java/fr/inria/helper/TestWithMultipleAsserts.java
 			Also, the isAssert method will match invocation on methods that contain assertions
@@ -66,6 +66,7 @@ public class AmplificationCheckerTest extends AbstractTest {
                 .get(0)
                 .getElements(new TypeFilter<>(CtInvocation.class));
         final List<CtInvocation> collect = invocations.stream().filter(AmplificationChecker::isAssert).collect(Collectors.toList());
+        System.out.println(collect);
         assertEquals(3, collect.size());
     }
 }

@@ -86,7 +86,7 @@ public class Amplification {
 	 */
 	public void amplification(CtType<?> classTest, List<CtMethod<?>> methods, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
 		List<CtMethod<?>> tests = methods.stream()
-				.filter(mth -> AmplificationChecker.isTest(mth, this.configuration.getInputProgram().getRelativeTestSourceCodeDir()))
+				.filter(AmplificationChecker::isTest)
 				.collect(Collectors.toList());
 		if (tests.isEmpty()) {
 			LOGGER.warn("No test has been found into {}", classTest.getQualifiedName());
