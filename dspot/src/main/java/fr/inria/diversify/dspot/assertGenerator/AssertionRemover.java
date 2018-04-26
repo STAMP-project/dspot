@@ -51,8 +51,6 @@ public class AssertionRemover {
                 return element.equals(invocation);
             }
         };
-
-
         for (CtExpression<?> argument : invocation.getArguments()) {
             CtExpression clone = ((CtExpression) argument).clone();
             if (clone instanceof CtUnaryOperator) {

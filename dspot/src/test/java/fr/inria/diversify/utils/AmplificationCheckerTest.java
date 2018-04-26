@@ -46,8 +46,9 @@ public class AmplificationCheckerTest extends AbstractTest {
 					assert*** (from org.junit)
 					assertThat (from google.truth)
 
+
 			see src/test/resources/sample/src/test/java/fr/inria/helper/TestWithMultipleAsserts.java
-			Also, the isAssert method will math invocation on methods that contain assertions
+			Also, the isAssert method will match invocation on methods that contain assertions
 		 */
 
         CtClass<?> classTest = Utils.getFactory().Class().get("fr.inria.helper.TestWithMultipleAsserts");
@@ -58,4 +59,13 @@ public class AmplificationCheckerTest extends AbstractTest {
         assertEquals(11, collect.size());
     }
 
+    @Test
+    public void testIsAssert2() throws Exception {
+        final CtClass<?> testClass = Utils.findClass("fr.inria.assertionremover.TestClassWithAssertToBeRemoved");
+        final List<CtInvocation> invocations = testClass.getMethodsByName("test1")
+                .get(0)
+                .getElements(new TypeFilter<>(CtInvocation.class));
+        final List<CtInvocation> collect = invocations.stream().filter(AmplificationChecker::isAssert).collect(Collectors.toList());
+        assertEquals(3, collect.size());
+    }
 }

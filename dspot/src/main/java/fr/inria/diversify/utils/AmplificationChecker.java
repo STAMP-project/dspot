@@ -7,6 +7,7 @@ import spoon.reflect.code.CtCase;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtStatement;
+import spoon.reflect.code.CtStatementList;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -48,11 +49,15 @@ public class AmplificationChecker {
         // simplification of this method, rely on the name of the method, also,
         // we checks that this invocation is not an invocation to a method that contains assertion
         // in this case, we will match it
+        // the direct parent must be a Block
         final String nameOfMethodCalled = invocation.getExecutable().getSimpleName();
-        return nameOfMethodCalled.toLowerCase().contains("assert") ||
-                nameOfMethodCalled.toLowerCase().startsWith("fail") ||
-                invocation.toString().toLowerCase().contains("assert") ||
-                invocation.toString().toLowerCase().contains("catchexception");// eu.codearte.catch-exception.catch-exception
+        return (invocation.getParent() instanceof CtStatementList ||
+                (invocation.getParent() instanceof CtInvocation && isAssert((CtInvocation) invocation.getParent()))
+        ) &&
+                (nameOfMethodCalled.toLowerCase().startsWith("assert") ||
+                        nameOfMethodCalled.toLowerCase().startsWith("fail") ||
+                        invocation.toString().toLowerCase().contains("catchexception")
+                );// eu.codearte.catch-exception.catch-exception
     }
 
     public static boolean canBeAdded(CtInvocation invocation) {
@@ -130,6 +135,7 @@ public class AmplificationChecker {
 
     /**
      * checks if the given test class inherit from {@link junit.framework.TestCase}, <i>i.e.</i> is JUnit3 test class.
+     *
      * @param testClass
      * @return true if the given test class inherit from {@link junit.framework.TestCase}, false otherwise
      */
