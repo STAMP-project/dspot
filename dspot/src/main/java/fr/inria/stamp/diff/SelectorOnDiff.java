@@ -8,7 +8,6 @@ import gumtree.spoon.AstComparator;
 import gumtree.spoon.diff.Diff;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtParameter;
 import spoon.reflect.declaration.CtType;
@@ -28,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -257,21 +257,27 @@ public class SelectorOnDiff {
                     .stream()
                     .map(operation -> operation.getSrcNode().getParent(CtMethod.class))
                     .filter(Objects::nonNull)
-                    .map(method -> {
-                        final CtClass<?> ctClass = factory.Class().get(method.getDeclaringType().getQualifiedName());
-                        final CtTypeReference<?>[] ctTypeReferences = (CtTypeReference<?>[]) method.getParameters()
-                                .stream()
-                                .map(parameter -> ((CtParameter) parameter).getType())
-                                .toArray(value -> new CtTypeReference<?>[value]);
-                        return ctClass.getMethod(method.getType(),
-                                method.getSimpleName(),
-                                ctTypeReferences
-                        );
-                    }).filter(Objects::nonNull); // it seems that gumtree can return null value;
+                    .map(this::getSameMethodFromAnotherFactory)
+                    .filter(Objects::nonNull); // it seems that gumtree can return null value;
         } catch (Exception ignored) {
             // if something bad happen, we do not care, we go for next file
             return Stream.of();
         }
+    }
+
+    private CtMethod getSameMethodFromAnotherFactory(CtMethod<?> methodToFoundInAnotherFactory) {
+        CtType<?> declaringType = methodToFoundInAnotherFactory.getDeclaringType();
+        while (!declaringType.isTopLevel()) {
+            declaringType = declaringType.getParent(CtType.class);
+        }
+        return factory.Class().get(declaringType.getQualifiedName()).getMethod(
+                methodToFoundInAnotherFactory.getType(),
+                methodToFoundInAnotherFactory.getSimpleName(),
+                (CtTypeReference<?>[]) methodToFoundInAnotherFactory.getParameters()
+                        .stream()
+                        .map(parameter -> ((CtParameter) parameter).getType())
+                        .toArray((IntFunction<CtTypeReference<?>[]>) CtTypeReference[]::new)
+        );
     }
 
     private Set<String> getModifiedJavaFiles() {
