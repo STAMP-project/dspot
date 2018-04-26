@@ -142,9 +142,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
         final String expectedInstrumentedBodyAfterAmplification_test_sd6_withlog = "{" + AmplificationHelper.LINE_SEPARATOR +
                 "    fr.inria.statementaddarray.ClassTargetAmplify clazz = new fr.inria.statementaddarray.ClassTargetAmplify();" + AmplificationHelper.LINE_SEPARATOR +
                 "    fr.inria.diversify.compare.ObjectLog.log(clazz, \"clazz\", \"test_sd6__1\");" + AmplificationHelper.LINE_SEPARATOR +
-                "    // StatementAdd: generate variable from return value" + AmplificationHelper.LINE_SEPARATOR +
                 "    fr.inria.statementaddarray.ClassParameterAmplify __DSPOT_invoc_3 = clazz.methodWithReturn();" + AmplificationHelper.LINE_SEPARATOR +
-                "    // StatementAdd: add invocation of a method" + AmplificationHelper.LINE_SEPARATOR +
                 "    __DSPOT_invoc_3.method1();" + AmplificationHelper.LINE_SEPARATOR +
                 "    fr.inria.diversify.compare.ObjectLog.log(clazz, \"clazz\", \"test_sd6__1___end\");" + AmplificationHelper.LINE_SEPARATOR +
                 "}";

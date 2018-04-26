@@ -49,7 +49,6 @@ public class StatementAddTest extends AbstractTest {
                 "    for (fr.inria.statementadd.TestClassTarget.Internal i : internalList) {" + AmplificationHelper.LINE_SEPARATOR +
                 "        int __DSPOT_i_0 = -1167796541;" + AmplificationHelper.LINE_SEPARATOR +
                 "        i.compute(0);" + AmplificationHelper.LINE_SEPARATOR +
-                "        // StatementAdd: add invocation of a method" + AmplificationHelper.LINE_SEPARATOR +
                 "        i.compute(__DSPOT_i_0);" + AmplificationHelper.LINE_SEPARATOR +
                 "    }" + AmplificationHelper.LINE_SEPARATOR +
                 "}";
