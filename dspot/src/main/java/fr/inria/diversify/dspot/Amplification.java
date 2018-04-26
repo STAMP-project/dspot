@@ -99,6 +99,11 @@ public class Amplification {
         ampTestCount = this.testSelector.getAmplifiedTestCases().size();
 		resetAmplifiers(classTest);
 
+		// in case there is no amplifier, we can leave
+		if (this.amplifiers.isEmpty()) {
+			return;
+		}
+
 		for (int i = 0; i < tests.size(); i++) {
 			CtMethod test = tests.get(i);
 			LOGGER.info("amp {} ({}/{})", test.getSimpleName(), i + 1, tests.size());
