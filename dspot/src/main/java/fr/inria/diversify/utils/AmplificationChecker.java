@@ -15,6 +15,7 @@ import spoon.reflect.reference.CtArrayTypeReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -44,15 +45,25 @@ public class AmplificationChecker {
                 );
     }
 
+    private final static List<String> ASSERTIONS_PACKAGES =
+            Arrays.asList("org.junit", "com.google.common.truth", "org.assertj", "junit");
+
     private static boolean _isAssert(CtInvocation invocation) {
-        // simplification of this method, rely on the name of the method, also,
-        // we checks that this invocation is not an invocation to a method that contains assertion
+        // simplification of this method.
+        // We rely on the package of the declaring type of the invocation
         // in this case, we will match it
-        final String nameOfMethodCalled = invocation.getExecutable().getSimpleName();
-        return nameOfMethodCalled.toLowerCase().contains("assert") ||
-                nameOfMethodCalled.toLowerCase().startsWith("fail") ||
-                invocation.toString().toLowerCase().contains("assert") ||
-                invocation.toString().toLowerCase().contains("catchexception");// eu.codearte.catch-exception.catch-exception
+        final String qualifiedNameOfPackage;
+        if (invocation.getExecutable().getDeclaringType().getPackage() == null) {
+            if (invocation.getExecutable().getDeclaringType().getTopLevelType() != null) {
+                qualifiedNameOfPackage = invocation.getExecutable().getDeclaringType().getTopLevelType().getPackage().getQualifiedName();
+            } else {
+                return false;
+            }
+        } else {
+            qualifiedNameOfPackage = invocation.getExecutable().getDeclaringType().getPackage().getQualifiedName();
+        }
+        return ASSERTIONS_PACKAGES.stream()
+                .anyMatch(qualifiedNameOfPackage::startsWith);
     }
 
     public static boolean canBeAdded(CtInvocation invocation) {
@@ -84,6 +95,9 @@ public class AmplificationChecker {
     };
 
     public static boolean isTest(CtMethod<?> candidate) {
+        if (candidate == null) {
+            return false;
+        }
         CtClass<?> parent = candidate.getParent(CtClass.class);
         // if the test method has @Ignore, is not a test
         if (candidate.getAnnotation(org.junit.Ignore.class) != null) {
@@ -130,6 +144,7 @@ public class AmplificationChecker {
 
     /**
      * checks if the given test class inherit from {@link junit.framework.TestCase}, <i>i.e.</i> is JUnit3 test class.
+     *
      * @param testClass
      * @return true if the given test class inherit from {@link junit.framework.TestCase}, false otherwise
      */
@@ -170,6 +185,7 @@ public class AmplificationChecker {
                 );
     }
 
+    @Deprecated
     public static boolean isTest(CtMethod candidate, String relativePath) {
         try {
             if (!relativePath.isEmpty() && candidate.getPosition() != null

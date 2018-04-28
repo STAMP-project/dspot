@@ -104,6 +104,6 @@ public class AssertionRemoverTest extends AbstractTest {
 		final CtMethod<?> testMethod = testClass.getMethodsByName("test").get(0);
 		final CtMethod<?> removedAssertion = assertionRemover.removeAssertion(testMethod);
 		System.out.println(removedAssertion);
-		assertEquals(2, removedAssertion.getBody().getStatements().size());
+		assertEquals(3, removedAssertion.getBody().getStatements().size());
 	}
 }

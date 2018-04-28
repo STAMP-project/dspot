@@ -13,6 +13,7 @@ import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
+import spoon.reflect.visitor.filter.TypeFilter;
 
 /**
  * Created by Benjamin DANGLOT
@@ -22,7 +23,7 @@ import spoon.reflect.reference.CtTypeReference;
 @SuppressWarnings("unchecked")
 public class AssertionRemover {
 
-    private final int [] counter = new int[]{0};
+    private final int[] counter = new int[]{0};
 
     /**
      * Removes all assertions from a test.
@@ -44,15 +45,21 @@ public class AssertionRemover {
      */
     public void removeAssertion(CtInvocation<?> invocation) {
         final Factory factory = invocation.getFactory();
-        invocation.getArguments().forEach(argument -> {
+        final TypeFilter<CtStatement> statementTypeFilter = new TypeFilter<CtStatement>(CtStatement.class) {
+            @Override
+            public boolean matches(CtStatement element) {
+                return element.equals(invocation);
+            }
+        };
+        for (CtExpression<?> argument : invocation.getArguments()) {
             CtExpression clone = ((CtExpression) argument).clone();
             if (clone instanceof CtUnaryOperator) {
                 clone = ((CtUnaryOperator) clone).getOperand();
             }
             if (clone instanceof CtStatement) {
                 clone.getTypeCasts().clear();
-                invocation.insertBefore((CtStatement) clone);
-            } else if (! (clone instanceof CtLiteral || clone instanceof CtVariableRead)) {
+                invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, (CtStatement) clone);
+            } else if (!(clone instanceof CtLiteral || clone instanceof CtVariableRead)) {
                 CtTypeReference<?> typeOfParameter = clone.getType();
                 if (clone.getType().equals(factory.Type().NULL_TYPE)) {
                     typeOfParameter = factory.Type().createReference(Object.class);
@@ -62,16 +69,16 @@ public class AssertionRemover {
                         typeOfParameter.getSimpleName() + "_" + counter[0]++,
                         clone
                 );
-                invocation.insertBefore(localVariable);
+                invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, localVariable);
             }
-        });
+        }
         // must find the first statement list to remove the invocation from it, e.g. the block that contains the assertions
         // the assertion can be inside other stuff, than directly in the block
-        CtElement currentParent = invocation;
-        while (! (currentParent.getParent() instanceof CtStatementList)) {
-            currentParent = currentParent.getParent();
+        CtElement topStatement = invocation;
+        while (!(topStatement.getParent() instanceof CtStatementList)) {
+            topStatement = topStatement.getParent();
         }
-        ((CtStatementList) currentParent.getParent()).removeStatement((CtStatement) currentParent);
+        ((CtStatementList) topStatement.getParent()).removeStatement((CtStatement) topStatement);
     }
 
 }
