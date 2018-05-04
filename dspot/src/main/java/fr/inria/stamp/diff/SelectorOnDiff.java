@@ -9,9 +9,11 @@ import gumtree.spoon.diff.Diff;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtParameter;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
+import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.BufferedReader;
@@ -19,13 +21,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -39,7 +41,14 @@ public class SelectorOnDiff {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SelectorOnDiff.class);
 
-    public static Map<CtType<?>, List<CtMethod<?>>> findTestMethodsAccordingToADiff(InputConfiguration configuration) {
+    /**
+     * @param configuration of the project under amplification. This configuration must contain the following properties:
+     *                      baseSha: with the commit sha of the base branch
+     *                      project: with the path to the base project
+     *                      folderPath: with the path to the changed project
+     * @return a map that associates the full qualified name of test classes to their test methods to be amplified.
+     */
+    public static Map<String, List<String>> findTestMethodsAccordingToADiff(InputConfiguration configuration) {
         final Factory factory = configuration.getInputProgram().getFactory();
         final String baseSha = configuration.getProperties().getProperty("baseSha");
         final String pathToFirstVersion = configuration.getProperties().getProperty("project") +
@@ -70,6 +79,16 @@ public class SelectorOnDiff {
     private String pathToFirstVersion;
     private String pathToSecondVersion;
 
+    /**
+     * Constructor. Please, have look to {@link  fr.inria.stamp.diff.SelectorOnDiff#findTestMethodsAccordingToADiff(InputConfiguration)}.
+     * The usage of this constructor and the method  {@link  fr.inria.stamp.diff.SelectorOnDiff#findTestMethods()} is discouraged.
+     *
+     * @param configuration
+     * @param factory
+     * @param baseSha
+     * @param pathToFirstVersion
+     * @param pathToSecondVersion
+     */
     public SelectorOnDiff(InputConfiguration configuration,
                           Factory factory,
                           String baseSha,
@@ -82,9 +101,16 @@ public class SelectorOnDiff {
         this.pathToSecondVersion = pathToSecondVersion;
     }
 
+    /**
+     * This method does the same job than {@link  fr.inria.stamp.diff.SelectorOnDiff#findTestMethodsAccordingToADiff(InputConfiguration)} but use an instance.
+     * It is more convenient to use the static method {@link  fr.inria.stamp.diff.SelectorOnDiff#findTestMethodsAccordingToADiff(InputConfiguration)}
+     * which instantiate and set specific value rather than use this method.
+     *
+     * @return a map that associates the full qualified name of test classes to their test methods to be amplified.
+     */
     @SuppressWarnings("unchecked")
-    public Map<CtType<?>, List<CtMethod<?>>> findTestMethods() {
-        Map<CtType<?>, List<CtMethod<?>>> selection = new HashMap<>();
+    public Map<String, List<String>> findTestMethods() {
+        Map<String, List<String>> selection = new HashMap<>();
         final Set<CtMethod> selectedTestMethods = new HashSet<>();
         // get the modified files
         final Set<String> modifiedJavaFiles = getModifiedJavaFiles();
@@ -132,10 +158,10 @@ public class SelectorOnDiff {
 
         for (CtMethod selectedTestMethod : selectedTestMethods) {
             final CtType parent = selectedTestMethod.getParent(CtType.class);
-            if (!selection.containsKey(parent)) {
-                selection.put(parent, new ArrayList<>());
+            if (!selection.containsKey(parent.getQualifiedName())) {
+                selection.put(parent.getQualifiedName(), new ArrayList<>());
             }
-            selection.get(parent).add(selectedTestMethod);
+            selection.get(parent.getQualifiedName()).add(selectedTestMethod.getSimpleName());
         }
         return selection;
     }
@@ -204,6 +230,7 @@ public class SelectorOnDiff {
                     }
                 }).stream()
                 .map(ctExecutableReference -> ctExecutableReference.getParent(CtMethod.class))
+                .filter(Objects::nonNull)
                 .filter(AmplificationChecker::isTest)
                 .filter(ctMethod -> !(modifiedTestMethods.contains(ctMethod)))
                 .collect(Collectors.toList());
@@ -212,27 +239,45 @@ public class SelectorOnDiff {
     public Set<CtMethod> getModifiedMethods(Set<String> modifiedJavaFiles) {
         return modifiedJavaFiles.stream()
                 .flatMap(s ->
-                        getModifiedMethods(pathToFirstVersion + s.substring(1), pathToSecondVersion + s.substring(1)).stream()
+                        getModifiedMethods(pathToFirstVersion + s.substring(1),
+                                pathToSecondVersion + s.substring(1)
+                        )
                 ).collect(Collectors.toSet());
     }
 
-    public Set<CtMethod> getModifiedMethods(String pathFile1, String pathFile2) {
+    public Stream<CtMethod> getModifiedMethods(String pathFile1, String pathFile2) {
         try {
             final File file1 = new File(pathFile1);
             final File file2 = new File(pathFile2);
             if (!file1.exists() || !file2.exists()) {
-                return Collections.emptySet();
+                return Stream.of();
             }
             Diff result = (new AstComparator()).compare(file1, file2);
             return result.getRootOperations()
                     .stream()
                     .map(operation -> operation.getSrcNode().getParent(CtMethod.class))
-                    .filter(Objects::nonNull) // it seems that gumtree can return null value
-                    .collect(Collectors.toSet());
+                    .filter(Objects::nonNull)
+                    .map(this::getSameMethodFromAnotherFactory)
+                    .filter(Objects::nonNull); // it seems that gumtree can return null value;
         } catch (Exception ignored) {
             // if something bad happen, we do not care, we go for next file
-            return Collections.emptySet();
+            return Stream.of();
         }
+    }
+
+    private CtMethod getSameMethodFromAnotherFactory(CtMethod<?> methodToFoundInAnotherFactory) {
+        CtType<?> declaringType = methodToFoundInAnotherFactory.getDeclaringType();
+        while (!declaringType.isTopLevel()) {
+            declaringType = declaringType.getParent(CtType.class);
+        }
+        return factory.Class().get(declaringType.getQualifiedName()).getMethod(
+                methodToFoundInAnotherFactory.getType(),
+                methodToFoundInAnotherFactory.getSimpleName(),
+                (CtTypeReference<?>[]) methodToFoundInAnotherFactory.getParameters()
+                        .stream()
+                        .map(parameter -> ((CtParameter) parameter).getType())
+                        .toArray((IntFunction<CtTypeReference<?>[]>) CtTypeReference[]::new)
+        );
     }
 
     private Set<String> getModifiedJavaFiles() {

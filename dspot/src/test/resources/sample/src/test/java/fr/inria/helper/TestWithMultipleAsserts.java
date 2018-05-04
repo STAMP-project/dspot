@@ -20,6 +20,11 @@ public class TestWithMultipleAsserts {
         System.out.println("");
         System.out.println("");
         then(0).isInstanceOf(int.class).hasSameClassAs(0);
+        notVerify();
+    }
+
+    private void notVerify() {
+        // empty
     }
 
     private void verify(String s) {

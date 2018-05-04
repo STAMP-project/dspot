@@ -86,7 +86,7 @@ public class Amplification {
 	 */
 	public void amplification(CtType<?> classTest, List<CtMethod<?>> methods, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
 		List<CtMethod<?>> tests = methods.stream()
-				.filter(mth -> AmplificationChecker.isTest(mth, this.configuration.getInputProgram().getRelativeTestSourceCodeDir()))
+				.filter(AmplificationChecker::isTest)
 				.collect(Collectors.toList());
 		if (tests.isEmpty()) {
 			LOGGER.warn("No test has been found into {}", classTest.getQualifiedName());
@@ -98,6 +98,11 @@ public class Amplification {
         LOGGER.info("{} amplified test(s) has been selected, global: {}", this.testSelector.getAmplifiedTestCases().size() - ampTestCount, this.testSelector.getAmplifiedTestCases().size());
         ampTestCount = this.testSelector.getAmplifiedTestCases().size();
 		resetAmplifiers(classTest);
+
+		// in case there is no amplifier, we can leave
+		if (this.amplifiers.isEmpty()) {
+			return;
+		}
 
 		for (int i = 0; i < tests.size(); i++) {
 			CtMethod test = tests.get(i);
