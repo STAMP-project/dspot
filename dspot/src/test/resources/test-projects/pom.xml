@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>example</groupId>
@@ -30,20 +31,14 @@
 				<version>1.1.1-SNAPSHOT</version>
 				<configuration>
 					<amplifiers>
-						<amplifier>TestDataMutator</amplifier>
+						<amplifier>MethodAdd</amplifier>
 					</amplifiers>
 					<iteration>3</iteration>
 					<selector>PitMutantScoreSelector</selector>
 					<randomSeed>23</randomSeed>
-					<timeOutInMs>10000</timeOutInMs>
-					<mavenHome>/home/bertazzo/Programmi/apache-maven-3</mavenHome>
-					<project>/home/bertazzo/Progetti/2017/dspot/new/dspot/dspot/src/test/resources/test-projects</project>
-					<srcDir>/home/bertazzo/Progetti/2017/dspot/new/dspot/dspot/src/test/resources/test-projects/src/main/java</srcDir>
-					<testDir>/home/bertazzo/Progetti/2017/dspot/new/dspot/dspot/src/test/resources/test-projects/src/test/java</testDir>
-					<classesDir>/home/bertazzo/Progetti/2017/dspot/new/dspot/dspot/src/test/resources/test-projects/target/classes</classesDir>
-					<testClassesDir>/home/bertazzo/Progetti/2017/dspot/new/dspot/dspot/src/test/resources/test-projects/target/test-classes</testClassesDir>
-					<tempDir>/home/bertazzo/Progetti/2017/dspot/new/dspot/dspot/src/test/resources/test-projects/target/tmp</tempDir>
-					<outputPath>/home/bertazzo/Progetti/2017/dspot/new/dspot/dspot/src/test/resources/test-projects/target/trash</outputPath>
+					<timeOutInMs>11110</timeOutInMs>
+					<tempDir>${project.basedir}/target/tmp</tempDir>
+					<outputPath>${project.basedir}/target/trash</outputPath>
 					<filter>example.*</filter>
 				</configuration>
 			</plugin>

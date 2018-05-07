@@ -87,7 +87,9 @@ public class InputConfiguration {
 		getProperties().setProperty("maven.home", mavenHome.getAbsolutePath());
 		getProperties().setProperty("classes", getRelativePath(classesDir));
 		getProperties().setProperty("tmpDir", getRelativePath(tempDir));
-		getProperties().setProperty("filter", filter);
+		if (filter != null) {
+			getProperties().setProperty("filter", filter);
+		}
 		getProperties().setProperty("javaVersion", "8");
 		rootPath = project.getAbsolutePath();
 	}
