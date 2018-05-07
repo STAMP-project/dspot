@@ -13,6 +13,8 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.Configuration;
@@ -22,6 +24,8 @@ import fr.inria.stamp.Main;
 
 @Mojo(name = "amplify-unit-tests", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.TEST)
 public class DSpotMojo extends AbstractMojo {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(DSpotMojo.class);
 
 	// Command Line parameters -> fr.inria.stamp.Configuration
 
@@ -33,19 +37,19 @@ public class DSpotMojo extends AbstractMojo {
 	@Parameter(defaultValue = "3", property = "iteration")
 	private Integer iteration;
 
-//	@Parameter(defaultValue = "PitMutantScoreSelector", property = "test-criterion")
-//	private String testCriterion;
+	@Parameter(defaultValue = "PitMutantScoreSelector", property = "testcriterion")
+	private String testCriterion;
 
-	@Parameter(defaultValue = "200", property = "max-test-amplified")
+	@Parameter(defaultValue = "200", property = "maxtestamplified")
 	private Integer maxTestAmplified;
-	
-//	@Parameter(defaultValue = "all", property = "test")
-//	private List<String> namesOfTestCases;
-	
-	@Parameter( property = "cases")
+
+	@Parameter(defaultValue = "all", property = "test")
+	private List<String> namesOfTestCases;
+
+	@Parameter(property = "cases")
 	private List<String> namesOfTestMethods;
 
-	@Parameter(defaultValue = "${project.build.directory}/dspot-report", property = "output-path")
+	@Parameter(defaultValue = "${project.build.directory}/dspot-report", property = "outputpath")
 	private String outputPath;
 
 	@Parameter(defaultValue = "false", property = "clean")
@@ -99,30 +103,24 @@ public class DSpotMojo extends AbstractMojo {
 				// Iteration
 				getIteration(),
 				// testClases
-				getNamesOfTestCases(), getOutputPath(), 
-				SelectorEnum.valueOf(getSelector()).buildSelector(),
-				new ArrayList<String>(), 
-				getRandomSeed().longValue(),
-				getTimeOutInMs().intValue(),
-				BUILDER,
+				getNamesOfTestCases(), getOutputPath(), SelectorEnum.valueOf(getSelector()).buildSelector(),
+				new ArrayList<String>(), getRandomSeed().longValue(), getTimeOutInMs().intValue(), BUILDER,
 				getMavenHome().getAbsolutePath(), 200, false, true);
 
 		InputConfiguration inputConfiguration;
 		ClassLoader cl = Thread.currentThread().getContextClassLoader();
 
-        URL[] urls = ((URLClassLoader)cl).getURLs();
-        for(URL url: urls){
-        	System.out.println(url.getFile());
-        }
-		
+		URL[] urls = ((URLClassLoader) cl).getURLs();
+		for (URL url : urls) {
+			System.out.println(url.getFile());
+		}
 
 		try {
 			inputConfiguration = new InputConfiguration(getProject(), getSrcDir(), getTestDir(), getClassesDir(),
 					getTestClassesDir(), getTempDir(), getFilter(), getMavenHome());
 			Main.run(configuration, inputConfiguration);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error(e.getLocalizedMessage());
 		}
 	}
 
@@ -134,14 +132,14 @@ public class DSpotMojo extends AbstractMojo {
 		return iteration;
 	}
 
-//	public String getTestCriterion() {
-//		return testCriterion;
-//	}
+	public String getTestCriterion() {
+		return testCriterion;
+	}
 
 	public List<String> getNamesOfTestCases() {
-		List<String> toReturn = new ArrayList<String>();
-		toReturn.add("example.TestSuiteExample");
-		return toReturn;
+//		List<String> toReturn = new ArrayList<String>();
+//		toReturn.add("example.TestSuiteExample");
+		return namesOfTestCases;
 	}
 
 	public String getOutputPath() {
