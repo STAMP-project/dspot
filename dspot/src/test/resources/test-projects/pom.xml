@@ -9,8 +9,8 @@
 
 	<properties>
 		<default.encoding>UTF-8</default.encoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>1.7</maven.compiler.source>
+		<maven.compiler.target>1.7</maven.compiler.target>
 	</properties>
 
 	<build>
@@ -24,25 +24,6 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-
-			<plugin>
-				<groupId>eu.stamp-project</groupId>
-				<artifactId>dspot-maven</artifactId>
-				<version>1.1.1-SNAPSHOT</version>
-				<configuration>
-					<amplifiers>
-						<amplifier>MethodAdd</amplifier>
-					</amplifiers>
-					<iteration>3</iteration>
-					<selector>PitMutantScoreSelector</selector>
-					<randomSeed>23</randomSeed>
-					<timeOutInMs>11110</timeOutInMs>
-					<tempDir>${project.basedir}/target/tmp</tempDir>
-					<outputPath>${project.basedir}/target/trash</outputPath>
-					<filter>example.*</filter>
-				</configuration>
-			</plugin>
-
 		</plugins>
 	</build>
 
@@ -53,5 +34,4 @@
 			<version>4.11</version>
 		</dependency>
 	</dependencies>
-
 </project>

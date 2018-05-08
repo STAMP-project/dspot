@@ -92,7 +92,6 @@ public class DSpotMojo extends AbstractMojo {
 	private File mavenHome;
 
 	public void execute() throws MojoExecutionException, MojoFailureException {
-
 		Configuration configuration = new Configuration(
 				// path to file
 				null,
