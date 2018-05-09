@@ -3,7 +3,6 @@ package fr.inria.diversify.dspot;
 import fr.inria.AbstractTest;
 import fr.inria.Utils;
 import fr.inria.diversify.dspot.amplifier.Amplifier;
-import fr.inria.diversify.dspot.amplifier.TestDataMutator;
 import fr.inria.diversify.dspot.amplifier.TestMethodCallAdder;
 import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
 import fr.inria.diversify.dspot.selector.TestSelector;
@@ -24,20 +23,6 @@ import static org.junit.Assert.assertEquals;
  * on 24/11/17
  */
 public class DSpotTest extends AbstractTest {
-
-    @Test
-    public void testInheritanceMethod() throws Exception {
-
-        /*
-            Test that DSpot can be run on an abstract test, using its implementation.
-         */
-
-        final InputConfiguration configuration = new InputConfiguration("src/test/resources/sample/sample.properties");
-        DSpot dspot = new DSpot(configuration, 3, Collections.singletonList(new TestDataMutator()), new JacocoCoverageSelector());
-        CtType<?> ctType = dspot.amplifyTest("fr.inria.inheritance.Inherited").get(0);
-        assertEquals(1, ctType.getMethods().size());
-        System.out.println(ctType);
-    }
 
     @Test
     public void testExcludedClassesInPropertyFile() throws Exception {
