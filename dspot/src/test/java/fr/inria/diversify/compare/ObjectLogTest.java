@@ -3,6 +3,8 @@ package fr.inria.diversify.compare;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -23,6 +25,14 @@ public class ObjectLogTest {
     }
 
     private static class MyInternalClass {
+        private static final ArrayList<Integer> list = new ArrayList<>();
+        static {
+            list.add(1);
+            list.add(2);
+            list.add(3);
+            list.add(4);
+            list.add(5);
+        }
         private int a;
         private int b;
         private static Random random = new Random();
@@ -30,6 +40,10 @@ public class ObjectLogTest {
         public MyInternalClass(int a, int b) {
             this.a = a;
             this.b = b;
+        }
+
+        public List<Integer> getObject() {
+            return list.subList(0, 2);
         }
 
         public int getA() {
@@ -66,7 +80,7 @@ public class ObjectLogTest {
         assertNotNull(add__0);
         assertEquals(1, add__0.getNotDeterministValues().size());
         final Map<String, Object> observationValues = add__0.getObservationValues();
-        assertEquals(4, observationValues.size());
+        assertEquals(7, observationValues.size());
         assertEquals(25, observationValues.get("((fr.inria.diversify.compare.ObjectLogTest.MyInternalClass)myInternalClass ).compute()"));
         assertEquals(3, observationValues.get("((fr.inria.diversify.compare.ObjectLogTest.MyInternalClass)myInternalClass ).getA()"));
         assertEquals(20, observationValues.get("((fr.inria.diversify.compare.ObjectLogTest.MyInternalClass)myInternalClass ).getB()"));
