@@ -309,7 +309,7 @@ public class Amplification {
 	 * @param currentTestList New test methods to run
 	 * @return Results of tests run or {@code null} if a test failed or could not be run (uncompilable)
 	 */
-	private TestListener compileAndRunTestsNoFail(CtType classTest, List<CtMethod<?>> currentTestList) {
+	public TestListener compileAndRunTestsNoFail(CtType classTest, List<CtMethod<?>> currentTestList) {
 		final TestListener result = compileAndRunTests(classTest, currentTestList);
 		final long numberOfSubClasses = classTest.getFactory().Class().getAll().stream()
 				.filter(subClass -> classTest.getReference().equals(subClass.getSuperclass()))
@@ -319,7 +319,7 @@ public class Amplification {
 				(!classTest.getModifiers().contains(ModifierKind.ABSTRACT) &&
 						result.getRunningTests().size() != currentTestList.size()) ||
 				(classTest.getModifiers().contains(ModifierKind.ABSTRACT) &&
-						numberOfSubClasses != result.getRunningTests().size())) {
+						result.getRunningTests().size() != (numberOfSubClasses * currentTestList.size()))) {
 			return null;
 		} else {
 			return result;

@@ -14,4 +14,9 @@ public abstract class Inherited {
         assertEquals(1, new fr.inria.inheritance.InheritanceSource().method(getValueToBeAsserted()));
     }
 
+    @Test
+    public void test2() {
+        assertEquals(1, new fr.inria.inheritance.InheritanceSource().method(getValueToBeAsserted()));
+    }
+
 }
