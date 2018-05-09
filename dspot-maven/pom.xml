@@ -52,11 +52,6 @@
 	</build>
 
 	<dependencies>
-		<dependency>
-			<groupId>eu.stamp-project</groupId>
-			<artifactId>dspot</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 
 		<dependency>
 			<groupId>eu.stamp-project</groupId>
