@@ -132,13 +132,9 @@ public class DSpot {
     }
 
     public List<CtType> amplifyAllTestsNames(List<String> fullQualifiedNameTestClasses) {
-        return amplifyAllTests(inputProgram.getFactory().Class().getAll().stream()
-                .filter(ctClass -> !ctClass.getModifiers().contains(ModifierKind.ABSTRACT))
-                .filter(ctClass ->
-                        ctClass.getMethods().stream()
-                                .anyMatch(AmplificationChecker::isTest))
-                .filter(ctType -> fullQualifiedNameTestClasses.contains(ctType.getQualifiedName()))
-                .collect(Collectors.toList()));
+        return fullQualifiedNameTestClasses.stream()
+                .flatMap(fullQualifiedNameTestClass -> this.amplifyTest(fullQualifiedNameTestClass).stream())
+                .collect(Collectors.toList());
     }
 
     public List<CtType> amplifyAllTests(List<CtType> testClasses) {
