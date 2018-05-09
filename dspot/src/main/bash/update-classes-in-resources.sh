@@ -6,7 +6,4 @@
 # this is done to have matched version with sources and compiled resources
 
 rm -rf src/main/resources/compare/
-rm -rf src/main/resources/listener/
-mkdir --parent src/main/resources/listener/
 cp -r target/classes/fr/inria/diversify/compare/ src/main/resources/compare/
-cp target/classes/fr/inria/stamp/test/listener/TestListener.class src/main/resources/listener/TestListener.class
