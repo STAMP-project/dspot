@@ -10,6 +10,21 @@
 
 #### Steps to reproduce
 
+##### Properties file
+
+```java
+project=.
+src=src/main/java/
+testSrc=src/test/java/
+```
+
+##### Command Line / Options
+
+```shell
+java -jar target/dspot-USED-VERSION-jar-with-dependencies.jar \
+-p myPropertiesFile.properties
+```
+
 #### Other files and URLs
 
 #### Relationships
