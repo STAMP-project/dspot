@@ -42,7 +42,7 @@ public class DSpotCompilerTest {
         final InputProgram inputProgram = getInputProgram();
         final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(inputProgram, "");
         final CtClass<?> aClass = getClass(compiler.getLauncher().getFactory());
-        final List<CtMethod<?>> compile = TestCompiler.compile(compiler, aClass, "");
+        final List<CtMethod<?>> compile = TestCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, "");
         assertTrue(compile.isEmpty());
         assertEquals(1, aClass.getMethods().size());
 
@@ -55,7 +55,7 @@ public class DSpotCompilerTest {
                 .findFirst()
                 .get();
 
-        final List<CtMethod<?>> results = TestCompiler.compile(compiler, aClass, "");
+        final List<CtMethod<?>> results = TestCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, "");
         assertEquals(1, results.size());
         assertEquals("uncompilableTest", results.get(0).getSimpleName());
         assertEquals(uncompilableTest, results.get(0));
