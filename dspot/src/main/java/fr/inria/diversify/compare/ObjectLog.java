@@ -1,9 +1,11 @@
 package fr.inria.diversify.compare;
 
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
@@ -65,10 +67,11 @@ public class ObjectLog {
                       int deep,
                       List<Method> methodsToReachCurrentObject) {
         if (deep < maxDeep) {
-            if (objectToObserve == null ||
-                    Utils.isPrimitive(objectToObserve) ||
-                    Utils.isPrimitiveArray(objectToObserve) ||
-                    Utils.isPrimitiveCollectionOrMap(objectToObserve)) {
+            if (isSerializable(objectToObserve) &&
+                    (objectToObserve == null ||
+                            Utils.isPrimitive(objectToObserve) ||
+                            Utils.isPrimitiveArray(objectToObserve) ||
+                            Utils.isPrimitiveCollectionOrMap(objectToObserve))) {
                 addObservation(id, observedObjectAsString, objectToObserve);
             } else if (!objectToObserve.getClass().getName().toLowerCase().contains("mock")) {
                 observeNotNullObject(
@@ -80,6 +83,15 @@ public class ObjectLog {
                         methodsToReachCurrentObject
                 );
             }
+        }
+    }
+
+    private boolean isSerializable(Object candidate) {
+        try {
+            new ObjectOutputStream(new ByteArrayOutputStream()).writeObject(candidate);
+            return true;
+        } catch (IOException e) {
+            return false;
         }
     }
 
@@ -192,8 +204,8 @@ public class ObjectLog {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        } catch (Exception e){
-           throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
