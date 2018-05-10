@@ -1,5 +1,6 @@
 package fr.inria.diversify.dspot;
 
+import eu.stamp.project.testrunner.runner.test.Failure;
 import eu.stamp.project.testrunner.runner.test.TestListener;
 import fr.inria.diversify.dspot.amplifier.Amplifier;
 import fr.inria.diversify.dspot.assertGenerator.AssertGenerator;
@@ -115,9 +116,13 @@ public class Amplification {
                     LOGGER.info("{} amplified test(s) has been selected, global: {}", this.testSelector.getAmplifiedTestCases().size() - ampTestCount, this.testSelector.getAmplifiedTestCases().size());
                     ampTestCount = this.testSelector.getAmplifiedTestCases().size();
 				} else {
-					LOGGER.info("{} / {} test cases failed!",
-							result.getFailingTests().size(),
-							result.getRunningTests().size()
+					throw new RuntimeException(result.getFailingTests().size() +
+							"/ " + result.getRunningTests().size() + " test cases failed!"
+							+ AmplificationHelper.LINE_SEPARATOR +
+							result.getFailingTests()
+									.stream()
+									.map(Failure::toString)
+									.collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR))
 					);
 				}
 			}
