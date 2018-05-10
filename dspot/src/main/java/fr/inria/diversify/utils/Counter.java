@@ -82,7 +82,7 @@ public class Counter {
         return countAssertion;
     }
 
-    private static void updateGivenMap(CtMethod method, int number, Map<String, Integer> mapToBeUpdated) {
+    private synchronized static void updateGivenMap(CtMethod method, int number, Map<String, Integer> mapToBeUpdated) {
         if (!mapToBeUpdated.containsKey(method.getSimpleName())) {
             mapToBeUpdated.put(method.getSimpleName(), 0);
         }
