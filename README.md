@@ -97,9 +97,6 @@ testSrc=src/test/java
 javaVersion=8
 #path to the output folder
 outputDirectory=target/trash/
-# Constant amount of additional time to allow a test to run for
-# before considering it to be stuck in an infinite loop
-timeoutConstInMillis=10000
 #Argument string to use when PIT launches child processes. This is most commonly used
 # to increase the amount of memory available to the process,
 # but may be used to pass any valid JVM argument.
