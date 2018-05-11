@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -156,10 +157,11 @@ public class ObjectLog {
                                 tmpListOfMethodsToReachCurrentObject
                         );
                     } else {
+                        String nameOfVisibleClass = getVisibleClass(currentObservedClass);
                         _log(startingObject,
                                 result,
                                 method.getReturnType(),
-                                "((" + currentObservedClass.getCanonicalName() + ")" + stringObject + ")." + method.getName() + "()",
+                                "(" + nameOfVisibleClass + stringObject + ")." + method.getName() + "()",
                                 id,
                                 deep + 1,
                                 tmpListOfMethodsToReachCurrentObject
@@ -172,6 +174,17 @@ public class ObjectLog {
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private String getVisibleClass(Class<?> currentObservedClass) {
+        if (currentObservedClass == null || currentObservedClass == Object.class) {
+            return "";
+        } else if (Modifier.isPrivate(currentObservedClass.getModifiers()) ||
+                Modifier.isProtected(currentObservedClass.getModifiers())) {
+            return getVisibleClass(currentObservedClass.getSuperclass());
+        } else {
+            return "(" + currentObservedClass.getCanonicalName() + ")";
         }
     }
 
