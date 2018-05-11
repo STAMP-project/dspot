@@ -156,14 +156,13 @@ public class SelectorOnDiff {
 
         // if no test could be find, amplify all the test methods inside modified test classes
         if (selectedTestMethods.isEmpty()) {
-            selection.putAll(getTestMethodsOfModifiedTestClasses(modifiedJavaFiles));
+            selectedTestMethods.addAll(getTestMethodsOfModifiedTestClasses(modifiedJavaFiles));
         }
-        if (selection.isEmpty()) {
+        if (selectedTestMethods.isEmpty()) {
             LOGGER.warn("No tests could be found for {}", modifiedJavaFiles);
             LOGGER.warn("DSpot will stop here, since it cannot find any tests to amplify according to the provided diff");
             return selection;
         }
-
         for (CtMethod selectedTestMethod : selectedTestMethods) {
             final CtType parent = selectedTestMethod.getParent(CtType.class);
             if (!selection.containsKey(parent.getQualifiedName())) {
@@ -174,7 +173,7 @@ public class SelectorOnDiff {
         return selection;
     }
 
-    private Map<String, List<String>> getTestMethodsOfModifiedTestClasses(Set<String> modifiedJavaFiles) {
+    private Set<CtMethod> getTestMethodsOfModifiedTestClasses(Set<String> modifiedJavaFiles) {
         return modifiedJavaFiles.stream()
                 .filter(presentInBothVersion)
                 .map(modifiedJavaFile -> {
@@ -186,18 +185,12 @@ public class SelectorOnDiff {
                 })
                 .map(fullQualifiedName -> this.factory.Class().get(fullQualifiedName))
                 .filter(potentialTestClass -> potentialTestClass.getMethods().stream().anyMatch(AmplificationChecker::isTest))
-                .collect(Collectors.toMap(
-                        CtType::getQualifiedName,
-                        testClass -> testClass.getMethods()
-                                .stream()
-                                .filter(AmplificationChecker::isTest)
-                                .map(CtMethod::getSimpleName)
-                                .collect(Collectors.toList())
-                        )
-                );
+                .flatMap(testClass -> testClass.getMethods().stream().filter(AmplificationChecker::isTest))
+                .collect(Collectors.toSet());
     }
 
-    private Predicate<String> presentInBothVersion = pathToClass ->   new File(configuration.getProperties().getProperty("project") + pathToClass.substring(1)).exists() &&
+    private Predicate<String> presentInBothVersion = pathToClass ->
+            new File(configuration.getProperties().getProperty("project") + pathToClass.substring(1)).exists() &&
             new File(configuration.getProperties().getProperty("folderPath") + pathToClass.substring(1)).exists();
 
     private Set<CtMethod<?>> getMethodsOfTestClassesAccordingToModifiedJavaFiles(Set<String> modifiedJavaFiles) {
