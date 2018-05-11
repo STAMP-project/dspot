@@ -4,6 +4,7 @@ import fr.inria.diversify.utils.AmplificationChecker;
 import fr.inria.diversify.utils.DSpotUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.code.CtStatement;
@@ -46,25 +47,31 @@ public class GeneralMinimizer implements Minimizer {
     }
 
     private void removeRedundantAssertions(CtMethod<?> amplifiedTestToBeMinimized) {
-        final List<CtInvocation<?>> assertions = amplifiedTestToBeMinimized.getElements(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
-            @Override
-            public boolean matches(CtInvocation<?> element) {
-                return AmplificationChecker.isAssert(element);
-            }
-        });
-        final List<CtInvocation<?>> duplicatesAssertions = findDuplicates(assertions); // One of them might be removed
-        final List<CtStatement> statements = amplifiedTestToBeMinimized.getBody().getStatements();
-        duplicatesAssertions.forEach(duplicatesAssertion -> {
-            DSpotUtils.printProgress(duplicatesAssertions.indexOf(duplicatesAssertion), duplicatesAssertions.size());
-            removeUselessDuplicateAssertions(
-                    amplifiedTestToBeMinimized,
-                    duplicatesAssertion,
-                    statements
-            );
-        });
+
+        amplifiedTestToBeMinimized.getElements(new TypeFilter<>(CtBlock.class))
+                .forEach(block -> {
+                    final List<CtInvocation<?>> assertions =
+                            block.getElements(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
+                                @Override
+                                public boolean matches(CtInvocation<?> element) {
+                                    return element.getParent(CtBlock.class).equals(block) &&
+                                            AmplificationChecker.isAssert(element);
+                                }
+                            });
+                    final List<CtInvocation<?>> duplicatesAssertions = findDuplicates(assertions); // One of them might be removed
+                    final List<CtStatement> statements = block.getStatements();
+                    duplicatesAssertions.forEach(duplicatesAssertion -> {
+                        DSpotUtils.printProgress(duplicatesAssertions.indexOf(duplicatesAssertion), duplicatesAssertions.size());
+                        removeUselessDuplicateAssertions(
+                                block,
+                                duplicatesAssertion,
+                                statements
+                        );
+                    });
+                });
     }
 
-    private void removeUselessDuplicateAssertions(CtMethod<?> amplifiedTestToBeMinimized,
+    private void removeUselessDuplicateAssertions(CtBlock<?> block,
                                                   CtInvocation<?> duplicatesAssertion,
                                                   List<CtStatement> statements) {
         final CtVariableReference variable = ((CtVariableRead<?>) duplicatesAssertion
@@ -75,7 +82,7 @@ public class GeneralMinimizer implements Minimizer {
         for (int i = statements.indexOf(duplicatesAssertion) + 1;
              i < statements.lastIndexOf(duplicatesAssertion); i++) {
             if (!AmplificationChecker.isAssert(statements.get(i))) {
-                final CtVariableRead<?> first = (CtVariableRead<?>) statements.get(i)
+                final CtVariableRead<?> first = statements.get(i)
                         .filterChildren(new TypeFilter<CtVariableRead<?>>(CtVariableRead.class) {
                             @Override
                             public boolean matches(CtVariableRead<?> element) {
@@ -89,9 +96,7 @@ public class GeneralMinimizer implements Minimizer {
             }
         }
         if (canBeRemoved) {
-            amplifiedTestToBeMinimized.getBody().getStatements().remove(
-                    statements.lastIndexOf(duplicatesAssertion)
-            );
+            block.getStatements().remove(statements.lastIndexOf(duplicatesAssertion));
         }
     }
 
@@ -104,10 +109,12 @@ public class GeneralMinimizer implements Minimizer {
 
     private static final class LOCAL_VARIABLE_READ_FILTER extends TypeFilter<CtVariableRead> {
         private CtLocalVariableReference localVariableReference;
+
         LOCAL_VARIABLE_READ_FILTER(CtLocalVariable localVariable) {
             super(CtVariableRead.class);
             this.localVariableReference = localVariable.getReference();
         }
+
         @Override
         public boolean matches(CtVariableRead element) {
             return localVariableReference.equals(element.getVariable());
