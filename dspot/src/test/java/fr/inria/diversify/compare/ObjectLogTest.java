@@ -81,9 +81,9 @@ public class ObjectLogTest {
         assertEquals(1, add__0.getNotDeterministValues().size());
         final Map<String, Object> observationValues = add__0.getObservationValues();
         assertEquals(7, observationValues.size());
-        assertEquals(25, observationValues.get("((fr.inria.diversify.compare.ObjectLogTest.MyInternalClass)myInternalClass ).compute()"));
-        assertEquals(3, observationValues.get("((fr.inria.diversify.compare.ObjectLogTest.MyInternalClass)myInternalClass ).getA()"));
-        assertEquals(20, observationValues.get("((fr.inria.diversify.compare.ObjectLogTest.MyInternalClass)myInternalClass ).getB()"));
-        assertTrue(add__0.getNotDeterministValues().contains("((fr.inria.diversify.compare.ObjectLogTest.MyInternalClass)myInternalClass ).random()"));
+        assertEquals(25, observationValues.get("(myInternalClass ).compute()"));
+        assertEquals(3, observationValues.get("(myInternalClass ).getA()"));
+        assertEquals(20, observationValues.get("(myInternalClass ).getB()"));
+        assertTrue(add__0.getNotDeterministValues().contains("(myInternalClass ).random()"));
     }
 }
