@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.IntFunction;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -149,11 +150,18 @@ public class SelectorOnDiff {
                 // we select the super class to be amplified
                 if (!methodsOfTestClassesAccordingToModifiedJavaFiles.isEmpty()) {
                     selectedTestMethods.addAll(methodsOfTestClassesAccordingToModifiedJavaFiles);
-                } else {
-                    LOGGER.warn("No tests could be found for {}", modifiedJavaFiles);
-                    LOGGER.warn("DSpot will stop here, since it cannot find any tests to amplify according to the provided diff");
                 }
             }
+        }
+
+        // if no test could be find, amplify all the test methods inside modified test classes
+        if (selectedTestMethods.isEmpty()) {
+            selection.putAll(getTestMethodsOfModifiedTestClasses(modifiedJavaFiles));
+        }
+        if (selection.isEmpty()) {
+            LOGGER.warn("No tests could be found for {}", modifiedJavaFiles);
+            LOGGER.warn("DSpot will stop here, since it cannot find any tests to amplify according to the provided diff");
+            return selection;
         }
 
         for (CtMethod selectedTestMethod : selectedTestMethods) {
@@ -166,14 +174,40 @@ public class SelectorOnDiff {
         return selection;
     }
 
+    private Map<String, List<String>> getTestMethodsOfModifiedTestClasses(Set<String> modifiedJavaFiles) {
+        return modifiedJavaFiles.stream()
+                .filter(presentInBothVersion)
+                .map(modifiedJavaFile -> {
+                    final String directoryPath = (this.configuration.getProperty("targetModule") +
+                            (this.configuration.getProperty("targetModule").isEmpty() ? "" : "/") +
+                            this.configuration.getRelativeSourceCodeDir());
+                    final String qualifiedNameWithExtension = modifiedJavaFile.substring(directoryPath.length() + 2).replaceAll("/", ".");
+                    return qualifiedNameWithExtension.substring(0, qualifiedNameWithExtension.length() - ".java".length());
+                })
+                .map(fullQualifiedName -> this.factory.Class().get(fullQualifiedName))
+                .filter(potentialTestClass -> potentialTestClass.getMethods().stream().anyMatch(AmplificationChecker::isTest))
+                .collect(Collectors.toMap(
+                        CtType::getQualifiedName,
+                        testClass -> testClass.getMethods()
+                                .stream()
+                                .filter(AmplificationChecker::isTest)
+                                .map(CtMethod::getSimpleName)
+                                .collect(Collectors.toList())
+                        )
+                );
+    }
+
+    private Predicate<String> presentInBothVersion = pathToClass ->   new File(configuration.getProperties().getProperty("project") + pathToClass.substring(1)).exists() &&
+            new File(configuration.getProperties().getProperty("folderPath") + pathToClass.substring(1)).exists();
+
     private Set<CtMethod<?>> getMethodsOfTestClassesAccordingToModifiedJavaFiles(Set<String> modifiedJavaFiles) {
         final List<String> candidateTestClassName = modifiedJavaFiles.stream()
-                .filter(pathToClass ->
-                        new File(configuration.getProperties().getProperty("project") + pathToClass.substring(1)).exists() &&
-                                new File(configuration.getProperties().getProperty("folderPath") + pathToClass.substring(1)).exists() // it is present in both versions
-                )
+                .filter(presentInBothVersion)
                 .flatMap(pathToClass -> {
-                    final String[] split = pathToClass.substring(this.configuration.getRelativeSourceCodeDir().length() + 2).split("/");
+                    final String directoryPath = (this.configuration.getProperty("targetModule") +
+                            (this.configuration.getProperty("targetModule").isEmpty() ? "" : "/") +
+                            this.configuration.getRelativeSourceCodeDir());
+                    final String[] split = pathToClass.substring(directoryPath.length() + 2).split("/");
                     final String nameOfTestClass = split[split.length - 1].split("\\.")[0];
                     final String qualifiedName = IntStream.range(0, split.length - 1).mapToObj(value -> split[value]).collect(Collectors.joining("."));
                     return Stream.of(
@@ -182,7 +216,7 @@ public class SelectorOnDiff {
                     );
                 }).collect(Collectors.toList());
         // test classes directly dedicated to modified java files.
-        final Set<CtMethod<?>> directTestClasses = candidateTestClassName.stream()
+        return candidateTestClassName.stream()
                 .map(testClassName -> this.factory.Type().get(testClassName))
                 .filter(testClass ->
                         testClass != null &&
@@ -202,7 +236,6 @@ public class SelectorOnDiff {
                 })
                 .filter(AmplificationChecker::isTest)
                 .collect(Collectors.toSet());
-        return directTestClasses;
     }
 
     private List<CtMethod<?>> getTestMethodsAccordingToNameOfModifiedMethod(Set<CtMethod> modifiedMethods) {
