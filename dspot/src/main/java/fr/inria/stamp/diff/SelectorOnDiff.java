@@ -197,12 +197,16 @@ public class SelectorOnDiff {
         final List<String> candidateTestClassName = modifiedJavaFiles.stream()
                 .filter(presentInBothVersion)
                 .flatMap(pathToClass -> {
-                    final String directoryPath = (this.configuration.getProperty("targetModule") +
-                            (this.configuration.getProperty("targetModule").isEmpty() ? "" : "/") +
-                            this.configuration.getRelativeSourceCodeDir());
+                    final String directoryPath =
+                            (this.configuration.getProperty("targetModule") != null ?
+                                    this.configuration.getProperty("targetModule") + "/" : ""
+                            ) + this.configuration.getRelativeSourceCodeDir();
                     final String[] split = pathToClass.substring(directoryPath.length() + 2).split("/");
                     final String nameOfTestClass = split[split.length - 1].split("\\.")[0];
-                    final String qualifiedName = IntStream.range(0, split.length - 1).mapToObj(value -> split[value]).collect(Collectors.joining("."));
+                    final String qualifiedName = IntStream
+                            .range(0, split.length - 1)
+                            .mapToObj(value -> split[value])
+                            .collect(Collectors.joining("."));
                     return Stream.of(
                             qualifiedName + "." + nameOfTestClass + "Test",
                             qualifiedName + "." + "Test" + nameOfTestClass
