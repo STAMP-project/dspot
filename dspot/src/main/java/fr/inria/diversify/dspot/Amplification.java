@@ -136,7 +136,6 @@ public class Amplification {
                     testsToBeAmplified.size(),
                     currentTestList.size()
             );
-
             currentTestList = AmplificationHelper.reduce(inputAmplifyTests(testsToBeAmplified));
             List<CtMethod<?>> testsWithAssertions = assertGenerator.generateAsserts(classTest, currentTestList);
             if (testsWithAssertions.isEmpty()) {
