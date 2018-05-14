@@ -174,6 +174,14 @@ public class AssertGeneratorTest extends AbstractTest {
 		assertTrue(generatedAssertion.isEmpty());
 	}
 
+	@Test
+	public void testMakeExpectedFailureTest() throws Exception {
+		CtClass<?> testClass = Utils.findClass("fr.inria.filter.passing.PassingTest");
+		final CtMethod testAssertionError = Utils.findMethod("fr.inria.filter.passing.PassingTest", "testNPEExpected");
+		final List<CtMethod<?>> generatedAssertion = assertGenerator.assertionAmplification(testClass, Collections.singletonList(testAssertionError));
+		assertTrue(generatedAssertion.isEmpty());
+	}
+
 	private static final String expectedBody = "{" + AmplificationHelper.LINE_SEPARATOR +
 			"    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + AmplificationHelper.LINE_SEPARATOR +
 			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithBoolean)cl).getBoolean());" + AmplificationHelper.LINE_SEPARATOR +

@@ -2,6 +2,7 @@ package fr.inria.filter.passing;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 /**
@@ -19,5 +20,11 @@ public class PassingTest {
     @Test
     public void failingTestCase() throws Exception {
         assertFalse(true);
+    }
+
+    @Test (expected = NullPointerException.class)
+    public void testNPEExpected() throws Exception {
+        String nullString = null;
+        assertEquals(-1, nullString.length());
     }
 }
