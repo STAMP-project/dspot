@@ -203,8 +203,7 @@ public class Amplification {
             final List<CtMethod<?>> amplifiedTestToBeKept = assertGenerator.generateAsserts(
                     classTest, testSelector.selectToAmplify(tests));
             if (!amplifiedTestToBeKept.isEmpty()) {
-                // TODO is this mandatory???
-                //compileAndRunTests(classTest, amplifiedTestToBeKept);
+                compileAndRunTests(classTest, amplifiedTestToBeKept);
                 testSelector.selectToKeep(amplifiedTestToBeKept);
                 return testSelector.getAmplifiedTestCases();
             } else {
