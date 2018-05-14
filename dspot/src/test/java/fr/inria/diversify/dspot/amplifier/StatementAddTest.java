@@ -12,7 +12,9 @@ import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -26,7 +28,6 @@ public class StatementAddTest extends AbstractTest {
 
     @Test
     public void testWithLoop() throws Exception {
-
         /*
             Test that StatementAdd amplifier is able to add statement inside a loop if this loop has not brackets
          */
@@ -42,7 +43,7 @@ public class StatementAddTest extends AbstractTest {
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTarget"), "testWithLoop");
         List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod);
 
-        assertEquals("{" + AmplificationHelper.LINE_SEPARATOR +
+        final String expectedTest = "{" + AmplificationHelper.LINE_SEPARATOR +
                 "    java.util.ArrayList<fr.inria.statementadd.TestClassTarget.Internal> internalList = new java.util.ArrayList<>();" + AmplificationHelper.LINE_SEPARATOR +
                 "    internalList.add(new fr.inria.statementadd.TestClassTarget.Internal());" + AmplificationHelper.LINE_SEPARATOR +
                 "    for (fr.inria.statementadd.TestClassTarget.Internal i : internalList) {" + AmplificationHelper.LINE_SEPARATOR +
@@ -51,7 +52,12 @@ public class StatementAddTest extends AbstractTest {
                 "        // StatementAdd: add invocation of a method" + AmplificationHelper.LINE_SEPARATOR +
                 "        i.compute(__DSPOT_i_0);" + AmplificationHelper.LINE_SEPARATOR +
                 "    }" + AmplificationHelper.LINE_SEPARATOR +
-                "}", amplifiedMethods.get(0).getBody().toString());
+                "}";
+
+        String amplifiedTestString = amplifiedMethods.get(0).getBody().toString();
+        Set<String> testLines = new HashSet<>(Arrays.asList(amplifiedTestString.split(AmplificationHelper.LINE_SEPARATOR)));
+        Set<String> expectedLines = new HashSet<>(Arrays.asList(expectedTest.split(AmplificationHelper.LINE_SEPARATOR)));
+        assertEquals(expectedLines, testLines);
     }
 
     @Test

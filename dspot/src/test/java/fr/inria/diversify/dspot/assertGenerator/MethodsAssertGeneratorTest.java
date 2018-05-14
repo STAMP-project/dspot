@@ -99,27 +99,31 @@ public class MethodsAssertGeneratorTest extends AbstractTest {
 				- Collection: with elements (assertTrue(contains())) and empty (assertTrue(isEmpty()))
 				//TODO support generation of assertion on array and on map
 		 */
-        CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
-        MethodsAssertGenerator mag = new MethodsAssertGenerator(testClass, Utils.getInputConfiguration(), Utils.getCompiler());
-        CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithoutAssert", "test1");
-        List<CtMethod<?>> test1_buildNewAssert = mag.generateAsserts(testClass, Collections.singletonList(test1));
-        assertEquals(expectedBody, test1_buildNewAssert.get(0).getBody().toString());
+		CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
+		MethodsAssertGenerator mag = new MethodsAssertGenerator(testClass, Utils.getInputConfiguration(), Utils.getCompiler());
+		CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithoutAssert", "test1");
+		List<CtMethod<?>> test1_buildNewAssert = mag.generateAsserts(testClass, Collections.singletonList(test1));
+		String testStringOutput = test1_buildNewAssert.get(0).getBody().toString();
+		Set<String> testLines = new HashSet<>(Arrays.asList(testStringOutput.split(AmplificationHelper.LINE_SEPARATOR)));
+		Set<String> expectedLines = new HashSet<>(Arrays.asList(expectedBody.split(AmplificationHelper.LINE_SEPARATOR)));
+		assertEquals(expectedLines, testLines);
     }
 
 	@Test
 	public void testBuildNewAssertWithComment() throws Exception {
-
 		/*
 			Same as testBuildNewAssert but with Comment enabled
 		 */
-
 		DSpotUtils.withComment = true;
 
 		CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
 		MethodsAssertGenerator mag = new MethodsAssertGenerator(testClass, Utils.getInputConfiguration(), Utils.getCompiler());
 		CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithoutAssert", "test1");
 		List<CtMethod<?>> test1_buildNewAssert = mag.generateAsserts(testClass, Collections.singletonList(test1));
-		assertEquals(expectedBodyWithComment, test1_buildNewAssert.get(0).getBody().toString());
+		String testStringOutput = test1_buildNewAssert.get(0).getBody().toString();
+		Set<String> testLines = new HashSet<>(Arrays.asList(testStringOutput.split(AmplificationHelper.LINE_SEPARATOR)));
+		Set<String> expectedLines = new HashSet<>(Arrays.asList(expectedBodyWithComment.split(AmplificationHelper.LINE_SEPARATOR)));
+		assertEquals(expectedLines, testLines);
 	}
 
 	@Test

@@ -10,7 +10,10 @@ import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -146,15 +149,16 @@ public class AssertGeneratorHelperTest extends AbstractTest {
                 "    fr.inria.diversify.compare.ObjectLog.log(clazz, \"clazz\", \"test_sd6__1___end\");" + AmplificationHelper.LINE_SEPARATOR +
                 "}";
 
-        assertEquals(expectedInstrumentedBodyAfterAmplification_test_sd6_withlog,
-                instrumentedAmplifiedTests.stream()
-                        .filter(ctMethod1 ->
-                                "test_sd6_withlog".equals(ctMethod1.getSimpleName())
-                        ).findFirst()
-                        .get()
-                        .getBody()
-                        .toString());
-
+        final String testStringOutput = instrumentedAmplifiedTests.stream()
+                .filter(ctMethod1 ->
+                        "test_sd6_withlog".equals(ctMethod1.getSimpleName())
+                ).findFirst()
+                .get()
+                .getBody()
+                .toString();
+        Set<String> testLines = new HashSet<>(Arrays.asList(testStringOutput.split(AmplificationHelper.LINE_SEPARATOR)));
+        Set<String> expectedLines = new HashSet<>(Arrays.asList(expectedInstrumentedBodyAfterAmplification_test_sd6_withlog.split(AmplificationHelper.LINE_SEPARATOR)));
+        assertEquals(expectedLines, testLines);
     }
 
     @Test
