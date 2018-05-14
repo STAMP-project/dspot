@@ -137,7 +137,7 @@ public class Amplification {
                     currentTestList.size()
             );
             currentTestList = AmplificationHelper.reduce(inputAmplifyTests(testsToBeAmplified));
-            List<CtMethod<?>> testsWithAssertions = assertGenerator.generateAsserts(classTest, currentTestList);
+            List<CtMethod<?>> testsWithAssertions = assertGenerator.assertionAmplification(classTest, currentTestList);
             if (testsWithAssertions.isEmpty()) {
                 continue;
             } else {
@@ -167,7 +167,7 @@ public class Amplification {
     /**
      * Adds new assertions in multiple tests.
      * <p>
-     * <p>Makes sure the test suite is valid before the assertion amplification {@link AssertGenerator#generateAsserts(CtType, List)}.
+     * <p>Makes sure the test suite is valid before the assertion amplification {@link AssertGenerator#assertionAmplification(CtType, List)}.
      *
      * @param classTest Test class
      * @param tests     New test methods
@@ -199,7 +199,7 @@ public class Amplification {
             return preAmplification(classTest, tests);
         } else {
             LOGGER.info("Try to add assertions before amplification");
-            final List<CtMethod<?>> amplifiedTestToBeKept = assertGenerator.generateAsserts(
+            final List<CtMethod<?>> amplifiedTestToBeKept = assertGenerator.assertionAmplification(
                     classTest, testSelector.selectToAmplify(tests));
             if (!amplifiedTestToBeKept.isEmpty()) {
                 compileAndRunTests(classTest, amplifiedTestToBeKept);

@@ -1,6 +1,5 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
-import eu.stamp.project.testrunner.runner.test.TestListener;
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
 import fr.inria.diversify.dspot.AmplificationException;
@@ -66,7 +65,7 @@ public class MethodsAssertGenerator {
      * @param testCases Passing test methods
      * @return New tests with new assertions generated from observation points values
      */
-    public List<CtMethod<?>> addAssertions(CtType<?> testClass, List<CtMethod<?>> testCases) throws IOException, ClassNotFoundException {
+    public List<CtMethod<?>> addAssertions(CtType<?> testClass, List<CtMethod<?>> testCases) {
         CtType clone = testClass.clone();
         testClass.getPackage().addType(clone);
         LOGGER.info("Add observations points in passing tests.");
