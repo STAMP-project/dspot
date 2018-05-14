@@ -123,9 +123,6 @@ public class AssertGeneratorHelperTest extends AbstractTest {
          * To do this, it will check that the instrumentation does not add observation points on those objects.
          * If no observation point is added, any assertion would be generated.
          * We verify the number of ObjectLog.log statement inside the instrumented tests
-         *
-         * TODO: verify the instrumentation
-         *
          */
 
         final String packageName = "fr.inria.statementaddarray";
