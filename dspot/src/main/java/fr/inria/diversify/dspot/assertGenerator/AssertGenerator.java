@@ -5,11 +5,13 @@ import fr.inria.diversify.dspot.AmplificationException;
 import fr.inria.diversify.utils.compilation.DSpotCompiler;
 import fr.inria.diversify.utils.compilation.TestCompiler;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -130,8 +132,22 @@ public class AssertGenerator {
         if (!failuresMethodName.isEmpty()) {
             LOGGER.info("{} test fail, generating try/catch/fail blocks...", failuresMethodName.size());
             final List<CtMethod<?>> failingTests = tests.stream()
-                    .filter(ctMethod ->
-                            failuresMethodName.contains(ctMethod.getSimpleName()))
+                    .filter(ctMethod -> {
+                                if (failuresMethodName.contains(ctMethod.getSimpleName())) {
+                                    Annotation annotation = ctMethod.getAnnotation(org.junit.Test.class);
+                                    if (annotation != null) {
+                                        Class expected_exception = ((Test) annotation).expected();
+                                        if (expected_exception != org.junit.Test.None.class) {
+                                            final String nameRaisedException = testResult.getFailureOf(ctMethod.getSimpleName()).fullQualifiedNameOfException;
+                                            final String nameExpectedException = expected_exception.getName();
+                                            // the raised exception should be unexpected
+                                            return nameExpectedException.equals(nameRaisedException);
+                                        }
+                                    }
+                                }
+                                return false;
+                            }
+                    )
                     .map(ctMethod ->
                             this.tryCatchFailGenerator
                                     .surroundWithTryCatchFail(ctMethod, testResult.getFailureOf(ctMethod.getSimpleName()))
