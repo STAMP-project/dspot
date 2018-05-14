@@ -38,14 +38,14 @@ public class AssertBuilder {
                                     false
                             );
                             if (value == null) {
-                                expressions.add(buildInvocation(factory, "assertNull",
+                                expressions.add(AssertGeneratorHelper.buildInvocation(factory, "assertNull",
                                         Collections.singletonList(variableRead))
                                 );
                                 variableRead.setType(factory.Type().NULL_TYPE);
                             } else {
                                 if (value instanceof Boolean) {
                                     expressions.add(
-                                            buildInvocation(factory,
+                                            AssertGeneratorHelper.buildInvocation(factory,
                                                     (Boolean) value ? "assertTrue" : "assertFalse",
                                                     Collections.singletonList(variableRead)
                                             )
@@ -58,7 +58,7 @@ public class AssertBuilder {
                                         final CtInvocation<?> isEmpty = factory.createInvocation(variableRead,
                                                 factory.Type().get(Collection.class).getMethodsByName("isEmpty").get(0).getReference()
                                         );
-                                        expressions.add(buildInvocation(factory, "assertTrue",
+                                        expressions.add(AssertGeneratorHelper.buildInvocation(factory, "assertTrue",
                                                 Collections.singletonList(isEmpty))
                                         );
                                     } else {
@@ -70,7 +70,7 @@ public class AssertBuilder {
                                         final CtInvocation<?> isEmpty = factory.createInvocation(variableRead,
                                                 factory.Type().get(Map.class).getMethodsByName("isEmpty").get(0).getReference()
                                         );
-                                        expressions.add(buildInvocation(factory, "assertTrue",
+                                        expressions.add(AssertGeneratorHelper.buildInvocation(factory, "assertTrue",
                                                 Collections.singletonList(isEmpty))
                                         );
                                     } else {
@@ -79,14 +79,14 @@ public class AssertBuilder {
                                 } else {
                                     addTypeCastIfNeeded(variableRead, value);
                                     if (isFloating.test(value)) {
-                                        expressions.add(buildInvocation(factory, "assertEquals",
+                                        expressions.add(AssertGeneratorHelper.buildInvocation(factory, "assertEquals",
                                                 Arrays.asList(
                                                         printPrimitiveString(factory, value),
                                                         variableRead,
                                                         factory.createLiteral(delta)
                                                 )));
                                     } else {
-                                        expressions.add(buildInvocation(factory, "assertEquals",
+                                        expressions.add(AssertGeneratorHelper.buildInvocation(factory, "assertEquals",
                                                 Arrays.asList(printPrimitiveString(factory, value),
                                                         variableRead)));
                                     }
@@ -115,19 +115,6 @@ public class AssertBuilder {
         }
     }
 
-    private static CtInvocation buildInvocation(Factory factory, String methodName, List<CtExpression> arguments) {
-        final CtInvocation invocation = factory.createInvocation();
-        final CtExecutableReference<?> executableReference = factory.Core().createExecutableReference();
-        executableReference.setStatic(true);
-        executableReference.setSimpleName(methodName);
-        executableReference.setDeclaringType(factory.createCtTypeReference(org.junit.Assert.class));
-        invocation.setExecutable(executableReference);
-        invocation.setArguments(arguments); // TODO
-        invocation.setType(factory.Type().voidPrimitiveType());
-        invocation.setTarget(factory.createTypeAccess(factory.createCtTypeReference(org.junit.Assert.class)));
-        return invocation;
-    }
-
     private static CtStatement buildAssertForArray(Factory factory, String expression, Object array) {
         String type = array.getClass().getCanonicalName();
         String arrayLocalVar1 = "array_" + Math.abs(AmplificationHelper.getRandom().nextInt());
@@ -154,7 +141,7 @@ public class AssertBuilder {
                 .limit(Math.min(value.size(), MAX_NUMBER_OF_CHECKED_ELEMENT_IN_LIST))
                 .map(factory::createLiteral)
                 .map(o ->
-                        buildInvocation(factory, "assertTrue",
+                        AssertGeneratorHelper.buildInvocation(factory, "assertTrue",
                                 Collections.singletonList(factory.createInvocation(variableRead,
                                         contains, (CtLiteral) o
                                         )
@@ -176,13 +163,13 @@ public class AssertBuilder {
         return (List<CtStatement>) value.keySet().stream()
                 .flatMap(key ->
                         Arrays.stream(new CtInvocation<?>[]{
-                                        buildInvocation(factory, "assertTrue",
+                                        AssertGeneratorHelper.buildInvocation(factory, "assertTrue",
                                                 Collections.singletonList(factory.createInvocation(variableRead,
                                                         containsKey, factory.createLiteral(key)
                                                         )
                                                 )
                                         ),
-                                        buildInvocation(factory, "assertEquals",
+                                        AssertGeneratorHelper.buildInvocation(factory, "assertEquals",
                                                 Arrays.asList(factory.createLiteral(value.get(key)),
                                                         factory.createInvocation(variableRead,
                                                                 get, factory.createLiteral(key))

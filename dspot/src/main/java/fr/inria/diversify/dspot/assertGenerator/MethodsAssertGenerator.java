@@ -1,6 +1,5 @@
 package fr.inria.diversify.dspot.assertGenerator;
 
-import eu.stamp.project.testrunner.runner.test.TestListener;
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
 import fr.inria.diversify.dspot.AmplificationException;
@@ -13,16 +12,13 @@ import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtBlock;
-import spoon.reflect.code.CtCatch;
 import spoon.reflect.code.CtComment;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.code.CtStatement;
-import spoon.reflect.code.CtTry;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
-import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
@@ -30,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -42,8 +37,6 @@ import java.util.stream.IntStream;
 public class MethodsAssertGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodsAssertGenerator.class);
-
-    private int numberOfFail = 0;
 
     private CtType originalClass;
 
@@ -61,76 +54,6 @@ public class MethodsAssertGenerator {
     }
 
     /**
-     * Generates assertions and try/catch/fail blocks for multiple tests.
-     * <p>
-     * <p>Assertion Amplification process.
-     * <ol>
-     * <li>Instrumentation to collect the state of the program after execution (but before assertions).</li>
-     * <li>Collection of actual values by running the tests.</li>
-     * <li>Generation of new assertions in place of observation points.
-     * Generation of catch blocks if a test raises an exception.</li>
-     * </ol>
-     * The details of the first two points are in {@link #addAssertions(CtType, List)}.
-     *
-     * @param testClass Test class
-     * @param tests     Test methods
-     * @return New tests with new assertions
-     */
-    public List<CtMethod<?>> generateAsserts(CtType testClass, List<CtMethod<?>> tests) {
-        LOGGER.info("Run tests. ({})", tests.size());
-        final TestListener testResult;
-        try {
-            testResult = TestCompiler.compileAndRun(testClass,
-                    this.compiler,
-                    tests,
-                    this.configuration
-            );
-        } catch (AmplificationException e) {
-            e.printStackTrace();
-            return Collections.emptyList();
-        }
-        final List<String> failuresMethodName = testResult.getFailingTests()
-                .stream()
-                .map(failure -> failure.testCaseName)
-                .collect(Collectors.toList());
-
-        final List<String> passingTestsName = testResult.getPassingTests();
-
-        final List<CtMethod<?>> generatedTestWithAssertion = new ArrayList<>();
-        // add assertion on passing tests
-        if (!passingTestsName.isEmpty()) {
-            LOGGER.info("{} test pass, generating assertion...", passingTestsName.size());
-            List<CtMethod<?>> passingTests = addAssertions(testClass,
-                    tests.stream()
-                            .filter(ctMethod -> passingTestsName.contains(ctMethod.getSimpleName()))
-                            .collect(Collectors.toList()))
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-            if (passingTests != null) {
-                generatedTestWithAssertion.addAll(passingTests);
-            }
-        }
-
-        // add try/catch/fail on failing/error tests
-        if (!failuresMethodName.isEmpty()) {
-            LOGGER.info("{} test fail, generating try/catch/fail blocks...", failuresMethodName.size());
-            final List<CtMethod<?>> failingTests = tests.stream()
-                    .filter(ctMethod ->
-                            failuresMethodName.contains(ctMethod.getSimpleName()))
-                    .map(ctMethod ->
-                            makeFailureTest(ctMethod, testResult.getFailureOf(ctMethod.getSimpleName()))
-                    )
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-            if (!failingTests.isEmpty()) {
-                generatedTestWithAssertion.addAll(failingTests);
-            }
-        }
-        return generatedTestWithAssertion;
-    }
-
-    /**
      * Adds new assertions in multiple tests.
      * <p>
      * <p>Instruments the tests to have observation points.
@@ -142,7 +65,7 @@ public class MethodsAssertGenerator {
      * @param testCases Passing test methods
      * @return New tests with new assertions generated from observation points values
      */
-    private List<CtMethod<?>> addAssertions(CtType<?> testClass, List<CtMethod<?>> testCases) {
+    public List<CtMethod<?>> addAssertions(CtType<?> testClass, List<CtMethod<?>> testCases) {
         CtType clone = testClass.clone();
         testClass.getPackage().addType(clone);
         LOGGER.info("Add observations points in passing tests.");
@@ -271,53 +194,5 @@ public class MethodsAssertGenerator {
         } else {
             lastStmt.insertAfter(assertStatement);
         }
-    }
-
-    /**
-     * Adds surrounding try/catch/fail in a failing test.
-     *
-     * @param test    Failing test method to amplify
-     * @param failure Test's failure description
-     * @return New amplified test
-     */
-    protected CtMethod<?> makeFailureTest(CtMethod<?> test, eu.stamp.project.testrunner.runner.test.Failure failure) {
-        CtMethod cloneMethodTest = AmplificationHelper.cloneTestMethodForAmp(test, "");
-        cloneMethodTest.setSimpleName(test.getSimpleName());
-        Factory factory = cloneMethodTest.getFactory();
-
-        // TestTimedOutException means infinite loop
-        // AssertionError means that some assertion remained in the test: TODO
-        if ("org.junit.runners.model.TestTimedOutException".equals(failure.fullQualifiedNameOfException) ||
-                "java.lang.AssertionError".equals(failure.fullQualifiedNameOfException)) {
-            return null;
-        }
-
-        final String[] split = failure.fullQualifiedNameOfException.split("\\.");
-        final String simpleNameOfException = split[split.length - 1];
-
-        CtTry tryBlock = factory.Core().createTry();
-        tryBlock.setBody(cloneMethodTest.getBody());
-        String snippet = "org.junit.Assert.fail(\"" + test.getSimpleName() + " should have thrown " + simpleNameOfException + "\")";
-        tryBlock.getBody().addStatement(factory.Code().createCodeSnippetStatement(snippet));
-        DSpotUtils.addComment(tryBlock, "AssertGenerator generate try/catch block with fail statement", CtComment.CommentType.INLINE);
-
-        CtCatch ctCatch = factory.Core().createCatch();
-        CtTypeReference exceptionType = factory.Type().createReference(failure.fullQualifiedNameOfException);
-        ctCatch.setParameter(factory.Code().createCatchVariable(exceptionType, "eee"));
-
-        ctCatch.setBody(factory.Core().createBlock());
-
-        List<CtCatch> catchers = new ArrayList<>(1);
-        catchers.add(ctCatch);
-        tryBlock.setCatchers(catchers);
-
-        CtBlock body = factory.Core().createBlock();
-        body.addStatement(tryBlock);
-
-        cloneMethodTest.setBody(body);
-        cloneMethodTest.setSimpleName(cloneMethodTest.getSimpleName() + "_failAssert" + (numberOfFail++));
-        Counter.updateAssertionOf(cloneMethodTest, 1);
-
-        return cloneMethodTest;
     }
 }

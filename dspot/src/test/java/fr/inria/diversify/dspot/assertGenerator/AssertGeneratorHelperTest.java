@@ -6,14 +6,13 @@ import fr.inria.diversify.dspot.amplifier.StatementAdd;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
 import org.junit.Test;
+import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
+import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -60,7 +59,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
                 ).findFirst()
                 .orElseThrow(() -> new AssertionError("Should have a value of a method with the org.junit.AfterClass annotation"));
 
-        afterClassMethod.getBody().removeStatement(afterClassMethod .getBody().getLastStatement());
+        afterClassMethod.getBody().removeStatement(afterClassMethod.getBody().getLastStatement());
         assertTrue(afterClassMethod.getBody()
                 .getStatements()
                 .stream()
@@ -86,27 +85,27 @@ public class AssertGeneratorHelperTest extends AbstractTest {
             For now, we do not log such values
             TODO implements the A-amplification on values inside loops
          */
-        assertEquals("@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR+
-                        "public void test2_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR+
-                        "    java.util.List<fr.inria.sample.TestClassWithLoop.MyClass> list = new java.util.ArrayList<>();" + AmplificationHelper.LINE_SEPARATOR+
-                        "    boolean o_test2__3 = list.add(new fr.inria.sample.TestClassWithLoop.MyClass());" + AmplificationHelper.LINE_SEPARATOR+
-                        "    fr.inria.diversify.compare.ObjectLog.log(o_test2__3, \"o_test2__3\", \"test2__3\");" + AmplificationHelper.LINE_SEPARATOR+
-                        "    boolean o_test2__5 = list.add(new fr.inria.sample.TestClassWithLoop.MyClass());" + AmplificationHelper.LINE_SEPARATOR+
-                        "    fr.inria.diversify.compare.ObjectLog.log(o_test2__5, \"o_test2__5\", \"test2__5\");" + AmplificationHelper.LINE_SEPARATOR+
-                        "    boolean o_test2__7 = list.add(new fr.inria.sample.TestClassWithLoop.MyClass());" + AmplificationHelper.LINE_SEPARATOR+
-                        "    fr.inria.diversify.compare.ObjectLog.log(o_test2__7, \"o_test2__7\", \"test2__7\");" + AmplificationHelper.LINE_SEPARATOR+
-                        "    for (fr.inria.sample.TestClassWithLoop.MyClass myClass : list) {" + AmplificationHelper.LINE_SEPARATOR+
-                        "        myClass.getInteger();" + AmplificationHelper.LINE_SEPARATOR+
-                        "    }" + AmplificationHelper.LINE_SEPARATOR+
-                        "    for (fr.inria.sample.TestClassWithLoop.MyClass myClass : list) {" + AmplificationHelper.LINE_SEPARATOR+
-                        "        myClass.inc();" + AmplificationHelper.LINE_SEPARATOR+
-                        "    }" + AmplificationHelper.LINE_SEPARATOR+
-                        "    for (fr.inria.sample.TestClassWithLoop.MyClass myClass : list) {" + AmplificationHelper.LINE_SEPARATOR+
-                        "        myClass.getInteger();" + AmplificationHelper.LINE_SEPARATOR+
-                        "    }" + AmplificationHelper.LINE_SEPARATOR+
-                        "    fr.inria.diversify.compare.ObjectLog.log(o_test2__3, \"o_test2__3\", \"test2__3___end\");" + AmplificationHelper.LINE_SEPARATOR+
-                        "    fr.inria.diversify.compare.ObjectLog.log(o_test2__5, \"o_test2__5\", \"test2__5___end\");" + AmplificationHelper.LINE_SEPARATOR+
-                        "    fr.inria.diversify.compare.ObjectLog.log(o_test2__7, \"o_test2__7\", \"test2__7___end\");" + AmplificationHelper.LINE_SEPARATOR+
+        assertEquals("@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
+                        "public void test2_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
+                        "    java.util.List<fr.inria.sample.TestClassWithLoop.MyClass> list = new java.util.ArrayList<>();" + AmplificationHelper.LINE_SEPARATOR +
+                        "    boolean o_test2__3 = list.add(new fr.inria.sample.TestClassWithLoop.MyClass());" + AmplificationHelper.LINE_SEPARATOR +
+                        "    fr.inria.diversify.compare.ObjectLog.log(o_test2__3, \"o_test2__3\", \"test2__3\");" + AmplificationHelper.LINE_SEPARATOR +
+                        "    boolean o_test2__5 = list.add(new fr.inria.sample.TestClassWithLoop.MyClass());" + AmplificationHelper.LINE_SEPARATOR +
+                        "    fr.inria.diversify.compare.ObjectLog.log(o_test2__5, \"o_test2__5\", \"test2__5\");" + AmplificationHelper.LINE_SEPARATOR +
+                        "    boolean o_test2__7 = list.add(new fr.inria.sample.TestClassWithLoop.MyClass());" + AmplificationHelper.LINE_SEPARATOR +
+                        "    fr.inria.diversify.compare.ObjectLog.log(o_test2__7, \"o_test2__7\", \"test2__7\");" + AmplificationHelper.LINE_SEPARATOR +
+                        "    for (fr.inria.sample.TestClassWithLoop.MyClass myClass : list) {" + AmplificationHelper.LINE_SEPARATOR +
+                        "        myClass.getInteger();" + AmplificationHelper.LINE_SEPARATOR +
+                        "    }" + AmplificationHelper.LINE_SEPARATOR +
+                        "    for (fr.inria.sample.TestClassWithLoop.MyClass myClass : list) {" + AmplificationHelper.LINE_SEPARATOR +
+                        "        myClass.inc();" + AmplificationHelper.LINE_SEPARATOR +
+                        "    }" + AmplificationHelper.LINE_SEPARATOR +
+                        "    for (fr.inria.sample.TestClassWithLoop.MyClass myClass : list) {" + AmplificationHelper.LINE_SEPARATOR +
+                        "        myClass.getInteger();" + AmplificationHelper.LINE_SEPARATOR +
+                        "    }" + AmplificationHelper.LINE_SEPARATOR +
+                        "    fr.inria.diversify.compare.ObjectLog.log(o_test2__3, \"o_test2__3\", \"test2__3___end\");" + AmplificationHelper.LINE_SEPARATOR +
+                        "    fr.inria.diversify.compare.ObjectLog.log(o_test2__5, \"o_test2__5\", \"test2__5___end\");" + AmplificationHelper.LINE_SEPARATOR +
+                        "    fr.inria.diversify.compare.ObjectLog.log(o_test2__7, \"o_test2__7\", \"test2__7___end\");" + AmplificationHelper.LINE_SEPARATOR +
                         "}",
                 AssertGeneratorHelper.createTestWithLog(
                         new AssertionRemover().removeAssertion(Utils.findMethod("fr.inria.sample.TestClassWithLoop", "test2")),
@@ -115,13 +114,17 @@ public class AssertGeneratorHelperTest extends AbstractTest {
         );
     }
 
-    /**
-     * this test aims at verifying that dspot does not generate assertion for generated object.
-     * To do this, it will check that the instrumentation does not add observation points on those objects.
-     * If no observation point is added, any assertion would be generated.
-     */
+
     @Test
     public void testNoInstrumentationOnGeneratedObject() throws Exception {
+
+        /*
+         * This test aims at verifying that dspot does not generate assertion for generated object.
+         * To do this, it will check that the instrumentation does not add observation points on those objects.
+         * If no observation point is added, any assertion would be generated.
+         * We verify the number of ObjectLog.log statement inside the instrumented tests
+         */
+
         final String packageName = "fr.inria.statementaddarray";
         InputProgram inputProgram = Utils.getInputProgram();
         final Factory factory = inputProgram.getFactory();
@@ -133,32 +136,26 @@ public class AssertGeneratorHelperTest extends AbstractTest {
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
         List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod);
 
+        assertEquals(5, amplifiedMethods.size());
+
         final List<CtMethod<?>> instrumentedAmplifiedTests = amplifiedMethods.stream()
                 .map(method -> AssertGeneratorHelper.createTestWithLog(method, "fr.inria.statementaddarray"))
                 .collect(Collectors.toList());
 
-        assertEquals(5, amplifiedMethods.size());
+        assertEquals(5, instrumentedAmplifiedTests.size());
 
-        final String expectedInstrumentedBodyAfterAmplification_test_sd6_withlog = "{" + AmplificationHelper.LINE_SEPARATOR +
-                "    fr.inria.statementaddarray.ClassTargetAmplify clazz = new fr.inria.statementaddarray.ClassTargetAmplify();" + AmplificationHelper.LINE_SEPARATOR +
-                "    fr.inria.diversify.compare.ObjectLog.log(clazz, \"clazz\", \"test_sd6__1\");" + AmplificationHelper.LINE_SEPARATOR +
-                "    // StatementAdd: generate variable from return value" + AmplificationHelper.LINE_SEPARATOR +
-                "    fr.inria.statementaddarray.ClassParameterAmplify __DSPOT_invoc_3 = clazz.methodWithReturn();" + AmplificationHelper.LINE_SEPARATOR +
-                "    // StatementAdd: add invocation of a method" + AmplificationHelper.LINE_SEPARATOR +
-                "    __DSPOT_invoc_3.method1();" + AmplificationHelper.LINE_SEPARATOR +
-                "    fr.inria.diversify.compare.ObjectLog.log(clazz, \"clazz\", \"test_sd6__1___end\");" + AmplificationHelper.LINE_SEPARATOR +
-                "}";
-
-        final String testStringOutput = instrumentedAmplifiedTests.stream()
-                .filter(ctMethod1 ->
-                        "test_sd6_withlog".equals(ctMethod1.getSimpleName())
-                ).findFirst()
-                .get()
-                .getBody()
-                .toString();
-        Set<String> testLines = new HashSet<>(Arrays.asList(testStringOutput.split(AmplificationHelper.LINE_SEPARATOR)));
-        Set<String> expectedLines = new HashSet<>(Arrays.asList(expectedInstrumentedBodyAfterAmplification_test_sd6_withlog.split(AmplificationHelper.LINE_SEPARATOR)));
-        assertEquals(expectedLines, testLines);
+        assertEquals(19,
+                instrumentedAmplifiedTests.parallelStream()
+                        .mapToInt(instrumentedAmplifiedTest ->
+                                instrumentedAmplifiedTest.getElements(new TypeFilter<CtInvocation>(CtInvocation.class){
+                                    @Override
+                                    public boolean matches(CtInvocation element) {
+                                        return "fr.inria.diversify.compare.ObjectLog".equals(element.getTarget().toString()) &&
+                                                "log".equals(element.getExecutable().getSimpleName());
+                                    }
+                                }).size()
+                        ).sum()
+        );
     }
 
     @Test
@@ -195,7 +192,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
     @Test
     public void testCreateTestWithLog() throws Exception {
         /*
-			test the creation of test with log
+            test the creation of test with log
          */
 
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
