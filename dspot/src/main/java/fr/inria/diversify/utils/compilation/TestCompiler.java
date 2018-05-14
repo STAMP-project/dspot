@@ -2,6 +2,7 @@ package fr.inria.diversify.utils.compilation;
 
 import eu.stamp.project.testrunner.EntryPoint;
 import eu.stamp.project.testrunner.runner.test.TestListener;
+import fr.inria.diversify.dspot.AmplificationException;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.DSpotUtils;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
@@ -17,7 +18,6 @@ import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
-import spoon.support.reflect.declaration.CtMethodImpl;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +45,7 @@ public class TestCompiler {
      * This method will compile the given test class,
      * using the {@link fr.inria.diversify.utils.compilation.DSpotCompiler}.
      * If any compilation problems is reported, the method discard involved method
-     * (see {@link #compile(DSpotCompiler, CtType, String)} and then try again to compile.
+     * (see {@link #compileAndDiscardUncompilableMethods(DSpotCompiler, CtType, String)} and then try again to compile.
      * </p>
      *
      * @param testClass     the test class to be compiled
@@ -54,85 +54,93 @@ public class TestCompiler {
      * @param configuration
      * @return an instance of {@link eu.stamp.project.testrunner.runner.test.TestListener}
      * that contains the result of the execution of test methods if everything went fine, null otherwise.
+     * @throws AmplificationException in case the compilation failed or a timeout has been thrown.
      */
     public static TestListener compileAndRun(CtType<?> testClass,
                                              DSpotCompiler compiler,
                                              List<CtMethod<?>> testsToRun,
-                                             InputConfiguration configuration) {
+                                             InputConfiguration configuration) throws AmplificationException {
         final InputProgram inputProgram = configuration.getInputProgram();
-        final String dependencies = inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() + System.getProperty("path.separator") +
-                inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir() + System.getProperty("path.separator") +
-                "target/dspot/dependencies/";
+        final String dependencies = inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() +
+                System.getProperty("path.separator") +
+                inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir() +
+                System.getProperty("path.separator") + "target/dspot/dependencies/";
         if (!new File("target/dspot/dependencies/compare").exists()) {
             DSpotUtils.copyPackageFromResources();
         }
-        final List<CtMethod<?>> uncompilableMethods = TestCompiler.compile(compiler, testClass, dependencies);
-        if (uncompilableMethods.contains(TestCompiler.METHOD_CODE_RETURN)) {
-            return null;
-        } else {
-            testsToRun.removeAll(uncompilableMethods);
-            uncompilableMethods.forEach(testClass::removeMethod);
-            if (testsToRun.isEmpty()) {
-                return null;
-            }
-            final String classPath = AmplificationHelper.getClassPath(compiler, configuration);
-            try {
-                EntryPoint.defaultTimeoutInMs = 1000 + (AmplificationHelper.getTimeOutInMs() * testsToRun.size());
-                if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) { // if the test class is abstract, we use one of its implementation
-                    return testClass.getFactory().Type()
-                            .getAll()
-                            .stream()
-                            .filter(ctType -> ctType.getSuperclass() != null && testClass.getReference().equals(ctType.getSuperclass()))
-                            .map(CtType::getQualifiedName)
-                            .map(testClassName -> {
-                                try {
-                                    return EntryPoint.runTests(
-                                            classPath + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/",
-                                            testClassName,
-                                            testsToRun.stream()
-                                                    .map(CtMethod::getSimpleName)
-                                                    .toArray(String[]::new));
-                                } catch (TimeoutException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }).reduce(TestListener::aggregate)
-                            .orElse(null);
+        final List<CtMethod<?>> uncompilableMethods =
+                TestCompiler.compileAndDiscardUncompilableMethods(compiler, testClass, dependencies);
+        testsToRun.removeAll(uncompilableMethods);
+        uncompilableMethods.forEach(testClass::removeMethod);
+        if (testsToRun.isEmpty()) {
+            throw new AmplificationException("Every test methods are uncompilable");
+        }
+        final String classPath = AmplificationHelper.getClassPath(compiler, configuration);
+        try {
+            EntryPoint.defaultTimeoutInMs = 1000 + (AmplificationHelper.getTimeOutInMs() * testsToRun.size());
+            if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) { // if the test class is abstract, we use one of its implementation
+                return testClass.getFactory().Type()
+                        .getAll()
+                        .stream()
+                        .filter(ctType -> ctType.getSuperclass() != null && testClass.getReference().equals(ctType.getSuperclass()))
+                        .map(CtType::getQualifiedName)
+                        .map(testClassName -> {
+                            try {
+                                return EntryPoint.runTests(
+                                        classPath + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/",
+                                        testClassName,
+                                        testsToRun.stream()
+                                                .map(CtMethod::getSimpleName)
+                                                .toArray(String[]::new));
+                            } catch (TimeoutException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }).reduce(TestListener::aggregate)
+                        .orElse(null);
 
-                } else {
-                    return EntryPoint.runTests(
-                            classPath + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/",
-                            testClass.getQualifiedName(),
-                            testsToRun.stream()
-                                    .map(CtMethod::getSimpleName)
-                                    .toArray(String[]::new)
-                    );
-                }
-            } catch (TimeoutException e) {
-                LOGGER.warn("Timeout during execution of {}: {}",
+            } else {
+                return EntryPoint.runTests(
+                        classPath + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/",
                         testClass.getQualifiedName(),
                         testsToRun.stream()
                                 .map(CtMethod::getSimpleName)
-                                .collect(Collectors.joining(","))
+                                .toArray(String[]::new)
                 );
-                return null;
-            } catch (Exception e) {
-                throw new RuntimeException(e);
             }
-
+        } catch (TimeoutException e) {
+            LOGGER.warn("Timeout during execution of {}: {}",
+                    testClass.getQualifiedName(),
+                    testsToRun.stream()
+                            .map(CtMethod::getSimpleName)
+                            .collect(Collectors.joining(","))
+            );
+            throw new AmplificationException(e);
         }
     }
 
-    public static List<CtMethod<?>> compile(DSpotCompiler compiler, CtType<?> originalClassTest,
-                                            String dependencies) {
-        CtType<?> classTest = originalClassTest.clone();
-        originalClassTest.getPackage().addType(classTest);
-
-        //TODO we should only compile the new test, and not print it. How to compile one and only one CtType with Spoon?
-        printAndDelete(compiler, classTest);
+    /**
+     * This method compiles the given Java class using the given compiler and dependencies.
+     * This method chain compilation until it succeed.
+     * If a compilation fails, this method removes uncompilable methods from the given class and retry to compile.
+     *
+     * @param compiler
+     * @param testClassToBeCompiled
+     * @param dependencies
+     * @return a list that contains uncompilable methods in <code>testClassToBeCompiled</code>
+     * @throws AmplificationException in case the compilation thrown an exception.
+     *                              This Exception is not thrown when the compilation fails but rather when the arguments are wrong.
+     */
+    public static List<CtMethod<?>> compileAndDiscardUncompilableMethods(DSpotCompiler compiler,
+                                                                         CtType<?> testClassToBeCompiled,
+                                                                         String dependencies) throws AmplificationException {
+        CtType<?> classTest = testClassToBeCompiled.clone();
+        testClassToBeCompiled.getPackage().addType(classTest);
+        printJavaFileAndDeleteClassFile(compiler, classTest);
         final List<CategorizedProblem> problems = compiler.compileAndGetProbs(dependencies)
                 .stream()
                 .filter(IProblem::isError)
                 .collect(Collectors.toList());
+        // no problem, the compilation is successful
         if (problems.isEmpty()) {
             return Collections.emptyList();
         } else {
@@ -179,15 +187,13 @@ public class TestCompiler {
                 );
 
                 methods.forEach(classTest::removeMethod);
-                methods.addAll(compile(compiler, classTest, dependencies));
+                methods.addAll(compileAndDiscardUncompilableMethods(compiler, classTest, dependencies));
                 return new ArrayList<>(methods);
             } catch (Exception e) {
-                return Collections.singletonList(METHOD_CODE_RETURN);
+                throw new AmplificationException(e);
             }
         }
     }
-
-    public static final CtMethod<?> METHOD_CODE_RETURN = new CtMethodImpl();
 
     private static CtClass<?> getNewModelCtClass(String pathToSrcFolder, String fullQualifiedName) {
         Launcher launcher = new Launcher();
@@ -195,23 +201,22 @@ public class TestCompiler {
         launcher.getEnvironment().setCommentEnabled(true);
         launcher.addInputResource(pathToSrcFolder);
         launcher.buildModel();
-
         return launcher.getFactory().Class().get(fullQualifiedName);
     }
 
-    @Deprecated
-    private static void printAndDelete(DSpotCompiler compiler, CtType classTest) {
+    private static void printJavaFileAndDeleteClassFile(DSpotCompiler compiler, CtType classTest) {
         try {
             DSpotUtils.printCtTypeToGivenDirectory(classTest, compiler.getSourceOutputDirectory());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
+        String pathToDotClass =
+                compiler.getBinaryOutputDirectory().getAbsolutePath() + "/"
+                        + classTest.getQualifiedName().replaceAll("\\.", "/") + ".class";
         try {
-            String pathToDotClass = compiler.getBinaryOutputDirectory().getAbsolutePath() + "/" + classTest.getQualifiedName().replaceAll("\\.", "/") + ".class";
             forceDelete(pathToDotClass);
         } catch (IOException ignored) {
-            //ignored
+            LOGGER.warn("An exception has been thrown when trying to delete old .class file {}, continue...", pathToDotClass);
         }
     }
 }

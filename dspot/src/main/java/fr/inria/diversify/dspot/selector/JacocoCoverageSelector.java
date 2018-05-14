@@ -30,6 +30,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static fr.inria.diversify.utils.AmplificationHelper.PATH_SEPARATOR;
+
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -51,7 +53,11 @@ public class JacocoCoverageSelector extends TakeAllSelector {
     public List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified) {
         if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
             this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
-            final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).buildClasspath(this.program.getProgramDir());
+            String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).buildClasspath(this.program.getProgramDir());
+            if (this.configuration.getProperty("additionalClasspathElements") != null) {
+                classpath += PATH_SEPARATOR + this.configuration.getInputProgram().getProgramDir()
+                        + this.configuration.getProperty("additionalClasspathElements");
+            }
             final String targetClasses = this.program.getProgramDir() + (this.program.getProgramDir().endsWith("/") ? "" : "/") + this.program.getClassesDir() +
                     AmplificationHelper.PATH_SEPARATOR +
                     this.program.getProgramDir() + (this.program.getProgramDir().endsWith("/") ? "" : "/") + this.program.getTestClassesDir();
@@ -96,7 +102,11 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 
     private CoveragePerTestMethod computeCoverageForGivenTestMethdods(List<CtMethod<?>> testsToBeAmplified) {
         final String[] methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).toArray(String[]::new);
-        final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).buildClasspath(this.program.getProgramDir());
+        String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).buildClasspath(this.program.getProgramDir());
+        if (this.configuration.getProperty("additionalClasspathElements") != null) {
+            classpath += PATH_SEPARATOR + this.configuration.getInputProgram().getProgramDir()
+                    + this.configuration.getProperty("additionalClasspathElements");
+        }
         final String targetClasses = this.program.getProgramDir() + (this.program.getProgramDir().endsWith("/") ? "" : "/") + this.program.getClassesDir() +
                 AmplificationHelper.PATH_SEPARATOR +
                 this.program.getProgramDir() + (this.program.getProgramDir().endsWith("/") ? "" : "/") + this.program.getTestClassesDir();
@@ -184,13 +194,18 @@ public class JacocoCoverageSelector extends TakeAllSelector {
         this.currentClassTestToBeAmplified.getPackage().removeType(clone);
 
         final String fileSeparator = System.getProperty("file.separator");
-        final String classpath = AutomaticBuilderFactory
+        String classpath = AutomaticBuilderFactory
                 .getAutomaticBuilder(this.configuration)
                 .buildClasspath(this.program.getProgramDir())
                 + System.getProperty("path.separator") +
                 this.program.getProgramDir() + fileSeparator + this.program.getClassesDir()
                 + System.getProperty("path.separator") +
                 this.program.getProgramDir() + fileSeparator + this.program.getTestClassesDir();
+
+        if (this.configuration.getProperty("additionalClasspathElements") != null) {
+            classpath += PATH_SEPARATOR + this.configuration.getInputProgram().getProgramDir()
+                    + this.configuration.getProperty("additionalClasspathElements");
+        }
 
         DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
                 new File(this.program.getProgramDir() + fileSeparator + this.program.getTestClassesDir()));

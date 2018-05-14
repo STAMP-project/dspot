@@ -58,7 +58,7 @@ public class AssertGenerator {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    public List<CtMethod<?>> generateAsserts(CtType<?> testClass, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
+    public List<CtMethod<?>> generateAsserts(CtType<?> testClass, List<CtMethod<?>> tests) {
         if (tests.isEmpty()) {
             return tests;
         }

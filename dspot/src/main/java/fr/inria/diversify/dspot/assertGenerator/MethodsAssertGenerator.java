@@ -3,6 +3,7 @@ package fr.inria.diversify.dspot.assertGenerator;
 import eu.stamp.project.testrunner.runner.test.TestListener;
 import fr.inria.diversify.compare.ObjectLog;
 import fr.inria.diversify.compare.Observation;
+import fr.inria.diversify.dspot.AmplificationException;
 import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.Counter;
 import fr.inria.diversify.utils.DSpotUtils;
@@ -25,7 +26,6 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -62,90 +62,87 @@ public class MethodsAssertGenerator {
 
     /**
      * Generates assertions and try/catch/fail blocks for multiple tests.
-     *
+     * <p>
      * <p>Assertion Amplification process.
      * <ol>
-     *   <li>Instrumentation to collect the state of the program after execution (but before assertions).</li>
-     *   <li>Collection of actual values by running the tests.</li>
-     *   <li>Generation of new assertions in place of observation points.
-     *       Generation of catch blocks if a test raises an exception.</li>
+     * <li>Instrumentation to collect the state of the program after execution (but before assertions).</li>
+     * <li>Collection of actual values by running the tests.</li>
+     * <li>Generation of new assertions in place of observation points.
+     * Generation of catch blocks if a test raises an exception.</li>
      * </ol>
      * The details of the first two points are in {@link #addAssertions(CtType, List)}.
      *
      * @param testClass Test class
-     * @param tests Test methods
+     * @param tests     Test methods
      * @return New tests with new assertions
-     * @throws IOException
-     * @throws ClassNotFoundException
      */
-    public List<CtMethod<?>> generateAsserts(CtType testClass, List<CtMethod<?>> tests) throws IOException, ClassNotFoundException {
+    public List<CtMethod<?>> generateAsserts(CtType testClass, List<CtMethod<?>> tests) {
         LOGGER.info("Run tests. ({})", tests.size());
-        final TestListener testResult = TestCompiler.compileAndRun(testClass,
-                this.compiler,
-                tests,
-                this.configuration
-        );
-        if (testResult == null) {
+        final TestListener testResult;
+        try {
+            testResult = TestCompiler.compileAndRun(testClass,
+                    this.compiler,
+                    tests,
+                    this.configuration
+            );
+        } catch (AmplificationException e) {
+            e.printStackTrace();
             return Collections.emptyList();
-        } else {
-            final List<String> failuresMethodName = testResult.getFailingTests()
-                    .stream()
-                    .map(failure -> failure.testCaseName)
-                    .collect(Collectors.toList());
-
-            final List<String> passingTestsName = testResult.getPassingTests();
-
-            final List<CtMethod<?>> generatedTestWithAssertion = new ArrayList<>();
-            // add assertion on passing tests
-            if (!passingTestsName.isEmpty()) {
-                LOGGER.info("{} test pass, generating assertion...", passingTestsName.size());
-                List<CtMethod<?>> passingTests = addAssertions(testClass,
-                        tests.stream()
-                                .filter(ctMethod -> passingTestsName.contains(ctMethod.getSimpleName()))
-                                .collect(Collectors.toList()))
-                        .stream()
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList());
-                if (passingTests != null) {
-                    generatedTestWithAssertion.addAll(passingTests);
-                }
-            }
-
-            // add try/catch/fail on failing/error tests
-            if (!failuresMethodName.isEmpty()) {
-                LOGGER.info("{} test fail, generating try/catch/fail blocks...", failuresMethodName.size());
-                final List<CtMethod<?>> failingTests = tests.stream()
-                        .filter(ctMethod ->
-                                failuresMethodName.contains(ctMethod.getSimpleName()))
-                        .map(ctMethod ->
-                                makeFailureTest(ctMethod, testResult.getFailureOf(ctMethod.getSimpleName()))
-                        )
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList());
-                if (!failingTests.isEmpty()) {
-                    generatedTestWithAssertion.addAll(failingTests);
-                }
-            }
-            return generatedTestWithAssertion;
         }
-    }
+        final List<String> failuresMethodName = testResult.getFailingTests()
+                .stream()
+                .map(failure -> failure.testCaseName)
+                .collect(Collectors.toList());
 
+        final List<String> passingTestsName = testResult.getPassingTests();
+
+        final List<CtMethod<?>> generatedTestWithAssertion = new ArrayList<>();
+        // add assertion on passing tests
+        if (!passingTestsName.isEmpty()) {
+            LOGGER.info("{} test pass, generating assertion...", passingTestsName.size());
+            List<CtMethod<?>> passingTests = addAssertions(testClass,
+                    tests.stream()
+                            .filter(ctMethod -> passingTestsName.contains(ctMethod.getSimpleName()))
+                            .collect(Collectors.toList()))
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            if (passingTests != null) {
+                generatedTestWithAssertion.addAll(passingTests);
+            }
+        }
+
+        // add try/catch/fail on failing/error tests
+        if (!failuresMethodName.isEmpty()) {
+            LOGGER.info("{} test fail, generating try/catch/fail blocks...", failuresMethodName.size());
+            final List<CtMethod<?>> failingTests = tests.stream()
+                    .filter(ctMethod ->
+                            failuresMethodName.contains(ctMethod.getSimpleName()))
+                    .map(ctMethod ->
+                            makeFailureTest(ctMethod, testResult.getFailureOf(ctMethod.getSimpleName()))
+                    )
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            if (!failingTests.isEmpty()) {
+                generatedTestWithAssertion.addAll(failingTests);
+            }
+        }
+        return generatedTestWithAssertion;
+    }
 
     /**
      * Adds new assertions in multiple tests.
-     *
+     * <p>
      * <p>Instruments the tests to have observation points.
      * Details in {@link AssertGeneratorHelper#createTestWithLog(CtMethod, String)}.
-     *
+     * <p>
      * <p>Details of the assertion generation in {@link #buildTestWithAssert(CtMethod, Map)}.
      *
      * @param testClass Test class
      * @param testCases Passing test methods
      * @return New tests with new assertions generated from observation points values
-     * @throws IOException
-     * @throws ClassNotFoundException
      */
-    private List<CtMethod<?>> addAssertions(CtType<?> testClass, List<CtMethod<?>> testCases) throws IOException, ClassNotFoundException {
+    private List<CtMethod<?>> addAssertions(CtType<?> testClass, List<CtMethod<?>> testCases) {
         CtType clone = testClass.clone();
         testClass.getPackage().addType(clone);
         LOGGER.info("Add observations points in passing tests.");
@@ -175,26 +172,27 @@ public class MethodsAssertGenerator {
         ObjectLog.reset();
         LOGGER.info("Run instrumented tests. ({})", testsToRun.size());
         AssertGeneratorHelper.addAfterClassMethod(clone);
-        final TestListener result = TestCompiler.compileAndRun(clone,
-                this.compiler,
-                testsToRun,
-                this.configuration
-        );
-        if (result == null || !result.getFailingTests().isEmpty()) {
+        try {
+            TestCompiler.compileAndRun(clone,
+                    this.compiler,
+                    testsToRun,
+                    this.configuration
+            );
+        } catch (AmplificationException e) {
+            e.printStackTrace();
             return Collections.emptyList();
-        } else {
-            Map<String, Observation> observations = ObjectLog.getObservations();
-            LOGGER.info("Generating assertions...");
-            return testCases.stream()
-                    .map(ctMethod -> this.buildTestWithAssert(ctMethod, observations))
-                    .collect(Collectors.toList());
         }
+        Map<String, Observation> observations = ObjectLog.getObservations();
+        LOGGER.info("Generating assertions...");
+        return testCases.stream()
+                .map(ctMethod -> this.buildTestWithAssert(ctMethod, observations))
+                .collect(Collectors.toList());
     }
 
     /**
      * Adds new assertions to a test from observation points.
      *
-     * @param test Test method
+     * @param test         Test method
      * @param observations Observation points of the test suite
      * @return Test with new assertions
      */
@@ -221,39 +219,39 @@ public class MethodsAssertGenerator {
                 continue;
             }
             int line = Integer.parseInt(id.split("__")[1]);
-                CtStatement lastStmt = null;
-                for (CtStatement assertStatement : assertStatements) {
-                    DSpotUtils.addComment(assertStatement, "AssertGenerator add assertion", CtComment.CommentType.INLINE);
-                    try {
-                        CtStatement statementToBeAsserted = statements.get(line);
-                        if (lastStmt == null) {
-                            lastStmt = statementToBeAsserted;
-                        }
-                        if (statementToBeAsserted instanceof CtBlock) {
-                            break;
-                        }
-                        if (statementToBeAsserted instanceof CtInvocation &&
-                                !AssertGeneratorHelper.isVoidReturn((CtInvocation) statementToBeAsserted) &&
-                                statementToBeAsserted.getParent() instanceof CtBlock) {
-                            CtInvocation invocationToBeReplaced = (CtInvocation) statementToBeAsserted.clone();
-                            final CtLocalVariable localVariable = factory.createLocalVariable(
-                                    invocationToBeReplaced.getType(), "o_" + id.split("___")[0], invocationToBeReplaced
-                            );
-                            statementToBeAsserted.replace(localVariable);
-                            DSpotUtils.addComment(localVariable, "AssertGenerator create local variable with return value of invocation", CtComment.CommentType.INLINE);
-                            localVariable.setParent(statementToBeAsserted.getParent());
-                            addAtCorrectPlace(id, localVariable, assertStatement, statementToBeAsserted);
-                            statements.remove(line);
-                            statements.add(line, localVariable);
-                        } else {
-                            addAtCorrectPlace(id, lastStmt, assertStatement, statementToBeAsserted);
-                        }
-                        lastStmt = assertStatement;
-                        numberOfAddedAssertion++;
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
+            CtStatement lastStmt = null;
+            for (CtStatement assertStatement : assertStatements) {
+                DSpotUtils.addComment(assertStatement, "AssertGenerator add assertion", CtComment.CommentType.INLINE);
+                try {
+                    CtStatement statementToBeAsserted = statements.get(line);
+                    if (lastStmt == null) {
+                        lastStmt = statementToBeAsserted;
                     }
+                    if (statementToBeAsserted instanceof CtBlock) {
+                        break;
+                    }
+                    if (statementToBeAsserted instanceof CtInvocation &&
+                            !AssertGeneratorHelper.isVoidReturn((CtInvocation) statementToBeAsserted) &&
+                            statementToBeAsserted.getParent() instanceof CtBlock) {
+                        CtInvocation invocationToBeReplaced = (CtInvocation) statementToBeAsserted.clone();
+                        final CtLocalVariable localVariable = factory.createLocalVariable(
+                                invocationToBeReplaced.getType(), "o_" + id.split("___")[0], invocationToBeReplaced
+                        );
+                        statementToBeAsserted.replace(localVariable);
+                        DSpotUtils.addComment(localVariable, "AssertGenerator create local variable with return value of invocation", CtComment.CommentType.INLINE);
+                        localVariable.setParent(statementToBeAsserted.getParent());
+                        addAtCorrectPlace(id, localVariable, assertStatement, statementToBeAsserted);
+                        statements.remove(line);
+                        statements.add(line, localVariable);
+                    } else {
+                        addAtCorrectPlace(id, lastStmt, assertStatement, statementToBeAsserted);
+                    }
+                    lastStmt = assertStatement;
+                    numberOfAddedAssertion++;
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
+            }
         }
         Counter.updateAssertionOf(testWithAssert, numberOfAddedAssertion);
         if (!testWithAssert.equals(test)) {
@@ -278,7 +276,7 @@ public class MethodsAssertGenerator {
     /**
      * Adds surrounding try/catch/fail in a failing test.
      *
-     * @param test Failing test method to amplify
+     * @param test    Failing test method to amplify
      * @param failure Test's failure description
      * @return New amplified test
      */
