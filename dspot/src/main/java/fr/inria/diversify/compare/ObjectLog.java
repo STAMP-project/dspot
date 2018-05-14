@@ -189,10 +189,10 @@ public class ObjectLog {
     }
 
     public static Map<String, Observation> getObservations() {
-        if (singleton.observations.isEmpty()) {
+        if (getSingleton().observations.isEmpty()) {
             return load();
         } else {
-            return singleton.observations;
+            return getSingleton().observations;
         }
     }
 
@@ -201,7 +201,7 @@ public class ObjectLog {
     public static void save() {
         try (FileOutputStream fout = new FileOutputStream(OBSERVATIONS_PATH_FILE_NAME)) {
             try (ObjectOutputStream oos = new ObjectOutputStream(fout)) {
-                oos.writeObject(singleton.observations);
+                oos.writeObject(getSingleton().observations);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
