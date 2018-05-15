@@ -8,10 +8,10 @@ import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.minimization.Minimizer;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtComment;
+import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtSuperAccess;
 import spoon.reflect.declaration.CtAnnotation;
@@ -46,6 +46,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.lang.Integer.parseInt;
+import static java.lang.Long.parseLong;
 import static java.lang.Math.toIntExact;
 
 /**
@@ -353,45 +355,47 @@ public class AmplificationHelper {
     }
 
     /**
-     * Modifies the test annotation of a method by adding a timeout limit.
+     * Prepares the test annotation of a method
      *
      * @param cloned_method The test method to modify
-     * @param factory The factory to create the new updated test annotation
+     * @param factory The factory to create a new test annotation if needed
      */
     public static void prepareTestMethod(CtMethod cloned_method, Factory factory) {
-        CtAnnotation testAnnotation;
-        testAnnotation = factory.Core().createAnnotation();
-        CtTypeReference<Object> ref = factory.Core().createTypeReference();
-        ref.setSimpleName("Test");
-
-        CtPackageReference refPackage = factory.Core().createPackageReference();
-        refPackage.setSimpleName("org.junit");
-        ref.setPackage(refPackage);
-        testAnnotation.setAnnotationType(ref);
-
-        Map<String, Object> elementValue = new HashMap<>();
-        java.lang.annotation.Annotation originalTestAnnotation = cloned_method.getAnnotation(org.junit.Test.class);
-        if (originalTestAnnotation != null) {
-            int originalTimeout = toIntExact(((Test) originalTestAnnotation).timeout());
-            if (originalTimeout < timeOutInMs) {
-                elementValue.put("timeout", timeOutInMs);
-            } else {
-                elementValue.put("timeout", originalTimeout);
-            }
-            Class originalExpected = ((Test) originalTestAnnotation).expected();
-            if (originalExpected != org.junit.Test.None.class) {
-                elementValue.put("expected", originalExpected);
-            }
-        } else {
-            elementValue.put("timeout", timeOutInMs);
-        }
-        testAnnotation.setElementValues(elementValue);
-
-        CtAnnotation ctAnnotation = cloned_method.getAnnotations().stream()
+        CtAnnotation originalTestAnnotation = cloned_method.getAnnotations().stream()
                 .filter(annotation -> annotation.toString().contains("Test"))
                 .findFirst().orElse(null);
-        cloned_method.removeAnnotation(ctAnnotation);
-        cloned_method.addAnnotation(testAnnotation);
+        if (originalTestAnnotation != null) {
+            CtExpression originalTimeout = originalTestAnnotation.getValue("timeout");
+            if (originalTimeout == null) {
+                originalTestAnnotation.addValue("timeout", timeOutInMs);
+            } else {
+                int valueOriginalTimeout;
+                if (originalTimeout.toString().endsWith("L")) {
+                    String stringTimeout = originalTimeout.toString();
+                    valueOriginalTimeout = toIntExact(parseLong(stringTimeout.substring(0, stringTimeout.length() - 1)));
+                } else {
+                    valueOriginalTimeout = parseInt(originalTimeout.toString());
+                }
+                if (valueOriginalTimeout < timeOutInMs) {
+                    originalTestAnnotation.addValue("timeout", timeOutInMs);
+                }
+            }
+        } else {
+            CtAnnotation testAnnotation;
+            testAnnotation = factory.Core().createAnnotation();
+            CtTypeReference<Object> ref = factory.Core().createTypeReference();
+            ref.setSimpleName("Test");
+
+            CtPackageReference refPackage = factory.Core().createPackageReference();
+            refPackage.setSimpleName("org.junit");
+            ref.setPackage(refPackage);
+            testAnnotation.setAnnotationType(ref);
+
+            Map<String, Object> elementValue = new HashMap<>();
+            elementValue.put("timeout", timeOutInMs);
+            testAnnotation.setElementValues(elementValue);
+            cloned_method.addAnnotation(testAnnotation);
+        }
 
         cloned_method.addThrownType(factory.Type().createReference(Exception.class));
     }
