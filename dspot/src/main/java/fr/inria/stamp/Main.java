@@ -1,5 +1,16 @@
 package fr.inria.stamp;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.amplifier.TestDataMutator;
 import fr.inria.diversify.dspot.selector.JacocoCoverageSelector;
@@ -7,19 +18,7 @@ import fr.inria.diversify.utils.AmplificationHelper;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.diff.SelectorOnDiff;
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtType;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Created by Benjamin DANGLOT benjamin.danglot@inria.fr on 2/9/17
@@ -45,7 +44,6 @@ public class Main {
 	}
 
 	public static void run(Configuration configuration, InputConfiguration inputConfiguration) throws Exception {
-		print(configuration, inputConfiguration);
 		AmplificationHelper.setSeedRandom(23L);
 		AmplificationHelper.minimize = configuration.minimize;
 		InputProgram program = new InputProgram();
@@ -121,37 +119,4 @@ public class Main {
 		}
 	}
 
-	private static void print(Configuration configuration, InputConfiguration inputConfiguration) {
-		LOGGER.info("==== CONFIGURATION ====");
-		LOGGER.info("path to configuration file: " + configuration.pathToConfigurationFile);
-		LOGGER.info("amplifiers: " + configuration.amplifiers);
-		LOGGER.info("nb iteration: " + configuration.nbIteration);
-		LOGGER.info("test classes: " + configuration.testClasses);
-		LOGGER.info("path to output: " + configuration.pathToOutput);
-		LOGGER.info("selector: " + configuration.selector);
-		LOGGER.info("test cases: " + configuration.testCases);
-		LOGGER.info("seed: " + configuration.seed);
-		LOGGER.info("time out in ms: " + configuration.timeOutInMs);
-		LOGGER.info("automatic builder name: " + configuration.automaticBuilderName);
-		LOGGER.info("maven home: " + configuration.mavenHome);
-		LOGGER.info("max test amplified: " + configuration.maxTestAmplified);
-		LOGGER.info("clean: " + configuration.clean);
-		LOGGER.info("minimize: " + configuration.minimize);
-		LOGGER.info("==== INPUTCONFIGURATION ====");
-		Properties prop = inputConfiguration.getProperties();
-		Set keys = prop.keySet();
-		for (Object key : keys) {
-			LOGGER.info(key + ": " + prop.getProperty((String) key));
-		}
-		LOGGER.info("ClassesDir: " + inputConfiguration.getClassesDir());
-		LOGGER.info("coverageDir: " + inputConfiguration.getCoverageDir());
-		LOGGER.info("outputDirectory: " + inputConfiguration.getOutputDirectory());
-		LOGGER.info("previousTransformationPath: " + inputConfiguration.getPreviousTransformationPath());
-		LOGGER.info("projectPath: " + inputConfiguration.getProjectPath());
-		LOGGER.info("relativeSourceCodeDir: " + inputConfiguration.getRelativeSourceCodeDir());
-		LOGGER.info("relativeTestSourceCodeDir: " + inputConfiguration.getRelativeTestSourceCodeDir());
-		LOGGER.info("RootPath: " + inputConfiguration.getRootPath());
-		LOGGER.info("TempDir: " + inputConfiguration.getTempDir());
-		LOGGER.info("ValidationErrors: " + inputConfiguration.getValidationErrors());
-	}
 }
