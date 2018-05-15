@@ -373,13 +373,15 @@ public class AmplificationHelper {
         java.lang.annotation.Annotation originalTestAnnotation = cloned_method.getAnnotation(org.junit.Test.class);
         if (originalTestAnnotation != null) {
             int originalTimeout = toIntExact(((Test) originalTestAnnotation).timeout());
-            if (originalTimeout < timeOutInMs)
+            if (originalTimeout < timeOutInMs) {
                 elementValue.put("timeout", timeOutInMs);
-            else
+            } else {
                 elementValue.put("timeout", originalTimeout);
+            }
             Class originalExpected = ((Test) originalTestAnnotation).expected();
-            if (originalExpected != org.junit.Test.None.class)
+            if (originalExpected != org.junit.Test.None.class) {
                 elementValue.put("expected", originalExpected);
+            }
         } else {
             elementValue.put("timeout", timeOutInMs);
         }
