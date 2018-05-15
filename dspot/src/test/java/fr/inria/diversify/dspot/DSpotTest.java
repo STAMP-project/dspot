@@ -44,7 +44,7 @@ public class DSpotTest extends AbstractTest {
         final List<CtType> ctTypes = dSpot.amplifyTest("fr.inria.filter.*");
         assertEquals(1, ctTypes.size());
         // uses the mock to retrieve the number of method to be amplified
-        assertEquals(1, dSpot.numberOfMethod);
+        assertEquals(2, dSpot.numberOfMethod);
     }
 
     private class MockDSpot extends DSpot {
