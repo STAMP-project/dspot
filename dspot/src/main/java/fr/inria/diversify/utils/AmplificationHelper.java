@@ -10,10 +10,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spoon.reflect.code.CtComment;
-import spoon.reflect.code.CtExpression;
-import spoon.reflect.code.CtInvocation;
-import spoon.reflect.code.CtSuperAccess;
+import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtImport;
 import spoon.reflect.declaration.CtMethod;
@@ -27,6 +24,7 @@ import spoon.reflect.visitor.ImportScanner;
 import spoon.reflect.visitor.ImportScannerImpl;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
+import spoon.support.reflect.code.CtLiteralImpl;
 import spoon.support.reflect.declaration.CtClassImpl;
 
 import java.io.File;
@@ -361,13 +359,13 @@ public class AmplificationHelper {
      * @param factory The factory to create a new test annotation if needed
      */
     public static void prepareTestMethod(CtMethod cloned_method, Factory factory) {
-        CtAnnotation originalTestAnnotation = cloned_method.getAnnotations().stream()
+        CtAnnotation testAnnotation = cloned_method.getAnnotations().stream()
                 .filter(annotation -> annotation.toString().contains("Test"))
                 .findFirst().orElse(null);
-        if (originalTestAnnotation != null) {
-            CtExpression originalTimeout = originalTestAnnotation.getValue("timeout");
+        if (testAnnotation != null) {
+            CtExpression originalTimeout = testAnnotation.getValue("timeout");
             if (originalTimeout == null) {
-                originalTestAnnotation.addValue("timeout", timeOutInMs);
+                testAnnotation.addValue("timeout", timeOutInMs);
             } else {
                 int valueOriginalTimeout;
                 if (originalTimeout.toString().endsWith("L")) {
@@ -377,24 +375,26 @@ public class AmplificationHelper {
                     valueOriginalTimeout = parseInt(originalTimeout.toString());
                 }
                 if (valueOriginalTimeout < timeOutInMs) {
-                    originalTestAnnotation.addValue("timeout", timeOutInMs);
+                    CtLiteral newTimeout = new CtLiteralImpl<Integer>();
+                    newTimeout.setValue(timeOutInMs);
+                    originalTimeout.replace(newTimeout);
                 }
             }
         } else {
-            CtAnnotation testAnnotation;
-            testAnnotation = factory.Core().createAnnotation();
+            CtAnnotation newTestAnnotation;
+            newTestAnnotation = factory.Core().createAnnotation();
             CtTypeReference<Object> ref = factory.Core().createTypeReference();
             ref.setSimpleName("Test");
 
             CtPackageReference refPackage = factory.Core().createPackageReference();
             refPackage.setSimpleName("org.junit");
             ref.setPackage(refPackage);
-            testAnnotation.setAnnotationType(ref);
+            newTestAnnotation.setAnnotationType(ref);
 
             Map<String, Object> elementValue = new HashMap<>();
             elementValue.put("timeout", timeOutInMs);
-            testAnnotation.setElementValues(elementValue);
-            cloned_method.addAnnotation(testAnnotation);
+            newTestAnnotation.setElementValues(elementValue);
+            cloned_method.addAnnotation(newTestAnnotation);
         }
 
         cloned_method.addThrownType(factory.Type().createReference(Exception.class));
