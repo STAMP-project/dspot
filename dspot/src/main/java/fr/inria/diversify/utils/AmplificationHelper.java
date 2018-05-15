@@ -370,7 +370,6 @@ public class AmplificationHelper {
         testAnnotation.setAnnotationType(ref);
 
         Map<String, Object> elementValue = new HashMap<>();
-        LOGGER.info(cloned_method.getAnnotations().toString());
         java.lang.annotation.Annotation originalTestAnnotation = cloned_method.getAnnotation(org.junit.Test.class);
         if (originalTestAnnotation != null) {
             int originalTimeout = toIntExact(((Test) originalTestAnnotation).timeout());
@@ -379,7 +378,6 @@ public class AmplificationHelper {
             else
                 elementValue.put("timeout", originalTimeout);
             Class originalExpected = ((Test) originalTestAnnotation).expected();
-            LOGGER.info(originalExpected.toString());
             if (originalExpected != org.junit.Test.None.class)
                 elementValue.put("expected", originalExpected);
         } else {
@@ -392,7 +390,6 @@ public class AmplificationHelper {
                 .findFirst().orElse(null);
         cloned_method.removeAnnotation(ctAnnotation);
         cloned_method.addAnnotation(testAnnotation);
-        LOGGER.info(cloned_method.getAnnotations().toString());
 
         cloned_method.addThrownType(factory.Type().createReference(Exception.class));
     }
