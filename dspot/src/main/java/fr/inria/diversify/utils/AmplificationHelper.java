@@ -8,6 +8,7 @@ import fr.inria.diversify.utils.sosiefier.InputProgram;
 import fr.inria.stamp.minimization.Minimizer;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtComment;
@@ -44,6 +45,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static java.lang.Math.toIntExact;
 
 /**
  * Created by Benjamin DANGLOT
@@ -344,17 +347,17 @@ public class AmplificationHelper {
      */
     private static CtMethod cloneTestMethod(CtMethod method, String suffix) {
         CtMethod cloned_method = cloneMethod(method, suffix);
-        CtAnnotation testAnnotation = cloned_method.getAnnotations().stream()
-                .filter(annotation -> annotation.toString().contains("Test"))
-                .findFirst().orElse(null);
-        if (testAnnotation != null) {
-            cloned_method.removeAnnotation(testAnnotation);
-        }
         final Factory factory = method.getFactory();
         prepareTestMethod(cloned_method, factory);
         return cloned_method;
     }
 
+    /**
+     * Modifies the test annotation of a method by adding a timeout limit.
+     *
+     * @param cloned_method The test method to modify
+     * @param factory The factory to create the new updated test annotation
+     */
     public static void prepareTestMethod(CtMethod cloned_method, Factory factory) {
         CtAnnotation testAnnotation;
         testAnnotation = factory.Core().createAnnotation();
@@ -367,10 +370,29 @@ public class AmplificationHelper {
         testAnnotation.setAnnotationType(ref);
 
         Map<String, Object> elementValue = new HashMap<>();
-        elementValue.put("timeout", timeOutInMs);
+        LOGGER.info(cloned_method.getAnnotations().toString());
+        java.lang.annotation.Annotation originalTestAnnotation = cloned_method.getAnnotation(org.junit.Test.class);
+        if (originalTestAnnotation != null) {
+            int originalTimeout = toIntExact(((Test) originalTestAnnotation).timeout());
+            if (originalTimeout < timeOutInMs)
+                elementValue.put("timeout", timeOutInMs);
+            else
+                elementValue.put("timeout", originalTimeout);
+            Class originalExpected = ((Test) originalTestAnnotation).expected();
+            LOGGER.info(originalExpected.toString());
+            if (originalExpected != org.junit.Test.None.class)
+                elementValue.put("expected", originalExpected);
+        } else {
+            elementValue.put("timeout", timeOutInMs);
+        }
         testAnnotation.setElementValues(elementValue);
 
+        CtAnnotation ctAnnotation = cloned_method.getAnnotations().stream()
+                .filter(annotation -> annotation.toString().contains("Test"))
+                .findFirst().orElse(null);
+        cloned_method.removeAnnotation(ctAnnotation);
         cloned_method.addAnnotation(testAnnotation);
+        LOGGER.info(cloned_method.getAnnotations().toString());
 
         cloned_method.addThrownType(factory.Type().createReference(Exception.class));
     }
