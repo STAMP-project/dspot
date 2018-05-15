@@ -38,7 +38,7 @@ public class DSpotTest extends AbstractTest {
                 Collections.singletonList(new TestMethodCallAdder()),
                 new JacocoCoverageSelector()
         );
-        // the test class fr.inria.filter.passing.PassingTest has 2 method, but only one is amplified
+        // the test class fr.inria.filter.passing.PassingTest has 3 methods, but only two are amplified
         assertEquals(3, Utils.findClass("fr.inria.filter.passing.PassingTest").getMethods().size());
         // the test class fr.inria.filter.failing.FailingTest match the regex, but it is excluded in the properties
         final List<CtType> ctTypes = dSpot.amplifyTest("fr.inria.filter.*");
