@@ -51,4 +51,23 @@ public class Configuration {
         this.clean = clean;
         this.minimize = minimize;
     }
+
+    @Override
+    public String toString() {
+    	String toReturn = " path to configuration file: " + this.pathToConfigurationFile + "\n";
+    	toReturn += "amplifiers: " + this.amplifiers + "\n";
+    	toReturn += "nb iteration: " + this.nbIteration + "\n";
+    	toReturn += "test classes: " + this.testClasses + "\n";
+    	toReturn += "path to output: " + this.pathToOutput + "\n";
+    	toReturn += "selector: " + this.selector + "\n";
+    	toReturn += "test cases: " + this.testCases + "\n";
+    	toReturn += "seed: " + this.seed + "\n";
+    	toReturn += "time out in ms: " + this.timeOutInMs + "\n";
+    	toReturn += "automatic builder name: " + this.automaticBuilderName + "\n";
+    	toReturn += "maven home: " + this.mavenHome + "\n";
+    	toReturn += "max test amplified: " + this.maxTestAmplified + "\n";
+    	toReturn += "clean: " + this.clean + "\n";
+    	toReturn += "minimize: " + this.minimize + "\n";
+    	return toReturn;
+    }
 }

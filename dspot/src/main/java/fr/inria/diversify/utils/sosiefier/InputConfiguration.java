@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -87,12 +88,17 @@ public class InputConfiguration {
 		getProperties().setProperty("maven.home", mavenHome.getAbsolutePath());
 		getProperties().setProperty("classes", getRelativePath(classesDir));
 		getProperties().setProperty("tmpDir", getRelativePath(tempDir));
-		getProperties().setProperty("filter", filter);
+		if (filter != null) {
+			getProperties().setProperty("filter", filter);
+		}
+		getProperties().setProperty("javaVersion", "8");
+		rootPath = project.getAbsolutePath();
 	}
 
     private String getRelativePath(File path) {
-		String projectAbsolutePath = getProperties().getProperty("project");
-		return path.getAbsolutePath().replace(projectAbsolutePath, "");
+    	String base = getProperties().getProperty("project");
+    	String relative = new File(base).toURI().relativize(path.toURI()).getPath();
+		return relative;
 	}
 
     public InputConfiguration(String file) throws IOException {
@@ -375,5 +381,26 @@ public class InputConfiguration {
         inputProgram.setJavaVersion(Integer.parseInt(inputConfiguration.getProperty("javaVersion", "6")));
 
         return inputProgram;
+    }
+
+    @Override
+    public String toString() {
+    	String toReturn = "";
+    	Properties prop = this.getProperties();
+		Set keys = prop.keySet();
+		for (Object key : keys) {
+			toReturn += key + ": " + prop.getProperty((String) key)+ "\n";
+		}
+		toReturn += "ClassesDir: " + this.getClassesDir()+ "\n";
+		toReturn += "coverageDir: " + this.getCoverageDir()+ "\n";
+		toReturn += "outputDirectory: " + this.getOutputDirectory()+ "\n";
+		toReturn += "previousTransformationPath: " + this.getPreviousTransformationPath()+ "\n";
+		toReturn += "projectPath: " + this.getProjectPath()+ "\n";
+		toReturn += "relativeSourceCodeDir: " + this.getRelativeSourceCodeDir()+ "\n";
+		toReturn += "relativeTestSourceCodeDir: " + this.getRelativeTestSourceCodeDir()+ "\n";
+		toReturn += "RootPath: " + this.getRootPath()+ "\n";
+		toReturn += "TempDir: " + this.getTempDir()+ "\n";
+		toReturn += "ValidationErrors: " + this.getValidationErrors();
+		return toReturn;
     }
 }

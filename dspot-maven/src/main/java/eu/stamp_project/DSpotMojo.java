@@ -1,6 +1,7 @@
-package fr.inria.diversify.dspot.maven;
+package eu.stamp_project;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -10,6 +11,8 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.Configuration;
@@ -20,9 +23,11 @@ import fr.inria.stamp.Main;
 @Mojo(name = "amplify-unit-tests", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.TEST)
 public class DSpotMojo extends AbstractMojo {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(DSpotMojo.class);
+
 	// Command Line parameters -> fr.inria.stamp.Configuration
 
-	private static final String BUILDER = "Maven";
+	private static final String BUILDER = "MavenBuilder";
 
 	@Parameter(defaultValue = "MethodAdd", property = "amplifiers")
 	private List<String> amplifiers;
@@ -30,14 +35,26 @@ public class DSpotMojo extends AbstractMojo {
 	@Parameter(defaultValue = "3", property = "iteration")
 	private Integer iteration;
 
-	@Parameter(defaultValue = "PitMutantScoreSelector", property = "test-criterion")
+	@Parameter(defaultValue = "PitMutantScoreSelector", property = "testcriterion")
 	private String testCriterion;
 
-	@Parameter(defaultValue = "all", property = "test")
+	@Parameter(defaultValue = "200", property = "maxtestamplified")
+	private Integer maxTestAmplified;
+
+	@Parameter(defaultValue = "all", property = "tests")
 	private List<String> namesOfTestCases;
 
-	@Parameter(defaultValue = "${project.build.directory}/dspot-report", property = "output-path")
+	@Parameter(property = "cases")
+	private List<String> namesOfTestMethods;
+
+	@Parameter(defaultValue = "${project.build.directory}/dspot-report", property = "outputpath")
 	private String outputPath;
+
+	@Parameter(defaultValue = "false", property = "clean")
+	private Boolean clean;
+
+	@Parameter(property = "descartes")
+	private Boolean descartes;
 
 	@Parameter(defaultValue = "23", property = "randomSeed")
 	private Long randomSeed;
@@ -56,27 +73,25 @@ public class DSpotMojo extends AbstractMojo {
 	@Parameter(defaultValue = "${project.build.sourceDirectory}", property = "src")
 	private File srcDir;
 
-	@Parameter(defaultValue = "${project.build.testSourceDirectory}", property = "test")
+	@Parameter(defaultValue = "${project.build.testSourceDirectory}", property = "test-src")
 	private File testDir;
 
 	@Parameter(defaultValue = "${project.build.outputDirectory}", property = "classes")
 	private File classesDir;
 
-	@Parameter(defaultValue = "${project.build.testOutputDirectory}", property = "testClasses")
+	@Parameter(defaultValue = "${project.build.testOutputDirectory}", property = "test-classes")
 	private File testClassesDir;
 
-	@Parameter(defaultValue = "${project.build.directory}/tempDir", property = "tempDir")
+	@Parameter(defaultValue = "${project.build.directory}/tempDir", property = "temp-dir")
 	private File tempDir;
 
-	// TODO: Command line option
-	@Parameter(defaultValue = "example.*", property = "filter")
+	@Parameter(property = "filter")
 	private String filter;
 
 	@Parameter(defaultValue = "${env.M2_HOME}", property = "mavenHome")
 	private File mavenHome;
 
 	public void execute() throws MojoExecutionException, MojoFailureException {
-
 		Configuration configuration = new Configuration(
 				// path to file
 				null,
@@ -85,18 +100,18 @@ public class DSpotMojo extends AbstractMojo {
 				// Iteration
 				getIteration(),
 				// testClases
-				getNamesOfTestCases(), getOutputPath().toString(), SelectorEnum.valueOf(getSelector()).buildSelector(),
-				getNamesOfTestCases(), getRandomSeed().longValue(), getTimeOutInMs().intValue(), BUILDER,
-				getMavenHome().getAbsolutePath(), 10, false, false);
+				getNamesOfTestCases(), getOutputPath(), SelectorEnum.valueOf(getSelector()).buildSelector(),
+				new ArrayList<String>(), getRandomSeed().longValue(), getTimeOutInMs().intValue(), BUILDER,
+				getMavenHome().getAbsolutePath(), 200, false, true);
 
 		InputConfiguration inputConfiguration;
+
 		try {
 			inputConfiguration = new InputConfiguration(getProject(), getSrcDir(), getTestDir(), getClassesDir(),
 					getTestClassesDir(), getTempDir(), getFilter(), getMavenHome());
 			Main.run(configuration, inputConfiguration);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error(e.getLocalizedMessage());
 		}
 	}
 
