@@ -24,7 +24,6 @@ import spoon.reflect.visitor.ImportScanner;
 import spoon.reflect.visitor.ImportScannerImpl;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
-import spoon.support.reflect.code.CtLiteralImpl;
 import spoon.support.reflect.declaration.CtClassImpl;
 
 import java.io.File;
