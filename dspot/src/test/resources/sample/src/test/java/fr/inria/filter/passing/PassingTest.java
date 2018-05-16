@@ -22,7 +22,7 @@ public class PassingTest {
         assertFalse(true);
     }
 
-    @Test (expected = NullPointerException.class)
+    @Test (expected = NullPointerException.class, timeout = 100)
     public void testNPEExpected() throws Exception {
         String nullString = null;
         assertEquals(-1, nullString.length());
