@@ -375,7 +375,7 @@ public class AmplificationHelper {
                     valueOriginalTimeout = parseInt(originalTimeout.toString());
                 }
                 if (valueOriginalTimeout < timeOutInMs) {
-                    CtLiteral newTimeout = new CtLiteralImpl<Integer>();
+                    CtLiteral newTimeout = factory.createLiteral(timeOutInMs);
                     newTimeout.setValue(timeOutInMs);
                     originalTimeout.replace(newTimeout);
                 }
