@@ -14,18 +14,15 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.inria.diversify.utils.sosiefier.InputConfiguration;
-import fr.inria.stamp.Configuration;
-import fr.inria.stamp.JSAPOptions;
-import fr.inria.stamp.JSAPOptions.SelectorEnum;
-import fr.inria.stamp.Main;
+import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.JSAPOptions.SelectorEnum;
 
 @Mojo(name = "amplify-unit-tests", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.TEST)
 public class DSpotMojo extends AbstractMojo {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DSpotMojo.class);
 
-	// Command Line parameters -> fr.inria.stamp.Configuration
+	// Command Line parameters -> eu.stamp_project.Configuration
 
 	private static final String BUILDER = "MavenBuilder";
 
@@ -65,7 +62,7 @@ public class DSpotMojo extends AbstractMojo {
 	@Parameter(defaultValue = "PitMutantScoreSelector", property = "selector")
 	private String selector;
 
-	// Properties file parameters -> fr.inria.diversify.runner.InputConfiguration
+	// Properties file parameters -> eu.stamp_project.diversify.runner.InputConfiguration
 
 	@Parameter(defaultValue = "${project.basedir}", property = "project")
 	private File project;
