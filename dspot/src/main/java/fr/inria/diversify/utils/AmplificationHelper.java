@@ -10,9 +10,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spoon.reflect.code.CtComment;
-import spoon.reflect.code.CtInvocation;
-import spoon.reflect.code.CtSuperAccess;
+import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtImport;
 import spoon.reflect.declaration.CtMethod;
@@ -44,6 +42,10 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static java.lang.Integer.parseInt;
+import static java.lang.Long.parseLong;
+import static java.lang.Math.toIntExact;
 
 /**
  * Created by Benjamin DANGLOT
@@ -344,33 +346,55 @@ public class AmplificationHelper {
      */
     private static CtMethod cloneTestMethod(CtMethod method, String suffix) {
         CtMethod cloned_method = cloneMethod(method, suffix);
-        CtAnnotation testAnnotation = cloned_method.getAnnotations().stream()
-                .filter(annotation -> annotation.toString().contains("Test"))
-                .findFirst().orElse(null);
-        if (testAnnotation != null) {
-            cloned_method.removeAnnotation(testAnnotation);
-        }
         final Factory factory = method.getFactory();
         prepareTestMethod(cloned_method, factory);
         return cloned_method;
     }
 
+    /**
+     * Prepares the test annotation of a method
+     *
+     * @param cloned_method The test method to modify
+     * @param factory The factory to create a new test annotation if needed
+     */
     public static void prepareTestMethod(CtMethod cloned_method, Factory factory) {
-        CtAnnotation testAnnotation;
-        testAnnotation = factory.Core().createAnnotation();
-        CtTypeReference<Object> ref = factory.Core().createTypeReference();
-        ref.setSimpleName("Test");
+        CtAnnotation testAnnotation = cloned_method.getAnnotations().stream()
+                .filter(annotation -> annotation.toString().contains("Test"))
+                .findFirst().orElse(null);
+        if (testAnnotation != null) {
+            CtExpression originalTimeout = testAnnotation.getValue("timeout");
+            if (originalTimeout == null) {
+                testAnnotation.addValue("timeout", timeOutInMs);
+            } else {
+                int valueOriginalTimeout;
+                if (originalTimeout.toString().endsWith("L")) {
+                    String stringTimeout = originalTimeout.toString();
+                    valueOriginalTimeout = toIntExact(parseLong(stringTimeout.substring(0, stringTimeout.length() - 1)));
+                } else {
+                    valueOriginalTimeout = parseInt(originalTimeout.toString());
+                }
+                if (valueOriginalTimeout < timeOutInMs) {
+                    CtLiteral newTimeout = factory.createLiteral(timeOutInMs);
+                    newTimeout.setValue(timeOutInMs);
+                    originalTimeout.replace(newTimeout);
+                }
+            }
+        } else {
+            CtAnnotation newTestAnnotation;
+            newTestAnnotation = factory.Core().createAnnotation();
+            CtTypeReference<Object> ref = factory.Core().createTypeReference();
+            ref.setSimpleName("Test");
 
-        CtPackageReference refPackage = factory.Core().createPackageReference();
-        refPackage.setSimpleName("org.junit");
-        ref.setPackage(refPackage);
-        testAnnotation.setAnnotationType(ref);
+            CtPackageReference refPackage = factory.Core().createPackageReference();
+            refPackage.setSimpleName("org.junit");
+            ref.setPackage(refPackage);
+            newTestAnnotation.setAnnotationType(ref);
 
-        Map<String, Object> elementValue = new HashMap<>();
-        elementValue.put("timeout", timeOutInMs);
-        testAnnotation.setElementValues(elementValue);
-
-        cloned_method.addAnnotation(testAnnotation);
+            Map<String, Object> elementValue = new HashMap<>();
+            elementValue.put("timeout", timeOutInMs);
+            newTestAnnotation.setElementValues(elementValue);
+            cloned_method.addAnnotation(newTestAnnotation);
+        }
 
         cloned_method.addThrownType(factory.Type().createReference(Exception.class));
     }

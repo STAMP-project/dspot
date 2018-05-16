@@ -5,10 +5,13 @@ import fr.inria.AbstractTest;
 import fr.inria.Utils;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.factory.Factory;
 
 import java.util.Arrays;
 import java.util.Collections;
 
+import static fr.inria.diversify.utils.AmplificationHelper.prepareTestMethod;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -42,5 +45,18 @@ public class AmplificationTest extends AbstractTest {
         assertTrue(testListener.getFailingTests().isEmpty());
         assertEquals(4, testListener.getRunningTests().size());
         assertEquals(4, testListener.getPassingTests().size());
+    }
+
+    /**
+     * Tests that original test annotations are kept and modified correctly.
+     */
+    @Test
+    public void prepareTestMethodTest() throws Exception {
+        CtMethod testMethodWithAnnotations = ((CtMethod) (Utils.findClass("fr.inria.filter.passing.PassingTest").getMethodsByName("testNPEExpected").get(0)));
+        final Factory factory = testMethodWithAnnotations.getFactory();
+        prepareTestMethod(testMethodWithAnnotations, factory);
+        // expected was kept and timeout was increased
+        assertEquals("[@org.junit.Test(timeout = 10000, expected = java.lang.NullPointerException.class)]",
+                testMethodWithAnnotations.getAnnotations().toString());
     }
 }
