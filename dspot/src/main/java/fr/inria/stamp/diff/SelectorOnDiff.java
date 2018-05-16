@@ -177,13 +177,15 @@ public class SelectorOnDiff {
         return modifiedJavaFiles.stream()
                 .filter(presentInBothVersion)
                 .map(modifiedJavaFile -> {
-                    final String directoryPath = (this.configuration.getProperty("targetModule") +
-                            (this.configuration.getProperty("targetModule").isEmpty() ? "" : "/") +
-                            this.configuration.getRelativeSourceCodeDir());
+                    final String directoryPath =
+                            (this.configuration.getProperty("targetModule") != null ?
+                                    this.configuration.getProperty("targetModule") + "/" : ""
+                            ) + this.configuration.getRelativeSourceCodeDir();
                     final String qualifiedNameWithExtension = modifiedJavaFile.substring(directoryPath.length() + 2).replaceAll("/", ".");
                     return qualifiedNameWithExtension.substring(0, qualifiedNameWithExtension.length() - ".java".length());
                 })
                 .map(fullQualifiedName -> this.factory.Class().get(fullQualifiedName))
+                .filter(Objects::nonNull)
                 .filter(potentialTestClass -> potentialTestClass.getMethods().stream().anyMatch(AmplificationChecker::isTest))
                 .flatMap(testClass -> testClass.getMethods().stream().filter(AmplificationChecker::isTest))
                 .collect(Collectors.toSet());
