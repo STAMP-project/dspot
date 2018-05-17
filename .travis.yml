@@ -14,9 +14,13 @@ install:
   - export MAVEN_HOME=`mvn --version | grep 'Maven home' | sed -e 's/Maven h.* //'`
 
 script:
-  - git clone https://github.com/STAMP-project/pitest-descartes && cd pitest-descartes && mvn install -DskipTests -Dgpg.skip=true && cd ..
   - mvn clean install
   - cd dspot && java -jar target/dspot-$DSPOT_VERSION-jar-with-dependencies.jar --example
 
 after_success:
   - mvn clean test jacoco:report coveralls:report
+  - cd .. && ./.travis/travis-deploy.sh
+
+branch:
+  only:
+    - master

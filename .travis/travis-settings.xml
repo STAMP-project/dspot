@@ -1,0 +1,9 @@
+<settings>
+    <servers>
+        <server>
+            <id>ossrh-dspot-snapshots</id>
+            <username>${env.DSPOT_USERNAME}</username>
+            <password>${env.DSPOT_PASSWORD}</password>
+        </server>
+    </servers>
+</settings>
