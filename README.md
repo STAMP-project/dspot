@@ -47,7 +47,7 @@ ls target/dspot-*-jar-with-dependencies.jar
 
 6) Run the jar
 ```
-java -cp target/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main -p path/To/my.properties
+java -cp target/dspot-*-jar-with-dependencies.jar eu.stamp_project.Main -p path/To/my.properties
 ```
 
 For more info, see section **Usage** below.
@@ -67,7 +67,7 @@ DSpot is licensed un LGPLv3. Pull request as are welcome.
 ### First Tutorial
 
 After having cloned DSpot (see the previous section), you can run the provided example by running
-`fr.inria.stamp.Main` from your IDE, or with
+`eu.stamp_project.Main` from your IDE, or with
 
 ```
 java -jar target/dspot-LATEST-jar-with-dependencies.jar --example
@@ -149,12 +149,12 @@ You can then execute DSpot by using:
 ```
 java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --path-to-properties dspot.properties
 # or in maven
-mvn exec:java -Dexec.mainClass="fr.inria.stamp.Main" -Dexec.args="--path-to-properties dspot.properties"
+mvn exec:java -Dexec.mainClass="eu.stamp_project.Main" -Dexec.args="--path-to-properties dspot.properties"
 ```
 
 Amplify a specific test class
 ```
-java -jar /path/to/dspot-*-jar-with-dependencies.jar fr.inria.stamp.Main --path-to-properties dspot.properties --test my.package.TestClass
+java -jar /path/to/dspot-*-jar-with-dependencies.jar eu.stamp_project.Main --path-to-properties dspot.properties --test my.package.TestClass
 ```
 Amplify specific test classes according to a regex
 ```
@@ -326,7 +326,7 @@ Following the list of avalaible test selector:
 
 1. If any test class has been modified between the two versions, **DSpot** selects them.
 2. If there is not, **DSpot** selects test cases (and so, their test classes) according to the nem. If a test contain the name of a modified method, this test is selected.
-3. If there is not, **DSpot** analyzes statical the test suite and selects test classes that invoke modified methods. The maximum number of selected test classes is the value of `fr.inria.stamp.diff.SelectorOnDiff.MAX_NUMBER_TEST_CLASSES`, randomly.
+3. If there is not, **DSpot** analyzes statical the test suite and selects test classes that invoke modified methods. The maximum number of selected test classes is the value of `eu.stamp_project.diff.SelectorOnDiff.MAX_NUMBER_TEST_CLASSES`, randomly.
 
 The requirements this feature is the following:
 

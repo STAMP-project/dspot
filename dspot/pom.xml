@@ -191,7 +191,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>fr.inria.stamp.Main</mainClass>
+                            <mainClass>eu.stamp_project.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -226,9 +226,9 @@
                 </executions>
                 <configuration>
                     <excludes>
-                        <exclude>**/fr/inria/diversify/dspot/amplifier/ObjectGenerator.*</exclude> <!-- generator of tests -->
-                        <exclude>**/fr/inria/diversify/dspot/selector/ExecutedMutantSelector.*</exclude> <!-- old fashion to compute coverage -->
-                        <exclude>**/fr/inria/diversify/utils/sosiefier/*</exclude> <!-- old classes from sosiefier -->
+                        <exclude>**/eu/stamp_project/dspot/amplifier/ObjectGenerator.*</exclude> <!-- generator of tests -->
+                        <exclude>**/eu/stamp_project/dspot/selector/ExecutedMutantSelector.*</exclude> <!-- old fashion to compute coverage -->
+                        <exclude>**/eu/stamp_project/utils/sosiefier/*</exclude> <!-- old classes from sosiefier -->
                         <exclude>**/com/atlassian/clover/reporters/html/*</exclude> <!-- we override this class to get specific information -->
                     </excludes>
                 </configuration>

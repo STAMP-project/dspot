@@ -6,4 +6,4 @@
 # this is done to have matched version with sources and compiled resources
 
 rm -rf src/main/resources/compare/
-cp -r target/classes/fr/inria/diversify/compare/ src/main/resources/compare/
+cp -r target/classes/eu/stamp_project/compare src/main/resources/compare/
