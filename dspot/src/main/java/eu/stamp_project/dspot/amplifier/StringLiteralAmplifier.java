@@ -3,10 +3,10 @@ package eu.stamp_project.dspot.amplifier;
 import eu.stamp_project.utils.AmplificationHelper;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,12 +22,9 @@ public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
 
     @Override
     protected Set<String> amplify(CtLiteral<String> existingLiteral) {
-        final Factory factory = existingLiteral.getFactory();
-
-        // initialize values with existing strings
+        Collections.shuffle(this.existingStrings, AmplificationHelper.getRandom());
         Set<String> values = new HashSet<>(this.existingStrings);
-        values.remove(existingLiteral);
-
+        values.add(this.existingStrings.get(0));
         String value = (String) existingLiteral.getValue();
         if (value != null) {
             if (value.length() > 2) {
