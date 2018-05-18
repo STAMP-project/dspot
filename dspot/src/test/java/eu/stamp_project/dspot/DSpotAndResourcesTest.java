@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot;
 
-import eu.stamp.project.testrunner.EntryPoint;
-import eu.stamp.project.testrunner.runner.test.TestListener;
+import eu.stamp_project.testrunner.EntryPoint;
+import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.utils.sosiefier.InputProgram;

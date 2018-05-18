@@ -1,8 +1,8 @@
 package eu.stamp_project.minimization;
 
-import eu.stamp.project.testrunner.EntryPoint;
-import eu.stamp.project.testrunner.runner.test.Failure;
-import eu.stamp.project.testrunner.runner.test.TestListener;
+import eu.stamp_project.testrunner.EntryPoint;
+import eu.stamp_project.testrunner.runner.test.Failure;
+import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;

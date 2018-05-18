@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.assertGenerator;
 
-import eu.stamp.project.testrunner.runner.test.Failure;
+import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import org.junit.Test;

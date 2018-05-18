@@ -1,9 +1,10 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.Utils;
-import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.Main;
+import eu.stamp_project.Utils;
 import eu.stamp_project.minimization.ChangeMinimizer;
+import eu.stamp_project.testrunner.EntryPoint;
+import eu.stamp_project.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
@@ -11,7 +12,6 @@ import spoon.reflect.declaration.CtMethod;
 import java.io.File;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Benjamin DANGLOT
@@ -54,6 +54,7 @@ public class ChangeDetectorSelectorTest extends AbstractSelectorTest {
     public void testOnMultiModuleProject() throws Exception {
 
         Main.verbose = true;
+        EntryPoint.verbose = true;
 
 		/*
             Test that we can use the Change Detector on a multi module project
@@ -75,6 +76,7 @@ public class ChangeDetectorSelectorTest extends AbstractSelectorTest {
                 Utils.getAllTestMethodsFrom("fr.inria.multiple.pom.HelloWorldTest"))
         ).isEmpty());
 
+        EntryPoint.verbose = false;
         Main.verbose = false;
     }
 

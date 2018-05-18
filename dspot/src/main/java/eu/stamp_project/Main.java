@@ -1,24 +1,23 @@
 package eu.stamp_project;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import eu.stamp_project.diff.SelectorOnDiff;
 import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.dspot.amplifier.TestDataMutator;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
 import eu.stamp_project.utils.sosiefier.InputProgram;
-import eu.stamp_project.diff.SelectorOnDiff;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtType;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by Benjamin DANGLOT benjamin.danglot@inria.fr on 2/9/17
@@ -28,6 +27,8 @@ public class Main {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
 	public static boolean verbose = false;
+
+	public static boolean useWorkingDirectory = false;
 
 	public static void main(String[] args) throws Exception {
 		try {

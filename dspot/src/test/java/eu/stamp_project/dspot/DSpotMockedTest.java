@@ -3,6 +3,7 @@ package eu.stamp_project.dspot;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.dspot.amplifier.StatementAdd;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
+import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
@@ -45,6 +46,8 @@ public class DSpotMockedTest extends AbstractTest {
 
 		}
 		assertEquals(6, dspot.getInputProgram().getFactory().Class().get("info.sanaulla.dal.BookDALTest").getMethods().size());
+
+		EntryPoint.verbose = true;
 
 		CtType<?> amplifiedTest = dspot.amplifyTest("info.sanaulla.dal.BookDALTest", Collections.singletonList("testGetBook"));
 

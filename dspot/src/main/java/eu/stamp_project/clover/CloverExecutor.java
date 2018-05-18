@@ -9,7 +9,7 @@ import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp.project.testrunner.EntryPoint;
+import eu.stamp_project.testrunner.EntryPoint;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;

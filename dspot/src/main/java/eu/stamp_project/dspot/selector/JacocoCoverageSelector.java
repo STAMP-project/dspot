@@ -2,9 +2,9 @@ package eu.stamp_project.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp.project.testrunner.EntryPoint;
-import eu.stamp.project.testrunner.runner.coverage.Coverage;
-import eu.stamp.project.testrunner.runner.coverage.CoveragePerTestMethod;
+import eu.stamp_project.testrunner.EntryPoint;
+import eu.stamp_project.testrunner.runner.coverage.Coverage;
+import eu.stamp_project.testrunner.runner.coverage.CoveragePerTestMethod;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.dspot.selector.json.coverage.TestCaseJSON;
 import eu.stamp_project.dspot.selector.json.coverage.TestClassJSON;
@@ -55,12 +55,13 @@ public class JacocoCoverageSelector extends TakeAllSelector {
             this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
             String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).buildClasspath(this.program.getProgramDir());
             if (this.configuration.getProperty("additionalClasspathElements") != null) {
-                classpath += PATH_SEPARATOR + this.configuration.getInputProgram().getProgramDir()
-                        + this.configuration.getProperty("additionalClasspathElements");
+                classpath += PATH_SEPARATOR + new File(this.configuration.getInputProgram().getProgramDir()
+                        + this.configuration.getProperty("additionalClasspathElements")).getAbsolutePath();
             }
-            final String targetClasses = this.program.getProgramDir() + (this.program.getProgramDir().endsWith("/") ? "" : "/") + this.program.getClassesDir() +
-                    AmplificationHelper.PATH_SEPARATOR +
-                    this.program.getProgramDir() + (this.program.getProgramDir().endsWith("/") ? "" : "/") + this.program.getTestClassesDir();
+            final String targetClasses =
+                    new File(this.program.getProgramDir() + (this.program.getProgramDir().endsWith("/") ? "" : "/") + this.program.getClassesDir()).getAbsolutePath() +
+                            AmplificationHelper.PATH_SEPARATOR +
+                            new File(this.program.getProgramDir() + (this.program.getProgramDir().endsWith("/") ? "" : "/") + this.program.getTestClassesDir()).getAbsolutePath();
             try {
                 initialCoverage = EntryPoint.runCoverageOnTestClasses(
                         classpath + AmplificationHelper.PATH_SEPARATOR + targetClasses,
@@ -104,12 +105,13 @@ public class JacocoCoverageSelector extends TakeAllSelector {
         final String[] methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).toArray(String[]::new);
         String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).buildClasspath(this.program.getProgramDir());
         if (this.configuration.getProperty("additionalClasspathElements") != null) {
-            classpath += PATH_SEPARATOR + this.configuration.getInputProgram().getProgramDir()
-                    + this.configuration.getProperty("additionalClasspathElements");
+            classpath += PATH_SEPARATOR + new File(this.configuration.getInputProgram().getProgramDir()
+                    + this.configuration.getProperty("additionalClasspathElements")).getAbsolutePath();
         }
-        final String targetClasses = this.program.getProgramDir() + (this.program.getProgramDir().endsWith("/") ? "" : "/") + this.program.getClassesDir() +
-                AmplificationHelper.PATH_SEPARATOR +
-                this.program.getProgramDir() + (this.program.getProgramDir().endsWith("/") ? "" : "/") + this.program.getTestClassesDir();
+        final String targetClasses =
+                new File(this.program.getProgramDir() + (this.program.getProgramDir().endsWith("/") ? "" : "/") + this.program.getClassesDir()).getAbsolutePath() +
+                        AmplificationHelper.PATH_SEPARATOR +
+                        new File(this.program.getProgramDir() + (this.program.getProgramDir().endsWith("/") ? "" : "/") + this.program.getTestClassesDir()).getAbsolutePath();
         try {
             return EntryPoint.runCoveragePerTestMethods(
                     classpath + AmplificationHelper.PATH_SEPARATOR + targetClasses,
@@ -198,21 +200,21 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                 .getAutomaticBuilder(this.configuration)
                 .buildClasspath(this.program.getProgramDir())
                 + System.getProperty("path.separator") +
-                this.program.getProgramDir() + fileSeparator + this.program.getClassesDir()
+                new File(this.program.getProgramDir() + fileSeparator + this.program.getClassesDir()).getAbsolutePath()
                 + System.getProperty("path.separator") +
-                this.program.getProgramDir() + fileSeparator + this.program.getTestClassesDir();
+                new File(this.program.getProgramDir() + fileSeparator + this.program.getTestClassesDir()).getAbsolutePath();
 
         if (this.configuration.getProperty("additionalClasspathElements") != null) {
-            classpath += PATH_SEPARATOR + this.configuration.getInputProgram().getProgramDir()
-                    + this.configuration.getProperty("additionalClasspathElements");
+            classpath += PATH_SEPARATOR + new File(this.configuration.getInputProgram().getProgramDir()
+                    + this.configuration.getProperty("additionalClasspathElements")).getAbsolutePath();
         }
 
         DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
                 new File(this.program.getProgramDir() + fileSeparator + this.program.getTestClassesDir()));
 
-        final String targetClasses = this.program.getProgramDir() + (this.program.getProgramDir().endsWith("/") ? "" : "/") + this.program.getClassesDir() +
-                AmplificationHelper.PATH_SEPARATOR +
-                this.program.getProgramDir() + (this.program.getProgramDir().endsWith("/") ? "" : "/") + this.program.getTestClassesDir();
+        final String targetClasses = new File(this.program.getProgramDir() + (this.program.getProgramDir().endsWith("/") ? "" : "/") + this.program.getClassesDir()).getAbsolutePath() +
+                        AmplificationHelper.PATH_SEPARATOR +
+                        new File(this.program.getProgramDir() + (this.program.getProgramDir().endsWith("/") ? "" : "/") + this.program.getTestClassesDir()).getAbsolutePath();
         try {
             final Coverage coverageResults = EntryPoint.runCoverageOnTestClasses(
                     classpath,

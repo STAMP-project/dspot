@@ -1,7 +1,7 @@
 package eu.stamp_project.utils.compilation;
 
-import eu.stamp.project.testrunner.EntryPoint;
-import eu.stamp.project.testrunner.runner.test.TestListener;
+import eu.stamp_project.testrunner.EntryPoint;
+import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
@@ -87,7 +87,7 @@ public class TestCompiler {
                         .map(testClassName -> {
                             try {
                                 return EntryPoint.runTests(
-                                        classPath + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/",
+                                        classPath + AmplificationHelper.PATH_SEPARATOR + new File( "target/dspot/dependencies/").getAbsolutePath(),
                                         testClassName,
                                         testsToRun.stream()
                                                 .map(CtMethod::getSimpleName)
@@ -100,7 +100,7 @@ public class TestCompiler {
 
             } else {
                 return EntryPoint.runTests(
-                        classPath + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/",
+                        classPath + AmplificationHelper.PATH_SEPARATOR + new File("target/dspot/dependencies/").getAbsolutePath(),
                         testClass.getQualifiedName(),
                         testsToRun.stream()
                                 .map(CtMethod::getSimpleName)

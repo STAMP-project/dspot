@@ -3,7 +3,7 @@ package eu.stamp_project.dspot;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
 
-import eu.stamp.project.testrunner.EntryPoint;
+import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.Main;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
