@@ -1,6 +1,8 @@
 package eu.stamp_project.compare;
 
 
+import eu.stamp_project.testrunner.EntryPoint;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -202,6 +204,10 @@ public class ObjectLog {
         try (FileOutputStream fout = new FileOutputStream(OBSERVATIONS_PATH_FILE_NAME)) {
             try (ObjectOutputStream oos = new ObjectOutputStream(fout)) {
                 oos.writeObject(getSingleton().observations);
+                System.out.println(
+                        String.format("File saved to the following path: %s",
+                                new File(OBSERVATIONS_PATH_FILE_NAME).getAbsolutePath())
+                );
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -211,7 +217,10 @@ public class ObjectLog {
     }
 
     public static Map<String, Observation> load() {
-        try (FileInputStream fi = new FileInputStream(new File(OBSERVATIONS_PATH_FILE_NAME))) {
+        try (FileInputStream fi = new FileInputStream(new File(
+                (EntryPoint.workingDirectory != null ? // in case we modified the working directory
+                        EntryPoint.workingDirectory.getAbsolutePath() + "/" : "") +
+                OBSERVATIONS_PATH_FILE_NAME))) {
             try (ObjectInputStream oi = new ObjectInputStream(fi)) {
                 return (Map) oi.readObject();
             } catch (Exception e) {

@@ -1,7 +1,7 @@
 package eu.stamp_project;
 
 import com.martiansoftware.jsap.*;
-import eu.stamp.project.testrunner.EntryPoint;
+import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.dspot.amplifier.*;
 import eu.stamp_project.dspot.selector.ChangeDetectorSelector;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
@@ -95,6 +95,7 @@ public class JSAPOptions {
     public static Configuration parse(String[] args) {
         JSAPResult jsapConfig = options.parse(args);
         Main.verbose = jsapConfig.getBoolean("verbose");
+        Main.useWorkingDirectory = jsapConfig.getBoolean("working-directory");
         EntryPoint.verbose = Main.verbose;
         if (!jsapConfig.success() || jsapConfig.getBoolean("help")) {
             System.err.println();
@@ -330,6 +331,11 @@ public class JSAPOptions {
         nominimize.setDefault("false");
         nominimize.setHelp("Disable the minimization of amplified tests.");
 
+        Switch useWorkingDirectory = new Switch("working-directory");
+        useWorkingDirectory.setLongFlag("working-directory");
+        useWorkingDirectory.setDefault("false");
+        useWorkingDirectory.setHelp("Enable this option to change working directory with the root of the project.");
+
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
@@ -349,6 +355,7 @@ public class JSAPOptions {
             jsap.registerParameter(verbose);
             jsap.registerParameter(withComment);
             jsap.registerParameter(nominimize);
+            jsap.registerParameter(useWorkingDirectory);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {

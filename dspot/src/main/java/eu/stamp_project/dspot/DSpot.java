@@ -2,19 +2,21 @@ package eu.stamp_project.dspot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
-import eu.stamp_project.dspot.amplifier.*;
+import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.selector.CloverCoverageSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.utils.json.ClassTimeJSON;
-import eu.stamp_project.utils.Counter;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.json.ProjectTimeJSON;
+import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.Initializer;
+import eu.stamp_project.utils.compilation.DSpotCompiler;
+import eu.stamp_project.utils.json.ClassTimeJSON;
+import eu.stamp_project.utils.json.ProjectTimeJSON;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
 import eu.stamp_project.utils.sosiefier.InputProgram;
 import org.apache.commons.io.FileUtils;
@@ -24,7 +26,10 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -115,6 +120,9 @@ public class DSpot {
             this.projectTimeJSON = gson.fromJson(new FileReader(projectJsonFile), ProjectTimeJSON.class);
         } else {
             this.projectTimeJSON = new ProjectTimeJSON(splittedPath[splittedPath.length - 1]);
+        }
+        if (Main.useWorkingDirectory) {
+            EntryPoint.workingDirectory = new File(this.inputProgram.getProgramDir());
         }
     }
 

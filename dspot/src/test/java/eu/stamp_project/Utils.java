@@ -2,6 +2,7 @@ package eu.stamp_project;
 
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
+import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
@@ -78,6 +79,8 @@ public class Utils {
 		}
 		try {
 			AmplificationHelper.minimize = false;
+			EntryPoint.verbose = true;
+			Main.verbose = true;
 			AutomaticBuilderFactory.reset();
 			if (! new File("target/dspot/dependencies/compare").exists()) {
 				DSpotUtils.copyPackageFromResources();

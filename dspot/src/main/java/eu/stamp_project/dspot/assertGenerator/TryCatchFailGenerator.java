@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.assertGenerator;
 
-import eu.stamp.project.testrunner.runner.test.Failure;
+import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;

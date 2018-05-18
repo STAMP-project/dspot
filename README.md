@@ -251,6 +251,10 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
   [--no-minimize]
         Disable the minimization of amplified tests.
 
+  [--working-directory]
+        Enable this option to change working directory with the root of the
+        project.
+
   [-e|--example]
         run the example of DSpot and leave
 

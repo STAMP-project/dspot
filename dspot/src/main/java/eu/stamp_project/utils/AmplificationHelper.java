@@ -1,6 +1,6 @@
 package eu.stamp_project.utils;
 
-import eu.stamp.project.testrunner.runner.test.TestListener;
+import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
