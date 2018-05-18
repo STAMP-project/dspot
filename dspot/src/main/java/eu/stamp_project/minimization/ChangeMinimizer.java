@@ -97,9 +97,9 @@ public class ChangeMinimizer extends GeneralMinimizer {
         try {
             final TestListener result = EntryPoint.runTests(classpath +
                             AmplificationHelper.PATH_SEPARATOR +
-                            this.pathToChangedVersionOfProgram + "/" + this.program.getClassesDir() +
+                            new File(this.pathToChangedVersionOfProgram + "/" + this.program.getClassesDir()).getAbsolutePath() +
                             AmplificationHelper.PATH_SEPARATOR +
-                            this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir(),
+                            new File(this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir()).getAbsolutePath(),
                     clone.getQualifiedName(),
                     changeMinimize.getSimpleName());
             final Failure failure = result.getFailingTests().get(0);
@@ -129,9 +129,9 @@ public class ChangeMinimizer extends GeneralMinimizer {
         try {
             final TestListener result = EntryPoint.runTests(classpath +
                             AmplificationHelper.PATH_SEPARATOR +
-                            this.pathToChangedVersionOfProgram + "/" + this.program.getClassesDir() +
+                            new File(this.pathToChangedVersionOfProgram + "/" + this.program.getClassesDir()).getAbsolutePath() +
                             AmplificationHelper.PATH_SEPARATOR +
-                            this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir(),
+                            new File(this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir()).getAbsolutePath(),
                     clone.getQualifiedName(),
                     amplifiedTestToBeMinimized.getSimpleName());
 
