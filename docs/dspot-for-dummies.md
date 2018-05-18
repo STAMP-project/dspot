@@ -56,7 +56,7 @@ testSrc=src/test/java
 javaVersion=8
 # (optional) path to the output folder, default to "output_diversify"
 outputDirectory=dspot-out/
-# (optional) filter on the package name containing tests to be amplified ("example" => "example.*")
+# (optional) filter on the package name for mutation analysis ("example" => "example.*")
 filter=eu.stamp.examples.dhell*
 ```
 
@@ -159,7 +159,7 @@ testSrc=src/test/java
 javaVersion=8
 # (optional) path to the output folder, default to "output_diversify"
 outputDirectory=dspot-out/
-# (optional) filter on the package name containing tests to be amplified ("example" => "example.*"
+# (optional) filter on the package name for mutation analysis ("example" => "example.*")
 filter=eu.stamp.examples.dhell*
 ```
 

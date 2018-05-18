@@ -15,6 +15,13 @@ DSpot supports Java projects built with Maven and Gradle (see the `--automatic-b
 
 You need Java and Maven.
 
+DSpot uses the environment variable MAVEN_HOME, ensure that this variable points to your maven installation. Example:
+```
+export MAVEN_HOME=path/to/maven/
+```
+
+DSpot uses maven to compile, and build the classpath of your project. The environment variable JAVA_HOME must point to a valid JDK installation (and not a JRE).
+
 ### Compilation
 
 1) Clone the project:
@@ -28,24 +35,19 @@ cd dspot/dspot
 mvn compile
 ```
 
-3) DSpot uses the environment variable MAVEN_HOME, ensure that this variable points to your maven installation. Example:
-```
-export MAVEN_HOME=path/to/maven/
-```
-
-4) Run the tests
+3) Run the tests
 ```
 mvn test
 ```
 
-5) Create the jar (eg `target/dspot-1.0.0-jar-with-dependencies.jar`)
+4) Create the jar (_e.g._ `target/dspot-1.0.0-jar-with-dependencies.jar`)
 ```
 mvn package
 # check that this is successful
 ls target/dspot-*-jar-with-dependencies.jar
 ```
 
-6) Run the jar
+5) Run the jar
 ```
 java -cp target/dspot-*-jar-with-dependencies.jar eu.stamp_project.Main -p path/To/my.properties
 ```
@@ -95,9 +97,6 @@ testSrc=src/test/java
 javaVersion=8
 #path to the output folder
 outputDirectory=target/trash/
-# Constant amount of additional time to allow a test to run for
-# before considering it to be stuck in an infinite loop
-timeoutConstInMillis=10000
 #Argument string to use when PIT launches child processes. This is most commonly used
 # to increase the amount of memory available to the process,
 # but may be used to pass any valid JVM argument.
@@ -277,7 +276,7 @@ Here is the list of configuration properties of DSpot:
   * maven.home: path to the executable maven. If no value is specified, it will try some defaults values
     (for instance: `/usr/share/maven/`, `usr/local/Cellar/maven/3.3.9/libexec/` ...).
 * optional properties:
-  * filter: filter on the package name containing tests to be executed (_e.g._ `example.*`) passed to Pitest. If not set, the default value is set automatically by PIT based on the pom.xml data as follows: `filter=<groupid>.<artifactid>.*`. If you set it, we recommand to give the top-most package of your project. (_e.g._ for the test-projects it would be `example.*`)
+  * filter: this property is only used by `PitMutantScoreSelector` (see below). It filters on the package name to introduce mutation inside specific package (_e.g._ `example.*`) passed to PIT. If not set, the default value is set automatically by PIT based on the pom.xml data as follows: `filter=<groupid>.<artifactid>.*`. If you set it, we recommand to give the top-most package of your project. (_e.g._ for the test-projects it would be `example.*`)
   * maven.localRepository: path to the local repository of Maven (.m2), if you need specific settings.
   * excludedClasses: DSpot will not amplify the excluded test classes.
   * additionalClasspathElements: add elements to the classpath. (e.g. a jar file)
@@ -311,13 +310,14 @@ For the amplifiers, you can give them at the constructor of your `DSpot` object,
 
 In **DSpot**, test selectors can be seen as a fitness: it measures the quality of amplified, and keeps only amplified tests that are worthy according to this selector.
 
-The default selector is `CloverCoverageSelector`. This selector is based on [**OpenClover**](http://openclover.org/), which is a tool to compute the coverage. **DSpot** will keep only tests that increase the code coverage.
+The
+The default selector is `PitMutantScoreSelector`. This selector is based on [**PIT**](http://pitest.org/), which is a tool to computation mutation analysis. **DSpot** will keep only tests that increase the mutation score.
 
 Following the list of avalaible test selector:
 
+   * `PitMutantScoreSelector`: uses [**PIT**](http://pitest.org/) to computes the mutation score, and selects amplified tests that kill mutants that was not kill by the original test suite.
    * `CloverCoverageSelector`: uses [**OpenClover**](http://openclover.org/) to compute branch coverage, and selects amplified tests that increase it.
    * `JacocoCoverageSelector`: uses [**JaCoCo**](http://www.eclemma.org/jacoco/) to compute instruction coverage and executed paths (the order matters). Selects test that increase the coverage and has unique executed path.
-   * `PitMutantScoreSelector`: uses [**PIT**](http://pitest.org/) to computes the mutation score, and selects amplified tests that kill mutants that was not kill by the original test suite.
    * `ExecutedMutantSelector`: uses [**PIT**](http://pitest.org/) to computes the number of executed mutants. It uses the number of mutants as a proxy for the instruction coverage. It selects amplfied test that execute new mutants. **WARNING!!** this selector takes a lot of time, and is not worth it, please look at CloverCoverageSelector or JacocoCoverageSelector.
    * `TakeAllSelector`: keeps all amplified tests not matter the quality.
    * `ChangeDetectorSelector`: runs against a second version of the same program, and selects amplified tests that fail. This selector selects only amplified test that are able to show a difference of a behavior betweeen two versions of the same program.
