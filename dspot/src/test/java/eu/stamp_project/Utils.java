@@ -94,7 +94,7 @@ public class Utils {
 						+ inputConfiguration.getProperty("additionalClasspathElements");
 			}
 			compiler = DSpotCompiler.createDSpotCompiler(inputProgram, dependencies);
-			inputProgram.setFactory(compiler.getLauncher().getFactory());
+			inputConfiguration.setFactory(compiler.getLauncher().getFactory());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -105,7 +105,7 @@ public class Utils {
 	}
 
 	public static CtClass findClass(String fullQualifiedName) {
-		return getInputProgram().getFactory().Class().get(fullQualifiedName);
+		return getInputConfiguration().getFactory().Class().get(fullQualifiedName);
 	}
 
 	public static CtMethod findMethod(CtClass<?> ctClass, String methodName) {
@@ -145,7 +145,7 @@ public class Utils {
 	}
 
 	public static Factory getFactory() {
-		return getInputProgram().getFactory();
+		return getInputConfiguration().getFactory();
 	}
 
 	public static final class FILTER_LITERAL_OF_GIVEN_TYPE extends TypeFilter<CtLiteral> {

@@ -55,7 +55,7 @@ public class CloverCoverageSelector extends TakeAllSelector {
                     .map(lineCoveragePerTestMethods::get)
                     .forEach(lineCoveragePerTestMethod ->
                             lineCoveragePerTestMethod.keySet().forEach(className -> {
-                                        final CtType<?> key = program.getFactory().Type().get(className);
+                                        final CtType<?> key = configuration.getFactory().Type().get(className);
                                         if (!this.originalLineCoveragePerClass.containsKey(key)) {
                                             this.originalLineCoveragePerClass.put(key, new HashSet<>());
                                         }
@@ -125,7 +125,7 @@ public class CloverCoverageSelector extends TakeAllSelector {
                                                 .stream()
                                                 .anyMatch(executedLine ->
                                                         !this.originalLineCoveragePerClass.get(
-                                                                this.configuration.getInputProgram().getFactory().Type().get(className)
+                                                                this.configuration.getFactory().Type().get(className)
                                                         ).contains(executedLine)
                                                 )
                                 )

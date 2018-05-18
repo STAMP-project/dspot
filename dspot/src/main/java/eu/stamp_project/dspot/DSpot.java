@@ -106,7 +106,7 @@ public class DSpot {
         }
 
         this.compiler = DSpotCompiler.createDSpotCompiler(inputProgram, dependencies);
-        this.inputProgram.setFactory(compiler.getLauncher().getFactory());
+        this.inputConfiguration.setFactory(compiler.getLauncher().getFactory());
         this.amplifiers = new ArrayList<>(amplifiers);
         this.numberOfIterations = numberOfIterations;
         this.testSelector = testSelector;
@@ -131,7 +131,7 @@ public class DSpot {
     }
 
     public List<CtType> amplifyAllTests() {
-        return this.amplifyAllTests(inputProgram.getFactory().Class().getAll().stream()
+        return this.amplifyAllTests(this.inputConfiguration.getFactory().Class().getAll().stream()
                 .filter(ctClass -> !ctClass.getModifiers().contains(ModifierKind.ABSTRACT))
                 .filter(ctClass ->
                         ctClass.getMethods().stream()
@@ -228,8 +228,13 @@ public class DSpot {
         }
     }
 
+    @Deprecated
     public InputProgram getInputProgram() {
         return inputProgram;
+    }
+
+    public InputConfiguration getInputConfiguration() {
+        return this.inputConfiguration;
     }
 
     private final Predicate<CtType> isExcluded = ctType ->

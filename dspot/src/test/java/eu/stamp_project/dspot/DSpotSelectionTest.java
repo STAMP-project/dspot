@@ -95,8 +95,8 @@ public class DSpotSelectionTest {
          */
 
         final List<CtType> testClasses = Arrays.asList(
-                dspotUnderTest.getInputProgram().getFactory().Type().get("example.TestSuiteExample"),
-                dspotUnderTest.getInputProgram().getFactory().Type().get("example.TestSuiteExample2")
+                dspotUnderTest.getInputConfiguration().getFactory().Type().get("example.TestSuiteExample"),
+                dspotUnderTest.getInputConfiguration().getFactory().Type().get("example.TestSuiteExample2")
         );
         dspotUnderTest.amplifyAllTests(testClasses);
         assertEquals(2, typesToBeAmplified.size());
@@ -129,7 +129,7 @@ public class DSpotSelectionTest {
             Can match specific test method in a test class
          */
 
-        final CtType<?> testClass = dspotUnderTest.getInputProgram().getFactory().Type().get("example.TestSuiteExample");
+        final CtType<?> testClass = dspotUnderTest.getInputConfiguration().getFactory().Type().get("example.TestSuiteExample");
 
         dspotUnderTest.amplifyTest(
                 testClass,

@@ -45,7 +45,7 @@ public class DSpotMockedTest extends AbstractTest {
 		} catch (Exception ignored) {
 
 		}
-		assertEquals(6, dspot.getInputProgram().getFactory().Class().get("info.sanaulla.dal.BookDALTest").getMethods().size());
+		assertEquals(6, dspot.getInputConfiguration().getFactory().Class().get("info.sanaulla.dal.BookDALTest").getMethods().size());
 
 		EntryPoint.verbose = true;
 

@@ -1,9 +1,8 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.Utils;
 import eu.stamp_project.AbstractTest;
+import eu.stamp_project.Utils;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.sosiefier.InputProgram;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
@@ -23,9 +22,7 @@ public class ReplacementAmplifierTest extends AbstractTest {
 
 
         final String packageName = "fr.inria.statementadd";
-        InputProgram inputProgram = Utils.getInputProgram();
-        final Factory factory = inputProgram.getFactory();
-        inputProgram.setFactory(factory);
+        final Factory factory = Utils.getFactory();
         AmplificationHelper.setSeedRandom(32L);
         ReplacementAmplifier amplifier = new ReplacementAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".ClassTarget"));
@@ -51,9 +48,7 @@ public class ReplacementAmplifierTest extends AbstractTest {
          */
 
         final String packageName = "fr.inria.statementadd";
-        InputProgram inputProgram = Utils.getInputProgram();
-        final Factory factory = inputProgram.getFactory();
-        inputProgram.setFactory(factory);
+        final Factory factory = Utils.getFactory();
         AmplificationHelper.setSeedRandom(32L);
         ReplacementAmplifier amplifier = new ReplacementAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".ClassTarget"));

@@ -1,5 +1,7 @@
 package eu.stamp_project.utils.sosiefier;
 
+import spoon.reflect.factory.Factory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -403,4 +405,19 @@ public class InputConfiguration {
 		toReturn += "ValidationErrors: " + this.getValidationErrors();
 		return toReturn;
     }
+
+    private Factory factory;
+
+    /**
+     * Spoon factory to process all AST elements
+     */
+    public Factory getFactory() {
+        return factory;
+    }
+
+    public void setFactory(Factory factory) {
+        this.factory = factory;
+    }
+
+
 }
