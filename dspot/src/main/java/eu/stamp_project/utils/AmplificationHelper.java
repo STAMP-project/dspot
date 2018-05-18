@@ -458,7 +458,7 @@ public class AmplificationHelper {
     public static String getClassPath(DSpotCompiler compiler, InputConfiguration configuration) {
         return Arrays.stream(new String[]{
                         compiler.getBinaryOutputDirectory().getAbsolutePath(),
-                        configuration.getInputProgram().getProgramDir() + "/" + configuration.getInputProgram().getClassesDir(),
+                        new File(configuration.getInputProgram().getProgramDir() + "/" + configuration.getInputProgram().getClassesDir()).getAbsolutePath(),
                         compiler.getDependencies(),
                 }
         ).collect(Collectors.joining(PATH_SEPARATOR));

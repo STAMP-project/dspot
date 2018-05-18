@@ -96,8 +96,8 @@ public class DSpot {
         String dependencies = builder.buildClasspath(this.inputProgram.getProgramDir());
 
         if (inputConfiguration.getProperty("additionalClasspathElements") != null) {
-            dependencies += PATH_SEPARATOR + inputConfiguration.getInputProgram().getProgramDir()
-                    + inputConfiguration.getProperty("additionalClasspathElements");
+            dependencies += PATH_SEPARATOR + new File(inputConfiguration.getInputProgram().getProgramDir()
+                    + inputConfiguration.getProperty("additionalClasspathElements")).getAbsolutePath();
         }
 
         this.compiler = DSpotCompiler.createDSpotCompiler(inputProgram, dependencies);
