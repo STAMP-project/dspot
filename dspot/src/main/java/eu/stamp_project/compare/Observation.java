@@ -86,6 +86,22 @@ public class Observation implements Serializable {
         }
     }
 
+    public void purify() {
+        List<String> keysToBeRemoved = new ArrayList<>();
+        for (String key : this.observationValues.keySet()) {
+            try {
+                if (!ObjectLog.isSerializable(this.observationValues.get(key))) {
+                    keysToBeRemoved.add(key);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                keysToBeRemoved.add(key);
+                continue;
+            }
+        }
+        keysToBeRemoved.forEach(this.observationValues::remove);
+    }
+
     public Set<String> getNotDeterministValues() {
         return notDeterministValues;
     }
