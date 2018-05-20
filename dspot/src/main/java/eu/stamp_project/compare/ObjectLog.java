@@ -89,7 +89,7 @@ public class ObjectLog {
         }
     }
 
-    private boolean isSerializable(Object candidate) {
+    public static boolean isSerializable(Object candidate) {
         try {
             new ObjectOutputStream(new ByteArrayOutputStream()).writeObject(candidate);
             return true;
@@ -99,10 +99,12 @@ public class ObjectLog {
     }
 
     private void addObservation(String id, String observedObjectAsString, Object actualValue) {
-        if (!observations.containsKey(id)) {
-            observations.put(id, new Observation());
+        if (isSerializable(actualValue)) {
+            if (!observations.containsKey(id)) {
+                observations.put(id, new Observation());
+            }
+            observations.get(id).add(observedObjectAsString, actualValue);
         }
-        observations.get(id).add(observedObjectAsString, actualValue);
     }
 
     private Object chainInvocationOfMethods(List<Method> methodsToInvoke, Object startingObject) throws FailToObserveException {
@@ -201,6 +203,7 @@ public class ObjectLog {
     private static final String OBSERVATIONS_PATH_FILE_NAME = "target/dspot/observations.ser";
 
     public static void save() {
+        getSingleton().observations.values().forEach(Observation::purify);
         try (FileOutputStream fout = new FileOutputStream(OBSERVATIONS_PATH_FILE_NAME)) {
             try (ObjectOutputStream oos = new ObjectOutputStream(fout)) {
                 oos.writeObject(getSingleton().observations);
@@ -209,9 +212,11 @@ public class ObjectLog {
                                 new File(OBSERVATIONS_PATH_FILE_NAME).getAbsolutePath())
                 );
             } catch (Exception e) {
+                e.printStackTrace();
                 throw new RuntimeException(e);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
