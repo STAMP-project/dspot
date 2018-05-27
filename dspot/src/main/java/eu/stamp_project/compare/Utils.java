@@ -13,59 +13,59 @@ public class Utils {
 
     public static boolean isPrimitiveCollectionOrMap(Object collectionOrMap) {
         try {
-            return isPrimitiveCollection(collectionOrMap) || isPrimitiveMap(collectionOrMap);
+            return isNonEmptyPrimitiveCollection(collectionOrMap) || isNonEmptyPrimitiveMap(collectionOrMap);
         } catch (Exception e) {
             return false;
         }
     }
 
-    public static boolean isPrimitiveCollection(Object object) {
-        if (Collection.class.isInstance(object)) {
+    public static boolean isCollection(Object object) {
+        return Collection.class.isInstance(object);
+    }
+
+    public static boolean isNonEmptyPrimitiveCollection(Object object) {
+        if (isCollection(object) && !((Collection) object).isEmpty()) {
             Collection collection = (Collection) object;
-            if (collection.isEmpty()) {
-                return true;
-            } else {
-                Iterator iterator = collection.iterator();
-                while (iterator.hasNext()) {
-                    Object next = iterator.next();
-                    if (next != null) {
-                        return isPrimitive(next);
-                    }
+            Iterator iterator = collection.iterator();
+            while (iterator.hasNext()) {
+                Object next = iterator.next();
+                if (next != null) {
+                    return isPrimitive(next);
                 }
-                return true;
             }
+            return true;
         }
         return false;
     }
 
-    public static boolean isPrimitiveMap(Object object) {
-        if (Map.class.isInstance(object)) {
+    public static boolean isMap(Object object) {
+        return Map.class.isInstance(object);
+    }
+
+    public static boolean isNonEmptyPrimitiveMap(Object object) {
+        if (isMap(object) && !((Map) object).isEmpty()) {
             Map map = (Map) object;
-            if (map.isEmpty()) {
-                return true;
-            } else {
-                boolean isKeyPrimitive = false;
-                boolean isValuePrimitive = false;
-                Iterator keyIterator = map.keySet().iterator();
-                while (keyIterator.hasNext()) {
-                    Object next = keyIterator.next();
+            boolean isKeyPrimitive = false;
+            boolean isValuePrimitive = false;
+            Iterator keyIterator = map.keySet().iterator();
+            while (keyIterator.hasNext()) {
+                Object next = keyIterator.next();
+                if (next != null && isPrimitive(next)) {
+                    isKeyPrimitive = true;
+                    break;
+                }
+            }
+            if (isKeyPrimitive) {
+                Iterator valueIterator = map.keySet().iterator();
+                while (valueIterator.hasNext()) {
+                    Object next = valueIterator.next();
                     if (next != null && isPrimitive(next)) {
-                        isKeyPrimitive = true;
+                        isValuePrimitive = true;
                         break;
                     }
                 }
-                if (isKeyPrimitive) {
-                    Iterator valueIterator = map.keySet().iterator();
-                    while (valueIterator.hasNext()) {
-                        Object next = valueIterator.next();
-                        if (next != null && isPrimitive(next)) {
-                            isValuePrimitive = true;
-                            break;
-                        }
-                    }
-                }
-                return isKeyPrimitive && isValuePrimitive;
             }
+            return isKeyPrimitive && isValuePrimitive;
         }
         return false;
     }

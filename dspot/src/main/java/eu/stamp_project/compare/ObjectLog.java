@@ -13,6 +13,7 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,10 @@ public class ObjectLog {
                             Utils.isPrimitiveArray(objectToObserve) ||
                             Utils.isPrimitiveCollectionOrMap(objectToObserve))) {
                 addObservation(id, observedObjectAsString, objectToObserve);
+            } else if (Utils.isCollection(objectToObserve)) {
+                addObservation(id, observedObjectAsString + ".isEmpty()", ((Collection) objectToObserve).isEmpty());
+            } else if (Utils.isMap(objectToObserve)) {
+                addObservation(id, observedObjectAsString + ".isEmpty()", ((Map) objectToObserve).isEmpty());
             } else if (!objectToObserve.getClass().getName().toLowerCase().contains("mock")) {
                 observeNotNullObject(
                         startingObject,
@@ -225,7 +230,7 @@ public class ObjectLog {
         try (FileInputStream fi = new FileInputStream(new File(
                 (EntryPoint.workingDirectory != null ? // in case we modified the working directory
                         EntryPoint.workingDirectory.getAbsolutePath() + "/" : "") +
-                OBSERVATIONS_PATH_FILE_NAME))) {
+                        OBSERVATIONS_PATH_FILE_NAME))) {
             try (ObjectInputStream oi = new ObjectInputStream(fi)) {
                 return (Map) oi.readObject();
             } catch (Exception e) {
