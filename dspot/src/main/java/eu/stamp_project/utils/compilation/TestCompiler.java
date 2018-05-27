@@ -65,9 +65,7 @@ public class TestCompiler {
                 System.getProperty("path.separator") +
                 inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir() +
                 System.getProperty("path.separator") + "target/dspot/dependencies/";
-        if (!new File("target/dspot/dependencies/compare").exists()) {
-            DSpotUtils.copyPackageFromResources();
-        }
+        DSpotUtils.copyPackageFromResources();
         final List<CtMethod<?>> uncompilableMethods =
                 TestCompiler.compileAndDiscardUncompilableMethods(compiler, testClass, dependencies);
         testsToRun.removeAll(uncompilableMethods);

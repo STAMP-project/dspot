@@ -93,10 +93,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		launcher.getEnvironment().setNoClasspath(true);
 		launcher.getEnvironment().setCommentEnabled(true);
 		launcher.getEnvironment().setOutputType(OutputType.CLASSES);
-
-		if (! new File("target/dspot/dependencies/compare").exists()) {
-			DSpotUtils.copyPackageFromResources();
-		}
+		DSpotUtils.copyPackageFromResources();
 		String[] sourcesArray = (pathToSources + PATH_SEPARATOR + "target/dspot/dependencies/").split(PATH_SEPARATOR);
 		Arrays.stream(sourcesArray).forEach(launcher::addInputResource);
 		if (!pathToDependencies.isEmpty()) {
@@ -115,10 +112,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		launcher.getEnvironment().setNoClasspath(true);
 		launcher.getEnvironment().setCommentEnabled(true);
 		launcher.getEnvironment().setOutputType(OutputType.CLASSES);
-
-		if (! new File("target/dspot/dependencies/compare").exists()) {
-			DSpotUtils.copyPackageFromResources();
-		}
+		DSpotUtils.copyPackageFromResources();
 		String[] sourcesArray = (pathToSources + PATH_SEPARATOR).split(PATH_SEPARATOR);
 		Arrays.stream(sourcesArray).forEach(launcher::addInputResource);
 		String[] dependenciesArray = dependencies.split(PATH_SEPARATOR);
