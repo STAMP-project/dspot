@@ -137,6 +137,9 @@ public class DSpotUtils {
 	public static final String[] classesToCopy = new String[]{"MethodsHandler", "ObjectLog", "Observation", "Utils", "FailToObserveException"};
 
 	public static void copyPackageFromResources() {
+		if (new File("target/dspot/dependencies/eu/stamp_project/compare").exists()) {
+			return;
+		}
 		final String pathToTestClassesDirectory = pathToDSpotDependencies + "/" + packagePath + "/";
 		final String directory = packagePath.split("/")[packagePath.split("/").length - 1];
 		try {

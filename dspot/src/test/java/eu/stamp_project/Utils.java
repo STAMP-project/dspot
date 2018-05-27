@@ -82,9 +82,7 @@ public class Utils {
 			EntryPoint.verbose = true;
 			Main.verbose = true;
 			AutomaticBuilderFactory.reset();
-			if (! new File("target/dspot/dependencies/compare").exists()) {
-				DSpotUtils.copyPackageFromResources();
-			}
+			DSpotUtils.copyPackageFromResources();
 			currentInputConfigurationLoaded = pathToConfFile;
 			inputConfiguration = new InputConfiguration(pathToConfFile);
 			Initializer.initialize(inputConfiguration);

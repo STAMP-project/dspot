@@ -31,9 +31,7 @@ public class Initializer {
 		AutomaticBuilderFactory.reset();
 		AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(configuration);
 		builder.compile(program.getProgramDir());
-		if (!new File("target/dspot/dependencies/compare").exists()) {
-			DSpotUtils.copyPackageFromResources();
-		}
+		DSpotUtils.copyPackageFromResources();
 	}
 
 	public static void compileTest(InputConfiguration configuration) {
