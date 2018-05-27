@@ -1,5 +1,6 @@
 package eu.stamp_project.utils.sosiefier;
 
+import eu.stamp_project.utils.DSpotUtils;
 import spoon.reflect.factory.Factory;
 
 import java.io.File;
@@ -15,12 +16,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * The input configuration class encapsulates all the data and asociated behavior we obtain from the input properties
+ * The input configuration class encapsulates all the data and associated behavior we obtain from the input properties
  * given by the user.
- * <p>
- * The InputConfiguration makes other objects life easier by not only being a data holder but also by implementing
- * behaviors related from this data as the building of new CodeFragments given the CodeFragmentClass property
- * <p>
  * Created by marcel on 8/06/14.
  */
 //TODO @Deprecated
@@ -53,6 +50,7 @@ public class InputConfiguration {
                                 System.getProperties().put(keyValueInArray[0], keyValueInArray[1]);
                             });
         }
+        this.absolutePathToProjectRoot = DSpotUtils.computeProgramDirectory.apply(this);
     }
 
     public InputConfiguration(File project, File srcDir, File testDir, File classesDir, File testClassesDir,
@@ -264,5 +262,18 @@ public class InputConfiguration {
         this.factory = factory;
     }
 
+    private String absolutePathToProjectRoot;
 
+    /**
+     * This method return the absolute path to the project.
+     * If the project is multi-modules, the returned path is the path to the specified targetModule properties
+     * @return absolute path to the project root
+     */
+    public String getAbsolutePathToProjectRoot() {
+        return absolutePathToProjectRoot;
+    }
+
+    public void setAbsolutePathToProjectRoot(String absolutePathToProjectRoot) {
+        this.absolutePathToProjectRoot = absolutePathToProjectRoot;
+    }
 }

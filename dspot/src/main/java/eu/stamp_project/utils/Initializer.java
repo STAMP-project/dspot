@@ -22,6 +22,7 @@ public class Initializer {
 	public static void initialize(InputConfiguration configuration)
 			throws IOException, InterruptedException {
 		InputProgram program = InputConfiguration.initInputProgram(configuration);
+		configuration.setAbsolutePathToProjectRoot(DSpotUtils.computeProgramDirectory.apply(configuration));
 		program.setProgramDir(DSpotUtils.computeProgramDirectory.apply(configuration));
 		configuration.setInputProgram(program);
 		Initializer.initialize(configuration, program);

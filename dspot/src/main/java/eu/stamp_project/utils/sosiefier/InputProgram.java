@@ -97,9 +97,7 @@ public class InputProgram {
         setRelativeSourceCodeDir(configuration.getRelativeSourceCodeDir());
         setProgramDir(configuration.getProjectPath());
         setRelativeSourceCodeDir(configuration.getRelativeSourceCodeDir());
-        setPreviousTransformationsPath(configuration.getPreviousTransformationPath());
         setClassesDir(configuration.getClassesDir());
-        setCoverageDir(configuration.getCoverageDir());
     }
 
     /**
