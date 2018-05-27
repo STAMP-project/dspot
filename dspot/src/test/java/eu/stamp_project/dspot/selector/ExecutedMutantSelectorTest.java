@@ -41,8 +41,8 @@ public class ExecutedMutantSelectorTest {
         // pre computing the number of executed mutants...
         Main.verbose = true;
         AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration())
-                .runPit(Utils.getInputProgram().getProgramDir());
-        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir() + "target/pit-reports/");
+                .runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot());
+        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + "target/pit-reports/");
 
         final ExecutedMutantSelector testSelector = new ExecutedMutantSelector();
         DSpot dspot = new DSpot(Utils.getInputConfiguration(), 1, Collections.singletonList(new TestDataMutator()), testSelector);
@@ -55,19 +55,19 @@ public class ExecutedMutantSelectorTest {
         // then compile
         final String classpath = AutomaticBuilderFactory
                 .getAutomaticBuilder(Utils.getInputConfiguration())
-                .buildClasspath(Utils.getInputProgram().getProgramDir())
+                .buildClasspath(Utils.getInputConfiguration().getAbsolutePathToProjectRoot())
                 + AmplificationHelper.PATH_SEPARATOR +
-                Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getClassesDir()
+                Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + "/" + Utils.getInputProgram().getClassesDir()
                 + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/"
                 + AmplificationHelper.PATH_SEPARATOR +
-                Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getTestClassesDir();
+                Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + "/" + Utils.getInputProgram().getTestClassesDir();
 
         DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
-                new File(Utils.getInputProgram().getProgramDir() + "/" + Utils.getInputProgram().getTestClassesDir()));
+                new File(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + "/" + Utils.getInputProgram().getTestClassesDir()));
 
         AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration())
-                .runPit(Utils.getInputProgram().getProgramDir());
-        final List<PitResult> amplifiedPitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir() + "target/pit-reports/");
+                .runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot());
+        final List<PitResult> amplifiedPitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + "target/pit-reports/");
 
         assertTrue(pitResults.stream()
                 .filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED ||

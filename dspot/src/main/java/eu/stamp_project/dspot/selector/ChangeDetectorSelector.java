@@ -65,7 +65,7 @@ public class ChangeDetectorSelector implements TestSelector {
                         DSpotUtils.shouldAddSeparator.apply(pathToFolder);
                 configuration.getProperties().setProperty("targetModule", this.configuration.getProperty("targetModule"));
             }
-            this.configuration.setAbsolutePathToProjectRoot(new File(this.pathToChangedVersionOfProgram).getAbsolutePath());
+            inputConfiguration.setAbsolutePathToProjectRoot(new File(this.pathToChangedVersionOfProgram).getAbsolutePath());
             inputProgram.setProgramDir(this.pathToChangedVersionOfProgram);
             Initializer.initialize(inputConfiguration, inputProgram);
         } catch (Exception e) {
@@ -98,15 +98,15 @@ public class ChangeDetectorSelector implements TestSelector {
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.pathToTmpTestSources));
         final String classpath = AutomaticBuilderFactory
                 .getAutomaticBuilder(this.configuration)
-                .buildClasspath(this.program.getProgramDir())
+                .buildClasspath(this.configuration.getAbsolutePathToProjectRoot())
                 + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
 
         DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources,
                 classpath
                         + AmplificationHelper.PATH_SEPARATOR +
-                        this.program.getProgramDir() + "/" + this.program.getClassesDir()
+                        this.configuration.getAbsolutePathToProjectRoot() + "/" + this.program.getClassesDir()
                         + AmplificationHelper.PATH_SEPARATOR +
-                        this.program.getProgramDir() + "/" + this.program.getTestClassesDir(),
+                        this.configuration.getAbsolutePathToProjectRoot() + "/" + this.program.getTestClassesDir(),
                 new File(this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir()));
 
         final TestListener results;

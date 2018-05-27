@@ -1,13 +1,18 @@
 package eu.stamp_project.utils.compilation;
 
-import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.sosiefier.InputProgram;
 import eu.stamp_project.Main;
+import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.sosiefier.InputConfiguration;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import spoon.Launcher;
 import spoon.OutputType;
 import spoon.SpoonModelBuilder;
-import spoon.compiler.builder.*;
+import spoon.compiler.builder.AdvancedOptions;
+import spoon.compiler.builder.AnnotationProcessingOptions;
+import spoon.compiler.builder.ClasspathOptions;
+import spoon.compiler.builder.ComplianceOptions;
+import spoon.compiler.builder.JDTBuilderImpl;
+import spoon.compiler.builder.SourceOptions;
 import spoon.support.compiler.FileSystemFolder;
 import spoon.support.compiler.jdt.JDTBasedSpoonCompiler;
 
@@ -26,17 +31,19 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
 	public static final String pathToTmpTestSources = "target/dspot/tmp_test_sources";
 
-	public static DSpotCompiler createDSpotCompiler(InputProgram program, String pathToDependencies) {
-		String pathToSources = program.getAbsoluteSourceCodeDir() + PATH_SEPARATOR + program.getAbsoluteTestSourceCodeDir();
+	public static DSpotCompiler createDSpotCompiler(InputConfiguration configuration, String pathToDependencies) {
+		String pathToSources = configuration.getInputProgram().getAbsoluteSourceCodeDir() + PATH_SEPARATOR +
+				configuration.getInputProgram().getAbsoluteTestSourceCodeDir();
 		Launcher launcher = getSpoonModelOf(pathToSources, pathToDependencies);
-		return new DSpotCompiler(launcher, program, pathToDependencies);
+		return new DSpotCompiler(launcher, configuration, pathToDependencies);
 	}
 
-	private DSpotCompiler(Launcher launcher, InputProgram program, String pathToDependencies) {
+	private DSpotCompiler(Launcher launcher, InputConfiguration configuration, String pathToDependencies) {
 		super(launcher.getFactory());
 		this.dependencies = pathToDependencies;
 		this.launcher = launcher;
-		this.binaryOutputDirectory = new File(program.getProgramDir() + "/" + program.getTestClassesDir());
+		this.binaryOutputDirectory = new File(configuration.getAbsolutePathToProjectRoot() + "/" +
+				configuration.getInputProgram().getTestClassesDir());
 		this.sourceOutputDirectory = new File(pathToTmpTestSources);
 		if (!this.sourceOutputDirectory.exists()) {
 			this.sourceOutputDirectory.mkdir();

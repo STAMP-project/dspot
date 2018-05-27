@@ -88,12 +88,12 @@ public class Utils {
 			Initializer.initialize(inputConfiguration);
 			inputProgram = inputConfiguration.getInputProgram();
 			builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
-			String dependencies = builder.buildClasspath(inputProgram.getProgramDir());
+			String dependencies = builder.buildClasspath(inputConfiguration.getAbsolutePathToProjectRoot());
 			if (inputConfiguration.getProperty("additionalClasspathElements") != null) {
-				dependencies += PATH_SEPARATOR + inputConfiguration.getInputProgram().getProgramDir()
+				dependencies += PATH_SEPARATOR + inputConfiguration.getAbsolutePathToProjectRoot()
 						+ inputConfiguration.getProperty("additionalClasspathElements");
 			}
-			compiler = DSpotCompiler.createDSpotCompiler(inputProgram, dependencies);
+			compiler = DSpotCompiler.createDSpotCompiler(inputConfiguration, dependencies);
 			inputConfiguration.setFactory(compiler.getLauncher().getFactory());
 		} catch (Exception e) {
 			throw new RuntimeException(e);

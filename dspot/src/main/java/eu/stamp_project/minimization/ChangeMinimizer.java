@@ -54,7 +54,7 @@ public class ChangeMinimizer extends GeneralMinimizer {
         this.failurePerAmplifiedTest = failurePerAmplifiedTest;
         this.classpath = AutomaticBuilderFactory
                 .getAutomaticBuilder(this.configuration)
-                .buildClasspath(this.program.getProgramDir())
+                .buildClasspath(this.configuration.getAbsolutePathToProjectRoot())
                 + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
     }
 
@@ -97,7 +97,7 @@ public class ChangeMinimizer extends GeneralMinimizer {
         try {
             final TestListener result = EntryPoint.runTests(classpath +
                             AmplificationHelper.PATH_SEPARATOR +
-                            new File(this.pathToChangedVersionOfProgram + "/" + this.program.getClassesDir()).getAbsolutePath() +
+                            new File(this.configuration.getAbsolutePathToProjectRoot() + "/" + this.program.getClassesDir()).getAbsolutePath() +
                             AmplificationHelper.PATH_SEPARATOR +
                             new File(this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir()).getAbsolutePath(),
                     clone.getQualifiedName(),
@@ -150,11 +150,12 @@ public class ChangeMinimizer extends GeneralMinimizer {
                 .forEach(clone::removeMethod);
         clone.addMethod(amplifiedTestToBeMinimized);
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.pathToTmpTestSources));
+        final String classes = AmplificationHelper.PATH_SEPARATOR +
+                this.configuration.getAbsolutePathToProjectRoot() + "/" + this.program.getClassesDir()
+                + AmplificationHelper.PATH_SEPARATOR +
+                this.configuration.getAbsolutePathToProjectRoot() + "/" + this.program.getTestClassesDir();
         final boolean compile = DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources,
-                classpath + AmplificationHelper.PATH_SEPARATOR +
-                        this.program.getProgramDir() + "/" + this.program.getClassesDir()
-                        + AmplificationHelper.PATH_SEPARATOR +
-                        this.program.getProgramDir() + "/" + this.program.getTestClassesDir(),
+                classpath + classes,
                 new File(this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir()));
         return compile;
     }

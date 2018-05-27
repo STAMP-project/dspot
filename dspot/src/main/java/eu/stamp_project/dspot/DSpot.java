@@ -98,21 +98,21 @@ public class DSpot {
         this.inputProgram = inputConfiguration.getInputProgram();
 
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
-        String dependencies = builder.buildClasspath(this.inputProgram.getProgramDir());
+        String dependencies = builder.buildClasspath(this.inputConfiguration.getAbsolutePathToProjectRoot());
 
         if (inputConfiguration.getProperty("additionalClasspathElements") != null) {
-            dependencies += PATH_SEPARATOR + new File(inputConfiguration.getInputProgram().getProgramDir()
+            dependencies += PATH_SEPARATOR + new File(this.inputConfiguration.getAbsolutePathToProjectRoot()
                     + inputConfiguration.getProperty("additionalClasspathElements")).getAbsolutePath();
         }
 
-        this.compiler = DSpotCompiler.createDSpotCompiler(inputProgram, dependencies);
+        this.compiler = DSpotCompiler.createDSpotCompiler(this.inputConfiguration, dependencies);
         this.inputConfiguration.setFactory(compiler.getLauncher().getFactory());
         this.amplifiers = new ArrayList<>(amplifiers);
         this.numberOfIterations = numberOfIterations;
         this.testSelector = testSelector;
         this.testSelector.init(this.inputConfiguration);
 
-        final String[] splittedPath = inputProgram.getProgramDir().split("/");
+        final String[] splittedPath = this.inputConfiguration.getAbsolutePathToProjectRoot().split("/");
         final File projectJsonFile = new File(this.inputConfiguration.getOutputDirectory() +
                 "/" + splittedPath[splittedPath.length - 1] + ".json");
         if (projectJsonFile.exists()) {

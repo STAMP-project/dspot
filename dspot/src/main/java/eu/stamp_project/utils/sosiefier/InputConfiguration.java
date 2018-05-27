@@ -274,6 +274,6 @@ public class InputConfiguration {
     }
 
     public void setAbsolutePathToProjectRoot(String absolutePathToProjectRoot) {
-        this.absolutePathToProjectRoot = absolutePathToProjectRoot;
+        this.absolutePathToProjectRoot = absolutePathToProjectRoot + DSpotUtils.shouldAddSeparator.apply(absolutePathToProjectRoot);
     }
 }

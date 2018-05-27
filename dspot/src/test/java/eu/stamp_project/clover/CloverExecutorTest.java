@@ -39,7 +39,7 @@ public class CloverExecutorTest extends AbstractTest {
          */
 
         final Map<String, Map<String, List<Integer>>> lineCoveragePerTestMethod =
-                CloverExecutor.executeAll(Utils.getInputConfiguration(), Utils.getInputProgram().getProgramDir() + "/src/");
+                CloverExecutor.executeAll(Utils.getInputConfiguration(), Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + "/src/");
         final Map<String, List<Integer>> test4 = lineCoveragePerTestMethod.get("test4");
         assertTrue(test4.containsKey("example.Example"));
         assertEquals(1, test4.keySet().size());
@@ -60,7 +60,7 @@ public class CloverExecutorTest extends AbstractTest {
          */
 
         final Map<String, Map<String, List<Integer>>> lineCoveragePerTestMethod =
-                CloverExecutor.execute(Utils.getInputConfiguration(), Utils.getInputProgram().getProgramDir() + "/src/", "example.TestSuiteExample");
+                CloverExecutor.execute(Utils.getInputConfiguration(), Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + "/src/", "example.TestSuiteExample");
         final Map<String, List<Integer>> test4 = lineCoveragePerTestMethod.get("test4");
         assertTrue(test4.containsKey("example.Example"));
         assertEquals(1, test4.keySet().size());

@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * User: Simon Date: 18/05/16 Time: 16:10
  */
 public class DSpotUtils {
-	
+
     public static boolean withComment = false;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DSpotUtils.class);

@@ -62,10 +62,10 @@ public class ExecutedMutantSelector extends TakeAllSelector {
         if (this.originalMutantExecuted == null) {
             LOGGER.info("Computing executed mutants by the original test suite...");
             final AutomaticBuilder automaticBuilder = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration);
-            automaticBuilder.runPit(this.program.getProgramDir());
+            automaticBuilder.runPit(this.configuration.getAbsolutePathToProjectRoot());
             this.originalMutantExecuted =
                     PitResultParser.parseAndDelete(
-                            this.program.getProgramDir() + automaticBuilder.getOutputDirectoryPit()
+                            this.configuration.getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit()
                     ).stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED ||
                             pitResult.getStateOfMutant() == PitResult.State.SURVIVED)
                             .collect(Collectors.toList());
@@ -102,20 +102,20 @@ public class ExecutedMutantSelector extends TakeAllSelector {
         // then compile
         final String classpath = AutomaticBuilderFactory
                 .getAutomaticBuilder(this.configuration)
-                .buildClasspath(this.program.getProgramDir())
+                .buildClasspath(this.configuration.getAbsolutePathToProjectRoot())
                 + AmplificationHelper.PATH_SEPARATOR +
-                this.program.getProgramDir() + "/" + this.program.getClassesDir()
+                this.configuration.getAbsolutePathToProjectRoot() + "/" + this.program.getClassesDir()
                 + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/"
                 + AmplificationHelper.PATH_SEPARATOR +
-                this.program.getProgramDir() + "/" + this.program.getTestClassesDir();
+                this.configuration.getAbsolutePathToProjectRoot() + "/" + this.program.getTestClassesDir();
 
         DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
-                new File(this.program.getProgramDir() + "/" + this.program.getTestClassesDir()));
+                new File(this.configuration.getAbsolutePathToProjectRoot() + "/" + this.program.getTestClassesDir()));
 
         AutomaticBuilderFactory
                 .getAutomaticBuilder(this.configuration)
-                .runPit(this.program.getProgramDir(), clone);
-        final List<PitResult> pitResults = PitResultParser.parseAndDelete(program.getProgramDir() + AutomaticBuilderFactory
+                .runPit(this.configuration.getAbsolutePathToProjectRoot(), clone);
+        final List<PitResult> pitResults = PitResultParser.parseAndDelete(this.configuration.getAbsolutePathToProjectRoot() + AutomaticBuilderFactory
                 .getAutomaticBuilder(this.configuration).getOutputDirectoryPit());
         final int numberOfSelectedAmplifiedTest = pitResults.stream()
                 .filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED ||

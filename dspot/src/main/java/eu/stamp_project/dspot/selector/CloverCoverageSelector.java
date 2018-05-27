@@ -64,12 +64,12 @@ public class CloverCoverageSelector extends TakeAllSelector {
                             )
                     );
 
-            final String classesOfProject = new File(program.getProgramDir() + program.getClassesDir()).getAbsolutePath() +
-                    AmplificationHelper.PATH_SEPARATOR +
-                    new File(program.getProgramDir() + program.getTestClassesDir()).getAbsolutePath();
+            final String classesOfProject = new File(configuration.getAbsolutePathToProjectRoot() + program.getClassesDir()).getAbsolutePath()
+                    + AmplificationHelper.PATH_SEPARATOR +
+                    new File(configuration.getAbsolutePathToProjectRoot() + program.getTestClassesDir()).getAbsolutePath();
 
             final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration)
-                    .buildClasspath(program.getProgramDir()) +
+                    .buildClasspath(configuration.getAbsolutePathToProjectRoot()) +
                     AmplificationHelper.PATH_SEPARATOR + classesOfProject;
 
             try {
@@ -176,16 +176,16 @@ public class CloverCoverageSelector extends TakeAllSelector {
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.pathToTmpTestSources));
 
         final String classesOfProject =
-                new File(program.getProgramDir() + program.getClassesDir()).getAbsolutePath() +
-                AmplificationHelper.PATH_SEPARATOR +
-                        new File(program.getProgramDir() + program.getTestClassesDir()).getAbsolutePath();
+                new File(configuration.getAbsolutePathToProjectRoot() + program.getClassesDir()).getAbsolutePath()
+                        + AmplificationHelper.PATH_SEPARATOR +
+                        new File(configuration.getAbsolutePathToProjectRoot() + program.getTestClassesDir()).getAbsolutePath();
 
         final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration)
-                .buildClasspath(program.getProgramDir()) +
+                .buildClasspath(configuration.getAbsolutePathToProjectRoot()) +
                 AmplificationHelper.PATH_SEPARATOR + classesOfProject;
 
         DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
-                new File(this.program.getProgramDir() + "/" + this.program.getTestClassesDir()));
+                new File(this.configuration.getAbsolutePathToProjectRoot() + "/" + this.program.getTestClassesDir()));
 
         try {
             return EntryPoint.runCoverageOnTestClasses(classpath, classesOfProject,

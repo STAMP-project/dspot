@@ -63,8 +63,8 @@ public class MavenAutomaticBuilderTest {
 
         Utils.init("src/test/resources/test-projects/test-projects.properties");
 
-        Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir());
-        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir() + Utils.getBuilder().getOutputDirectoryPit());
+        Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot());
+        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertEquals(28, pitResults.size());
         assertEquals(9, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
@@ -77,14 +77,14 @@ public class MavenAutomaticBuilderTest {
         Utils.init("src/test/resources/mockito/mockito.properties");
 
         try {
-            Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir());
+            Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot());
             fail("Should have thrown a RuntimeException");
         } catch (RuntimeException e) {
             //success
         }
 
         try {
-            Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir(),
+            Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot(),
                     Utils.findClass("info.sanaulla.dal.BookDALTest"));
             fail("Should have thrown a RuntimeException");
         } catch (RuntimeException e) {
@@ -96,8 +96,8 @@ public class MavenAutomaticBuilderTest {
     public void testSpecificClass() throws Exception {
         Utils.init("src/test/resources/test-projects/test-projects.properties");
 
-        Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir(), Utils.findClass("example.TestSuiteExample2"));
-        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir() + Utils.getBuilder().getOutputDirectoryPit());
+        Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot(), Utils.findClass("example.TestSuiteExample2"));
+        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertNotNull(pitResults);
         assertEquals(28, pitResults.size());
@@ -109,8 +109,8 @@ public class MavenAutomaticBuilderTest {
     public void testMultipleClasses() throws Exception {
         Utils.init("src/test/resources/test-projects/test-projects.properties");
 
-        Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir(), Utils.findClass("example.TestSuiteExample2"), Utils.findClass("example.TestSuiteExample"));
-        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir() + Utils.getBuilder().getOutputDirectoryPit());
+        Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot(), Utils.findClass("example.TestSuiteExample2"), Utils.findClass("example.TestSuiteExample"));
+        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertNotNull(pitResults);
         assertEquals(28, pitResults.size());
@@ -126,10 +126,10 @@ public class MavenAutomaticBuilderTest {
 
         FileUtils.deleteDirectory(new File("src/test/resources/sample/target/pit-reports"));
 
-        Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir(),
+        Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot(),
                 Utils.findClass("fr.inria.inheritance.Inherited"));
 
-        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir() + Utils.getBuilder().getOutputDirectoryPit());
+        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertEquals(31, pitResults.size());
     }
@@ -139,8 +139,8 @@ public class MavenAutomaticBuilderTest {
 
         Utils.init("src/test/resources/project-with-resources/project-with-resources.properties");
 
-        Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir());
-        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputProgram().getProgramDir() + Utils.getBuilder().getOutputDirectoryPit());
+        Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot());
+        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertNotNull(pitResults);
         assertEquals(88, pitResults.size());
@@ -155,7 +155,7 @@ public class MavenAutomaticBuilderTest {
         final InputConfiguration inputConfiguration = Utils.getInputConfiguration();
         inputConfiguration.getProperties().setProperty("filter", "*");
         try {
-            Utils.getBuilder().runPit(Utils.getInputProgram().getProgramDir(), Utils.findClass("example.TestSuiteExample2"), Utils.findClass("example.TestSuiteExample"));
+            Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot(), Utils.findClass("example.TestSuiteExample2"), Utils.findClass("example.TestSuiteExample"));
             fail();
         } catch (Exception e) {
 
