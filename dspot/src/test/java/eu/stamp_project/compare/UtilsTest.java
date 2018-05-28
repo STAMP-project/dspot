@@ -19,17 +19,17 @@ public class UtilsTest {
     @Test//TODO empty collection / map are considered as primitive, we may need to found a semantic of the method.
     public void testIsPrimitiveCollectionOrMap() throws Exception {
         final ArrayList<Integer> list = new ArrayList<>();
-        assertTrue(Utils.isPrimitiveCollectionOrMap(list));
+        assertFalse(Utils.isPrimitiveCollectionOrMap(list));
         list.add(1);
         assertTrue(Utils.isPrimitiveCollectionOrMap(list));
 
         final HashMap<Integer, Integer> map = new HashMap<>();
-        assertTrue(Utils.isPrimitiveCollectionOrMap(map));
+        assertFalse(Utils.isPrimitiveCollectionOrMap(map));
         map.put(1,1);
         assertTrue(Utils.isPrimitiveCollectionOrMap(map));
 
         final HashSet<Integer> set = new HashSet<>();
-        assertTrue(Utils.isPrimitiveCollectionOrMap(set));
+        assertFalse(Utils.isPrimitiveCollectionOrMap(set));
         set.add(1);
         assertTrue(Utils.isPrimitiveCollectionOrMap(set));
 
@@ -44,7 +44,7 @@ public class UtilsTest {
         assertFalse(Utils.isNonEmptyPrimitiveMap(list));
 
         final HashMap<Integer, Integer> map = new HashMap<>();
-        assertTrue(Utils.isNonEmptyPrimitiveMap(map));
+        assertFalse(Utils.isNonEmptyPrimitiveMap(map));
         map.put(1,1);
         assertTrue(Utils.isNonEmptyPrimitiveMap(map));
 
@@ -59,7 +59,7 @@ public class UtilsTest {
     @Test
     public void testIsPrimitiveCollection() throws Exception {
         final ArrayList<Integer> list = new ArrayList<>();
-        assertTrue(Utils.isNonEmptyPrimitiveCollection(list));
+        assertFalse(Utils.isNonEmptyPrimitiveCollection(list));
         list.add(1);
         assertTrue(Utils.isNonEmptyPrimitiveCollection(list));
 
@@ -69,7 +69,7 @@ public class UtilsTest {
         assertFalse(Utils.isNonEmptyPrimitiveCollection(map));
 
         final HashSet<Integer> set = new HashSet<>();
-        assertTrue(Utils.isNonEmptyPrimitiveCollection(set));
+        assertFalse(Utils.isNonEmptyPrimitiveCollection(set));
         set.add(1);
         assertTrue(Utils.isNonEmptyPrimitiveCollection(set));
 
