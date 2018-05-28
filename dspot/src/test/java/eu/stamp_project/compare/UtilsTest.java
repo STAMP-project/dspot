@@ -19,17 +19,17 @@ public class UtilsTest {
     @Test//TODO empty collection / map are considered as primitive, we may need to found a semantic of the method.
     public void testIsPrimitiveCollectionOrMap() throws Exception {
         final ArrayList<Integer> list = new ArrayList<>();
-        assertTrue(Utils.isPrimitiveCollectionOrMap(list));
+        assertFalse(Utils.isPrimitiveCollectionOrMap(list));
         list.add(1);
         assertTrue(Utils.isPrimitiveCollectionOrMap(list));
 
         final HashMap<Integer, Integer> map = new HashMap<>();
-        assertTrue(Utils.isPrimitiveCollectionOrMap(map));
+        assertFalse(Utils.isPrimitiveCollectionOrMap(map));
         map.put(1,1);
         assertTrue(Utils.isPrimitiveCollectionOrMap(map));
 
         final HashSet<Integer> set = new HashSet<>();
-        assertTrue(Utils.isPrimitiveCollectionOrMap(set));
+        assertFalse(Utils.isPrimitiveCollectionOrMap(set));
         set.add(1);
         assertTrue(Utils.isPrimitiveCollectionOrMap(set));
 
@@ -39,41 +39,41 @@ public class UtilsTest {
     @Test
     public void testIsPrimitiveMap() throws Exception {
         final ArrayList<Integer> list = new ArrayList<>();
-        assertFalse(Utils.isPrimitiveMap(list));
+        assertFalse(Utils.isNonEmptyPrimitiveMap(list));
         list.add(1);
-        assertFalse(Utils.isPrimitiveMap(list));
+        assertFalse(Utils.isNonEmptyPrimitiveMap(list));
 
         final HashMap<Integer, Integer> map = new HashMap<>();
-        assertTrue(Utils.isPrimitiveMap(map));
+        assertFalse(Utils.isNonEmptyPrimitiveMap(map));
         map.put(1,1);
-        assertTrue(Utils.isPrimitiveMap(map));
+        assertTrue(Utils.isNonEmptyPrimitiveMap(map));
 
         final HashSet<Integer> set = new HashSet<>();
-        assertFalse(Utils.isPrimitiveMap(set));
+        assertFalse(Utils.isNonEmptyPrimitiveMap(set));
         set.add(1);
-        assertFalse(Utils.isPrimitiveMap(set));
+        assertFalse(Utils.isNonEmptyPrimitiveMap(set));
 
-        assertFalse(Utils.isPrimitiveMap(1));
+        assertFalse(Utils.isNonEmptyPrimitiveMap(1));
     }
 
     @Test
     public void testIsPrimitiveCollection() throws Exception {
         final ArrayList<Integer> list = new ArrayList<>();
-        assertTrue(Utils.isPrimitiveCollection(list));
+        assertFalse(Utils.isNonEmptyPrimitiveCollection(list));
         list.add(1);
-        assertTrue(Utils.isPrimitiveCollection(list));
+        assertTrue(Utils.isNonEmptyPrimitiveCollection(list));
 
         final HashMap<Integer, Integer> map = new HashMap<>();
-        assertFalse(Utils.isPrimitiveCollection(map));
+        assertFalse(Utils.isNonEmptyPrimitiveCollection(map));
         map.put(1,1);
-        assertFalse(Utils.isPrimitiveCollection(map));
+        assertFalse(Utils.isNonEmptyPrimitiveCollection(map));
 
         final HashSet<Integer> set = new HashSet<>();
-        assertTrue(Utils.isPrimitiveCollection(set));
+        assertFalse(Utils.isNonEmptyPrimitiveCollection(set));
         set.add(1);
-        assertTrue(Utils.isPrimitiveCollection(set));
+        assertTrue(Utils.isNonEmptyPrimitiveCollection(set));
 
-        assertFalse(Utils.isPrimitiveCollection(1));
+        assertFalse(Utils.isNonEmptyPrimitiveCollection(1));
     }
 
     @SuppressWarnings("all")
