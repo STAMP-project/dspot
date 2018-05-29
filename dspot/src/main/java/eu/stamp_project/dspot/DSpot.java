@@ -98,21 +98,21 @@ public class DSpot {
         this.inputProgram = inputConfiguration.getInputProgram();
 
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
-        String dependencies = builder.buildClasspath(this.inputProgram.getProgramDir());
+        String dependencies = builder.buildClasspath(this.inputConfiguration.getAbsolutePathToProjectRoot());
 
         if (inputConfiguration.getProperty("additionalClasspathElements") != null) {
-            dependencies += PATH_SEPARATOR + new File(inputConfiguration.getInputProgram().getProgramDir()
+            dependencies += PATH_SEPARATOR + new File(this.inputConfiguration.getAbsolutePathToProjectRoot()
                     + inputConfiguration.getProperty("additionalClasspathElements")).getAbsolutePath();
         }
 
-        this.compiler = DSpotCompiler.createDSpotCompiler(inputProgram, dependencies);
-        this.inputProgram.setFactory(compiler.getLauncher().getFactory());
+        this.compiler = DSpotCompiler.createDSpotCompiler(this.inputConfiguration, dependencies);
+        this.inputConfiguration.setFactory(compiler.getLauncher().getFactory());
         this.amplifiers = new ArrayList<>(amplifiers);
         this.numberOfIterations = numberOfIterations;
         this.testSelector = testSelector;
         this.testSelector.init(this.inputConfiguration);
 
-        final String[] splittedPath = inputProgram.getProgramDir().split("/");
+        final String[] splittedPath = this.inputConfiguration.getAbsolutePathToProjectRoot().split("/");
         final File projectJsonFile = new File(this.inputConfiguration.getOutputDirectory() +
                 "/" + splittedPath[splittedPath.length - 1] + ".json");
         if (projectJsonFile.exists()) {
@@ -131,7 +131,7 @@ public class DSpot {
     }
 
     public List<CtType> amplifyAllTests() {
-        return this.amplifyAllTests(inputProgram.getFactory().Class().getAll().stream()
+        return this.amplifyAllTests(this.inputConfiguration.getFactory().Class().getAll().stream()
                 .filter(ctClass -> !ctClass.getModifiers().contains(ModifierKind.ABSTRACT))
                 .filter(ctClass ->
                         ctClass.getMethods().stream()
@@ -228,8 +228,13 @@ public class DSpot {
         }
     }
 
+    @Deprecated
     public InputProgram getInputProgram() {
         return inputProgram;
+    }
+
+    public InputConfiguration getInputConfiguration() {
+        return this.inputConfiguration;
     }
 
     private final Predicate<CtType> isExcluded = ctType ->

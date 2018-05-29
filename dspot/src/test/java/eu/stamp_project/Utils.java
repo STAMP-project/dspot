@@ -88,13 +88,13 @@ public class Utils {
 			Initializer.initialize(inputConfiguration);
 			inputProgram = inputConfiguration.getInputProgram();
 			builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
-			String dependencies = builder.buildClasspath(inputProgram.getProgramDir());
+			String dependencies = builder.buildClasspath(inputConfiguration.getAbsolutePathToProjectRoot());
 			if (inputConfiguration.getProperty("additionalClasspathElements") != null) {
-				dependencies += PATH_SEPARATOR + inputConfiguration.getInputProgram().getProgramDir()
+				dependencies += PATH_SEPARATOR + inputConfiguration.getAbsolutePathToProjectRoot()
 						+ inputConfiguration.getProperty("additionalClasspathElements");
 			}
-			compiler = DSpotCompiler.createDSpotCompiler(inputProgram, dependencies);
-			inputProgram.setFactory(compiler.getLauncher().getFactory());
+			compiler = DSpotCompiler.createDSpotCompiler(inputConfiguration, dependencies);
+			inputConfiguration.setFactory(compiler.getLauncher().getFactory());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -105,7 +105,7 @@ public class Utils {
 	}
 
 	public static CtClass findClass(String fullQualifiedName) {
-		return getInputProgram().getFactory().Class().get(fullQualifiedName);
+		return getInputConfiguration().getFactory().Class().get(fullQualifiedName);
 	}
 
 	public static CtMethod findMethod(CtClass<?> ctClass, String methodName) {
@@ -145,7 +145,7 @@ public class Utils {
 	}
 
 	public static Factory getFactory() {
-		return getInputProgram().getFactory();
+		return getInputConfiguration().getFactory();
 	}
 
 	public static final class FILTER_LITERAL_OF_GIVEN_TYPE extends TypeFilter<CtLiteral> {

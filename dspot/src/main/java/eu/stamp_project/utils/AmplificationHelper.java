@@ -226,18 +226,18 @@ public class AmplificationHelper {
                         final CtType<?> convertedSuperclass =
                                 AmplificationHelper.convertToJUnit4(superclass, configuration, program);
                         DSpotUtils.printCtTypeToGivenDirectory(convertedSuperclass,
-                                new File(program.getProgramDir() + "/" + program.getTestClassesDir()));
+                                new File(configuration.getAbsolutePathToProjectRoot() + "/" + program.getTestClassesDir()));
                         final String classpath = AutomaticBuilderFactory
                                 .getAutomaticBuilder(configuration)
-                                .buildClasspath(program.getProgramDir())
+                                .buildClasspath(configuration.getAbsolutePathToProjectRoot())
                                 + AmplificationHelper.PATH_SEPARATOR +
-                                program.getProgramDir() + "/" + program.getClassesDir()
+                                configuration.getAbsolutePathToProjectRoot() + "/" + program.getClassesDir()
                                 + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/"
                                 + AmplificationHelper.PATH_SEPARATOR +
-                                program.getProgramDir() + "/" + program.getTestClassesDir();
+                                configuration.getAbsolutePathToProjectRoot() + "/" + program.getTestClassesDir();
 
                         DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
-                                new File(program.getProgramDir() + "/" + program.getTestClassesDir()));
+                                new File(configuration.getAbsolutePathToProjectRoot() + "/" + program.getTestClassesDir()));
                     }
                     if (superclass.getSuperclass() == null) {
                         break;
@@ -458,7 +458,7 @@ public class AmplificationHelper {
     public static String getClassPath(DSpotCompiler compiler, InputConfiguration configuration) {
         return Arrays.stream(new String[]{
                         compiler.getBinaryOutputDirectory().getAbsolutePath(),
-                        new File(configuration.getInputProgram().getProgramDir() + "/" + configuration.getInputProgram().getClassesDir()).getAbsolutePath(),
+                        new File(configuration.getAbsolutePathToProjectRoot() + "/" + configuration.getInputProgram().getClassesDir()).getAbsolutePath(),
                         compiler.getDependencies(),
                 }
         ).collect(Collectors.joining(PATH_SEPARATOR));

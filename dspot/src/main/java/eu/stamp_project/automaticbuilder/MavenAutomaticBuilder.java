@@ -48,7 +48,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 	MavenAutomaticBuilder(InputConfiguration configuration) {
 		this.mavenHome = DSpotUtils.buildMavenHome(configuration);
 		this.configuration = configuration;
-		final String pathToPom = this.configuration.getInputProgram().getProgramDir() + "/" + POM_FILE;
+		final String pathToPom = this.configuration.getAbsolutePathToProjectRoot() + "/" + POM_FILE;
 		if (PitMutantScoreSelector.descartesMode &&
 				DescartesChecker.shouldInjectDescartes(pathToPom)) {
 			try (final BufferedReader buffer = new BufferedReader(new FileReader(pathToPom))) {
@@ -99,7 +99,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 	@Override
 	public void reset() {
 		if (contentOfOriginalPom != null) {
-			final String pathToPom = this.configuration.getInputProgram().getProgramDir() + "/" + POM_FILE;
+			final String pathToPom = this.configuration.getAbsolutePathToProjectRoot() + "/" + POM_FILE;
 			try (FileWriter writer = new FileWriter(pathToPom)) {
 				writer.write(this.contentOfOriginalPom);
 				this.contentOfOriginalPom =  null;

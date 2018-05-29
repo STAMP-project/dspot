@@ -3,7 +3,6 @@ package eu.stamp_project.dspot.amplifier;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.sosiefier.InputProgram;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
@@ -33,9 +32,7 @@ public class StatementAddTest extends AbstractTest {
          */
 
         final String packageName = "fr.inria.statementadd";
-        InputProgram inputProgram = Utils.getInputProgram();
-        final Factory factory = inputProgram.getFactory();
-        inputProgram.setFactory(factory);
+        final Factory factory = Utils.getFactory();
         AmplificationHelper.setSeedRandom(32L);
         StatementAdd amplifier = new StatementAdd(packageName);
         amplifier.reset(factory.Class().get(packageName + ".ClassTarget"));
@@ -68,9 +65,7 @@ public class StatementAddTest extends AbstractTest {
          */
 
         final String packageName = "fr.inria.statementadd";
-        InputProgram inputProgram = Utils.getInputProgram();
-        final Factory factory = inputProgram.getFactory();
-        inputProgram.setFactory(factory);
+        final Factory factory = Utils.getFactory();
         AmplificationHelper.setSeedRandom(32L);
         StatementAdd amplifier = new StatementAdd(packageName);
         amplifier.reset(factory.Class().get(packageName + ".ClassTarget"));
@@ -100,9 +95,7 @@ public class StatementAddTest extends AbstractTest {
     @Test
     public void testStatementAddOnArrayObjects() throws Exception {
         final String packageName = "fr.inria.statementaddarray";
-        InputProgram inputProgram = Utils.getInputProgram();
-        final Factory factory = inputProgram.getFactory();
-        inputProgram.setFactory(factory);
+        final Factory factory = Utils.getFactory();
         AmplificationHelper.setSeedRandom(32L);
         StatementAdd amplifier = new StatementAdd(packageName);
         amplifier.reset(factory.Class().get(packageName + ".ClassTargetAmplify"));
@@ -173,9 +166,7 @@ public class StatementAddTest extends AbstractTest {
          */
 
         final String packageName = "fr.inria.statementadd";
-        InputProgram inputProgram = Utils.getInputProgram();
-        final Factory factory = inputProgram.getFactory();
-        inputProgram.setFactory(factory);
+        final Factory factory = Utils.getFactory();
         AmplificationHelper.setSeedRandom(42L);
         StatementAdd amplifier = new StatementAdd(packageName);
         amplifier.reset(factory.Class().get(packageName + ".ClassTargetAmplify"));

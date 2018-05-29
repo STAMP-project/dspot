@@ -61,9 +61,9 @@ public class TestCompiler {
                                              List<CtMethod<?>> testsToRun,
                                              InputConfiguration configuration) throws AmplificationException {
         final InputProgram inputProgram = configuration.getInputProgram();
-        final String dependencies = inputProgram.getProgramDir() + "/" + inputProgram.getClassesDir() +
+        final String dependencies = configuration.getAbsolutePathToProjectRoot()+ "/" + inputProgram.getClassesDir() +
                 System.getProperty("path.separator") +
-                inputProgram.getProgramDir() + "/" + inputProgram.getTestClassesDir() +
+                configuration.getAbsolutePathToProjectRoot() + "/" + inputProgram.getTestClassesDir() +
                 System.getProperty("path.separator") + "target/dspot/dependencies/";
         DSpotUtils.copyPackageFromResources();
         final List<CtMethod<?>> uncompilableMethods =

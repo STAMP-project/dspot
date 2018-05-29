@@ -50,7 +50,7 @@ public class SelectorOnDiff {
      * @return a map that associates the full qualified name of test classes to their test methods to be amplified.
      */
     public static Map<String, List<String>> findTestMethodsAccordingToADiff(InputConfiguration configuration) {
-        final Factory factory = configuration.getInputProgram().getFactory();
+        final Factory factory = configuration.getFactory();
         final String baseSha = configuration.getProperties().getProperty("baseSha");
         final String pathToFirstVersion = configuration.getProperties().getProperty("project") +
                 (configuration.getProperties().getProperty("targetModule") != null ?

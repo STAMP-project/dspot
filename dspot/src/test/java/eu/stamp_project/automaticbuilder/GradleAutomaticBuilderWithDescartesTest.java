@@ -64,7 +64,7 @@ public class GradleAutomaticBuilderWithDescartesTest {
     public void runPit_whenAllDescartesMutatorsAreSpecified() throws Exception {
         Utils.LOGGER.info("Starting Gradle Automatic Builder runPit() test when a test class is specified...");
 
-        CtClass<Object> testClass = Utils.getInputProgram().getFactory().Class().get("example.TestSuiteExample");
+        CtClass<Object> testClass = Utils.getInputConfiguration().getFactory().Class().get("example.TestSuiteExample");
 
         sut.runPit("src/test/resources/test-projects/", testClass);
         List<PitResult> pitResults = PitResultParser.parseAndDelete("src/test/resources/test-projects/" + sut.getOutputDirectoryPit());

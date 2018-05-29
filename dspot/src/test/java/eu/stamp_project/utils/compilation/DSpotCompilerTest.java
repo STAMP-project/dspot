@@ -1,6 +1,7 @@
 package eu.stamp_project.utils.compilation;
 
 import eu.stamp_project.dspot.amplifier.Amplifier;
+import eu.stamp_project.utils.sosiefier.InputConfiguration;
 import eu.stamp_project.utils.sosiefier.InputProgram;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -36,11 +37,12 @@ public class DSpotCompilerTest {
         }
     }
 
+    // TODO update with configuration
     @Test
     public void testDSpotCompiler() throws Exception {
 
-        final InputProgram inputProgram = getInputProgram();
-        final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(inputProgram, "");
+        final InputConfiguration configuration = getConfiguration();
+        final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(configuration, "");
         final CtClass<?> aClass = getClass(compiler.getLauncher().getFactory());
         final List<CtMethod<?>> compile = TestCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, "");
         assertTrue(compile.isEmpty());
@@ -103,6 +105,17 @@ public class DSpotCompilerTest {
         inputProgram.setRelativeSourceCodeDir("src/main/java/");
         inputProgram.setRelativeTestSourceCodeDir("src/test/java");
         return inputProgram;
+    }
+
+    private InputConfiguration getConfiguration() {
+        final InputConfiguration inputConfiguration = new InputConfiguration();
+        final InputProgram inputProgram = new InputProgram();
+        inputProgram.setProgramDir("target/dspot/trash/");
+        inputProgram.setRelativeSourceCodeDir("src/main/java/");
+        inputProgram.setRelativeTestSourceCodeDir("src/test/java");
+        inputConfiguration.setAbsolutePathToProjectRoot(new File("target/dspot/trash/").getAbsolutePath());
+        inputConfiguration.setInputProgram(inputProgram);
+        return inputConfiguration;
     }
 
     private CtClass<?> getClass(Factory factory) {

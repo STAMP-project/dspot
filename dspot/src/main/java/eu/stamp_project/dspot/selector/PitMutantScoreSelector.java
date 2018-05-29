@@ -68,8 +68,8 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         }
         if (this.originalKilledMutants == null) {
             final AutomaticBuilder automaticBuilder = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration);
-            automaticBuilder.runPit(this.program.getProgramDir());
-            initOriginalPitResult(PitResultParser.parseAndDelete(this.program.getProgramDir() + automaticBuilder.getOutputDirectoryPit()) );
+            automaticBuilder.runPit(this.configuration.getAbsolutePathToProjectRoot());
+            initOriginalPitResult(PitResultParser.parseAndDelete(this.configuration.getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit()) );
         }
     }
 
@@ -113,20 +113,20 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 .getAutomaticBuilder(this.configuration);
         final String classpath = AutomaticBuilderFactory
                 .getAutomaticBuilder(this.configuration)
-                .buildClasspath(this.program.getProgramDir())
+                .buildClasspath(this.configuration.getAbsolutePathToProjectRoot())
                 + AmplificationHelper.PATH_SEPARATOR +
-                this.program.getProgramDir() + "/" + this.program.getClassesDir()
+                this.configuration.getAbsolutePathToProjectRoot() + "/" + this.program.getClassesDir()
                 + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/"
                 + AmplificationHelper.PATH_SEPARATOR +
-                this.program.getProgramDir() + "/" + this.program.getTestClassesDir();
+                this.configuration.getAbsolutePathToProjectRoot() + "/" + this.program.getTestClassesDir();
 
         DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
-                new File(this.program.getProgramDir() + "/" + this.program.getTestClassesDir()));
+                new File(this.configuration.getAbsolutePathToProjectRoot() + "/" + this.program.getTestClassesDir()));
 
         AutomaticBuilderFactory
                 .getAutomaticBuilder(this.configuration)
-                .runPit(this.program.getProgramDir(), clone);
-        final List<PitResult> results = PitResultParser.parseAndDelete(program.getProgramDir() + automaticBuilder.getOutputDirectoryPit());
+                .runPit(this.configuration.getAbsolutePathToProjectRoot(), clone);
+        final List<PitResult> results = PitResultParser.parseAndDelete(this.configuration.getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit());
 
         Set<CtMethod<?>> selectedTests = new HashSet<>();
         if (results != null) {

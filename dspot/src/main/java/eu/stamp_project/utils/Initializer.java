@@ -22,6 +22,7 @@ public class Initializer {
 	public static void initialize(InputConfiguration configuration)
 			throws IOException, InterruptedException {
 		InputProgram program = InputConfiguration.initInputProgram(configuration);
+		configuration.setAbsolutePathToProjectRoot(DSpotUtils.computeProgramDirectory.apply(configuration));
 		program.setProgramDir(DSpotUtils.computeProgramDirectory.apply(configuration));
 		configuration.setInputProgram(program);
 		Initializer.initialize(configuration, program);
@@ -30,17 +31,18 @@ public class Initializer {
 	public static void initialize(InputConfiguration configuration, InputProgram program) {
 		AutomaticBuilderFactory.reset();
 		AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(configuration);
-		builder.compile(program.getProgramDir());
+		builder.compile(configuration.getAbsolutePathToProjectRoot());
 		DSpotUtils.copyPackageFromResources();
 	}
 
+	@Deprecated
 	public static void compileTest(InputConfiguration configuration) {
 		InputProgram program = configuration.getInputProgram();
 		String dependencies = AutomaticBuilderFactory.getAutomaticBuilder(configuration)
-				.buildClasspath(program.getProgramDir());
+				.buildClasspath(configuration.getAbsolutePathToProjectRoot());
 		dependencies += PATH_SEPARATOR + "target/dspot/dependencies/";
-		File output = new File(program.getProgramDir() + "/" + program.getClassesDir());
-		File outputTest = new File(program.getProgramDir() + "/" + program.getTestClassesDir());
+		File output = new File(configuration.getAbsolutePathToProjectRoot() + "/" + program.getClassesDir());
+		File outputTest = new File(configuration.getAbsolutePathToProjectRoot() + "/" + program.getTestClassesDir());
 		try {
 			FileUtils.cleanDirectory(outputTest);
 		} catch (Exception ignored) {

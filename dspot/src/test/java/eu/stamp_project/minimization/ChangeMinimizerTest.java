@@ -15,6 +15,7 @@ import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.io.File;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
@@ -38,7 +39,6 @@ public class ChangeMinimizerTest extends AbstractTest {
         /*
             ChangeMinimizer keeps only the assertions that trigger the failure on the second version
          */
-
         final CtClass testClass = Utils.findClass("example.TestSuiteExample");
         final String configurationPath = Utils.getInputConfiguration().getProperty("configPath");
         final String pathToFolder = Utils.getInputConfiguration().getProperty("folderPath");
@@ -51,8 +51,9 @@ public class ChangeMinimizerTest extends AbstractTest {
                         inputConfiguration.getProperty("targetModule") +
                                 DSpotUtils.shouldAddSeparator.apply(pathToFolder)
                         : "");
+        inputConfiguration.setAbsolutePathToProjectRoot(new File(pathToChangedVersionOfProgram).getAbsolutePath());
         inputProgram.setProgramDir(pathToChangedVersionOfProgram);
-        Initializer.initialize(Utils.getInputConfiguration(), inputProgram);
+        Initializer.initialize(inputConfiguration, inputProgram);
         final HashMap<CtMethod<?>, Failure> failurePerAmplifiedTest = new HashMap<>();
         final CtMethod<?> test2 = Utils.findMethod(testClass, "test2");
         failurePerAmplifiedTest.put(test2,

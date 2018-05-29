@@ -3,7 +3,6 @@ package eu.stamp_project.utils.sosiefier;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.code.CtReturn;
 import spoon.reflect.declaration.CtElement;
-import spoon.reflect.factory.Factory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -89,13 +88,6 @@ public class InputProgram {
      */
     protected List<CtLocalVariable> inlineConstant;
 
-
-    /**
-     * Spoon factory to process all AST elements
-     */
-    private Factory factory;
-
-
     /**
      * Copies properties from the configuration
      *
@@ -105,20 +97,7 @@ public class InputProgram {
         setRelativeSourceCodeDir(configuration.getRelativeSourceCodeDir());
         setProgramDir(configuration.getProjectPath());
         setRelativeSourceCodeDir(configuration.getRelativeSourceCodeDir());
-        setPreviousTransformationsPath(configuration.getPreviousTransformationPath());
         setClassesDir(configuration.getClassesDir());
-        setCoverageDir(configuration.getCoverageDir());
-    }
-
-    /**
-     * Spoon factory to process all AST elements
-     */
-    public Factory getFactory() {
-        return factory;
-    }
-
-    public void setFactory(Factory factory) {
-        this.factory = factory;
     }
 
     /**
