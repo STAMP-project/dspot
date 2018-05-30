@@ -122,7 +122,7 @@ public class DSpot {
             this.projectTimeJSON = new ProjectTimeJSON(splittedPath[splittedPath.length - 1]);
         }
         if (Main.useWorkingDirectory) {
-            EntryPoint.workingDirectory = new File(this.inputProgram.getProgramDir());
+            EntryPoint.workingDirectory = new File(this.inputConfiguration.getAbsolutePathToProjectRoot());
         }
     }
 
