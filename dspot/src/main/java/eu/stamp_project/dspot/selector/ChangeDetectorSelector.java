@@ -39,6 +39,8 @@ public class ChangeDetectorSelector implements TestSelector {
 
     private InputConfiguration configuration;
 
+    private InputConfiguration changedConfiguration;
+
     private InputProgram program;
 
     private CtType<?> currentClassTestToBeAmplified;
@@ -53,20 +55,19 @@ public class ChangeDetectorSelector implements TestSelector {
         this.program = this.configuration.getInputProgram();
         final String configurationPath = configuration.getProperty("configPath");
         final String pathToFolder = configuration.getProperty("folderPath");
-        InputConfiguration inputConfiguration;
         try {
-            inputConfiguration = new InputConfiguration(configurationPath);
-            InputProgram inputProgram = InputConfiguration.initInputProgram(inputConfiguration);
-            inputConfiguration.setInputProgram(inputProgram);
+            changedConfiguration = new InputConfiguration(configurationPath);
+            InputProgram inputProgram = InputConfiguration.initInputProgram(changedConfiguration);
+            changedConfiguration.setInputProgram(inputProgram);
             this.pathToChangedVersionOfProgram = DSpotUtils.shouldAddSeparator.apply(pathToFolder);
             if (this.configuration.getProperty("targetModule") != null) {
                 this.pathToChangedVersionOfProgram +=
                         DSpotUtils.shouldAddSeparator.apply(this.configuration.getProperty("targetModule"));
                 configuration.getProperties().setProperty("targetModule", this.configuration.getProperty("targetModule"));
             }
-            inputConfiguration.setAbsolutePathToProjectRoot(new File(this.pathToChangedVersionOfProgram).getAbsolutePath());
+            changedConfiguration.setAbsolutePathToProjectRoot(new File(this.pathToChangedVersionOfProgram).getAbsolutePath());
             inputProgram.setProgramDir(this.pathToChangedVersionOfProgram);
-            Initializer.initialize(inputConfiguration, inputProgram);
+            Initializer.initialize(changedConfiguration, inputProgram);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -101,19 +102,13 @@ public class ChangeDetectorSelector implements TestSelector {
                 + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
 
         DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources,
-                classpath
-                        + AmplificationHelper.PATH_SEPARATOR +
-                        this.configuration.getAbsolutePathToProjectRoot() + "/" + this.program.getClassesDir()
-                        + AmplificationHelper.PATH_SEPARATOR +
-                        this.configuration.getAbsolutePathToProjectRoot() + "/" + this.program.getTestClassesDir(),
-                new File(this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir()));
+                classpath + AmplificationHelper.PATH_SEPARATOR + this.changedConfiguration.getClasspathClassesProject(),
+                new File(this.pathToChangedVersionOfProgram + this.changedConfiguration.getPathToTestClasses()));
 
         final TestListener results;
         try {
             results = EntryPoint.runTests(classpath + AmplificationHelper.PATH_SEPARATOR +
-                            new File(this.pathToChangedVersionOfProgram + "/" + this.program.getClassesDir()).getAbsolutePath()
-                            + AmplificationHelper.PATH_SEPARATOR +
-                            new File(this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir()).getAbsolutePath(),
+                            this.changedConfiguration.getClasspathClassesProject(),
                     clone.getQualifiedName(),
                     amplifiedTestToBeKept.stream()
                             .map(CtMethod::getSimpleName)

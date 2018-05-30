@@ -166,13 +166,6 @@ public class InputProgram {
         this.transformationPerRun = transformationPerRun;
     }
 
-    /**
-     * Path to the root directory of the input program
-     */
-    public String getProgramDir() {
-        return programDir;
-    }
-
     public void setProgramDir(String programDir) {
         this.programDir = programDir;
     }

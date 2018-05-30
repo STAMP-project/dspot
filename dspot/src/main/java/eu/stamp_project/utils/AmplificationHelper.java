@@ -231,11 +231,8 @@ public class AmplificationHelper {
                                 .getAutomaticBuilder(configuration)
                                 .buildClasspath(configuration.getAbsolutePathToProjectRoot())
                                 + AmplificationHelper.PATH_SEPARATOR +
-                                configuration.getAbsolutePathToProjectRoot() + "/" + program.getClassesDir()
-                                + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/"
-                                + AmplificationHelper.PATH_SEPARATOR +
-                                configuration.getAbsolutePathToProjectRoot() + "/" + program.getTestClassesDir();
-
+                                configuration.getClasspathClassesProject()
+                                + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
                         DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
                                 new File(configuration.getAbsolutePathToProjectRoot() + "/" + program.getTestClassesDir()));
                     }

@@ -1,5 +1,6 @@
 package eu.stamp_project.utils.sosiefier;
 
+import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import spoon.reflect.factory.Factory;
 
@@ -10,10 +11,8 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * The input configuration class encapsulates all the data and associated behavior we obtain from the input properties
@@ -43,6 +42,10 @@ public class InputConfiguration {
         prop = new Properties();
         setDefaultProperties();
         prop.load(stream);
+
+        this.setPathToClasses(DSpotUtils.shouldAddSeparator.apply(prop.getProperty("classes", "target/classes")));
+        this.setPathToTestClasses(DSpotUtils.shouldAddSeparator.apply(prop.getProperty("testclasses", "target/test-classes")));
+
         if (prop.getProperty("systemProperties") != null) {
             Arrays.stream(prop.getProperty("systemProperties").split(","))
                     .forEach( systemProperty -> {
@@ -208,14 +211,6 @@ public class InputConfiguration {
         inputProgram.setRelativeSourceCodeDir(inputConfiguration.getRelativeSourceCodeDir());
         inputProgram.setRelativeTestSourceCodeDir(inputConfiguration.getRelativeTestSourceCodeDir());
 
-        if(inputConfiguration.getProperty("externalSrc") != null) {
-            List<String> list = Arrays.asList(inputConfiguration.getProperty("externalSrc").split(System.getProperty("path.separator")));
-            String sourcesDir = list.stream()
-                    .map(src -> inputProgram.getProgramDir() + "/" + src)
-                    .collect(Collectors.joining(System.getProperty("path.separator")));
-            inputProgram.setExternalSourceCodeDir(sourcesDir);
-        }
-
         inputProgram.setTransformationPerRun(
                 Integer.parseInt(inputConfiguration.getProperty("transformation.size", "1")));
 
@@ -273,7 +268,37 @@ public class InputConfiguration {
         return absolutePathToProjectRoot;
     }
 
+    /**
+     * set the absolute path to the root of the project, and add a / at the end if needed
+     * @param absolutePathToProjectRoot
+     */
     public void setAbsolutePathToProjectRoot(String absolutePathToProjectRoot) {
-        this.absolutePathToProjectRoot = absolutePathToProjectRoot + DSpotUtils.shouldAddSeparator.apply(absolutePathToProjectRoot);
+        this.absolutePathToProjectRoot = DSpotUtils.shouldAddSeparator.apply(absolutePathToProjectRoot);
+    }
+
+    private String pathToClasses;
+
+    public String getPathToClasses() {
+        return pathToClasses;
+    }
+
+    public void setPathToClasses(String pathToClasses) {
+        this.pathToClasses = pathToClasses;
+    }
+
+    private String pathToTestClasses;
+
+    public String getPathToTestClasses() {
+        return pathToTestClasses;
+    }
+
+    public void setPathToTestClasses(String pathToTestClasses) {
+        this.pathToTestClasses = pathToTestClasses;
+    }
+
+    public String getClasspathClassesProject() {
+        return this.getAbsolutePathToProjectRoot() + this.getPathToClasses()
+                + AmplificationHelper.PATH_SEPARATOR +
+                this.getAbsolutePathToProjectRoot() + this.getPathToTestClasses();
     }
 }

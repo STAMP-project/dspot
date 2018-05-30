@@ -1,13 +1,12 @@
 package eu.stamp_project.utils.compilation;
 
+import eu.stamp_project.Main;
+import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.test.TestListener;
-import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.utils.sosiefier.InputProgram;
-import eu.stamp_project.Main;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.slf4j.Logger;
@@ -52,7 +51,7 @@ public class TestCompiler {
      * @param compiler      the compiler
      * @param testsToRun    the test methods to be run, should be in testClass
      * @param configuration
-     * @return an instance of {@link eu.stamp.project.testrunner.runner.test.TestListener}
+     * @return an instance of {@link eu.stamp_project.testrunner.runner.test.TestListener}
      * that contains the result of the execution of test methods if everything went fine, null otherwise.
      * @throws AmplificationException in case the compilation failed or a timeout has been thrown.
      */
@@ -60,11 +59,8 @@ public class TestCompiler {
                                              DSpotCompiler compiler,
                                              List<CtMethod<?>> testsToRun,
                                              InputConfiguration configuration) throws AmplificationException {
-        final InputProgram inputProgram = configuration.getInputProgram();
-        final String dependencies = configuration.getAbsolutePathToProjectRoot()+ "/" + inputProgram.getClassesDir() +
-                System.getProperty("path.separator") +
-                configuration.getAbsolutePathToProjectRoot() + "/" + inputProgram.getTestClassesDir() +
-                System.getProperty("path.separator") + "target/dspot/dependencies/";
+        final String dependencies = configuration.getClasspathClassesProject()
+                + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
         DSpotUtils.copyPackageFromResources();
         final List<CtMethod<?>> uncompilableMethods =
                 TestCompiler.compileAndDiscardUncompilableMethods(compiler, testClass, dependencies);
