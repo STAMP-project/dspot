@@ -142,6 +142,7 @@ public class ChangeDetectorSelector implements TestSelector {
         return new ChangeMinimizer(
                 this.currentClassTestToBeAmplified,
                 this.configuration,
+                this.changedConfiguration,
                 this.program,
                 this.pathToChangedVersionOfProgram,
                 this.failurePerAmplifiedTest

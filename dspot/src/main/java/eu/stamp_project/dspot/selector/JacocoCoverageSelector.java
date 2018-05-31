@@ -58,10 +58,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                 classpath += PATH_SEPARATOR + new File(this.configuration.getAbsolutePathToProjectRoot()
                         + this.configuration.getProperty("additionalClasspathElements")).getAbsolutePath();
             }
-            final String targetClasses =
-                    new File(this.configuration.getAbsolutePathToProjectRoot() + (this.configuration.getAbsolutePathToProjectRoot().endsWith("/") ? "" : "/") + this.program.getClassesDir()).getAbsolutePath() +
-                    AmplificationHelper.PATH_SEPARATOR +
-                    new File(this.configuration.getAbsolutePathToProjectRoot() + (this.configuration.getAbsolutePathToProjectRoot().endsWith("/") ? "" : "/") + this.program.getTestClassesDir()).getAbsolutePath();
+            final String targetClasses = this.configuration.getClasspathClassesProject();
             try {
                 initialCoverage = EntryPoint.runCoverageOnTestClasses(
                         classpath + AmplificationHelper.PATH_SEPARATOR + targetClasses,
@@ -109,10 +106,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                     new File(this.configuration.getAbsolutePathToProjectRoot()
                     + this.configuration.getProperty("additionalClasspathElements")).getAbsolutePath();
         }
-        final String targetClasses =
-                new File(this.configuration.getAbsolutePathToProjectRoot() + (this.configuration.getAbsolutePathToProjectRoot().endsWith("/") ? "" : "/") + this.program.getClassesDir()).getAbsolutePath() +
-                AmplificationHelper.PATH_SEPARATOR +
-                new File(this.configuration.getAbsolutePathToProjectRoot() + (this.configuration.getAbsolutePathToProjectRoot().endsWith("/") ? "" : "/") + this.program.getTestClassesDir()).getAbsolutePath();
+        final String targetClasses = this.configuration.getClasspathClassesProject();
         try {
             return EntryPoint.runCoveragePerTestMethods(
                     classpath + AmplificationHelper.PATH_SEPARATOR + targetClasses,
@@ -200,10 +194,8 @@ public class JacocoCoverageSelector extends TakeAllSelector {
         String classpath = AutomaticBuilderFactory
                 .getAutomaticBuilder(this.configuration)
                 .buildClasspath(this.configuration.getAbsolutePathToProjectRoot())
-                + System.getProperty("path.separator") +
-                new File(this.configuration.getAbsolutePathToProjectRoot() + fileSeparator + this.program.getClassesDir()).getAbsolutePath()
                 + AmplificationHelper.PATH_SEPARATOR +
-                new File(this.configuration.getAbsolutePathToProjectRoot() + fileSeparator + this.program.getTestClassesDir()).getAbsolutePath();
+                this.configuration.getClasspathClassesProject();
 
         if (this.configuration.getProperty("additionalClasspathElements") != null) {
             classpath += PATH_SEPARATOR + new File(this.configuration.getAbsolutePathToProjectRoot()
@@ -211,11 +203,9 @@ public class JacocoCoverageSelector extends TakeAllSelector {
         }
 
         DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
-                new File(this.configuration.getAbsolutePathToProjectRoot() + fileSeparator + this.program.getTestClassesDir()));
+                new File(this.configuration.getAbsolutePathToTestClasses()));
 
-        final String targetClasses = new File(this.configuration.getAbsolutePathToProjectRoot() + (this.configuration.getAbsolutePathToProjectRoot().endsWith("/") ? "" : "/") + this.program.getClassesDir()).getAbsolutePath() +
-                AmplificationHelper.PATH_SEPARATOR +
-                new File(this.configuration.getAbsolutePathToProjectRoot() + (this.configuration.getAbsolutePathToProjectRoot().endsWith("/") ? "" : "/") + this.program.getTestClassesDir()).getAbsolutePath();
+        final String targetClasses = this.configuration.getClasspathClassesProject();
         try {
             final Coverage coverageResults = EntryPoint.runCoverageOnTestClasses(
                     classpath,

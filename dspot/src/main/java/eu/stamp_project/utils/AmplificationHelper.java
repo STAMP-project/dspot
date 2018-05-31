@@ -226,7 +226,7 @@ public class AmplificationHelper {
                         final CtType<?> convertedSuperclass =
                                 AmplificationHelper.convertToJUnit4(superclass, configuration, program);
                         DSpotUtils.printCtTypeToGivenDirectory(convertedSuperclass,
-                                new File(configuration.getAbsolutePathToProjectRoot() + "/" + program.getTestClassesDir()));
+                                new File(configuration.getAbsolutePathToTestClasses()));
                         final String classpath = AutomaticBuilderFactory
                                 .getAutomaticBuilder(configuration)
                                 .buildClasspath(configuration.getAbsolutePathToProjectRoot())
@@ -234,7 +234,7 @@ public class AmplificationHelper {
                                 configuration.getClasspathClassesProject()
                                 + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
                         DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
-                                new File(configuration.getAbsolutePathToProjectRoot() + "/" + program.getTestClassesDir()));
+                                new File(configuration.getAbsolutePathToTestClasses()));
                     }
                     if (superclass.getSuperclass() == null) {
                         break;
@@ -455,7 +455,7 @@ public class AmplificationHelper {
     public static String getClassPath(DSpotCompiler compiler, InputConfiguration configuration) {
         return Arrays.stream(new String[]{
                         compiler.getBinaryOutputDirectory().getAbsolutePath(),
-                        new File(configuration.getAbsolutePathToProjectRoot() + "/" + configuration.getInputProgram().getClassesDir()).getAbsolutePath(),
+                        configuration.getAbsolutePathToClasses(),
                         compiler.getDependencies(),
                 }
         ).collect(Collectors.joining(PATH_SEPARATOR));

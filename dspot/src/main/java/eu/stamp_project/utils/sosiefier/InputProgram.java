@@ -185,7 +185,6 @@ public class InputProgram {
         return classesDir;
     }
 
-
     /**
      * Path to the built test classes
      */

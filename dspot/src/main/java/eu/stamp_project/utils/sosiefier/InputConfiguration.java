@@ -286,10 +286,18 @@ public class InputConfiguration {
         this.pathToClasses = pathToClasses;
     }
 
+    public String getAbsolutePathToClasses() {
+        return this.absolutePathToProjectRoot + this.pathToClasses;
+    }
+
     private String pathToTestClasses;
 
     public String getPathToTestClasses() {
         return pathToTestClasses;
+    }
+
+    public String getAbsolutePathToTestClasses() {
+        return this.absolutePathToProjectRoot + this.pathToTestClasses;
     }
 
     public void setPathToTestClasses(String pathToTestClasses) {
@@ -297,8 +305,6 @@ public class InputConfiguration {
     }
 
     public String getClasspathClassesProject() {
-        return this.getAbsolutePathToProjectRoot() + this.getPathToClasses()
-                + AmplificationHelper.PATH_SEPARATOR +
-                this.getAbsolutePathToProjectRoot() + this.getPathToTestClasses();
+        return this.getAbsolutePathToClasses() + AmplificationHelper.PATH_SEPARATOR + this.getAbsolutePathToTestClasses();
     }
 }

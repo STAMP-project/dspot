@@ -34,6 +34,9 @@ public class ChangeMinimizer extends GeneralMinimizer {
 
     private InputConfiguration configuration;
 
+    private InputConfiguration configurationOfModifiedVersion;
+
+    @Deprecated
     private InputProgram program;
 
     private String pathToChangedVersionOfProgram;
@@ -44,9 +47,11 @@ public class ChangeMinimizer extends GeneralMinimizer {
 
     public ChangeMinimizer(CtType<?> testClass,
                            InputConfiguration configuration,
+                           InputConfiguration configurationOfModifiedVersion,
                            InputProgram program,
                            String pathToChangedVersionOfProgram,
                            Map<CtMethod<?>, Failure> failurePerAmplifiedTest) {
+        this.configurationOfModifiedVersion = configurationOfModifiedVersion;
         this.testClass = testClass;
         this.configuration = configuration;
         this.program = program;
@@ -97,9 +102,7 @@ public class ChangeMinimizer extends GeneralMinimizer {
         try {
             final TestListener result = EntryPoint.runTests(classpath +
                             AmplificationHelper.PATH_SEPARATOR +
-                            new File(this.configuration.getAbsolutePathToProjectRoot() + "/" + this.program.getClassesDir()).getAbsolutePath() +
-                            AmplificationHelper.PATH_SEPARATOR +
-                            new File(this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir()).getAbsolutePath(),
+                            configuration.getClasspathClassesProject(),
                     clone.getQualifiedName(),
                     changeMinimize.getSimpleName());
             final Failure failure = result.getFailingTests().get(0);
@@ -129,9 +132,7 @@ public class ChangeMinimizer extends GeneralMinimizer {
         try {
             final TestListener result = EntryPoint.runTests(classpath +
                             AmplificationHelper.PATH_SEPARATOR +
-                            new File(this.pathToChangedVersionOfProgram + "/" + this.program.getClassesDir()).getAbsolutePath() +
-                            AmplificationHelper.PATH_SEPARATOR +
-                            new File(this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir()).getAbsolutePath(),
+                            this.configurationOfModifiedVersion.getClasspathClassesProject(),
                     clone.getQualifiedName(),
                     amplifiedTestToBeMinimized.getSimpleName());
 
@@ -151,12 +152,9 @@ public class ChangeMinimizer extends GeneralMinimizer {
         clone.addMethod(amplifiedTestToBeMinimized);
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.pathToTmpTestSources));
         final String classes = AmplificationHelper.PATH_SEPARATOR +
-                this.configuration.getAbsolutePathToProjectRoot() + "/" + this.program.getClassesDir()
-                + AmplificationHelper.PATH_SEPARATOR +
-                this.configuration.getAbsolutePathToProjectRoot() + "/" + this.program.getTestClassesDir();
-        final boolean compile = DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources,
+                this.configuration.getClasspathClassesProject();
+        return DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources,
                 classpath + classes,
-                new File(this.pathToChangedVersionOfProgram + "/" + this.program.getTestClassesDir()));
-        return compile;
+                new File(this.configuration.getAbsolutePathToTestClasses()));
     }
 }

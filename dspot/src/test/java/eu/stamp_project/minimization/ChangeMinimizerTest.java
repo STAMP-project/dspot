@@ -59,6 +59,7 @@ public class ChangeMinimizerTest extends AbstractTest {
         final ChangeMinimizer changeMinimizer = new ChangeMinimizer(
                 testClass,
                 inputConfiguration,
+                inputConfiguration,
                 inputProgram,
                 pathToChangedVersionOfProgram,
                 failurePerAmplifiedTest

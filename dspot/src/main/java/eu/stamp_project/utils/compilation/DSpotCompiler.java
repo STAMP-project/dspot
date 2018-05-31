@@ -42,8 +42,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		super(launcher.getFactory());
 		this.dependencies = pathToDependencies;
 		this.launcher = launcher;
-		this.binaryOutputDirectory = new File(configuration.getAbsolutePathToProjectRoot() + "/" +
-				configuration.getInputProgram().getTestClassesDir());
+		this.binaryOutputDirectory = new File(configuration.getAbsolutePathToTestClasses());
 		this.sourceOutputDirectory = new File(pathToTmpTestSources);
 		if (!this.sourceOutputDirectory.exists()) {
 			this.sourceOutputDirectory.mkdir();
