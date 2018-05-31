@@ -2,6 +2,7 @@ package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.utils.AmplificationHelper;
 import spoon.reflect.code.CtLiteral;
+import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.visitor.filter.TypeFilter;
 
@@ -15,8 +16,18 @@ public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
 
     private List<String> existingStrings;
 
+    private boolean hasBeenApplied;
+
     public StringLiteralAmplifier() {
         this.existingStrings = new ArrayList<>();
+        this.hasBeenApplied = false;
+    }
+
+    @Override
+    public List<CtMethod> apply(CtMethod testMethod) {
+        final List<CtMethod> amplifiedTests = super.apply(testMethod);
+        this.hasBeenApplied = true;
+        return amplifiedTests;
     }
 
     @Override
@@ -36,18 +47,21 @@ public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
                 // remove one random char
                 index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
                 values.add(value.substring(0, index) + value.substring(index + 1, length));
+
+                // add one random string
+                values.add(AmplificationHelper.getRandomString(value.length()));
             } else {
                 values.add("" + AmplificationHelper.getRandomChar());
             }
         }
-        // add one random string
-        values.add(AmplificationHelper.getRandomString(10));
 
-        // add special strings
-        values.add("");
-        values.add(System.getProperty("line.separator"));
-        values.add(System.getProperty("path.separator"));
-        values.add("\0");
+        if (!this.hasBeenApplied) {
+            // add special strings
+            values.add("");
+            values.add(System.getProperty("line.separator"));
+            values.add(System.getProperty("path.separator"));
+            values.add("\0");
+        }
 
         return values;
     }
@@ -63,6 +77,7 @@ public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
                 .map(CtLiteral::clone)
                 .map(CtLiteral::getValue)
                 .collect(Collectors.toList());
+        this.hasBeenApplied = false;
     }
 
     @Override
