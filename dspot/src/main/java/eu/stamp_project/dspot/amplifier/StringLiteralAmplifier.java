@@ -6,7 +6,6 @@ import spoon.reflect.declaration.CtType;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,9 +21,8 @@ public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
 
     @Override
     protected Set<String> amplify(CtLiteral<String> existingLiteral) {
-        Collections.shuffle(this.existingStrings, AmplificationHelper.getRandom());
         Set<String> values = new HashSet<>(this.existingStrings);
-        values.add(this.existingStrings.get(0));
+        values.add(this.existingStrings.get(AmplificationHelper.getRandom().nextInt(this.existingStrings.size() - 1)));
         String value = (String) existingLiteral.getValue();
         if (value != null) {
             if (value.length() > 2) {
