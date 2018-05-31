@@ -1,15 +1,14 @@
 package eu.stamp_project.dspot.selector;
 
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
+import eu.stamp_project.clover.CloverExecutor;
+import eu.stamp_project.testrunner.EntryPoint;
+import eu.stamp_project.testrunner.runner.coverage.Coverage;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.utils.sosiefier.InputProgram;
-import eu.stamp_project.testrunner.EntryPoint;
-import eu.stamp_project.clover.CloverExecutor;
-import eu.stamp_project.testrunner.runner.coverage.Coverage;
 import org.apache.commons.io.FileUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -50,7 +49,6 @@ public class CloverCoverageSelector extends TakeAllSelector {
             final Map<String, Map<String, List<Integer>>> lineCoveragePerTestMethods =
                     CloverExecutor.executeAll(this.configuration, PATH_TO_COPIED_FILES);
             this.originalLineCoveragePerClass = new HashMap<>();
-            final InputProgram program = this.configuration.getInputProgram();
             lineCoveragePerTestMethods.keySet().stream()
                     .map(lineCoveragePerTestMethods::get)
                     .forEach(lineCoveragePerTestMethod ->
@@ -64,16 +62,16 @@ public class CloverCoverageSelector extends TakeAllSelector {
                             )
                     );
 
-            final String classesOfProject = new File(configuration.getAbsolutePathToProjectRoot() + program.getClassesDir()).getAbsolutePath()
-                    + AmplificationHelper.PATH_SEPARATOR +
-                    new File(configuration.getAbsolutePathToProjectRoot() + program.getTestClassesDir()).getAbsolutePath();
-
-            final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration)
-                    .buildClasspath(configuration.getAbsolutePathToProjectRoot()) +
-                    AmplificationHelper.PATH_SEPARATOR + classesOfProject;
+            final String classpath =
+                    AutomaticBuilderFactory.getAutomaticBuilder(this.configuration)
+                        .buildClasspath(configuration.getAbsolutePathToProjectRoot())
+                            + AmplificationHelper.PATH_SEPARATOR +
+                            this.configuration.getClasspathClassesProject();
 
             try {
-                this.initialCoverage = EntryPoint.runCoverageOnTestClasses(classpath, classesOfProject,
+                this.initialCoverage = EntryPoint.runCoverageOnTestClasses(
+                        classpath,
+                        this.configuration.getClasspathClassesProject(),
                         DSpotUtils.getAllTestClasses(configuration)
                 );
             } catch (TimeoutException e) {
@@ -175,20 +173,19 @@ public class CloverCoverageSelector extends TakeAllSelector {
 
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.pathToTmpTestSources));
 
-        final String classesOfProject =
-                new File(configuration.getAbsolutePathToProjectRoot() + program.getClassesDir()).getAbsolutePath()
-                        + AmplificationHelper.PATH_SEPARATOR +
-                        new File(configuration.getAbsolutePathToProjectRoot() + program.getTestClassesDir()).getAbsolutePath();
-
-        final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration)
-                .buildClasspath(configuration.getAbsolutePathToProjectRoot()) +
-                AmplificationHelper.PATH_SEPARATOR + classesOfProject;
+        final String classpath =
+                AutomaticBuilderFactory.getAutomaticBuilder(this.configuration)
+                    .buildClasspath(configuration.getAbsolutePathToProjectRoot())
+                + AmplificationHelper.PATH_SEPARATOR +
+                this.configuration.getClasspathClassesProject();
 
         DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
-                new File(this.configuration.getAbsolutePathToProjectRoot() + "/" + this.program.getTestClassesDir()));
+                new File(this.configuration.getAbsolutePathToTestClasses()));
 
         try {
-            return EntryPoint.runCoverageOnTestClasses(classpath, classesOfProject,
+            return EntryPoint.runCoverageOnTestClasses(
+                    classpath,
+                    this.configuration.getClasspathClassesProject(),
                     clone.getQualifiedName()
             );
         } catch (TimeoutException e) {

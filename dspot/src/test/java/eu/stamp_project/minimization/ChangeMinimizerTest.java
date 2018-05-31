@@ -42,15 +42,12 @@ public class ChangeMinimizerTest extends AbstractTest {
         final CtClass testClass = Utils.findClass("example.TestSuiteExample");
         final String configurationPath = Utils.getInputConfiguration().getProperty("configPath");
         final String pathToFolder = Utils.getInputConfiguration().getProperty("folderPath");
-        InputConfiguration inputConfiguration = new InputConfiguration(configurationPath );
+        InputConfiguration inputConfiguration = new InputConfiguration(configurationPath);
         InputProgram inputProgram = InputConfiguration.initInputProgram(inputConfiguration);
         inputConfiguration.setInputProgram(inputProgram);
-        String pathToChangedVersionOfProgram = pathToFolder +
-                DSpotUtils.shouldAddSeparator.apply(pathToFolder) +
+        String pathToChangedVersionOfProgram = DSpotUtils.shouldAddSeparator.apply(pathToFolder) +
                 (inputConfiguration.getProperty("targetModule") != null ?
-                        inputConfiguration.getProperty("targetModule") +
-                                DSpotUtils.shouldAddSeparator.apply(pathToFolder)
-                        : "");
+                        DSpotUtils.shouldAddSeparator.apply(inputConfiguration.getProperty("targetModule")) : "");
         inputConfiguration.setAbsolutePathToProjectRoot(new File(pathToChangedVersionOfProgram).getAbsolutePath());
         inputProgram.setProgramDir(pathToChangedVersionOfProgram);
         Initializer.initialize(inputConfiguration, inputProgram);
@@ -61,6 +58,7 @@ public class ChangeMinimizerTest extends AbstractTest {
         );
         final ChangeMinimizer changeMinimizer = new ChangeMinimizer(
                 testClass,
+                inputConfiguration,
                 inputConfiguration,
                 inputProgram,
                 pathToChangedVersionOfProgram,

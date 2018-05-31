@@ -57,13 +57,11 @@ public class ExecutedMutantSelectorTest {
                 .getAutomaticBuilder(Utils.getInputConfiguration())
                 .buildClasspath(Utils.getInputConfiguration().getAbsolutePathToProjectRoot())
                 + AmplificationHelper.PATH_SEPARATOR +
-                Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + "/" + Utils.getInputProgram().getClassesDir()
-                + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/"
-                + AmplificationHelper.PATH_SEPARATOR +
-                Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + "/" + Utils.getInputProgram().getTestClassesDir();
+                Utils.getInputConfiguration().getClasspathClassesProject()
+                + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
 
         DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
-                new File(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + "/" + Utils.getInputProgram().getTestClassesDir()));
+                new File(Utils.getInputConfiguration().getAbsolutePathToTestClasses()));
 
         AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration())
                 .runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot());

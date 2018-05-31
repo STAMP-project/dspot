@@ -41,8 +41,8 @@ public class Initializer {
 		String dependencies = AutomaticBuilderFactory.getAutomaticBuilder(configuration)
 				.buildClasspath(configuration.getAbsolutePathToProjectRoot());
 		dependencies += PATH_SEPARATOR + "target/dspot/dependencies/";
-		File output = new File(configuration.getAbsolutePathToProjectRoot() + "/" + program.getClassesDir());
-		File outputTest = new File(configuration.getAbsolutePathToProjectRoot() + "/" + program.getTestClassesDir());
+		File output = new File(configuration.getAbsolutePathToClasses());
+		File outputTest = new File(configuration.getAbsolutePathToTestClasses());
 		try {
 			FileUtils.cleanDirectory(outputTest);
 		} catch (Exception ignored) {
