@@ -3,7 +3,6 @@ package eu.stamp_project.minimization;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.testrunner.runner.test.TestListener;
-import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
@@ -35,26 +34,16 @@ public class ChangeMinimizer extends GeneralMinimizer {
 
     private InputConfiguration configurationOfModifiedVersion;
 
-    private String pathToChangedVersionOfProgram;
-
     private Map<CtMethod<?>, Failure> failurePerAmplifiedTest;
-
-    private String classpath;
 
     public ChangeMinimizer(CtType<?> testClass,
                            InputConfiguration configuration,
                            InputConfiguration configurationOfModifiedVersion,
-                           String pathToChangedVersionOfProgram,
                            Map<CtMethod<?>, Failure> failurePerAmplifiedTest) {
         this.configurationOfModifiedVersion = configurationOfModifiedVersion;
         this.testClass = testClass;
         this.configuration = configuration;
-        this.pathToChangedVersionOfProgram = pathToChangedVersionOfProgram;
         this.failurePerAmplifiedTest = failurePerAmplifiedTest;
-        this.classpath = AutomaticBuilderFactory
-                .getAutomaticBuilder(this.configuration)
-                .buildClasspath()
-                + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
     }
 
     @Override
@@ -94,9 +83,8 @@ public class ChangeMinimizer extends GeneralMinimizer {
         }
         // must have (the same?) failure
         try {
-            final TestListener result = EntryPoint.runTests(classpath +
-                            AmplificationHelper.PATH_SEPARATOR +
-                            configuration.getClasspathClassesProject(),
+            final TestListener result = EntryPoint.runTests(
+                    this.configuration.getFullClassPathWithExtraDependencies(),
                     clone.getQualifiedName(),
                     changeMinimize.getSimpleName());
             final Failure failure = result.getFailingTests().get(0);
@@ -125,10 +113,12 @@ public class ChangeMinimizer extends GeneralMinimizer {
         }
         try {
             final TestListener result = EntryPoint.runTests(
-                    this.configurationOfModifiedVersion.getDependencies()
-                            + AmplificationHelper.PATH_SEPARATOR +
-                            this.configuration.getAbsolutePathToTestClasses()
-                            + AmplificationHelper.PATH_SEPARATOR +
+                    this.configurationOfModifiedVersion.getDependencies() +
+                            AmplificationHelper.PATH_SEPARATOR +
+                            DSpotUtils.PATH_TO_EXTRA_DEPENDENCIES_TO_DSPOT_CLASSES +
+                            AmplificationHelper.PATH_SEPARATOR +
+                            this.configuration.getAbsolutePathToTestClasses() +
+                            AmplificationHelper.PATH_SEPARATOR +
                             this.configurationOfModifiedVersion.getAbsolutePathToClasses(),
                     clone.getQualifiedName(),
                     amplifiedTestToBeMinimized.getSimpleName());
@@ -148,10 +138,8 @@ public class ChangeMinimizer extends GeneralMinimizer {
                 .forEach(clone::removeMethod);
         clone.addMethod(amplifiedTestToBeMinimized);
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.pathToTmpTestSources));
-        final String classes = AmplificationHelper.PATH_SEPARATOR +
-                this.configuration.getClasspathClassesProject();
         return DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources,
-                classpath + classes,
+                this.configuration.getFullClassPathWithExtraDependencies(),
                 new File(this.configuration.getAbsolutePathToTestClasses()));
     }
 }

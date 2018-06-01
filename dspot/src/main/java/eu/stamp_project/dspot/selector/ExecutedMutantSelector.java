@@ -100,12 +100,10 @@ public class ExecutedMutantSelector extends TakeAllSelector {
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.pathToTmpTestSources));
 
         // then compile
-        final String classpath = AutomaticBuilderFactory
-                .getAutomaticBuilder(this.configuration)
-                .buildClasspath()
+        final String classpath = this.configuration.getDependencies()
                 + AmplificationHelper.PATH_SEPARATOR +
                 this.configuration.getClasspathClassesProject()
-                + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
+                + DSpotUtils.PATH_TO_EXTRA_DEPENDENCIES_TO_DSPOT_CLASSES;
 
         DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
                 new File(this.configuration.getAbsolutePathToTestClasses()));

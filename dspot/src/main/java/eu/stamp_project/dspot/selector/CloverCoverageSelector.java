@@ -1,6 +1,5 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.clover.CloverExecutor;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.coverage.Coverage;
@@ -62,9 +61,7 @@ public class CloverCoverageSelector extends TakeAllSelector {
                             )
                     );
 
-            final String classpath =
-                    AutomaticBuilderFactory.getAutomaticBuilder(this.configuration)
-                        .buildClasspath()
+            final String classpath = this.configuration.getDependencies()
                             + AmplificationHelper.PATH_SEPARATOR +
                             this.configuration.getClasspathClassesProject();
 
@@ -174,8 +171,7 @@ public class CloverCoverageSelector extends TakeAllSelector {
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.pathToTmpTestSources));
 
         final String classpath =
-                AutomaticBuilderFactory.getAutomaticBuilder(this.configuration)
-                    .buildClasspath()
+                this.configuration.getDependencies()
                 + AmplificationHelper.PATH_SEPARATOR +
                 this.configuration.getClasspathClassesProject();
 

@@ -4,12 +4,11 @@ import com.atlassian.clover.CloverInstr;
 import com.atlassian.clover.reporters.html.HtmlReporter;
 import com.atlassian.clover.reporters.json.JSONException;
 import com.atlassian.clover.reporters.json.JSONObject;
-import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
+import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.testrunner.EntryPoint;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -62,12 +61,9 @@ public class CloverExecutor {
                 "-d", rootDirectoryOfCloverFiles.getAbsolutePath() + INSTR_SOURCE_DIRECTORY
         });
 
-        final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(configuration)
-                .buildClasspath();
-        final String finalClasspath = classpath +
+        final String finalClasspath = configuration.getDependencies() +
                 AmplificationHelper.PATH_SEPARATOR + rootDirectoryOfCloverFiles.getAbsolutePath() + INSTR_BIN_DIRECTORY +
                 AmplificationHelper.PATH_SEPARATOR + CLOVER_DEPENDENCIES;
-
 
         final File binaryOutputDirectory = new File(rootDirectoryOfCloverFiles.getAbsolutePath() + INSTR_BIN_DIRECTORY);
         if (!binaryOutputDirectory.mkdir()) {

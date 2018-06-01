@@ -20,6 +20,12 @@ import static org.junit.Assert.assertEquals;
  */
 public class AssertionRemoverTest extends AbstractTest {
 
+	@Override
+	public void setUp() throws Exception {
+		Utils.reset();
+		super.setUp();
+	}
+
 	@Test
 	public void testRemoveAssertionOnSimpleExample() throws Exception {
 		final CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");

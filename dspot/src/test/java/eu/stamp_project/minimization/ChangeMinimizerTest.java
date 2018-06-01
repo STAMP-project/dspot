@@ -2,7 +2,6 @@ package eu.stamp_project.minimization;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.DSpotUtils;
@@ -55,14 +54,12 @@ public class ChangeMinimizerTest extends AbstractTest {
 
         InputConfiguration changedConfiguration = new InputConfiguration(configurationPath);
         changedConfiguration.setAbsolutePathToProjectRoot(new File(pathToChangedVersionOfProgram).getAbsolutePath());
-        AutomaticBuilderFactory.reset();
-        AutomaticBuilderFactory.getAutomaticBuilder(changedConfiguration).compile();
+        Initializer.initialize(changedConfiguration);
 
         final ChangeMinimizer changeMinimizer = new ChangeMinimizer(
                 testClass,
                 inputConfiguration,
                 changedConfiguration,
-                pathToChangedVersionOfProgram,
                 failurePerAmplifiedTest
         );
         final CtInvocation assertion = test2.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {

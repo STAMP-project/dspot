@@ -174,4 +174,6 @@ public class DSpotUtils {
             return testClass.getQualifiedName();
         }
     }
+
+    public static final String PATH_TO_EXTRA_DEPENDENCIES_TO_DSPOT_CLASSES = new File("target/dspot/dependencies/").getAbsolutePath();
 }

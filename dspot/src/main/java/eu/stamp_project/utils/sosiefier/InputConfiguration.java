@@ -15,6 +15,8 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.Set;
 
+import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
+
 /**
  * The input configuration class encapsulates all the data and associated behavior we obtain from the input properties
  * given by the user.
@@ -67,6 +69,17 @@ public class InputConfiguration {
         this.setPathToTestSourceCode(DSpotUtils.shouldAddSeparator.apply(prop.getProperty("test", "src/test/java")));
         this.absolutePathToProjectRoot = this.computeProgramDirectory();
         this.dependencies = AutomaticBuilderFactory.getAutomaticBuilder(this).buildClasspath();
+        if (prop.getProperty("additionalClasspathElements") != null) {
+            String pathToAdditionnalClasspathElements = prop.getProperty("additionalClasspathElements");
+            if (!Paths.get(prop.getProperty("additionalClasspathElements")).isAbsolute()) {
+                pathToAdditionnalClasspathElements =
+                        DSpotUtils.shouldAddSeparator.apply(this.absolutePathToProjectRoot +
+                                prop.getProperty("additionalClasspathElements")
+                        );
+            }
+            this.dependencies += PATH_SEPARATOR + pathToAdditionnalClasspathElements;
+        }
+
         if (prop.getProperty("systemProperties") != null) {
             Arrays.stream(prop.getProperty("systemProperties").split(","))
                     .forEach(systemProperty -> {
@@ -281,6 +294,10 @@ public class InputConfiguration {
         this.pathToTestClasses = pathToTestClasses;
     }
 
+    /**
+     * @return path to folders that contain both compiled classes and test classes as a classpath, <i>i.e.</i> separated by
+     * the path separator of the system.
+     */
     public String getClasspathClassesProject() {
         return this.getAbsolutePathToClasses() + AmplificationHelper.PATH_SEPARATOR + this.getAbsolutePathToTestClasses();
     }
@@ -323,5 +340,14 @@ public class InputConfiguration {
      */
     public String getDependencies() {
         return this.dependencies;
+    }
+
+    /**
+     * @return the full classpath of the project. This full classpath is composed of: the returned values of {@link #getClasspathClassesProject}, {@link #getDependencies()} and {@link DSpotUtils#PATH_TO_EXTRA_DEPENDENCIES_TO_DSPOT_CLASSES} separated by the path separator of the system, <i>i.e.</i> as a classpath.
+     */
+    public String getFullClassPathWithExtraDependencies() {
+        return this.getClasspathClassesProject() + AmplificationHelper.PATH_SEPARATOR +
+                this.getDependencies() + AmplificationHelper.PATH_SEPARATOR +
+                DSpotUtils.PATH_TO_EXTRA_DEPENDENCIES_TO_DSPOT_CLASSES;
     }
 }

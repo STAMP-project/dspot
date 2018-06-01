@@ -53,9 +53,7 @@ public class AmplificationChecker {
         // We rely on the package of the declaring type of the invocation
         // in this case, we will match it
         final String qualifiedNameOfPackage;
-        if (invocation.getExecutable() != null &&
-                invocation.getExecutable().getDeclaringType() != null &&
-                invocation.getExecutable().getDeclaringType().getPackage() == null) {
+        if (invocation.getExecutable().getDeclaringType().getPackage() == null) {
             if (invocation.getExecutable().getDeclaringType().getTopLevelType() != null) {
                 qualifiedNameOfPackage = invocation.getExecutable().getDeclaringType().getTopLevelType().getPackage().getQualifiedName();
             } else {
