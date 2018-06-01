@@ -15,7 +15,6 @@ public class Initializer {
 
 	public static void initialize(InputConfiguration configuration)
 			throws IOException, InterruptedException {
-		configuration.setAbsolutePathToProjectRoot(InputConfiguration.computeProgramDirectory.apply(configuration));
 		AutomaticBuilderFactory.reset();
 		AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(configuration);
 		builder.compile();

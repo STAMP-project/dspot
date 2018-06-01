@@ -14,7 +14,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.Set;
-import java.util.function.Function;
 
 /**
  * The input configuration class encapsulates all the data and associated behavior we obtain from the input properties
@@ -24,10 +23,14 @@ import java.util.function.Function;
  */
 public class InputConfiguration {
 
-    public static Function<InputConfiguration, String> computeProgramDirectory = configuration -> new File(
-            DSpotUtils.shouldAddSeparator.apply(configuration.getProperty("project"))
-                    + (configuration.getProperty("targetModule") != null ?
-                    DSpotUtils.shouldAddSeparator.apply(configuration.getProperty("targetModule")) : "")).getAbsolutePath();
+    private String computeProgramDirectory() {
+        return DSpotUtils.shouldAddSeparator.apply(new File(
+                DSpotUtils.shouldAddSeparator.apply(this.getProperty("project"))
+                        + (this.getProperty("targetModule") != null ?
+                        DSpotUtils.shouldAddSeparator.apply(this.getProperty("targetModule")) : ""))
+                .getAbsolutePath());
+    }
+
     /**
      * Internal properties
      */
@@ -42,10 +45,11 @@ public class InputConfiguration {
     /**
      * Build a InputConfiguration from a properties file given as an InputStream
      * The InputConfiguration uses the following properties:
-     *      <ul>
-     *          <li><b>project</b><i>[mandatory]</i>: specify the path to the root of the project. This path can be absolute (recommended) but also relative to the working directory of the DSpot process. We consider as root of the project folder that contain the top-most parent in a multi-module project.</li>
-     *          <li><b>targetModule</b><i>[optional]</i>: specify a relative path from the path specified by the property <b>project</b> to a sub-module of the project. DSpot works at module level, if your project is multi-module, you must specify which module you want to amplify.</li>
-     *      </ul>
+     * <ul>
+     * <li><b>project</b><i>[mandatory]</i>: specify the path to the root of the project. This path can be absolute (recommended) but also relative to the working directory of the DSpot process. We consider as root of the project folder that contain the top-most parent in a multi-module project.</li>
+     * <li><b>targetModule</b><i>[optional]</i>: specify a relative path from the path specified by the property <b>project</b> to a sub-module of the project. DSpot works at module level, if your project is multi-module, you must specify which module you want to amplify.</li>
+     * </ul>
+     *
      * @param stream
      * @throws IOException
      */
@@ -61,11 +65,11 @@ public class InputConfiguration {
         );
         this.setPathToSourceCode(DSpotUtils.shouldAddSeparator.apply(prop.getProperty("src", "src/main/java")));
         this.setPathToTestSourceCode(DSpotUtils.shouldAddSeparator.apply(prop.getProperty("test", "src/test/java")));
-        this.absolutePathToProjectRoot = computeProgramDirectory.apply(this);
+        this.absolutePathToProjectRoot = this.computeProgramDirectory();
         this.dependencies = AutomaticBuilderFactory.getAutomaticBuilder(this).buildClasspath();
         if (prop.getProperty("systemProperties") != null) {
             Arrays.stream(prop.getProperty("systemProperties").split(","))
-                    .forEach( systemProperty -> {
+                    .forEach(systemProperty -> {
                         String[] keyValueInArray = systemProperty.split("=");
                         System.getProperties().put(keyValueInArray[0], keyValueInArray[1]);
                     });
@@ -73,27 +77,27 @@ public class InputConfiguration {
     }
 
     public InputConfiguration(File project, File srcDir, File testDir, File classesDir, File testClassesDir,
-			File tempDir, String filter, File mavenHome) throws IOException {
-		this();
-		getProperties().setProperty("project", project.getAbsolutePath());
-		getProperties().setProperty("src", getRelativePath(srcDir));
-		getProperties().setProperty("testSrc", getRelativePath(testDir));
+                              File tempDir, String filter, File mavenHome) throws IOException {
+        this();
+        getProperties().setProperty("project", project.getAbsolutePath());
+        getProperties().setProperty("src", getRelativePath(srcDir));
+        getProperties().setProperty("testSrc", getRelativePath(testDir));
 //		getProperties().setProperty("testResources", getRelativePath(testResourcesDir));
 //		getProperties().setProperty("srcResources", getRelativePath(srcResourcesDir));
-		getProperties().setProperty("maven.home", mavenHome.getAbsolutePath());
-		getProperties().setProperty("classes", getRelativePath(classesDir));
-		getProperties().setProperty("tmpDir", getRelativePath(tempDir));
-		if (filter != null) {
-			getProperties().setProperty("filter", filter);
-		}
-		getProperties().setProperty("javaVersion", "8");
-	}
+        getProperties().setProperty("maven.home", mavenHome.getAbsolutePath());
+        getProperties().setProperty("classes", getRelativePath(classesDir));
+        getProperties().setProperty("tmpDir", getRelativePath(tempDir));
+        if (filter != null) {
+            getProperties().setProperty("filter", filter);
+        }
+        getProperties().setProperty("javaVersion", "8");
+    }
 
     private String getRelativePath(File path) {
-    	String base = getProperties().getProperty("project");
-    	String relative = new File(base).toURI().relativize(path.toURI()).getPath();
-		return relative;
-	}
+        String base = getProperties().getProperty("project");
+        String relative = new File(base).toURI().relativize(path.toURI()).getPath();
+        return relative;
+    }
 
     public InputConfiguration(String file) throws IOException {
         this(new FileInputStream(file));
@@ -166,11 +170,12 @@ public class InputConfiguration {
      * @return String with the path
      */
     public String getClassesDir() {
-        return  prop.getProperty("classes");
+        return prop.getProperty("classes");
     }
 
     /**
      * Returns the output path
+     *
      * @return
      */
     public String getOutputDirectory() {
@@ -192,7 +197,7 @@ public class InputConfiguration {
 
     protected String getAbsolutePath(String path) {
         Path p = Paths.get(path);
-        if ( new File(path).exists() || p.isAbsolute() ) {
+        if (new File(path).exists() || p.isAbsolute()) {
             return path;
         }
         return p.normalize().toString().replace(File.separator, "/");
@@ -200,18 +205,18 @@ public class InputConfiguration {
 
     @Override
     public String toString() {
-    	String toReturn = "";
-    	Properties prop = this.getProperties();
-		Set keys = prop.keySet();
-		for (Object key : keys) {
-			toReturn += key + ": " + prop.getProperty((String) key)+ "\n";
-		}
-		toReturn += "ClassesDir: " + this.getClassesDir()+ "\n";
-		toReturn += "outputDirectory: " + this.getOutputDirectory()+ "\n";
-		toReturn += "projectPath: " + this.getProjectPath()+ "\n";
-		toReturn += "relativeSourceCodeDir: " + this.getRelativeSourceCodeDir()+ "\n";
-		toReturn += "relativeTestSourceCodeDir: " + this.getRelativeTestSourceCodeDir()+ "\n";
-		return toReturn;
+        String toReturn = "";
+        Properties prop = this.getProperties();
+        Set keys = prop.keySet();
+        for (Object key : keys) {
+            toReturn += key + ": " + prop.getProperty((String) key) + "\n";
+        }
+        toReturn += "ClassesDir: " + this.getClassesDir() + "\n";
+        toReturn += "outputDirectory: " + this.getOutputDirectory() + "\n";
+        toReturn += "projectPath: " + this.getProjectPath() + "\n";
+        toReturn += "relativeSourceCodeDir: " + this.getRelativeSourceCodeDir() + "\n";
+        toReturn += "relativeTestSourceCodeDir: " + this.getRelativeTestSourceCodeDir() + "\n";
+        return toReturn;
     }
 
     private Factory factory;
@@ -232,6 +237,7 @@ public class InputConfiguration {
     /**
      * This method return the absolute path to the project.
      * If the project is multi-modules, the returned path is the path to the specified targetModule properties
+     *
      * @return absolute path to the project root
      */
     public String getAbsolutePathToProjectRoot() {
@@ -240,6 +246,7 @@ public class InputConfiguration {
 
     /**
      * set the absolute path to the root of the project, and add a / at the end if needed
+     *
      * @param absolutePathToProjectRoot
      */
     public void setAbsolutePathToProjectRoot(String absolutePathToProjectRoot) {
@@ -302,7 +309,7 @@ public class InputConfiguration {
         this.pathToTestSourceCode = pathToTestSourceCode;
     }
 
-    public String getAbsolutePathToTestSourceCode(){
+    public String getAbsolutePathToTestSourceCode() {
         return this.absolutePathToProjectRoot + this.getPathToTestSourceCode();
     }
 
@@ -311,6 +318,7 @@ public class InputConfiguration {
     /**
      * This method compute the path to all dependencies of the project, separated by the path separator of the System.
      * The dependencies is compute by an implementation of a {@link eu.stamp_project.automaticbuilder.AutomaticBuilder}
+     *
      * @return the dependencies of the project
      */
     public String getDependencies() {

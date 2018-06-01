@@ -58,6 +58,8 @@ public class AutomaticBuilderFactoryTest {
 
         assertTrue(inputConfiguration.getProperty("automaticBuilderName").toUpperCase().contains("GRADLE"));
 
+        AutomaticBuilderFactory.reset();
+
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 
         assertNotNull(builder);

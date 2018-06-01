@@ -1,8 +1,9 @@
 package eu.stamp_project.minimization;
 
-import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
+import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
+import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.Initializer;
@@ -45,17 +46,22 @@ public class ChangeMinimizerTest extends AbstractTest {
         String pathToChangedVersionOfProgram = DSpotUtils.shouldAddSeparator.apply(pathToFolder) +
                 (inputConfiguration.getProperty("targetModule") != null ?
                         DSpotUtils.shouldAddSeparator.apply(inputConfiguration.getProperty("targetModule")) : "");
-        inputConfiguration.setAbsolutePathToProjectRoot(new File(pathToChangedVersionOfProgram).getAbsolutePath());
         Initializer.initialize(inputConfiguration);
         final HashMap<CtMethod<?>, Failure> failurePerAmplifiedTest = new HashMap<>();
         final CtMethod<?> test2 = Utils.findMethod(testClass, "test2");
         failurePerAmplifiedTest.put(test2,
                 new Failure("test2", testClass.getQualifiedName(), new StringIndexOutOfBoundsException(-1))
         );
+
+        InputConfiguration changedConfiguration = new InputConfiguration(configurationPath);
+        changedConfiguration.setAbsolutePathToProjectRoot(new File(pathToChangedVersionOfProgram).getAbsolutePath());
+        AutomaticBuilderFactory.reset();
+        AutomaticBuilderFactory.getAutomaticBuilder(changedConfiguration).compile();
+
         final ChangeMinimizer changeMinimizer = new ChangeMinimizer(
                 testClass,
                 inputConfiguration,
-                inputConfiguration,
+                changedConfiguration,
                 pathToChangedVersionOfProgram,
                 failurePerAmplifiedTest
         );
@@ -76,6 +82,7 @@ public class ChangeMinimizerTest extends AbstractTest {
 
         assertEquals(3, test2.getBody().getStatements().size());
         final CtMethod<?> minimize = changeMinimizer.minimize(test2);
+        System.out.println(minimize);
         assertEquals(2, minimize.getBody().getStatements().size());
     }
 }

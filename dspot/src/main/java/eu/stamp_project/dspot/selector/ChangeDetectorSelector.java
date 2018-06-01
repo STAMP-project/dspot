@@ -53,15 +53,15 @@ public class ChangeDetectorSelector implements TestSelector {
         final String configurationPath = configuration.getProperty("configPath");
         final String pathToFolder = configuration.getProperty("folderPath");
         try {
-            changedConfiguration = new InputConfiguration(configurationPath);
+            this.changedConfiguration = new InputConfiguration(configurationPath);
             this.pathToChangedVersionOfProgram = DSpotUtils.shouldAddSeparator.apply(pathToFolder);
             if (this.configuration.getProperty("targetModule") != null) {
                 this.pathToChangedVersionOfProgram +=
                         DSpotUtils.shouldAddSeparator.apply(this.configuration.getProperty("targetModule"));
                 configuration.getProperties().setProperty("targetModule", this.configuration.getProperty("targetModule"));
             }
-            changedConfiguration.setAbsolutePathToProjectRoot(new File(this.pathToChangedVersionOfProgram).getAbsolutePath());
-            Initializer.initialize(changedConfiguration);
+            this.changedConfiguration.setAbsolutePathToProjectRoot(this.pathToChangedVersionOfProgram);
+            Initializer.initialize(this.changedConfiguration);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

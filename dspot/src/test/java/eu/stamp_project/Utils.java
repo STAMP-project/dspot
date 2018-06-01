@@ -5,7 +5,6 @@ import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.Initializer;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
@@ -23,8 +22,6 @@ import spoon.reflect.visitor.filter.TypeFilter;
 import java.io.File;
 import java.util.List;
 import java.util.Set;
-
-import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
 
 
 /**
@@ -78,18 +75,11 @@ public class Utils {
 			AmplificationHelper.minimize = false;
 			EntryPoint.verbose = true;
 			Main.verbose = true;
-			AutomaticBuilderFactory.reset();
-			DSpotUtils.copyPackageFromResources();
 			currentInputConfigurationLoaded = pathToConfFile;
 			inputConfiguration = new InputConfiguration(pathToConfFile);
 			Initializer.initialize(inputConfiguration);
 			builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
-			String dependencies = builder.buildClasspath();
-			if (inputConfiguration.getProperty("additionalClasspathElements") != null) {
-				dependencies += PATH_SEPARATOR + inputConfiguration.getAbsolutePathToProjectRoot()
-						+ inputConfiguration.getProperty("additionalClasspathElements");
-			}
-			compiler = DSpotCompiler.createDSpotCompiler(inputConfiguration, dependencies);
+			compiler = DSpotCompiler.createDSpotCompiler(inputConfiguration, inputConfiguration.getDependencies());
 			inputConfiguration.setFactory(compiler.getLauncher().getFactory());
 		} catch (Exception e) {
 			throw new RuntimeException(e);

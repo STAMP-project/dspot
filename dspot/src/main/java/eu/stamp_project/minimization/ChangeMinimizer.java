@@ -124,9 +124,12 @@ public class ChangeMinimizer extends GeneralMinimizer {
             return false;
         }
         try {
-            final TestListener result = EntryPoint.runTests(classpath +
-                            AmplificationHelper.PATH_SEPARATOR +
-                            this.configurationOfModifiedVersion.getClasspathClassesProject(),
+            final TestListener result = EntryPoint.runTests(
+                    this.configurationOfModifiedVersion.getDependencies()
+                            + AmplificationHelper.PATH_SEPARATOR +
+                            this.configuration.getAbsolutePathToTestClasses()
+                            + AmplificationHelper.PATH_SEPARATOR +
+                            this.configurationOfModifiedVersion.getAbsolutePathToClasses(),
                     clone.getQualifiedName(),
                     amplifiedTestToBeMinimized.getSimpleName());
 
