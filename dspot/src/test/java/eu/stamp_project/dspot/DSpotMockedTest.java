@@ -7,7 +7,6 @@ import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.utils.sosiefier.InputProgram;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import spoon.reflect.declaration.CtType;
@@ -35,8 +34,6 @@ public class DSpotMockedTest extends AbstractTest {
 		ValueCreator.count = 0;
 		AmplificationHelper.setSeedRandom(23L);
 		InputConfiguration configuration = new InputConfiguration(getPathToPropertiesFile());
-		InputProgram program = new InputProgram();
-		configuration.setInputProgram(program);
 		DSpot dspot = new DSpot(configuration, 1,
 				Arrays.asList(new StatementAdd())
 		);

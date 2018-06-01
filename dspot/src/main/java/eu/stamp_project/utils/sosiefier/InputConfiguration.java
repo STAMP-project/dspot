@@ -34,12 +34,6 @@ public class InputConfiguration {
     @Deprecated
     protected Properties prop;
 
-    /**
-     * resulting input program from the input configuration
-     */
-    @Deprecated
-    private InputProgram inputProgram;
-
     public InputConfiguration() {
         prop = new Properties();
         setDefaultProperties();
@@ -140,22 +134,6 @@ public class InputConfiguration {
     }
 
     /**
-     * The input program we are sosieficating.
-     */
-    @Deprecated
-    public InputProgram getInputProgram() {
-        return inputProgram;
-    }
-
-    /**
-     * The input program we are sosieficating.
-     */
-    @Deprecated
-    public void setInputProgram(InputProgram inputProgram) {
-        this.inputProgram = inputProgram;
-    }
-
-    /**
      * Gets the project path. The project path is the parent directory where all files concerning a project are.
      *
      * @return String with the path
@@ -219,30 +197,6 @@ public class InputConfiguration {
             return path;
         }
         return p.normalize().toString().replace(File.separator, "/");
-    }
-
-    @Deprecated
-    public static InputProgram initInputProgram(InputConfiguration inputConfiguration) throws IOException {
-        InputProgram inputProgram = new InputProgram();
-        inputConfiguration.setInputProgram(inputProgram);
-        inputProgram.setProgramDir(inputConfiguration.getProperty("project"));
-        inputProgram.setRelativeSourceCodeDir(inputConfiguration.getRelativeSourceCodeDir());
-        inputProgram.setRelativeTestSourceCodeDir(inputConfiguration.getRelativeTestSourceCodeDir());
-
-        inputProgram.setTransformationPerRun(
-                Integer.parseInt(inputConfiguration.getProperty("transformation.size", "1")));
-
-        //Path to pervious transformations made to this input program
-        inputProgram.setPreviousTransformationsPath(
-                inputConfiguration.getProperty("transformation.directory"));
-
-        inputProgram.setClassesDir(inputConfiguration.getProperty("classes"));
-
-        inputProgram.setCoverageDir(inputConfiguration.getProperty("jacoco"));
-
-        inputProgram.setJavaVersion(Integer.parseInt(inputConfiguration.getProperty("javaVersion", "6")));
-
-        return inputProgram;
     }
 
     @Override

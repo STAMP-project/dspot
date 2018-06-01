@@ -18,7 +18,6 @@ import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.json.ClassTimeJSON;
 import eu.stamp_project.utils.json.ProjectTimeJSON;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.utils.sosiefier.InputProgram;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,8 +54,6 @@ public class DSpot {
     private int numberOfIterations;
 
     private TestSelector testSelector;
-
-    public InputProgram inputProgram;
 
     private InputConfiguration inputConfiguration;
 
@@ -95,7 +92,6 @@ public class DSpot {
 
         Initializer.initialize(inputConfiguration);
         this.inputConfiguration = inputConfiguration;
-        this.inputProgram = inputConfiguration.getInputProgram();
 
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
         String dependencies = builder.buildClasspath();
@@ -226,11 +222,6 @@ public class DSpot {
                                     !excludedTestCases.contains(ctMethod.getSimpleName())
                     ).collect(Collectors.toList());
         }
-    }
-
-    @Deprecated
-    public InputProgram getInputProgram() {
-        return inputProgram;
     }
 
     public InputConfiguration getInputConfiguration() {

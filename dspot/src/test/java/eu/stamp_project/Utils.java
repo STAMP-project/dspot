@@ -9,7 +9,6 @@ import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.Initializer;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.utils.sosiefier.InputProgram;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +37,6 @@ public class Utils {
 	public static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
 
 	private static AutomaticBuilder builder;
-
-	private static InputProgram inputProgram;
 
 	private static InputConfiguration inputConfiguration;
 
@@ -86,7 +83,6 @@ public class Utils {
 			currentInputConfigurationLoaded = pathToConfFile;
 			inputConfiguration = new InputConfiguration(pathToConfFile);
 			Initializer.initialize(inputConfiguration);
-			inputProgram = inputConfiguration.getInputProgram();
 			builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 			String dependencies = builder.buildClasspath();
 			if (inputConfiguration.getProperty("additionalClasspathElements") != null) {
@@ -98,10 +94,6 @@ public class Utils {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	public static InputProgram getInputProgram() {
-		return inputProgram;
 	}
 
 	public static CtClass findClass(String fullQualifiedName) {

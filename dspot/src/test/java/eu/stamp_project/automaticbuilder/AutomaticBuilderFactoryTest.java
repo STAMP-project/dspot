@@ -2,7 +2,6 @@ package eu.stamp_project.automaticbuilder;
 
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.utils.sosiefier.InputProgram;
 import eu.stamp_project.Configuration;
 import eu.stamp_project.JSAPOptions;
 import org.junit.After;
@@ -39,8 +38,6 @@ public class AutomaticBuilderFactoryTest {
         this.configuration = JSAPOptions.parse(getArgsWithMavenBuilder());
 
         InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
-        InputProgram program = InputConfiguration.initInputProgram(inputConfiguration);
-        inputConfiguration.setInputProgram(program);
         inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
 
         assertTrue(inputConfiguration.getProperty("automaticBuilderName").toUpperCase().contains("MAVEN"));
@@ -74,8 +71,6 @@ public class AutomaticBuilderFactoryTest {
 
         InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
         inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
-        InputProgram program = InputConfiguration.initInputProgram(inputConfiguration);
-        inputConfiguration.setInputProgram(program);
 
         assertFalse(inputConfiguration.getProperty("automaticBuilderName") == null);
         assertFalse(inputConfiguration.getProperty("automaticBuilderName").toUpperCase().contains("MAVEN"));
@@ -93,8 +88,6 @@ public class AutomaticBuilderFactoryTest {
         this.configuration = JSAPOptions.parse(getArgsWithNoBuilder());
 
         InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
-        InputProgram program = InputConfiguration.initInputProgram(inputConfiguration);
-        inputConfiguration.setInputProgram(program);
 
         assertTrue(inputConfiguration.getProperty("automaticBuilderName") == null);
 

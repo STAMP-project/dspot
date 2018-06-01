@@ -7,7 +7,6 @@ import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.Initializer;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.utils.sosiefier.InputProgram;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
@@ -43,13 +42,10 @@ public class ChangeMinimizerTest extends AbstractTest {
         final String configurationPath = Utils.getInputConfiguration().getProperty("configPath");
         final String pathToFolder = Utils.getInputConfiguration().getProperty("folderPath");
         InputConfiguration inputConfiguration = new InputConfiguration(configurationPath);
-        InputProgram inputProgram = InputConfiguration.initInputProgram(inputConfiguration);
-        inputConfiguration.setInputProgram(inputProgram);
         String pathToChangedVersionOfProgram = DSpotUtils.shouldAddSeparator.apply(pathToFolder) +
                 (inputConfiguration.getProperty("targetModule") != null ?
                         DSpotUtils.shouldAddSeparator.apply(inputConfiguration.getProperty("targetModule")) : "");
         inputConfiguration.setAbsolutePathToProjectRoot(new File(pathToChangedVersionOfProgram).getAbsolutePath());
-        inputProgram.setProgramDir(pathToChangedVersionOfProgram);
         Initializer.initialize(inputConfiguration);
         final HashMap<CtMethod<?>, Failure> failurePerAmplifiedTest = new HashMap<>();
         final CtMethod<?> test2 = Utils.findMethod(testClass, "test2");
@@ -60,7 +56,6 @@ public class ChangeMinimizerTest extends AbstractTest {
                 testClass,
                 inputConfiguration,
                 inputConfiguration,
-                inputProgram,
                 pathToChangedVersionOfProgram,
                 failurePerAmplifiedTest
         );
