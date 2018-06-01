@@ -53,24 +53,23 @@ public class InputConfiguration {
         prop = new Properties();
         setDefaultProperties();
         prop.load(stream);
-
         this.setPathToClasses(
                 DSpotUtils.shouldAddSeparator.apply(prop.getProperty("classes", "target/classes"))
         );
         this.setPathToTestClasses(
                 DSpotUtils.shouldAddSeparator.apply(prop.getProperty("testclasses", "target/test-classes"))
         );
-
+        this.setPathToSourceCode(DSpotUtils.shouldAddSeparator.apply(prop.getProperty("src", "src/main/java")));
+        this.setPathToTestSourceCode(DSpotUtils.shouldAddSeparator.apply(prop.getProperty("test", "src/test/java")));
+        this.absolutePathToProjectRoot = computeProgramDirectory.apply(this);
         this.dependencies = AutomaticBuilderFactory.getAutomaticBuilder(this).buildClasspath();
-
         if (prop.getProperty("systemProperties") != null) {
             Arrays.stream(prop.getProperty("systemProperties").split(","))
                     .forEach( systemProperty -> {
-                                String[] keyValueInArray = systemProperty.split("=");
-                                System.getProperties().put(keyValueInArray[0], keyValueInArray[1]);
-                            });
+                        String[] keyValueInArray = systemProperty.split("=");
+                        System.getProperties().put(keyValueInArray[0], keyValueInArray[1]);
+                    });
         }
-        this.absolutePathToProjectRoot = computeProgramDirectory.apply(this);
     }
 
     public InputConfiguration(File project, File srcDir, File testDir, File classesDir, File testClassesDir,
