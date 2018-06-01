@@ -48,7 +48,7 @@ public class MavenAutomaticBuilderTest {
 
         Utils.init("src/test/resources/test-projects/test-projects.properties");
 
-        final String dependenciesOf = Utils.getBuilder().buildClasspath("src/test/resources/test-projects/");
+        final String dependenciesOf = Utils.getBuilder().buildClasspath();
         assertTrue(dependenciesOf.contains("org" + System.getProperty("file.separator") + "hamcrest" +
                 System.getProperty("file.separator") + "hamcrest-core" + System.getProperty("file.separator") +
                 "1.3" + System.getProperty("file.separator") + "hamcrest-core-1.3.jar"));

@@ -36,9 +36,6 @@ public class ChangeMinimizer extends GeneralMinimizer {
 
     private InputConfiguration configurationOfModifiedVersion;
 
-    @Deprecated
-    private InputProgram program;
-
     private String pathToChangedVersionOfProgram;
 
     private Map<CtMethod<?>, Failure> failurePerAmplifiedTest;
@@ -48,18 +45,16 @@ public class ChangeMinimizer extends GeneralMinimizer {
     public ChangeMinimizer(CtType<?> testClass,
                            InputConfiguration configuration,
                            InputConfiguration configurationOfModifiedVersion,
-                           InputProgram program,
                            String pathToChangedVersionOfProgram,
                            Map<CtMethod<?>, Failure> failurePerAmplifiedTest) {
         this.configurationOfModifiedVersion = configurationOfModifiedVersion;
         this.testClass = testClass;
         this.configuration = configuration;
-        this.program = program;
         this.pathToChangedVersionOfProgram = pathToChangedVersionOfProgram;
         this.failurePerAmplifiedTest = failurePerAmplifiedTest;
         this.classpath = AutomaticBuilderFactory
                 .getAutomaticBuilder(this.configuration)
-                .buildClasspath(this.configuration.getAbsolutePathToProjectRoot())
+                .buildClasspath()
                 + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
     }
 

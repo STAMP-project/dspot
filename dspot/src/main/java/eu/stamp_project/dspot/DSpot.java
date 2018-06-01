@@ -98,7 +98,7 @@ public class DSpot {
         this.inputProgram = inputConfiguration.getInputProgram();
 
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
-        String dependencies = builder.buildClasspath(this.inputConfiguration.getAbsolutePathToProjectRoot());
+        String dependencies = builder.buildClasspath();
 
         if (inputConfiguration.getProperty("additionalClasspathElements") != null) {
             dependencies += PATH_SEPARATOR + new File(this.inputConfiguration.getAbsolutePathToProjectRoot()
@@ -183,7 +183,7 @@ public class DSpot {
 
     public CtType amplifyTest(CtType test, List<CtMethod<?>> methods) {
         try {
-            test = AmplificationHelper.convertToJUnit4(test, this.inputConfiguration, this.inputProgram);
+            test = AmplificationHelper.convertToJUnit4(test, this.inputConfiguration);
             Counter.reset();
             Amplification testAmplification = new Amplification(this.inputConfiguration, this.amplifiers, this.testSelector, this.compiler);
             final List<CtMethod<?>> filteredTestCases = this.filterTestCases(methods);

@@ -32,8 +32,7 @@ public class AmplificationHelperTest extends AbstractTest {
         final CtClass secondTestClassJUnit3 = Utils.findClass("fr.inria.helper.SecondClassJUnit3");
         final CtClass testClassJUnit3 = Utils.findClass("fr.inria.helper.SubClassOfJUnit3");
         final CtType<?> converted = AmplificationHelper.convertToJUnit4(testClassJUnit3,
-                Utils.getInputConfiguration(),
-                Utils.getInputProgram()
+                Utils.getInputConfiguration()
         );
         assertEquals("public class SubClassOfJUnit3 extends fr.inria.helper.SecondClassJUnit3 {" + AmplificationHelper.LINE_SEPARATOR +
                 "    @java.lang.Override" + AmplificationHelper.LINE_SEPARATOR +
@@ -74,8 +73,7 @@ public class AmplificationHelperTest extends AbstractTest {
     public void testConvert() throws Exception {
         final CtClass testClassJUnit3 = Utils.findClass("fr.inria.helper.ClassJunit3");
         final CtType<?> converted = AmplificationHelper.convertToJUnit4(testClassJUnit3,
-                Utils.getInputConfiguration(),
-                Utils.getInputProgram()
+                Utils.getInputConfiguration()
         );
         System.out.println(converted);
         assertEquals("public class ClassJunit3 {" + AmplificationHelper.LINE_SEPARATOR +
@@ -94,8 +92,7 @@ public class AmplificationHelperTest extends AbstractTest {
 
         final CtClass secondTestClassJUnit3 = Utils.findClass("fr.inria.helper.SecondClassJUnit3");
         final CtType<?> secondConverted = AmplificationHelper.convertToJUnit4(secondTestClassJUnit3,
-                Utils.getInputConfiguration(),
-                Utils.getInputProgram()
+                Utils.getInputConfiguration()
         );
         System.out.println(secondConverted);
         assertEquals("public class SecondClassJUnit3 {" + AmplificationHelper.LINE_SEPARATOR +

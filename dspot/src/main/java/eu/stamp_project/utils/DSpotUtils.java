@@ -164,11 +164,6 @@ public class DSpotUtils {
 
     public static final Function<String, String> shouldAddSeparator = string -> string + (string.endsWith("/") ? "" : "/");
 
-    public static Function<InputConfiguration, String> computeProgramDirectory = configuration -> new File(
-            shouldAddSeparator.apply(configuration.getProperty("project"))
-                    + (configuration.getProperty("targetModule") != null ?
-                    shouldAddSeparator.apply(configuration.getProperty("targetModule")) : "")).getAbsolutePath();
-
     public static String ctTypeToFullQualifiedName(CtType<?> testClass) {
         if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) {
             CtTypeReference<?> referenceOfSuperClass = testClass.getReference();

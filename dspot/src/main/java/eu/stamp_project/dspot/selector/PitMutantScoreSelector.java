@@ -113,7 +113,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 .getAutomaticBuilder(this.configuration);
         final String classpath = AutomaticBuilderFactory
                 .getAutomaticBuilder(this.configuration)
-                .buildClasspath(this.configuration.getAbsolutePathToProjectRoot())
+                .buildClasspath()
                 + AmplificationHelper.PATH_SEPARATOR +
                 this.configuration.getClasspathClassesProject()
                 + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";

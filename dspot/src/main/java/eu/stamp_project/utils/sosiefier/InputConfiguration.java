@@ -1,5 +1,6 @@
 package eu.stamp_project.utils.sosiefier;
 
+import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import spoon.reflect.factory.Factory;
@@ -13,18 +14,24 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * The input configuration class encapsulates all the data and associated behavior we obtain from the input properties
  * given by the user.
  * Created by marcel on 8/06/14.
+ * This version of the InputConfiguration has been largely modified, and customized to be use in DSpot.
  */
-//TODO @Deprecated
 public class InputConfiguration {
 
+    public static Function<InputConfiguration, String> computeProgramDirectory = configuration -> new File(
+            DSpotUtils.shouldAddSeparator.apply(configuration.getProperty("project"))
+                    + (configuration.getProperty("targetModule") != null ?
+                    DSpotUtils.shouldAddSeparator.apply(configuration.getProperty("targetModule")) : "")).getAbsolutePath();
     /**
      * Internal properties
      */
+    @Deprecated
     protected Properties prop;
 
     /**
@@ -38,13 +45,29 @@ public class InputConfiguration {
         setDefaultProperties();
     }
 
+    /**
+     * Build a InputConfiguration from a properties file given as an InputStream
+     * The InputConfiguration uses the following properties:
+     *      <ul>
+     *          <li><b>project</b><i>[mandatory]</i>: specify the path to the root of the project. This path can be absolute (recommended) but also relative to the working directory of the DSpot process. We consider as root of the project folder that contain the top-most parent in a multi-module project.</li>
+     *          <li><b>targetModule</b><i>[optional]</i>: specify a relative path from the path specified by the property <b>project</b> to a sub-module of the project. DSpot works at module level, if your project is multi-module, you must specify which module you want to amplify.</li>
+     *      </ul>
+     * @param stream
+     * @throws IOException
+     */
     public InputConfiguration(InputStream stream) throws IOException {
         prop = new Properties();
         setDefaultProperties();
         prop.load(stream);
 
-        this.setPathToClasses(DSpotUtils.shouldAddSeparator.apply(prop.getProperty("classes", "target/classes")));
-        this.setPathToTestClasses(DSpotUtils.shouldAddSeparator.apply(prop.getProperty("testclasses", "target/test-classes")));
+        this.setPathToClasses(
+                DSpotUtils.shouldAddSeparator.apply(prop.getProperty("classes", "target/classes"))
+        );
+        this.setPathToTestClasses(
+                DSpotUtils.shouldAddSeparator.apply(prop.getProperty("testclasses", "target/test-classes"))
+        );
+
+        this.dependencies = AutomaticBuilderFactory.getAutomaticBuilder(this).buildClasspath();
 
         if (prop.getProperty("systemProperties") != null) {
             Arrays.stream(prop.getProperty("systemProperties").split(","))
@@ -53,7 +76,7 @@ public class InputConfiguration {
                                 System.getProperties().put(keyValueInArray[0], keyValueInArray[1]);
                             });
         }
-        this.absolutePathToProjectRoot = DSpotUtils.computeProgramDirectory.apply(this);
+        this.absolutePathToProjectRoot = computeProgramDirectory.apply(this);
     }
 
     public InputConfiguration(File project, File srcDir, File testDir, File classesDir, File testClassesDir,
@@ -88,6 +111,7 @@ public class InputConfiguration {
      *
      * @return Proprties instance
      */
+    @Deprecated
     public Properties getProperties() {
         return prop;
     }
@@ -98,6 +122,7 @@ public class InputConfiguration {
      * @param key Key to the value
      * @return A string with the value                                                      g
      */
+    @Deprecated
     public String getProperty(String key) {
         return getProperties().getProperty(key);
     }
@@ -109,6 +134,7 @@ public class InputConfiguration {
      * @param defaultValue Default value to set
      * @return A string with the value
      */
+    @Deprecated
     public String getProperty(String key, String defaultValue) {
         return getProperties().getProperty(key, defaultValue);
     }
@@ -195,14 +221,6 @@ public class InputConfiguration {
         return p.normalize().toString().replace(File.separator, "/");
     }
 
-    /**
-     * Gets the temporary directory for all operations
-     * @return
-     */
-    public String getTempDir() {
-        return getAbsolutePath(getProperty("tmpDir"));
-    }
-
     @Deprecated
     public static InputProgram initInputProgram(InputConfiguration inputConfiguration) throws IOException {
         InputProgram inputProgram = new InputProgram();
@@ -240,7 +258,6 @@ public class InputConfiguration {
 		toReturn += "projectPath: " + this.getProjectPath()+ "\n";
 		toReturn += "relativeSourceCodeDir: " + this.getRelativeSourceCodeDir()+ "\n";
 		toReturn += "relativeTestSourceCodeDir: " + this.getRelativeTestSourceCodeDir()+ "\n";
-		toReturn += "TempDir: " + this.getTempDir()+ "\n";
 		return toReturn;
     }
 
@@ -287,7 +304,7 @@ public class InputConfiguration {
     }
 
     public String getAbsolutePathToClasses() {
-        return this.absolutePathToProjectRoot + this.pathToClasses;
+        return this.absolutePathToProjectRoot + this.getPathToClasses();
     }
 
     private String pathToTestClasses;
@@ -297,7 +314,7 @@ public class InputConfiguration {
     }
 
     public String getAbsolutePathToTestClasses() {
-        return this.absolutePathToProjectRoot + this.pathToTestClasses;
+        return this.absolutePathToProjectRoot + this.getPathToTestClasses();
     }
 
     public void setPathToTestClasses(String pathToTestClasses) {
@@ -306,5 +323,44 @@ public class InputConfiguration {
 
     public String getClasspathClassesProject() {
         return this.getAbsolutePathToClasses() + AmplificationHelper.PATH_SEPARATOR + this.getAbsolutePathToTestClasses();
+    }
+
+    private String pathToSourceCode;
+
+    public String getPathToSourceCode() {
+        return pathToSourceCode;
+    }
+
+    public String getAbsolutePathToSourceCode() {
+        return this.absolutePathToProjectRoot + this.getPathToSourceCode();
+    }
+
+    public void setPathToSourceCode(String pathToSourceCode) {
+        this.pathToSourceCode = pathToSourceCode;
+    }
+
+    private String pathToTestSourceCode;
+
+    public String getPathToTestSourceCode() {
+        return pathToTestSourceCode;
+    }
+
+    public void setPathToTestSourceCode(String pathToTestSourceCode) {
+        this.pathToTestSourceCode = pathToTestSourceCode;
+    }
+
+    public String getAbsolutePathToTestSourceCode(){
+        return this.absolutePathToProjectRoot + this.getPathToTestSourceCode();
+    }
+
+    private String dependencies;
+
+    /**
+     * This method compute the path to all dependencies of the project, separated by the path separator of the System.
+     * The dependencies is compute by an implementation of a {@link eu.stamp_project.automaticbuilder.AutomaticBuilder}
+     * @return the dependencies of the project
+     */
+    public String getDependencies() {
+        return this.dependencies;
     }
 }

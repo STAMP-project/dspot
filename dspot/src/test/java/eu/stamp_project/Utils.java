@@ -88,7 +88,7 @@ public class Utils {
 			Initializer.initialize(inputConfiguration);
 			inputProgram = inputConfiguration.getInputProgram();
 			builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
-			String dependencies = builder.buildClasspath(inputConfiguration.getAbsolutePathToProjectRoot());
+			String dependencies = builder.buildClasspath();
 			if (inputConfiguration.getProperty("additionalClasspathElements") != null) {
 				dependencies += PATH_SEPARATOR + inputConfiguration.getAbsolutePathToProjectRoot()
 						+ inputConfiguration.getProperty("additionalClasspathElements");

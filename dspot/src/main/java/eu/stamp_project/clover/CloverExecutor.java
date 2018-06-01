@@ -63,7 +63,7 @@ public class CloverExecutor {
         });
 
         final String classpath = AutomaticBuilderFactory.getAutomaticBuilder(configuration)
-                .buildClasspath(configuration.getAbsolutePathToProjectRoot());
+                .buildClasspath();
         final String finalClasspath = classpath +
                 AmplificationHelper.PATH_SEPARATOR + rootDirectoryOfCloverFiles.getAbsolutePath() + INSTR_BIN_DIRECTORY +
                 AmplificationHelper.PATH_SEPARATOR + CLOVER_DEPENDENCIES;

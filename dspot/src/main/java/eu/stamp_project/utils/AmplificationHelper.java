@@ -1,16 +1,18 @@
 package eu.stamp_project.utils;
 
+import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.testrunner.runner.test.TestListener;
-import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.utils.sosiefier.InputProgram;
-import eu.stamp_project.minimization.Minimizer;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spoon.reflect.code.*;
+import spoon.reflect.code.CtComment;
+import spoon.reflect.code.CtExpression;
+import spoon.reflect.code.CtInvocation;
+import spoon.reflect.code.CtLiteral;
+import spoon.reflect.code.CtSuperAccess;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtImport;
 import spoon.reflect.declaration.CtMethod;
@@ -204,8 +206,7 @@ public class AmplificationHelper {
      */
     @SuppressWarnings("unchecked")
     public static CtType<?> convertToJUnit4(CtType<?> testClassJUnit3,
-                                            InputConfiguration configuration,
-                                            InputProgram program) {
+                                            InputConfiguration configuration) {
         if (AmplificationChecker.isTestJUnit4(testClassJUnit3)) {
             return testClassJUnit3;
         }
@@ -224,12 +225,10 @@ public class AmplificationHelper {
                 while (superclass != null) {
                     if (AmplificationChecker.inheritFromTestCase(superclass)) {
                         final CtType<?> convertedSuperclass =
-                                AmplificationHelper.convertToJUnit4(superclass, configuration, program);
+                                AmplificationHelper.convertToJUnit4(superclass, configuration);
                         DSpotUtils.printCtTypeToGivenDirectory(convertedSuperclass,
                                 new File(configuration.getAbsolutePathToTestClasses()));
-                        final String classpath = AutomaticBuilderFactory
-                                .getAutomaticBuilder(configuration)
-                                .buildClasspath(configuration.getAbsolutePathToProjectRoot())
+                        final String classpath = configuration.getDependencies()
                                 + AmplificationHelper.PATH_SEPARATOR +
                                 configuration.getClasspathClassesProject()
                                 + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";

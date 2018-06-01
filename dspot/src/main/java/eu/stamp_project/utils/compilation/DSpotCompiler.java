@@ -32,8 +32,9 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 	public static final String pathToTmpTestSources = "target/dspot/tmp_test_sources";
 
 	public static DSpotCompiler createDSpotCompiler(InputConfiguration configuration, String pathToDependencies) {
-		String pathToSources = configuration.getInputProgram().getAbsoluteSourceCodeDir() + PATH_SEPARATOR +
-				configuration.getInputProgram().getAbsoluteTestSourceCodeDir();
+		String pathToSources = configuration.getAbsolutePathToSourceCode()
+				+ PATH_SEPARATOR +
+				configuration.getAbsolutePathToTestSourceCode();
 		Launcher launcher = getSpoonModelOf(pathToSources, pathToDependencies);
 		return new DSpotCompiler(launcher, configuration, pathToDependencies);
 	}

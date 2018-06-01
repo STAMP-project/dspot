@@ -62,7 +62,7 @@ public class GradleAutomaticBuilderTest {
     @Test
     public void compile_whenCleanCompileTestTasksAreAppliedToDSpotTestExampleProject() throws Exception {
         Utils.LOGGER.info("Starting Gradle Automatic Builder compile() test...");
-        sut.compile("src/test/resources/test-projects/");
+        sut.compile();
 
         File buildDir = new File("src/test/resources/test-projects/build");
         assertTrue("After compilation, build dir should exist", buildDir.exists());
@@ -77,7 +77,7 @@ public class GradleAutomaticBuilderTest {
         String[] expectedCompilationLibraries = {"log4j-api-2.8.2.jar", "log4j-core-2.8.2.jar"};
         String[] expectedTestCompilationLibraries = {"hamcrest-core-1.3.jar", "junit-4.12.jar"};
 
-        String classPath = sut.buildClasspath("src/test/resources/test-projects/");
+        String classPath = sut.buildClasspath();
 
         assertNotNull(classPath, "Classpath should be null");
 

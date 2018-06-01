@@ -53,7 +53,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
     public List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified) {
         if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
             this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
-            String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).buildClasspath(this.configuration.getAbsolutePathToProjectRoot());
+            String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).buildClasspath();
             if (this.configuration.getProperty("additionalClasspathElements") != null) {
                 classpath += PATH_SEPARATOR + new File(this.configuration.getAbsolutePathToProjectRoot()
                         + this.configuration.getProperty("additionalClasspathElements")).getAbsolutePath();
@@ -100,7 +100,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 
     private CoveragePerTestMethod computeCoverageForGivenTestMethdods(List<CtMethod<?>> testsToBeAmplified) {
         final String[] methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).toArray(String[]::new);
-        String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).buildClasspath(this.configuration.getAbsolutePathToProjectRoot());
+        String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).buildClasspath();
         if (this.configuration.getProperty("additionalClasspathElements") != null) {
             classpath += PATH_SEPARATOR +
                     new File(this.configuration.getAbsolutePathToProjectRoot()
@@ -193,7 +193,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
         final String fileSeparator = System.getProperty("file.separator");
         String classpath = AutomaticBuilderFactory
                 .getAutomaticBuilder(this.configuration)
-                .buildClasspath(this.configuration.getAbsolutePathToProjectRoot())
+                .buildClasspath()
                 + AmplificationHelper.PATH_SEPARATOR +
                 this.configuration.getClasspathClassesProject();
 

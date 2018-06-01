@@ -64,7 +64,7 @@ public class CloverCoverageSelector extends TakeAllSelector {
 
             final String classpath =
                     AutomaticBuilderFactory.getAutomaticBuilder(this.configuration)
-                        .buildClasspath(configuration.getAbsolutePathToProjectRoot())
+                        .buildClasspath()
                             + AmplificationHelper.PATH_SEPARATOR +
                             this.configuration.getClasspathClassesProject();
 
@@ -175,7 +175,7 @@ public class CloverCoverageSelector extends TakeAllSelector {
 
         final String classpath =
                 AutomaticBuilderFactory.getAutomaticBuilder(this.configuration)
-                    .buildClasspath(configuration.getAbsolutePathToProjectRoot())
+                    .buildClasspath()
                 + AmplificationHelper.PATH_SEPARATOR +
                 this.configuration.getClasspathClassesProject();
 
@@ -207,11 +207,11 @@ public class CloverCoverageSelector extends TakeAllSelector {
         }
         try {
             FileUtils.copyDirectory(
-                    new File(this.configuration.getInputProgram().getAbsoluteSourceCodeDir()),
+                    new File(this.configuration.getAbsolutePathToSourceCode()),
                     destDir
             );
             FileUtils.copyDirectory(
-                    new File(this.configuration.getInputProgram().getAbsoluteTestSourceCodeDir()),
+                    new File(this.configuration.getAbsolutePathToTestSourceCode()),
                     destDir
             );
         } catch (IOException e) {

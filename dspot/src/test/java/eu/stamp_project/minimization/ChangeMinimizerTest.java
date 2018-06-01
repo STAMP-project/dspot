@@ -50,7 +50,7 @@ public class ChangeMinimizerTest extends AbstractTest {
                         DSpotUtils.shouldAddSeparator.apply(inputConfiguration.getProperty("targetModule")) : "");
         inputConfiguration.setAbsolutePathToProjectRoot(new File(pathToChangedVersionOfProgram).getAbsolutePath());
         inputProgram.setProgramDir(pathToChangedVersionOfProgram);
-        Initializer.initialize(inputConfiguration, inputProgram);
+        Initializer.initialize(inputConfiguration);
         final HashMap<CtMethod<?>, Failure> failurePerAmplifiedTest = new HashMap<>();
         final CtMethod<?> test2 = Utils.findMethod(testClass, "test2");
         failurePerAmplifiedTest.put(test2,
