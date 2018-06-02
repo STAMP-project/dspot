@@ -3,12 +3,13 @@ package eu.stamp_project.utils.sosiefier;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.factory.Factory;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -25,63 +26,118 @@ import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
  */
 public class InputConfiguration {
 
-    private String computeProgramDirectory() {
-        return DSpotUtils.shouldAddSeparator.apply(new File(
-                DSpotUtils.shouldAddSeparator.apply(this.getProperty("project"))
-                        + (this.getProperty("targetModule") != null ?
-                        DSpotUtils.shouldAddSeparator.apply(this.getProperty("targetModule")) : ""))
-                .getAbsolutePath());
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(InputConfiguration.class);
 
     /**
      * Internal properties
      */
     @Deprecated
-    protected Properties prop;
+    protected static Properties properties;
+
+    private static Properties loadProperties(String pathToPropertiesFile) {
+        try {
+            Properties properties = new Properties();
+            properties.setProperty("src", "src/main/java");
+            properties.setProperty("testSrc", "src/test/java");
+            properties.setProperty("classes", "target/classes");
+            properties.setProperty("javaVersion", "5");
+            properties.setProperty("tmpDir", "tmpDir"); // TODO Checks usage
+            properties.setProperty("outputDirectory", "output");
+            properties.setProperty("timeOut", "-1"); // TODO Checks usage
+            properties.setProperty("logLevel", "2"); // TODO Checks usage
+            properties.setProperty("builder", "maven");
+            properties.setProperty("pom", "/pom.xml");
+            if (pathToPropertiesFile == null) {
+                LOGGER.warn("You did not specify any path for the properties file. Using only default values.");
+            } else {
+                properties.load(new FileInputStream(pathToPropertiesFile));
+            }
+            return properties;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public InputConfiguration() {
-        prop = new Properties();
-        setDefaultProperties();
+        this(loadProperties(null));
     }
 
     /**
-     * Build a InputConfiguration from a properties file given as an InputStream
+     * Build an InputConfiguration from a properties file given as an InputStream.
+     * See {@link InputConfiguration#InputConfiguration(String, String, String, String, String)}
+     */
+    public InputConfiguration(String pathToPropertiesFile) throws IOException {
+        this(loadProperties(pathToPropertiesFile));
+    }
+
+    public InputConfiguration(Properties properties) {
+        this(
+                computeProgramDirectory(properties),
+                DSpotUtils.shouldAddSeparator.apply(properties.getProperty("src", "src/main/java")),
+                DSpotUtils.shouldAddSeparator.apply(properties.getProperty("test", "src/test/java")),
+                DSpotUtils.shouldAddSeparator.apply(properties.getProperty("classes", "target/classes")),
+                DSpotUtils.shouldAddSeparator.apply(properties.getProperty("testclasses", "target/test-classes"))
+        );
+    }
+
+    /**
+     * call {@link InputConfiguration#InputConfiguration(String, String, String, String, String, String, String)}
+     * with two last parameters with null, which are optional.
+     * @param absolutePathToProjectRoot
+     * @param pathToSource
+     * @param pathToTestSource
+     * @param pathToClasses
+     * @param pathToTestClasses
+     */
+    public InputConfiguration(String absolutePathToProjectRoot,
+                              String pathToSource,
+                              String pathToTestSource,
+                              String pathToClasses,
+                              String pathToTestClasses) {
+        this(absolutePathToProjectRoot, pathToSource, pathToTestSource, pathToClasses, pathToTestClasses, null, null);
+    }
+
+    /**
+     * Build an InputConfiguration from a properties file given as an InputStream
      * The InputConfiguration uses the following properties:
      * <ul>
      * <li><b>project</b><i>[mandatory]</i>: specify the path to the root of the project. This path can be absolute (recommended) but also relative to the working directory of the DSpot process. We consider as root of the project folder that contain the top-most parent in a multi-module project.</li>
      * <li><b>targetModule</b><i>[optional]</i>: specify a relative path from the path specified by the property <b>project</b> to a sub-module of the project. DSpot works at module level, if your project is multi-module, you must specify which module you want to amplify.</li>
      * </ul>
-     *
-     * @param stream
-     * @throws IOException
+     * @param absolutePathToProjectRoot
+     * @param pathToSource
+     * @param pathToTestSource
+     * @param pathToClasses
+     * @param pathToTestClasses
+     * @param additionalClasspathElements optional in case your program rely on classpath elements outside the traditionnal classpath, <i>i.e.</i> specified by {@code pathToClasses} or {@code pathToTestClasses} or in the classpath build with the builder, <i>e.g.</i> maven.
+     * @param systemProperties optional in case your program need some system properties. Specify them with the following format:
+     *                         sysProperty1=value1,sysProperty2=value2
      */
-    public InputConfiguration(InputStream stream) throws IOException {
-        prop = new Properties();
-        setDefaultProperties();
-        prop.load(stream);
-        this.setPathToClasses(
-                DSpotUtils.shouldAddSeparator.apply(prop.getProperty("classes", "target/classes"))
-        );
-        this.setPathToTestClasses(
-                DSpotUtils.shouldAddSeparator.apply(prop.getProperty("testclasses", "target/test-classes"))
-        );
-        this.setPathToSourceCode(DSpotUtils.shouldAddSeparator.apply(prop.getProperty("src", "src/main/java")));
-        this.setPathToTestSourceCode(DSpotUtils.shouldAddSeparator.apply(prop.getProperty("test", "src/test/java")));
-        this.absolutePathToProjectRoot = this.computeProgramDirectory();
+    public InputConfiguration(String absolutePathToProjectRoot,
+                              String pathToSource,
+                              String pathToTestSource,
+                              String pathToClasses,
+                              String pathToTestClasses,
+                              String additionalClasspathElements,
+                              String systemProperties) {
+        this.setAbsolutePathToProjectRoot(absolutePathToProjectRoot);
+        this.setPathToSourceCode(pathToSource);
+        this.setPathToTestSourceCode(pathToTestSource);
+        this.setPathToClasses(pathToClasses);
+        this.setPathToTestClasses(pathToTestClasses);
         this.dependencies = AutomaticBuilderFactory.getAutomaticBuilder(this).buildClasspath();
-        if (prop.getProperty("additionalClasspathElements") != null) {
-            String pathToAdditionnalClasspathElements = prop.getProperty("additionalClasspathElements");
-            if (!Paths.get(prop.getProperty("additionalClasspathElements")).isAbsolute()) {
-                pathToAdditionnalClasspathElements =
+        if (systemProperties != null) {
+            String pathToAdditionalClasspathElements = additionalClasspathElements;
+            if (!Paths.get(additionalClasspathElements).isAbsolute()) {
+                pathToAdditionalClasspathElements =
                         DSpotUtils.shouldAddSeparator.apply(this.absolutePathToProjectRoot +
-                                prop.getProperty("additionalClasspathElements")
+                                additionalClasspathElements
                         );
             }
-            this.dependencies += PATH_SEPARATOR + pathToAdditionnalClasspathElements;
+            this.dependencies += PATH_SEPARATOR + pathToAdditionalClasspathElements;
         }
-
-        if (prop.getProperty("systemProperties") != null) {
-            Arrays.stream(prop.getProperty("systemProperties").split(","))
+        if (additionalClasspathElements != null) {
+            Arrays.stream(additionalClasspathElements.split(","))
                     .forEach(systemProperty -> {
                         String[] keyValueInArray = systemProperty.split("=");
                         System.getProperties().put(keyValueInArray[0], keyValueInArray[1]);
@@ -129,8 +185,12 @@ public class InputConfiguration {
         return relative;
     }
 
-    public InputConfiguration(String file) throws IOException {
-        this(new FileInputStream(file));
+    private static String computeProgramDirectory(Properties properties) {
+        return DSpotUtils.shouldAddSeparator.apply(new File(
+                DSpotUtils.shouldAddSeparator.apply(properties.getProperty("project"))
+                        + (properties.getProperty("targetModule") != null ?
+                        DSpotUtils.shouldAddSeparator.apply(properties.getProperty("targetModule")) : ""))
+                .getAbsolutePath());
     }
 
     /**
@@ -140,7 +200,7 @@ public class InputConfiguration {
      */
     @Deprecated
     public Properties getProperties() {
-        return prop;
+        return properties;
     }
 
     /**
@@ -181,7 +241,7 @@ public class InputConfiguration {
      * @return String with the path
      */
     public String getRelativeSourceCodeDir() {
-        return prop.getProperty("src");
+        return properties.getProperty("src");
     }
 
     /**
@@ -190,7 +250,7 @@ public class InputConfiguration {
      * @return String with the path
      */
     public String getRelativeTestSourceCodeDir() {
-        return prop.getProperty("testSrc", "src/test/java");
+        return properties.getProperty("testSrc", "src/test/java");
     }
 
 
@@ -200,7 +260,7 @@ public class InputConfiguration {
      * @return String with the path
      */
     public String getClassesDir() {
-        return prop.getProperty("classes");
+        return properties.getProperty("classes");
     }
 
     /**
@@ -209,20 +269,7 @@ public class InputConfiguration {
      * @return
      */
     public String getOutputDirectory() {
-        return prop.getProperty("outputDirectory", "output");
-    }
-
-    protected void setDefaultProperties() {
-        prop.setProperty("src", "src/main/java");
-        prop.setProperty("testSrc", "src/test/java");
-        prop.setProperty("classes", "target/classes");
-        prop.setProperty("javaVersion", "5");
-        prop.setProperty("tmpDir", "tmpDir"); // TODO Checks usage
-        prop.setProperty("outputDirectory", "output");
-        prop.setProperty("timeOut", "-1"); // TODO Checks usage
-        prop.setProperty("logLevel", "2"); // TODO Checks usage
-        prop.setProperty("builder", "maven");
-        prop.setProperty("pom", "/pom.xml");
+        return properties.getProperty("outputDirectory", "output");
     }
 
     protected String getAbsolutePath(String path) {
