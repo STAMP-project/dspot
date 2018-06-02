@@ -5,11 +5,9 @@ import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.Initializer;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.utils.sosiefier.InputProgram;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +23,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
-import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
-
 
 /**
  * User: Simon
@@ -38,8 +34,6 @@ public class Utils {
 	public static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
 
 	private static AutomaticBuilder builder;
-
-	private static InputProgram inputProgram;
 
 	private static InputConfiguration inputConfiguration;
 
@@ -81,27 +75,15 @@ public class Utils {
 			AmplificationHelper.minimize = false;
 			EntryPoint.verbose = true;
 			Main.verbose = true;
-			AutomaticBuilderFactory.reset();
-			DSpotUtils.copyPackageFromResources();
 			currentInputConfigurationLoaded = pathToConfFile;
 			inputConfiguration = new InputConfiguration(pathToConfFile);
 			Initializer.initialize(inputConfiguration);
-			inputProgram = inputConfiguration.getInputProgram();
 			builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
-			String dependencies = builder.buildClasspath(inputConfiguration.getAbsolutePathToProjectRoot());
-			if (inputConfiguration.getProperty("additionalClasspathElements") != null) {
-				dependencies += PATH_SEPARATOR + inputConfiguration.getAbsolutePathToProjectRoot()
-						+ inputConfiguration.getProperty("additionalClasspathElements");
-			}
-			compiler = DSpotCompiler.createDSpotCompiler(inputConfiguration, dependencies);
+			compiler = DSpotCompiler.createDSpotCompiler(inputConfiguration, inputConfiguration.getDependencies());
 			inputConfiguration.setFactory(compiler.getLauncher().getFactory());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	public static InputProgram getInputProgram() {
-		return inputProgram;
 	}
 
 	public static CtClass findClass(String fullQualifiedName) {

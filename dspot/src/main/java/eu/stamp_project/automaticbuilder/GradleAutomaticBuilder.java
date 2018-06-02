@@ -1,27 +1,50 @@
 package eu.stamp_project.automaticbuilder;
 
-import java.io.*;
-
-import java.nio.file.*;
-
-import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import java.util.stream.Collectors;
-
 import eu.stamp_project.mutant.pit.GradlePitTaskAndOptions;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtType;
 
-import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.CMD_PIT_MUTATION_COVERAGE;
+import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_ADDITIONAL_CP_ELEMENTS;
+import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_EXCLUDED_CLASSES;
+import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_MUTATION_ENGINE;
+import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_MUTATORS;
+import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_TARGET_CLASSES;
+import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_TARGET_TESTS;
+import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_VALUE_FORMAT;
+import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_VALUE_REPORT_DIR;
+import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_WITH_HISTORY;
+import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.PROPERTY_ADDITIONAL_CP_ELEMENTS;
+import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.PROPERTY_EXCLUDED_CLASSES;
+import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.PROPERTY_VALUE_JVM_ARGS;
+import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.PROPERTY_VALUE_TIMEOUT;
+import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.VALUE_MUTATORS_ALL;
+import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.VALUE_MUTATORS_EVOSUITE;
+import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.descartesMode;
+import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.evosuiteMode;
 
 /**
  * Created by Daniele Gagliardi
@@ -49,26 +72,26 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
     }
 
     @Override
-    public void compile(String pathToRootOfProject) {
-        runTasks(pathToRootOfProject,"clean", "compileJava", "test");
+    public void compile() {
+        runTasks(this.configuration.getAbsolutePathToProjectRoot(), "clean", "compileJava", "test");
     }
 
     @Override
-    public String buildClasspath(String pathToRootOfProject) {
+    public String buildClasspath() {
         try {
-            final File classpathFile = new File(pathToRootOfProject + File.separator + JAVA_PROJECT_CLASSPATH);
+            final File classpathFile = new File(this.configuration.getAbsolutePathToProjectRoot() + File.separator + JAVA_PROJECT_CLASSPATH);
             if (!classpathFile.exists()) {
                 LOGGER.info("Classpath file for Gradle project doesn't exist, starting to build it...");
 
                 LOGGER.info("Injecting  Gradle task to print project classpath on stdout...");
-                injectPrintClasspathTask(pathToRootOfProject);
+                injectPrintClasspathTask(this.configuration.getAbsolutePathToProjectRoot());
                 LOGGER.info("Retrieving project classpath...");
-                byte[] taskOutput = cleanClasspath(runTasks(pathToRootOfProject,"printClasspath4DSpot"));
-                LOGGER.info("Writing project classpath on file " + JAVA_PROJECT_CLASSPATH +"...");
-                FileOutputStream fos = new FileOutputStream(pathToRootOfProject + File.separator + JAVA_PROJECT_CLASSPATH);
+                byte[] taskOutput = cleanClasspath(runTasks(this.configuration.getAbsolutePathToProjectRoot(), "printClasspath4DSpot"));
+                LOGGER.info("Writing project classpath on file " + JAVA_PROJECT_CLASSPATH + "...");
+                FileOutputStream fos = new FileOutputStream(this.configuration.getAbsolutePathToProjectRoot() + File.separator + JAVA_PROJECT_CLASSPATH);
                 fos.write(taskOutput);
                 fos.close();
-                resetOriginalGradleBuildFile(pathToRootOfProject);
+                resetOriginalGradleBuildFile(this.configuration.getAbsolutePathToProjectRoot());
             }
             try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
                 return buffer.lines().collect(Collectors.joining());
@@ -249,7 +272,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
     }
 
     private String getPitTaskOptions(CtType<?>... testClasses) {
-        return  NEW_LINE + NEW_LINE + "pitest {" + NEW_LINE +
+        return NEW_LINE + NEW_LINE + "pitest {" + NEW_LINE +
                 "    " + OPT_TARGET_CLASSES + "['" + configuration.getProperty("filter") + "']" + NEW_LINE +
                 "    " + OPT_WITH_HISTORY + "true" + NEW_LINE +
                 "    " + OPT_VALUE_REPORT_DIR + NEW_LINE +
@@ -258,14 +281,14 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
                         "    " + PROPERTY_VALUE_TIMEOUT + " = " + configuration.getProperty(PROPERTY_VALUE_TIMEOUT) : "") + NEW_LINE +
                 (configuration.getProperty(PROPERTY_VALUE_JVM_ARGS) != null ?
                         "    " + PROPERTY_VALUE_JVM_ARGS + " = " + configuration.getProperty(PROPERTY_VALUE_JVM_ARGS) : "") + NEW_LINE +
-                (testClasses != null ? "    " + OPT_TARGET_TESTS + "['" + Arrays.stream(testClasses).map(DSpotUtils::ctTypeToFullQualifiedName).collect(Collectors.joining(",")) + "']": "") + NEW_LINE +
+                (testClasses != null ? "    " + OPT_TARGET_TESTS + "['" + Arrays.stream(testClasses).map(DSpotUtils::ctTypeToFullQualifiedName).collect(Collectors.joining(",")) + "']" : "") + NEW_LINE +
                 (configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
-                        "    " + OPT_ADDITIONAL_CP_ELEMENTS + "['" + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) + "']":"") + NEW_LINE +
+                        "    " + OPT_ADDITIONAL_CP_ELEMENTS + "['" + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) + "']" : "") + NEW_LINE +
                 (descartesMode ? "    " + OPT_MUTATION_ENGINE + NEW_LINE + "    " + getDescartesMutators() :
                         "    " + OPT_MUTATORS + (evosuiteMode ?
                                 VALUE_MUTATORS_EVOSUITE : VALUE_MUTATORS_ALL)) + NEW_LINE +
                 (configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) != null ?
-                        "    " + OPT_EXCLUDED_CLASSES +  "['" + configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) + "']":"") + NEW_LINE +
+                        "    " + OPT_EXCLUDED_CLASSES + "['" + configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) + "']" : "") + NEW_LINE +
                 "}" + NEW_LINE;
     }
 

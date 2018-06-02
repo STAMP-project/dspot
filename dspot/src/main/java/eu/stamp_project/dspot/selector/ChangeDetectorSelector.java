@@ -1,18 +1,16 @@
 package eu.stamp_project.dspot.selector;
 
+import eu.stamp_project.minimization.ChangeMinimizer;
+import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.testrunner.runner.test.TestListener;
-import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.Initializer;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.utils.sosiefier.InputProgram;
-import eu.stamp_project.minimization.ChangeMinimizer;
-import eu.stamp_project.minimization.Minimizer;
 import org.codehaus.plexus.util.FileUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -41,7 +39,6 @@ public class ChangeDetectorSelector implements TestSelector {
 
     private InputConfiguration changedConfiguration;
 
-    private InputProgram program;
 
     private CtType<?> currentClassTestToBeAmplified;
 
@@ -52,22 +49,18 @@ public class ChangeDetectorSelector implements TestSelector {
     @Override
     public void init(InputConfiguration configuration) {
         this.configuration = configuration;
-        this.program = this.configuration.getInputProgram();
         final String configurationPath = configuration.getProperty("configPath");
         final String pathToFolder = configuration.getProperty("folderPath");
         try {
-            changedConfiguration = new InputConfiguration(configurationPath);
-            InputProgram inputProgram = InputConfiguration.initInputProgram(changedConfiguration);
-            changedConfiguration.setInputProgram(inputProgram);
+            this.changedConfiguration = new InputConfiguration(configurationPath);
             this.pathToChangedVersionOfProgram = DSpotUtils.shouldAddSeparator.apply(pathToFolder);
             if (this.configuration.getProperty("targetModule") != null) {
                 this.pathToChangedVersionOfProgram +=
                         DSpotUtils.shouldAddSeparator.apply(this.configuration.getProperty("targetModule"));
                 configuration.getProperties().setProperty("targetModule", this.configuration.getProperty("targetModule"));
             }
-            changedConfiguration.setAbsolutePathToProjectRoot(new File(this.pathToChangedVersionOfProgram).getAbsolutePath());
-            inputProgram.setProgramDir(this.pathToChangedVersionOfProgram);
-            Initializer.initialize(changedConfiguration, inputProgram);
+            this.changedConfiguration.setAbsolutePathToProjectRoot(this.pathToChangedVersionOfProgram);
+            Initializer.initialize(this.changedConfiguration);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -96,19 +89,14 @@ public class ChangeDetectorSelector implements TestSelector {
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.pathToTmpTestSources));
-        final String classpath = AutomaticBuilderFactory
-                .getAutomaticBuilder(this.configuration)
-                .buildClasspath(this.configuration.getAbsolutePathToProjectRoot())
-                + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
 
         DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources,
-                classpath + AmplificationHelper.PATH_SEPARATOR + this.changedConfiguration.getClasspathClassesProject(),
+                this.changedConfiguration.getFullClassPathWithExtraDependencies(),
                 new File(this.pathToChangedVersionOfProgram + this.changedConfiguration.getPathToTestClasses()));
 
         final TestListener results;
         try {
-            results = EntryPoint.runTests(classpath + AmplificationHelper.PATH_SEPARATOR +
-                            this.changedConfiguration.getClasspathClassesProject(),
+            results = EntryPoint.runTests(this.changedConfiguration.getFullClassPathWithExtraDependencies(),
                     clone.getQualifiedName(),
                     amplifiedTestToBeKept.stream()
                             .map(CtMethod::getSimpleName)
@@ -143,8 +131,6 @@ public class ChangeDetectorSelector implements TestSelector {
                 this.currentClassTestToBeAmplified,
                 this.configuration,
                 this.changedConfiguration,
-                this.program,
-                this.pathToChangedVersionOfProgram,
                 this.failurePerAmplifiedTest
         );
     }

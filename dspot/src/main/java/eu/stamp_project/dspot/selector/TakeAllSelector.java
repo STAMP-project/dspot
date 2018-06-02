@@ -1,7 +1,6 @@
 package eu.stamp_project.dspot.selector;
 
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.utils.sosiefier.InputProgram;
 import eu.stamp_project.minimization.GeneralMinimizer;
 import eu.stamp_project.minimization.Minimizer;
 import spoon.reflect.declaration.CtMethod;
@@ -21,8 +20,6 @@ public class TakeAllSelector implements TestSelector {
 
 	protected InputConfiguration configuration;
 
-	protected InputProgram program;
-
 	protected CtType<?> currentClassTestToBeAmplified;
 
 	public TakeAllSelector() {
@@ -32,7 +29,6 @@ public class TakeAllSelector implements TestSelector {
 	@Override
 	public void init(InputConfiguration configuration) {
 		this.configuration = configuration;
-		this.program = this.configuration.getInputProgram();
 	}
 
 	@Override

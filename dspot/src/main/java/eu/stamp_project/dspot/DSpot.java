@@ -3,8 +3,6 @@ package eu.stamp_project.dspot;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.Main;
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.selector.CloverCoverageSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
@@ -18,7 +16,6 @@ import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.json.ClassTimeJSON;
 import eu.stamp_project.utils.json.ProjectTimeJSON;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.utils.sosiefier.InputProgram;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +36,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
-
 /**
  * User: Simon
  * Date: 08/06/15
@@ -55,8 +50,6 @@ public class DSpot {
     private int numberOfIterations;
 
     private TestSelector testSelector;
-
-    public InputProgram inputProgram;
 
     private InputConfiguration inputConfiguration;
 
@@ -92,19 +85,9 @@ public class DSpot {
                  int numberOfIterations,
                  List<Amplifier> amplifiers,
                  TestSelector testSelector) throws Exception {
-
         Initializer.initialize(inputConfiguration);
         this.inputConfiguration = inputConfiguration;
-        this.inputProgram = inputConfiguration.getInputProgram();
-
-        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
-        String dependencies = builder.buildClasspath(this.inputConfiguration.getAbsolutePathToProjectRoot());
-
-        if (inputConfiguration.getProperty("additionalClasspathElements") != null) {
-            dependencies += PATH_SEPARATOR + new File(this.inputConfiguration.getAbsolutePathToProjectRoot()
-                    + inputConfiguration.getProperty("additionalClasspathElements")).getAbsolutePath();
-        }
-
+        String dependencies = this.inputConfiguration.getDependencies();
         this.compiler = DSpotCompiler.createDSpotCompiler(this.inputConfiguration, dependencies);
         this.inputConfiguration.setFactory(compiler.getLauncher().getFactory());
         this.amplifiers = new ArrayList<>(amplifiers);
@@ -183,7 +166,7 @@ public class DSpot {
 
     public CtType amplifyTest(CtType test, List<CtMethod<?>> methods) {
         try {
-            test = AmplificationHelper.convertToJUnit4(test, this.inputConfiguration, this.inputProgram);
+            test = AmplificationHelper.convertToJUnit4(test, this.inputConfiguration);
             Counter.reset();
             Amplification testAmplification = new Amplification(this.inputConfiguration, this.amplifiers, this.testSelector, this.compiler);
             final List<CtMethod<?>> filteredTestCases = this.filterTestCases(methods);
@@ -226,11 +209,6 @@ public class DSpot {
                                     !excludedTestCases.contains(ctMethod.getSimpleName())
                     ).collect(Collectors.toList());
         }
-    }
-
-    @Deprecated
-    public InputProgram getInputProgram() {
-        return inputProgram;
     }
 
     public InputConfiguration getInputConfiguration() {

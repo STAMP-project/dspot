@@ -22,6 +22,12 @@ import static org.junit.Assert.assertTrue;
  */
 public class AmplificationCheckerTest extends AbstractTest {
 
+    @Override
+    public void setUp() throws Exception {
+        Utils.reset();
+        super.setUp();
+    }
+
     @Test
     public void testIsTest() throws Exception {
         CtClass<Object> classTest = Utils.getFactory().Class().get("fr.inria.helper.ClassWithInnerClass");

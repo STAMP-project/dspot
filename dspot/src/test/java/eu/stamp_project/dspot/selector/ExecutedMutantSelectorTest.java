@@ -55,7 +55,7 @@ public class ExecutedMutantSelectorTest {
         // then compile
         final String classpath = AutomaticBuilderFactory
                 .getAutomaticBuilder(Utils.getInputConfiguration())
-                .buildClasspath(Utils.getInputConfiguration().getAbsolutePathToProjectRoot())
+                .buildClasspath()
                 + AmplificationHelper.PATH_SEPARATOR +
                 Utils.getInputConfiguration().getClasspathClassesProject()
                 + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";

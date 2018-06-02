@@ -20,6 +20,7 @@ public abstract class AbstractTest {
         Utils.init(getPathToPropertiesFile());
         AmplificationHelper.setSeedRandom(72L);
         ValueCreator.count = 0;
+        Main.verbose = true;
         AmplificationHelper.minimize = false;
     }
 }

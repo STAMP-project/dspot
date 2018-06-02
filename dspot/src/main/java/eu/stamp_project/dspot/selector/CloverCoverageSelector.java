@@ -1,6 +1,5 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.clover.CloverExecutor;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.coverage.Coverage;
@@ -62,9 +61,7 @@ public class CloverCoverageSelector extends TakeAllSelector {
                             )
                     );
 
-            final String classpath =
-                    AutomaticBuilderFactory.getAutomaticBuilder(this.configuration)
-                        .buildClasspath(configuration.getAbsolutePathToProjectRoot())
+            final String classpath = this.configuration.getDependencies()
                             + AmplificationHelper.PATH_SEPARATOR +
                             this.configuration.getClasspathClassesProject();
 
@@ -174,8 +171,7 @@ public class CloverCoverageSelector extends TakeAllSelector {
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.pathToTmpTestSources));
 
         final String classpath =
-                AutomaticBuilderFactory.getAutomaticBuilder(this.configuration)
-                    .buildClasspath(configuration.getAbsolutePathToProjectRoot())
+                this.configuration.getDependencies()
                 + AmplificationHelper.PATH_SEPARATOR +
                 this.configuration.getClasspathClassesProject();
 
@@ -207,11 +203,11 @@ public class CloverCoverageSelector extends TakeAllSelector {
         }
         try {
             FileUtils.copyDirectory(
-                    new File(this.configuration.getInputProgram().getAbsoluteSourceCodeDir()),
+                    new File(this.configuration.getAbsolutePathToSourceCode()),
                     destDir
             );
             FileUtils.copyDirectory(
-                    new File(this.configuration.getInputProgram().getAbsoluteTestSourceCodeDir()),
+                    new File(this.configuration.getAbsolutePathToTestSourceCode()),
                     destDir
             );
         } catch (IOException e) {

@@ -162,12 +162,7 @@ public class DSpotUtils {
         });
     }
 
-    public static final Function<String, String> shouldAddSeparator = string -> string + (string.endsWith("/") ? "" : "/");
-
-    public static Function<InputConfiguration, String> computeProgramDirectory = configuration -> new File(
-            shouldAddSeparator.apply(configuration.getProperty("project"))
-                    + (configuration.getProperty("targetModule") != null ?
-                    shouldAddSeparator.apply(configuration.getProperty("targetModule")) : "")).getAbsolutePath();
+    public static final Function<String, String> shouldAddSeparator= string -> string + (string.endsWith("/") ? "" : "/");
 
     public static String ctTypeToFullQualifiedName(CtType<?> testClass) {
         if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) {
@@ -179,4 +174,6 @@ public class DSpotUtils {
             return testClass.getQualifiedName();
         }
     }
+
+    public static final String PATH_TO_EXTRA_DEPENDENCIES_TO_DSPOT_CLASSES = new File("target/dspot/dependencies/").getAbsolutePath();
 }

@@ -2,7 +2,6 @@ package eu.stamp_project.utils.compilation;
 
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.utils.sosiefier.InputProgram;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +13,6 @@ import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.factory.Factory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -90,31 +88,11 @@ public class DSpotCompilerTest {
         }
 
     }
-
-    private InputProgram getInputProgram() {
-        final File tmpDir = new File("tmpDir");
-        if (tmpDir.exists()) {
-            try {
-                FileUtils.cleanDirectory(tmpDir);
-            } catch (IOException ignored) {
-                //ignored
-            }
-        }
-        final InputProgram inputProgram = new InputProgram();
-        inputProgram.setProgramDir("target/dspot/trash/");
-        inputProgram.setRelativeSourceCodeDir("src/main/java/");
-        inputProgram.setRelativeTestSourceCodeDir("src/test/java");
-        return inputProgram;
-    }
-
     private InputConfiguration getConfiguration() {
         final InputConfiguration inputConfiguration = new InputConfiguration();
-        final InputProgram inputProgram = new InputProgram();
-        inputProgram.setProgramDir("target/dspot/trash/");
-        inputProgram.setRelativeSourceCodeDir("src/main/java/");
-        inputProgram.setRelativeTestSourceCodeDir("src/test/java");
         inputConfiguration.setAbsolutePathToProjectRoot(new File("target/dspot/trash/").getAbsolutePath());
-        inputConfiguration.setInputProgram(inputProgram);
+        inputConfiguration.setPathToSourceCode("src/main/java/");
+        inputConfiguration.setPathToTestSourceCode("src/test/java/");
         return inputConfiguration;
     }
 

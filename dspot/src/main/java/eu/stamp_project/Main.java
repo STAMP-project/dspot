@@ -6,7 +6,6 @@ import eu.stamp_project.dspot.amplifier.TestDataMutator;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.utils.sosiefier.InputProgram;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +46,6 @@ public class Main {
 	public static void run(Configuration configuration, InputConfiguration inputConfiguration) throws Exception {
 		AmplificationHelper.setSeedRandom(23L);
 		AmplificationHelper.minimize = configuration.minimize;
-		InputProgram program = new InputProgram();
-		inputConfiguration.setInputProgram(program);
 		inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
 		AmplificationHelper.MAX_NUMBER_OF_TESTS = configuration.maxTestAmplified;
 		if (configuration.mavenHome != null) {
