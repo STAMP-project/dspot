@@ -7,7 +7,7 @@ import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Initializer;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -14,7 +14,7 @@ import eu.stamp_project.utils.Counter;
 import eu.stamp_project.mutant.pit.PitResult;
 import eu.stamp_project.mutant.pit.PitResultParser;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.minimization.PitMutantMinimizer;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
 
     public static String pitVersion = "1.3.0";
 
-    public static String descartesVersion = "1.2";
+    public static String descartesVersion = "1.2";//TODO could we support more version of descartes
 
     public static boolean descartesMode = false;
 
@@ -61,8 +61,8 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     @Override
     public void init(InputConfiguration configuration) {
         super.init(configuration);
-        if (configuration.getProperties().get("pitVersion") != null) {
-            pitVersion = (String) configuration.getProperties().get("pitVersion");
+        if (!configuration.getPitVersion().isEmpty()) {
+            pitVersion = configuration.getPitVersion();
         } else if (descartesMode) {
             pitVersion = "1.4.0";
         }

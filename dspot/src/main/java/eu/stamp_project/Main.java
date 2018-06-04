@@ -5,7 +5,7 @@ import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.dspot.amplifier.TestDataMutator;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,13 +46,25 @@ public class Main {
 	public static void run(Configuration configuration, InputConfiguration inputConfiguration) throws Exception {
 		AmplificationHelper.setSeedRandom(23L);
 		AmplificationHelper.minimize = configuration.minimize;
-		inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
+		if (inputConfiguration.getBuilderName().isEmpty()) {
+			// if the builder name is empty, then it means that it has not been defined in the property file
+			// and thus, we use the default value of the command line, i.e. maven
+			inputConfiguration.setBuilderName(configuration.automaticBuilderName);
+		}
 		AmplificationHelper.MAX_NUMBER_OF_TESTS = configuration.maxTestAmplified;
 		if (configuration.mavenHome != null) {
-			inputConfiguration.getProperties().put("maven.home", configuration.mavenHome);
+			if (!inputConfiguration.getMavenHome().isEmpty() &&
+					!configuration.mavenHome.equals(inputConfiguration.getMavenHome())){
+				LOGGER.warn("Using two different maven home path {}(properties) and {}(command-line option).",
+						inputConfiguration.getMavenHome(), configuration.mavenHome
+				);
+				LOGGER.warn("Please fix your set up to be consistent.");
+				LOGGER.warn("DSpot will use {}(command-line) for this run.", configuration.mavenHome);
+			}
+			inputConfiguration.setMavenHome(configuration.mavenHome);
 		}
 		if (configuration.pathToOutput != null) {
-			inputConfiguration.getProperties().setProperty("outputDirectory", configuration.pathToOutput);
+			inputConfiguration.setOutputDirectory(configuration.pathToOutput);
 		}
 		DSpot dspot = new DSpot(inputConfiguration, configuration.nbIteration, configuration.amplifiers,
 				configuration.selector);

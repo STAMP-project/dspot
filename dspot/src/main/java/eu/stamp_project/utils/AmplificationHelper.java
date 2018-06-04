@@ -3,7 +3,7 @@ package eu.stamp_project.utils;
 import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;

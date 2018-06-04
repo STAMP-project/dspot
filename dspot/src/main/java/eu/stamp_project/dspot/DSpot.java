@@ -15,7 +15,7 @@ import eu.stamp_project.utils.Initializer;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.json.ClassTimeJSON;
 import eu.stamp_project.utils.json.ProjectTimeJSON;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -199,10 +199,12 @@ public class DSpot {
     }
 
     protected List<CtMethod<?>> filterTestCases(List<CtMethod<?>> testMethods) {
-        if (this.inputConfiguration.getProperty("excludedTestCases") == null) {
+        if (this.inputConfiguration.getExcludedClasses().isEmpty()) {
             return testMethods;
         } else {
-            final List<String> excludedTestCases = Arrays.stream(this.inputConfiguration.getProperty("excludedTestCases").split(",")).collect(Collectors.toList());
+            final List<String> excludedTestCases = Arrays.stream(
+                    this.inputConfiguration.getExcludedClasses().split(",")
+            ).collect(Collectors.toList());
             return testMethods.stream()
                     .filter(ctMethod ->
                             excludedTestCases.isEmpty() ||
@@ -216,8 +218,8 @@ public class DSpot {
     }
 
     private final Predicate<CtType> isExcluded = ctType ->
-            this.inputConfiguration.getProperty("excludedClasses") == null ||
-                    Arrays.stream(this.inputConfiguration.getProperty("excludedClasses").split(","))
+            this.inputConfiguration.getExcludedClasses().isEmpty() ||
+                    Arrays.stream(this.getInputConfiguration().getExcludedClasses().split(","))
                             .map(Pattern::compile)
                             .map(pattern -> pattern.matcher(ctType.getQualifiedName()))
                             .noneMatch(Matcher::matches);

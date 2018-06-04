@@ -10,7 +10,7 @@ import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.Initializer;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import org.codehaus.plexus.util.FileUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -49,16 +49,10 @@ public class ChangeDetectorSelector implements TestSelector {
     @Override
     public void init(InputConfiguration configuration) {
         this.configuration = configuration;
-        final String configurationPath = configuration.getProperty("configPath");
-        final String pathToFolder = configuration.getProperty("folderPath");
+        final String configurationPath = configuration.getConfigPath();
         try {
             this.changedConfiguration = new InputConfiguration(configurationPath);
-            this.pathToChangedVersionOfProgram = DSpotUtils.shouldAddSeparator.apply(pathToFolder);
-            if (this.configuration.getProperty("targetModule") != null) {
-                this.pathToChangedVersionOfProgram +=
-                        DSpotUtils.shouldAddSeparator.apply(this.configuration.getProperty("targetModule"));
-                configuration.getProperties().setProperty("targetModule", this.configuration.getProperty("targetModule"));
-            }
+            this.pathToChangedVersionOfProgram = configuration.getAbsolutePathToSecondVersionProjectRoot();
             this.changedConfiguration.setAbsolutePathToProjectRoot(this.pathToChangedVersionOfProgram);
             Initializer.initialize(this.changedConfiguration);
         } catch (Exception e) {

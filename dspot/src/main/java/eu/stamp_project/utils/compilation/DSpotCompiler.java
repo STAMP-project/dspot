@@ -2,7 +2,7 @@ package eu.stamp_project.utils.compilation;
 
 import eu.stamp_project.Main;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import spoon.Launcher;
 import spoon.OutputType;

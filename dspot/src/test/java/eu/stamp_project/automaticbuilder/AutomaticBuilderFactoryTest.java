@@ -1,7 +1,7 @@
 package eu.stamp_project.automaticbuilder;
 
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.Configuration;
 import eu.stamp_project.JSAPOptions;
 import org.junit.After;
@@ -38,9 +38,9 @@ public class AutomaticBuilderFactoryTest {
         this.configuration = JSAPOptions.parse(getArgsWithMavenBuilder());
 
         InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
-        inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
+        inputConfiguration.setBuilderName(configuration.automaticBuilderName);
 
-        assertTrue(inputConfiguration.getProperty("automaticBuilderName").toUpperCase().contains("MAVEN"));
+        assertTrue(inputConfiguration.getBuilderName().toUpperCase().contains("MAVEN"));
 
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 
@@ -54,9 +54,9 @@ public class AutomaticBuilderFactoryTest {
         this.configuration = JSAPOptions.parse(getArgsWithGradleBuilder());
 
         InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
-        inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
+        inputConfiguration.setBuilderName(configuration.automaticBuilderName);
 
-        assertTrue(inputConfiguration.getProperty("automaticBuilderName").toUpperCase().contains("GRADLE"));
+        assertTrue(inputConfiguration.getBuilderName().toUpperCase().contains("GRADLE"));
 
         AutomaticBuilderFactory.reset();
 
@@ -72,11 +72,11 @@ public class AutomaticBuilderFactoryTest {
         this.configuration = JSAPOptions.parse(getArgsWithUnknownBuilder());
 
         InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
-        inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
+        inputConfiguration.setBuilderName(configuration.automaticBuilderName);
 
-        assertFalse(inputConfiguration.getProperty("automaticBuilderName") == null);
-        assertFalse(inputConfiguration.getProperty("automaticBuilderName").toUpperCase().contains("MAVEN"));
-        assertFalse(inputConfiguration.getProperty("automaticBuilderName").toUpperCase().contains("GRADLE"));
+        assertFalse(inputConfiguration.getBuilderName() == null);
+        assertFalse(inputConfiguration.getBuilderName().toUpperCase().contains("MAVEN"));
+        assertFalse(inputConfiguration.getBuilderName().toUpperCase().contains("GRADLE"));
 
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 
@@ -91,7 +91,7 @@ public class AutomaticBuilderFactoryTest {
 
         InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
 
-        assertTrue(inputConfiguration.getProperty("automaticBuilderName") == null);
+        assertTrue(inputConfiguration.getBuilderName() == null);
 
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 

@@ -3,7 +3,7 @@ package eu.stamp_project.automaticbuilder;
 import eu.stamp_project.Utils;
 import eu.stamp_project.mutant.pit.PitResult;
 import eu.stamp_project.mutant.pit.PitResultParser;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.Main;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -153,7 +153,7 @@ public class MavenAutomaticBuilderTest {
         Utils.init("src/test/resources/test-projects/test-projects.properties");
 
         final InputConfiguration inputConfiguration = Utils.getInputConfiguration();
-        inputConfiguration.getProperties().setProperty("filter", "*");
+        inputConfiguration.setFilter("*");
         try {
             Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot(), Utils.findClass("example.TestSuiteExample2"), Utils.findClass("example.TestSuiteExample"));
             fail();

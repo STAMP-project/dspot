@@ -1,7 +1,7 @@
 package eu.stamp_project.automaticbuilder;
 
 
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,7 @@ public class AutomaticBuilderFactory {
 
 	public static AutomaticBuilder getAutomaticBuilder(InputConfiguration configuration) {
 		if (automaticBuilder == null) {
-			String builderType = configuration.getProperty("automaticBuilderName");
+			String builderType = configuration.getBuilderName();
 			if (builderType == null) {
 				LOGGER.warn("No automatic builder specified in configuration, going to default.");
 				LOGGER.info("Default: provided Maven automatic builder.");

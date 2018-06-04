@@ -6,7 +6,7 @@ import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.slf4j.Logger;

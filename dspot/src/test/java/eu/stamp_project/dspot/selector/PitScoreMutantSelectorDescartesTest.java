@@ -5,7 +5,7 @@ import eu.stamp_project.dspot.amplifier.NumberLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.StringLiteralAmplifier;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.dspot.DSpot;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.Main;
 
 import org.apache.commons.io.FileUtils;

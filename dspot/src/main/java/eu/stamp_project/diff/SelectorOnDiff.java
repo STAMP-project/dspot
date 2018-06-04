@@ -1,9 +1,9 @@
 package eu.stamp_project.diff;
 
+import eu.stamp_project.Main;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.Main;
+import eu.stamp_project.program.InputConfiguration;
 import gumtree.spoon.AstComparator;
 import gumtree.spoon.diff.Diff;
 import org.slf4j.Logger;
@@ -51,13 +51,9 @@ public class SelectorOnDiff {
      */
     public static Map<String, List<String>> findTestMethodsAccordingToADiff(InputConfiguration configuration) {
         final Factory factory = configuration.getFactory();
-        final String baseSha = configuration.getProperties().getProperty("baseSha");
-        final String pathToFirstVersion = configuration.getProperties().getProperty("project") +
-                (configuration.getProperties().getProperty("targetModule") != null ?
-                        configuration.getProperties().getProperty("targetModule") : "");
-        final String pathToSecondVersion = configuration.getProperties().getProperty("folderPath") +
-                (configuration.getProperties().getProperty("targetModule") != null ?
-                        configuration.getProperties().getProperty("targetModule") : "");
+        final String baseSha = configuration.getBaseSha();
+        final String pathToFirstVersion = configuration.getAbsolutePathToProjectRoot();
+        final String pathToSecondVersion = configuration.getAbsolutePathToSecondVersionProjectRoot();
         if (Main.verbose) {
             LOGGER.info("Selecting according to a diff between {} and {} ({})",
                     pathToFirstVersion,
@@ -178,9 +174,9 @@ public class SelectorOnDiff {
                 .filter(presentInBothVersion)
                 .map(modifiedJavaFile -> {
                     final String directoryPath =
-                            (this.configuration.getProperty("targetModule") != null ?
-                                    this.configuration.getProperty("targetModule") + "/" : ""
-                            ) + this.configuration.getRelativeSourceCodeDir();
+                            (!this.configuration.getTargetModule().isEmpty() ?
+                                    this.configuration.getTargetModule() + "/" : ""
+                            ) + this.configuration.getPathToSourceCode();
                     final String qualifiedNameWithExtension = modifiedJavaFile.substring(directoryPath.length() + 2).replaceAll("/", ".");
                     return qualifiedNameWithExtension.substring(0, qualifiedNameWithExtension.length() - ".java".length());
                 })
@@ -191,18 +187,24 @@ public class SelectorOnDiff {
                 .collect(Collectors.toSet());
     }
 
+    // TODO
+    /*
     private Predicate<String> presentInBothVersion = pathToClass ->
             new File(configuration.getProperties().getProperty("project") + pathToClass.substring(1)).exists() &&
             new File(configuration.getProperties().getProperty("folderPath") + pathToClass.substring(1)).exists();
+     */
+    private Predicate<String> presentInBothVersion = pathToClass ->
+            new File(this.pathToFirstVersion + pathToClass.substring(1)).exists() &&
+            new File(this.pathToSecondVersion + pathToClass.substring(1)).exists();
 
     private Set<CtMethod<?>> getMethodsOfTestClassesAccordingToModifiedJavaFiles(Set<String> modifiedJavaFiles) {
         final List<String> candidateTestClassName = modifiedJavaFiles.stream()
                 .filter(presentInBothVersion)
                 .flatMap(pathToClass -> {
                     final String directoryPath =
-                            (this.configuration.getProperty("targetModule") != null ?
-                                    this.configuration.getProperty("targetModule") + "/" : ""
-                            ) + this.configuration.getRelativeSourceCodeDir();
+                            (!this.configuration.getTargetModule().isEmpty() ?
+                                    this.configuration.getTargetModule() + "/" : ""
+                            ) + this.configuration.getPathToSourceCode();
                     final String[] split = pathToClass.substring(directoryPath.length() + 2).split("/");
                     final String nameOfTestClass = split[split.length - 1].split("\\.")[0];
                     final String qualifiedName = IntStream

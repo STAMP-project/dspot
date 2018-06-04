@@ -2,7 +2,7 @@ package eu.stamp_project.utils;
 
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 
 import java.io.IOException;
 

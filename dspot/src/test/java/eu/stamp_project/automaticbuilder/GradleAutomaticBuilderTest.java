@@ -3,7 +3,7 @@ package eu.stamp_project.automaticbuilder;
 import eu.stamp_project.Utils;
 import eu.stamp_project.mutant.pit.PitResult;
 import eu.stamp_project.mutant.pit.PitResultParser;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.Configuration;
 import eu.stamp_project.JSAPOptions;
 import org.apache.commons.io.FileUtils;
@@ -43,7 +43,7 @@ public class GradleAutomaticBuilderTest {
         Utils.LOGGER.debug("Test Set-up - Reading input parameters...");
         this.configuration = JSAPOptions.parse(getArgsWithGradleBuilder());
         InputConfiguration inputConfiguration = Utils.getInputConfiguration();
-        inputConfiguration.getProperties().setProperty("automaticBuilderName", this.configuration.automaticBuilderName);
+        inputConfiguration.setBuilderName(this.configuration.automaticBuilderName);
 
         Utils.LOGGER.debug("Test Set-up - instantiating Automatic Builder (SUT)...");
         sut = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);

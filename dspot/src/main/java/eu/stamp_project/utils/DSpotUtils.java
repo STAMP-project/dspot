@@ -1,6 +1,6 @@
 package eu.stamp_project.utils;
 
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,8 +107,8 @@ public class DSpotUtils {
 
     public static String buildMavenHome(InputConfiguration inputConfiguration) {
         if (mavenHome == null) {
-            if (inputConfiguration != null && inputConfiguration.getProperty("maven.home") != null) {
-                mavenHome = inputConfiguration.getProperty("maven.home");
+            if (inputConfiguration != null && inputConfiguration.getMavenHome() != null) {
+                mavenHome = inputConfiguration.getMavenHome();
             } else {
                 if (!setMavenHome(envVariable -> System.getenv().get(envVariable) != null,
                         envVariable -> System.getenv().get(envVariable), "MAVEN_HOME", "M2_HOME")) {// TODO asking if
