@@ -90,11 +90,13 @@ public class DSpotCompilerTest {
 
     }
     private InputConfiguration getConfiguration() {
-        final InputConfiguration inputConfiguration = new InputConfiguration();
-        inputConfiguration.setAbsolutePathToProjectRoot(new File("target/dspot/trash/").getAbsolutePath());
-        inputConfiguration.setPathToSourceCode("src/main/java/");
-        inputConfiguration.setPathToTestSourceCode("src/test/java/");
-        return inputConfiguration;
+        return new InputConfiguration(
+                new File("target/dspot/trash/").getAbsolutePath(),
+                "src/main/java/",
+                "src/test/java/",
+                "target/classes/",
+                "target/test-classes"
+        );
     }
 
     private CtClass<?> getClass(Factory factory) {

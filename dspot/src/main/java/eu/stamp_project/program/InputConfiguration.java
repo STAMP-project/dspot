@@ -109,6 +109,29 @@ public class InputConfiguration {
     }
 
     /**
+     * This constructor is a proxy for {@link InputConfiguration#InputConfiguration(String, String, String, String, String, String)} with
+     * an empty target module
+     * @param pathToProjectRoot absolute or relative path to the root of the project.
+     * @param pathToSource      relative path from {@code pathToProjectRoot} to the folder that contains the program sources (.java).
+     * @param pathToTestSource  relative path from {@code pathToProjectRoot} to the folder that contains the test sources (.java).
+     * @param pathToClasses     relative path from {@code pathToProjectRoot} to the folder that contains the program binaries (.class).
+     * @param pathToTestClasses relative path from {@code pathToProjectRoot} to the folder that contains the test binaries (.class).
+     */
+    public InputConfiguration(String pathToProjectRoot,
+                              String pathToSource,
+                              String pathToTestSource,
+                              String pathToClasses,
+                              String pathToTestClasses) {
+        this(pathToProjectRoot,
+                pathToSource,
+                pathToTestSource,
+                pathToClasses,
+                pathToTestClasses,
+                ""
+        );
+    }
+
+    /**
      * Default Constructor. This constructor takes as input the minimal parameters to run DSpot.
      *
      * @param pathToProjectRoot absolute or relative path to the root of the project.
@@ -116,7 +139,7 @@ public class InputConfiguration {
      * @param pathToTestSource  relative path from {@code pathToProjectRoot} to the folder that contains the test sources (.java).
      * @param pathToClasses     relative path from {@code pathToProjectRoot} to the folder that contains the program binaries (.class).
      * @param pathToTestClasses relative path from {@code pathToProjectRoot} to the folder that contains the test binaries (.class).
-     * @param targetModule      relative path from {@code pathToProjectRoot} to the targeted sub-module.
+     * @param targetModule      relative path from {@code pathToProjectRoot} to the targeted sub-module. This argument can be empty ("") in case of single module project.
      */
     public InputConfiguration(String pathToProjectRoot,
                               String pathToSource,

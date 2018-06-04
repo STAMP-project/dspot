@@ -1,9 +1,7 @@
 package eu.stamp_project;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
+import eu.stamp_project.JSAPOptions.SelectorEnum;
+import eu.stamp_project.program.InputConfiguration;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -14,8 +12,9 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.JSAPOptions.SelectorEnum;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 @Mojo(name = "amplify-unit-tests", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.TEST)
 public class DSpotMojo extends AbstractMojo {
@@ -104,8 +103,18 @@ public class DSpotMojo extends AbstractMojo {
 		InputConfiguration inputConfiguration;
 
 		try {
-			inputConfiguration = new InputConfiguration(getProject(), getSrcDir(), getTestDir(), getClassesDir(),
-					getTestClassesDir(), getTempDir(), getFilter(), getMavenHome());
+			inputConfiguration = new InputConfiguration(
+					getProject().getAbsolutePath(),
+					getSrcDir().getAbsolutePath(),
+					getTestDir().getAbsolutePath(),
+					getClassesDir().getAbsolutePath(),
+					getTestClassesDir().getAbsolutePath()/*,
+					getTempDir(),
+					getFilter(),
+					getMavenHome()
+			*/
+			);
+			// TODO
 			Main.run(configuration, inputConfiguration);
 		} catch (Exception e) {
 			LOGGER.error(e.getLocalizedMessage());
