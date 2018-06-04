@@ -38,8 +38,6 @@ public class GradleAutomaticBuilderTest {
 
         Utils.init("src/test/resources/test-projects/test-projects.properties");
 
-        AutomaticBuilderFactory.reset();
-
         Utils.LOGGER.debug("Test Set-up - Reading input parameters...");
         this.configuration = JSAPOptions.parse(getArgsWithGradleBuilder());
         InputConfiguration inputConfiguration = Utils.getInputConfiguration();

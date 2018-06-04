@@ -38,12 +38,11 @@ public class GradleAutomaticBuilderWithDescartesTest {
 
         Utils.init("src/test/resources/test-projects/test-projects.properties");
 
-        AutomaticBuilderFactory.reset();
-
         Utils.LOGGER.debug("Test Set-up - Reading input parameters...");
         this.configuration = JSAPOptions.parse(getArgsWithGradleBuilder());
         InputConfiguration inputConfiguration = Utils.getInputConfiguration();
         inputConfiguration.setBuilderName(this.configuration.automaticBuilderName);
+        inputConfiguration.setDescartesMutators("1");
 
         Utils.LOGGER.debug("Test Set-up - instantiating Automatic Builder (SUT)...");
         sut = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);

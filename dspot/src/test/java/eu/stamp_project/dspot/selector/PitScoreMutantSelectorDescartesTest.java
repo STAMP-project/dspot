@@ -67,7 +67,6 @@ public class PitScoreMutantSelectorDescartesTest {
 
     @After
     public void tearDown() throws Exception {
-        AutomaticBuilderFactory.reset();
         Main.verbose = false;
         PitMutantScoreSelector.pitVersion = "1.3.0";
         PitMutantScoreSelector.descartesMode = false;

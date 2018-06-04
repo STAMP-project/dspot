@@ -39,6 +39,7 @@ import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_VALUE_REPO
 import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_WITH_HISTORY;
 import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.PROPERTY_VALUE_JVM_ARGS;
 import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.PROPERTY_VALUE_TIMEOUT;
+import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.VALUE_MUTATORS_ALL;
 import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.descartesMode;
 
 /**
@@ -118,8 +119,8 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
 
             resetOriginalGradleBuildFile(pathToRootOfProject);
 
-        } catch (Exception ignored) {
-
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -280,7 +281,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
                 (!configuration.getAdditionalClasspathElements().isEmpty() ?
                         "    " + OPT_ADDITIONAL_CP_ELEMENTS + "['" + configuration.getAdditionalClasspathElements() + "']" : "") + NEW_LINE +
                 (descartesMode ? "    " + OPT_MUTATION_ENGINE + NEW_LINE + "    " + getDescartesMutators() :
-                        "    " + OPT_MUTATORS ) + NEW_LINE +
+                        "    " + OPT_MUTATORS + VALUE_MUTATORS_ALL) + NEW_LINE +
                 (!configuration.getExcludedClasses().isEmpty() ?
                         "    " + OPT_EXCLUDED_CLASSES + "['" + configuration.getExcludedClasses() + "']" : "") + NEW_LINE +
                 "}" + NEW_LINE;

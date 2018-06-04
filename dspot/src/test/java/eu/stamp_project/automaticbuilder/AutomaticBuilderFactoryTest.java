@@ -25,7 +25,7 @@ public class AutomaticBuilderFactoryTest {
 
     @Before
     public void setUp() throws Exception {
-        AutomaticBuilderFactory.reset();
+
     }
 
     @After
@@ -58,8 +58,6 @@ public class AutomaticBuilderFactoryTest {
 
         assertTrue(inputConfiguration.getBuilderName().toUpperCase().contains("GRADLE"));
 
-        AutomaticBuilderFactory.reset();
-
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 
         assertNotNull(builder);
@@ -91,7 +89,7 @@ public class AutomaticBuilderFactoryTest {
 
         InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
 
-        assertTrue(inputConfiguration.getBuilderName() == null);
+        assertTrue(inputConfiguration.getBuilderName().isEmpty());
 
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 

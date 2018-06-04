@@ -1,5 +1,6 @@
 package eu.stamp_project.program;
 
+import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
@@ -71,7 +72,8 @@ public class InputConfiguration {
                 ).getAbsolutePath()
         );
         this.setBuilderName(ConstantsProperties.AUTOMATIC_BUILDER_NAME.get(properties));
-        this.dependencies = AutomaticBuilderFactory.getAutomaticBuilder(this).buildClasspath();
+        this.builder = AutomaticBuilderFactory.getAutomaticBuilder(this);
+        this.dependencies = this.builder.buildClasspath();
 
         final String additionalClasspathElements = ConstantsProperties.ADDITIONAL_CP_ELEMENTS.get(properties);
         if (!additionalClasspathElements.isEmpty()) {
@@ -320,6 +322,7 @@ public class InputConfiguration {
     }
 
     public void setBuilderName(String builderName) {
+        this.builder = null;
         this.builderName = builderName;
     }
 
@@ -331,6 +334,16 @@ public class InputConfiguration {
 
     public String getMavenHome() {
         return mavenHome;
+    }
+
+    private AutomaticBuilder builder;
+
+    public AutomaticBuilder getBuilder() {
+        return builder;
+    }
+
+    public void setBuilder(AutomaticBuilder builder) {
+        this.builder = builder;
     }
 
     /*
