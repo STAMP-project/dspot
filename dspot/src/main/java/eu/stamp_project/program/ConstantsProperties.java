@@ -139,8 +139,15 @@ public class ConstantsProperties {
 
     public static final InputConfigurationProperty EXCLUDED_CLASSES =
             new InputConfigurationProperty(
-                    "excludedTestCases",
+                    "excludedClasses",
                     "", //TODO separated with ,
+                    ""
+            );
+
+    public static final InputConfigurationProperty EXCLUDED_TEST_CASES =
+            new InputConfigurationProperty(
+                    "excludedTestCases",
+                    "", //TODO
                     ""
             );
 

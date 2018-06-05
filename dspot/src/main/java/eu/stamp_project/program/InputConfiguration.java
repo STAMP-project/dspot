@@ -55,7 +55,7 @@ public class InputConfiguration {
     }
 
     private InputConfiguration(Properties properties) {
-        // mandatory properties are used in the first constructor.
+        // mandatory properties are used in the first constructor, except targetModule, which can be empty
         this(
                 ConstantsProperties.PROJECT_ROOT_PATH.get(properties),
                 ConstantsProperties.SRC_CODE.get(properties),
@@ -108,6 +108,7 @@ public class InputConfiguration {
         this.setTimeoutPit(ConstantsProperties.TIMEOUT_PIT.get(properties));
         this.setJVMArgs(ConstantsProperties.JVM_ARGS.get(properties));
         this.setDescartesVersion(ConstantsProperties.DESCARTES_MUTATORS.get(properties));
+        this.setExcludedTestCases(ConstantsProperties.EXCLUDED_TEST_CASES.get(properties));
     }
 
     /**
@@ -434,6 +435,16 @@ public class InputConfiguration {
 
     public void setExcludedClasses(String excludedClasses) {
         this.excludedClasses = excludedClasses;
+    }
+
+    private String excludedTestCases;
+
+    public String getExcludedTestCases() {
+        return excludedTestCases;
+    }
+
+    public void setExcludedTestCases(String excludedTestCases) {
+        this.excludedTestCases = excludedTestCases;
     }
 
     /*

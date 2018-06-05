@@ -199,11 +199,11 @@ public class DSpot {
     }
 
     protected List<CtMethod<?>> filterTestCases(List<CtMethod<?>> testMethods) {
-        if (this.inputConfiguration.getExcludedClasses().isEmpty()) {
+        if (this.inputConfiguration.getExcludedTestCases().isEmpty()) {
             return testMethods;
         } else {
             final List<String> excludedTestCases = Arrays.stream(
-                    this.inputConfiguration.getExcludedClasses().split(",")
+                    this.inputConfiguration.getExcludedTestCases().split(",")
             ).collect(Collectors.toList());
             return testMethods.stream()
                     .filter(ctMethod ->
