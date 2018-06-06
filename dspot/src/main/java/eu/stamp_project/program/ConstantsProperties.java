@@ -29,7 +29,7 @@ public class ConstantsProperties {
                     "src",
                     "specify the relative path from " +
                             PROJECT_ROOT_PATH.getName() + "/" + MODULE.getName() +
-                            " of the folder that contain sources (.java)",
+                            " of the folder that contain sources (.java).",
                     "src/main/java/"
             );
 
@@ -38,7 +38,7 @@ public class ConstantsProperties {
                     "testSrc",
                     "specify the relative path from " +
                             PROJECT_ROOT_PATH.getName() + "/" + MODULE.getName() +
-                            " of the folder that contain test sources (.java)",
+                            " of the folder that contain test sources (.java).",
                     "src/test/java/"
             );
 
@@ -47,7 +47,7 @@ public class ConstantsProperties {
                     "classes",
                     "specify the relative path from " +
                             PROJECT_ROOT_PATH.getName() + "/" + MODULE.getName() +
-                            " of the folder that contain binaries of the source program (.class)",
+                            " of the folder that contain binaries of the source program (.class).",
                     "target/classes/"
             );
 
@@ -56,119 +56,154 @@ public class ConstantsProperties {
                     "testclasses",
                     "specify the relative path from " +
                             PROJECT_ROOT_PATH.getName() + "/" + MODULE.getName() +
-                            " of the folder that contain binaries of the test source program (.class)",
+                            " of the folder that contain binaries of the test source program (.class).",
                     "target/test-classes/"
             );
 
     public static final InputConfigurationProperty ADDITIONAL_CP_ELEMENTS =
             new InputConfigurationProperty(
                     "additionalClasspathElements",
-                    "",//TODO relative to the root, separated with ,
+                    "specify additional classpath elements. " +
+                            "This value should be a list of relative paths from " +
+                            PROJECT_ROOT_PATH.getName() + "/" + MODULE.getName() + ". " +
+                            "Elements of the list must be separated by a comma \",\".",
                     ""
             );
 
     public static final InputConfigurationProperty SYSTEM_PROPERTIES =
             new InputConfigurationProperty(
                     "systemProperties",
-                    "",//TODO
+                    "specify system properties. " +
+                            "This value should be a list of couple property;value, separated by a comma \',\'. " +
+                            "For example, systemProperties=admin=toto,passwd=tata. This define two system properties."
+                    ,
                     ""
             );
 
     public static final InputConfigurationProperty PATH_TO_SECOND_VERSION =
             new InputConfigurationProperty(
                     "folderPath",
-                    "",//TODO
+                    "when using the ChangeDetectorSelector or the command-line option-value --test diff" +
+                            ", you must specify this property. " +
+                            "This property should have for value the path to the root of " +
+                            "the second version of the project. " +
+                            "It is recommended to give an absolute path",
+                    ""
+            );
+
+    public static final InputConfigurationProperty BASE_SHA =
+            new InputConfigurationProperty(
+                    "baseSha",
+                    "when using the command-line option-value  --test diff, " +
+                            "which select tests to be amplified according a diff, " +
+                            "you must specify this property." +
+                            "This property should have for value the commit sha of the base branch, " +
+                            "i.e. the version of the to project to be merged.",
                     ""
             );
 
     public static final InputConfigurationProperty AUTOMATIC_BUILDER_NAME =
             new InputConfigurationProperty(
                     "automaticBuilderName",
-                    "",//TODO
+                    "specify the type of automatic builder. " +
+                            "This properties is redundant with the command line option --automatic-builder. " +
+                            "It should have also the same value: (MavenBuilder | GradleBuilder). " +
+                            "This property has the priority over the command line.",
                     ""
             );
 
     public static final InputConfigurationProperty OUTPUT_DIRECTORY =
             new InputConfigurationProperty(
                     "outputDirectory",
-                    "", // TODO
+                    "specify a path folder for the output.",
                     "target/dspot/output"
             );
 
     public static final InputConfigurationProperty MAVEN_HOME =
             new InputConfigurationProperty(
                     "maven.home",
-                    "", // TODO
+                    "specify the maven home directory. " +
+                            "This properties is redundant with the command line option --maven-home. " +
+                            "This property has the priority over the command line. " +
+                            "If this property is not specified, nor the command line option --maven-home, " +
+                            "DSpot will first look in both MAVEN_HOME and M2_HOME environment variables. " +
+                            "If these variables are not set, DSpot will look for a maven home at default locations " +
+                            "/usr/share/maven/, /usr/local/maven-3.3.9/ and /usr/share/maven3/.",
                     ""
             );
 
     public static final InputConfigurationProperty DELTA_ASSERTS_FLOAT =
             new InputConfigurationProperty(
                     "delta",
-                    "",//TODO
+                    "specify the delta value for the assertions of floating-point numbers. " +
+                            "If DSpot generates assertions for float, " +
+                            "it uses Assert.assertEquals(expected, actual, delta). " +
+                            "This property specify the delta value.",
                     "0.1"
             );
 
     public static final InputConfigurationProperty FILTER =
             new InputConfigurationProperty(
                     "filter",
-                    "",//TODO
+                    "specify the filter used by PIT. " +
+                            "If you use PitMutantScoreSelector, we recommend you to set this property to your top-most package. " +
+                            "This value will allow PIT to mutant all your code. " +
+                            "However, if you want to restrict the scope of the mutation, you can specify a custom regex.",
                     ""
             );
 
     public static final InputConfigurationProperty PIT_VERSION =
             new InputConfigurationProperty(
                     "pitVersion",
-                    "", //TODO
+                    "specify the version of PIT to use.",
                     "1.3.0"
             );
 
     public static final InputConfigurationProperty DESCARTES_VERSION =
             new InputConfigurationProperty(
                     "descartesVersion",
-                    "", //TODO
+                    "specify the version of pit-descartes to use.",
                     "1.2"
-            );
-
-    public static final InputConfigurationProperty BASE_SHA =
-            new InputConfigurationProperty(
-                    "baseSha",
-                    "", //TODO
-                    ""
             );
 
     public static final InputConfigurationProperty EXCLUDED_CLASSES =
             new InputConfigurationProperty(
                     "excludedClasses",
-                    "", //TODO separated with ,
+                    "specify the full qualified name of excluded test classes. " +
+                            "Each qualified name must be separated by a comma \',\'. " +
+                            "These classes won't be amplified, nor executed during the mutation analysis, " +
+                            "if the PitMutantScoreSelector is used." +
+                            "This property can be valued by a regex.",
                     ""
             );
 
     public static final InputConfigurationProperty EXCLUDED_TEST_CASES =
             new InputConfigurationProperty(
                     "excludedTestCases",
-                    "", //TODO
+                    "specify the list of test cases to be excluded. " +
+                            "Each is the name of a test case, separated by a comma \',\'.",
                     ""
             );
 
     public static final InputConfigurationProperty TIMEOUT_PIT =
             new InputConfigurationProperty(
                     "pitTimeout",
-                    "", // TODO
+                    "specify the time out of PIT, if the PitMutantScoreSelector. " +
+                            "",
                     ""
             );
 
     public static final InputConfigurationProperty JVM_ARGS =
             new InputConfigurationProperty(
                     "jvmArgs",
-                    "", // TODO
+                    "specify JVM args to use when executing the test, PIT or other java process",
                     ""
             );
 
     public static final InputConfigurationProperty DESCARTES_MUTATORS =
             new InputConfigurationProperty(
                     "descartesMutators",
-                    "",//TODO
+                    "specify the list of descartes mutators to be used. Please refer to the descartes documentation for more details: https://github.com/STAMP-project/pitest-descartes",
                     ""
             );
 }

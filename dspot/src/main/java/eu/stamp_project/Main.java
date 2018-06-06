@@ -59,9 +59,10 @@ public class Main {
 						inputConfiguration.getMavenHome(), configuration.mavenHome
 				);
 				LOGGER.warn("Please fix your set up to be consistent.");
-				LOGGER.warn("DSpot will use {}(command-line) for this run.", configuration.mavenHome);
+				LOGGER.warn("DSpot will use {}(property) for this run.", inputConfiguration.getMavenHome());
+			} else {
+				inputConfiguration.setMavenHome(configuration.mavenHome);
 			}
-			inputConfiguration.setMavenHome(configuration.mavenHome);
 		}
 		if (configuration.pathToOutput != null) {
 			inputConfiguration.setOutputDirectory(configuration.pathToOutput);

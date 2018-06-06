@@ -229,7 +229,7 @@ public class JSAPOptions {
         iteration.setShortFlag('i');
         iteration.setLongFlag("iteration");
         iteration.setAllowMultipleDeclarations(false);
-        iteration.setHelp("[optional] specify the number of amplification iterations. A larger number may help to improve the test criterion (eg a larger number of iterations may help to kill more mutants). This has an impact on the execution time: the more iterations, the longer DSpot runs.");
+        iteration.setHelp("[optional] specify the number of amplification iterations. A larger number may help to improve the test criterion (e.g. a larger number of iterations may help to kill more mutants). This has an impact on the execution time: the more iterations, the longer DSpot runs.");
 
         FlaggedOption selector = new FlaggedOption("test-criterion");
         selector.setAllowMultipleDeclarations(false);
@@ -247,8 +247,8 @@ public class JSAPOptions {
         specificTestClass.setAllowMultipleDeclarations(false);
         specificTestClass.setLongFlag("test");
         specificTestClass.setDefault("all");
-        specificTestClass.setUsageName("my.package.MyClassTest");
-        specificTestClass.setHelp("[optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite. You can also use regex to describe a set of test classes.");
+        specificTestClass.setUsageName("my.package.MyClassTest | all | diff");
+        specificTestClass.setHelp("[optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite. You can also use regex to describe a set of test classes. By default, DSpot selects all the tests (value all). You can use the value diff, to select tests according to a diff between two versions of the same program. Be careful, using --test diff, you must specify both properties folderPath and baseSha.");
 
         FlaggedOption output = new FlaggedOption("output");
         output.setStringParser(JSAP.STRING_PARSER);
