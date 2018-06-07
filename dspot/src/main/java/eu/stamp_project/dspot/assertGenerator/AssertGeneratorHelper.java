@@ -43,12 +43,13 @@ public class AssertGeneratorHelper {
         );
     }
 
-    static CtMethod<?> createTestWithLog(CtMethod test, final String filter) {
+    static CtMethod<?> createTestWithLog(CtMethod test, final String filter,
+                                         List<CtLocalVariable<?>> ctVariableReads) {
         CtMethod clone = AmplificationHelper.cloneTestMethodNoAmp(test);
         clone.setSimpleName(test.getSimpleName() + "_withlog");
         final List<CtStatement> allStatement = clone.getElements(new TypeFilter<>(CtStatement.class));
         allStatement.stream()
-                .filter(statement -> isStmtToLog(filter, statement))
+                .filter(statement -> isStmtToLog(filter, statement) || ctVariableReads.contains(statement))
                 .forEach(statement ->
                         addLogStmt(statement,
                                 test.getSimpleName() + "__" + indexOfByRef(allStatement, statement))

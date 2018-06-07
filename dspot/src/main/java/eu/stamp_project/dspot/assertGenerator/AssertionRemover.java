@@ -1,7 +1,9 @@
 package eu.stamp_project.dspot.assertGenerator;
 
 import eu.stamp_project.utils.AmplificationHelper;
+import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtExpression;
+import spoon.reflect.code.CtFieldRead;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
@@ -13,7 +15,15 @@ import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
+import spoon.reflect.reference.CtVariableReference;
+import spoon.reflect.visitor.Filter;
 import spoon.reflect.visitor.filter.TypeFilter;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by Benjamin DANGLOT
@@ -25,6 +35,12 @@ public class AssertionRemover {
 
     private final int[] counter = new int[]{0};
 
+    private Map<CtMethod<?>, List<CtLocalVariable<?>>> variableAssertedPerTestMethod = new HashMap<>();
+
+    public Map<CtMethod<?>, List<CtLocalVariable<?>>> getVariableAssertedPerTestMethod() {
+        return variableAssertedPerTestMethod;
+    }
+
     /**
      * Removes all assertions from a test.
      *
@@ -33,8 +49,13 @@ public class AssertionRemover {
      */
     public CtMethod<?> removeAssertion(CtMethod<?> testMethod) {
         CtMethod<?> testWithoutAssertion = AmplificationHelper.cloneTestMethodNoAmp(testMethod);
-        testWithoutAssertion.getElements(AmplificationHelper.ASSERTIONS_FILTER)
-                .forEach(this::removeAssertion);
+        variableAssertedPerTestMethod.put(testWithoutAssertion,
+                testWithoutAssertion
+                        .getElements(AmplificationHelper.ASSERTIONS_FILTER)
+                        .stream()
+                        .flatMap(invocation -> this.removeAssertion(invocation).stream())
+                        .collect(Collectors.toList())
+        );
         return testWithoutAssertion;
     }
 
@@ -43,7 +64,8 @@ public class AssertionRemover {
      *
      * @param invocation Invocation
      */
-    public void removeAssertion(CtInvocation<?> invocation) {
+    public List<CtLocalVariable<?>> removeAssertion(CtInvocation<?> invocation) {
+        List<CtLocalVariable<?>> variableReadsAsserted = new ArrayList<>();
         final Factory factory = invocation.getFactory();
         final TypeFilter<CtStatement> statementTypeFilter = new TypeFilter<CtStatement>(CtStatement.class) {
             @Override
@@ -70,6 +92,12 @@ public class AssertionRemover {
                         clone
                 );
                 invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, localVariable);
+            } else if (clone instanceof CtVariableRead && !(clone instanceof CtFieldRead)) {
+                final CtVariableReference variable = ((CtVariableRead) clone).getVariable();
+                variableReadsAsserted.add(invocation.getParent(CtBlock.class).getElements(
+                        (Filter<CtLocalVariable>) localVariable ->
+                                localVariable.getReference().equals(variable)
+                ).get(0));
             }
         }
         // must find the first statement list to remove the invocation from it, e.g. the block that contains the assertions
@@ -79,6 +107,7 @@ public class AssertionRemover {
             topStatement = topStatement.getParent();
         }
         ((CtStatementList) topStatement.getParent()).removeStatement((CtStatement) topStatement);
+        return variableReadsAsserted;
     }
 
 }

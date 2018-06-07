@@ -47,18 +47,24 @@ public class MethodsAssertGenerator {
 
     private DSpotCompiler compiler;
 
-    public MethodsAssertGenerator(CtType originalClass, InputConfiguration configuration, DSpotCompiler compiler) {
+    private Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted;
+
+    public MethodsAssertGenerator(CtType originalClass,
+                                  InputConfiguration configuration,
+                                  DSpotCompiler compiler,
+                                  Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted) {
         this.originalClass = originalClass;
         this.configuration = configuration;
         this.compiler = compiler;
         this.factory = configuration.getFactory();
+        this.variableReadsAsserted = variableReadsAsserted;
     }
 
     /**
      * Adds new assertions in multiple tests.
      * <p>
      * <p>Instruments the tests to have observation points.
-     * Details in {@link AssertGeneratorHelper#createTestWithLog(CtMethod, String)}.
+     * Details in {@link AssertGeneratorHelper#createTestWithLog(CtMethod, String, List)}.
      * <p>
      * <p>Details of the assertion generation in {@link #buildTestWithAssert(CtMethod, Map)}.
      *
@@ -74,8 +80,10 @@ public class MethodsAssertGenerator {
         final List<CtMethod<?>> testCasesWithLogs = testCases.stream()
                 .map(ctMethod -> {
                             DSpotUtils.printProgress(testCases.indexOf(ctMethod), testCases.size());
-                            return AssertGeneratorHelper.createTestWithLog(ctMethod,
-                                    this.originalClass.getPackage().getQualifiedName()
+                            return AssertGeneratorHelper.createTestWithLog(
+                                    ctMethod,
+                                    this.originalClass.getPackage().getQualifiedName(),
+                                    this.variableReadsAsserted.get(ctMethod)
                             );
                         }
                 ).collect(Collectors.toList());

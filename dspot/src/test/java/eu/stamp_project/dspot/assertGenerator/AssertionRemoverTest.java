@@ -108,8 +108,9 @@ public class AssertionRemoverTest extends AbstractTest {
 		final CtClass<?> testClass = Utils.findClass("fr.inria.helper.TestWithMultipleAsserts");
 		final AssertionRemover assertionRemover = new AssertionRemover();
 		final CtMethod<?> testMethod = testClass.getMethodsByName("test").get(0);
+		System.out.println(testMethod);
 		final CtMethod<?> removedAssertion = assertionRemover.removeAssertion(testMethod);
 		System.out.println(removedAssertion);
-		assertEquals(3, removedAssertion.getBody().getStatements().size());
+		assertEquals(4, removedAssertion.getBody().getStatements().size());
 	}
 }
