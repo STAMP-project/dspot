@@ -31,24 +31,28 @@ public class InputConfigurationProperty {
         return defaultValue;
     }
 
-    private boolean hasADefaultValue() {
-        return this.defaultValue != null;
+    public boolean isRequired() {
+        return this.defaultValue == null;
+    }
+
+    private boolean hasDefaultValue() {
+        return !isRequired() && !this.defaultValue.isEmpty();
     }
 
     public String get(Properties properties) {
-        if (hasADefaultValue()) {
+        if (isRequired()) {
             return properties.getProperty(this.getName(), this.getDefaultValue());
         } else {
             return properties.getProperty(this.getName());
         }
     }
 
+    /**
+     * This method return in markdown format a description of the Property
+     * @return
+     */
     @Override
     public String toString() {
-        if (hasADefaultValue()) {
-            return this.name + "[optional]: " + this.description + "(" + this.defaultValue + ")";
-        } else {
-            return this.name + "[mandatory]: " + this.description ;
-        }
+        return "\t* " + this.name + ": " + this.description + (this.hasDefaultValue() ? "(default: " + this.defaultValue + ")" : "");
     }
 }

@@ -1,5 +1,14 @@
 package eu.stamp_project.program;
 
+import eu.stamp_project.utils.AmplificationHelper;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -63,10 +72,10 @@ public class ConstantsProperties {
     public static final InputConfigurationProperty ADDITIONAL_CP_ELEMENTS =
             new InputConfigurationProperty(
                     "additionalClasspathElements",
-                    "specify additional classpath elements. " +
+                    "specify additional classpath elements. (e.g. a jar file) " +
                             "This value should be a list of relative paths from " +
                             PROJECT_ROOT_PATH.getName() + "/" + MODULE.getName() + ". " +
-                            "Elements of the list must be separated by a comma \",\".",
+                            "Elements of the list must be separated by a comma \',\'.",
                     ""
             );
 
@@ -83,7 +92,7 @@ public class ConstantsProperties {
     public static final InputConfigurationProperty PATH_TO_SECOND_VERSION =
             new InputConfigurationProperty(
                     "folderPath",
-                    "when using the ChangeDetectorSelector or the command-line option-value --test diff" +
+                    "when using the ChangeDetectorSelector or the command-line option-value `--test diff`" +
                             ", you must specify this property. " +
                             "This property should have for value the path to the root of " +
                             "the second version of the project. " +
@@ -94,7 +103,7 @@ public class ConstantsProperties {
     public static final InputConfigurationProperty BASE_SHA =
             new InputConfigurationProperty(
                     "baseSha",
-                    "when using the command-line option-value  --test diff, " +
+                    "when using the command-line option-value  `--test diff`, " +
                             "which select tests to be amplified according a diff, " +
                             "you must specify this property." +
                             "This property should have for value the commit sha of the base branch, " +
@@ -148,7 +157,9 @@ public class ConstantsProperties {
                     "specify the filter used by PIT. " +
                             "If you use PitMutantScoreSelector, we recommend you to set this property to your top-most package. " +
                             "This value will allow PIT to mutant all your code. " +
-                            "However, if you want to restrict the scope of the mutation, you can specify a custom regex.",
+                            "However, if you want to restrict the scope of the mutation, you can specify a custom regex. " +
+                            "If you do not specify any value, PIT will use the following filter: <groupId>.<artifactId>.* " +
+                            "which might not match your packages.",
                     ""
             );
 
@@ -206,4 +217,75 @@ public class ConstantsProperties {
                     "specify the list of descartes mutators to be used. Please refer to the descartes documentation for more details: https://github.com/STAMP-project/pitest-descartes",
                     ""
             );
+
+    /**
+     * main method to generate the documentation. This method will output the documentation on the standard output, in markdown format.
+     */
+    public static void main(String[] args) {
+        final List<InputConfigurationProperty> inputConfigurationProperties = new ArrayList<>();
+        inputConfigurationProperties.add(PROJECT_ROOT_PATH);
+        inputConfigurationProperties.add(MODULE);
+        inputConfigurationProperties.add(SRC_CODE);
+        inputConfigurationProperties.add(TEST_SRC_CODE);
+        inputConfigurationProperties.add(SRC_CLASSES);
+        inputConfigurationProperties.add(TEST_CLASSES);
+        inputConfigurationProperties.add(ADDITIONAL_CP_ELEMENTS);
+        inputConfigurationProperties.add(SYSTEM_PROPERTIES);
+        inputConfigurationProperties.add(OUTPUT_DIRECTORY);
+        inputConfigurationProperties.add(DELTA_ASSERTS_FLOAT);
+        inputConfigurationProperties.add(EXCLUDED_CLASSES);
+        inputConfigurationProperties.add(EXCLUDED_TEST_CASES);
+        inputConfigurationProperties.add(MAVEN_HOME);
+        inputConfigurationProperties.add(PATH_TO_SECOND_VERSION);
+        inputConfigurationProperties.add(BASE_SHA);
+        inputConfigurationProperties.add(AUTOMATIC_BUILDER_NAME);
+        inputConfigurationProperties.add(PIT_VERSION);
+        inputConfigurationProperties.add(TIMEOUT_PIT);
+        inputConfigurationProperties.add(JVM_ARGS);
+        inputConfigurationProperties.add(FILTER);
+        inputConfigurationProperties.add(DESCARTES_VERSION);
+        inputConfigurationProperties.add(DESCARTES_MUTATORS);
+        System.out.println(new StringBuilder().append("* Required properties")
+                .append(AmplificationHelper.LINE_SEPARATOR)
+                .append(
+                        getRequiredProperties.apply(inputConfigurationProperties)
+                                .map(InputConfigurationProperty::toString)
+                                .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR))
+                )
+                .append(AmplificationHelper.LINE_SEPARATOR)
+                .append("* Required properties")
+                .append(AmplificationHelper.LINE_SEPARATOR)
+                .append(getOptionalProperties.apply(inputConfigurationProperties)
+                        .map(InputConfigurationProperty::toString)
+                        .map(s -> s.replaceAll("i\\.e\\.", "_i.e._"))
+                        .map(s -> s.replaceAll("e\\.g\\.", "_e.g._"))
+                        .map(wrapOptionWithQuote)
+                        .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)))
+                .append(AmplificationHelper.LINE_SEPARATOR)
+                .append("You can find an example of properties file [here](https://github.com/STAMP-project/dspot/blob/master/dspot/src/test/resources/sample/sample.properties)).")
+                .toString());
+    }
+
+    private final static Function<String, String> wrapOptionWithQuote = s -> {
+        final String[] split = s.split(" ");
+        for (int i = 0; i < split.length; i++) {
+            if (split[i].startsWith("--")) {
+                if (split[i].endsWith(".")) {
+                    split[i] = "`" + split[i].substring(0, split[i].length() - 1) + "`.";
+                } else {
+                    split[i] = "`" + split[i] + "`";
+                    if (i + 1 < split.length) {
+                        split[i+1] = "`" + split[i+1] + "`";
+                    }
+                }
+            }
+        }
+        return Arrays.stream(split).collect(Collectors.joining(" "));
+    };
+
+    private final static Function<List<InputConfigurationProperty>, Stream<InputConfigurationProperty>> getRequiredProperties =
+            properties -> properties.stream().filter(InputConfigurationProperty::isRequired);
+
+    private final static Function<List<InputConfigurationProperty>, Stream<InputConfigurationProperty>> getOptionalProperties =
+            properties -> properties.stream().filter(inputConfigurationProperty -> !inputConfigurationProperty.isRequired());
 }
