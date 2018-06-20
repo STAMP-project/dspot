@@ -40,7 +40,7 @@ public class InputConfigurationProperty {
     }
 
     public String get(Properties properties) {
-        if (isRequired()) {
+        if (!isRequired()) {
             return properties.getProperty(this.getName(), this.getDefaultValue());
         } else {
             return properties.getProperty(this.getName());
