@@ -52,7 +52,7 @@ public class JSAPOptions {
             public TestSelector buildSelector() {
                 return new TakeAllSelector();
             }
-        },CloverCoverageSelector {
+        }, CloverCoverageSelector {
             @Override
             public TestSelector buildSelector() {
                 return new CloverCoverageSelector();
@@ -70,6 +70,7 @@ public class JSAPOptions {
                 return new ChangeDetectorSelector();
             }
         };
+
         public abstract TestSelector buildSelector();
     }
 
@@ -158,19 +159,19 @@ public class JSAPOptions {
     @NotNull
     private static String getPossibleValuesForInputAmplifier() {
         return AmplificationHelper.LINE_SEPARATOR + "\t\t - " +
-        Arrays.stream(new String[] {
-                "StringLiteralAmplifier",
-                "NumberLiteralAmplifier",
-                "CharLiteralAmplifier",
-                "BooleanLiteralAmplifier",
-                "AllLiteralAmplifiers",
-                "MethodAdd",
-                "MethodRemove",
-                "TestDataMutator (deprecated)",
-                "StatementAdd",
-                "ReplacementAmplifier",
-                "None"
-        }).collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR + "\t\t - "));
+                Arrays.stream(new String[]{
+                        "StringLiteralAmplifier",
+                        "NumberLiteralAmplifier",
+                        "CharLiteralAmplifier",
+                        "BooleanLiteralAmplifier",
+                        "AllLiteralAmplifiers",
+                        "MethodAdd",
+                        "MethodRemove",
+                        "TestDataMutator (deprecated)",
+                        "StatementAdd",
+                        "ReplacementAmplifier",
+                        "None"
+                }).collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR + "\t\t - "));
     }
 
     public static List<Amplifier> buildAmplifiersFromString(String[] amplifiersAsString) {
@@ -184,7 +185,7 @@ public class JSAPOptions {
         }
     }
 
-    private static void showUsage() {
+    public static void showUsage() {
         System.err.println();
         System.err.println("Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar");
         System.err.println("                          " + options.getUsage());
@@ -197,11 +198,13 @@ public class JSAPOptions {
         JSAP jsap = new JSAP();
 
         Switch help = new Switch("help");
+        help.setDefault("false");
         help.setLongFlag("help");
         help.setShortFlag('h');
         help.setHelp("show this help");
 
         Switch example = new Switch("example");
+        example.setDefault("false");
         example.setLongFlag("example");
         example.setShortFlag('e');
         example.setHelp("run the example of DSpot and leave");
@@ -259,6 +262,7 @@ public class JSAPOptions {
 
         Switch cleanOutput = new Switch("clean");
         cleanOutput.setLongFlag("clean");
+        cleanOutput.setDefault("false");
         cleanOutput.setHelp("[optional] if enabled, DSpot will remove the out directory if exists, else it will append the results to the exist files. (default: off)");
 
         FlaggedOption mutantScore = new FlaggedOption("mutant");
@@ -361,8 +365,68 @@ public class JSAPOptions {
         } catch (JSAPException e) {
             throw new RuntimeException(e);
         }
-
         return jsap;
+    }
+
+    private static String jsapSwitchOptionToMojoParameter(Switch jsapSwitch) {
+        return "Boolean " + jsapSwitch.getLongFlag().replaceAll("-", "_") + ";" + AmplificationHelper.LINE_SEPARATOR;
+    }
+
+    private static String jsapFlaggedOptionToMojoParameter(FlaggedOption flaggedOption) {
+        String mojoParam = "";
+        final String type;
+        if (flaggedOption.getStringParser().equals(JSAP.STRING_PARSER)) {
+            type = "String";
+        } else if (flaggedOption.getStringParser().equals(JSAP.LONG_PARSER)) {
+            type = "Long";
+        } else {
+            type = "Integer";
+        }
+        if (flaggedOption.isList()) {
+            mojoParam += "List<" + type + "> ";
+        } else {
+            mojoParam += type + " ";
+        }
+        mojoParam += flaggedOption.getLongFlag().replaceAll("-", "_") + ";" + AmplificationHelper.LINE_SEPARATOR;
+        return mojoParam;
+    }
+
+    private static String jsapParameterToMojoParameter(Parameter parameter) {
+        String mojoParam = "";
+        if (parameter.getHelp() != null) {
+            mojoParam += "/**" + AmplificationHelper.LINE_SEPARATOR;
+            mojoParam += Arrays.stream(
+                    parameter.getHelp().split(AmplificationHelper.LINE_SEPARATOR))
+                    .map(" *\t"::concat)
+                    .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)) +
+                    AmplificationHelper.LINE_SEPARATOR;
+            mojoParam += " */" + AmplificationHelper.LINE_SEPARATOR;
+        }
+        mojoParam += "@Parameter(";
+        if (parameter.getDefault() != null) {
+            mojoParam += "defaultValue = \"" + parameter.getDefault()[0] + "\", ";
+        }
+        mojoParam += "property = \"" + ((Flagged)parameter).getLongFlag() + "\")" + AmplificationHelper.LINE_SEPARATOR;
+        mojoParam += "private ";
+        if (parameter instanceof FlaggedOption) {
+            return mojoParam + jsapFlaggedOptionToMojoParameter((FlaggedOption) parameter);
+        } else if (parameter instanceof Switch) {
+            return mojoParam + jsapSwitchOptionToMojoParameter((Switch) parameter);
+        } else {
+            System.out.println("Unsupported class: " + parameter.getClass());
+            return "";
+        }
+    }
+
+    /**
+     * Main to be used to generate the DSpotMojo properties from the JSAPOptions.
+     */
+    public static void main(String[] args) {
+        final Iterator iterator = options.getIDMap().idIterator();
+        while (iterator.hasNext()) {
+            final Object id = iterator.next();
+            System.out.println(jsapParameterToMojoParameter(options.getByID((String) id)));
+        }
     }
 
 }
