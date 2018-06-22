@@ -1,5 +1,6 @@
 package eu.stamp_project;
 
+import eu.stamp_project.program.InputConfiguration;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -7,16 +8,20 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 @Mojo(name = "amplify-unit-tests", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.TEST)
 public class DSpotMojo extends AbstractMojo {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(DSpotMojo.class);
+
 	/**
 	 *	[mandatory] specify the path to the configuration file (format Java properties) of the target project (e.g. ./foo.properties).
 	 */
-	@Parameter(property = "path-to-properties")
+	@Parameter(property = "path-to-properties", required = true)
 	private String path_to_properties;
 
 	/**
@@ -150,29 +155,29 @@ public class DSpotMojo extends AbstractMojo {
 	@Parameter(defaultValue = "false", property = "help")
 	private Boolean help;
 
-	private final String automaticBuilderName = "MavenBuilder";
+	private final String AUTOMATIC_BUILDER_NAME = "MAVEN";
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		try {
-			Main.run(
-					new Configuration(
-							this.path_to_properties,
-							JSAPOptions.buildAmplifiersFromString(this.amplifiers.toArray(new String[this.amplifiers.size()])),
-							this.iteration,
-							this.test,
-							this.output_path,
-							JSAPOptions.SelectorEnum.valueOf(this.test_criterion).buildSelector(),
-							this.cases,
-							this.randomSeed,
-							this.timeOut,
-							automaticBuilderName,
-							this.maven_home,
-							this.max_test_amplified,
-							this.clean,
-							!this.no_minimize
-					)
+			final Configuration configuration = new Configuration(
+					this.path_to_properties,
+					JSAPOptions.buildAmplifiersFromString(this.amplifiers.toArray(new String[this.amplifiers.size()])),
+					this.iteration,
+					this.test,
+					this.output_path,
+					JSAPOptions.SelectorEnum.valueOf(this.test_criterion).buildSelector(),
+					this.cases,
+					this.randomSeed,
+					this.timeOut,
+					this.AUTOMATIC_BUILDER_NAME,
+					this.maven_home,
+					this.max_test_amplified,
+					this.clean,
+					!this.no_minimize
 			);
+			InputConfiguration inputConfiguration = new InputConfiguration(this.path_to_properties);
+			Main.run(configuration, inputConfiguration);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
