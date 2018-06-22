@@ -510,4 +510,35 @@ public class InputConfiguration {
     public void setDescartesMutators(String descartesMutators) {
         this.descartesMutators = descartesMutators;
     }
+
+    @Override
+    public String toString() {
+        return "InputConfiguration{" +
+                "absolutePathToProjectRoot='" + absolutePathToProjectRoot + '\'' +
+                ", targetModule='" + targetModule + '\'' +
+                ", pathToSourceCode='" + pathToSourceCode + '\'' +
+                ", pathToTestSourceCode='" + pathToTestSourceCode + '\'' +
+                ", pathToClasses='" + pathToClasses + '\'' +
+                ", pathToTestClasses='" + pathToTestClasses + '\'' +
+                ", dependencies='" + dependencies + '\'' +
+                ", additionalClasspathElements='" + additionalClasspathElements + '\'' +
+                ", builderName='" + builderName + '\'' +
+                ", mavenHome='" + mavenHome + '\'' +
+                ", builder=" + builder +
+                ", factory=" + factory +
+                ", outputDirectory='" + outputDirectory + '\'' +
+                ", configPath='" + configPath + '\'' +
+                ", delta='" + delta + '\'' +
+                ", absolutePathToSecondVersionProjectRoot='" + absolutePathToSecondVersionProjectRoot + '\'' +
+                ", baseSha='" + baseSha + '\'' +
+                ", excludedClasses='" + excludedClasses + '\'' +
+                ", excludedTestCases='" + excludedTestCases + '\'' +
+                ", filter='" + filter + '\'' +
+                ", pitVersion='" + pitVersion + '\'' +
+                ", descartesVersion='" + descartesVersion + '\'' +
+                ", timeoutPit='" + timeoutPit + '\'' +
+                ", JVMArgs='" + JVMArgs + '\'' +
+                ", descartesMutators='" + descartesMutators + '\'' +
+                '}';
+    }
 }
