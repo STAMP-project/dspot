@@ -62,7 +62,7 @@ public class DescartesInjector {
 
     private static Node buildDependency(Document doc) {
         final Element dependency = doc.createElement("dependency");
-        buildNodesDependency(doc, "fr.inria.stamp", "descartes", PitMutantScoreSelector.descartesVersion).forEach(dependency::appendChild);
+        buildNodesDependency(doc, "eu.stamp-project", "descartes", PitMutantScoreSelector.descartesVersion).forEach(dependency::appendChild);
         return dependency;
     }
 
@@ -91,9 +91,9 @@ public class DescartesInjector {
         final Element mutationEngine = doc.createElement("mutationEngine");
         mutationEngine.setTextContent("descartes");
         configuration.appendChild(mutationEngine);
-        final Element mutators = doc.createElement("mutators");
+       /* final Element mutators = doc.createElement("mutators");
         buildListOfMutators(doc).forEach(mutators::appendChild);
-        configuration.appendChild(mutators);
+        configuration.appendChild(mutators);*/
         return configuration;
     }
 

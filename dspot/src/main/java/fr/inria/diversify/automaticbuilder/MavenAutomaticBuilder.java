@@ -117,8 +117,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
 		}
 		try {
-			String[] phases = new String[]{CMD_PIT_MUTATION_COVERAGE + ":" +
-							PitMutantScoreSelector.pitVersion + ":" + GOAL_PIT_MUTATION_COVERAGE, //
+			String[] phases = new String[]{CMD_PIT_MUTATION_COVERAGE + ":" +  PitMutantScoreSelector.pitVersion + ":" + GOAL_PIT_MUTATION_COVERAGE, //
 					OPT_WITH_HISTORY, //
 					OPT_TARGET_CLASSES + configuration.getProperty("filter"), //
 					OPT_VALUE_REPORT_DIR, //
@@ -145,7 +144,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
 	/**
 	 * Will convert a CtType into a list of test classes full qualified names
-	 * in case of abstract test classes, otherwise returns only the full qualified name
+	 * in case of abstract test classes, otDherwise returns only the full qualified name
 	 **/
 
 	@Override

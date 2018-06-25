@@ -1,24 +1,23 @@
 package fr.inria.diversify.dspot.selector;
 
 import fr.inria.diversify.automaticbuilder.AutomaticBuilderFactory;
+import fr.inria.diversify.dspot.DSpot;
 import fr.inria.diversify.dspot.amplifier.NumberLiteralAmplifier;
 import fr.inria.diversify.dspot.amplifier.StringLiteralAmplifier;
 import fr.inria.diversify.utils.AmplificationHelper;
-import fr.inria.diversify.dspot.DSpot;
-import fr.inria.diversify.dspot.selector.PitMutantScoreSelector;
 import fr.inria.diversify.utils.sosiefier.InputConfiguration;
 import fr.inria.stamp.Main;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Benjamin DANGLOT
@@ -55,7 +54,7 @@ public class PitScoreMutantSelectorDescartesTest {
 
         assertFalse(PitMutantScoreSelector.descartesMode);
         PitMutantScoreSelector.descartesMode = true;
-        PitMutantScoreSelector.pitVersion = "1.2.0";
+//        PitMutantScoreSelector.pitVersion = "1.2.0";
         InputConfiguration configuration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
         DSpot dspot = new DSpot(configuration, 1,
                 Arrays.asList(new StringLiteralAmplifier(), new NumberLiteralAmplifier()),
@@ -69,7 +68,7 @@ public class PitScoreMutantSelectorDescartesTest {
     public void tearDown() throws Exception {
         AutomaticBuilderFactory.reset();
         Main.verbose = false;
-        PitMutantScoreSelector.pitVersion = "1.3.0";
+//        PitMutantScoreSelector.pitVersion = "1.3.0";
         PitMutantScoreSelector.descartesMode = false;
     }
 }

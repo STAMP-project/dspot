@@ -54,18 +54,18 @@ public class MavenPitCommandAndOptions {
             "1",
             "(byte)0",
             "(byte)1",
+            "(short)0",
             "(short)1",
-            "(short)2",
             "0L",
             "1L",
             "0.0",
             "1.0",
             "0.0f",
             "1.0f",
-            "\'\40\'",
-            "\'A\'",
-            "\"\"",
-            "\"A\"",
+            "'\40'",
+            "'A'",
+            "\"",
+            "\"A\""
     };
 
     public static final String OUTPUT_DIRECTORY_PIT = "target/pit-reports/";
