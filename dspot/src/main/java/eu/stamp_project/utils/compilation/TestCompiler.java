@@ -39,6 +39,8 @@ public class TestCompiler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestCompiler.class);
 
+    private static int counterTryOfCompilation;
+
     /**
      * <p>
      * This method will compile the given test class,
@@ -62,6 +64,7 @@ public class TestCompiler {
         final String dependencies = configuration.getClasspathClassesProject()
                 + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
         DSpotUtils.copyPackageFromResources();
+        TestCompiler.counterTryOfCompilation = 0;
         final List<CtMethod<?>> uncompilableMethods =
                 TestCompiler.compileAndDiscardUncompilableMethods(compiler, testClass, dependencies);
         testsToRun.removeAll(uncompilableMethods);
@@ -137,6 +140,9 @@ public class TestCompiler {
         // no problem, the compilation is successful
         if (problems.isEmpty()) {
             return Collections.emptyList();
+        } else if (TestCompiler.counterTryOfCompilation > 3){
+            LOGGER.warn("Trying three time to compile with no success. Give up.");
+            return Collections.emptyList();
         } else {
             LOGGER.warn("{} errors during compilation, discarding involved test methods", problems.size());
             try {
@@ -181,6 +187,7 @@ public class TestCompiler {
                 );
 
                 methods.forEach(classTest::removeMethod);
+                TestCompiler.counterTryOfCompilation++;
                 methods.addAll(compileAndDiscardUncompilableMethods(compiler, classTest, dependencies));
                 return new ArrayList<>(methods);
             } catch (Exception e) {
