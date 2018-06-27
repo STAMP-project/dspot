@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -36,7 +36,7 @@ public class ObjectLog {
     private int maxDeep = 4;
 
     private ObjectLog() {
-        this.observations = new HashMap<>();
+        this.observations = new LinkedHashMap<>();
         this.methodsHandler = new MethodsHandler();
     }
 

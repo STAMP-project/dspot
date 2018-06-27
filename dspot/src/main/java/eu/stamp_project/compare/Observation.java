@@ -15,7 +15,7 @@ public class Observation implements Serializable {
     private Map<String, Object> observationValues;
 
     public Observation() {
-        this.observationValues = new HashMap<>();
+        this.observationValues = new LinkedHashMap<>();
         this.notDeterministValues = new HashSet<>();
     }
 
