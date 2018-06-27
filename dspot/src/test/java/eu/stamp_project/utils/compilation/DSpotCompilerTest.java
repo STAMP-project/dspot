@@ -13,11 +13,11 @@ import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.factory.Factory;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Benjamin DANGLOT
@@ -42,11 +42,12 @@ public class DSpotCompilerTest {
         final InputConfiguration configuration = getConfiguration();
         final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(configuration, "");
         final CtClass<?> aClass = getClass(compiler.getLauncher().getFactory());
-        final List<CtMethod<?>> compile = TestCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, "");
-        assertTrue(compile.isEmpty());
+        final List<CtMethod<?>> method = aClass.getMethodsByName("method");
+        final List<CtMethod<?>> compile = TestCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, "", method);
+        assertEquals(2, compile.size());
         assertEquals(1, aClass.getMethods().size());
 
-        final List<CtMethod> tests = new UncompilableAmplifier().apply(aClass.getMethods().stream().findAny().get());
+        final List<CtMethod> tests = new UncompilableAmplifier().apply(method.get(0));
         tests.forEach(aClass::addMethod);
         assertEquals(3, aClass.getMethods().size());
 
@@ -55,7 +56,8 @@ public class DSpotCompilerTest {
                 .findFirst()
                 .get();
 
-        final List<CtMethod<?>> results = TestCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, "");
+        final List<CtMethod<?>> results = TestCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, "",
+                new ArrayList(aClass.getMethods()));
         assertEquals(1, results.size());
         assertEquals("uncompilableTest", results.get(0).getSimpleName());
         assertEquals(uncompilableTest, results.get(0));
