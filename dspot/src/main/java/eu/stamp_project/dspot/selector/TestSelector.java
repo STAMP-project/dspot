@@ -15,8 +15,20 @@ public interface TestSelector {
 
     void init(InputConfiguration configuration);
 
+    /**
+     * This method selects test method to be amplified among the provided test list.
+     * Contract: the provided test list should contain only already compiled test methods and all the test methods should pass.
+     * @param testsToBeAmplified the list among which the selection is done.
+     * @return selected test methods to be amplified
+     */
     List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified);
 
+    /**
+     * This method selects test methods to be kept, <i>i.e.</i> output of DSpot.
+     * Contract: the provided test list should contain only already compiled test methods and all the test methods should pass.
+     * @param amplifiedTestToBeKept the list among which the selection is done.
+     * @return selected amplified test methods to output
+     */
     List<CtMethod<?>> selectToKeep(List<CtMethod<?>> amplifiedTestToBeKept);
 
     void report();
