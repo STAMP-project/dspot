@@ -45,7 +45,7 @@ public class TestCompiler {
      * <p>
      * This method will compile the given test class,
      * using the {@link eu.stamp_project.utils.compilation.DSpotCompiler}.
-     * If any compilation problems is reported, the method discard involved method
+     * If any compilation problems is reported, the method discard involved test methods, by modifying given test methods, (it has side-effect)
      * (see {@link #compileAndDiscardUncompilableMethods(DSpotCompiler, CtType, String)} and then try again to compile.
      * </p>
      *
