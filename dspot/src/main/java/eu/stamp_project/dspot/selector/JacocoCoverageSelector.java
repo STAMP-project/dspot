@@ -183,11 +183,11 @@ public class JacocoCoverageSelector extends TakeAllSelector {
         this.currentClassTestToBeAmplified.getPackage().addType(clone);
         this.selectedAmplifiedTest.forEach(clone::addMethod);
         try {
-            FileUtils.deleteDirectory(new File(DSpotCompiler.pathToTmpTestSources));
+            FileUtils.deleteDirectory(new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC));
         } catch (IOException ignored) {
             //ignored
         }
-        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.pathToTmpTestSources));
+        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC));
         this.currentClassTestToBeAmplified.getPackage().removeType(clone);
 
         final String fileSeparator = System.getProperty("file.separator");
@@ -202,7 +202,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                     + this.configuration.getProperty("additionalClasspathElements"));
         }
 
-        DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
+        DSpotCompiler.compile(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
                 new File(this.configuration.getAbsolutePathToTestClasses()));
 
         final String targetClasses = this.configuration.getClasspathClassesProject();

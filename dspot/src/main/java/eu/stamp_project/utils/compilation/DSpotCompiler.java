@@ -29,7 +29,7 @@ import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
  */
 public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
-	public static final String pathToTmpTestSources = "target/dspot/tmp_test_sources";
+
 
 	public static DSpotCompiler createDSpotCompiler(InputConfiguration configuration, String pathToDependencies) {
 		String pathToSources = configuration.getAbsolutePathToSourceCode()
@@ -44,7 +44,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		this.dependencies = pathToDependencies;
 		this.launcher = launcher;
 		this.binaryOutputDirectory = new File(configuration.getAbsolutePathToTestClasses());
-		this.sourceOutputDirectory = new File(pathToTmpTestSources);
+		this.sourceOutputDirectory = new File(PATH_TO_AMPLIFIED_TEST_SRC);
 		if (!this.sourceOutputDirectory.exists()) {
 			this.sourceOutputDirectory.mkdir();
 		}
@@ -90,11 +90,6 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		return compiler.globalErrorsCount == 0;
 	}
 
-	public List<CategorizedProblem> compileAndGetProbs(String pathToAdditionalDependencies) {
-		this.compile(pathToAdditionalDependencies);
-		return getProblems();
-	}
-
 	public static Launcher getSpoonModelOf(String pathToSources, String pathToDependencies) {
 		Launcher launcher = new Launcher();
 		launcher.getEnvironment().setNoClasspath(true);
@@ -130,6 +125,23 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		modelBuilder.setBinaryOutputDirectory(binaryOutputDirectory);
 		return modelBuilder.compile(SpoonModelBuilder.InputType.CTTYPES);
 	}
+
+	/**
+	 * this method call {@link #compile(String, String, File)} and return the potential problems of the compilation.
+	 * @param pathToAdditionalDependencies
+	 * @return a list that contains compilation problems
+	 */
+	public List<CategorizedProblem> compileAndReturnProblems(String pathToAdditionalDependencies) {
+		this.compile(pathToAdditionalDependencies);
+		return getProblems();
+	}
+
+	/**
+	 * This constants represent the path of the .java of the amplified test classes.
+	 * This .java contains amplified test methods at different step of the process of DSpot.
+	 * The {@link DSpotCompiler} use this path to compile the amplified test class.
+	 */
+	public static final String PATH_TO_AMPLIFIED_TEST_SRC = "target/dspot/tmp_test_sources";
 
 	private Launcher launcher;
 

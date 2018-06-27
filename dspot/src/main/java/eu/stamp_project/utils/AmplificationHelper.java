@@ -232,7 +232,7 @@ public class AmplificationHelper {
                                 + AmplificationHelper.PATH_SEPARATOR +
                                 configuration.getClasspathClassesProject()
                                 + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
-                        DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
+                        DSpotCompiler.compile(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
                                 new File(configuration.getAbsolutePathToTestClasses()));
                     }
                     if (superclass.getSuperclass() == null) {

@@ -137,8 +137,8 @@ public class ChangeMinimizer extends GeneralMinimizer {
                 .filter(AmplificationChecker::isTest)
                 .forEach(clone::removeMethod);
         clone.addMethod(amplifiedTestToBeMinimized);
-        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.pathToTmpTestSources));
-        return DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources,
+        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC));
+        return DSpotCompiler.compile(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC,
                 this.configuration.getFullClassPathWithExtraDependencies(),
                 new File(this.configuration.getAbsolutePathToTestClasses()));
     }
