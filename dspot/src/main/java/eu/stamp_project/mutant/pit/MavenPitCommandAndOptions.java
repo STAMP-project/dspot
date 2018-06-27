@@ -19,7 +19,7 @@ public class MavenPitCommandAndOptions {
 
     public static final String PROPERTY_ADDITIONAL_CP_ELEMENTS = "additionalClasspathElements";
 
-    public static final String PROPERTY_EXCLUDED_CLASSES = "excludedClasses";
+    public static final String PROPERTY_EXCLUDED_CLASSES = "excludedTestClasses";
 
     public static final String OPT_ADDITIONAL_CP_ELEMENTS = "-D" + PROPERTY_ADDITIONAL_CP_ELEMENTS + "=";
 

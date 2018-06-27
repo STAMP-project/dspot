@@ -133,37 +133,22 @@ public class AssertGeneratorTest extends AbstractTest {
 	}
 
 	private static final String expectedBodyWithMap = "{" + AmplificationHelper.LINE_SEPARATOR +
-			"    final fr.inria.sample.ClassWithMap classWithMap = new fr.inria.sample.ClassWithMap();"
-			+ AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key1\"));"
-			+ AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertEquals(\"value1\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key1\"));"
-			+ AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key2\"));"
-			+ AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertEquals(\"value2\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key2\"));"
-			+ AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key3\"));"
-			+ AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertEquals(\"value3\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key3\"));"
-			+ AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getEmptyMap().isEmpty());"
-			+ AmplificationHelper.LINE_SEPARATOR +
+			"    final fr.inria.sample.ClassWithMap classWithMap = new fr.inria.sample.ClassWithMap();" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getEmptyMap().isEmpty());" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key1\"));" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertEquals(\"value1\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key1\"));" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key2\"));" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertEquals(\"value2\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key2\"));" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key3\"));" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertEquals(\"value3\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key3\"));" + AmplificationHelper.LINE_SEPARATOR +
 			"    classWithMap.getFullMap();" + AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key1\"));"
-			+ AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertEquals(\"value1\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key1\"));"
-			+ AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key2\"));"
-			+ AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertEquals(\"value2\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key2\"));"
-			+ AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key3\"));"
-			+ AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertEquals(\"value3\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key3\"));"
-			+ AmplificationHelper.LINE_SEPARATOR +
-			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getEmptyMap().isEmpty());"
-			+ AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getEmptyMap().isEmpty());" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key1\"));" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertEquals(\"value1\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key1\"));" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key2\"));" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertEquals(\"value2\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key2\"));" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key3\"));" + AmplificationHelper.LINE_SEPARATOR +
+			"    org.junit.Assert.assertEquals(\"value3\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key3\"));" + AmplificationHelper.LINE_SEPARATOR +
 			"}";
 
 	@Test

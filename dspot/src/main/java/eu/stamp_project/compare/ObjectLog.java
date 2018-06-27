@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -33,10 +33,10 @@ public class ObjectLog {
 
     private Map<String, Observation> observations;
     private MethodsHandler methodsHandler;
-    private int maxDeep = 4;
+    private int maxDeep = 3;
 
     private ObjectLog() {
-        this.observations = new HashMap<>();
+        this.observations = new LinkedHashMap<>();
         this.methodsHandler = new MethodsHandler();
     }
 
@@ -70,7 +70,7 @@ public class ObjectLog {
                       String id,
                       int deep,
                       List<Method> methodsToReachCurrentObject) {
-        if (deep < maxDeep) {
+        if (deep <= maxDeep) {
             if (isSerializable(objectToObserve) &&
                     (objectToObserve == null ||
                             Utils.isPrimitive(objectToObserve) ||

@@ -14,8 +14,10 @@ install:
   - export MAVEN_HOME=`mvn --version | grep 'Maven home' | sed -e 's/Maven h.* //'`
 
 script:
-  - mvn clean install
-  - cd dspot && java -jar target/dspot-$DSPOT_VERSION-jar-with-dependencies.jar --example
+  - mvn compile
+  - cd dspot && ./src/main/bash/update-classes-in-resources.sh
+  - mvn install
+  - java -jar target/dspot-$DSPOT_VERSION-jar-with-dependencies.jar --example
 
 after_success:
   - mvn clean test jacoco:report coveralls:report
