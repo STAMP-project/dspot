@@ -168,14 +168,14 @@ public class CloverCoverageSelector extends TakeAllSelector {
         clone.setParent(this.currentClassTestToBeAmplified.getParent());
         this.selectedAmplifiedTest.forEach(clone::addMethod);
 
-        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.pathToTmpTestSources));
+        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC));
 
         final String classpath =
                 this.configuration.getDependencies()
                 + AmplificationHelper.PATH_SEPARATOR +
                 this.configuration.getClasspathClassesProject();
 
-        DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
+        DSpotCompiler.compile(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
                 new File(this.configuration.getAbsolutePathToTestClasses()));
 
         try {

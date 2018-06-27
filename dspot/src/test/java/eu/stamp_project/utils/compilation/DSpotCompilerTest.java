@@ -13,11 +13,11 @@ import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.factory.Factory;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Benjamin DANGLOT
@@ -42,25 +42,26 @@ public class DSpotCompilerTest {
         final InputConfiguration configuration = getConfiguration();
         final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(configuration, "");
         final CtClass<?> aClass = getClass(compiler.getLauncher().getFactory());
-        final List<CtMethod<?>> compile = TestCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, "");
-        assertTrue(compile.isEmpty());
+        final List<CtMethod<?>> method = aClass.getMethodsByName("method");
+        final List<CtMethod<?>> compile = TestCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, "", method);
+        assertEquals(1, compile.size());
         assertEquals(1, aClass.getMethods().size());
 
-        final List<CtMethod> tests = new UncompilableAmplifier().apply(aClass.getMethods().stream().findAny().get());
+        final List<CtMethod> tests = new UncompilableAmplifier().apply(method.get(0));
         tests.forEach(aClass::addMethod);
         assertEquals(3, aClass.getMethods().size());
 
         final CtMethod uncompilableTest = tests.stream()
-                .filter(ctMethod -> ctMethod.getSimpleName().equals("uncompilableTest"))
+                .filter(ctMethod -> ctMethod.getSimpleName().equals("compilableTest"))
                 .findFirst()
                 .get();
 
-        final List<CtMethod<?>> results = TestCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, "");
-        assertEquals(1, results.size());
-        assertEquals("uncompilableTest", results.get(0).getSimpleName());
+        final List<CtMethod<?>> results = TestCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, "",
+                new ArrayList(aClass.getMethods()));
+        assertEquals(2, results.size());
+        assertEquals("compilableTest", results.get(0).getSimpleName());
         assertEquals(uncompilableTest, results.get(0));
-//        assertEquals(2, aClass.getMethods().size());
-        assertEquals(3, aClass.getMethods().size());//The compile methods is now stateless: using a clone class
+        assertEquals(2, aClass.getMethods().size());
     }
 
     // quick implementation used to produce a uncompilable test case

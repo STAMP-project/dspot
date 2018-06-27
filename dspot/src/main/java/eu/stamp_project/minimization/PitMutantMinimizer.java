@@ -88,7 +88,7 @@ public class PitMutantMinimizer extends GeneralMinimizer {
         this.testClass.getPackage().addType(clone);
         clone.getMethods().stream().filter(AmplificationChecker::isTest).forEach(clone::removeMethod);
         clone.addMethod(testCase);
-        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.pathToTmpTestSources));
+        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC));
         final AutomaticBuilder automaticBuilder = AutomaticBuilderFactory
                 .getAutomaticBuilder(this.configuration);
         final String classpath = AutomaticBuilderFactory
@@ -99,7 +99,7 @@ public class PitMutantMinimizer extends GeneralMinimizer {
                 + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/"
                 + AmplificationHelper.PATH_SEPARATOR +
                 program.getProgramDir() + "/" + program.getTestClassesDir();
-        DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
+        DSpotCompiler.compile(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
                 new File(program.getProgramDir() + "/" + program.getTestClassesDir()));
         AutomaticBuilderFactory
                 .getAutomaticBuilder(this.configuration)

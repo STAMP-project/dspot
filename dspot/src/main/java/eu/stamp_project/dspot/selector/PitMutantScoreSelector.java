@@ -108,7 +108,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
-        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.pathToTmpTestSources));
+        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC));
         final AutomaticBuilder automaticBuilder = AutomaticBuilderFactory
                 .getAutomaticBuilder(this.configuration);
         final String classpath = AutomaticBuilderFactory
@@ -118,7 +118,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 this.configuration.getClasspathClassesProject()
                 + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
 
-        DSpotCompiler.compile(DSpotCompiler.pathToTmpTestSources, classpath,
+        DSpotCompiler.compile(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
                 new File(this.configuration.getAbsolutePathToTestClasses()));
 
         AutomaticBuilderFactory
