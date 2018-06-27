@@ -33,7 +33,7 @@ public class ObjectLog {
 
     private Map<String, Observation> observations;
     private MethodsHandler methodsHandler;
-    private int maxDeep = 4;
+    private int maxDeep = 3;
 
     private ObjectLog() {
         this.observations = new LinkedHashMap<>();
@@ -70,7 +70,7 @@ public class ObjectLog {
                       String id,
                       int deep,
                       List<Method> methodsToReachCurrentObject) {
-        if (deep < maxDeep) {
+        if (deep <= maxDeep) {
             if (isSerializable(objectToObserve) &&
                     (objectToObserve == null ||
                             Utils.isPrimitive(objectToObserve) ||
