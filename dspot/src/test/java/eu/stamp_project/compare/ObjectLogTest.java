@@ -10,7 +10,6 @@ import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Benjamin DANGLOT
@@ -68,6 +67,7 @@ public class ObjectLogTest {
         return myInternalClass.compute();
     }
 
+    // TODO we should be able to specify some method, or compute pure method
     @Test
     public void test() throws Exception {
         final Integer result = ObjectLogTest.add(new Integer(3), new Integer(20));
@@ -78,12 +78,12 @@ public class ObjectLogTest {
         assertEquals(1, ObjectLog.getObservations().size());
         final Observation add__0 = ObjectLog.getObservations().get("add__0");
         assertNotNull(add__0);
-        assertEquals(1, add__0.getNotDeterministValues().size());
+//        assertEquals(1, add__0.getNotDeterministValues().size());
         final Map<String, Object> observationValues = add__0.getObservationValues();
-        assertEquals(5, observationValues.size());
-        assertEquals(25, observationValues.get("(myInternalClass ).compute()"));
+        assertEquals(3, observationValues.size());
+//        assertEquals(25, observationValues.get("(myInternalClass ).compute()"));
         assertEquals(3, observationValues.get("(myInternalClass ).getA()"));
         assertEquals(20, observationValues.get("(myInternalClass ).getB()"));
-        assertTrue(add__0.getNotDeterministValues().contains("(myInternalClass ).random()"));
+//        assertTrue(add__0.getNotDeterministValues().contains("(myInternalClass ).random()"));
     }
 }
