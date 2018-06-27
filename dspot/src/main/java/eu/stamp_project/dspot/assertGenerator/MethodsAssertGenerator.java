@@ -3,6 +3,7 @@ package eu.stamp_project.dspot.assertGenerator;
 import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.compare.Observation;
 import eu.stamp_project.dspot.AmplificationException;
+import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
@@ -96,11 +97,14 @@ public class MethodsAssertGenerator {
         LOGGER.info("Run instrumented tests. ({})", testsToRun.size());
         AssertGeneratorHelper.addAfterClassMethod(clone);
         try {
-            TestCompiler.compileAndRun(clone,
+            final TestListener result = TestCompiler.compileAndRun(clone,
                     this.compiler,
                     testsToRun,
                     this.configuration
             );
+            if (!result.getFailingTests().isEmpty()) {
+                LOGGER.warn("Some instrumented test failed!");
+            }
         } catch (AmplificationException e) {
             e.printStackTrace();
             return Collections.emptyList();

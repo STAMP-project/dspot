@@ -3,7 +3,6 @@ package eu.stamp_project.dspot;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.assertGenerator.AssertGenerator;
 import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
@@ -86,7 +85,7 @@ public class Amplification {
     public void amplification(CtType<?> classTest, List<CtMethod<?>> tests, int maxIteration) {
         LOGGER.info("Amplification of {} ({} test(s))", classTest.getQualifiedName(), tests.size());
         LOGGER.info("Assertion amplification of {} ({} test(s))", classTest.getQualifiedName(), tests.size());
-        final List<CtMethod<?>> passingTests = compileRunAndDiscardUncompilableAndFailingTestMethods(classTest, tests);
+        final List<CtMethod<?>> passingTests = TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(classTest, tests, this.compiler, this.configuration);
         final List<CtMethod<?>> selectedToBeAmplified = this.testSelector.selectToAmplify(passingTests);
         final List<CtMethod<?>> assertionAmplifiedTestMethods = this.assertionsAmplification(classTest, selectedToBeAmplified);
         final List<CtMethod<?>> amplifiedTestMethodsToKeep = this.testSelector.selectToKeep(assertionAmplifiedTestMethods);
@@ -161,7 +160,7 @@ public class Amplification {
         }
         // final check on A-amplified test, see if they all pass.
         // If they don't, we just discard them.
-        final List<CtMethod<?>> amplifiedPassingTests = compileRunAndDiscardUncompilableAndFailingTestMethods(classTest, testsWithAssertions);
+        final List<CtMethod<?>> amplifiedPassingTests = TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(classTest, testsWithAssertions, this.compiler, this.configuration);
         LOGGER.info("Assertion amplification: {} test method(s) has been successfully amplified.", testMethods.size());
         return amplifiedPassingTests;
     }
@@ -209,27 +208,4 @@ public class Amplification {
         this.amplifiers.forEach(amp -> amp.reset(parentClass));
     }
 
-    /**
-     * Create a clone of the test class, using {@link eu.stamp_project.utils.AmplificationHelper#cloneTestClassAndAddGivenTest(CtType, List)}.
-     * Then, compile and run the test using {@link eu.stamp_project.utils.compilation.TestCompiler#compileAndRun(CtType, DSpotCompiler, List, InputConfiguration)}
-     * Finally, discard all failing test methods
-     * @param classTest       Test class
-     * @param currentTestList test methods to be run
-     * @return Results of tests' run
-     * @throws AmplificationException forward the AmplificationException thrown by {@link eu.stamp_project.utils.compilation.TestCompiler#compileAndRun(CtType, DSpotCompiler, List, InputConfiguration)}
-     */
-    private List<CtMethod<?>> compileRunAndDiscardUncompilableAndFailingTestMethods(CtType classTest, List<CtMethod<?>> currentTestList) {
-        CtType amplifiedTestClass = AmplificationHelper.cloneTestClassAndAddGivenTest(classTest, currentTestList);
-        try {
-            final TestListener result = TestCompiler.compileAndRun(
-                    amplifiedTestClass,
-                    this.compiler,
-                    currentTestList,
-                    this.configuration
-            );
-            return AmplificationHelper.getPassingTests(currentTestList, result);
-        } catch (AmplificationException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

@@ -1,5 +1,6 @@
 package eu.stamp_project.utils.compilation;
 
+import eu.stamp_project.Main;
 import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.test.TestListener;
@@ -34,6 +35,37 @@ import static org.codehaus.plexus.util.FileUtils.forceDelete;
 public class TestCompiler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestCompiler.class);
+
+    /**
+     * Create a clone of the test class, using {@link eu.stamp_project.utils.AmplificationHelper#cloneTestClassAndAddGivenTest(CtType, List)}.
+     * Then, compile and run the test using {@link eu.stamp_project.utils.compilation.TestCompiler#compileAndRun(CtType, DSpotCompiler, List, InputConfiguration)}
+     * Finally, discard all failing test methods
+     *
+     * @param classTest       Test class
+     * @param currentTestList test methods to be run
+     * @return Results of tests' run
+     * @throws AmplificationException forward the AmplificationException thrown by {@link eu.stamp_project.utils.compilation.TestCompiler#compileAndRun(CtType, DSpotCompiler, List, InputConfiguration)}
+     */
+    public static List<CtMethod<?>> compileRunAndDiscardUncompilableAndFailingTestMethods(CtType classTest,
+                                                                                    List<CtMethod<?>> currentTestList,
+                                                                                    DSpotCompiler compiler,
+                                                                                    InputConfiguration configuration) {
+        CtType amplifiedTestClass = AmplificationHelper.cloneTestClassAndAddGivenTest(classTest, currentTestList);
+        try {
+            final TestListener result = TestCompiler.compileAndRun(
+                    amplifiedTestClass,
+                    compiler,
+                    currentTestList,
+                    configuration
+            );
+            return AmplificationHelper.getPassingTests(currentTestList, result);
+        } catch (AmplificationException e) {
+            if (Main.verbose) {
+                e.printStackTrace();
+            }
+            return Collections.emptyList();
+        }
+    }
 
     /**
      * <p>
