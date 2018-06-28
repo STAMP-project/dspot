@@ -129,40 +129,20 @@ public class JSAPOptions {
 
         DSpotUtils.withComment = jsapConfig.getBoolean("comment");
 
-        final InputConfiguration inputConfiguration = new InputConfiguration(jsapConfig.getString("path"));
         final List<String> testClasses = Arrays.asList(jsapConfig.getStringArray("test"));
         final List<String> testCases = Arrays.asList(jsapConfig.getStringArray("testCases"));
-        inputConfiguration.initialize(
-                buildAmplifiersFromString(jsapConfig.getStringArray("amplifiers")),
-                jsapConfig.getInt("iteration"),
-                testClasses,
-                testCriterion,
-                testCases,
-                jsapConfig.getLong("seed"),
-                jsapConfig.getInt("timeOut"),
-                jsapConfig.getString("builder"),
-                jsapConfig.getInt("maxTestAmplified"),
-                jsapConfig.getBoolean("clean"),
-                !jsapConfig.getBoolean("no-minimize")
-        );
-
-        return inputConfiguration;
-
-        /*return new Configuration(jsapConfig.getString("path"),
-                buildAmplifiersFromString(jsapConfig.getStringArray("amplifiers")),
-                jsapConfig.getInt("iteration"),
-                Arrays.asList(jsapConfig.getStringArray("test")),
-                jsapConfig.getString("output"),
-                testCriterion,
-                Arrays.asList(jsapConfig.getStringArray("testCases")),
-                jsapConfig.getLong("seed"),
-                jsapConfig.getInt("timeOut"),
-                jsapConfig.getString("builder"),
-                jsapConfig.getString("mavenHome"),
-                jsapConfig.getInt("maxTestAmplified"),
-                jsapConfig.getBoolean("clean"),
-                !jsapConfig.getBoolean("no-minimize")
-        );*/
+        return new InputConfiguration(jsapConfig.getString("path"))
+                .setAmplifiers(buildAmplifiersFromString(jsapConfig.getStringArray("amplifiers")))
+                .setNbIteration(jsapConfig.getInt("iteration"))
+                .setTestClasses(testClasses)
+                .setSelector(testCriterion)
+                .setTestCases(testCases)
+                .setSeed(jsapConfig.getLong("seed"))
+                .setTimeOutInMs(jsapConfig.getInt("timeOut"))
+                .setBuilderName(jsapConfig.getString("builder"))
+                .setMaxTestAmplified(jsapConfig.getInt("maxTestAmplified"))
+                .setClean(jsapConfig.getBoolean("clean"))
+                .setMinimize(!jsapConfig.getBoolean("no-minimize"));
     }
 
     public static Amplifier stringToAmplifier(String amplifier) {
@@ -426,7 +406,7 @@ public class JSAPOptions {
         if (parameter.getDefault() != null) {
             mojoParam += "defaultValue = \"" + parameter.getDefault()[0] + "\", ";
         }
-        mojoParam += "property = \"" + ((Flagged)parameter).getLongFlag() + "\")" + AmplificationHelper.LINE_SEPARATOR;
+        mojoParam += "property = \"" + ((Flagged) parameter).getLongFlag() + "\")" + AmplificationHelper.LINE_SEPARATOR;
         mojoParam += "private ";
         if (parameter instanceof FlaggedOption) {
             return mojoParam + jsapFlaggedOptionToMojoParameter((FlaggedOption) parameter);

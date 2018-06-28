@@ -73,8 +73,8 @@ public class InputConfiguration {
                                 ConstantsProperties.PATH_TO_SECOND_VERSION.get(properties)
                         ) + targetModule
                 ).getAbsolutePath()
-        );
-        this.setBuilderName(ConstantsProperties.AUTOMATIC_BUILDER_NAME.get(properties));
+        )
+                .setBuilderName(ConstantsProperties.AUTOMATIC_BUILDER_NAME.get(properties));
         this.builder = AutomaticBuilderFactory.getAutomaticBuilder(this);
         this.dependencies = this.builder.buildClasspath();
 
@@ -100,23 +100,24 @@ public class InputConfiguration {
                     });
         }
 
-        this.setOutputDirectory(ConstantsProperties.OUTPUT_DIRECTORY.get(properties));
-        this.setMavenHome(ConstantsProperties.MAVEN_HOME.get(properties));
-        this.setDelta(ConstantsProperties.DELTA_ASSERTS_FLOAT.get(properties));
-        this.setFilter(ConstantsProperties.FILTER.get(properties));
-        this.setPitVersion(ConstantsProperties.PIT_VERSION.get(properties));
-        this.setDescartesVersion(ConstantsProperties.DESCARTES_VERSION.get(properties));
-        this.setBaseSha(ConstantsProperties.BASE_SHA.get(properties));
-        this.setExcludedClasses(ConstantsProperties.EXCLUDED_CLASSES.get(properties));
-        this.setTimeoutPit(ConstantsProperties.TIMEOUT_PIT.get(properties));
-        this.setJVMArgs(ConstantsProperties.JVM_ARGS.get(properties));
-        this.setDescartesVersion(ConstantsProperties.DESCARTES_MUTATORS.get(properties));
-        this.setExcludedTestCases(ConstantsProperties.EXCLUDED_TEST_CASES.get(properties));
+        this.setOutputDirectory(ConstantsProperties.OUTPUT_DIRECTORY.get(properties))
+                .setMavenHome(ConstantsProperties.MAVEN_HOME.get(properties))
+                .setDelta(ConstantsProperties.DELTA_ASSERTS_FLOAT.get(properties))
+                .setFilter(ConstantsProperties.FILTER.get(properties))
+                .setPitVersion(ConstantsProperties.PIT_VERSION.get(properties))
+                .setDescartesVersion(ConstantsProperties.DESCARTES_VERSION.get(properties))
+                .setBaseSha(ConstantsProperties.BASE_SHA.get(properties))
+                .setExcludedClasses(ConstantsProperties.EXCLUDED_CLASSES.get(properties))
+                .setTimeoutPit(ConstantsProperties.TIMEOUT_PIT.get(properties))
+                .setJVMArgs(ConstantsProperties.JVM_ARGS.get(properties))
+                .setDescartesVersion(ConstantsProperties.DESCARTES_MUTATORS.get(properties))
+                .setExcludedTestCases(ConstantsProperties.EXCLUDED_TEST_CASES.get(properties));
     }
 
     /**
      * This constructor is a proxy for {@link InputConfiguration#InputConfiguration(String, String, String, String, String, String)} with
      * an empty target module
+     *
      * @param pathToProjectRoot absolute or relative path to the root of the project.
      * @param pathToSource      relative path from {@code pathToProjectRoot} to the folder that contains the program sources (.java).
      * @param pathToTestSource  relative path from {@code pathToProjectRoot} to the folder that contains the test sources (.java).
@@ -158,12 +159,12 @@ public class InputConfiguration {
                                 pathToProjectRoot
                         ) + targetModule
                 ).getAbsolutePath()
-        );
-        this.setPathToSourceCode(pathToSource);
-        this.setPathToTestSourceCode(pathToTestSource);
-        this.setPathToClasses(pathToClasses);
-        this.setPathToTestClasses(pathToTestClasses);
-        this.setTargetModule(targetModule);
+        )
+                .setPathToSourceCode(pathToSource)
+                .setPathToTestSourceCode(pathToTestSource)
+                .setPathToClasses(pathToClasses)
+                .setPathToTestClasses(pathToTestClasses)
+                .setTargetModule(targetModule);
     }
 
     /*
@@ -187,8 +188,9 @@ public class InputConfiguration {
      *
      * @param absolutePathToProjectRoot
      */
-    public void setAbsolutePathToProjectRoot(String absolutePathToProjectRoot) {
+    public InputConfiguration setAbsolutePathToProjectRoot(String absolutePathToProjectRoot) {
         this.absolutePathToProjectRoot = DSpotUtils.shouldAddSeparator.apply(absolutePathToProjectRoot);
+        return this;
     }
 
     private String targetModule;
@@ -197,8 +199,9 @@ public class InputConfiguration {
         return targetModule;
     }
 
-    public void setTargetModule(String targetModule) {
+    public InputConfiguration setTargetModule(String targetModule) {
         this.targetModule = targetModule;
+        return this;
     }
 
     private String pathToSourceCode;
@@ -211,8 +214,9 @@ public class InputConfiguration {
         return this.absolutePathToProjectRoot + this.getPathToSourceCode();
     }
 
-    public void setPathToSourceCode(String pathToSourceCode) {
+    public InputConfiguration setPathToSourceCode(String pathToSourceCode) {
         this.pathToSourceCode = DSpotUtils.shouldAddSeparator.apply(pathToSourceCode);
+        return this;
     }
 
     private String pathToTestSourceCode;
@@ -221,8 +225,9 @@ public class InputConfiguration {
         return pathToTestSourceCode;
     }
 
-    public void setPathToTestSourceCode(String pathToTestSourceCode) {
+    public InputConfiguration setPathToTestSourceCode(String pathToTestSourceCode) {
         this.pathToTestSourceCode = DSpotUtils.shouldAddSeparator.apply(pathToTestSourceCode);
+        return this;
     }
 
     public String getAbsolutePathToTestSourceCode() {
@@ -239,8 +244,9 @@ public class InputConfiguration {
         return pathToClasses;
     }
 
-    public void setPathToClasses(String pathToClasses) {
+    public InputConfiguration setPathToClasses(String pathToClasses) {
         this.pathToClasses = DSpotUtils.shouldAddSeparator.apply(pathToClasses);
+        return this;
     }
 
     public String getAbsolutePathToClasses() {
@@ -257,8 +263,9 @@ public class InputConfiguration {
         return this.absolutePathToProjectRoot + this.getPathToTestClasses();
     }
 
-    public void setPathToTestClasses(String pathToTestClasses) {
+    public InputConfiguration setPathToTestClasses(String pathToTestClasses) {
         this.pathToTestClasses = DSpotUtils.shouldAddSeparator.apply(pathToTestClasses);
+        return this;
     }
 
     /**
@@ -311,8 +318,9 @@ public class InputConfiguration {
                 .collect(Collectors.joining(PATH_SEPARATOR));
     }
 
-    public void setAdditionalClasspathElements(String additionalClasspathElements) {
+    public InputConfiguration setAdditionalClasspathElements(String additionalClasspathElements) {
         this.additionalClasspathElements = additionalClasspathElements;
+        return this;
     }
 
     /*
@@ -325,15 +333,17 @@ public class InputConfiguration {
         return builderName;
     }
 
-    public void setBuilderName(String builderName) {
+    public InputConfiguration setBuilderName(String builderName) {
         this.builder = null;
         this.builderName = builderName;
+        return this;
     }
 
     private String mavenHome;
 
-    public void setMavenHome(String mavenHome) {
+    public InputConfiguration setMavenHome(String mavenHome) {
         this.mavenHome = mavenHome;
+        return this;
     }
 
     public String getMavenHome() {
@@ -346,8 +356,9 @@ public class InputConfiguration {
         return builder;
     }
 
-    public void setBuilder(AutomaticBuilder builder) {
+    public InputConfiguration setBuilder(AutomaticBuilder builder) {
         this.builder = builder;
+        return this;
     }
 
     /*
@@ -363,14 +374,16 @@ public class InputConfiguration {
         return factory;
     }
 
-    public void setFactory(Factory factory) {
+    public InputConfiguration setFactory(Factory factory) {
         this.factory = factory;
+        return this;
     }
 
     private String outputDirectory;
 
-    public void setOutputDirectory(String outputDirectory) {
+    public InputConfiguration setOutputDirectory(String outputDirectory) {
         this.outputDirectory = outputDirectory;
+        return this;
     }
 
     public String getOutputDirectory() {
@@ -383,8 +396,9 @@ public class InputConfiguration {
         return configPath;
     }
 
-    public void setConfigPath(String configPath) {
+    public InputConfiguration setConfigPath(String configPath) {
         this.configPath = configPath;
+        return this;
     }
 
     /*
@@ -397,8 +411,9 @@ public class InputConfiguration {
         return delta;
     }
 
-    public void setDelta(String delta) {
+    public InputConfiguration setDelta(String delta) {
         this.delta = delta;
+        return this;
     }
 
     /*
@@ -411,9 +426,10 @@ public class InputConfiguration {
         return absolutePathToSecondVersionProjectRoot;
     }
 
-    public void setAbsolutePathToSecondVersionProjectRoot(String absolutePathToSecondVersionProjectRoot) {
+    public InputConfiguration setAbsolutePathToSecondVersionProjectRoot(String absolutePathToSecondVersionProjectRoot) {
         this.absolutePathToSecondVersionProjectRoot =
                 DSpotUtils.shouldAddSeparator.apply(absolutePathToSecondVersionProjectRoot);
+        return this;
     }
 
     private String baseSha;
@@ -422,8 +438,9 @@ public class InputConfiguration {
         return baseSha;
     }
 
-    public void setBaseSha(String baseSha) {
+    public InputConfiguration setBaseSha(String baseSha) {
         this.baseSha = baseSha;
+        return this;
     }
 
     /*
@@ -436,8 +453,9 @@ public class InputConfiguration {
         return excludedClasses;
     }
 
-    public void setExcludedClasses(String excludedClasses) {
+    public InputConfiguration setExcludedClasses(String excludedClasses) {
         this.excludedClasses = excludedClasses;
+        return this;
     }
 
     private String excludedTestCases;
@@ -446,8 +464,9 @@ public class InputConfiguration {
         return excludedTestCases;
     }
 
-    public void setExcludedTestCases(String excludedTestCases) {
+    public InputConfiguration setExcludedTestCases(String excludedTestCases) {
         this.excludedTestCases = excludedTestCases;
+        return this;
     }
 
     /*
@@ -460,8 +479,9 @@ public class InputConfiguration {
         return filter;
     }
 
-    public void setFilter(String filter) {
+    public InputConfiguration setFilter(String filter) {
         this.filter = filter;
+        return this;
     }
 
     private String pitVersion;
@@ -470,8 +490,9 @@ public class InputConfiguration {
         return pitVersion;
     }
 
-    public void setPitVersion(String pitVersion) {
+    public InputConfiguration setPitVersion(String pitVersion) {
         this.pitVersion = pitVersion;
+        return this;
     }
 
     private String descartesVersion;
@@ -480,8 +501,9 @@ public class InputConfiguration {
         return descartesVersion;
     }
 
-    public void setDescartesVersion(String descartesVersion) {
+    public InputConfiguration setDescartesVersion(String descartesVersion) {
         this.descartesVersion = descartesVersion;
+        return this;
     }
 
     private String timeoutPit;
@@ -490,8 +512,9 @@ public class InputConfiguration {
         return timeoutPit;
     }
 
-    public void setTimeoutPit(String timeoutPit) {
+    public InputConfiguration setTimeoutPit(String timeoutPit) {
         this.timeoutPit = timeoutPit;
+        return this;
     }
 
     private String JVMArgs;
@@ -500,8 +523,9 @@ public class InputConfiguration {
         return JVMArgs;
     }
 
-    public void setJVMArgs(String JVMArgs) {
+    public InputConfiguration setJVMArgs(String JVMArgs) {
         this.JVMArgs = JVMArgs;
+        return this;
     }
 
     private String descartesMutators;
@@ -510,8 +534,9 @@ public class InputConfiguration {
         return descartesMutators;
     }
 
-    public void setDescartesMutators(String descartesMutators) {
+    public InputConfiguration setDescartesMutators(String descartesMutators) {
         this.descartesMutators = descartesMutators;
+        return this;
     }
 
     /*
@@ -534,115 +559,99 @@ public class InputConfiguration {
         return amplifiers;
     }
 
-    public void setAmplifiers(List<Amplifier> amplifiers) {
+    public InputConfiguration setAmplifiers(List<Amplifier> amplifiers) {
         this.amplifiers = amplifiers;
+        return this;
     }
 
     public int getNbIteration() {
         return nbIteration;
     }
 
-    public void setNbIteration(int nbIteration) {
+    public InputConfiguration setNbIteration(int nbIteration) {
         this.nbIteration = nbIteration;
+        return this;
     }
 
     public List<String> getTestClasses() {
         return testClasses;
     }
 
-    public void setTestClasses(List<String> testClasses) {
+    public InputConfiguration setTestClasses(List<String> testClasses) {
         this.testClasses = testClasses;
+        return this;
     }
 
     public TestSelector getSelector() {
         return selector;
     }
 
-    public void setSelector(TestSelector selector) {
+    public InputConfiguration setSelector(TestSelector selector) {
         this.selector = selector;
+        return this;
     }
 
     public List<String> getTestCases() {
         return testCases;
     }
 
-    public void setTestCases(List<String> testCases) {
+    public InputConfiguration setTestCases(List<String> testCases) {
         this.testCases = testCases;
+        return this;
     }
 
     public long getSeed() {
         return seed;
     }
 
-    public void setSeed(long seed) {
+    public InputConfiguration setSeed(long seed) {
         this.seed = seed;
+        return this;
     }
 
     public int getTimeOutInMs() {
         return timeOutInMs;
     }
 
-    public void setTimeOutInMs(int timeOutInMs) {
+    public InputConfiguration setTimeOutInMs(int timeOutInMs) {
         this.timeOutInMs = timeOutInMs;
+        return this;
     }
 
     public String getAutomaticBuilderName() {
         return automaticBuilderName;
     }
 
-    public void setAutomaticBuilderName(String automaticBuilderName) {
+    public InputConfiguration setAutomaticBuilderName(String automaticBuilderName) {
         this.automaticBuilderName = automaticBuilderName;
+        return this;
     }
 
     public Integer getMaxTestAmplified() {
         return maxTestAmplified;
     }
 
-    public void setMaxTestAmplified(Integer maxTestAmplified) {
+    public InputConfiguration setMaxTestAmplified(Integer maxTestAmplified) {
         this.maxTestAmplified = maxTestAmplified;
+        return this;
     }
 
     public boolean isClean() {
         return clean;
     }
 
-    public void setClean(boolean clean) {
+    public InputConfiguration setClean(boolean clean) {
         this.clean = clean;
+        return this;
     }
 
     public boolean isMinimize() {
         return minimize;
     }
 
-    public void setMinimize(boolean minimize) {
+    public InputConfiguration setMinimize(boolean minimize) {
         this.minimize = minimize;
-    }
-
-    /**
-     * Initialize all options from command line
-     */
-    public void initialize(List<Amplifier> amplifiers,
-                           int nbIteration,
-                           List<String> testClasses,
-                           TestSelector selector,
-                           List<String> testCases,
-                           long seed,
-                           int timeOutInMs,
-                           String automaticBuilderName,
-                           Integer maxTestAmplified,
-                           boolean clean,
-                           boolean minimize) {
-        this.setAmplifiers(amplifiers);
-        this.setNbIteration(nbIteration);
-        this.setTestClasses(testClasses);
-        this.setSelector(selector);
-        this.setTestCases(testCases);
-        this.setSeed(seed);
-        this.setTimeOutInMs(timeOutInMs);
-        this.setAutomaticBuilderName(automaticBuilderName);
-        this.setMaxTestAmplified(maxTestAmplified);
-        this.setClean(clean);
-        this.setMinimize(minimize);
+        return this;
     }
 
     @Override
