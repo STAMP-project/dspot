@@ -1,6 +1,7 @@
 package eu.stamp_project;
 
 import com.martiansoftware.jsap.*;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.dspot.amplifier.*;
 import eu.stamp_project.dspot.selector.ChangeDetectorSelector;
@@ -93,7 +94,7 @@ public class JSAPOptions {
         }
     }
 
-    public static Configuration parse(String[] args) {
+    public static InputConfiguration parse(String[] args) {
         JSAPResult jsapConfig = options.parse(args);
         Main.verbose = jsapConfig.getBoolean("verbose");
         Main.useWorkingDirectory = jsapConfig.getBoolean("working-directory");
@@ -128,7 +129,26 @@ public class JSAPOptions {
 
         DSpotUtils.withComment = jsapConfig.getBoolean("comment");
 
-        return new Configuration(jsapConfig.getString("path"),
+        final InputConfiguration inputConfiguration = new InputConfiguration(jsapConfig.getString("path"));
+        final List<String> testClasses = Arrays.asList(jsapConfig.getStringArray("test"));
+        final List<String> testCases = Arrays.asList(jsapConfig.getStringArray("testCases"));
+        inputConfiguration.initialize(
+                buildAmplifiersFromString(jsapConfig.getStringArray("amplifiers")),
+                jsapConfig.getInt("iteration"),
+                testClasses,
+                testCriterion,
+                testCases,
+                jsapConfig.getLong("seed"),
+                jsapConfig.getInt("timeOut"),
+                jsapConfig.getString("builder"),
+                jsapConfig.getInt("maxTestAmplified"),
+                jsapConfig.getBoolean("clean"),
+                !jsapConfig.getBoolean("no-minimize")
+        );
+
+        return inputConfiguration;
+
+        /*return new Configuration(jsapConfig.getString("path"),
                 buildAmplifiersFromString(jsapConfig.getStringArray("amplifiers")),
                 jsapConfig.getInt("iteration"),
                 Arrays.asList(jsapConfig.getStringArray("test")),
@@ -142,7 +162,7 @@ public class JSAPOptions {
                 jsapConfig.getInt("maxTestAmplified"),
                 jsapConfig.getBoolean("clean"),
                 !jsapConfig.getBoolean("no-minimize")
-        );
+        );*/
     }
 
     public static Amplifier stringToAmplifier(String amplifier) {

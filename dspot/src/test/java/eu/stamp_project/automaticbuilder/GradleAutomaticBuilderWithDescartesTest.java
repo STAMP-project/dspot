@@ -4,8 +4,6 @@ import eu.stamp_project.Utils;
 import eu.stamp_project.mutant.pit.PitResult;
 import eu.stamp_project.mutant.pit.PitResultParser;
 import eu.stamp_project.program.InputConfiguration;
-import eu.stamp_project.Configuration;
-import eu.stamp_project.JSAPOptions;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -16,7 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Daniele Gagliardi
@@ -24,10 +22,6 @@ import static org.junit.Assert.*;
  * on 08/09/17.
  */
 public class GradleAutomaticBuilderWithDescartesTest {
-
-    private static final String PATH_SEPARATOR = System.getProperty("path.separator");
-
-    private Configuration configuration;
 
     private AutomaticBuilder sut = null;
 
@@ -39,9 +33,8 @@ public class GradleAutomaticBuilderWithDescartesTest {
         Utils.init("src/test/resources/test-projects/test-projects.properties");
 
         Utils.LOGGER.debug("Test Set-up - Reading input parameters...");
-        this.configuration = JSAPOptions.parse(getArgsWithGradleBuilder());
         InputConfiguration inputConfiguration = Utils.getInputConfiguration();
-        inputConfiguration.setBuilderName(this.configuration.automaticBuilderName);
+        inputConfiguration.setBuilderName("GradleBuilder");
         inputConfiguration.setDescartesMutators("1");
 
         Utils.LOGGER.debug("Test Set-up - instantiating Automatic Builder (SUT)...");
@@ -73,18 +66,6 @@ public class GradleAutomaticBuilderWithDescartesTest {
 
         Utils.LOGGER.info("Gradle Automatic Builder runPit() test complete when a test class is specified.");
     }
-
-    private String[] getArgsWithGradleBuilder() throws IOException {
-        return new String[]{
-                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
-//                "--descartes",
-                "--iteration", "1",
-                "--randomSeed", "72",
-                "--automatic-builder", "GradleBuilder",
-                "--test", "all"
-        };
-    }
-
 
     private void cleanTestEnv() throws IOException {
         File classPathFile = new File("src/test/resources/test-projects/gjp_cp");

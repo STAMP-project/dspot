@@ -2,6 +2,8 @@ package eu.stamp_project.program;
 
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
+import eu.stamp_project.dspot.amplifier.Amplifier;
+import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import org.slf4j.Logger;
@@ -13,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -49,7 +52,7 @@ public class InputConfiguration {
      *
      * @param pathToPropertiesFile the path to the properties file. It is recommended to use an absolute path.
      */
-    public InputConfiguration(String pathToPropertiesFile) throws IOException {
+    public InputConfiguration(String pathToPropertiesFile) {
         this(loadProperties(pathToPropertiesFile));
         this.configPath = pathToPropertiesFile;
     }
@@ -509,6 +512,137 @@ public class InputConfiguration {
 
     public void setDescartesMutators(String descartesMutators) {
         this.descartesMutators = descartesMutators;
+    }
+
+    /*
+        Inherited from old Configuration (from command line)
+     */
+
+    private List<Amplifier> amplifiers;
+    private int nbIteration;
+    private List<String> testClasses;
+    private TestSelector selector;
+    private List<String> testCases;
+    private long seed;
+    private int timeOutInMs;
+    private String automaticBuilderName;
+    private Integer maxTestAmplified;
+    private boolean clean;
+    private boolean minimize;
+
+    public List<Amplifier> getAmplifiers() {
+        return amplifiers;
+    }
+
+    public void setAmplifiers(List<Amplifier> amplifiers) {
+        this.amplifiers = amplifiers;
+    }
+
+    public int getNbIteration() {
+        return nbIteration;
+    }
+
+    public void setNbIteration(int nbIteration) {
+        this.nbIteration = nbIteration;
+    }
+
+    public List<String> getTestClasses() {
+        return testClasses;
+    }
+
+    public void setTestClasses(List<String> testClasses) {
+        this.testClasses = testClasses;
+    }
+
+    public TestSelector getSelector() {
+        return selector;
+    }
+
+    public void setSelector(TestSelector selector) {
+        this.selector = selector;
+    }
+
+    public List<String> getTestCases() {
+        return testCases;
+    }
+
+    public void setTestCases(List<String> testCases) {
+        this.testCases = testCases;
+    }
+
+    public long getSeed() {
+        return seed;
+    }
+
+    public void setSeed(long seed) {
+        this.seed = seed;
+    }
+
+    public int getTimeOutInMs() {
+        return timeOutInMs;
+    }
+
+    public void setTimeOutInMs(int timeOutInMs) {
+        this.timeOutInMs = timeOutInMs;
+    }
+
+    public String getAutomaticBuilderName() {
+        return automaticBuilderName;
+    }
+
+    public void setAutomaticBuilderName(String automaticBuilderName) {
+        this.automaticBuilderName = automaticBuilderName;
+    }
+
+    public Integer getMaxTestAmplified() {
+        return maxTestAmplified;
+    }
+
+    public void setMaxTestAmplified(Integer maxTestAmplified) {
+        this.maxTestAmplified = maxTestAmplified;
+    }
+
+    public boolean isClean() {
+        return clean;
+    }
+
+    public void setClean(boolean clean) {
+        this.clean = clean;
+    }
+
+    public boolean isMinimize() {
+        return minimize;
+    }
+
+    public void setMinimize(boolean minimize) {
+        this.minimize = minimize;
+    }
+
+    /**
+     * Initialize all options from command line
+     */
+    public void initialize(List<Amplifier> amplifiers,
+                           int nbIteration,
+                           List<String> testClasses,
+                           TestSelector selector,
+                           List<String> testCases,
+                           long seed,
+                           int timeOutInMs,
+                           String automaticBuilderName,
+                           Integer maxTestAmplified,
+                           boolean clean,
+                           boolean minimize) {
+        this.setAmplifiers(amplifiers);
+        this.setNbIteration(nbIteration);
+        this.setTestClasses(testClasses);
+        this.setSelector(selector);
+        this.setTestCases(testCases);
+        this.setSeed(seed);
+        this.setTimeOutInMs(timeOutInMs);
+        this.setAutomaticBuilderName(automaticBuilderName);
+        this.setMaxTestAmplified(maxTestAmplified);
+        this.setClean(clean);
+        this.setMinimize(minimize);
     }
 
     @Override

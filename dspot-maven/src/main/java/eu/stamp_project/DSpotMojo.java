@@ -160,24 +160,8 @@ public class DSpotMojo extends AbstractMojo {
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		try {
-			final Configuration configuration = new Configuration(
-					this.path_to_properties,
-					JSAPOptions.buildAmplifiersFromString(this.amplifiers.toArray(new String[this.amplifiers.size()])),
-					this.iteration,
-					this.test,
-					this.output_path,
-					JSAPOptions.SelectorEnum.valueOf(this.test_criterion).buildSelector(),
-					this.cases,
-					this.randomSeed,
-					this.timeOut,
-					this.AUTOMATIC_BUILDER_NAME,
-					this.maven_home,
-					this.max_test_amplified,
-					this.clean,
-					!this.no_minimize
-			);
 			InputConfiguration inputConfiguration = new InputConfiguration(this.path_to_properties);
-			Main.run(configuration, inputConfiguration);
+			Main.run(inputConfiguration);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

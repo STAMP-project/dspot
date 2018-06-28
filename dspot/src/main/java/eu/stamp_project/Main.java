@@ -35,7 +35,7 @@ public class Main {
 		} catch (Exception ignored) {
 
 		}
-		final Configuration configuration = JSAPOptions.parse(args);
+		final InputConfiguration configuration = JSAPOptions.parse(args);
 		if (configuration == null) {
 			Main.runExample();
 		} else {
@@ -43,54 +43,49 @@ public class Main {
 		}
 	}
 
-	public static void run(Configuration configuration, InputConfiguration inputConfiguration) throws Exception {
+	public static void run(InputConfiguration configuration) throws Exception {
 		AmplificationHelper.setSeedRandom(23L);
-		AmplificationHelper.minimize = configuration.minimize;
-		if (inputConfiguration.getBuilderName().isEmpty()) {
-			// if the builder name is empty, then it means that it has not been defined in the property file
-			// and thus, we use the default value of the command line, i.e. maven
-			inputConfiguration.setBuilderName(configuration.automaticBuilderName);
-		}
-		AmplificationHelper.MAX_NUMBER_OF_TESTS = configuration.maxTestAmplified;
-		if (configuration.mavenHome != null) {
-			if (!inputConfiguration.getMavenHome().isEmpty() &&
-					!configuration.mavenHome.equals(inputConfiguration.getMavenHome())){
-				LOGGER.warn("Using two different maven home path {}(properties) and {}(command-line option).",
-						inputConfiguration.getMavenHome(), configuration.mavenHome
-				);
-				LOGGER.warn("Please fix your set up to be consistent.");
-				LOGGER.warn("DSpot will use {}(property) for this run.", inputConfiguration.getMavenHome());
-			} else {
-				inputConfiguration.setMavenHome(configuration.mavenHome);
-			}
-		}
-		if (configuration.pathToOutput != null) {
-			inputConfiguration.setOutputDirectory(configuration.pathToOutput);
-		}
-		DSpot dspot = new DSpot(inputConfiguration, configuration.nbIteration, configuration.amplifiers,
-				configuration.selector);
+		AmplificationHelper.minimize = configuration.isMinimize();
+		AmplificationHelper.MAX_NUMBER_OF_TESTS = configuration.getMaxTestAmplified();
+//		if (configuration.mavenHome != null) {
+//			if (!configuration.getMavenHome().isEmpty() &&
+//					!configuration.mavenHome.equals(configuration.getMavenHome())){
+//				LOGGER.warn("Using two different maven home path {}(properties) and {}(command-line option).",
+//						configuration.getMavenHome(), configuration.mavenHome
+//				);
+//				LOGGER.warn("Please fix your set up to be consistent.");
+//				LOGGER.warn("DSpot will use {}(property) for this run.", configuration.getMavenHome());
+//			} else {
+//				configuration.setMavenHome(configuration.mavenHome);
+//			}
+//		}
+//		if (configuration.pathToOutput != null) {
+//			configuration.setOutputDirectory(configuration.pathToOutput);
+//		}
+		DSpot dspot = new DSpot(configuration, configuration.getNbIteration(), configuration.getAmplifiers(),
+				configuration.getSelector());
 
-		AmplificationHelper.setSeedRandom(configuration.seed);
-		AmplificationHelper.setTimeOutInMs(configuration.timeOutInMs);
+		AmplificationHelper.setSeedRandom(configuration.getSeed());
+		AmplificationHelper.setTimeOutInMs(configuration.getTimeOutInMs());
 
-		createOutputDirectories(inputConfiguration, configuration.clean);
+		createOutputDirectories(configuration, configuration.isClean());
 
 		final long startTime = System.currentTimeMillis();
 		final List<CtType> amplifiedTestClasses;
-		if ("all".equals(configuration.testClasses.get(0))) {
+		if ("all".equals(configuration.getTestClasses().get(0))) {
 			amplifiedTestClasses = dspot.amplifyAllTests();
-		} else if ("diff".equals(configuration.testClasses.get(0))) {
+		} else if ("diff".equals(configuration.getTestClasses().get(0))) {
 			final Map<String, List<String>> testMethodsAccordingToADiff = SelectorOnDiff
-					.findTestMethodsAccordingToADiff(inputConfiguration);
+					.findTestMethodsAccordingToADiff(configuration);
 			amplifiedTestClasses = testMethodsAccordingToADiff.keySet().stream()
 					.map(ctType -> dspot.amplifyTest(ctType, testMethodsAccordingToADiff.get(ctType)))
 					.collect(Collectors.toList());
 		} else {
-			if (configuration.testCases.isEmpty()) {
-				amplifiedTestClasses = dspot.amplifyAllTestsNames(configuration.testClasses);
+			if (configuration.getTestClasses().isEmpty()) {
+				amplifiedTestClasses = dspot.amplifyAllTestsNames(configuration.getTestClasses());
 			} else {
-				amplifiedTestClasses = configuration.testClasses.stream()
-						.map(testClasses -> dspot.amplifyTest(testClasses, configuration.testCases))
+				amplifiedTestClasses = configuration.getTestClasses().stream()
+						.map(testClasses -> dspot.amplifyTest(testClasses, configuration.getTestCases()))
 						.collect(Collectors.toList());
 			}
 		}
@@ -99,10 +94,10 @@ public class Main {
 		LOGGER.info("Elapsed time {} ms", elapsedTime);
 	}
 
-	public static void run(Configuration configuration) throws Exception {
-		InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
-		run(configuration, inputConfiguration);
-	}
+//	public static void run(Configuration configuration) throws Exception {
+//		InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
+//		run(configuration, inputConfiguration);
+//	}
 
 	public static void createOutputDirectories(InputConfiguration inputConfiguration, boolean clean) {
 		final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
