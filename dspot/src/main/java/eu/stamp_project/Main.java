@@ -25,10 +25,6 @@ public class Main {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
-	public static boolean verbose = false;
-
-	public static boolean useWorkingDirectory = false;
-
 	public static void main(String[] args) throws Exception {
 		try {
 			FileUtils.forceDelete(new File("target/dspot/"));
@@ -44,32 +40,14 @@ public class Main {
 	}
 
 	public static void run(InputConfiguration configuration) throws Exception {
-		AmplificationHelper.setSeedRandom(23L);
-		AmplificationHelper.minimize = configuration.isMinimize();
-		AmplificationHelper.MAX_NUMBER_OF_TESTS = configuration.getMaxTestAmplified();
-//		if (configuration.mavenHome != null) {
-//			if (!configuration.getMavenHome().isEmpty() &&
-//					!configuration.mavenHome.equals(configuration.getMavenHome())){
-//				LOGGER.warn("Using two different maven home path {}(properties) and {}(command-line option).",
-//						configuration.getMavenHome(), configuration.mavenHome
-//				);
-//				LOGGER.warn("Please fix your set up to be consistent.");
-//				LOGGER.warn("DSpot will use {}(property) for this run.", configuration.getMavenHome());
-//			} else {
-//				configuration.setMavenHome(configuration.mavenHome);
-//			}
-//		}
-//		if (configuration.pathToOutput != null) {
-//			configuration.setOutputDirectory(configuration.pathToOutput);
-//		}
-		DSpot dspot = new DSpot(configuration, configuration.getNbIteration(), configuration.getAmplifiers(),
-				configuration.getSelector());
-
+		DSpot dspot = new DSpot(
+				configuration,
+				configuration.getNbIteration(),
+				configuration.getAmplifiers(),
+				configuration.getSelector()
+		);
 		AmplificationHelper.setSeedRandom(configuration.getSeed());
-		AmplificationHelper.setTimeOutInMs(configuration.getTimeOutInMs());
-
-		createOutputDirectories(configuration, configuration.isClean());
-
+		createOutputDirectories(configuration, configuration.shouldClean());
 		final long startTime = System.currentTimeMillis();
 		final List<CtType> amplifiedTestClasses;
 		if ("all".equals(configuration.getTestClasses().get(0))) {
@@ -93,11 +71,6 @@ public class Main {
 		final long elapsedTime = System.currentTimeMillis() - startTime;
 		LOGGER.info("Elapsed time {} ms", elapsedTime);
 	}
-
-//	public static void run(Configuration configuration) throws Exception {
-//		InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
-//		run(configuration, inputConfiguration);
-//	}
 
 	public static void createOutputDirectories(InputConfiguration inputConfiguration, boolean clean) {
 		final File outputDirectory = new File(inputConfiguration.getOutputDirectory());

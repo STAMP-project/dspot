@@ -2,10 +2,10 @@ package eu.stamp_project.dspot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.Main;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.selector.CloverCoverageSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -15,7 +15,6 @@ import eu.stamp_project.utils.Initializer;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.json.ClassTimeJSON;
 import eu.stamp_project.utils.json.ProjectTimeJSON;
-import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,9 +103,6 @@ public class DSpot {
         } else {
             this.projectTimeJSON = new ProjectTimeJSON(splittedPath[splittedPath.length - 1]);
         }
-        if (Main.useWorkingDirectory) {
-            EntryPoint.workingDirectory = new File(this.inputConfiguration.getAbsolutePathToProjectRoot());
-        }
     }
 
     public void addAmplifier(Amplifier amplifier) {
@@ -177,7 +173,8 @@ public class DSpot {
             this.projectTimeJSON.add(new ClassTimeJSON(test.getQualifiedName(), elapsedTime));
             final CtType clone = test.clone();
             test.getPackage().addType(clone);
-            CtType<?> amplification = AmplificationHelper.createAmplifiedTest(testSelector.getAmplifiedTestCases(), clone, testSelector.getMinimizer());
+            CtType<?> amplification = AmplificationHelper.createAmplifiedTest(
+                    testSelector.getAmplifiedTestCases(), clone, testSelector.getMinimizer(), this.inputConfiguration);
             testSelector.report();
             final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
             LOGGER.info("Print {} with {} amplified test cases in {}", amplification.getSimpleName(),

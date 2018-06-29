@@ -4,13 +4,11 @@ import eu.stamp_project.Utils;
 import eu.stamp_project.mutant.pit.PitResult;
 import eu.stamp_project.mutant.pit.PitResultParser;
 import eu.stamp_project.program.InputConfiguration;
-import eu.stamp_project.Main;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
 
 import java.io.File;
 import java.util.List;
@@ -29,12 +27,12 @@ public class MavenAutomaticBuilderTest {
 
     @Before
     public void setUp() throws Exception {
-        Main.verbose = true;
+        Utils.getInputConfiguration().setVerbose(true);
     }
 
     @After
     public void tearDown() throws Exception {
-        Main.verbose = false;
+        Utils.getInputConfiguration().setVerbose(false);
     }
 
     @Test
@@ -149,7 +147,7 @@ public class MavenAutomaticBuilderTest {
 
     @Test
     public void testUsingStarFilter() throws Exception {
-        Main.verbose = true;
+        Utils.getInputConfiguration().setVerbose(true);
         Utils.init("src/test/resources/test-projects/test-projects.properties");
 
         final InputConfiguration inputConfiguration = Utils.getInputConfiguration();
@@ -160,6 +158,6 @@ public class MavenAutomaticBuilderTest {
         } catch (Exception e) {
 
         }
-        Main.verbose = false;
+        Utils.getInputConfiguration().setVerbose(false);
     }
 }

@@ -1,9 +1,8 @@
 package eu.stamp_project.diff;
 
-import eu.stamp_project.Main;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.program.InputConfiguration;
 import gumtree.spoon.AstComparator;
 import gumtree.spoon.diff.Diff;
 import org.slf4j.Logger;
@@ -54,7 +53,7 @@ public class SelectorOnDiff {
         final String baseSha = configuration.getBaseSha();
         final String pathToFirstVersion = configuration.getAbsolutePathToProjectRoot();
         final String pathToSecondVersion = configuration.getAbsolutePathToSecondVersionProjectRoot();
-        if (Main.verbose) {
+        if (configuration.isVerbose()) {
             LOGGER.info("Selecting according to a diff between {} and {} ({})",
                     pathToFirstVersion,
                     pathToSecondVersion,
@@ -335,7 +334,7 @@ public class SelectorOnDiff {
             throw new RuntimeException(e);
         }
 
-        if (Main.verbose) {
+        if (configuration.isVerbose()) {
             LOGGER.info("Modified files:{}{}", AmplificationHelper.LINE_SEPARATOR,
                     modifiedJavaFiles.stream().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR))
             );

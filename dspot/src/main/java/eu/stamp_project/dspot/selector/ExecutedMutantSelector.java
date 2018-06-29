@@ -105,7 +105,7 @@ public class ExecutedMutantSelector extends TakeAllSelector {
                 this.configuration.getClasspathClassesProject()
                 + DSpotUtils.PATH_TO_EXTRA_DEPENDENCIES_TO_DSPOT_CLASSES;
 
-        DSpotCompiler.compile(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
+        DSpotCompiler.compile(configuration, DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
                 new File(this.configuration.getAbsolutePathToTestClasses()));
 
         AutomaticBuilderFactory

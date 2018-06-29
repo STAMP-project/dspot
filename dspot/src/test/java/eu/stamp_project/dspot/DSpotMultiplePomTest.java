@@ -1,10 +1,9 @@
 package eu.stamp_project.dspot;
 
+import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.program.InputConfiguration;
-
 import eu.stamp_project.testrunner.EntryPoint;
-import eu.stamp_project.Main;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -40,7 +39,7 @@ public class DSpotMultiplePomTest {
             Contract: DSpot is able to amplify a multi-module project
          */
 
-        Main.verbose = true;
+        Utils.getInputConfiguration().setVerbose(true);
         EntryPoint.verbose = true;
 
         final InputConfiguration configuration = new InputConfiguration("src/test/resources/multiple-pom/deep-pom-modules.properties");
@@ -48,8 +47,7 @@ public class DSpotMultiplePomTest {
         final List<CtType> ctTypes = dspot.amplifyAllTests();
         assertFalse(ctTypes.isEmpty());
 
-        EntryPoint.verbose = false;
-        Main.verbose = false;
+        Utils.getInputConfiguration().setVerbose(false);
     }
 
     @After

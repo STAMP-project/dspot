@@ -69,7 +69,7 @@ public class CloverExecutor {
         if (!binaryOutputDirectory.mkdir()) {
             throw new RuntimeException("Could not create the directory" + rootDirectoryOfCloverFiles.getAbsolutePath() + INSTR_BIN_DIRECTORY);
         }
-        DSpotCompiler.compile(rootDirectoryOfCloverFiles.getAbsolutePath() + INSTR_SOURCE_DIRECTORY,
+        DSpotCompiler.compile(configuration, rootDirectoryOfCloverFiles.getAbsolutePath() + INSTR_SOURCE_DIRECTORY,
                 finalClasspath,
                 binaryOutputDirectory
         );

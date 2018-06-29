@@ -1,12 +1,11 @@
 package eu.stamp_project.utils.compilation;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.dspot.AmplificationException;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.program.InputConfiguration;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.slf4j.Logger;
@@ -60,7 +59,7 @@ public class TestCompiler {
             );
             return AmplificationHelper.getPassingTests(currentTestList, result);
         } catch (AmplificationException e) {
-            if (Main.verbose) {
+            if (configuration.isVerbose()) {
                 e.printStackTrace();
             }
             return Collections.emptyList();
@@ -92,7 +91,7 @@ public class TestCompiler {
         DSpotUtils.copyPackageFromResources();
         testsToRun = TestCompiler.compileAndDiscardUncompilableMethods(compiler, testClass, dependencies, testsToRun);
         final String classPath = AmplificationHelper.getClassPath(compiler, configuration);
-        EntryPoint.timeoutInMs = 1000 + (AmplificationHelper.getTimeOutInMs() * testsToRun.size());
+        EntryPoint.timeoutInMs = 1000 + (configuration.getTimeOutInMs() * testsToRun.size());
         if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) { // if the test class is abstract, we use one of its implementation
             return TestRunner.runSubClassesForAbstractTestClass(testClass, testsToRun, classPath);
         } else {

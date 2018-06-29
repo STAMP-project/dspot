@@ -1,24 +1,23 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
+import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.dspot.amplifier.NumberLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.StringLiteralAmplifier;
-import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.program.InputConfiguration;
-import eu.stamp_project.Main;
-
+import eu.stamp_project.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Benjamin DANGLOT
@@ -40,7 +39,7 @@ public class PitScoreMutantSelectorDescartesTest {
         } catch (Exception ignored) {
 
         }
-        Main.verbose = true;
+        Utils.getInputConfiguration().setVerbose(true);
         PitMutantScoreSelector.descartesMode = false;
     }
 
@@ -67,7 +66,7 @@ public class PitScoreMutantSelectorDescartesTest {
 
     @After
     public void tearDown() throws Exception {
-        Main.verbose = false;
+        Utils.getInputConfiguration().setVerbose(false);
         PitMutantScoreSelector.pitVersion = "1.3.0";
         PitMutantScoreSelector.descartesMode = false;
     }

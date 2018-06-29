@@ -1,16 +1,31 @@
 package eu.stamp_project;
 
-import com.martiansoftware.jsap.*;
-import eu.stamp_project.program.InputConfiguration;
-import eu.stamp_project.testrunner.EntryPoint;
-import eu.stamp_project.dspot.amplifier.*;
+import com.martiansoftware.jsap.Flagged;
+import com.martiansoftware.jsap.FlaggedOption;
+import com.martiansoftware.jsap.JSAP;
+import com.martiansoftware.jsap.JSAPException;
+import com.martiansoftware.jsap.JSAPResult;
+import com.martiansoftware.jsap.Parameter;
+import com.martiansoftware.jsap.Switch;
+import eu.stamp_project.dspot.amplifier.AllLiteralAmplifiers;
+import eu.stamp_project.dspot.amplifier.Amplifier;
+import eu.stamp_project.dspot.amplifier.BooleanLiteralAmplifier;
+import eu.stamp_project.dspot.amplifier.CharLiteralAmplifier;
+import eu.stamp_project.dspot.amplifier.NumberLiteralAmplifier;
+import eu.stamp_project.dspot.amplifier.ReplacementAmplifier;
+import eu.stamp_project.dspot.amplifier.StatementAdd;
+import eu.stamp_project.dspot.amplifier.StringLiteralAmplifier;
+import eu.stamp_project.dspot.amplifier.TestDataMutator;
+import eu.stamp_project.dspot.amplifier.TestMethodCallAdder;
+import eu.stamp_project.dspot.amplifier.TestMethodCallRemover;
 import eu.stamp_project.dspot.selector.ChangeDetectorSelector;
-import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.dspot.selector.CloverCoverageSelector;
-import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.ExecutedMutantSelector;
+import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
+import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TakeAllSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import org.jetbrains.annotations.NotNull;
@@ -96,9 +111,6 @@ public class JSAPOptions {
 
     public static InputConfiguration parse(String[] args) {
         JSAPResult jsapConfig = options.parse(args);
-        Main.verbose = jsapConfig.getBoolean("verbose");
-        Main.useWorkingDirectory = jsapConfig.getBoolean("working-directory");
-        EntryPoint.verbose = Main.verbose;
         if (!jsapConfig.success() || jsapConfig.getBoolean("help")) {
             System.err.println();
             for (Iterator<?> errs = jsapConfig.getErrorMessageIterator(); errs.hasNext(); ) {
@@ -126,7 +138,6 @@ public class JSAPOptions {
         }
 
         PitMutantScoreSelector.descartesMode = jsapConfig.getBoolean("descartes");
-
         DSpotUtils.withComment = jsapConfig.getBoolean("comment");
 
         final List<String> testClasses = Arrays.asList(jsapConfig.getStringArray("test"));
@@ -142,7 +153,9 @@ public class JSAPOptions {
                 .setBuilderName(jsapConfig.getString("builder"))
                 .setMaxTestAmplified(jsapConfig.getInt("maxTestAmplified"))
                 .setClean(jsapConfig.getBoolean("clean"))
-                .setMinimize(!jsapConfig.getBoolean("no-minimize"));
+                .setMinimize(!jsapConfig.getBoolean("no-minimize"))
+                .setVerbose(jsapConfig.getBoolean("verbose"))
+                .setUseWorkingDirectory(jsapConfig.getBoolean("working-directory"));
     }
 
     public static Amplifier stringToAmplifier(String amplifier) {

@@ -4,10 +4,9 @@ import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.mutant.descartes.DescartesChecker;
 import eu.stamp_project.mutant.descartes.DescartesInjector;
 import eu.stamp_project.mutant.pit.MavenPitCommandAndOptions;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.program.InputConfiguration;
-import eu.stamp_project.Main;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
@@ -17,12 +16,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtType;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.*;
+import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.CMD_PIT_MUTATION_COVERAGE;
+import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.GOAL_PIT_MUTATION_COVERAGE;
+import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_ADDITIONAL_CP_ELEMENTS;
+import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_EXCLUDED_CLASSES;
+import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_MUTATION_ENGINE_DEFAULT;
+import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_MUTATION_ENGINE_DESCARTES;
+import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_MUTATORS;
+import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_TARGET_CLASSES;
+import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_TARGET_TESTS;
+import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_VALUE_FORMAT;
+import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_VALUE_MEMORY;
+import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_VALUE_REPORT_DIR;
+import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_VALUE_TIMEOUT;
+import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_WITH_HISTORY;
+import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.VALUE_MUTATORS_ALL;
 
 /**
  * Created by Benjamin DANGLOT
@@ -215,7 +231,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         Invoker invoker = new DefaultInvoker();
         invoker.setMavenHome(new File(this.mavenHome));
         LOGGER.info(String.format("run maven %s", Arrays.stream(goals).collect(Collectors.joining(" "))));
-        if (Main.verbose) {
+        if (configuration.isVerbose()) {
             invoker.setOutputHandler(System.out::println);
             invoker.setErrorHandler(System.err::println);
         } else {

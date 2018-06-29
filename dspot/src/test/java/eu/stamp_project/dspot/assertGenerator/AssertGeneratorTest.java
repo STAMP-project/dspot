@@ -1,17 +1,20 @@
 package eu.stamp_project.dspot.assertGenerator;
 
-import eu.stamp_project.Utils;
 import eu.stamp_project.AbstractTest;
+import eu.stamp_project.Utils;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.Main;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -28,23 +31,23 @@ public class AssertGeneratorTest extends AbstractTest {
 	@Override
 	@Before
 	public void setUp() throws Exception {
-		Main.verbose = true;
+		Utils.getInputConfiguration().setVerbose(true);
 		DSpotUtils.withComment = false;
-		AmplificationHelper.setTimeOutInMs(10000);
+		Utils.getInputConfiguration().setTimeOutInMs(10000);
 		super.setUp();
 		this.assertGenerator = new AssertGenerator(Utils.getInputConfiguration(), Utils.getCompiler());
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		Main.verbose = false;
+		Utils.getInputConfiguration().setVerbose(false);
 		DSpotUtils.withComment = false;
-		AmplificationHelper.setTimeOutInMs(10000);
+		Utils.getInputConfiguration().setTimeOutInMs(10000);
 	}
 
 	@Test
 	public void testOnInfiniteLoop() throws Exception {
-		AmplificationHelper.setTimeOutInMs(1000);
+		Utils.getInputConfiguration().setTimeOutInMs(1000);
 		final CtClass testClass = Utils.findClass("fr.inria.infinite.LoopTest");
 		CtMethod test = Utils.findMethod("fr.inria.infinite.LoopTest", "testLoop");
 		List<CtMethod<?>> test_buildNewAssert = assertGenerator.assertionAmplification(testClass, Collections.singletonList(test));

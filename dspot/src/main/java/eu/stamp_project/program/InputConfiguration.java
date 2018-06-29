@@ -3,7 +3,9 @@ package eu.stamp_project.program;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.dspot.amplifier.Amplifier;
+import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
+import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import org.slf4j.Logger;
@@ -15,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -543,17 +546,51 @@ public class InputConfiguration {
         Inherited from old Configuration (from command line)
      */
 
-    private List<Amplifier> amplifiers;
-    private int nbIteration;
-    private List<String> testClasses;
-    private TestSelector selector;
-    private List<String> testCases;
-    private long seed;
-    private int timeOutInMs;
-    private String automaticBuilderName;
-    private Integer maxTestAmplified;
-    private boolean clean;
-    private boolean minimize;
+    private List<Amplifier> amplifiers = Collections.emptyList();
+    private int nbIteration = 3;
+    private List<String> testClasses = Collections.singletonList("all");
+    private TestSelector selector = new PitMutantScoreSelector();
+    private List<String> testCases = Collections.emptyList();
+    private long seed = 23L;
+    private int timeOutInMs = 10000;
+    private String automaticBuilderName = "MAVEN";
+    private Integer maxTestAmplified = 200;
+    private boolean clean = false;
+    private boolean minimize = false;
+    private boolean verbose = false;
+    private boolean useWorkingDirectory = false;
+
+    public boolean shouldUseWorkingDirectory() {
+        return useWorkingDirectory;
+    }
+
+    /**
+     * Side effect: assign the same value to {@link eu.stamp_project.testrunner.EntryPoint#workingDirectory}
+     * @param useWorkingDirectory of the verbose mode.
+     * @return an instance of this InputConfiguration
+     */
+    public InputConfiguration setUseWorkingDirectory(boolean useWorkingDirectory) {
+        this.useWorkingDirectory = useWorkingDirectory;
+        if (this.shouldUseWorkingDirectory()) {
+            EntryPoint.workingDirectory = new File(this.getAbsolutePathToProjectRoot());
+        }
+        return this;
+    }
+
+    public boolean isVerbose() {
+        return verbose;
+    }
+
+    /**
+     * Side effect: assign the same value to {@link eu.stamp_project.testrunner.EntryPoint#verbose}
+     * @param verbose value of the verbose mode.
+     * @return an instance of this InputConfiguration
+     */
+    public InputConfiguration setVerbose(boolean verbose) {
+        this.verbose = verbose;
+        EntryPoint.verbose = this.isVerbose();
+        return this;
+    }
 
     public List<Amplifier> getAmplifiers() {
         return amplifiers;
@@ -615,6 +652,7 @@ public class InputConfiguration {
 
     public InputConfiguration setTimeOutInMs(int timeOutInMs) {
         this.timeOutInMs = timeOutInMs;
+        AmplificationHelper.timeOutInMs = timeOutInMs; // TODO should not be redundant
         return this;
     }
 
@@ -636,7 +674,7 @@ public class InputConfiguration {
         return this;
     }
 
-    public boolean isClean() {
+    public boolean shouldClean() {
         return clean;
     }
 
@@ -645,7 +683,7 @@ public class InputConfiguration {
         return this;
     }
 
-    public boolean isMinimize() {
+    public boolean shouldMinimize() {
         return minimize;
     }
 

@@ -3,6 +3,7 @@ package eu.stamp_project.utils.compilation;
 import eu.stamp_project.Main;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.program.InputConfiguration;
+import jdk.internal.util.xml.impl.Input;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import spoon.Launcher;
 import spoon.OutputType;
@@ -106,9 +107,9 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		return launcher;
 	}
 
-	public static boolean compile(String pathToSources, String dependencies, File binaryOutputDirectory) {
+	public static boolean compile(InputConfiguration configuration, String pathToSources, String dependencies, File binaryOutputDirectory) {
 		Launcher launcher = new Launcher();
-		if (Main.verbose) {
+		if (configuration.isVerbose()) {
 			launcher.getEnvironment().setLevel("DEBUG");
 		}
 		launcher.getEnvironment().setNoClasspath(true);

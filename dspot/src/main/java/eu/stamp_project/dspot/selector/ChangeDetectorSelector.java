@@ -84,7 +84,7 @@ public class ChangeDetectorSelector implements TestSelector {
 
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC));
 
-        DSpotCompiler.compile(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC,
+        DSpotCompiler.compile(this.changedConfiguration, DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC,
                 this.changedConfiguration.getFullClassPathWithExtraDependencies(),
                 new File(this.pathToChangedVersionOfProgram + this.changedConfiguration.getPathToTestClasses()));
 

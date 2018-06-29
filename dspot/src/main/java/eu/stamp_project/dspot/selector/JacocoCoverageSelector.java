@@ -198,7 +198,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
             classpath += PATH_SEPARATOR + this.configuration.getProcessedAddtionalClasspathElements();
         }
 
-        DSpotCompiler.compile(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
+        DSpotCompiler.compile(configuration, DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
                 new File(this.configuration.getAbsolutePathToTestClasses()));
 
         final String targetClasses = this.configuration.getClasspathClassesProject();

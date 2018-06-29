@@ -127,7 +127,7 @@ public class AmplificationHelperTest extends AbstractTest {
                 .collect(Collectors.toList());
         fakeAmplifiedMethod.forEach(ctMethod -> ctMethod.setSimpleName("ampl" + ctMethod.getSimpleName()));
 
-        CtType<?> amplifiedTest = AmplificationHelper.createAmplifiedTest(fakeAmplifiedMethod, classTest, null);
+        CtType<?> amplifiedTest = AmplificationHelper.createAmplifiedTest(fakeAmplifiedMethod, classTest, null, Utils.getInputConfiguration());
         assertEquals(16, amplifiedTest.getMethods().size());
 
         assertFalse(classTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
@@ -155,7 +155,7 @@ public class AmplificationHelperTest extends AbstractTest {
             The method should return a list with different test
          */
 
-        AmplificationHelper.MAX_NUMBER_OF_TESTS = 2;
+        Utils.getInputConfiguration().setMaxTestAmplified(2);
 
         final CtMethod methodString = Utils.findMethod("fr.inria.amp.LiteralMutation", "methodString");
         // very different
@@ -178,9 +178,9 @@ public class AmplificationHelperTest extends AbstractTest {
         methods.add(clone);
         methods.add(methodInteger);
 
-        final List<CtMethod<?>> reduce = AmplificationHelper.reduce(methods);
+        final List<CtMethod<?>> reduce = AmplificationHelper.reduce(methods, Utils.getInputConfiguration());
         assertEquals(2, reduce.size());
 
-        AmplificationHelper.MAX_NUMBER_OF_TESTS = 200;
+        Utils.getInputConfiguration().setMaxTestAmplified(200);
     }
 }
