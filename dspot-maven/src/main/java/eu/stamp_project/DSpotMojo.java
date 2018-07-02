@@ -100,7 +100,7 @@ public class DSpotMojo extends AbstractMojo {
 				getNamesOfTestCases(), getOutputPath(), SelectorEnum.valueOf(getSelector()).buildSelector(),
 				new ArrayList<String>(), getRandomSeed().longValue(), getTimeOutInMs().intValue(), BUILDER,
 				getMavenHome().getAbsolutePath(), 200, false, true);
-
+		
 		InputConfiguration inputConfiguration;
 
 		try {

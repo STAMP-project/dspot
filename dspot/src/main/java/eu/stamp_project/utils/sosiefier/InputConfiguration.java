@@ -92,22 +92,39 @@ public class InputConfiguration {
     public InputConfiguration(File project, File srcDir, File testDir, File classesDir, File testClassesDir,
                               File tempDir, String filter, File mavenHome) throws IOException {
         this();
-        getProperties().setProperty("project", project.getAbsolutePath());
+        getProperties().setProperty("project", project.getAbsolutePath()+"/");
+        this.absolutePathToProjectRoot = project.getAbsolutePath()+"/";
         getProperties().setProperty("src", getRelativePath(srcDir));
+        this.setPathToSourceCode(getRelativePath(srcDir));
         getProperties().setProperty("testSrc", getRelativePath(testDir));
+        this.setPathToTestSourceCode(getRelativePath(testDir));
 //		getProperties().setProperty("testResources", getRelativePath(testResourcesDir));
 //		getProperties().setProperty("srcResources", getRelativePath(srcResourcesDir));
         getProperties().setProperty("maven.home", mavenHome.getAbsolutePath());
-        getProperties().setProperty("classes", getRelativePath(classesDir));
+        //getProperties().setProperty("classes", getRelativePath(classesDir));
+        this.setPathToClasses(DSpotUtils.shouldAddSeparator.apply(getRelativePath(classesDir)));
+        this.setPathToTestClasses(DSpotUtils.shouldAddSeparator.apply(getRelativePath(testClassesDir)));
         getProperties().setProperty("tmpDir", getRelativePath(tempDir));
         if (filter != null) {
             getProperties().setProperty("filter", filter);
         }
         getProperties().setProperty("javaVersion", "8");
+
+        this.dependencies = AutomaticBuilderFactory.getAutomaticBuilder(this).buildClasspath();
+        if (prop.getProperty("additionalClasspathElements") != null) {
+            String pathToAdditionnalClasspathElements = prop.getProperty("additionalClasspathElements");
+            if (!Paths.get(prop.getProperty("additionalClasspathElements")).isAbsolute()) {
+                pathToAdditionnalClasspathElements =
+                        DSpotUtils.shouldAddSeparator.apply(this.absolutePathToProjectRoot +
+                                prop.getProperty("additionalClasspathElements")
+                        );
+            }
+            this.dependencies += PATH_SEPARATOR + pathToAdditionnalClasspathElements;
+        }
     }
 
     private String getRelativePath(File path) {
-        String base = getProperties().getProperty("project");
+        String base = this.absolutePathToProjectRoot;
         String relative = new File(base).toURI().relativize(path.toURI()).getPath();
         return relative;
     }
