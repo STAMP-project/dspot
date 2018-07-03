@@ -31,8 +31,6 @@ import java.util.stream.Collectors;
  */
 public class DSpotUtils {
 
-    public static boolean withComment = false;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(DSpotUtils.class);
 
     private static StringBuilder progress = new StringBuilder(60);
@@ -59,7 +57,7 @@ public class DSpotUtils {
                 .map(CtType::getQualifiedName).toArray(String[]::new);
     }
 
-    public static void printCtTypeToGivenDirectory(CtType<?> type, File directory) {
+    public static void printCtTypeToGivenDirectory(CtType<?> type, File directory, boolean withComment) {
         Factory factory = type.getFactory();
         Environment env = factory.getEnvironment();
         env.setAutoImports(true);
@@ -71,13 +69,13 @@ public class DSpotUtils {
         env.setAutoImports(false);
     }
 
-    public static void printAmplifiedTestClass(CtType<?> type, File directory) {
+    public static void printAmplifiedTestClass(CtType<?> type, File directory, boolean withComment) {
         final String pathname = directory.getAbsolutePath() + "/" + type.getQualifiedName().replaceAll("\\.", "/")
                 + ".java";
         if (new File(pathname).exists()) {
-            printCtTypeToGivenDirectory(addGeneratedTestToExistingClass(type, pathname), directory);
+            printCtTypeToGivenDirectory(addGeneratedTestToExistingClass(type, pathname), directory, withComment);
         } else {
-            printCtTypeToGivenDirectory(type, directory);
+            printCtTypeToGivenDirectory(type, directory, withComment);
         }
     }
 
@@ -92,9 +90,11 @@ public class DSpotUtils {
         return existingAmplifiedTest;
     }
 
+    /*
     public static void printAllClasses(Factory factory, File out) {
-        factory.Class().getAll().forEach(type -> printCtTypeToGivenDirectory(type, out));
+        factory.Class().getAll().forEach(type -> printCtTypeToGivenDirectory(type, out, ));
     }
+    */
 
     public static void addComment(CtElement element, String content, CtComment.CommentType type) {
         CtComment comment = element.getFactory().createComment(content, type);

@@ -6,7 +6,6 @@ import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.selector.CloverCoverageSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.program.InputConfiguration;
-import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Counter;
@@ -179,7 +178,7 @@ public class DSpot {
             final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
             LOGGER.info("Print {} with {} amplified test cases in {}", amplification.getSimpleName(),
                     testSelector.getAmplifiedTestCases().size(), this.inputConfiguration.getOutputDirectory());
-            DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory);
+            DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory, this.inputConfiguration.withComment());
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
             try {
                 String pathToDotClass = compiler.getBinaryOutputDirectory().getAbsolutePath() + "/" +

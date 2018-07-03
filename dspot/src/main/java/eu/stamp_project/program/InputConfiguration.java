@@ -562,6 +562,7 @@ public class InputConfiguration {
     private boolean minimize = false;
     private boolean verbose = false;
     private boolean useWorkingDirectory = false;
+    private boolean withComment = false;
 
     public boolean shouldUseWorkingDirectory() {
         return useWorkingDirectory;
@@ -692,6 +693,15 @@ public class InputConfiguration {
 
     public InputConfiguration setMinimize(boolean minimize) {
         this.minimize = minimize;
+        return this;
+    }
+
+    public boolean withComment() {
+        return withComment;
+    }
+
+    public InputConfiguration setWithComment(boolean withComment) {
+        this.withComment = withComment;
         return this;
     }
 

@@ -38,7 +38,7 @@ public class DSpotUtilsTest {
         final CtType<?> type = launcher.getFactory().Type().get("example.TestSuiteExample");
 
         assertFalse(javaFile.exists());
-        DSpotUtils.printAmplifiedTestClass(type, outputDirectory);
+        DSpotUtils.printAmplifiedTestClass(type, outputDirectory, true);
         assertTrue(javaFile.exists());
 
         final CtMethod<?> clone = type.getMethods().stream()
@@ -48,7 +48,7 @@ public class DSpotUtilsTest {
         clone.setSimpleName("MyNewMethod");
         type.addMethod(clone);
 
-        DSpotUtils.printAmplifiedTestClass(type, outputDirectory);
+        DSpotUtils.printAmplifiedTestClass(type, outputDirectory, true);
         launcher = new Launcher();
         launcher.addInputResource(outputDirectory.getAbsolutePath() + "/" + "example.TestSuiteExample".replaceAll("\\.", "\\/") + ".java");
         launcher.getEnvironment().setNoClasspath(true);
@@ -60,7 +60,7 @@ public class DSpotUtilsTest {
         clone.setSimpleName("MyNewMethod2");
         type.addMethod(clone);
 
-        DSpotUtils.printAmplifiedTestClass(type, outputDirectory);
+        DSpotUtils.printAmplifiedTestClass(type, outputDirectory, true);
         launcher = new Launcher();
         launcher.addInputResource(outputDirectory.getAbsolutePath() + "/" + "example.TestSuiteExample".replaceAll("\\.", "\\/") + ".java");
         launcher.getEnvironment().setNoClasspath(true);

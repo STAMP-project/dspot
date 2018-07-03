@@ -217,7 +217,7 @@ public class AmplificationHelper {
                         final CtType<?> convertedSuperclass =
                                 AmplificationHelper.convertToJUnit4(superclass, configuration);
                         DSpotUtils.printCtTypeToGivenDirectory(convertedSuperclass,
-                                new File(configuration.getAbsolutePathToTestClasses()));
+                                new File(configuration.getAbsolutePathToTestClasses()), configuration.withComment());
                         final String classpath = configuration.getDependencies()
                                 + AmplificationHelper.PATH_SEPARATOR +
                                 configuration.getClasspathClassesProject()

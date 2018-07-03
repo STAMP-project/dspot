@@ -27,7 +27,6 @@ import eu.stamp_project.dspot.selector.TakeAllSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.DSpotUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,12 +119,10 @@ public class JSAPOptions {
         } else if (jsapConfig.getBoolean("example")) {
             return null;
         }
-
         if (jsapConfig.getString("path") == null) {
             System.err.println("Error: Parameter 'path' is required.");
             showUsage();
         }
-
         TestSelector testCriterion;
         if (jsapConfig.getString("mutant") != null) {
             if (!"PitMutantScoreSelector".equals(jsapConfig.getString("test-criterion"))) {
@@ -136,10 +133,7 @@ public class JSAPOptions {
         } else {
             testCriterion = SelectorEnum.valueOf(jsapConfig.getString("test-criterion")).buildSelector();
         }
-
         PitMutantScoreSelector.descartesMode = jsapConfig.getBoolean("descartes");
-        DSpotUtils.withComment = jsapConfig.getBoolean("comment");
-
         final List<String> testClasses = Arrays.asList(jsapConfig.getStringArray("test"));
         final List<String> testCases = Arrays.asList(jsapConfig.getStringArray("testCases"));
         return new InputConfiguration(jsapConfig.getString("path"))
@@ -155,7 +149,8 @@ public class JSAPOptions {
                 .setClean(jsapConfig.getBoolean("clean"))
                 .setMinimize(!jsapConfig.getBoolean("no-minimize"))
                 .setVerbose(jsapConfig.getBoolean("verbose"))
-                .setUseWorkingDirectory(jsapConfig.getBoolean("working-directory"));
+                .setUseWorkingDirectory(jsapConfig.getBoolean("working-directory"))
+                .setWithComment(jsapConfig.getBoolean("comment"));
     }
 
     public static Amplifier stringToAmplifier(String amplifier) {

@@ -47,7 +47,7 @@ public class Main {
 				configuration.getSelector()
 		);
 		AmplificationHelper.setSeedRandom(configuration.getSeed());
-		createOutputDirectories(configuration, configuration.shouldClean());
+		createOutputDirectories(configuration);
 		final long startTime = System.currentTimeMillis();
 		final List<CtType> amplifiedTestClasses;
 		if ("all".equals(configuration.getTestClasses().get(0))) {
@@ -72,10 +72,10 @@ public class Main {
 		LOGGER.info("Elapsed time {} ms", elapsedTime);
 	}
 
-	public static void createOutputDirectories(InputConfiguration inputConfiguration, boolean clean) {
+	public static void createOutputDirectories(InputConfiguration inputConfiguration) {
 		final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
 		try {
-			if (clean && outputDirectory.exists()) {
+			if (inputConfiguration.shouldClean() && outputDirectory.exists()) {
 				FileUtils.forceDelete(outputDirectory);
 			}
 			if (!outputDirectory.exists()) {

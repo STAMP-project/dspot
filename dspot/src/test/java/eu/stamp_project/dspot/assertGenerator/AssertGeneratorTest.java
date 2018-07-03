@@ -3,7 +3,6 @@ package eu.stamp_project.dspot.assertGenerator;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.DSpotUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,17 +30,13 @@ public class AssertGeneratorTest extends AbstractTest {
 	@Override
 	@Before
 	public void setUp() throws Exception {
-		Utils.getInputConfiguration().setVerbose(true);
-		DSpotUtils.withComment = false;
-		Utils.getInputConfiguration().setTimeOutInMs(10000);
 		super.setUp();
 		this.assertGenerator = new AssertGenerator(Utils.getInputConfiguration(), Utils.getCompiler());
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		Utils.getInputConfiguration().setVerbose(false);
-		DSpotUtils.withComment = false;
+		Utils.getInputConfiguration().setWithComment(false);
 		Utils.getInputConfiguration().setTimeOutInMs(10000);
 	}
 
@@ -116,7 +111,7 @@ public class AssertGeneratorTest extends AbstractTest {
 		/*
 			Same as testBuildNewAssert but with Comment enabled
 		 */
-		DSpotUtils.withComment = true;
+		Utils.getInputConfiguration().setWithComment(true);
 
 		CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
 		CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithoutAssert", "test1");
