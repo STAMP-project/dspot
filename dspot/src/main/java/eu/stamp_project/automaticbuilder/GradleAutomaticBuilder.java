@@ -67,6 +67,13 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
         this.configuration = configuration;
     }
 
+    // TODO reimplements in a better way
+    @Override
+    public String compileAndBuildClasspath() {
+        this.compile();
+        return this.buildClasspath();
+    }
+
     @Override
     public void compile() {
         runTasks(this.configuration.getAbsolutePathToProjectRoot(), "clean", "compileJava", "test");

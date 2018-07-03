@@ -21,7 +21,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.CMD_PIT_MUTATION_COVERAGE;
@@ -64,7 +67,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     private static final String POM_FILE = "pom.xml";
 
     MavenAutomaticBuilder(InputConfiguration configuration) {
-        this.mavenHome = DSpotUtils.buildMavenHome(configuration);
+        this.mavenHome = this.buildMavenHome(configuration);
         this.configuration = configuration;
         final String pathToPom = this.configuration.getAbsolutePathToProjectRoot() + "/" + POM_FILE;
         if (PitMutantScoreSelector.descartesMode &&
@@ -78,6 +81,23 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         } else {
             this.contentOfOriginalPom = null;
         }
+    }
+
+    @Override
+    public String compileAndBuildClasspath() {
+        this.runGoals(this.configuration.getAbsolutePathToProjectRoot(), "clean",
+                "test",
+                "-DskipTests",
+                "dependency:build-classpath",
+                "-Dmdep.outputFile=" + "target/dspot/classpath"
+        );
+        final File classpathFile = new File(this.configuration.getAbsolutePathToProjectRoot() + "/target/dspot/classpath");
+        try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
+            this.classpath = buffer.lines().collect(Collectors.joining());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return this.classpath;
     }
 
     @Override
@@ -248,5 +268,38 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     @Override
     public String getOutputDirectoryPit() {
         return MavenPitCommandAndOptions.OUTPUT_DIRECTORY_PIT;
+    }
+
+    private String buildMavenHome(InputConfiguration inputConfiguration) {
+        String mavenHome = null;
+        if (!inputConfiguration.getMavenHome().isEmpty()) {
+            mavenHome = inputConfiguration.getMavenHome();
+        } else {
+            mavenHome =getMavenHome(envVariable -> System.getenv().get(envVariable) != null,
+                    envVariable -> System.getenv().get(envVariable),
+                    "MAVEN_HOME", "M2_HOME");
+            if (mavenHome == null) {
+                mavenHome = getMavenHome(path -> new File(path).exists(),
+                        Function.identity(),
+                        "/usr/share/maven/", "/usr/local/maven-3.3.9/", "/usr/share/maven3/");
+                if (mavenHome == null) {
+                    throw new RuntimeException("Maven home not found, please set properly MAVEN_HOME or M2_HOME.");
+                }
+            }
+            // update the value inside the input configuration
+            inputConfiguration.setMavenHome(mavenHome);
+        }
+        return mavenHome;
+    }
+
+    private String getMavenHome(Predicate<String> conditional,
+                                        Function<String, String> getFunction,
+                                        String... possibleValues) {
+        String mavenHome = null;
+        final Optional<String> potentialMavenHome = Arrays.stream(possibleValues).filter(conditional).findFirst();
+        if (potentialMavenHome.isPresent()) {
+            mavenHome = getFunction.apply(potentialMavenHome.get());
+        }
+        return mavenHome;
     }
 }

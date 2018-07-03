@@ -78,8 +78,9 @@ public class InputConfiguration {
                 ).getAbsolutePath()
         )
                 .setBuilderName(ConstantsProperties.AUTOMATIC_BUILDER_NAME.get(properties));
+        this.setMavenHome(ConstantsProperties.MAVEN_HOME.get(properties));
         this.builder = AutomaticBuilderFactory.getAutomaticBuilder(this);
-        this.dependencies = this.builder.buildClasspath();
+        this.dependencies = this.builder.compileAndBuildClasspath();
 
         final String additionalClasspathElements = ConstantsProperties.ADDITIONAL_CP_ELEMENTS.get(properties);
         if (!additionalClasspathElements.isEmpty()) {
@@ -104,7 +105,6 @@ public class InputConfiguration {
         }
 
         this.setOutputDirectory(ConstantsProperties.OUTPUT_DIRECTORY.get(properties))
-                .setMavenHome(ConstantsProperties.MAVEN_HOME.get(properties))
                 .setDelta(ConstantsProperties.DELTA_ASSERTS_FLOAT.get(properties))
                 .setFilter(ConstantsProperties.FILTER.get(properties))
                 .setPitVersion(ConstantsProperties.PIT_VERSION.get(properties))
@@ -345,13 +345,16 @@ public class InputConfiguration {
         return this;
     }
 
+    @Deprecated
     private String mavenHome;
 
+    @Deprecated
     public InputConfiguration setMavenHome(String mavenHome) {
         this.mavenHome = mavenHome;
         return this;
     }
 
+    @Deprecated
     public String getMavenHome() {
         return mavenHome;
     }

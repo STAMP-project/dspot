@@ -1,7 +1,9 @@
 package eu.stamp_project.dspot.selector;
 
+import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.minimization.ChangeMinimizer;
 import eu.stamp_project.minimization.Minimizer;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.testrunner.runner.test.TestListener;
@@ -10,7 +12,6 @@ import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.Initializer;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.program.InputConfiguration;
 import org.codehaus.plexus.util.FileUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -54,6 +55,7 @@ public class ChangeDetectorSelector implements TestSelector {
             this.changedConfiguration = new InputConfiguration(configurationPath);
             this.pathToChangedVersionOfProgram = configuration.getAbsolutePathToSecondVersionProjectRoot();
             this.changedConfiguration.setAbsolutePathToProjectRoot(this.pathToChangedVersionOfProgram);
+            AutomaticBuilderFactory.getAutomaticBuilder(this.changedConfiguration).compile();
             Initializer.initialize(this.changedConfiguration);
         } catch (Exception e) {
             throw new RuntimeException(e);

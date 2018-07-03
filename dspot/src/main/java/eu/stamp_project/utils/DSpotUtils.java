@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -103,33 +102,6 @@ public class DSpotUtils {
         }
     }
 
-    public static String mavenHome;
-
-    public static String buildMavenHome(InputConfiguration inputConfiguration) {
-        if (mavenHome == null) {
-            if (inputConfiguration != null && inputConfiguration.getMavenHome() != null) {
-                mavenHome = inputConfiguration.getMavenHome();
-            } else {
-                if (!setMavenHome(envVariable -> System.getenv().get(envVariable) != null,
-                        envVariable -> System.getenv().get(envVariable), "MAVEN_HOME", "M2_HOME")) {// TODO asking if
-                    // predefined values
-                    // are useful or not
-                    if (!setMavenHome(path -> new File(path).exists(), Function.identity(), "/usr/share/maven/",
-                            "/usr/local/maven-3.3.9/", "/usr/share/maven3/")) {
-                        throw new RuntimeException("Maven home not found, please set properly MAVEN_HOME or M2_HOME.");
-                    }
-                }
-            }
-        }
-        return mavenHome;
-    }
-
-    private static boolean setMavenHome(Predicate<String> conditional, Function<String, String> getFunction,
-                                        String... possibleValues) {
-        Arrays.stream(possibleValues).filter(conditional).findFirst().ifPresent(s -> mavenHome = getFunction.apply(s));
-        return mavenHome != null;
-    }
-
     public static final String pathToDSpotDependencies = "target/dspot/dependencies/";
 
     public static final String packagePath = "eu/stamp_project/compare/";
@@ -162,7 +134,7 @@ public class DSpotUtils {
         });
     }
 
-    public static final Function<String, String> shouldAddSeparator= string -> string + (string.endsWith("/") ? "" : "/");
+    public static final Function<String, String> shouldAddSeparator = string -> string + (string.endsWith("/") ? "" : "/");
 
     public static String ctTypeToFullQualifiedName(CtType<?> testClass) {
         if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) {
