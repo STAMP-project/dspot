@@ -167,7 +167,10 @@ public class InputConfiguration {
                 .setPathToTestSourceCode(pathToTestSource)
                 .setPathToClasses(pathToClasses)
                 .setPathToTestClasses(pathToTestClasses)
-                .setTargetModule(targetModule);
+                .setTargetModule(targetModule)
+                .setVerbose(true);
+        // force here verbose mode, to have debug during the construction of the InputConfiguration
+        // then it will take the command line value (default: false)
     }
 
     /*
