@@ -1,9 +1,7 @@
 package eu.stamp_project.utils.compilation;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.program.InputConfiguration;
-import jdk.internal.util.xml.impl.Input;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import spoon.Launcher;
 import spoon.OutputType;
