@@ -92,7 +92,7 @@ public class TestCompiler {
         DSpotUtils.copyPackageFromResources();
         testsToRun = TestCompiler.compileAndDiscardUncompilableMethods(compiler, testClass, dependencies, testsToRun);
         final String classPath = AmplificationHelper.getClassPath(compiler, configuration);
-        EntryPoint.defaultTimeoutInMs = 1000 + (AmplificationHelper.getTimeOutInMs() * testsToRun.size());
+        EntryPoint.timeoutInMs = 1000 + (AmplificationHelper.getTimeOutInMs() * testsToRun.size());
         if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) { // if the test class is abstract, we use one of its implementation
             return TestRunner.runSubClassesForAbstractTestClass(testClass, testsToRun, classPath);
         } else {
