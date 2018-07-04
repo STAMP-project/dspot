@@ -98,7 +98,7 @@
         <dependency>
             <groupId>eu.stamp-project</groupId>
             <artifactId>test-runner</artifactId>
-            <version>1.0.8</version>
+            <version>1.0.9</version>
             <classifier>jar-with-dependencies</classifier>
         </dependency>
 
