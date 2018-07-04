@@ -1,6 +1,6 @@
 package eu.stamp_project.mutant.descartes;
 
-import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
+import eu.stamp_project.program.InputConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -9,7 +9,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by Benjamin DANGLOT
@@ -18,7 +22,13 @@ import java.util.*;
  */
 public class DescartesChecker {
 
-    public static boolean shouldInjectDescartes(String pathToPom) {
+    private static InputConfiguration configuration;
+
+    public static boolean shouldInjectDescartes(InputConfiguration configuration, String pathToPom) {
+        if (!configuration.isDescartesMode()) {
+            return false;
+        }
+        DescartesChecker.configuration = configuration;
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -43,7 +53,7 @@ public class DescartesChecker {
         if (dependencies == null) {
             return true;
         }
-        final List<String> expectedValues = new ArrayList<>(Arrays.asList("org.pitest", "pitest-maven", PitMutantScoreSelector.pitVersion));
+        final List<String> expectedValues = new ArrayList<>(Arrays.asList("org.pitest", "pitest-maven", configuration.getPitVersion()));
         Optional<Node> checkDependency = getAllChildNodeNamedFrom(dependencies, "dependency").stream()
                 .filter(dependency ->
                         checkThatHasTheGoodDependency(dependency, expectedValues)
@@ -95,7 +105,7 @@ public class DescartesChecker {
         if (plugins == null) {
             return null;
         }
-        final List<String> expectedValues = new ArrayList<>(Arrays.asList("org.pitest", "pitest-maven", PitMutantScoreSelector.pitVersion));
+        final List<String> expectedValues = new ArrayList<>(Arrays.asList("org.pitest", "pitest-maven", configuration.getPitVersion()));
         Optional<Node> checkDependency = getChildThatHasTheGoodDependency(plugins, expectedValues, "plugin");
         if (!checkDependency.isPresent()) {
             return null;
@@ -137,7 +147,7 @@ public class DescartesChecker {
         final List<String> expectedValues = new ArrayList<>(Arrays.asList(
                 DescartesInjector.GROUP_ID_DESCARTES,
                 DescartesInjector.ARTIFACT_ID_DESCARTES,
-                PitMutantScoreSelector.descartesVersion)
+                DescartesChecker.configuration.getDescartesVersion())
         );
         return !getChildThatHasTheGoodDependency(dependencies1, expectedValues, "dependency").isPresent();
     }

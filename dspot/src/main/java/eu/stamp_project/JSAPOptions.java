@@ -133,7 +133,6 @@ public class JSAPOptions {
         } else {
             testCriterion = SelectorEnum.valueOf(jsapConfig.getString("test-criterion")).buildSelector();
         }
-        PitMutantScoreSelector.descartesMode = jsapConfig.getBoolean("descartes");
         final List<String> testClasses = Arrays.asList(jsapConfig.getStringArray("test"));
         final List<String> testCases = Arrays.asList(jsapConfig.getStringArray("testCases"));
         return new InputConfiguration(jsapConfig.getString("path"))
@@ -150,7 +149,8 @@ public class JSAPOptions {
                 .setMinimize(!jsapConfig.getBoolean("no-minimize"))
                 .setVerbose(jsapConfig.getBoolean("verbose"))
                 .setUseWorkingDirectory(jsapConfig.getBoolean("working-directory"))
-                .setWithComment(jsapConfig.getBoolean("comment"));
+                .setWithComment(jsapConfig.getBoolean("comment"))
+                .setDescartesMode(jsapConfig.getBoolean("descartes"));
     }
 
     public static Amplifier stringToAmplifier(String amplifier) {

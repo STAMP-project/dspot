@@ -548,6 +548,17 @@ public class InputConfiguration {
         return this;
     }
 
+    private boolean descartesMode;
+
+    public boolean isDescartesMode() {
+        return descartesMode;
+    }
+
+    public InputConfiguration setDescartesMode(boolean descartesMode) {
+        this.descartesMode = descartesMode;
+        return this;
+    }
+
     /*
         Inherited from old Configuration (from command line)
      */

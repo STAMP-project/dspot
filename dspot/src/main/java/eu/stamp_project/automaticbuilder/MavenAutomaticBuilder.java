@@ -1,6 +1,5 @@
 package eu.stamp_project.automaticbuilder;
 
-import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.mutant.descartes.DescartesChecker;
 import eu.stamp_project.mutant.descartes.DescartesInjector;
 import eu.stamp_project.mutant.pit.MavenPitCommandAndOptions;
@@ -70,14 +69,13 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         this.mavenHome = this.buildMavenHome(configuration);
         this.configuration = configuration;
         final String pathToPom = this.configuration.getAbsolutePathToProjectRoot() + "/" + POM_FILE;
-        if (PitMutantScoreSelector.descartesMode &&
-                DescartesChecker.shouldInjectDescartes(pathToPom)) {
+        if (DescartesChecker.shouldInjectDescartes(this.configuration, pathToPom)) {
             try (final BufferedReader buffer = new BufferedReader(new FileReader(pathToPom))) {
                 this.contentOfOriginalPom = buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
             } catch (Exception ignored) {
 
             }
-            DescartesInjector.injectDescartesIntoPom(pathToPom);
+            DescartesInjector.injectDescartesIntoPom(this.configuration, pathToPom);
         } else {
             this.contentOfOriginalPom = null;
         }
@@ -165,7 +163,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
             }
 
             String[] phases = new String[]{CMD_PIT_MUTATION_COVERAGE + ":" +
-                    PitMutantScoreSelector.pitVersion + ":" + GOAL_PIT_MUTATION_COVERAGE, //
+                    this.configuration.getPitVersion() + ":" + GOAL_PIT_MUTATION_COVERAGE, //
                     OPT_WITH_HISTORY, //
                     OPT_TARGET_CLASSES + configuration.getFilter(), //
                     OPT_VALUE_REPORT_DIR, //
@@ -176,8 +174,8 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
                     OPT_ADDITIONAL_CP_ELEMENTS + "target/dspot/dependencies/" +
                             (!configuration.getAdditionalClasspathElements().isEmpty() ?
                                     "," + configuration.getAdditionalClasspathElements() : ""), //
-                    PitMutantScoreSelector.descartesMode ? OPT_MUTATION_ENGINE_DESCARTES : OPT_MUTATION_ENGINE_DEFAULT,
-                    PitMutantScoreSelector.descartesMode ? "" : OPT_MUTATORS + VALUE_MUTATORS_ALL, //
+                    this.configuration.isDescartesMode() ? OPT_MUTATION_ENGINE_DESCARTES : OPT_MUTATION_ENGINE_DEFAULT,
+                    this.configuration.isDescartesMode() ? "" : OPT_MUTATORS + VALUE_MUTATORS_ALL, //
                     !configuration.getExcludedClasses().isEmpty() ?
                             OPT_EXCLUDED_CLASSES + configuration.getExcludedClasses() :
                             ""//
@@ -207,15 +205,15 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         }
 
         try {
-            String[] phases = new String[]{CMD_PIT_MUTATION_COVERAGE + ":" + PitMutantScoreSelector.pitVersion + ":" + GOAL_PIT_MUTATION_COVERAGE, //
+            String[] phases = new String[]{CMD_PIT_MUTATION_COVERAGE + ":" + this.configuration.getPitVersion() + ":" + GOAL_PIT_MUTATION_COVERAGE, //
                     OPT_WITH_HISTORY, //
                     OPT_TARGET_CLASSES + configuration.getFilter(), //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
                     OPT_VALUE_TIMEOUT, //
                     OPT_VALUE_MEMORY, //
-                    PitMutantScoreSelector.descartesMode ? OPT_MUTATION_ENGINE_DESCARTES : OPT_MUTATION_ENGINE_DEFAULT,
-                    PitMutantScoreSelector.descartesMode ? "" : OPT_MUTATORS + VALUE_MUTATORS_ALL, //
+                    this.configuration.isDescartesMode() ? OPT_MUTATION_ENGINE_DESCARTES : OPT_MUTATION_ENGINE_DEFAULT,
+                    this.configuration.isDescartesMode() ? "" : OPT_MUTATORS + VALUE_MUTATORS_ALL, //
                     OPT_ADDITIONAL_CP_ELEMENTS + "target/dspot/dependencies/" +
                             (!configuration.getAdditionalClasspathElements().isEmpty() ?
                                     "," + configuration.getAdditionalClasspathElements() : ""), //

@@ -1,6 +1,6 @@
 package eu.stamp_project.mutant.descartes;
 
-import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
+import eu.stamp_project.Utils;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -11,7 +11,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Created by Benjamin DANGLOT
@@ -29,10 +31,10 @@ public class DescartesTest {
             FileUtils.forceDelete(new File(pathname));
             FileUtils.copyFile(new File("src/test/resources/test-projects/pom.xml"), new File(pathname));
         }
-        assertTrue(DescartesChecker.shouldInjectDescartes(pathname));
-        PitMutantScoreSelector.pitVersion = "1.4.0";
-        DescartesInjector.injectDescartesIntoPom(pathname);
-        assertFalse(DescartesChecker.shouldInjectDescartes(pathname));
+        assertTrue(DescartesChecker.shouldInjectDescartes(Utils.getInputConfiguration(), pathname));
+        Utils.getInputConfiguration().setPitVersion("1.4.0");
+        DescartesInjector.injectDescartesIntoPom(Utils.getInputConfiguration(), pathname);
+        assertFalse(DescartesChecker.shouldInjectDescartes(Utils.getInputConfiguration(), pathname));
         try (BufferedReader buffer = new BufferedReader(new FileReader(pathname))) {
             final String pomAsStr = buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
             System.out.println(pomAsStr);
