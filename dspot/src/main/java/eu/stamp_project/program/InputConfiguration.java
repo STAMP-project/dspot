@@ -113,7 +113,7 @@ public class InputConfiguration {
                 .setExcludedClasses(ConstantsProperties.EXCLUDED_CLASSES.get(properties))
                 .setTimeoutPit(ConstantsProperties.TIMEOUT_PIT.get(properties))
                 .setJVMArgs(ConstantsProperties.JVM_ARGS.get(properties))
-                .setDescartesVersion(ConstantsProperties.DESCARTES_MUTATORS.get(properties))
+                .setDescartesMutators(ConstantsProperties.DESCARTES_MUTATORS.get(properties))
                 .setExcludedTestCases(ConstantsProperties.EXCLUDED_TEST_CASES.get(properties));
     }
 
