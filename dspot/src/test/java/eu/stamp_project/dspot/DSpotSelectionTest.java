@@ -3,7 +3,7 @@ package eu.stamp_project.dspot;
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.Main;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -51,7 +51,7 @@ public class DSpotSelectionTest {
     public static void setUpClass() throws Exception {
         Utils.reset();
         final InputConfiguration inputConfiguration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
-        Main.createOutputDirectories(inputConfiguration, true);
+        Main.createOutputDirectories(inputConfiguration);
         dspotUnderTest = new MockedDSpot(
                 inputConfiguration,
                 1,

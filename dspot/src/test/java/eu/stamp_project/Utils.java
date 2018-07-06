@@ -1,13 +1,9 @@
 package eu.stamp_project;
 
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
-import eu.stamp_project.testrunner.EntryPoint;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationChecker;
-import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.Initializer;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,15 +68,14 @@ public class Utils {
 			return;
 		}
 		try {
-			AmplificationHelper.minimize = false;
-			EntryPoint.verbose = true;
-			Main.verbose = true;
-			currentInputConfigurationLoaded = pathToConfFile;
 			inputConfiguration = new InputConfiguration(pathToConfFile);
-			Initializer.initialize(inputConfiguration);
-			builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
+			Utils.getInputConfiguration().setMinimize(false);
+			Utils.getInputConfiguration().setVerbose(true);
+			//Initializer.initialize(inputConfiguration);
+			builder = inputConfiguration.getBuilder();
 			compiler = DSpotCompiler.createDSpotCompiler(inputConfiguration, inputConfiguration.getDependencies());
 			inputConfiguration.setFactory(compiler.getLauncher().getFactory());
+			currentInputConfigurationLoaded = pathToConfFile;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

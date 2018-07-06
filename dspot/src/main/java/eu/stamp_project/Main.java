@@ -5,7 +5,7 @@ import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.dspot.amplifier.TestDataMutator;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,17 +25,13 @@ public class Main {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
-	public static boolean verbose = false;
-
-	public static boolean useWorkingDirectory = false;
-
 	public static void main(String[] args) throws Exception {
 		try {
 			FileUtils.forceDelete(new File("target/dspot/"));
 		} catch (Exception ignored) {
 
 		}
-		final Configuration configuration = JSAPOptions.parse(args);
+		final InputConfiguration configuration = JSAPOptions.parse(args);
 		if (configuration == null) {
 			Main.runExample();
 		} else {
@@ -43,41 +39,31 @@ public class Main {
 		}
 	}
 
-	public static void run(Configuration configuration, InputConfiguration inputConfiguration) throws Exception {
-		AmplificationHelper.setSeedRandom(23L);
-		AmplificationHelper.minimize = configuration.minimize;
-		inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
-		AmplificationHelper.MAX_NUMBER_OF_TESTS = configuration.maxTestAmplified;
-		if (configuration.mavenHome != null) {
-			inputConfiguration.getProperties().put("maven.home", configuration.mavenHome);
-		}
-		if (configuration.pathToOutput != null) {
-			inputConfiguration.getProperties().setProperty("outputDirectory", configuration.pathToOutput);
-		}
-		DSpot dspot = new DSpot(inputConfiguration, configuration.nbIteration, configuration.amplifiers,
-				configuration.selector);
-
-		AmplificationHelper.setSeedRandom(configuration.seed);
-		AmplificationHelper.setTimeOutInMs(configuration.timeOutInMs);
-
-		createOutputDirectories(inputConfiguration, configuration.clean);
-
+	public static void run(InputConfiguration configuration) throws Exception {
+		DSpot dspot = new DSpot(
+				configuration,
+				configuration.getNbIteration(),
+				configuration.getAmplifiers(),
+				configuration.getSelector()
+		);
+		AmplificationHelper.setSeedRandom(configuration.getSeed());
+		createOutputDirectories(configuration);
 		final long startTime = System.currentTimeMillis();
 		final List<CtType> amplifiedTestClasses;
-		if ("all".equals(configuration.testClasses.get(0))) {
+		if ("all".equals(configuration.getTestClasses().get(0))) {
 			amplifiedTestClasses = dspot.amplifyAllTests();
-		} else if ("diff".equals(configuration.testClasses.get(0))) {
+		} else if ("diff".equals(configuration.getTestClasses().get(0))) {
 			final Map<String, List<String>> testMethodsAccordingToADiff = SelectorOnDiff
-					.findTestMethodsAccordingToADiff(inputConfiguration);
+					.findTestMethodsAccordingToADiff(configuration);
 			amplifiedTestClasses = testMethodsAccordingToADiff.keySet().stream()
 					.map(ctType -> dspot.amplifyTest(ctType, testMethodsAccordingToADiff.get(ctType)))
 					.collect(Collectors.toList());
 		} else {
-			if (configuration.testCases.isEmpty()) {
-				amplifiedTestClasses = dspot.amplifyAllTestsNames(configuration.testClasses);
+			if (configuration.getTestClasses().isEmpty()) {
+				amplifiedTestClasses = dspot.amplifyAllTestsNames(configuration.getTestClasses());
 			} else {
-				amplifiedTestClasses = configuration.testClasses.stream()
-						.map(testClasses -> dspot.amplifyTest(testClasses, configuration.testCases))
+				amplifiedTestClasses = configuration.getTestClasses().stream()
+						.map(testClasses -> dspot.amplifyTest(testClasses, configuration.getTestCases()))
 						.collect(Collectors.toList());
 			}
 		}
@@ -86,15 +72,10 @@ public class Main {
 		LOGGER.info("Elapsed time {} ms", elapsedTime);
 	}
 
-	public static void run(Configuration configuration) throws Exception {
-		InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
-		run(configuration, inputConfiguration);
-	}
-
-	public static void createOutputDirectories(InputConfiguration inputConfiguration, boolean clean) {
+	public static void createOutputDirectories(InputConfiguration inputConfiguration) {
 		final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
 		try {
-			if (clean && outputDirectory.exists()) {
+			if (inputConfiguration.shouldClean() && outputDirectory.exists()) {
 				FileUtils.forceDelete(outputDirectory);
 			}
 			if (!outputDirectory.exists()) {

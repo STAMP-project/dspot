@@ -266,24 +266,31 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
 
 Here is the list of configuration properties of DSpot:
 
-* required properties:
-  * project: path to the project root directory.
-  * src: relative path (from project properties) to the source root directory.
-  * testSrc: relative path (from project properties) to the test source root directory.
-* recommended properties:
-  * outputDirectory: path to the out of dspot. (default: output)
-  * javaVersion: version used of Java (default: 5)
-  * maven.home: path to the executable maven. If no value is specified, it will try some defaults values
-    (for instance: `/usr/share/maven/`, `usr/local/Cellar/maven/3.3.9/libexec/` ...).
-* optional properties:
-  * filter: this property is only used by `PitMutantScoreSelector` (see below). It filters on the package name to introduce mutation inside specific package (_e.g._ `example.*`) passed to PIT. If not set, the default value is set automatically by PIT based on the pom.xml data as follows: `filter=<groupid>.<artifactid>.*`. If you set it, we recommand to give the top-most package of your project. (_e.g._ for the test-projects it would be `example.*`)
-  * maven.localRepository: path to the local repository of Maven (.m2), if you need specific settings.
-  * excludedClasses: DSpot will not amplify the excluded test classes.
-  * additionalClasspathElements: add elements to the classpath. (e.g. a jar file)
-  * excludedClasses: list of full qualified name of test classes to be excluded
-   by DSpot (see this [property file](https://github.com/STAMP-project/dspot/blob/master/dspot/src/test/resources/sample/sample.properties))
-  * excludedTestCases: list of test name method to be excluded
-  by DSpot (see this [property file](https://github.com/STAMP-project/dspot/blob/master/dspot/src/test/resources/sample/sample.properties))
+* Required properties
+	* project: specify the path to the root of the project. This path can be either absolute (recommended) or relative to the working directory of the DSpot process. We consider as root of the project folder that contain the top-most parent in a multi-module project.
+* Required properties
+	* targetModule: specify the module to be amplified. This value must be a relative path from the property project. If your project is multi-module, you must use this property because DSpot works at module level.
+	* src: specify the relative path from project/targetModule of the folder that contain sources (.java).(default: src/main/java/)
+	* testSrc: specify the relative path from project/targetModule of the folder that contain test sources (.java).(default: src/test/java/)
+	* classes: specify the relative path from project/targetModule of the folder that contain binaries of the source program (.class).(default: target/classes/)
+	* testclasses: specify the relative path from project/targetModule of the folder that contain binaries of the test source program (.class).(default: target/test-classes/)
+	* additionalClasspathElements: specify additional classpath elements. (_e.g._ a jar file) This value should be a list of relative paths from project/targetModule. Elements of the list must be separated by a comma ','.
+	* systemProperties: specify system properties. This value should be a list of couple property;value, separated by a comma ','. For example, systemProperties=admin=toto,passwd=tata. This define two system properties.
+	* outputDirectory: specify a path folder for the output.(default: target/dspot/output)
+	* delta: specify the delta value for the assertions of floating-point numbers. If DSpot generates assertions for float, it uses Assert.assertEquals(expected, actual, delta). This property specify the delta value.(default: 0.1)
+	* excludedClasses: specify the full qualified name of excluded test classes. Each qualified name must be separated by a comma ','. These classes won't be amplified, nor executed during the mutation analysis, if the PitMutantScoreSelector is used.This property can be valued by a regex.
+	* excludedTestCases: specify the list of test cases to be excluded. Each is the name of a test case, separated by a comma ','.
+	* maven.home: specify the maven home directory. This properties is redundant with the command line option `--maven-home`. This property has the priority over the command line. If this property is not specified, nor the command line option `--maven-home,` `DSpot` will first look in both MAVEN_HOME and M2_HOME environment variables. If these variables are not set, DSpot will look for a maven home at default locations /usr/share/maven/, /usr/local/maven-3.3.9/ and /usr/share/maven3/.
+	* folderPath: when using the ChangeDetectorSelector or the command-line option-value `--test diff`, you must specify this property. This property should have for value the path to the root of the second version of the project. It is recommended to give an absolute path
+	* baseSha: when using the command-line option-value  `--test diff`, which select tests to be amplified according a diff, you must specify this property.This property should have for value the commit sha of the base branch, _i.e._ the version of the to project to be merged.
+	* automaticBuilderName: specify the type of automatic builder. This properties is redundant with the command line option `--automatic-builder`. It should have also the same value: (MavenBuilder | GradleBuilder). This property has the priority over the command line.
+	* pitVersion: specify the version of PIT to use.(default: 1.3.0)
+	* pitTimeout: specify the time out of PIT, if the PitMutantScoreSelector.
+	* jvmArgs: specify JVM args to use when executing the test, PIT or other java process
+	* filter: specify the filter used by PIT. If you use PitMutantScoreSelector, we recommend you to set this property to your top-most package. This value will allow PIT to mutant all your code. However, if you want to restrict the scope of the mutation, you can specify a custom regex. If you do not specify any value, PIT will use the following filter: <groupId>.<artifactId>.* which might not match your packages.
+	* descartesVersion: specify the version of pit-descartes to use.(default: 1.2)
+	* descartesMutators: specify the list of descartes mutators to be used. Please refer to the descartes documentation for more details: https://github.com/STAMP-project/pitest-descartes
+You can find an example of properties file [here](https://github.com/STAMP-project/dspot/blob/master/dspot/src/test/resources/sample/sample.properties)).
 
 #### Amplifiers (-a | --amplifiers)
 

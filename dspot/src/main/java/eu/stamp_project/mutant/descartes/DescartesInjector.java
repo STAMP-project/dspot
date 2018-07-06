@@ -1,8 +1,10 @@
 package eu.stamp_project.mutant.descartes;
 
-import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.mutant.pit.MavenPitCommandAndOptions;
-import org.w3c.dom.*;
+import eu.stamp_project.program.InputConfiguration;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -13,7 +15,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -52,13 +55,13 @@ public class DescartesInjector {
 
     private static Node buildDependencyToPitTest(Document doc) {
         final Element dependency = doc.createElement("dependency");
-        buildNodesDependency(doc, "org.pitest", "pitest-maven", PitMutantScoreSelector.pitVersion).forEach(dependency::appendChild);
+        buildNodesDependency(doc, "org.pitest", "pitest-maven", configuration.getPitVersion()).forEach(dependency::appendChild);
         return dependency;
     }
 
     private static Node buildPlugin(Document doc) {
         final Element plugin = doc.createElement("plugin");
-        buildNodesDependency(doc, "org.pitest", "pitest-maven", PitMutantScoreSelector.pitVersion).forEach(plugin::appendChild);
+        buildNodesDependency(doc, "org.pitest", "pitest-maven", configuration.getPitVersion()).forEach(plugin::appendChild);
         plugin.appendChild(buildConfiguration(doc));
         plugin.appendChild(buildDependencies(doc));
         return plugin;
@@ -66,7 +69,7 @@ public class DescartesInjector {
 
     private static Node buildDependency(Document doc) {
         final Element dependency = doc.createElement("dependency");
-        buildNodesDependency(doc, GROUP_ID_DESCARTES, ARTIFACT_ID_DESCARTES, PitMutantScoreSelector.descartesVersion).forEach(dependency::appendChild);
+        buildNodesDependency(doc, GROUP_ID_DESCARTES, ARTIFACT_ID_DESCARTES, configuration.getDescartesVersion()).forEach(dependency::appendChild);
         return dependency;
     }
 
@@ -106,7 +109,8 @@ public class DescartesInjector {
      * The added depencencies are to pit and to pitest-descartes
      * @param pathToPom to the pom to modify
      */
-    public static void injectDescartesIntoPom(String pathToPom) {
+    public static void injectDescartesIntoPom(InputConfiguration configuration, String pathToPom) {
+        DescartesInjector.configuration = configuration;
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -133,4 +137,6 @@ public class DescartesInjector {
             throw new RuntimeException(pce);
         }
     }
+
+    private static InputConfiguration configuration;
 }

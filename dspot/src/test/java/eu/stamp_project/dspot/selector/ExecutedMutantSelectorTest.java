@@ -4,12 +4,11 @@ import eu.stamp_project.Utils;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.dspot.amplifier.TestDataMutator;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.mutant.pit.PitResult;
 import eu.stamp_project.mutant.pit.PitResultParser;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.Main;
+import eu.stamp_project.utils.compilation.DSpotCompiler;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -39,7 +38,7 @@ public class ExecutedMutantSelectorTest {
     public void test() throws Exception {
 
         // pre computing the number of executed mutants...
-        Main.verbose = true;
+        Utils.getInputConfiguration().setVerbose(true);
         AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration())
                 .runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot());
         final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + "target/pit-reports/");
@@ -50,7 +49,7 @@ public class ExecutedMutantSelectorTest {
                 Collections.singletonList(Utils.findMethod("example.TestSuiteExample", "test8")));
 
         // pretty print it
-        DSpotUtils.printCtTypeToGivenDirectory(amplifyTest, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC));
+        DSpotUtils.printCtTypeToGivenDirectory(amplifyTest, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC), Utils.getInputConfiguration().withComment());
 
         // then compile
         final String classpath = AutomaticBuilderFactory
@@ -60,7 +59,7 @@ public class ExecutedMutantSelectorTest {
                 Utils.getInputConfiguration().getClasspathClassesProject()
                 + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
 
-        DSpotCompiler.compile(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
+        DSpotCompiler.compile(Utils.getInputConfiguration(), DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
                 new File(Utils.getInputConfiguration().getAbsolutePathToTestClasses()));
 
         AutomaticBuilderFactory.getAutomaticBuilder(Utils.getInputConfiguration())
@@ -73,6 +72,6 @@ public class ExecutedMutantSelectorTest {
                 amplifiedPitResults.stream()
                         .filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED ||
                                 pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
-        Main.verbose = false;
+        Utils.getInputConfiguration().setVerbose(false);
     }
 }

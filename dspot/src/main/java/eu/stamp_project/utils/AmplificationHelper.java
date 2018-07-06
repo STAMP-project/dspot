@@ -3,7 +3,7 @@ package eu.stamp_project.utils;
 import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
@@ -65,6 +65,8 @@ public class AmplificationHelper {
 
     private static int cloneNumber = 1;
 
+    public static int timeOutInMs = 10000;
+
     /**
      * Link between an amplified test and its parent (i.e. the original test).
      */
@@ -74,18 +76,6 @@ public class AmplificationHelper {
     private static Map<CtType, Set<CtType>> importByClass = new HashMap<>();
 
     private static Random random = new Random(23L);
-
-    private static int timeOutInMs = 10000;
-
-    public static boolean minimize;
-
-    public static void setTimeOutInMs(int newTimeOutInMs) {
-        timeOutInMs = newTimeOutInMs;
-    }
-
-    public static int getTimeOutInMs() {
-        return timeOutInMs;
-    }
 
     public static void setSeedRandom(long seed) {
         random = new Random(seed);
@@ -101,14 +91,14 @@ public class AmplificationHelper {
         importByClass.clear();
     }
 
-    public static CtType createAmplifiedTest(List<CtMethod<?>> ampTest, CtType<?> classTest, Minimizer minimizer) {
+    public static CtType createAmplifiedTest(List<CtMethod<?>> ampTest, CtType<?> classTest, Minimizer minimizer, InputConfiguration configuration) {
         CtType amplifiedTest = classTest.clone();
         final String amplifiedName = classTest.getSimpleName().startsWith("Test") ?
                 classTest.getSimpleName() + "Ampl" :
                 "Ampl" + classTest.getSimpleName();
         amplifiedTest.setSimpleName(amplifiedName);
         classTest.getMethods().stream().filter(AmplificationChecker::isTest).forEach(amplifiedTest::removeMethod);
-        if (minimize) {
+        if (configuration.shouldMinimize()) {
             ampTest.stream().map(minimizer::minimize).forEach(amplifiedTest::addMethod);
         } else {
             ampTest.forEach(amplifiedTest::addMethod);
@@ -227,12 +217,12 @@ public class AmplificationHelper {
                         final CtType<?> convertedSuperclass =
                                 AmplificationHelper.convertToJUnit4(superclass, configuration);
                         DSpotUtils.printCtTypeToGivenDirectory(convertedSuperclass,
-                                new File(configuration.getAbsolutePathToTestClasses()));
+                                new File(configuration.getAbsolutePathToTestClasses()), configuration.withComment());
                         final String classpath = configuration.getDependencies()
                                 + AmplificationHelper.PATH_SEPARATOR +
                                 configuration.getClasspathClassesProject()
                                 + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
-                        DSpotCompiler.compile(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
+                        DSpotCompiler.compile(configuration, DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
                                 new File(configuration.getAbsolutePathToTestClasses()));
                     }
                     if (superclass.getSuperclass() == null) {
@@ -460,11 +450,8 @@ public class AmplificationHelper {
         ).collect(Collectors.joining(PATH_SEPARATOR));
     }
 
-    //empirically 200 seems to be enough
-    public static int MAX_NUMBER_OF_TESTS = 200;
-
     /**
-     * Reduces the number of amplified tests to a practical threshold (see {@link #MAX_NUMBER_OF_TESTS}).
+     * Reduces the number of amplified tests to a practical threshold (see {@link InputConfiguration#getMaxTestAmplified()}).
      * <p>
      * <p>The reduction aims at keeping a maximum of diversity. Because all the amplified tests come from the same
      * original test, they have a <em>lot</em> in common.
@@ -473,11 +460,12 @@ public class AmplificationHelper {
      * by the {@link String#getBytes()} method and keep the amplified tests with the most distant values.
      *
      * @param tests List of tests to be reduced
+     * @param configuration
      * @return A subset of the input tests
      */
-    public static List<CtMethod<?>> reduce(List<CtMethod<?>> tests) {
+    public static List<CtMethod<?>> reduce(List<CtMethod<?>> tests, InputConfiguration configuration) {
         final List<CtMethod<?>> reducedTests = new ArrayList<>();
-        if (tests.size() > MAX_NUMBER_OF_TESTS) {
+        if (tests.size() > configuration.getMaxTestAmplified()) {
             LOGGER.warn("Too many tests have been generated: {}", tests.size());
             final Map<Long, List<CtMethod<?>>> valuesToMethod = new HashMap<>();
             for (CtMethod<?> test : tests) {
@@ -488,7 +476,7 @@ public class AmplificationHelper {
                 valuesToMethod.get(value).add(test);
             }
             final Long average = average(valuesToMethod.keySet());
-            while (reducedTests.size() < MAX_NUMBER_OF_TESTS) {
+            while (reducedTests.size() < configuration.getMaxTestAmplified()) {
                 final Long furthest = furthest(valuesToMethod.keySet(), average);
                 reducedTests.add(valuesToMethod.get(furthest).get(0));
                 if (valuesToMethod.get(furthest).isEmpty()) {

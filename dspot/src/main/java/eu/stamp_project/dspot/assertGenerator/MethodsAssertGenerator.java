@@ -9,7 +9,7 @@ import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtBlock;
@@ -136,7 +136,7 @@ public class MethodsAssertGenerator {
                     factory,
                     observations.get(id).getNotDeterministValues(),
                     observations.get(id).getObservationValues(),
-                    Double.parseDouble(configuration.getProperties().getProperty("delta", "0.1"))
+                    Double.parseDouble(configuration.getDelta())
             );
 
             if (assertStatements.stream()

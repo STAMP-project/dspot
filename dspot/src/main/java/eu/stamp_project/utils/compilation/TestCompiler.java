@@ -1,12 +1,11 @@
 package eu.stamp_project.utils.compilation;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.dspot.AmplificationException;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.slf4j.Logger;
@@ -60,7 +59,7 @@ public class TestCompiler {
             );
             return AmplificationHelper.getPassingTests(currentTestList, result);
         } catch (AmplificationException e) {
-            if (Main.verbose) {
+            if (configuration.isVerbose()) {
                 e.printStackTrace();
             }
             return Collections.emptyList();
@@ -72,7 +71,7 @@ public class TestCompiler {
      * This method will compile the given test class,
      * using the {@link eu.stamp_project.utils.compilation.DSpotCompiler}.
      * If any compilation problems is reported, the method discard involved test methods, by modifying given test methods, (it has side-effect)
-     * (see {@link #compileAndDiscardUncompilableMethods(DSpotCompiler, CtType, String, List)} and then try again to compile.
+     * (see {@link #compileAndDiscardUncompilableMethods(DSpotCompiler, CtType, String, List, boolean)} and then try again to compile.
      * </p>
      *
      * @param testClass     the test class to be compiled
@@ -90,9 +89,9 @@ public class TestCompiler {
         final String dependencies = configuration.getClasspathClassesProject()
                 + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
         DSpotUtils.copyPackageFromResources();
-        testsToRun = TestCompiler.compileAndDiscardUncompilableMethods(compiler, testClass, dependencies, testsToRun);
+        testsToRun = TestCompiler.compileAndDiscardUncompilableMethods(compiler, testClass, dependencies, testsToRun, configuration.withComment());
         final String classPath = AmplificationHelper.getClassPath(compiler, configuration);
-        EntryPoint.timeoutInMs = 1000 + (AmplificationHelper.getTimeOutInMs() * testsToRun.size());
+        EntryPoint.timeoutInMs = 1000 + (configuration.getTimeOutInMs() * testsToRun.size());
         if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) { // if the test class is abstract, we use one of its implementation
             return TestRunner.runSubClassesForAbstractTestClass(testClass, testsToRun, classPath);
         } else {
@@ -116,8 +115,9 @@ public class TestCompiler {
     public static List<CtMethod<?>> compileAndDiscardUncompilableMethods(DSpotCompiler compiler,
                                                                          CtType<?> testClassToBeCompiled,
                                                                          String dependencies,
-                                                                         List<CtMethod<?>> testsToRun) throws AmplificationException {
-        final List<CtMethod<?>> uncompilableMethod = compileAndDiscardUncompilableMethods(compiler, testClassToBeCompiled, dependencies, 0);
+                                                                         List<CtMethod<?>> testsToRun,
+                                                                         boolean withComment) throws AmplificationException {
+        final List<CtMethod<?>> uncompilableMethod = compileAndDiscardUncompilableMethods(compiler, testClassToBeCompiled, dependencies, 0, withComment);
         testsToRun.removeAll(uncompilableMethod);
         uncompilableMethod.forEach(testClassToBeCompiled::removeMethod);
         if (testsToRun.isEmpty()) {
@@ -129,9 +129,10 @@ public class TestCompiler {
     private static List<CtMethod<?>> compileAndDiscardUncompilableMethods(DSpotCompiler compiler,
                                                                           CtType<?> testClassToBeCompiled,
                                                                           String dependencies,
-                                                                          int numberOfTry) throws AmplificationException {
+                                                                          int numberOfTry,
+                                                                          boolean withComment) throws AmplificationException {
 
-        printJavaFileAndDeleteClassFile(compiler, testClassToBeCompiled);
+        printJavaFileAndDeleteClassFile(compiler, testClassToBeCompiled, withComment);
         final List<CategorizedProblem> problems = compiler.compileAndReturnProblems(dependencies)
                 .stream()
                 .filter(IProblem::isError)
@@ -170,7 +171,7 @@ public class TestCompiler {
             );*/
             methodsToRemoveInOriginalModel.forEach(testClassToBeCompiled::removeMethod);
             final List<CtMethod<?>> recursiveMethodToRemove =
-                    compileAndDiscardUncompilableMethods(compiler, testClassToBeCompiled, dependencies, numberOfTry + 1);
+                    compileAndDiscardUncompilableMethods(compiler, testClassToBeCompiled, dependencies, numberOfTry + 1, withComment);
             methodsToRemoveInOriginalModel.addAll(recursiveMethodToRemove);
             return new ArrayList<>(methodsToRemoveInOriginalModel);
         }
@@ -203,9 +204,9 @@ public class TestCompiler {
 
     // output the .java of the test class to be compiled
     // this method delete also the old .class, i.e. the old compiled file of the same test class, if exists
-    private static void printJavaFileAndDeleteClassFile(DSpotCompiler compiler, CtType classTest) {
+    private static void printJavaFileAndDeleteClassFile(DSpotCompiler compiler, CtType classTest, boolean withComment) {
         try {
-            DSpotUtils.printCtTypeToGivenDirectory(classTest, compiler.getSourceOutputDirectory());
+            DSpotUtils.printCtTypeToGivenDirectory(classTest, compiler.getSourceOutputDirectory(), withComment);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

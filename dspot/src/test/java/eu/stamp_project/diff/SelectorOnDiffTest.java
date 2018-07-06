@@ -1,7 +1,6 @@
 package eu.stamp_project.diff;
 
 import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Main;
 import org.junit.Test;
 
 /**
@@ -18,8 +17,5 @@ public class SelectorOnDiffTest extends AbstractTest {
 
     @Test
     public void test() throws Exception {
-        Main.verbose = true;
-//        System.out.println(SelectorOnDiff.findTestClassesAccordingToADiff(Utils.getInputConfiguration()));
-        Main.verbose = false;
     }
 }

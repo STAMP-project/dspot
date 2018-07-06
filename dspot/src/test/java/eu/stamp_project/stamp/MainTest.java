@@ -2,8 +2,6 @@ package eu.stamp_project.stamp;
 
 import eu.stamp_project.Main;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -11,7 +9,10 @@ import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -128,7 +129,7 @@ public class MainTest {
                 "--amplifiers", "MethodAdd" + AmplificationHelper.PATH_SEPARATOR + "TestDataMutator" + AmplificationHelper.PATH_SEPARATOR + "StatementAdd",
                 "--iteration", "1",
                 "--randomSeed", "72",
-                "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
+                //"--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
                 "--test", "example.TestSuiteExample",
                 "--cases", "test2",
                 "--output-path", "target/trash",
@@ -147,7 +148,7 @@ public class MainTest {
                 "--amplifiers", "MethodAdd" + AmplificationHelper.PATH_SEPARATOR + "TestDataMutator",
                 "--iteration", "1",
                 "--randomSeed", "72",
-                "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
+                //"--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
                 "--test", "example.TestSuiteExample",
                 "--cases", "test2",
                 "--output-path", "target/trash",
@@ -169,7 +170,7 @@ public class MainTest {
                 "--amplifiers", "StatementAdd",
                 "--iteration", "1",
                 "--randomSeed", "72",
-                "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
+                //"--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
                 "--test", "example.TestSuiteExample",
                 "--cases", "test2",
                 "--output-path", "target/trash",
@@ -187,7 +188,7 @@ public class MainTest {
                 "--amplifiers", "StatementAdd",
                 "--iteration", "1",
                 "--randomSeed", "72",
-                "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
+                //"--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
                 "--test", "example.TestSuiteExample",
                 "--cases", "test2",
                 "--output-path", "target/trash",

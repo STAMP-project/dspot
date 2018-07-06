@@ -2,7 +2,7 @@ package eu.stamp_project.automaticbuilder;
 
 import eu.stamp_project.mutant.pit.GradlePitTaskAndOptions;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
@@ -37,14 +37,10 @@ import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_TARGET_TES
 import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_VALUE_FORMAT;
 import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_VALUE_REPORT_DIR;
 import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_WITH_HISTORY;
-import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.PROPERTY_ADDITIONAL_CP_ELEMENTS;
-import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.PROPERTY_EXCLUDED_CLASSES;
 import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.PROPERTY_VALUE_JVM_ARGS;
 import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.PROPERTY_VALUE_TIMEOUT;
 import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.VALUE_MUTATORS_ALL;
-import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.VALUE_MUTATORS_EVOSUITE;
 import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.descartesMode;
-import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.evosuiteMode;
 
 /**
  * Created by Daniele Gagliardi
@@ -69,6 +65,13 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
 
     GradleAutomaticBuilder(InputConfiguration configuration) {
         this.configuration = configuration;
+    }
+
+    // TODO reimplements in a better way
+    @Override
+    public String compileAndBuildClasspath() {
+        this.compile();
+        return this.buildClasspath();
     }
 
     @Override
@@ -123,8 +126,8 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
 
             resetOriginalGradleBuildFile(pathToRootOfProject);
 
-        } catch (Exception ignored) {
-
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -273,28 +276,27 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
 
     private String getPitTaskOptions(CtType<?>... testClasses) {
         return NEW_LINE + NEW_LINE + "pitest {" + NEW_LINE +
-                "    " + OPT_TARGET_CLASSES + "['" + configuration.getProperty("filter") + "']" + NEW_LINE +
+                "    " + OPT_TARGET_CLASSES + "['" + configuration.getFilter() + "']" + NEW_LINE +
                 "    " + OPT_WITH_HISTORY + "true" + NEW_LINE +
                 "    " + OPT_VALUE_REPORT_DIR + NEW_LINE +
                 "    " + OPT_VALUE_FORMAT + NEW_LINE +
-                (configuration.getProperty(PROPERTY_VALUE_TIMEOUT) != null ?
-                        "    " + PROPERTY_VALUE_TIMEOUT + " = " + configuration.getProperty(PROPERTY_VALUE_TIMEOUT) : "") + NEW_LINE +
-                (configuration.getProperty(PROPERTY_VALUE_JVM_ARGS) != null ?
-                        "    " + PROPERTY_VALUE_JVM_ARGS + " = " + configuration.getProperty(PROPERTY_VALUE_JVM_ARGS) : "") + NEW_LINE +
+                (!configuration.getTimeoutPit().isEmpty() ?
+                        "    " + PROPERTY_VALUE_TIMEOUT + " = " + configuration.getTimeoutPit().isEmpty() : "") + NEW_LINE +
+                (!configuration.getJVMArgs().isEmpty() ?
+                        "    " + PROPERTY_VALUE_JVM_ARGS + " = " + configuration.getJVMArgs() : "") + NEW_LINE +
                 (testClasses != null ? "    " + OPT_TARGET_TESTS + "['" + Arrays.stream(testClasses).map(DSpotUtils::ctTypeToFullQualifiedName).collect(Collectors.joining(",")) + "']" : "") + NEW_LINE +
-                (configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) != null ?
-                        "    " + OPT_ADDITIONAL_CP_ELEMENTS + "['" + configuration.getProperty(PROPERTY_ADDITIONAL_CP_ELEMENTS) + "']" : "") + NEW_LINE +
+                (!configuration.getAdditionalClasspathElements().isEmpty() ?
+                        "    " + OPT_ADDITIONAL_CP_ELEMENTS + "['" + configuration.getAdditionalClasspathElements() + "']" : "") + NEW_LINE +
                 (descartesMode ? "    " + OPT_MUTATION_ENGINE + NEW_LINE + "    " + getDescartesMutators() :
-                        "    " + OPT_MUTATORS + (evosuiteMode ?
-                                VALUE_MUTATORS_EVOSUITE : VALUE_MUTATORS_ALL)) + NEW_LINE +
-                (configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) != null ?
-                        "    " + OPT_EXCLUDED_CLASSES + "['" + configuration.getProperty(PROPERTY_EXCLUDED_CLASSES) + "']" : "") + NEW_LINE +
+                        "    " + OPT_MUTATORS + VALUE_MUTATORS_ALL) + NEW_LINE +
+                (!configuration.getExcludedClasses().isEmpty() ?
+                        "    " + OPT_EXCLUDED_CLASSES + "['" + configuration.getExcludedClasses() + "']" : "") + NEW_LINE +
                 "}" + NEW_LINE;
     }
 
 
     private String getDescartesMutators() {
-        return "mutators = " + configuration.getProperty("descartesMutators");
+        return "mutators = " + configuration.getDescartesMutators();
     }
 
     @Override

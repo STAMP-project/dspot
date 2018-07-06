@@ -1,7 +1,7 @@
 package eu.stamp_project.utils.compilation;
 
 import eu.stamp_project.dspot.amplifier.Amplifier;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class DSpotCompilerTest {
         final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(configuration, "");
         final CtClass<?> aClass = getClass(compiler.getLauncher().getFactory());
         final List<CtMethod<?>> method = aClass.getMethodsByName("method");
-        final List<CtMethod<?>> compile = TestCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, "", method);
+        final List<CtMethod<?>> compile = TestCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, "", method, configuration.withComment());
         assertEquals(1, compile.size());
         assertEquals(1, aClass.getMethods().size());
 
@@ -57,7 +57,7 @@ public class DSpotCompilerTest {
                 .get();
 
         final List<CtMethod<?>> results = TestCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, "",
-                new ArrayList(aClass.getMethods()));
+                new ArrayList(aClass.getMethods()), configuration.withComment());
         assertEquals(2, results.size());
         assertEquals("compilableTest", results.get(0).getSimpleName());
         assertEquals(uncompilableTest, results.get(0));
@@ -90,11 +90,13 @@ public class DSpotCompilerTest {
 
     }
     private InputConfiguration getConfiguration() {
-        final InputConfiguration inputConfiguration = new InputConfiguration();
-        inputConfiguration.setAbsolutePathToProjectRoot(new File("target/dspot/trash/").getAbsolutePath());
-        inputConfiguration.setPathToSourceCode("src/main/java/");
-        inputConfiguration.setPathToTestSourceCode("src/test/java/");
-        return inputConfiguration;
+        return new InputConfiguration(
+                new File("target/dspot/trash/").getAbsolutePath(),
+                "src/main/java/",
+                "src/test/java/",
+                "target/classes/",
+                "target/test-classes"
+        );
     }
 
     private CtClass<?> getClass(Factory factory) {

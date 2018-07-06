@@ -5,7 +5,7 @@ import eu.stamp_project.Utils;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 

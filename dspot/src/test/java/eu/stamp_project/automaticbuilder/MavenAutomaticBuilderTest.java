@@ -3,14 +3,12 @@ package eu.stamp_project.automaticbuilder;
 import eu.stamp_project.Utils;
 import eu.stamp_project.mutant.pit.PitResult;
 import eu.stamp_project.mutant.pit.PitResultParser;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.Main;
+import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
 
 import java.io.File;
 import java.util.List;
@@ -29,12 +27,12 @@ public class MavenAutomaticBuilderTest {
 
     @Before
     public void setUp() throws Exception {
-        Main.verbose = true;
+        Utils.getInputConfiguration().setVerbose(true);
     }
 
     @After
     public void tearDown() throws Exception {
-        Main.verbose = false;
+        Utils.getInputConfiguration().setVerbose(false);
     }
 
     @Test
@@ -149,17 +147,17 @@ public class MavenAutomaticBuilderTest {
 
     @Test
     public void testUsingStarFilter() throws Exception {
-        Main.verbose = true;
+        Utils.getInputConfiguration().setVerbose(true);
         Utils.init("src/test/resources/test-projects/test-projects.properties");
 
         final InputConfiguration inputConfiguration = Utils.getInputConfiguration();
-        inputConfiguration.getProperties().setProperty("filter", "*");
+        inputConfiguration.setFilter("*");
         try {
             Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot(), Utils.findClass("example.TestSuiteExample2"), Utils.findClass("example.TestSuiteExample"));
             fail();
         } catch (Exception e) {
 
         }
-        Main.verbose = false;
+        Utils.getInputConfiguration().setVerbose(false);
     }
 }

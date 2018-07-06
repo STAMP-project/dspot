@@ -1,6 +1,5 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.Utils;
 import eu.stamp_project.minimization.ChangeMinimizer;
 import eu.stamp_project.testrunner.EntryPoint;
@@ -53,7 +52,7 @@ public class ChangeDetectorSelectorTest extends AbstractSelectorTest {
     @Test
     public void testOnMultiModuleProject() throws Exception {
 
-        Main.verbose = true;
+        Utils.getInputConfiguration().setVerbose(true);
         EntryPoint.verbose = true;
 
 		/*
@@ -76,8 +75,7 @@ public class ChangeDetectorSelectorTest extends AbstractSelectorTest {
                 Utils.getAllTestMethodsFrom("fr.inria.multiple.pom.HelloWorldTest"))
         ).isEmpty());
 
-        EntryPoint.verbose = false;
-        Main.verbose = false;
+        Utils.getInputConfiguration().setVerbose(false);
     }
 
 

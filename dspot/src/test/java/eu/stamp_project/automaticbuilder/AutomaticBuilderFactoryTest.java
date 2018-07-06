@@ -1,16 +1,13 @@
 package eu.stamp_project.automaticbuilder;
 
-import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.Configuration;
-import eu.stamp_project.JSAPOptions;
+import eu.stamp_project.program.InputConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Daniele Gagliardi
@@ -21,11 +18,9 @@ public class AutomaticBuilderFactoryTest {
 
     private static final String PATH_SEPARATOR = System.getProperty("path.separator");
 
-    private Configuration configuration;
-
     @Before
     public void setUp() throws Exception {
-        AutomaticBuilderFactory.reset();
+
     }
 
     @After
@@ -35,12 +30,10 @@ public class AutomaticBuilderFactoryTest {
     @Test
     public void getAutomaticBuilder_whenMaven() throws Exception {
 
-        this.configuration = JSAPOptions.parse(getArgsWithMavenBuilder());
+        InputConfiguration inputConfiguration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
+        inputConfiguration.setBuilderName("MAVEN");
 
-        InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
-        inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
-
-        assertTrue(inputConfiguration.getProperty("automaticBuilderName").toUpperCase().contains("MAVEN"));
+        assertTrue(inputConfiguration.getBuilderName().toUpperCase().contains("MAVEN"));
 
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 
@@ -51,14 +44,10 @@ public class AutomaticBuilderFactoryTest {
     @Test
     public void getAutomaticBuilder_whenGradle() throws Exception {
 
-        this.configuration = JSAPOptions.parse(getArgsWithGradleBuilder());
+        InputConfiguration inputConfiguration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
+        inputConfiguration.setBuilderName("GRADLE");
 
-        InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
-        inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
-
-        assertTrue(inputConfiguration.getProperty("automaticBuilderName").toUpperCase().contains("GRADLE"));
-
-        AutomaticBuilderFactory.reset();
+        assertTrue(inputConfiguration.getBuilderName().toUpperCase().contains("GRADLE"));
 
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 
@@ -69,14 +58,12 @@ public class AutomaticBuilderFactoryTest {
     @Test
     public void getAutomaticBuilder_whenUnknown() throws Exception {
 
-        this.configuration = JSAPOptions.parse(getArgsWithUnknownBuilder());
+        InputConfiguration inputConfiguration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
+        inputConfiguration.setBuilderName("UNKNOWNBuilder");
 
-        InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
-        inputConfiguration.getProperties().setProperty("automaticBuilderName", configuration.automaticBuilderName);
-
-        assertFalse(inputConfiguration.getProperty("automaticBuilderName") == null);
-        assertFalse(inputConfiguration.getProperty("automaticBuilderName").toUpperCase().contains("MAVEN"));
-        assertFalse(inputConfiguration.getProperty("automaticBuilderName").toUpperCase().contains("GRADLE"));
+        assertFalse(inputConfiguration.getBuilderName() == null);
+        assertFalse(inputConfiguration.getBuilderName().toUpperCase().contains("MAVEN"));
+        assertFalse(inputConfiguration.getBuilderName().toUpperCase().contains("GRADLE"));
 
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 
@@ -87,66 +74,13 @@ public class AutomaticBuilderFactoryTest {
     @Test
     public void getAutomaticBuilder_whenConfDoesntContainBuilder() throws Exception {
 
-        this.configuration = JSAPOptions.parse(getArgsWithNoBuilder());
+        InputConfiguration inputConfiguration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
 
-        InputConfiguration inputConfiguration = new InputConfiguration(configuration.pathToConfigurationFile);
-
-        assertTrue(inputConfiguration.getProperty("automaticBuilderName") == null);
+        assertTrue(inputConfiguration.getBuilderName().isEmpty());
 
         AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
 
         assertNotNull(builder);
         assertTrue(builder.getClass().equals(MavenAutomaticBuilder.class));
-    }
-
-    private String[] getArgsWithMavenBuilder() throws IOException {
-        return new String[]{
-                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
-                "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdd",
-                "--iteration", "1",
-                "--randomSeed", "72",
-                "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
-                "--automatic-builder", "MavenBuilder",
-                "--test", "all"
-        };
-    }
-
-    private String[] getArgsWithGradleBuilder() throws IOException {
-        return new String[]{
-                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
-                "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdd",
-                "--iteration", "1",
-                "--randomSeed", "72",
-                "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
-                "--automatic-builder", "GradleBuilder",
-                "--test", "all"
-        };
-    }
-
-    private String[] getArgsWithUnknownBuilder() throws IOException {
-        return new String[]{
-                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
-                "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdd",
-                "--iteration", "1",
-                "--randomSeed", "72",
-                "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
-                "--automatic-builder", "UNKNOWNBuilder",
-                "--test", "all"
-        };
-    }
-
-    private String[] getArgsWithNoBuilder() throws IOException {
-        return new String[]{
-                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
-                "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdd",
-                "--iteration", "1",
-                "--randomSeed", "72",
-                "--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
-                "--test", "all"
-        };
     }
 }

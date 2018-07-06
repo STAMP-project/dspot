@@ -2,6 +2,7 @@ package eu.stamp_project.utils;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
@@ -22,10 +23,9 @@ import static org.junit.Assert.assertTrue;
  */
 public class AmplificationCheckerTest extends AbstractTest {
 
-    @Override
-    public void setUp() throws Exception {
+    @BeforeClass
+    public static void beforeClass() throws Exception {
         Utils.reset();
-        super.setUp();
     }
 
     @Test

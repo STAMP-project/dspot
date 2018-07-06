@@ -4,6 +4,7 @@ sudo: required
 
 jdk:
   - oraclejdk8
+  - openjdk8
 
 cache:
   directories:
@@ -18,8 +19,10 @@ script:
   - cd dspot && ./src/main/bash/update-classes-in-resources.sh
   - mvn install
   - java -jar target/dspot-$DSPOT_VERSION-jar-with-dependencies.jar --example
+  - cd ../dspot-maven && mvn install
 
 after_success:
+  - cd ../dspot
   - mvn clean test jacoco:report coveralls:report
   - cd .. && ./.travis/travis-deploy.sh
 

@@ -2,17 +2,17 @@ package eu.stamp_project.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.testrunner.EntryPoint;
-import eu.stamp_project.testrunner.runner.coverage.Coverage;
-import eu.stamp_project.testrunner.runner.coverage.CoveragePerTestMethod;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.dspot.selector.json.coverage.TestCaseJSON;
 import eu.stamp_project.dspot.selector.json.coverage.TestClassJSON;
-import eu.stamp_project.utils.Counter;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
+import eu.stamp_project.testrunner.EntryPoint;
+import eu.stamp_project.testrunner.runner.coverage.Coverage;
+import eu.stamp_project.testrunner.runner.coverage.CoveragePerTestMethod;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.utils.compilation.DSpotCompiler;
+import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
@@ -54,9 +54,8 @@ public class JacocoCoverageSelector extends TakeAllSelector {
         if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
             this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
             String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).buildClasspath();
-            if (this.configuration.getProperty("additionalClasspathElements") != null) {
-                classpath += PATH_SEPARATOR + new File(this.configuration.getAbsolutePathToProjectRoot()
-                        + this.configuration.getProperty("additionalClasspathElements")).getAbsolutePath();
+            if (!this.configuration.getAdditionalClasspathElements().isEmpty()) {
+                classpath += PATH_SEPARATOR + this.configuration.getProcessedAddtionalClasspathElements();
             }
             final String targetClasses = this.configuration.getClasspathClassesProject();
             try {
@@ -101,10 +100,8 @@ public class JacocoCoverageSelector extends TakeAllSelector {
     private CoveragePerTestMethod computeCoverageForGivenTestMethdods(List<CtMethod<?>> testsToBeAmplified) {
         final String[] methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).toArray(String[]::new);
         String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).buildClasspath();
-        if (this.configuration.getProperty("additionalClasspathElements") != null) {
-            classpath += PATH_SEPARATOR +
-                    new File(this.configuration.getAbsolutePathToProjectRoot()
-                    + this.configuration.getProperty("additionalClasspathElements")).getAbsolutePath();
+        if (!this.configuration.getAdditionalClasspathElements().isEmpty()) {
+            classpath += PATH_SEPARATOR + this.configuration.getProcessedAddtionalClasspathElements();
         }
         final String targetClasses = this.configuration.getClasspathClassesProject();
         try {
@@ -187,7 +184,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
         } catch (IOException ignored) {
             //ignored
         }
-        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC));
+        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC), configuration.withComment());
         this.currentClassTestToBeAmplified.getPackage().removeType(clone);
 
         final String fileSeparator = System.getProperty("file.separator");
@@ -197,12 +194,11 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                 + AmplificationHelper.PATH_SEPARATOR +
                 this.configuration.getClasspathClassesProject();
 
-        if (this.configuration.getProperty("additionalClasspathElements") != null) {
-            classpath += PATH_SEPARATOR + new File(this.configuration.getAbsolutePathToProjectRoot()
-                    + this.configuration.getProperty("additionalClasspathElements"));
+        if (!this.configuration.getAdditionalClasspathElements().isEmpty()) {
+            classpath += PATH_SEPARATOR + this.configuration.getProcessedAddtionalClasspathElements();
         }
 
-        DSpotCompiler.compile(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
+        DSpotCompiler.compile(configuration, DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
                 new File(this.configuration.getAbsolutePathToTestClasses()));
 
         final String targetClasses = this.configuration.getClasspathClassesProject();

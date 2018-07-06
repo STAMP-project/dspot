@@ -7,7 +7,7 @@ import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtInvocation;
@@ -78,7 +78,7 @@ public class ChangeMinimizer extends GeneralMinimizer {
     private void updateStackTrace(CtMethod<?> amplifiedTestToBeMinimized, CtMethod<?> changeMinimize) {
         CtType<?> clone = this.testClass.clone();
         // must compile
-        if (!printAndCompile(clone, changeMinimize)) {
+        if (!printAndCompile(this.configuration, clone, changeMinimize)) {
             throw new RuntimeException("The minimizer created an uncompilable test method.");
         }
         // must have (the same?) failure
@@ -108,7 +108,7 @@ public class ChangeMinimizer extends GeneralMinimizer {
     private boolean checkIfMinimizationIsOk(CtMethod<?> amplifiedTestToBeMinimized, Failure failure) {
         CtType<?> clone = this.testClass.clone();
         // must compile
-        if (!printAndCompile(clone, amplifiedTestToBeMinimized)) {
+        if (!printAndCompile(this.configuration, clone, amplifiedTestToBeMinimized)) {
             return false;
         }
         try {
@@ -131,14 +131,15 @@ public class ChangeMinimizer extends GeneralMinimizer {
 
     }
 
-    private boolean printAndCompile(CtType<?> clone, CtMethod<?> amplifiedTestToBeMinimized) {
+    // TODO this is maybe redundant with TestCompiler and TestRunner
+    private boolean printAndCompile(InputConfiguration configuration, CtType<?> clone, CtMethod<?> amplifiedTestToBeMinimized) {
         clone.setParent(this.testClass.getParent());
         this.testClass.getMethods().stream()
                 .filter(AmplificationChecker::isTest)
                 .forEach(clone::removeMethod);
         clone.addMethod(amplifiedTestToBeMinimized);
-        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC));
-        return DSpotCompiler.compile(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC,
+        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC), configuration.withComment());
+        return DSpotCompiler.compile(configuration, DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC,
                 this.configuration.getFullClassPathWithExtraDependencies(),
                 new File(this.configuration.getAbsolutePathToTestClasses()));
     }

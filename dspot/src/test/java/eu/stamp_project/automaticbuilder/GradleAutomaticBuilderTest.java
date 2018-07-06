@@ -3,9 +3,7 @@ package eu.stamp_project.automaticbuilder;
 import eu.stamp_project.Utils;
 import eu.stamp_project.mutant.pit.PitResult;
 import eu.stamp_project.mutant.pit.PitResultParser;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.Configuration;
-import eu.stamp_project.JSAPOptions;
+import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -16,7 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Daniele Gagliardi
@@ -24,10 +23,6 @@ import static org.junit.Assert.*;
  * on 18/07/17.
  */
 public class GradleAutomaticBuilderTest {
-
-    private static final String PATH_SEPARATOR = System.getProperty("path.separator");
-
-    private Configuration configuration;
 
     private AutomaticBuilder sut = null;
 
@@ -38,12 +33,9 @@ public class GradleAutomaticBuilderTest {
 
         Utils.init("src/test/resources/test-projects/test-projects.properties");
 
-        AutomaticBuilderFactory.reset();
-
         Utils.LOGGER.debug("Test Set-up - Reading input parameters...");
-        this.configuration = JSAPOptions.parse(getArgsWithGradleBuilder());
         InputConfiguration inputConfiguration = Utils.getInputConfiguration();
-        inputConfiguration.getProperties().setProperty("automaticBuilderName", this.configuration.automaticBuilderName);
+        inputConfiguration.setBuilderName("GradleBuilder");
 
         Utils.LOGGER.debug("Test Set-up - instantiating Automatic Builder (SUT)...");
         sut = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
@@ -116,18 +108,6 @@ public class GradleAutomaticBuilderTest {
         assertTrue("PIT results shouldn't be empty", !pitResults.isEmpty());
 
         Utils.LOGGER.info("Gradle Automatic Builder runPit() test complete when a test class is specified.");
-    }
-
-    private String[] getArgsWithGradleBuilder() throws IOException {
-        return new String[]{
-                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
-                "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + PATH_SEPARATOR + "TestDataMutator" + PATH_SEPARATOR + "StatementAdd",
-                "--iteration", "1",
-                "--randomSeed", "72",
-                "--automatic-builder", "GradleBuilder",
-                "--test", "all"
-        };
     }
 
     private void cleanTestEnv() throws IOException {

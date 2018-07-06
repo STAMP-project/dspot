@@ -1,9 +1,6 @@
 package eu.stamp_project;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
+import eu.stamp_project.program.InputConfiguration;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -14,166 +11,207 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
-import eu.stamp_project.JSAPOptions.SelectorEnum;
+import java.util.List;
 
 @Mojo(name = "amplify-unit-tests", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.TEST)
 public class DSpotMojo extends AbstractMojo {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(DSpotMojo.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DSpotMojo.class);
 
-	// Command Line parameters -> eu.stamp_project.Configuration
+    /**
+     * [mandatory] specify the path to the configuration file (format Java properties) of the target project (e.g. ./foo.properties).
+     */
+    @Parameter(property = "pathToPropertiesFile", required = true)
+    private String pathToPropertiesFile;
 
-	private static final String BUILDER = "MavenBuilder";
+    /**
+     * [optional] specify the list of amplifiers to use. Default with all available amplifiers.
+     * - StringLiteralAmplifier
+     * - NumberLiteralAmplifier
+     * - CharLiteralAmplifier
+     * - BooleanLiteralAmplifier
+     * - AllLiteralAmplifiers
+     * - MethodAdd
+     * - MethodRemove
+     * - TestDataMutator (deprecated)
+     * - StatementAdd
+     * - ReplacementAmplifier
+     * - None
+     */
+    @Parameter(defaultValue = "None", property = "amplifiers")
+    private List<String> amplifiers;
 
-	@Parameter(defaultValue = "MethodAdd", property = "amplifiers")
-	private List<String> amplifiers;
+    /**
+     * [optional] specify the number of amplification iterations. A larger number may help to improve the test criterion (e.g. a larger number of iterations may help to kill more mutants). This has an impact on the execution time: the more iterations, the longer DSpot runs.
+     */
+    @Parameter(defaultValue = "3", property = "iteration")
+    private Integer iteration;
 
-	@Parameter(defaultValue = "3", property = "iteration")
-	private Integer iteration;
+    /**
+     * [optional] specify the test adequacy criterion to be maximized with amplification
+     */
+    @Parameter(defaultValue = "PitMutantScoreSelector", property = "testCriterion")
+    private String testCriterion;
 
-	@Parameter(defaultValue = "PitMutantScoreSelector", property = "testcriterion")
-	private String testCriterion;
+    /**
+     * [optional] specify the maximum number of amplified tests that dspot keeps (before generating assertion)
+     */
+    @Parameter(defaultValue = "200", property = "maxTestAmplified")
+    private Integer maxTestAmplified;
 
-	@Parameter(defaultValue = "200", property = "maxtestamplified")
-	private Integer maxTestAmplified;
+    /**
+     * [optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite. You can also use regex to describe a set of test classes. By default, DSpot selects all the tests (value all). You can use the value diff, to select tests according to a diff between two versions of the same program. Be careful, using --test diff, you must specify both properties folderPath and baseSha.
+     */
+    @Parameter(defaultValue = "all", property = "testClassesNames")
+    private List<String> testClassesNames;
 
-	@Parameter(defaultValue = "all", property = "tests")
-	private List<String> namesOfTestCases;
+    /**
+     * specify the test methdod names to amplify
+     */
+    @Parameter(property = "testMethodNames")
+    private List<String> testMethodsNames;
 
-	@Parameter(property = "cases")
-	private List<String> namesOfTestMethods;
+    /**
+     * [optional] specify the output folder (default: dspot-report)
+     */
+    @Parameter(property = "outputPath", defaultValue = "dspot-report")
+    private String outputPath;
 
-	@Parameter(defaultValue = "${project.build.directory}/dspot-report", property = "outputpath")
-	private String outputPath;
+    /**
+     * [optional] if enabled, DSpot will remove the out directory if exists, else it will append the results to the exist files. (default: off)
+     */
+    @Parameter(defaultValue = "false", property = "clean")
+    private Boolean clean;
 
-	@Parameter(defaultValue = "false", property = "clean")
-	private Boolean clean;
+    /**
+     * [optional, expert mode] specify the path to the .csv of the original result of Pit Test. If you use this option the selector will be forced to PitMutantScoreSelector
+     */
+    @Parameter(property = "pathPitResult")
+    private String pathPitResult;
 
-	@Parameter(property = "descartes")
-	private Boolean descartes;
+    /**
+     * Enable the descartes engine for Pit Mutant Score Selector.
+     */
+    @Parameter(defaultValue = "false", property = "descartes")
+    private Boolean descartes;
 
-	@Parameter(defaultValue = "23", property = "randomSeed")
-	private Long randomSeed;
+    /**
+     * [optional] specify the automatic builder to build the project
+     */
+    @Parameter(defaultValue = "MavenBuilder", property = "automaticBuilder")
+    private String automaticBuilder;
 
-	@Parameter(defaultValue = "10000", property = "timeOut")
-	private Integer timeOutInMs;
+    /**
+     * specify the path to the maven home
+     */
+    @Parameter(property = "mavenHome")
+    private String mavenHome;
 
-	@Parameter(defaultValue = "PitMutantScoreSelector", property = "selector")
-	private String selector;
+    /**
+     * specify a seed for the random object (used for all randomized operation)
+     */
+    @Parameter(defaultValue = "23", property = "randomSeed")
+    private Long randomSeed;
 
-	// Properties file parameters -> eu.stamp_project.diversify.runner.InputConfiguration
+    /**
+     * specify the timeout value of the degenerated tests in millisecond
+     */
+    @Parameter(defaultValue = "10000", property = "timeOut")
+    private Integer timeOut;
 
-	@Parameter(defaultValue = "${project.basedir}", property = "project")
-	private File project;
+    /**
+     * Enable verbose mode of DSpot.
+     */
+    @Parameter(defaultValue = "false", property = "verbose")
+    private Boolean verbose;
 
-	@Parameter(defaultValue = "${project.build.sourceDirectory}", property = "src")
-	private File srcDir;
+    /**
+     * Enable comment on amplified test: details steps of the Amplification.
+     */
+    @Parameter(defaultValue = "false", property = "withComment")
+    private Boolean withComment;
 
-	@Parameter(defaultValue = "${project.build.testSourceDirectory}", property = "test-src")
-	private File testDir;
+    /**
+     * Disable the minimization of amplified tests.
+     */
+    @Parameter(defaultValue = "false", property = "noMinimize")
+    private Boolean noMinimize;
 
-	@Parameter(defaultValue = "${project.build.outputDirectory}", property = "classes")
-	private File classesDir;
+    /**
+     * Enable this option to change working directory with the root of the project.
+     */
+    @Parameter(defaultValue = "false", property = "workingDirectory")
+    private Boolean workingDirectory;
 
-	@Parameter(defaultValue = "${project.build.testOutputDirectory}", property = "test-classes")
-	private File testClassesDir;
+    /**
+     * show this help
+     */
+    @Parameter(defaultValue = "false", property = "help")
+    private Boolean help;
 
-	@Parameter(defaultValue = "${project.build.directory}/tempDir", property = "temp-dir")
-	private File tempDir;
+    private final String AUTOMATIC_BUILDER_NAME = "MAVEN";
 
-	@Parameter(property = "filter")
-	private String filter;
+    @Override
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        if (help) {
+            JSAPOptions.showUsage();
+        }
+        try {
+            Main.run(new InputConfiguration(this.pathToPropertiesFile)
+                    .setAmplifiers(JSAPOptions.buildAmplifiersFromString(this.amplifiers.toArray(new String[this.amplifiers.size()])))
+                    .setNbIteration(this.iteration)
+                    .setTestClasses(this.testClassesNames)
+                    .setSelector(JSAPOptions.SelectorEnum.valueOf(this.testCriterion).buildSelector())
+                    .setTestCases(this.testMethodsNames)
+                    .setSeed(this.randomSeed)
+                    .setTimeOutInMs(this.timeOut)
+                    .setBuilderName(this.automaticBuilder)
+                    .setMaxTestAmplified(this.maxTestAmplified)
+                    .setClean(this.clean)
+                    .setMinimize(this.noMinimize)
+                    .setVerbose(this.verbose)
+                    .setUseWorkingDirectory(this.workingDirectory)
+                    .setWithComment(this.withComment)
+                    .setDescartesMode(this.descartes)
+                    .setOutputDirectory(this.outputPath));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	@Parameter(defaultValue = "${env.M2_HOME}", property = "mavenHome")
-	private File mavenHome;
+    /*
+        Setters are used for testing
+     */
 
-	public void execute() throws MojoExecutionException, MojoFailureException {
-		Configuration configuration = new Configuration(
-				// path to file
-				null,
-				// Amplifiers
-				JSAPOptions.buildAmplifiersFromString(getAmplifiers().toArray(new String[0])),
-				// Iteration
-				getIteration(),
-				// testClases
-				getNamesOfTestCases(), getOutputPath(), SelectorEnum.valueOf(getSelector()).buildSelector(),
-				new ArrayList<String>(), getRandomSeed().longValue(), getTimeOutInMs().intValue(), BUILDER,
-				getMavenHome().getAbsolutePath(), 200, false, true);
-		
-		InputConfiguration inputConfiguration;
+    void setAmplifiers(List<String> amplifiers) {
+        this.amplifiers = amplifiers;
+    }
 
-		try {
-			inputConfiguration = new InputConfiguration(getProject(), getSrcDir(), getTestDir(), getClassesDir(),
-					getTestClassesDir(), getTempDir(), getFilter(), getMavenHome());
-			Main.run(configuration, inputConfiguration);
-		} catch (Exception e) {
-			LOGGER.error(e.getLocalizedMessage());
-		}
-	}
+    void setIteration(Integer iteration) {
+        this.iteration = iteration;
+    }
 
-	public List<String> getAmplifiers() {
-		return amplifiers;
-	}
+    void setTestCriterion(String testCriterion) {
+        this.testCriterion = testCriterion;
+    }
 
-	public Integer getIteration() {
-		return iteration;
-	}
+    void setTestClassesNames(List<String> testClassesNames) {
+        this.testClassesNames = testClassesNames;
+    }
 
-	public String getTestCriterion() {
-		return testCriterion;
-	}
+    void setTestMethods(List<String> testMethods) {
+        this.testMethodsNames = testMethods;
+    }
 
-	public List<String> getNamesOfTestCases() {
-		return namesOfTestCases;
-	}
+    void setVerbose(Boolean verbose) {
+        this.verbose = verbose;
+    }
 
-	public String getOutputPath() {
-		return outputPath;
-	}
+    void setOutputPath(String outputPath) {
+        this.outputPath = outputPath;
+    }
 
-	public Long getRandomSeed() {
-		return randomSeed;
-	}
-
-	public Integer getTimeOutInMs() {
-		return timeOutInMs;
-	}
-
-	public File getProject() {
-		return project;
-	}
-
-	public File getSrcDir() {
-		return srcDir;
-	}
-
-	public File getTestDir() {
-		return testDir;
-	}
-
-	public String getFilter() {
-		return filter;
-	}
-
-	public File getMavenHome() {
-		return mavenHome;
-	}
-
-	public File getClassesDir() {
-		return classesDir;
-	}
-
-	public File getTestClassesDir() {
-		return testClassesDir;
-	}
-
-	public File getTempDir() {
-		return tempDir;
-	}
-
-	public String getSelector() {
-		return selector;
-	}
-
+    void setPathPitResult(String pathPitResult) {
+        this.pathPitResult = pathPitResult;
+    }
 }

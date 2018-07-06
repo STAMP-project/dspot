@@ -1,6 +1,6 @@
 package eu.stamp_project.utils;
 
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,15 +23,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
  * User: Simon Date: 18/05/16 Time: 16:10
  */
 public class DSpotUtils {
-
-    public static boolean withComment = false;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DSpotUtils.class);
 
@@ -59,7 +56,7 @@ public class DSpotUtils {
                 .map(CtType::getQualifiedName).toArray(String[]::new);
     }
 
-    public static void printCtTypeToGivenDirectory(CtType<?> type, File directory) {
+    public static void printCtTypeToGivenDirectory(CtType<?> type, File directory, boolean withComment) {
         Factory factory = type.getFactory();
         Environment env = factory.getEnvironment();
         env.setAutoImports(true);
@@ -71,13 +68,13 @@ public class DSpotUtils {
         env.setAutoImports(false);
     }
 
-    public static void printAmplifiedTestClass(CtType<?> type, File directory) {
+    public static void printAmplifiedTestClass(CtType<?> type, File directory, boolean withComment) {
         final String pathname = directory.getAbsolutePath() + "/" + type.getQualifiedName().replaceAll("\\.", "/")
                 + ".java";
         if (new File(pathname).exists()) {
-            printCtTypeToGivenDirectory(addGeneratedTestToExistingClass(type, pathname), directory);
+            printCtTypeToGivenDirectory(addGeneratedTestToExistingClass(type, pathname), directory, withComment);
         } else {
-            printCtTypeToGivenDirectory(type, directory);
+            printCtTypeToGivenDirectory(type, directory, withComment);
         }
     }
 
@@ -92,42 +89,17 @@ public class DSpotUtils {
         return existingAmplifiedTest;
     }
 
+    /*
     public static void printAllClasses(Factory factory, File out) {
-        factory.Class().getAll().forEach(type -> printCtTypeToGivenDirectory(type, out));
+        factory.Class().getAll().forEach(type -> printCtTypeToGivenDirectory(type, out, ));
     }
+    */
 
     public static void addComment(CtElement element, String content, CtComment.CommentType type) {
         CtComment comment = element.getFactory().createComment(content, type);
         if (!element.getComments().contains(comment)) {
             element.addComment(comment);
         }
-    }
-
-    public static String mavenHome;
-
-    public static String buildMavenHome(InputConfiguration inputConfiguration) {
-        if (mavenHome == null) {
-            if (inputConfiguration != null && inputConfiguration.getProperty("maven.home") != null) {
-                mavenHome = inputConfiguration.getProperty("maven.home");
-            } else {
-                if (!setMavenHome(envVariable -> System.getenv().get(envVariable) != null,
-                        envVariable -> System.getenv().get(envVariable), "MAVEN_HOME", "M2_HOME")) {// TODO asking if
-                    // predefined values
-                    // are useful or not
-                    if (!setMavenHome(path -> new File(path).exists(), Function.identity(), "/usr/share/maven/",
-                            "/usr/local/maven-3.3.9/", "/usr/share/maven3/")) {
-                        throw new RuntimeException("Maven home not found, please set properly MAVEN_HOME or M2_HOME.");
-                    }
-                }
-            }
-        }
-        return mavenHome;
-    }
-
-    private static boolean setMavenHome(Predicate<String> conditional, Function<String, String> getFunction,
-                                        String... possibleValues) {
-        Arrays.stream(possibleValues).filter(conditional).findFirst().ifPresent(s -> mavenHome = getFunction.apply(s));
-        return mavenHome != null;
     }
 
     public static final String pathToDSpotDependencies = "target/dspot/dependencies/";
@@ -162,7 +134,7 @@ public class DSpotUtils {
         });
     }
 
-    public static final Function<String, String> shouldAddSeparator= string -> string + (string.endsWith("/") ? "" : "/");
+    public static final Function<String, String> shouldAddSeparator = string -> string + (string.endsWith("/") ? "" : "/");
 
     public static String ctTypeToFullQualifiedName(CtType<?> testClass) {
         if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) {

@@ -4,6 +4,7 @@ import eu.stamp_project.Utils;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
@@ -20,10 +21,9 @@ import static org.junit.Assert.assertEquals;
  */
 public class AssertionRemoverTest extends AbstractTest {
 
-	@Override
-	public void setUp() throws Exception {
+	@BeforeClass
+	public static void beforeClass() throws Exception {
 		Utils.reset();
-		super.setUp();
 	}
 
 	@Test

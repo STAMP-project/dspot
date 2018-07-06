@@ -1,8 +1,6 @@
 package eu.stamp_project.utils;
 
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 
 import java.io.IOException;
 
@@ -15,10 +13,8 @@ public class Initializer {
 
 	public static void initialize(InputConfiguration configuration)
 			throws IOException, InterruptedException {
-		AutomaticBuilderFactory.reset();
-		AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(configuration);
-		builder.compile();
-		DSpotUtils.copyPackageFromResources();
+		//AutomaticBuilderFactory.getAutomaticBuilder(configuration).compile();
+		//DSpotUtils.copyPackageFromResources();
 	}
 
 }

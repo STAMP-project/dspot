@@ -7,7 +7,7 @@ import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.sosiefier.InputConfiguration;
+import eu.stamp_project.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
@@ -138,7 +138,7 @@ public class Amplification {
                     currentTestList.size()
             );
             final List<CtMethod<?>> inputAmplifiedTests = this.inputAmplifyTests(selectedToBeAmplified);
-            final List<CtMethod<?>> reducedInputAmplifiedTests = AmplificationHelper.reduce(inputAmplifiedTests);
+            final List<CtMethod<?>> reducedInputAmplifiedTests = AmplificationHelper.reduce(inputAmplifiedTests, this.configuration);
             final List<CtMethod<?>> testsWithAssertions = this.assertionsAmplification(classTest, reducedInputAmplifiedTests);
             // in case no test with assertions could be generated, we go for the next iteration.
             if (testsWithAssertions.isEmpty()) {

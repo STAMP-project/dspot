@@ -1,17 +1,32 @@
 package eu.stamp_project;
 
-import com.martiansoftware.jsap.*;
-import eu.stamp_project.testrunner.EntryPoint;
-import eu.stamp_project.dspot.amplifier.*;
+import com.martiansoftware.jsap.Flagged;
+import com.martiansoftware.jsap.FlaggedOption;
+import com.martiansoftware.jsap.JSAP;
+import com.martiansoftware.jsap.JSAPException;
+import com.martiansoftware.jsap.JSAPResult;
+import com.martiansoftware.jsap.Parameter;
+import com.martiansoftware.jsap.Switch;
+import eu.stamp_project.dspot.amplifier.AllLiteralAmplifiers;
+import eu.stamp_project.dspot.amplifier.Amplifier;
+import eu.stamp_project.dspot.amplifier.BooleanLiteralAmplifier;
+import eu.stamp_project.dspot.amplifier.CharLiteralAmplifier;
+import eu.stamp_project.dspot.amplifier.NumberLiteralAmplifier;
+import eu.stamp_project.dspot.amplifier.ReplacementAmplifier;
+import eu.stamp_project.dspot.amplifier.StatementAdd;
+import eu.stamp_project.dspot.amplifier.StringLiteralAmplifier;
+import eu.stamp_project.dspot.amplifier.TestDataMutator;
+import eu.stamp_project.dspot.amplifier.TestMethodCallAdder;
+import eu.stamp_project.dspot.amplifier.TestMethodCallRemover;
 import eu.stamp_project.dspot.selector.ChangeDetectorSelector;
-import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.dspot.selector.CloverCoverageSelector;
-import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.ExecutedMutantSelector;
+import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
+import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TakeAllSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.DSpotUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +67,7 @@ public class JSAPOptions {
             public TestSelector buildSelector() {
                 return new TakeAllSelector();
             }
-        },CloverCoverageSelector {
+        }, CloverCoverageSelector {
             @Override
             public TestSelector buildSelector() {
                 return new CloverCoverageSelector();
@@ -70,6 +85,7 @@ public class JSAPOptions {
                 return new ChangeDetectorSelector();
             }
         };
+
         public abstract TestSelector buildSelector();
     }
 
@@ -92,11 +108,8 @@ public class JSAPOptions {
         }
     }
 
-    public static Configuration parse(String[] args) {
+    public static InputConfiguration parse(String[] args) {
         JSAPResult jsapConfig = options.parse(args);
-        Main.verbose = jsapConfig.getBoolean("verbose");
-        Main.useWorkingDirectory = jsapConfig.getBoolean("working-directory");
-        EntryPoint.verbose = Main.verbose;
         if (!jsapConfig.success() || jsapConfig.getBoolean("help")) {
             System.err.println();
             for (Iterator<?> errs = jsapConfig.getErrorMessageIterator(); errs.hasNext(); ) {
@@ -106,12 +119,10 @@ public class JSAPOptions {
         } else if (jsapConfig.getBoolean("example")) {
             return null;
         }
-
         if (jsapConfig.getString("path") == null) {
             System.err.println("Error: Parameter 'path' is required.");
             showUsage();
         }
-
         TestSelector testCriterion;
         if (jsapConfig.getString("mutant") != null) {
             if (!"PitMutantScoreSelector".equals(jsapConfig.getString("test-criterion"))) {
@@ -122,26 +133,24 @@ public class JSAPOptions {
         } else {
             testCriterion = SelectorEnum.valueOf(jsapConfig.getString("test-criterion")).buildSelector();
         }
-
-        PitMutantScoreSelector.descartesMode = jsapConfig.getBoolean("descartes");
-
-        DSpotUtils.withComment = jsapConfig.getBoolean("comment");
-
-        return new Configuration(jsapConfig.getString("path"),
-                buildAmplifiersFromString(jsapConfig.getStringArray("amplifiers")),
-                jsapConfig.getInt("iteration"),
-                Arrays.asList(jsapConfig.getStringArray("test")),
-                jsapConfig.getString("output"),
-                testCriterion,
-                Arrays.asList(jsapConfig.getStringArray("testCases")),
-                jsapConfig.getLong("seed"),
-                jsapConfig.getInt("timeOut"),
-                jsapConfig.getString("builder"),
-                jsapConfig.getString("mavenHome"),
-                jsapConfig.getInt("maxTestAmplified"),
-                jsapConfig.getBoolean("clean"),
-                !jsapConfig.getBoolean("no-minimize")
-        );
+        final List<String> testClasses = Arrays.asList(jsapConfig.getStringArray("test"));
+        final List<String> testCases = Arrays.asList(jsapConfig.getStringArray("testCases"));
+        return new InputConfiguration(jsapConfig.getString("path"))
+                .setAmplifiers(buildAmplifiersFromString(jsapConfig.getStringArray("amplifiers")))
+                .setNbIteration(jsapConfig.getInt("iteration"))
+                .setTestClasses(testClasses)
+                .setSelector(testCriterion)
+                .setTestCases(testCases)
+                .setSeed(jsapConfig.getLong("seed"))
+                .setTimeOutInMs(jsapConfig.getInt("timeOut"))
+                .setBuilderName(jsapConfig.getString("builder"))
+                .setMaxTestAmplified(jsapConfig.getInt("maxTestAmplified"))
+                .setClean(jsapConfig.getBoolean("clean"))
+                .setMinimize(!jsapConfig.getBoolean("no-minimize"))
+                .setVerbose(jsapConfig.getBoolean("verbose"))
+                .setUseWorkingDirectory(jsapConfig.getBoolean("working-directory"))
+                .setWithComment(jsapConfig.getBoolean("comment"))
+                .setDescartesMode(jsapConfig.getBoolean("descartes"));
     }
 
     public static Amplifier stringToAmplifier(String amplifier) {
@@ -158,19 +167,19 @@ public class JSAPOptions {
     @NotNull
     private static String getPossibleValuesForInputAmplifier() {
         return AmplificationHelper.LINE_SEPARATOR + "\t\t - " +
-        Arrays.stream(new String[] {
-                "StringLiteralAmplifier",
-                "NumberLiteralAmplifier",
-                "CharLiteralAmplifier",
-                "BooleanLiteralAmplifier",
-                "AllLiteralAmplifiers",
-                "MethodAdd",
-                "MethodRemove",
-                "TestDataMutator (deprecated)",
-                "StatementAdd",
-                "ReplacementAmplifier",
-                "None"
-        }).collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR + "\t\t - "));
+                Arrays.stream(new String[]{
+                        "StringLiteralAmplifier",
+                        "NumberLiteralAmplifier",
+                        "CharLiteralAmplifier",
+                        "BooleanLiteralAmplifier",
+                        "AllLiteralAmplifiers",
+                        "MethodAdd",
+                        "MethodRemove",
+                        "TestDataMutator (deprecated)",
+                        "StatementAdd",
+                        "ReplacementAmplifier",
+                        "None"
+                }).collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR + "\t\t - "));
     }
 
     public static List<Amplifier> buildAmplifiersFromString(String[] amplifiersAsString) {
@@ -184,7 +193,7 @@ public class JSAPOptions {
         }
     }
 
-    private static void showUsage() {
+    public static void showUsage() {
         System.err.println();
         System.err.println("Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar");
         System.err.println("                          " + options.getUsage());
@@ -197,11 +206,13 @@ public class JSAPOptions {
         JSAP jsap = new JSAP();
 
         Switch help = new Switch("help");
+        help.setDefault("false");
         help.setLongFlag("help");
         help.setShortFlag('h');
         help.setHelp("show this help");
 
         Switch example = new Switch("example");
+        example.setDefault("false");
         example.setLongFlag("example");
         example.setShortFlag('e');
         example.setHelp("run the example of DSpot and leave");
@@ -229,7 +240,7 @@ public class JSAPOptions {
         iteration.setShortFlag('i');
         iteration.setLongFlag("iteration");
         iteration.setAllowMultipleDeclarations(false);
-        iteration.setHelp("[optional] specify the number of amplification iterations. A larger number may help to improve the test criterion (eg a larger number of iterations may help to kill more mutants). This has an impact on the execution time: the more iterations, the longer DSpot runs.");
+        iteration.setHelp("[optional] specify the number of amplification iterations. A larger number may help to improve the test criterion (e.g. a larger number of iterations may help to kill more mutants). This has an impact on the execution time: the more iterations, the longer DSpot runs.");
 
         FlaggedOption selector = new FlaggedOption("test-criterion");
         selector.setAllowMultipleDeclarations(false);
@@ -247,18 +258,20 @@ public class JSAPOptions {
         specificTestClass.setAllowMultipleDeclarations(false);
         specificTestClass.setLongFlag("test");
         specificTestClass.setDefault("all");
-        specificTestClass.setUsageName("my.package.MyClassTest");
-        specificTestClass.setHelp("[optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite. You can also use regex to describe a set of test classes.");
+        specificTestClass.setUsageName("my.package.MyClassTest | all | diff");
+        specificTestClass.setHelp("[optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite. You can also use regex to describe a set of test classes. By default, DSpot selects all the tests (value all). You can use the value diff, to select tests according to a diff between two versions of the same program. Be careful, using --test diff, you must specify both properties folderPath and baseSha.");
 
         FlaggedOption output = new FlaggedOption("output");
         output.setStringParser(JSAP.STRING_PARSER);
         output.setAllowMultipleDeclarations(false);
         output.setShortFlag('o');
         output.setLongFlag("output-path");
+        output.setDefault("dspot-report");
         output.setHelp("[optional] specify the output folder (default: dspot-report)");
 
         Switch cleanOutput = new Switch("clean");
         cleanOutput.setLongFlag("clean");
+        cleanOutput.setDefault("false");
         cleanOutput.setHelp("[optional] if enabled, DSpot will remove the out directory if exists, else it will append the results to the exist files. (default: off)");
 
         FlaggedOption mutantScore = new FlaggedOption("mutant");
@@ -361,8 +374,68 @@ public class JSAPOptions {
         } catch (JSAPException e) {
             throw new RuntimeException(e);
         }
-
         return jsap;
+    }
+
+    private static String jsapSwitchOptionToMojoParameter(Switch jsapSwitch) {
+        return "Boolean " + jsapSwitch.getLongFlag().replaceAll("-", "_") + ";" + AmplificationHelper.LINE_SEPARATOR;
+    }
+
+    private static String jsapFlaggedOptionToMojoParameter(FlaggedOption flaggedOption) {
+        String mojoParam = "";
+        final String type;
+        if (flaggedOption.getStringParser().equals(JSAP.STRING_PARSER)) {
+            type = "String";
+        } else if (flaggedOption.getStringParser().equals(JSAP.LONG_PARSER)) {
+            type = "Long";
+        } else {
+            type = "Integer";
+        }
+        if (flaggedOption.isList()) {
+            mojoParam += "List<" + type + "> ";
+        } else {
+            mojoParam += type + " ";
+        }
+        mojoParam += flaggedOption.getLongFlag().replaceAll("-", "_") + ";" + AmplificationHelper.LINE_SEPARATOR;
+        return mojoParam;
+    }
+
+    private static String jsapParameterToMojoParameter(Parameter parameter) {
+        String mojoParam = "";
+        if (parameter.getHelp() != null) {
+            mojoParam += "/**" + AmplificationHelper.LINE_SEPARATOR;
+            mojoParam += Arrays.stream(
+                    parameter.getHelp().split(AmplificationHelper.LINE_SEPARATOR))
+                    .map(" *\t"::concat)
+                    .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)) +
+                    AmplificationHelper.LINE_SEPARATOR;
+            mojoParam += " */" + AmplificationHelper.LINE_SEPARATOR;
+        }
+        mojoParam += "@Parameter(";
+        if (parameter.getDefault() != null) {
+            mojoParam += "defaultValue = \"" + parameter.getDefault()[0] + "\", ";
+        }
+        mojoParam += "property = \"" + ((Flagged) parameter).getLongFlag() + "\")" + AmplificationHelper.LINE_SEPARATOR;
+        mojoParam += "private ";
+        if (parameter instanceof FlaggedOption) {
+            return mojoParam + jsapFlaggedOptionToMojoParameter((FlaggedOption) parameter);
+        } else if (parameter instanceof Switch) {
+            return mojoParam + jsapSwitchOptionToMojoParameter((Switch) parameter);
+        } else {
+            System.out.println("Unsupported class: " + parameter.getClass());
+            return "";
+        }
+    }
+
+    /**
+     * Main to be used to generate the DSpotMojo properties from the JSAPOptions.
+     */
+    public static void main(String[] args) {
+        final Iterator iterator = options.getIDMap().idIterator();
+        while (iterator.hasNext()) {
+            final Object id = iterator.next();
+            System.out.println(jsapParameterToMojoParameter(options.getByID((String) id)));
+        }
     }
 
 }
