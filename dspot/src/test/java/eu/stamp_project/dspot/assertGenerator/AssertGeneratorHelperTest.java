@@ -11,6 +11,7 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -108,8 +109,8 @@ public class AssertGeneratorHelperTest extends AbstractTest {
                         "}",
                 AssertGeneratorHelper.createTestWithLog(
                         new AssertionRemover().removeAssertion(Utils.findMethod("fr.inria.sample.TestClassWithLoop", "test2")),
-                        "fr.inria.sample"
-                ).toString()
+                        "fr.inria.sample",
+                        Collections.emptyList()).toString()
         );
     }
 
@@ -135,7 +136,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
         assertEquals(5, amplifiedMethods.size());
 
         final List<CtMethod<?>> instrumentedAmplifiedTests = amplifiedMethods.stream()
-                .map(method -> AssertGeneratorHelper.createTestWithLog(method, "fr.inria.statementaddarray"))
+                .map(method -> AssertGeneratorHelper.createTestWithLog(method, "fr.inria.statementaddarray", Collections.emptyList()))
                 .collect(Collectors.toList());
 
         assertEquals(5, instrumentedAmplifiedTests.size());
@@ -158,7 +159,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
     public void testMultipleObservationsPoints() throws Exception {
         final CtMethod<?> test1 = Utils.findMethod("fr.inria.multipleobservations.TestClassToBeTest", "test");
         final CtMethod<?> testWithLog =
-                AssertGeneratorHelper.createTestWithLog(test1, "fr.inria.multipleobservations");
+                AssertGeneratorHelper.createTestWithLog(test1, "fr.inria.multipleobservations", Collections.emptyList());
         final String expectedMethodWithLogs = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
                 "    final fr.inria.multipleobservations.ClassToBeTest classToBeTest = new fr.inria.multipleobservations.ClassToBeTest();" + AmplificationHelper.LINE_SEPARATOR +
@@ -173,7 +174,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
     public void testCreateTestWithLogClassTargetAmplify() throws Exception {
         final CtMethod<?> test1 = Utils.findMethod("fr.inria.statementaddarray.TestClassTargetAmplify", "test");
         final CtMethod<?> testWithLog =
-                AssertGeneratorHelper.createTestWithLog(test1, "fr.inria.statementaddarray");
+                AssertGeneratorHelper.createTestWithLog(test1, "fr.inria.statementaddarray", Collections.emptyList());
         final String expectedMethod = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
                 "    fr.inria.statementaddarray.ClassTargetAmplify clazz = new fr.inria.statementaddarray.ClassTargetAmplify();" + AmplificationHelper.LINE_SEPARATOR +
@@ -194,7 +195,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         final CtMethod<?> test1 = (CtMethod<?>) testClass.getMethodsByName("test1").get(0);
         final CtMethod<?> testWithLog =
-                AssertGeneratorHelper.createTestWithLog(test1, "fr.inria.sample");
+                AssertGeneratorHelper.createTestWithLog(test1, "fr.inria.sample", Collections.emptyList());
 
         final String expectedMethod = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test1_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
@@ -213,7 +214,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
     public void testCreateTestWithLogWithoutChainSameObservations() throws Exception {
         CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithSpecificCaseToBeAsserted", "test1");
         final CtMethod<?> testWithLog =
-                AssertGeneratorHelper.createTestWithLog(test1, "fr.inria.sample");
+                AssertGeneratorHelper.createTestWithLog(test1, "fr.inria.sample", Collections.emptyList());
 
         final String expectedMethodWithLog = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test1_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
@@ -238,7 +239,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         final CtMethod<?> test2 = (CtMethod<?>) testClass.getMethodsByName("test2").get(0);
         final CtMethod<?> testWithLog =
-                AssertGeneratorHelper.createTestWithLog(test2, "fr.inria.sample");
+                AssertGeneratorHelper.createTestWithLog(test2, "fr.inria.sample", Collections.emptyList());
 
         final String expectedMethod = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test2_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +

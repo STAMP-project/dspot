@@ -14,7 +14,8 @@ public class TestWithMultipleAsserts {
     public void test() {
         verify(null);
         assertEquals("", "");
-        Truth.assertThat("").isEmpty();
+        String s = "";
+        Truth.assertThat(s).isEmpty();
         Truth.assertThat("").isEqualTo("");
         Truth.assertThat(0.0F).isNotNaN();
         System.out.println("");
