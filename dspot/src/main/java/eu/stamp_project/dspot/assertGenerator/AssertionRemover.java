@@ -96,7 +96,13 @@ public class AssertionRemover {
                 final CtVariableReference variable = ((CtVariableRead) clone).getVariable();
                 variableReadsAsserted.add(invocation.getParent(CtBlock.class).getElements(
                         (Filter<CtLocalVariable>) localVariable ->
-                                localVariable.getReference().equals(variable)
+                                localVariable.getSimpleName().equals(variable.getSimpleName()) // here, we match the simple name
+                        // since the type cannot match with generated elements
+                        // for instance, if the original element is a primitive char,
+                        // the generated element can be a Character
+                        // and thus, the localVariable.getReference().equals(variable) returns false
+                        // the contract on name holds since we control it, i.e. variables in
+                        // assertions are extracted by us.
                 ).get(0));
             }
         }
