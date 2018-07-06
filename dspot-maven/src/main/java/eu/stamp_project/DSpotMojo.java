@@ -74,7 +74,7 @@ public class DSpotMojo extends AbstractMojo {
     /**
      * [optional] specify the output folder (default: dspot-report)
      */
-    @Parameter(property = "outputPath")
+    @Parameter(property = "outputPath", defaultValue = "dspot-report")
     private String outputPath;
 
     /**

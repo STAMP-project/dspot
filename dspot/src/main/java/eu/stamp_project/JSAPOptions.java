@@ -266,6 +266,7 @@ public class JSAPOptions {
         output.setAllowMultipleDeclarations(false);
         output.setShortFlag('o');
         output.setLongFlag("output-path");
+        output.setDefault("dspot-report");
         output.setHelp("[optional] specify the output folder (default: dspot-report)");
 
         Switch cleanOutput = new Switch("clean");

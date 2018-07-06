@@ -44,6 +44,7 @@ public class DSpotMojoTest {
 
         mojoUnderTest.setPathPitResult("src/test/resources/test-projects/mutations.csv");
         mojoUnderTest.setTestCriterion("PitMutantScoreSelector");
+        mojoUnderTest.setOutputPath("target/dspot-output");
 
         mojoUnderTest.execute();
     }
