@@ -6,6 +6,7 @@ import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.Initializer;
 import eu.stamp_project.program.InputConfiguration;
+import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
@@ -30,6 +31,7 @@ public class ChangeMinimizerTest extends AbstractTest {
         return "src/test/resources/regression/test-projects_0/test-projects.properties";
     }
 
+    @Ignore
     @SuppressWarnings("unchecked")
     @Test
     public void test() throws Exception {
