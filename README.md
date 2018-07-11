@@ -9,6 +9,12 @@ DSpot takes as input a Java project with an existing test suite.
 As output, DSpot outputs new test cases on console. 
 DSpot supports Java projects built with Maven and Gradle (see the `--automatic-builder` option)
 
+DSpot ecosystem:
+
+* Eclipse plugin: https://github.com/STAMP-project/eclipse-ide/
+* Jenkins plugin: TBD
+* Travis integration: TBD
+
 ## Getting started
 
 ### Prerequisites
