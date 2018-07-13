@@ -88,8 +88,7 @@ public class Main {
 
 	static void runExample() {
 		try {
-			InputConfiguration configuration = new InputConfiguration(
-					"src/test/resources/test-projects/test-projects.properties");
+			InputConfiguration configuration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
 			DSpot dSpot = new DSpot(configuration, 1, Collections.singletonList(new TestDataMutator()),
 					new JacocoCoverageSelector());
 			dSpot.amplifyTest("example.TestSuiteExample");

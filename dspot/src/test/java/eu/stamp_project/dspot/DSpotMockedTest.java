@@ -33,7 +33,7 @@ public class DSpotMockedTest extends AbstractTest {
          */
 		ValueCreator.count = 0;
 		AmplificationHelper.setSeedRandom(23L);
-		InputConfiguration configuration = new InputConfiguration(getPathToPropertiesFile());
+		InputConfiguration configuration = InputConfiguration.initialize(getPathToPropertiesFile());
 		DSpot dspot = new DSpot(configuration, 1,
 				Arrays.asList(new StatementAdd())
 		);

@@ -39,7 +39,7 @@ public class DSpotCompilerTest {
     @Test
     public void testDSpotCompiler() throws Exception {
 
-        final InputConfiguration configuration = getConfiguration();
+        final InputConfiguration configuration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
         final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(configuration, "");
         final CtClass<?> aClass = getClass(compiler.getLauncher().getFactory());
         final List<CtMethod<?>> method = aClass.getMethodsByName("method");
@@ -88,15 +88,6 @@ public class DSpotCompilerTest {
 
         }
 
-    }
-    private InputConfiguration getConfiguration() {
-        return new InputConfiguration(
-                new File("target/dspot/trash/").getAbsolutePath(),
-                "src/main/java/",
-                "src/test/java/",
-                "target/classes/",
-                "target/test-classes"
-        );
     }
 
     private CtClass<?> getClass(Factory factory) {

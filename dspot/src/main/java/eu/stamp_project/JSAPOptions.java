@@ -135,7 +135,7 @@ public class JSAPOptions {
         }
         final List<String> testClasses = Arrays.asList(jsapConfig.getStringArray("test"));
         final List<String> testCases = Arrays.asList(jsapConfig.getStringArray("testCases"));
-        return new InputConfiguration(jsapConfig.getString("path"))
+        return InputConfiguration.initialize(jsapConfig.getString("path"))
                 .setAmplifiers(buildAmplifiersFromString(jsapConfig.getStringArray("amplifiers")))
                 .setNbIteration(jsapConfig.getInt("iteration"))
                 .setTestClasses(testClasses)

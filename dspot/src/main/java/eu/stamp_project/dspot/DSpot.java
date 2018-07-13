@@ -10,7 +10,6 @@ import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.Initializer;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.json.ClassTimeJSON;
 import eu.stamp_project.utils.json.ProjectTimeJSON;
@@ -83,7 +82,6 @@ public class DSpot {
                  int numberOfIterations,
                  List<Amplifier> amplifiers,
                  TestSelector testSelector) throws Exception {
-        Initializer.initialize(inputConfiguration);
         this.inputConfiguration = inputConfiguration;
         String dependencies = this.inputConfiguration.getDependencies();
         this.compiler = DSpotCompiler.createDSpotCompiler(this.inputConfiguration, dependencies);

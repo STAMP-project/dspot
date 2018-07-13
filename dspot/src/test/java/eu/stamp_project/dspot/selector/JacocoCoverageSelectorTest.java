@@ -36,7 +36,7 @@ public class JacocoCoverageSelectorTest {
 			//ignored
 		}
 		AmplificationHelper.setSeedRandom(23L);
-		InputConfiguration configuration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
+		InputConfiguration configuration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
 		DSpot dspot = new DSpot(configuration,
 				2,
 				Arrays.asList(new TestDataMutator(), new StatementAdd()),

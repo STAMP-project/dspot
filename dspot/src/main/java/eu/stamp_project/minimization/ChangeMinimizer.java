@@ -1,5 +1,6 @@
 package eu.stamp_project.minimization;
 
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.testrunner.runner.test.TestListener;
@@ -7,7 +8,6 @@ import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtInvocation;
@@ -32,18 +32,20 @@ public class ChangeMinimizer extends GeneralMinimizer {
 
     private InputConfiguration configuration;
 
-    private InputConfiguration configurationOfModifiedVersion;
+    private String pathToFirstVersionOfProgram;
+
+    private String pathToSecondVersionOfProgram;
 
     private Map<CtMethod<?>, Failure> failurePerAmplifiedTest;
 
     public ChangeMinimizer(CtType<?> testClass,
                            InputConfiguration configuration,
-                           InputConfiguration configurationOfModifiedVersion,
                            Map<CtMethod<?>, Failure> failurePerAmplifiedTest) {
-        this.configurationOfModifiedVersion = configurationOfModifiedVersion;
         this.testClass = testClass;
         this.configuration = configuration;
         this.failurePerAmplifiedTest = failurePerAmplifiedTest;
+        this.pathToFirstVersionOfProgram = InputConfiguration.get().getAbsolutePathToProjectRoot();
+        this.pathToSecondVersionOfProgram = configuration.getAbsolutePathToSecondVersionProjectRoot();
     }
 
     @Override
@@ -105,6 +107,16 @@ public class ChangeMinimizer extends GeneralMinimizer {
         }
     }
 
+    // In this method, we want to run the amplified test classes, i.e. in first version target/classes
+    // on the source (business) of the second version to see if the amplified test (still) detects the changes.
+    // this method return a mixed classpath between the first and the second version
+    private String getMixedClasspath() {
+        return InputConfiguration.get().getDependencies() + AmplificationHelper.PATH_SEPARATOR +
+                DSpotUtils.PATH_TO_EXTRA_DEPENDENCIES_TO_DSPOT_CLASSES + AmplificationHelper.PATH_SEPARATOR +
+                InputConfiguration.get().getAbsolutePathToTestClasses() + AmplificationHelper.PATH_SEPARATOR +
+                this.pathToSecondVersionOfProgram + InputConfiguration.get().getPathToClasses();
+    }
+
     private boolean checkIfMinimizationIsOk(CtMethod<?> amplifiedTestToBeMinimized, Failure failure) {
         CtType<?> clone = this.testClass.clone();
         // must compile
@@ -113,22 +125,15 @@ public class ChangeMinimizer extends GeneralMinimizer {
         }
         try {
             final TestListener result = EntryPoint.runTests(
-                    this.configurationOfModifiedVersion.getDependencies() +
-                            AmplificationHelper.PATH_SEPARATOR +
-                            DSpotUtils.PATH_TO_EXTRA_DEPENDENCIES_TO_DSPOT_CLASSES +
-                            AmplificationHelper.PATH_SEPARATOR +
-                            this.configuration.getAbsolutePathToTestClasses() +
-                            AmplificationHelper.PATH_SEPARATOR +
-                            this.configurationOfModifiedVersion.getAbsolutePathToClasses(),
+                    this.getMixedClasspath(),
                     clone.getQualifiedName(),
-                    amplifiedTestToBeMinimized.getSimpleName());
-
+                    amplifiedTestToBeMinimized.getSimpleName()
+            );
             final List<Failure> failingTests = result.getFailingTests();
             return failingTests.contains(failure);
         } catch (TimeoutException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     // TODO this is maybe redundant with TestCompiler and TestRunner

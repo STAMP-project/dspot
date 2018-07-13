@@ -10,7 +10,6 @@ import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.Initializer;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import org.codehaus.plexus.util.FileUtils;
 import spoon.reflect.declaration.CtMethod;
@@ -32,14 +31,13 @@ import java.util.concurrent.TimeoutException;
  */
 public class ChangeDetectorSelector implements TestSelector {
 
-    private String pathToChangedVersionOfProgram;
+    private String pathToFirstVersionOfProgram;
+
+    private String pathToSecondVersionOfProgram;
 
     private Map<CtMethod<?>, Failure> failurePerAmplifiedTest;
 
     private InputConfiguration configuration;
-
-    private InputConfiguration changedConfiguration;
-
 
     private CtType<?> currentClassTestToBeAmplified;
 
@@ -50,13 +48,12 @@ public class ChangeDetectorSelector implements TestSelector {
     @Override
     public void init(InputConfiguration configuration) {
         this.configuration = configuration;
-        final String configurationPath = configuration.getConfigPath();
         try {
-            this.changedConfiguration = new InputConfiguration(configurationPath);
-            this.pathToChangedVersionOfProgram = configuration.getAbsolutePathToSecondVersionProjectRoot();
-            this.changedConfiguration.setAbsolutePathToProjectRoot(this.pathToChangedVersionOfProgram);
-            AutomaticBuilderFactory.getAutomaticBuilder(this.changedConfiguration).compile();
-            Initializer.initialize(this.changedConfiguration);
+            this.pathToFirstVersionOfProgram = InputConfiguration.get().getAbsolutePathToProjectRoot();
+            this.pathToSecondVersionOfProgram = configuration.getAbsolutePathToSecondVersionProjectRoot();
+            InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
+            AutomaticBuilderFactory.getAutomaticBuilder(InputConfiguration.get()).compile();
+            InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToFirstVersionOfProgram);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -86,13 +83,18 @@ public class ChangeDetectorSelector implements TestSelector {
 
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC), this.configuration.withComment());
 
-        DSpotCompiler.compile(this.changedConfiguration, DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC,
-                this.changedConfiguration.getFullClassPathWithExtraDependencies(),
-                new File(this.pathToChangedVersionOfProgram + this.changedConfiguration.getPathToTestClasses()));
+        InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
+        DSpotCompiler.compile(
+                InputConfiguration.get(),
+                DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC,
+                InputConfiguration.get().getFullClassPathWithExtraDependencies(),
+                new File(this.pathToSecondVersionOfProgram + InputConfiguration.get().getPathToTestClasses())
+        );
 
         final TestListener results;
         try {
-            results = EntryPoint.runTests(this.changedConfiguration.getFullClassPathWithExtraDependencies(),
+            results = EntryPoint.runTests(
+                    InputConfiguration.get().getFullClassPathWithExtraDependencies(),
                     clone.getQualifiedName(),
                     amplifiedTestToBeKept.stream()
                             .map(CtMethod::getSimpleName)
@@ -101,6 +103,8 @@ public class ChangeDetectorSelector implements TestSelector {
             );
         } catch (TimeoutException e) {
             throw new RuntimeException(e);
+        } finally {
+            InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToFirstVersionOfProgram);
         }
         if (!results.getFailingTests().isEmpty()) {
             results.getFailingTests()
@@ -126,7 +130,6 @@ public class ChangeDetectorSelector implements TestSelector {
         return new ChangeMinimizer(
                 this.currentClassTestToBeAmplified,
                 this.configuration,
-                this.changedConfiguration,
                 this.failurePerAmplifiedTest
         );
     }

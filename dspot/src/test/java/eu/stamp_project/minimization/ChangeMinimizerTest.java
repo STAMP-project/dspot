@@ -2,10 +2,9 @@ package eu.stamp_project.minimization;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.utils.AmplificationChecker;
-import eu.stamp_project.utils.Initializer;
-import eu.stamp_project.program.InputConfiguration;
 import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
@@ -14,7 +13,6 @@ import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.io.File;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
@@ -41,23 +39,16 @@ public class ChangeMinimizerTest extends AbstractTest {
          */
         final CtClass testClass = Utils.findClass("example.TestSuiteExample");
         final String configurationPath = Utils.getInputConfiguration().getConfigPath();
-        final String pathToFolder = Utils.getInputConfiguration().getAbsolutePathToSecondVersionProjectRoot();
-        InputConfiguration inputConfiguration = new InputConfiguration(configurationPath);
-        Initializer.initialize(inputConfiguration);
+        InputConfiguration inputConfiguration = InputConfiguration.initialize(configurationPath);
         final HashMap<CtMethod<?>, Failure> failurePerAmplifiedTest = new HashMap<>();
         final CtMethod<?> test2 = Utils.findMethod(testClass, "test2");
         failurePerAmplifiedTest.put(test2,
                 new Failure("test2", testClass.getQualifiedName(), new StringIndexOutOfBoundsException(-1))
         );
 
-        InputConfiguration changedConfiguration = new InputConfiguration(configurationPath);
-        changedConfiguration.setAbsolutePathToProjectRoot(new File(pathToFolder).getAbsolutePath());
-        Initializer.initialize(changedConfiguration);
-
         final ChangeMinimizer changeMinimizer = new ChangeMinimizer(
                 testClass,
                 inputConfiguration,
-                changedConfiguration,
                 failurePerAmplifiedTest
         );
         final CtInvocation assertion = test2.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
