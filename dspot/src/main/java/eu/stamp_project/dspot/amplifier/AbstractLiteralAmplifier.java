@@ -26,11 +26,11 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
 
     protected CtType<?> testClassToBeAmplified;
 
-    private final TypeFilter<CtLiteral<T>> LITERAL_TYPE_FILTER = new TypeFilter<CtLiteral<T>>(CtLiteral.class) {
+    protected final TypeFilter<CtLiteral<T>> LITERAL_TYPE_FILTER = new TypeFilter<CtLiteral<T>>(CtLiteral.class) {
         @Override
         public boolean matches(CtLiteral<T> literal) {
             try {
-                if (literal.getMetadata(METADATA_KEY) != null && (boolean)literal.getMetadata(METADATA_KEY)) {
+                if (literal.getMetadata(METADATA_KEY) != null && (boolean) literal.getMetadata(METADATA_KEY)) {
                     return false;
                 }
                 Class<?> clazzOfLiteral = null;
@@ -80,7 +80,7 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
                 );
     }
 
-    private CtMethod<?> replace(CtLiteral<T> oldLiteral, T newValue, CtMethod<?> testMethod) {
+    protected CtMethod<?> replace(CtLiteral<T> oldLiteral, T newValue, CtMethod<?> testMethod) {
         final T originalValue = oldLiteral.getValue();
         oldLiteral.setValue(newValue);
         oldLiteral.putMetadata(METADATA_KEY, true);

@@ -1,6 +1,7 @@
 package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.utils.AmplificationHelper;
+import spoon.reflect.code.CtBinaryOperator;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -11,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
@@ -26,9 +28,54 @@ public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
 
     @Override
     public Stream<CtMethod<?>> apply(CtMethod<?> testMethod) {
-        final Stream<CtMethod<?>> amplifiedTests = super.apply(testMethod);
+        flatStringLiterals(testMethod);
+        List<CtLiteral<String>> literals = testMethod.getElements(LITERAL_TYPE_FILTER);
+        if (literals.isEmpty()) {
+            return Stream.empty();
+        }
+        // here, we call a termination function, i.e. collect
+        // because Stream are lazy, we need this to manage hasBeenApplied state to avoir
+        // redundant amplification
+        final List<Stream<String>> newValues =
+                literals.stream()
+                        .map(literal -> this.amplify(literal).stream())
+                        .collect(Collectors.toList());
         this.hasBeenApplied = true;
-        return amplifiedTests;
+        return IntStream.range(0, literals.size())
+                .boxed()
+                .flatMap(index ->
+                        newValues.get(index)
+                                .map(newValue -> replace(literals.get(index), newValue, testMethod))
+                );
+    }
+
+    static void flatStringLiterals(CtMethod<?> testMethod) {
+        final List<CtBinaryOperator> deepestBinOp = testMethod.getElements(
+                op -> (op.getLeftHandOperand() instanceof CtLiteral &&
+                        ((CtLiteral) op.getLeftHandOperand()).getValue() instanceof String) &&
+                        op.getRightHandOperand() instanceof CtLiteral &&
+                        ((CtLiteral) op.getRightHandOperand()).getValue() instanceof String
+        );
+        deepestBinOp.forEach(StringLiteralAmplifier::concatAndReplace);
+        if (deepestBinOp.stream()
+                .allMatch(ctBinaryOperator ->
+                        ctBinaryOperator.getParent(CtBinaryOperator.class) == null)) {
+            return;
+        } else {
+            flatStringLiterals(testMethod);
+        }
+    }
+
+    static void concatAndReplace(CtBinaryOperator<?> binaryOperator) {
+        final CtLiteral<?> ctElement = concatString(binaryOperator);
+        binaryOperator.replace(ctElement);
+    }
+
+    static CtLiteral<?> concatString(CtBinaryOperator<?> binaryOperator) {
+        return binaryOperator.getFactory().createLiteral(
+                ((String) ((CtLiteral) binaryOperator.getLeftHandOperand()).getValue())
+                        + ((String) ((CtLiteral) binaryOperator.getRightHandOperand()).getValue())
+        );
     }
 
     @Override
@@ -62,8 +109,6 @@ public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
         }
         return values;
     }
-
-
 
     @Override
     public void reset(CtType testClass) {
