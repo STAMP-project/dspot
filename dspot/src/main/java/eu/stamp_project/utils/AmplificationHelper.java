@@ -1,9 +1,9 @@
 package eu.stamp_project.utils;
 
 import eu.stamp_project.minimization.Minimizer;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.program.InputConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
@@ -349,7 +349,9 @@ public class AmplificationHelper {
                 .findFirst().orElse(null);
         if (testAnnotation != null) {
             CtExpression originalTimeout = testAnnotation.getValue("timeout");
-            if (originalTimeout == null) {
+            if (originalTimeout == null ||
+                    originalTimeout instanceof CtLiteral &&
+                            (((CtLiteral) originalTimeout).getValue().equals(0L))) {
                 testAnnotation.addValue("timeout", timeOutInMs);
             } else {
                 int valueOriginalTimeout;

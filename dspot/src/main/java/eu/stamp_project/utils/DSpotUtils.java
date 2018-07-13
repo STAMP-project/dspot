@@ -63,7 +63,7 @@ public class DSpotUtils {
         env.setCommentEnabled(withComment);
         JavaOutputProcessor processor = new JavaOutputProcessor(new DefaultJavaPrettyPrinter(env));
         processor.setFactory(factory);
-        processor.setOutputDirectory(directory);
+        processor.getEnvironment().setSourceOutputDirectory(directory);
         processor.createJavaFile(type);
         env.setAutoImports(false);
     }
