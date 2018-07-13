@@ -4,10 +4,13 @@ import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.Test;
+import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,5 +55,40 @@ public class LiteralAmplifiersTest extends AbstractTest {
         amplifiedNumberMethods = amplifiedMethods.stream().flatMap(numberLiteralAmplifier::apply);
         //here, we have less amplified test method than before from more than 1k to 366
         assertEquals(366, Stream.concat(amplifiedStringMethods, amplifiedNumberMethods).count());
+    }
+
+    @Test
+    public void testAvoidRedundantAmplification() throws Exception {
+
+        /*
+            This test implements the example cases showed in https://github.com/STAMP-project/dspot/issues/454
+         */
+
+        CtClass<?> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        final String nameMethod = "methodString";
+        final CtMethod method = Utils.findMethod(literalMutationClass, nameMethod);
+        final CtMethod clone = method.clone();
+        clone.setSimpleName("temporaryMethod");
+        clone.setBody(Utils.getFactory().createCodeSnippetStatement("int x = 1 + 1").compile());
+        Amplifier zeroAmplifier = new AbstractLiteralAmplifier<Integer>() {
+            @Override
+            protected Set<Integer> amplify(CtLiteral<Integer> existingLiteral) {
+                return Collections.singleton(0);
+            }
+            @Override
+            protected String getSuffix() {
+                return "zero-amplifier";
+            }
+            @Override
+            protected Class<?> getTargetedClass() {
+                return Integer.class;
+            }
+        };
+        literalMutationClass.addMethod(clone);
+        List<CtMethod<?>> zeroAmplifiedTests = zeroAmplifier.apply(clone).collect(Collectors.toList());
+        assertEquals(2, zeroAmplifiedTests.size());
+        zeroAmplifiedTests = zeroAmplifiedTests.stream().flatMap(m -> zeroAmplifier.apply(m)).collect(Collectors.toList());
+        assertEquals(1, zeroAmplifiedTests.size());
+        literalMutationClass.removeMethod(clone);
     }
 }
