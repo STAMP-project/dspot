@@ -68,7 +68,7 @@ public class Utils {
 			return;
 		}
 		try {
-			inputConfiguration = new InputConfiguration(pathToConfFile);
+			inputConfiguration = InputConfiguration.initialize(pathToConfFile);
 			Utils.getInputConfiguration().setMinimize(false);
 			Utils.getInputConfiguration().setVerbose(true);
 			//Initializer.initialize(inputConfiguration);

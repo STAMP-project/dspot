@@ -50,7 +50,7 @@ public class DSpotSelectionTest {
     @BeforeClass
     public static void setUpClass() throws Exception {
         Utils.reset();
-        final InputConfiguration inputConfiguration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
+        final InputConfiguration inputConfiguration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
         Main.createOutputDirectories(inputConfiguration);
         dspotUnderTest = new MockedDSpot(
                 inputConfiguration,

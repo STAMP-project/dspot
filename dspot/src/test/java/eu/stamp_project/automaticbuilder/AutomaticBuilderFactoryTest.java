@@ -30,7 +30,7 @@ public class AutomaticBuilderFactoryTest {
     @Test
     public void getAutomaticBuilder_whenMaven() throws Exception {
 
-        InputConfiguration inputConfiguration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
+        InputConfiguration inputConfiguration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
         inputConfiguration.setBuilderName("MAVEN");
 
         assertTrue(inputConfiguration.getBuilderName().toUpperCase().contains("MAVEN"));
@@ -44,7 +44,7 @@ public class AutomaticBuilderFactoryTest {
     @Test
     public void getAutomaticBuilder_whenGradle() throws Exception {
 
-        InputConfiguration inputConfiguration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
+        InputConfiguration inputConfiguration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
         inputConfiguration.setBuilderName("GRADLE");
 
         assertTrue(inputConfiguration.getBuilderName().toUpperCase().contains("GRADLE"));
@@ -58,7 +58,7 @@ public class AutomaticBuilderFactoryTest {
     @Test
     public void getAutomaticBuilder_whenUnknown() throws Exception {
 
-        InputConfiguration inputConfiguration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
+        InputConfiguration inputConfiguration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
         inputConfiguration.setBuilderName("UNKNOWNBuilder");
 
         assertFalse(inputConfiguration.getBuilderName() == null);
@@ -74,7 +74,7 @@ public class AutomaticBuilderFactoryTest {
     @Test
     public void getAutomaticBuilder_whenConfDoesntContainBuilder() throws Exception {
 
-        InputConfiguration inputConfiguration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
+        InputConfiguration inputConfiguration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
 
         assertTrue(inputConfiguration.getBuilderName().isEmpty());
 

@@ -32,12 +32,14 @@ import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
  */
 public class InputConfiguration {
 
+    private static InputConfiguration instance;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(InputConfiguration.class);
 
     private static Properties loadProperties(String pathToPropertiesFile) {
         try {
             Properties properties = new Properties();
-            if (pathToPropertiesFile == null) {
+            if (pathToPropertiesFile == null || "".equals(pathToPropertiesFile)) {
                 LOGGER.warn("You did not specify any path for the properties file. Using only default values.");
             } else {
                 properties.load(new FileInputStream(pathToPropertiesFile));
@@ -48,16 +50,28 @@ public class InputConfiguration {
         }
     }
 
+    public static InputConfiguration get() {
+        return InputConfiguration.instance;
+    }
+
     /**
+     * This method initialize the instance of the Singleton {@link InputConfiguration}.
+     * You can retrieve this instance using {@link InputConfiguration#get()}
      * Build an InputConfiguration from a properties file, given as path.
-     * This constructor will call the default constructor {@link InputConfiguration#InputConfiguration(String, String, String, String, String, String)}
+     * This method will call the default constructor {@link InputConfiguration#InputConfiguration(String, String, String, String, String, String)}
      * Then, uses the properties to initialize other values.
      *
      * @param pathToPropertiesFile the path to the properties file. It is recommended to use an absolute path.
+     * @return the new instance of the InputConfiguration
+     *
      */
-    public InputConfiguration(String pathToPropertiesFile) {
-        this(loadProperties(pathToPropertiesFile));
-        this.configPath = pathToPropertiesFile;
+    public static InputConfiguration initialize(String pathToPropertiesFile) {
+        if (InputConfiguration.instance != null) {
+            LOGGER.warn("Erasing old instance of InputConfiguration");
+        }
+        InputConfiguration.instance = new InputConfiguration(loadProperties(pathToPropertiesFile));
+        InputConfiguration.instance.configPath = pathToPropertiesFile;
+        return InputConfiguration.instance;
     }
 
     private InputConfiguration(Properties properties) {
@@ -127,7 +141,7 @@ public class InputConfiguration {
      * @param pathToClasses     relative path from {@code pathToProjectRoot} to the folder that contains the program binaries (.class).
      * @param pathToTestClasses relative path from {@code pathToProjectRoot} to the folder that contains the test binaries (.class).
      */
-    public InputConfiguration(String pathToProjectRoot,
+    private InputConfiguration(String pathToProjectRoot,
                               String pathToSource,
                               String pathToTestSource,
                               String pathToClasses,
@@ -151,7 +165,7 @@ public class InputConfiguration {
      * @param pathToTestClasses relative path from {@code pathToProjectRoot} to the folder that contains the test binaries (.class).
      * @param targetModule      relative path from {@code pathToProjectRoot} to the targeted sub-module. This argument can be empty ("") in case of single module project.
      */
-    public InputConfiguration(String pathToProjectRoot,
+    private InputConfiguration(String pathToProjectRoot,
                               String pathToSource,
                               String pathToTestSource,
                               String pathToClasses,

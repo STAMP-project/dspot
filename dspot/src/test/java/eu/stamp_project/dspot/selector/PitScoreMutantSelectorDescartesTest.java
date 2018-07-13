@@ -55,7 +55,7 @@ public class PitScoreMutantSelectorDescartesTest {
 
         assertFalse(Utils.getInputConfiguration().isDescartesMode());
         Utils.getInputConfiguration().setDescartesMode(true);
-        InputConfiguration configuration = new InputConfiguration("src/test/resources/test-projects/test-projects.properties");
+        InputConfiguration configuration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
         DSpot dspot = new DSpot(configuration, 1,
                 Arrays.asList(new StringLiteralAmplifier(), new NumberLiteralAmplifier()),
                 new PitMutantScoreSelector());

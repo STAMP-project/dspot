@@ -157,23 +157,25 @@ public class DSpotMojo extends AbstractMojo {
             JSAPOptions.showUsage();
         }
         try {
-            Main.run(new InputConfiguration(this.pathToPropertiesFile)
-                    .setAmplifiers(JSAPOptions.buildAmplifiersFromString(this.amplifiers.toArray(new String[this.amplifiers.size()])))
-                    .setNbIteration(this.iteration)
-                    .setTestClasses(this.testClassesNames)
-                    .setSelector(JSAPOptions.SelectorEnum.valueOf(this.testCriterion).buildSelector())
-                    .setTestCases(this.testMethodsNames)
-                    .setSeed(this.randomSeed)
-                    .setTimeOutInMs(this.timeOut)
-                    .setBuilderName(this.automaticBuilder)
-                    .setMaxTestAmplified(this.maxTestAmplified)
-                    .setClean(this.clean)
-                    .setMinimize(this.noMinimize)
-                    .setVerbose(this.verbose)
-                    .setUseWorkingDirectory(this.workingDirectory)
-                    .setWithComment(this.withComment)
-                    .setDescartesMode(this.descartes)
-                    .setOutputDirectory(this.outputPath));
+            Main.run(
+                    InputConfiguration.initialize(this.pathToPropertiesFile)
+                            .setAmplifiers(JSAPOptions.buildAmplifiersFromString(this.amplifiers.toArray(new String[this.amplifiers.size()])))
+                            .setNbIteration(this.iteration)
+                            .setTestClasses(this.testClassesNames)
+                            .setSelector(JSAPOptions.SelectorEnum.valueOf(this.testCriterion).buildSelector())
+                            .setTestCases(this.testMethodsNames)
+                            .setSeed(this.randomSeed)
+                            .setTimeOutInMs(this.timeOut)
+                            .setBuilderName(this.automaticBuilder)
+                            .setMaxTestAmplified(this.maxTestAmplified)
+                            .setClean(this.clean)
+                            .setMinimize(this.noMinimize)
+                            .setVerbose(this.verbose)
+                            .setUseWorkingDirectory(this.workingDirectory)
+                            .setWithComment(this.withComment)
+                            .setDescartesMode(this.descartes)
+                            .setOutputDirectory(this.outputPath)
+            );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
