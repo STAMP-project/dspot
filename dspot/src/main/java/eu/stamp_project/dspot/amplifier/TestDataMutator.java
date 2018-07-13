@@ -13,10 +13,10 @@ import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /* This processor is meant to replace all literal values in test cases by other literal values
  * */
-@Deprecated //TODO this amplifier should be replaced by multiple amplifiers, one for each type
 public class TestDataMutator implements Amplifier {
 
 
@@ -39,8 +39,8 @@ public class TestDataMutator implements Amplifier {
 		}
 	}
 
-	public List<CtMethod> apply(CtMethod method) {
-		List<CtMethod> methods = new ArrayList<>();
+	public Stream<CtMethod<?>> apply(CtMethod<?> method) {
+		List<CtMethod<?>> methods = new ArrayList<>();
 		//get the list of literals in the method
 		List<CtLiteral> literals = Query.getElements(method.getBody(), new LiteralToBeMutedFilter());
 		//this index serves to replace ith literal is replaced by zero in the ith clone of the method
@@ -66,7 +66,7 @@ public class TestDataMutator implements Amplifier {
 			}
 			lit_index++;
 		}
-		return methods;
+		return methods.stream();
 	}
 
 	public void reset(CtType testClass) {
@@ -77,7 +77,7 @@ public class TestDataMutator implements Amplifier {
 				.collect(Collectors.groupingBy(lit -> lit.getClass()));
 	}
 
-	private CtMethod createNumberMutant(CtMethod method, int original_lit_index, Number newValue) {
+	private CtMethod<?> createNumberMutant(CtMethod<?> method, int original_lit_index, Number newValue) {
 		//clone the method
 		CtMethod cloned_method = AmplificationHelper.cloneTestMethodForAmp(method, "_literalMutationNumber");
 		//get the lit_indexth literal of the cloned method
@@ -111,21 +111,21 @@ public class TestDataMutator implements Amplifier {
 		return cloned_method;
 	}
 
-	private List<CtMethod> createAllNumberMutant(CtMethod method, CtLiteral literal, int lit_index) {
+	private List<CtMethod<?>> createAllNumberMutant(CtMethod<?> method, CtLiteral literal, int lit_index) {
 		return numberMutated(literal).stream()
 				.map(newValue -> createNumberMutant(method, lit_index, newValue))
 				.collect(Collectors.toList());
 	}
 
 
-	private List<CtMethod> createAllStringMutant(CtMethod method, CtLiteral literal, int original_lit_index) {
+	private List<CtMethod<?>> createAllStringMutant(CtMethod<?> method, CtLiteral literal, int original_lit_index) {
 		return stringMutated(literal).stream()
 				.map(literalMutated -> createStringMutant(method, original_lit_index, literalMutated))
 				.collect(Collectors.toList());
 	}
 
-	private CtMethod createStringMutant(CtMethod method, int original_lit_index, String newValue) {
-		CtMethod cloned_method = AmplificationHelper.cloneTestMethodForAmp(method, "_literalMutationString");
+	private CtMethod<?> createStringMutant(CtMethod<?> method, int original_lit_index, String newValue) {
+		CtMethod<?> cloned_method = AmplificationHelper.cloneTestMethodForAmp(method, "_literalMutationString");
 		Counter.updateInputOf(cloned_method, 1);
 		CtLiteral toReplace = Query.getElements(cloned_method.getBody(), new LiteralToBeMutedFilter())
 				.get(original_lit_index);
@@ -134,13 +134,13 @@ public class TestDataMutator implements Amplifier {
 		return cloned_method;
 	}
 
-	private List<CtMethod> createAllCharacterMutant(CtMethod method, CtLiteral lit, int original_lit_index) {
+	private List<CtMethod<?>> createAllCharacterMutant(CtMethod method, CtLiteral lit, int original_lit_index) {
 		return characterMutated(lit).stream()
 				.map(character -> createCharacterMutant(method, original_lit_index, character))
 				.collect(Collectors.toList());
 	}
 
-	private CtMethod createCharacterMutant(CtMethod method, int original_lit_index, Character newValue) {
+	private CtMethod<?> createCharacterMutant(CtMethod method, int original_lit_index, Character newValue) {
 		CtMethod cloned_method = AmplificationHelper.cloneTestMethodForAmp(method, "_literalMutationChar");
 		Counter.updateInputOf(cloned_method, 1);
 		CtLiteral toReplace = Query.getElements(cloned_method.getBody(), new LiteralToBeMutedFilter())
@@ -208,7 +208,7 @@ public class TestDataMutator implements Amplifier {
 	}
 
 
-	private CtMethod createBooleanMutant(CtMethod test, CtLiteral booleanLiteral) {
+	private CtMethod<?> createBooleanMutant(CtMethod test, CtLiteral booleanLiteral) {
 		Boolean value = (Boolean) booleanLiteral.getValue();
 		CtMethod cloned_method = AmplificationHelper.cloneTestMethodForAmp(test, "_literalMutationBoolean");
 		CtLiteral newValue = cloned_method.getElements(new TypeFilter<CtLiteral>(CtLiteral.class) {

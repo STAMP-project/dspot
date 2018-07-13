@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
 
@@ -24,15 +25,15 @@ public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
     }
 
     @Override
-    public List<CtMethod> apply(CtMethod testMethod) {
-        final List<CtMethod> amplifiedTests = super.apply(testMethod);
+    public Stream<CtMethod<?>> apply(CtMethod<?> testMethod) {
+        final Stream<CtMethod<?>> amplifiedTests = super.apply(testMethod);
         this.hasBeenApplied = true;
         return amplifiedTests;
     }
 
     @Override
     protected Set<String> amplify(CtLiteral<String> existingLiteral) {
-        Set<String> values = new HashSet<>(this.existingStrings);
+        Set<String> values = new HashSet<>();
         values.add(this.existingStrings.get(AmplificationHelper.getRandom().nextInt(this.existingStrings.size() - 1)));
         String value = (String) existingLiteral.getValue();
         if (value != null) {
@@ -47,22 +48,18 @@ public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
                 // remove one random char
                 index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
                 values.add(value.substring(0, index) + value.substring(index + 1, length));
-
                 // add one random string
                 values.add(AmplificationHelper.getRandomString(value.length()));
             } else {
                 values.add("" + AmplificationHelper.getRandomChar());
             }
         }
-
         if (!this.hasBeenApplied) {
             // add special strings
             values.add("");
             values.add(System.getProperty("line.separator"));
             values.add(System.getProperty("path.separator"));
-            values.add("\0");
         }
-
         return values;
     }
 

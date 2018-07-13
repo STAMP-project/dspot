@@ -8,6 +8,7 @@ import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -30,12 +31,12 @@ public class StringLiteralAmplifierTest extends AbstractTest {
         Amplifier amplificator = new StringLiteralAmplifier();
         amplificator.reset(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<CtMethod> mutantMethods = amplificator.apply(method);
+        List<CtMethod> mutantMethods = amplificator.apply(method).collect(Collectors.toList());
         assertEquals(43, mutantMethods.size());
-        mutantMethods = amplificator.apply(method);
+        mutantMethods = amplificator.apply(method).collect(Collectors.toList());
         assertEquals(23, mutantMethods.size());
         amplificator.reset(literalMutationClass);
-        mutantMethods = amplificator.apply(method);
+        mutantMethods = amplificator.apply(method).collect(Collectors.toList());
         assertEquals(43, mutantMethods.size());
     }
 
@@ -47,7 +48,7 @@ public class StringLiteralAmplifierTest extends AbstractTest {
         Amplifier mutator = new StringLiteralAmplifier();
         mutator.reset(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<CtMethod> mutantMethods = mutator.apply(method);
+        List<CtMethod> mutantMethods = mutator.apply(method).collect(Collectors.toList());
         assertTrue(mutantMethods.isEmpty());
     }
 }

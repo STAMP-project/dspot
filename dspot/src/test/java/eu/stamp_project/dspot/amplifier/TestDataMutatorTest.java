@@ -40,11 +40,11 @@ public class TestDataMutatorTest extends AbstractTest {
         final int originalValue = 23;
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         AmplificationHelper.setSeedRandom(42L);
-        TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
+        TestDataMutator amplifier = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<Integer> expectedValues = Arrays.asList(22, 24, 46, (23 / 2), 32, 0);
 
-        List<CtMethod> mutantMethods = amplificator.apply(method);
+        List<CtMethod> mutantMethods = amplifier.apply(method).collect(Collectors.toList());
 
         assertEquals(6, mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {
@@ -68,11 +68,11 @@ public class TestDataMutatorTest extends AbstractTest {
         final double originalValue = 23.0D;
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         AmplificationHelper.setSeedRandom(42L);
-        TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
+        TestDataMutator amplifier = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<Double> expectedValues = Arrays.asList(22.0D, 24.0D, 46.0D, (23.0D / 2.0D), 32.0D, 0.0D);
 
-        List<CtMethod> mutantMethods = amplificator.apply(method);
+        List<CtMethod> mutantMethods = amplifier.apply(method).collect(Collectors.toList());
 
         assertEquals(6, mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {
@@ -98,9 +98,9 @@ public class TestDataMutatorTest extends AbstractTest {
         final String originalValue = "MyStringLiteral";
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         AmplificationHelper.setSeedRandom(42L);
-        TestDataMutator amplificator = getTestDataMutator(literalMutationClass);
+        TestDataMutator amplifier = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<CtMethod> mutantMethods = amplificator.apply(method);
+        List<CtMethod> mutantMethods = amplifier.apply(method).collect(Collectors.toList());
 
         assertEquals(12, mutantMethods.size());
         for (int i = 0; i < 6; i++) {
@@ -171,7 +171,7 @@ public class TestDataMutatorTest extends AbstractTest {
         AmplificationHelper.setSeedRandom(42L);
         TestDataMutator mutator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<CtMethod> mutantMethods = mutator.apply(method);
+        List<CtMethod> mutantMethods = mutator.apply(method).collect(Collectors.toList());
         CtMethod mutantMethod = mutantMethods.get(0);
 
         assertEquals(1, mutantMethods.size());
@@ -192,7 +192,7 @@ public class TestDataMutatorTest extends AbstractTest {
         AmplificationHelper.setSeedRandom(42L);
         TestDataMutator mutator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<CtMethod> mutantMethods = mutator.apply(method);
+        List<CtMethod> mutantMethods = mutator.apply(method).collect(Collectors.toList());
         List<Character> expectedValues = Arrays.asList('\0', ' ', 'h', '{', 'y', System.getProperty("line.separator").charAt(0));
 
         assertEquals(6, mutantMethods.size());
@@ -206,9 +206,9 @@ public class TestDataMutatorTest extends AbstractTest {
     }
 
     private TestDataMutator getTestDataMutator(CtClass<Object> literalMutationClass) {
-        TestDataMutator amplificator = new TestDataMutator();
-        amplificator.reset(literalMutationClass);
-        return amplificator;
+        TestDataMutator amplifier = new TestDataMutator();
+        amplifier.reset(literalMutationClass);
+        return amplifier;
     }
 
 }

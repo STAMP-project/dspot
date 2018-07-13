@@ -182,6 +182,7 @@ public class Amplification {
         return amplifiedTests;
     }
 
+    @Deprecated // this take too much time... We will filter before it: i.e. avoid redundant amplification.
     public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
         Set<Object> seen = ConcurrentHashMap.newKeySet();
         return t -> seen.add(keyExtractor.apply(t));
@@ -196,9 +197,9 @@ public class Amplification {
     private Stream<CtMethod<?>> inputAmplifyTest(CtMethod<?> test) {
         final CtMethod topParent = AmplificationHelper.getTopParent(test);
         return this.amplifiers.parallelStream()
-                .flatMap(amplifier -> amplifier.apply(test).stream())
+                .flatMap(amplifier -> amplifier.apply(test))
                 .filter(amplifiedTest -> amplifiedTest != null && !amplifiedTest.getBody().getStatements().isEmpty())
-                .filter(distinctByKey(CtMethod::getBody))
+//                .filter(distinctByKey(CtMethod::getBody))
                 .map(amplifiedTest ->
                         AmplificationHelper.addOriginInComment(amplifiedTest, topParent)
                 );

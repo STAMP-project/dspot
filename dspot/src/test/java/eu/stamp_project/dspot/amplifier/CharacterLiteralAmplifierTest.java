@@ -8,6 +8,7 @@ import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
@@ -21,7 +22,7 @@ public class CharacterLiteralAmplifierTest extends AbstractTest {
         Amplifier mutator = new CharLiteralAmplifier();
         mutator.reset(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<CtMethod> mutantMethods = mutator.apply(method);
+        List<CtMethod> mutantMethods = mutator.apply(method).collect(Collectors.toList());
         assertEquals(6, mutantMethods.size());
     }
 

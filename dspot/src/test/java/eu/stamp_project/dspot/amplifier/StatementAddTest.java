@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -38,7 +39,7 @@ public class StatementAddTest extends AbstractTest {
         amplifier.reset(factory.Class().get(packageName + ".ClassTarget"));
 
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTarget"), "testWithLoop");
-        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod);
+        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod).collect(Collectors.toList());
 
         final String expectedTest = "{" + AmplificationHelper.LINE_SEPARATOR +
                 "    java.util.ArrayList<fr.inria.statementadd.TestClassTarget.Internal> internalList = new java.util.ArrayList<>();" + AmplificationHelper.LINE_SEPARATOR +
@@ -71,7 +72,7 @@ public class StatementAddTest extends AbstractTest {
         amplifier.reset(factory.Class().get(packageName + ".ClassTarget"));
 
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTarget"), "test");
-        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod);
+        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod).collect(Collectors.toList());
 
         assertEquals(7, amplifiedMethods.size());
 
@@ -101,7 +102,7 @@ public class StatementAddTest extends AbstractTest {
         amplifier.reset(factory.Class().get(packageName + ".ClassTargetAmplify"));
 
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
-        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod);
+        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod).collect(Collectors.toList());
 
         System.out.println(amplifiedMethods);
 
@@ -136,7 +137,7 @@ public class StatementAddTest extends AbstractTest {
 
         CtMethod originalMethod = Utils.findMethod(ctClass, "testLit");
 
-        List<CtMethod> amplifiedMethods = amplificator.apply(originalMethod);
+        List<CtMethod> amplifiedMethods = amplificator.apply(originalMethod).collect(Collectors.toList());
 
         System.out.println(amplifiedMethods);
 
@@ -172,7 +173,7 @@ public class StatementAddTest extends AbstractTest {
         amplifier.reset(factory.Class().get(packageName + ".ClassTargetAmplify"));
 
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
-        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod);
+        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod).collect(Collectors.toList());
 
         System.out.println(amplifiedMethods);
 

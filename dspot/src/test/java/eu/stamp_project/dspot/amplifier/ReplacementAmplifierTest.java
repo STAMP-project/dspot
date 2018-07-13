@@ -8,6 +8,7 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
@@ -28,7 +29,7 @@ public class ReplacementAmplifierTest extends AbstractTest {
         amplifier.reset(factory.Class().get(packageName + ".ClassTarget"));
 
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTarget"), "testWithLoop");
-        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod);
+        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod).collect(Collectors.toList());
 
         assertEquals(1, amplifiedMethods.size());
         assertEquals("{" + AmplificationHelper.LINE_SEPARATOR +
@@ -54,7 +55,7 @@ public class ReplacementAmplifierTest extends AbstractTest {
         amplifier.reset(factory.Class().get(packageName + ".ClassTarget"));
 
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTarget"), "testWithLoop");
-        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod);
+        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod).collect(Collectors.toList());
 
         assertEquals(1, amplifiedMethods.size());
     }
@@ -68,7 +69,7 @@ public class ReplacementAmplifierTest extends AbstractTest {
 
         final ReplacementAmplifier replacementAmplifier = new ReplacementAmplifier();
         final CtMethod originalTest = Utils.findMethod("fr.inria.factory.FactoryTest", "test");
-        final List<CtMethod> test = replacementAmplifier.apply(originalTest);
+        final List<CtMethod> test = replacementAmplifier.apply(originalTest).collect(Collectors.toList());
         final String expectedMethod = "{" + AmplificationHelper.LINE_SEPARATOR +
                 "    final fr.inria.factory.FactoryTest.aClass aClass = build(-1183186497);" + AmplificationHelper.LINE_SEPARATOR +
                 "}";

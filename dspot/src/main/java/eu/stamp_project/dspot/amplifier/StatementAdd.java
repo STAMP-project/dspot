@@ -17,12 +17,14 @@ import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * User: Simon
  * Date: 18/11/16
  * Time: 10:40
  */
+@SuppressWarnings("unchecked")
 public class StatementAdd implements Amplifier {
 
     private String filter;
@@ -36,17 +38,17 @@ public class StatementAdd implements Amplifier {
     }
 
     @Override
-    public List<CtMethod> apply(CtMethod method) {
+    public Stream<CtMethod<?>> apply(CtMethod<?> method) {
         // reuse existing object in test to add call to methods
-        final List<CtMethod> useExistingObject = useExistingObject(method); // original
+        final List<CtMethod<?>> useExistingObject = useExistingObject(method); // original
         // use results of existing method call to generate new statement.
-        final List<CtMethod> useReturnValuesOfExistingMethodCall = useReturnValuesOfExistingMethodCall(method);  // original
+        final List<CtMethod<?>> useReturnValuesOfExistingMethodCall = useReturnValuesOfExistingMethodCall(method);  // original
         useExistingObject.addAll(useReturnValuesOfExistingMethodCall);
-        return useExistingObject;
+        return useExistingObject.stream();
     }
 
     //TODO existing object should be object from the original test, not from
-    private List<CtMethod> useExistingObject(CtMethod method) {
+    private List<CtMethod<?>> useExistingObject(CtMethod<?> method) {
         List<CtLocalVariable<?>> existingObjects = getExistingObjects(method);
         return existingObjects.stream()
                 .flatMap(existingObject -> findMethodsWithTargetType(existingObject.getType()).stream()
@@ -63,9 +65,9 @@ public class StatementAdd implements Amplifier {
                 ).collect(Collectors.toList());
     }
 
-    private List<CtMethod> useReturnValuesOfExistingMethodCall(CtMethod method) {
+    private List<CtMethod<?>> useReturnValuesOfExistingMethodCall(CtMethod<?> method) {
         List<CtInvocation> invocations = getInvocations(method);
-        final List<CtMethod> ampMethods = new ArrayList<>();
+        final List<CtMethod<?>> ampMethods = new ArrayList<>();
         invocations.stream()
                 .filter(invocation ->
                         !(invocation.getType() instanceof CtWildcardReference) &&
@@ -133,11 +135,11 @@ public class StatementAdd implements Amplifier {
     }
 
     @Override
-    public void reset(CtType testClass) {
+    public void reset(CtType<?> testClass) {
         AmplificationHelper.reset();
     }
 
-    private CtMethod addInvocation(CtMethod<?> testMethod, CtMethod<?> methodToInvokeToAdd, CtExpression<?> target, CtStatement position) {
+    private CtMethod<?> addInvocation(CtMethod<?> testMethod, CtMethod<?> methodToInvokeToAdd, CtExpression<?> target, CtStatement position) {
         final Factory factory = testMethod.getFactory();
         CtMethod methodClone = AmplificationHelper.cloneTestMethodForAmp(testMethod, "_sd");
 
@@ -207,7 +209,7 @@ public class StatementAdd implements Amplifier {
 
 
     // return all invocations inside the given method
-    private List<CtInvocation> getInvocations(CtMethod method) {
+    private List<CtInvocation> getInvocations(CtMethod<?> method) {
         List<CtInvocation> statements = Query.getElements(method, new TypeFilter(CtInvocation.class));
         return statements.stream()
                 .filter(invocation -> invocation.getParent() instanceof CtBlock)

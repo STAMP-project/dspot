@@ -3,7 +3,7 @@ package eu.stamp_project.dspot.amplifier;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
-import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Created by Benjamin DANGLOT
@@ -14,8 +14,8 @@ import java.util.List;
  */
 public interface Amplifier {
 
-    List<CtMethod> apply(CtMethod testMethod);
+    Stream<CtMethod<?>> apply(CtMethod<?> testMethod);
 
-    void reset(CtType testClass);
+    void reset(CtType<?> testClass);
 
 }

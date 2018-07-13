@@ -7,6 +7,7 @@ import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -32,7 +33,7 @@ public class TestMethodCallRemove extends AbstractTest {
         methodCallRemove.reset(null);
 
         final CtMethod<?> originalMethod = testClass.getMethods().stream().filter(m -> "testAddCall".equals(m.getSimpleName())).findFirst().get();
-        List<CtMethod> amplifiedMethods = methodCallRemove.apply(originalMethod);
+        List<CtMethod> amplifiedMethods = methodCallRemove.apply(originalMethod).collect(Collectors.toList());
 
         assertEquals(2, amplifiedMethods.size());
 

@@ -8,7 +8,6 @@ import spoon.reflect.declaration.CtType;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -23,9 +22,9 @@ public class ObjectGenerator implements Amplifier {
 	private int counterGenerateNewObject = 0;
 
 	@Override
-	public List<CtMethod> apply(CtMethod method) {
+	public Stream<CtMethod<?>> apply(CtMethod<?> method) {
 		List<CtLocalVariable<?>> existingObjects = getExistingObjects(method);
-		final Stream<? extends CtMethod<?>> gen_o1 = existingObjects.stream() // must use tmp variable because javac is confused
+		final Stream<CtMethod<?>> gen_o1 = existingObjects.stream() // must use tmp variable because javac is confused
 				.flatMap(localVariable -> ConstructorCreator.generateAllConstructionOf(localVariable.getType()).stream())
 				.map(ctExpression -> {
 							final CtMethod<?> clone = AmplificationHelper.cloneTestMethodForAmp(method, "_sd");
@@ -37,7 +36,7 @@ public class ObjectGenerator implements Amplifier {
 							return clone;
 						}
 				);
-		return gen_o1.collect(Collectors.toList());
+		return gen_o1;
 	}
 
 	private List<CtLocalVariable<?>> getExistingObjects(CtMethod method) {
