@@ -1,14 +1,16 @@
 package eu.stamp_project.dspot.amplifier;
 
 import spoon.reflect.code.CtLiteral;
+import spoon.reflect.declaration.CtMethod;
 
 import java.util.Collections;
 import java.util.Set;
 
 public class BooleanLiteralAmplifier extends AbstractLiteralAmplifier<Boolean> {
+
     @Override
-    protected Set<Boolean> amplify(CtLiteral<Boolean> existingLiteral) {
-        return Collections.singleton(!existingLiteral.getValue());
+    protected Set<CtLiteral<Boolean>> amplify(CtLiteral<Boolean> original, CtMethod<?> testMethod) {
+        return Collections.singleton(testMethod.getFactory().createLiteral(!original.getValue()));
     }
 
     @Override

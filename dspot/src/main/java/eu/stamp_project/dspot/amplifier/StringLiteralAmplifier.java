@@ -5,6 +5,7 @@ import spoon.reflect.code.CtBinaryOperator;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.ArrayList;
@@ -27,26 +28,86 @@ public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
     }
 
     @Override
-    public Stream<CtMethod<?>> apply(CtMethod<?> testMethod) {
+    protected List<CtLiteral<String>> getOriginals(CtMethod<?> testMethod) {
         flatStringLiterals(testMethod);
-        List<CtLiteral<String>> literals = testMethod.getElements(LITERAL_TYPE_FILTER);
-        if (literals.isEmpty()) {
-            return Stream.empty();
-        }
+        return super.getOriginals(testMethod);
+    }
+
+    @Override
+    public Stream<CtMethod<?>> apply(CtMethod<?> testMethod) {
+        List<CtLiteral<String>> originals = this.getOriginals(testMethod);
+        List<CtLiteral<String>> reducedOriginals = this.reduceAlreadyAmplifiedElements(originals);
         // here, we call a termination function, i.e. collect
         // because Stream are lazy, we need this to manage hasBeenApplied state to avoir
         // redundant amplification
-        final List<Stream<String>> newValues =
-                literals.stream()
-                        .map(literal -> this.amplify(literal).stream())
-                        .collect(Collectors.toList());
+        final List<Stream<CtLiteral<String>>> amplification = reducedOriginals.stream()
+                .map(original -> this.amplify(original, testMethod).stream())
+                .collect(Collectors.toList());
         this.hasBeenApplied = true;
-        return IntStream.range(0, literals.size())
+        return IntStream.range(0, reducedOriginals.size())
                 .boxed()
                 .flatMap(index ->
-                        newValues.get(index)
-                                .map(newValue -> replace(literals.get(index), newValue, testMethod))
+                        amplification.get(index)
+                                .map(newValue ->
+                                        replace(reducedOriginals.get(index), newValue, testMethod)
+                                )
                 );
+    }
+
+    @Override
+    protected Set<CtLiteral<String>> amplify(CtLiteral<String> original, CtMethod<?> testMethod) {
+        final Factory factory = testMethod.getFactory();
+        Set<CtLiteral<String>> values = new HashSet<>();
+        values.add(factory.createLiteral(this.existingStrings.get(AmplificationHelper.getRandom().nextInt(this.existingStrings.size() - 1))));
+        String value = original.getValue();
+        if (value != null) {
+            if (value.length() > 2) {
+                int length = value.length();
+                // add one random char
+                int index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
+                values.add(factory.createLiteral(value.substring(0, index - 1) + AmplificationHelper.getRandomChar() + value.substring(index, length)));
+                // replace one random char
+                index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
+                values.add(factory.createLiteral(value.substring(0, index) + AmplificationHelper.getRandomChar() + value.substring(index, length)));
+                // remove one random char
+                index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
+                values.add(factory.createLiteral(value.substring(0, index) + value.substring(index + 1, length)));
+                // add one random string
+                values.add(factory.createLiteral(AmplificationHelper.getRandomString(value.length())));
+            } else {
+                values.add(factory.createLiteral("" + AmplificationHelper.getRandomChar()));
+            }
+        }
+        if (!this.hasBeenApplied) {
+            // add special strings
+            values.add(factory.createLiteral(""));
+//            values.add(factory.createLiteral(System.getProperty("file.separator")));
+            values.add(factory.createLiteral(System.getProperty("line.separator")));
+            values.add(factory.createLiteral(System.getProperty("path.separator")));
+        }
+        return values;
+    }
+
+    @Override
+    public void reset(CtType testClass) {
+        super.reset(testClass);
+        this.existingStrings = this.testClassToBeAmplified.getElements(new TypeFilter<CtLiteral<String>>(CtLiteral.class))
+                .stream()
+                .filter(element -> element.getValue() != null && element.getValue() instanceof String)
+                .map(CtLiteral::clone)
+                .map(CtLiteral::getValue)
+                .collect(Collectors.toList());
+        this.hasBeenApplied = false;
+    }
+
+    @Override
+    protected String getSuffix() {
+        return "litString";
+    }
+
+    @Override
+    protected Class<?> getTargetedClass() {
+        return String.class;
     }
 
     static void flatStringLiterals(CtMethod<?> testMethod) {
@@ -76,59 +137,5 @@ public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
                 ((String) ((CtLiteral) binaryOperator.getLeftHandOperand()).getValue())
                         + ((String) ((CtLiteral) binaryOperator.getRightHandOperand()).getValue())
         );
-    }
-
-    @Override
-    protected Set<String> amplify(CtLiteral<String> existingLiteral) {
-        Set<String> values = new HashSet<>();
-        values.add(this.existingStrings.get(AmplificationHelper.getRandom().nextInt(this.existingStrings.size() - 1)));
-        String value = (String) existingLiteral.getValue();
-        if (value != null) {
-            if (value.length() > 2) {
-                int length = value.length();
-                // add one random char
-                int index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
-                values.add(value.substring(0, index - 1) + AmplificationHelper.getRandomChar() + value.substring(index, length));
-                // replace one random char
-                index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
-                values.add(value.substring(0, index) + AmplificationHelper.getRandomChar() + value.substring(index, length));
-                // remove one random char
-                index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
-                values.add(value.substring(0, index) + value.substring(index + 1, length));
-                // add one random string
-                values.add(AmplificationHelper.getRandomString(value.length()));
-            } else {
-                values.add("" + AmplificationHelper.getRandomChar());
-            }
-        }
-        if (!this.hasBeenApplied) {
-            // add special strings
-            values.add("");
-            values.add(System.getProperty("line.separator"));
-            values.add(System.getProperty("path.separator"));
-        }
-        return values;
-    }
-
-    @Override
-    public void reset(CtType testClass) {
-        super.reset(testClass);
-        this.existingStrings = this.testClassToBeAmplified.getElements(new TypeFilter<CtLiteral<String>>(CtLiteral.class))
-                .stream()
-                .filter(element -> element.getValue() != null && element.getValue() instanceof String)
-                .map(CtLiteral::clone)
-                .map(CtLiteral::getValue)
-                .collect(Collectors.toList());
-        this.hasBeenApplied = false;
-    }
-
-    @Override
-    protected String getSuffix() {
-        return "litString";
-    }
-
-    @Override
-    protected Class<?> getTargetedClass() {
-        return String.class;
     }
 }

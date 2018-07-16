@@ -14,17 +14,13 @@ import spoon.reflect.declaration.CtType;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
  * on 18/09/17
  */
-public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
-
-    private static final String METADATA_KEY = "amplified";
+public abstract class AbstractLiteralAmplifier<T> extends AbstractAmplifier<CtLiteral<T>> {
 
     protected CtType<?> testClassToBeAmplified;
 
@@ -32,9 +28,6 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
         @Override
         public boolean matches(CtLiteral<T> literal) {
             try {
-                if (literal.getMetadata(METADATA_KEY) != null && (boolean) literal.getMetadata(METADATA_KEY)) {
-                    return false;
-                }
                 Class<?> clazzOfLiteral = null;
                 if ((literal.getParent() instanceof CtInvocation &&
                         AmplificationChecker.isAssert((CtInvocation) literal.getParent()))
@@ -81,47 +74,8 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
     };
 
     @Override
-    public Stream<CtMethod<?>> apply(final CtMethod<?> testMethod) {
-        List<CtLiteral<T>> literals = testMethod.getElements(LITERAL_TYPE_FILTER);
-        if (literals.isEmpty()) {
-            return Stream.empty();
-        }
-        // we now reduce the literals list, see https://github.com/STAMP-project/dspot/issues/454
-        final Integer maxIndex = literals.stream()
-                .filter(this::hasBeenAmplified)
-                .map(literals::indexOf)
-                .max(Integer::compareTo)
-                .orElse(-1);
-        if (maxIndex > -1 && maxIndex <= literals.size()) {
-            literals = literals.subList(maxIndex + 1, literals.size());
-        }
-        return literals.stream()
-                .filter(literal -> !this.hasBeenAmplified(literal))
-                // we now filter here, in order to keep marked elements, to reduce the list
-                .flatMap(literal -> this.amplify(literal).stream()
-                        .map(newValue -> replace(literal, newValue, testMethod))
-                );
-    }
-
-    protected CtMethod<?> replace(CtLiteral<T> oldLiteral, T newValue, CtMethod<?> testMethod) {
-        final T originalValue = oldLiteral.getValue();
-        oldLiteral.setValue(newValue);
-        oldLiteral.putMetadata(METADATA_KEY, true);
-        oldLiteral.setDocComment(METADATA_KEY); // here, we use the DocComment since the Metadata are not cloned
-        CtMethod<?> clone = AmplificationHelper.cloneTestMethodForAmp(testMethod, getSuffix());
-        oldLiteral.setValue(originalValue);
-        oldLiteral.setDocComment("");
-        oldLiteral.putMetadata(METADATA_KEY, false);
-        return clone;
-    }
-
-
-    // checks rather than a literal has been amplified
-    private boolean hasBeenAmplified(CtLiteral<T> literal) {
-        return (literal.getMetadata(METADATA_KEY) != null &&
-                (boolean) literal.getMetadata(METADATA_KEY)) ||
-                (literal.getDocComment() != null &&
-                literal.getDocComment().equals(METADATA_KEY));
+    protected List<CtLiteral<T>> getOriginals(CtMethod<?> testMethod) {
+        return testMethod.getElements(LITERAL_TYPE_FILTER);
     }
 
     @Override
@@ -130,9 +84,7 @@ public abstract class AbstractLiteralAmplifier<T> implements Amplifier {
         this.testClassToBeAmplified = testClass;
     }
 
-    protected abstract Set<T> amplify(CtLiteral<T> existingLiteral);
 
-    protected abstract String getSuffix();
 
     protected abstract Class<?> getTargetedClass();
 
