@@ -108,7 +108,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 	public static boolean compile(InputConfiguration configuration, String pathToSources, String dependencies, File binaryOutputDirectory) {
 		Launcher launcher = new Launcher();
 		if (configuration.isVerbose()) {
-			launcher.getEnvironment().setLevel("DEBUG");
+			launcher.getEnvironment().setLevel("INFO");
 		}
 		launcher.getEnvironment().setNoClasspath(true);
 		launcher.getEnvironment().setCommentEnabled(true);
@@ -126,7 +126,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 	}
 
 	/**
-	 * this method call {@link #compile(String, String, File)} and return the potential problems of the compilation.
+	 * this method call {@link #compile(String)} and return the potential problems of the compilation.
 	 * @param pathToAdditionalDependencies
 	 * @return a list that contains compilation problems
 	 */
