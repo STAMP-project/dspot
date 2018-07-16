@@ -17,6 +17,19 @@ import static org.junit.Assert.assertTrue;
 public class StringLiteralAmplifierTest extends AbstractTest {
 
     @Test
+    public void testFlatString() throws Exception {
+        final CtClass testClass = Utils.findClass("fr.inria.ampl.ToBeAmplifiedLiteralTest");
+        CtMethod<?> method = Utils.findMethod(testClass, "testInt");
+
+        StringLiteralAmplifier.flatStringLiterals(method);
+        System.out.println(method);
+
+        // TODO spoon adds parenthesis and flat literals does not work in specific case, e.g.
+        // TODO java.lang.String s3 = (s1 + "hey") + "ho"; while the source is written as
+        // TODO String s3 = s1 + "hey" + "ho";
+    }
+
+    @Test
     public void testAmplify() throws Exception {
 
         /*
