@@ -11,6 +11,7 @@ import eu.stamp_project.dspot.amplifier.AllLiteralAmplifiers;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.amplifier.BooleanLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.CharLiteralAmplifier;
+import eu.stamp_project.dspot.amplifier.NullifierAmplifier;
 import eu.stamp_project.dspot.amplifier.NumberLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.ReplacementAmplifier;
 import eu.stamp_project.dspot.amplifier.StatementAdd;
@@ -100,6 +101,7 @@ public class JSAPOptions {
         CharLiteralAmplifier(new CharLiteralAmplifier()),
         AllLiteralAmplifiers(new AllLiteralAmplifiers()),
         ReplacementAmplifier(new ReplacementAmplifier()),
+        NullifierAmplifier(new NullifierAmplifier()),
         None(null);
         public final Amplifier amplifier;
 
@@ -178,6 +180,7 @@ public class JSAPOptions {
                         "TestDataMutator (deprecated)",
                         "StatementAdd",
                         "ReplacementAmplifier",
+                        "NullifierAmplifier",
                         "None"
                 }).collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR + "\t\t - "));
     }

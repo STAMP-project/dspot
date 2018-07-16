@@ -187,6 +187,7 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         		 - TestDataMutator (deprecated)
         		 - StatementAdd
         		 - ReplacementAmplifier
+        		 - NullifierAmplifier
         		 - None (default: None)
 
   [(-i|--iteration) <iteration>]
