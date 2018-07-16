@@ -87,6 +87,10 @@ public abstract class AbstractAmplifier<T extends CtElement> implements Amplifie
         List<T> originals = this.getOriginals(testMethod);
         List<T> reducedOriginals = this.reduceAlreadyAmplifiedElements(originals);
         return reducedOriginals.stream()
+                .filter(reducedOriginal ->
+                        reducedOriginal.getMetadata(METADATA_KEY) == null ||
+                                !(boolean)reducedOriginal.getMetadata(METADATA_KEY)
+                )
                 .flatMap(original ->
                     this.amplify(original, testMethod)
                         .stream()
