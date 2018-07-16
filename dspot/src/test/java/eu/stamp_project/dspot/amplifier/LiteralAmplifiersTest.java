@@ -72,8 +72,8 @@ public class LiteralAmplifiersTest extends AbstractTest {
         clone.setBody(Utils.getFactory().createCodeSnippetStatement("int x = 1 + 1").compile());
         Amplifier zeroAmplifier = new AbstractLiteralAmplifier<Integer>() {
             @Override
-            protected Set<Integer> amplify(CtLiteral<Integer> existingLiteral) {
-                return Collections.singleton(0);
+            protected Set<CtLiteral<Integer>> amplify(CtLiteral<Integer> original, CtMethod<?> testMethod) {
+                return Collections.singleton(testMethod.getFactory().createLiteral(0));
             }
             @Override
             protected String getSuffix() {
@@ -85,9 +85,15 @@ public class LiteralAmplifiersTest extends AbstractTest {
             }
         };
         literalMutationClass.addMethod(clone);
+
+        // used to verify that the application of Amplifiers does not modify the given test method
+        final String originalTestMethodString = clone.toString();
+
         List<CtMethod<?>> zeroAmplifiedTests = zeroAmplifier.apply(clone).collect(Collectors.toList());
         assertEquals(2, zeroAmplifiedTests.size());
-        zeroAmplifiedTests = zeroAmplifiedTests.stream().flatMap(m -> zeroAmplifier.apply(m)).collect(Collectors.toList());
+        assertEquals(originalTestMethodString, clone.toString()); // the original test method has not been modified
+        zeroAmplifiedTests = zeroAmplifiedTests.stream().flatMap(zeroAmplifier::apply).collect(Collectors.toList());
+        assertEquals(originalTestMethodString, clone.toString());
         assertEquals(1, zeroAmplifiedTests.size());
         literalMutationClass.removeMethod(clone);
     }
