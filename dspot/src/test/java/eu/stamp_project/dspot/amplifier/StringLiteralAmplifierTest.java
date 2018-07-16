@@ -9,7 +9,6 @@ import spoon.reflect.declaration.CtMethod;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -43,21 +42,8 @@ public class StringLiteralAmplifierTest extends AbstractTest {
         Amplifier amplifier = new StringLiteralAmplifier();
         amplifier.reset(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
-<<<<<<< Updated upstream
-        // 1rst amplification
-        Stream<CtMethod<?>> mutantMethods = amplifier.apply(method);
-        assertEquals(28, mutantMethods.count());
-        // 2nd amplification
-        mutantMethods = amplifier.apply(method);
-        assertTrue(28 > mutantMethods.count());
-        // 3rd amplification after reset
-        amplifier.reset(literalMutationClass);
-        mutantMethods = amplifier.apply(method);
-        assertEquals(28, mutantMethods.count());
-=======
-        List<CtMethod> mutantMethods = amplifier.apply(method);
+        List<CtMethod> mutantMethods = amplifier.apply(method).collect(Collectors.toList());
         assertEquals(43, mutantMethods.size());
->>>>>>> Stashed changes
     }
 
     @Test
