@@ -13,45 +13,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
 
     private List<String> existingStrings;
 
-    private boolean hasBeenApplied;
-
     public StringLiteralAmplifier() {
         this.existingStrings = new ArrayList<>();
-        this.hasBeenApplied = false;
-    }
-
-    @Override
-    protected List<CtLiteral<String>> getOriginals(CtMethod<?> testMethod) {
-        flatStringLiterals(testMethod);
-        return super.getOriginals(testMethod);
-    }
-
-    @Override
-    public Stream<CtMethod<?>> apply(CtMethod<?> testMethod) {
-        List<CtLiteral<String>> originals = this.getOriginals(testMethod);
-        List<CtLiteral<String>> reducedOriginals = this.reduceAlreadyAmplifiedElements(originals);
-        // here, we call a termination function, i.e. collect
-        // because Stream are lazy, we need this to manage hasBeenApplied state to avoir
-        // redundant amplification
-        final List<Stream<CtLiteral<String>>> amplification = reducedOriginals.stream()
-                .map(original -> this.amplify(original, testMethod).stream())
-                .collect(Collectors.toList());
-        this.hasBeenApplied = true;
-        return IntStream.range(0, reducedOriginals.size())
-                .boxed()
-                .flatMap(index ->
-                        amplification.get(index)
-                                .map(newValue ->
-                                        replace(reducedOriginals.get(index), newValue, testMethod)
-                                )
-                );
     }
 
     @Override
@@ -78,15 +46,15 @@ public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
                 values.add(factory.createLiteral("" + AmplificationHelper.getRandomChar()));
             }
         }
-        if (!this.hasBeenApplied) {
-            // add special strings
-            values.add(factory.createLiteral(""));
-//            values.add(factory.createLiteral(System.getProperty("file.separator")));
-            values.add(factory.createLiteral(System.getProperty("line.separator")));
-            values.add(factory.createLiteral(System.getProperty("path.separator")));
-        }
+
+        // add special strings
+        values.add(factory.createLiteral(""));
+        values.add(factory.createLiteral(System.getProperty("line.separator")));
+        values.add(factory.createLiteral(System.getProperty("path.separator")));
+
         return values;
     }
+
 
     @Override
     public void reset(CtType testClass) {
@@ -97,7 +65,6 @@ public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
                 .map(CtLiteral::clone)
                 .map(CtLiteral::getValue)
                 .collect(Collectors.toList());
-        this.hasBeenApplied = false;
     }
 
     @Override

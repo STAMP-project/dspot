@@ -35,8 +35,6 @@ public class StringLiteralAmplifierTest extends AbstractTest {
         /*
             test the StringLiteral
             The first iteration is complete, i.e. apply random operations plus the specific strings
-            the second iteration does not apply the specific strings, we already did
-            After the reset, the amplifier should obtain the same number than a the first iteration.
          */
 
         final String nameMethod = "methodString";
@@ -45,6 +43,7 @@ public class StringLiteralAmplifierTest extends AbstractTest {
         Amplifier amplifier = new StringLiteralAmplifier();
         amplifier.reset(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
+<<<<<<< Updated upstream
         // 1rst amplification
         Stream<CtMethod<?>> mutantMethods = amplifier.apply(method);
         assertEquals(28, mutantMethods.count());
@@ -55,6 +54,10 @@ public class StringLiteralAmplifierTest extends AbstractTest {
         amplifier.reset(literalMutationClass);
         mutantMethods = amplifier.apply(method);
         assertEquals(28, mutantMethods.count());
+=======
+        List<CtMethod> mutantMethods = amplifier.apply(method);
+        assertEquals(43, mutantMethods.size());
+>>>>>>> Stashed changes
     }
 
     @Test
