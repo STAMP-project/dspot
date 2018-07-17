@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Created by Benjamin DANGLOT
@@ -22,6 +23,25 @@ import static org.junit.Assert.assertEquals;
  * on 13/07/18
  */
 public class LiteralAmplifiersTest extends AbstractTest {
+
+    @Test
+    public void testAllHasBeenAmplified() throws Exception {
+
+        /*
+            The amplifiers must keep doing the amplification in case of all the combination of amplification has been explored.
+         */
+
+        final CtClass testClass = Utils.findClass("fr.inria.workload.WorkloadTest");
+
+        List<CtMethod<?>> allTest = AmplificationHelper.getAllTest(testClass);
+        Amplifier amplifier = new NumberLiteralAmplifier();
+        allTest = allTest.stream()
+                .flatMap(amplifier::apply) // we apply twice the NumberLiteralAmplifier. In one iteration, it explores every amplification that can be done
+                .flatMap(amplifier::apply) // however, we can continue to amplify since there is some random
+                .collect(Collectors.toList());
+
+        assertFalse(allTest.isEmpty());
+    }
 
     @Test
     public void test() throws Exception {
