@@ -84,8 +84,6 @@ public abstract class AbstractLiteralAmplifier<T> extends AbstractAmplifier<CtLi
         this.testClassToBeAmplified = testClass;
     }
 
-
-
     protected abstract Class<?> getTargetedClass();
 
 }

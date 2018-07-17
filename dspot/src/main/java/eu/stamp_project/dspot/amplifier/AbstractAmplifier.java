@@ -66,7 +66,7 @@ public abstract class AbstractAmplifier<T extends CtElement> implements Amplifie
      */
     protected CtMethod<?> replace(T originalElement, T amplifiedElement, CtMethod<?> testMethod) {
         originalElement.replace(amplifiedElement);
-        amplifiedElement.putMetadata(this.METADATA_KEY, true);
+        amplifiedElement.putMetadata(this.METADATA_KEY, false);
         CtMethod<?> clone = AmplificationHelper.cloneTestMethodForAmp(testMethod, getSuffix());
         amplifiedElement.replace(originalElement);
         return clone;
@@ -86,6 +86,10 @@ public abstract class AbstractAmplifier<T extends CtElement> implements Amplifie
     public Stream<CtMethod<?>> apply(CtMethod<?> testMethod) {
         List<T> originals = this.getOriginals(testMethod);
         List<T> reducedOriginals = this.reduceAlreadyAmplifiedElements(originals);
+        if (reducedOriginals.stream().allMatch(this::hasBeenAmplified)) {
+            originals.forEach(element -> element.putMetadata(METADATA_KEY, false));
+            reducedOriginals = originals;
+        }
         return reducedOriginals.stream()
                 .filter(reducedOriginal ->
                         reducedOriginal.getMetadata(METADATA_KEY) == null ||
