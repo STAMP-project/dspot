@@ -8,11 +8,11 @@ import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -34,8 +34,8 @@ public class LiteralAmplifiersTest extends AbstractTest {
             and thus improve the global performance in term of memory and execution time of DSpot
          */
 
-        final String nameMethod = "methodString";
-        CtClass<?> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        final String nameMethod = "testInt";
+        CtClass<?> literalMutationClass = Utils.getFactory().Class().get("fr.inria.ampl.ToBeAmplifiedLiteralTest");
         AmplificationHelper.setSeedRandom(42L);
         Amplifier stringLiteralAmplifier = new StringLiteralAmplifier();
         stringLiteralAmplifier.reset(literalMutationClass);
@@ -44,17 +44,23 @@ public class LiteralAmplifiersTest extends AbstractTest {
         final CtMethod method = Utils.findMethod(literalMutationClass, nameMethod);
 
         // 1rst application of both amplifiers
-        Stream<CtMethod<?>> amplifiedStringMethods = stringLiteralAmplifier.apply(method);
-        Stream<CtMethod<?>> amplifiedNumberMethods = numberLiteralAmplifier.apply(method);
+        List<CtMethod<?>> amplifiedStringMethods = stringLiteralAmplifier.apply(method).collect(Collectors.toList());
+        List<CtMethod<?>> amplifiedNumberMethods = numberLiteralAmplifier.apply(method).collect(Collectors.toList());
 
-        final List<CtMethod<?>> amplifiedMethods = Stream.concat(amplifiedNumberMethods, amplifiedStringMethods).collect(Collectors.toList());
-        assertEquals(28, amplifiedMethods.size());
+        List<CtMethod<?>> amplifiedMethods = new ArrayList<>();
+        amplifiedMethods.addAll(amplifiedStringMethods);
+        amplifiedMethods.addAll(amplifiedNumberMethods);
+        assertEquals(43, amplifiedMethods.size());
 
         // 2nd application of both amplifiers:
-        amplifiedStringMethods = amplifiedMethods.stream().flatMap(stringLiteralAmplifier::apply);
-        amplifiedNumberMethods = amplifiedMethods.stream().flatMap(numberLiteralAmplifier::apply);
-        //here, we have less amplified test method than before from more than 1k to 366
-        assertEquals(366, Stream.concat(amplifiedStringMethods, amplifiedNumberMethods).count());
+        amplifiedStringMethods = amplifiedMethods.stream().flatMap(stringLiteralAmplifier::apply).collect(Collectors.toList());
+        amplifiedNumberMethods = amplifiedMethods.stream().flatMap(numberLiteralAmplifier::apply).collect(Collectors.toList());
+
+        amplifiedMethods.clear();
+        amplifiedMethods.addAll(amplifiedStringMethods);
+        amplifiedMethods.addAll(amplifiedNumberMethods);
+        //here, we have less amplified test method than before from more than 1630 to 1304
+        assertEquals(1304, amplifiedMethods.size());
     }
 
     @Test

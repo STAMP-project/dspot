@@ -7,6 +7,8 @@ import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
+import java.util.stream.Collectors;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -32,16 +34,18 @@ public class IterationDecoratorAmplifierTest extends AbstractTest {
         Amplifier amplifier = new IterationDecoratorAmplifier(new NumberLiteralAmplifier(), 2);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
 
+        // 1 / 2 iteration produces something (the list is not empty)
         for (int i = 0 ; i < 10 ; i++) {
-            assertTrue(amplifier.apply(method).count() > 0);
-            assertTrue(amplifier.apply(method).count() > 0);
+            assertFalse(amplifier.apply(method).collect(Collectors.toList()).isEmpty());
+            assertTrue(amplifier.apply(method).collect(Collectors.toList()).isEmpty());
         }
 
         amplifier = new IterationDecoratorAmplifier(new NumberLiteralAmplifier(), 3);
+         // 1 / 3 iteration produces something (the list is not empty)
         for (int i = 0 ; i < 12 ; i++) {
-            assertFalse(amplifier.apply(method).count() > 0);
-            assertTrue(amplifier.apply(method).count() > 0);
-            assertTrue(amplifier.apply(method).count() > 0);
+            assertFalse(amplifier.apply(method).collect(Collectors.toList()).isEmpty());
+            assertTrue(amplifier.apply(method).collect(Collectors.toList()).isEmpty());
+            assertTrue(amplifier.apply(method).collect(Collectors.toList()).isEmpty());
         }
 
     }

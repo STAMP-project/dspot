@@ -4,8 +4,10 @@ import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.Test;
+import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,7 +45,7 @@ public class StringLiteralAmplifierTest extends AbstractTest {
         amplifier.reset(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<CtMethod> mutantMethods = amplifier.apply(method).collect(Collectors.toList());
-        assertEquals(43, mutantMethods.size());
+        assertEquals(28, mutantMethods.size());
     }
 
     @Test
@@ -60,9 +62,30 @@ public class StringLiteralAmplifierTest extends AbstractTest {
 
     @Test
     public void testFlattenString() throws Exception {
+
+        /*
+            test the method to flat string literals.
+            After the method call, all the (concatenated) string literals has been merged into one.
+
+         */
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.JavaPoet");
-        final CtMethod withConcat = Utils.findMethod(literalMutationClass, "method");
+        final CtMethod<?> withConcat = Utils.findMethod(literalMutationClass, "method");
+        // there is a lot of literal string
+        assertEquals(20,
+                withConcat.getElements(new TypeFilter<CtLiteral>(CtLiteral.class) {
+                    @Override
+                    public boolean matches(CtLiteral element) {
+                        return element.getValue() instanceof String;
+                    }
+                }).size());
         StringLiteralAmplifier.flatStringLiterals(withConcat);
-        System.out.println(withConcat);
+        // there is only one literal string
+        assertEquals(1,
+                withConcat.getElements(new TypeFilter<CtLiteral>(CtLiteral.class) {
+                    @Override
+                    public boolean matches(CtLiteral element) {
+                        return element.getValue() instanceof String;
+                    }
+                }).size());
     }
 }

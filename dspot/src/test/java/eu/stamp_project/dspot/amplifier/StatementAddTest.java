@@ -170,7 +170,7 @@ public class StatementAddTest extends AbstractTest {
         final Factory factory = Utils.getFactory();
         AmplificationHelper.setSeedRandom(42L);
         StatementAdd amplifier = new StatementAdd(packageName);
-        amplifier.reset(factory.Class().get(packageName + ".ClassTargetAmplify"));
+        amplifier.reset(factory.Class().get(packageName + ".TestClassTargetAmplify"));
 
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
         List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod).collect(Collectors.toList());
