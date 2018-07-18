@@ -11,7 +11,7 @@ public class WorkloadTest {
 
     public class Workload {
         private int a = 0;
-        public void run(int a) {
+        public void run(int a, int b, int c, int d, int e) {
             for (int i = 0 ; i < 10E6 ; i++) {
                 a = a + i % 5;
             }
@@ -25,6 +25,6 @@ public class WorkloadTest {
     @Test
     public void test() throws Exception {
         final Workload workload = new Workload();
-        workload.run(0);
+        ((fr.inria.workload.WorkloadTest.Workload) workload).run(0, 0, 0, 0, 0);
     }
 }
