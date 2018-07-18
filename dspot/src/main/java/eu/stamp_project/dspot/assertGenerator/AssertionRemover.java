@@ -73,37 +73,40 @@ public class AssertionRemover {
                 return element.equals(invocation);
             }
         };
-        for (CtExpression<?> argument : invocation.getArguments()) {
-            CtExpression clone = ((CtExpression) argument).clone();
-            if (clone instanceof CtUnaryOperator) {
-                clone = ((CtUnaryOperator) clone).getOperand();
-            }
-            if (clone instanceof CtStatement) {
-                clone.getTypeCasts().clear();
-                invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, (CtStatement) clone);
-            } else if (!(clone instanceof CtLiteral || clone instanceof CtVariableRead)) {
-                CtTypeReference<?> typeOfParameter = clone.getType();
-                if (clone.getType().equals(factory.Type().NULL_TYPE)) {
-                    typeOfParameter = factory.Type().createReference(Object.class);
+        if (!(invocation.getMetadata(AssertGeneratorHelper.METADATA_ASSERT_AMPLIFICATION) != null &&
+                (boolean) invocation.getMetadata(AssertGeneratorHelper.METADATA_ASSERT_AMPLIFICATION))) {
+            for (CtExpression<?> argument : invocation.getArguments()) {
+                CtExpression clone = ((CtExpression) argument).clone();
+                if (clone instanceof CtUnaryOperator) {
+                    clone = ((CtUnaryOperator) clone).getOperand();
                 }
-                final CtLocalVariable localVariable = factory.createLocalVariable(
-                        typeOfParameter,
-                        typeOfParameter.getSimpleName() + "_" + counter[0]++,
-                        clone
-                );
-                invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, localVariable);
-            } else if (clone instanceof CtVariableRead && !(clone instanceof CtFieldRead)) {
-                final CtVariableReference variable = ((CtVariableRead) clone).getVariable();
-                variableReadsAsserted.add(invocation.getParent(CtBlock.class).getElements(
-                        (Filter<CtLocalVariable>) localVariable ->
-                                localVariable.getSimpleName().equals(variable.getSimpleName()) // here, we match the simple name
-                        // since the type cannot match with generated elements
-                        // for instance, if the original element is a primitive char,
-                        // the generated element can be a Character
-                        // and thus, the localVariable.getReference().equals(variable) returns false
-                        // the contract on name holds since we control it, i.e. variables in
-                        // assertions are extracted by us.
-                ).get(0));
+                if (clone instanceof CtStatement) {
+                    clone.getTypeCasts().clear();
+                    invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, (CtStatement) clone);
+                } else if (!(clone instanceof CtLiteral || clone instanceof CtVariableRead)) {
+                    CtTypeReference<?> typeOfParameter = clone.getType();
+                    if (clone.getType().equals(factory.Type().NULL_TYPE)) {
+                        typeOfParameter = factory.Type().createReference(Object.class);
+                    }
+                    final CtLocalVariable localVariable = factory.createLocalVariable(
+                            typeOfParameter,
+                            typeOfParameter.getSimpleName() + "_" + counter[0]++,
+                            clone
+                    );
+                    invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, localVariable);
+                } else if (clone instanceof CtVariableRead && !(clone instanceof CtFieldRead)) {
+                    final CtVariableReference variable = ((CtVariableRead) clone).getVariable();
+                    variableReadsAsserted.add(invocation.getParent(CtBlock.class).getElements(
+                            (Filter<CtLocalVariable>) localVariable ->
+                                    localVariable.getSimpleName().equals(variable.getSimpleName()) // here, we match the simple name
+                            // since the type cannot match with generated elements
+                            // for instance, if the original element is a primitive char,
+                            // the generated element can be a Character
+                            // and thus, the localVariable.getReference().equals(variable) returns false
+                            // the contract on name holds since we control it, i.e. variables in
+                            // assertions are extracted by us.
+                    ).get(0));
+                }
             }
         }
         // must find the first statement list to remove the invocation from it, e.g. the block that contains the assertions
