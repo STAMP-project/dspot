@@ -28,15 +28,13 @@ public class AssertBuilder {
                                          Set<String> notDeterministValues,
                                          Map<String, Object> observations,
                                          Double delta) {
+        final Translator translator = new Translator(factory);
         return observations.keySet().stream()
                 .filter(key -> !notDeterministValues.contains(key)) // TODO we may want to generate assertion on not deterministic values when it is floats
                 .collect(ArrayList<CtStatement>::new,
                         (expressions, key) -> {
                             Object value = observations.get(key);
-                            final CtVariableAccess variableRead = factory.createVariableRead(
-                                    factory.createLocalVariableReference().setSimpleName(key),
-                                    false
-                            );
+                            final CtExpression variableRead = translator.translate(key);
                             if (value == null) {
                                 expressions.add(AssertGeneratorHelper.buildInvocation(factory, "assertNull",
                                         Collections.singletonList(variableRead))
@@ -97,7 +95,7 @@ public class AssertBuilder {
                         ArrayList<CtStatement>::addAll);
     }
 
-    private static void addTypeCastIfNeeded(CtVariableAccess<?> variableRead, Object value) {
+    private static void addTypeCastIfNeeded(CtExpression<?> variableRead, Object value) {
         if (value instanceof Short) {
             variableRead.addTypeCast(variableRead.getFactory().Type().shortPrimitiveType());
         } else if (value instanceof Integer) {
