@@ -3,6 +3,7 @@ package eu.stamp_project.dspot.amplifier;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.utils.AmplificationHelper;
+import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtClass;
@@ -24,6 +25,7 @@ import static org.junit.Assert.assertFalse;
  */
 public class LiteralAmplifiersTest extends AbstractTest {
 
+    @Ignore
     @Test
     public void testAllHasBeenAmplified() throws Exception {
 
