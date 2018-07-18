@@ -82,7 +82,14 @@ public class Translator {
             end = start - 1;
         }
         start = findMatchingIndex(invocationAsString, '(', end);
-        final CtType<?> ctType = factory.Type().get(invocationAsString.substring(start + 1, end));
+        String fullQualifiedName = invocationAsString.substring(start + 1, end);
+        CtType<?> ctType = factory.Type().get(fullQualifiedName);
+        // handling inner types
+        if (ctType == null) {
+            final int lastIndexOf = fullQualifiedName.lastIndexOf(".");
+            fullQualifiedName = fullQualifiedName.substring(0, lastIndexOf) + "$" + fullQualifiedName.substring(lastIndexOf + 1, fullQualifiedName.length());
+            ctType = factory.Type().get(fullQualifiedName);
+        }
         final CtTypeReference<?> reference = ctType.getReference();
         invocation.getTarget().addTypeCast(reference);
         // we are sure that there is only one, since we use only getters
