@@ -3,6 +3,7 @@ package eu.stamp_project.dspot.assertGenerator;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtVariableAccess;
+import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
@@ -64,9 +65,7 @@ public class Translator {
         CtInvocation invocation = factory.createInvocation();
         int end = invocationAsString.indexOf("()");
         int start = findMatchingIndex(invocationAsString, '.', end);
-        final CtExecutableReference<?> executableReference = factory.createExecutableReference();
-        executableReference.setSimpleName(invocationAsString.substring(start + 1, end));
-        invocation.setExecutable(executableReference);
+        final String executableName = invocationAsString.substring(start + 1, end);
         if (subInvocation == null) {
             end = start - 1; // i.e. the closing parenthesis
             start = findMatchingIndex(invocationAsString, ')', end);
@@ -83,6 +82,10 @@ public class Translator {
         final CtType<?> ctType = factory.Type().get(invocationAsString.substring(start + 1, end));
         final CtTypeReference<?> reference = ctType.getReference();
         invocation.getTarget().addTypeCast(reference);
+        // we are sure that there is only one, since we use only getters
+        final CtMethod<?> getter = ctType.getMethodsByName(executableName).get(0);
+        final CtExecutableReference<?> referenceToGetter = getter.getReference();
+        invocation.setExecutable(referenceToGetter);
         if (start != 1) {
             final String substringToBeRemove = invocationAsString.substring(start - 2, invocationAsString.indexOf("()") + 2);
             invocationAsString = invocationAsString.replace(substringToBeRemove, "");
