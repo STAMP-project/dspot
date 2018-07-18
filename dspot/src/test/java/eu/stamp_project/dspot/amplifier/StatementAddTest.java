@@ -47,7 +47,6 @@ public class StatementAddTest extends AbstractTest {
                 "    for (fr.inria.statementadd.TestClassTarget.Internal i : internalList) {" + AmplificationHelper.LINE_SEPARATOR +
                 "        int __DSPOT_i_0 = -1167796541;" + AmplificationHelper.LINE_SEPARATOR +
                 "        i.compute(0);" + AmplificationHelper.LINE_SEPARATOR +
-                "        // StatementAdd: add invocation of a method" + AmplificationHelper.LINE_SEPARATOR +
                 "        i.compute(__DSPOT_i_0);" + AmplificationHelper.LINE_SEPARATOR +
                 "    }" + AmplificationHelper.LINE_SEPARATOR +
                 "}";
@@ -55,7 +54,7 @@ public class StatementAddTest extends AbstractTest {
         String amplifiedTestString = amplifiedMethods.get(0).getBody().toString();
         Set<String> testLines = new HashSet<>(Arrays.asList(amplifiedTestString.split(AmplificationHelper.LINE_SEPARATOR)));
         Set<String> expectedLines = new HashSet<>(Arrays.asList(expectedTest.split(AmplificationHelper.LINE_SEPARATOR)));
-        assertEquals(expectedLines, testLines);
+        assertTrue(testLines.containsAll(expectedLines));
     }
 
     @Test
