@@ -279,6 +279,9 @@ public class AssertGeneratorHelper {
         invocation.setArguments(arguments); // TODO
         invocation.setType(factory.Type().voidPrimitiveType());
         invocation.setTarget(factory.createTypeAccess(factory.Type().createReference("org.junit.Assert")));
+        invocation.putMetadata(METADATA_ASSERT_AMPLIFICATION, true);
         return invocation;
     }
+
+    public final static String METADATA_ASSERT_AMPLIFICATION = "A-Amplification";
 }

@@ -72,7 +72,7 @@ public class LiteralAmplifiersTest extends AbstractTest {
         List<CtMethod<?>> amplifiedMethods = new ArrayList<>();
         amplifiedMethods.addAll(amplifiedStringMethods);
         amplifiedMethods.addAll(amplifiedNumberMethods);
-        assertEquals(43, amplifiedMethods.size());
+        assertEquals(47, amplifiedMethods.size());
 
         // 2nd application of both amplifiers:
         amplifiedStringMethods = amplifiedMethods.stream().flatMap(stringLiteralAmplifier::apply).collect(Collectors.toList());
@@ -82,7 +82,7 @@ public class LiteralAmplifiersTest extends AbstractTest {
         amplifiedMethods.addAll(amplifiedStringMethods);
         amplifiedMethods.addAll(amplifiedNumberMethods);
         //here, we have less amplified test method than before from more than 1630 to 1304
-        assertEquals(1304, amplifiedMethods.size());
+        assertEquals(1560, amplifiedMethods.size());
     }
 
     @Test
