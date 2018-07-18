@@ -45,6 +45,11 @@ public class TranslatorTest extends AbstractTest {
 
     @Test
     public void testVariableRead() throws Exception {
+
+        /*
+            test the translation of variable read
+         */
+
         String statementToBeTranslated = "classToBeTest";
         final CtVariableRead<?> ctVariableRead = translateVariableRead(statementToBeTranslated);
         assertEquals("classToBeTest", ctVariableRead.getVariable().getSimpleName());
@@ -101,6 +106,7 @@ public class TranslatorTest extends AbstractTest {
         assertEquals("((fr.inria.sample.ClassWithBoolean) (cl)).getEmptyList()", invocation.getTarget().toString());
         assertTrue(invocation.getTarget().getTypeCasts().isEmpty());
         assertEquals("isEmpty", invocation.getExecutable().getSimpleName());
+        assertEquals("java.util.List", invocation.getExecutable().getDeclaringType().getQualifiedName()); // verify the consistency of the spoon node
         assertTrue(invocation.getTarget() instanceof CtInvocation);
 
         invocation = (CtInvocation<?>) invocation.getTarget();

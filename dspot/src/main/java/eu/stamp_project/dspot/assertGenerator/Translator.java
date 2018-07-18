@@ -52,9 +52,12 @@ public class Translator {
     public CtInvocation<?> buildInvocationFromString(String invocationAsString) {
         final CtInvocation invocation = this.buildInvocationFromString(invocationAsString, null);
         if (invocationAsString.endsWith("isEmpty()")) {
+            final CtType<?> listCtType = factory.Type()
+                    .get(java.util.List.class);
+            final CtMethod<?> isEmpty = listCtType.getMethodsByName("isEmpty").get(0);
             return factory.createInvocation(
                     invocation,
-                    factory.createExecutableReference().setSimpleName("isEmpty")
+                    isEmpty.getReference()
             );
         } else {
             return invocation;
