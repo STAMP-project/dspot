@@ -14,8 +14,9 @@ import spoon.reflect.factory.Factory;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -47,7 +48,7 @@ public class DSpotCompilerTest {
         assertEquals(1, compile.size());
         assertEquals(1, aClass.getMethods().size());
 
-        final List<CtMethod> tests = new UncompilableAmplifier().apply(method.get(0));
+        final List<CtMethod<?>> tests = new UncompilableAmplifier().apply(method.get(0)).collect(Collectors.toList());
         tests.forEach(aClass::addMethod);
         assertEquals(3, aClass.getMethods().size());
 
@@ -68,19 +69,19 @@ public class DSpotCompilerTest {
     private class UncompilableAmplifier implements Amplifier {
 
         @Override
-        public List<CtMethod> apply(CtMethod testMethod) {
+        public Stream<CtMethod<?>> apply(CtMethod<?> testMethod) {
             final CtCodeSnippetStatement snippet = testMethod.getFactory().Code().
                     createCodeSnippetStatement("UncompilableClass class = new UncompilableClass()");
-            final CtMethod method = testMethod.clone();
+            final CtMethod<?> method = testMethod.clone();
             method.getBody().insertEnd(snippet);
             method.setSimpleName("uncompilableTest");
 
             final CtCodeSnippetStatement snippet1 = testMethod.getFactory().Code().createCodeSnippetStatement("String clazz = new String()");
-            final CtMethod method1 = testMethod.clone();
+            final CtMethod<?> method1 = testMethod.clone();
             method1.getBody().insertEnd(snippet1);
             method1.setSimpleName("compilableTest");
 
-            return Arrays.asList(method, method1);
+            return Stream.of(method, method1);
         }
 
         @Override

@@ -8,6 +8,7 @@ import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
@@ -32,7 +33,7 @@ public class TestMethodCallAdderTest extends AbstractTest {
         methodCallAdder.reset(testClass);
 
         final CtMethod<?> originalMethod = testClass.getMethods().stream().filter(m -> "testAddCall".equals(m.getSimpleName())).findFirst().get();
-        List<CtMethod> amplifiedMethods = methodCallAdder.apply(originalMethod);
+        List<CtMethod> amplifiedMethods = methodCallAdder.apply(originalMethod).collect(Collectors.toList());
 
         assertEquals(2, amplifiedMethods.size());
 

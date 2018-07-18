@@ -10,13 +10,13 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ReplacementAmplifier implements Amplifier {
 
+    @SuppressWarnings("unchecked")
     @Override
-    public List<CtMethod> apply(CtMethod testMethod) {
+    public Stream<CtMethod<?>> apply(CtMethod<?> testMethod) {
         return testMethod.getElements(new TypeFilter<CtLocalVariable>(CtLocalVariable.class) {
             @Override
             public boolean matches(CtLocalVariable element) {
@@ -35,7 +35,7 @@ public class ReplacementAmplifier implements Amplifier {
                     CtExpression<?> ctExpression = ValueCreator.generateRandomValue(ctLocalVariable.getType(), localVariable.getAssignment());
                     localVariable.setAssignment(ctExpression);
                     return clone;
-                }).collect(Collectors.toList());
+                });
     }
 
     @Override

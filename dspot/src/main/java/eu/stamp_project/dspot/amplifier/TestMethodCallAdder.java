@@ -12,41 +12,32 @@ import spoon.reflect.declaration.CtType;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.util.ArrayList;
 import java.util.List;
-
+import java.util.stream.Stream;
 
 
 public class TestMethodCallAdder implements Amplifier {
 
-    public List<CtMethod> apply(CtMethod method) {
-        List<CtMethod> methods = new ArrayList<>();
-
+    public Stream<CtMethod<?>> apply(CtMethod<?> method) {
         if (method.getDeclaringType() != null) {
-            //get the list of method calls
-            List<CtInvocation> invocations = Query.getElements(method, new TypeFilter(CtInvocation.class));
-            //this index serves to replace ith literal is replaced by zero in the ith clone of the method
-            int invocation_index = 0;
-            for (CtInvocation invocation : invocations) {
-                try {
-                    if (AmplificationChecker.canBeAdded(invocation) && !AmplificationChecker.isAssert(invocation)) {
-                        methods.add(apply(method, invocation_index));
-                    }
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+            final List<CtInvocation<?>> invocations = method.getElements(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
+                @Override
+                public boolean matches(CtInvocation<?> element) {
+                    return AmplificationChecker.canBeAdded(element) && !AmplificationChecker.isAssert(element);
                 }
-                invocation_index++;
-            }
+            });
+            return invocations.stream().map(invocation -> apply(method, invocations.indexOf(invocation)));
+        } else {
+            return Stream.empty();
         }
-        return methods;
     }
 
     @Override
-    public void reset(CtType testClass) {
+    public void reset(CtType<?> testClass) {
         AmplificationHelper.reset();
     }
 
-    private CtMethod apply(CtMethod method, int invocation_index) {
+    private CtMethod<?> apply(CtMethod<?> method, int invocation_index) {
         CtMethod<?> cloned_method = AmplificationHelper.cloneTestMethodForAmp(method, "_add");
         //add the cloned method in the same class as the original method
         //get the lit_indexth literal of the cloned method
