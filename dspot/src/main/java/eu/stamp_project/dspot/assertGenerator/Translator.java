@@ -106,7 +106,10 @@ public class Translator {
     }
 
     private int findMatchingIndex(String stringToBeMatched, char charToBeMatched, int start) {
-        while (stringToBeMatched.charAt(--start) != charToBeMatched) ;
+        --start;
+        while (stringToBeMatched.charAt(start) != charToBeMatched) {
+               --start;
+        }
         return start;
     }
 
