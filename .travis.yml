@@ -1,10 +1,19 @@
+dist: trusty
+
+group: edge
+
 language: java
 
 sudo: required
 
-jdk:
-  - oraclejdk8
-  - openjdk8
+jdk: openjdk8
+
+env:
+  - SCRIPT=travis-openjdk8.sh
+  - SCRIPT=travis-oraclejdk8.sh
+  - SCRIPT=travis-coverage.sh
+  - SCRIPT=travis-jar.sh
+  - SCRIPT=travis-dspot-maven.sh
 
 cache:
   directories:
@@ -13,17 +22,15 @@ cache:
 install:
   - export DSPOT_VERSION=`grep '<version>' dspot/pom.xml | head -n 1 | sed -e 's/<version>//' -e 's/<\\/version>//' -e 's/ *//g'`
   - export MAVEN_HOME=`mvn --version | grep 'Maven home' | sed -e 's/Maven h.* //'`
-
-script:
   - mvn compile
   - cd dspot && ./src/main/bash/update-classes-in-resources.sh
-  - mvn install
-  - java -jar target/dspot-$DSPOT_VERSION-jar-with-dependencies.jar --example
-  - cd ../dspot-maven && mvn install
+  - mvn install -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip=true
+  - cd ..
+
+script:
+  - ./.travis/$SCRIPT $DSPOT_VERSION
 
 after_success:
-  - cd ../dspot
-  - mvn clean test jacoco:report coveralls:report
   - cd .. && ./.travis/travis-deploy.sh
 
 branch:
