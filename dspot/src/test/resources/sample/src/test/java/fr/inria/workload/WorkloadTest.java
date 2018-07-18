@@ -2,6 +2,9 @@ package fr.inria.workload;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -25,6 +28,9 @@ public class WorkloadTest {
     @Test
     public void test() throws Exception {
         final Workload workload = new Workload();
-        ((fr.inria.workload.WorkloadTest.Workload) workload).run(0, 0, 0, 0, 0);
+        int s = 0;
+        ((fr.inria.workload.WorkloadTest.Workload) workload).run(0, 0, 0, 0, s);
+        assertTrue(0 != workload.getA());
+        assertEquals(0, s);
     }
 }
