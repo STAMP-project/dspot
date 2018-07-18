@@ -30,6 +30,11 @@ public class Translator {
 
     /**
      * Translate the given string into a spoon node.
+     * WARRANTY, this method has been developed to support only the assertion generation done by DSpot.
+     * You can't use it unless the given string is in a good shape:
+     *  - simple variable read
+     *  - chained invocation: ((cast)((cast) o).getX())).getY()
+     *  - invocation of isEmpty from Collection: ((cast) o).getX().isEmpty()
      * @param stringToBeTranslated
      * @return a spoon represented by the given String. This node is either a CtInvocation, either a VariableRead.
      */
@@ -44,12 +49,19 @@ public class Translator {
     }
 
     public CtInvocation<?> buildInvocationFromString(String invocationAsString) {
-        return this.buildInvocationFromString(invocationAsString, null);
+        final CtInvocation invocation = this.buildInvocationFromString(invocationAsString, null);
+        if (invocationAsString.endsWith("isEmpty()")) {
+            return factory.createInvocation(
+                    invocation,
+                    factory.createExecutableReference().setSimpleName("isEmpty")
+            );
+        } else {
+            return invocation;
+        }
     }
 
     private CtInvocation buildInvocationFromString(String invocationAsString, CtInvocation<?> subInvocation) {
         CtInvocation invocation = factory.createInvocation();
-        // invocations are the form of ((TypeCast)o).getX()
         int end = invocationAsString.indexOf("()");
         int start = findMatchingIndex(invocationAsString, '.', end);
         final CtExecutableReference<?> executableReference = factory.createExecutableReference();
