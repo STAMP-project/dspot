@@ -1,10 +1,11 @@
 package eu.stamp_project.dspot.selector;
 
 import eu.stamp_project.dspot.DSpot;
-import eu.stamp_project.dspot.amplifier.StatementAdd;
+import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
+import eu.stamp_project.dspot.amplifier.ReturnValueAmplifier;
 import eu.stamp_project.dspot.amplifier.TestDataMutator;
-import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
@@ -39,7 +40,7 @@ public class JacocoCoverageSelectorTest {
 		InputConfiguration configuration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
 		DSpot dspot = new DSpot(configuration,
 				2,
-				Arrays.asList(new TestDataMutator(), new StatementAdd()),
+				Arrays.asList(new TestDataMutator(), new MethodGeneratorAmplifier(), new ReturnValueAmplifier()),
 				new JacocoCoverageSelector());
 		dspot.amplifyTest("example.TestSuiteExample", Collections.singletonList("test2"));
 

@@ -1,12 +1,13 @@
 package eu.stamp_project.dspot;
 
 import eu.stamp_project.AbstractTest;
-import eu.stamp_project.dspot.amplifier.StatementAdd;
+import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
+import eu.stamp_project.dspot.amplifier.ReturnValueAmplifier;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import spoon.reflect.declaration.CtType;
@@ -35,7 +36,7 @@ public class DSpotMockedTest extends AbstractTest {
 		AmplificationHelper.setSeedRandom(23L);
 		InputConfiguration configuration = InputConfiguration.initialize(getPathToPropertiesFile());
 		DSpot dspot = new DSpot(configuration, 1,
-				Arrays.asList(new StatementAdd())
+				Arrays.asList(new MethodGeneratorAmplifier(), new ReturnValueAmplifier())
 		);
 		try {
 			FileUtils.cleanDirectory(new File(configuration.getOutputDirectory()));
@@ -50,7 +51,7 @@ public class DSpotMockedTest extends AbstractTest {
 
 		assertEquals(1, amplifiedTest.getMethods().stream().filter(AmplificationChecker::isTest).count());
 		System.out.println(amplifiedTest);
-		assertTrue(!amplifiedTest.getMethodsByName("testGetBook_sd8").isEmpty());
+		assertTrue(!amplifiedTest.getMethodsByName("testGetBook_mg8").isEmpty());
 	}
 
 	@Override
