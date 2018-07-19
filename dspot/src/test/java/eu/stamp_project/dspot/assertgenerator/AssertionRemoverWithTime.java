@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.assertGenerator;
+package eu.stamp_project.dspot.assertgenerator;
 
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLocalVariable;

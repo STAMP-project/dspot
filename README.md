@@ -185,7 +185,8 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         		 - MethodAdd
         		 - MethodRemove
         		 - TestDataMutator (deprecated)
-        		 - StatementAdd
+        		 - MethodGeneratorAmplifier
+        		 - ReturnValueAmplifier
         		 - ReplacementAmplifier
         		 - NullifierAmplifier
         		 - None (default: None)

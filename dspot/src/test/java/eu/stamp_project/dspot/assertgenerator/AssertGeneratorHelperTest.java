@@ -1,8 +1,8 @@
-package eu.stamp_project.dspot.assertGenerator;
+package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.dspot.amplifier.StatementAdd;
+import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
@@ -127,21 +127,21 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 
         final String packageName = "fr.inria.statementaddarray";
         final Factory factory = Utils.getFactory();
-        StatementAdd amplifier = new StatementAdd(packageName);
+        MethodGeneratorAmplifier amplifier = new MethodGeneratorAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".ClassTargetAmplify"));
 
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
         List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod).collect(Collectors.toList());
 
-        assertEquals(5, amplifiedMethods.size());
+        assertEquals(4, amplifiedMethods.size());
 
         final List<CtMethod<?>> instrumentedAmplifiedTests = amplifiedMethods.stream()
                 .map(method -> AssertGeneratorHelper.createTestWithLog(method, "fr.inria.statementaddarray", Collections.emptyList()))
                 .collect(Collectors.toList());
 
-        assertEquals(5, instrumentedAmplifiedTests.size());
+        assertEquals(4, instrumentedAmplifiedTests.size());
 
-        assertEquals(19,
+        assertEquals(17,
                 instrumentedAmplifiedTests.parallelStream()
                         .mapToInt(instrumentedAmplifiedTest ->
                                 instrumentedAmplifiedTest.getElements(new TypeFilter<CtInvocation>(CtInvocation.class){

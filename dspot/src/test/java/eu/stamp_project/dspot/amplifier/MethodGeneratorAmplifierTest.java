@@ -4,6 +4,8 @@ import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.Test;
+import spoon.reflect.code.CtBlock;
+import spoon.reflect.code.CtForEach;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -11,9 +13,7 @@ import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -22,52 +22,52 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
- * on 11/30/16
+ * on 19/07/18
  */
-public class StatementAddTest extends AbstractTest {
+public class MethodGeneratorAmplifierTest extends AbstractTest {
 
     @Test
-    public void testWithLoop() throws Exception {
+    public void testInLoop() throws Exception {
+
         /*
-            Test that StatementAdd amplifier is able to add statement inside a loop if this loop has not brackets
+            Test that MethodGeneratorAmplifier amplifier is able to add statement inside a loop if this loop has not brackets
          */
 
         final String packageName = "fr.inria.statementadd";
         final Factory factory = Utils.getFactory();
         AmplificationHelper.setSeedRandom(32L);
-        StatementAdd amplifier = new StatementAdd(packageName);
+        MethodGeneratorAmplifier amplifier = new MethodGeneratorAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".ClassTarget"));
 
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTarget"), "testWithLoop");
-        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod).collect(Collectors.toList());
-
-        final String expectedTest = "{" + AmplificationHelper.LINE_SEPARATOR +
-                "    java.util.ArrayList<fr.inria.statementadd.TestClassTarget.Internal> internalList = new java.util.ArrayList<>();" + AmplificationHelper.LINE_SEPARATOR +
-                "    internalList.add(new fr.inria.statementadd.TestClassTarget.Internal());" + AmplificationHelper.LINE_SEPARATOR +
-                "    for (fr.inria.statementadd.TestClassTarget.Internal i : internalList) {" + AmplificationHelper.LINE_SEPARATOR +
-                "        int __DSPOT_i_0 = -1167796541;" + AmplificationHelper.LINE_SEPARATOR +
-                "        i.compute(0);" + AmplificationHelper.LINE_SEPARATOR +
-                "        i.compute(__DSPOT_i_0);" + AmplificationHelper.LINE_SEPARATOR +
-                "    }" + AmplificationHelper.LINE_SEPARATOR +
-                "}";
-
-        String amplifiedTestString = amplifiedMethods.get(0).getBody().toString();
-        Set<String> testLines = new HashSet<>(Arrays.asList(amplifiedTestString.split(AmplificationHelper.LINE_SEPARATOR)));
-        Set<String> expectedLines = new HashSet<>(Arrays.asList(expectedTest.split(AmplificationHelper.LINE_SEPARATOR)));
-        assertTrue(testLines.containsAll(expectedLines));
+        // the original body of the loop has one statement
+        assertEquals(1,
+                ((CtBlock<?>) ctMethod
+                        .getElements(new TypeFilter<>(CtForEach.class))
+                        .get(0)
+                        .getBody()).getStatements().size()
+        );
+        CtMethod<?> amplifiedMethod = amplifier.apply(ctMethod).collect(Collectors.toList()).get(0);
+        // elements has been added by the amplification: a method call and a local variable (needed to call the method)
+        assertEquals(3,
+                ((CtBlock<?>) amplifiedMethod
+                        .getElements(new TypeFilter<>(CtForEach.class))
+                        .get(0)
+                        .getBody()).getStatements().size()
+        );
     }
 
     @Test
     public void testOnClassWithJavaObjects() throws Exception {
 
         /*
-            Test that the StatementAdd amplifier is able to generate, and manage Collection and Map from java.util
+            Test that the MethodGeneratorAmplifier amplifier is able to generate, and manage Collection and Map from java.util
          */
 
         final String packageName = "fr.inria.statementadd";
         final Factory factory = Utils.getFactory();
         AmplificationHelper.setSeedRandom(32L);
-        StatementAdd amplifier = new StatementAdd(packageName);
+        MethodGeneratorAmplifier amplifier = new MethodGeneratorAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".ClassTarget"));
 
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTarget"), "test");
@@ -97,22 +97,19 @@ public class StatementAddTest extends AbstractTest {
         final String packageName = "fr.inria.statementaddarray";
         final Factory factory = Utils.getFactory();
         AmplificationHelper.setSeedRandom(32L);
-        StatementAdd amplifier = new StatementAdd(packageName);
+        MethodGeneratorAmplifier amplifier = new MethodGeneratorAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".ClassTargetAmplify"));
 
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
         List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod).collect(Collectors.toList());
 
-        System.out.println(amplifiedMethods);
-
-        assertEquals(5, amplifiedMethods.size());
+        assertEquals(4, amplifiedMethods.size());
 
         List<String> expectedCalledMethod = Arrays.asList(
                 "methodWithArrayParatemeter",
                 "methodWithArrayParatemeterFromDomain",
                 "methodWithDomainParameter",
-                "methodWithReturn",
-                "method1"
+                "methodWithReturn"
         );
         assertTrue(amplifiedMethods.stream()
                 .allMatch(amplifiedMethod ->
@@ -131,12 +128,12 @@ public class StatementAddTest extends AbstractTest {
         CtClass<Object> ctClass = factory.Class().get("fr.inria.mutation.ClassUnderTestTest");
         AmplificationHelper.setSeedRandom(23L);
 
-        StatementAdd amplificator = new StatementAdd();
-        amplificator.reset(ctClass);
+        MethodGeneratorAmplifier amplifier = new MethodGeneratorAmplifier();
+        amplifier.reset(ctClass);
 
         CtMethod originalMethod = Utils.findMethod(ctClass, "testLit");
 
-        List<CtMethod> amplifiedMethods = amplificator.apply(originalMethod).collect(Collectors.toList());
+        List<CtMethod> amplifiedMethods = amplifier.apply(originalMethod).collect(Collectors.toList());
 
         System.out.println(amplifiedMethods);
 
@@ -157,6 +154,7 @@ public class StatementAddTest extends AbstractTest {
                 ));
     }
 
+
     @Test
     public void testStatementAdd() throws Exception {
 
@@ -168,7 +166,7 @@ public class StatementAddTest extends AbstractTest {
         final String packageName = "fr.inria.statementadd";
         final Factory factory = Utils.getFactory();
         AmplificationHelper.setSeedRandom(42L);
-        StatementAdd amplifier = new StatementAdd(packageName);
+        MethodGeneratorAmplifier amplifier = new MethodGeneratorAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".TestClassTargetAmplify"));
 
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
@@ -176,15 +174,14 @@ public class StatementAddTest extends AbstractTest {
 
         System.out.println(amplifiedMethods);
 
-        assertEquals(6, amplifiedMethods.size());
+        assertEquals(5, amplifiedMethods.size());
 
         List<String> expectedCalledMethod = Arrays.asList(
                 "method",
                 "methodWithDomainParameter",
                 "methodWithPrimitifParameters",
                 "methodWithPrimitifParameters",
-                "methodWithReturn",
-                "method1"
+                "methodWithReturn"
         );
         assertTrue(amplifiedMethods.stream()
                 .allMatch(amplifiedMethod ->

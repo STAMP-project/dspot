@@ -11,10 +11,11 @@ import eu.stamp_project.dspot.amplifier.AllLiteralAmplifiers;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.amplifier.BooleanLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.CharLiteralAmplifier;
+import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
 import eu.stamp_project.dspot.amplifier.NullifierAmplifier;
 import eu.stamp_project.dspot.amplifier.NumberLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.ReplacementAmplifier;
-import eu.stamp_project.dspot.amplifier.StatementAdd;
+import eu.stamp_project.dspot.amplifier.ReturnValueAmplifier;
 import eu.stamp_project.dspot.amplifier.StringLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.TestDataMutator;
 import eu.stamp_project.dspot.amplifier.TestMethodCallAdder;
@@ -94,7 +95,8 @@ public class JSAPOptions {
         MethodAdd(new TestMethodCallAdder()),
         MethodRemove(new TestMethodCallRemover()),
         TestDataMutator(new TestDataMutator()),
-        StatementAdd(new StatementAdd()),
+        MethodGeneratorAmplifier(new MethodGeneratorAmplifier()),
+        ReturnValueAmplifier(new ReturnValueAmplifier()),
         StringLiteralAmplifier(new StringLiteralAmplifier()),
         NumberLiteralAmplifier(new NumberLiteralAmplifier()),
         BooleanLiteralAmplifier(new BooleanLiteralAmplifier()),
@@ -178,7 +180,8 @@ public class JSAPOptions {
                         "MethodAdd",
                         "MethodRemove",
                         "TestDataMutator (deprecated)",
-                        "StatementAdd",
+                        "MethodGeneratorAmplifier",
+                        "ReturnValueAmplifier",
                         "ReplacementAmplifier",
                         "NullifierAmplifier",
                         "None"

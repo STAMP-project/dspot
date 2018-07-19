@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot;
 
 import eu.stamp_project.dspot.amplifier.Amplifier;
-import eu.stamp_project.dspot.assertGenerator.AssertGenerator;
+import eu.stamp_project.dspot.assertgenerator.AssertGenerator;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
