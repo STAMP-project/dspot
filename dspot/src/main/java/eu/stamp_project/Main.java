@@ -4,6 +4,7 @@ import eu.stamp_project.diff.SelectorOnDiff;
 import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.dspot.amplifier.TestDataMutator;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
+import eu.stamp_project.options.JSAPOptions;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;

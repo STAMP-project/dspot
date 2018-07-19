@@ -1,5 +1,6 @@
 package eu.stamp_project;
 
+import eu.stamp_project.options.JSAPOptions;
 import eu.stamp_project.program.InputConfiguration;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
