@@ -2,12 +2,12 @@ package eu.stamp_project.dspot;
 
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.assertgenerator.AssertGenerator;
+import eu.stamp_project.dspot.budget.NoBudgetizer;
 import eu.stamp_project.dspot.selector.TestSelector;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
@@ -16,12 +16,6 @@ import spoon.reflect.declaration.CtType;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 /**
@@ -137,7 +131,7 @@ public class Amplification {
                     selectedToBeAmplified.size(),
                     currentTestList.size()
             );
-            final List<CtMethod<?>> inputAmplifiedTests = this.inputAmplifyTests(selectedToBeAmplified);
+            final List<CtMethod<?>> inputAmplifiedTests = new NoBudgetizer().inputAmplify(selectedToBeAmplified, i);
             final List<CtMethod<?>> reducedInputAmplifiedTests = AmplificationHelper.reduce(inputAmplifiedTests, this.configuration);
             final List<CtMethod<?>> testsWithAssertions = this.assertionsAmplification(classTest, reducedInputAmplifiedTests);
             // in case no test with assertions could be generated, we go for the next iteration.
@@ -165,45 +159,7 @@ public class Amplification {
         return amplifiedPassingTests;
     }
 
-    /**
-     * Input amplification of multiple tests.
-     *
-     * @param tests Test methods
-     * @return New generated tests
-     */
-    private List<CtMethod<?>> inputAmplifyTests(List<CtMethod<?>> tests) {
-        LOGGER.info("Amplification of inputs...");
-        List<CtMethod<?>> amplifiedTests = tests.parallelStream()
-                .flatMap(test -> {
-                    DSpotUtils.printProgress(tests.indexOf(test), tests.size());
-                    return inputAmplifyTest(test);
-                }).collect(Collectors.toList());
-        LOGGER.info("{} new tests generated", amplifiedTests.size());
-        return amplifiedTests;
-    }
 
-    @Deprecated // this take too much time... We will filter before it: i.e. avoid redundant amplification.
-    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
-        Set<Object> seen = ConcurrentHashMap.newKeySet();
-        return t -> seen.add(keyExtractor.apply(t));
-    }
-
-    /**
-     * Input amplification for a single test.
-     *
-     * @param test Test method
-     * @return New generated tests
-     */
-    private Stream<CtMethod<?>> inputAmplifyTest(CtMethod<?> test) {
-        final CtMethod topParent = AmplificationHelper.getTopParent(test);
-        return this.amplifiers.parallelStream()
-                .flatMap(amplifier -> amplifier.apply(test))
-                .filter(amplifiedTest -> amplifiedTest != null && !amplifiedTest.getBody().getStatements().isEmpty())
-//                .filter(distinctByKey(CtMethod::getBody))
-                .map(amplifiedTest ->
-                        AmplificationHelper.addOriginInComment(amplifiedTest, topParent)
-                );
-    }
 
     private void resetAmplifiers(CtType parentClass) {
         this.amplifiers.forEach(amp -> amp.reset(parentClass));
