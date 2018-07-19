@@ -80,11 +80,11 @@ public class Utils {
 		}
 	}
 
-	public static CtClass findClass(String fullQualifiedName) {
+	public static CtClass<?> findClass(String fullQualifiedName) {
 		return getInputConfiguration().getFactory().Class().get(fullQualifiedName);
 	}
 
-	public static CtMethod findMethod(CtClass<?> ctClass, String methodName) {
+	public static CtMethod<?> findMethod(CtClass<?> ctClass, String methodName) {
 		Set<CtMethod<?>> mths = ctClass.getMethods();
 		return mths.stream()
 				.filter(mth -> mth.getSimpleName().endsWith(methodName))
@@ -93,8 +93,7 @@ public class Utils {
 	}
 
 	public static CtMethod findMethod(String className, String methodName) {
-		Set<CtMethod> mths = findClass(className).getMethods();
-		return mths.stream()
+		return findClass(className).getMethods().stream()
 				.filter(mth -> mth.getSimpleName().endsWith(methodName))
 				.findFirst()
 				.orElse(null);
