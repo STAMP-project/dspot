@@ -39,7 +39,7 @@ public class TestDataMutator implements Amplifier {
 		}
 	}
 
-	public Stream<CtMethod<?>> apply(CtMethod<?> method) {
+	public Stream<CtMethod<?>> amplify(CtMethod<?> method, int iteration) {
 		List<CtMethod<?>> methods = new ArrayList<>();
 		//get the list of literals in the method
 		List<CtLiteral> literals = Query.getElements(method.getBody(), new LiteralToBeMutedFilter());

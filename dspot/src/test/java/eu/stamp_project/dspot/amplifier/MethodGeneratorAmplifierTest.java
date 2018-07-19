@@ -47,7 +47,7 @@ public class MethodGeneratorAmplifierTest extends AbstractTest {
                         .get(0)
                         .getBody()).getStatements().size()
         );
-        CtMethod<?> amplifiedMethod = amplifier.apply(ctMethod).collect(Collectors.toList()).get(0);
+        CtMethod<?> amplifiedMethod = amplifier.amplify(ctMethod, 0).collect(Collectors.toList()).get(0);
         // elements has been added by the amplification: a method call and a local variable (needed to call the method)
         assertEquals(3,
                 ((CtBlock<?>) amplifiedMethod
@@ -71,7 +71,7 @@ public class MethodGeneratorAmplifierTest extends AbstractTest {
         amplifier.reset(factory.Class().get(packageName + ".ClassTarget"));
 
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTarget"), "test");
-        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod).collect(Collectors.toList());
+        List<CtMethod> amplifiedMethods = amplifier.amplify(ctMethod, 0).collect(Collectors.toList());
 
         assertEquals(7, amplifiedMethods.size());
 
@@ -101,7 +101,7 @@ public class MethodGeneratorAmplifierTest extends AbstractTest {
         amplifier.reset(factory.Class().get(packageName + ".ClassTargetAmplify"));
 
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
-        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod).collect(Collectors.toList());
+        List<CtMethod> amplifiedMethods = amplifier.amplify(ctMethod, 0).collect(Collectors.toList());
 
         assertEquals(4, amplifiedMethods.size());
 
@@ -133,7 +133,7 @@ public class MethodGeneratorAmplifierTest extends AbstractTest {
 
         CtMethod originalMethod = Utils.findMethod(ctClass, "testLit");
 
-        List<CtMethod> amplifiedMethods = amplifier.apply(originalMethod).collect(Collectors.toList());
+        List<CtMethod> amplifiedMethods = amplifier.amplify(originalMethod, 0).collect(Collectors.toList());
 
         System.out.println(amplifiedMethods);
 
@@ -170,7 +170,7 @@ public class MethodGeneratorAmplifierTest extends AbstractTest {
         amplifier.reset(factory.Class().get(packageName + ".TestClassTargetAmplify"));
 
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
-        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod).collect(Collectors.toList());
+        List<CtMethod> amplifiedMethods = amplifier.amplify(ctMethod, 0).collect(Collectors.toList());
 
         System.out.println(amplifiedMethods);
 

@@ -33,7 +33,7 @@ public class TestMethodCallAdderTest extends AbstractTest {
         methodCallAdder.reset(testClass);
 
         final CtMethod<?> originalMethod = testClass.getMethods().stream().filter(m -> "testAddCall".equals(m.getSimpleName())).findFirst().get();
-        List<CtMethod> amplifiedMethods = methodCallAdder.apply(originalMethod).collect(Collectors.toList());
+        List<CtMethod> amplifiedMethods = methodCallAdder.amplify(originalMethod, 0).collect(Collectors.toList());
 
         assertEquals(2, amplifiedMethods.size());
 

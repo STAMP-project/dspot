@@ -26,7 +26,9 @@ public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
     protected Set<CtLiteral<String>> amplify(CtLiteral<String> original, CtMethod<?> testMethod) {
         final Factory factory = testMethod.getFactory();
         Set<CtLiteral<String>> values = new HashSet<>();
-        values.add(factory.createLiteral(this.existingStrings.get(AmplificationHelper.getRandom().nextInt(this.existingStrings.size() - 1))));
+        if (!this.existingStrings.isEmpty()) {
+            values.add(factory.createLiteral(this.existingStrings.get(AmplificationHelper.getRandom().nextInt(this.existingStrings.size() - 1))));
+        }
         String value = original.getValue();
         if (value != null) {
             if (value.length() > 2) {

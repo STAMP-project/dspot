@@ -22,7 +22,7 @@ public class CharacterLiteralAmplifierTest extends AbstractTest {
         Amplifier mutator = new CharLiteralAmplifier();
         mutator.reset(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<CtMethod> mutantMethods = mutator.apply(method).collect(Collectors.toList());
+        List<CtMethod> mutantMethods = mutator.amplify(method, 0).collect(Collectors.toList());
         assertEquals(6, mutantMethods.size());
     }
 

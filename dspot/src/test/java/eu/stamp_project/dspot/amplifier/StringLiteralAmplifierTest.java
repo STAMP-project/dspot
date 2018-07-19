@@ -44,7 +44,7 @@ public class StringLiteralAmplifierTest extends AbstractTest {
         Amplifier amplifier = new StringLiteralAmplifier();
         amplifier.reset(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<CtMethod> mutantMethods = amplifier.apply(method).collect(Collectors.toList());
+        List<CtMethod> mutantMethods = amplifier.amplify(method, 0).collect(Collectors.toList());
         assertEquals(28, mutantMethods.size());
     }
 
@@ -56,7 +56,7 @@ public class StringLiteralAmplifierTest extends AbstractTest {
         Amplifier mutator = new StringLiteralAmplifier();
         mutator.reset(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<CtMethod> mutantMethods = mutator.apply(method).collect(Collectors.toList());
+        List<CtMethod> mutantMethods = mutator.amplify(method, 0).collect(Collectors.toList());
         assertTrue(mutantMethods.isEmpty());
     }
 

@@ -81,17 +81,16 @@ public abstract class AbstractAmplifier<T extends CtElement> implements Amplifie
     protected abstract List<T> getOriginals(CtMethod<?> testMethod);
 
     protected abstract Set<T> amplify(T original, CtMethod<?> testMethod);
-
+    
     @Override
-    public Stream<CtMethod<?>> apply(CtMethod<?> testMethod) {
+    public Stream<CtMethod<?>> amplify(CtMethod<?> testMethod, int iteration) {
         List<T> originals = this.getOriginals(testMethod);
         List<T> reducedOriginals = this.reduceAlreadyAmplifiedElements(originals);
         return reducedOriginals.stream()
                 .filter(reducedOriginal ->
                         reducedOriginal.getMetadata(METADATA_KEY) == null ||
                                 !(boolean)reducedOriginal.getMetadata(METADATA_KEY)
-                )
-                .flatMap(original ->
+                ).flatMap(original ->
                     this.amplify(original, testMethod)
                         .stream()
                         .map(amplified -> this.replace(original, amplified, testMethod))

@@ -14,7 +14,13 @@ import java.util.stream.Stream;
  */
 public interface Amplifier {
 
-    Stream<CtMethod<?>> apply(CtMethod<?> testMethod);
+    /**
+     * Input amplify the given test method. The resulting stream contains all the amplified test methods
+     * @param testMethod to be amplified
+     * @param iteration of the main loop of DSpot
+     * @return all the input amplified test methods
+     */
+    Stream<CtMethod<?>> amplify(CtMethod<?> testMethod, int iteration);
 
     void reset(CtType<?> testClass);
 

@@ -33,7 +33,7 @@ public class TestMethodCallRemove extends AbstractTest {
         methodCallRemove.reset(null);
 
         final CtMethod<?> originalMethod = testClass.getMethods().stream().filter(m -> "testAddCall".equals(m.getSimpleName())).findFirst().get();
-        List<CtMethod> amplifiedMethods = methodCallRemove.apply(originalMethod).collect(Collectors.toList());
+        List<CtMethod> amplifiedMethods = methodCallRemove.amplify(originalMethod, 0).collect(Collectors.toList());
 
         assertEquals(2, amplifiedMethods.size());
 

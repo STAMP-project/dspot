@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 public class MethodGeneratorAmplifier implements Amplifier {
 
     @Override
-    public Stream<CtMethod<?>> apply(CtMethod<?> testMethod) {
+    public Stream<CtMethod<?>> amplify(CtMethod<?> testMethod, int iteration) {
         List<CtLocalVariable<?>> existingObjects = getExistingObjects(testMethod);
         return existingObjects.stream()
                 .flatMap(existingObject -> AmplifierHelper.findMethodsWithTargetType(existingObject.getType()).stream()

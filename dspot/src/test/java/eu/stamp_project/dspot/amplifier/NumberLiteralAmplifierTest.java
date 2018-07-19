@@ -29,7 +29,7 @@ public class NumberLiteralAmplifierTest extends AbstractTest {
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<Byte> expectedValues = Arrays.asList((byte)22, (byte)24, Byte.MIN_VALUE, Byte.MAX_VALUE, (byte)0, (byte)53);
 
-        List<CtMethod> mutantMethods = amplifier.apply(method).collect(Collectors.toList());
+        List<CtMethod> mutantMethods = amplifier.amplify(method, 0).collect(Collectors.toList());
         assertEquals(6, mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {
             CtMethod mutantMethod = mutantMethods.get(i);
@@ -51,7 +51,7 @@ public class NumberLiteralAmplifierTest extends AbstractTest {
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<Short> expectedValues = Arrays.asList((short)22, (short)24, Short.MIN_VALUE, Short.MAX_VALUE, (short)0, (short)-25291);
 
-        List<CtMethod> mutantMethods = amplifier.apply(method).collect(Collectors.toList());
+        List<CtMethod> mutantMethods = amplifier.amplify(method, 0).collect(Collectors.toList());
         assertEquals(6, mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {
             CtMethod mutantMethod = mutantMethods.get(i);
@@ -73,7 +73,7 @@ public class NumberLiteralAmplifierTest extends AbstractTest {
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<Integer> expectedValues = Arrays.asList(22, 24, 2147483647, -2147483648, 0, -1170105035);
 
-        List<CtMethod> mutantMethods = amplifier.apply(method).collect(Collectors.toList());
+        List<CtMethod> mutantMethods = amplifier.amplify(method, 0).collect(Collectors.toList());
         assertEquals(6, mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {
             CtMethod mutantMethod = mutantMethods.get(i);
@@ -95,7 +95,7 @@ public class NumberLiteralAmplifierTest extends AbstractTest {
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<Long> expectedValues = Arrays.asList(22L, 24L, Long.MIN_VALUE, Long.MAX_VALUE, 0L, -935319508L);
 
-        List<CtMethod> mutantMethods = amplifier.apply(method).collect(Collectors.toList());
+        List<CtMethod> mutantMethods = amplifier.amplify(method, 0).collect(Collectors.toList());
         assertEquals(6, mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {
             CtMethod mutantMethod = mutantMethods.get(i);
@@ -118,7 +118,7 @@ public class NumberLiteralAmplifierTest extends AbstractTest {
         List<Float> expectedValues = Arrays.asList(22.0F, 24.0F, Float.MAX_VALUE, Float.MIN_VALUE, Float.MIN_NORMAL,
                 Float.NaN ,Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY , 0.0F, 0.7275637F);
 
-        List<CtMethod> mutantMethods = amplifier.apply(method).collect(Collectors.toList());
+        List<CtMethod> mutantMethods = amplifier.amplify(method, 0).collect(Collectors.toList());
         assertEquals(10, mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {
             CtMethod mutantMethod = mutantMethods.get(i);
@@ -142,7 +142,7 @@ public class NumberLiteralAmplifierTest extends AbstractTest {
         List<Double> expectedValues = Arrays.asList(22.0D, 24.0D, Double.MAX_VALUE, Double.MIN_VALUE, Double.MIN_NORMAL,
                 Double.NaN ,Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY , 0.0D, 0.7275636800328681);
 
-        List<CtMethod> mutantMethods = amplifier.apply(method).collect(Collectors.toList());
+        List<CtMethod> mutantMethods = amplifier.amplify(method, 0).collect(Collectors.toList());
         assertEquals(10, mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {
             CtMethod mutantMethod = mutantMethods.get(i);

@@ -86,4 +86,5 @@ public abstract class AbstractLiteralAmplifier<T> extends AbstractAmplifier<CtLi
 
     protected abstract Class<?> getTargetedClass();
 
+
 }

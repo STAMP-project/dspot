@@ -19,8 +19,8 @@ public abstract class DecoratorAmplifier implements Amplifier {
     }
 
     @Override
-    public Stream<CtMethod<?>> apply(CtMethod testMethod) {
-        return this.internalAmplifier.apply(testMethod);
+    public Stream<CtMethod<?>> amplify(CtMethod testMethod, int iteration) {
+        return this.internalAmplifier.amplify(testMethod, 0);
     }
 
     @Override

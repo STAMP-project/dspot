@@ -44,7 +44,7 @@ public class PerformanceTest extends AbstractTest {
 
         long start = System.currentTimeMillis();
         for (int i = 0 ; i < numberOfIteration ; i ++) {
-            amplifiedTestMethod1 = amplifiedTestMethod1.stream().flatMap(allLiteralAmplifiers::apply).collect(Collectors.toList());
+            amplifiedTestMethod1 = amplifiedTestMethod1.stream().flatMap(testMethod -> allLiteralAmplifiers.amplify(testMethod, 0)).collect(Collectors.toList());
             System.out.println("("+ i +")Number of Amplification:" + amplifiedTestMethod1.size());
         }
         final long timeAllLiteral = System.currentTimeMillis() - start;
@@ -52,7 +52,7 @@ public class PerformanceTest extends AbstractTest {
 
         long start2 = System.currentTimeMillis();
         for (int i = 0 ; i < numberOfIteration ; i ++) {
-            amplifiedTestMethod2 = amplifiedTestMethod2.stream().flatMap(testDataMutator::apply).collect(Collectors.toList());
+            amplifiedTestMethod2 = amplifiedTestMethod2.stream().flatMap(testMethod -> testDataMutator.amplify(testMethod, 0)).collect(Collectors.toList());
             System.out.println("("+ i +")Number of Amplification:" + amplifiedTestMethod2.size());
         }
         final long timeTestDataMutator = System.currentTimeMillis() - start2;

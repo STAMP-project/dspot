@@ -36,16 +36,16 @@ public class IterationDecoratorAmplifierTest extends AbstractTest {
 
         // 1 / 2 iteration produces something (the list is not empty)
         for (int i = 0 ; i < 10 ; i++) {
-            assertFalse(amplifier.apply(method).collect(Collectors.toList()).isEmpty());
-            assertTrue(amplifier.apply(method).collect(Collectors.toList()).isEmpty());
+            assertFalse(amplifier.amplify(method, 0).collect(Collectors.toList()).isEmpty());
+            assertTrue(amplifier.amplify(method, 0).collect(Collectors.toList()).isEmpty());
         }
 
         amplifier = new IterationDecoratorAmplifier(new NumberLiteralAmplifier(), 3);
          // 1 / 3 iteration produces something (the list is not empty)
         for (int i = 0 ; i < 12 ; i++) {
-            assertFalse(amplifier.apply(method).collect(Collectors.toList()).isEmpty());
-            assertTrue(amplifier.apply(method).collect(Collectors.toList()).isEmpty());
-            assertTrue(amplifier.apply(method).collect(Collectors.toList()).isEmpty());
+            assertFalse(amplifier.amplify(method, 0).collect(Collectors.toList()).isEmpty());
+            assertTrue(amplifier.amplify(method, 0).collect(Collectors.toList()).isEmpty());
+            assertTrue(amplifier.amplify(method, 0).collect(Collectors.toList()).isEmpty());
         }
 
     }

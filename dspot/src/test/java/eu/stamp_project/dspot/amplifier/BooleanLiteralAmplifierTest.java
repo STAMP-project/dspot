@@ -21,7 +21,7 @@ public class BooleanLiteralAmplifierTest extends AbstractTest {
         AmplificationHelper.setSeedRandom(42L);
         Amplifier mutator = new BooleanLiteralAmplifier();
         CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<CtMethod> mutantMethods = mutator.apply(method).collect(Collectors.toList());
+        List<CtMethod> mutantMethods = mutator.amplify(method, 0).collect(Collectors.toList());
         assertEquals(1, mutantMethods.size());
     }
 
