@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.assertGenerator;
+package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.compare.Observation;

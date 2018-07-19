@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.assertGenerator;
+package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.utils.AmplificationHelper;
 import spoon.reflect.code.CtBlock;
