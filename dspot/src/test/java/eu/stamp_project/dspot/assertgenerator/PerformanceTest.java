@@ -56,7 +56,7 @@ public class PerformanceTest extends AbstractTest {
         int iteration = 3;
         InputConfiguration.get().setMaxTestAmplified(3000);
         for (int i = 0 ; i < iteration ; i++) {
-            allTest = allTest.stream().flatMap(amplifier::apply).collect(Collectors.toList());
+            allTest = allTest.stream().flatMap(testMethod -> amplifier.amplify(testMethod, 0)).collect(Collectors.toList());
             LOGGER.info("I-Ampl ({}) {}", i, allTest.size());
             allTest = AmplificationHelper.reduce(allTest, InputConfiguration.get());
             allTest = assertGeneratorWithTime.assertionAmplification(testClass, allTest);
