@@ -45,7 +45,7 @@ public class SimpleBudgetizerTest extends AbstractTest {
         for (int i = 0 ; i < 7 ; i++) {
             ctMethods = simpleBudgetizer.inputAmplify(ctMethods, i); // !
         }
-        verifyCount(2, ctMethods, "null");
+        verifyCount(2, ctMethods, "litNum");
         verifyCount(2, ctMethods, "mg");
     }
 

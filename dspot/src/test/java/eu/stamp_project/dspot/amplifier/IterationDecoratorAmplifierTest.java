@@ -35,17 +35,17 @@ public class IterationDecoratorAmplifierTest extends AbstractTest {
         CtMethod method = literalMutationClass.getMethod(nameMethod);
 
         // 1 / 2 iteration produces something (the list is not empty)
-        for (int i = 0 ; i < 10 ; i++) {
-            assertFalse(amplifier.amplify(method, 0).collect(Collectors.toList()).isEmpty());
-            assertTrue(amplifier.amplify(method, 0).collect(Collectors.toList()).isEmpty());
+        for (int i = 0 ; i < 10 ; i = i + 2) {
+            assertFalse(amplifier.amplify(method, i).collect(Collectors.toList()).isEmpty());
+            assertTrue(amplifier.amplify(method, i + 1).collect(Collectors.toList()).isEmpty());
         }
 
         amplifier = new IterationDecoratorAmplifier(new NumberLiteralAmplifier(), 3);
          // 1 / 3 iteration produces something (the list is not empty)
-        for (int i = 0 ; i < 12 ; i++) {
-            assertFalse(amplifier.amplify(method, 0).collect(Collectors.toList()).isEmpty());
-            assertTrue(amplifier.amplify(method, 0).collect(Collectors.toList()).isEmpty());
-            assertTrue(amplifier.amplify(method, 0).collect(Collectors.toList()).isEmpty());
+        for (int i = 0 ; i < 12 ; i = i + 3) {
+            assertFalse(amplifier.amplify(method, i).collect(Collectors.toList()).isEmpty());
+            assertTrue(amplifier.amplify(method, i + 1).collect(Collectors.toList()).isEmpty());
+            assertTrue(amplifier.amplify(method, i + 2).collect(Collectors.toList()).isEmpty());
         }
 
     }
