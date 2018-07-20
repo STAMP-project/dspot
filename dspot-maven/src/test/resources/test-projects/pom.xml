@@ -30,7 +30,7 @@
 				<artifactId>dspot-maven</artifactId>
 				<version>1.1.1-SNAPSHOT</version>
 				<configuration>
-                    <pathToPropertiesFile>src/test/resources/test-projects/test-projects.properties</pathToPropertiesFile>
+                    <pathToProperties>src/test/resources/test-projects/test-projects.properties</pathToProperties>
 				</configuration>
 			</plugin>
 		</plugins>
