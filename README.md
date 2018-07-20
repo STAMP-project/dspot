@@ -168,7 +168,7 @@ java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --path-to-properties d
 
 ```
 Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
-                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | ExecutedMutantSelector | CloverCoverageSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [--max-test-amplified <integer>] [(-t|--test) my.package.MyClassTest1:my.package.MyClassTest2:...:my.package.MyClassTestN ] [(-c|--cases) testCases1:testCases2:...:testCasesN ] [(-o|--output-path) <output>] [--clean] [(-m|--path-pit-result) <./path/to/mutations.csv>] [--descartes] [--automatic-builder <MavenBuilder | GradleBuilder>] [--maven-home <path to maven home>] [--randomSeed <long integer>] [--timeOut <long integer>] [--verbose] [--with-comment] [--no-minimize] [-e|--example] [-h|--help]
+                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | ExecutedMutantSelector | CloverCoverageSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [--budgetizer <NoBudgetizer | SimpleBuddgetizer>] [--max-test-amplified <integer>] [(-t|--test) my.package.MyClassTest | all | diff1:my.package.MyClassTest | all | diff2:...:my.package.MyClassTest | all | diffN ] [(-c|--cases) testCases1:testCases2:...:testCasesN ] [(-o|--output-path) <output>] [--clean] [(-m|--path-pit-result) <./path/to/mutations.csv>] [--descartes] [--automatic-builder <MavenBuilder | GradleBuilder>] [--maven-home <path to maven home>] [--randomSeed <long integer>] [--timeOut <long integer>] [--verbose] [--with-comment] [--no-minimize] [--working-directory] [-e|--example] [-h|--help]
 
   [(-p|--path-to-properties) <./path/to/myproject.properties>]
         [mandatory] specify the path to the configuration file (format Java
@@ -193,7 +193,7 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
 
   [(-i|--iteration) <iteration>]
         [optional] specify the number of amplification iterations. A larger
-        number may help to improve the test criterion (eg a larger number of
+        number may help to improve the test criterion (e.g. a larger number of
         iterations may help to kill more mutants). This has an impact on the
         execution time: the more iterations, the longer DSpot runs. (default: 3)
 
@@ -201,20 +201,28 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         [optional] specify the test adequacy criterion to be maximized with
         amplification (default: PitMutantScoreSelector)
 
+  [--budgetizer <NoBudgetizer | SimpleBuddgetizer>]
+        [optional] specify a Bugdetizer. (default: NoBudgetizer)
+
   [--max-test-amplified <integer>]
         [optional] specify the maximum number of amplified tests that dspot
         keeps (before generating assertion) (default: 200)
 
-  [(-t|--test) my.package.MyClassTest1:my.package.MyClassTest2:...:my.package.MyClassTestN ]
+  [(-t|--test) my.package.MyClassTest | all | diff1:my.package.MyClassTest | all | diff2:...:my.package.MyClassTest | all | diffN ]
         [optional] fully qualified names of test classes to be amplified. If the
         value is all, DSpot will amplify the whole test suite. You can also use
-        regex to describe a set of test classes. (default: all)
+        regex to describe a set of test classes. By default, DSpot selects all
+        the tests (value all). You can use the value diff, to select tests
+        according to a diff between two versions of the same program. Be
+        careful, using --test diff, you must specify both properties folderPath
+        and baseSha. (default: all)
 
   [(-c|--cases) testCases1:testCases2:...:testCasesN ]
         specify the test cases to amplify
 
   [(-o|--output-path) <output>]
-        [optional] specify the output folder (default: dspot-report)
+        [optional] specify the output folder (default: dspot-report) (default:
+        dspot-report)
 
   [--clean]
         [optional] if enabled, DSpot will remove the out directory if exists,
@@ -261,7 +269,6 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
 
   [-h|--help]
         show this help
-
 ```
 
 ### Configuration
@@ -330,6 +337,16 @@ Following the list of avalaible test selector:
    * `ExecutedMutantSelector`: uses [**PIT**](http://pitest.org/) to computes the number of executed mutants. It uses the number of mutants as a proxy for the instruction coverage. It selects amplfied test that execute new mutants. **WARNING!!** this selector takes a lot of time, and is not worth it, please look at CloverCoverageSelector or JacocoCoverageSelector.
    * `TakeAllSelector`: keeps all amplified tests not matter the quality.
    * `ChangeDetectorSelector`: runs against a second version of the same program, and selects amplified tests that fail. This selector selects only amplified test that are able to show a difference of a behavior betweeen two versions of the same program.
+
+#### Budgetizer
+
+In **DSpot**, the Budgetizer is a way to select the amplified test methods after the input amplification. It allows to keep interesting and discard unwanted amplified test method.
+
+For now, there is two implementation of the Budgetizer:
+
+1. NoBudgetizer: This Budgetizer selects by maximize their distance of string representation among all the input amplified test methods. The number of amplified selected test methods is specified by the command line option `--max-test-amplified`.
+2. SimpleBudgetizer: This Budgetizer selects a fair number of amplified test method per Amplifier per test methods, if possible. The total budget is specified by the command line option ``--max-test-amplified`, and is the total number of amplified test methods to keep, _i.e._ it will be divide by the number of Amplifiers and by the number of test methods to be amplified.
+Example: We have 2 Amplifiers. We apply them to 2 test methods. For each test methods, amplifiers generate 4 new test methods, totally 8 amplified test methods. If the budget is 6, it will select: 3 amplified test methods per amplifier, and 2 for one test method and 2 for the other.
 
 #### Selector on Diff from GitHub
 

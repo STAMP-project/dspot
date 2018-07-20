@@ -24,12 +24,6 @@ public class SimpleBudgetizer implements Budgetizer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleBudgetizer.class);
 
-    private int budget;
-
-    public SimpleBudgetizer(int numberOfMethod) {
-        this.budget = numberOfMethod;
-    }
-
     /**
      * Input amplification of multiple tests.
      *
@@ -39,7 +33,8 @@ public class SimpleBudgetizer implements Budgetizer {
     @Override
     public List<CtMethod<?>> inputAmplify(List<CtMethod<?>> testMethods, int iteration) {
         LOGGER.info("Amplification of inputs...");
-        int totalBudget = budget;
+        final int budget = InputConfiguration.get().getMaxTestAmplified();
+        int totalBudget = InputConfiguration.get().getMaxTestAmplified();
         // copy the amplifiers, we will remove amplifier that does not generate more test
         final List<Amplifier> amplifiers = new ArrayList<>(InputConfiguration.get().getAmplifiers());
         // copy the test methods to be amplified
@@ -52,7 +47,7 @@ public class SimpleBudgetizer implements Budgetizer {
 
         final List<CtMethod<?>> amplifiedTestMethods = new ArrayList<>();
         while (totalBudget > 0 && !amplifiedTestMethodPerAmplifierPerTestMethod.isEmpty()) {
-            DSpotUtils.printProgress(this.budget - totalBudget, this.budget);
+            DSpotUtils.printProgress(budget - totalBudget, budget);
             final int nbAmplifierRemaining = amplifiedTestMethodPerAmplifierPerTestMethod.size();
             int budgetPerAmplifier = totalBudget / nbAmplifierRemaining;
             if (budgetPerAmplifier == 0) { // not enough budget, we get last randomly and quit

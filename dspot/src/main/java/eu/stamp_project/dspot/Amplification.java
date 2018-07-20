@@ -132,11 +132,10 @@ public class Amplification {
                     currentTestList.size()
             );
             final List<CtMethod<?>> inputAmplifiedTests = new NoBudgetizer().inputAmplify(selectedToBeAmplified, i);
-            final List<CtMethod<?>> reducedInputAmplifiedTests = AmplificationHelper.reduce(inputAmplifiedTests, this.configuration);
-            final List<CtMethod<?>> testsWithAssertions = this.assertionsAmplification(classTest, reducedInputAmplifiedTests);
+            final List<CtMethod<?>> testsWithAssertions = this.assertionsAmplification(classTest, inputAmplifiedTests);
             // in case no test with assertions could be generated, we go for the next iteration.
             if (testsWithAssertions.isEmpty()) {
-                currentTestList = reducedInputAmplifiedTests;
+                currentTestList = inputAmplifiedTests;
                 continue;
             }
             final List<CtMethod<?>> amplifiedTestMethodsToKeep = this.testSelector.selectToKeep(testsWithAssertions);
