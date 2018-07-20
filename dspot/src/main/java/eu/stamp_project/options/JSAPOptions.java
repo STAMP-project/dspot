@@ -269,8 +269,22 @@ public class JSAPOptions {
         return jsap;
     }
 
+    private static String jsapParameterFormatToMojoParameterFormat(String jsapOptionFormatted) {
+        StringBuilder mojoParameterFormat = new StringBuilder();
+        for (int i = 0; i < jsapOptionFormatted.length(); i++) {
+            if (jsapOptionFormatted.charAt(i) == '-') {
+                mojoParameterFormat.append(Character.toUpperCase(jsapOptionFormatted.charAt(++i)));
+            } else {
+                mojoParameterFormat.append(jsapOptionFormatted.charAt(i));
+            }
+        }
+        return mojoParameterFormat.toString();
+    }
+
     private static String jsapSwitchOptionToMojoParameter(Switch jsapSwitch) {
-        return "Boolean " + jsapSwitch.getLongFlag().replaceAll("-", "_") + ";" + AmplificationHelper.LINE_SEPARATOR;
+        return "Boolean " +
+                jsapParameterFormatToMojoParameterFormat(jsapSwitch.getLongFlag())
+                + ";" + AmplificationHelper.LINE_SEPARATOR;
     }
 
     private static String jsapFlaggedOptionToMojoParameter(FlaggedOption flaggedOption) {
@@ -288,7 +302,7 @@ public class JSAPOptions {
         } else {
             mojoParam += type + " ";
         }
-        mojoParam += flaggedOption.getLongFlag().replaceAll("-", "_") + ";" + AmplificationHelper.LINE_SEPARATOR;
+        mojoParam += jsapParameterFormatToMojoParameterFormat(flaggedOption.getLongFlag()) + ";" + AmplificationHelper.LINE_SEPARATOR;
         return mojoParam;
     }
 
