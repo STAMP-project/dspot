@@ -1,6 +1,8 @@
 package eu.stamp_project;
 
+import eu.stamp_project.options.AmplifierEnum;
 import eu.stamp_project.options.JSAPOptions;
+import eu.stamp_project.options.SelectorEnum;
 import eu.stamp_project.program.InputConfiguration;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -160,10 +162,10 @@ public class DSpotMojo extends AbstractMojo {
         try {
             Main.run(
                     InputConfiguration.initialize(this.pathToPropertiesFile)
-                            .setAmplifiers(JSAPOptions.buildAmplifiersFromString(this.amplifiers.toArray(new String[this.amplifiers.size()])))
+                            .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(this.amplifiers.toArray(new String[this.amplifiers.size()])))
                             .setNbIteration(this.iteration)
                             .setTestClasses(this.testClassesNames)
-                            .setSelector(JSAPOptions.SelectorEnum.valueOf(this.testCriterion).buildSelector())
+                            .setSelector(SelectorEnum.valueOf(this.testCriterion).buildSelector())
                             .setTestCases(this.testMethodsNames)
                             .setSeed(this.randomSeed)
                             .setTimeOutInMs(this.timeOut)

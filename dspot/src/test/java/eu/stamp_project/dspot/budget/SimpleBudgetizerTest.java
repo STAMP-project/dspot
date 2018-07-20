@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by Benjamin DANGLOT
@@ -55,24 +55,13 @@ public class SimpleBudgetizerTest extends AbstractTest {
             The SimpleBudget should always provide a specific number of test Methods
          */
 
-
         final CtClass<?> testClass = Utils.findClass("fr.inria.statementadd.TestClassTargetAmplify");
         List<CtMethod<?>> ctMethods = AmplificationHelper.getAllTest(testClass);
         final SimpleBudgetizer simpleBudgetizer = new SimpleBudgetizer();
-        for (int i = 0 ; i < 7 ; i++) {
+        for (int i = 0 ; i < 3 ; i++) {
             ctMethods = simpleBudgetizer.inputAmplify(ctMethods, i); // !
         }
-        verifyCount(2, ctMethods, "litNum");
-        verifyCount(2, ctMethods, "mg");
-    }
 
-    private void verifyCount(int count, List<CtMethod<?>> ctMethods, String suffix) {
-        assertTrue(count <= ctMethods.stream()
-                .filter(ctMethod ->
-                        ctMethod.getSimpleName()
-                                .replaceAll("[0-9]*", "")
-                                .endsWith(suffix)
-                ).count()
-        );
+        assertEquals(6, ctMethods.size());
     }
 }
