@@ -131,7 +131,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
         amplifier.reset(factory.Class().get(packageName + ".ClassTargetAmplify"));
 
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
-        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod).collect(Collectors.toList());
+        List<CtMethod> amplifiedMethods = amplifier.amplify(ctMethod, 0).collect(Collectors.toList());
 
         assertEquals(4, amplifiedMethods.size());
 

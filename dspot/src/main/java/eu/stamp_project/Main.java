@@ -4,6 +4,7 @@ import eu.stamp_project.diff.SelectorOnDiff;
 import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.dspot.amplifier.TestDataMutator;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
+import eu.stamp_project.options.JSAPOptions;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
@@ -89,7 +90,8 @@ public class Main {
 	static void runExample() {
 		try {
 			InputConfiguration configuration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
-			DSpot dSpot = new DSpot(configuration, 1, Collections.singletonList(new TestDataMutator()),
+			configuration.setAmplifiers(Collections.singletonList(new TestDataMutator()));
+			DSpot dSpot = new DSpot(configuration, 1, configuration.getAmplifiers(),
 					new JacocoCoverageSelector());
 			dSpot.amplifyTest("example.TestSuiteExample");
 		} catch (Exception e) {

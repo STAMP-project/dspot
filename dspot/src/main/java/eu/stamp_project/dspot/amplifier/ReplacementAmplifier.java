@@ -16,7 +16,7 @@ public class ReplacementAmplifier implements Amplifier {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Stream<CtMethod<?>> apply(CtMethod<?> testMethod) {
+    public Stream<CtMethod<?>> amplify(CtMethod<?> testMethod, int iteration) {
         return testMethod.getElements(new TypeFilter<CtLocalVariable>(CtLocalVariable.class) {
             @Override
             public boolean matches(CtLocalVariable element) {

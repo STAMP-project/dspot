@@ -11,7 +11,6 @@ import java.util.stream.Stream;
  */
 public class IterationDecoratorAmplifier extends DecoratorAmplifier {
 
-    private int currentIteration;
     private int frequency;
 
     /**
@@ -24,13 +23,12 @@ public class IterationDecoratorAmplifier extends DecoratorAmplifier {
     public IterationDecoratorAmplifier(Amplifier internalAmplifier, int frequency) {
         super(internalAmplifier);
         this.frequency = frequency;
-        this.currentIteration = 0;
     }
 
     @Override
-    public Stream<CtMethod<?>> apply(CtMethod testMethod) {
-        if (this.currentIteration++ % this.frequency == 0) {
-            return super.apply(testMethod);
+    public Stream<CtMethod<?>> amplify(CtMethod testMethod, int iteration) {
+        if (iteration % this.frequency == 0) {
+            return super.amplify(testMethod, iteration);
         } else {
             return Stream.empty();
         }

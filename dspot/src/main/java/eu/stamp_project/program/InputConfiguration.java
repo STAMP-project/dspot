@@ -3,6 +3,7 @@ package eu.stamp_project.program;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.dspot.amplifier.Amplifier;
+import eu.stamp_project.dspot.budget.Budgetizer;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.testrunner.EntryPoint;
@@ -733,34 +734,14 @@ public class InputConfiguration {
         return this;
     }
 
-    @Override
-    public String toString() {
-        return "InputConfiguration{" +
-                "absolutePathToProjectRoot='" + absolutePathToProjectRoot + '\'' +
-                ", targetModule='" + targetModule + '\'' +
-                ", pathToSourceCode='" + pathToSourceCode + '\'' +
-                ", pathToTestSourceCode='" + pathToTestSourceCode + '\'' +
-                ", pathToClasses='" + pathToClasses + '\'' +
-                ", pathToTestClasses='" + pathToTestClasses + '\'' +
-                ", dependencies='" + dependencies + '\'' +
-                ", additionalClasspathElements='" + additionalClasspathElements + '\'' +
-                ", builderName='" + builderName + '\'' +
-                ", mavenHome='" + mavenHome + '\'' +
-                ", builder=" + builder +
-                ", factory=" + factory +
-                ", outputDirectory='" + outputDirectory + '\'' +
-                ", configPath='" + configPath + '\'' +
-                ", delta='" + delta + '\'' +
-                ", absolutePathToSecondVersionProjectRoot='" + absolutePathToSecondVersionProjectRoot + '\'' +
-                ", baseSha='" + baseSha + '\'' +
-                ", excludedClasses='" + excludedClasses + '\'' +
-                ", excludedTestCases='" + excludedTestCases + '\'' +
-                ", filter='" + filter + '\'' +
-                ", pitVersion='" + pitVersion + '\'' +
-                ", descartesVersion='" + descartesVersion + '\'' +
-                ", timeoutPit='" + timeoutPit + '\'' +
-                ", JVMArgs='" + JVMArgs + '\'' +
-                ", descartesMutators='" + descartesMutators + '\'' +
-                '}';
+    private Budgetizer budgetizer;
+
+    public Budgetizer getBudgetizer() {
+        return budgetizer;
+    }
+
+    public InputConfiguration setBudgetizer(Budgetizer budgetizer) {
+        this.budgetizer = budgetizer;
+        return this;
     }
 }

@@ -34,9 +34,10 @@ public class DSpotMockedTest extends AbstractTest {
          */
 		ValueCreator.count = 0;
 		AmplificationHelper.setSeedRandom(23L);
-		InputConfiguration configuration = InputConfiguration.initialize(getPathToPropertiesFile());
+		final InputConfiguration configuration = InputConfiguration.get();
+		configuration.setAmplifiers(Arrays.asList(new MethodGeneratorAmplifier(), new ReturnValueAmplifier()));
 		DSpot dspot = new DSpot(configuration, 1,
-				Arrays.asList(new MethodGeneratorAmplifier(), new ReturnValueAmplifier())
+				configuration.getAmplifiers()
 		);
 		try {
 			FileUtils.cleanDirectory(new File(configuration.getOutputDirectory()));

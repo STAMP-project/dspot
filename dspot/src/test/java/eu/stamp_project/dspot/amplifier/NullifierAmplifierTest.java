@@ -29,9 +29,9 @@ public class NullifierAmplifierTest extends AbstractTest {
         AmplificationHelper.setSeedRandom(42L);
         Amplifier amplifier = new NullifierAmplifier();
         final CtMethod method = Utils.findMethod(literalMutationClass, nameMethod);
-        List<CtMethod<?>> amplification = amplifier.apply(method).collect(Collectors.toList());
+        List<CtMethod<?>> amplification = amplifier.amplify(method, 0).collect(Collectors.toList());
         assertEquals(4, amplification.size());
-        amplification = amplification.stream().flatMap(amplifier::apply).collect(Collectors.toList());
+        amplification = amplification.stream().flatMap(testMethod -> amplifier.amplify(testMethod, 0)).collect(Collectors.toList());
         assertEquals(12, amplification.size());
     }
 }

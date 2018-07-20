@@ -1,4 +1,4 @@
-package eu.stamp_project;
+package eu.stamp_project.options;
 
 import com.martiansoftware.jsap.Flagged;
 import com.martiansoftware.jsap.FlaggedOption;
@@ -7,37 +7,16 @@ import com.martiansoftware.jsap.JSAPException;
 import com.martiansoftware.jsap.JSAPResult;
 import com.martiansoftware.jsap.Parameter;
 import com.martiansoftware.jsap.Switch;
-import eu.stamp_project.dspot.amplifier.AllLiteralAmplifiers;
-import eu.stamp_project.dspot.amplifier.Amplifier;
-import eu.stamp_project.dspot.amplifier.BooleanLiteralAmplifier;
-import eu.stamp_project.dspot.amplifier.CharLiteralAmplifier;
-import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
-import eu.stamp_project.dspot.amplifier.NullifierAmplifier;
-import eu.stamp_project.dspot.amplifier.NumberLiteralAmplifier;
-import eu.stamp_project.dspot.amplifier.ReplacementAmplifier;
-import eu.stamp_project.dspot.amplifier.ReturnValueAmplifier;
-import eu.stamp_project.dspot.amplifier.StringLiteralAmplifier;
-import eu.stamp_project.dspot.amplifier.TestDataMutator;
-import eu.stamp_project.dspot.amplifier.TestMethodCallAdder;
-import eu.stamp_project.dspot.amplifier.TestMethodCallRemover;
-import eu.stamp_project.dspot.selector.ChangeDetectorSelector;
-import eu.stamp_project.dspot.selector.CloverCoverageSelector;
-import eu.stamp_project.dspot.selector.ExecutedMutantSelector;
-import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
-import eu.stamp_project.dspot.selector.TakeAllSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -50,67 +29,6 @@ public class JSAPOptions {
     private static final Logger LOGGER = LoggerFactory.getLogger(JSAPOptions.class);
 
     public static final JSAP options = initJSAP();
-
-    public enum SelectorEnum {
-        PitMutantScoreSelector {
-            @Override
-            public TestSelector buildSelector() {
-                return new PitMutantScoreSelector();
-            }
-        },
-        JacocoCoverageSelector {
-            @Override
-            public TestSelector buildSelector() {
-                return new JacocoCoverageSelector();
-            }
-        },
-        TakeAllSelector {
-            @Override
-            public TestSelector buildSelector() {
-                return new TakeAllSelector();
-            }
-        }, CloverCoverageSelector {
-            @Override
-            public TestSelector buildSelector() {
-                return new CloverCoverageSelector();
-            }
-        },
-        ExecutedMutantSelector {
-            @Override
-            public TestSelector buildSelector() {
-                return new ExecutedMutantSelector();
-            }
-        },
-        ChangeDetectorSelector {
-            @Override
-            public TestSelector buildSelector() {
-                return new ChangeDetectorSelector();
-            }
-        };
-
-        public abstract TestSelector buildSelector();
-    }
-
-    public enum AmplifierEnum {
-        MethodAdd(new TestMethodCallAdder()),
-        MethodRemove(new TestMethodCallRemover()),
-        TestDataMutator(new TestDataMutator()),
-        MethodGeneratorAmplifier(new MethodGeneratorAmplifier()),
-        ReturnValueAmplifier(new ReturnValueAmplifier()),
-        StringLiteralAmplifier(new StringLiteralAmplifier()),
-        NumberLiteralAmplifier(new NumberLiteralAmplifier()),
-        BooleanLiteralAmplifier(new BooleanLiteralAmplifier()),
-        CharLiteralAmplifier(new CharLiteralAmplifier()),
-        AllLiteralAmplifiers(new AllLiteralAmplifiers()),
-        ReplacementAmplifier(new ReplacementAmplifier()),
-        NullifierAmplifier(new NullifierAmplifier()),
-        None(null);
-        public final Amplifier amplifier;
-
-        private AmplifierEnum(Amplifier amplifier) {
-            this.amplifier = amplifier;
-        }
-    }
 
     public static InputConfiguration parse(String[] args) {
         JSAPResult jsapConfig = options.parse(args);
@@ -140,7 +58,7 @@ public class JSAPOptions {
         final List<String> testClasses = Arrays.asList(jsapConfig.getStringArray("test"));
         final List<String> testCases = Arrays.asList(jsapConfig.getStringArray("testCases"));
         return InputConfiguration.initialize(jsapConfig.getString("path"))
-                .setAmplifiers(buildAmplifiersFromString(jsapConfig.getStringArray("amplifiers")))
+                .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(jsapConfig.getStringArray("amplifiers")))
                 .setNbIteration(jsapConfig.getInt("iteration"))
                 .setTestClasses(testClasses)
                 .setSelector(testCriterion)
@@ -149,6 +67,7 @@ public class JSAPOptions {
                 .setTimeOutInMs(jsapConfig.getInt("timeOut"))
                 .setBuilderName(jsapConfig.getString("builder"))
                 .setMaxTestAmplified(jsapConfig.getInt("maxTestAmplified"))
+                .setBudgetizer(BudgetizerEnum.valueOf(jsapConfig.getString("budgetizer")).getBugtizer())
                 .setClean(jsapConfig.getBoolean("clean"))
                 .setMinimize(!jsapConfig.getBoolean("no-minimize"))
                 .setVerbose(jsapConfig.getBoolean("verbose"))
@@ -157,47 +76,6 @@ public class JSAPOptions {
                 .setDescartesMode(jsapConfig.getBoolean("descartes"));
     }
 
-    public static Amplifier stringToAmplifier(String amplifier) {
-        try {
-            return AmplifierEnum.valueOf(amplifier).amplifier;
-        } catch (IllegalArgumentException e) {
-            LOGGER.warn("Wrong values for amplifiers: {} is not recognized", amplifier);
-            LOGGER.warn("Possible values are: {}", getPossibleValuesForInputAmplifier());
-            LOGGER.warn("No amplifier has been added for {}", amplifier);
-            return null;
-        }
-    }
-
-    @NotNull
-    private static String getPossibleValuesForInputAmplifier() {
-        return AmplificationHelper.LINE_SEPARATOR + "\t\t - " +
-                Arrays.stream(new String[]{
-                        "StringLiteralAmplifier",
-                        "NumberLiteralAmplifier",
-                        "CharLiteralAmplifier",
-                        "BooleanLiteralAmplifier",
-                        "AllLiteralAmplifiers",
-                        "MethodAdd",
-                        "MethodRemove",
-                        "TestDataMutator (deprecated)",
-                        "MethodGeneratorAmplifier",
-                        "ReturnValueAmplifier",
-                        "ReplacementAmplifier",
-                        "NullifierAmplifier",
-                        "None"
-                }).collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR + "\t\t - "));
-    }
-
-    public static List<Amplifier> buildAmplifiersFromString(String[] amplifiersAsString) {
-        if (amplifiersAsString.length == 0 || "None".equals(amplifiersAsString[0])) {
-            return Collections.emptyList();
-        } else {
-            return Arrays.stream(amplifiersAsString)
-                    .map(JSAPOptions::stringToAmplifier)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-        }
-    }
 
     public static void showUsage() {
         System.err.println();
@@ -238,7 +116,7 @@ public class JSAPOptions {
         amplifiers.setStringParser(JSAP.STRING_PARSER);
         amplifiers.setUsageName("Amplifier");
         amplifiers.setDefault("None");
-        amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. " + getPossibleValuesForInputAmplifier());
+        amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. " + AmplifierEnum.getPossibleValuesForInputAmplifier());
 
         FlaggedOption iteration = new FlaggedOption("iteration");
         iteration.setDefault("3");
@@ -335,6 +213,13 @@ public class JSAPOptions {
         maxTestAmplified.setHelp("[optional] specify the maximum number of amplified tests that dspot keeps (before generating assertion)");
         maxTestAmplified.setDefault("200");
 
+        FlaggedOption budgetizer = new FlaggedOption("budgetizer");
+        budgetizer.setStringParser(JSAP.STRING_PARSER);
+        budgetizer.setLongFlag("budgetizer");
+        budgetizer.setUsageName("NoBudgetizer | SimpleBuddgetizer");
+        budgetizer.setHelp("[optional] specify a Bugdetizer.");
+        budgetizer.setDefault("NoBudgetizer");
+
         Switch withComment = new Switch("comment");
         withComment.setLongFlag("with-comment");
         withComment.setDefault("false");
@@ -360,6 +245,7 @@ public class JSAPOptions {
             jsap.registerParameter(amplifiers);
             jsap.registerParameter(iteration);
             jsap.registerParameter(selector);
+            jsap.registerParameter(budgetizer);
             jsap.registerParameter(maxTestAmplified);
             jsap.registerParameter(specificTestClass);
             jsap.registerParameter(testCases);
@@ -383,8 +269,22 @@ public class JSAPOptions {
         return jsap;
     }
 
+    private static String jsapParameterFormatToMojoParameterFormat(String jsapOptionFormatted) {
+        StringBuilder mojoParameterFormat = new StringBuilder();
+        for (int i = 0; i < jsapOptionFormatted.length(); i++) {
+            if (jsapOptionFormatted.charAt(i) == '-') {
+                mojoParameterFormat.append(Character.toUpperCase(jsapOptionFormatted.charAt(++i)));
+            } else {
+                mojoParameterFormat.append(jsapOptionFormatted.charAt(i));
+            }
+        }
+        return mojoParameterFormat.toString();
+    }
+
     private static String jsapSwitchOptionToMojoParameter(Switch jsapSwitch) {
-        return "Boolean " + jsapSwitch.getLongFlag().replaceAll("-", "_") + ";" + AmplificationHelper.LINE_SEPARATOR;
+        return "Boolean " +
+                jsapParameterFormatToMojoParameterFormat(jsapSwitch.getLongFlag())
+                + ";" + AmplificationHelper.LINE_SEPARATOR;
     }
 
     private static String jsapFlaggedOptionToMojoParameter(FlaggedOption flaggedOption) {
@@ -402,7 +302,7 @@ public class JSAPOptions {
         } else {
             mojoParam += type + " ";
         }
-        mojoParam += flaggedOption.getLongFlag().replaceAll("-", "_") + ";" + AmplificationHelper.LINE_SEPARATOR;
+        mojoParam += jsapParameterFormatToMojoParameterFormat(flaggedOption.getLongFlag()) + ";" + AmplificationHelper.LINE_SEPARATOR;
         return mojoParam;
     }
 

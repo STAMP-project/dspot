@@ -48,7 +48,7 @@ public class DSpotCompilerTest {
         assertEquals(1, compile.size());
         assertEquals(1, aClass.getMethods().size());
 
-        final List<CtMethod<?>> tests = new UncompilableAmplifier().apply(method.get(0)).collect(Collectors.toList());
+        final List<CtMethod<?>> tests = new UncompilableAmplifier().amplify(method.get(0), 0).collect(Collectors.toList());
         tests.forEach(aClass::addMethod);
         assertEquals(3, aClass.getMethods().size());
 
@@ -69,7 +69,7 @@ public class DSpotCompilerTest {
     private class UncompilableAmplifier implements Amplifier {
 
         @Override
-        public Stream<CtMethod<?>> apply(CtMethod<?> testMethod) {
+        public Stream<CtMethod<?>> amplify(CtMethod<?> testMethod, int iteration) {
             final CtCodeSnippetStatement snippet = testMethod.getFactory().Code().
                     createCodeSnippetStatement("UncompilableClass class = new UncompilableClass()");
             final CtMethod<?> method = testMethod.clone();

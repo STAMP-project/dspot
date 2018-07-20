@@ -31,7 +31,7 @@ public class ReturnValueAmplifierTest extends AbstractTest {
         ReturnValueAmplifier amplifier = new ReturnValueAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".ClassTargetAmplify"));
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
-        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod).collect(Collectors.toList());
+        List<CtMethod> amplifiedMethods = amplifier.amplify(ctMethod, 0).collect(Collectors.toList());
         assertEquals(1, amplifiedMethods.size());
         List<String> expectedCalledMethod = Collections.singletonList("method1");
         assertTrue(amplifiedMethods.stream()
@@ -59,7 +59,7 @@ public class ReturnValueAmplifierTest extends AbstractTest {
         ReturnValueAmplifier amplifier = new ReturnValueAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".TestClassTargetAmplify"));
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
-        List<CtMethod> amplifiedMethods = amplifier.apply(ctMethod).collect(Collectors.toList());
+        List<CtMethod> amplifiedMethods = amplifier.amplify(ctMethod, 0).collect(Collectors.toList());
         System.out.println(amplifiedMethods);
         assertEquals(1, amplifiedMethods.size());
         List<String> expectedCalledMethod = Collections.singletonList("method1");

@@ -38,8 +38,8 @@ public class LiteralAmplifiersTest extends AbstractTest {
         List<CtMethod<?>> allTest = AmplificationHelper.getAllTest(testClass);
         Amplifier amplifier = new NumberLiteralAmplifier();
         allTest = allTest.stream()
-                .flatMap(amplifier::apply) // we apply twice the NumberLiteralAmplifier. In one iteration, it explores every amplification that can be done
-                .flatMap(amplifier::apply) // however, we can continue to amplify since there is some random
+                .flatMap(method -> amplifier.amplify(method, 0)) // we apply twice the NumberLiteralAmplifier. In one iteration, it explores every amplification that can be done
+                .flatMap(method -> amplifier.amplify(method, 0)) // however, we can continue to amplify since there is some random
                 .collect(Collectors.toList());
 
         assertFalse(allTest.isEmpty());
@@ -66,8 +66,8 @@ public class LiteralAmplifiersTest extends AbstractTest {
         final CtMethod method = Utils.findMethod(literalMutationClass, nameMethod);
 
         // 1rst application of both amplifiers
-        List<CtMethod<?>> amplifiedStringMethods = stringLiteralAmplifier.apply(method).collect(Collectors.toList());
-        List<CtMethod<?>> amplifiedNumberMethods = numberLiteralAmplifier.apply(method).collect(Collectors.toList());
+        List<CtMethod<?>> amplifiedStringMethods = stringLiteralAmplifier.amplify(method, 0).collect(Collectors.toList());
+        List<CtMethod<?>> amplifiedNumberMethods = numberLiteralAmplifier.amplify(method, 0).collect(Collectors.toList());
 
         List<CtMethod<?>> amplifiedMethods = new ArrayList<>();
         amplifiedMethods.addAll(amplifiedStringMethods);
@@ -75,8 +75,8 @@ public class LiteralAmplifiersTest extends AbstractTest {
         assertEquals(47, amplifiedMethods.size());
 
         // 2nd application of both amplifiers:
-        amplifiedStringMethods = amplifiedMethods.stream().flatMap(stringLiteralAmplifier::apply).collect(Collectors.toList());
-        amplifiedNumberMethods = amplifiedMethods.stream().flatMap(numberLiteralAmplifier::apply).collect(Collectors.toList());
+        amplifiedStringMethods = amplifiedMethods.stream().flatMap(testMethod -> stringLiteralAmplifier.amplify(testMethod, 0)).collect(Collectors.toList());
+        amplifiedNumberMethods = amplifiedMethods.stream().flatMap(testMethod -> numberLiteralAmplifier.amplify(testMethod, 0)).collect(Collectors.toList());
 
         amplifiedMethods.clear();
         amplifiedMethods.addAll(amplifiedStringMethods);
@@ -117,10 +117,10 @@ public class LiteralAmplifiersTest extends AbstractTest {
         // used to verify that the application of Amplifiers does not modify the given test method
         final String originalTestMethodString = clone.toString();
 
-        List<CtMethod<?>> zeroAmplifiedTests = zeroAmplifier.apply(clone).collect(Collectors.toList());
+        List<CtMethod<?>> zeroAmplifiedTests = zeroAmplifier.amplify(clone, 0).collect(Collectors.toList());
         assertEquals(2, zeroAmplifiedTests.size());
         assertEquals(originalTestMethodString, clone.toString()); // the original test method has not been modified
-        zeroAmplifiedTests = zeroAmplifiedTests.stream().flatMap(zeroAmplifier::apply).collect(Collectors.toList());
+        zeroAmplifiedTests = zeroAmplifiedTests.stream().flatMap(testMethod -> zeroAmplifier.amplify(testMethod, 0)).collect(Collectors.toList());
         assertEquals(originalTestMethodString, clone.toString());
         assertEquals(1, zeroAmplifiedTests.size());
         literalMutationClass.removeMethod(clone);

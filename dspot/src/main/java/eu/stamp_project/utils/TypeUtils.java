@@ -83,8 +83,11 @@ public class TypeUtils {
 
 	public static boolean isString(CtTypeReference type) {
 		try {
-			return String.class.isAssignableFrom(type.getActualClass());
-		} catch (Exception ignored) {
+            return String.class.isAssignableFrom(type.getActualClass());
+        } catch (spoon.support.SpoonClassNotFoundException ignored) {
+
+		} catch (Exception e) {
+		    e.printStackTrace();
             LOGGER.warn("Error during check isString on {}", type.toString());
 		}
 		return false;

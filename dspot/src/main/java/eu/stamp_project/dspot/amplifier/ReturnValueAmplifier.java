@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 public class ReturnValueAmplifier implements Amplifier {
 
     @Override
-    public Stream<CtMethod<?>> apply(CtMethod<?> testMethod) {
+    public Stream<CtMethod<?>> amplify(CtMethod<?> testMethod, int iteration) {
         List<CtInvocation> invocations = getInvocations(testMethod);
         final List<CtMethod<?>> ampMethods = new ArrayList<>();
         invocations.stream()
@@ -38,10 +38,7 @@ public class ReturnValueAmplifier implements Amplifier {
                         !(invocation.getType() instanceof CtWildcardReference) &&
                                 !TypeUtils.isPrimitive(invocation.getType()) &&
                                 !TypeUtils.isString(invocation.getType())
-                )
-
-
-                .forEach(invocation -> {
+                ).forEach(invocation -> {
             List<CtMethod<?>> methodsWithTargetType = AmplifierHelper.findMethodsWithTargetType(invocation.getType());
             if (!methodsWithTargetType.isEmpty()) {
                 int indexOfInvocation = getIndexOf(testMethod, invocation);
@@ -50,7 +47,7 @@ public class ReturnValueAmplifier implements Amplifier {
                         "__DSPOT_invoc_" + indexOfInvocation,
                         invocation.clone());
                 CtExpression<?> target = AmplifierHelper.createLocalVarRef(localVar);
-                CtMethod methodClone = AmplificationHelper.cloneTestMethodForAmp(testMethod, "_rb");
+                CtMethod methodClone = AmplificationHelper.cloneTestMethodForAmp(testMethod, ""); // no need to suffix here, since it will be recloned after that
                 replaceInvocationByLocalVariable(
                         methodClone.getElements(new TypeFilter<>(CtStatement.class)).get(indexOfInvocation),
                         localVar

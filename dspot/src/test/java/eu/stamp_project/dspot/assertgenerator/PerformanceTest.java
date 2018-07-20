@@ -5,7 +5,6 @@ import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.amplifier.NumberLiteralAmplifier;
 import eu.stamp_project.program.InputConfiguration;
-import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -56,9 +55,8 @@ public class PerformanceTest extends AbstractTest {
         int iteration = 3;
         InputConfiguration.get().setMaxTestAmplified(3000);
         for (int i = 0 ; i < iteration ; i++) {
-            allTest = allTest.stream().flatMap(amplifier::apply).collect(Collectors.toList());
+            allTest = allTest.stream().flatMap(testMethod -> amplifier.amplify(testMethod, 0)).collect(Collectors.toList());
             LOGGER.info("I-Ampl ({}) {}", i, allTest.size());
-            allTest = AmplificationHelper.reduce(allTest, InputConfiguration.get());
             allTest = assertGeneratorWithTime.assertionAmplification(testClass, allTest);
             LOGGER.info("AssertionRemover:");
             LOGGER.info("timeGetVariableAssertedPerTestMethod: {} ms", assertGeneratorWithTime.assertionRemover.timeGetVariableAssertedPerTestMethod);

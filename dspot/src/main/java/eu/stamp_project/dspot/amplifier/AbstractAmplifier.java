@@ -23,6 +23,7 @@ public abstract class AbstractAmplifier<T extends CtElement> implements Amplifie
 
     /**
      * Checks if the given element has already been amplified
+     *
      * @param element
      * @return
      */
@@ -37,9 +38,10 @@ public abstract class AbstractAmplifier<T extends CtElement> implements Amplifie
      * redundant amplifications.
      * For more information, and a provided example,
      * see <url>https://github.com/STAMP-project/dspot/issues/454</url>
+     *
      * @param elementsToBeReduced list of elements to be reduced
      * @return a reduced list of elements, according to previous amplification.
-     *         If this is the first amplification, no element would be marked as amplified
+     * If this is the first amplification, no element would be marked as amplified
      */
     protected List<T> reduceAlreadyAmplifiedElements(List<T> elementsToBeReduced) {
         List<T> reducedElements = new ArrayList<>(elementsToBeReduced);
@@ -59,9 +61,10 @@ public abstract class AbstractAmplifier<T extends CtElement> implements Amplifie
      * This method replace the given original element by the amplified one, by producing a clone of the given test method.
      * The amplified element would be marked as amplified, with the METADATA_KEY,
      * <i>i.e.</i> calling {@link #hasBeenAmplified(CtElement)} returns true.
-     * @param originalElement element to be replaced
+     *
+     * @param originalElement  element to be replaced
      * @param amplifiedElement new element to be used
-     * @param testMethod test method to be cloned
+     * @param testMethod       test method to be cloned
      * @return a clone of the given test method with an amplified element that replaces the original element
      */
     protected CtMethod<?> replace(T originalElement, T amplifiedElement, CtMethod<?> testMethod) {
@@ -73,8 +76,7 @@ public abstract class AbstractAmplifier<T extends CtElement> implements Amplifie
     }
 
     /**
-     * This method aims at giving a specific name per Amplifier to the amplified test method
-     * @return
+     * @return This method aims at giving a specific name per Amplifier to the amplified test method
      */
     protected abstract String getSuffix();
 
@@ -83,18 +85,17 @@ public abstract class AbstractAmplifier<T extends CtElement> implements Amplifie
     protected abstract Set<T> amplify(T original, CtMethod<?> testMethod);
 
     @Override
-    public Stream<CtMethod<?>> apply(CtMethod<?> testMethod) {
+    public Stream<CtMethod<?>> amplify(CtMethod<?> testMethod, int iteration) {
         List<T> originals = this.getOriginals(testMethod);
         List<T> reducedOriginals = this.reduceAlreadyAmplifiedElements(originals);
         return reducedOriginals.stream()
                 .filter(reducedOriginal ->
                         reducedOriginal.getMetadata(METADATA_KEY) == null ||
-                                !(boolean)reducedOriginal.getMetadata(METADATA_KEY)
-                )
-                .flatMap(original ->
-                    this.amplify(original, testMethod)
-                        .stream()
-                        .map(amplified -> this.replace(original, amplified, testMethod))
+                                !(boolean) reducedOriginal.getMetadata(METADATA_KEY)
+                ).flatMap(original ->
+                        this.amplify(original, testMethod)
+                                .stream()
+                                .map(amplified -> this.replace(original, amplified, testMethod))
                 );
     }
 }

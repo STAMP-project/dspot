@@ -30,10 +30,7 @@ import spoon.support.reflect.declaration.CtClassImpl;
 
 import java.io.File;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -70,7 +67,7 @@ public class AmplificationHelper {
     /**
      * Link between an amplified test and its parent (i.e. the original test).
      */
-    private static Map<CtMethod<?>, CtMethod> ampTestToParent = new IdentityHashMap<>();
+    public static Map<CtMethod<?>, CtMethod> ampTestToParent = new IdentityHashMap<>();
 
     @Deprecated
     private static Map<CtType, Set<CtType>> importByClass = new HashMap<>();
@@ -450,80 +447,6 @@ public class AmplificationHelper {
                         compiler.getDependencies(),
                 }
         ).collect(Collectors.joining(PATH_SEPARATOR));
-    }
-
-    /**
-     * Reduces the number of amplified tests to a practical threshold (see {@link InputConfiguration#getMaxTestAmplified()}).
-     * <p>
-     * <p>The reduction aims at keeping a maximum of diversity. Because all the amplified tests come from the same
-     * original test, they have a <em>lot</em> in common.
-     * <p>
-     * <p>Diversity is measured with the textual representation of amplified tests. We use the sum of the bytes returned
-     * by the {@link String#getBytes()} method and keep the amplified tests with the most distant values.
-     *
-     * @param tests List of tests to be reduced
-     * @param configuration
-     * @return A subset of the input tests
-     */
-    public static List<CtMethod<?>> reduce(List<CtMethod<?>> tests, InputConfiguration configuration) {
-        final List<CtMethod<?>> reducedTests = new ArrayList<>();
-        if (tests.size() > configuration.getMaxTestAmplified()) {
-            LOGGER.warn("Too many tests have been generated: {}", tests.size());
-            final Map<Long, List<CtMethod<?>>> valuesToMethod = new HashMap<>();
-            for (CtMethod<?> test : tests) {
-                final long value = AmplificationHelper.sumByteArrayToLong(test.toString().getBytes());
-                if (!valuesToMethod.containsKey(value)) {
-                    valuesToMethod.put(value, new ArrayList<>());
-                }
-                valuesToMethod.get(value).add(test);
-            }
-            final Long average = average(valuesToMethod.keySet());
-            while (reducedTests.size() < configuration.getMaxTestAmplified()) {
-                final Long furthest = furthest(valuesToMethod.keySet(), average);
-                reducedTests.add(valuesToMethod.get(furthest).get(0));
-                if (valuesToMethod.get(furthest).isEmpty()) {
-                    valuesToMethod.remove(furthest);
-                } else {
-                    valuesToMethod.get(furthest).remove(0);
-                    if (valuesToMethod.get(furthest).isEmpty()) {
-                        valuesToMethod.remove(furthest);
-                    }
-                }
-            }
-            LOGGER.info("Number of generated test reduced to {}", reducedTests.size());
-        }
-        if (reducedTests.isEmpty()) {
-            reducedTests.addAll(tests);
-        } else {
-            tests.stream()
-                    .filter(test -> !reducedTests.contains(test))
-                    .forEach(discardedTest -> ampTestToParent.remove(discardedTest));
-        }
-        return reducedTests;
-    }
-
-    /**
-     * Returns the average of a collection of double
-     */
-    private static Long average(Collection<Long> values) {
-        return values.stream().collect(Collectors.averagingLong(Long::longValue)).longValue();
-    }
-
-    /**
-     * Returns the first, most distant element of a collection from a defined value.
-     */
-    private static Long furthest(Collection<Long> values, Long average) {
-        return values.stream()
-                .max(Comparator.comparingLong(d -> Math.abs(d - average)))
-                .orElse(null);
-    }
-
-    private static long sumByteArrayToLong(byte[] byteArray) {
-        long sum = 0L;
-        for (byte aByteArray : byteArray) {
-            sum += (int) aByteArray;
-        }
-        return sum;
     }
 
     public static final TypeFilter<CtInvocation<?>> ASSERTIONS_FILTER = new TypeFilter<CtInvocation<?>>(CtInvocation.class) {

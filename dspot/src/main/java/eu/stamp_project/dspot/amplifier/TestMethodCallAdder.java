@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 public class TestMethodCallAdder implements Amplifier {
 
-    public Stream<CtMethod<?>> apply(CtMethod<?> method) {
+    public Stream<CtMethod<?>> amplify(CtMethod<?> method, int iteration) {
         if (method.getDeclaringType() != null) {
             final List<CtInvocation<?>> invocations = method.getElements(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
                 @Override
