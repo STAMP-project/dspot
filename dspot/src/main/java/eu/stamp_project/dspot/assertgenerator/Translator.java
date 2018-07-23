@@ -1,5 +1,7 @@
 package eu.stamp_project.dspot.assertgenerator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtVariableAccess;
@@ -10,6 +12,8 @@ import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtLocalVariableReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.reference.CtVariableReference;
+
+import java.util.Optional;
 
 /**
  * Created by Benjamin DANGLOT
@@ -22,6 +26,8 @@ import spoon.reflect.reference.CtVariableReference;
  *
  */
 public class Translator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Translator.class);
 
     private final Factory factory;
 
@@ -93,7 +99,14 @@ public class Translator {
         final CtTypeReference<?> reference = ctType.getReference();
         invocation.getTarget().addTypeCast(reference);
         // we are sure that there is only one, since we use only getters
-        final CtMethod<?> getter = ctType.getMethodsByName(executableName).get(0);
+        final Optional<CtMethod<?>> candidate = ctType.getAllMethods()
+                .stream()
+                .filter(ctMethod -> ctMethod.getSimpleName().equals(executableName))
+                .findFirst();
+        if (!candidate.isPresent()) {
+            LOGGER.error("Could not find {} in {}.", executableName, ctType.getQualifiedName());
+        }
+        final CtMethod<?> getter = candidate.get();
         final CtExecutableReference<?> referenceToGetter = getter.getReference();
         invocation.setExecutable(referenceToGetter);
         if (start != 1) {
