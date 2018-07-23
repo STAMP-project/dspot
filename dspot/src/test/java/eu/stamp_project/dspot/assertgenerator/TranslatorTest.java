@@ -10,6 +10,7 @@ import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtVariableRead;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -94,7 +95,7 @@ public class TranslatorTest extends AbstractTest {
 
 
     @Test
-    public void testtranslateOnIsEmpty() throws Exception {
+    public void testTranslateOnIsEmpty() throws Exception {
 
         /*
             The observations produces a special case for empty collection
@@ -113,5 +114,22 @@ public class TranslatorTest extends AbstractTest {
         assertEquals("((fr.inria.sample.ClassWithBoolean) (cl))", invocation.getTarget().toString());
         assertEquals("fr.inria.sample.ClassWithBoolean", invocation.getTarget().getTypeCasts().get(0).toString());
         assertEquals("getEmptyList", invocation.getExecutable().getSimpleName());
+    }
+
+    @Test
+    public void testTranslateOnMethodFromSuperClass() throws Exception {
+
+        /*
+            Translator works on observed methods of super class
+
+                The method test() is from the super class
+         */
+
+
+        String statementToBeTranslated = "((fr.inria.inheritance.Inherit)cl).test()";
+        CtInvocation<?> invocation = translateInvocation(statementToBeTranslated);
+        assertEquals("((fr.inria.inheritance.Inherit) (cl))", invocation.getTarget().toString());
+        assertFalse(invocation.getTarget().getTypeCasts().isEmpty());
+        assertEquals("test", invocation.getExecutable().getSimpleName());
     }
 }
