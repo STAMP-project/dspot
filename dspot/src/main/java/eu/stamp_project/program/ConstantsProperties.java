@@ -39,34 +39,34 @@ public class ConstantsProperties {
                     "specify the relative path from " +
                             PROJECT_ROOT_PATH.getName() + "/" + MODULE.getName() +
                             " of the folder that contain sources (.java).",
-                    "src/main/java/"
+                    "src" + AmplificationHelper.FILE_SEPARATOR + "main" + AmplificationHelper.FILE_SEPARATOR + "java" + AmplificationHelper.FILE_SEPARATOR + ""
             );
 
     public static final InputConfigurationProperty TEST_SRC_CODE =
             new InputConfigurationProperty(
                     "testSrc",
                     "specify the relative path from " +
-                            PROJECT_ROOT_PATH.getName() + "/" + MODULE.getName() +
+                            PROJECT_ROOT_PATH.getName() + "" + AmplificationHelper.FILE_SEPARATOR + "" + MODULE.getName() +
                             " of the folder that contain test sources (.java).",
-                    "src/test/java/"
+                    "src" + AmplificationHelper.FILE_SEPARATOR + "test" + AmplificationHelper.FILE_SEPARATOR + "java" + AmplificationHelper.FILE_SEPARATOR + ""
             );
 
     public static final InputConfigurationProperty SRC_CLASSES =
             new InputConfigurationProperty(
                     "classes",
                     "specify the relative path from " +
-                            PROJECT_ROOT_PATH.getName() + "/" + MODULE.getName() +
+                            PROJECT_ROOT_PATH.getName() + "" + AmplificationHelper.FILE_SEPARATOR + "" + MODULE.getName() +
                             " of the folder that contain binaries of the source program (.class).",
-                    "target/classes/"
+                    "target" + AmplificationHelper.FILE_SEPARATOR + "classes" + AmplificationHelper.FILE_SEPARATOR + ""
             );
 
     public static final InputConfigurationProperty TEST_CLASSES =
             new InputConfigurationProperty(
                     "testclasses",
                     "specify the relative path from " +
-                            PROJECT_ROOT_PATH.getName() + "/" + MODULE.getName() +
+                            PROJECT_ROOT_PATH.getName() + "" + AmplificationHelper.FILE_SEPARATOR + "" + MODULE.getName() +
                             " of the folder that contain binaries of the test source program (.class).",
-                    "target/test-classes/"
+                    "target" + AmplificationHelper.FILE_SEPARATOR + "test-classes" + AmplificationHelper.FILE_SEPARATOR + ""
             );
 
     public static final InputConfigurationProperty ADDITIONAL_CP_ELEMENTS =
@@ -74,7 +74,7 @@ public class ConstantsProperties {
                     "additionalClasspathElements",
                     "specify additional classpath elements. (e.g. a jar file) " +
                             "This value should be a list of relative paths from " +
-                            PROJECT_ROOT_PATH.getName() + "/" + MODULE.getName() + ". " +
+                            PROJECT_ROOT_PATH.getName() + "" + AmplificationHelper.FILE_SEPARATOR + "" + MODULE.getName() + ". " +
                             "Elements of the list must be separated by a comma \',\'.",
                     ""
             );
@@ -125,7 +125,7 @@ public class ConstantsProperties {
             new InputConfigurationProperty(
                     "outputDirectory",
                     "specify a path folder for the output.",
-                    ""
+                    "target" + AmplificationHelper.FILE_SEPARATOR + "dspot" + AmplificationHelper.FILE_SEPARATOR + "output"
             );
 
     public static final InputConfigurationProperty MAVEN_HOME =

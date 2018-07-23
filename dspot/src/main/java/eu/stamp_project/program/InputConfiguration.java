@@ -668,7 +668,7 @@ public class InputConfiguration {
      */
     public InputConfiguration setVerbose(boolean verbose) {
         this.verbose = verbose;
-        EntryPoint.verbose = this.isVerbose();
+        EntryPoint.verbose = verbose;
         return this;
     }
 

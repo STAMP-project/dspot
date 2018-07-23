@@ -44,6 +44,12 @@ public class AmplificationHelper {
 
     public static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
+    // this separator should be in extrem case. In most of the cases, we can use directly "/" on all systems.
+    // but if the path come from the system, and not from DSpot, we must use this one.
+    // we must also takes extra care since the file separator on windows is: '\'
+    // which is the escape in java
+    public static final String FILE_SEPARATOR = System.getProperty("file.separator");
+
     public static final char DECIMAL_SEPARATOR = (((DecimalFormat) DecimalFormat.getInstance()).getDecimalFormatSymbols().getDecimalSeparator());
 
     public static int timeOutInMs = 10000;
