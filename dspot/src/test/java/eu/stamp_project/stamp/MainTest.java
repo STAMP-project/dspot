@@ -1,6 +1,7 @@
 package eu.stamp_project.stamp;
 
 import eu.stamp_project.Main;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -16,6 +17,8 @@ import java.io.IOException;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -43,6 +46,21 @@ public class MainTest {
         } catch (Exception ignored) {
 
         }
+    }
+
+    @Test
+    public void testMainWithEmptyTestMethods() throws Exception {
+        Main.main(new String[]{
+                "--clean",
+                "--verbose",
+                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
+                "--test-criterion", "TakeAllSelector",
+                "--test", "example.TestSuiteExample",
+                "--no-minimize"
+        });
+        final CtClass<?> amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("example.TestSuiteExampleAmpl");
+        assertNotNull(amplifiedTestClass);
+        assertFalse(amplifiedTestClass.getMethods().isEmpty());
     }
 
     @Test
