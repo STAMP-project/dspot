@@ -102,10 +102,6 @@ public class DSpot {
         }
     }
 
-    public void addAmplifier(Amplifier amplifier) {
-        this.amplifiers.add(amplifier);
-    }
-
     public List<CtType> amplifyAllTests() {
         return this.amplifyAllTests(this.inputConfiguration.getFactory().Class().getAll().stream()
                 .filter(ctClass -> !ctClass.getModifiers().contains(ModifierKind.ABSTRACT))
@@ -151,10 +147,13 @@ public class DSpot {
 
     public CtType amplifyTest(String fullQualifiedName, List<String> methods) {
         final CtType<?> testClass = this.compiler.getLauncher().getFactory().Type().get(fullQualifiedName);
-        return amplifyTest(testClass, methods.stream()
-                .map(methodName -> testClass.getMethodsByName(methodName).get(0))
-                .filter(AmplificationChecker::isTest)
-                .collect(Collectors.toList()));
+        final List<CtMethod<?>> testMethods =
+                (methods.isEmpty() ?
+                        testClass.getMethods().stream() :
+                        methods.stream().map(methodName -> testClass.getMethodsByName(methodName).get(0))
+                ).filter(AmplificationChecker::isTest)
+                        .collect(Collectors.toList());
+        return amplifyTest(testClass, testMethods);
     }
 
     public CtType amplifyTest(CtType test, List<CtMethod<?>> methods) {
