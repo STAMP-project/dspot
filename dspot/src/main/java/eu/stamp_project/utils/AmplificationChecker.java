@@ -8,6 +8,7 @@ import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
@@ -94,13 +95,22 @@ public class AmplificationChecker {
         }
     };
 
+    private static boolean hasAnnotation(Class<?> classOfAnnotation, CtElement candidate) {
+        return candidate.getAnnotations()
+                .stream()
+                .anyMatch(ctAnnotation -> ctAnnotation.getAnnotationType().getQualifiedName()
+                        .equals(classOfAnnotation.getName()));
+
+    }
+
     public static boolean isTest(CtMethod<?> candidate) {
         if (candidate == null) {
             return false;
         }
         CtClass<?> parent = candidate.getParent(CtClass.class);
+
         // if the test method has @Ignore, is not a test
-        if (candidate.getAnnotation(org.junit.Ignore.class) != null) {
+        if (hasAnnotation(org.junit.Ignore.class, candidate)) {
             return false;
         }
         // if the test method is not visible, or has no body, or has parameters, is not a test
@@ -135,7 +145,7 @@ public class AmplificationChecker {
         }
 
 
-        return (candidate.getAnnotation(org.junit.Test.class) != null ||
+        return (hasAnnotation(org.junit.Test.class, candidate) ||
                 // matching JUnit3 test: the parent is not JUnit4 and the method's name starts with test or should
                 ((candidate.getSimpleName().contains("test") || candidate.getSimpleName().contains("should"))
                         && !isTestJUnit4(parent))
