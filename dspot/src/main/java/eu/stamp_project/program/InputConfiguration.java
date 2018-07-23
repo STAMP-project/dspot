@@ -440,12 +440,15 @@ public class InputConfiguration {
         return this.outputDirectory;
     }
 
+    @Deprecated
     private String configPath;
 
+    @Deprecated
     public String getConfigPath() {
         return configPath;
     }
 
+    @Deprecated
     public InputConfiguration setConfigPath(String configPath) {
         this.configPath = configPath;
         return this;
