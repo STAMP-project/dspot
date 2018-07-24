@@ -8,6 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
+import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
@@ -15,8 +16,10 @@ import spoon.reflect.reference.CtReference;
 import spoon.reflect.visitor.filter.NamedElementFilter;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -187,30 +190,32 @@ public class AssertGeneratorTest extends AbstractTest {
 
     @Test
     public void testAssertsOnMaps() throws Exception {
+
+        /*
+            Test the generation of assertion on maps
+         */
+
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithoutAssert", "test3");
         List<CtMethod<?>> test1_buildNewAssert = assertGenerator.assertionAmplification(testClass, Collections.singletonList(test1));
-        assertEquals(expectedBodyWithMap, test1_buildNewAssert.get(0).getBody().toString());
-    }
+        final CtMethod<?> amplifiedTest = test1_buildNewAssert.get(0);
+        final List<String> statementsAsString = amplifiedTest.getBody().getStatements().stream().map(CtStatement::toString).collect(Collectors.toList());
+        assertEquals(16, amplifiedTest.getBody().getStatements().size());
 
-    private static final String expectedBodyWithMap = "{" + AmplificationHelper.LINE_SEPARATOR +
-            "    final fr.inria.sample.ClassWithMap classWithMap = new fr.inria.sample.ClassWithMap();" + AmplificationHelper.LINE_SEPARATOR +
-            "    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap) (classWithMap)).getEmptyMap().isEmpty());" + AmplificationHelper.LINE_SEPARATOR +
-            "    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key1\"));" + AmplificationHelper.LINE_SEPARATOR +
-            "    org.junit.Assert.assertEquals(\"value1\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key1\"));" + AmplificationHelper.LINE_SEPARATOR +
-            "    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key2\"));" + AmplificationHelper.LINE_SEPARATOR +
-            "    org.junit.Assert.assertEquals(\"value2\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key2\"));" + AmplificationHelper.LINE_SEPARATOR +
-            "    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key3\"));" + AmplificationHelper.LINE_SEPARATOR +
-            "    org.junit.Assert.assertEquals(\"value3\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key3\"));" + AmplificationHelper.LINE_SEPARATOR +
-            "    classWithMap.getFullMap();" + AmplificationHelper.LINE_SEPARATOR +
-            "    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap) (classWithMap)).getEmptyMap().isEmpty());" + AmplificationHelper.LINE_SEPARATOR +
-            "    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key1\"));" + AmplificationHelper.LINE_SEPARATOR +
-            "    org.junit.Assert.assertEquals(\"value1\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key1\"));" + AmplificationHelper.LINE_SEPARATOR +
-            "    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key2\"));" + AmplificationHelper.LINE_SEPARATOR +
-            "    org.junit.Assert.assertEquals(\"value2\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key2\"));" + AmplificationHelper.LINE_SEPARATOR +
-            "    org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key3\"));" + AmplificationHelper.LINE_SEPARATOR +
-            "    org.junit.Assert.assertEquals(\"value3\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key3\"));" + AmplificationHelper.LINE_SEPARATOR +
-            "}";
+        Arrays.stream(new String[]{
+                "org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap) (classWithMap)).getEmptyMap().isEmpty())",
+                "org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key1\"))",
+                "org.junit.Assert.assertEquals(\"value1\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key1\"))",
+                "org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key2\"))",
+                "org.junit.Assert.assertEquals(\"value2\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key2\"))",
+                "org.junit.Assert.assertTrue(((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().containsKey(\"key3\"))",
+                "org.junit.Assert.assertEquals(\"value3\", ((fr.inria.sample.ClassWithMap)classWithMap).getFullMap().get(\"key3\"))"
+        }).forEach(
+                // each assertions should be present two time since we generate assertion just after the set up of the test,
+                // and at the end of the test method if there is some method call that can potential change the state
+                expected -> assertEquals(2, statementsAsString.stream().filter(expected::equals).count())
+        );
+    }
 
     @Test
     public void testMakeFailureTest() throws Exception {
