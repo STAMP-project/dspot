@@ -28,10 +28,10 @@ install:
   - cd ..
 
 script:
-  - ./.travis/$SCRIPT $DSPOT_VERSION
+  - ./.ci/$SCRIPT $DSPOT_VERSION
 
 after_success:
-  - cd .. && ./.travis/travis-deploy.sh
+  - cd .. && ./.ci/travis-deploy.sh
 
 branch:
   only:
