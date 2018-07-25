@@ -67,11 +67,37 @@ public class InputConfiguration {
      *
      */
     public static InputConfiguration initialize(String pathToPropertiesFile) {
+        InputConfiguration.initialize(loadProperties(pathToPropertiesFile));
+        InputConfiguration.instance.configPath = pathToPropertiesFile;
+        return InputConfiguration.instance;
+    }
+
+    /**
+     * This method initialize the instance of the Singleton {@link InputConfiguration}.
+     * You can retrieve this instance using {@link InputConfiguration#get()}
+     * Build an InputConfiguration from a properties file, given as path.
+     * This method will call the default constructor {@link InputConfiguration#InputConfiguration(String, String, String, String, String, String)}
+     * Then, uses the properties to initialize other values.
+     * The given properties should have least values for :
+     * <ul>
+     *     <li>{@link ConstantsProperties#PROJECT_ROOT_PATH}</li>
+     *     <li>{@link ConstantsProperties#SRC_CODE}</li>
+     *     <li>{@link ConstantsProperties#TEST_SRC_CODE}</li>
+     *     <li>{@link ConstantsProperties#SRC_CLASSES}</li>
+     *     <li>{@link ConstantsProperties#TEST_CLASSES}</li>
+     *     <li>{@link ConstantsProperties#MODULE}, in case of multi module project</li>
+     * </ul>
+     *
+     * @param properties the properties. See {@link ConstantsProperties}
+     * @return the new instance of the InputConfiguration
+     *
+     */
+    public static InputConfiguration initialize(Properties properties) {
         if (InputConfiguration.instance != null) {
             LOGGER.warn("Erasing old instance of InputConfiguration");
         }
-        InputConfiguration.instance = new InputConfiguration(loadProperties(pathToPropertiesFile));
-        InputConfiguration.instance.configPath = pathToPropertiesFile;
+        InputConfiguration.instance = new InputConfiguration(properties);
+        InputConfiguration.instance.configPath = "";
         return InputConfiguration.instance;
     }
 
@@ -414,12 +440,15 @@ public class InputConfiguration {
         return this.outputDirectory;
     }
 
+    @Deprecated
     private String configPath;
 
+    @Deprecated
     public String getConfigPath() {
         return configPath;
     }
 
+    @Deprecated
     public InputConfiguration setConfigPath(String configPath) {
         this.configPath = configPath;
         return this;

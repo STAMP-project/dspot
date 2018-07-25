@@ -14,7 +14,10 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 
 @Mojo(name = "amplify-unit-tests", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.TEST)
 public class DSpotMojo extends AbstractMojo {
@@ -22,9 +25,9 @@ public class DSpotMojo extends AbstractMojo {
     private static final Logger LOGGER = LoggerFactory.getLogger(DSpotMojo.class);
 
     /**
-     *	[mandatory] specify the path to the configuration file (format Java properties) of the target project (e.g. ./foo.properties).
+     *	[optional] specify the path to the configuration file (format Java properties) of the target project (e.g. ./foo.properties).
      */
-    @Parameter(property = "path-to-properties")
+    @Parameter(property = "path-to-properties", defaultValue = "")
     private String pathToProperties;
 
     /**
@@ -173,9 +176,22 @@ public class DSpotMojo extends AbstractMojo {
         if (help) {
             JSAPOptions.showUsage();
         }
+
+        Properties properties = new Properties();
+        if (!this.pathToProperties.isEmpty()) {
+            try {
+                properties.load(new FileInputStream(this.pathToProperties));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // TODO here, set the value readable from the pom, e.g. the base dir, source folder, test source folder, bin folder, test bin folder... etc
+        //properties.setProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName(), "${project.basedir}");
+
         try {
             Main.run(
-                    InputConfiguration.initialize(this.pathToProperties)
+                    InputConfiguration.initialize(properties)
                             .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(this.amplifiers.toArray(new String[this.amplifiers.size()])))
                             .setNbIteration(this.iteration)
                             .setTestClasses(this.test)
