@@ -49,6 +49,36 @@ public class MainTest {
     }
 
     @Test
+    public void testMainWithMixedListOfTestClassesAndTestMethods() throws Exception {
+
+        /*
+            Test that we can run the main with a mixed list of test classes and test methods.
+                Since there are one list of test classes and one list of test methods, we do not differentiate in CLI which
+                test method is in which test class.
+            When such lists are provided, DSpot selects them correctly, i.e. it takes the correct test methods for each test classes
+            Since we cannot associates each name of test methods to a specific test classes, if both test classes contain a test method
+            that have the same name, both test methods will be amplified
+         */
+
+        Main.main(new String[]{
+                "--clean",
+                "--verbose",
+                "--path-to-properties", "src/test/resources/sample/sample.properties",
+                "--test-criterion", "TakeAllSelector",
+                "--test", "fr.inria.sample.TestClassWithoutAssert:fr.inria.sample.TestClassWithAssert",
+                "--cases", "test1:test",
+                "--no-minimize"
+        });
+        // an amplification happened, w/e it is
+        CtClass<?> amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("fr.inria.sample.TestClassWithAssertAmpl");
+        assertNotNull(amplifiedTestClass);
+        assertFalse(amplifiedTestClass.getMethods().isEmpty());
+        amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("fr.inria.sample.TestClassWithoutAssertAmpl");
+        assertNotNull(amplifiedTestClass);
+        assertFalse(amplifiedTestClass.getMethods().isEmpty());
+    }
+
+    @Test
     public void testMainWithEmptyTestMethods() throws Exception {
         Main.main(new String[]{
                 "--clean",

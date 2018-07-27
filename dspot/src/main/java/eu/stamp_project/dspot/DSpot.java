@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -150,7 +151,9 @@ public class DSpot {
         final List<CtMethod<?>> testMethods =
                 (methods.isEmpty() ?
                         testClass.getMethods().stream() :
-                        methods.stream().map(methodName -> testClass.getMethodsByName(methodName).get(0))
+                        methods.stream().map(methodName ->
+                            testClass.getMethodsByName(methodName).stream().findFirst().orElse(null)
+                        ).filter(Objects::nonNull)
                 ).filter(AmplificationChecker::isTest)
                         .collect(Collectors.toList());
         return amplifyTest(testClass, testMethods);

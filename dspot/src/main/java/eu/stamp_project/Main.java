@@ -61,7 +61,7 @@ public class Main {
 					.collect(Collectors.toList());
 		} else {
 			if (configuration.getTestClasses().isEmpty()) {
-				amplifiedTestClasses = dspot.amplifyAllTestsNames(configuration.getTestClasses());
+				amplifiedTestClasses = dspot.amplifyAllTests();
 			} else {
 				amplifiedTestClasses = configuration.getTestClasses().stream()
 						.map(testClasses -> dspot.amplifyTest(testClasses, configuration.getTestCases()))
