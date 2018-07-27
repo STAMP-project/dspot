@@ -35,7 +35,7 @@ public class AutomaticBuilderFactoryTest {
 
         assertTrue(inputConfiguration.getBuilderName().toUpperCase().contains("MAVEN"));
 
-        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
+        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration.getBuilderName());
 
         assertNotNull(builder);
         assertTrue(builder.getClass().equals(MavenAutomaticBuilder.class));
@@ -49,7 +49,7 @@ public class AutomaticBuilderFactoryTest {
 
         assertTrue(inputConfiguration.getBuilderName().toUpperCase().contains("GRADLE"));
 
-        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
+        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration.getBuilderName());
 
         assertNotNull(builder);
         assertTrue(builder.getClass().equals(GradleAutomaticBuilder.class));
@@ -65,7 +65,7 @@ public class AutomaticBuilderFactoryTest {
         assertFalse(inputConfiguration.getBuilderName().toUpperCase().contains("MAVEN"));
         assertFalse(inputConfiguration.getBuilderName().toUpperCase().contains("GRADLE"));
 
-        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
+        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration.getBuilderName());
 
         assertNotNull(builder);
         assertTrue(builder.getClass().equals(MavenAutomaticBuilder.class));
@@ -78,7 +78,7 @@ public class AutomaticBuilderFactoryTest {
 
         assertTrue(inputConfiguration.getBuilderName().isEmpty());
 
-        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
+        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration.getBuilderName());
 
         assertNotNull(builder);
         assertTrue(builder.getClass().equals(MavenAutomaticBuilder.class));

@@ -1,5 +1,6 @@
 package eu.stamp_project.mutant.descartes;
 
+import eu.stamp_project.automaticbuilder.MavenAutomaticBuilder;
 import eu.stamp_project.program.InputConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -24,11 +25,13 @@ public class DescartesChecker {
 
     private static InputConfiguration configuration;
 
-    public static boolean shouldInjectDescartes(InputConfiguration configuration, String pathToPom) {
+    public static boolean shouldInjectDescartes() {
+        final String pathToPom = InputConfiguration.get().getAbsolutePathToClasses() + "/" + MavenAutomaticBuilder.POM_FILE;
+        configuration = InputConfiguration.get();
         if (!configuration.isDescartesMode()) {
             return false;
         }
-        DescartesChecker.configuration = configuration;
+        DescartesChecker.configuration = InputConfiguration.get();
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();

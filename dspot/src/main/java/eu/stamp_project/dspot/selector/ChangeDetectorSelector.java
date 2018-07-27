@@ -1,6 +1,5 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.minimization.ChangeMinimizer;
 import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.program.InputConfiguration;
@@ -52,7 +51,7 @@ public class ChangeDetectorSelector implements TestSelector {
             this.pathToFirstVersionOfProgram = InputConfiguration.get().getAbsolutePathToProjectRoot();
             this.pathToSecondVersionOfProgram = configuration.getAbsolutePathToSecondVersionProjectRoot();
             InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
-            AutomaticBuilderFactory.getAutomaticBuilder(InputConfiguration.get()).compile();
+            InputConfiguration.get().getBuilder().compile();
             InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToFirstVersionOfProgram);
         } catch (Exception e) {
             throw new RuntimeException(e);

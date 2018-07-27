@@ -63,8 +63,8 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
 
     private InputConfiguration configuration;
 
-    GradleAutomaticBuilder(InputConfiguration configuration) {
-        this.configuration = configuration;
+    GradleAutomaticBuilder() {
+        this.configuration = InputConfiguration.get();
     }
 
     // TODO reimplements in a better way

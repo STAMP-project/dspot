@@ -53,20 +53,17 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MavenAutomaticBuilder.class);
 
-    private String mavenHome;
-
     private String classpath;
 
     private String contentOfOriginalPom;
 
     private static final String FILE_SEPARATOR = "/";
 
-    private static final String POM_FILE = "pom.xml";
+    public static final String POM_FILE = "pom.xml";
 
-    MavenAutomaticBuilder() {
-        this.mavenHome = this.buildMavenHome(InputConfiguration.get());
-        final String pathToPom = InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + POM_FILE;
-        if (DescartesChecker.shouldInjectDescartes(InputConfiguration.get(), pathToPom)) {
+    private void initializeForDescartes() {
+        final String pathToPom = InputConfiguration.get().getAbsolutePathToClasses() + "/" + POM_FILE;
+        if (DescartesChecker.shouldInjectDescartes()) {
             try (final BufferedReader buffer = new BufferedReader(new FileReader(pathToPom))) {
                 this.contentOfOriginalPom = buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
             } catch (Exception ignored) {
@@ -148,6 +145,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     @Override
     public void runPit(String pathToRootOfProject, CtType<?>... testClasses) {
+        initializeForDescartes();
         try {
             org.apache.commons.io.FileUtils.deleteDirectory(new File(pathToRootOfProject + "/target/pit-reports"));
         } catch (Exception ignored) {
@@ -244,7 +242,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         request.setProperties(properties);
 
         Invoker invoker = new DefaultInvoker();
-        invoker.setMavenHome(new File(this.mavenHome));
+        invoker.setMavenHome(new File(this.buildMavenHome()));
         LOGGER.info(String.format("run maven %s", Arrays.stream(goals).collect(Collectors.joining(" "))));
         if (InputConfiguration.get().isVerbose()) {
             invoker.setOutputHandler(System.out::println);
@@ -265,31 +263,34 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         return MavenPitCommandAndOptions.OUTPUT_DIRECTORY_PIT;
     }
 
-    private String buildMavenHome(InputConfiguration inputConfiguration) {
+    private String buildMavenHome() {
+        InputConfiguration configuration = InputConfiguration.get();
         String mavenHome = null;
-        if (!inputConfiguration.getMavenHome().isEmpty()) {
-            mavenHome = inputConfiguration.getMavenHome();
-        } else {
-            mavenHome =getMavenHome(envVariable -> System.getenv().get(envVariable) != null,
-                    envVariable -> System.getenv().get(envVariable),
-                    "MAVEN_HOME", "M2_HOME");
-            if (mavenHome == null) {
-                mavenHome = getMavenHome(path -> new File(path).exists(),
-                        Function.identity(),
-                        "/usr/share/maven/", "/usr/local/maven-3.3.9/", "/usr/share/maven3/");
+        if (configuration != null) {
+            if (!configuration.getMavenHome().isEmpty()) {
+                mavenHome = configuration.getMavenHome();
+            } else {
+                mavenHome = getMavenHome(envVariable -> System.getenv().get(envVariable) != null,
+                        envVariable -> System.getenv().get(envVariable),
+                        "MAVEN_HOME", "M2_HOME");
                 if (mavenHome == null) {
-                    throw new RuntimeException("Maven home not found, please set properly MAVEN_HOME or M2_HOME.");
+                    mavenHome = getMavenHome(path -> new File(path).exists(),
+                            Function.identity(),
+                            "/usr/share/maven/", "/usr/local/maven-3.3.9/", "/usr/share/maven3/");
+                    if (mavenHome == null) {
+                        throw new RuntimeException("Maven home not found, please set properly MAVEN_HOME or M2_HOME.");
+                    }
                 }
+                // update the value inside the input configuration
+                configuration.setMavenHome(mavenHome);
             }
-            // update the value inside the input configuration
-            inputConfiguration.setMavenHome(mavenHome);
         }
         return mavenHome;
     }
 
     private String getMavenHome(Predicate<String> conditional,
-                                        Function<String, String> getFunction,
-                                        String... possibleValues) {
+                                Function<String, String> getFunction,
+                                String... possibleValues) {
         String mavenHome = null;
         final Optional<String> potentialMavenHome = Arrays.stream(possibleValues).filter(conditional).findFirst();
         if (potentialMavenHome.isPresent()) {

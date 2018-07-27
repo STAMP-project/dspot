@@ -38,7 +38,7 @@ public class GradleAutomaticBuilderTest {
         inputConfiguration.setBuilderName("GradleBuilder");
 
         Utils.LOGGER.debug("Test Set-up - instantiating Automatic Builder (SUT)...");
-        sut = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration);
+        sut = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration.getBuilderName());
         Utils.LOGGER.debug("Test Set-up complete.");
     }
 
