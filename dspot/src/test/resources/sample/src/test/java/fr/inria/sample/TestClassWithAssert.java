@@ -9,7 +9,7 @@ import static org.junit.Assert.assertTrue;
  * Date: 25/11/16
  * Time: 10:58
  */
-public class TestClassWithAssert {
+public class TestClassWithAssert extends TestClassWithAssertOld {
 
     @Test
     public void test1() {
