@@ -107,7 +107,7 @@ public class DSpot {
         return this.amplifyAllTests(this.inputConfiguration.getFactory().Class().getAll().stream()
                 .filter(ctClass -> !ctClass.getModifiers().contains(ModifierKind.ABSTRACT))
                 .filter(ctClass ->
-                        ctClass.getMethods().stream()
+                        ctClass.getAllMethods().stream()
                                 .anyMatch(AmplificationChecker::isTest))
                 .collect(Collectors.toList()));
     }
@@ -135,7 +135,8 @@ public class DSpot {
         return this.compiler.getFactory().Class().getAll().stream()
                 .filter(ctType -> pattern.matcher(ctType.getQualifiedName()).matches())
                 .filter(ctClass ->
-                        ctClass.getMethods().stream()
+                        ctClass.getAllMethods()
+                                .stream()
                                 .anyMatch(AmplificationChecker::isTest))
                 .filter(this.isExcluded)
                 .map(this::amplifyTest)
@@ -150,12 +151,20 @@ public class DSpot {
         final CtType<?> testClass = this.compiler.getLauncher().getFactory().Type().get(fullQualifiedName);
         final List<CtMethod<?>> testMethods =
                 (methods.isEmpty() ?
-                        testClass.getMethods().stream() :
+                        testClass.getAllMethods().stream() :
                         methods.stream().map(methodName ->
-                            testClass.getMethodsByName(methodName).stream().findFirst().orElse(null)
+                            testClass.getAllMethods() // here, we use getAllMethods to match test methods from the super class test
+                                    .stream()
+                                    .filter(ctMethod -> methodName.equals(ctMethod.getSimpleName()))
+                                    .findFirst()
+                                    .orElse(null)
                         ).filter(Objects::nonNull)
                 ).filter(AmplificationChecker::isTest)
                         .collect(Collectors.toList());
+        if (testMethods.isEmpty()) {
+            LOGGER.warn("Could not match any test methods");
+            return null;
+        }
         return amplifyTest(testClass, testMethods);
     }
 
