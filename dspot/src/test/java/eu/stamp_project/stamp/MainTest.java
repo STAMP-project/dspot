@@ -66,13 +66,14 @@ public class MainTest {
                 "--path-to-properties", "src/test/resources/sample/sample.properties",
                 "--test-criterion", "TakeAllSelector",
                 "--test", "fr.inria.sample.TestClassWithoutAssert:fr.inria.sample.TestClassWithAssert",
-                "--cases", "test1:test",
+                "--cases", "test1:test:anOldTest",
                 "--no-minimize"
         });
         // an amplification happened, w/e it is
         CtClass<?> amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("fr.inria.sample.TestClassWithAssertAmpl");
         assertNotNull(amplifiedTestClass);
         assertFalse(amplifiedTestClass.getMethods().isEmpty());
+        assertTrue(amplifiedTestClass.getMethods().stream().anyMatch(ctMethod -> ctMethod.getSimpleName().contains("anOldTest"))); // this test come from the super class
         amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("fr.inria.sample.TestClassWithoutAssertAmpl");
         assertNotNull(amplifiedTestClass);
         assertFalse(amplifiedTestClass.getMethods().isEmpty());
