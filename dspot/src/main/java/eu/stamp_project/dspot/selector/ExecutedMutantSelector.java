@@ -3,18 +3,17 @@ package eu.stamp_project.dspot.selector;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.dspot.selector.json.mutant.MutantJSON;
 import eu.stamp_project.dspot.selector.json.mutant.TestCaseJSON;
 import eu.stamp_project.dspot.selector.json.mutant.TestClassJSON;
-import eu.stamp_project.utils.Counter;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.mutant.pit.PitResult;
 import eu.stamp_project.mutant.pit.PitResultParser;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.compilation.DSpotCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
@@ -61,7 +60,7 @@ public class ExecutedMutantSelector extends TakeAllSelector {
         super.init(configuration);
         if (this.originalMutantExecuted == null) {
             LOGGER.info("Computing executed mutants by the original test suite...");
-            final AutomaticBuilder automaticBuilder = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration);
+            final AutomaticBuilder automaticBuilder = InputConfiguration.get().getBuilder();
             automaticBuilder.runPit(this.configuration.getAbsolutePathToProjectRoot());
             this.originalMutantExecuted =
                     PitResultParser.parseAndDelete(
@@ -108,11 +107,10 @@ public class ExecutedMutantSelector extends TakeAllSelector {
         DSpotCompiler.compile(configuration, DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
                 new File(this.configuration.getAbsolutePathToTestClasses()));
 
-        AutomaticBuilderFactory
-                .getAutomaticBuilder(this.configuration)
+        InputConfiguration.get().getBuilder()
                 .runPit(this.configuration.getAbsolutePathToProjectRoot(), clone);
-        final List<PitResult> pitResults = PitResultParser.parseAndDelete(this.configuration.getAbsolutePathToProjectRoot() + AutomaticBuilderFactory
-                .getAutomaticBuilder(this.configuration).getOutputDirectoryPit());
+        final List<PitResult> pitResults = PitResultParser.parseAndDelete(this.configuration.getAbsolutePathToProjectRoot() +
+                InputConfiguration.get().getBuilder().getOutputDirectoryPit());
         final int numberOfSelectedAmplifiedTest = pitResults.stream()
                 .filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED ||
                         pitResult.getStateOfMutant() == PitResult.State.SURVIVED)

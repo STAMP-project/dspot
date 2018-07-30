@@ -22,13 +22,10 @@ import java.util.Optional;
  */
 public class DescartesChecker {
 
-    private static InputConfiguration configuration;
-
-    public static boolean shouldInjectDescartes(InputConfiguration configuration, String pathToPom) {
-        if (!configuration.isDescartesMode()) {
+    public static boolean shouldInjectDescartes(String pathToPom) {
+        if (!InputConfiguration.get().isDescartesMode()) {
             return false;
         }
-        DescartesChecker.configuration = configuration;
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -53,7 +50,7 @@ public class DescartesChecker {
         if (dependencies == null) {
             return true;
         }
-        final List<String> expectedValues = new ArrayList<>(Arrays.asList("org.pitest", "pitest-maven", configuration.getPitVersion()));
+        final List<String> expectedValues = new ArrayList<>(Arrays.asList("org.pitest", "pitest-maven", InputConfiguration.get().getPitVersion()));
         Optional<Node> checkDependency = getAllChildNodeNamedFrom(dependencies, "dependency").stream()
                 .filter(dependency ->
                         checkThatHasTheGoodDependency(dependency, expectedValues)
@@ -105,7 +102,7 @@ public class DescartesChecker {
         if (plugins == null) {
             return null;
         }
-        final List<String> expectedValues = new ArrayList<>(Arrays.asList("org.pitest", "pitest-maven", configuration.getPitVersion()));
+        final List<String> expectedValues = new ArrayList<>(Arrays.asList("org.pitest", "pitest-maven", InputConfiguration.get().getPitVersion()));
         Optional<Node> checkDependency = getChildThatHasTheGoodDependency(plugins, expectedValues, "plugin");
         if (!checkDependency.isPresent()) {
             return null;
@@ -147,7 +144,7 @@ public class DescartesChecker {
         final List<String> expectedValues = new ArrayList<>(Arrays.asList(
                 DescartesInjector.GROUP_ID_DESCARTES,
                 DescartesInjector.ARTIFACT_ID_DESCARTES,
-                DescartesChecker.configuration.getDescartesVersion())
+                InputConfiguration.get().getDescartesVersion())
         );
         return !getChildThatHasTheGoodDependency(dependencies1, expectedValues, "dependency").isPresent();
     }

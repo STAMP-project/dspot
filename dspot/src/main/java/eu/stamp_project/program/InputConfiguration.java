@@ -98,6 +98,7 @@ public class InputConfiguration {
         }
         InputConfiguration.instance = new InputConfiguration(properties);
         InputConfiguration.instance.configPath = "";
+        InputConfiguration.instance.initializeBuilder(properties);
         return InputConfiguration.instance;
     }
 
@@ -119,22 +120,6 @@ public class InputConfiguration {
                 ).getAbsolutePath()
         )
                 .setBuilderName(ConstantsProperties.AUTOMATIC_BUILDER_NAME.get(properties));
-        this.setMavenHome(ConstantsProperties.MAVEN_HOME.get(properties));
-        this.builder = AutomaticBuilderFactory.getAutomaticBuilder(this);
-        this.dependencies = this.builder.compileAndBuildClasspath();
-
-        final String additionalClasspathElements = ConstantsProperties.ADDITIONAL_CP_ELEMENTS.get(properties);
-        if (!additionalClasspathElements.isEmpty()) {
-            String pathToAdditionalClasspathElements = additionalClasspathElements;
-            if (!Paths.get(additionalClasspathElements).isAbsolute()) {
-                pathToAdditionalClasspathElements =
-                        DSpotUtils.shouldAddSeparator.apply(this.absolutePathToProjectRoot +
-                                additionalClasspathElements
-                        );
-            }
-            this.dependencies += PATH_SEPARATOR + pathToAdditionalClasspathElements;
-        }
-        this.setAdditionalClasspathElements(ConstantsProperties.ADDITIONAL_CP_ELEMENTS.get(properties));
 
         final String systemProperties = ConstantsProperties.SYSTEM_PROPERTIES.get(properties);
         if (!systemProperties.isEmpty()) {
@@ -156,6 +141,25 @@ public class InputConfiguration {
                 .setJVMArgs(ConstantsProperties.JVM_ARGS.get(properties))
                 .setDescartesMutators(ConstantsProperties.DESCARTES_MUTATORS.get(properties))
                 .setExcludedTestCases(ConstantsProperties.EXCLUDED_TEST_CASES.get(properties));
+    }
+
+    private void initializeBuilder(Properties properties){
+        this.setMavenHome(ConstantsProperties.MAVEN_HOME.get(properties));
+        this.builder = AutomaticBuilderFactory.getAutomaticBuilder(ConstantsProperties.AUTOMATIC_BUILDER_NAME.getName());
+        this.dependencies = this.builder.compileAndBuildClasspath();
+
+        final String additionalClasspathElements = ConstantsProperties.ADDITIONAL_CP_ELEMENTS.get(properties);
+        if (!additionalClasspathElements.isEmpty()) {
+            String pathToAdditionalClasspathElements = additionalClasspathElements;
+            if (!Paths.get(additionalClasspathElements).isAbsolute()) {
+                pathToAdditionalClasspathElements =
+                        DSpotUtils.shouldAddSeparator.apply(this.absolutePathToProjectRoot +
+                                additionalClasspathElements
+                        );
+            }
+            this.dependencies += PATH_SEPARATOR + pathToAdditionalClasspathElements;
+        }
+        this.setAdditionalClasspathElements(ConstantsProperties.ADDITIONAL_CP_ELEMENTS.get(properties));
     }
 
     /**
@@ -381,7 +385,6 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setBuilderName(String builderName) {
-        this.builder = null;
         this.builderName = builderName;
         return this;
     }
@@ -403,7 +406,7 @@ public class InputConfiguration {
     private AutomaticBuilder builder;
 
     public AutomaticBuilder getBuilder() {
-        return builder;
+        return this.builder;
     }
 
     public InputConfiguration setBuilder(AutomaticBuilder builder) {

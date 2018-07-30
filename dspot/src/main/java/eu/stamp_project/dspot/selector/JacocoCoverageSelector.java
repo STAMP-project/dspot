@@ -2,9 +2,9 @@ package eu.stamp_project.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.dspot.selector.json.coverage.TestCaseJSON;
 import eu.stamp_project.dspot.selector.json.coverage.TestClassJSON;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.coverage.Coverage;
 import eu.stamp_project.testrunner.runner.coverage.CoveragePerTestMethod;
@@ -12,7 +12,6 @@ import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
@@ -53,7 +52,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
     public List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified) {
         if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
             this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
-            String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).buildClasspath();
+            String classpath = InputConfiguration.get().getBuilder().buildClasspath();
             if (!this.configuration.getAdditionalClasspathElements().isEmpty()) {
                 classpath += PATH_SEPARATOR + this.configuration.getProcessedAddtionalClasspathElements();
             }
@@ -99,7 +98,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 
     private CoveragePerTestMethod computeCoverageForGivenTestMethdods(List<CtMethod<?>> testsToBeAmplified) {
         final String[] methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).toArray(String[]::new);
-        String classpath = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration).buildClasspath();
+        String classpath = InputConfiguration.get().getBuilder().buildClasspath();
         if (!this.configuration.getAdditionalClasspathElements().isEmpty()) {
             classpath += PATH_SEPARATOR + this.configuration.getProcessedAddtionalClasspathElements();
         }
@@ -188,8 +187,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
         this.currentClassTestToBeAmplified.getPackage().removeType(clone);
 
         final String fileSeparator = System.getProperty("file.separator");
-        String classpath = AutomaticBuilderFactory
-                .getAutomaticBuilder(this.configuration)
+        String classpath = InputConfiguration.get().getBuilder()
                 .buildClasspath()
                 + AmplificationHelper.PATH_SEPARATOR +
                 this.configuration.getClasspathClassesProject();

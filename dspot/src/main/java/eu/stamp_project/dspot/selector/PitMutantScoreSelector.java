@@ -3,7 +3,6 @@ package eu.stamp_project.dspot.selector;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -63,7 +62,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         }
         */
         if (this.originalKilledMutants == null) {
-            final AutomaticBuilder automaticBuilder = AutomaticBuilderFactory.getAutomaticBuilder(this.configuration);
+            final AutomaticBuilder automaticBuilder = InputConfiguration.get().getBuilder();
             automaticBuilder.runPit(this.configuration.getAbsolutePathToProjectRoot());
             initOriginalPitResult(PitResultParser.parseAndDelete(this.configuration.getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit()) );
         }
@@ -105,10 +104,8 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC), configuration.withComment());
-        final AutomaticBuilder automaticBuilder = AutomaticBuilderFactory
-                .getAutomaticBuilder(this.configuration);
-        final String classpath = AutomaticBuilderFactory
-                .getAutomaticBuilder(this.configuration)
+        final AutomaticBuilder automaticBuilder = InputConfiguration.get().getBuilder();
+        final String classpath = InputConfiguration.get().getBuilder()
                 .buildClasspath()
                 + AmplificationHelper.PATH_SEPARATOR +
                 this.configuration.getClasspathClassesProject()
@@ -117,9 +114,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         DSpotCompiler.compile(this.configuration, DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
                 new File(this.configuration.getAbsolutePathToTestClasses()));
 
-        AutomaticBuilderFactory
-                .getAutomaticBuilder(this.configuration)
-                .runPit(this.configuration.getAbsolutePathToProjectRoot(), clone);
+        InputConfiguration.get().getBuilder().runPit(this.configuration.getAbsolutePathToProjectRoot(), clone);
         final List<PitResult> results = PitResultParser.parseAndDelete(this.configuration.getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit());
 
         Set<CtMethod<?>> selectedTests = new HashSet<>();

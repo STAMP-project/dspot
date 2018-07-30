@@ -53,29 +53,23 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MavenAutomaticBuilder.class);
 
-    private InputConfiguration configuration;
-
-    private String mavenHome;
-
     private String classpath;
 
     private String contentOfOriginalPom;
 
     private static final String FILE_SEPARATOR = "/";
 
-    private static final String POM_FILE = "pom.xml";
+    public static final String POM_FILE = "pom.xml";
 
-    MavenAutomaticBuilder(InputConfiguration configuration) {
-        this.mavenHome = this.buildMavenHome(configuration);
-        this.configuration = configuration;
-        final String pathToPom = this.configuration.getAbsolutePathToProjectRoot() + "/" + POM_FILE;
-        if (DescartesChecker.shouldInjectDescartes(this.configuration, pathToPom)) {
+    private void initializeForDescartes() {
+        final String pathToPom = InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + POM_FILE;
+        if (DescartesChecker.shouldInjectDescartes(pathToPom)) {
             try (final BufferedReader buffer = new BufferedReader(new FileReader(pathToPom))) {
                 this.contentOfOriginalPom = buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
             } catch (Exception ignored) {
 
             }
-            DescartesInjector.injectDescartesIntoPom(this.configuration, pathToPom);
+            DescartesInjector.injectDescartesIntoPom(pathToPom);
         } else {
             this.contentOfOriginalPom = null;
         }
@@ -83,13 +77,13 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     @Override
     public String compileAndBuildClasspath() {
-        this.runGoals(this.configuration.getAbsolutePathToProjectRoot(), "clean",
+        this.runGoals(InputConfiguration.get().getAbsolutePathToProjectRoot(), "clean",
                 "test",
                 "-DskipTests",
                 "dependency:build-classpath",
                 "-Dmdep.outputFile=" + "target/dspot/classpath"
         );
-        final File classpathFile = new File(this.configuration.getAbsolutePathToProjectRoot() + "/target/dspot/classpath");
+        final File classpathFile = new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/target/dspot/classpath");
         try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
             this.classpath = buffer.lines().collect(Collectors.joining());
         } catch (Exception e) {
@@ -100,13 +94,13 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     @Override
     public void compile() {
-        this.runGoals(this.configuration.getAbsolutePathToProjectRoot(), "clean",
+        this.runGoals(InputConfiguration.get().getAbsolutePathToProjectRoot(), "clean",
                 "test",
                 "-DskipTests",
                 "dependency:build-classpath",
                 "-Dmdep.outputFile=" + "target/dspot/classpath"
         );
-        final File classpathFile = new File(this.configuration.getAbsolutePathToProjectRoot() + "/target/dspot/classpath");
+        final File classpathFile = new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/target/dspot/classpath");
         try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
             this.classpath = buffer.lines().collect(Collectors.joining());
         } catch (Exception e) {
@@ -118,10 +112,10 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     public String buildClasspath() {
         if (this.classpath == null) {
             try {
-                final File classpathFile = new File(this.configuration.getAbsolutePathToProjectRoot() + "/target/dspot/classpath");
+                final File classpathFile = new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/target/dspot/classpath");
                 if (!classpathFile.exists()) {
                     this.runGoals(
-                            this.configuration.getAbsolutePathToProjectRoot(),
+                            InputConfiguration.get().getAbsolutePathToProjectRoot(),
                             "dependency:build-classpath",
                             "-Dmdep.outputFile=" + "target/dspot/classpath"
                     );
@@ -139,7 +133,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     @Override
     public void reset() {
         if (contentOfOriginalPom != null) {
-            final String pathToPom = this.configuration.getAbsolutePathToProjectRoot() + "/" + POM_FILE;
+            final String pathToPom = InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + POM_FILE;
             try (FileWriter writer = new FileWriter(pathToPom)) {
                 writer.write(this.contentOfOriginalPom);
                 this.contentOfOriginalPom = null;
@@ -151,6 +145,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     @Override
     public void runPit(String pathToRootOfProject, CtType<?>... testClasses) {
+        initializeForDescartes();
         try {
             org.apache.commons.io.FileUtils.deleteDirectory(new File(pathToRootOfProject + "/target/pit-reports"));
         } catch (Exception ignored) {
@@ -158,26 +153,26 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         }
         try {
 
-            if (configuration.getFilter().isEmpty()) {
+            if (InputConfiguration.get().getFilter().isEmpty()) {
                 LOGGER.warn(MESSAGE_WARN_PIT_NO_FILTER);
             }
 
             String[] phases = new String[]{CMD_PIT_MUTATION_COVERAGE + ":" +
-                    this.configuration.getPitVersion() + ":" + GOAL_PIT_MUTATION_COVERAGE, //
+                    InputConfiguration.get().getPitVersion() + ":" + GOAL_PIT_MUTATION_COVERAGE, //
                     OPT_WITH_HISTORY, //
-                    OPT_TARGET_CLASSES + configuration.getFilter(), //
+                    OPT_TARGET_CLASSES + InputConfiguration.get().getFilter(), //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
                     OPT_VALUE_TIMEOUT, //
                     OPT_VALUE_MEMORY, //
                     OPT_TARGET_TESTS + Arrays.stream(testClasses).map(DSpotUtils::ctTypeToFullQualifiedName).collect(Collectors.joining(",")), //
                     OPT_ADDITIONAL_CP_ELEMENTS + "target/dspot/dependencies/" +
-                            (!configuration.getAdditionalClasspathElements().isEmpty() ?
-                                    "," + configuration.getAdditionalClasspathElements() : ""), //
-                    this.configuration.isDescartesMode() ? OPT_MUTATION_ENGINE_DESCARTES : OPT_MUTATION_ENGINE_DEFAULT,
-                    this.configuration.isDescartesMode() ? "" : OPT_MUTATORS + VALUE_MUTATORS_ALL, //
-                    !configuration.getExcludedClasses().isEmpty() ?
-                            OPT_EXCLUDED_CLASSES + configuration.getExcludedClasses() :
+                            (!InputConfiguration.get().getAdditionalClasspathElements().isEmpty() ?
+                                    "," + InputConfiguration.get().getAdditionalClasspathElements() : ""), //
+                    InputConfiguration.get().isDescartesMode() ? OPT_MUTATION_ENGINE_DESCARTES : OPT_MUTATION_ENGINE_DEFAULT,
+                    InputConfiguration.get().isDescartesMode() ? "" : OPT_MUTATORS + VALUE_MUTATORS_ALL, //
+                    !InputConfiguration.get().getExcludedClasses().isEmpty() ?
+                            OPT_EXCLUDED_CLASSES + InputConfiguration.get().getExcludedClasses() :
                             ""//
             };
             if (this.runGoals(pathToRootOfProject, phases) != 0) {
@@ -200,25 +195,25 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
         }
 
-        if (configuration.getFilter().isEmpty()) {
+        if (InputConfiguration.get().getFilter().isEmpty()) {
             LOGGER.warn(MESSAGE_WARN_PIT_NO_FILTER);
         }
 
         try {
-            String[] phases = new String[]{CMD_PIT_MUTATION_COVERAGE + ":" + this.configuration.getPitVersion() + ":" + GOAL_PIT_MUTATION_COVERAGE, //
+            String[] phases = new String[]{CMD_PIT_MUTATION_COVERAGE + ":" + InputConfiguration.get().getPitVersion() + ":" + GOAL_PIT_MUTATION_COVERAGE, //
                     OPT_WITH_HISTORY, //
-                    OPT_TARGET_CLASSES + configuration.getFilter(), //
+                    OPT_TARGET_CLASSES + InputConfiguration.get().getFilter(), //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
                     OPT_VALUE_TIMEOUT, //
                     OPT_VALUE_MEMORY, //
-                    this.configuration.isDescartesMode() ? OPT_MUTATION_ENGINE_DESCARTES : OPT_MUTATION_ENGINE_DEFAULT,
-                    this.configuration.isDescartesMode() ? "" : OPT_MUTATORS + VALUE_MUTATORS_ALL, //
+                    InputConfiguration.get().isDescartesMode() ? OPT_MUTATION_ENGINE_DESCARTES : OPT_MUTATION_ENGINE_DEFAULT,
+                    InputConfiguration.get().isDescartesMode() ? "" : OPT_MUTATORS + VALUE_MUTATORS_ALL, //
                     OPT_ADDITIONAL_CP_ELEMENTS + "target/dspot/dependencies/" +
-                            (!configuration.getAdditionalClasspathElements().isEmpty() ?
-                                    "," + configuration.getAdditionalClasspathElements() : ""), //
-                    !configuration.getExcludedClasses().isEmpty() ?
-                            OPT_EXCLUDED_CLASSES + configuration.getExcludedClasses() :
+                            (!InputConfiguration.get().getAdditionalClasspathElements().isEmpty() ?
+                                    "," + InputConfiguration.get().getAdditionalClasspathElements() : ""), //
+                    !InputConfiguration.get().getExcludedClasses().isEmpty() ?
+                            OPT_EXCLUDED_CLASSES + InputConfiguration.get().getExcludedClasses() :
                             ""//
             };
             if (this.runGoals(pathToRootOfProject, phases) != 0) {
@@ -247,9 +242,9 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         request.setProperties(properties);
 
         Invoker invoker = new DefaultInvoker();
-        invoker.setMavenHome(new File(this.mavenHome));
+        invoker.setMavenHome(new File(this.buildMavenHome()));
         LOGGER.info(String.format("run maven %s", Arrays.stream(goals).collect(Collectors.joining(" "))));
-        if (configuration.isVerbose()) {
+        if (InputConfiguration.get().isVerbose()) {
             invoker.setOutputHandler(System.out::println);
             invoker.setErrorHandler(System.err::println);
         } else {
@@ -268,31 +263,34 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         return MavenPitCommandAndOptions.OUTPUT_DIRECTORY_PIT;
     }
 
-    private String buildMavenHome(InputConfiguration inputConfiguration) {
+    private String buildMavenHome() {
+        InputConfiguration configuration = InputConfiguration.get();
         String mavenHome = null;
-        if (!inputConfiguration.getMavenHome().isEmpty()) {
-            mavenHome = inputConfiguration.getMavenHome();
-        } else {
-            mavenHome =getMavenHome(envVariable -> System.getenv().get(envVariable) != null,
-                    envVariable -> System.getenv().get(envVariable),
-                    "MAVEN_HOME", "M2_HOME");
-            if (mavenHome == null) {
-                mavenHome = getMavenHome(path -> new File(path).exists(),
-                        Function.identity(),
-                        "/usr/share/maven/", "/usr/local/maven-3.3.9/", "/usr/share/maven3/");
+        if (configuration != null) {
+            if (!configuration.getMavenHome().isEmpty()) {
+                mavenHome = configuration.getMavenHome();
+            } else {
+                mavenHome = getMavenHome(envVariable -> System.getenv().get(envVariable) != null,
+                        envVariable -> System.getenv().get(envVariable),
+                        "MAVEN_HOME", "M2_HOME");
                 if (mavenHome == null) {
-                    throw new RuntimeException("Maven home not found, please set properly MAVEN_HOME or M2_HOME.");
+                    mavenHome = getMavenHome(path -> new File(path).exists(),
+                            Function.identity(),
+                            "/usr/share/maven/", "/usr/local/maven-3.3.9/", "/usr/share/maven3/");
+                    if (mavenHome == null) {
+                        throw new RuntimeException("Maven home not found, please set properly MAVEN_HOME or M2_HOME.");
+                    }
                 }
+                // update the value inside the input configuration
+                configuration.setMavenHome(mavenHome);
             }
-            // update the value inside the input configuration
-            inputConfiguration.setMavenHome(mavenHome);
         }
         return mavenHome;
     }
 
     private String getMavenHome(Predicate<String> conditional,
-                                        Function<String, String> getFunction,
-                                        String... possibleValues) {
+                                Function<String, String> getFunction,
+                                String... possibleValues) {
         String mavenHome = null;
         final Optional<String> potentialMavenHome = Arrays.stream(possibleValues).filter(conditional).findFirst();
         if (potentialMavenHome.isPresent()) {
