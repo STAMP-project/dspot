@@ -62,14 +62,14 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     public static final String POM_FILE = "pom.xml";
 
     private void initializeForDescartes() {
-        final String pathToPom = InputConfiguration.get().getAbsolutePathToClasses() + "/" + POM_FILE;
-        if (DescartesChecker.shouldInjectDescartes()) {
+        final String pathToPom = InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + POM_FILE;
+        if (DescartesChecker.shouldInjectDescartes(pathToPom)) {
             try (final BufferedReader buffer = new BufferedReader(new FileReader(pathToPom))) {
                 this.contentOfOriginalPom = buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
             } catch (Exception ignored) {
 
             }
-            DescartesInjector.injectDescartesIntoPom(InputConfiguration.get(), pathToPom);
+            DescartesInjector.injectDescartesIntoPom(pathToPom);
         } else {
             this.contentOfOriginalPom = null;
         }

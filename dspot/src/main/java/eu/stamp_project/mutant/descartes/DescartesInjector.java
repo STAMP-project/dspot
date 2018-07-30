@@ -55,13 +55,13 @@ public class DescartesInjector {
 
     private static Node buildDependencyToPitTest(Document doc) {
         final Element dependency = doc.createElement("dependency");
-        buildNodesDependency(doc, "org.pitest", "pitest-maven", configuration.getPitVersion()).forEach(dependency::appendChild);
+        buildNodesDependency(doc, "org.pitest", "pitest-maven", InputConfiguration.get().getPitVersion()).forEach(dependency::appendChild);
         return dependency;
     }
 
     private static Node buildPlugin(Document doc) {
         final Element plugin = doc.createElement("plugin");
-        buildNodesDependency(doc, "org.pitest", "pitest-maven", configuration.getPitVersion()).forEach(plugin::appendChild);
+        buildNodesDependency(doc, "org.pitest", "pitest-maven", InputConfiguration.get().getPitVersion()).forEach(plugin::appendChild);
         plugin.appendChild(buildConfiguration(doc));
         plugin.appendChild(buildDependencies(doc));
         return plugin;
@@ -69,7 +69,7 @@ public class DescartesInjector {
 
     private static Node buildDependency(Document doc) {
         final Element dependency = doc.createElement("dependency");
-        buildNodesDependency(doc, GROUP_ID_DESCARTES, ARTIFACT_ID_DESCARTES, configuration.getDescartesVersion()).forEach(dependency::appendChild);
+        buildNodesDependency(doc, GROUP_ID_DESCARTES, ARTIFACT_ID_DESCARTES, InputConfiguration.get().getDescartesVersion()).forEach(dependency::appendChild);
         return dependency;
     }
 
@@ -109,8 +109,7 @@ public class DescartesInjector {
      * The added depencencies are to pit and to pitest-descartes
      * @param pathToPom to the pom to modify
      */
-    public static void injectDescartesIntoPom(InputConfiguration configuration, String pathToPom) {
-        DescartesInjector.configuration = configuration;
+    public static void injectDescartesIntoPom(String pathToPom) {
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -137,6 +136,4 @@ public class DescartesInjector {
             throw new RuntimeException(pce);
         }
     }
-
-    private static InputConfiguration configuration;
 }
