@@ -54,10 +54,10 @@ public class DescartesTest extends AbstractTest {
 
     @Test
     public void testInjectionOfDescartesIfNeeded() throws Exception {
-        assertTrue(DescartesChecker.shouldInjectDescartes());
+        assertTrue(DescartesChecker.shouldInjectDescartes(pathname));
         Utils.getInputConfiguration().setPitVersion("1.4.0");
-        DescartesInjector.injectDescartesIntoPom(Utils.getInputConfiguration(), pathname);
-        assertFalse(DescartesChecker.shouldInjectDescartes());
+        DescartesInjector.injectDescartesIntoPom(pathname);
+        assertFalse(DescartesChecker.shouldInjectDescartes(pathname));
         try (BufferedReader buffer = new BufferedReader(new FileReader(pathname))) {
             final String pomAsStr = buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
             System.out.println(pomAsStr);
