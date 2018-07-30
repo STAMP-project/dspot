@@ -5,8 +5,8 @@ import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.dspot.amplifier.TestDataMutator;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.options.JSAPOptions;
-import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -58,6 +59,7 @@ public class Main {
 					.findTestMethodsAccordingToADiff(configuration);
 			amplifiedTestClasses = testMethodsAccordingToADiff.keySet().stream()
 					.map(ctType -> dspot.amplifyTest(ctType, testMethodsAccordingToADiff.get(ctType)))
+					.filter(Objects::nonNull)
 					.collect(Collectors.toList());
 		} else {
 			if (configuration.getTestClasses().isEmpty()) {
@@ -65,6 +67,7 @@ public class Main {
 			} else {
 				amplifiedTestClasses = configuration.getTestClasses().stream()
 						.map(testClasses -> dspot.amplifyTest(testClasses, configuration.getTestCases()))
+						.filter(Objects::nonNull)
 						.collect(Collectors.toList());
 			}
 		}

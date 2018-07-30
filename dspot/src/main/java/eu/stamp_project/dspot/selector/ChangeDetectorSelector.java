@@ -36,7 +36,6 @@ public class ChangeDetectorSelector implements TestSelector {
 
     private Map<CtMethod<?>, Failure> failurePerAmplifiedTest;
 
-    private InputConfiguration configuration;
 
     private CtType<?> currentClassTestToBeAmplified;
 
@@ -46,10 +45,9 @@ public class ChangeDetectorSelector implements TestSelector {
 
     @Override
     public void init(InputConfiguration configuration) {
-        this.configuration = configuration;
         try {
             this.pathToFirstVersionOfProgram = InputConfiguration.get().getAbsolutePathToProjectRoot();
-            this.pathToSecondVersionOfProgram = configuration.getAbsolutePathToSecondVersionProjectRoot();
+            this.pathToSecondVersionOfProgram = InputConfiguration.get().getAbsolutePathToSecondVersionProjectRoot();
             InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
             InputConfiguration.get().getBuilder().compile();
             InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToFirstVersionOfProgram);
@@ -80,7 +78,7 @@ public class ChangeDetectorSelector implements TestSelector {
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
-        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC), this.configuration.withComment());
+        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC), InputConfiguration.get().withComment());
 
         InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
         DSpotCompiler.compile(
@@ -128,7 +126,7 @@ public class ChangeDetectorSelector implements TestSelector {
     public Minimizer getMinimizer() {
         return new ChangeMinimizer(
                 this.currentClassTestToBeAmplified,
-                this.configuration,
+                InputConfiguration.get(),
                 this.failurePerAmplifiedTest
         );
     }
@@ -151,18 +149,18 @@ public class ChangeDetectorSelector implements TestSelector {
                                 String::concat);
         System.out.println(output);
         try {
-            FileUtils.forceMkdir(new File(this.configuration.getOutputDirectory() + "/" +
+            FileUtils.forceMkdir(new File(InputConfiguration.get().getOutputDirectory() + "/" +
                     this.currentClassTestToBeAmplified.getQualifiedName()));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        try (FileWriter writer = new FileWriter(new File(this.configuration.getOutputDirectory() + "/" +
+        try (FileWriter writer = new FileWriter(new File(InputConfiguration.get().getOutputDirectory() + "/" +
                 this.currentClassTestToBeAmplified.getQualifiedName() + "_change_report.txt"))) {
             writer.write(output);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        try (FileWriter writer = new FileWriter(new File(this.configuration.getOutputDirectory() + "/" +
+        try (FileWriter writer = new FileWriter(new File(InputConfiguration.get().getOutputDirectory() + "/" +
                 this.currentClassTestToBeAmplified.getQualifiedName() + "_stacktraces.txt"))) {
             final PrintWriter printWriter = new PrintWriter(writer);
             this.failurePerAmplifiedTest.keySet()

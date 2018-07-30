@@ -385,7 +385,6 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setBuilderName(String builderName) {
-        this.builder = null;
         this.builderName = builderName;
         return this;
     }
@@ -407,7 +406,7 @@ public class InputConfiguration {
     private AutomaticBuilder builder;
 
     public AutomaticBuilder getBuilder() {
-        return builder;
+        return this.builder;
     }
 
     public InputConfiguration setBuilder(AutomaticBuilder builder) {
