@@ -60,9 +60,9 @@ public class AssertGeneratorTest extends AbstractTest {
     /**
      * This class is used to verify that the method, with the given name, is inside an assertion
      */
-    public class AssertionFilterName extends TypeFilter<CtInvocation<?>> {
+    public class AssertionFilterNameOnInvocation extends TypeFilter<CtInvocation<?>> {
 
-        public AssertionFilterName(String nameOfMethodThatMustBeInsideTheAssertion, String assertionName) {
+        public AssertionFilterNameOnInvocation(String nameOfMethodThatMustBeInsideTheAssertion, String assertionName) {
             super(CtInvocation.class);
             this.assertionName = assertionName;
             this.namedElementFilter = new NamedElementFilter<>(CtNamedElement.class, nameOfMethodThatMustBeInsideTheAssertion);
@@ -87,7 +87,25 @@ public class AssertGeneratorTest extends AbstractTest {
         private final TypeFilter<CtReference> referenceFilter;
     }
 
-    ;
+    @Test
+    public void testOnFieldRead() throws Exception {
+
+        /*
+            Test that we can generate as expected variable in assertion field read such as DOUBLE.NEGATIVE_INFINITY
+         */
+
+        CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithFieldRead");
+        CtMethod test = Utils.findMethod(testClass, "test");
+
+        List<CtMethod<?>> test_buildNewAssert = assertGenerator.assertionAmplification(testClass, Collections.singletonList(test));
+        CtMethod<?> amplifiedTestMethod = test_buildNewAssert.get(0);
+        assertEquals(1, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("NEGATIVE_INFINITY", ASSERT_EQUALS)).size());
+        assertEquals(1, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getInfinity", ASSERT_EQUALS)).size());
+        assertEquals(1, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("NaN", ASSERT_EQUALS)).size());
+        assertEquals(1, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getNaN", ASSERT_EQUALS)).size());
+//        assertEquals(1, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("MAX_VALUE", ASSERT_EQUALS)).size());
+//        assertEquals(1, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getMax_VALUE", ASSERT_EQUALS)).size());
+    }
 
     @Test
     public void testMultipleObservationsPoints() throws Exception {
@@ -97,8 +115,8 @@ public class AssertGeneratorTest extends AbstractTest {
         CtMethod<?> amplifiedTestMethod = test_buildNewAssert.get(0);
         assertEquals(4, amplifiedTestMethod.getElements(AmplificationHelper.ASSERTIONS_FILTER).size());
 
-        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterName("getInt", ASSERT_EQUALS)).size());
-        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterName("getInteger", ASSERT_EQUALS)).size());
+        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getInt", ASSERT_EQUALS)).size());
+        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getInteger", ASSERT_EQUALS)).size());
     }
 
 
@@ -138,20 +156,20 @@ public class AssertGeneratorTest extends AbstractTest {
         CtMethod<?> test1 = Utils.findMethod("fr.inria.sample.TestClassWithoutAssert", "test1");
         CtMethod<?> amplifiedTestMethod = assertGenerator.assertionAmplification(testClass, Collections.singletonList(test1)).get(0);
         assertEquals(37, amplifiedTestMethod.getBody().toString().split(AmplificationHelper.LINE_SEPARATOR).length); // 23 lines
-        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterName("getBoolean", ASSERT_TRUE)).size());
-        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterName("getByte", ASSERT_EQUALS)).size());
-        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterName("getShort", ASSERT_EQUALS)).size());
-        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterName("getInt", ASSERT_EQUALS)).size());
-        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterName("getLong", ASSERT_EQUALS)).size());
-        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterName("getFloat", ASSERT_EQUALS)).size());
-        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterName("getDouble", ASSERT_EQUALS)).size());
-        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterName("getTrue", ASSERT_TRUE)).size());
-        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterName("getFalse", ASSERT_FALSE)).size());
-        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterName("getString", ASSERT_EQUALS)).size());
-        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterName("getChar", ASSERT_EQUALS)).size());
-        assertEquals(4, amplifiedTestMethod.getElements(new AssertionFilterName("contains", ASSERT_TRUE)).size());
-        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterName("isEmpty", ASSERT_TRUE)).size());
-        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterName("getNull", ASSERT_NULL)).size());
+        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getBoolean", ASSERT_TRUE)).size());
+        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getByte", ASSERT_EQUALS)).size());
+        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getShort", ASSERT_EQUALS)).size());
+        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getInt", ASSERT_EQUALS)).size());
+        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getLong", ASSERT_EQUALS)).size());
+        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getFloat", ASSERT_EQUALS)).size());
+        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getDouble", ASSERT_EQUALS)).size());
+        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getTrue", ASSERT_TRUE)).size());
+        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getFalse", ASSERT_FALSE)).size());
+        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getString", ASSERT_EQUALS)).size());
+        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getChar", ASSERT_EQUALS)).size());
+        assertEquals(4, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("contains", ASSERT_TRUE)).size());
+        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("isEmpty", ASSERT_TRUE)).size());
+        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getNull", ASSERT_NULL)).size());
     }
 
     @Test
