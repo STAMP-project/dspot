@@ -139,7 +139,7 @@ public class AssertBuilder {
         String forLoop = "\tfor(int ii = 0; ii <" + arrayLocalVar1 + ".length; ii++) {\n\t\t"
                 + JUNIT_ASSERT_CLASS_NAME + ".assertEquals(" + arrayLocalVar1 + "[ii], " + arrayLocalVar2 + "[ii]);\n\t}";
 
-        return factory.createCodeSnippetStatement(type + " " + arrayLocalVar1 + " = " + primitiveArrayToString(array) + ";\n\t"
+        return factory.createCodeSnippetStatement(type + " " + arrayLocalVar1 + " = " + primitiveArrayToString(array, factory) + ";\n\t"
                 + type + " " + arrayLocalVar2 + " = " + "(" + type + ")" + expression + ";\n"
                 + forLoop);
     }
@@ -211,26 +211,34 @@ public class AssertBuilder {
                 value.getClass() == byte.class ||
                 value instanceof Integer ||
                 value.getClass() == int.class) {
-            if (isAFieldRead(value, factory)) {
-                final CtFieldRead fieldRead = factory.createFieldRead();
-                final CtClass<?> doubleClass = factory.Class().get(Double.class);
-                final CtField<?> field = doubleClass.getField(getRightField(value, factory));
-                final CtFieldReference<?> reference = field.getReference();
-                fieldRead.setVariable(reference);
-                return fieldRead;
-            } else {
-                return factory.createLiteral(value);
-            }
+            return getFieldReadOrLiteral(factory, value);
         } else {
             return factory.createCodeSnippetExpression(value.toString());
         }
+    }
+
+    private static CtExpression getFieldReadOrLiteral(Factory factory, Object value) {
+        if (isAFieldRead(value, factory)) {
+            return getCtFieldRead(value, factory);
+        } else {
+            return factory.createLiteral(value);
+        }
+    }
+
+    private static CtFieldRead getCtFieldRead(Object value, Factory factory) {
+        final CtFieldRead fieldRead = factory.createFieldRead();
+        final CtClass<?> doubleClass = factory.Class().get(value.getClass());
+        final CtField<?> field = doubleClass.getField(getRightField(value, factory));
+        final CtFieldReference<?> reference = field.getReference();
+        fieldRead.setVariable(reference);
+        return fieldRead;
     }
 
     private static final Class<?>[] supportedClassesForFieldRead = new Class[]{Integer.class, Double.class};
 
     private static String getRightField(Object value, Factory factory) {
         return Arrays.stream(supportedClassesForFieldRead).map(aClass ->
-                factory.Class().get(Double.class)
+                factory.Class().get(aClass)
                         .getFields()
                         .stream()
                         .filter(CtModifiable::isStatic)
@@ -247,40 +255,45 @@ public class AssertBuilder {
                         .orElse("")
         ).filter(s -> !s.isEmpty())
                 .findFirst()
-                .orElse("");
+                .orElse(value.toString());
     }
 
     /**
      * This method checks if the given value is a field. To do this, it uses the classes in <code>supportedClassesForFieldRead</code>
      * and reflection
-     * @param value value to check
+     *
+     * @param value   value to check
      * @param factory factory with spoon model
      * @return true if the value is a field read, false otherwise
      */
     private static boolean isAFieldRead(Object value, Factory factory) {
         return (!Pattern.compile("\\d*").matcher(value.toString()).matches()) &&
                 Arrays.stream(supportedClassesForFieldRead).anyMatch(aClass ->
-                factory.Class().get(aClass)
-                        .getFields()
-                        .stream()
-                        .filter(CtModifiable::isStatic)
-                        .filter(CtModifiable::isFinal)
-                        .anyMatch(ctField -> {
-                            try {
-                                return value.equals(aClass.getField(ctField.getSimpleName()).get(null));
-                            } catch (Exception ignored) {
-                                return false;
-                            }
-                        }));
+                        factory.Class().get(aClass)
+                                .getFields()
+                                .stream()
+                                .filter(CtModifiable::isStatic)
+                                .filter(CtModifiable::isFinal)
+                                .anyMatch(ctField -> {
+                                    try {
+                                        return value.equals(aClass.getField(ctField.getSimpleName()).get(null));
+                                    } catch (Exception ignored) {
+                                        return false;
+                                    }
+                                }));
     }
 
-    private static String primitiveArrayToString(Object array) {
+    private static String primitiveArrayToString(Object array, Factory factory) {
         String type = array.getClass().getCanonicalName();
 
         String tmp;
         if (type.equals("int[]")) {
-            tmp = Arrays.toString((int[]) array);
-            return "new int[]{" + tmp.substring(1, tmp.length() - 1) + "}";
+            final String elements = Arrays.stream((int[]) array)
+                    .boxed()
+                    .map(value -> getFieldReadOrLiteral(factory, value))
+                    .map(Object::toString)
+                    .collect(Collectors.joining(","));
+            return "new int[]{" + elements + "}";
         }
         if (type.equals("short[]")) {
             tmp = Arrays.toString((short[]) array);
@@ -299,8 +312,12 @@ public class AssertBuilder {
             return "new float[]{" + tmp.substring(1, tmp.length() - 1) + "}";
         }
         if (type.equals("double[]")) {
-            tmp = Arrays.toString((double[]) array);
-            return "new double[]{" + tmp.substring(1, tmp.length() - 1) + "}";
+            final String elements = Arrays.stream((double[]) array)
+                    .boxed()
+                    .map(value -> getFieldReadOrLiteral(factory, value))
+                    .map(Object::toString)
+                    .collect(Collectors.joining(","));
+            return "new double[]{" + elements + "}";
         }
         if (type.equals("boolean[]")) {
             tmp = Arrays.toString((boolean[]) array);
@@ -322,6 +339,7 @@ public class AssertBuilder {
                 return ret + "\'}";
             }
         }
+
         return null;
     }
 
