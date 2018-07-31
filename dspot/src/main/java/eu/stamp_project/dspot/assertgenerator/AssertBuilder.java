@@ -2,7 +2,12 @@ package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.TypeUtils;
-import spoon.reflect.code.*;
+import spoon.reflect.code.CtExpression;
+import spoon.reflect.code.CtFieldRead;
+import spoon.reflect.code.CtInvocation;
+import spoon.reflect.code.CtLiteral;
+import spoon.reflect.code.CtStatement;
+import spoon.reflect.code.CtVariableAccess;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtField;
 import spoon.reflect.declaration.CtModifiable;
@@ -11,8 +16,15 @@ import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtFieldReference;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -82,7 +94,6 @@ public class AssertBuilder {
                                 } else {
                                     addTypeCastIfNeeded(variableRead, value);
                                     if (isFloating.test(value)) {
-
                                         expressions.add(AssertGeneratorHelper.buildInvocation(factory, "assertEquals",
                                                 Arrays.asList(
                                                         printPrimitiveString(factory, value),
@@ -247,7 +258,8 @@ public class AssertBuilder {
      * @return true if the value is a field read, false otherwise
      */
     private static boolean isAFieldRead(Object value, Factory factory) {
-        return Arrays.stream(supportedClassesForFieldRead).anyMatch(aClass ->
+        return (!Pattern.compile("\\d*").matcher(value.toString()).matches()) &&
+                Arrays.stream(supportedClassesForFieldRead).anyMatch(aClass ->
                 factory.Class().get(aClass)
                         .getFields()
                         .stream()
