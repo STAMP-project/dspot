@@ -3,8 +3,13 @@ package eu.stamp_project.dspot.assertgenerator;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.TypeUtils;
 import spoon.reflect.code.*;
+import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtField;
+import spoon.reflect.declaration.CtModifiable;
+import spoon.reflect.declaration.CtNamedElement;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
+import spoon.reflect.reference.CtFieldReference;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -77,6 +82,7 @@ public class AssertBuilder {
                                 } else {
                                     addTypeCastIfNeeded(variableRead, value);
                                     if (isFloating.test(value)) {
+
                                         expressions.add(AssertGeneratorHelper.buildInvocation(factory, "assertEquals",
                                                 Arrays.asList(
                                                         printPrimitiveString(factory, value),
@@ -194,10 +200,66 @@ public class AssertBuilder {
                 value.getClass() == byte.class ||
                 value instanceof Integer ||
                 value.getClass() == int.class) {
-            return factory.createLiteral(value);
+            if (isAFieldRead(value, factory)) {
+                final CtFieldRead fieldRead = factory.createFieldRead();
+                final CtClass<?> doubleClass = factory.Class().get(Double.class);
+                final CtField<?> field = doubleClass.getField(getRightField(value, factory));
+                final CtFieldReference<?> reference = field.getReference();
+                fieldRead.setVariable(reference);
+                return fieldRead;
+            } else {
+                return factory.createLiteral(value);
+            }
         } else {
             return factory.createCodeSnippetExpression(value.toString());
         }
+    }
+
+    private static final Class<?>[] supportedClassesForFieldRead = new Class[]{Integer.class, Double.class};
+
+    private static String getRightField(Object value, Factory factory) {
+        return Arrays.stream(supportedClassesForFieldRead).map(aClass ->
+                factory.Class().get(Double.class)
+                        .getFields()
+                        .stream()
+                        .filter(CtModifiable::isStatic)
+                        .filter(CtModifiable::isFinal)
+                        .filter(ctField -> {
+                            try {
+                                return value.equals(aClass.getField(ctField.getSimpleName()).get(null));
+                            } catch (Exception ignored) {
+                                return false;
+                            }
+                        })
+                        .findFirst()
+                        .map(CtNamedElement::getSimpleName)
+                        .orElse("")
+        ).filter(s -> !s.isEmpty())
+                .findFirst()
+                .orElse("");
+    }
+
+    /**
+     * This method checks if the given value is a field. To do this, it uses the classes in <code>supportedClassesForFieldRead</code>
+     * and reflection
+     * @param value value to check
+     * @param factory factory with spoon model
+     * @return true if the value is a field read, false otherwise
+     */
+    private static boolean isAFieldRead(Object value, Factory factory) {
+        return Arrays.stream(supportedClassesForFieldRead).anyMatch(aClass ->
+                factory.Class().get(aClass)
+                        .getFields()
+                        .stream()
+                        .filter(CtModifiable::isStatic)
+                        .filter(CtModifiable::isFinal)
+                        .anyMatch(ctField -> {
+                            try {
+                                return value.equals(aClass.getField(ctField.getSimpleName()).get(null));
+                            } catch (Exception ignored) {
+                                return false;
+                            }
+                        }));
     }
 
     private static String primitiveArrayToString(Object array) {
