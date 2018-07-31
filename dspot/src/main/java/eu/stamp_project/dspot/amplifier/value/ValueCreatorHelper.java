@@ -11,6 +11,7 @@ import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,12 +23,18 @@ import java.util.Set;
  */
 public class ValueCreatorHelper {
 
+    private static Map<String, Boolean> canGenerateAValueForType = new HashMap<>();
+
     public static boolean canGenerateAValueForType(CtTypeReference type) {
+        boolean result = false;
+        if (canGenerateAValueForType.containsKey(type.getQualifiedName())){
+            return canGenerateAValueForType.get(type.getQualifiedName());
+        }
         try {
             if (type instanceof CtWildcardReference) {
-                return false;
+                result = false;
             } else if (AmplificationChecker.isPrimitive(type)) {
-                return true;
+                result = true;
             } else {
                 try {
                     if (AmplificationChecker.isArray(type) ||
@@ -36,17 +43,18 @@ public class ValueCreatorHelper {
                             type.getActualClass() == List.class ||
                             type.getActualClass() == Set.class ||
                             type.getActualClass() == Map.class) {
-                        return true;
+                        result = true;
                     }
                 } catch (SpoonClassNotFoundException exception) {
                     // couldn't load the definition of the class, it may be a client class
-                    return canGenerateConstructionOf(type);
+                    result = canGenerateConstructionOf(type);
                 }
             }
-            return canGenerateConstructionOf(type);
         } catch (Exception e) {
-            return false;
+            result = false;
         }
+        canGenerateAValueForType.put(type.getQualifiedName(), result);
+        return result;
     }
 
     private static boolean canGenerateConstructionOf(CtTypeReference type) {

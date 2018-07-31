@@ -35,10 +35,10 @@ public class ValueCreator {
     }
 
     public static CtLocalVariable createRandomLocalVar(CtTypeReference type, String prefixName) {
-        return type.getFactory().createLocalVariable(type, "__DSPOT_" + prefixName + "_" + count++, generateRandomValue(type));
+        return type.getFactory().createLocalVariable(type, "__DSPOT_" + prefixName + "_" + count++, generateRandomValue(type, 0));
     }
 
-    public static CtExpression<?> generateRandomValue(CtTypeReference type, CtExpression<?>... expressionsToAvoid) {
+    public static CtExpression<?> generateRandomValue(CtTypeReference type, int depth, CtExpression<?>... expressionsToAvoid) {
         if (AmplificationChecker.isPrimitive(type)) {
             return generatePrimitiveRandomValue(type);
         } else {
@@ -46,14 +46,14 @@ public class ValueCreator {
                 if (AmplificationChecker.isArray(type)) {
                     return generateArray(type);
                     // now it may throw a SpoonClassNotFoundException, if it is a client class
-                } else  if (type.getActualClass() == String.class) {
+                } else if (type.getActualClass() == String.class) {
                     return type.getFactory().createLiteral(AmplificationHelper.getRandomString(20));
                 } else if (type.getActualClass() == Collection.class ||
                         type.getActualClass() == List.class
-                        // I can't remember why I did this.
-                        // The problem is that DSpot generates now:
-                        // ArrayList<> l = Collections.emptyList();
-                        // Which is incorrect
+                    // I can't remember why I did this.
+                    // The problem is that DSpot generates now:
+                    // ArrayList<> l = Collections.emptyList();
+                    // Which is incorrect
 //                        || type.getSuperInterfaces().contains(type.getFactory().Type().get(List.class).getReference())
                         ) {
                     return CollectionCreator.generateCollection(type, "List", List.class);
@@ -64,10 +64,10 @@ public class ValueCreator {
                 }
             } catch (SpoonException exception) {
                 // couldn't load the definition of the class, it may be a client class
-                return ConstructorCreator.generateConstructionOf(type, expressionsToAvoid);
+                return ConstructorCreator.generateConstructionOf(type, depth, expressionsToAvoid);
             }
         }
-        return ConstructorCreator.generateConstructionOf(type, expressionsToAvoid);
+        return ConstructorCreator.generateConstructionOf(type, depth, expressionsToAvoid);
 //		throw new RuntimeException();
     }
 
@@ -87,9 +87,9 @@ public class ValueCreator {
         newArray.setType(arrayType);
         if (size == 0) {
             newArray.setDimensionExpressions(Collections.singletonList(type.getFactory().createLiteral(size)));
-        } else if (ValueCreatorHelper.canGenerateAValueForType(typeComponent)){
+        } else if (ValueCreatorHelper.canGenerateAValueForType(typeComponent)) {
             IntStream.range(0, size)
-                    .mapToObj(i -> generateRandomValue(typeComponent))
+                    .mapToObj(i -> generateRandomValue(typeComponent, 0))
                     .forEach(newArray::addElement);
         }
         return newArray;

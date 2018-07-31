@@ -69,7 +69,7 @@ public class TestConstructorCreator extends AbstractTest {
 
         CtExpression constructionOf = ConstructorCreator.generateConstructionOf(factory.Type()
                 .get("fr.inria.statementadd.ClassParameterAmplify")
-                .getReference()
+                .getReference(), 0
         );
 
         assertEquals("new fr.inria.statementadd.ClassParameterAmplify(866555445)",
@@ -77,7 +77,7 @@ public class TestConstructorCreator extends AbstractTest {
 
         constructionOf = ConstructorCreator.generateConstructionOf(factory.Type()
                 .get("fr.inria.statementadd.ClassParameterAmplify")
-                .getReference()
+                .getReference(), 0
         );
 
         assertEquals("new fr.inria.statementadd.ClassParameterAmplify(1224731715)",
@@ -88,7 +88,7 @@ public class TestConstructorCreator extends AbstractTest {
     public void testGeneratorConstructionOfReturnNull() throws Exception {
         final Factory factory = Utils.getFactory();
         final CtClass<?> createdClass = factory.Class().create("fr.inria.created.NewTestCreated");
-        CtExpression constructionOf = ConstructorCreator.generateConstructionOf(createdClass.getReference());
+        CtExpression constructionOf = ConstructorCreator.generateConstructionOf(createdClass.getReference(), 0);
         assertNull(constructionOf);
     }
 
