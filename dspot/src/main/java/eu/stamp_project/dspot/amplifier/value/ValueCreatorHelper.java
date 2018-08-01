@@ -10,11 +10,8 @@ import spoon.reflect.reference.CtWildcardReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by Benjamin DANGLOT
@@ -38,12 +35,14 @@ public class ValueCreatorHelper {
             } else {
                 try {
                     if (AmplificationChecker.isArray(type) ||
-                            type.getActualClass() == String.class ||
-                            type.getActualClass() == Collection.class ||
-                            type.getActualClass() == List.class ||
-                            type.getActualClass() == Set.class ||
-                            type.getActualClass() == Map.class) {
+                            type.isSubtypeOf(type.getFactory().Class().STRING) ||
+                            type.isSubtypeOf(type.getFactory().Class().COLLECTION) ||
+                            type.isSubtypeOf(type.getFactory().Class().LIST) ||
+                            type.isSubtypeOf(type.getFactory().Class().SET) ||
+                            type.isSubtypeOf(type.getFactory().Class().MAP)) {
                         result = true;
+                    } else {
+                        result = canGenerateConstructionOf(type);
                     }
                 } catch (SpoonClassNotFoundException exception) {
                     // couldn't load the definition of the class, it may be a client class
