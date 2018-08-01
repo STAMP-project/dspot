@@ -4,6 +4,7 @@ import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import spoon.reflect.code.CtAssignment;
 import spoon.reflect.code.CtBinaryOperator;
+import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
@@ -20,13 +21,17 @@ import java.util.List;
  * benjamin.danglot@inria.fr
  * on 18/09/17
  */
-public abstract class AbstractLiteralAmplifier<T> extends AbstractAmplifier<CtLiteral<T>> {
+public abstract class AbstractLiteralAmplifier<T> extends AbstractAmplifier<CtExpression<T>> {
 
     protected CtType<?> testClassToBeAmplified;
 
-    protected final TypeFilter<CtLiteral<T>> LITERAL_TYPE_FILTER = new TypeFilter<CtLiteral<T>>(CtLiteral.class) {
+    protected final TypeFilter<CtExpression<T>> LITERAL_TYPE_FILTER = new TypeFilter<CtExpression<T>>(CtExpression.class) {
         @Override
-        public boolean matches(CtLiteral<T> literal) {
+        public boolean matches(CtExpression<T> candidate) {
+            if (! (candidate instanceof CtLiteral)) {
+                return false;
+            }
+            CtLiteral<T> literal = (CtLiteral<T>) candidate;
             try {
                 Class<?> clazzOfLiteral = null;
                 if ((literal.getParent() instanceof CtInvocation &&
@@ -74,7 +79,7 @@ public abstract class AbstractLiteralAmplifier<T> extends AbstractAmplifier<CtLi
     };
 
     @Override
-    protected List<CtLiteral<T>> getOriginals(CtMethod<?> testMethod) {
+    protected List<CtExpression<T>> getOriginals(CtMethod<?> testMethod) {
         return testMethod.getElements(LITERAL_TYPE_FILTER);
     }
 

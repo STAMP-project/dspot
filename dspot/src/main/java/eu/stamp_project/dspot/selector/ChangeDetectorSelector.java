@@ -36,7 +36,6 @@ public class ChangeDetectorSelector implements TestSelector {
 
     private Map<CtMethod<?>, Failure> failurePerAmplifiedTest;
 
-
     private CtType<?> currentClassTestToBeAmplified;
 
     public ChangeDetectorSelector() {
@@ -103,18 +102,20 @@ public class ChangeDetectorSelector implements TestSelector {
         } finally {
             InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToFirstVersionOfProgram);
         }
+        final List<CtMethod<?>> amplifiedThatWillBeKept = new ArrayList<>();
         if (!results.getFailingTests().isEmpty()) {
             results.getFailingTests()
-                    .forEach(failure ->
-                            this.failurePerAmplifiedTest.put(
-                                    amplifiedTestToBeKept.stream()
-                                            .filter(ctMethod ->
-                                                    ctMethod.getSimpleName().equals(failure.testCaseName)
-                                            ).findFirst()
-                                            .get(), failure)
+                    .forEach(failure -> {
+                                final CtMethod<?> key = amplifiedTestToBeKept.stream()
+                                        .filter(ctMethod -> ctMethod.getSimpleName().equals(failure.testCaseName))
+                                        .findFirst()
+                                        .get();
+                                amplifiedThatWillBeKept.add(key);
+                                this.failurePerAmplifiedTest.put(key, failure);
+                            }
                     );
         }
-        return amplifiedTestToBeKept;
+        return amplifiedThatWillBeKept;
     }
 
     @Override
