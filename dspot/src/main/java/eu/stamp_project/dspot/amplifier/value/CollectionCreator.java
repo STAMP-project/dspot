@@ -48,7 +48,7 @@ public class CollectionCreator {
                 type.getActualTypeArguments().stream().allMatch(ValueCreatorHelper::canGenerateAValueForType)) {
             executableReference.setParameters(type.getActualTypeArguments());
             List<CtExpression<?>> parameters = type.getActualTypeArguments().stream()
-                    .map(ValueCreator::generateRandomValue).collect(Collectors.toList());
+                    .map(reference -> ValueCreator.generateRandomValue(reference, 0)).collect(Collectors.toList());
             return factory.createInvocation(accessToCollections, executableReference, parameters);
         } else {
             return factory.createInvocation(accessToCollections, executableReference,

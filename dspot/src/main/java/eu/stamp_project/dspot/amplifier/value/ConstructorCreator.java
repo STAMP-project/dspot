@@ -3,13 +3,18 @@ package eu.stamp_project.dspot.amplifier.value;
 import eu.stamp_project.utils.AmplificationHelper;
 import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtExpression;
-import spoon.reflect.declaration.*;
+import spoon.reflect.declaration.CtConstructor;
+import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtParameter;
+import spoon.reflect.declaration.CtType;
+import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,7 +43,7 @@ public class ConstructorCreator {
                 final List<CtExpression> generatedConstructors = constructors.stream().map(ctConstructor -> {
                             final CtConstructorCall<?> clone = constructorCall.clone();
                             ctConstructor.getParameters().forEach(parameter ->
-                                    clone.addArgument(ValueCreator.generateRandomValue(parameter.getType()))
+                                    clone.addArgument(ValueCreator.generateRandomValue(parameter.getType(), 0))
                             );
                             return clone;
                         }
@@ -56,25 +61,32 @@ public class ConstructorCreator {
 
     //TODO we should checks if at least the default constructor is available.
     //TODO we may need to implement a support for factory usages
-    static CtExpression generateConstructionOf(CtTypeReference type, CtExpression<?>... expressionsToAvoid) {
+    static CtExpression generateConstructionOf(CtTypeReference type, int depth, CtExpression<?>... expressionsToAvoid) {
         CtType<?> typeDeclaration = type.getDeclaration() == null ? type.getTypeDeclaration() : type.getDeclaration();
         if (typeDeclaration != null) {
             // We take public constructor that have only parameter that can be generated
-            final List<CtConstructor<?>> constructors = typeDeclaration.getElements(new TypeFilter<CtConstructor<?>>(CtConstructor.class) {
-                @Override
-                public boolean matches(CtConstructor<?> element) {
-                    return element.hasModifier(ModifierKind.PUBLIC) &&
-                            element.getParameters().stream()
-                                    .map(CtParameter::getType)
-                                    .allMatch(ValueCreatorHelper::canGenerateAValueForType);
-                }
-            });
+            final List<CtConstructor<?>> constructors = typeDeclaration.getElements(
+                    new TypeFilter<CtConstructor<?>>(CtConstructor.class) {
+                        @Override
+                        public boolean matches(CtConstructor<?> element) {
+                            return element.hasModifier(ModifierKind.PUBLIC) &&
+                                    element.getParameters().stream()
+                                            .map(CtParameter::getType)
+                                            .allMatch(ValueCreatorHelper::canGenerateAValueForType);
+                        }
+                    });
             if (!constructors.isEmpty()) {
                 CtConstructorCall<?> constructorCall = type.getFactory().createConstructorCall();
                 constructorCall.setType(type);
-                final CtConstructor<?> selectedConstructor = constructors.get(AmplificationHelper.getRandom().nextInt(constructors.size()));
+                final CtConstructor<?> selectedConstructor;
+                if (depth > 3) {
+                    Collections.sort(constructors, Comparator.comparingInt(o -> o.getParameters().size()));
+                    selectedConstructor = constructors.get(0);
+                } else {
+                    selectedConstructor = constructors.get(AmplificationHelper.getRandom().nextInt(constructors.size()));
+                }
                 selectedConstructor.getParameters().forEach(parameter ->
-                            constructorCall.addArgument(ValueCreator.generateRandomValue(parameter.getType()))
+                        constructorCall.addArgument(ValueCreator.generateRandomValue(parameter.getType(), depth + 1))
                 );
                 return constructorCall;
             } else {
@@ -99,10 +111,12 @@ public class ConstructorCreator {
 
     static final class FILTER_FACTORY_METHOD extends TypeFilter<CtMethod<?>> {
         private final CtTypeReference type;
+
         public FILTER_FACTORY_METHOD(CtTypeReference type) {
             super(CtMethod.class);
             this.type = type;
         }
+
         @Override
         public boolean matches(CtMethod<?> element) {
             return element.getModifiers().contains(ModifierKind.STATIC) &&
@@ -125,7 +139,7 @@ public class ConstructorCreator {
                         factory.createInvocation(factory.createTypeAccess(method.getParent(CtType.class).getReference(), true),
                                 method.getReference(),
                                 method.getParameters().stream()
-                                        .map(parameter -> ValueCreator.generateRandomValue(parameter.getType()))
+                                        .map(parameter -> ValueCreator.generateRandomValue(parameter.getType(), 0))
                                         .collect(Collectors.toList())
                         )
                 ).collect(Collectors.toList());
