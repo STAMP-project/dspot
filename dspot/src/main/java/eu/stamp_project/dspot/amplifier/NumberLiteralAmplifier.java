@@ -1,20 +1,34 @@
 package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.utils.AmplificationHelper;
+import spoon.reflect.code.CtExpression;
+import spoon.reflect.code.CtFieldRead;
 import spoon.reflect.code.CtLiteral;
+import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtField;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
+import spoon.reflect.reference.CtFieldReference;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class NumberLiteralAmplifier extends AbstractLiteralAmplifier<Number> {
 
+    private static CtFieldRead<Number> getCtFieldRead(Class<?> clazz, String fieldName, Factory factory) {
+        final CtFieldRead<Number> fieldRead = factory.createFieldRead();
+        final CtClass<?> doubleClass = factory.Class().get(clazz);
+        final CtField<Number> field = (CtField<Number>) doubleClass.getField(fieldName);
+        final CtFieldReference<Number> reference = field.getReference();
+        fieldRead.setVariable(reference);
+        return fieldRead;
+    }
+
     @Override
-    protected Set<CtLiteral<Number>> amplify(CtLiteral<Number> literal, CtMethod<?> testMethod) {
+    protected Set<CtExpression<Number>> amplify(CtExpression<Number> literal, CtMethod<?> testMethod) {
         final Factory factory = testMethod.getFactory();
-        Set<CtLiteral<Number>> values = new HashSet<>();
-        Double value = ((Number) literal.getValue()).doubleValue();
+        Set<CtExpression<Number>> values = new HashSet<>();
+        Double value = ((Number) ((CtLiteral<Number>)literal).getValue()).doubleValue();
 
         Class<?> classOfLiteral;
         if (! literal.getTypeCasts().isEmpty()){
@@ -26,32 +40,32 @@ public class NumberLiteralAmplifier extends AbstractLiteralAmplifier<Number> {
         if (classOfLiteral == Byte.class || classOfLiteral == byte.class) {
             values.add(factory.createLiteral((byte)(value.byteValue() + 1)));
             values.add(factory.createLiteral((byte)(value.byteValue() - 1)));
-            values.add(factory.createLiteral(Byte.MAX_VALUE));
-            values.add(factory.createLiteral(Byte.MIN_VALUE));
+            values.add(getCtFieldRead(Byte.class, "MAX_VALUE", factory));
+            values.add(getCtFieldRead(Byte.class, "MIN_VALUE", factory));
             values.add(factory.createLiteral((byte)0));
             values.add(factory.createLiteral((byte)AmplificationHelper.getRandom().nextInt()));
         }
         if (classOfLiteral == Short.class || classOfLiteral == short.class) {
             values.add(factory.createLiteral((short)(value.shortValue() + 1)));
             values.add(factory.createLiteral((short)(value.shortValue() - 1)));
-            values.add(factory.createLiteral(Short.MAX_VALUE));
-            values.add(factory.createLiteral(Short.MIN_VALUE));
+            values.add(getCtFieldRead(Short.class, "MAX_VALUE", factory));
+            values.add(getCtFieldRead(Short.class, "MIN_VALUE", factory));
             values.add(factory.createLiteral((short)0));
             values.add(factory.createLiteral((short)AmplificationHelper.getRandom().nextInt()));
         }
         if (classOfLiteral == Integer.class || classOfLiteral == int.class) {
             values.add(factory.createLiteral(value.intValue() + 1));
             values.add(factory.createLiteral(value.intValue() - 1));
-            values.add(factory.createLiteral(Integer.MAX_VALUE));
-            values.add(factory.createLiteral(Integer.MIN_VALUE));
+            values.add(getCtFieldRead(Integer.class, "MAX_VALUE", factory));
+            values.add(getCtFieldRead(Integer.class, "MIN_VALUE", factory));
             values.add(factory.createLiteral(0));
             values.add(factory.createLiteral(AmplificationHelper.getRandom().nextInt()));
         }
         if (classOfLiteral == Long.class || classOfLiteral == long.class) {
             values.add(factory.createLiteral((long)(value.longValue() + 1)));
             values.add(factory.createLiteral((long)(value.longValue() - 1)));
-            values.add(factory.createLiteral(Long.MAX_VALUE));
-            values.add(factory.createLiteral(Long.MIN_VALUE));
+            values.add(getCtFieldRead(Long.class, "MAX_VALUE", factory));
+            values.add(getCtFieldRead(Long.class, "MIN_VALUE", factory));
             values.add(factory.createLiteral(0L));
             long randomLong = (long)AmplificationHelper.getRandom().nextInt();
             randomLong += (long)AmplificationHelper.getRandom().nextInt();
@@ -60,24 +74,24 @@ public class NumberLiteralAmplifier extends AbstractLiteralAmplifier<Number> {
         if (classOfLiteral == Float.class || classOfLiteral == float.class) {
             values.add(factory.createLiteral(value.floatValue() + 1.0F));
             values.add(factory.createLiteral(value.floatValue() - 1.0F));
-            values.add(factory.createLiteral(Float.NaN));
-            values.add(factory.createLiteral(Float.POSITIVE_INFINITY));
-            values.add(factory.createLiteral(Float.NEGATIVE_INFINITY));
-            values.add(factory.createLiteral(Float.MIN_NORMAL));
-            values.add(factory.createLiteral(Float.MAX_VALUE));
-            values.add(factory.createLiteral(Float.MIN_VALUE));
+            values.add(getCtFieldRead(Float.class, "NaN", factory));
+            values.add(getCtFieldRead(Float.class, "POSITIVE_INFINITY", factory));
+            values.add(getCtFieldRead(Float.class, "NEGATIVE_INFINITY", factory));
+            values.add(getCtFieldRead(Float.class, "MIN_NORMAL", factory));
+            values.add(getCtFieldRead(Float.class, "MAX_VALUE", factory));
+            values.add(getCtFieldRead(Float.class, "MIN_VALUE", factory));
             values.add(factory.createLiteral(0.0F));
             values.add(factory.createLiteral((float)AmplificationHelper.getRandom().nextDouble()));
         }
         if (classOfLiteral == Double.class || classOfLiteral == double.class) {
             values.add(factory.createLiteral(value + 1.0D));
             values.add(factory.createLiteral(value - 1.0D));
-            values.add(factory.createLiteral(Double.NaN));
-            values.add(factory.createLiteral(Double.POSITIVE_INFINITY));
-            values.add(factory.createLiteral(Double.NEGATIVE_INFINITY));
-            values.add(factory.createLiteral(Double.MIN_NORMAL));
-            values.add(factory.createLiteral(Double.MAX_VALUE));
-            values.add(factory.createLiteral(Double.MIN_VALUE));
+            values.add(getCtFieldRead(Double.class, "NaN", factory));
+            values.add(getCtFieldRead(Double.class, "POSITIVE_INFINITY", factory));
+            values.add(getCtFieldRead(Double.class, "NEGATIVE_INFINITY", factory));
+            values.add(getCtFieldRead(Double.class, "MIN_NORMAL", factory));
+            values.add(getCtFieldRead(Double.class, "MAX_VALUE", factory));
+            values.add(getCtFieldRead(Double.class, "MIN_VALUE", factory));
             values.add(factory.createLiteral(0.0D));
             values.add(factory.createLiteral(AmplificationHelper.getRandom().nextDouble()));
         }

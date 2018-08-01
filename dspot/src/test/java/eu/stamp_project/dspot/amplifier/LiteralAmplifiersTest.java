@@ -5,7 +5,7 @@ import eu.stamp_project.Utils;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.Ignore;
 import org.junit.Test;
-import spoon.reflect.code.CtLiteral;
+import spoon.reflect.code.CtExpression;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
@@ -82,7 +82,7 @@ public class LiteralAmplifiersTest extends AbstractTest {
         amplifiedMethods.addAll(amplifiedStringMethods);
         amplifiedMethods.addAll(amplifiedNumberMethods);
         //here, we have less amplified test method than before from more than 1630 to 1304
-        assertEquals(1560, amplifiedMethods.size());
+        assertEquals(1626, amplifiedMethods.size()); // TODO
     }
 
     @Test
@@ -100,7 +100,7 @@ public class LiteralAmplifiersTest extends AbstractTest {
         clone.setBody(Utils.getFactory().createCodeSnippetStatement("int x = 1 + 1").compile());
         Amplifier zeroAmplifier = new AbstractLiteralAmplifier<Integer>() {
             @Override
-            protected Set<CtLiteral<Integer>> amplify(CtLiteral<Integer> original, CtMethod<?> testMethod) {
+            protected Set<CtExpression<Integer>> amplify(CtExpression<Integer> original, CtMethod<?> testMethod) {
                 return Collections.singleton(testMethod.getFactory().createLiteral(0));
             }
             @Override

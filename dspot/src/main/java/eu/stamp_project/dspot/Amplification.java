@@ -94,7 +94,6 @@ public class Amplification {
         for (int i = 0; i < tests.size(); i++) {
             CtMethod test = tests.get(i);
             LOGGER.info("Amplification of {}, ({}/{})", test.getSimpleName(), i + 1, tests.size());
-            //compileAndRunTests(classTest, Collections.singletonList(tests.get(i)));
             final List<CtMethod<?>> amplifiedTestMethods = amplification(classTest, test, maxIteration);
             this.globalNumberOfSelectedAmplification += amplifiedTestMethods.size();
             LOGGER.info("{} amplified test methods has been selected to be kept. (global: {})", amplifiedTestMethodsToKeep.size(), this.globalNumberOfSelectedAmplification);

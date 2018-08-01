@@ -2,6 +2,7 @@ package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.utils.AmplificationHelper;
 import spoon.reflect.code.CtBinaryOperator;
+import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -23,13 +24,13 @@ public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
     }
 
     @Override
-    protected Set<CtLiteral<String>> amplify(CtLiteral<String> original, CtMethod<?> testMethod) {
+    protected Set<CtExpression<String>> amplify(CtExpression<String> original, CtMethod<?> testMethod) {
         final Factory factory = testMethod.getFactory();
-        Set<CtLiteral<String>> values = new HashSet<>();
+        Set<CtExpression<String>> values = new HashSet<>();
         if (!this.existingStrings.isEmpty()) {
             values.add(factory.createLiteral(this.existingStrings.get(AmplificationHelper.getRandom().nextInt(this.existingStrings.size() - 1))));
         }
-        String value = original.getValue();
+        String value = ((CtLiteral<String>)original).getValue();
         if (value != null) {
             if (value.length() > 2) {
                 int length = value.length();
