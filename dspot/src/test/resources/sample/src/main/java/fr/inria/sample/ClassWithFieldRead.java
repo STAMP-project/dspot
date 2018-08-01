@@ -19,4 +19,8 @@ public class ClassWithFieldRead {
         return Integer.MAX_VALUE;
     }
 
+    public double[] getDoubles() {
+        return new double[]{Double.NaN, 0.0F, Double.POSITIVE_INFINITY, 1.0D};
+    }
+
 }

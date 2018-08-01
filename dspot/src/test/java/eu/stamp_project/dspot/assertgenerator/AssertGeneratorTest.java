@@ -99,6 +99,7 @@ public class AssertGeneratorTest extends AbstractTest {
 
         List<CtMethod<?>> test_buildNewAssert = assertGenerator.assertionAmplification(testClass, Collections.singletonList(test));
         CtMethod<?> amplifiedTestMethod = test_buildNewAssert.get(0);
+        System.out.println(amplifiedTestMethod);
         assertEquals(1, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("NEGATIVE_INFINITY", ASSERT_EQUALS)).size());
         assertEquals(1, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getInfinity", ASSERT_EQUALS)).size());
         assertEquals(1, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("NaN", ASSERT_EQUALS)).size());
