@@ -57,7 +57,11 @@ public class JSAPOptions {
         }
         final List<String> testClasses = Arrays.asList(jsapConfig.getStringArray("test"));
         final List<String> testCases = Arrays.asList(jsapConfig.getStringArray("testCases"));
-        return InputConfiguration.initialize(jsapConfig.getString("path"))
+        InputConfiguration.initialize(jsapConfig.getString("path"));
+        if (InputConfiguration.get().getOutputDirectory().isEmpty()) {
+            InputConfiguration.get().setOutputDirectory(jsapConfig.getString("output"));
+        }
+        return InputConfiguration.get()
                 .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(jsapConfig.getStringArray("amplifiers")))
                 .setNbIteration(jsapConfig.getInt("iteration"))
                 .setTestClasses(testClasses)
@@ -150,8 +154,8 @@ public class JSAPOptions {
         output.setAllowMultipleDeclarations(false);
         output.setShortFlag('o');
         output.setLongFlag("output-path");
-        output.setDefault("dspot-report");
-        output.setHelp("[optional] specify the output folder (default: dspot-report)");
+        output.setDefault("target/dspot/output");
+        output.setHelp("[optional] specify the output folder");
 
         Switch cleanOutput = new Switch("clean");
         cleanOutput.setLongFlag("clean");
