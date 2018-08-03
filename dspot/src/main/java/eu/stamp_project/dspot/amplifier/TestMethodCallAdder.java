@@ -3,9 +3,8 @@ package eu.stamp_project.dspot.amplifier;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Counter;
-import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtInvocation;
-import spoon.reflect.code.CtStatement;
+import spoon.reflect.code.CtStatementList;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -22,7 +21,8 @@ public class TestMethodCallAdder implements Amplifier {
             final List<CtInvocation<?>> invocations = method.getElements(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
                 @Override
                 public boolean matches(CtInvocation<?> element) {
-                    return AmplificationChecker.canBeAdded(element) && !AmplificationChecker.isAssert(element);
+                    return AmplificationChecker.canBeAdded(element) &&
+                            !AmplificationChecker.isAssert(element);
                 }
             });
             return invocations.stream().map(invocation -> apply(method, invocation));
@@ -40,17 +40,17 @@ public class TestMethodCallAdder implements Amplifier {
         final CtInvocation<?> invocationToBeInserted = invocation.clone();
         invocation.insertBefore(invocationToBeInserted);
         final CtMethod<?> clone = AmplificationHelper.cloneTestMethodForAmp(method, "_add");
-        method.getBody().getStatements().remove(invocationToBeInserted);
+        getParent(invocationToBeInserted).getStatements().remove(invocationToBeInserted);
         Counter.updateInputOf(clone, 1);
         return clone;
     }
 
-    private CtStatement getParent(CtInvocation invocationToBeCloned) {
+    private CtStatementList getParent(CtInvocation<?> invocationToBeCloned) {
         CtElement parent = invocationToBeCloned;
-        while (!(parent.getParent() instanceof CtBlock)){
+        while (!(parent.getParent() instanceof CtStatementList)) {
             parent = parent.getParent();
         }
-        return (CtStatement) parent;
+        return (CtStatementList) parent.getParent();
     }
 
 
