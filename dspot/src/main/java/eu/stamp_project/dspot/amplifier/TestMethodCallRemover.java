@@ -6,6 +6,7 @@ import eu.stamp_project.utils.Counter;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
+import spoon.reflect.code.CtStatementList;
 import spoon.reflect.code.CtTry;
 import spoon.reflect.code.CtWhile;
 import spoon.reflect.declaration.CtMethod;
@@ -41,11 +42,16 @@ public class TestMethodCallRemover implements Amplifier {
     }
 
     private CtMethod<?> apply(CtMethod<?> method, CtInvocation<?> invocation) {
-        final CtBlock<?> body = method.getBody();
-        final int indexOfInvocation = body.getStatements().indexOf(invocation);
-        body.removeStatement(invocation);
+        final CtStatementList ctStatementList = AmplifierHelper.getParent(invocation);
+        final int indexOfInvocation = ctStatementList.getStatements().indexOf(invocation) - 1;
+        ctStatementList.removeStatement(invocation);
+        invocation.delete();
         final CtMethod<?> cloned = AmplificationHelper.cloneTestMethodForAmp(method, "_remove");
-        body.getStatements().add(indexOfInvocation, invocation);
+        if (indexOfInvocation == -1) {
+            ctStatementList.insertBegin(invocation);
+        } else {
+            ctStatementList.getStatements().get(indexOfInvocation).insertAfter(invocation);
+        }
         Counter.updateInputOf(cloned, 1);
         return cloned;
     }
