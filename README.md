@@ -227,8 +227,7 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         specify the test cases to amplify
 
   [(-o|--output-path) <output>]
-        [optional] specify the output folder (default: dspot-report) (default:
-        dspot-report)
+        [optional] specify the output folder (default: target/dspot/output)
 
   [--clean]
         [optional] if enabled, DSpot will remove the out directory if exists,

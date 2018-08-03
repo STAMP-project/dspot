@@ -125,7 +125,7 @@ public class ConstantsProperties {
             new InputConfigurationProperty(
                     "outputDirectory",
                     "specify a path folder for the output.",
-                    "target/dspot/output"
+                    ""
             );
 
     public static final InputConfigurationProperty MAVEN_HOME =
