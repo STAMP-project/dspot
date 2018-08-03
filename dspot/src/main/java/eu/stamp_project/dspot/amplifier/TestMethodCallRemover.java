@@ -10,7 +10,6 @@ import spoon.reflect.code.CtTry;
 import spoon.reflect.code.CtWhile;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.List;
@@ -30,7 +29,7 @@ public class TestMethodCallRemover implements Amplifier {
                             && !containsIteratorNext(invocation);
                 }
             });
-            return invocations.stream().map(invocation -> apply(method, invocations.indexOf(invocation)));
+            return invocations.stream().map(invocation -> apply(method, invocation));
         } else {
             return Stream.empty();
         }
@@ -41,16 +40,14 @@ public class TestMethodCallRemover implements Amplifier {
         AmplificationHelper.reset();
     }
 
-    private CtMethod<?> apply(CtMethod<?> method, int invocation_index) {
-        //clone the method
-        CtMethod<?> cloned_method = AmplificationHelper.cloneTestMethodForAmp(method, "_remove");
-        //get the lit_indexth literal of the cloned method
-        CtInvocation stmt = Query.getElements(cloned_method, new TypeFilter<>(CtInvocation.class)).get(invocation_index);
-        CtBlock b = ((CtBlock) stmt.getParent());
-//        DSpotUtils.addComment(b, "removed " + stmt.toString() + " at line " + stmt.getPosition().getLine(), CtComment.CommentType.INLINE);
-        b.removeStatement(stmt);
-        Counter.updateInputOf(cloned_method, 1);
-        return cloned_method;
+    private CtMethod<?> apply(CtMethod<?> method, CtInvocation<?> invocation) {
+        final CtBlock<?> body = method.getBody();
+        final int indexOfInvocation = body.getStatements().indexOf(invocation);
+        body.removeStatement(invocation);
+        final CtMethod<?> cloned = AmplificationHelper.cloneTestMethodForAmp(method, "_remove");
+        body.getStatements().add(indexOfInvocation, invocation);
+        Counter.updateInputOf(cloned, 1);
+        return cloned;
     }
 
     private boolean toRemove(CtInvocation invocation) {
