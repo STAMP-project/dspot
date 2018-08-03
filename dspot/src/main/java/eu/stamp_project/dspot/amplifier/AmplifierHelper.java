@@ -9,6 +9,8 @@ import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.code.CtStatement;
+import spoon.reflect.code.CtStatementList;
+import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtParameter;
 import spoon.reflect.declaration.ModifierKind;
@@ -28,6 +30,14 @@ import java.util.stream.Collectors;
  * on 19/07/18
  */
 public class AmplifierHelper {
+
+    public static CtStatementList getParent(CtInvocation<?> invocationToBeCloned) {
+        CtElement parent = invocationToBeCloned;
+        while (!(parent.getParent() instanceof CtStatementList)) {
+            parent = parent.getParent();
+        }
+        return (CtStatementList) parent.getParent();
+    }
 
     public static CtExpression<?> createLocalVarRef(CtLocalVariable<?> var) {
         CtLocalVariableReference<?> varRef = var.getFactory().Code().createLocalVariableReference(var);

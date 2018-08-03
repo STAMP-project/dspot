@@ -4,8 +4,6 @@ import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Counter;
 import spoon.reflect.code.CtInvocation;
-import spoon.reflect.code.CtStatementList;
-import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.visitor.filter.TypeFilter;
@@ -40,18 +38,9 @@ public class TestMethodCallAdder implements Amplifier {
         final CtInvocation<?> invocationToBeInserted = invocation.clone();
         invocation.insertBefore(invocationToBeInserted);
         final CtMethod<?> clone = AmplificationHelper.cloneTestMethodForAmp(method, "_add");
-        getParent(invocationToBeInserted).getStatements().remove(invocationToBeInserted);
+        AmplifierHelper.getParent(invocationToBeInserted).getStatements().remove(invocationToBeInserted);
         Counter.updateInputOf(clone, 1);
         return clone;
     }
-
-    private CtStatementList getParent(CtInvocation<?> invocationToBeCloned) {
-        CtElement parent = invocationToBeCloned;
-        while (!(parent.getParent() instanceof CtStatementList)) {
-            parent = parent.getParent();
-        }
-        return (CtStatementList) parent.getParent();
-    }
-
 
 }
