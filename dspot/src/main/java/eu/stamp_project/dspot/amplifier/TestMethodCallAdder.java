@@ -9,7 +9,6 @@ import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.List;
@@ -26,7 +25,7 @@ public class TestMethodCallAdder implements Amplifier {
                     return AmplificationChecker.canBeAdded(element) && !AmplificationChecker.isAssert(element);
                 }
             });
-            return invocations.stream().map(invocation -> apply(method, invocations.indexOf(invocation)));
+            return invocations.stream().map(invocation -> apply(method, invocation));
         } else {
             return Stream.empty();
         }
@@ -37,18 +36,13 @@ public class TestMethodCallAdder implements Amplifier {
         AmplificationHelper.reset();
     }
 
-    private CtMethod<?> apply(CtMethod<?> method, int invocation_index) {
-        CtMethod<?> cloned_method = AmplificationHelper.cloneTestMethodForAmp(method, "_add");
-        //add the cloned method in the same class as the original method
-        //get the lit_indexth literal of the cloned method
-        CtInvocation stmt = Query.getElements(cloned_method, new TypeFilter<>(CtInvocation.class)).get(invocation_index);
-        CtInvocation cloneStmt = stmt.clone();
-        final CtStatement parent = getParent(stmt);
-        parent.insertBefore(cloneStmt);
-        cloneStmt.setParent(parent.getParent(CtBlock.class));
-        Counter.updateInputOf(cloned_method, 1);
-//        DSpotUtils.addComment(cloneStmt, "MethodCallAdder", CtComment.CommentType.INLINE);
-        return cloned_method;
+    private CtMethod<?> apply(CtMethod<?> method, CtInvocation<?> invocation) {
+        final CtInvocation<?> invocationToBeInserted = invocation.clone();
+        invocation.insertBefore(invocationToBeInserted);
+        final CtMethod<?> clone = AmplificationHelper.cloneTestMethodForAmp(method, "_add");
+        method.getBody().getStatements().remove(invocationToBeInserted);
+        Counter.updateInputOf(clone, 1);
+        return clone;
     }
 
     private CtStatement getParent(CtInvocation invocationToBeCloned) {
