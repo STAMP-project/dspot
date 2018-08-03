@@ -2,6 +2,7 @@ package fr.inria.sample;
 
 import org.junit.Test;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -10,6 +11,15 @@ import static org.junit.Assert.assertTrue;
  * Time: 10:58
  */
 public class TestClassWithAssert extends TestClassWithAssertOld {
+
+    @Test
+    public void testWithCatchVariable() throws Exception {
+        try {
+            System.out.println("");
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(Exception.class);
+        }
+    }
 
     @Test
     public void test1() {
