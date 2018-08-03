@@ -16,7 +16,6 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.reference.CtVariableReference;
-import spoon.reflect.visitor.Filter;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.ArrayList;
@@ -96,16 +95,20 @@ public class AssertionRemover {
                     invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, localVariable);
                 } else if (clone instanceof CtVariableRead && !(clone instanceof CtFieldRead)) {
                     final CtVariableReference variable = ((CtVariableRead) clone).getVariable();
-                    variableReadsAsserted.add(invocation.getParent(CtBlock.class).getElements(
-                            (Filter<CtLocalVariable>) localVariable ->
-                                    localVariable.getSimpleName().equals(variable.getSimpleName()) // here, we match the simple name
+                    final List<CtLocalVariable> assertedVariables = invocation.getParent(CtBlock.class).getElements(
+                            localVariable -> localVariable.getSimpleName().equals(variable.getSimpleName())
+                            // here, we match the simple name
                             // since the type cannot match with generated elements
                             // for instance, if the original element is a primitive char,
                             // the generated element can be a Character
                             // and thus, the localVariable.getReference().equals(variable) returns false
                             // the contract on name holds since we control it, i.e. variables in
                             // assertions are extracted by us.
-                    ).get(0));
+                    );
+                    // TODO, we can maybe make a precondition on the invocation, and its parents to avoid to this.
+                    if (!assertedVariables.isEmpty()) {
+                        variableReadsAsserted.add(assertedVariables.get(0));
+                    }
                 }
             }
         }
