@@ -89,12 +89,12 @@ public class Translator {
         }
         start = findMatchingIndex(invocationAsString, '(', end);
         String fullQualifiedName = invocationAsString.substring(start + 1, end);
-        CtType<?> ctType = factory.Type().get(fullQualifiedName);
+        CtType<?> ctType = getCtType(fullQualifiedName, factory);
         // handling inner types
-        if (ctType == null) {
+        while(ctType == null) {
             final int lastIndexOf = fullQualifiedName.lastIndexOf(".");
             fullQualifiedName = fullQualifiedName.substring(0, lastIndexOf) + "$" + fullQualifiedName.substring(lastIndexOf + 1, fullQualifiedName.length());
-            ctType = factory.Type().get(fullQualifiedName);
+            ctType = getCtType(fullQualifiedName, factory);
         }
         final CtTypeReference<?> reference = ctType.getReference();
         invocation.getTarget().addTypeCast(reference);
@@ -116,6 +116,20 @@ public class Translator {
         } else {
             return invocation;
         }
+    }
+
+    private CtType<?> getCtType(String fullQualifiedName, Factory factory) {
+        CtType<?> ctType = factory.Type().get(fullQualifiedName);
+        if (ctType == null) {
+            try {
+                ctType = factory.Class().get(
+                        ClassLoader.getSystemClassLoader().loadClass(fullQualifiedName)
+                );
+            } catch (ClassNotFoundException ignored) {
+
+            }
+        }
+        return ctType;
     }
 
     private int findMatchingIndex(String stringToBeMatched, char charToBeMatched, int start) {

@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.assertgenerator;
 
+import eu.stamp_project.compare.MethodsHandler;
 import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.utils.AmplificationHelper;
 import spoon.reflect.code.CtAssignment;
@@ -35,12 +36,17 @@ import java.util.function.Predicate;
  */
 public class AssertGeneratorHelper {
 
+
+    static boolean isCorrectReturn(CtInvocation<?> invocation) {
+        return invocation.getType() != null &&
+                !(isVoidReturn(invocation)) &&
+                !(invocation.getType() instanceof CtWildcardReference) &&
+                !("java.lang.Class".equals(invocation.getType().getTypeDeclaration().getQualifiedName()));
+    }
+
     static boolean isVoidReturn(CtInvocation invocation) {
-        return (invocation.getType() != null &&
-                (invocation.getType().equals(invocation.getFactory().Type().voidType()) ||
-                        invocation.getType().equals(invocation.getFactory().Type().voidPrimitiveType())) &&
-                !(invocation.getType() instanceof CtWildcardReference)
-        );
+        return (invocation.getType().equals(invocation.getFactory().Type().voidType()) ||
+                invocation.getType().equals(invocation.getFactory().Type().voidPrimitiveType()));
     }
 
     static CtMethod<?> createTestWithLog(CtMethod test, final String filter,
@@ -107,10 +113,7 @@ public class AssertGeneratorHelper {
 
     private static boolean isGetter(CtInvocation invocation) {
         return invocation.getArguments().isEmpty() &&
-                (invocation.getExecutable().getSimpleName().startsWith("is") ||
-                        invocation.getExecutable().getSimpleName().startsWith("get") ||
-                        invocation.getExecutable().getSimpleName().startsWith("should")
-                );
+                MethodsHandler.isASupportedMethodName(invocation.getExecutable().getSimpleName());
     }
 
     private static boolean isStmtToLog(String filter, CtStatement statement) {
@@ -132,7 +135,7 @@ public class AssertGeneratorHelper {
                 targetType = invocation.getTarget().getType().getQualifiedName();
             }
             if (targetType.startsWith(filter)) {
-                return (!isVoidReturn(invocation)
+                return (isCorrectReturn(invocation)
                         && !isGetter(invocation));
             } else {
                 return !isVoidReturn(invocation);
@@ -156,7 +159,8 @@ public class AssertGeneratorHelper {
                 return true;
             } else {
                 try {
-                    return type.getActualClass() == String.class;
+                    return type.getTypeDeclaration().getQualifiedName()
+                            .equals("java.lang.String");
                 } catch (SpoonClassNotFoundException e) {
                     return false;
                 }
@@ -264,9 +268,10 @@ public class AssertGeneratorHelper {
     /**
      * Builds an invocation to <code>methodName</code> of {@link org.junit.Assert}.
      * This should be a correct method name such as assertEquals, assertTrue...
-     * @param factory the factory used to build the invocation
+     *
+     * @param factory    the factory used to build the invocation
      * @param methodName the name of the assertion method
-     * @param arguments the arguments of the assertion, <i>e.g.</i> the two element to be compared in {@link org.junit.Assert#assertEquals(Object, Object)}
+     * @param arguments  the arguments of the assertion, <i>e.g.</i> the two element to be compared in {@link org.junit.Assert#assertEquals(Object, Object)}
      * @return a spoon node representing the invocation to the assertion, ready to be inserted in a test method
      */
     public static CtInvocation buildInvocation(Factory factory, String methodName, List<CtExpression> arguments) {
