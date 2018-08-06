@@ -144,7 +144,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
         assertEquals(17,
                 instrumentedAmplifiedTests.parallelStream()
                         .mapToInt(instrumentedAmplifiedTest ->
-                                instrumentedAmplifiedTest.getElements(new TypeFilter<CtInvocation>(CtInvocation.class){
+                                instrumentedAmplifiedTest.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
                                     @Override
                                     public boolean matches(CtInvocation element) {
                                         return "eu.stamp_project.compare.ObjectLog".equals(element.getTarget().toString()) &&
@@ -233,8 +233,8 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 
     @Test
     public void testCreateTestWithLogWithDuplicatedStatement() throws Exception {
-		/*
-			test the creation of log with duplicates statement
+        /*
+            test the creation of log with duplicates statement
 		 */
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         final CtMethod<?> test2 = (CtMethod<?>) testClass.getMethodsByName("test2").get(0);

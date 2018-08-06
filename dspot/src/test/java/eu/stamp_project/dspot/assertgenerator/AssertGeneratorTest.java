@@ -44,6 +44,17 @@ public class AssertGeneratorTest extends AbstractTest {
     }
 
     @Test
+    public void testCreateLogOnClassObject() throws Exception {
+        final CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
+        final CtMethod<?> testOnClass = Utils.findMethod(testClass, "testOnClass");
+        final AssertionRemover assertionRemover = new AssertionRemover();
+        final CtMethod<?> testWithoutAssertions = assertionRemover.removeAssertion(testOnClass);
+        System.out.println(
+                assertGenerator.assertionAmplification(testClass, Collections.singletonList(testWithoutAssertions))
+        );
+    }
+
+    @Test
     public void testOnInfiniteLoop() throws Exception {
         Utils.getInputConfiguration().setTimeOutInMs(1000);
         final CtClass testClass = Utils.findClass("fr.inria.infinite.LoopTest");
