@@ -2,6 +2,8 @@ package fr.inria.sample;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * User: Simon
  * Date: 25/11/16
@@ -30,5 +32,16 @@ public class TestClassWithoutAssert {
     public void test3() throws Exception {
         final fr.inria.sample.ClassWithMap classWithMap = new fr.inria.sample.ClassWithMap();
         classWithMap.getFullMap();
+    }
+
+    @Test
+    public void testOnClass() throws Exception {
+        class MyClass {
+            public Class<?> typeClass() {
+                return MyClass.class;
+            }
+        }
+        MyClass clazz = new MyClass();
+        assertEquals(MyClass.class, clazz.typeClass());
     }
 }

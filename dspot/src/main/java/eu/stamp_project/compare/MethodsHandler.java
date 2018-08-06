@@ -80,11 +80,16 @@ public class MethodsHandler {
         // we rely on convention name: get, is, should
         // TODO expand the scope of assertion to other pure method, with return type etc...
 
-        return method.getName().startsWith("get") ||
-                method.getName().startsWith("is") ||
-                method.getName().startsWith("should") ||
-                method.getName().equals("toString") ||
-                method.getName().startsWith("hashCode");
+        return isASupportedMethodName(method.getName());
+    }
+
+    public static boolean isASupportedMethodName(String name) {
+        return name.startsWith("has") ||
+                name.startsWith("get") ||
+                name.startsWith("is") ||
+                name.startsWith("should") ||
+                name.equals("toString") ||
+                name.startsWith("hashCode");
     }
 
     private boolean returnStream(Method method) {
