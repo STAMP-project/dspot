@@ -2,6 +2,7 @@ package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.dspot.amplifier.value.ValueCreatorHelper;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.Counter;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtParameter;
@@ -35,7 +36,12 @@ public class MethodGeneratorAmplifier implements Amplifier {
                                         AmplifierHelper.createLocalVarRef(existingObject),
                                         existingObject,
                                         "_mg")
-                        ).collect(Collectors.toList()).stream()
+                        ).map(amplifiedTestMethod -> {
+                                    Counter.updateInputOf(amplifiedTestMethod, 1);
+                                    return amplifiedTestMethod;
+                                }
+                        )
+                        .collect(Collectors.toList()).stream()
                 );
     }
 
@@ -49,7 +55,6 @@ public class MethodGeneratorAmplifier implements Amplifier {
             }
         });
     }
-
 
 
     @Override

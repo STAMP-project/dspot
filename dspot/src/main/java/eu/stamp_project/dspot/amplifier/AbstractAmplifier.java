@@ -1,6 +1,7 @@
 package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.Counter;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 
@@ -72,6 +73,7 @@ public abstract class AbstractAmplifier<T extends CtElement> implements Amplifie
         amplifiedElement.putMetadata(this.METADATA_KEY, true);
         CtMethod<?> clone = AmplificationHelper.cloneTestMethodForAmp(testMethod, getSuffix());
         amplifiedElement.replace(originalElement);
+        Counter.updateInputOf(clone, 1);
         return clone;
     }
 
