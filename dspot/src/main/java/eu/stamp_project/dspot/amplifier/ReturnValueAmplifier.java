@@ -1,6 +1,7 @@
 package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.TypeUtils;
 import spoon.reflect.code.CtBlock;
@@ -56,6 +57,7 @@ public class ReturnValueAmplifier implements Amplifier {
                 ampMethods.addAll(methodsWithTargetType.stream()
                         .map(addMth -> AmplifierHelper.addInvocation(methodClone, addMth, target, localVar, "_rv"))
                         .collect(Collectors.toList()));
+                Counter.updateInputOf(methodClone, 1);
             }
         });
         return ampMethods.stream();
