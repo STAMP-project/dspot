@@ -2,6 +2,7 @@ package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.dspot.AmplificationException;
+import eu.stamp_project.utils.AmplificationPreparation;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
 import eu.stamp_project.program.InputConfiguration;
@@ -55,7 +56,7 @@ public class AssertGenerator {
         if (tests.isEmpty()) {
             return tests;
         }
-        CtType cloneClass = testClass.clone();
+        CtType cloneClass = AmplificationPreparation.prepareTestClassForAmplification(testClass, tests);
         cloneClass.setParent(testClass.getParent());
         List<CtMethod<?>> testsWithoutAssertions = tests.stream()
                 .map(this.assertionRemover::removeAssertion)

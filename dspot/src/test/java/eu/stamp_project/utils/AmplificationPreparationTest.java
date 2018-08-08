@@ -10,8 +10,6 @@ import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtType;
 
-import java.util.Collections;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -35,10 +33,11 @@ public class AmplificationPreparationTest extends AbstractTest {
                 InputConfiguration.get(),
                 new TakeAllSelector()
         );
-        final CtType amplifyTest = dSpot.amplifyTest(testClass);
-        assertTrue("should be empty", TestCompiler.compileAndRun(amplifyTest,
+        final CtType<?> amplifyTest = dSpot.amplifyTest(testClass);
+        assertTrue("should be empty", TestCompiler.compileAndRun(
+                amplifyTest,
                 Utils.getCompiler(),
-                Collections.singletonList(Utils.findMethod("fr.inria.preparation.MustBeRenamedFromStart", "test")),
+                AmplificationHelper.getAllTest(amplifyTest),
                 InputConfiguration.get()
         ).getFailingTests().isEmpty());
     }

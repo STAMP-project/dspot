@@ -90,23 +90,12 @@ public class AmplificationHelper {
 
     public static CtType createAmplifiedTest(List<CtMethod<?>> ampTest, CtType<?> classTest, Minimizer minimizer, InputConfiguration configuration) {
         CtType amplifiedTest = classTest.clone();
-        final String amplifiedName = classTest.getSimpleName().startsWith("Test") ?
-                classTest.getSimpleName() + "Ampl" :
-                "Ampl" + classTest.getSimpleName();
-        amplifiedTest.setSimpleName(amplifiedName);
         classTest.getMethods().stream().filter(AmplificationChecker::isTest).forEach(amplifiedTest::removeMethod);
         if (configuration.shouldMinimize()) {
             ampTest.stream().map(minimizer::minimize).forEach(amplifiedTest::addMethod);
         } else {
             ampTest.forEach(amplifiedTest::addMethod);
         }
-        final CtTypeReference classTestReference = classTest.getReference();
-        amplifiedTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
-            @Override
-            public boolean matches(CtTypeReference element) {
-                return element.equals(classTestReference) && super.matches(element);
-            }
-        }).forEach(ctTypeReference -> ctTypeReference.setSimpleName(amplifiedName));
         classTest.getPackage().addType(amplifiedTest);
         return amplifiedTest;
     }

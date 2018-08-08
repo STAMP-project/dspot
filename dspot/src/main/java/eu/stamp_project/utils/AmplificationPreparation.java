@@ -44,34 +44,34 @@ public class AmplificationPreparation {
      * @return a version of the given test class ready to be amplified
      */
     public static CtType<?> prepareTestClassForAmplification(CtType<?> testClassToBeAmplified, List<CtMethod<?>> testMethodsToBeAmplified) {
-        final CtType<?> amplifiedTest = rename(testClassToBeAmplified.clone());
-        testClassToBeAmplified.getMethods()
-                .stream()
-                .filter(AmplificationChecker::isTest)
-                .forEach(amplifiedTest::removeMethod);
-        testClassToBeAmplified.getPackage().addType(amplifiedTest);
-        final CtTypeReference classTestReference = testClassToBeAmplified.getReference();
-        final String amplifiedName = getAmplifiedName(testClassToBeAmplified.getSimpleName());
-        amplifiedTest.getElements(new FILTER_TYPE_REFERENCE(classTestReference))
-                .forEach(ctTypeReference -> ctTypeReference.setSimpleName(amplifiedName));
+        if (testClassToBeAmplified.getMetadata("amplified") != null &&
+                (boolean)testClassToBeAmplified.getMetadata("amplified")) {
+            return testClassToBeAmplified;
+        }
+        final String originalQualifiedName = testClassToBeAmplified.getQualifiedName();
+        rename(testClassToBeAmplified);
+        testClassToBeAmplified.getPackage().addType(testClassToBeAmplified);
+        testClassToBeAmplified.getElements(new FILTER_TYPE_REFERENCE(originalQualifiedName))
+                .forEach(ctTypeReference -> ctTypeReference.setSimpleName(testClassToBeAmplified.getSimpleName()));
         testMethodsToBeAmplified.forEach(testMethodToBeAmplified ->
-                        testMethodToBeAmplified.getElements(new FILTER_TYPE_REFERENCE(classTestReference))
-                                .forEach(ctTypeReference -> ctTypeReference.setSimpleName(amplifiedName))
+                        testMethodToBeAmplified.getElements(new FILTER_TYPE_REFERENCE(originalQualifiedName))
+                                .forEach(ctTypeReference -> ctTypeReference.setSimpleName(testClassToBeAmplified.getSimpleName()))
                 );
-        return convertToJUnit4(amplifiedTest, InputConfiguration.get());
+        testClassToBeAmplified.putMetadata("amplified", true);
+        return testClassToBeAmplified;
     }
 
     private static class FILTER_TYPE_REFERENCE extends TypeFilter<CtTypeReference<?>> {
-        private final CtTypeReference<?> referenceToLookFor;
+        private final String stringToLookingFor;
 
-        public FILTER_TYPE_REFERENCE(CtTypeReference<?> reference) {
+        public FILTER_TYPE_REFERENCE(String stringToLookingFor) {
             super(CtTypeReference.class);
-            this.referenceToLookFor = reference;
+            this.stringToLookingFor = stringToLookingFor;
         }
 
         @Override
         public boolean matches(CtTypeReference element) {
-            return element.equals(referenceToLookFor) && super.matches(element);
+            return element.getQualifiedName().equals(stringToLookingFor) && super.matches(element);
         }
     }
 
