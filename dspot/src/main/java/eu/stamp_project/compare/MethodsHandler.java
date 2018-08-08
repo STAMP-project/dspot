@@ -59,12 +59,12 @@ public class MethodsHandler {
         cache.put(clazz, methodsList);
     }
 
-    private boolean isDefaulttoStringOrHashCode(Method method) {
+    boolean isDefaulttoStringOrHashCode(Method method) {
         return (method.getDeclaringClass().equals(Object.class) || method.getDeclaringClass().equals(Enum.class))
                 && (method.getName().equals("hashCode") || method.getName().equals("toString"));
     }
 
-    private boolean isValidMethod(Method method) {
+    boolean isValidMethod(Method method) {
         if (!Modifier.isPublic(method.getModifiers()) // the method is not public
                 || Modifier.isStatic(method.getModifiers()) // the method is static
                 || isVoid(method.getReturnType()) // the method is return void type, i.e. it returns nothing
