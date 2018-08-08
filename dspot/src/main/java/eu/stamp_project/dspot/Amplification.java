@@ -121,7 +121,14 @@ public class Amplification {
         final List<CtMethod<?>> amplifiedTests = new ArrayList<>();
         for (int i = 0; i < maxIteration; i++) {
             LOGGER.info("iteration {} / {}", i, maxIteration);
-            final List<CtMethod<?>> selectedToBeAmplified = testSelector.selectToAmplify(currentTestList);
+            final List<CtMethod<?>> passingTests =
+                    TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
+                            classTest,
+                            currentTestList,
+                            this.compiler,
+                            this.configuration
+                    );
+            final List<CtMethod<?>> selectedToBeAmplified = testSelector.selectToAmplify(passingTests);
             if (selectedToBeAmplified.isEmpty()) {
                 LOGGER.warn("No test could be selected to be amplified.");
                 continue; // todo should we break the loop?

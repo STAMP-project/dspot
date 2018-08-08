@@ -8,6 +8,7 @@ import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.AmplificationPreparator;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
@@ -171,7 +172,7 @@ public class DSpot {
 
     public CtType amplifyTest(CtType test, List<CtMethod<?>> methods) {
         try {
-            test = AmplificationHelper.convertToJUnit4(test, this.inputConfiguration);
+            test = AmplificationPreparator.prepareTestClassForAmplification(test, methods);
             Counter.reset();
             Amplification testAmplification = new Amplification(this.inputConfiguration, this.amplifiers, this.testSelector, this.compiler);
             final List<CtMethod<?>> filteredTestCases = this.filterTestCases(methods);
@@ -180,15 +181,13 @@ public class DSpot {
             final long elapsedTime = System.currentTimeMillis() - time;
             LOGGER.info("elapsedTime {}", elapsedTime);
             this.projectTimeJSON.add(new ClassTimeJSON(test.getQualifiedName(), elapsedTime));
-            final CtType clone = test.clone();
-            test.getPackage().addType(clone);
-            CtType<?> amplification = AmplificationHelper.createAmplifiedTest(
-                    testSelector.getAmplifiedTestCases(), clone, testSelector.getMinimizer(), this.inputConfiguration);
+            AmplificationHelper.createAmplifiedTest(
+                    testSelector.getAmplifiedTestCases(), test, testSelector.getMinimizer(), this.inputConfiguration);
             testSelector.report();
             final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
-            LOGGER.info("Print {} with {} amplified test cases in {}", amplification.getSimpleName(),
+            LOGGER.info("Print {} with {} amplified test cases in {}", test.getSimpleName(),
                     testSelector.getAmplifiedTestCases().size(), this.inputConfiguration.getOutputDirectory());
-            DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory, this.inputConfiguration.withComment());
+            DSpotUtils.printAmplifiedTestClass(test, outputDirectory, this.inputConfiguration.withComment());
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
             try {
                 String pathToDotClass = compiler.getBinaryOutputDirectory().getAbsolutePath() + "/" +
@@ -198,7 +197,7 @@ public class DSpot {
                 //ignored
             }
             writeTimeJson();
-            return amplification;
+            return test;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
