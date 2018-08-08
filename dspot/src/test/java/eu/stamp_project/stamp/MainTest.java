@@ -113,10 +113,10 @@ public class MainTest {
          */
 
         Main.main(new String[]{"--verbose", "--example"});
-        final File reportFile = new File("target/trash/example.TestSuiteExample_jacoco_instr_coverage_report.txt");
+        final File reportFile = new File("target/trash/example.TestSuiteExampleAmpl_jacoco_instr_coverage_report.txt");
         final File amplifiedTestClass = new File("target/trash/example/TestSuiteExampleAmpl.java");
         assertTrue(reportFile.exists());
-        assertTrue(new File("target/trash/example.TestSuiteExample_jacoco_instr_coverage.json").exists());
+        assertTrue(new File("target/trash/example.TestSuiteExampleAmpl_jacoco_instr_coverage.json").exists());
         assertTrue(amplifiedTestClass.exists());
         try (BufferedReader reader = new BufferedReader(new FileReader(reportFile))) {
             String content = reader.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)) + AmplificationHelper.LINE_SEPARATOR;
