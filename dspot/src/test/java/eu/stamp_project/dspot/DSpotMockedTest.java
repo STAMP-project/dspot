@@ -6,7 +6,7 @@ import eu.stamp_project.dspot.amplifier.ReturnValueAmplifier;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
-import eu.stamp_project.utils.AmplificationChecker;
+import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.RandomHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -44,13 +44,13 @@ public class DSpotMockedTest extends AbstractTest {
 		} catch (Exception ignored) {
 
 		}
-		assertEquals(6, dspot.getInputConfiguration().getFactory().Class().get("info.sanaulla.dal.BookDALTest").getMethods().size());
+		assertEquals(5, AmplificationHelper.getAllTest(dspot.getInputConfiguration().getFactory().Class().get("info.sanaulla.dal.BookDALTest")).size());
 
 		EntryPoint.verbose = true;
 
 		CtType<?> amplifiedTest = dspot.amplifyTest("info.sanaulla.dal.BookDALTest", Collections.singletonList("testGetBook"));
 
-		assertEquals(1, amplifiedTest.getMethods().stream().filter(AmplificationChecker::isTest).count());
+		assertEquals(6, AmplificationHelper.getAllTest(amplifiedTest).size());
 		System.out.println(amplifiedTest);
 		assertTrue(!amplifiedTest.getMethodsByName("testGetBook_mg8").isEmpty());
 	}

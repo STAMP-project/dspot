@@ -776,4 +776,19 @@ public class InputConfiguration {
         this.budgetizer = budgetizer;
         return this;
     }
+
+    private boolean generateAmplifiedTestClass;
+
+    /**
+     * If this is true, then DSpot will creates new test class with only amplified test methods.
+     * This new test class will be named with "Ampl" as suffix or prefix depending of the name of the original test class:
+     * <i>e.g.</i> MyClassTest will be AmplMyClassTest and TestMyClass will be TestMyClassAmpl
+     */
+    public boolean isGenerateAmplifiedTestClass() {
+        return generateAmplifiedTestClass;
+    }
+
+    public void setGenerateAmplifiedTestClass(boolean generateAmplifiedTestClass) {
+        this.generateAmplifiedTestClass = generateAmplifiedTestClass;
+    }
 }

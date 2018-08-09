@@ -244,6 +244,11 @@ public class JSAPOptions {
         useWorkingDirectory.setDefault("false");
         useWorkingDirectory.setHelp("Enable this option to change working directory with the root of the project.");
 
+        Switch generateNewTestClass = new Switch("generate-new-test-class");
+        generateNewTestClass.setLongFlag("generate-new-test-class");
+        generateNewTestClass.setDefault("false");
+        generateNewTestClass.setHelp("Enable the creation of a new test class.");
+
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
@@ -265,6 +270,7 @@ public class JSAPOptions {
             jsap.registerParameter(withComment);
             jsap.registerParameter(nominimize);
             jsap.registerParameter(useWorkingDirectory);
+            jsap.registerParameter(generateNewTestClass);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {

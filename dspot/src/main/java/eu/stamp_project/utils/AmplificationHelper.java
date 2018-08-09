@@ -4,6 +4,7 @@ import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtComment;
@@ -28,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by Benjamin DANGLOT
@@ -59,27 +61,40 @@ public class AmplificationHelper {
         importByClass.clear();
     }
 
-    public static CtType createAmplifiedTest(List<CtMethod<?>> ampTest, CtType<?> classTest, Minimizer minimizer, InputConfiguration configuration) {
-        CtType amplifiedTest = classTest.clone();
-        final String amplifiedName = classTest.getSimpleName().startsWith("Test") ?
+    public static CtType<?> createAmplifiedTest(List<CtMethod<?>> ampTest, CtType<?> classTest) {
+        final Stream<CtMethod<?>> methodToAdd;
+        if (InputConfiguration.get().shouldMinimize()) {
+            final Minimizer minimizer = InputConfiguration.get().getSelector().getMinimizer();
+            methodToAdd  = ampTest.stream().map(minimizer::minimize);
+        } else {
+            methodToAdd = ampTest.stream();
+        }
+        if (InputConfiguration.get().isGenerateAmplifiedTestClass()) {
+            CtType amplifiedTest = classTest.clone();
+            final String amplifiedName = getAmplifiedName(classTest);
+            amplifiedTest.setSimpleName(amplifiedName);
+            classTest.getMethods().stream().filter(AmplificationChecker::isTest).forEach(amplifiedTest::removeMethod);
+            methodToAdd.forEach(amplifiedTest::addMethod);
+            final CtTypeReference classTestReference = classTest.getReference();
+            amplifiedTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
+                @Override
+                public boolean matches(CtTypeReference element) {
+                    return element.equals(classTestReference) && super.matches(element);
+                }
+            }).forEach(ctTypeReference -> ctTypeReference.setSimpleName(getAmplifiedName(classTest)));
+            classTest.getPackage().addType(amplifiedTest);
+            return amplifiedTest;
+        } else {
+            methodToAdd.forEach(classTest::addMethod);
+            return classTest;
+        }
+    }
+
+    @NotNull
+    private static String getAmplifiedName(CtType<?> classTest) {
+        return classTest.getSimpleName().startsWith("Test") ?
                 classTest.getSimpleName() + "Ampl" :
                 "Ampl" + classTest.getSimpleName();
-        amplifiedTest.setSimpleName(amplifiedName);
-        classTest.getMethods().stream().filter(AmplificationChecker::isTest).forEach(amplifiedTest::removeMethod);
-        if (configuration.shouldMinimize()) {
-            ampTest.stream().map(minimizer::minimize).forEach(amplifiedTest::addMethod);
-        } else {
-            ampTest.forEach(amplifiedTest::addMethod);
-        }
-        final CtTypeReference classTestReference = classTest.getReference();
-        amplifiedTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
-            @Override
-            public boolean matches(CtTypeReference element) {
-                return element.equals(classTestReference) && super.matches(element);
-            }
-        }).forEach(ctTypeReference -> ctTypeReference.setSimpleName(amplifiedName));
-        classTest.getPackage().addType(amplifiedTest);
-        return amplifiedTest;
     }
 
     public static CtMethod getAmpTestParent(CtMethod amplifiedTest) {

@@ -1,6 +1,5 @@
-package eu.stamp_project.stamp;
+package eu.stamp_project;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
@@ -70,11 +69,11 @@ public class MainTest {
                 "--no-minimize"
         });
         // an amplification happened, w/e it is
-        CtClass<?> amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("fr.inria.sample.TestClassWithAssertAmpl");
+        CtClass<?> amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("fr.inria.sample.TestClassWithAssert");
         assertNotNull(amplifiedTestClass);
         assertFalse(amplifiedTestClass.getMethods().isEmpty());
 //        assertTrue(amplifiedTestClass.getMethods().stream().anyMatch(ctMethod -> ctMethod.getSimpleName().contains("anOldTest"))); // this test come from the super class
-        amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("fr.inria.sample.TestClassWithoutAssertAmpl");
+        amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("fr.inria.sample.TestClassWithoutAssert");
         assertNotNull(amplifiedTestClass);
         assertFalse(amplifiedTestClass.getMethods().isEmpty());
     }
@@ -89,7 +88,7 @@ public class MainTest {
                 "--test", "example.TestSuiteExample",
                 "--no-minimize"
         });
-        final CtClass<?> amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("example.TestSuiteExampleAmpl");
+        final CtClass<?> amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("example.TestSuiteExample");
         assertNotNull(amplifiedTestClass);
         assertFalse(amplifiedTestClass.getMethods().isEmpty());
     }
@@ -114,7 +113,7 @@ public class MainTest {
 
         Main.main(new String[]{"--verbose", "--example"});
         final File reportFile = new File("target/trash/example.TestSuiteExample_jacoco_instr_coverage_report.txt");
-        final File amplifiedTestClass = new File("target/trash/example/TestSuiteExampleAmpl.java");
+        final File amplifiedTestClass = new File("target/trash/example/TestSuiteExample.java");
         assertTrue(reportFile.exists());
         assertTrue(new File("target/trash/example.TestSuiteExample_jacoco_instr_coverage.json").exists());
         assertTrue(amplifiedTestClass.exists());
@@ -187,9 +186,9 @@ public class MainTest {
         Launcher launcher = new Launcher();
         launcher.getEnvironment().setNoClasspath(true);
         launcher.getEnvironment().setAutoImports(true);
-        launcher.addInputResource("target/trash/example/TestSuiteExampleAmpl.java");
+        launcher.addInputResource("target/trash/example/TestSuiteExample.java");
         launcher.buildModel();
-        final CtClass<?> testClass1 = launcher.getFactory().Class().get("example.TestSuiteExampleAmpl");
+        final CtClass<?> testClass1 = launcher.getFactory().Class().get("example.TestSuiteExample");
 
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
@@ -207,9 +206,9 @@ public class MainTest {
         launcher = new Launcher();
         launcher.getEnvironment().setNoClasspath(true);
         launcher.getEnvironment().setAutoImports(true);
-        launcher.addInputResource("target/trash/example/TestSuiteExampleAmpl.java");
+        launcher.addInputResource("target/trash/example/TestSuiteExample.java");
         launcher.buildModel();
-        final CtClass<?> testClass2 = launcher.getFactory().Class().get("example.TestSuiteExampleAmpl");
+        final CtClass<?> testClass2 = launcher.getFactory().Class().get("example.TestSuiteExample");
 
 
         // Assert that we do not have result from the first run
@@ -228,9 +227,9 @@ public class MainTest {
         launcher = new Launcher();
         launcher.getEnvironment().setNoClasspath(true);
         launcher.getEnvironment().setAutoImports(true);
-        launcher.addInputResource("target/trash/example/TestSuiteExampleAmpl.java");
+        launcher.addInputResource("target/trash/example/TestSuiteExample.java");
         launcher.buildModel();
-        final CtClass<?> testClass3 = launcher.getFactory().Class().get("example.TestSuiteExampleAmpl");
+        final CtClass<?> testClass3 = launcher.getFactory().Class().get("example.TestSuiteExample");
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
@@ -247,12 +246,12 @@ public class MainTest {
         launcher = new Launcher();
         launcher.getEnvironment().setNoClasspath(true);
         launcher.getEnvironment().setAutoImports(true);
-        launcher.addInputResource("target/trash/example/TestSuiteExampleAmpl.java");
+        launcher.addInputResource("target/trash/example/TestSuiteExample.java");
         launcher.buildModel();
-        final CtClass<?> testClass4 = launcher.getFactory().Class().get("example.TestSuiteExampleAmpl");
-        assertEquals(5, testClass1.getMethods().size());
-        assertEquals(4, testClass2.getMethods().size());
-        assertEquals(5, testClass3.getMethods().size());
-        assertEquals(1, testClass4.getMethods().size());
+        final CtClass<?> testClass4 = launcher.getFactory().Class().get("example.TestSuiteExample");
+        assertEquals(11, testClass1.getMethods().size());
+        assertEquals(10, testClass2.getMethods().size());
+        assertEquals(11, testClass3.getMethods().size());
+        assertEquals(7, testClass4.getMethods().size());
     }
 }

@@ -2,16 +2,14 @@ package eu.stamp_project.utils;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.dspot.budget.NoBudgetizer;
+import eu.stamp_project.program.InputConfiguration;
 import org.junit.Test;
-import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -124,7 +122,7 @@ public class AmplificationHelperTest extends AbstractTest {
 
     @Test
     public void testCreateAmplifiedTestClass() throws Exception {
-
+        InputConfiguration.get().setGenerateAmplifiedTestClass(true);
         CtClass<?> classTest = Utils.getFactory().Class().get("fr.inria.helper.ClassWithInnerClass");
         List<CtMethod<?>> fakeAmplifiedMethod = classTest.getMethods()
                 .stream()
@@ -132,7 +130,7 @@ public class AmplificationHelperTest extends AbstractTest {
                 .collect(Collectors.toList());
         fakeAmplifiedMethod.forEach(ctMethod -> ctMethod.setSimpleName("ampl" + ctMethod.getSimpleName()));
 
-        CtType<?> amplifiedTest = AmplificationHelper.createAmplifiedTest(fakeAmplifiedMethod, classTest, null, Utils.getInputConfiguration());
+        CtType<?> amplifiedTest = AmplificationHelper.createAmplifiedTest(fakeAmplifiedMethod, classTest);
         assertEquals(16, amplifiedTest.getMethods().size());
 
         assertFalse(classTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
@@ -152,40 +150,5 @@ public class AmplificationHelperTest extends AbstractTest {
         }).isEmpty());
     }
 
-    @Test
-    public void testReduction() throws Exception {
 
-        /*
-            test that the reduction, using hashcode is correct.
-            The method should return a list with different test
-         */
-
-        Utils.getInputConfiguration().setMaxTestAmplified(2);
-
-        final CtMethod methodString = Utils.findMethod("fr.inria.amp.LiteralMutation", "methodString");
-        // very different
-        final CtMethod methodInteger = Utils.findMethod("fr.inria.amp.LiteralMutation", "methodInteger");
-
-        List<CtMethod<?>> methods = new ArrayList<>();
-        methods.add(methodString);
-        methods.add(methodString);
-        methods.add(methodString);
-        methods.add(methodString);
-        methods.add(methodString);
-        methods.add(methodString);
-        methods.add(methodString);
-        methods.add(methodString);
-        final CtMethod clone = methodString.clone();
-        final CtLiteral originalLiteral = clone.getElements(new TypeFilter<>(CtLiteral.class)).get(0);
-        originalLiteral.replace(Utils.getFactory().createLiteral(originalLiteral.getValue() + "a"));
-        methods.add(clone);
-        methods.add(clone);
-        methods.add(clone);
-        methods.add(methodInteger);
-
-        final List<CtMethod<?>> reduce = new NoBudgetizer().reduce(methods);
-        assertEquals(2, reduce.size());
-
-        Utils.getInputConfiguration().setMaxTestAmplified(200);
-    }
 }
