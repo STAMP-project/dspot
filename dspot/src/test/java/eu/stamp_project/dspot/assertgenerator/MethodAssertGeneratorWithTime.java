@@ -6,6 +6,7 @@ import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
@@ -149,7 +150,7 @@ public class MethodAssertGeneratorWithTime extends MethodsAssertGenerator {
      */
     @SuppressWarnings("unchecked")
     private CtMethod<?> buildTestWithAssert(CtMethod test, Map<String, Observation> observations) {
-        CtMethod testWithAssert = AmplificationHelper.cloneTestMethodForAmp(test, "");
+        CtMethod testWithAssert = CloneHelper.cloneTestMethodForAmp(test, "");
         int numberOfAddedAssertion = 0;
         List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter(CtStatement.class));
         for (String id : observations.keySet()) {

@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.assertgenerator;
 
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.RandomHelper;
 import eu.stamp_project.utils.TypeUtils;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtFieldRead;
@@ -132,8 +132,8 @@ public class AssertBuilder {
 
     private static CtStatement buildAssertForArray(Factory factory, String expression, Object array) {
         String type = array.getClass().getCanonicalName();
-        String arrayLocalVar1 = "array_" + Math.abs(AmplificationHelper.getRandom().nextInt());
-        String arrayLocalVar2 = "array_" + Math.abs(AmplificationHelper.getRandom().nextInt());
+        String arrayLocalVar1 = "array_" + Math.abs(RandomHelper.getRandom().nextInt());
+        String arrayLocalVar2 = "array_" + Math.abs(RandomHelper.getRandom().nextInt());
 
 
         String forLoop = "\tfor(int ii = 0; ii <" + arrayLocalVar1 + ".length; ii++) {\n\t\t"

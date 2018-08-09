@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.TypeUtils;
@@ -48,7 +48,7 @@ public class ReturnValueAmplifier implements Amplifier {
                         "__DSPOT_invoc_" + indexOfInvocation,
                         invocation.clone());
                 CtExpression<?> target = AmplifierHelper.createLocalVarRef(localVar);
-                CtMethod methodClone = AmplificationHelper.cloneTestMethodForAmp(testMethod, ""); // no need to suffix here, since it will be recloned after that
+                CtMethod methodClone = CloneHelper.cloneTestMethodForAmp(testMethod, ""); // no need to suffix here, since it will be recloned after that
                 replaceInvocationByLocalVariable(
                         methodClone.getElements(new TypeFilter<>(CtStatement.class)).get(indexOfInvocation),
                         localVar

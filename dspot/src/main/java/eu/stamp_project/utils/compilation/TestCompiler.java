@@ -5,6 +5,7 @@ import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -36,7 +37,7 @@ public class TestCompiler {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestCompiler.class);
 
     /**
-     * Create a clone of the test class, using {@link eu.stamp_project.utils.AmplificationHelper#cloneTestClassAndAddGivenTest(CtType, List)}.
+     * Create a clone of the test class, using {@link CloneHelper#cloneTestClassAndAddGivenTest(CtType, List)}.
      * Then, compile and run the test using {@link eu.stamp_project.utils.compilation.TestCompiler#compileAndRun(CtType, DSpotCompiler, List, InputConfiguration)}
      * Finally, discard all failing test methods
      *
@@ -49,7 +50,7 @@ public class TestCompiler {
                                                                                     List<CtMethod<?>> currentTestList,
                                                                                     DSpotCompiler compiler,
                                                                                     InputConfiguration configuration) {
-        CtType amplifiedTestClass = AmplificationHelper.cloneTestClassAndAddGivenTest(classTest, currentTestList);
+        CtType amplifiedTestClass = CloneHelper.cloneTestClassAndAddGivenTest(classTest, currentTestList);
         try {
             final TestListener result = TestCompiler.compileAndRun(
                     amplifiedTestClass,

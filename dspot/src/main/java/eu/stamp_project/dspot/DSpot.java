@@ -10,6 +10,7 @@ import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.JUnit3Support;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.json.ClassTimeJSON;
 import eu.stamp_project.utils.json.ProjectTimeJSON;
@@ -171,7 +172,7 @@ public class DSpot {
 
     public CtType amplifyTest(CtType test, List<CtMethod<?>> methods) {
         try {
-            test = AmplificationHelper.convertToJUnit4(test, this.inputConfiguration);
+            test = JUnit3Support.convertToJUnit4(test, this.inputConfiguration);
             Counter.reset();
             Amplification testAmplification = new Amplification(this.inputConfiguration, this.amplifiers, this.testSelector, this.compiler);
             final List<CtMethod<?>> filteredTestCases = this.filterTestCases(methods);

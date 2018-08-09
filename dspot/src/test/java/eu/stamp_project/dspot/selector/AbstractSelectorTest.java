@@ -3,6 +3,7 @@ package eu.stamp_project.dspot.selector;
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.RandomHelper;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
@@ -48,7 +49,7 @@ public abstract class AbstractSelectorTest {
     public void setUp() throws Exception {
         final String configurationPath = getPathToProperties();
         Utils.init(configurationPath);
-        AmplificationHelper.setSeedRandom(72L);
+        RandomHelper.setSeedRandom(72L);
         ValueCreator.count = 0;
         this.testSelectorUnderTest = this.getTestSelector();
     }

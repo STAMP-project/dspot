@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.RandomHelper;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -29,7 +29,7 @@ public class IterationDecoratorAmplifierTest extends AbstractTest {
 
         final String nameMethod = "methodInteger";
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
-        AmplificationHelper.setSeedRandom(42L);
+        RandomHelper.setSeedRandom(42L);
         // we apply the given amplifier each 2 iteration, i.e. iteration 0, iteration 2, iteration 4 etc....
         Amplifier amplifier = new IterationDecoratorAmplifier(new NumberLiteralAmplifier(), 2);
         CtMethod method = literalMutationClass.getMethod(nameMethod);

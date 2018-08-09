@@ -5,7 +5,7 @@ import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.dspot.amplifier.NumberLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.StringLiteralAmplifier;
 import eu.stamp_project.program.InputConfiguration;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.RandomHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -28,7 +28,7 @@ public class PitScoreMutantSelectorDescartesTest {
 
     @Before
     public void setUp() throws Exception {
-        AmplificationHelper.setSeedRandom(23L);
+        RandomHelper.setSeedRandom(23L);
         try {
             FileUtils.deleteDirectory(new File("target/dspot"));
         } catch (Exception ignored) {

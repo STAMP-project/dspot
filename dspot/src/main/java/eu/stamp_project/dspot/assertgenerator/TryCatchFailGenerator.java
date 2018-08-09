@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.testrunner.runner.test.Failure;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import spoon.reflect.code.CtBlock;
@@ -41,7 +41,7 @@ public class TryCatchFailGenerator {
      */
     @SuppressWarnings("unchecked")
     public CtMethod<?> surroundWithTryCatchFail(CtMethod<?> test, Failure failure) {
-        CtMethod cloneMethodTest = AmplificationHelper.cloneTestMethodForAmp(test, "");
+        CtMethod cloneMethodTest = CloneHelper.cloneTestMethodForAmp(test, "");
         cloneMethodTest.setSimpleName(test.getSimpleName());
         Factory factory = cloneMethodTest.getFactory();
 

@@ -3,6 +3,7 @@ package eu.stamp_project.dspot.amplifier;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.RandomHelper;
 import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.code.CtExpression;
@@ -58,7 +59,7 @@ public class LiteralAmplifiersTest extends AbstractTest {
 
         final String nameMethod = "testInt";
         CtClass<?> literalMutationClass = Utils.getFactory().Class().get("fr.inria.ampl.ToBeAmplifiedLiteralTest");
-        AmplificationHelper.setSeedRandom(42L);
+        RandomHelper.setSeedRandom(42L);
         Amplifier stringLiteralAmplifier = new StringLiteralAmplifier();
         stringLiteralAmplifier.reset(literalMutationClass);
         Amplifier numberLiteralAmplifier= new NumberLiteralAmplifier();

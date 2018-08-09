@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.amplifier.value;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.RandomHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
@@ -24,7 +24,7 @@ public class TestValueCreator extends AbstractTest {
 	@Test
 	public void testCreateRandomLocalVarOfArrayListString() throws Exception {
 
-		AmplificationHelper.setSeedRandom(72L);
+		RandomHelper.setSeedRandom(72L);
 		ValueCreator.count = 0;
 		Factory factory = Utils.getFactory();
 
@@ -45,7 +45,7 @@ public class TestValueCreator extends AbstractTest {
                 - one object
          */
 
-		AmplificationHelper.setSeedRandom(23L);
+		RandomHelper.setSeedRandom(23L);
 		ValueCreator.count = 0;
 		Factory factory = Utils.getFactory();
 
@@ -87,7 +87,7 @@ public class TestValueCreator extends AbstractTest {
                 - one object
          */
 
-		AmplificationHelper.setSeedRandom(23L);
+		RandomHelper.setSeedRandom(23L);
 		ValueCreator.count = 0;
 		Factory factory = Utils.getFactory();
 

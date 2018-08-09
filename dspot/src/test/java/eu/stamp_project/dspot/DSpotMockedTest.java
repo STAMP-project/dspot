@@ -7,7 +7,7 @@ import eu.stamp_project.dspot.amplifier.value.ValueCreator;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationChecker;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.RandomHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import spoon.reflect.declaration.CtType;
@@ -33,7 +33,7 @@ public class DSpotMockedTest extends AbstractTest {
 			Test the whole dspot procedure.
          */
 		ValueCreator.count = 0;
-		AmplificationHelper.setSeedRandom(23L);
+		RandomHelper.setSeedRandom(23L);
 		final InputConfiguration configuration = InputConfiguration.get();
 		configuration.setAmplifiers(Arrays.asList(new MethodGeneratorAmplifier(), new ReturnValueAmplifier()));
 		DSpot dspot = new DSpot(configuration, 1,

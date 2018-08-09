@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.RandomHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtClass;
@@ -40,7 +40,7 @@ public class StringLiteralAmplifierTest extends AbstractTest {
 
         final String nameMethod = "methodString";
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
-        AmplificationHelper.setSeedRandom(42L);
+        RandomHelper.setSeedRandom(42L);
         Amplifier amplifier = new StringLiteralAmplifier();
         amplifier.reset(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
@@ -52,7 +52,7 @@ public class StringLiteralAmplifierTest extends AbstractTest {
     public void testDoesNotAmplifyChar() throws Exception {
         final String nameMethod = "methodCharacter";
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
-        AmplificationHelper.setSeedRandom(42L);
+        RandomHelper.setSeedRandom(42L);
         Amplifier mutator = new StringLiteralAmplifier();
         mutator.reset(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);

@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.RandomHelper;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -26,7 +26,7 @@ public class NullifierAmplifierTest extends AbstractTest {
 
         final String nameMethod = "methodString";
         CtClass<?> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
-        AmplificationHelper.setSeedRandom(42L);
+        RandomHelper.setSeedRandom(42L);
         Amplifier amplifier = new NullifierAmplifier();
         final CtMethod method = Utils.findMethod(literalMutationClass, nameMethod);
         List<CtMethod<?>> amplification = amplifier.amplify(method, 0).collect(Collectors.toList());
