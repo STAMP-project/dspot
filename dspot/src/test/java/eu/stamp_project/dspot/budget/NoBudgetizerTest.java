@@ -1,6 +1,8 @@
 package eu.stamp_project.dspot.budget;
 
+import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
+import org.junit.After;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtMethod;
@@ -16,7 +18,12 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 09/08/18
  */
-public class NoBudgetizerTest {
+public class NoBudgetizerTest extends AbstractTest {
+
+    @After
+    public void tearDown() throws Exception {
+        Utils.getInputConfiguration().setMaxTestAmplified(200);
+    }
 
     @Test
     public void testReduction() throws Exception {
@@ -52,7 +59,6 @@ public class NoBudgetizerTest {
         final List<CtMethod<?>> reduce = new NoBudgetizer().reduce(methods);
         assertEquals(2, reduce.size());
 
-        Utils.getInputConfiguration().setMaxTestAmplified(200);
     }
 
 }
