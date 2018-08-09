@@ -55,8 +55,8 @@ public class Translator {
         }
     }
 
-    public CtInvocation<?> buildInvocationFromString(String invocationAsString) {
-        final CtInvocation invocation = this.buildInvocationFromString(invocationAsString, null);
+    public CtExpression<?> buildInvocationFromString(String invocationAsString) {
+        final CtExpression<?> invocation = this.buildInvocationFromString(invocationAsString, null);
         if (invocationAsString.endsWith("isEmpty()")) {
             final CtType<?> listCtType = factory.Type()
                     .get(java.util.List.class);
@@ -70,7 +70,7 @@ public class Translator {
         }
     }
 
-    private CtInvocation buildInvocationFromString(String invocationAsString, CtInvocation<?> subInvocation) {
+    private CtExpression<?> buildInvocationFromString(String invocationAsString, CtInvocation<?> subInvocation) {
         CtInvocation invocation = factory.createInvocation();
         int end = invocationAsString.indexOf("()");
         int start = findMatchingIndex(invocationAsString, '.', end);
@@ -78,6 +78,9 @@ public class Translator {
         if (subInvocation == null) {
             end = start - 1; // i.e. the closing parenthesis
             start = findMatchingIndex(invocationAsString, ')', end);
+            if (start == -1) {
+                return buildTargetFromString(invocationAsString);
+            }
             final CtLocalVariableReference<?> localVariableReference = factory.createLocalVariableReference();
             localVariableReference.setSimpleName(invocationAsString.substring(start + 1, end));
             final CtVariableAccess<?> variableRead = factory.createVariableRead(localVariableReference, false);
@@ -118,6 +121,12 @@ public class Translator {
         }
     }
 
+    private CtExpression<?> buildTargetFromString(String invocationAsString) {
+        final CtLocalVariableReference<?> localVariableReference = factory.createLocalVariableReference();
+        localVariableReference.setSimpleName(invocationAsString.split("\\.")[0]);
+        return factory.createVariableRead(localVariableReference, false);
+    }
+
     private CtType<?> getCtType(String fullQualifiedName, Factory factory) {
         CtType<?> ctType = factory.Type().get(fullQualifiedName);
         if (ctType == null) {
@@ -134,7 +143,7 @@ public class Translator {
 
     private int findMatchingIndex(String stringToBeMatched, char charToBeMatched, int start) {
         --start;
-        while (stringToBeMatched.charAt(start) != charToBeMatched) {
+        while (start != -1 && stringToBeMatched.charAt(start) != charToBeMatched) {
                --start;
         }
         return start;

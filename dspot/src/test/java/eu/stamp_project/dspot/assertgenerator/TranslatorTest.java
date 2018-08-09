@@ -45,6 +45,20 @@ public class TranslatorTest extends AbstractTest {
     }
 
     @Test
+    public void testInvocationWithoutCast() throws Exception {
+         /*
+            test that the method return a well formed CtInvocation: target, typecast and executable
+            on simple invocation, without cast
+        */
+
+        String statementToBeTranslated = "classToBeTest.isEmpty()";
+        CtInvocation<?> invocation = translateInvocation(statementToBeTranslated);
+        assertEquals("classToBeTest", invocation.getTarget().toString());
+        assertTrue(invocation.getTarget().getTypeCasts().isEmpty());
+        assertEquals("isEmpty", invocation.getExecutable().getSimpleName());
+    }
+
+    @Test
     public void testVariableRead() throws Exception {
 
         /*
