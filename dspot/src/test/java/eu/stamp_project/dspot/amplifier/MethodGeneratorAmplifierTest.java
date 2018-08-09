@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.RandomHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtForEach;
@@ -35,7 +35,7 @@ public class MethodGeneratorAmplifierTest extends AbstractTest {
 
         final String packageName = "fr.inria.statementadd";
         final Factory factory = Utils.getFactory();
-        AmplificationHelper.setSeedRandom(32L);
+        RandomHelper.setSeedRandom(32L);
         MethodGeneratorAmplifier amplifier = new MethodGeneratorAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".ClassTarget"));
 
@@ -66,7 +66,7 @@ public class MethodGeneratorAmplifierTest extends AbstractTest {
 
         final String packageName = "fr.inria.statementadd";
         final Factory factory = Utils.getFactory();
-        AmplificationHelper.setSeedRandom(32L);
+        RandomHelper.setSeedRandom(32L);
         MethodGeneratorAmplifier amplifier = new MethodGeneratorAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".ClassTarget"));
 
@@ -96,7 +96,7 @@ public class MethodGeneratorAmplifierTest extends AbstractTest {
     public void testStatementAddOnArrayObjects() throws Exception {
         final String packageName = "fr.inria.statementaddarray";
         final Factory factory = Utils.getFactory();
-        AmplificationHelper.setSeedRandom(32L);
+        RandomHelper.setSeedRandom(32L);
         MethodGeneratorAmplifier amplifier = new MethodGeneratorAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".ClassTargetAmplify"));
 
@@ -126,7 +126,7 @@ public class MethodGeneratorAmplifierTest extends AbstractTest {
     public void testStatementAddOnUnderTest() throws Exception {
         Factory factory = Utils.getFactory();
         CtClass<Object> ctClass = factory.Class().get("fr.inria.mutation.ClassUnderTestTest");
-        AmplificationHelper.setSeedRandom(23L);
+        RandomHelper.setSeedRandom(23L);
 
         MethodGeneratorAmplifier amplifier = new MethodGeneratorAmplifier();
         amplifier.reset(ctClass);
@@ -165,7 +165,7 @@ public class MethodGeneratorAmplifierTest extends AbstractTest {
 
         final String packageName = "fr.inria.statementadd";
         final Factory factory = Utils.getFactory();
-        AmplificationHelper.setSeedRandom(42L);
+        RandomHelper.setSeedRandom(42L);
         MethodGeneratorAmplifier amplifier = new MethodGeneratorAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".TestClassTargetAmplify"));
 

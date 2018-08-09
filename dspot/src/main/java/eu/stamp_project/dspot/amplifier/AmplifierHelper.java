@@ -2,7 +2,8 @@ package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
 import eu.stamp_project.dspot.amplifier.value.ValueCreatorHelper;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.CloneHelper;
+import eu.stamp_project.utils.RandomHelper;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtBodyHolder;
 import spoon.reflect.code.CtExpression;
@@ -70,7 +71,7 @@ public class AmplifierHelper {
                                             CtStatement position,
                                             String suffix) {
         final Factory factory = testMethod.getFactory();
-        CtMethod methodClone = AmplificationHelper.cloneTestMethodForAmp(testMethod, suffix);
+        CtMethod methodClone = CloneHelper.cloneTestMethodForAmp(testMethod, suffix);
 
         CtBodyHolder parent = methodClone.getElements(new TypeFilter<>(CtStatement.class))
                 .stream()
@@ -92,7 +93,7 @@ public class AmplifierHelper {
             try {
                 final CtLocalVariable<?> localVariable;
                 if (methodToInvokeToAdd.getSimpleName().equals("equals") &&
-                        AmplificationHelper.getRandom().nextFloat() >= 0.25F) {
+                        RandomHelper.getRandom().nextFloat() >= 0.25F) {
                     localVariable = ValueCreator.createRandomLocalVar(target.getType(), parameter.getSimpleName());
                 } else {
                     localVariable = ValueCreator.createRandomLocalVar(parameter.getType(), parameter.getSimpleName());

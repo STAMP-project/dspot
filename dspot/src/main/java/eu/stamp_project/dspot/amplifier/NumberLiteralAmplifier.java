@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.RandomHelper;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtFieldRead;
 import spoon.reflect.code.CtLiteral;
@@ -43,7 +43,7 @@ public class NumberLiteralAmplifier extends AbstractLiteralAmplifier<Number> {
             values.add(getCtFieldRead(Byte.class, "MAX_VALUE", factory));
             values.add(getCtFieldRead(Byte.class, "MIN_VALUE", factory));
             values.add(factory.createLiteral((byte)0));
-            values.add(factory.createLiteral((byte)AmplificationHelper.getRandom().nextInt()));
+            values.add(factory.createLiteral((byte) RandomHelper.getRandom().nextInt()));
         }
         if (classOfLiteral == Short.class || classOfLiteral == short.class) {
             values.add(factory.createLiteral((short)(value.shortValue() + 1)));
@@ -51,7 +51,7 @@ public class NumberLiteralAmplifier extends AbstractLiteralAmplifier<Number> {
             values.add(getCtFieldRead(Short.class, "MAX_VALUE", factory));
             values.add(getCtFieldRead(Short.class, "MIN_VALUE", factory));
             values.add(factory.createLiteral((short)0));
-            values.add(factory.createLiteral((short)AmplificationHelper.getRandom().nextInt()));
+            values.add(factory.createLiteral((short) RandomHelper.getRandom().nextInt()));
         }
         if (classOfLiteral == Integer.class || classOfLiteral == int.class) {
             values.add(factory.createLiteral(value.intValue() + 1));
@@ -59,7 +59,7 @@ public class NumberLiteralAmplifier extends AbstractLiteralAmplifier<Number> {
             values.add(getCtFieldRead(Integer.class, "MAX_VALUE", factory));
             values.add(getCtFieldRead(Integer.class, "MIN_VALUE", factory));
             values.add(factory.createLiteral(0));
-            values.add(factory.createLiteral(AmplificationHelper.getRandom().nextInt()));
+            values.add(factory.createLiteral(RandomHelper.getRandom().nextInt()));
         }
         if (classOfLiteral == Long.class || classOfLiteral == long.class) {
             values.add(factory.createLiteral((long)(value.longValue() + 1)));
@@ -67,8 +67,8 @@ public class NumberLiteralAmplifier extends AbstractLiteralAmplifier<Number> {
             values.add(getCtFieldRead(Long.class, "MAX_VALUE", factory));
             values.add(getCtFieldRead(Long.class, "MIN_VALUE", factory));
             values.add(factory.createLiteral(0L));
-            long randomLong = (long)AmplificationHelper.getRandom().nextInt();
-            randomLong += (long)AmplificationHelper.getRandom().nextInt();
+            long randomLong = (long) RandomHelper.getRandom().nextInt();
+            randomLong += (long) RandomHelper.getRandom().nextInt();
             values.add(factory.createLiteral(randomLong));
         }
         if (classOfLiteral == Float.class || classOfLiteral == float.class) {
@@ -81,7 +81,7 @@ public class NumberLiteralAmplifier extends AbstractLiteralAmplifier<Number> {
             values.add(getCtFieldRead(Float.class, "MAX_VALUE", factory));
             values.add(getCtFieldRead(Float.class, "MIN_VALUE", factory));
             values.add(factory.createLiteral(0.0F));
-            values.add(factory.createLiteral((float)AmplificationHelper.getRandom().nextDouble()));
+            values.add(factory.createLiteral((float) RandomHelper.getRandom().nextDouble()));
         }
         if (classOfLiteral == Double.class || classOfLiteral == double.class) {
             values.add(factory.createLiteral(value + 1.0D));
@@ -93,7 +93,7 @@ public class NumberLiteralAmplifier extends AbstractLiteralAmplifier<Number> {
             values.add(getCtFieldRead(Double.class, "MAX_VALUE", factory));
             values.add(getCtFieldRead(Double.class, "MIN_VALUE", factory));
             values.add(factory.createLiteral(0.0D));
-            values.add(factory.createLiteral(AmplificationHelper.getRandom().nextDouble()));
+            values.add(factory.createLiteral(RandomHelper.getRandom().nextDouble()));
         }
         return values;
     }

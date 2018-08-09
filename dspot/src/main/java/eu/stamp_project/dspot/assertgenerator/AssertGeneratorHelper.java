@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.compare.MethodsHandler;
 import eu.stamp_project.compare.ObjectLog;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.CloneHelper;
 import spoon.reflect.code.CtAssignment;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtExpression;
@@ -51,7 +51,7 @@ public class AssertGeneratorHelper {
 
     static CtMethod<?> createTestWithLog(CtMethod test, final String filter,
                                          List<CtLocalVariable<?>> ctVariableReads) {
-        CtMethod clone = AmplificationHelper.cloneTestMethodNoAmp(test);
+        CtMethod clone = CloneHelper.cloneTestMethodNoAmp(test);
         clone.setSimpleName(test.getSimpleName() + "_withlog");
         final List<CtStatement> allStatement = clone.getElements(new TypeFilter<>(CtStatement.class));
         allStatement.stream()

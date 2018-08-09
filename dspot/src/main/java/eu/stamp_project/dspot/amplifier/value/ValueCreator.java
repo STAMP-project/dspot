@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.amplifier.value;
 
 import eu.stamp_project.utils.AmplificationChecker;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.RandomHelper;
 import spoon.SpoonException;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtLiteral;
@@ -47,7 +47,7 @@ public class ValueCreator {
                     return generateArray(type);
                     // now it may throw a SpoonClassNotFoundException, if it is a client class
                 } else if (type.getActualClass() == String.class) {
-                    return type.getFactory().createLiteral(AmplificationHelper.getRandomString(20));
+                    return type.getFactory().createLiteral(RandomHelper.getRandomString(20));
                 } else if (type.getActualClass() == Collection.class ||
                         type.getActualClass() == List.class
                     // I can't remember why I did this.
@@ -83,7 +83,7 @@ public class ValueCreator {
         CtArrayTypeReference arrayType = (CtArrayTypeReference) type;
         CtTypeReference typeComponent = arrayType.getComponentType();
         CtNewArray<?> newArray = type.getFactory().createNewArray();
-        final int size = AmplificationHelper.getRandom().nextInt(MAX_ARRAY_SIZE);
+        final int size = RandomHelper.getRandom().nextInt(MAX_ARRAY_SIZE);
         newArray.setType(arrayType);
         if (size == 0) {
             newArray.setDimensionExpressions(Collections.singletonList(type.getFactory().createLiteral(size)));
@@ -98,28 +98,28 @@ public class ValueCreator {
 
     private static CtExpression<?> generatePrimitiveRandomValue(CtTypeReference type) {
         if (type.getActualClass() == Boolean.class || type.getActualClass() == boolean.class) {
-            return type.getFactory().createLiteral(AmplificationHelper.getRandom().nextBoolean());
+            return type.getFactory().createLiteral(RandomHelper.getRandom().nextBoolean());
         }
         if (type.getActualClass() == Character.class || type.getActualClass() == char.class) {
-            return type.getFactory().createLiteral(AmplificationHelper.getRandomChar());
+            return type.getFactory().createLiteral(RandomHelper.getRandomChar());
         }
         if (type.getActualClass() == Byte.class || type.getActualClass() == byte.class) {
-            return type.getFactory().createLiteral((byte) AmplificationHelper.getRandom().nextInt());
+            return type.getFactory().createLiteral((byte) RandomHelper.getRandom().nextInt());
         }
         if (type.getActualClass() == Short.class || type.getActualClass() == short.class) {
-            return type.getFactory().createLiteral((short) AmplificationHelper.getRandom().nextInt());
+            return type.getFactory().createLiteral((short) RandomHelper.getRandom().nextInt());
         }
         if (type.getActualClass() == Integer.class || type.getActualClass() == int.class) {
-            return type.getFactory().createLiteral((AmplificationHelper.getRandom().nextInt()));
+            return type.getFactory().createLiteral((RandomHelper.getRandom().nextInt()));
         }
         if (type.getActualClass() == Long.class || type.getActualClass() == long.class) {
-            return type.getFactory().createLiteral((long) AmplificationHelper.getRandom().nextInt());
+            return type.getFactory().createLiteral((long) RandomHelper.getRandom().nextInt());
         }
         if (type.getActualClass() == Float.class || type.getActualClass() == float.class) {
-            return type.getFactory().createLiteral((float) AmplificationHelper.getRandom().nextDouble());
+            return type.getFactory().createLiteral((float) RandomHelper.getRandom().nextDouble());
         }
         if (type.getActualClass() == Double.class || type.getActualClass() == double.class) {
-            return type.getFactory().createLiteral(AmplificationHelper.getRandom().nextDouble());
+            return type.getFactory().createLiteral(RandomHelper.getRandom().nextDouble());
         }
         throw new RuntimeException();
     }

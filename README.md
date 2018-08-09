@@ -269,6 +269,9 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         Enable this option to change working directory with the root of the
         project.
 
+  [--generate-new-test-class]
+        Enable the creation of a new test class.
+
   [-e|--example]
         run the example of DSpot and leave
 

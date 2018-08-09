@@ -2,6 +2,7 @@ package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.Counter;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtInvocation;
@@ -46,7 +47,7 @@ public class TestMethodCallRemover implements Amplifier {
         final int indexOfInvocation = ctStatementList.getStatements().indexOf(invocation) - 1;
         ctStatementList.removeStatement(invocation);
         invocation.delete();
-        final CtMethod<?> cloned = AmplificationHelper.cloneTestMethodForAmp(method, "_remove");
+        final CtMethod<?> cloned = CloneHelper.cloneTestMethodForAmp(method, "_remove");
         if (indexOfInvocation == -1) {
             ctStatementList.insertBegin(invocation);
         } else {

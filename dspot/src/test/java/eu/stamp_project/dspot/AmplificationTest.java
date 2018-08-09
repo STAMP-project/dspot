@@ -10,7 +10,7 @@ import spoon.reflect.factory.Factory;
 
 import java.util.Collections;
 
-import static eu.stamp_project.utils.AmplificationHelper.prepareTestMethod;
+import static eu.stamp_project.utils.CloneHelper.prepareTestMethod;
 import static org.junit.Assert.assertEquals;
 
 /**

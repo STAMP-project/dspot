@@ -6,7 +6,7 @@ import eu.stamp_project.dspot.amplifier.TestDataMutator;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.options.JSAPOptions;
 import eu.stamp_project.program.InputConfiguration;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.RandomHelper;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +48,7 @@ public class Main {
 				configuration.getAmplifiers(),
 				configuration.getSelector()
 		);
-		AmplificationHelper.setSeedRandom(configuration.getSeed());
+		RandomHelper.setSeedRandom(configuration.getSeed());
 		createOutputDirectories(configuration);
 		final long startTime = System.currentTimeMillis();
 		final List<CtType> amplifiedTestClasses;

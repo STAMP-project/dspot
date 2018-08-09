@@ -2,8 +2,8 @@ package eu.stamp_project.dspot.budget;
 
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.program.InputConfiguration;
-import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.RandomHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
@@ -76,7 +76,7 @@ public class SimpleBudgetizer implements Budgetizer {
             amplifiedTestMethodPerAmplifierPerTestMethod.put(amplifier, new HashMap<>());
             for (CtMethod<?> testMethod : testMethodsToBeAmplified) {
                 final List<CtMethod<?>> amplification = amplifier.amplify(testMethod, 0).collect(Collectors.toList());
-                Collections.shuffle(amplification, AmplificationHelper.getRandom());
+                Collections.shuffle(amplification, RandomHelper.getRandom());
                 amplifiedTestMethodPerAmplifierPerTestMethod.get(amplifier).put(testMethod, amplification);
             }
         }
@@ -128,7 +128,7 @@ public class SimpleBudgetizer implements Budgetizer {
         List<CtMethod<?>> lastAmplifiedTestMethods = new ArrayList<>();
         while (totalBudget > 0) {
             lastAmplifiedTestMethods.add(
-                    allAmplifiedTestMethods.get(AmplificationHelper.getRandom().nextInt(allAmplifiedTestMethods.size())));
+                    allAmplifiedTestMethods.get(RandomHelper.getRandom().nextInt(allAmplifiedTestMethods.size())));
             totalBudget--;
         }
         return lastAmplifiedTestMethods;

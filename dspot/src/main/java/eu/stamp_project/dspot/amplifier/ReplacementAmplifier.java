@@ -3,6 +3,7 @@ package eu.stamp_project.dspot.amplifier;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
 import eu.stamp_project.dspot.amplifier.value.ValueCreatorHelper;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.CloneHelper;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtLocalVariable;
@@ -26,7 +27,7 @@ public class ReplacementAmplifier implements Amplifier {
             }
         }).stream()
                 .map(ctLocalVariable -> {
-                    final CtMethod clone = AmplificationHelper.cloneTestMethodForAmp(testMethod, "_replacement");
+                    final CtMethod clone = CloneHelper.cloneTestMethodForAmp(testMethod, "_replacement");
                     final CtLocalVariable localVariable = clone.getElements(new TypeFilter<>(CtLocalVariable.class))
                             .stream()
                             .filter(ctLocalVariable1 -> ctLocalVariable1.equals(ctLocalVariable))

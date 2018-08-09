@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.amplifier.value;
 
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.RandomHelper;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtTypeAccess;
 import spoon.reflect.declaration.CtMethod;
@@ -23,7 +23,7 @@ public class CollectionCreator {
 
     static CtExpression<?> generateCollection(CtTypeReference type, String nameMethod, Class<?> typeOfCollection) {
         if (type.getActualTypeArguments().stream().anyMatch(reference -> reference instanceof CtWildcardReference)
-                || AmplificationHelper.getRandom().nextBoolean()) {
+                || RandomHelper.getRandom().nextBoolean()) {
             return generateEmptyCollection(type, "empty" + nameMethod, typeOfCollection);
         } else {
             return generateSingletonList(type,

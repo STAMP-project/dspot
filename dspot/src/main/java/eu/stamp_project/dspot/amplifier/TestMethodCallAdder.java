@@ -2,6 +2,7 @@ package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.Counter;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtMethod;
@@ -37,7 +38,7 @@ public class TestMethodCallAdder implements Amplifier {
     private CtMethod<?> apply(CtMethod<?> method, CtInvocation<?> invocation) {
         final CtInvocation<?> invocationToBeInserted = invocation.clone();
         invocation.insertBefore(invocationToBeInserted);
-        final CtMethod<?> clone = AmplificationHelper.cloneTestMethodForAmp(method, "_add");
+        final CtMethod<?> clone = CloneHelper.cloneTestMethodForAmp(method, "_add");
         AmplifierHelper.getParent(invocationToBeInserted).getStatements().remove(invocationToBeInserted);
         Counter.updateInputOf(clone, 1);
         return clone;

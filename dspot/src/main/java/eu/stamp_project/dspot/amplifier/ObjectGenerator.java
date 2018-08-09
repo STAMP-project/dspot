@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.dspot.amplifier.value.ConstructorCreator;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.CloneHelper;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -27,7 +27,7 @@ public class ObjectGenerator implements Amplifier {
 		final Stream<CtMethod<?>> gen_o1 = existingObjects.stream() // must use tmp variable because javac is confused
 				.flatMap(localVariable -> ConstructorCreator.generateAllConstructionOf(localVariable.getType()).stream())
 				.map(ctExpression -> {
-							final CtMethod<?> clone = AmplificationHelper.cloneTestMethodForAmp(method, "_sd");
+							final CtMethod<?> clone = CloneHelper.cloneTestMethodForAmp(method, "_sd");
 							clone.getBody().insertBegin(
 									clone.getFactory().createLocalVariable(
 											ctExpression.getType(), "__DSPOT_gen_o" + counterGenerateNewObject++, ctExpression

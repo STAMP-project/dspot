@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.RandomHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtMethod;
@@ -27,7 +27,7 @@ public class ReturnValueAmplifierTest extends AbstractTest {
     public void testStatementAddOnArrayObjects() throws Exception {
         final String packageName = "fr.inria.statementaddarray";
         final Factory factory = Utils.getFactory();
-        AmplificationHelper.setSeedRandom(32L);
+        RandomHelper.setSeedRandom(32L);
         ReturnValueAmplifier amplifier = new ReturnValueAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".ClassTargetAmplify"));
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
@@ -55,7 +55,7 @@ public class ReturnValueAmplifierTest extends AbstractTest {
 
         final String packageName = "fr.inria.statementadd";
         final Factory factory = Utils.getFactory();
-        AmplificationHelper.setSeedRandom(42L);
+        RandomHelper.setSeedRandom(42L);
         ReturnValueAmplifier amplifier = new ReturnValueAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".TestClassTargetAmplify"));
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");

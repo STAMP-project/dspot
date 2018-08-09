@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.RandomHelper;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtMethod;
@@ -19,7 +19,7 @@ public class CharLiteralAmplifier extends AbstractLiteralAmplifier<Character> {
         return Stream.of(
                 factory.createLiteral('\0'),
                 factory.createLiteral(' '),
-                factory.createLiteral(AmplificationHelper.getRandomChar()),
+                factory.createLiteral(RandomHelper.getRandomChar()),
                 factory.createLiteral((char) (value + 1)),
                 factory.createLiteral((char) (value - 1)),
                 factory.createLiteral(System.getProperty("line.separator").charAt(0))

@@ -4,8 +4,10 @@ package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.RandomHelper;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
 import spoon.reflect.visitor.Query;
@@ -79,7 +81,7 @@ public class TestDataMutator implements Amplifier {
 
 	private CtMethod<?> createNumberMutant(CtMethod<?> method, int original_lit_index, Number newValue) {
 		//clone the method
-		CtMethod cloned_method = AmplificationHelper.cloneTestMethodForAmp(method, "_literalMutationNumber");
+		CtMethod cloned_method = CloneHelper.cloneTestMethodForAmp(method, "_literalMutationNumber");
 		//get the lit_indexth literal of the cloned method
 		CtLiteral newLiteral = Query.getElements(cloned_method.getBody(), new LiteralToBeMutedFilter())
 				.get(original_lit_index);
@@ -125,7 +127,7 @@ public class TestDataMutator implements Amplifier {
 	}
 
 	private CtMethod<?> createStringMutant(CtMethod<?> method, int original_lit_index, String newValue) {
-		CtMethod<?> cloned_method = AmplificationHelper.cloneTestMethodForAmp(method, "_literalMutationString");
+		CtMethod<?> cloned_method = CloneHelper.cloneTestMethodForAmp(method, "_literalMutationString");
 		Counter.updateInputOf(cloned_method, 1);
 		CtLiteral toReplace = Query.getElements(cloned_method.getBody(), new LiteralToBeMutedFilter())
 				.get(original_lit_index);
@@ -141,7 +143,7 @@ public class TestDataMutator implements Amplifier {
 	}
 
 	private CtMethod<?> createCharacterMutant(CtMethod method, int original_lit_index, Character newValue) {
-		CtMethod cloned_method = AmplificationHelper.cloneTestMethodForAmp(method, "_literalMutationChar");
+		CtMethod cloned_method = CloneHelper.cloneTestMethodForAmp(method, "_literalMutationChar");
 		Counter.updateInputOf(cloned_method, 1);
 		CtLiteral toReplace = Query.getElements(cloned_method.getBody(), new LiteralToBeMutedFilter())
 				.get(original_lit_index);
@@ -152,7 +154,7 @@ public class TestDataMutator implements Amplifier {
 
 	private List<Character> characterMutated(CtLiteral lit) {
 		final Character value = (Character) lit.getValue();
-		return Arrays.asList('\0', ' ', AmplificationHelper.getRandomChar(),
+		return Arrays.asList('\0', ' ', RandomHelper.getRandomChar(),
 				(char) (value + 1),
 				(char) (value - 1),
 				System.getProperty("line.separator").charAt(0)
@@ -164,18 +166,18 @@ public class TestDataMutator implements Amplifier {
 		String value = ((String) literal.getValue());
 		if (value.length() > 2) {
 			int length = value.length();
-			int index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
-			values.add(value.substring(0, index - 1) + AmplificationHelper.getRandomChar() + value.substring(index, length));
+			int index = RandomHelper.getRandom().nextInt(length - 2) + 1;
+			values.add(value.substring(0, index - 1) + RandomHelper.getRandomChar() + value.substring(index, length));
 
-			index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
-			values.add(value.substring(0, index) + AmplificationHelper.getRandomChar() + value.substring(index, length));
+			index = RandomHelper.getRandom().nextInt(length - 2) + 1;
+			values.add(value.substring(0, index) + RandomHelper.getRandomChar() + value.substring(index, length));
 
-			index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
+			index = RandomHelper.getRandom().nextInt(length - 2) + 1;
 			values.add(value.substring(0, index) + value.substring(index + 1, length));
 
-			values.add(AmplificationHelper.getRandomString(value.length()));
+			values.add(RandomHelper.getRandomString(value.length()));
 		} else {
-			values.add("" + AmplificationHelper.getRandomChar());
+			values.add("" + RandomHelper.getRandomChar());
 		}
 		values.add("");
 		literals.get(value.getClass())
@@ -210,7 +212,7 @@ public class TestDataMutator implements Amplifier {
 
 	private CtMethod<?> createBooleanMutant(CtMethod test, CtLiteral booleanLiteral) {
 		Boolean value = (Boolean) booleanLiteral.getValue();
-		CtMethod cloned_method = AmplificationHelper.cloneTestMethodForAmp(test, "_literalMutationBoolean");
+		CtMethod cloned_method = CloneHelper.cloneTestMethodForAmp(test, "_literalMutationBoolean");
 		CtLiteral newValue = cloned_method.getElements(new TypeFilter<CtLiteral>(CtLiteral.class) {
 			@Override
 			public boolean matches(CtLiteral element) {

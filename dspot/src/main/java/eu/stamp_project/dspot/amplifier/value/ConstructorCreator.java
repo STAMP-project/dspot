@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.amplifier.value;
 
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.RandomHelper;
 import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.declaration.CtConstructor;
@@ -83,7 +83,7 @@ public class ConstructorCreator {
                     Collections.sort(constructors, Comparator.comparingInt(o -> o.getParameters().size()));
                     selectedConstructor = constructors.get(0);
                 } else {
-                    selectedConstructor = constructors.get(AmplificationHelper.getRandom().nextInt(constructors.size()));
+                    selectedConstructor = constructors.get(RandomHelper.getRandom().nextInt(constructors.size()));
                 }
                 selectedConstructor.getParameters().forEach(parameter ->
                         constructorCall.addArgument(ValueCreator.generateRandomValue(parameter.getType(), depth + 1))
@@ -93,11 +93,11 @@ public class ConstructorCreator {
                 final List<CtExpression<?>> constructorWithFactoryMethod = generateConstructorUsingFactory(type);
                 if (!constructorWithFactoryMethod.isEmpty()) {
                     CtExpression<?> selectedConstructor = constructorWithFactoryMethod
-                            .remove(AmplificationHelper.getRandom().nextInt(constructorWithFactoryMethod.size()));
+                            .remove(RandomHelper.getRandom().nextInt(constructorWithFactoryMethod.size()));
                     while (!constructorWithFactoryMethod.isEmpty() &&
                             Arrays.stream(expressionsToAvoid).anyMatch(selectedConstructor::equals)) {
                         selectedConstructor = constructorWithFactoryMethod
-                                .remove(AmplificationHelper.getRandom().nextInt(constructorWithFactoryMethod.size()));
+                                .remove(RandomHelper.getRandom().nextInt(constructorWithFactoryMethod.size()));
                     }
                     return selectedConstructor;
                 }

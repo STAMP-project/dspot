@@ -5,7 +5,7 @@ import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
 import eu.stamp_project.dspot.amplifier.ReturnValueAmplifier;
 import eu.stamp_project.dspot.amplifier.TestDataMutator;
 import eu.stamp_project.program.InputConfiguration;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.RandomHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
@@ -36,7 +36,7 @@ public class JacocoCoverageSelectorTest {
 		} catch (Exception ignored) {
 			//ignored
 		}
-		AmplificationHelper.setSeedRandom(23L);
+		RandomHelper.setSeedRandom(23L);
 		InputConfiguration configuration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
 		DSpot dspot = new DSpot(configuration,
 				2,

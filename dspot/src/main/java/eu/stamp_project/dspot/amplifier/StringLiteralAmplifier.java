@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.RandomHelper;
 import spoon.reflect.code.CtBinaryOperator;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtLiteral;
@@ -28,25 +28,25 @@ public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
         final Factory factory = testMethod.getFactory();
         Set<CtExpression<String>> values = new HashSet<>();
         if (!this.existingStrings.isEmpty()) {
-            values.add(factory.createLiteral(this.existingStrings.get(AmplificationHelper.getRandom().nextInt(this.existingStrings.size() - 1))));
+            values.add(factory.createLiteral(this.existingStrings.get(RandomHelper.getRandom().nextInt(this.existingStrings.size() - 1))));
         }
         String value = ((CtLiteral<String>)original).getValue();
         if (value != null) {
             if (value.length() > 2) {
                 int length = value.length();
                 // add one random char
-                int index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
-                values.add(factory.createLiteral(value.substring(0, index - 1) + AmplificationHelper.getRandomChar() + value.substring(index, length)));
+                int index = RandomHelper.getRandom().nextInt(length - 2) + 1;
+                values.add(factory.createLiteral(value.substring(0, index - 1) + RandomHelper.getRandomChar() + value.substring(index, length)));
                 // replace one random char
-                index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
-                values.add(factory.createLiteral(value.substring(0, index) + AmplificationHelper.getRandomChar() + value.substring(index, length)));
+                index = RandomHelper.getRandom().nextInt(length - 2) + 1;
+                values.add(factory.createLiteral(value.substring(0, index) + RandomHelper.getRandomChar() + value.substring(index, length)));
                 // remove one random char
-                index = AmplificationHelper.getRandom().nextInt(length - 2) + 1;
+                index = RandomHelper.getRandom().nextInt(length - 2) + 1;
                 values.add(factory.createLiteral(value.substring(0, index) + value.substring(index + 1, length)));
                 // add one random string
-                values.add(factory.createLiteral(AmplificationHelper.getRandomString(value.length())));
+                values.add(factory.createLiteral(RandomHelper.getRandomString(value.length())));
             } else {
-                values.add(factory.createLiteral("" + AmplificationHelper.getRandomChar()));
+                values.add(factory.createLiteral("" + RandomHelper.getRandomChar()));
             }
         }
 

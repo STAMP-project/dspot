@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.RandomHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtFieldRead;
@@ -26,7 +26,7 @@ public class NumberLiteralAmplifierTest extends AbstractTest {
         final String nameMethod = "methodByte";
         final byte originalValue = 23;
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
-        AmplificationHelper.setSeedRandom(42L);
+        RandomHelper.setSeedRandom(42L);
         NumberLiteralAmplifier amplifier = getAmplifier(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<Byte> expectedValues = Arrays.asList((byte) 22, (byte) 24, (byte) 0, (byte) 53);
@@ -57,7 +57,7 @@ public class NumberLiteralAmplifierTest extends AbstractTest {
         final String nameMethod = "methodShort";
         final short originalValue = 23;
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
-        AmplificationHelper.setSeedRandom(42L);
+        RandomHelper.setSeedRandom(42L);
         NumberLiteralAmplifier amplifier = getAmplifier(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<Short> expectedValues = Arrays.asList((short) 22, (short) 24, (short) 0, (short) -25291);
@@ -88,7 +88,7 @@ public class NumberLiteralAmplifierTest extends AbstractTest {
         final String nameMethod = "methodInteger";
         final int originalValue = 23;
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
-        AmplificationHelper.setSeedRandom(42L);
+        RandomHelper.setSeedRandom(42L);
         NumberLiteralAmplifier amplifier = getAmplifier(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<Integer> expectedValues = Arrays.asList(22, 24, 2147483647, -2147483648, 0, -1170105035);
@@ -119,7 +119,7 @@ public class NumberLiteralAmplifierTest extends AbstractTest {
         final String nameMethod = "methodLong";
         final long originalValue = 23L;
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
-        AmplificationHelper.setSeedRandom(42L);
+        RandomHelper.setSeedRandom(42L);
         NumberLiteralAmplifier amplifier = getAmplifier(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<Long> expectedValues = Arrays.asList(22L, 24L, 0L, -935319508L);
@@ -150,7 +150,7 @@ public class NumberLiteralAmplifierTest extends AbstractTest {
         final String nameMethod = "methodFloat";
         final double originalValue = 23.0F;
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
-        AmplificationHelper.setSeedRandom(42L);
+        RandomHelper.setSeedRandom(42L);
         NumberLiteralAmplifier amplifier = getAmplifier(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<Float> expectedValues = Arrays.asList(22.0F, 24.0F, 0.0F, 0.7275637F);
@@ -186,7 +186,7 @@ public class NumberLiteralAmplifierTest extends AbstractTest {
         final String nameMethod = "methodDouble";
         final double originalValue = 23.0D;
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
-        AmplificationHelper.setSeedRandom(42L);
+        RandomHelper.setSeedRandom(42L);
         NumberLiteralAmplifier amplifier = getAmplifier(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<Double> expectedValues = Arrays.asList(22.0D, 24.0D, 0.0D, 0.7275636800328681);
