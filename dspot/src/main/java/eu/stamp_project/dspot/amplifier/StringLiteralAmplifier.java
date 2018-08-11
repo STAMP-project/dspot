@@ -27,10 +27,11 @@ public class StringLiteralAmplifier extends AbstractLiteralAmplifier<String> {
     protected Set<CtExpression<String>> amplify(CtExpression<String> original, CtMethod<?> testMethod) {
         final Factory factory = testMethod.getFactory();
         Set<CtExpression<String>> values = new HashSet<>();
-        if (!this.existingStrings.isEmpty()) {
-            values.add(factory.createLiteral(this.existingStrings.get(RandomHelper.getRandom().nextInt(this.existingStrings.size() - 1))));
+        if (this.existingStrings.size() > 1) { // > 1 to not replace the lit by its own value
+            final int bound = this.existingStrings.size() - 1;
+            values.add(factory.createLiteral(this.existingStrings.get(RandomHelper.getRandom().nextInt(bound))));
         }
-        String value = ((CtLiteral<String>)original).getValue();
+        String value = ((CtLiteral<String>) original).getValue();
         if (value != null) {
             if (value.length() > 2) {
                 int length = value.length();

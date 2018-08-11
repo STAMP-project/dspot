@@ -11,11 +11,22 @@ import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class StringLiteralAmplifierTest extends AbstractTest {
+
+    @Test
+    public void testOneLitExisting() throws Exception {
+        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.OneLiteralTest");
+        Amplifier amplifier = new StringLiteralAmplifier();
+        amplifier.reset(literalMutationClass);
+        final Stream<CtMethod<?>> test = amplifier.amplify(Utils.findMethod(literalMutationClass, "test"), 0);
+        System.out.println(test.collect(Collectors.toList()));
+    }
+
 
     @Test
     public void testFlatString() throws Exception {
