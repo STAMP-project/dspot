@@ -137,9 +137,10 @@ public class MethodGeneratorAmplifierTest extends AbstractTest {
 
         System.out.println(amplifiedMethods);
 
-        assertEquals(2, amplifiedMethods.size());
+        assertEquals(3, amplifiedMethods.size());
 
         List<String> expectedCalledMethod = Arrays.asList(
+                "getBoolean",
                 "plusOne",
                 "minusOne"
         );
