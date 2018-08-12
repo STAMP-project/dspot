@@ -19,4 +19,12 @@ public class ClassUnderTestTest {
         underTest.plusOne(0);
         underTest.minusOne(1);
     }
+
+    @Test
+    public void testWithIf() throws Exception {
+        ClassUnderTest underTest = new ClassUnderTest();
+        if (underTest.getBoolean()) {
+            assertTrue(true);
+        }
+    }
 }

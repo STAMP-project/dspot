@@ -1,14 +1,17 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.Utils;
 import eu.stamp_project.AbstractTest;
+import eu.stamp_project.Utils;
 import org.junit.Test;
+import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -48,4 +51,22 @@ public class TestMethodCallAdderTest extends AbstractTest {
         }
     }
 
+    @Test
+    public void testAddInIf() throws Exception {
+        CtClass<Object> testClass = Utils.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
+        TestMethodCallAdder methodCallAdder = new TestMethodCallAdder();
+        methodCallAdder.reset(testClass);
+        final CtMethod<?> originalMethod = Utils.findMethod(testClass, "testWithIf");
+        final Stream<CtMethod<?>> amplify = methodCallAdder.amplify(originalMethod, 0);
+        assertEquals(2, amplify.findFirst()
+                .get()
+                .getElements(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
+                                 @Override
+                                 public boolean matches(CtInvocation<?> element) {
+                                     return element.getExecutable().getSimpleName().equals("getBoolean");
+                                 }
+                             }
+                ).size()
+        );
+    }
 }
