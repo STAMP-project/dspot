@@ -128,19 +128,8 @@ public class AssertGeneratorHelper {
 
         if (statement instanceof CtInvocation) {
             CtInvocation invocation = (CtInvocation) statement;
-            //type tested by the test class
-            String targetType = "";
-            if (invocation.getTarget() != null &&
-                    invocation.getTarget().getType() != null) {
-                targetType = invocation.getTarget().getType().getQualifiedName();
-            }
-            if (targetType.startsWith(filter)) {
-                return (isCorrectReturn(invocation)
-                        && !isGetter(invocation));
-            } else {
-                return !isVoidReturn(invocation);
-            }
-
+            return (isCorrectReturn(invocation)
+                    && !isGetter(invocation));
         }
 
         if (statement instanceof CtLocalVariable ||
