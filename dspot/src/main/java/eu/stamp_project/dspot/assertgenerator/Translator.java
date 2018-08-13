@@ -131,7 +131,7 @@ public class Translator {
         CtType<?> ctType = factory.Type().get(fullQualifiedName);
         if (ctType == null) {
             try {
-                ctType = factory.Class().get(
+                ctType = factory.Type().get(
                         ClassLoader.getSystemClassLoader().loadClass(fullQualifiedName)
                 );
             } catch (ClassNotFoundException ignored) {
