@@ -56,7 +56,8 @@ public class TypeUtils {
     }
 
     public static boolean isPrimitive(Object object) {
-        return isPrimitive(object.getClass());
+        return object != null &&
+                isPrimitive(object.getClass());
     }
 
     public static boolean isPrimitive(Class cl) {

@@ -132,7 +132,7 @@ public class Translator {
         if (ctType == null) {
             try {
                 ctType = factory.Type().get(
-                        ClassLoader.getSystemClassLoader().loadClass(fullQualifiedName)
+                        factory.getEnvironment().getInputClassLoader().loadClass(fullQualifiedName.replace("$", "."))
                 );
             } catch (ClassNotFoundException ignored) {
 
