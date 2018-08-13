@@ -41,6 +41,7 @@ public class DSpotMojoTest {
             We just need to specify a path to properties to execute dspot, nothing more.
             WEAK ORACLE: we just execute the mojo, if everything is fine, it is okay
          */
+        mojoUnderTest.setPathToProperties("src/test/resources/test-projects/test-projects.properties");
 
         mojoUnderTest.setPathPitResult("src/test/resources/test-projects/mutations.csv");
         mojoUnderTest.setTestCriterion("PitMutantScoreSelector");
@@ -56,6 +57,8 @@ public class DSpotMojoTest {
             In this configuration, we execute dspot on a specific test methods
             In order to obtain result, we set up also amplifiers and selector
             We verify the result, i.e. the report txt
+
+            In this configuration, we retrieve from the pom, the information we need, e.g. source folders etc...
          */
 
         mojoUnderTest.setTestMethods(Collections.singletonList("test2"));
