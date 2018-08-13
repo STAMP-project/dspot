@@ -86,9 +86,9 @@ public class DSpotMojo extends AbstractMojo {
     private List<String> cases;
 
     /**
-     *	[optional] specify the output folder (default: dspot-report)
+     *	[optional] specify the output folder
      */
-    @Parameter(defaultValue = "dspot-report", property = "output-path")
+    @Parameter(defaultValue = "target/dspot/output", property = "output-path")
     private String outputPath;
 
     /**
@@ -158,6 +158,12 @@ public class DSpotMojo extends AbstractMojo {
     private Boolean workingDirectory;
 
     /**
+     *	Enable the creation of a new test class.
+     */
+    @Parameter(defaultValue = "false", property = "generate-new-test-class")
+    private Boolean generateNewTestClass;
+
+    /**
      *	run the example of DSpot and leave
      */
     @Parameter(defaultValue = "false", property = "example")
@@ -207,6 +213,7 @@ public class DSpotMojo extends AbstractMojo {
                             .setUseWorkingDirectory(this.workingDirectory)
                             .setWithComment(this.withComment)
                             .setDescartesMode(this.descartes)
+                            .setGenerateAmplifiedTestClass(this.generateNewTestClass)
                             .setOutputDirectory(this.outputPath)
             );
         } catch (Exception e) {
