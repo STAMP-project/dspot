@@ -90,7 +90,7 @@ public class AssertionRemover {
                     }
                     final CtLocalVariable localVariable = factory.createLocalVariable(
                             typeOfParameter,
-                            typeOfParameter.getSimpleName() + "_" + counter[0]++,
+                            toCorrectJavaIdentifier(typeOfParameter.getSimpleName()) + "_" + counter[0]++,
                             clone
                     );
                     invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, localVariable);
@@ -123,4 +123,16 @@ public class AssertionRemover {
         return variableReadsAsserted;
     }
 
+    private static String toCorrectJavaIdentifier(String name) {
+        StringBuilder result = new StringBuilder("");
+        for (int i = 0; i < name.length(); i++) {
+            final char currentChar = name.charAt(i);
+            if (!Character.isJavaIdentifierPart(currentChar)) {
+                result.append("_");
+            } else {
+                result.append(currentChar);
+            }
+        }
+        return result.toString();
+    }
 }

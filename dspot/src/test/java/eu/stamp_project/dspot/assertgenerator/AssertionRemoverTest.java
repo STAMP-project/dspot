@@ -8,6 +8,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import spoon.reflect.code.CtCatch;
 import spoon.reflect.code.CtInvocation;
+import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
@@ -26,6 +27,38 @@ public class AssertionRemoverTest extends AbstractTest {
     @BeforeClass
     public static void beforeClass() throws Exception {
         Utils.reset();
+    }
+
+    @Test
+    public void testOnTestMethodWithNonJavaIdentifier() throws Exception {
+
+        /*
+            test that we can remove assert that have type that are not correct java identifier
+         */
+
+        final CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
+        final CtMethod<?> testWithCatchVariable = Utils.findMethod(testClass, "testWithArray");
+        final AssertionRemover assertionRemover = new AssertionRemover();
+        final CtMethod<?> ctMethod = assertionRemover.removeAssertion(testWithCatchVariable);
+        assertTrue(
+                ctMethod.getElements(new TypeFilter<CtLocalVariable<?>>(CtLocalVariable.class))
+                        .stream()
+                        .map(CtLocalVariable::getSimpleName)
+                        .allMatch(string -> {
+                                    try {
+                                        for (int i = 0; i < string.length(); i++) {
+                                            if (!Character.isJavaIdentifierPart(string.charAt(i))) {
+                                                return false;
+                                            }
+                                        }
+                                        return true;
+                                    } catch (Exception ignored) {
+                                        return false;
+                                    }
+                                }
+                        )
+        );
+
     }
 
     @Test
