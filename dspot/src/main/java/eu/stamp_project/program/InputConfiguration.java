@@ -788,7 +788,8 @@ public class InputConfiguration {
         return generateAmplifiedTestClass;
     }
 
-    public void setGenerateAmplifiedTestClass(boolean generateAmplifiedTestClass) {
+    public InputConfiguration setGenerateAmplifiedTestClass(boolean generateAmplifiedTestClass) {
         this.generateAmplifiedTestClass = generateAmplifiedTestClass;
+        return this;
     }
 }

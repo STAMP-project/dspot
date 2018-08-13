@@ -77,6 +77,7 @@ public class JSAPOptions {
                 .setVerbose(jsapConfig.getBoolean("verbose"))
                 .setUseWorkingDirectory(jsapConfig.getBoolean("working-directory"))
                 .setWithComment(jsapConfig.getBoolean("comment"))
+                .setGenerateAmplifiedTestClass(jsapConfig.getBoolean("generate-new-test-class"))
                 .setDescartesMode(jsapConfig.getBoolean("descartes"));
     }
 
