@@ -3,6 +3,7 @@ package fr.inria.sample;
 import org.junit.Test;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -62,5 +63,10 @@ public class TestClassWithAssert extends TestClassWithAssertOld {
             junit.framework.TestCase.fail("test3 should have thrown Exception");
         } catch (java.lang.Exception eee) {
         }
+    }
+
+    @Test
+    public void testWithArray() throws Exception {
+        assertEquals(new Integer[]{1,2}, new Integer[]{1,2});
     }
 }
