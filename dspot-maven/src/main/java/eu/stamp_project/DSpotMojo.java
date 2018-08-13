@@ -3,7 +3,9 @@ package eu.stamp_project;
 import eu.stamp_project.options.AmplifierEnum;
 import eu.stamp_project.options.JSAPOptions;
 import eu.stamp_project.options.SelectorEnum;
+import eu.stamp_project.program.ConstantsProperties;
 import eu.stamp_project.program.InputConfiguration;
+import org.apache.maven.model.Build;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -11,6 +13,8 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -177,24 +181,16 @@ public class DSpotMojo extends AbstractMojo {
 
     private final String AUTOMATIC_BUILDER_NAME = "MAVEN";
 
+    @Parameter(defaultValue = "${project}", required = true, readonly = true)
+    private MavenProject project;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        if (help) {
+        if (this.help) {
             JSAPOptions.showUsage();
         }
 
-        Properties properties = new Properties();
-        if (!this.pathToProperties.isEmpty()) {
-            try {
-                properties.load(new FileInputStream(this.pathToProperties));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // TODO here, set the value readable from the pom, e.g. the base dir, source folder, test source folder, bin folder, test bin folder... etc
-        //properties.setProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName(), "${project.basedir}");
-
+        Properties properties = initializeProperties();
         try {
             Main.run(
                     InputConfiguration.initialize(properties)
@@ -221,9 +217,40 @@ public class DSpotMojo extends AbstractMojo {
         }
     }
 
+    // visible for testing...
+    @NotNull
+    Properties initializeProperties() {
+        Properties properties = new Properties();
+        if (this.pathToProperties != null && !this.pathToProperties.isEmpty()) {
+            try {
+                properties.load(new FileInputStream(this.pathToProperties));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            properties.setProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName(), project.getBasedir().getAbsolutePath());
+            final Build build = project.getBuild();
+            properties.setProperty(ConstantsProperties.SRC_CODE.getName(), build.getSourceDirectory());
+            properties.setProperty(ConstantsProperties.TEST_SRC_CODE.getName(), build.getTestSourceDirectory());
+            properties.setProperty(ConstantsProperties.SRC_CLASSES.get(properties), build.getOutputDirectory());
+            properties.setProperty(ConstantsProperties.TEST_CLASSES.get(properties), build.getTestOutputDirectory());
+            // TODO checks that we can use an empty module for multi module project
+            // TODO the guess here is that the user will launch the plugin from the root of the targeted module
+            // TODO and thus, we do not need to compute the relative path from its parents
+            // TODO however, it may lacks some dependencies and the user should run a resolve dependency goal
+            // TODO before using the dspot plugin
+            // TODO we must maybe need to use a correct lifecycle
+            properties.setProperty(ConstantsProperties.MODULE.get(properties), "");
+        }
+        return properties;
+    }
+
     /*
         Setters are used for testing
      */
+    void setPathToProperties(String pathToProperties) {
+        this.pathToProperties = pathToProperties;
+    }
 
     void setAmplifiers(List<String> amplifiers) {
         this.amplifiers = amplifiers;
