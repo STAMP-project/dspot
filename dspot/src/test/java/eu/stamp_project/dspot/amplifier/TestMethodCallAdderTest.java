@@ -58,7 +58,7 @@ public class TestMethodCallAdderTest extends AbstractTest {
         methodCallAdder.reset(testClass);
         final CtMethod<?> originalMethod = Utils.findMethod(testClass, "testWithIf");
         final Stream<CtMethod<?>> amplify = methodCallAdder.amplify(originalMethod, 0);
-        assertEquals(2, amplify.findFirst()
+        assertEquals(3, amplify.findFirst()
                 .get()
                 .getElements(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
                                  @Override
