@@ -15,4 +15,8 @@ public class ClassUnderTest {
         return integer - 1;
     }
 
+    public boolean getBoolean() {
+        return true;
+    }
+
 }
