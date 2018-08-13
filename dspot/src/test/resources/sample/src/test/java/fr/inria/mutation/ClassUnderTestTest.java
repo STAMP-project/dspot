@@ -26,5 +26,8 @@ public class ClassUnderTestTest {
         if (underTest.getBoolean()) {
             assertTrue(true);
         }
+        if (! (underTest.getBoolean())) {
+            assertTrue(true);
+        }
     }
 }

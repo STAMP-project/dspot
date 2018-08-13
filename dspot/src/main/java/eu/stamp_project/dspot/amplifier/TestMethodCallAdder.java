@@ -38,12 +38,12 @@ public class TestMethodCallAdder implements Amplifier {
     }
 
     private CtStatement getRightInsertionPoint(CtInvocation<?> invocation) {
-        final CtStatement parent = invocation.getParent(CtStatement.class);
-        if (parent instanceof CtBlock<?>) {
-            return invocation;
-        } else {
-            return parent;
+        CtStatement currentPoint = invocation;
+        while (! (currentPoint.getParent(CtStatement.class) instanceof CtBlock<?>)
+                && ! (currentPoint instanceof CtBlock<?>)) {
+            currentPoint = currentPoint.getParent(CtStatement.class);
         }
+        return currentPoint;
     }
 
     private CtMethod<?> apply(CtMethod<?> method, CtInvocation<?> invocation) {
