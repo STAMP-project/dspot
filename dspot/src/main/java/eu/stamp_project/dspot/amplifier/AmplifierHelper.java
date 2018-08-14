@@ -46,7 +46,7 @@ public class AmplifierHelper {
     }
 
     public static List<CtMethod<?>> findMethodsWithTargetType(CtTypeReference<?> type) {
-        if (type == null) {
+        if (type == null || type.getTypeDeclaration() == null) {
             return Collections.emptyList();
         } else {
             return type.getTypeDeclaration().getMethods().stream()

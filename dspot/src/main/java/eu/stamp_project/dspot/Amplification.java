@@ -152,11 +152,16 @@ public class Amplification {
         }
         // final check on A-amplified test, see if they all pass.
         // If they don't, we just discard them.
-        final List<CtMethod<?>> amplifiedPassingTests = TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(classTest, testsWithAssertions, this.compiler, this.configuration);
-        LOGGER.info("Assertion amplification: {} test method(s) has been successfully amplified.", testMethods.size());
+        final List<CtMethod<?>> amplifiedPassingTests =
+                TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
+                        classTest,
+                        testsWithAssertions,
+                        this.compiler,
+                        this.configuration
+                );
+        LOGGER.info("Assertion amplification: {} test method(s) has been successfully amplified.", amplifiedPassingTests.size());
         return amplifiedPassingTests;
     }
-
 
 
     private void resetAmplifiers(CtType parentClass) {
