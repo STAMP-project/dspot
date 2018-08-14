@@ -30,8 +30,40 @@ public class NullifierAmplifierTest extends AbstractTest {
         Amplifier amplifier = new NullifierAmplifier();
         final CtMethod method = Utils.findMethod(literalMutationClass, nameMethod);
         List<CtMethod<?>> amplification = amplifier.amplify(method, 0).collect(Collectors.toList());
-        assertEquals(4, amplification.size());
+        assertEquals(2, amplification.size());
         amplification = amplification.stream().flatMap(testMethod -> amplifier.amplify(testMethod, 0)).collect(Collectors.toList());
-        assertEquals(12, amplification.size());
+        assertEquals(2, amplification.size());
+    }
+
+    @Test
+    public void testOnInteger() throws Exception {
+
+        // test the result of the NullifierAmplifier
+
+        final String nameMethod = "methodInteger";
+        CtClass<?> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        RandomHelper.setSeedRandom(42L);
+        Amplifier amplifier = new NullifierAmplifier();
+        final CtMethod method = Utils.findMethod(literalMutationClass, nameMethod);
+        List<CtMethod<?>> amplification = amplifier.amplify(method, 0).collect(Collectors.toList());
+        assertEquals(0, amplification.size());
+    }
+
+    @Test
+    public void testOnIntegerMethodCall() throws Exception {
+
+        /*
+            test the result of the NullifierAmplifier: it can nullify non primitive type but not primitive
+         */
+
+        final String nameMethod = "methodCall";
+        CtClass<?> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.ClassWithMethodCall");
+        RandomHelper.setSeedRandom(42L);
+        Amplifier amplifier = new NullifierAmplifier();
+        final CtMethod method = Utils.findMethod(literalMutationClass, nameMethod);
+        List<CtMethod<?>> amplification = amplifier.amplify(method, 0).collect(Collectors.toList());
+        assertEquals(2, amplification.size());
+        amplification = amplification.stream().flatMap(testMethod -> amplifier.amplify(testMethod, 0)).collect(Collectors.toList());
+        assertEquals(2, amplification.size());
     }
 }
