@@ -48,6 +48,8 @@ public class TryCatchFailGenerator {
         // TestTimedOutException means infinite loop
         // AssertionError means that some assertion remained in the test: TODO
         if ("org.junit.runners.model.TestTimedOutException".equals(failure.fullQualifiedNameOfException) ||
+                "java.lang.OutOfMemoryError".equals(failure.fullQualifiedNameOfException) ||
+                "java.lang.StackOverflowError".equals(failure.fullQualifiedNameOfException) ||
                 "java.lang.AssertionError".equals(failure.fullQualifiedNameOfException)) {
             return null;
         }
