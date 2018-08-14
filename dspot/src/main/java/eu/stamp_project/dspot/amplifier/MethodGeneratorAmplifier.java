@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
+import eu.stamp_project.compare.MethodsHandler;
 import eu.stamp_project.dspot.amplifier.value.ValueCreatorHelper;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Counter;
@@ -26,6 +27,7 @@ public class MethodGeneratorAmplifier implements Amplifier {
         List<CtLocalVariable<?>> existingObjects = getExistingObjects(testMethod);
         return existingObjects.stream()
                 .flatMap(existingObject -> AmplifierHelper.findMethodsWithTargetType(existingObject.getType()).stream()
+                        .filter(ctMethod -> !MethodsHandler.isASupportedMethodName(ctMethod.getSimpleName()) && !ctMethod.getParameters().isEmpty())
                         .filter(ctMethod -> ctMethod.getParameters()
                                 .stream()
                                 .map(CtParameter::getType)

@@ -3,6 +3,8 @@ package eu.stamp_project.dspot.amplifier.value;
 import eu.stamp_project.utils.RandomHelper;
 import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtExpression;
+import spoon.reflect.code.CtInvocation;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtConstructor;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtParameter;
@@ -65,16 +67,14 @@ public class ConstructorCreator {
         CtType<?> typeDeclaration = type.getDeclaration() == null ? type.getTypeDeclaration() : type.getDeclaration();
         if (typeDeclaration != null) {
             // We take public constructor that have only parameter that can be generated
-            final List<CtConstructor<?>> constructors = typeDeclaration.getElements(
-                    new TypeFilter<CtConstructor<?>>(CtConstructor.class) {
-                        @Override
-                        public boolean matches(CtConstructor<?> element) {
-                            return element.hasModifier(ModifierKind.PUBLIC) &&
-                                    element.getParameters().stream()
+            final List<CtConstructor<?>> constructors = ((CtClass<?>)typeDeclaration).getConstructors()
+                    .stream()
+                    .filter(ctConstructor ->
+                            ctConstructor.hasModifier(ModifierKind.PUBLIC) &&
+                                    ctConstructor.getParameters().stream()
                                             .map(CtParameter::getType)
-                                            .allMatch(ValueCreatorHelper::canGenerateAValueForType);
-                        }
-                    });
+                                            .allMatch(ValueCreatorHelper::canGenerateAValueForType)
+                    ).collect(Collectors.toList());
             if (!constructors.isEmpty()) {
                 CtConstructorCall<?> constructorCall = type.getFactory().createConstructorCall();
                 constructorCall.setType(type);
@@ -99,11 +99,13 @@ public class ConstructorCreator {
                         selectedConstructor = constructorWithFactoryMethod
                                 .remove(RandomHelper.getRandom().nextInt(constructorWithFactoryMethod.size()));
                     }
+                    final CtTypeReference<?> declaringType = ((CtInvocation<?>) selectedConstructor).getExecutable().getDeclaringType();
+                    ((CtInvocation<?>)selectedConstructor).setTarget(selectedConstructor.getFactory().createTypeAccess(declaringType));
                     return selectedConstructor;
                 }
             }
         }
-        return null;
+        return type.getFactory().createLiteral(null);
     }
 
     // we may need to be more exhaustive in the name convention of factories
