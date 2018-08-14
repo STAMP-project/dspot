@@ -41,6 +41,7 @@ public class AssertGeneratorHelper {
         return invocation.getType() != null &&
                 !(isVoidReturn(invocation)) &&
                 !(invocation.getType() instanceof CtWildcardReference) &&
+                invocation.getType().getTypeDeclaration() != null &&
                 !("java.lang.Class".equals(invocation.getType().getTypeDeclaration().getQualifiedName()));
     }
 
