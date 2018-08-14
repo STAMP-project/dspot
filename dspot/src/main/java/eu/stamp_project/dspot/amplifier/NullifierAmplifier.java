@@ -42,6 +42,9 @@ public class NullifierAmplifier extends AbstractAmplifier<CtExpression<?>> {
                 }
                 if (element.getParent() instanceof CtInvocation) { // the element is an argument of a method call
                     final CtInvocation<?> parent = (CtInvocation<?>) element.getParent();
+                    if (element.equals(parent.getTarget())) {
+                        return false;
+                    }
                     int i = 0;
                     for (; i < parent.getArguments().size(); i++) { // using a for loop with i to keep the correct index
                         if (parent.getArguments().get(i) == element) { // using == to compare the references
