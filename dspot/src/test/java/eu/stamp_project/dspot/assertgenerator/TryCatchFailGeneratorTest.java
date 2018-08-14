@@ -15,6 +15,37 @@ import static org.junit.Assert.assertNull;
  */
 public class TryCatchFailGeneratorTest extends AbstractTest {
 
+
+    @Test
+    public void testOnStandardsErrors() throws Exception {
+
+        /*
+            The TryCatchFailGeneratorTest should discard:
+                - OutOfMemoryError
+                - StackOverFlowError
+         */
+
+        String testName = "testOutOfMemoryError";
+        final String testClassName = "fr.inria.filter.failing.FailingTest";
+        final TryCatchFailGenerator tryCatchFailGenerator = new TryCatchFailGenerator();
+
+
+        CtMethod testAssertionError = Utils.findMethod(testClassName, testName);
+        CtMethod<?> ctMethod = tryCatchFailGenerator
+                .surroundWithTryCatchFail(testAssertionError,
+                        new Failure(testName, testClassName, new AssertionError())
+                );
+        assertNull(ctMethod);
+
+        testName = "testStackOverFlowError";
+        testAssertionError = Utils.findMethod(testClassName, testName);
+        ctMethod = tryCatchFailGenerator
+                .surroundWithTryCatchFail(testAssertionError,
+                        new Failure(testName, testClassName, new AssertionError())
+                );
+        assertNull(ctMethod);
+    }
+
     @Test
     public void testAssertionErrorFailureReturnNull() throws Exception {
 

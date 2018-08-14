@@ -25,4 +25,14 @@ public class FailingTest {
         assertEquals(-1, nullString.length());
         new ArrayList<>().get(-100);
     }
+
+    @Test
+    public void testOutOfMemoryError() throws Exception {
+        throw new OutOfMemoryError();
+    }
+
+    @Test
+    public void testStackOverFlowError() throws Exception {
+        throw new StackOverflowError();
+    }
 }
