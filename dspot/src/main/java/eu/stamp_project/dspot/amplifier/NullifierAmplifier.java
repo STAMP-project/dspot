@@ -2,9 +2,12 @@ package eu.stamp_project.dspot.amplifier;
 
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
+import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtLocalVariable;
+import spoon.reflect.code.CtTargetedExpression;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.declaration.CtTypedElement;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.Collections;
@@ -33,10 +36,28 @@ public class NullifierAmplifier extends AbstractAmplifier<CtExpression<?>> {
         return testMethod.getElements(new TypeFilter<CtExpression<?>>(CtExpression.class) {
             @Override
             public boolean matches(CtExpression<?> element) {
-                return (element.getParent() instanceof CtLocalVariable || // the element is a defaultExpression
-                        element.getParent() instanceof CtInvocation)  // the element is an argument of a method call
-                        &&
-                        !"null".equals(element.toString()); // the element is not already equals to null
+                if (element instanceof CtTargetedExpression || // we cannot nullify target expression (e.g. null.method())
+                        "null".equals(element.toString())) {// the element is not already equals to null
+                    return false;
+                }
+                if (element.getParent() instanceof CtInvocation) { // the element is an argument of a method call
+                    final CtInvocation<?> parent = (CtInvocation<?>) element.getParent();
+                    int i = 0;
+                    for (; i < parent.getArguments().size(); i++) { // using a for loop with i to keep the correct index
+                        if (parent.getArguments().get(i) == element) { // using == to compare the references
+                            break;
+                        }
+                    }
+                    return !parent.getExecutable()
+                            .getParameters()
+                            .get(i)
+                            .isPrimitive();
+                }
+                if (element.getParent() instanceof CtLocalVariable && element instanceof CtLiteral<?>) {// the element is a defaultExpression
+                    final CtTypedElement<?> parent = element.getParent(CtTypedElement.class);
+                    return !parent.getType().isPrimitive();// the expected type is not primitive
+                }
+                return false;
             }
         });
     }
