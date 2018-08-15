@@ -71,11 +71,11 @@ public class ObjectLog {
                       int deep,
                       List<Method> methodsToReachCurrentObject) {
         if (deep <= maxDeep) {
+            final boolean primitive = Utils.isPrimitive(objectToObserve);
+            final boolean primitiveArray = Utils.isPrimitiveArray(objectToObserve);
+            final boolean primitiveCollectionOrMap = Utils.isPrimitiveCollectionOrMap(objectToObserve);
             if (isSerializable(objectToObserve) &&
-                    (objectToObserve == null ||
-                            Utils.isPrimitive(objectToObserve) ||
-                            Utils.isPrimitiveArray(objectToObserve) ||
-                            Utils.isPrimitiveCollectionOrMap(objectToObserve))) {
+                    (objectToObserve == null || primitive || primitiveArray || primitiveCollectionOrMap)) {
                 addObservation(id, observedObjectAsString, objectToObserve);
             } else if (Utils.isCollection(objectToObserve)) {
                 addObservation(id, observedObjectAsString + ".isEmpty()", ((Collection) objectToObserve).isEmpty());
