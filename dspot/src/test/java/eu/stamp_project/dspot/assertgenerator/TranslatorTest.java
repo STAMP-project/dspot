@@ -45,6 +45,21 @@ public class TranslatorTest extends AbstractTest {
     }
 
     @Test
+    public void testOnUtilPackageSubClass() throws Exception {
+
+        /*
+            test the translation of a nested class from the java util package.
+            Here the translator will use the classloader to find the class, then load it into the spoon factory
+         */
+
+        String statementToBeTranslated = "((java.util.AbstractMap.SimpleEntry)entry).toString()";
+        CtInvocation<?> invocation = translateInvocation(statementToBeTranslated);
+        assertEquals("((java.util.AbstractMap.SimpleEntry) (entry))", invocation.getTarget().toString());
+        assertEquals("java.util.AbstractMap.SimpleEntry", invocation.getTarget().getTypeCasts().get(0).toString());
+        assertEquals("toString", invocation.getExecutable().getSimpleName());
+    }
+
+    @Test
     public void testInvocationWithoutCast() throws Exception {
          /*
             test that the method return a well formed CtInvocation: target, typecast and executable
