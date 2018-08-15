@@ -27,7 +27,10 @@ public class MethodGeneratorAmplifier implements Amplifier {
         List<CtLocalVariable<?>> existingObjects = getExistingObjects(testMethod);
         return existingObjects.stream()
                 .flatMap(existingObject -> AmplifierHelper.findMethodsWithTargetType(existingObject.getType()).stream()
-                        .filter(ctMethod -> !MethodsHandler.isASupportedMethodName(ctMethod.getSimpleName()))
+                        .filter(ctMethod ->
+                                !MethodsHandler.isASupportedMethodName(ctMethod.getSimpleName())
+                                        || (MethodsHandler.isASupportedMethodName(ctMethod.getSimpleName()) && !ctMethod.getParameters().isEmpty())
+                        )
                         .filter(ctMethod -> ctMethod.getParameters()
                                 .stream()
                                 .map(CtParameter::getType)

@@ -2,7 +2,7 @@ package eu.stamp_project.dspot;
 
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.assertgenerator.AssertGenerator;
-import eu.stamp_project.dspot.budget.NoBudgetizer;
+import eu.stamp_project.dspot.budget.Budgetizer;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -130,7 +130,8 @@ public class Amplification {
                     selectedToBeAmplified.size(),
                     currentTestList.size()
             );
-            final List<CtMethod<?>> inputAmplifiedTests = new NoBudgetizer().inputAmplify(selectedToBeAmplified, i);
+            final Budgetizer budgetizer = InputConfiguration.get().getBudgetizer();
+            final List<CtMethod<?>> inputAmplifiedTests = budgetizer.inputAmplify(selectedToBeAmplified, i);
             final List<CtMethod<?>> testsWithAssertions = this.assertionsAmplification(classTest, inputAmplifiedTests);
             // in case no test with assertions could be generated, we go for the next iteration.
             if (testsWithAssertions.isEmpty()) {

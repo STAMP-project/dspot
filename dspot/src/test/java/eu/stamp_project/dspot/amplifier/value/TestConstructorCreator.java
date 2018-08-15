@@ -4,6 +4,7 @@ import eu.stamp_project.Utils;
 import eu.stamp_project.AbstractTest;
 import org.junit.Test;
 import spoon.reflect.code.CtExpression;
+import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
@@ -13,6 +14,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Benjamin DANGLOT
@@ -52,10 +54,10 @@ public class TestConstructorCreator extends AbstractTest {
         assertEquals("new fr.inria.statementadd.ClassParameterAmplify(-1183186497)",
                 constructionOf.get(0).toString());
 
-        assertEquals("new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(1224731715)))",
+        assertEquals("new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(-1432984701), -538589801), 562520686)), 1085381857))",
                 constructionOf.get(1).toString());
 
-        assertEquals("new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(-538589801)), 562520686)",
+        assertEquals("new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(164558003), -154269953), -1088520020), 485420728)",
                 constructionOf.get(2).toString());
 
         //TODO this null value is probably not useful
@@ -72,7 +74,7 @@ public class TestConstructorCreator extends AbstractTest {
                 .getReference(), 0
         );
 
-        assertEquals("new fr.inria.statementadd.ClassParameterAmplify(866555445)",
+        assertEquals("new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(-1293507656), -1432984701)), -538589801))",
                 constructionOf.toString());
 
         constructionOf = ConstructorCreator.generateConstructionOf(factory.Type()
@@ -80,7 +82,7 @@ public class TestConstructorCreator extends AbstractTest {
                 .getReference(), 0
         );
 
-        assertEquals("new fr.inria.statementadd.ClassParameterAmplify(1224731715)",
+        assertEquals("new fr.inria.statementadd.ClassParameterAmplify(1085381857)",
                 constructionOf.toString());
     }
 
@@ -89,7 +91,8 @@ public class TestConstructorCreator extends AbstractTest {
         final Factory factory = Utils.getFactory();
         final CtClass<?> createdClass = factory.Class().create("fr.inria.created.NewTestCreated");
         CtExpression constructionOf = ConstructorCreator.generateConstructionOf(createdClass.getReference(), 0);
-        assertNull(constructionOf);
+        assertTrue(constructionOf instanceof CtLiteral);
+        assertNull(((CtLiteral)constructionOf).getValue());
     }
 
     @Test

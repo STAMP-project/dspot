@@ -28,7 +28,7 @@ public class TestCollectionCreator extends AbstractTest {
                         List.class)
                         .toString()
         );
-        assertEquals("java.util.Collections.singletonList(new fr.inria.statementadd.ClassParameterAmplify(1224731715))" ,
+        assertEquals("java.util.Collections.singletonList(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(new fr.inria.statementadd.ClassParameterAmplify(-538589801)), 562520686), 1085381857)))" ,
                 CollectionCreator.generateCollection(
                         typeList,
                         "List",
@@ -66,7 +66,7 @@ public class TestCollectionCreator extends AbstractTest {
                 Set.class)
                 .toString();
 
-        assertEquals("java.util.Collections.singleton(new fr.inria.statementadd.ClassParameterAmplify(-1355944483))" ,
+        assertEquals("java.util.Collections.<fr.inria.statementadd.ClassParameterAmplify>emptySet()" ,
                 CollectionCreator.generateCollection(
                         typeSet,
                         "Set",
