@@ -13,7 +13,8 @@ public class Utils {
 
     public static boolean isPrimitiveCollectionOrMap(Object collectionOrMap) {
         try {
-            return isNonEmptyPrimitiveCollection(collectionOrMap) || isNonEmptyPrimitiveMap(collectionOrMap);
+            return collectionOrMap != null &&
+                    (isNonEmptyPrimitiveCollection(collectionOrMap) || isNonEmptyPrimitiveMap(collectionOrMap));
         } catch (Exception e) {
             return false;
         }
@@ -45,22 +46,22 @@ public class Utils {
     public static boolean isNonEmptyPrimitiveMap(Object object) {
         if (isMap(object) && !((Map) object).isEmpty()) {
             Map map = (Map) object;
-            boolean isKeyPrimitive = false;
-            boolean isValuePrimitive = false;
+            boolean isKeyPrimitive = true;
+            boolean isValuePrimitive = true;
             Iterator keyIterator = map.keySet().iterator();
             while (keyIterator.hasNext()) {
                 Object next = keyIterator.next();
-                if (next != null && isPrimitive(next)) {
-                    isKeyPrimitive = true;
+                if (!isPrimitive(next)) {
+                    isKeyPrimitive = false;
                     break;
                 }
             }
             if (isKeyPrimitive) {
-                Iterator valueIterator = map.keySet().iterator();
+                Iterator valueIterator = map.values().iterator();
                 while (valueIterator.hasNext()) {
                     Object next = valueIterator.next();
-                    if (next != null && isPrimitive(next)) {
-                        isValuePrimitive = true;
+                    if (!isPrimitive(next)) {
+                        isValuePrimitive = false;
                         break;
                     }
                 }
@@ -71,7 +72,7 @@ public class Utils {
     }
 
     public static boolean isPrimitive(Object object) {
-        return isPrimitive(object.getClass());
+        return object != null && isPrimitive(object.getClass());
     }
 
     public static boolean isPrimitive(Class cl) {
@@ -103,9 +104,12 @@ public class Utils {
         return o != null && o.getClass().isArray();
     }
 
-    public static boolean isPrimitiveArray(Object o) {
-        String type = o.getClass().getCanonicalName();
-        return type != null && isArray(o) &&
+    public static boolean isPrimitiveArray(Object candidateArray) {
+        if (candidateArray == null) {
+            return false;
+        }
+        String type = candidateArray.getClass().getCanonicalName();
+        return type != null && isArray(candidateArray) &&
                 (type.equals("byte[]")
                         || type.equals("short[]")
                         || type.equals("int[]")

@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -224,6 +225,6 @@ public class AssertGeneratorTest extends AbstractTest {
         CtClass<?> testClass = Utils.findClass("fr.inria.filter.passing.PassingTest");
         final CtMethod testAssertionError = Utils.findMethod("fr.inria.filter.passing.PassingTest", "testNPEExpected");
         final List<CtMethod<?>> generatedAssertion = assertGenerator.assertionAmplification(testClass, Collections.singletonList(testAssertionError));
-        assertTrue(generatedAssertion.isEmpty());
+        assertFalse(generatedAssertion.isEmpty());
     }
 }

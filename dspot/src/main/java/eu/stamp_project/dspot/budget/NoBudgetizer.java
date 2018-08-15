@@ -49,8 +49,9 @@ public class NoBudgetizer implements Budgetizer {
         LOGGER.info("Amplification of inputs...");
         List<CtMethod<?>> inputAmplifiedTests = testMethods.parallelStream()
                 .flatMap(test -> {
+                    final Stream<CtMethod<?>> inputAmplifiedTestMethods = inputAmplifyTest(test, i);
                     DSpotUtils.printProgress(testMethods.indexOf(test), testMethods.size());
-                    return inputAmplifyTest(test, i);
+                    return inputAmplifiedTestMethods;
                 }).collect(Collectors.toList());
         LOGGER.info("{} new tests generated", inputAmplifiedTests.size());
         return reduce(inputAmplifiedTests);

@@ -4,6 +4,7 @@ import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.budget.Budgetizer;
+import eu.stamp_project.dspot.budget.NoBudgetizer;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.testrunner.EntryPoint;
@@ -130,7 +131,8 @@ public class InputConfiguration {
                     });
         }
 
-        this.setOutputDirectory(ConstantsProperties.OUTPUT_DIRECTORY.get(properties))
+        this.setBudgetizer(new NoBudgetizer())
+                .setOutputDirectory(ConstantsProperties.OUTPUT_DIRECTORY.get(properties))
                 .setDelta(ConstantsProperties.DELTA_ASSERTS_FLOAT.get(properties))
                 .setFilter(ConstantsProperties.FILTER.get(properties))
                 .setPitVersion(ConstantsProperties.PIT_VERSION.get(properties))

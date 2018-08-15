@@ -55,7 +55,7 @@ public class AmplificationTest extends AbstractTest {
         final Factory factory = testMethodWithAnnotations.getFactory();
         prepareTestMethod(testMethodWithAnnotations, factory);
         // expected was kept and timeout was increased
-        assertEquals("[@org.junit.Test(timeout = 10000, expected = java.lang.NullPointerException.class)]",
+        assertEquals("[@org.junit.Test(timeout = 10000)]",
                 testMethodWithAnnotations.getAnnotations().toString());
     }
 }

@@ -34,7 +34,7 @@ public class ReplacementAmplifierTest extends AbstractTest {
 
         assertEquals(1, amplifiedMethods.size());
         assertEquals("{" + AmplificationHelper.LINE_SEPARATOR +
-                "    java.util.ArrayList<fr.inria.statementadd.TestClassTarget.Internal> internalList = new java.util.ArrayList<fr.inria.statementadd.TestClassTarget.Internal>(1891812663);" + AmplificationHelper.LINE_SEPARATOR +
+                "    java.util.ArrayList<fr.inria.statementadd.TestClassTarget.Internal> internalList = new java.util.ArrayList<fr.inria.statementadd.TestClassTarget.Internal>(java.util.Collections.emptyList());" + AmplificationHelper.LINE_SEPARATOR +
                 "    internalList.add(new fr.inria.statementadd.TestClassTarget.Internal());" + AmplificationHelper.LINE_SEPARATOR +
                 "    for (fr.inria.statementadd.TestClassTarget.Internal i : internalList)" + AmplificationHelper.LINE_SEPARATOR +
                 "        i.compute(0);" + AmplificationHelper.LINE_SEPARATOR +
@@ -72,7 +72,7 @@ public class ReplacementAmplifierTest extends AbstractTest {
         final CtMethod originalTest = Utils.findMethod("fr.inria.factory.FactoryTest", "test");
         final List<CtMethod> test = replacementAmplifier.amplify(originalTest, 0).collect(Collectors.toList());
         final String expectedMethod = "{" + AmplificationHelper.LINE_SEPARATOR +
-                "    final fr.inria.factory.FactoryTest.aClass aClass = build(-1183186497);" + AmplificationHelper.LINE_SEPARATOR +
+                "    final fr.inria.factory.FactoryTest.aClass aClass = fr.inria.factory.FactoryTest.build(-1183186497);" + AmplificationHelper.LINE_SEPARATOR +
                 "}";
         assertEquals(expectedMethod, test.get(0).getBody().toString());
     }

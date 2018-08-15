@@ -31,7 +31,7 @@ public class TestValueCreator extends AbstractTest {
 		final CtTypeReference<?> reference = factory.Class().get(new ArrayList<String>().getClass()).getReference();
 		reference.addActualTypeArgument(factory.Type().createReference(String.class));
 
-		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_0 = new java.util.ArrayList<java.lang.String>(java.util.Collections.emptyList())",
+		assertEquals("java.util.ArrayList<java.lang.String> __DSPOT_vc_0 = new java.util.ArrayList<java.lang.String>()",
 				ValueCreator.createRandomLocalVar(reference).toString());
 	}
 

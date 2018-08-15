@@ -55,11 +55,12 @@ public class CloneHelper {
                 .filter(annotation -> annotation.toString().contains("Test"))
                 .findFirst().orElse(null);
         if (testAnnotation != null) {
-            CtExpression originalTimeout = testAnnotation.getValue("timeout");
+            final Map<String, CtExpression<?>> values = new HashMap<>(testAnnotation.getValues());
+            CtExpression<?> originalTimeout = values.get("timeout");
             if (originalTimeout == null ||
                     originalTimeout instanceof CtLiteral &&
                             (((CtLiteral) originalTimeout).getValue().equals(0L))) {
-                testAnnotation.addValue("timeout", AmplificationHelper.timeOutInMs);
+                values.put("timeout", factory.createLiteral(AmplificationHelper.timeOutInMs));
             } else {
                 int valueOriginalTimeout;
                 if (originalTimeout.toString().endsWith("L")) {
@@ -70,10 +71,13 @@ public class CloneHelper {
                 }
                 if (valueOriginalTimeout < AmplificationHelper.timeOutInMs) {
                     CtLiteral newTimeout = factory.createLiteral(AmplificationHelper.timeOutInMs);
-                    newTimeout.setValue(AmplificationHelper.timeOutInMs);
-                    originalTimeout.replace(newTimeout);
+                    values.put("timeout", newTimeout);
                 }
             }
+            if (values.containsKey("expected")) {
+                values.remove("expected");
+            }
+            testAnnotation.setValues(values);
         } else {
             CtAnnotation newTestAnnotation;
             newTestAnnotation = factory.Core().createAnnotation();

@@ -221,7 +221,7 @@ public class JSAPOptions {
         FlaggedOption budgetizer = new FlaggedOption("budgetizer");
         budgetizer.setStringParser(JSAP.STRING_PARSER);
         budgetizer.setLongFlag("budgetizer");
-        budgetizer.setUsageName("NoBudgetizer | SimpleBuddgetizer");
+        budgetizer.setUsageName("NoBudgetizer | SimpleBudgetizer");
         budgetizer.setHelp("[optional] specify a Bugdetizer.");
         budgetizer.setDefault("NoBudgetizer");
 
