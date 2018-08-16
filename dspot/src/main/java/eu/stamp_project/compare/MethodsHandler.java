@@ -60,8 +60,21 @@ public class MethodsHandler {
     }
 
     boolean isDefaulttoStringOrHashCode(Method method) {
-        return (method.getDeclaringClass().equals(Object.class) || method.getDeclaringClass().equals(Enum.class))
-                && (method.getName().equals("hashCode") || method.getName().equals("toString"));
+        if (method.getDeclaringClass() == null) {
+            return false;
+        }
+        final Class<?> declaringClass = method.getDeclaringClass();
+        if ("hashCode".equals(method.getName())) {
+            return isDefaultClass(declaringClass.getName()) ||
+                    declaringClass.getName().equals("java.net.URL");
+        } else {
+            return "toString".equals(method.getName()) &&
+                    isDefaultClass(declaringClass.getName());
+        }
+    }
+
+    private boolean isDefaultClass(String qualifiedName) {
+        return ("java.lang.Enum".equals(qualifiedName) || "java.lang.Object".equals(qualifiedName));
     }
 
     boolean isValidMethod(Method method) {
