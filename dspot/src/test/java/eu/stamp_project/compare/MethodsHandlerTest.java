@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -129,6 +130,14 @@ public class MethodsHandlerTest {
         );
         assertFalse(methodsHandlerUnderTest.isDefaulttoStringOrHashCode(
                 ((Object)myClassWithImplementedToStringAndHashCode).getClass().getMethod("toString"))
+        );
+
+        assertTrue(methodsHandlerUnderTest.isDefaulttoStringOrHashCode(
+                URL.class.getMethod("hashCode"))
+        );
+
+        assertFalse(methodsHandlerUnderTest.isDefaulttoStringOrHashCode(
+                URL.class.getMethod("toString"))
         );
     }
 
