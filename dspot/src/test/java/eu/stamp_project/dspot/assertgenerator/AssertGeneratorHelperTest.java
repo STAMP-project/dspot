@@ -28,6 +28,20 @@ import static org.junit.Assert.assertTrue;
 public class AssertGeneratorHelperTest extends AbstractTest {
 
     @Test
+    public void testContainsObjectReferences() throws Exception {
+        assertFalse(AssertGeneratorHelper.containsObjectReferences("thaliana"));
+        assertFalse(AssertGeneratorHelper.containsObjectReferences("thaliana.thaliana@"));
+        assertFalse(AssertGeneratorHelper.containsObjectReferences("thaliana.thaliana$f465"));
+        assertFalse(AssertGeneratorHelper.containsObjectReferences("thaliana.thaliana@z0545"));
+        assertTrue(AssertGeneratorHelper.containsObjectReferences("thaliana@041a"));
+        assertTrue(AssertGeneratorHelper.containsObjectReferences("thaliana.thaliana@041a"));
+        assertTrue(AssertGeneratorHelper.containsObjectReferences(new Object().toString()));
+        assertTrue(AssertGeneratorHelper.containsObjectReferences("Expected message : " + new Object().toString() + "not found"));
+        assertTrue(AssertGeneratorHelper.containsObjectReferences("Expected message : " + new Object().toString()));
+        assertTrue(AssertGeneratorHelper.containsObjectReferences(new Object().toString() + "not found"));
+    }
+
+    @Test
     public void testAddAfterClassMethod() throws Exception {
 
         /*
