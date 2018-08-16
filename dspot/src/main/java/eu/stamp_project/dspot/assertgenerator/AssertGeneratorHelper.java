@@ -28,6 +28,7 @@ import spoon.support.SpoonClassNotFoundException;
 
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 /**
  * Created by Benjamin DANGLOT
@@ -36,6 +37,10 @@ import java.util.function.Predicate;
  */
 public class AssertGeneratorHelper {
 
+    static boolean containsObjectReferences(String candidate) {
+        return candidate != null &&
+                Pattern.compile("(\\w+\\.)*\\w@[a-f0-9]+").matcher(candidate).find();
+    }
 
     static boolean isCorrectReturn(CtInvocation<?> invocation) {
         return invocation.getType() != null &&

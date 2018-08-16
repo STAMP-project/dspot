@@ -91,12 +91,14 @@ public class TryCatchFailGenerator {
                 factory.createVariableRead(parameter.getReference(), false),
                 factory.Class().get(java.lang.Throwable.class).getMethodsByName("getMessage").get(0).getReference()
         );
-        ctCatch.getBody().addStatement(
-                AssertGeneratorHelper.buildInvocation(factory,
-                        "assertEquals",
-                        Arrays.asList(factory.createLiteral(failure.messageOfFailure), getMessage)
-                )
-        );
+        if (!AssertGeneratorHelper.containsObjectReferences(failure.messageOfFailure)) {
+            ctCatch.getBody().addStatement(
+                    AssertGeneratorHelper.buildInvocation(factory,
+                            "assertEquals",
+                            Arrays.asList(factory.createLiteral(failure.messageOfFailure), getMessage)
+                    )
+            );
+        }
     }
 
     // here, we get the correct name of the expected Exception.
