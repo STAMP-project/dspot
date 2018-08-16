@@ -101,9 +101,17 @@ public class AssertBuilder {
                                                         factory.createLiteral(delta)
                                                 )));
                                     } else {
-                                        expressions.add(AssertGeneratorHelper.buildInvocation(factory, "assertEquals",
-                                                Arrays.asList(printPrimitiveString(factory, value),
-                                                        variableRead)));
+                                        if (value instanceof String) {
+                                            if (!AssertGeneratorHelper.containsObjectReferences((String) value)) {
+                                                expressions.add(AssertGeneratorHelper.buildInvocation(factory, "assertEquals",
+                                                        Arrays.asList(printPrimitiveString(factory, value),
+                                                                variableRead)));
+                                            }
+                                        } else {
+                                            expressions.add(AssertGeneratorHelper.buildInvocation(factory, "assertEquals",
+                                                    Arrays.asList(printPrimitiveString(factory, value),
+                                                            variableRead)));
+                                        }
                                     }
                                 }
                                 variableRead.setType(factory.Type().createReference(value.getClass()));
