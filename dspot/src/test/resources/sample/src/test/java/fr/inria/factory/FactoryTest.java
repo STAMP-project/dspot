@@ -4,7 +4,7 @@ import org.junit.Test;
 
 public class FactoryTest {
 
-    public static class aClass {
+    public static class aClass implements aInterface {
         private int x;
         private aClass(int x) {
             this.x = x;
@@ -15,6 +15,10 @@ public class FactoryTest {
         public int getX() {
             return x;
         }
+    }
+
+    public interface aInterface {
+
     }
 
     public static aClass createAClass() {
