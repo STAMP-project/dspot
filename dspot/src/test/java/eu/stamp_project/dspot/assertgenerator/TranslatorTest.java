@@ -45,6 +45,21 @@ public class TranslatorTest extends AbstractTest {
     }
 
     @Test
+    public void testWhenThrowingAStackOverFlowError() throws Exception {
+
+        /*
+           test that the Translator can handle the bug inside Spoon: getAllMethods() is throwing a StackOverFlowError.
+           TODO this test should be temporary, until Spoon is fixed see https://github.com/INRIA/spoon/issues/2378
+         */
+
+        String statementToBeTranslated = "((fr.inria.overflow.Matriochka)object).aMethod()";
+        CtInvocation<?> invocation = translateInvocation(statementToBeTranslated);
+        assertEquals("((fr.inria.overflow.Matriochka) (object))", invocation.getTarget().toString());
+        assertEquals("fr.inria.overflow.Matriochka", invocation.getTarget().getTypeCasts().get(0).toString());
+        assertEquals("aMethod", invocation.getExecutable().getSimpleName());
+    }
+
+    @Test
     public void testOnUtilPackageSubClass() throws Exception {
 
         /*
