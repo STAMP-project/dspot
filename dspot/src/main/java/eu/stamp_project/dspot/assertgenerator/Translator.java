@@ -13,7 +13,9 @@ import spoon.reflect.reference.CtLocalVariableReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.reference.CtVariableReference;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Created by Benjamin DANGLOT
@@ -102,7 +104,7 @@ public class Translator {
         final CtTypeReference<?> reference = ctType.getReference();
         invocation.getTarget().addTypeCast(reference);
         // we are sure that there is only one, since we use only getters
-        final Optional<CtMethod<?>> candidate = ctType.getAllMethods()
+        final Optional<CtMethod<?>> candidate = getAllMethods(ctType)
                 .stream()
                 .filter(ctMethod -> ctMethod.getSimpleName().equals(executableName))
                 .findFirst();
@@ -118,6 +120,23 @@ public class Translator {
             return buildInvocationFromString(invocationAsString, invocation);
         } else {
             return invocation;
+        }
+    }
+
+    // TODO this a hotfix, and must be reworked. The issue has been reported in Spoon see: https://github.com/INRIA/spoon/issues/2378
+    @Deprecated
+    private Set<CtMethod<?>> getAllMethods(CtType<?> type) {
+        try {
+            return type.getAllMethods();
+        } catch (StackOverflowError e) {
+            LOGGER.error("Overflow!");
+            final Set<CtMethod<?>> methods = new HashSet<>(type.getMethods());
+            CtTypeReference<?> currentSuperClass = type.getSuperclass();
+            while (currentSuperClass != null) {
+                methods.addAll(currentSuperClass.getTypeDeclaration().getMethods());
+                currentSuperClass = currentSuperClass.getSuperclass();
+            }
+            return methods;
         }
     }
 
