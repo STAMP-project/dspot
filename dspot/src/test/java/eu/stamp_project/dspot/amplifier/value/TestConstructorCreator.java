@@ -66,6 +66,22 @@ public class TestConstructorCreator extends AbstractTest {
     }
 
     @Test
+    public void testGenerateConstructorOfAInterface() throws Exception {
+
+        /*
+            the constructor creator is able to create an object when we give an interface
+         */
+
+        final Factory factory = Utils.getFactory();
+        Utils.findMethod("fr.inria.factory.FactoryTest", "test");
+        final CtExpression constructorOfInterface = ConstructorCreator.generateConstructionOf(
+                factory.Class().get("fr.inria.factory.FactoryTest").getNestedType("aInterface").getReference(), 0
+        );
+        assertEquals("fr.inria.factory.FactoryTest.createAClass()", constructorOfInterface.toString());
+
+    }
+
+    @Test
     public void testGenerateConstructionOf() throws Exception {
         final Factory factory = Utils.getFactory();
 
