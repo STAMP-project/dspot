@@ -9,6 +9,7 @@ import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtConstructor;
+import spoon.reflect.declaration.CtInterface;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtParameter;
 import spoon.reflect.declaration.CtType;
@@ -23,6 +24,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -182,11 +184,27 @@ public class ConstructorCreator {
         }
     }
 
-    static List<CtExpression<?>> generateConstructorUsingFactory(CtTypeReference type) {
+    static List<CtExpression<?>> generateConstructorUsingFactory(final CtTypeReference type) {
         // this method will return an invocation of method that return the given type.
         // the usage of Factory classes/methods is well spread
         final Factory factory = type.getFactory();
-        final List<CtMethod<?>> factoryMethod = factory.getModel().getElements(new FILTER_FACTORY_METHOD(type));
+        final CtTypeReference<?> referenceToBeBuild;
+        if (type.getDeclaration() instanceof CtInterface<?>) { // we will find a sub class to build
+            final Optional<CtClass<?>> first = factory.getModel().getElements(new TypeFilter<CtClass<?>>(CtClass.class) {
+                @Override
+                public boolean matches(CtClass<?> element) {
+                    return element.getSuperInterfaces().contains(type.getDeclaration());
+                }
+            }).stream().findFirst();
+            if (!first.isPresent()) {
+                return Collections.emptyList();
+            } else {
+                referenceToBeBuild = first.get().getReference();
+            }
+        } else {
+            referenceToBeBuild = type;
+        }
+        final List<CtMethod<?>> factoryMethod = factory.getModel().getElements(new FILTER_FACTORY_METHOD(referenceToBeBuild));
         return factoryMethod.stream()
                 .map(method ->
                         factory.createInvocation(factory.createTypeAccess(method.getParent(CtType.class).getReference(), true),
