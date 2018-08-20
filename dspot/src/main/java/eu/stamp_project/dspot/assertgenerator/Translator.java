@@ -59,6 +59,10 @@ public class Translator {
 
     public CtExpression<?> buildInvocationFromString(String invocationAsString) {
         final CtExpression<?> invocation = this.buildInvocationFromString(invocationAsString, null);
+        if (invocation instanceof CtInvocation<?> &&
+                "isEmpty".equals(((CtInvocation) invocation).getExecutable().getSimpleName())) {
+            return invocation;
+        }
         if (invocationAsString.endsWith("isEmpty()")) {
             final CtType<?> listCtType = factory.Type()
                     .get(java.util.List.class);
