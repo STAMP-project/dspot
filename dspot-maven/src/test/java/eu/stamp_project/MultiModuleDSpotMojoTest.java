@@ -30,18 +30,18 @@ public class MultiModuleDSpotMojoTest {
     @Test
     public void testOnMultiModuleParent() throws Exception {
         File testPom = new File(getBasedir(), "src/test/resources/multi-module/");
-        mojoUnderTest = (DSpotMojo) mojoRule.lookupConfiguredMojo(testPom , "amplify-unit-tests");
+        mojoUnderTest = (DSpotMojo) mojoRule.lookupConfiguredMojo(testPom, "amplify-unit-tests");
         final Properties properties = mojoUnderTest.initializeProperties();
         assertNotNull(properties.get(ConstantsProperties.PROJECT_ROOT_PATH.getName()));
         assertEquals(testPom.getAbsolutePath(), properties.get(ConstantsProperties.PROJECT_ROOT_PATH.getName()));
         assertNotNull(properties.get(ConstantsProperties.SRC_CODE.getName()));
-        assertEquals("src/main/java", properties.get(ConstantsProperties.SRC_CODE.getName()));
+        assertEquals(testPom.getAbsolutePath() + "/src/main/java", properties.get(ConstantsProperties.SRC_CODE.getName()));
         assertNotNull(properties.get(ConstantsProperties.TEST_SRC_CODE.getName()));
-        assertEquals("src/test/java", properties.get(ConstantsProperties.TEST_SRC_CODE.getName()));
+        assertEquals(testPom.getAbsolutePath() + "/src/test/java", properties.get(ConstantsProperties.TEST_SRC_CODE.getName()));
         assertNotNull(properties.get(ConstantsProperties.SRC_CLASSES.getName()));
-        assertEquals("target/classes", properties.get(ConstantsProperties.SRC_CLASSES.getName()));
+        assertEquals(testPom.getAbsolutePath() + "/target/classes", properties.get(ConstantsProperties.SRC_CLASSES.getName()));
         assertNotNull(properties.get(ConstantsProperties.TEST_CLASSES.getName()));
-        assertEquals("target/test-classes", properties.get(ConstantsProperties.TEST_CLASSES.getName()));
+        assertEquals(testPom.getAbsolutePath() + "/target/test-classes", properties.get(ConstantsProperties.TEST_CLASSES.getName()));
         assertNotNull(properties.get(ConstantsProperties.MODULE.getName()));
         assertEquals("", properties.get(ConstantsProperties.MODULE.getName()));
     }
