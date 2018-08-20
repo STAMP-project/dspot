@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Benjamin DANGLOT
@@ -18,6 +19,17 @@ import static org.junit.Assert.assertEquals;
  * on 16/07/18
  */
 public class NullifierAmplifierTest extends AbstractTest {
+
+    @Test
+    public void testOnArrayType() throws Exception {
+        final String nameMethod = "methodThatClassmethodWithCharArray";
+        CtClass<?> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        RandomHelper.setSeedRandom(42L);
+        Amplifier amplifier = new NullifierAmplifier();
+        final CtMethod method = Utils.findMethod(literalMutationClass, nameMethod);
+        List<CtMethod<?>> amplification = amplifier.amplify(method, 0).collect(Collectors.toList());
+        assertTrue(amplification.isEmpty());
+    }
 
     @Test
     public void test() throws Exception {

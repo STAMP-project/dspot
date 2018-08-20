@@ -50,4 +50,12 @@ public class LiteralMutation {
         char character = 'z';
     }
 
+    public void methodWithCharArray(char... array) {
+
+    }
+
+    public void methodThatClassmethodWithCharArray() {
+        methodWithCharArray('a', 'b');
+    }
+
 }

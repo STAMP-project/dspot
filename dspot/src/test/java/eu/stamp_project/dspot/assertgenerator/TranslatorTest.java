@@ -158,6 +158,12 @@ public class TranslatorTest extends AbstractTest {
         assertEquals("((fr.inria.sample.ClassWithBoolean) (cl))", invocation.getTarget().toString());
         assertEquals("fr.inria.sample.ClassWithBoolean", invocation.getTarget().getTypeCasts().get(0).toString());
         assertEquals("getEmptyList", invocation.getExecutable().getSimpleName());
+
+        statementToBeTranslated = "((java.util.List)list).isEmpty()";
+        invocation = translateInvocation(statementToBeTranslated);
+        assertEquals("((java.util.List) (list))", invocation.getTarget().toString());
+        assertEquals("java.util.List", invocation.getTarget().getTypeCasts().get(0).toString());
+        assertEquals("isEmpty", invocation.getExecutable().getSimpleName());
     }
 
     @Test
