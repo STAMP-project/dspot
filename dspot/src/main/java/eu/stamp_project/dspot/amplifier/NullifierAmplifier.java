@@ -9,6 +9,8 @@ import spoon.reflect.code.CtTargetedExpression;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.CtTypedElement;
+import spoon.reflect.reference.CtArrayTypeReference;
+import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.Collections;
@@ -52,10 +54,21 @@ public class NullifierAmplifier extends AbstractAmplifier<CtExpression<?>> {
                             break;
                         }
                     }
-                    return !parent.getExecutable()
-                            .getParameters()
-                            .get(i)
-                            .isPrimitive();
+                    final List<CtTypeReference<?>> parameters = parent.getExecutable().getParameters();
+                    if (i >= parameters.size()) {
+                        if (parameters.get(parameters.size() - 1) instanceof CtArrayTypeReference) {
+                            return parameters.get(parameters.size() - 1).isPrimitive();
+                        } else {
+                            return false;
+                        }
+                    }
+                    if (parameters.get(i) instanceof CtArrayTypeReference) {
+                        return parameters.get(parameters.size() - 1).isPrimitive();
+                    } else {
+                        return !parameters
+                                .get(i)
+                                .isPrimitive();
+                    }
                 }
                 if (element.getParent() instanceof CtLocalVariable && element instanceof CtLiteral<?>) {// the element is a defaultExpression
                     final CtTypedElement<?> parent = element.getParent(CtTypedElement.class);
