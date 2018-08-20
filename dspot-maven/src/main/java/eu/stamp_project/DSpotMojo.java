@@ -232,15 +232,15 @@ public class DSpotMojo extends AbstractMojo {
             final Build build = project.getBuild();
             properties.setProperty(ConstantsProperties.SRC_CODE.getName(), build.getSourceDirectory());
             properties.setProperty(ConstantsProperties.TEST_SRC_CODE.getName(), build.getTestSourceDirectory());
-            properties.setProperty(ConstantsProperties.SRC_CLASSES.get(properties), build.getOutputDirectory());
-            properties.setProperty(ConstantsProperties.TEST_CLASSES.get(properties), build.getTestOutputDirectory());
+            properties.setProperty(ConstantsProperties.SRC_CLASSES.getName(), build.getOutputDirectory());
+            properties.setProperty(ConstantsProperties.TEST_CLASSES.getName(), build.getTestOutputDirectory());
             // TODO checks that we can use an empty module for multi module project
             // TODO the guess here is that the user will launch the plugin from the root of the targeted module
             // TODO and thus, we do not need to compute the relative path from its parents
             // TODO however, it may lacks some dependencies and the user should run a resolve dependency goal
             // TODO before using the dspot plugin
             // TODO we must maybe need to use a correct lifecycle
-            properties.setProperty(ConstantsProperties.MODULE.get(properties), "");
+            properties.setProperty(ConstantsProperties.MODULE.getName(), "");
         }
         return properties;
     }
