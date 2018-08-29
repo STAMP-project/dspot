@@ -194,7 +194,7 @@ public class DSpotMojo extends AbstractMojo {
      *  It is recommended to use an absolute path
      */
     @Parameter(defaultValue = "", property = "path-to-test-list-csv")
-    private String pathToTestListCsv;
+    private String pathToTestListCsv = "";
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
