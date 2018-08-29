@@ -18,7 +18,9 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
@@ -184,6 +186,16 @@ public class DSpotMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
     private MavenProject project;
 
+    /**
+     *  Enable the selection of the test to be amplified from a csv file.
+     *  This parameter is a path that must point to a csv file that list test classes and their test methods in the following format:
+     *      test-class-name;test-method-1;test-method-2;test-method-3;...
+     *  If this parameter is used, DSpot will ignore the value used in the parameter test and cases
+     *  It is recommended to use an absolute path
+     */
+    @Parameter(defaultValue = "", property = "path-to-test-list-csv")
+    private String pathToTestListCsv = "";
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (this.help) {
@@ -192,26 +204,42 @@ public class DSpotMojo extends AbstractMojo {
 
         Properties properties = initializeProperties();
         try {
-            Main.run(
-                    InputConfiguration.initialize(properties)
-                            .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(this.amplifiers.toArray(new String[this.amplifiers.size()])))
-                            .setNbIteration(this.iteration)
-                            .setTestClasses(this.test)
-                            .setSelector(SelectorEnum.valueOf(this.testCriterion).buildSelector())
-                            .setTestCases(this.cases)
-                            .setSeed(this.randomSeed)
-                            .setTimeOutInMs(this.timeOut)
-                            .setBuilderName(this.automaticBuilder)
-                            .setMaxTestAmplified(this.maxTestAmplified)
-                            .setClean(this.clean)
-                            .setMinimize(this.noMinimize)
-                            .setVerbose(this.verbose)
-                            .setUseWorkingDirectory(this.workingDirectory)
-                            .setWithComment(this.withComment)
-                            .setDescartesMode(this.descartes)
-                            .setGenerateAmplifiedTestClass(this.generateNewTestClass)
-                            .setOutputDirectory(this.outputPath)
-            );
+            final InputConfiguration configuration = InputConfiguration.initialize(properties)
+                    .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(this.amplifiers.toArray(new String[this.amplifiers.size()])))
+                    .setNbIteration(this.iteration)
+                    .setTestClasses(this.test)
+                    .setSelector(SelectorEnum.valueOf(this.testCriterion).buildSelector())
+                    .setTestCases(this.cases)
+                    .setSeed(this.randomSeed)
+                    .setTimeOutInMs(this.timeOut)
+                    .setBuilderName(this.automaticBuilder)
+                    .setMaxTestAmplified(this.maxTestAmplified)
+                    .setClean(this.clean)
+                    .setMinimize(this.noMinimize)
+                    .setVerbose(this.verbose)
+                    .setUseWorkingDirectory(this.workingDirectory)
+                    .setWithComment(this.withComment)
+                    .setDescartesMode(this.descartes)
+                    .setGenerateAmplifiedTestClass(this.generateNewTestClass)
+                    .setOutputDirectory(this.outputPath);
+
+            if (!this.pathToTestListCsv.isEmpty()) {
+                // clear both list of test classes and test cases
+                configuration.getTestCases().clear();
+                configuration.getTestClasses().clear();
+                // add all test classes and test cases from the csv file
+                try (BufferedReader buffer = new BufferedReader(new FileReader(this.pathToTestListCsv))) {
+                    buffer.lines().forEach(line -> {
+                                final String[] splittedLine = line.split(";");
+                                configuration.addTestClasses(splittedLine[0]);
+                                for (int i = 1 ; i < splittedLine.length ; i++) {
+                                    configuration.addTestCase(splittedLine[i]);
+                                }
+                            }
+                    );
+                }
+            }
+            Main.run(configuration);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -282,5 +310,9 @@ public class DSpotMojo extends AbstractMojo {
 
     void setPathPitResult(String pathPitResult) {
         this.pathPitResult = pathPitResult;
+    }
+
+    void setPathToTestListCsv(String pathToTestListCsv) {
+        this.pathToTestListCsv = pathToTestListCsv;
     }
 }

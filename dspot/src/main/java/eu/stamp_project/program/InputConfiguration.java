@@ -686,6 +686,11 @@ public class InputConfiguration {
         return this;
     }
 
+    public InputConfiguration addTestClasses(String testClass) {
+        this.testClasses.add(testClass);
+        return this;
+    }
+
     public TestSelector getSelector() {
         return selector;
     }
@@ -701,6 +706,16 @@ public class InputConfiguration {
 
     public InputConfiguration setTestCases(List<String> testCases) {
         this.testCases = testCases;
+        return this;
+    }
+
+    public InputConfiguration addTestCases(List<String> testCases) {
+        this.testCases.addAll(testCases);
+        return this;
+    }
+
+    public InputConfiguration addTestCase(String testCase) {
+        this.testCases.add(testCase);
         return this;
     }
 
