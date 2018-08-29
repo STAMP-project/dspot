@@ -71,4 +71,25 @@ public class DSpotMojoTest {
 
         assertTrue(new File("target/dspot-output/example.TestSuiteExample_jacoco_instr_coverage_report.txt").exists());
     }
+
+    @Test
+    public void testTargetingSpecificTestMethodsFromCsvFile() throws Exception {
+
+        /*
+            In this configuration, we execute dspot on a specific test methods read from a csv file
+            In order to obtain result, we set up also amplifiers and selector
+            We verify the result, i.e. the report txt
+
+            In this configuration, we retrieve from the pom, the information we need, e.g. source folders etc...
+         */
+
+        mojoUnderTest.setPathToTestListCsv("src/test/resources/test-projects/test-selection.csv");
+        mojoUnderTest.setAmplifiers(Collections.singletonList("TestDataMutator"));
+        mojoUnderTest.setTestCriterion("JacocoCoverageSelector");
+        mojoUnderTest.setIteration(1);
+        mojoUnderTest.setOutputPath("target/dspot-output");
+        mojoUnderTest.execute();
+
+        assertTrue(new File("target/dspot-output/example.TestSuiteExample_jacoco_instr_coverage_report.txt").exists());
+    }
 }
