@@ -13,6 +13,7 @@ import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spoon.reflect.declaration.CtPackage;
 import spoon.reflect.declaration.CtType;
 
 import java.io.BufferedReader;
@@ -154,7 +155,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         try {
 
             if (InputConfiguration.get().getFilter().isEmpty()) {
-                LOGGER.warn(MESSAGE_WARN_PIT_NO_FILTER);
+                initializeFilterInputConfiguration();
             }
 
             String[] phases = new String[]{CMD_PIT_MUTATION_COVERAGE + ":" +
@@ -196,7 +197,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         }
 
         if (InputConfiguration.get().getFilter().isEmpty()) {
-            LOGGER.warn(MESSAGE_WARN_PIT_NO_FILTER);
+            initializeFilterInputConfiguration();
         }
 
         try {
@@ -222,6 +223,16 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void initializeFilterInputConfiguration() {
+        LOGGER.warn(MESSAGE_WARN_PIT_NO_FILTER);
+        LOGGER.warn("Trying to compute the top package of the project...");
+        CtPackage currentPackage = InputConfiguration.get().getFactory().Package().getRootPackage();
+        while (currentPackage.getPackages().size() == 1) {
+            currentPackage = (CtPackage) currentPackage.getPackages().toArray()[0];
+        }
+        InputConfiguration.get().setFilter(currentPackage.getQualifiedName());
     }
 
     private int runGoals(String pathToRootOfProject, String... goals) {

@@ -196,6 +196,15 @@ public class DSpotMojo extends AbstractMojo {
     @Parameter(defaultValue = "", property = "path-to-test-list-csv")
     private String pathToTestListCsv = "";
 
+    /**
+     * Allows to specify the path to the second version through command line, rather than using properties file.
+     * This parameter is the same than {@link eu.stamp_project.program.ConstantsProperties#PATH_TO_SECOND_VERSION}
+     * If this parameter is used, DSpot will ignore the value used in the properties file.
+     * It is recommended to use an absolute path
+     */
+    @Parameter(defaultValue = "", property = "path-to-second-version")
+    private String pathToSecondVersion = "";
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (this.help) {
@@ -204,7 +213,7 @@ public class DSpotMojo extends AbstractMojo {
 
         Properties properties = initializeProperties();
         try {
-            final InputConfiguration configuration = InputConfiguration.initialize(properties)
+            InputConfiguration.initialize(properties)
                     .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(this.amplifiers.toArray(new String[this.amplifiers.size()])))
                     .setNbIteration(this.iteration)
                     .setTestClasses(this.test)
@@ -223,23 +232,27 @@ public class DSpotMojo extends AbstractMojo {
                     .setGenerateAmplifiedTestClass(this.generateNewTestClass)
                     .setOutputDirectory(this.outputPath);
 
+            if (!this.pathToSecondVersion.isEmpty()) {
+                InputConfiguration.get().setAbsolutePathToSecondVersionProjectRoot(this.pathToSecondVersion);
+            }
+
             if (!this.pathToTestListCsv.isEmpty()) {
                 // clear both list of test classes and test cases
-                configuration.getTestCases().clear();
-                configuration.getTestClasses().clear();
+                InputConfiguration.get().getTestCases().clear();
+                InputConfiguration.get().getTestClasses().clear();
                 // add all test classes and test cases from the csv file
                 try (BufferedReader buffer = new BufferedReader(new FileReader(this.pathToTestListCsv))) {
                     buffer.lines().forEach(line -> {
                                 final String[] splittedLine = line.split(";");
-                                configuration.addTestClasses(splittedLine[0]);
+                                InputConfiguration.get().addTestClasses(splittedLine[0]);
                                 for (int i = 1 ; i < splittedLine.length ; i++) {
-                                    configuration.addTestCase(splittedLine[i]);
+                                    InputConfiguration.get().addTestCase(splittedLine[i]);
                                 }
                             }
                     );
                 }
             }
-            Main.run(configuration);
+            Main.run(InputConfiguration.get());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

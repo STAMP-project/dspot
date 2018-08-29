@@ -268,6 +268,9 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setPathToSourceCode(String pathToSourceCode) {
+        if (new File(pathToSourceCode).isAbsolute()) {
+            pathToSourceCode = pathToSourceCode.substring(this.absolutePathToProjectRoot.length());
+        }
         this.pathToSourceCode = DSpotUtils.shouldAddSeparator.apply(pathToSourceCode);
         return this;
     }
@@ -279,6 +282,9 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setPathToTestSourceCode(String pathToTestSourceCode) {
+        if (new File(pathToTestSourceCode).isAbsolute()) {
+            pathToTestSourceCode = pathToTestSourceCode.substring(this.absolutePathToProjectRoot.length());
+        }
         this.pathToTestSourceCode = DSpotUtils.shouldAddSeparator.apply(pathToTestSourceCode);
         return this;
     }
@@ -298,6 +304,9 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setPathToClasses(String pathToClasses) {
+        if (new File(pathToClasses).isAbsolute()) {
+            pathToClasses = pathToClasses.substring(this.absolutePathToProjectRoot.length());
+        }
         this.pathToClasses = DSpotUtils.shouldAddSeparator.apply(pathToClasses);
         return this;
     }
@@ -317,6 +326,9 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setPathToTestClasses(String pathToTestClasses) {
+        if (new File(pathToTestClasses).isAbsolute()) {
+            pathToTestClasses = pathToTestClasses.substring(this.absolutePathToProjectRoot.length());
+        }
         this.pathToTestClasses = DSpotUtils.shouldAddSeparator.apply(pathToTestClasses);
         return this;
     }

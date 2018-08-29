@@ -5,8 +5,6 @@ import eu.stamp_project.mutant.pit.PitResult;
 import eu.stamp_project.mutant.pit.PitResultParser;
 import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -24,16 +22,6 @@ import static org.junit.Assert.fail;
  * on 09/07/17.
  */
 public class MavenAutomaticBuilderTest {
-
-    @Before
-    public void setUp() throws Exception {
-        Utils.getInputConfiguration().setVerbose(true);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        Utils.getInputConfiguration().setVerbose(false);
-    }
 
     @Test
     public void testGetDependenciesOf() throws Exception {
@@ -60,6 +48,7 @@ public class MavenAutomaticBuilderTest {
     public void testRunPit() throws Exception {
 
         Utils.init("src/test/resources/test-projects/test-projects.properties");
+        InputConfiguration.get().setFilter("");
 
         Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot());
         final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());

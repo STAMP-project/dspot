@@ -28,8 +28,6 @@ import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
  */
 public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
-
-
 	public static DSpotCompiler createDSpotCompiler(InputConfiguration configuration, String pathToDependencies) {
 		String pathToSources = configuration.getAbsolutePathToSourceCode()
 				+ PATH_SEPARATOR +
