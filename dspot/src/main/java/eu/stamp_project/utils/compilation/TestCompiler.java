@@ -72,7 +72,7 @@ public class TestCompiler {
      * This method will compile the given test class,
      * using the {@link eu.stamp_project.utils.compilation.DSpotCompiler}.
      * If any compilation problems is reported, the method discard involved test methods, by modifying given test methods, (it has side-effect)
-     * (see {@link #compileAndDiscardUncompilableMethods(DSpotCompiler, CtType, String, List, boolean)} and then try again to compile.
+     * (see {@link #compileAndDiscardUncompilableMethods(DSpotCompiler, CtType, String, List)} and then try again to compile.
      * </p>
      *
      * @param testClass     the test class to be compiled
@@ -90,7 +90,7 @@ public class TestCompiler {
         final String dependencies = configuration.getClasspathClassesProject()
                 + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
         DSpotUtils.copyPackageFromResources();
-        testsToRun = TestCompiler.compileAndDiscardUncompilableMethods(compiler, testClass, dependencies, testsToRun, configuration.withComment());
+        testsToRun = TestCompiler.compileAndDiscardUncompilableMethods(compiler, testClass, dependencies, testsToRun);
         final String classPath = AmplificationHelper.getClassPath(compiler, configuration);
         EntryPoint.timeoutInMs = 1000 + (configuration.getTimeOutInMs() * testsToRun.size());
         if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) { // if the test class is abstract, we use one of its implementation
@@ -116,9 +116,8 @@ public class TestCompiler {
     public static List<CtMethod<?>> compileAndDiscardUncompilableMethods(DSpotCompiler compiler,
                                                                          CtType<?> testClassToBeCompiled,
                                                                          String dependencies,
-                                                                         List<CtMethod<?>> testsToRun,
-                                                                         boolean withComment) throws AmplificationException {
-        final List<CtMethod<?>> uncompilableMethod = compileAndDiscardUncompilableMethods(compiler, testClassToBeCompiled, dependencies, 0, withComment);
+                                                                         List<CtMethod<?>> testsToRun) throws AmplificationException {
+        final List<CtMethod<?>> uncompilableMethod = compileAndDiscardUncompilableMethods(compiler, testClassToBeCompiled, dependencies, 0);
         testsToRun.removeAll(uncompilableMethod);
         uncompilableMethod.forEach(testClassToBeCompiled::removeMethod);
         if (testsToRun.isEmpty()) {
@@ -130,10 +129,9 @@ public class TestCompiler {
     private static List<CtMethod<?>> compileAndDiscardUncompilableMethods(DSpotCompiler compiler,
                                                                           CtType<?> testClassToBeCompiled,
                                                                           String dependencies,
-                                                                          int numberOfTry,
-                                                                          boolean withComment) throws AmplificationException {
+                                                                          int numberOfTry) throws AmplificationException {
 
-        printJavaFileAndDeleteClassFile(compiler, testClassToBeCompiled, withComment);
+        printJavaFileAndDeleteClassFile(compiler, testClassToBeCompiled);
         final List<CategorizedProblem> problems = compiler.compileAndReturnProblems(dependencies)
                 .stream()
                 .filter(IProblem::isError)
@@ -172,7 +170,7 @@ public class TestCompiler {
             );*/
             methodsToRemoveInOriginalModel.forEach(testClassToBeCompiled::removeMethod);
             final List<CtMethod<?>> recursiveMethodToRemove =
-                    compileAndDiscardUncompilableMethods(compiler, testClassToBeCompiled, dependencies, numberOfTry + 1, withComment);
+                    compileAndDiscardUncompilableMethods(compiler, testClassToBeCompiled, dependencies, numberOfTry + 1);
             methodsToRemoveInOriginalModel.addAll(recursiveMethodToRemove);
             return new ArrayList<>(methodsToRemoveInOriginalModel);
         }
@@ -205,9 +203,9 @@ public class TestCompiler {
 
     // output the .java of the test class to be compiled
     // this method delete also the old .class, i.e. the old compiled file of the same test class, if exists
-    private static void printJavaFileAndDeleteClassFile(DSpotCompiler compiler, CtType classTest, boolean withComment) {
+    private static void printJavaFileAndDeleteClassFile(DSpotCompiler compiler, CtType classTest) {
         try {
-            DSpotUtils.printCtTypeToGivenDirectory(classTest, compiler.getSourceOutputDirectory(), withComment);
+            DSpotUtils.printCtTypeToGivenDirectory(classTest, compiler.getSourceOutputDirectory());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
