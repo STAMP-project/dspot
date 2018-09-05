@@ -183,7 +183,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
         } catch (IOException ignored) {
             //ignored
         }
-        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC), configuration.withComment());
+        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC));
         this.currentClassTestToBeAmplified.getPackage().removeType(clone);
 
         final String fileSeparator = System.getProperty("file.separator");
