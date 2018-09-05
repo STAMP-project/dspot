@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtComment;
 import spoon.reflect.code.CtInvocation;
+import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtImport;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtPackage;
@@ -65,7 +66,7 @@ public class AmplificationHelper {
         final Stream<CtMethod<?>> methodToAdd;
         if (InputConfiguration.get().shouldMinimize()) {
             final Minimizer minimizer = InputConfiguration.get().getSelector().getMinimizer();
-            methodToAdd  = ampTest.stream().map(minimizer::minimize);
+            methodToAdd = ampTest.stream().map(minimizer::minimize);
         } else {
             methodToAdd = ampTest.stream();
         }
@@ -76,12 +77,22 @@ public class AmplificationHelper {
             classTest.getMethods().stream().filter(AmplificationChecker::isTest).forEach(amplifiedTest::removeMethod);
             methodToAdd.forEach(amplifiedTest::addMethod);
             final CtTypeReference classTestReference = classTest.getReference();
+            // renaming all the Spoon nodes
             amplifiedTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
                 @Override
                 public boolean matches(CtTypeReference element) {
                     return element.equals(classTestReference) && super.matches(element);
                 }
             }).forEach(ctTypeReference -> ctTypeReference.setSimpleName(getAmplifiedName(classTest)));
+            // need to update also all the String literals
+            amplifiedTest.getElements(new TypeFilter<CtLiteral<String>>(CtLiteral.class) {
+                @Override
+                public boolean matches(CtLiteral<String> element) {
+                    return element.getValue().contains(classTest.getSimpleName());
+                }
+            }).forEach(stringCtLiteral ->
+                    stringCtLiteral.setValue(stringCtLiteral.getValue().replaceAll(classTest.getSimpleName(), amplifiedName))
+            );
             classTest.getPackage().addType(amplifiedTest);
             return amplifiedTest;
         } else {
