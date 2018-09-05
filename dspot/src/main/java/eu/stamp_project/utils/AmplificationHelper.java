@@ -62,6 +62,7 @@ public class AmplificationHelper {
         importByClass.clear();
     }
 
+    @SuppressWarnings("unchecked")
     public static CtType<?> createAmplifiedTest(List<CtMethod<?>> ampTest, CtType<?> classTest) {
         final Stream<CtMethod<?>> methodToAdd;
         if (InputConfiguration.get().shouldMinimize()) {
@@ -85,13 +86,14 @@ public class AmplificationHelper {
                 }
             }).forEach(ctTypeReference -> ctTypeReference.setSimpleName(getAmplifiedName(classTest)));
             // need to update also all the String literals
-            amplifiedTest.getElements(new TypeFilter<CtLiteral<String>>(CtLiteral.class) {
+            amplifiedTest.getElements(new TypeFilter<CtLiteral>(CtLiteral.class) {
                 @Override
-                public boolean matches(CtLiteral<String> element) {
-                    return element.getValue().contains(classTest.getSimpleName());
+                public boolean matches(CtLiteral element) {
+                    return element.getValue() instanceof String &&
+                            ((String)element.getValue()).contains(classTest.getSimpleName());
                 }
             }).forEach(stringCtLiteral ->
-                    stringCtLiteral.setValue(stringCtLiteral.getValue().replaceAll(classTest.getSimpleName(), amplifiedName))
+                    stringCtLiteral.setValue(((String)stringCtLiteral.getValue()).replaceAll(classTest.getSimpleName(), amplifiedName))
             );
             classTest.getPackage().addType(amplifiedTest);
             return amplifiedTest;
