@@ -46,7 +46,7 @@ public class CloverCoverageSelector extends TakeAllSelector {
         if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
             this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
             final Map<String, Map<String, List<Integer>>> lineCoveragePerTestMethods =
-                    CloverExecutor.executeAll(this.configuration, PATH_TO_COPIED_FILES);
+                    CloverExecutor.executeAll(this.configuration, getPathToCopiedFiles());
             this.originalLineCoveragePerClass = new HashMap<>();
             lineCoveragePerTestMethods.keySet().stream()
                     .map(lineCoveragePerTestMethods::get)
@@ -100,9 +100,9 @@ public class CloverCoverageSelector extends TakeAllSelector {
                 .filter(AmplificationChecker::isTest)
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
-        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(PATH_TO_COPIED_FILES), configuration.withComment());
+        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(getPathToCopiedFiles()), configuration.withComment());
         final Map<String, Map<String, List<Integer>>> lineCoveragePerTestMethods =
-                CloverExecutor.execute(this.configuration, PATH_TO_COPIED_FILES, clone.getQualifiedName());
+                CloverExecutor.execute(this.configuration, getPathToCopiedFiles(), clone.getQualifiedName());
         final List<CtMethod<?>> selectedTests = this.selectTests(clone, lineCoveragePerTestMethods);
         this.selectedAmplifiedTest.addAll(selectedTests);
         return selectedTests;
@@ -190,12 +190,18 @@ public class CloverCoverageSelector extends TakeAllSelector {
     }
 
     private final static String PATH_TO_COPIED_FILES = "target/dspot/copy/";
+    
 
+	private String getPathToCopiedFiles() {
+		return DSpotUtils.shouldAddSeparator.apply(this.configuration.getAbsolutePathToProjectRoot())
+				+ PATH_TO_COPIED_FILES;
+	}
+	
     private void initDirectory() {
         // in order to run clover easily, we have to put all the sources and
         // test classes in the same folder.
         // also, we will print amplified test in the same folder
-        final File destDir = new File(PATH_TO_COPIED_FILES);
+        final File destDir = new File(getPathToCopiedFiles());
         try {
             FileUtils.forceDelete(destDir);
         } catch (IOException ignored) {

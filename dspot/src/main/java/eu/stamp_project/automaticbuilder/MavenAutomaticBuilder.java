@@ -58,12 +58,12 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     private String contentOfOriginalPom;
 
-    private static final String FILE_SEPARATOR = "/";
+    private static final String FILE_SEPARATOR = File.separator;
 
     public static final String POM_FILE = "pom.xml";
 
     private void initializeForDescartes() {
-        final String pathToPom = InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + POM_FILE;
+        final String pathToPom = InputConfiguration.get().getAbsolutePathToProjectRoot() + FILE_SEPARATOR + POM_FILE;
         if (DescartesChecker.shouldInjectDescartes(pathToPom)) {
             try (final BufferedReader buffer = new BufferedReader(new FileReader(pathToPom))) {
                 this.contentOfOriginalPom = buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
@@ -134,7 +134,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     @Override
     public void reset() {
         if (contentOfOriginalPom != null) {
-            final String pathToPom = InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + POM_FILE;
+            final String pathToPom = InputConfiguration.get().getAbsolutePathToProjectRoot() + FILE_SEPARATOR + POM_FILE;
             try (FileWriter writer = new FileWriter(pathToPom)) {
                 writer.write(this.contentOfOriginalPom);
                 this.contentOfOriginalPom = null;

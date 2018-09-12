@@ -69,7 +69,7 @@ public class DSpotUtils {
     }
 
     public static void printAmplifiedTestClass(CtType<?> type, File directory, boolean withComment) {
-        final String pathname = directory.getAbsolutePath() + "/" + type.getQualifiedName().replaceAll("\\.", "/")
+        final String pathname = directory.getAbsolutePath() + File.separator + type.getQualifiedName().replaceAll("\\.", File.separator)
                 + ".java";
         if (new File(pathname).exists()) {
             printCtTypeToGivenDirectory(addGeneratedTestToExistingClass(type, pathname), directory, withComment);
@@ -109,7 +109,8 @@ public class DSpotUtils {
     public static final String[] classesToCopy = new String[]{"MethodsHandler", "ObjectLog", "Observation", "Utils", "FailToObserveException"};
 
     public static void copyPackageFromResources() {
-        final String pathToTestClassesDirectory = pathToDSpotDependencies + "/" + packagePath + "/";
+    	final String rootpath = InputConfiguration.get().getAbsolutePathToProjectRoot();
+    	final String pathToTestClassesDirectory = rootpath + File.separator + pathToDSpotDependencies + File.separator + packagePath + File.separator;
         final String directory = packagePath.split("/")[packagePath.split("/").length - 1];
         try {
             FileUtils.forceMkdir(new File(pathToTestClassesDirectory));
@@ -119,8 +120,14 @@ public class DSpotUtils {
         Arrays.stream(classesToCopy).forEach(file -> {
             OutputStream resStreamOut = null;
             try {
-                final InputStream resourceAsStream = Thread.currentThread().getContextClassLoader()
+            	InputStream stream = Thread.currentThread().getContextClassLoader()
+                         .getResourceAsStream(directory + "/" + file + ".class");
+            	// try this for Jenkins
+            	if(stream == null) {
+            		stream = DSpotUtils.class.getClassLoader()
                         .getResourceAsStream(directory + "/" + file + ".class");
+                }
+            	final InputStream resourceAsStream = stream;
                 resStreamOut = new FileOutputStream(pathToTestClassesDirectory + file + ".class");
                 int readBytes;
                 byte[] buffer = new byte[4096];
@@ -134,7 +141,7 @@ public class DSpotUtils {
         });
     }
 
-    public static final Function<String, String> shouldAddSeparator = string -> string + (string != null && string.endsWith("/") ? "" : "/");
+    public static final Function<String, String> shouldAddSeparator = string -> string + (string != null && string.endsWith(File.separator) ? "" : File.separator);
 
     public static String ctTypeToFullQualifiedName(CtType<?> testClass) {
         if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) {
