@@ -188,7 +188,7 @@ public class DSpot {
             final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
             LOGGER.info("Print {} with {} amplified test cases in {}", amplification.getSimpleName(),
                     testSelector.getAmplifiedTestCases().size(), this.inputConfiguration.getOutputDirectory());
-            DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory, this.inputConfiguration.withComment());
+            DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory);
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
             try {
                 String pathToDotClass = compiler.getBinaryOutputDirectory().getAbsolutePath() + "/" +
