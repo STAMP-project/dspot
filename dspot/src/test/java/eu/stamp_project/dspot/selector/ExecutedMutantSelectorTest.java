@@ -49,7 +49,7 @@ public class ExecutedMutantSelectorTest {
                 Collections.singletonList(Utils.findMethod("example.TestSuiteExample", "test8")));
 
         // pretty print it
-        DSpotUtils.printCtTypeToGivenDirectory(amplifyTest, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC), Utils.getInputConfiguration().withComment());
+        DSpotUtils.printCtTypeToGivenDirectory(amplifyTest, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC));
 
         // then compile
         final String classpath = InputConfiguration.get().getBuilder()

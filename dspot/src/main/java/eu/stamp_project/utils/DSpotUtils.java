@@ -56,11 +56,11 @@ public class DSpotUtils {
                 .map(CtType::getQualifiedName).toArray(String[]::new);
     }
 
-    public static void printCtTypeToGivenDirectory(CtType<?> type, File directory, boolean withComment) {
+    public static void printCtTypeToGivenDirectory(CtType<?> type, File directory) {
         Factory factory = type.getFactory();
         Environment env = factory.getEnvironment();
         env.setAutoImports(true);
-        env.setCommentEnabled(withComment);
+        env.setCommentEnabled(InputConfiguration.get().withComment());
         JavaOutputProcessor processor = new JavaOutputProcessor(new DefaultJavaPrettyPrinter(env));
         processor.setFactory(factory);
         processor.getEnvironment().setSourceOutputDirectory(directory);
@@ -68,13 +68,13 @@ public class DSpotUtils {
         env.setAutoImports(false);
     }
 
-    public static void printAmplifiedTestClass(CtType<?> type, File directory, boolean withComment) {
+    public static void printAmplifiedTestClass(CtType<?> type, File directory) {
         final String pathname = directory.getAbsolutePath() + "/" + type.getQualifiedName().replaceAll("\\.", "/")
                 + ".java";
         if (new File(pathname).exists()) {
-            printCtTypeToGivenDirectory(addGeneratedTestToExistingClass(type, pathname), directory, withComment);
+            printCtTypeToGivenDirectory(addGeneratedTestToExistingClass(type, pathname), directory);
         } else {
-            printCtTypeToGivenDirectory(type, directory, withComment);
+            printCtTypeToGivenDirectory(type, directory);
         }
     }
 

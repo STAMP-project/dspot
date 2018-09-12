@@ -3,13 +3,17 @@ package eu.stamp_project.utils;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.program.InputConfiguration;
+import org.junit.After;
 import org.junit.Test;
+import spoon.reflect.code.CtLiteral;
+import spoon.reflect.code.CtTypeAccess;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +27,31 @@ import static org.junit.Assert.assertTrue;
  * on 1/30/17
  */
 public class AmplificationHelperTest extends AbstractTest {
+
+    @After
+    public void tearDown() throws Exception {
+        InputConfiguration.get().setGenerateAmplifiedTestClass(false);
+    }
+
+    @Test
+    public void testCreateAmplifiedTestWithReferenceInString() throws Exception {
+
+        /*
+            test that literals are also replaced if they contain the original test class name when
+                using --generate-new-test-class command line option
+         */
+
+        InputConfiguration.get().setGenerateAmplifiedTestClass(true);
+        final CtClass testClass = Utils.findClass("fr.inria.amplified.AmplifiedTestClassWithReferenceToName");
+        final CtType amplifiedTest = AmplificationHelper.createAmplifiedTest(new ArrayList<>(testClass.getMethods()), testClass);
+        assertEquals("AmplAmplifiedTestClassWithReferenceToName", amplifiedTest.getElements(new TypeFilter<>(CtLiteral.class)).get(0).getValue()); // must be updated if the resource change
+        assertEquals("AmplAmplifiedTestClassWithReferenceToName",
+                amplifiedTest.getElements(new TypeFilter<>(CtTypeAccess.class))
+                        .get(0)
+                        .getAccessedType()
+                        .getSimpleName()
+        );
+    }
 
     @Test
     public void testConvertWithSuperClassIsJUnit3() throws Exception {

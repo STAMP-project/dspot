@@ -62,7 +62,7 @@ public class JUnit3Support {
                         final CtType<?> convertedSuperclass =
                                 convertToJUnit4(superclass, configuration);
                         DSpotUtils.printCtTypeToGivenDirectory(convertedSuperclass,
-                                new File(configuration.getAbsolutePathToTestClasses()), configuration.withComment());
+                                new File(configuration.getAbsolutePathToTestClasses()));
                         final String classpath = configuration.getDependencies()
                                 + AmplificationHelper.PATH_SEPARATOR +
                                 configuration.getClasspathClassesProject()
