@@ -138,7 +138,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 	 * This .java contains amplified test methods at different step of the process of DSpot.
 	 * The {@link DSpotCompiler} use this path to compile the amplified test class.
 	 */
-	public static final String PATH_TO_AMPLIFIED_TEST_SRC = "target/dspot/tmp_test_sources";
+	public static final String PATH_TO_AMPLIFIED_TEST_SRC = InputConfiguration.get().getAbsolutePathToProjectRoot()+"target/dspot/tmp_test_sources";
 
 	private Launcher launcher;
 

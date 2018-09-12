@@ -1,6 +1,7 @@
 package eu.stamp_project.utils.compilation;
 
 import eu.stamp_project.dspot.AmplificationException;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -33,7 +34,7 @@ public class TestRunner {
                     .map(testClassName -> {
                         try {
                             return EntryPoint.runTests(
-                                    classPath + AmplificationHelper.PATH_SEPARATOR + new File("target/dspot/dependencies/").getAbsolutePath(),
+                                    classPath + AmplificationHelper.PATH_SEPARATOR + new File(InputConfiguration.get().getAbsolutePathToProjectRoot()+"target/dspot/dependencies/").getAbsolutePath(),
                                     testClassName,
                                     testsToRun.stream()
                                             .map(CtMethod::getSimpleName)
@@ -57,7 +58,7 @@ public class TestRunner {
     public static TestListener runGivenTestMethods(CtType<?> testClass, List<CtMethod<?>> testsToRun, String classPath) throws AmplificationException {
         try {
             return EntryPoint.runTests(
-                    classPath + AmplificationHelper.PATH_SEPARATOR + new File("target/dspot/dependencies/").getAbsolutePath(),
+                    classPath + AmplificationHelper.PATH_SEPARATOR + new File(InputConfiguration.get().getAbsolutePathToProjectRoot()+"target/dspot/dependencies/").getAbsolutePath(),
                     testClass.getQualifiedName(),
                     testsToRun.stream()
                             .map(CtMethod::getSimpleName)
