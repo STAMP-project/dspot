@@ -102,15 +102,17 @@ public class DSpotUtils {
         }
     }
 
-    public static final String pathToDSpotDependencies = "target/dspot/dependencies/";
+    private static final String pathToDSpotDependencies = "target/dspot/dependencies/";
 
     public static final String packagePath = "eu/stamp_project/compare/";
 
     public static final String[] classesToCopy = new String[]{"MethodsHandler", "ObjectLog", "Observation", "Utils", "FailToObserveException"};
 
+    public static String getAbsoloutePathToDSpotDependentcies(){
+    	return new File(InputConfiguration.get().getAbsolutePathToProjectRoot(), pathToDSpotDependencies).getAbsolutePath();
+    }
     public static void copyPackageFromResources() {
-    	final String rootpath = InputConfiguration.get().getAbsolutePathToProjectRoot();
-    	final String pathToTestClassesDirectory = rootpath + File.separator + pathToDSpotDependencies + File.separator + packagePath + File.separator;
+    	final String pathToTestClassesDirectory =  getAbsoloutePathToDSpotDependentcies() + packagePath + File.separator;
         final String directory = packagePath.split("/")[packagePath.split("/").length - 1];
         try {
             FileUtils.forceMkdir(new File(pathToTestClassesDirectory));
@@ -154,5 +156,4 @@ public class DSpotUtils {
         }
     }
 
-    public static final String PATH_TO_EXTRA_DEPENDENCIES_TO_DSPOT_CLASSES = new File("target/dspot/dependencies/").getAbsolutePath();
 }
