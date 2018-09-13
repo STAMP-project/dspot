@@ -112,7 +112,7 @@ public class ChangeMinimizer extends GeneralMinimizer {
     // this method return a mixed classpath between the first and the second version
     private String getMixedClasspath() {
         return InputConfiguration.get().getDependencies() + AmplificationHelper.PATH_SEPARATOR +
-                DSpotUtils.getAbsoloutePathToDSpotDependencies() + AmplificationHelper.PATH_SEPARATOR +
+                DSpotUtils.getAbsolutePathToDSpotDependencies() + AmplificationHelper.PATH_SEPARATOR +
                 InputConfiguration.get().getAbsolutePathToTestClasses() + AmplificationHelper.PATH_SEPARATOR +
                 this.pathToSecondVersionOfProgram + InputConfiguration.get().getPathToClasses();
     }

@@ -34,7 +34,7 @@ public class TestRunner {
                     .map(testClassName -> {
                         try {
                             return EntryPoint.runTests(
-                                    classPath + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsoloutePathToDSpotDependencies(),
+                                    classPath + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies(),
                                     testClassName,
                                     testsToRun.stream()
                                             .map(CtMethod::getSimpleName)
@@ -58,7 +58,7 @@ public class TestRunner {
     public static TestListener runGivenTestMethods(CtType<?> testClass, List<CtMethod<?>> testsToRun, String classPath) throws AmplificationException {
         try {
             return EntryPoint.runTests(
-                    classPath + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsoloutePathToDSpotDependencies(),
+                    classPath + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies(),
                     testClass.getQualifiedName(),
                     testsToRun.stream()
                             .map(CtMethod::getSimpleName)
