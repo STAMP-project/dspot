@@ -170,6 +170,13 @@ public class DSpotMojo extends AbstractMojo {
     private Boolean generateNewTestClass;
 
     /**
+     *	If enabled, DSpot will use maven to execute the tests.
+     */
+    @Parameter(defaultValue = "false", property = "use-maven-to-exe-test")
+    private Boolean useMavenToExeTest = false;
+
+
+    /**
      *	run the example of DSpot and leave
      */
     @Parameter(defaultValue = "false", property = "example")
@@ -230,7 +237,8 @@ public class DSpotMojo extends AbstractMojo {
                     .setWithComment(this.withComment)
                     .setDescartesMode(this.descartes)
                     .setGenerateAmplifiedTestClass(this.generateNewTestClass)
-                    .setOutputDirectory(this.outputPath);
+                    .setOutputDirectory(this.outputPath)
+                    .setUseMavenToExecuteTest(this.useMavenToExeTest);
 
             if (!this.pathToSecondVersion.isEmpty()) {
                 InputConfiguration.get().setAbsolutePathToSecondVersionProjectRoot(this.pathToSecondVersion);
