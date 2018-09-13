@@ -92,10 +92,14 @@ public class DSpot {
         this.numberOfIterations = numberOfIterations;
         this.testSelector = testSelector;
         this.testSelector.init(this.inputConfiguration);
-
-        final String[] splittedPath = this.inputConfiguration.getAbsolutePathToProjectRoot().split("/");
+        final String[] splittedPath;
+        if (AmplificationHelper.FILE_SEPARATOR.equals("\\")) {
+            splittedPath = this.inputConfiguration.getAbsolutePathToProjectRoot().split("\\\\");
+        } else {
+            splittedPath = this.inputConfiguration.getAbsolutePathToProjectRoot().split(AmplificationHelper.FILE_SEPARATOR);
+        }
         final File projectJsonFile = new File(this.inputConfiguration.getOutputDirectory() +
-                "/" + splittedPath[splittedPath.length - 1] + ".json");
+                AmplificationHelper.FILE_SEPARATOR + splittedPath[splittedPath.length - 1] + ".json");
         if (projectJsonFile.exists()) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             this.projectTimeJSON = gson.fromJson(new FileReader(projectJsonFile), ProjectTimeJSON.class);
@@ -191,7 +195,7 @@ public class DSpot {
             DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory);
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
             try {
-                String pathToDotClass = compiler.getBinaryOutputDirectory().getAbsolutePath() + "/" +
+                String pathToDotClass = compiler.getBinaryOutputDirectory().getAbsolutePath() + AmplificationHelper.FILE_SEPARATOR +
                         test.getQualifiedName().replaceAll("\\.", "/") + ".class";
                 FileUtils.forceDelete(new File(pathToDotClass));
             } catch (IOException ignored) {
@@ -233,7 +237,7 @@ public class DSpot {
     private void writeTimeJson() {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         final File file = new File(this.inputConfiguration.getOutputDirectory() +
-                "/" + this.projectTimeJSON.projectName + ".json");
+                AmplificationHelper.FILE_SEPARATOR + this.projectTimeJSON.projectName + ".json");
         try (FileWriter writer = new FileWriter(file, false)) {
             writer.write(gson.toJson(this.projectTimeJSON));
         } catch (IOException e) {

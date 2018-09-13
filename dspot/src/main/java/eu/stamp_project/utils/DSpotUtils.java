@@ -134,7 +134,7 @@ public class DSpotUtils {
         });
     }
 
-    public static final Function<String, String> shouldAddSeparator = string -> string + (string != null && string.endsWith("/") ? "" : "/");
+    public static final Function<String, String> shouldAddSeparator = string -> string != null ? string + (string.endsWith(AmplificationHelper.FILE_SEPARATOR) ? "" : AmplificationHelper.FILE_SEPARATOR) : string;
 
     public static String ctTypeToFullQualifiedName(CtType<?> testClass) {
         if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) {

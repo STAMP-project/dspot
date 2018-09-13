@@ -65,7 +65,6 @@ public class InputConfiguration {
      *
      * @param pathToPropertiesFile the path to the properties file. It is recommended to use an absolute path.
      * @return the new instance of the InputConfiguration
-     *
      */
     public static InputConfiguration initialize(String pathToPropertiesFile) {
         InputConfiguration.initialize(loadProperties(pathToPropertiesFile));
@@ -81,17 +80,16 @@ public class InputConfiguration {
      * Then, uses the properties to initialize other values.
      * The given properties should have least values for :
      * <ul>
-     *     <li>{@link ConstantsProperties#PROJECT_ROOT_PATH}</li>
-     *     <li>{@link ConstantsProperties#SRC_CODE}</li>
-     *     <li>{@link ConstantsProperties#TEST_SRC_CODE}</li>
-     *     <li>{@link ConstantsProperties#SRC_CLASSES}</li>
-     *     <li>{@link ConstantsProperties#TEST_CLASSES}</li>
-     *     <li>{@link ConstantsProperties#MODULE}, in case of multi module project</li>
+     * <li>{@link ConstantsProperties#PROJECT_ROOT_PATH}</li>
+     * <li>{@link ConstantsProperties#SRC_CODE}</li>
+     * <li>{@link ConstantsProperties#TEST_SRC_CODE}</li>
+     * <li>{@link ConstantsProperties#SRC_CLASSES}</li>
+     * <li>{@link ConstantsProperties#TEST_CLASSES}</li>
+     * <li>{@link ConstantsProperties#MODULE}, in case of multi module project</li>
      * </ul>
      *
      * @param properties the properties. See {@link ConstantsProperties}
      * @return the new instance of the InputConfiguration
-     *
      */
     public static InputConfiguration initialize(Properties properties) {
         if (InputConfiguration.instance != null) {
@@ -131,8 +129,9 @@ public class InputConfiguration {
                     });
         }
 
-        this.setBudgetizer(new NoBudgetizer())
-                .setOutputDirectory(ConstantsProperties.OUTPUT_DIRECTORY.get(properties))
+        final File outputDirectoryFile = new File(ConstantsProperties.OUTPUT_DIRECTORY.get(properties));
+        this.setOutputDirectory(outputDirectoryFile.getAbsolutePath())
+                .setBudgetizer(new NoBudgetizer())
                 .setDelta(ConstantsProperties.DELTA_ASSERTS_FLOAT.get(properties))
                 .setFilter(ConstantsProperties.FILTER.get(properties))
                 .setPitVersion(ConstantsProperties.PIT_VERSION.get(properties))
@@ -145,7 +144,7 @@ public class InputConfiguration {
                 .setExcludedTestCases(ConstantsProperties.EXCLUDED_TEST_CASES.get(properties));
     }
 
-    private void initializeBuilder(Properties properties){
+    private void initializeBuilder(Properties properties) {
         this.setMavenHome(ConstantsProperties.MAVEN_HOME.get(properties));
         this.builder = AutomaticBuilderFactory.getAutomaticBuilder(ConstantsProperties.AUTOMATIC_BUILDER_NAME.getName());
         this.dependencies = this.builder.compileAndBuildClasspath();
@@ -175,10 +174,10 @@ public class InputConfiguration {
      * @param pathToTestClasses relative path from {@code pathToProjectRoot} to the folder that contains the test binaries (.class).
      */
     private InputConfiguration(String pathToProjectRoot,
-                              String pathToSource,
-                              String pathToTestSource,
-                              String pathToClasses,
-                              String pathToTestClasses) {
+                               String pathToSource,
+                               String pathToTestSource,
+                               String pathToClasses,
+                               String pathToTestClasses) {
         this(pathToProjectRoot,
                 pathToSource,
                 pathToTestSource,
@@ -199,11 +198,11 @@ public class InputConfiguration {
      * @param targetModule      relative path from {@code pathToProjectRoot} to the targeted sub-module. This argument can be empty ("") in case of single module project.
      */
     private InputConfiguration(String pathToProjectRoot,
-                              String pathToSource,
-                              String pathToTestSource,
-                              String pathToClasses,
-                              String pathToTestClasses,
-                              String targetModule) {
+                               String pathToSource,
+                               String pathToTestSource,
+                               String pathToClasses,
+                               String pathToTestClasses,
+                               String targetModule) {
         this.setAbsolutePathToProjectRoot(new File(
                         DSpotUtils.shouldAddSeparator.apply(
                                 pathToProjectRoot
@@ -645,6 +644,7 @@ public class InputConfiguration {
 
     /**
      * Side effect: assign the same value to {@link eu.stamp_project.testrunner.EntryPoint#workingDirectory}
+     *
      * @param useWorkingDirectory of the verbose mode.
      * @return an instance of this InputConfiguration
      */
@@ -662,12 +662,13 @@ public class InputConfiguration {
 
     /**
      * Side effect: assign the same value to {@link eu.stamp_project.testrunner.EntryPoint#verbose}
+     *
      * @param verbose value of the verbose mode.
      * @return an instance of this InputConfiguration
      */
     public InputConfiguration setVerbose(boolean verbose) {
         this.verbose = verbose;
-        EntryPoint.verbose = this.isVerbose();
+        EntryPoint.verbose = verbose;
         return this;
     }
 
