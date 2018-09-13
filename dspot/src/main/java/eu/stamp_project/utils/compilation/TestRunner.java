@@ -1,6 +1,7 @@
 package eu.stamp_project.utils.compilation;
 
 import eu.stamp_project.dspot.AmplificationException;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -74,5 +75,21 @@ public class TestRunner {
         }
     }
 
+    public static TestListener run(String classpath, String rootPath, String fullQualifiedName, String... testToRun) throws TimeoutException {
+        if (InputConfiguration.get().isUseMavenToExecuteTest()) {
+            return eu.stamp_project.testrunner.maven.EntryPoint.runTests(
+                    rootPath,
+                    fullQualifiedName,
+                    testToRun
+            );
+        } else {
+            return EntryPoint.runTests(
+                    classpath,
+                    fullQualifiedName,
+                    testToRun
+
+            );
+        }
+    }
 
 }

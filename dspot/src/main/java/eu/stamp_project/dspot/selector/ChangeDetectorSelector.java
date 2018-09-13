@@ -3,13 +3,13 @@ package eu.stamp_project.dspot.selector;
 import eu.stamp_project.minimization.ChangeMinimizer;
 import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.program.InputConfiguration;
-import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
+import eu.stamp_project.utils.compilation.TestRunner;
 import org.codehaus.plexus.util.FileUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Created by Benjamin DANGLOT
@@ -89,15 +88,14 @@ public class ChangeDetectorSelector implements TestSelector {
 
         final TestListener results;
         try {
-            results = EntryPoint.runTests(
+            results = TestRunner.run(
                     InputConfiguration.get().getFullClassPathWithExtraDependencies(),
+                    this.pathToSecondVersionOfProgram,
                     clone.getQualifiedName(),
                     amplifiedTestToBeKept.stream()
                             .map(CtMethod::getSimpleName)
-                            .toArray(String[]::new)
-
-            );
-        } catch (TimeoutException e) {
+                            .toArray(String[]::new));
+        } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToFirstVersionOfProgram);
