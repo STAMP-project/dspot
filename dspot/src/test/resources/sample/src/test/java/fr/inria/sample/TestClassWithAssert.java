@@ -1,5 +1,6 @@
 package fr.inria.sample;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import static com.google.common.truth.Truth.assertThat;
