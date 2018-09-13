@@ -108,11 +108,11 @@ public class DSpotUtils {
 
     public static final String[] classesToCopy = new String[]{"MethodsHandler", "ObjectLog", "Observation", "Utils", "FailToObserveException"};
 
-    public static String getAbsoloutePathToDSpotDependentcies(){
+    public static String getAbsoloutePathToDSpotDependencies(){
     	return new File(InputConfiguration.get().getAbsolutePathToProjectRoot(), pathToDSpotDependencies).getAbsolutePath();
     }
     public static void copyPackageFromResources() {
-    	final String pathToTestClassesDirectory =  getAbsoloutePathToDSpotDependentcies() + packagePath + File.separator;
+    	final String pathToTestClassesDirectory =  getAbsoloutePathToDSpotDependencies() + packagePath + File.separator;
         final String directory = packagePath.split("/")[packagePath.split("/").length - 1];
         try {
             FileUtils.forceMkdir(new File(pathToTestClassesDirectory));

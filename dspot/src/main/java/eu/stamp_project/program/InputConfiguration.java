@@ -359,7 +359,7 @@ public class InputConfiguration {
     public String getFullClassPathWithExtraDependencies() {
         return this.getClasspathClassesProject() + AmplificationHelper.PATH_SEPARATOR +
                 this.getDependencies() + AmplificationHelper.PATH_SEPARATOR +
-                DSpotUtils.getAbsoloutePathToDSpotDependentcies();
+                DSpotUtils.getAbsoloutePathToDSpotDependencies();
     }
 
     private String additionalClasspathElements;
