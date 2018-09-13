@@ -49,7 +49,6 @@ public class CloverExecutor {
                                                                   String pathToSources,
                                                                   String... testClassesNames) {
         final File rootDirectoryOfCloverFiles = new File(configuration.getAbsolutePathToProjectRoot(), ROOT_DIRECTORY);
-        //final File rootDirectoryOfCloverFiles = new File(ROOT_DIRECTORY);
         try {
             FileUtils.deleteDirectory(rootDirectoryOfCloverFiles);
         } catch (IOException ignored) {
