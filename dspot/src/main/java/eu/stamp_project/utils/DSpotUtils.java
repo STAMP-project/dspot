@@ -109,11 +109,7 @@ public class DSpotUtils {
     public static final String[] classesToCopy = new String[]{"MethodsHandler", "ObjectLog", "Observation", "Utils", "FailToObserveException"};
 
     public static String getAbsoloutePathToDSpotDependencies(){
-<<<<<<< HEAD
     	return DSpotUtils.shouldAddSeparator.apply(new File(InputConfiguration.get().getAbsolutePathToProjectRoot(), pathToDSpotDependencies).getAbsolutePath());
-=======
-    	return new File(InputConfiguration.get().getAbsolutePathToProjectRoot(), pathToDSpotDependencies).getAbsolutePath();
->>>>>>> refs/remotes/origin/jenkins-compatibility
     }
     public static void copyPackageFromResources() {
     	final String pathToTestClassesDirectory =  getAbsoloutePathToDSpotDependencies() + packagePath + File.separator;
