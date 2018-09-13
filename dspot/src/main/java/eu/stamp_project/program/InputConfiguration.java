@@ -821,4 +821,18 @@ public class InputConfiguration {
         this.generateAmplifiedTestClass = generateAmplifiedTestClass;
         return this;
     }
+
+    /**
+     * This boolean say if we must use maven to execute the test. If not, the tests will be executed with a java command line
+     */
+    private boolean useMavenToExecuteTest = false;
+
+    public boolean isUseMavenToExecuteTest() {
+        return useMavenToExecuteTest;
+    }
+
+    public InputConfiguration setUseMavenToExecuteTest(boolean useMavenToExecuteTest) {
+        this.useMavenToExecuteTest = useMavenToExecuteTest;
+        return this;
+    }
 }
