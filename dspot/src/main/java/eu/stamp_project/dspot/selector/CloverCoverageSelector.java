@@ -192,14 +192,12 @@ public class CloverCoverageSelector extends TakeAllSelector {
     }
 
     private final static String PATH_TO_COPIED_FILES = "target/dspot/copy/";
-    
 
 	private String getPathToCopiedFiles() {
-		return DSpotUtils.shouldAddSeparator.apply(this.configuration.getAbsolutePathToProjectRoot())
-				+ PATH_TO_COPIED_FILES;
+		return this.configuration.getAbsolutePathToProjectRoot() + PATH_TO_COPIED_FILES;
 	}
-	
-    private void initDirectory() {
+
+	private void initDirectory() {
         // in order to run clover easily, we have to put all the sources and
         // test classes in the same folder.
         // also, we will print amplified test in the same folder

@@ -14,6 +14,7 @@ env:
   - SCRIPT=travis-coverage.sh
   - SCRIPT=travis-jar.sh
   - SCRIPT=travis-dspot-maven.sh
+  - SCRIPT=travis-checkstyle.sh
 
 cache:
   directories:
@@ -36,11 +37,3 @@ after_success:
 branch:
   only:
     - master
-    
-notifications:
-  webhooks:
-    urls:
-      - "https://scalar.vector.im/api/neb/services/hooks/dHJhdmlzLWNpLyU0MGJkYW5nbG90JTNBbWF0cml4Lm9yZy8lMjF2bkN5V2FHSmJ4RVNBa3p5cWglM0FtYXRyaXgub3Jn"
-    on_success: change  # always|never|change
-    on_failure: always
-    on_start: never
