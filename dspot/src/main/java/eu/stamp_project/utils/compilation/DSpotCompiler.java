@@ -93,7 +93,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		launcher.getEnvironment().setCommentEnabled(true);
 		launcher.getEnvironment().setOutputType(OutputType.CLASSES);
 		DSpotUtils.copyPackageFromResources();
-		String[] sourcesArray = (pathToSources + PATH_SEPARATOR + DSpotUtils.getAbsoloutePathToDSpotDependencies()).split(PATH_SEPARATOR);
+		String[] sourcesArray = (pathToSources + PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies()).split(PATH_SEPARATOR);
 		Arrays.stream(sourcesArray).forEach(launcher::addInputResource);
 		if (!pathToDependencies.isEmpty()) {
 			String[] dependenciesArray = pathToDependencies.split(PATH_SEPARATOR);

@@ -102,7 +102,7 @@ public class ExecutedMutantSelector extends TakeAllSelector {
         final String classpath = this.configuration.getDependencies()
                 + AmplificationHelper.PATH_SEPARATOR +
                 this.configuration.getClasspathClassesProject()
-                + DSpotUtils.getAbsoloutePathToDSpotDependencies();
+                + DSpotUtils.getAbsolutePathToDSpotDependencies();
 
         DSpotCompiler.compile(configuration, DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
                 new File(this.configuration.getAbsolutePathToTestClasses()));

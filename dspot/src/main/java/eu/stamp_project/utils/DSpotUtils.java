@@ -89,12 +89,6 @@ public class DSpotUtils {
         return existingAmplifiedTest;
     }
 
-    /*
-    public static void printAllClasses(Factory factory, File out) {
-        factory.Class().getAll().forEach(type -> printCtTypeToGivenDirectory(type, out, ));
-    }
-    */
-
     public static void addComment(CtElement element, String content, CtComment.CommentType type) {
         CtComment comment = element.getFactory().createComment(content, type);
         if (!element.getComments().contains(comment)) {
@@ -102,38 +96,37 @@ public class DSpotUtils {
         }
     }
 
-    private static final String pathToDSpotDependencies = "target/dspot/dependencies/";
+    private static final String PATH_TO_DSPOT_DEPENDENCIES = "target/dspot/dependencies/";
 
-    public static final String packagePath = "eu/stamp_project/compare/";
+    private static final String PACKAGE_NAME = "compare";
 
-    public static final String[] classesToCopy = new String[]{"MethodsHandler", "ObjectLog", "Observation", "Utils", "FailToObserveException"};
+    private static final String PACKAGE_PATH = "eu/stamp_project/" + PACKAGE_NAME + "/";
 
-    public static String getAbsoloutePathToDSpotDependencies(){
-    	return DSpotUtils.shouldAddSeparator.apply(new File(InputConfiguration.get().getAbsolutePathToProjectRoot(), pathToDSpotDependencies).getAbsolutePath());
+    private static final String[] DSPOT_CLASSES = new String[]{"MethodsHandler", "ObjectLog", "Observation", "Utils", "FailToObserveException"};
+
+    public static String getAbsolutePathToDSpotDependencies(){
+    	return InputConfiguration.get().getAbsolutePathToProjectRoot() + PATH_TO_DSPOT_DEPENDENCIES;
     }
     public static void copyPackageFromResources() {
-    	final String pathToTestClassesDirectory =  getAbsoloutePathToDSpotDependencies() + packagePath + File.separator;
-        final String directory = packagePath.split("/")[packagePath.split("/").length - 1];
+    	final String pathToTestClassesDirectory =  DSpotUtils.getAbsolutePathToDSpotDependencies() + PACKAGE_PATH;
         try {
             FileUtils.forceMkdir(new File(pathToTestClassesDirectory));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        Arrays.stream(classesToCopy).forEach(file -> {
-            OutputStream resStreamOut = null;
+        Arrays.stream(DSPOT_CLASSES).forEach(file -> {
             try {
             	InputStream stream = Thread.currentThread().getContextClassLoader()
-                         .getResourceAsStream(directory + "/" + file + ".class");
+                         .getResourceAsStream(PACKAGE_NAME + "/" + file + ".class");
             	// try this for Jenkins
             	if(stream == null) {
             		stream = DSpotUtils.class.getClassLoader()
-                        .getResourceAsStream(directory + "/" + file + ".class");
+                        .getResourceAsStream(PACKAGE_NAME + "/" + file + ".class");
                 }
-            	final InputStream resourceAsStream = stream;
-                resStreamOut = new FileOutputStream(pathToTestClassesDirectory + file + ".class");
+                final OutputStream resStreamOut = new FileOutputStream(pathToTestClassesDirectory + file + ".class");
                 int readBytes;
                 byte[] buffer = new byte[4096];
-                while ((readBytes = resourceAsStream.read(buffer)) > 0) {
+                while ((readBytes = stream.read(buffer)) > 0) {
                     resStreamOut.write(buffer, 0, readBytes);
                 }
                 resStreamOut.close();

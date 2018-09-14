@@ -167,7 +167,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
                     OPT_VALUE_TIMEOUT, //
                     OPT_VALUE_MEMORY, //
                     OPT_TARGET_TESTS + Arrays.stream(testClasses).map(DSpotUtils::ctTypeToFullQualifiedName).collect(Collectors.joining(",")), //
-                    OPT_ADDITIONAL_CP_ELEMENTS + "target/dspot/dependencies/" +
+                    OPT_ADDITIONAL_CP_ELEMENTS + DSpotUtils.getAbsolutePathToDSpotDependencies() +
                             (!InputConfiguration.get().getAdditionalClasspathElements().isEmpty() ?
                                     "," + InputConfiguration.get().getAdditionalClasspathElements() : ""), //
                     InputConfiguration.get().isDescartesMode() ? OPT_MUTATION_ENGINE_DESCARTES : OPT_MUTATION_ENGINE_DEFAULT,
@@ -210,7 +210,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
                     OPT_VALUE_MEMORY, //
                     InputConfiguration.get().isDescartesMode() ? OPT_MUTATION_ENGINE_DESCARTES : OPT_MUTATION_ENGINE_DEFAULT,
                     InputConfiguration.get().isDescartesMode() ? "" : OPT_MUTATORS + VALUE_MUTATORS_ALL, //
-                    OPT_ADDITIONAL_CP_ELEMENTS + "target/dspot/dependencies/" +
+                    OPT_ADDITIONAL_CP_ELEMENTS + DSpotUtils.getAbsolutePathToDSpotDependencies() +
                             (!InputConfiguration.get().getAdditionalClasspathElements().isEmpty() ?
                                     "," + InputConfiguration.get().getAdditionalClasspathElements() : ""), //
                     !InputConfiguration.get().getExcludedClasses().isEmpty() ?

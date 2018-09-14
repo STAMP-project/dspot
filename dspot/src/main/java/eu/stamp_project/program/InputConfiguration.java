@@ -354,12 +354,12 @@ public class InputConfiguration {
     }
 
     /**
-     * @return the full classpath of the project. This full classpath is composed of: the returned values of {@link #getClasspathClassesProject}, {@link #getDependencies()} and {@link DSpotUtils#PATH_TO_EXTRA_DEPENDENCIES_TO_DSPOT_CLASSES} separated by the path separator of the system, <i>i.e.</i> as a classpath.
+     * @return the full classpath of the project. This full classpath is composed of: the returned values of {@link #getClasspathClassesProject}, {@link #getDependencies()} and {@link DSpotUtils#getAbsolutePathToDSpotDependencies()} separated by the path separator of the system, <i>i.e.</i> as a classpath.
      */
     public String getFullClassPathWithExtraDependencies() {
         return this.getClasspathClassesProject() + AmplificationHelper.PATH_SEPARATOR +
                 this.getDependencies() + AmplificationHelper.PATH_SEPARATOR +
-                DSpotUtils.getAbsoloutePathToDSpotDependencies();
+                DSpotUtils.getAbsolutePathToDSpotDependencies();
     }
 
     private String additionalClasspathElements;
