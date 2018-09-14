@@ -100,7 +100,9 @@ public class CloverCoverageSelector extends TakeAllSelector {
                 .filter(AmplificationChecker::isTest)
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
+
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(getPathToCopiedFiles()));
+
         final Map<String, Map<String, List<Integer>>> lineCoveragePerTestMethods =
                 CloverExecutor.execute(this.configuration, getPathToCopiedFiles(), clone.getQualifiedName());
         final List<CtMethod<?>> selectedTests = this.selectTests(clone, lineCoveragePerTestMethods);

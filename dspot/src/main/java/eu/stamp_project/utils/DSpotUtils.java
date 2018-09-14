@@ -108,7 +108,8 @@ public class DSpotUtils {
     	return InputConfiguration.get().getAbsolutePathToProjectRoot() + PATH_TO_DSPOT_DEPENDENCIES;
     }
     public static void copyPackageFromResources() {
-    	final String pathToTestClassesDirectory =  DSpotUtils.getAbsolutePathToDSpotDependencies() + PACKAGE_PATH;
+
+      final String pathToTestClassesDirectory =  DSpotUtils.getAbsolutePathToDSpotDependencies() + PACKAGE_PATH;
         try {
             FileUtils.forceMkdir(new File(pathToTestClassesDirectory));
         } catch (IOException e) {
@@ -124,6 +125,7 @@ public class DSpotUtils {
                         .getResourceAsStream(PACKAGE_NAME + "/" + file + ".class");
                 }
                 final OutputStream resStreamOut = new FileOutputStream(pathToTestClassesDirectory + file + ".class");
+
                 int readBytes;
                 byte[] buffer = new byte[4096];
                 while ((readBytes = stream.read(buffer)) > 0) {
