@@ -56,7 +56,7 @@ public class ExecutedMutantSelectorTest {
                 .buildClasspath()
                 + AmplificationHelper.PATH_SEPARATOR +
                 Utils.getInputConfiguration().getClasspathClassesProject()
-                + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
+                + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies();
 
         DSpotCompiler.compile(Utils.getInputConfiguration(), DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
                 new File(Utils.getInputConfiguration().getAbsolutePathToTestClasses()));

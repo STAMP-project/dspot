@@ -66,7 +66,7 @@ public class JUnit3Support {
                         final String classpath = configuration.getDependencies()
                                 + AmplificationHelper.PATH_SEPARATOR +
                                 configuration.getClasspathClassesProject()
-                                + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/";
+                                + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies();
                         DSpotCompiler.compile(configuration, DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
                                 new File(configuration.getAbsolutePathToTestClasses()));
                     }
