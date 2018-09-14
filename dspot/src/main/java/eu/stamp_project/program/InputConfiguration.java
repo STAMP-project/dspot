@@ -354,12 +354,12 @@ public class InputConfiguration {
     }
 
     /**
-     * @return the full classpath of the project. This full classpath is composed of: the returned values of {@link #getClasspathClassesProject}, {@link #getDependencies()} and {@link DSpotUtils#PATH_TO_EXTRA_DEPENDENCIES_TO_DSPOT_CLASSES} separated by the path separator of the system, <i>i.e.</i> as a classpath.
+     * @return the full classpath of the project. This full classpath is composed of: the returned values of {@link #getClasspathClassesProject}, {@link #getDependencies()} and {@link DSpotUtils#getAbsolutePathToDSpotDependencies()} separated by the path separator of the system, <i>i.e.</i> as a classpath.
      */
     public String getFullClassPathWithExtraDependencies() {
         return this.getClasspathClassesProject() + AmplificationHelper.PATH_SEPARATOR +
                 this.getDependencies() + AmplificationHelper.PATH_SEPARATOR +
-                DSpotUtils.PATH_TO_EXTRA_DEPENDENCIES_TO_DSPOT_CLASSES;
+                DSpotUtils.getAbsolutePathToDSpotDependencies();
     }
 
     private String additionalClasspathElements;
@@ -819,6 +819,20 @@ public class InputConfiguration {
 
     public InputConfiguration setGenerateAmplifiedTestClass(boolean generateAmplifiedTestClass) {
         this.generateAmplifiedTestClass = generateAmplifiedTestClass;
+        return this;
+    }
+
+    /**
+     * This boolean say if we must use maven to execute the test. If not, the tests will be executed with a java command line
+     */
+    private boolean useMavenToExecuteTest = false;
+
+    public boolean isUseMavenToExecuteTest() {
+        return useMavenToExecuteTest;
+    }
+
+    public InputConfiguration setUseMavenToExecuteTest(boolean useMavenToExecuteTest) {
+        this.useMavenToExecuteTest = useMavenToExecuteTest;
         return this;
     }
 }

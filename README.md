@@ -271,6 +271,9 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
 
   [--generate-new-test-class]
         Enable the creation of a new test class.
+        
+  [--use-maven-to-exe-test]
+        If enabled, DSpot will use maven to execute the tests.
 
   [-e|--example]
         run the example of DSpot and leave
