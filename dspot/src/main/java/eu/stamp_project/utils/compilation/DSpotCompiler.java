@@ -1,6 +1,5 @@
 package eu.stamp_project.utils.compilation;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
@@ -23,8 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
 
