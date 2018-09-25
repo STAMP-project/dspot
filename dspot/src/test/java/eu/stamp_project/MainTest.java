@@ -1,5 +1,7 @@
 package eu.stamp_project;
 
+import eu.stamp_project.dspot.DSpot;
+import eu.stamp_project.dspot.selector.CloverCoverageSelector;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
@@ -8,11 +10,13 @@ import org.junit.Before;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtType;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -45,6 +49,22 @@ public class MainTest {
         } catch (Exception ignored) {
 
         }
+    }
+
+    @Test
+    public void testUsingCloverSelectorAndMultipleAmplificationDSpot() throws Exception {
+
+        /*
+            Test multiple amplification with CloverSelector
+         */
+
+        Main.main(new String[]{
+                "--verbose",
+                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
+                "--test-criterion", "CloverCoverageSelector",
+                "--test", "all",
+                "--no-minimize"
+        });
     }
 
     @Test

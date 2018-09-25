@@ -39,6 +39,18 @@ public class CloverCoverageSelector extends TakeAllSelector {
         super.init(configuration);
         this.selectedAmplifiedTest.clear();
         this.initDirectory();
+        try {
+            final String classpath = this.configuration.getDependencies()
+                    + AmplificationHelper.PATH_SEPARATOR +
+                    this.configuration.getClasspathClassesProject();
+            this.initialCoverage = EntryPoint.runCoverageOnTestClasses(
+                    classpath,
+                    this.configuration.getClasspathClassesProject(),
+                    DSpotUtils.getAllTestClasses(configuration)
+            );
+        } catch (TimeoutException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -61,19 +73,6 @@ public class CloverCoverageSelector extends TakeAllSelector {
                             )
                     );
 
-            final String classpath = this.configuration.getDependencies()
-                            + AmplificationHelper.PATH_SEPARATOR +
-                            this.configuration.getClasspathClassesProject();
-
-            try {
-                this.initialCoverage = EntryPoint.runCoverageOnTestClasses(
-                        classpath,
-                        this.configuration.getClasspathClassesProject(),
-                        DSpotUtils.getAllTestClasses(configuration)
-                );
-            } catch (TimeoutException e) {
-                throw new RuntimeException(e);
-            }
         }
         if (testsToBeAmplified.size() > 1) {
             final List<CtMethod<?>> collect = testsToBeAmplified.stream()
@@ -174,8 +173,8 @@ public class CloverCoverageSelector extends TakeAllSelector {
 
         final String classpath =
                 this.configuration.getDependencies()
-                + AmplificationHelper.PATH_SEPARATOR +
-                this.configuration.getClasspathClassesProject();
+                        + AmplificationHelper.PATH_SEPARATOR +
+                        this.configuration.getClasspathClassesProject();
 
         DSpotCompiler.compile(this.configuration, DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
                 new File(this.configuration.getAbsolutePathToTestClasses()));
@@ -193,11 +192,11 @@ public class CloverCoverageSelector extends TakeAllSelector {
 
     private final static String PATH_TO_COPIED_FILES = "target/dspot/copy/";
 
-	private String getPathToCopiedFiles() {
-		return this.configuration.getAbsolutePathToProjectRoot() + PATH_TO_COPIED_FILES;
-	}
+    private String getPathToCopiedFiles() {
+        return this.configuration.getAbsolutePathToProjectRoot() + PATH_TO_COPIED_FILES;
+    }
 
-	private void initDirectory() {
+    private void initDirectory() {
         // in order to run clover easily, we have to put all the sources and
         // test classes in the same folder.
         // also, we will print amplified test in the same folder
