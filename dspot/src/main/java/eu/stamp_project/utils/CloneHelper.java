@@ -55,6 +55,11 @@ public class CloneHelper {
                 .filter(annotation -> annotation.toString().contains("Test"))
                 .findFirst().orElse(null);
         if (testAnnotation != null) {
+            if (testAnnotation.getAnnotationType().getQualifiedName().startsWith("org.junit.jupiter.api")) {
+                // TODO here, it is a @Test from JUnit5. We replace for now by a @Test from JUnit4, i.e. form org.junit.jupiter.api.Test to org.junit.Test
+                final CtTypeReference<?> JUnit4TestType = factory.Type().createReference("org.junit.Test");
+                testAnnotation.setAnnotationType(JUnit4TestType);
+            }
             final Map<String, CtExpression<?>> values = new HashMap<>(testAnnotation.getValues());
             CtExpression<?> originalTimeout = values.get("timeout");
             if (originalTimeout == null ||
