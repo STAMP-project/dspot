@@ -93,9 +93,10 @@ public class DSpot {
         this.testSelector = testSelector;
         this.testSelector.init(this.inputConfiguration);
 
-        final String[] splittedPath = this.inputConfiguration.getAbsolutePathToProjectRoot().split("/");
+        String splitter = File.separator.equals("/")?"/":"\\\\";
+        final String[] splittedPath = this.inputConfiguration.getAbsolutePathToProjectRoot().split(splitter);
         final File projectJsonFile = new File(this.inputConfiguration.getOutputDirectory() +
-                "/" + splittedPath[splittedPath.length - 1] + ".json");
+                File.separator + splittedPath[splittedPath.length - 1] + ".json");
         if (projectJsonFile.exists()) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             this.projectTimeJSON = gson.fromJson(new FileReader(projectJsonFile), ProjectTimeJSON.class);
