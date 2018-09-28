@@ -48,14 +48,14 @@ public class TakeAllSelectorTest extends AbstractSelectorTest {
 		this.testSelectorUnderTest.init(Utils.getInputConfiguration());
 		this.testSelectorUnderTest.selectToKeep(
 				this.testSelectorUnderTest.selectToAmplify(
-						Collections.singletonList(getTest())
+                        classTest, Collections.singletonList(getTest())
 				)
 		);
 		assertFalse(this.testSelectorUnderTest.getAmplifiedTestCases().isEmpty());
 
 		this.testSelectorUnderTest.selectToKeep(
 				this.testSelectorUnderTest.selectToAmplify(
-						Collections.singletonList(getAmplifiedTest())
+                        classTest, Collections.singletonList(getAmplifiedTest())
 				)
 		);
 		assertFalse(this.testSelectorUnderTest.getAmplifiedTestCases().isEmpty());

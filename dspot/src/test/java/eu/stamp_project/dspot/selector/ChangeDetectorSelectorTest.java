@@ -72,7 +72,7 @@ public class ChangeDetectorSelectorTest extends AbstractSelectorTest {
         final ChangeDetectorSelector changeDetectorSelector = new ChangeDetectorSelector();
         changeDetectorSelector.init(Utils.getInputConfiguration());
         assertFalse(changeDetectorSelector.selectToKeep(changeDetectorSelector.selectToAmplify(
-                Utils.getAllTestMethodsFrom("fr.inria.multiple.pom.HelloWorldTest"))
+                classTest, Utils.getAllTestMethodsFrom("fr.inria.multiple.pom.HelloWorldTest"))
         ).isEmpty());
 
         Utils.getInputConfiguration().setVerbose(false);

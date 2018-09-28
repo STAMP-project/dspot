@@ -49,9 +49,9 @@ public class JacocoCoverageSelector extends TakeAllSelector {
     }
 
     @Override
-    public List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified) {
+    public List<CtMethod<?>> selectToAmplify(CtType<?> classTest, List<CtMethod<?>> testsToBeAmplified) {
         if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
-            this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
+            this.currentClassTestToBeAmplified = classTest;
             String classpath = InputConfiguration.get().getBuilder().buildClasspath();
             if (!this.configuration.getAdditionalClasspathElements().isEmpty()) {
                 classpath += PATH_SEPARATOR + this.configuration.getProcessedAddtionalClasspathElements();

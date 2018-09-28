@@ -3,6 +3,7 @@ package eu.stamp_project.dspot.selector;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.minimization.Minimizer;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
 
 import java.util.List;
 
@@ -18,10 +19,12 @@ public interface TestSelector {
     /**
      * This method selects test method to be amplified among the provided test list.
      * Contract: the provided test list should contain only already compiled test methods and all the test methods should pass.
+     *
+     * @param classTest
      * @param testsToBeAmplified the list among which the selection is done.
      * @return selected test methods to be amplified
      */
-    List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified);
+    List<CtMethod<?>> selectToAmplify(CtType<?> classTest, List<CtMethod<?>> testsToBeAmplified);
 
     /**
      * This method selects test methods to be kept, <i>i.e.</i> output of DSpot.
