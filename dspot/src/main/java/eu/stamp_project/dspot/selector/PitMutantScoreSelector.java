@@ -82,7 +82,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     }
 
     @Override
-    public List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified) {
+    public List<CtMethod<?>> selectToAmplify(CtType<?> classTest, List<CtMethod<?>> testsToBeAmplified) {
         if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
             this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
             this.testThatKilledMutants.clear();

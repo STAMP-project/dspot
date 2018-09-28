@@ -6,6 +6,7 @@ import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
 import java.io.File;
@@ -72,7 +73,7 @@ public class ChangeDetectorSelectorTest extends AbstractSelectorTest {
         final ChangeDetectorSelector changeDetectorSelector = new ChangeDetectorSelector();
         changeDetectorSelector.init(Utils.getInputConfiguration());
         assertFalse(changeDetectorSelector.selectToKeep(changeDetectorSelector.selectToAmplify(
-                Utils.getAllTestMethodsFrom("fr.inria.multiple.pom.HelloWorldTest"))
+                Utils.findClass("fr.inria.multiple.pom.HelloWorldTest"), Utils.getAllTestMethodsFrom("fr.inria.multiple.pom.HelloWorldTest"))
         ).isEmpty());
 
         Utils.getInputConfiguration().setVerbose(false);

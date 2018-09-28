@@ -80,7 +80,7 @@ public class Amplification {
         LOGGER.info("Amplification of {} ({} test(s))", classTest.getQualifiedName(), tests.size());
         LOGGER.info("Assertion amplification of {} ({} test(s))", classTest.getQualifiedName(), tests.size());
         final List<CtMethod<?>> passingTests = TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(classTest, tests, this.compiler, this.configuration);
-        final List<CtMethod<?>> selectedToBeAmplified = this.testSelector.selectToAmplify(passingTests);
+        final List<CtMethod<?>> selectedToBeAmplified = this.testSelector.selectToAmplify(classTest, passingTests);
         final List<CtMethod<?>> assertionAmplifiedTestMethods = this.assertionsAmplification(classTest, selectedToBeAmplified);
         final List<CtMethod<?>> amplifiedTestMethodsToKeep = this.testSelector.selectToKeep(assertionAmplifiedTestMethods);
         this.globalNumberOfSelectedAmplification += amplifiedTestMethodsToKeep.size();
@@ -121,7 +121,7 @@ public class Amplification {
         final List<CtMethod<?>> amplifiedTests = new ArrayList<>();
         for (int i = 0; i < maxIteration; i++) {
             LOGGER.info("iteration {} / {}", i, maxIteration);
-            final List<CtMethod<?>> selectedToBeAmplified = testSelector.selectToAmplify(currentTestList);
+            final List<CtMethod<?>> selectedToBeAmplified = testSelector.selectToAmplify(classTest, currentTestList);
             if (selectedToBeAmplified.isEmpty()) {
                 LOGGER.warn("No test could be selected to be amplified.");
                 continue; // todo should we break the loop?
