@@ -6,6 +6,7 @@ import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Before;
 import org.junit.Test;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
 import java.io.BufferedReader;
@@ -34,6 +35,9 @@ public abstract class AbstractSelectorTest {
         return Utils.findMethod("example.TestSuiteExample", "test2");
     }
 
+    protected CtClass<?> getTestClass() {
+        return Utils.findClass("example.TestSuiteExample");
+    }
 
     protected abstract CtMethod<?> getAmplifiedTest();
 
@@ -59,14 +63,14 @@ public abstract class AbstractSelectorTest {
         this.testSelectorUnderTest.init(Utils.getInputConfiguration());
         this.testSelectorUnderTest.selectToKeep(
                 this.testSelectorUnderTest.selectToAmplify(
-                        classTest, Collections.singletonList(getTest())
+                        getTestClass(), Collections.singletonList(getTest())
                 )
         );
         assertTrue(this.testSelectorUnderTest.getAmplifiedTestCases().isEmpty());
 
         this.testSelectorUnderTest.selectToKeep(
                 this.testSelectorUnderTest.selectToAmplify(
-                        classTest, Collections.singletonList(getAmplifiedTest())
+                        getTestClass(), Collections.singletonList(getAmplifiedTest())
                 )
         );
         assertFalse(this.testSelectorUnderTest.getAmplifiedTestCases().isEmpty());
