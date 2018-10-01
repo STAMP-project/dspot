@@ -256,7 +256,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         final String mavenHome = this.buildMavenHome();
         LOGGER.info("Using {} for maven home", mavenHome);
         invoker.setMavenHome(new File(mavenHome));
-        LOGGER.info(String.format("run maven: {}/bin/mvn %s", mavenHome, String.join(" ", goals)));
+        LOGGER.info(String.format("run maven: %s/bin/mvn %s", mavenHome, String.join(" ", goals)));
         if (InputConfiguration.get().isVerbose()) {
             invoker.setOutputHandler(System.out::println);
             invoker.setErrorHandler(System.err::println);
