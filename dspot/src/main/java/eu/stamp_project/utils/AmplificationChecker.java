@@ -18,6 +18,8 @@ import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Benjamin DANGLOT
@@ -49,8 +51,8 @@ public class AmplificationChecker {
     private final static List<String> ASSERTIONS_PACKAGES =
             Arrays.asList(
                     "org.junit.Assert",
-                    "com.google.common.truth.Truth", // TODO
-                    "org.assertj.core.api.BDDAssertions", // TODO
+                    "com.google.common.truth.*", // TODO
+                    "org.assertj.core.api.*",
                     "junit.framework.TestCase"
             );
 
@@ -69,7 +71,9 @@ public class AmplificationChecker {
             qualifiedNameOfDeclaringType = invocation.getExecutable().getDeclaringType().getQualifiedName();
         }
         return ASSERTIONS_PACKAGES.stream()
-                .anyMatch(qualifiedNameOfDeclaringType::startsWith);
+                .map(Pattern::compile)
+                .map(pattern -> pattern.matcher(qualifiedNameOfDeclaringType))
+                .anyMatch(Matcher::matches);
     }
 
     public static boolean canBeAdded(CtInvocation invocation) {
