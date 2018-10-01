@@ -47,24 +47,29 @@ public class AmplificationChecker {
     }
 
     private final static List<String> ASSERTIONS_PACKAGES =
-            Arrays.asList("org.junit", "com.google.common.truth", "org.assertj", "junit");
+            Arrays.asList(
+                    "org.junit.Assert",
+                    "com.google.common.truth.Truth", // TODO
+                    "org.assertj.core.api.BDDAssertions", // TODO
+                    "junit.framework.TestCase"
+            );
 
     private static boolean _isAssert(CtInvocation invocation) {
         // simplification of this method.
         // We rely on the package of the declaring type of the invocation
         // in this case, we will match it
-        final String qualifiedNameOfPackage;
+        final String qualifiedNameOfDeclaringType;
         if (invocation.getExecutable().getDeclaringType().getPackage() == null) {
             if (invocation.getExecutable().getDeclaringType().getTopLevelType() != null) {
-                qualifiedNameOfPackage = invocation.getExecutable().getDeclaringType().getTopLevelType().getPackage().getQualifiedName();
+                qualifiedNameOfDeclaringType = invocation.getExecutable().getDeclaringType().getTopLevelType().getQualifiedName();
             } else {
                 return false;
             }
         } else {
-            qualifiedNameOfPackage = invocation.getExecutable().getDeclaringType().getPackage().getQualifiedName();
+            qualifiedNameOfDeclaringType = invocation.getExecutable().getDeclaringType().getQualifiedName();
         }
         return ASSERTIONS_PACKAGES.stream()
-                .anyMatch(qualifiedNameOfPackage::startsWith);
+                .anyMatch(qualifiedNameOfDeclaringType::startsWith);
     }
 
     public static boolean canBeAdded(CtInvocation invocation) {
