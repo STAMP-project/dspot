@@ -50,9 +50,10 @@ public class DSpotUtils {
         }
     }
 
-    public static String[] getAllTestClasses(InputConfiguration configuration) {
-        return configuration.getFactory().Class().getAll().stream()
+    public static String[] getAllTestClasses() {
+        return InputConfiguration.get().getFactory().Class().getAll().stream()
                 .filter(ctType -> ctType.getMethods().stream().anyMatch(AmplificationChecker::isTest))
+                .filter(InputConfiguration.isNotExcluded)
                 .map(CtType::getQualifiedName).toArray(String[]::new);
     }
 
