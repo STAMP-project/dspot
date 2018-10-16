@@ -209,7 +209,7 @@ public class ConstantsProperties {
                     "jvmArgs",
                     "specify JVM args to use when executing the test, PIT or other java process. " +
                                 "This arguments should be a list, separated by a comma \',\', "+
-                                "e.g. jvmArgs=Xmx2048m,-Xms1024m',is.admin.user=admin,is.admin.passwd=$2pRSid#",
+                                "e.g. jvmArgs=Xmx2048m,-Xms1024m',-Dis.admin.user=admin,-Dis.admin.passwd=$2pRSid#",
                     ""
             );
 
