@@ -1,5 +1,6 @@
 package eu.stamp_project.utils;
 
+import eu.stamp_project.AbstractTest;
 import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -11,6 +12,7 @@ import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -21,18 +23,22 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 2/20/17
  */
-public class DSpotUtilsTest {
+public class DSpotUtilsTest extends AbstractTest {
 
     private final static File outputDirectory = new File("target/trash/");
 
-    @Before
-    public void setUp() throws Exception {
-        InputConfiguration.get().setWithComment(true);
-    }
+    @Test
+    public void testGetAllTestClasses() {
 
-    @After
-    public void tearDown() throws Exception {
-        InputConfiguration.get().setWithComment(false);
+        /*
+            Test the method getAllTestClasses.
+                This method should return an array of all the test classes, i.e. class that contains at least one test method.
+                This array should not contain any test class that has been excluded, see InputConfiguration#excludedClasses
+         */
+
+        final String[] allTestClasses = DSpotUtils.getAllTestClasses();
+        assertEquals(33, allTestClasses.length); // we got all
+        assertTrue(Arrays.stream(allTestClasses).noneMatch(s -> s.startsWith("fr.inria.filter.failing."))); // but not excluded
     }
 
     @Test
