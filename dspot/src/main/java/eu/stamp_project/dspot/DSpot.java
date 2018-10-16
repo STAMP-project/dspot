@@ -30,8 +30,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -123,7 +121,7 @@ public class DSpot {
 
     public List<CtType> amplifyAllTests(List<CtType> testClasses) {
         final List<CtType> amplifiedTestClasses = testClasses.stream()
-                .filter(this.isExcluded)
+                .filter(InputConfiguration.isNotExcluded)
                 .map(this::amplifyTest)
                 .collect(Collectors.toList());
         writeTimeJson();
@@ -141,7 +139,7 @@ public class DSpot {
                         ctClass.getMethods()
                                 .stream()
                                 .anyMatch(AmplificationChecker::isTest))
-                .filter(this.isExcluded)
+                .filter(InputConfiguration.isNotExcluded)
                 .map(this::amplifyTest)
                 .collect(Collectors.toList());
     }
@@ -224,17 +222,6 @@ public class DSpot {
                     ).collect(Collectors.toList());
         }
     }
-
-    public InputConfiguration getInputConfiguration() {
-        return this.inputConfiguration;
-    }
-
-    private final Predicate<CtType> isExcluded = ctType ->
-            this.inputConfiguration.getExcludedClasses().isEmpty() ||
-                    Arrays.stream(this.getInputConfiguration().getExcludedClasses().split(","))
-                            .map(Pattern::compile)
-                            .map(pattern -> pattern.matcher(ctType.getQualifiedName()))
-                            .noneMatch(Matcher::matches);
 
     private void writeTimeJson() {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();

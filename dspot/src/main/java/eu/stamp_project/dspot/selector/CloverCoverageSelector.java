@@ -46,7 +46,7 @@ public class CloverCoverageSelector extends TakeAllSelector {
             this.initialCoverage = EntryPoint.runCoverageOnTestClasses(
                     classpath,
                     this.configuration.getClasspathClassesProject(),
-                    DSpotUtils.getAllTestClasses(configuration)
+                    DSpotUtils.getAllTestClasses()
             );
         } catch (TimeoutException e) {
             throw new RuntimeException(e);
