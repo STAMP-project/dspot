@@ -274,6 +274,10 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
                 "apply plugin: 'info.solidsoft.pitest'" + NEW_LINE;
     }
 
+    private String wrapWithSingleQuote(String option) {
+        return "\'" + option + "\'";
+    }
+
     private String getPitTaskOptions(CtType<?>... testClasses) {
         return NEW_LINE + NEW_LINE + "pitest {" + NEW_LINE +
                 "    " + OPT_TARGET_CLASSES + "['" + configuration.getFilter() + "']" + NEW_LINE +
@@ -283,7 +287,9 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
                 (!configuration.getTimeoutPit().isEmpty() ?
                         "    " + PROPERTY_VALUE_TIMEOUT + " = " + configuration.getTimeoutPit().isEmpty() : "") + NEW_LINE +
                 (!configuration.getJVMArgs().isEmpty() ?
-                        "    " + PROPERTY_VALUE_JVM_ARGS + " = " + configuration.getJVMArgs() : "") + NEW_LINE +
+                        "    " + PROPERTY_VALUE_JVM_ARGS + " = [" +
+                                Arrays.stream(configuration.getJVMArgs().split(" ")).map(this::wrapWithSingleQuote).collect(Collectors.joining(",")) + "]"
+                        : "") + NEW_LINE +
                 (testClasses != null ? "    " + OPT_TARGET_TESTS + "['" + Arrays.stream(testClasses).map(DSpotUtils::ctTypeToFullQualifiedName).collect(Collectors.joining(",")) + "']" : "") + NEW_LINE +
                 (!configuration.getAdditionalClasspathElements().isEmpty() ?
                         "    " + OPT_ADDITIONAL_CP_ELEMENTS + "['" + configuration.getAdditionalClasspathElements() + "']" : "") + NEW_LINE +

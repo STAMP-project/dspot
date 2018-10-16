@@ -207,7 +207,9 @@ public class ConstantsProperties {
     public static final InputConfigurationProperty JVM_ARGS =
             new InputConfigurationProperty(
                     "jvmArgs",
-                    "specify JVM args to use when executing the test, PIT or other java process",
+                    "specify JVM args to use when executing the test, PIT or other java process. " +
+                                "This arguments should be a list, separated by a comma \',\', "+
+                                "e.g. jvmArgs=Xmx2048m,-Xms1024m',-Dis.admin.user=admin,-Dis.admin.passwd=$2pRSid#",
                     ""
             );
 
@@ -253,7 +255,7 @@ public class ConstantsProperties {
                                 .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR))
                 )
                 .append(AmplificationHelper.LINE_SEPARATOR)
-                .append("* Required properties")
+                .append("* Optional properties")
                 .append(AmplificationHelper.LINE_SEPARATOR)
                 .append(getOptionalProperties.apply(inputConfigurationProperties)
                         .map(InputConfigurationProperty::toString)
