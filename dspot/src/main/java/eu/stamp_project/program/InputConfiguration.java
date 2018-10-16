@@ -602,7 +602,8 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setJVMArgs(String JVMArgs) {
-        this.JVMArgs = JVMArgs;
+        this.JVMArgs = String.join(" ", JVMArgs.split(","));
+        EntryPoint.JVMArgs = this.JVMArgs;
         return this;
     }
 
