@@ -8,6 +8,7 @@ import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.dspot.selector.TakeAllSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.compilation.TestCompiler;
 import org.junit.AfterClass;
 import org.junit.Test;
@@ -27,6 +28,18 @@ import static org.junit.Assert.assertTrue;
  * on 24/11/17
  */
 public class DSpotTest extends AbstractTest {
+
+    @Test
+    public void testJVMArgsIsPassToEntryPoint() {
+
+        /*
+            test that the JVM args of InputConfiguration is well given to the JVMArgs of EntryPoint.
+            This test is quite weak, we rely on the good usage of JVMArgs by the EntryPoint
+         */
+
+        assertEquals("-Xmx2048m -Xms1024m is.admin.user=admin is.admin.passwd=$2pRSid#", InputConfiguration.get().getJVMArgs());
+        assertEquals("-Xmx2048m -Xms1024m is.admin.user=admin is.admin.passwd=$2pRSid#", EntryPoint.JVMArgs);
+    }
 
     @Test
     public void testUsingAmplifiedTestClassFromTheStart() throws Exception {
@@ -90,7 +103,7 @@ public class DSpotTest extends AbstractTest {
     }
 
     @AfterClass
-    public static void tearDown() throws Exception {
+    public static void tearDown() {
         Utils.reset();
     }
 }
