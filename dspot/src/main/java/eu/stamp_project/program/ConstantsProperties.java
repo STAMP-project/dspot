@@ -207,8 +207,8 @@ public class ConstantsProperties {
     public static final InputConfigurationProperty JVM_ARGS =
             new InputConfigurationProperty(
                     "jvmArgs",
-                    "specify JVM args to use when executing the test, PIT or other java process." +
-                                "This arguments should be a list, separated by a \',\',"+
+                    "specify JVM args to use when executing the test, PIT or other java process. " +
+                                "This arguments should be a list, separated by a comma \',\', "+
                                 "e.g. jvmArgs=Xmx2048m,-Xms1024m',is.admin.user=admin,is.admin.passwd=$2pRSid#",
                     ""
             );
