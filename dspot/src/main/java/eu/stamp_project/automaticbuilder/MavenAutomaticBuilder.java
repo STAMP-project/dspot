@@ -232,7 +232,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         while (currentPackage.getPackages().size() == 1) {
             currentPackage = (CtPackage) currentPackage.getPackages().toArray()[0];
         }
-        InputConfiguration.get().setFilter(currentPackage.getQualifiedName());
+        InputConfiguration.get().setFilter(currentPackage.getQualifiedName() + ".*");
     }
 
     private int runGoals(String pathToRootOfProject, String... goals) {
