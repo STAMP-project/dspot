@@ -48,7 +48,7 @@ public class DSpotMockedTest extends AbstractTest {
         } catch (Exception ignored) {
 
         }
-        final List<CtMethod<?>> originalTestMethods = AmplificationHelper.getAllTest(dspot.getInputConfiguration().getFactory().Class().get("info.sanaulla.dal.BookDALTest"));
+        final List<CtMethod<?>> originalTestMethods = AmplificationHelper.getAllTest(InputConfiguration.get().getFactory().Class().get("info.sanaulla.dal.BookDALTest"));
         assertEquals(5, originalTestMethods.size());
         assertEquals(28, originalTestMethods.stream().mapToLong(
                 ctMethod -> ctMethod.getElements(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
