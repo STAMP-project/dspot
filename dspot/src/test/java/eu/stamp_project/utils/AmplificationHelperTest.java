@@ -31,6 +31,7 @@ public class AmplificationHelperTest extends AbstractTest {
     @After
     public void tearDown() throws Exception {
         InputConfiguration.get().setGenerateAmplifiedTestClass(false);
+        InputConfiguration.get().setKeepOriginalTestMethods(false);
     }
 
     @Test
@@ -151,17 +152,31 @@ public class AmplificationHelperTest extends AbstractTest {
 
     @Test
     public void testCreateAmplifiedTestClass() throws Exception {
+
+        /*
+            The resulting amplifies test class should:
+                 (1) be renamed with Ampl in its name
+                 (2) should contains only 16 methods,
+                    such as the original since we faked an amplified test methods per original test methods
+                 (3) all the references are replaced with the new one (i.e. the one with Ampl)
+         */
+
         InputConfiguration.get().setGenerateAmplifiedTestClass(true);
+        InputConfiguration.get().setKeepOriginalTestMethods(false);
         CtClass<?> classTest = Utils.getFactory().Class().get("fr.inria.helper.ClassWithInnerClass");
         List<CtMethod<?>> fakeAmplifiedMethod = classTest.getMethods()
                 .stream()
                 .map(CtMethod::clone)
                 .collect(Collectors.toList());
         fakeAmplifiedMethod.forEach(ctMethod -> ctMethod.setSimpleName("ampl" + ctMethod.getSimpleName()));
-
         CtType<?> amplifiedTest = AmplificationHelper.createAmplifiedTest(fakeAmplifiedMethod, classTest);
-        assertEquals(16, amplifiedTest.getMethods().size());
 
+        assertTrue(amplifiedTest.getSimpleName().contains("Ampl")); // (1)
+
+        assertEquals(16, amplifiedTest.getMethods().size()); // (2)
+        assertEquals(16, classTest.getMethods().size());// (2)
+
+        // (3)
         assertFalse(classTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
             @Override
             public boolean matches(CtTypeReference element) {
@@ -169,7 +184,7 @@ public class AmplificationHelperTest extends AbstractTest {
                         super.matches(element);
             }
         }).isEmpty());
-
+        // (3)
         assertTrue(amplifiedTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
             @Override
             public boolean matches(CtTypeReference element) {
@@ -179,5 +194,37 @@ public class AmplificationHelperTest extends AbstractTest {
         }).isEmpty());
     }
 
+    @Test
+    public void testCreateAmplifiedTestClassWithOriginalTestMethod() {
 
+          /*
+            The resulting amplifies test class should:
+                 (1) not be renamed with Ampl in its name
+                 (2) should contains 20 methods,
+                    4 amplified and 4 original
+                 (3) all the references are the same than original
+         */
+        InputConfiguration.get().setGenerateAmplifiedTestClass(false);
+        InputConfiguration.get().setKeepOriginalTestMethods(true);
+        CtClass<?> classTest = Utils.getFactory().Class().get("fr.inria.helper.ClassWithInnerClass");
+        List<CtMethod<?>> fakeAmplifiedMethod = classTest.getMethods()
+                .stream()
+                .map(CtMethod::clone)
+                .collect(Collectors.toList());
+        fakeAmplifiedMethod.forEach(ctMethod -> ctMethod.setSimpleName("ampl" + ctMethod.getSimpleName()));
+        CtType<?> amplifiedTest = AmplificationHelper.createAmplifiedTest(fakeAmplifiedMethod, classTest);
+
+        // (1)
+        assertFalse(amplifiedTest.getSimpleName().contains("Ampl"));
+        // (2)
+        assertEquals(20, amplifiedTest.getMethods().size());
+        // (3)
+        assertFalse(classTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
+            @Override
+            public boolean matches(CtTypeReference element) {
+                return classTest.equals(element.getDeclaration()) &&
+                        super.matches(element);
+            }
+        }).isEmpty());
+    }
 }
