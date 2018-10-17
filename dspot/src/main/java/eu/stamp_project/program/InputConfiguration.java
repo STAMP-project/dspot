@@ -83,6 +83,23 @@ public class InputConfiguration {
      * Build an InputConfiguration from a properties file, given as path.
      * This method will call the default constructor {@link InputConfiguration#InputConfiguration(String, String, String, String, String, String)}
      * Then, uses the properties to initialize other values.
+     *
+     * @param pathToPropertiesFile the path to the properties file. It is recommended to use an absolute path.
+     * @param builderName the name of the builder. Can be either Maven or Gradle (not case sensitive).
+     * @return the new instance of the InputConfiguration
+     */
+    public static InputConfiguration initialize(String pathToPropertiesFile, String builderName) {
+        InputConfiguration.initialize(loadProperties(pathToPropertiesFile), builderName);
+        InputConfiguration.instance.configPath = pathToPropertiesFile;
+        return InputConfiguration.instance;
+    }
+
+    /**
+     * This method initialize the instance of the Singleton {@link InputConfiguration}.
+     * You can retrieve this instance using {@link InputConfiguration#get()}
+     * Build an InputConfiguration from a properties file, given as path.
+     * This method will call the default constructor {@link InputConfiguration#InputConfiguration(String, String, String, String, String, String)}
+     * Then, uses the properties to initialize other values.
      * The given properties should have least values for :
      * <ul>
      * <li>{@link ConstantsProperties#PROJECT_ROOT_PATH}</li>
@@ -102,6 +119,55 @@ public class InputConfiguration {
         }
         InputConfiguration.instance = new InputConfiguration(properties);
         InputConfiguration.instance.configPath = "";
+        InputConfiguration.instance.setBuilderName(ConstantsProperties.AUTOMATIC_BUILDER_NAME.get(properties));
+        InputConfiguration.instance.initializeBuilder(properties);
+        return InputConfiguration.instance;
+    }
+
+    /**
+     * This method initialize the instance of the Singleton {@link InputConfiguration}.
+     * You can retrieve this instance using {@link InputConfiguration#get()}
+     * Build an InputConfiguration from a properties file, given as path.
+     * This method will call the default constructor {@link InputConfiguration#InputConfiguration(String, String, String, String, String, String)}
+     * Then, uses the properties to initialize other values.
+     * The given properties should have least values for :
+     * <ul>
+     * <li>{@link ConstantsProperties#PROJECT_ROOT_PATH}</li>
+     * <li>{@link ConstantsProperties#SRC_CODE}</li>
+     * <li>{@link ConstantsProperties#TEST_SRC_CODE}</li>
+     * <li>{@link ConstantsProperties#SRC_CLASSES}</li>
+     * <li>{@link ConstantsProperties#TEST_CLASSES}</li>
+     * <li>{@link ConstantsProperties#MODULE}, in case of multi module project</li>
+     * </ul>
+     *
+     * @param properties the properties. See {@link ConstantsProperties}
+     * @param builderName the name of the builder. Can be either Maven or Gradle (not case sensitive).
+     * @return the new instance of the InputConfiguration
+     */
+    public static InputConfiguration initialize(Properties properties, String builderName) {
+        if (InputConfiguration.instance != null) {
+            LOGGER.warn("Erasing old instance of InputConfiguration");
+        }
+        InputConfiguration.instance = new InputConfiguration(properties);
+        InputConfiguration.instance.configPath = "";
+        final String builderNameProperties = ConstantsProperties.AUTOMATIC_BUILDER_NAME.get(properties);
+        if (builderName.isEmpty() && builderNameProperties.isEmpty()) {
+            LOGGER.warn("No builder has been specified.");
+            LOGGER.warn("Using Maven as a default builder.");
+            LOGGER.warn("You can use the command-line option --automatic-builder");
+            LOGGER.warn("or the properties " + ConstantsProperties.AUTOMATIC_BUILDER_NAME.getName() + " to configure it.");
+            InputConfiguration.instance.setBuilderName("MAVEN");
+        } else if (builderName.isEmpty()) {
+            InputConfiguration.instance.setBuilderName(builderNameProperties);
+        } else if (builderNameProperties.isEmpty()) {
+            InputConfiguration.instance.setBuilderName(builderName);
+        } else {
+            LOGGER.warn("Conflicting values for automatic builder.");
+            LOGGER.warn("{} from command-line", builderName);
+            LOGGER.warn("{} from properties", builderNameProperties);
+            LOGGER.warn("Using the value gave on the command-line {}", builderName);
+            InputConfiguration.instance.setBuilderName(builderName);
+        }
         InputConfiguration.instance.initializeBuilder(properties);
         return InputConfiguration.instance;
     }
@@ -150,7 +216,7 @@ public class InputConfiguration {
 
     private void initializeBuilder(Properties properties) {
         this.setMavenHome(ConstantsProperties.MAVEN_HOME.get(properties));
-        this.builder = AutomaticBuilderFactory.getAutomaticBuilder(ConstantsProperties.AUTOMATIC_BUILDER_NAME.getName());
+        this.builder = AutomaticBuilderFactory.getAutomaticBuilder(this.getBuilderName());
         this.dependencies = this.builder.compileAndBuildClasspath();
 
         if (!this.dependencies.contains("junit/junit/4")) {
@@ -654,7 +720,6 @@ public class InputConfiguration {
     private List<String> testCases = Collections.emptyList();
     private long seed = 23L;
     private int timeOutInMs = 10000;
-    private String automaticBuilderName = "MAVEN";
     private Integer maxTestAmplified = 200;
     private boolean clean = false;
     private boolean minimize = false;
@@ -772,15 +837,6 @@ public class InputConfiguration {
     public InputConfiguration setTimeOutInMs(int timeOutInMs) {
         this.timeOutInMs = timeOutInMs;
         AmplificationHelper.timeOutInMs = timeOutInMs; // TODO should not be redundant
-        return this;
-    }
-
-    public String getAutomaticBuilderName() {
-        return automaticBuilderName;
-    }
-
-    public InputConfiguration setAutomaticBuilderName(String automaticBuilderName) {
-        this.automaticBuilderName = automaticBuilderName;
         return this;
     }
 

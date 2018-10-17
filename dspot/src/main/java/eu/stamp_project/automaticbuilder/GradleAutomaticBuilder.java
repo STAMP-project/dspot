@@ -85,7 +85,6 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
             final File classpathFile = new File(this.configuration.getAbsolutePathToProjectRoot() + File.separator + JAVA_PROJECT_CLASSPATH);
             if (!classpathFile.exists()) {
                 LOGGER.info("Classpath file for Gradle project doesn't exist, starting to build it...");
-
                 LOGGER.info("Injecting  Gradle task to print project classpath on stdout...");
                 injectPrintClasspathTask(this.configuration.getAbsolutePathToProjectRoot());
                 LOGGER.info("Retrieving project classpath...");
@@ -97,7 +96,12 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
                 resetOriginalGradleBuildFile(this.configuration.getAbsolutePathToProjectRoot());
             }
             try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
-                return buffer.lines().collect(Collectors.joining());
+                final String collect = buffer
+                        .lines()
+                        .collect(Collectors.joining());
+                return Arrays.stream(collect.split(":"))
+                        .filter(path -> new File(path).exists() && new File(path).isAbsolute())
+                        .collect(Collectors.joining(":"));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

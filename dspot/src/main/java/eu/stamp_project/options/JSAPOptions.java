@@ -57,7 +57,7 @@ public class JSAPOptions {
         }
         final List<String> testClasses = Arrays.asList(jsapConfig.getStringArray("test"));
         final List<String> testCases = Arrays.asList(jsapConfig.getStringArray("testCases"));
-        InputConfiguration.initialize(jsapConfig.getString("path"));
+        InputConfiguration.initialize(jsapConfig.getString("path"), jsapConfig.getString("builder"));
         if (InputConfiguration.get().getOutputDirectory().isEmpty()) {
             InputConfiguration.get().setOutputDirectory(jsapConfig.getString("output"));
         }
@@ -69,7 +69,6 @@ public class JSAPOptions {
                 .setTestCases(testCases)
                 .setSeed(jsapConfig.getLong("seed"))
                 .setTimeOutInMs(jsapConfig.getInt("timeOut"))
-                .setBuilderName(jsapConfig.getString("builder"))
                 .setMaxTestAmplified(jsapConfig.getInt("maxTestAmplified"))
                 .setBudgetizer(BudgetizerEnum.valueOf(jsapConfig.getString("budgetizer")).getBugtizer())
                 .setClean(jsapConfig.getBoolean("clean"))
@@ -199,7 +198,7 @@ public class JSAPOptions {
         automaticBuilder.setLongFlag("automatic-builder");
         automaticBuilder.setUsageName("MavenBuilder | GradleBuilder");
         automaticBuilder.setHelp("[optional] specify the automatic builder to build the project");
-        automaticBuilder.setDefault("MavenBuilder");
+        automaticBuilder.setDefault("");
 
         FlaggedOption mavenHome = new FlaggedOption("mavenHome");
         mavenHome.setStringParser(JSAP.STRING_PARSER);
