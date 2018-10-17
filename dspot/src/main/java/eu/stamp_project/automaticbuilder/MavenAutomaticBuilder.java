@@ -62,15 +62,18 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     public static final String POM_FILE = "pom.xml";
 
+    private boolean descartesHasBeenInjected = false;
+
     private void initializeForDescartes() {
         final String pathToPom = InputConfiguration.get().getAbsolutePathToProjectRoot() + FILE_SEPARATOR + POM_FILE;
-        if (DescartesChecker.shouldInjectDescartes(pathToPom)) {
+        if ((!this.descartesHasBeenInjected) && DescartesChecker.shouldInjectDescartes(pathToPom)) {
             try (final BufferedReader buffer = new BufferedReader(new FileReader(pathToPom))) {
                 this.contentOfOriginalPom = buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
             } catch (Exception ignored) {
 
             }
             DescartesInjector.injectDescartesIntoPom(pathToPom);
+            this.descartesHasBeenInjected = true;
         } else {
             this.contentOfOriginalPom = null;
         }
@@ -133,7 +136,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     @Override
     public void reset() {
-        if (contentOfOriginalPom != null) {
+        if (this.descartesHasBeenInjected && contentOfOriginalPom != null) {
             final String pathToPom = InputConfiguration.get().getAbsolutePathToProjectRoot() + FILE_SEPARATOR + POM_FILE;
             try (FileWriter writer = new FileWriter(pathToPom)) {
                 writer.write(this.contentOfOriginalPom);
@@ -160,7 +163,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
             String[] phases = new String[]{CMD_PIT_MUTATION_COVERAGE + ":" +
                     InputConfiguration.get().getPitVersion() + ":" + GOAL_PIT_MUTATION_COVERAGE, //
-                    OPT_WITH_HISTORY, //
+                    // OPT_WITH_HISTORY, // it seems that the history throws an exception in pitest 1.4.0 -> Illegal base64 character 3c
                     OPT_TARGET_CLASSES + InputConfiguration.get().getFilter(), //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
@@ -190,6 +193,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
      **/
     @Override
     public void runPit(String pathToRootOfProject) {
+        initializeForDescartes();
         try {
             org.apache.commons.io.FileUtils.deleteDirectory(new File(pathToRootOfProject + "/target/pit-reports"));
         } catch (Exception ignored) {

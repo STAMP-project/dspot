@@ -25,9 +25,9 @@ public class MavenPitCommandAndOptions {
 
     public static final String OPT_EXCLUDED_CLASSES = "-D" + PROPERTY_EXCLUDED_CLASSES + "=";
 
-    public static final String OPT_MUTATION_ENGINE_DESCARTES = "-DmutationEngines=descartes";
+    public static final String OPT_MUTATION_ENGINE_DESCARTES = "-DmutationEngine=descartes";
 
-    public static final String OPT_MUTATION_ENGINE_DEFAULT = "-DmutationEngines=gregor";
+    public static final String OPT_MUTATION_ENGINE_DEFAULT = "-DmutationEngine=gregor";
 
     public static final String CMD_PIT_MUTATION_COVERAGE = "org.pitest:pitest-maven";
 
