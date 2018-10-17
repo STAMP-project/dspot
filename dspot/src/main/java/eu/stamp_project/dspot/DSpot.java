@@ -186,7 +186,7 @@ public class DSpot {
             testSelector.report();
             final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
             if (!testSelector.getAmplifiedTestCases().isEmpty()) {
-                LOGGER.info("Print {} with {} amplified test cases in {}", amplification.getSimpleName(),
+                LOGGER.info("Print {} with {} amplified test cases in {}", amplification.getSimpleName(),
                         testSelector.getAmplifiedTestCases().size(), this.inputConfiguration.getOutputDirectory());
                 DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory);
             } else {
