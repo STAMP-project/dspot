@@ -73,12 +73,12 @@ public class AmplificationHelper {
             methodToAdd = ampTest.stream();
         }
         CtType<?> currentTestClass = classTest;
+        methodToAdd.forEach(currentTestClass::addMethod);
         // generate a new test class
         if (InputConfiguration.get().shouldGenerateAmplifiedTestClass()) {
             currentTestClass = classTest.clone();
             final String amplifiedName = getAmplifiedName(classTest);
             currentTestClass.setSimpleName(amplifiedName);
-            methodToAdd.forEach(currentTestClass::addMethod);
             final CtTypeReference classTestReference = classTest.getReference();
             // renaming all the Spoon nodes
             currentTestClass.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
@@ -98,12 +98,10 @@ public class AmplificationHelper {
                     stringCtLiteral.setValue(((String)stringCtLiteral.getValue()).replaceAll(classTest.getSimpleName(), amplifiedName))
             );
             classTest.getPackage().addType(currentTestClass);
-        } else {
-            methodToAdd.forEach(classTest::addMethod);
         }
         // keep original test methods
         if (!InputConfiguration.get().shouldKeepOriginalTestMethods()) {
-            classTest.getMethods().stream().filter(AmplificationChecker::isTest).forEach(currentTestClass::removeMethod);
+            classTest.getMethods().stream().filter(AmplificationChecker::isTest).forEach(currentTestClass::addMethod);
         }
         return currentTestClass;
     }
