@@ -196,7 +196,8 @@ public class MainTest {
                 "--test", "example.TestSuiteExample",
                 "--cases", "test2",
                 "--output-path", "target/trash",
-                "--max-test-amplified", "200"
+                "--max-test-amplified", "200",
+                "--keep-original-test-methods"
         });
         Launcher launcher = new Launcher();
         launcher.getEnvironment().setNoClasspath(true);
@@ -215,6 +216,7 @@ public class MainTest {
                 "--cases", "test2",
                 "--output-path", "target/trash",
                 "--max-test-amplified", "200",
+                "--keep-original-test-methods",
                 "--clean"
         });
         launcher = new Launcher();
@@ -236,6 +238,7 @@ public class MainTest {
                 "--cases", "test2",
                 "--output-path", "target/trash",
                 "--max-test-amplified", "200",
+                "--keep-original-test-methods"
         });
         launcher = new Launcher();
         launcher.getEnvironment().setNoClasspath(true);
@@ -255,6 +258,7 @@ public class MainTest {
                 "--cases", "test2",
                 "--output-path", "target/trash",
                 "--max-test-amplified", "200",
+                "--keep-original-test-methods",
                 "--clean"
         });
         launcher = new Launcher();

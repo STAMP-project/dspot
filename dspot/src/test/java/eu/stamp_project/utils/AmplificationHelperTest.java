@@ -16,6 +16,7 @@ import spoon.reflect.visitor.filter.TypeFilter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -43,8 +44,14 @@ public class AmplificationHelperTest extends AbstractTest {
          */
 
         InputConfiguration.get().setGenerateAmplifiedTestClass(true);
-        final CtClass testClass = Utils.findClass("fr.inria.amplified.AmplifiedTestClassWithReferenceToName");
-        final CtType amplifiedTest = AmplificationHelper.createAmplifiedTest(new ArrayList<>(testClass.getMethods()), testClass);
+        final CtClass<?> testClass = Utils.findClass("fr.inria.amplified.AmplifiedTestClassWithReferenceToName");
+        final List<CtMethod<?>> fakeAmplification =
+                testClass.getMethods()
+                        .stream()
+                        .map(CtMethod::clone)
+                        .peek(method -> method.setSimpleName("ampl" + method.getSimpleName()))
+                .collect(Collectors.toList());
+        final CtType amplifiedTest = AmplificationHelper.createAmplifiedTest(fakeAmplification, testClass);
         assertEquals("AmplAmplifiedTestClassWithReferenceToName", amplifiedTest.getElements(new TypeFilter<>(CtLiteral.class)).get(0).getValue()); // must be updated if the resource change
         assertEquals("AmplAmplifiedTestClassWithReferenceToName",
                 amplifiedTest.getElements(new TypeFilter<>(CtTypeAccess.class))
@@ -156,7 +163,7 @@ public class AmplificationHelperTest extends AbstractTest {
         /*
             The resulting amplifies test class should:
                  (1) be renamed with Ampl in its name
-                 (2) should contains only 16 methods,
+                 (2) should contains only 10 methods,
                     such as the original since we faked an amplified test methods per original test methods
                  (3) all the references are replaced with the new one (i.e. the one with Ampl)
          */
@@ -166,15 +173,16 @@ public class AmplificationHelperTest extends AbstractTest {
         CtClass<?> classTest = Utils.getFactory().Class().get("fr.inria.helper.ClassWithInnerClass");
         List<CtMethod<?>> fakeAmplifiedMethod = classTest.getMethods()
                 .stream()
+                .filter(AmplificationChecker::isTest)
                 .map(CtMethod::clone)
+                .peek(ctMethod -> ctMethod.setSimpleName("ampl" + ctMethod.getSimpleName()))
                 .collect(Collectors.toList());
-        fakeAmplifiedMethod.forEach(ctMethod -> ctMethod.setSimpleName("ampl" + ctMethod.getSimpleName()));
         CtType<?> amplifiedTest = AmplificationHelper.createAmplifiedTest(fakeAmplifiedMethod, classTest);
 
         assertTrue(amplifiedTest.getSimpleName().contains("Ampl")); // (1)
 
-        assertEquals(16, amplifiedTest.getMethods().size()); // (2)
-        assertEquals(16, classTest.getMethods().size());// (2)
+        assertEquals(10, amplifiedTest.getMethods().size()); // (2)
+        assertEquals(10, classTest.getMethods().size());// (2)
 
         // (3)
         assertFalse(classTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
@@ -209,6 +217,7 @@ public class AmplificationHelperTest extends AbstractTest {
         CtClass<?> classTest = Utils.getFactory().Class().get("fr.inria.helper.ClassWithInnerClass");
         List<CtMethod<?>> fakeAmplifiedMethod = classTest.getMethods()
                 .stream()
+                .filter(AmplificationChecker::isTest)
                 .map(CtMethod::clone)
                 .collect(Collectors.toList());
         fakeAmplifiedMethod.forEach(ctMethod -> ctMethod.setSimpleName("ampl" + ctMethod.getSimpleName()));
@@ -217,7 +226,7 @@ public class AmplificationHelperTest extends AbstractTest {
         // (1)
         assertFalse(amplifiedTest.getSimpleName().contains("Ampl"));
         // (2)
-        assertEquals(20, amplifiedTest.getMethods().size());
+        assertEquals(14, amplifiedTest.getMethods().size());
         // (3)
         assertFalse(classTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
             @Override

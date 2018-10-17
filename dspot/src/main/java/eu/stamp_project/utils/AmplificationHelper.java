@@ -72,11 +72,16 @@ public class AmplificationHelper {
         } else {
             methodToAdd = ampTest.stream();
         }
-        CtType<?> currentTestClass = classTest;
+        final CtType<?> currentTestClass = classTest.clone();
         methodToAdd.forEach(currentTestClass::addMethod);
+        // keep original test methods
+        if (!InputConfiguration.get().shouldKeepOriginalTestMethods()) {
+            classTest.getMethods().stream()
+                    .filter(AmplificationChecker::isTest)
+                    .forEach(currentTestClass::removeMethod);
+        }
         // generate a new test class
         if (InputConfiguration.get().shouldGenerateAmplifiedTestClass()) {
-            currentTestClass = classTest.clone();
             final String amplifiedName = getAmplifiedName(classTest);
             currentTestClass.setSimpleName(amplifiedName);
             final CtTypeReference classTestReference = classTest.getReference();
@@ -84,9 +89,9 @@ public class AmplificationHelper {
             currentTestClass.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
                 @Override
                 public boolean matches(CtTypeReference element) {
-                    return element.equals(classTestReference) && super.matches(element);
+                    return element.equals(classTestReference);
                 }
-            }).forEach(ctTypeReference -> ctTypeReference.setSimpleName(getAmplifiedName(classTest)));
+            }).forEach(ctTypeReference -> ctTypeReference.setSimpleName(amplifiedName));
             // need to update also all the String literals
             currentTestClass.getElements(new TypeFilter<CtLiteral>(CtLiteral.class) {
                 @Override
@@ -97,12 +102,8 @@ public class AmplificationHelper {
             }).forEach(stringCtLiteral ->
                     stringCtLiteral.setValue(((String)stringCtLiteral.getValue()).replaceAll(classTest.getSimpleName(), amplifiedName))
             );
-            classTest.getPackage().addType(currentTestClass);
         }
-        // keep original test methods
-        if (!InputConfiguration.get().shouldKeepOriginalTestMethods()) {
-            classTest.getMethods().stream().filter(AmplificationChecker::isTest).forEach(currentTestClass::addMethod);
-        }
+        classTest.getPackage().addType(currentTestClass);
         return currentTestClass;
     }
 
