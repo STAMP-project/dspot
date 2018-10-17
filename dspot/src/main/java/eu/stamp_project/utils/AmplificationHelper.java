@@ -65,28 +65,35 @@ public class AmplificationHelper {
     @SuppressWarnings("unchecked")
     public static CtType<?> createAmplifiedTest(List<CtMethod<?>> ampTest, CtType<?> classTest) {
         final Stream<CtMethod<?>> methodToAdd;
+        // TODO minimize
         if (InputConfiguration.get().shouldMinimize()) {
             final Minimizer minimizer = InputConfiguration.get().getSelector().getMinimizer();
             methodToAdd = ampTest.stream().map(minimizer::minimize);
         } else {
             methodToAdd = ampTest.stream();
         }
-        if (InputConfiguration.get().isGenerateAmplifiedTestClass()) {
-            CtType amplifiedTest = classTest.clone();
+        final CtType<?> currentTestClass = classTest.clone();
+        methodToAdd.forEach(currentTestClass::addMethod);
+        // keep original test methods
+        if (!InputConfiguration.get().shouldKeepOriginalTestMethods()) {
+            classTest.getMethods().stream()
+                    .filter(AmplificationChecker::isTest)
+                    .forEach(currentTestClass::removeMethod);
+        }
+        // generate a new test class
+        if (InputConfiguration.get().shouldGenerateAmplifiedTestClass()) {
             final String amplifiedName = getAmplifiedName(classTest);
-            amplifiedTest.setSimpleName(amplifiedName);
-            classTest.getMethods().stream().filter(AmplificationChecker::isTest).forEach(amplifiedTest::removeMethod);
-            methodToAdd.forEach(amplifiedTest::addMethod);
+            currentTestClass.setSimpleName(amplifiedName);
             final CtTypeReference classTestReference = classTest.getReference();
             // renaming all the Spoon nodes
-            amplifiedTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
+            currentTestClass.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
                 @Override
                 public boolean matches(CtTypeReference element) {
-                    return element.equals(classTestReference) && super.matches(element);
+                    return element.equals(classTestReference);
                 }
-            }).forEach(ctTypeReference -> ctTypeReference.setSimpleName(getAmplifiedName(classTest)));
+            }).forEach(ctTypeReference -> ctTypeReference.setSimpleName(amplifiedName));
             // need to update also all the String literals
-            amplifiedTest.getElements(new TypeFilter<CtLiteral>(CtLiteral.class) {
+            currentTestClass.getElements(new TypeFilter<CtLiteral>(CtLiteral.class) {
                 @Override
                 public boolean matches(CtLiteral element) {
                     return element.getValue() instanceof String &&
@@ -95,12 +102,9 @@ public class AmplificationHelper {
             }).forEach(stringCtLiteral ->
                     stringCtLiteral.setValue(((String)stringCtLiteral.getValue()).replaceAll(classTest.getSimpleName(), amplifiedName))
             );
-            classTest.getPackage().addType(amplifiedTest);
-            return amplifiedTest;
-        } else {
-            methodToAdd.forEach(classTest::addMethod);
-            return classTest;
         }
+        classTest.getPackage().addType(currentTestClass);
+        return currentTestClass;
     }
 
     @NotNull

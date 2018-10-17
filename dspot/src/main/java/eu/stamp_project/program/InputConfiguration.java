@@ -895,7 +895,7 @@ public class InputConfiguration {
      * This new test class will be named with "Ampl" as suffix or prefix depending of the name of the original test class:
      * <i>e.g.</i> MyClassTest will be AmplMyClassTest and TestMyClass will be TestMyClassAmpl
      */
-    public boolean isGenerateAmplifiedTestClass() {
+    public boolean shouldGenerateAmplifiedTestClass() {
         return generateAmplifiedTestClass;
     }
 
@@ -909,12 +909,26 @@ public class InputConfiguration {
      */
     private boolean useMavenToExecuteTest = false;
 
-    public boolean isUseMavenToExecuteTest() {
+    public boolean shouldUseMavenToExecuteTest() {
         return useMavenToExecuteTest;
     }
 
     public InputConfiguration setUseMavenToExecuteTest(boolean useMavenToExecuteTest) {
         this.useMavenToExecuteTest = useMavenToExecuteTest;
+        return this;
+    }
+
+    /**
+     * This boolean say if the outputs test class should also contain original test methods.
+     */
+    private boolean keepOriginalTestMethods = false;
+
+    public boolean shouldKeepOriginalTestMethods() {
+        return this.keepOriginalTestMethods;
+    }
+
+    public InputConfiguration setKeepOriginalTestMethods(boolean keepOriginalTestMethods) {
+        this.keepOriginalTestMethods = keepOriginalTestMethods;
         return this;
     }
 }

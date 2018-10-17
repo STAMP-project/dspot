@@ -182,8 +182,8 @@ public class MainTest {
         /*
             Test that we can append result in different runs of DSpot, or not, according to the --clean (-q) flag
             Here, we run 4 time DSpot.
-                    - 1 time with a lot of Amplifiers: result with a lof of amplified test
-                    - then we if append result of run 2 and run 3, we obtain the same result than the 1
+                    - 1 time with a lot of Amplifiers: result with a lot of amplified test
+                    - then we append result of run 2 and run 3, we obtain the same result than the 1
                     - the fourth is the same of the third time, but not appended to the result of the second
          */
 
@@ -193,11 +193,11 @@ public class MainTest {
                 "--amplifiers", "MethodAdd" + AmplificationHelper.PATH_SEPARATOR + "TestDataMutator" + AmplificationHelper.PATH_SEPARATOR + "MethodGeneratorAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
                 "--iteration", "1",
                 "--randomSeed", "72",
-                //"--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
                 "--test", "example.TestSuiteExample",
                 "--cases", "test2",
                 "--output-path", "target/trash",
-                "--max-test-amplified", "200"
+                "--max-test-amplified", "200",
+                "--keep-original-test-methods"
         });
         Launcher launcher = new Launcher();
         launcher.getEnvironment().setNoClasspath(true);
@@ -212,11 +212,11 @@ public class MainTest {
                 "--amplifiers", "MethodAdd" + AmplificationHelper.PATH_SEPARATOR + "TestDataMutator",
                 "--iteration", "1",
                 "--randomSeed", "72",
-                //"--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
                 "--test", "example.TestSuiteExample",
                 "--cases", "test2",
                 "--output-path", "target/trash",
                 "--max-test-amplified", "200",
+                "--keep-original-test-methods",
                 "--clean"
         });
         launcher = new Launcher();
@@ -234,11 +234,11 @@ public class MainTest {
                 "--amplifiers", "MethodGeneratorAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
                 "--iteration", "1",
                 "--randomSeed", "72",
-                //"--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
                 "--test", "example.TestSuiteExample",
                 "--cases", "test2",
                 "--output-path", "target/trash",
                 "--max-test-amplified", "200",
+                "--keep-original-test-methods"
         });
         launcher = new Launcher();
         launcher.getEnvironment().setNoClasspath(true);
@@ -246,17 +246,19 @@ public class MainTest {
         launcher.addInputResource("target/trash/example/TestSuiteExample.java");
         launcher.buildModel();
         final CtClass<?> testClass3 = launcher.getFactory().Class().get("example.TestSuiteExample");
+
+        //
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
                 "--amplifiers", "MethodGeneratorAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
                 "--iteration", "1",
                 "--randomSeed", "72",
-                //"--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
                 "--test", "example.TestSuiteExample",
                 "--cases", "test2",
                 "--output-path", "target/trash",
                 "--max-test-amplified", "200",
+                "--keep-original-test-methods",
                 "--clean"
         });
         launcher = new Launcher();

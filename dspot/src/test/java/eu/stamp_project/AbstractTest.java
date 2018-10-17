@@ -24,5 +24,6 @@ public abstract class AbstractTest {
         Utils.getInputConfiguration().setVerbose(true);
         Utils.getInputConfiguration().setMinimize(false);
         InputConfiguration.get().setGenerateAmplifiedTestClass(false);
+        InputConfiguration.get().setKeepOriginalTestMethods(false);
     }
 }

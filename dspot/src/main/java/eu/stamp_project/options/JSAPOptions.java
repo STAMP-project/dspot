@@ -77,6 +77,7 @@ public class JSAPOptions {
                 .setUseWorkingDirectory(jsapConfig.getBoolean("working-directory"))
                 .setWithComment(jsapConfig.getBoolean("comment"))
                 .setGenerateAmplifiedTestClass(jsapConfig.getBoolean("generate-new-test-class"))
+                .setKeepOriginalTestMethods(jsapConfig.getBoolean("keep-original-test-methods"))
                 .setDescartesMode(jsapConfig.getBoolean("descartes"))
                 .setUseMavenToExecuteTest(jsapConfig.getBoolean("use-maven-to-exe-test"));
     }
@@ -250,6 +251,11 @@ public class JSAPOptions {
         generateNewTestClass.setDefault("false");
         generateNewTestClass.setHelp("Enable the creation of a new test class.");
 
+        Switch keepOriginalTestMethods = new Switch("keep-original-test-methods");
+        keepOriginalTestMethods.setLongFlag("keep-original-test-methods");
+        keepOriginalTestMethods.setDefault("false");
+        keepOriginalTestMethods.setHelp("If enabled, DSpot keeps original test methods of the amplified test class.");
+
         Switch useMavenToExecuteTests = new Switch("use-maven-to-exe-test");
         useMavenToExecuteTests.setLongFlag("use-maven-to-exe-test");
         useMavenToExecuteTests.setDefault("false");
@@ -277,6 +283,7 @@ public class JSAPOptions {
             jsap.registerParameter(nominimize);
             jsap.registerParameter(useWorkingDirectory);
             jsap.registerParameter(generateNewTestClass);
+            jsap.registerParameter(keepOriginalTestMethods);
             jsap.registerParameter(useMavenToExecuteTests);
             jsap.registerParameter(example);
             jsap.registerParameter(help);

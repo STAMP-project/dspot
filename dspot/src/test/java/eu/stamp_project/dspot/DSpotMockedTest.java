@@ -36,6 +36,9 @@ public class DSpotMockedTest extends AbstractTest {
         /*
             Test the whole dspot procedure.
          */
+
+        InputConfiguration.get().setKeepOriginalTestMethods(true);
+
         ValueCreator.count = 0;
         RandomHelper.setSeedRandom(23L);
         final InputConfiguration configuration = InputConfiguration.get();
