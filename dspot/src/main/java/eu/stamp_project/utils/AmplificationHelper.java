@@ -4,7 +4,6 @@ import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import jdk.internal.util.xml.impl.Input;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
