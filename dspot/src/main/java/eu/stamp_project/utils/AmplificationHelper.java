@@ -65,13 +65,16 @@ public class AmplificationHelper {
     @SuppressWarnings("unchecked")
     public static CtType<?> createAmplifiedTest(List<CtMethod<?>> ampTest, CtType<?> classTest) {
         final Stream<CtMethod<?>> methodToAdd;
-        // TODO minimize
-        if (InputConfiguration.get().shouldMinimize()) {
+        // TODO the minimization is not stable for now.
+        // TODO I disabled it
+        /*if (InputConfiguration.get().shouldMinimize()) {
             final Minimizer minimizer = InputConfiguration.get().getSelector().getMinimizer();
             methodToAdd = ampTest.stream().map(minimizer::minimize);
         } else {
             methodToAdd = ampTest.stream();
-        }
+        }*/
+        methodToAdd = ampTest.stream();
+
         final CtType<?> currentTestClass = classTest.clone();
         methodToAdd.forEach(currentTestClass::addMethod);
         // keep original test methods
@@ -97,10 +100,10 @@ public class AmplificationHelper {
                 @Override
                 public boolean matches(CtLiteral element) {
                     return element.getValue() instanceof String &&
-                            ((String)element.getValue()).contains(classTest.getSimpleName());
+                            ((String) element.getValue()).contains(classTest.getSimpleName());
                 }
             }).forEach(stringCtLiteral ->
-                    stringCtLiteral.setValue(((String)stringCtLiteral.getValue()).replaceAll(classTest.getSimpleName(), amplifiedName))
+                    stringCtLiteral.setValue(((String) stringCtLiteral.getValue()).replaceAll(classTest.getSimpleName(), amplifiedName))
             );
         }
         classTest.getPackage().addType(currentTestClass);
