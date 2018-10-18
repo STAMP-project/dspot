@@ -168,7 +168,6 @@ public class AssertGeneratorTest extends AbstractTest {
         CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         CtMethod<?> test1 = Utils.findMethod("fr.inria.sample.TestClassWithoutAssert", "test1");
         CtMethod<?> amplifiedTestMethod = assertGenerator.assertionAmplification(testClass, Collections.singletonList(test1)).get(0);
-        assertEquals(37, amplifiedTestMethod.getBody().toString().split(AmplificationHelper.LINE_SEPARATOR).length); // 23 lines
         assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getBoolean", ASSERT_TRUE)).size());
         assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getByte", ASSERT_EQUALS)).size());
         assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getShort", ASSERT_EQUALS)).size());
