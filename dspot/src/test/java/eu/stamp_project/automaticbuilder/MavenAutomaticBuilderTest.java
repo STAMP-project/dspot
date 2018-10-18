@@ -4,17 +4,19 @@ import eu.stamp_project.Utils;
 import eu.stamp_project.mutant.pit.PitResult;
 import eu.stamp_project.mutant.pit.PitResultParser;
 import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Created by Benjamin DANGLOT
@@ -56,6 +58,48 @@ public class MavenAutomaticBuilderTest {
         assertEquals(28, pitResults.size());
         assertEquals(9, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
         assertEquals(15, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count());
+    }
+
+    @Test
+    public void testRunPitDescartes() throws Exception {
+
+        /*
+            Test pit with descartes mutation engine.
+                1- the number of mutants is considerably reduces
+                2- the pom xml is modified before the reset()
+                3- the reset() method restore the original pom.xml
+         */
+
+        Utils.init("src/test/resources/test-projects/test-projects.properties");
+        InputConfiguration.get().setDescartesMode(true);
+        InputConfiguration.get().setFilter("");
+        String pomAsStr = "";
+        try (BufferedReader buffer = new BufferedReader(new FileReader(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + "pom.xml"))) {
+            pomAsStr = buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
+        } catch (IOException e) {
+            fail("should not throw the exception " + e.toString());
+        }
+
+        InputConfiguration.get().getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot());
+        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
+
+        try (BufferedReader buffer = new BufferedReader(new FileReader(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + "pom.xml"))) {
+            assertNotEquals(buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)), pomAsStr);
+        } catch (IOException e) {
+            fail("should not throw the exception " + e.toString());
+        }
+
+        InputConfiguration.get().getBuilder().reset();
+
+        try (BufferedReader buffer = new BufferedReader(new FileReader(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + "pom.xml"))) {
+            assertEquals(buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)), pomAsStr);
+        } catch (IOException e) {
+            fail("should not throw the exception " + e.toString());
+        }
+
+        assertEquals(2, pitResults.size());
+        assertEquals(0, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
+        assertEquals(2, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count());
     }
 
     @Test
