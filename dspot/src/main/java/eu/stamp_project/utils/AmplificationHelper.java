@@ -1,6 +1,5 @@
 package eu.stamp_project.utils;
 
-import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
