@@ -202,6 +202,7 @@ public class DSpot {
                 //ignored
             }
             writeTimeJson();
+            InputConfiguration.get().getBuilder().reset();
             return amplification;
         } catch (IOException e) {
             throw new RuntimeException(e);

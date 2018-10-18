@@ -40,7 +40,6 @@ import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_VALUE_FO
 import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_VALUE_MEMORY;
 import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_VALUE_REPORT_DIR;
 import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_VALUE_TIMEOUT;
-import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_WITH_HISTORY;
 import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.VALUE_MUTATORS_ALL;
 
 /**
@@ -56,7 +55,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     private String classpath;
 
-    private String contentOfOriginalPom;
+    private String contentOfOriginalPom = null;
 
     private static final String FILE_SEPARATOR = File.separator;
 
@@ -74,8 +73,6 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
             }
             DescartesInjector.injectDescartesIntoPom(pathToPom);
             this.descartesHasBeenInjected = true;
-        } else {
-            this.contentOfOriginalPom = null;
         }
     }
 
@@ -138,8 +135,10 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     public void reset() {
         if (this.descartesHasBeenInjected && contentOfOriginalPom != null) {
             final String pathToPom = InputConfiguration.get().getAbsolutePathToProjectRoot() + FILE_SEPARATOR + POM_FILE;
+            LOGGER.info("{} restoring original pom.xml...", pathToPom);
             try (FileWriter writer = new FileWriter(pathToPom)) {
                 writer.write(this.contentOfOriginalPom);
+                this.descartesHasBeenInjected = false;
                 this.contentOfOriginalPom = null;
             } catch (Exception ignored) {
 
@@ -206,7 +205,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
         try {
             String[] phases = new String[]{CMD_PIT_MUTATION_COVERAGE + ":" + InputConfiguration.get().getPitVersion() + ":" + GOAL_PIT_MUTATION_COVERAGE, //
-                    OPT_WITH_HISTORY, //
+                    //OPT_WITH_HISTORY, // it seems that the history throws an exception in pitest 1.4.0 -> Illegal base64 character 3c
                     OPT_TARGET_CLASSES + InputConfiguration.get().getFilter(), //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //

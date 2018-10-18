@@ -2,6 +2,8 @@ package eu.stamp_project.mutant.descartes;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
+import eu.stamp_project.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -14,9 +16,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Created by Benjamin DANGLOT
@@ -60,15 +60,11 @@ public class DescartesTest extends AbstractTest {
         assertFalse(DescartesChecker.shouldInjectDescartes(pathname));
         try (BufferedReader buffer = new BufferedReader(new FileReader(pathname))) {
             final String pomAsStr = buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
-            System.out.println(pomAsStr);
-            assertTrue(pomAsStr.contains(expectedAddedDependencies));
             assertTrue(pomAsStr.contains(expectedAddedPlugin));
         } catch (IOException e) {
             fail("should not throw the exception " + e.toString());
         }
     }
-
-    private static final String expectedAddedDependencies = "<dependency><groupId>org.pitest</groupId><artifactId>pitest-maven</artifactId><version>1.4.0</version></dependency><dependency><groupId>eu.stamp-project</groupId><artifactId>descartes</artifactId><version>1.2.4</version></dependency></dependencies>";
 
     private static final String expectedAddedPlugin = "<plugin><groupId>org.pitest</groupId><artifactId>pitest-maven</artifactId><version>1.4.0</version><configuration><mutationEngine>descartes</mutationEngine><mutators><mutator>void</mutator><mutator>null</mutator><mutator>true</mutator><mutator>false</mutator><mutator>empty</mutator><mutator>0</mutator><mutator>1</mutator><mutator>(byte)0</mutator><mutator>(byte)1</mutator><mutator>(short)1</mutator><mutator>(short)2</mutator><mutator>0L</mutator><mutator>1L</mutator><mutator>0.0</mutator><mutator>1.0</mutator><mutator>0.0f</mutator><mutator>1.0f</mutator><mutator>' '</mutator><mutator>'A'</mutator><mutator>\"\"</mutator><mutator>\"A\"</mutator></mutators></configuration><dependencies><dependency><groupId>eu.stamp-project</groupId><artifactId>descartes</artifactId><version>1.2.4</version></dependency></dependencies></plugin>";
 
