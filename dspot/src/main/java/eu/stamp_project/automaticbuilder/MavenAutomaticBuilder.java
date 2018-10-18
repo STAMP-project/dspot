@@ -56,7 +56,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     private String classpath;
 
-    private String contentOfOriginalPom;
+    private String contentOfOriginalPom = null;
 
     private static final String FILE_SEPARATOR = File.separator;
 
@@ -74,8 +74,6 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
             }
             DescartesInjector.injectDescartesIntoPom(pathToPom);
             this.descartesHasBeenInjected = true;
-        } else {
-            this.contentOfOriginalPom = null;
         }
     }
 
@@ -138,8 +136,10 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     public void reset() {
         if (this.descartesHasBeenInjected && contentOfOriginalPom != null) {
             final String pathToPom = InputConfiguration.get().getAbsolutePathToProjectRoot() + FILE_SEPARATOR + POM_FILE;
+            LOGGER.info("{} restoring original pom.xml...", pathToPom);
             try (FileWriter writer = new FileWriter(pathToPom)) {
                 writer.write(this.contentOfOriginalPom);
+                this.descartesHasBeenInjected = false;
                 this.contentOfOriginalPom = null;
             } catch (Exception ignored) {
 
