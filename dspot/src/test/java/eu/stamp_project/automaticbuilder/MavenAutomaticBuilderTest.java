@@ -6,6 +6,7 @@ import eu.stamp_project.mutant.pit.PitResultParser;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -24,6 +25,11 @@ import static org.junit.Assert.*;
  * on 09/07/17.
  */
 public class MavenAutomaticBuilderTest {
+
+    @After
+    public void tearDown() throws Exception {
+        InputConfiguration.get().setDescartesMode(false);
+    }
 
     @Test
     public void testGetDependenciesOf() throws Exception {
@@ -76,8 +82,6 @@ public class MavenAutomaticBuilderTest {
         String pomAsStr = "";
         try (BufferedReader buffer = new BufferedReader(new FileReader(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + "pom.xml"))) {
             pomAsStr = buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
-        } catch (IOException e) {
-            fail("should not throw the exception " + e.toString());
         }
 
         InputConfiguration.get().getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot());
@@ -85,16 +89,12 @@ public class MavenAutomaticBuilderTest {
 
         try (BufferedReader buffer = new BufferedReader(new FileReader(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + "pom.xml"))) {
             assertNotEquals(buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)), pomAsStr);
-        } catch (IOException e) {
-            fail("should not throw the exception " + e.toString());
         }
 
         InputConfiguration.get().getBuilder().reset();
 
         try (BufferedReader buffer = new BufferedReader(new FileReader(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + "pom.xml"))) {
             assertEquals(buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)), pomAsStr);
-        } catch (IOException e) {
-            fail("should not throw the exception " + e.toString());
         }
 
         assertEquals(2, pitResults.size());

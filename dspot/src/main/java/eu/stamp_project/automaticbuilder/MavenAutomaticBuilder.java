@@ -40,7 +40,6 @@ import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_VALUE_FO
 import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_VALUE_MEMORY;
 import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_VALUE_REPORT_DIR;
 import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_VALUE_TIMEOUT;
-import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_WITH_HISTORY;
 import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.VALUE_MUTATORS_ALL;
 
 /**
