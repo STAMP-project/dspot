@@ -1,5 +1,6 @@
 package fr.inria.sample;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -62,6 +63,8 @@ public class TestClassWithAssert extends TestClassWithAssertOld {
             cl.throwException();
             junit.framework.TestCase.fail("test3 should have thrown Exception");
         } catch (java.lang.Exception eee) {
+        } finally {
+            //
         }
     }
 
