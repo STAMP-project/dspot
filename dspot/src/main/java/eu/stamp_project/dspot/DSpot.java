@@ -2,6 +2,8 @@ package eu.stamp_project.dspot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import eu.stamp_project.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.selector.CloverCoverageSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
@@ -202,6 +204,7 @@ public class DSpot {
                 //ignored
             }
             writeTimeJson();
+            InputConfiguration.get().getBuilder().reset();
             return amplification;
         } catch (IOException e) {
             throw new RuntimeException(e);
