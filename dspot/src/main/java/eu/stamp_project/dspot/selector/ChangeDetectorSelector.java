@@ -79,12 +79,13 @@ public class ChangeDetectorSelector implements TestSelector {
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
-        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC));
+        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));
+        final String pathToAmplifiedTestSrc = DSpotCompiler.getPathToAmplifiedTestSrc();
 
         InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
         DSpotCompiler.compile(
                 InputConfiguration.get(),
-                DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC,
+                pathToAmplifiedTestSrc,
                 InputConfiguration.get().getFullClassPathWithExtraDependencies(),
                 new File(this.pathToSecondVersionOfProgram + InputConfiguration.get().getPathToTestClasses())
         );

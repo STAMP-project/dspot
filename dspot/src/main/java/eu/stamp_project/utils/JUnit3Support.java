@@ -67,7 +67,7 @@ public class JUnit3Support {
                                 + AmplificationHelper.PATH_SEPARATOR +
                                 configuration.getClasspathClassesProject()
                                 + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies();
-                        DSpotCompiler.compile(configuration, DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
+                        DSpotCompiler.compile(configuration, DSpotCompiler.getPathToAmplifiedTestSrc(), classpath,
                                 new File(configuration.getAbsolutePathToTestClasses()));
                     }
                     if (superclass.getSuperclass() == null) {

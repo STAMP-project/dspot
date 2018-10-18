@@ -96,7 +96,7 @@ public class ExecutedMutantSelector extends TakeAllSelector {
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
         // pretty print it
-        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC));
+        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));
 
         // then compile
         final String classpath = this.configuration.getDependencies()
@@ -104,7 +104,7 @@ public class ExecutedMutantSelector extends TakeAllSelector {
                 this.configuration.getClasspathClassesProject()
                 + DSpotUtils.getAbsolutePathToDSpotDependencies();
 
-        DSpotCompiler.compile(configuration, DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
+        DSpotCompiler.compile(configuration, DSpotCompiler.getPathToAmplifiedTestSrc(), classpath,
                 new File(this.configuration.getAbsolutePathToTestClasses()));
 
         InputConfiguration.get().getBuilder()

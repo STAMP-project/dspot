@@ -139,6 +139,8 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
         ProjectConnection connection = GradleConnector.newConnector().forProjectDirectory(new File(pathToRootOfProject)).connect();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
+        LOGGER.info("Run gradle tasks: {}", String.join(" ", tasks));
+
         try {
             BuildLauncher build = connection.newBuild();
             build.forTasks(tasks);

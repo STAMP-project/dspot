@@ -129,7 +129,7 @@ public class TestCompiler {
     private static List<CtMethod<?>> compileAndDiscardUncompilableMethods(DSpotCompiler compiler,
                                                                           CtType<?> testClassToBeCompiled,
                                                                           String dependencies,
-                                                                          int numberOfTry) throws AmplificationException {
+                                                                          int numberOfTry) {
 
         printJavaFileAndDeleteClassFile(compiler, testClassToBeCompiled);
         final List<CategorizedProblem> problems = compiler.compileAndReturnProblems(dependencies)
