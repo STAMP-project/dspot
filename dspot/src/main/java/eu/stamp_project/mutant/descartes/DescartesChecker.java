@@ -31,7 +31,7 @@ public class DescartesChecker {
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
             Document doc = docBuilder.parse(pathToPom);
             final Node root = doc.getFirstChild();
-            return checkDependency(root) || checkPlugin(root);
+            return checkPlugin(root);
         } catch (ParserConfigurationException | IOException | SAXException pce) {
             throw new RuntimeException(pce);
         }
@@ -43,20 +43,6 @@ public class DescartesChecker {
             currentNode = currentNode.getNextSibling();
         }
         return currentNode;
-    }
-
-    private static boolean checkDependency(Node root) {
-        final Node dependencies = getNodeNamedFrom(root, "dependencies");
-        if (dependencies == null) {
-            return true;
-        }
-        final List<String> expectedValues = new ArrayList<>(Arrays.asList("org.pitest", "pitest-maven", InputConfiguration.get().getPitVersion()));
-        Optional<Node> checkDependency = getAllChildNodeNamedFrom(dependencies, "dependency").stream()
-                .filter(dependency ->
-                        checkThatHasTheGoodDependency(dependency, expectedValues)
-                )
-                .findFirst();
-        return !checkDependency.isPresent();
     }
 
     private static List<Node> getAllChildNodeNamedFrom(Node parent, String name) {

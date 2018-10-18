@@ -53,12 +53,6 @@ public class DescartesInjector {
         return Arrays.asList(groupId, artifactId, version);
     }
 
-    private static Node buildDependencyToPitTest(Document doc) {
-        final Element dependency = doc.createElement("dependency");
-        buildNodesDependency(doc, "org.pitest", "pitest-maven", InputConfiguration.get().getPitVersion()).forEach(dependency::appendChild);
-        return dependency;
-    }
-
     private static Node buildPlugin(Document doc) {
         final Element plugin = doc.createElement("plugin");
         buildNodesDependency(doc, "org.pitest", "pitest-maven", InputConfiguration.get().getPitVersion()).forEach(plugin::appendChild);
@@ -124,11 +118,6 @@ public class DescartesInjector {
             Document doc = docBuilder.parse(pathToPom);
 
             final Node root = findProjectNode(doc);
-            final Node dependencies = getNodeNamedFromOrBuildIfDoesnotExist(doc, root,
-                    "dependencies");
-            dependencies.appendChild(buildDependencyToPitTest(doc));
-            dependencies.appendChild(buildDependency(doc));
-
             Node build = getNodeNamedFromOrBuildIfDoesnotExist(doc, root,
                     "build");
             getNodeNamedFromOrBuildIfDoesnotExist(doc, build,"plugins")

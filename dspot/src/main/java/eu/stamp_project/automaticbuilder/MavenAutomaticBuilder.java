@@ -206,7 +206,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
         try {
             String[] phases = new String[]{CMD_PIT_MUTATION_COVERAGE + ":" + InputConfiguration.get().getPitVersion() + ":" + GOAL_PIT_MUTATION_COVERAGE, //
-                    OPT_WITH_HISTORY, //
+                    //OPT_WITH_HISTORY, // it seems that the history throws an exception in pitest 1.4.0 -> Illegal base64 character 3c
                     OPT_TARGET_CLASSES + InputConfiguration.get().getFilter(), //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
