@@ -63,6 +63,8 @@ public class TestClassWithAssert extends TestClassWithAssertOld {
             cl.throwException();
             junit.framework.TestCase.fail("test3 should have thrown Exception");
         } catch (java.lang.Exception eee) {
+        } finally {
+            //
         }
     }
 
