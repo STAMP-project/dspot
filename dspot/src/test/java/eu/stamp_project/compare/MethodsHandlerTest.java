@@ -3,10 +3,10 @@ package eu.stamp_project.compare;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
@@ -67,6 +67,12 @@ public class MethodsHandlerTest {
         }
         public Stream<?> getStream() { // do not match stream
             return Stream.of();
+        }
+        public Date getDate() {
+            return new Date();
+        }
+        public Calendar getCalendar() {
+            return new GregorianCalendar();
         }
     }
 

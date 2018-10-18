@@ -3,6 +3,7 @@ package eu.stamp_project.compare;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,9 @@ public class ObjectLogTest {
         }
         public int random() {
             return random.nextInt();
+        }
+        public String getAbsolutePath() {
+            return new File(".").getAbsolutePath();
         }
     }
 

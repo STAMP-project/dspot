@@ -11,7 +11,7 @@ import java.util.Random;
  */
 public class ClassWithBoolean {
 
-    public Object getNull() {
+    public String getNull() {
         return null;
     }
 
