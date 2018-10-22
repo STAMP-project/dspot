@@ -174,7 +174,7 @@ java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --path-to-properties d
 
 ```
 Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
-                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | ExecutedMutantSelector | CloverCoverageSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [--budgetizer <NoBudgetizer | SimpleBudgetizer>] [--max-test-amplified <integer>] [(-t|--test) my.package.MyClassTest | all | diff1:my.package.MyClassTest | all | diff2:...:my.package.MyClassTest | all | diffN ] [(-c|--cases) testCases1:testCases2:...:testCasesN ] [(-o|--output-path) <output>] [--clean] [(-m|--path-pit-result) <./path/to/mutations.csv>] [--descartes] [--automatic-builder <MavenBuilder | GradleBuilder>] [--maven-home <path to maven home>] [--randomSeed <long integer>] [--timeOut <long integer>] [--verbose] [--with-comment] [--no-minimize] [--working-directory] [--generate-new-test-class] [--keep-original-test-methods] [--use-maven-to-exe-test] [-e|--example] [-h|--help]
+                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [--budgetizer <NoBudgetizer | SimpleBudgetizer>] [--max-test-amplified <integer>] [(-t|--test) my.package.MyClassTest | all | diff1:my.package.MyClassTest | all | diff2:...:my.package.MyClassTest | all | diffN ] [(-c|--cases) testCases1:testCases2:...:testCasesN ] [(-o|--output-path) <output>] [--clean] [(-m|--path-pit-result) <./path/to/mutations.csv>] [--descartes] [--automatic-builder <MavenBuilder | GradleBuilder>] [--maven-home <path to maven home>] [--randomSeed <long integer>] [--timeOut <long integer>] [--verbose] [--with-comment] [--no-minimize] [--working-directory] [--generate-new-test-class] [--keep-original-test-methods] [--use-maven-to-exe-test] [-e|--example] [-h|--help]
 
   [(-p|--path-to-properties) <./path/to/myproject.properties>]
         [mandatory] specify the path to the configuration file (format Java
@@ -193,7 +193,6 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         		 - TestDataMutator (deprecated)
         		 - MethodGeneratorAmplifier
         		 - ReturnValueAmplifier
-        		 - ReplacementAmplifier
         		 - NullifierAmplifier
         		 - None (default: None)
 
@@ -203,7 +202,7 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         iterations may help to kill more mutants). This has an impact on the
         execution time: the more iterations, the longer DSpot runs. (default: 3)
 
-  [(-s|--test-criterion) <PitMutantScoreSelector | ExecutedMutantSelector | CloverCoverageSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>]
+  [(-s|--test-criterion) <PitMutantScoreSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>]
         [optional] specify the test adequacy criterion to be maximized with
         amplification (default: PitMutantScoreSelector)
 

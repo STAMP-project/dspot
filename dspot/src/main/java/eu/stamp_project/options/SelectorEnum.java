@@ -26,7 +26,8 @@ public enum SelectorEnum {
         public TestSelector buildSelector() {
             return new TakeAllSelector();
         }
-    }, CloverCoverageSelector {
+    },
+    /*CloverCoverageSelector {
         @Override
         public TestSelector buildSelector() {
             return new CloverCoverageSelector();
@@ -37,7 +38,7 @@ public enum SelectorEnum {
         public TestSelector buildSelector() {
             return new ExecutedMutantSelector();
         }
-    },
+    },*/
     ChangeDetectorSelector {
         @Override
         public TestSelector buildSelector() {
