@@ -24,6 +24,7 @@ public class PitScoreMutantSelectorTest extends AbstractSelectorTest {
     public void setUp() throws Exception {
         Utils.reset(); // TODO somewhere, there is some states that is why we need to reset here.
         super.setUp();
+        Utils.getInputConfiguration().setDescartesMode(false);
     }
 
     @Override
