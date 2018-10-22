@@ -1,5 +1,6 @@
 package eu.stamp_project;
 
+import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.options.AmplifierEnum;
 import eu.stamp_project.options.BudgetizerEnum;
 import eu.stamp_project.options.JSAPOptions;
@@ -231,7 +232,6 @@ public class DSpotMojo extends AbstractMojo {
                     .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(this.amplifiers.toArray(new String[this.amplifiers.size()])))
                     .setNbIteration(this.iteration)
                     .setTestClasses(this.test)
-                    .setSelector(SelectorEnum.valueOf(this.testCriterion).buildSelector())
                     .setBudgetizer(BudgetizerEnum.valueOf(this.budgetizer).getBugtizer())
                     .setTestCases(this.cases)
                     .setSeed(this.randomSeed)
@@ -248,6 +248,12 @@ public class DSpotMojo extends AbstractMojo {
                     .setKeepOriginalTestMethods(this.keepOriginalTestMethods)
                     .setOutputDirectory(this.outputPath)
                     .setUseMavenToExecuteTest(this.useMavenToExeTest);
+
+            if (this.pathPitResult != null && !this.pathPitResult.isEmpty()) {
+                InputConfiguration.get().setSelector(new PitMutantScoreSelector(this.pathPitResult));
+            } else {
+                InputConfiguration.get().setSelector(SelectorEnum.valueOf(this.testCriterion).buildSelector());
+            }
 
             if (!this.pathToSecondVersion.isEmpty()) {
                 InputConfiguration.get().setAbsolutePathToSecondVersionProjectRoot(this.pathToSecondVersion);
