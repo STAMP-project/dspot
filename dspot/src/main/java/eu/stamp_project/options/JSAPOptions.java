@@ -78,7 +78,7 @@ public class JSAPOptions {
                 .setWithComment(jsapConfig.getBoolean("comment"))
                 .setGenerateAmplifiedTestClass(jsapConfig.getBoolean("generate-new-test-class"))
                 .setKeepOriginalTestMethods(jsapConfig.getBoolean("keep-original-test-methods"))
-                .setDescartesMode(jsapConfig.getBoolean("descartes"))
+                .setDescartesMode(jsapConfig.getBoolean("descartes") && !jsapConfig.getBoolean("gregor"))
                 .setUseMavenToExecuteTest(jsapConfig.getBoolean("use-maven-to-exe-test"));
     }
 
@@ -233,8 +233,13 @@ public class JSAPOptions {
 
         Switch descartes = new Switch("descartes");
         descartes.setLongFlag("descartes");
-        descartes.setDefault("false");
+        descartes.setDefault("true");
         descartes.setHelp("Enable the descartes engine for Pit Mutant Score Selector.");
+
+        Switch gregor = new Switch("gregor");
+        gregor.setLongFlag("gregor");
+        gregor.setDefault("false");
+        gregor.setHelp("Enable the gregor engine for Pit Mutant Score Selector.");
 
         Switch nominimize = new Switch("no-minimize");
         nominimize.setLongFlag("no-minimize");
@@ -274,6 +279,7 @@ public class JSAPOptions {
             jsap.registerParameter(cleanOutput);
             jsap.registerParameter(mutantScore);
             jsap.registerParameter(descartes);
+            jsap.registerParameter(gregor);
             jsap.registerParameter(automaticBuilder);
             jsap.registerParameter(mavenHome);
             jsap.registerParameter(seed);

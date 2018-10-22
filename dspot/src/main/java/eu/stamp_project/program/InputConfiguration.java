@@ -698,7 +698,7 @@ public class InputConfiguration {
         return this;
     }
 
-    private boolean descartesMode;
+    private boolean descartesMode = true;
 
     public boolean isDescartesMode() {
         return descartesMode;
@@ -706,7 +706,11 @@ public class InputConfiguration {
 
     public InputConfiguration setDescartesMode(boolean descartesMode) {
         this.descartesMode = descartesMode;
-        this.setPitVersion("1.4.0"); // forcing pit version 1.4.0 to work with descartes
+        if (this.descartesMode) {
+            this.setPitVersion("1.4.0"); // forcing pit version 1.4.0 to work with descartes
+        } else {
+            this.setPitVersion("1.3.0");
+        }
         return this;
     }
 
