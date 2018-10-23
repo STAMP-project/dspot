@@ -97,6 +97,32 @@ public class MainTest {
     }
 
     @Test
+    public void testMainWithPitScoreSelector() throws Exception {
+
+        /*
+            Test the main procedure with the pit score selector
+                - on two classes, the first result with some amplified test, the second does not have any test methods to be selected.
+                it should not output the second class since there is no amplification.
+                See https://github.com/STAMP-project/dspot/issues/601
+         */
+
+        Main.main(new String[]{
+                "--clean",
+                "--verbose",
+                "--path-to-properties", "src/test/resources/sample/sample.properties",
+                "--test-criterion", "PitMutantScoreSelector",
+                "--test", "fr.inria.sample.TestClassWithoutAssert:fr.inria.filter.failing.FailingTest",
+                "--path-pit-result", "src/test/resources/sample/mutations.csv",
+                "--gregor",
+                "--output-path", "target/trash",
+        });
+
+        assertTrue(new File("target/trash/fr.inria.sample.TestClassWithoutAssert_mutants_killed.json").exists());
+        assertFalse(new File("target/trash/fr/inria/filter/failing").exists());
+        assertTrue(new File("target/trash/fr/inria/sample/").exists());
+    }
+
+    @Test
     public void testMainWithEmptyTestMethods() throws Exception {
         Main.main(new String[]{
                 "--clean",
