@@ -137,7 +137,7 @@ public class JSAPOptions {
         selector.setLongFlag("test-criterion");
         selector.setShortFlag('s');
         selector.setStringParser(JSAP.STRING_PARSER);
-        selector.setUsageName("PitMutantScoreSelector | ExecutedMutantSelector | CloverCoverageSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector");
+        selector.setUsageName("PitMutantScoreSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector");
         selector.setHelp("[optional] specify the test adequacy criterion to be maximized with amplification");
         selector.setDefault("PitMutantScoreSelector");
 
