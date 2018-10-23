@@ -106,6 +106,7 @@ public class MavenAutomaticBuilderTest {
     public void testFailingPit() throws Exception {
 
         Utils.init("src/test/resources/mockito/mockito.properties");
+        InputConfiguration.get().setDescartesMode(false);
 
         try {
             Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot());
@@ -126,6 +127,7 @@ public class MavenAutomaticBuilderTest {
     @Test
     public void testSpecificClass() throws Exception {
         Utils.init("src/test/resources/test-projects/test-projects.properties");
+        InputConfiguration.get().setDescartesMode(false);
 
         Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot(), Utils.findClass("example.TestSuiteExample2"));
         final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
@@ -139,6 +141,7 @@ public class MavenAutomaticBuilderTest {
     @Test
     public void testMultipleClasses() throws Exception {
         Utils.init("src/test/resources/test-projects/test-projects.properties");
+        InputConfiguration.get().setDescartesMode(false);
 
         Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot(), Utils.findClass("example.TestSuiteExample2"), Utils.findClass("example.TestSuiteExample"));
         final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
@@ -169,6 +172,7 @@ public class MavenAutomaticBuilderTest {
     public void testOnProjectWithResources() throws Exception {
 
         Utils.init("src/test/resources/project-with-resources/project-with-resources.properties");
+        InputConfiguration.get().setDescartesMode(false);
 
         Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot());
         final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
@@ -180,8 +184,8 @@ public class MavenAutomaticBuilderTest {
 
     @Test
     public void testUsingStarFilter() throws Exception {
-        Utils.getInputConfiguration().setVerbose(true);
         Utils.init("src/test/resources/test-projects/test-projects.properties");
+        InputConfiguration.get().setDescartesMode(false);
 
         final InputConfiguration inputConfiguration = Utils.getInputConfiguration();
         inputConfiguration.setFilter("*");
@@ -191,6 +195,5 @@ public class MavenAutomaticBuilderTest {
         } catch (Exception e) {
 
         }
-        Utils.getInputConfiguration().setVerbose(false);
     }
 }

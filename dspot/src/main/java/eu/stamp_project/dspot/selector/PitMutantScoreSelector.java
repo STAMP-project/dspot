@@ -54,13 +54,6 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     @Override
     public void init(InputConfiguration configuration) {
         super.init(configuration);
-        /*
-        if (!configuration.getPitVersion().isEmpty()) {
-            pitVersion = configuration.getPitVersion();
-        } else if (descartesMode) {
-            pitVersion = "1.4.0";
-        }
-        */
         if (this.originalKilledMutants == null) {
             final AutomaticBuilder automaticBuilder = InputConfiguration.get().getBuilder();
             automaticBuilder.runPit(this.configuration.getAbsolutePathToProjectRoot());
