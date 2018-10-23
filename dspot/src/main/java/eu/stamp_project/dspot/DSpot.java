@@ -183,7 +183,6 @@ public class DSpot {
             final CtType clone = test.clone();
             test.getPackage().addType(clone);
             final CtType<?> amplification = AmplificationHelper.createAmplifiedTest(testSelector.getAmplifiedTestCases(), clone);
-            testSelector.report();
             final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
             if (!testSelector.getAmplifiedTestCases().isEmpty()) {
                 LOGGER.info("Print {} with {} amplified test cases in {}", amplification.getSimpleName(),
@@ -193,6 +192,7 @@ public class DSpot {
                 LOGGER.warn("DSpot could not obtain any amplified test method.");
                 LOGGER.warn("You can customize the following options: --amplifiers, --test-criterion, --iteration, --budgetizer etc, and retry with a new configuration.");
             }
+            testSelector.report();
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
             try {
                 String pathToDotClass = compiler.getBinaryOutputDirectory().getAbsolutePath() + "/" +

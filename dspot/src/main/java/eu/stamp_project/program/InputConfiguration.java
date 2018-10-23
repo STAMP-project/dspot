@@ -204,13 +204,13 @@ public class InputConfiguration {
                 .setOutputDirectory(ConstantsProperties.OUTPUT_DIRECTORY.get(properties))
                 .setDelta(ConstantsProperties.DELTA_ASSERTS_FLOAT.get(properties))
                 .setFilter(ConstantsProperties.FILTER.get(properties))
-                .setPitVersion(ConstantsProperties.PIT_VERSION.get(properties))
                 .setDescartesVersion(ConstantsProperties.DESCARTES_VERSION.get(properties))
                 .setBaseSha(ConstantsProperties.BASE_SHA.get(properties))
                 .setExcludedClasses(ConstantsProperties.EXCLUDED_CLASSES.get(properties))
                 .setTimeoutPit(ConstantsProperties.TIMEOUT_PIT.get(properties))
                 .setJVMArgs(ConstantsProperties.JVM_ARGS.get(properties))
                 .setDescartesMutators(ConstantsProperties.DESCARTES_MUTATORS.get(properties))
+                .setPitVersion(ConstantsProperties.PIT_VERSION.get(properties))
                 .setExcludedTestCases(ConstantsProperties.EXCLUDED_TEST_CASES.get(properties));
     }
 
@@ -708,7 +708,7 @@ public class InputConfiguration {
         this.descartesMode = descartesMode;
         if (this.descartesMode) {
             this.setPitVersion("1.4.0"); // forcing pit version 1.4.0 to work with descartes
-        } else {
+        } else if (this.getPitVersion() == null) {
             this.setPitVersion("1.3.0");
         }
         return this;
