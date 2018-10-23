@@ -5,6 +5,7 @@ import eu.stamp_project.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
@@ -47,6 +48,7 @@ public class MainTest {
         }
     }
 
+    @Ignore
     @Test
     public void testUsingCloverSelectorAndMultipleAmplificationDSpot() throws Exception {
 

@@ -1,8 +1,6 @@
 package eu.stamp_project.options;
 
 import eu.stamp_project.dspot.selector.ChangeDetectorSelector;
-import eu.stamp_project.dspot.selector.CloverCoverageSelector;
-import eu.stamp_project.dspot.selector.ExecutedMutantSelector;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TakeAllSelector;
