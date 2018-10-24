@@ -54,7 +54,7 @@ public class DSpotTest extends AbstractTest {
                 InputConfiguration.get(),
                 new TakeAllSelector()
         );
-        final CtType amplifyTest = dSpot.amplifyTest(testClass);
+        final CtType amplifyTest = dSpot.amplifyTestClass("fr.inria.preparation.MustBeRenamedFromStart").get(0);
         assertTrue("should be empty", TestCompiler.compileAndRun(
                 amplifyTest,
                 Utils.getCompiler(),
@@ -80,7 +80,7 @@ public class DSpotTest extends AbstractTest {
         // the test class fr.inria.filter.passing.PassingTest has 3 methods, but only two are amplified
         assertEquals(3, Utils.findClass("fr.inria.filter.passing.PassingTest").getMethods().size());
         // the test class fr.inria.filter.failing.FailingTest match the regex, but it is excluded in the properties
-        final List<CtType> ctTypes = dSpot.amplifyTest("fr.inria.filter.*");
+        final List<CtType> ctTypes = dSpot.amplifyTestClass("fr.inria.filter.*");
         assertEquals(1, ctTypes.size());
         // uses the mock to retrieve the number of method to be amplified
         assertEquals(2, dSpot.numberOfMethod);

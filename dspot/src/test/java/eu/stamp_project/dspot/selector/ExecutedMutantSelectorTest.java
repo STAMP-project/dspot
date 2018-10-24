@@ -15,6 +15,7 @@ import org.junit.Test;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,8 +46,7 @@ public class ExecutedMutantSelectorTest {
 
         final ExecutedMutantSelector testSelector = new ExecutedMutantSelector();
         DSpot dspot = new DSpot(Utils.getInputConfiguration(), 1, Collections.singletonList(new TestDataMutator()), testSelector);
-        final CtType amplifyTest = dspot.amplifyTest(Utils.findClass("example.TestSuiteExample"),
-                Collections.singletonList(Utils.findMethod("example.TestSuiteExample", "test8")));
+        final CtType amplifyTest = dspot.amplifyTestClassTestMethods("example.TestSuiteExample", Arrays.asList("example.TestSuiteExample", "test8")).get(0);
 
         // pretty print it
         DSpotUtils.printCtTypeToGivenDirectory(amplifyTest, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));

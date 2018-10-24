@@ -63,7 +63,7 @@ public class DSpotMockedTest extends AbstractTest {
 
         EntryPoint.verbose = true;
 
-        CtType<?> amplifiedTest = dspot.amplifyTest("info.sanaulla.dal.BookDALTest", Collections.singletonList("testGetBook"));
+        CtType<?> amplifiedTest = dspot.amplifyTestClassTestMethod("info.sanaulla.dal.BookDALTest", "testGetBook").get(0);
 
         final List<CtMethod<?>> amplifiedTestMethods = AmplificationHelper.getAllTest(amplifiedTest);
         assertEquals(6, amplifiedTestMethods.size());

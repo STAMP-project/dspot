@@ -59,7 +59,7 @@ public class PitScoreMutantSelectorDescartesTest {
         DSpot dspot = new DSpot(configuration, 1,
                 Arrays.asList(new StringLiteralAmplifier(), new NumberLiteralAmplifier()),
                 new PitMutantScoreSelector());
-        dspot.amplifyTest("example.TestSuiteExample", Collections.singletonList("test2"));
+        dspot.amplifyTestClassesTestMethods(Collections.singletonList("example.TestSuiteExample"), Collections.singletonList("test2"));
         FileUtils.cleanDirectory(new File(configuration.getOutputDirectory()));
         assertTrue(Utils.getInputConfiguration().isDescartesMode());
     }
