@@ -42,7 +42,7 @@ public class JacocoCoverageSelectorTest {
 				2,
 				Arrays.asList(new TestDataMutator(), new MethodGeneratorAmplifier(), new ReturnValueAmplifier()),
 				new JacocoCoverageSelector());
-		dspot.amplifyTest("example.TestSuiteExample", Collections.singletonList("test2"));
+		dspot.amplifyTestClassTestMethod("example.TestSuiteExample", "test2");
 
 		/*try (BufferedReader buffer = new BufferedReader(new FileReader(configuration.getOutputDirectory() +
 				"example.TestSuiteExample_jacoco_instr_coverage_report.txt"
