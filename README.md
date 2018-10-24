@@ -106,8 +106,8 @@ outputDirectory=target/trash/
 #Argument string to use when PIT launches child processes. This is most commonly used
 # to increase the amount of memory available to the process,
 # but may be used to pass any valid JVM argument.
-# Use commas to separate multiple arguments, and put them within brackets
-jvmArgs=['-Xmx2048m','-Xms1024m']
+# Use commas to separate multiple arguments
+jvmArgs=-Xmx2048m,-Xms1024m
 ```
 
 The result of the amplification of charAt consists of 6 new tests, as shown in the output below. These new tests are
