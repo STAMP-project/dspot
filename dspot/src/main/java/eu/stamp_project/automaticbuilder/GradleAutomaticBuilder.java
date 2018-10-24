@@ -86,14 +86,14 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
             if (!classpathFile.exists()) {
                 LOGGER.info("Classpath file for Gradle project doesn't exist, starting to build it...");
                 LOGGER.info("Injecting  Gradle task to print project classpath on stdout...");
-                injectPrintClasspathTask(this.configuration.getAbsolutePathToProjectRoot());
+                //injectPrintClasspathTask(this.configuration.getAbsolutePathToProjectRoot());
                 LOGGER.info("Retrieving project classpath...");
                 byte[] taskOutput = cleanClasspath(runTasks(this.configuration.getAbsolutePathToProjectRoot(), "printClasspath4DSpot"));
                 LOGGER.info("Writing project classpath on file " + JAVA_PROJECT_CLASSPATH + "...");
                 FileOutputStream fos = new FileOutputStream(this.configuration.getAbsolutePathToProjectRoot() + File.separator + JAVA_PROJECT_CLASSPATH);
                 fos.write(taskOutput);
                 fos.close();
-                resetOriginalGradleBuildFile(this.configuration.getAbsolutePathToProjectRoot());
+                //resetOriginalGradleBuildFile(this.configuration.getAbsolutePathToProjectRoot());
             }
             try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
                 final String collect = buffer
@@ -122,13 +122,13 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
     public void runPit(String pathToRootOfProject, CtType<?>... testClasses) {
         try {
             LOGGER.info("Injecting  Gradle task to run Pit...");
-            injectPitTask(pathToRootOfProject, testClasses);
+            //injectPitTask(pathToRootOfProject, testClasses);
 
             LOGGER.info("Running Pit...");
 
             runTasks(pathToRootOfProject, CMD_PIT_MUTATION_COVERAGE);
 
-            resetOriginalGradleBuildFile(pathToRootOfProject);
+            //resetOriginalGradleBuildFile(pathToRootOfProject);
 
         } catch (Exception e) {
             e.printStackTrace();

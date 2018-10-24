@@ -60,6 +60,43 @@ java -cp target/dspot-*-jar-with-dependencies.jar eu.stamp_project.Main -p path/
 
 For more info, see section **Usage** below.
 
+### Gradle support
+
+For gradle project, you have to add manually the following line:
+
+```gradle
+task printClasspath4DSpot {
+    doLast {
+        configurations.testRuntime.each { println it }
+    }
+}
+apply plugin: 'info.solidsoft.pitest'
+pitest {
+    targetClasses = ['your.top.package']
+    enableDefaultIncrementalAnalysis = true
+    reportDir = 'build/pit-reports'
+    outputFormats = ['CSV','HTML']
+    mutators = ['ALL']
+}
+```
+
+Merge your existing tasks/tags with the given
+```gradle
+buildscript {
+    repositories {
+        maven {
+             url "https://plugins.gradle.org/m2/"
+        }
+    }
+    configurations.maybeCreate("pitest")
+    dependencies {
+       classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.1.11'
+    }
+}
+
+apply plugin: 'info.solidsoft.pitest'
+```
+
 ### Releases
 
 See <https://github.com/STAMP-project/dspot/releases>
