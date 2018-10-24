@@ -1,6 +1,7 @@
 package eu.stamp_project.automaticbuilder;
 
 
+import eu.stamp_project.automaticbuilder.gradle.GradleAutomaticBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
