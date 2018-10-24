@@ -1,10 +1,8 @@
 package eu.stamp_project.automaticbuilder.gradle;
 
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.dspot.Amplification;
 import eu.stamp_project.mutant.pit.GradlePitTaskAndOptions;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.program.InputConfiguration;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnector;
@@ -18,32 +16,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.CopyOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.CMD_PIT_MUTATION_COVERAGE;
-import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_ADDITIONAL_CP_ELEMENTS;
-import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_EXCLUDED_CLASSES;
-import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_MUTATION_ENGINE;
-import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_MUTATORS;
-import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_TARGET_CLASSES;
-import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_TARGET_TESTS;
-import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_VALUE_FORMAT;
-import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_VALUE_REPORT_DIR;
-import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.OPT_WITH_HISTORY;
-import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.PROPERTY_VALUE_JVM_ARGS;
-import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.PROPERTY_VALUE_TIMEOUT;
-import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.VALUE_MUTATORS_ALL;
-import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.descartesMode;
 
 /**
  * Created by Daniele Gagliardi
