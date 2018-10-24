@@ -2,16 +2,7 @@ package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
-import spoon.reflect.code.CtBlock;
-import spoon.reflect.code.CtExpression;
-import spoon.reflect.code.CtFieldRead;
-import spoon.reflect.code.CtInvocation;
-import spoon.reflect.code.CtLiteral;
-import spoon.reflect.code.CtLocalVariable;
-import spoon.reflect.code.CtStatement;
-import spoon.reflect.code.CtStatementList;
-import spoon.reflect.code.CtUnaryOperator;
-import spoon.reflect.code.CtVariableRead;
+import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
@@ -56,6 +47,12 @@ public class AssertionRemover {
                         .flatMap(invocation -> this.removeAssertion(invocation).stream())
                         .collect(Collectors.toList())
         );
+
+        testWithoutAssertion.getElements(new TypeFilter<>(CtTry.class))
+                .forEach(ctTry -> ctTry.insertBefore((CtStatement) ctTry.getBody().clone()));
+        testWithoutAssertion.getElements(new TypeFilter<>(CtTry.class))
+                .forEach(testWithoutAssertion.getBody()::removeStatement);
+
         return testWithoutAssertion;
     }
 

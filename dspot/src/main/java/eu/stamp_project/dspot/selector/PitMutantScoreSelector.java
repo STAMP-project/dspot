@@ -54,13 +54,6 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     @Override
     public void init(InputConfiguration configuration) {
         super.init(configuration);
-        /*
-        if (!configuration.getPitVersion().isEmpty()) {
-            pitVersion = configuration.getPitVersion();
-        } else if (descartesMode) {
-            pitVersion = "1.4.0";
-        }
-        */
         if (this.originalKilledMutants == null) {
             final AutomaticBuilder automaticBuilder = InputConfiguration.get().getBuilder();
             automaticBuilder.runPit(this.configuration.getAbsolutePathToProjectRoot());
@@ -82,11 +75,10 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     }
 
     @Override
-    public List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified) {
+    public List<CtMethod<?>> selectToAmplify(CtType<?> classTest, List<CtMethod<?>> testsToBeAmplified) {
         if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
             this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
-            this.testThatKilledMutants.clear();
-            this.selectedAmplifiedTest.clear();
+
         }
         return testsToBeAmplified;
     }
@@ -103,7 +95,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
-        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC));
+        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));
         final AutomaticBuilder automaticBuilder = InputConfiguration.get().getBuilder();
         final String classpath = InputConfiguration.get().getBuilder()
                 .buildClasspath()
@@ -111,7 +103,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 this.configuration.getClasspathClassesProject()
                 + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies();
 
-        DSpotCompiler.compile(this.configuration, DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
+        DSpotCompiler.compile(this.configuration, DSpotCompiler.getPathToAmplifiedTestSrc(), classpath,
                 new File(this.configuration.getAbsolutePathToTestClasses()));
 
         InputConfiguration.get().getBuilder().runPit(this.configuration.getAbsolutePathToProjectRoot(), clone);
@@ -173,6 +165,8 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         reportJSONMutants();
         //clean up for the next class
         this.currentClassTestToBeAmplified = null;
+        this.testThatKilledMutants.clear();
+        this.selectedAmplifiedTest.clear();
     }
 
     private void reportStdout() {

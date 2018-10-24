@@ -40,7 +40,6 @@ import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_VALUE_FO
 import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_VALUE_MEMORY;
 import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_VALUE_REPORT_DIR;
 import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_VALUE_TIMEOUT;
-import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_WITH_HISTORY;
 import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.VALUE_MUTATORS_ALL;
 
 /**
@@ -56,23 +55,24 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     private String classpath;
 
-    private String contentOfOriginalPom;
+    private String contentOfOriginalPom = null;
 
     private static final String FILE_SEPARATOR = File.separator;
 
     public static final String POM_FILE = "pom.xml";
 
+    private boolean descartesHasBeenInjected = false;
+
     private void initializeForDescartes() {
         final String pathToPom = InputConfiguration.get().getAbsolutePathToProjectRoot() + FILE_SEPARATOR + POM_FILE;
-        if (DescartesChecker.shouldInjectDescartes(pathToPom)) {
+        if ((!this.descartesHasBeenInjected) && DescartesChecker.shouldInjectDescartes(pathToPom)) {
             try (final BufferedReader buffer = new BufferedReader(new FileReader(pathToPom))) {
                 this.contentOfOriginalPom = buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
             } catch (Exception ignored) {
 
             }
             DescartesInjector.injectDescartesIntoPom(pathToPom);
-        } else {
-            this.contentOfOriginalPom = null;
+            this.descartesHasBeenInjected = true;
         }
     }
 
@@ -133,10 +133,12 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     @Override
     public void reset() {
-        if (contentOfOriginalPom != null) {
+        if (this.descartesHasBeenInjected && contentOfOriginalPom != null) {
             final String pathToPom = InputConfiguration.get().getAbsolutePathToProjectRoot() + FILE_SEPARATOR + POM_FILE;
+            LOGGER.info("{} restoring original pom.xml...", pathToPom);
             try (FileWriter writer = new FileWriter(pathToPom)) {
                 writer.write(this.contentOfOriginalPom);
+                this.descartesHasBeenInjected = false;
                 this.contentOfOriginalPom = null;
             } catch (Exception ignored) {
 
@@ -160,7 +162,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
             String[] phases = new String[]{CMD_PIT_MUTATION_COVERAGE + ":" +
                     InputConfiguration.get().getPitVersion() + ":" + GOAL_PIT_MUTATION_COVERAGE, //
-                    OPT_WITH_HISTORY, //
+                    // OPT_WITH_HISTORY, // it seems that the history throws an exception in pitest 1.4.0 -> Illegal base64 character 3c
                     OPT_TARGET_CLASSES + InputConfiguration.get().getFilter(), //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
@@ -190,6 +192,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
      **/
     @Override
     public void runPit(String pathToRootOfProject) {
+        initializeForDescartes();
         try {
             org.apache.commons.io.FileUtils.deleteDirectory(new File(pathToRootOfProject + "/target/pit-reports"));
         } catch (Exception ignored) {
@@ -202,7 +205,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
         try {
             String[] phases = new String[]{CMD_PIT_MUTATION_COVERAGE + ":" + InputConfiguration.get().getPitVersion() + ":" + GOAL_PIT_MUTATION_COVERAGE, //
-                    OPT_WITH_HISTORY, //
+                    //OPT_WITH_HISTORY, // it seems that the history throws an exception in pitest 1.4.0 -> Illegal base64 character 3c
                     OPT_TARGET_CLASSES + InputConfiguration.get().getFilter(), //
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
@@ -232,7 +235,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         while (currentPackage.getPackages().size() == 1) {
             currentPackage = (CtPackage) currentPackage.getPackages().toArray()[0];
         }
-        InputConfiguration.get().setFilter(currentPackage.getQualifiedName());
+        InputConfiguration.get().setFilter(currentPackage.getQualifiedName() + ".*");
     }
 
     private int runGoals(String pathToRootOfProject, String... goals) {
@@ -253,8 +256,10 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         request.setProperties(properties);
 
         Invoker invoker = new DefaultInvoker();
-        invoker.setMavenHome(new File(this.buildMavenHome()));
-        LOGGER.info(String.format("run maven %s", Arrays.stream(goals).collect(Collectors.joining(" "))));
+        final String mavenHome = this.buildMavenHome();
+        LOGGER.info("Using {} for maven home", mavenHome);
+        invoker.setMavenHome(new File(mavenHome));
+        LOGGER.info(String.format("run maven: %s/bin/mvn %s", mavenHome, String.join(" ", goals)));
         if (InputConfiguration.get().isVerbose()) {
             invoker.setOutputHandler(System.out::println);
             invoker.setErrorHandler(System.err::println);

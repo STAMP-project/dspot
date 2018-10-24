@@ -13,6 +13,7 @@ import spoon.reflect.declaration.CtType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,7 +41,7 @@ public class DSpotSelectionTest {
         }
 
         @Override
-        public CtType amplifyTest(CtType test, List<CtMethod<?>> methods) {
+        protected CtType _amplify(CtType test, List<CtMethod<?>> methods) {
             methodsToBeAmplified.addAll(methods);
             typesToBeAmplified.add(test);
             return test;
@@ -76,29 +77,12 @@ public class DSpotSelectionTest {
             Can match several test classes
          */
 
-        dspotUnderTest.amplifyAllTestsNames(
+        dspotUnderTest.amplifyTestClasses(
                 Arrays.asList(
                         "example.TestSuiteExample",
                         "example.TestSuiteExample2"
                 )
         );
-        assertEquals(2, typesToBeAmplified.size());
-        assertTrue(typesToBeAmplified.stream().map(CtType::getQualifiedName).anyMatch("example.TestSuiteExample"::equals));
-        assertTrue(typesToBeAmplified.stream().map(CtType::getQualifiedName).anyMatch("example.TestSuiteExample2"::equals));
-    }
-
-    @Test
-    public void testOnTwoClass2UsingCtType() throws Exception {
-
-        /*
-            Can match several test classes
-         */
-
-        final List<CtType> testClasses = Arrays.asList(
-                dspotUnderTest.getInputConfiguration().getFactory().Type().get("example.TestSuiteExample"),
-                dspotUnderTest.getInputConfiguration().getFactory().Type().get("example.TestSuiteExample2")
-        );
-        dspotUnderTest.amplifyAllTests(testClasses);
         assertEquals(2, typesToBeAmplified.size());
         assertTrue(typesToBeAmplified.stream().map(CtType::getQualifiedName).anyMatch("example.TestSuiteExample"::equals));
         assertTrue(typesToBeAmplified.stream().map(CtType::getQualifiedName).anyMatch("example.TestSuiteExample2"::equals));
@@ -111,32 +95,9 @@ public class DSpotSelectionTest {
             Can match specific test method in a test class
          */
 
-        dspotUnderTest.amplifyTest(
+        dspotUnderTest.amplifyTestClassTestMethods(
                 "example.TestSuiteExample",
                 Arrays.asList("test2", "test3")
-        );
-        assertEquals(1, typesToBeAmplified.size());
-        assertTrue(typesToBeAmplified.stream().map(CtType::getQualifiedName).anyMatch("example.TestSuiteExample"::equals));
-        assertEquals(2, methodsToBeAmplified.size());
-        assertTrue(methodsToBeAmplified.stream().map(CtMethod::getSimpleName).anyMatch("test2"::equals));
-        assertTrue(methodsToBeAmplified.stream().map(CtMethod::getSimpleName).anyMatch("test3"::equals));
-    }
-
-    @Test
-    public void testOneClassTwoMethodsUsingCtType() throws Throwable {
-
-        /*
-            Can match specific test method in a test class
-         */
-
-        final CtType<?> testClass = dspotUnderTest.getInputConfiguration().getFactory().Type().get("example.TestSuiteExample");
-
-        dspotUnderTest.amplifyTest(
-                testClass,
-                testClass.getMethods()
-                        .stream()
-                        .filter(test -> test.getSimpleName().equals("test2") ||
-                                test.getSimpleName().equals("test3")).collect(Collectors.toList())
         );
         assertEquals(1, typesToBeAmplified.size());
         assertTrue(typesToBeAmplified.stream().map(CtType::getQualifiedName).anyMatch("example.TestSuiteExample"::equals));
@@ -153,7 +114,7 @@ public class DSpotSelectionTest {
                 The test class TestResources is not selected since it does not contain any test method.
          */
 
-        dspotUnderTest.amplifyTest("example.*");
+        dspotUnderTest.amplifyTestClass("example.*");
         assertEquals(2, typesToBeAmplified.size());
         assertTrue(typesToBeAmplified.stream().map(CtType::getQualifiedName).anyMatch("example.TestSuiteExample"::equals));
         assertTrue(typesToBeAmplified.stream().map(CtType::getQualifiedName).anyMatch("example.TestSuiteExample2"::equals));
@@ -166,7 +127,7 @@ public class DSpotSelectionTest {
             Can match test classes using a regex
          */
 
-        dspotUnderTest.amplifyTest("example.TestSuiteExample*");
+        dspotUnderTest.amplifyTestClass("example.TestSuiteExample*");
         assertEquals(2, typesToBeAmplified.size());
         assertTrue(typesToBeAmplified.stream().map(CtType::getQualifiedName).anyMatch("example.TestSuiteExample"::equals));
         assertTrue(typesToBeAmplified.stream().map(CtType::getQualifiedName).anyMatch("example.TestSuiteExample2"::equals));

@@ -57,7 +57,7 @@ public class JSAPOptions {
         }
         final List<String> testClasses = Arrays.asList(jsapConfig.getStringArray("test"));
         final List<String> testCases = Arrays.asList(jsapConfig.getStringArray("testCases"));
-        InputConfiguration.initialize(jsapConfig.getString("path"));
+        InputConfiguration.initialize(jsapConfig.getString("path"), jsapConfig.getString("builder"));
         if (InputConfiguration.get().getOutputDirectory().isEmpty()) {
             InputConfiguration.get().setOutputDirectory(jsapConfig.getString("output"));
         }
@@ -69,7 +69,6 @@ public class JSAPOptions {
                 .setTestCases(testCases)
                 .setSeed(jsapConfig.getLong("seed"))
                 .setTimeOutInMs(jsapConfig.getInt("timeOut"))
-                .setBuilderName(jsapConfig.getString("builder"))
                 .setMaxTestAmplified(jsapConfig.getInt("maxTestAmplified"))
                 .setBudgetizer(BudgetizerEnum.valueOf(jsapConfig.getString("budgetizer")).getBugtizer())
                 .setClean(jsapConfig.getBoolean("clean"))
@@ -78,7 +77,8 @@ public class JSAPOptions {
                 .setUseWorkingDirectory(jsapConfig.getBoolean("working-directory"))
                 .setWithComment(jsapConfig.getBoolean("comment"))
                 .setGenerateAmplifiedTestClass(jsapConfig.getBoolean("generate-new-test-class"))
-                .setDescartesMode(jsapConfig.getBoolean("descartes"))
+                .setKeepOriginalTestMethods(jsapConfig.getBoolean("keep-original-test-methods"))
+                .setDescartesMode(jsapConfig.getBoolean("descartes") && !jsapConfig.getBoolean("gregor"))
                 .setUseMavenToExecuteTest(jsapConfig.getBoolean("use-maven-to-exe-test"));
     }
 
@@ -137,7 +137,7 @@ public class JSAPOptions {
         selector.setLongFlag("test-criterion");
         selector.setShortFlag('s');
         selector.setStringParser(JSAP.STRING_PARSER);
-        selector.setUsageName("PitMutantScoreSelector | ExecutedMutantSelector | CloverCoverageSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector");
+        selector.setUsageName("PitMutantScoreSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector");
         selector.setHelp("[optional] specify the test adequacy criterion to be maximized with amplification");
         selector.setDefault("PitMutantScoreSelector");
 
@@ -199,7 +199,7 @@ public class JSAPOptions {
         automaticBuilder.setLongFlag("automatic-builder");
         automaticBuilder.setUsageName("MavenBuilder | GradleBuilder");
         automaticBuilder.setHelp("[optional] specify the automatic builder to build the project");
-        automaticBuilder.setDefault("MavenBuilder");
+        automaticBuilder.setDefault("");
 
         FlaggedOption mavenHome = new FlaggedOption("mavenHome");
         mavenHome.setStringParser(JSAP.STRING_PARSER);
@@ -233,8 +233,13 @@ public class JSAPOptions {
 
         Switch descartes = new Switch("descartes");
         descartes.setLongFlag("descartes");
-        descartes.setDefault("false");
+        descartes.setDefault("true");
         descartes.setHelp("Enable the descartes engine for Pit Mutant Score Selector.");
+
+        Switch gregor = new Switch("gregor");
+        gregor.setLongFlag("gregor");
+        gregor.setDefault("false");
+        gregor.setHelp("Enable the gregor engine for Pit Mutant Score Selector.");
 
         Switch nominimize = new Switch("no-minimize");
         nominimize.setLongFlag("no-minimize");
@@ -250,6 +255,11 @@ public class JSAPOptions {
         generateNewTestClass.setLongFlag("generate-new-test-class");
         generateNewTestClass.setDefault("false");
         generateNewTestClass.setHelp("Enable the creation of a new test class.");
+
+        Switch keepOriginalTestMethods = new Switch("keep-original-test-methods");
+        keepOriginalTestMethods.setLongFlag("keep-original-test-methods");
+        keepOriginalTestMethods.setDefault("false");
+        keepOriginalTestMethods.setHelp("If enabled, DSpot keeps original test methods of the amplified test class.");
 
         Switch useMavenToExecuteTests = new Switch("use-maven-to-exe-test");
         useMavenToExecuteTests.setLongFlag("use-maven-to-exe-test");
@@ -269,6 +279,7 @@ public class JSAPOptions {
             jsap.registerParameter(cleanOutput);
             jsap.registerParameter(mutantScore);
             jsap.registerParameter(descartes);
+            jsap.registerParameter(gregor);
             jsap.registerParameter(automaticBuilder);
             jsap.registerParameter(mavenHome);
             jsap.registerParameter(seed);
@@ -278,6 +289,7 @@ public class JSAPOptions {
             jsap.registerParameter(nominimize);
             jsap.registerParameter(useWorkingDirectory);
             jsap.registerParameter(generateNewTestClass);
+            jsap.registerParameter(keepOriginalTestMethods);
             jsap.registerParameter(useMavenToExecuteTests);
             jsap.registerParameter(example);
             jsap.registerParameter(help);

@@ -1,22 +1,19 @@
 package eu.stamp_project;
 
-import eu.stamp_project.dspot.DSpot;
-import eu.stamp_project.dspot.selector.CloverCoverageSelector;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtType;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -51,6 +48,7 @@ public class MainTest {
         }
     }
 
+    @Ignore
     @Test
     public void testUsingCloverSelectorAndMultipleAmplificationDSpot() throws Exception {
 
@@ -96,6 +94,32 @@ public class MainTest {
         amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("fr.inria.sample.TestClassWithoutAssert");
         assertNotNull(amplifiedTestClass);
         assertFalse(amplifiedTestClass.getMethods().isEmpty());
+    }
+
+    @Test
+    public void testMainWithPitScoreSelector() throws Exception {
+
+        /*
+            Test the main procedure with the pit score selector
+                - on two classes, the first result with some amplified test, the second does not have any test methods to be selected.
+                it should not output the second class since there is no amplification.
+                See https://github.com/STAMP-project/dspot/issues/601
+         */
+
+        Main.main(new String[]{
+                "--clean",
+                "--verbose",
+                "--path-to-properties", "src/test/resources/sample/sample.properties",
+                "--test-criterion", "PitMutantScoreSelector",
+                "--test", "fr.inria.sample.TestClassWithoutAssert:fr.inria.filter.failing.FailingTest",
+                "--path-pit-result", "src/test/resources/sample/mutations.csv",
+                "--gregor",
+                "--output-path", "target/trash",
+        });
+
+        assertTrue(new File("target/trash/fr.inria.sample.TestClassWithoutAssert_mutants_killed.json").exists());
+        assertFalse(new File("target/trash/fr/inria/filter/failing").exists());
+        assertTrue(new File("target/trash/fr/inria/sample/").exists());
     }
 
     @Test
@@ -186,8 +210,8 @@ public class MainTest {
         /*
             Test that we can append result in different runs of DSpot, or not, according to the --clean (-q) flag
             Here, we run 4 time DSpot.
-                    - 1 time with a lot of Amplifiers: result with a lof of amplified test
-                    - then we if append result of run 2 and run 3, we obtain the same result than the 1
+                    - 1 time with a lot of Amplifiers: result with a lot of amplified test
+                    - then we append result of run 2 and run 3, we obtain the same result than the 1
                     - the fourth is the same of the third time, but not appended to the result of the second
          */
 
@@ -197,11 +221,11 @@ public class MainTest {
                 "--amplifiers", "MethodAdd" + AmplificationHelper.PATH_SEPARATOR + "TestDataMutator" + AmplificationHelper.PATH_SEPARATOR + "MethodGeneratorAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
                 "--iteration", "1",
                 "--randomSeed", "72",
-                //"--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
                 "--test", "example.TestSuiteExample",
                 "--cases", "test2",
                 "--output-path", "target/trash",
-                "--max-test-amplified", "200"
+                "--max-test-amplified", "200",
+                "--keep-original-test-methods"
         });
         Launcher launcher = new Launcher();
         launcher.getEnvironment().setNoClasspath(true);
@@ -216,11 +240,11 @@ public class MainTest {
                 "--amplifiers", "MethodAdd" + AmplificationHelper.PATH_SEPARATOR + "TestDataMutator",
                 "--iteration", "1",
                 "--randomSeed", "72",
-                //"--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
                 "--test", "example.TestSuiteExample",
                 "--cases", "test2",
                 "--output-path", "target/trash",
                 "--max-test-amplified", "200",
+                "--keep-original-test-methods",
                 "--clean"
         });
         launcher = new Launcher();
@@ -238,11 +262,11 @@ public class MainTest {
                 "--amplifiers", "MethodGeneratorAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
                 "--iteration", "1",
                 "--randomSeed", "72",
-                //"--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
                 "--test", "example.TestSuiteExample",
                 "--cases", "test2",
                 "--output-path", "target/trash",
                 "--max-test-amplified", "200",
+                "--keep-original-test-methods"
         });
         launcher = new Launcher();
         launcher.getEnvironment().setNoClasspath(true);
@@ -250,17 +274,19 @@ public class MainTest {
         launcher.addInputResource("target/trash/example/TestSuiteExample.java");
         launcher.buildModel();
         final CtClass<?> testClass3 = launcher.getFactory().Class().get("example.TestSuiteExample");
+
+        //
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
                 "--amplifiers", "MethodGeneratorAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
                 "--iteration", "1",
                 "--randomSeed", "72",
-                //"--maven-home", DSpotUtils.buildMavenHome(new InputConfiguration("src/test/resources/test-projects/test-projects.properties")),
                 "--test", "example.TestSuiteExample",
                 "--cases", "test2",
                 "--output-path", "target/trash",
                 "--max-test-amplified", "200",
+                "--keep-original-test-methods",
                 "--clean"
         });
         launcher = new Launcher();

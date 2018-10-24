@@ -2,7 +2,10 @@ package eu.stamp_project.utils.compilation;
 
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.program.InputConfiguration;
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.Launcher;
 import spoon.OutputType;
 import spoon.SpoonModelBuilder;
@@ -16,6 +19,7 @@ import spoon.support.compiler.FileSystemFolder;
 import spoon.support.compiler.jdt.JDTBasedSpoonCompiler;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,6 +31,8 @@ import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
  * on 1/19/17
  */
 public class DSpotCompiler extends JDTBasedSpoonCompiler {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(DSpotCompiler.class);
 
 	public static DSpotCompiler createDSpotCompiler(InputConfiguration configuration, String pathToDependencies) {
 		String pathToSources = configuration.getAbsolutePathToSourceCode()
@@ -41,9 +47,15 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		this.dependencies = pathToDependencies;
 		this.launcher = launcher;
 		this.binaryOutputDirectory = new File(configuration.getAbsolutePathToTestClasses());
-		this.sourceOutputDirectory = new File(PATH_TO_AMPLIFIED_TEST_SRC);
+		this.sourceOutputDirectory = new File(getPathToAmplifiedTestSrc());
 		if (!this.sourceOutputDirectory.exists()) {
 			this.sourceOutputDirectory.mkdir();
+		} else {
+			try {
+				FileUtils.deleteDirectory(this.sourceOutputDirectory);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 
@@ -80,6 +92,9 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		final String[] finalArgs = new String[args.length + 1];
 		finalArgs[0] = "-proceedOnError";
 		System.arraycopy(args, 0, finalArgs, 1, args.length);
+
+
+		LOGGER.info("Compiling with {}", String.join(" ", finalArgs));
 
 		compiler.compile(finalArgs);
 		environment = compiler.getEnvironment();
@@ -139,7 +154,11 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 	 * The {@link DSpotCompiler} use this path to compile the amplified test class.
 	 */
 
-	public static final String PATH_TO_AMPLIFIED_TEST_SRC = new File(InputConfiguration.get().getAbsolutePathToProjectRoot(), "target/dspot/tmp_test_sources").getAbsolutePath();
+	private static final String PATH_TO_AMPLIFIED_TEST_SRC = "target/dspot/tmp_test_sources";
+
+	public static String getPathToAmplifiedTestSrc() {
+		return InputConfiguration.get().getAbsolutePathToProjectRoot() + PATH_TO_AMPLIFIED_TEST_SRC;
+	}
 
 	private Launcher launcher;
 

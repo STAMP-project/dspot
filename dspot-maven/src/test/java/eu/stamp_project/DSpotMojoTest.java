@@ -43,7 +43,7 @@ public class DSpotMojoTest {
          */
         mojoUnderTest.setPathToProperties("src/test/resources/test-projects/test-projects.properties");
 
-        mojoUnderTest.setPathPitResult("src/test/resources/test-projects/mutations.csv");
+        mojoUnderTest.setPathPitResult("src/test/resources/test-projects/originalpit/mutations.csv");
         mojoUnderTest.setTestCriterion("PitMutantScoreSelector");
         mojoUnderTest.setOutputPath("target/dspot-output");
 

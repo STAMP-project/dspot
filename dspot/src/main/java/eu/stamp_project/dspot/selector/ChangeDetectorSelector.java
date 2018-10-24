@@ -1,5 +1,9 @@
 package eu.stamp_project.dspot.selector;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import eu.stamp_project.dspot.selector.json.change.TestCaseJSON;
+import eu.stamp_project.dspot.selector.json.change.TestClassJSON;
 import eu.stamp_project.minimization.ChangeMinimizer;
 import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.program.InputConfiguration;
@@ -7,6 +11,7 @@ import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestRunner;
@@ -14,9 +19,7 @@ import org.codehaus.plexus.util.FileUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,9 +58,9 @@ public class ChangeDetectorSelector implements TestSelector {
     }
 
     @Override
-    public List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified) {
-        if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
-            this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
+    public List<CtMethod<?>> selectToAmplify(CtType<?> classTest, List<CtMethod<?>> testsToBeAmplified) {
+        if (this.currentClassTestToBeAmplified == null) {
+            this.currentClassTestToBeAmplified = classTest;
             this.failurePerAmplifiedTest.clear();
         }
         return testsToBeAmplified;
@@ -76,12 +79,13 @@ public class ChangeDetectorSelector implements TestSelector {
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
-        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC));
+        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));
+        final String pathToAmplifiedTestSrc = DSpotCompiler.getPathToAmplifiedTestSrc();
 
         InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
         DSpotCompiler.compile(
                 InputConfiguration.get(),
-                DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC,
+                pathToAmplifiedTestSrc,
                 InputConfiguration.get().getFullClassPathWithExtraDependencies(),
                 new File(this.pathToSecondVersionOfProgram + InputConfiguration.get().getPathToTestClasses())
         );
@@ -169,7 +173,40 @@ public class ChangeDetectorSelector implements TestSelector {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
+        this.reportJson();
         this.reset();
+    }
+
+    private void reportJson() {
+        if (this.currentClassTestToBeAmplified == null) {
+            return;
+        }
+        TestClassJSON testClassJSON;
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        final File file = new File(InputConfiguration.get().getOutputDirectory() + "/" +
+                this.currentClassTestToBeAmplified.getQualifiedName() + "_change_detector.json");
+        if (file.exists()) {
+            try {
+                testClassJSON = gson.fromJson(new FileReader(file), TestClassJSON.class);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            testClassJSON = new TestClassJSON(
+                    this.currentClassTestToBeAmplified.getQualifiedName(),
+                    AmplificationHelper.getAllTest(this.currentClassTestToBeAmplified).size()
+            );
+        }
+        this.getAmplifiedTestCases().stream()
+                .map(ctMethod ->
+                    new TestCaseJSON(ctMethod.getSimpleName(), Counter.getInputOfSinceOrigin(ctMethod), Counter.getAssertionOfSinceOrigin(ctMethod))
+                ).forEach(testClassJSON.testCases::add);
+        try (FileWriter writer = new FileWriter(file, false)) {
+            writer.write(gson.toJson(testClassJSON));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 }

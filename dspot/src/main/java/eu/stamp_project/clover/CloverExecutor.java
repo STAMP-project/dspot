@@ -41,7 +41,7 @@ public class CloverExecutor {
                                                                      String pathToSources) {
 
         return CloverExecutor.execute(configuration, pathToSources,
-                DSpotUtils.getAllTestClasses(configuration)
+                DSpotUtils.getAllTestClasses()
         );
     }
 

@@ -77,7 +77,7 @@ public class TestRunner {
     }
 
     public static TestListener run(String classpath, String rootPath, String fullQualifiedName, String... testToRun) throws TimeoutException {
-        if (InputConfiguration.get().isUseMavenToExecuteTest()) {
+        if (InputConfiguration.get().shouldUseMavenToExecuteTest()) {
             return eu.stamp_project.testrunner.maven.EntryPoint.runTests(
                     rootPath,
                     fullQualifiedName,

@@ -9,8 +9,10 @@ import org.junit.Test;
 import spoon.reflect.code.CtCatch;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLocalVariable;
+import spoon.reflect.code.CtTry;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.visitor.filter.AllTypeMembersFunction;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import static org.junit.Assert.assertEquals;
@@ -63,15 +65,23 @@ public class AssertionRemoverTest extends AbstractTest {
 
     @Test
     public void testOnCatchVariable() throws Exception {
+
+        /*
+            We remove try/catch block and Assert.fail() statement if any.
+         */
+
         final CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
-        final CtMethod<?> testWithCatchVariable = Utils.findMethod(testClass, "testWithCatchVariable");
+        final CtMethod<?> testWithCatchVariable = Utils.findMethod(testClass, "test3_exceptionCatch");
         final AssertionRemover assertionRemover = new AssertionRemover();
         final CtMethod<?> ctMethod = assertionRemover.removeAssertion(testWithCatchVariable);
-        assertTrue(
-                ctMethod.getElements(new TypeFilter<>(CtCatch.class))
-                        .get(0)
-                        .getBody()
-                        .getStatements().isEmpty());
+        assertTrue(ctMethod.getElements(new TypeFilter<>(CtCatch.class)).isEmpty());
+        assertTrue(ctMethod.getElements(new TypeFilter<>(CtTry.class)).isEmpty());
+        assertTrue(ctMethod.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
+            @Override
+            public boolean matches(CtInvocation element) {
+                return element.getExecutable().getSimpleName().equals("fail");
+            }
+        }).isEmpty());
     }
 
     @Test

@@ -24,7 +24,7 @@ public enum AmplifierEnum {
     BooleanLiteralAmplifier(new BooleanLiteralAmplifier()),
     CharLiteralAmplifier(new CharLiteralAmplifier()),
     AllLiteralAmplifiers(new AllLiteralAmplifiers()),
-    ReplacementAmplifier(new ReplacementAmplifier()),
+    //ReplacementAmplifier(new ReplacementAmplifier()),
     NullifierAmplifier(new NullifierAmplifier()),
     None(null);
 
@@ -61,7 +61,7 @@ public enum AmplifierEnum {
                         "TestDataMutator (deprecated)",
                         "MethodGeneratorAmplifier",
                         "ReturnValueAmplifier",
-                        "ReplacementAmplifier",
+                        //"ReplacementAmplifier",
                         "NullifierAmplifier",
                         "None"
                 }).collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR + "\t\t - "));

@@ -46,7 +46,7 @@ public class CloverCoverageSelector extends TakeAllSelector {
             this.initialCoverage = EntryPoint.runCoverageOnTestClasses(
                     classpath,
                     this.configuration.getClasspathClassesProject(),
-                    DSpotUtils.getAllTestClasses(configuration)
+                    DSpotUtils.getAllTestClasses()
             );
         } catch (TimeoutException e) {
             throw new RuntimeException(e);
@@ -54,9 +54,9 @@ public class CloverCoverageSelector extends TakeAllSelector {
     }
 
     @Override
-    public List<CtMethod<?>> selectToAmplify(List<CtMethod<?>> testsToBeAmplified) {
-        if (this.currentClassTestToBeAmplified == null && !testsToBeAmplified.isEmpty()) {
-            this.currentClassTestToBeAmplified = testsToBeAmplified.get(0).getDeclaringType();
+    public List<CtMethod<?>> selectToAmplify(CtType<?> classTest, List<CtMethod<?>> testsToBeAmplified) {
+        if (this.currentClassTestToBeAmplified == null) {
+            this.currentClassTestToBeAmplified = classTest;
             final Map<String, Map<String, List<Integer>>> lineCoveragePerTestMethods =
                     CloverExecutor.executeAll(this.configuration, getPathToCopiedFiles());
             this.originalLineCoveragePerClass = new HashMap<>();
@@ -169,14 +169,14 @@ public class CloverCoverageSelector extends TakeAllSelector {
         clone.setParent(this.currentClassTestToBeAmplified.getParent());
         this.selectedAmplifiedTest.forEach(clone::addMethod);
 
-        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC));
+        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));
 
         final String classpath =
                 this.configuration.getDependencies()
                         + AmplificationHelper.PATH_SEPARATOR +
                         this.configuration.getClasspathClassesProject();
 
-        DSpotCompiler.compile(this.configuration, DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
+        DSpotCompiler.compile(this.configuration, DSpotCompiler.getPathToAmplifiedTestSrc(), classpath,
                 new File(this.configuration.getAbsolutePathToTestClasses()));
 
         try {

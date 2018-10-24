@@ -46,13 +46,13 @@ public class ProjectJSONTest {
 				new JacocoCoverageSelector()
 		);
 
-		dspot.amplifyTest("fr.inria.amp.TestJavaPoet");
+		dspot.amplifyTestClass("fr.inria.amp.TestJavaPoet");
 		try (BufferedReader buffer = new BufferedReader(new FileReader(file))) {
 			final String jsonAsString = buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
 			assertTrue(jsonAsString.startsWith(expectedFirstProjectJSON[0]));
 			assertTrue(jsonAsString.endsWith(expectedFirstProjectJSON[1]));
 		}
-		dspot.amplifyTest("fr.inria.mutation.ClassUnderTestTest");
+		dspot.amplifyTestClass("fr.inria.mutation.ClassUnderTestTest");
 		try (BufferedReader buffer = new BufferedReader(new FileReader(file))) {
 			final String jsonAsString = buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
 			assertTrue(jsonAsString.startsWith(expectedFirstProjectJSON[0]));
@@ -60,7 +60,7 @@ public class ProjectJSONTest {
 			assertTrue(jsonAsString.endsWith(expectedFirstProjectJSON[3]));
 		}
 
-		dspot.amplifyTest("fr.inria.amp.TestJavaPoet");
+		dspot.amplifyTestClass("fr.inria.amp.TestJavaPoet");
 		try (BufferedReader buffer = new BufferedReader(new FileReader(file))) {
 			final String jsonAsString = buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
 			assertTrue(jsonAsString.startsWith(expectedFirstProjectJSON[0]));

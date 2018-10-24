@@ -105,6 +105,14 @@ public class ObjectLog {
 
     private void addObservation(String id, String observedObjectAsString, Object actualValue) {
         if (isSerializable(actualValue)) {
+            if (actualValue instanceof String &&
+                    // we forbid absolute paths
+                    // we allow relative paths
+                    // but it can be error-prone
+                    // watch out
+                    new File((String)actualValue).isAbsolute()) {
+                return;
+            }
             if (!observations.containsKey(id)) {
                 observations.put(id, new Observation());
             }

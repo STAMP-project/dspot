@@ -106,8 +106,8 @@ outputDirectory=target/trash/
 #Argument string to use when PIT launches child processes. This is most commonly used
 # to increase the amount of memory available to the process,
 # but may be used to pass any valid JVM argument.
-# Use commas to separate multiple arguments, and put them within brackets
-jvmArgs=['-Xmx2048m','-Xms1024m']
+# Use commas to separate multiple arguments
+jvmArgs=-Xmx2048m,-Xms1024m
 ```
 
 The result of the amplification of charAt consists of 6 new tests, as shown in the output below. These new tests are
@@ -174,7 +174,7 @@ java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --path-to-properties d
 
 ```
 Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
-                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | ExecutedMutantSelector | CloverCoverageSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [--budgetizer <NoBudgetizer | SimpleBuddgetizer>] [--max-test-amplified <integer>] [(-t|--test) my.package.MyClassTest | all | diff1:my.package.MyClassTest | all | diff2:...:my.package.MyClassTest | all | diffN ] [(-c|--cases) testCases1:testCases2:...:testCasesN ] [(-o|--output-path) <output>] [--clean] [(-m|--path-pit-result) <./path/to/mutations.csv>] [--descartes] [--automatic-builder <MavenBuilder | GradleBuilder>] [--maven-home <path to maven home>] [--randomSeed <long integer>] [--timeOut <long integer>] [--verbose] [--with-comment] [--no-minimize] [--working-directory] [-e|--example] [-h|--help]
+                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [--budgetizer <NoBudgetizer | SimpleBudgetizer>] [--max-test-amplified <integer>] [(-t|--test) my.package.MyClassTest | all | diff1:my.package.MyClassTest | all | diff2:...:my.package.MyClassTest | all | diffN ] [(-c|--cases) testCases1:testCases2:...:testCasesN ] [(-o|--output-path) <output>] [--clean] [(-m|--path-pit-result) <./path/to/mutations.csv>] [--descartes] [--automatic-builder <MavenBuilder | GradleBuilder>] [--maven-home <path to maven home>] [--randomSeed <long integer>] [--timeOut <long integer>] [--verbose] [--with-comment] [--no-minimize] [--working-directory] [--generate-new-test-class] [--keep-original-test-methods] [--use-maven-to-exe-test] [-e|--example] [-h|--help]
 
   [(-p|--path-to-properties) <./path/to/myproject.properties>]
         [mandatory] specify the path to the configuration file (format Java
@@ -182,7 +182,7 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
 
   [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ]
         [optional] specify the list of amplifiers to use. Default with all
-        available amplifiers.
+        available amplifiers. 
         		 - StringLiteralAmplifier
         		 - NumberLiteralAmplifier
         		 - CharLiteralAmplifier
@@ -193,7 +193,6 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         		 - TestDataMutator (deprecated)
         		 - MethodGeneratorAmplifier
         		 - ReturnValueAmplifier
-        		 - ReplacementAmplifier
         		 - NullifierAmplifier
         		 - None (default: None)
 
@@ -203,11 +202,11 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         iterations may help to kill more mutants). This has an impact on the
         execution time: the more iterations, the longer DSpot runs. (default: 3)
 
-  [(-s|--test-criterion) <PitMutantScoreSelector | ExecutedMutantSelector | CloverCoverageSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>]
+  [(-s|--test-criterion) <PitMutantScoreSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>]
         [optional] specify the test adequacy criterion to be maximized with
         amplification (default: PitMutantScoreSelector)
 
-  [--budgetizer <NoBudgetizer | SimpleBuddgetizer>]
+  [--budgetizer <NoBudgetizer | SimpleBudgetizer>]
         [optional] specify a Bugdetizer. (default: NoBudgetizer)
 
   [--max-test-amplified <integer>]
@@ -243,7 +242,7 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
 
   [--automatic-builder <MavenBuilder | GradleBuilder>]
         [optional] specify the automatic builder to build the project (default:
-        MavenBuilder)
+        )
 
   [--maven-home <path to maven home>]
         specify the path to the maven home
@@ -271,7 +270,11 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
 
   [--generate-new-test-class]
         Enable the creation of a new test class.
-        
+
+  [--keep-original-test-methods]
+        If enabled, DSpot keeps original test methods of the amplified test
+        class.
+
   [--use-maven-to-exe-test]
         If enabled, DSpot will use maven to execute the tests.
 
@@ -288,7 +291,7 @@ Here is the list of configuration properties of DSpot:
 
 * Required properties
 	* project: specify the path to the root of the project. This path can be either absolute (recommended) or relative to the working directory of the DSpot process. We consider as root of the project folder that contain the top-most parent in a multi-module project.
-* Required properties
+* Optional properties
 	* targetModule: specify the module to be amplified. This value must be a relative path from the property project. If your project is multi-module, you must use this property because DSpot works at module level.
 	* src: specify the relative path from project/targetModule of the folder that contain sources (.java).(default: src/main/java/)
 	* testSrc: specify the relative path from project/targetModule of the folder that contain test sources (.java).(default: src/test/java/)
@@ -296,7 +299,7 @@ Here is the list of configuration properties of DSpot:
 	* testclasses: specify the relative path from project/targetModule of the folder that contain binaries of the test source program (.class).(default: target/test-classes/)
 	* additionalClasspathElements: specify additional classpath elements. (_e.g._ a jar file) This value should be a list of relative paths from project/targetModule. Elements of the list must be separated by a comma ','.
 	* systemProperties: specify system properties. This value should be a list of couple property;value, separated by a comma ','. For example, systemProperties=admin=toto,passwd=tata. This define two system properties.
-	* outputDirectory: specify a path folder for the output.(default: target/dspot/output)
+	* outputDirectory: specify a path folder for the output.
 	* delta: specify the delta value for the assertions of floating-point numbers. If DSpot generates assertions for float, it uses Assert.assertEquals(expected, actual, delta). This property specify the delta value.(default: 0.1)
 	* excludedClasses: specify the full qualified name of excluded test classes. Each qualified name must be separated by a comma ','. These classes won't be amplified, nor executed during the mutation analysis, if the PitMutantScoreSelector is used.This property can be valued by a regex.
 	* excludedTestCases: specify the list of test cases to be excluded. Each is the name of a test case, separated by a comma ','.
@@ -306,7 +309,7 @@ Here is the list of configuration properties of DSpot:
 	* automaticBuilderName: specify the type of automatic builder. This properties is redundant with the command line option `--automatic-builder`. It should have also the same value: (MavenBuilder | GradleBuilder). This property has the priority over the command line.
 	* pitVersion: specify the version of PIT to use.(default: 1.3.0)
 	* pitTimeout: specify the time out of PIT, if the PitMutantScoreSelector.
-	* jvmArgs: specify JVM args to use when executing the test, PIT or other java process
+	* jvmArgs: specify JVM args to use when executing the test, PIT or other java process. This arguments should be a list, separated by a comma ',', _e.g._ jvmArgs=Xmx2048m,-Xms1024m',-Dis.admin.user=admin,-Dis.admin.passwd=$2pRSid#
 	* filter: specify the filter used by PIT. If you use PitMutantScoreSelector, we recommend you to set this property to your top-most package. This value will allow PIT to mutant all your code. However, if you want to restrict the scope of the mutation, you can specify a custom regex. If you do not specify any value, PIT will use the following filter: <groupId>.<artifactId>.* which might not match your packages.
 	* descartesVersion: specify the version of pit-descartes to use.(default: 1.2)
 	* descartesMutators: specify the list of descartes mutators to be used. Please refer to the descartes documentation for more details: https://github.com/STAMP-project/pitest-descartes

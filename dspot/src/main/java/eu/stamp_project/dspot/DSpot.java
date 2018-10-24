@@ -29,11 +29,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * User: Simon
@@ -93,9 +91,10 @@ public class DSpot {
         this.testSelector = testSelector;
         this.testSelector.init(this.inputConfiguration);
 
-        final String[] splittedPath = this.inputConfiguration.getAbsolutePathToProjectRoot().split("/");
+        String splitter = File.separator.equals("/") ? "/" : "\\\\";
+        final String[] splittedPath = this.inputConfiguration.getAbsolutePathToProjectRoot().split(splitter);
         final File projectJsonFile = new File(this.inputConfiguration.getOutputDirectory() +
-                "/" + splittedPath[splittedPath.length - 1] + ".json");
+                File.separator + splittedPath[splittedPath.length - 1] + ".json");
         if (projectJsonFile.exists()) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             this.projectTimeJSON = gson.fromJson(new FileReader(projectJsonFile), ProjectTimeJSON.class);
@@ -104,32 +103,7 @@ public class DSpot {
         }
     }
 
-    public List<CtType> amplifyAllTests() {
-        return this.amplifyAllTests(this.inputConfiguration.getFactory().Class().getAll().stream()
-                .filter(ctClass -> !ctClass.getModifiers().contains(ModifierKind.ABSTRACT))
-                .filter(ctClass ->
-                        ctClass.getMethods()
-                                .stream()
-                                .anyMatch(AmplificationChecker::isTest)
-                ).collect(Collectors.toList()));
-    }
-
-    public List<CtType> amplifyAllTestsNames(List<String> fullQualifiedNameTestClasses) {
-        return fullQualifiedNameTestClasses.stream()
-                .flatMap(fullQualifiedNameTestClass -> this.amplifyTest(fullQualifiedNameTestClass).stream())
-                .collect(Collectors.toList());
-    }
-
-    public List<CtType> amplifyAllTests(List<CtType> testClasses) {
-        final List<CtType> amplifiedTestClasses = testClasses.stream()
-                .filter(this.isExcluded)
-                .map(this::amplifyTest)
-                .collect(Collectors.toList());
-        writeTimeJson();
-        return amplifiedTestClasses;
-    }
-
-    public List<CtType> amplifyTest(String targetTestClasses) {
+    private Stream<CtType<?>> findTestClasses(String targetTestClasses) {
         if (!targetTestClasses.contains("\\")) {
             targetTestClasses = targetTestClasses.replaceAll("\\.", "\\\\\\.").replaceAll("\\*", ".*");
         }
@@ -140,37 +114,114 @@ public class DSpot {
                         ctClass.getMethods()
                                 .stream()
                                 .anyMatch(AmplificationChecker::isTest))
-                .filter(this.isExcluded)
-                .map(this::amplifyTest)
+                .filter(InputConfiguration.isNotExcluded);
+    }
+
+    private List<CtMethod<?>> buildListOfTestMethodsToBeAmplified(CtType<?> testClass, List<String> targetTestMethods) {
+        if (targetTestMethods.isEmpty()) {
+            return testClass.getMethods()
+                    .stream()
+                    .filter(AmplificationChecker::isTest)
+                    .collect(Collectors.toList());
+        } else {
+            return targetTestMethods.stream().flatMap(pattern ->
+                    testClass.getMethods().stream()
+                            .filter(ctMethod -> Pattern.compile(pattern).matcher(ctMethod.getSimpleName()).matches())
+                            .collect(Collectors.toList()).stream()
+            ).collect(Collectors.toList());
+        }
+    }
+
+    /**
+     * Amplify all the test methods of all the test classes that DSpot can find.
+     * A class is considered as a test class if it contains at least one test method.
+     * A method is considred as test method if it matches {@link AmplificationChecker#isTest(CtMethod)}
+     * @return a list of amplified test classes with amplified test methods.
+     */
+    public List<CtType> amplifyAllTests() {
+        return this._amplifyTestClasses(this.inputConfiguration.getFactory().Class().getAll().stream()
+                .filter(ctClass -> !ctClass.getModifiers().contains(ModifierKind.ABSTRACT))
+                .filter(ctClass ->
+                        ctClass.getMethods()
+                                .stream()
+                                .anyMatch(AmplificationChecker::isTest)
+                ).collect(Collectors.toList()));
+    }
+
+    /**
+     * Amplify the given test methods of the given test classes.
+     * @param testClassToBeAmplified the test class to be amplified. It can be a java regex.
+     * @return a list of amplified test classes with amplified test methods.
+     */
+    public List<CtType> amplifyTestClass(String testClassToBeAmplified) {
+        return this.amplifyTestClassesTestMethods(Collections.singletonList(testClassToBeAmplified), Collections.emptyList());
+    }
+
+    /**
+     * Amplify the given test methods of the given test classes.
+     * @param testClassToBeAmplified the test class to be amplified. It can be a java regex.
+     * @param testMethod the test method to be amplified. It can be a java regex.
+     * @return a list of amplified test classes with amplified test methods.
+     */
+    public List<CtType> amplifyTestClassTestMethod(String testClassToBeAmplified, String testMethod) {
+        return this.amplifyTestClassesTestMethods(Collections.singletonList(testClassToBeAmplified), Collections.singletonList(testMethod));
+    }
+
+    /**
+     * Amplify the given test methods of the given test classes.
+     * @param testClassToBeAmplified the test class to be amplified. It can be a java regex.
+     * @param testMethods the list of test methods to be amplified. This list can be a list of java regex.
+     * @return a list of amplified test classes with amplified test methods.
+     */
+    public List<CtType> amplifyTestClassTestMethods(String testClassToBeAmplified, List<String> testMethods) {
+        return this.amplifyTestClassesTestMethods(Collections.singletonList(testClassToBeAmplified), testMethods);
+    }
+
+    /**
+     * Amplify the given test methods of the given test classes.
+     * @param testClassesToBeAmplified the list of test classes to be amplified. This list can be a list of java regex.
+     * @return a list of amplified test classes with amplified test methods.
+     */
+    public List<CtType> amplifyTestClasses(List<String> testClassesToBeAmplified) {
+        return this.amplifyTestClassesTestMethods(testClassesToBeAmplified, Collections.emptyList());
+    }
+
+    /**
+     * Amplify the given test methods of the given test classes.
+     * @param testClassesToBeAmplified the list of test classes to be amplified. This list can be a list of java regex.
+     * @return a list of amplified test classes with amplified test methods.
+     */
+    public List<CtType> amplifyTestClassesTestMethod(List<String> testClassesToBeAmplified, String testMethod) {
+        return this.amplifyTestClassesTestMethods(testClassesToBeAmplified, Collections.singletonList(testMethod));
+    }
+
+    /**
+     * Amplify the given test methods of the given test classes.
+     * @param testClassesToBeAmplified the list of test classes to be amplified. This list can be a list of java regex.
+     * @param testMethods the list of test methods to be amplified. This list can be a list of java regex.
+     * @return a list of amplified test classes with amplified test methods.
+     */
+    public List<CtType> amplifyTestClassesTestMethods(List<String> testClassesToBeAmplified, List<String> testMethods) {
+        final List<CtType<?>> testClassesToBeAmplifiedModel = testClassesToBeAmplified.stream()
+                .flatMap(this::findTestClasses)
+                .collect(Collectors.toList());
+        return testClassesToBeAmplifiedModel.stream()
+                .map(ctType ->
+                        this._amplify(ctType, this.buildListOfTestMethodsToBeAmplified(ctType, testMethods))
+                ).collect(Collectors.toList());
+    }
+
+    private List<CtType> _amplifyTestClasses(List<CtType> testClassesToBeAmplified) {
+        return testClassesToBeAmplified.stream()
+                .map(this::_amplifyTestClass)
                 .collect(Collectors.toList());
     }
 
-    public CtType amplifyTest(CtType test) {
-        return this.amplifyTest(test, AmplificationHelper.getAllTest(test));
+    private CtType _amplifyTestClass(CtType test) {
+        return this._amplify(test, AmplificationHelper.getAllTest(test));
     }
 
-    public CtType amplifyTest(String fullQualifiedName, List<String> methods) {
-        final CtType<?> testClass = this.compiler.getLauncher().getFactory().Type().get(fullQualifiedName);
-        final List<CtMethod<?>> testMethods =
-                (methods.isEmpty() ?
-                        testClass.getMethods().stream() :
-                        methods.stream().map(methodName ->
-                            testClass.getMethods()
-                                    .stream()
-                                    .filter(ctMethod -> methodName.equals(ctMethod.getSimpleName()))
-                                    .findFirst()
-                                    .orElse(null)
-                        ).filter(Objects::nonNull)
-                ).filter(AmplificationChecker::isTest)
-                        .collect(Collectors.toList());
-        if (testMethods.isEmpty()) {
-            LOGGER.warn("Could not match any test methods");
-            return null;
-        }
-        return amplifyTest(testClass, testMethods);
-    }
-
-    public CtType amplifyTest(CtType test, List<CtMethod<?>> methods) {
+    protected CtType _amplify(CtType test, List<CtMethod<?>> methods) {
         try {
             test = JUnit3Support.convertToJUnit4(test, this.inputConfiguration);
             Counter.reset();
@@ -184,16 +235,16 @@ public class DSpot {
             final CtType clone = test.clone();
             test.getPackage().addType(clone);
             final CtType<?> amplification = AmplificationHelper.createAmplifiedTest(testSelector.getAmplifiedTestCases(), clone);
-            testSelector.report();
             final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
             if (!testSelector.getAmplifiedTestCases().isEmpty()) {
-                LOGGER.info("Print {} with {} amplified test cases in {}", amplification.getSimpleName(),
+                LOGGER.info("Print {} with {} amplified test cases in {}", amplification.getSimpleName(),
                         testSelector.getAmplifiedTestCases().size(), this.inputConfiguration.getOutputDirectory());
                 DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory);
             } else {
                 LOGGER.warn("DSpot could not obtain any amplified test method.");
                 LOGGER.warn("You can customize the following options: --amplifiers, --test-criterion, --iteration, --budgetizer etc, and retry with a new configuration.");
             }
+            testSelector.report();
             FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
             try {
                 String pathToDotClass = compiler.getBinaryOutputDirectory().getAbsolutePath() + "/" +
@@ -203,6 +254,7 @@ public class DSpot {
                 //ignored
             }
             writeTimeJson();
+            InputConfiguration.get().getBuilder().reset();
             return amplification;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -223,17 +275,6 @@ public class DSpot {
                     ).collect(Collectors.toList());
         }
     }
-
-    public InputConfiguration getInputConfiguration() {
-        return this.inputConfiguration;
-    }
-
-    private final Predicate<CtType> isExcluded = ctType ->
-            this.inputConfiguration.getExcludedClasses().isEmpty() ||
-                    Arrays.stream(this.getInputConfiguration().getExcludedClasses().split(","))
-                            .map(Pattern::compile)
-                            .map(pattern -> pattern.matcher(ctType.getQualifiedName()))
-                            .noneMatch(Matcher::matches);
 
     private void writeTimeJson() {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();

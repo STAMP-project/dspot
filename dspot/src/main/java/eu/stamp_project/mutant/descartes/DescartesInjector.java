@@ -53,12 +53,6 @@ public class DescartesInjector {
         return Arrays.asList(groupId, artifactId, version);
     }
 
-    private static Node buildDependencyToPitTest(Document doc) {
-        final Element dependency = doc.createElement("dependency");
-        buildNodesDependency(doc, "org.pitest", "pitest-maven", InputConfiguration.get().getPitVersion()).forEach(dependency::appendChild);
-        return dependency;
-    }
-
     private static Node buildPlugin(Document doc) {
         final Element plugin = doc.createElement("plugin");
         buildNodesDependency(doc, "org.pitest", "pitest-maven", InputConfiguration.get().getPitVersion()).forEach(plugin::appendChild);
@@ -104,6 +98,14 @@ public class DescartesInjector {
         return configuration;
     }
 
+    private static Node findProjectNode(Document doc) {
+        Node currentChild = doc.getFirstChild();
+        while (!"project".equals(currentChild.getNodeName())) {
+            currentChild = currentChild.getNextSibling();
+        }
+        return currentChild;
+    }
+
     /**
      * This method inject all the required dependencies inside the given pom
      * The added depencencies are to pit and to pitest-descartes
@@ -115,12 +117,7 @@ public class DescartesInjector {
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
             Document doc = docBuilder.parse(pathToPom);
 
-            final Node root = doc.getFirstChild();
-            final Node dependencies = getNodeNamedFromOrBuildIfDoesnotExist(doc, root,
-                    "dependencies");
-            dependencies.appendChild(buildDependencyToPitTest(doc));
-            dependencies.appendChild(buildDependency(doc));
-
+            final Node root = findProjectNode(doc);
             Node build = getNodeNamedFromOrBuildIfDoesnotExist(doc, root,
                     "build");
             getNodeNamedFromOrBuildIfDoesnotExist(doc, build,"plugins")

@@ -13,6 +13,7 @@ import eu.stamp_project.utils.DSpotUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 
 import java.io.File;
@@ -23,6 +24,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
@@ -79,6 +83,23 @@ public class InputConfiguration {
      * Build an InputConfiguration from a properties file, given as path.
      * This method will call the default constructor {@link InputConfiguration#InputConfiguration(String, String, String, String, String, String)}
      * Then, uses the properties to initialize other values.
+     *
+     * @param pathToPropertiesFile the path to the properties file. It is recommended to use an absolute path.
+     * @param builderName the name of the builder. Can be either Maven or Gradle (not case sensitive).
+     * @return the new instance of the InputConfiguration
+     */
+    public static InputConfiguration initialize(String pathToPropertiesFile, String builderName) {
+        InputConfiguration.initialize(loadProperties(pathToPropertiesFile), builderName);
+        InputConfiguration.instance.configPath = pathToPropertiesFile;
+        return InputConfiguration.instance;
+    }
+
+    /**
+     * This method initialize the instance of the Singleton {@link InputConfiguration}.
+     * You can retrieve this instance using {@link InputConfiguration#get()}
+     * Build an InputConfiguration from a properties file, given as path.
+     * This method will call the default constructor {@link InputConfiguration#InputConfiguration(String, String, String, String, String, String)}
+     * Then, uses the properties to initialize other values.
      * The given properties should have least values for :
      * <ul>
      * <li>{@link ConstantsProperties#PROJECT_ROOT_PATH}</li>
@@ -98,6 +119,55 @@ public class InputConfiguration {
         }
         InputConfiguration.instance = new InputConfiguration(properties);
         InputConfiguration.instance.configPath = "";
+        InputConfiguration.instance.setBuilderName(ConstantsProperties.AUTOMATIC_BUILDER_NAME.get(properties));
+        InputConfiguration.instance.initializeBuilder(properties);
+        return InputConfiguration.instance;
+    }
+
+    /**
+     * This method initialize the instance of the Singleton {@link InputConfiguration}.
+     * You can retrieve this instance using {@link InputConfiguration#get()}
+     * Build an InputConfiguration from a properties file, given as path.
+     * This method will call the default constructor {@link InputConfiguration#InputConfiguration(String, String, String, String, String, String)}
+     * Then, uses the properties to initialize other values.
+     * The given properties should have least values for :
+     * <ul>
+     * <li>{@link ConstantsProperties#PROJECT_ROOT_PATH}</li>
+     * <li>{@link ConstantsProperties#SRC_CODE}</li>
+     * <li>{@link ConstantsProperties#TEST_SRC_CODE}</li>
+     * <li>{@link ConstantsProperties#SRC_CLASSES}</li>
+     * <li>{@link ConstantsProperties#TEST_CLASSES}</li>
+     * <li>{@link ConstantsProperties#MODULE}, in case of multi module project</li>
+     * </ul>
+     *
+     * @param properties the properties. See {@link ConstantsProperties}
+     * @param builderName the name of the builder. Can be either Maven or Gradle (not case sensitive).
+     * @return the new instance of the InputConfiguration
+     */
+    public static InputConfiguration initialize(Properties properties, String builderName) {
+        if (InputConfiguration.instance != null) {
+            LOGGER.warn("Erasing old instance of InputConfiguration");
+        }
+        InputConfiguration.instance = new InputConfiguration(properties);
+        InputConfiguration.instance.configPath = "";
+        final String builderNameProperties = ConstantsProperties.AUTOMATIC_BUILDER_NAME.get(properties);
+        if (builderName.isEmpty() && builderNameProperties.isEmpty()) {
+            LOGGER.warn("No builder has been specified.");
+            LOGGER.warn("Using Maven as a default builder.");
+            LOGGER.warn("You can use the command-line option --automatic-builder");
+            LOGGER.warn("or the properties " + ConstantsProperties.AUTOMATIC_BUILDER_NAME.getName() + " to configure it.");
+            InputConfiguration.instance.setBuilderName("MAVEN");
+        } else if (builderName.isEmpty()) {
+            InputConfiguration.instance.setBuilderName(builderNameProperties);
+        } else if (builderNameProperties.isEmpty()) {
+            InputConfiguration.instance.setBuilderName(builderName);
+        } else {
+            LOGGER.warn("Conflicting values for automatic builder.");
+            LOGGER.warn("{} from command-line", builderName);
+            LOGGER.warn("{} from properties", builderNameProperties);
+            LOGGER.warn("Using the value gave on the command-line {}", builderName);
+            InputConfiguration.instance.setBuilderName(builderName);
+        }
         InputConfiguration.instance.initializeBuilder(properties);
         return InputConfiguration.instance;
     }
@@ -134,22 +204,22 @@ public class InputConfiguration {
                 .setOutputDirectory(ConstantsProperties.OUTPUT_DIRECTORY.get(properties))
                 .setDelta(ConstantsProperties.DELTA_ASSERTS_FLOAT.get(properties))
                 .setFilter(ConstantsProperties.FILTER.get(properties))
-                .setPitVersion(ConstantsProperties.PIT_VERSION.get(properties))
                 .setDescartesVersion(ConstantsProperties.DESCARTES_VERSION.get(properties))
                 .setBaseSha(ConstantsProperties.BASE_SHA.get(properties))
                 .setExcludedClasses(ConstantsProperties.EXCLUDED_CLASSES.get(properties))
                 .setTimeoutPit(ConstantsProperties.TIMEOUT_PIT.get(properties))
                 .setJVMArgs(ConstantsProperties.JVM_ARGS.get(properties))
                 .setDescartesMutators(ConstantsProperties.DESCARTES_MUTATORS.get(properties))
+                .setPitVersion(ConstantsProperties.PIT_VERSION.get(properties))
                 .setExcludedTestCases(ConstantsProperties.EXCLUDED_TEST_CASES.get(properties));
     }
 
     private void initializeBuilder(Properties properties) {
         this.setMavenHome(ConstantsProperties.MAVEN_HOME.get(properties));
-        this.builder = AutomaticBuilderFactory.getAutomaticBuilder(ConstantsProperties.AUTOMATIC_BUILDER_NAME.getName());
+        this.builder = AutomaticBuilderFactory.getAutomaticBuilder(this.getBuilderName());
         this.dependencies = this.builder.compileAndBuildClasspath();
 
-        if (!this.dependencies.contains("junit/junit/4")) {
+        if (!this.dependencies.contains("junit" + File.separator + "junit" + File.separator + "4")) {
             this.dependencies = Test.class
                     .getProtectionDomain()
                     .getCodeSource()
@@ -536,6 +606,16 @@ public class InputConfiguration {
         return this;
     }
 
+    /**
+     * Predicate that returns either the given ctType should be excluded or not.
+     */
+    public static final Predicate<CtType> isNotExcluded = ctType ->
+            InputConfiguration.get().getExcludedClasses().isEmpty() ||
+                    Arrays.stream(InputConfiguration.get().getExcludedClasses().split(","))
+                            .map(Pattern::compile)
+                            .map(pattern -> pattern.matcher(ctType.getQualifiedName()))
+                            .noneMatch(Matcher::matches);
+
     private String excludedTestCases;
 
     public String getExcludedTestCases() {
@@ -602,7 +682,8 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setJVMArgs(String JVMArgs) {
-        this.JVMArgs = JVMArgs;
+        this.JVMArgs = String.join(" ", JVMArgs.split(","));
+        EntryPoint.JVMArgs = this.JVMArgs;
         return this;
     }
 
@@ -617,7 +698,7 @@ public class InputConfiguration {
         return this;
     }
 
-    private boolean descartesMode;
+    private boolean descartesMode = true;
 
     public boolean isDescartesMode() {
         return descartesMode;
@@ -625,6 +706,11 @@ public class InputConfiguration {
 
     public InputConfiguration setDescartesMode(boolean descartesMode) {
         this.descartesMode = descartesMode;
+        if (this.descartesMode) {
+            this.setPitVersion("1.4.0"); // forcing pit version 1.4.0 to work with descartes
+        } else if (this.getPitVersion() == null) {
+            this.setPitVersion("1.3.0");
+        }
         return this;
     }
 
@@ -639,7 +725,6 @@ public class InputConfiguration {
     private List<String> testCases = Collections.emptyList();
     private long seed = 23L;
     private int timeOutInMs = 10000;
-    private String automaticBuilderName = "MAVEN";
     private Integer maxTestAmplified = 200;
     private boolean clean = false;
     private boolean minimize = false;
@@ -760,15 +845,6 @@ public class InputConfiguration {
         return this;
     }
 
-    public String getAutomaticBuilderName() {
-        return automaticBuilderName;
-    }
-
-    public InputConfiguration setAutomaticBuilderName(String automaticBuilderName) {
-        this.automaticBuilderName = automaticBuilderName;
-        return this;
-    }
-
     public Integer getMaxTestAmplified() {
         return maxTestAmplified;
     }
@@ -823,7 +899,7 @@ public class InputConfiguration {
      * This new test class will be named with "Ampl" as suffix or prefix depending of the name of the original test class:
      * <i>e.g.</i> MyClassTest will be AmplMyClassTest and TestMyClass will be TestMyClassAmpl
      */
-    public boolean isGenerateAmplifiedTestClass() {
+    public boolean shouldGenerateAmplifiedTestClass() {
         return generateAmplifiedTestClass;
     }
 
@@ -837,12 +913,26 @@ public class InputConfiguration {
      */
     private boolean useMavenToExecuteTest = false;
 
-    public boolean isUseMavenToExecuteTest() {
+    public boolean shouldUseMavenToExecuteTest() {
         return useMavenToExecuteTest;
     }
 
     public InputConfiguration setUseMavenToExecuteTest(boolean useMavenToExecuteTest) {
         this.useMavenToExecuteTest = useMavenToExecuteTest;
+        return this;
+    }
+
+    /**
+     * This boolean say if the outputs test class should also contain original test methods.
+     */
+    private boolean keepOriginalTestMethods = false;
+
+    public boolean shouldKeepOriginalTestMethods() {
+        return this.keepOriginalTestMethods;
+    }
+
+    public InputConfiguration setKeepOriginalTestMethods(boolean keepOriginalTestMethods) {
+        this.keepOriginalTestMethods = keepOriginalTestMethods;
         return this;
     }
 }

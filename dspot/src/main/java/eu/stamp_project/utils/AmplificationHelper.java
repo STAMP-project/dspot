@@ -1,6 +1,5 @@
 package eu.stamp_project.utils;
 
-import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
@@ -65,42 +64,49 @@ public class AmplificationHelper {
     @SuppressWarnings("unchecked")
     public static CtType<?> createAmplifiedTest(List<CtMethod<?>> ampTest, CtType<?> classTest) {
         final Stream<CtMethod<?>> methodToAdd;
-        if (InputConfiguration.get().shouldMinimize()) {
+        // TODO the minimization is not stable for now.
+        // TODO I disabled it
+        /*if (InputConfiguration.get().shouldMinimize()) {
             final Minimizer minimizer = InputConfiguration.get().getSelector().getMinimizer();
             methodToAdd = ampTest.stream().map(minimizer::minimize);
         } else {
             methodToAdd = ampTest.stream();
+        }*/
+        methodToAdd = ampTest.stream();
+
+        final CtType<?> currentTestClass = classTest.clone();
+        methodToAdd.forEach(currentTestClass::addMethod);
+        // keep original test methods
+        if (!InputConfiguration.get().shouldKeepOriginalTestMethods()) {
+            classTest.getMethods().stream()
+                    .filter(AmplificationChecker::isTest)
+                    .forEach(currentTestClass::removeMethod);
         }
-        if (InputConfiguration.get().isGenerateAmplifiedTestClass()) {
-            CtType amplifiedTest = classTest.clone();
+        // generate a new test class
+        if (InputConfiguration.get().shouldGenerateAmplifiedTestClass()) {
             final String amplifiedName = getAmplifiedName(classTest);
-            amplifiedTest.setSimpleName(amplifiedName);
-            classTest.getMethods().stream().filter(AmplificationChecker::isTest).forEach(amplifiedTest::removeMethod);
-            methodToAdd.forEach(amplifiedTest::addMethod);
+            currentTestClass.setSimpleName(amplifiedName);
             final CtTypeReference classTestReference = classTest.getReference();
             // renaming all the Spoon nodes
-            amplifiedTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
+            currentTestClass.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
                 @Override
                 public boolean matches(CtTypeReference element) {
-                    return element.equals(classTestReference) && super.matches(element);
+                    return element.equals(classTestReference);
                 }
-            }).forEach(ctTypeReference -> ctTypeReference.setSimpleName(getAmplifiedName(classTest)));
+            }).forEach(ctTypeReference -> ctTypeReference.setSimpleName(amplifiedName));
             // need to update also all the String literals
-            amplifiedTest.getElements(new TypeFilter<CtLiteral>(CtLiteral.class) {
+            currentTestClass.getElements(new TypeFilter<CtLiteral>(CtLiteral.class) {
                 @Override
                 public boolean matches(CtLiteral element) {
                     return element.getValue() instanceof String &&
-                            ((String)element.getValue()).contains(classTest.getSimpleName());
+                            ((String) element.getValue()).contains(classTest.getSimpleName());
                 }
             }).forEach(stringCtLiteral ->
-                    stringCtLiteral.setValue(((String)stringCtLiteral.getValue()).replaceAll(classTest.getSimpleName(), amplifiedName))
+                    stringCtLiteral.setValue(((String) stringCtLiteral.getValue()).replaceAll(classTest.getSimpleName(), amplifiedName))
             );
-            classTest.getPackage().addType(amplifiedTest);
-            return amplifiedTest;
-        } else {
-            methodToAdd.forEach(classTest::addMethod);
-            return classTest;
         }
+        classTest.getPackage().addType(currentTestClass);
+        return currentTestClass;
     }
 
     @NotNull

@@ -2,10 +2,7 @@ package eu.stamp_project.compare;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.BaseStream;
 
 
@@ -13,7 +10,10 @@ public class MethodsHandler {
 
     private Map<Class<?>, List<Method>> cache;
 
+    @Deprecated
     private static final List<String> forbiddenMethods;
+
+    private static final List<String> forbiddenClasses;
 
     static {
         forbiddenMethods = new ArrayList<>();
@@ -36,6 +36,12 @@ public class MethodsHandler {
         forbiddenMethods.add("parallelStream");
         forbiddenMethods.add("reverse");
         forbiddenMethods.add("clear");
+
+        forbiddenClasses = new ArrayList<>();
+        forbiddenClasses.add("java.lang.Object");
+        forbiddenClasses.add("java.lang.Enum");
+        forbiddenClasses.add("java.util.Date");
+        forbiddenClasses.add("java.util.Calendar");
     }
 
     public MethodsHandler() {
@@ -43,6 +49,9 @@ public class MethodsHandler {
     }
 
     public List<Method> getAllMethods(Class<?> clazz) {
+        if (forbiddenClasses.contains(clazz.getName())) {
+            return Collections.emptyList();
+        }
         if (!cache.containsKey(clazz)) {
             findMethods(clazz);
         }
@@ -59,6 +68,7 @@ public class MethodsHandler {
         cache.put(clazz, methodsList);
     }
 
+    @Deprecated // since we forbid the class Object
     boolean isDefaulttoStringOrHashCode(Method method) {
         if (method.getDeclaringClass() == null) {
             return false;
@@ -73,16 +83,19 @@ public class MethodsHandler {
         }
     }
 
+    @Deprecated
     private boolean isDefaultClass(String qualifiedName) {
         return ("java.lang.Enum".equals(qualifiedName) || "java.lang.Object".equals(qualifiedName));
     }
 
     boolean isValidMethod(Method method) {
-        if (!Modifier.isPublic(method.getModifiers()) // the method is not public
+        if (!Modifier.isPublic(method.getModifiers())  // the method is not public
+                || method.getParameterCount() > 0 // there is parameters
                 || Modifier.isStatic(method.getModifiers()) // the method is static
                 || isVoid(method.getReturnType()) // the method is return void type, i.e. it returns nothing
                 || method.getReturnType() == Class.class // the method returns Class<?>
                 || !Modifier.isPublic(method.getReturnType().getModifiers())  // the method return a type that is not visible, i.e. is not public.
+                || forbiddenClasses.contains(method.getReturnType().getName()) // it returns a forbidden type
                 || returnStream(method) // the method return a stream
                 || method.getParameterTypes().length > 0 // the method hasParameter
                 || isDefaulttoStringOrHashCode(method) // we don't use default implementation of toString() and hashCode, i.e. implementation of Object and Enum

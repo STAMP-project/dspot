@@ -52,24 +52,18 @@ public class Main {
 		createOutputDirectories(configuration);
 		final long startTime = System.currentTimeMillis();
 		final List<CtType> amplifiedTestClasses;
-		if ("all".equals(configuration.getTestClasses().get(0))) {
+		if (configuration.getTestClasses().isEmpty() || "all".equals(configuration.getTestClasses().get(0))) {
 			amplifiedTestClasses = dspot.amplifyAllTests();
 		} else if ("diff".equals(configuration.getTestClasses().get(0))) {
 			final Map<String, List<String>> testMethodsAccordingToADiff = SelectorOnDiff
 					.findTestMethodsAccordingToADiff(configuration);
 			amplifiedTestClasses = testMethodsAccordingToADiff.keySet().stream()
-					.map(ctType -> dspot.amplifyTest(ctType, testMethodsAccordingToADiff.get(ctType)))
-					.filter(Objects::nonNull)
+					.flatMap(ctType ->
+							dspot.amplifyTestClassesTestMethods(Collections.singletonList(ctType), testMethodsAccordingToADiff.get(ctType)).stream()
+					).filter(Objects::nonNull)
 					.collect(Collectors.toList());
 		} else {
-			if (configuration.getTestClasses().isEmpty()) {
-				amplifiedTestClasses = dspot.amplifyAllTests();
-			} else {
-				amplifiedTestClasses = configuration.getTestClasses().stream()
-						.map(testClasses -> dspot.amplifyTest(testClasses, configuration.getTestCases()))
-						.filter(Objects::nonNull)
-						.collect(Collectors.toList());
-			}
+			amplifiedTestClasses = dspot.amplifyTestClassesTestMethods(configuration.getTestClasses(), configuration.getTestCases());
 		}
 		LOGGER.info("Amplification {}.", amplifiedTestClasses.isEmpty() ? "failed" : "succeed");
 		final long elapsedTime = System.currentTimeMillis() - startTime;
@@ -96,7 +90,7 @@ public class Main {
 			configuration.setAmplifiers(Collections.singletonList(new TestDataMutator()));
 			DSpot dSpot = new DSpot(configuration, 1, configuration.getAmplifiers(),
 					new JacocoCoverageSelector());
-			dSpot.amplifyTest("example.TestSuiteExample");
+			dSpot.amplifyTestClassesTestMethods(Collections.singletonList("example.TestSuiteExample"), Collections.emptyList());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
