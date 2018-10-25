@@ -221,7 +221,7 @@ public class GradleInjector {
 
     @NotNull
     private String getMaybeCreateConfiguration() {
-        return "    configurations.maybeCreate(\"pitest\")" + AmplificationHelper.LINE_SEPARATOR;
+        return "    configurations.maybeCreate('pitest')" + AmplificationHelper.LINE_SEPARATOR;
     }
 
     @NotNull

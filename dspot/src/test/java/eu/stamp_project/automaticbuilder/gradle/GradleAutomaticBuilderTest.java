@@ -1,6 +1,8 @@
-package eu.stamp_project.automaticbuilder;
+package eu.stamp_project.automaticbuilder.gradle;
 
 import eu.stamp_project.Utils;
+import eu.stamp_project.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.mutant.pit.PitResult;
 import eu.stamp_project.mutant.pit.PitResultParser;
 import eu.stamp_project.program.InputConfiguration;
@@ -86,6 +88,8 @@ public class GradleAutomaticBuilderTest {
     public void runPit_whenNoTestClassIsSpecified() throws Exception {
         Utils.LOGGER.info("Starting Gradle Automatic Builder runPit() test when no test class is specified...");
 
+        InputConfiguration.get().setDescartesMode(false);
+
         sut.runPit("src/test/resources/test-projects/");
         List<PitResult> pitResults = PitResultParser.parseAndDelete("src/test/resources/test-projects/" + sut.getOutputDirectoryPit());
 
@@ -98,6 +102,8 @@ public class GradleAutomaticBuilderTest {
     @Test
     public void runPit_whenTestClassIsSpecified() throws Exception {
         Utils.LOGGER.info("Starting Gradle Automatic Builder runPit() test when a test class is specified...");
+
+        InputConfiguration.get().setDescartesMode(false);
 
         CtClass<Object> testClass = Utils.getInputConfiguration().getFactory().Class().get("example.TestSuiteExample");
 

@@ -1,6 +1,8 @@
-package eu.stamp_project.automaticbuilder;
+package eu.stamp_project.automaticbuilder.gradle;
 
 import eu.stamp_project.Utils;
+import eu.stamp_project.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.mutant.pit.PitResult;
 import eu.stamp_project.mutant.pit.PitResultParser;
 import eu.stamp_project.program.InputConfiguration;
