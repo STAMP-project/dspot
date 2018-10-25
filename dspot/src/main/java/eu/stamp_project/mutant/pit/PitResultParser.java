@@ -16,9 +16,14 @@ import java.util.List;
  */
 public class PitResultParser {
 
-    public static List<PitResult> parseAndDelete(String pathToDirectoryResults) {
+    private static final String PATH_TO_MUTATIONS_RESULT = "/mutations.csv";
+
+    private static File getPathOfMutationsCsvFile(String pathToDirectoryResults) {
         if (!new File(pathToDirectoryResults).exists()) {
             return null;
+        }
+        if (new File(pathToDirectoryResults + PATH_TO_MUTATIONS_RESULT).exists()) {
+            return new File(pathToDirectoryResults + PATH_TO_MUTATIONS_RESULT);
         }
         final File[] files = new File(pathToDirectoryResults).listFiles();
         if (files == null) {
@@ -28,10 +33,14 @@ public class PitResultParser {
         if (!directoryReportPit.exists()) {
             return null;
         }
-        File fileResults = new File(directoryReportPit.getPath() + "/mutations.csv");
+        return new File(directoryReportPit.getPath() + PATH_TO_MUTATIONS_RESULT);
+    }
+
+    public static List<PitResult> parseAndDelete(String pathToDirectoryResults) {
+        final File fileResults = PitResultParser.getPathOfMutationsCsvFile(pathToDirectoryResults);
         final List<PitResult> results = PitResultParser.parse(fileResults);
         try {
-            FileUtils.deleteDirectory(directoryReportPit);
+            FileUtils.deleteDirectory(new File(pathToDirectoryResults));
         } catch (IOException e) {
             // ignored
         }
