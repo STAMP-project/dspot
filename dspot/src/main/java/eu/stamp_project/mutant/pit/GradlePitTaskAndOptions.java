@@ -8,10 +8,6 @@ package eu.stamp_project.mutant.pit;
 
 public class GradlePitTaskAndOptions {
 
-    public static boolean descartesMode = false;
-
-    public static boolean evosuiteMode = false;
-
     public static final String OPT_WITH_HISTORY = "enableDefaultIncrementalAnalysis = ";
 
     public static final String OPT_VALUE_REPORT_DIR = "reportDir = 'build/pit-reports'";
@@ -22,9 +18,9 @@ public class GradlePitTaskAndOptions {
 
     public static final String OPT_TARGET_TESTS = "targetTests = ";
 
-    public static final String PROPERTY_ADDITIONAL_CP_ELEMENTS = "additionalMutableCodePaths = ";
+    public static final String PROPERTY_ADDITIONAL_CP_ELEMENTS = "additionalMutableCodePaths = "; // TODO
 
-    public static final String PROPERTY_EXCLUDED_CLASSES = "excludedClasses = ";
+    public static final String PROPERTY_EXCLUDED_CLASSES = "excludedClasses = "; // TODO
 
     //Apparently Unsupported by PIT plugin
     public static final String OPT_ADDITIONAL_CP_ELEMENTS = "classPath = ";
@@ -43,16 +39,7 @@ public class GradlePitTaskAndOptions {
 
     public static final String VALUE_MUTATORS_ALL = "['ALL']";
 
-    public static final String VALUE_MUTATORS_EVOSUITE = "['VOID_METHOD_CALLS'" +
-            ",'NON_VOID_METHOD_CALLS'" +
-            ",'EXPERIMENTAL_MEMBER_VARIABLE'" +
-            ",'INCREMENTS'" +
-            ",'INVERT_NEGS'" +
-            ",'MATH'" +
-            "',NEGATE_CONDITIONALS'" +
-            ",'CONDITIONALS_BOUNDARY'" +
-            ",'INLINE_CONSTS'" +
-            "]";
-
     public static final String OUTPUT_DIRECTORY_PIT = "build/pit-reports/";
+
+    public static final String OPT_PIT_VERSION = "pitestVersion = ";
 }
