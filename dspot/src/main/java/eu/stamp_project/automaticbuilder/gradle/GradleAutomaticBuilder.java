@@ -2,7 +2,6 @@ package eu.stamp_project.automaticbuilder.gradle;
 
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.mutant.pit.GradlePitTaskAndOptions;
-import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.program.InputConfiguration;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnector;
@@ -14,11 +13,8 @@ import spoon.reflect.declaration.CtType;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.CMD_PIT_MUTATION_COVERAGE;
@@ -121,26 +117,6 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
             connection.close();
         }
         return outputStream.toByteArray();
-    }
-
-    @Deprecated
-    private byte[] cleanClasspath(byte[] taskOutput) {
-        LOGGER.info("Retrieved task output:");
-        LOGGER.info(new String(taskOutput));
-        LOGGER.info("Extracting project classpath from task output...");
-        StringBuilder sb = new StringBuilder();
-        String cleanCP = new String(taskOutput);
-        String classPathPattern = "([\\/a-z0-9\\.\\-]*\\.jar|[\\/a-z0-9\\.\\-]*\\.zip)";
-        Pattern p = Pattern.compile(classPathPattern);
-        Matcher m = p.matcher(cleanCP);
-        while (m.find()) {
-            sb.append(m.group());
-            sb.append(AmplificationHelper.PATH_SEPARATOR);
-        }
-        LOGGER.info("Project classpath from task output:");
-        final String string = sb.toString();
-        LOGGER.info("{}", string);
-        return string.getBytes();
     }
 
     @Override
