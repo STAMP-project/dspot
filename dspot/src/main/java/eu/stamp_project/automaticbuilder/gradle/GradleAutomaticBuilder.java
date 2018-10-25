@@ -52,24 +52,21 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
     @Override
     public void compile() {
         runTasks(InputConfiguration.get().getAbsolutePathToProjectRoot(),
-                "clean", "compileJava", "test"
+                "clean", "compileTest"
         );
     }
 
     @Override
     public String buildClasspath() {
         try {
-            final File classpathFile = new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + File.separator + JAVA_PROJECT_CLASSPATH);
+            final File classpathFile = new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + File.separator + "build/classpath.txt");
             if (!classpathFile.exists()) {
                 LOGGER.info("Classpath file for Gradle project doesn't exist, starting to build it...");
                 LOGGER.info("Injecting  Gradle task to print project classpath on stdout...");
                 this.gradleInjector.injectPrintClasspathTask(InputConfiguration.get().getAbsolutePathToProjectRoot());
                 LOGGER.info("Retrieving project classpath...");
-                byte[] taskOutput = cleanClasspath(runTasks(InputConfiguration.get().getAbsolutePathToProjectRoot(), "printClasspath4DSpot"));
+                runTasks(InputConfiguration.get().getAbsolutePathToProjectRoot(),"writeClasspath");
                 LOGGER.info("Writing project classpath on file " + JAVA_PROJECT_CLASSPATH + "...");
-                FileOutputStream fos = new FileOutputStream(InputConfiguration.get().getAbsolutePathToProjectRoot() + File.separator + JAVA_PROJECT_CLASSPATH);
-                fos.write(taskOutput);
-                fos.close();
                 this.gradleInjector.resetOriginalGradleBuildFile(InputConfiguration.get().getAbsolutePathToProjectRoot());
             }
             try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
@@ -126,6 +123,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
         return outputStream.toByteArray();
     }
 
+    @Deprecated
     private byte[] cleanClasspath(byte[] taskOutput) {
         LOGGER.info("Retrieved task output:");
         LOGGER.info(new String(taskOutput));

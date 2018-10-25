@@ -57,10 +57,16 @@ public class AmplificationChecker {
             );
 
     private static boolean _isAssert(CtInvocation invocation) {
-        // simplification of this method.
         // We rely on the package of the declaring type of the invocation
         // in this case, we will match it
         final String qualifiedNameOfDeclaringType;
+        // TODO should make these checks?
+        if (invocation == null ||
+                invocation.getExecutable() == null ||
+                invocation.getExecutable().getDeclaringType() == null ||
+                invocation.getExecutable().getDeclaringType().getTypeDeclaration() == null) {
+            return false;
+        }
         if (invocation.getExecutable().getDeclaringType().getPackage() == null) {
             if (invocation.getExecutable().getDeclaringType().getTopLevelType() != null) {
                 qualifiedNameOfDeclaringType = invocation.getExecutable().getDeclaringType().getTopLevelType().getQualifiedName();
@@ -189,6 +195,11 @@ public class AmplificationChecker {
     }
 
     private static boolean containsMethodCallToAssertion(CtInvocation<?> invocation, int deep) {
+        if (invocation.getExecutable() == null ||
+                invocation.getExecutable().getDeclaringType() == null ||
+                invocation.getExecutable().getDeclaringType().getTypeDeclaration() == null) {
+            return false;
+        }
         final CtMethod<?> method = invocation.getExecutable().getDeclaringType().getTypeDeclaration().getMethod(
                 invocation.getExecutable().getType(),
                 invocation.getExecutable().getSimpleName(),
