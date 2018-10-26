@@ -61,7 +61,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
                 LOGGER.info("Injecting  Gradle task to print project classpath on stdout...");
                 this.gradleInjector.injectPrintClasspathTask(InputConfiguration.get().getAbsolutePathToProjectRoot());
                 LOGGER.info("Retrieving project classpath...");
-                runTasks(InputConfiguration.get().getAbsolutePathToProjectRoot(),"writeClasspath");
+                runTasks(InputConfiguration.get().getAbsolutePathToProjectRoot(),GradleInjector.WRITE_CLASSPATH_TASK);
                 LOGGER.info("Writing project classpath on file " + JAVA_PROJECT_CLASSPATH + "...");
                 this.gradleInjector.resetOriginalGradleBuildFile(InputConfiguration.get().getAbsolutePathToProjectRoot());
             }
@@ -95,9 +95,10 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
             this.gradleInjector.injectPitTask(pathToRootOfProject, testClasses);
             LOGGER.info("Running Pit...");
             runTasks(pathToRootOfProject, CMD_PIT_MUTATION_COVERAGE);
-            this.gradleInjector.resetOriginalGradleBuildFile(pathToRootOfProject);
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            this.gradleInjector.resetOriginalGradleBuildFile(pathToRootOfProject);
         }
     }
 
