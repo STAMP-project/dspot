@@ -222,6 +222,7 @@ public class ConstantsProperties {
 
     /**
      * main method to generate the documentation. This method will output the documentation on the standard output, in markdown format.
+     * @param args unused
      */
     public static void main(String[] args) {
         final List<InputConfigurationProperty> inputConfigurationProperties = new ArrayList<>();

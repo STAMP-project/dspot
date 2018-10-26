@@ -24,7 +24,7 @@ public class JUnit3Support {
 
 
     /**
-     * <p>Convert a JUnit3 test class into a JUnit4.
+     * Convert a JUnit3 test class into a JUnit4.
      * This is done in two steps:
      * <ol>
      * <li>Remove the "extends TestCase"</li>
@@ -34,7 +34,6 @@ public class JUnit3Support {
      * will be amplified.
      * This method convert also super classes in case they inherit from TestCase.
      * This method recompile every converted test class, because they will be executed.
-     * </p>
      *
      * @param testClassJUnit3 test class to be converted
      * @return the same test class but in JUnit4

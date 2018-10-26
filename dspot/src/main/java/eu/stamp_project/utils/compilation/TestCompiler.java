@@ -44,7 +44,6 @@ public class TestCompiler {
      * @param classTest       Test class
      * @param currentTestList test methods to be run
      * @return Results of tests' run
-     * @throws AmplificationException forward the AmplificationException thrown by {@link eu.stamp_project.utils.compilation.TestCompiler#compileAndRun(CtType, DSpotCompiler, List, InputConfiguration)}
      */
     public static List<CtMethod<?>> compileRunAndDiscardUncompilableAndFailingTestMethods(CtType classTest,
                                                                                     List<CtMethod<?>> currentTestList,
