@@ -80,7 +80,7 @@ public class GradleInjector {
     void makeBackup(File gradleBuildFile) throws IOException {
         LOGGER.info("Making backup copy of original Gradle file...");
 
-        final String originalGradleBuildFilename = gradleBuildFile.getPath();
+        final String originalGradleBuildFilename = gradleBuildFile.getAbsolutePath();
         final String backedUpGradleBuildFilename = originalGradleBuildFilename + GRADLE_BUILD_FILE_BACK_SUFFIX;
         final Path from = Paths.get(originalGradleBuildFilename);
         final Path to = Paths.get(backedUpGradleBuildFilename);
@@ -95,12 +95,9 @@ public class GradleInjector {
     }
 
     void resetOriginalGradleBuildFile(String pathToRootOfProject) {
-
         LOGGER.info("Restoring original Gradle build file...");
-
         String modifiedGradleBuildFilename = pathToRootOfProject + File.separator + GRADLE_BUILD_FILE;
         String originalGradleBuildFilename = modifiedGradleBuildFilename + GRADLE_BUILD_FILE_BACK_SUFFIX;
-
         File originalGradleBuildFile = new File(originalGradleBuildFilename);
         if (originalGradleBuildFile.exists()) {
             File modifiedGradleBuildFile = new File(modifiedGradleBuildFilename);
@@ -115,9 +112,12 @@ public class GradleInjector {
         GET TASK METHODS
      */
 
+    public static final String WRITE_CLASSPATH_TASK = "WRITE_CLASSPATH_TASK";
+
     private String getPrintClasspathTask() {
+
         return AmplificationHelper.LINE_SEPARATOR + AmplificationHelper.LINE_SEPARATOR +
-                "task writeClasspath << { " + AmplificationHelper.LINE_SEPARATOR +
+                "task " + WRITE_CLASSPATH_TASK + " << { " + AmplificationHelper.LINE_SEPARATOR +
                 "    buildDir.mkdirs() " + AmplificationHelper.LINE_SEPARATOR +
                 "    new File(buildDir, \"classpath.txt\").text = configurations.testCompile.asPath " + AmplificationHelper.LINE_SEPARATOR +
                 "}" + AmplificationHelper.LINE_SEPARATOR;

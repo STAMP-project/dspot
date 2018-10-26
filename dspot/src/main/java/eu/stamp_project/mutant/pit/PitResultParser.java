@@ -47,6 +47,12 @@ public class PitResultParser {
         return results;
     }
 
+    private static void checkFileExists(File fileResults) {
+        if (fileResults == null || !fileResults.exists()) {
+            throw new RuntimeException(fileResults.getAbsolutePath() + " does not exist!");
+        }
+    }
+
     public static List<PitResult> parse(File fileResults) {
         final List<PitResult> results = new ArrayList<>();
         try (BufferedReader buffer = new BufferedReader(new FileReader(fileResults))) {
