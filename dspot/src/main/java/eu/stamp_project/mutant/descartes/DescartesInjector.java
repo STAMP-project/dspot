@@ -81,10 +81,7 @@ public class DescartesInjector {
     }
 
     private static List<Node> buildListOfMutators(Document doc) {
-        String[] arrayOfMutators = InputConfiguration.get().getDescartesMutators().isEmpty() ?
-                 MavenPitCommandAndOptions.VALUE_MUTATORS_DESCARTES :
-                InputConfiguration.get().getDescartesMutators().split(",");
-        return Arrays.stream(arrayOfMutators)
+        return Arrays.stream(InputConfiguration.get().getDescartesMutators().split(","))
                 .map(name -> buildMutators(doc, name))
                 .collect(Collectors.toList());
     }
@@ -94,9 +91,11 @@ public class DescartesInjector {
         final Element mutationEngine = doc.createElement("mutationEngine");
         mutationEngine.setTextContent("descartes");
         configuration.appendChild(mutationEngine);
-        final Element mutators = doc.createElement("mutators");
-        buildListOfMutators(doc).forEach(mutators::appendChild);
-        configuration.appendChild(mutators);
+        if (!InputConfiguration.get().getDescartesMutators().isEmpty()) {
+            final Element mutators = doc.createElement("mutators");
+            buildListOfMutators(doc).forEach(mutators::appendChild);
+            configuration.appendChild(mutators);
+        }
         return configuration;
     }
 
