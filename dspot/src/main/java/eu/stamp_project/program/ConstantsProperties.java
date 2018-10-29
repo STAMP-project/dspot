@@ -216,7 +216,7 @@ public class ConstantsProperties {
     public static final InputConfigurationProperty DESCARTES_MUTATORS =
             new InputConfigurationProperty(
                     "descartesMutators",
-                    "specify the list of descartes mutators to be used. Please refer to the descartes documentation for more details: https://github.com/STAMP-project/pitest-descartes",
+                    "specify the list of descartes mutators to be used separated by comma. Please refer to the descartes documentation for more details: https://github.com/STAMP-project/pitest-descartes",
                     ""
             );
 

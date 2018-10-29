@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -80,11 +81,12 @@ public class DescartesInjector {
     }
 
     private static List<Node> buildListOfMutators(Document doc) {
-        return Arrays.stream(MavenPitCommandAndOptions.VALUE_MUTATORS_DESCARTES)
-                .collect(ArrayList<Node>::new,
-                        (nodes, name) -> nodes.add(buildMutators(doc, name)),
-                        ArrayList<Node>::addAll
-                );
+        String[] arrayOfMutators = InputConfiguration.get().getDescartesMutators().isEmpty() ?
+                 MavenPitCommandAndOptions.VALUE_MUTATORS_DESCARTES :
+                InputConfiguration.get().getDescartesMutators().split(",");
+        return Arrays.stream(arrayOfMutators)
+                .map(name -> buildMutators(doc, name))
+                .collect(Collectors.toList());
     }
 
     private static Node buildConfiguration(Document doc) {
@@ -109,6 +111,7 @@ public class DescartesInjector {
     /**
      * This method inject all the required dependencies inside the given pom
      * The added depencencies are to pit and to pitest-descartes
+     *
      * @param pathToPom to the pom to modify
      */
     public static void injectDescartesIntoPom(String pathToPom) {
@@ -120,7 +123,7 @@ public class DescartesInjector {
             final Node root = findProjectNode(doc);
             Node build = getNodeNamedFromOrBuildIfDoesnotExist(doc, root,
                     "build");
-            getNodeNamedFromOrBuildIfDoesnotExist(doc, build,"plugins")
+            getNodeNamedFromOrBuildIfDoesnotExist(doc, build, "plugins")
                     .appendChild(buildPlugin(doc));
 
             // write the content into xml file
