@@ -232,7 +232,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         LOGGER.warn(MESSAGE_WARN_PIT_NO_FILTER);
         LOGGER.warn("Trying to compute the top package of the project...");
         CtPackage currentPackage = InputConfiguration.get().getFactory().Package().getRootPackage();
-        while (currentPackage.getPackages().size() == 1) {
+        while (currentPackage.getTypes().isEmpty()) {
             currentPackage = (CtPackage) currentPackage.getPackages().toArray()[0];
         }
         InputConfiguration.get().setFilter(currentPackage.getQualifiedName() + ".*");
