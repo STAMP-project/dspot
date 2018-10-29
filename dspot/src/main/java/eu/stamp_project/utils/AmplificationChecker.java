@@ -50,10 +50,11 @@ public class AmplificationChecker {
 
     private final static List<String> ASSERTIONS_PACKAGES =
             Arrays.asList(
-                    "org.junit.Assert",
-                    "com.google.common.truth.*", // TODO
-                    "org.assertj.core.api.*",
-                    "junit.framework.TestCase"
+                    "org.junit.Assert", // JUnit 4
+                    "org.junit.jupiter.api.Assertions", // JUnit 5
+                    "com.google.common.truth.*", // TODO Truth
+                    "org.assertj.core.api.*", //  assertJ
+                    "junit.framework.TestCase" // JUnit 3
             );
 
     private static boolean _isAssert(CtInvocation invocation) {
@@ -110,11 +111,11 @@ public class AmplificationChecker {
         }
     };
 
-    private static boolean hasAnnotation(Class<?> classOfAnnotation, CtElement candidate) {
+    private static boolean hasAnnotation(String fullQualifiedNameOfAnnotation, CtElement candidate) {
         return candidate.getAnnotations()
                 .stream()
                 .anyMatch(ctAnnotation -> ctAnnotation.getAnnotationType().getQualifiedName()
-                        .equals(classOfAnnotation.getName()));
+                        .equals(fullQualifiedNameOfAnnotation));
 
     }
 
@@ -125,7 +126,7 @@ public class AmplificationChecker {
         CtClass<?> parent = candidate.getParent(CtClass.class);
 
         // if the test method has @Ignore, is not a test
-        if (hasAnnotation(org.junit.Ignore.class, candidate)) {
+        if (hasAnnotation(org.junit.Ignore.class.getName(), candidate)) {
             return false;
         }
         // if the test method is not visible, or has no body, or has parameters, is not a test
@@ -160,7 +161,8 @@ public class AmplificationChecker {
         }
 
 
-        return (hasAnnotation(org.junit.Test.class, candidate) ||
+        return ((hasAnnotation(org.junit.Test.class.getName(), candidate) ||
+                hasAnnotation("org.junit.jupiter.api.Test", candidate)) || // JUnit5 annotation @Test
                 // matching JUnit3 test: the parent is not JUnit4 and the method's name starts with test or should
                 ((candidate.getSimpleName().contains("test") || candidate.getSimpleName().contains("should"))
                         && !isTestJUnit4(parent))

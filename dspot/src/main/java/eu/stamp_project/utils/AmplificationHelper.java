@@ -73,7 +73,6 @@ public class AmplificationHelper {
             methodToAdd = ampTest.stream();
         }*/
         methodToAdd = ampTest.stream();
-
         final CtType<?> currentTestClass = classTest.clone();
         methodToAdd.forEach(currentTestClass::addMethod);
         // keep original test methods
