@@ -56,4 +56,9 @@ public class ClassWithInnerClass {
     public void notATestBecauseParameters(int a) {
         assertTrue(true);
     }
+
+    @org.junit.jupiter.api.Test
+    public void  Junit5Test() {
+        System.out.println("this is a test JUNIT 5 because of the annotation");
+    }
 }
