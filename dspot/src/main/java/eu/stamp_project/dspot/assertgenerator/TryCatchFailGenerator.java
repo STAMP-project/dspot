@@ -32,10 +32,18 @@ public class TryCatchFailGenerator {
         this.numberOfFail = 0;
     }
 
+    private final static List<String> UNSUPPORTED_EXECEPTION = Arrays.asList(
+            "org.junit.runners.model.TestTimedOutException",
+            "java.lang.OutOfMemoryError",
+            "java.lang.StackOverflowError",
+            "java.lang.AssertionError",
+            "org.opentest4j.AssertionFailedError"
+    );
+
     /**
      * Adds surrounding try/catch/fail in a failing test.
      *
-     * @param test Failing test method to amplify
+     * @param test    Failing test method to amplify
      * @param failure Test's failure description
      * @return New amplified test
      */
@@ -47,10 +55,7 @@ public class TryCatchFailGenerator {
 
         // TestTimedOutException means infinite loop
         // AssertionError means that some assertion remained in the test: TODO
-        if ("org.junit.runners.model.TestTimedOutException".equals(failure.fullQualifiedNameOfException) ||
-                "java.lang.OutOfMemoryError".equals(failure.fullQualifiedNameOfException) ||
-                "java.lang.StackOverflowError".equals(failure.fullQualifiedNameOfException) ||
-                "java.lang.AssertionError".equals(failure.fullQualifiedNameOfException)) {
+        if (UNSUPPORTED_EXECEPTION.contains(failure.fullQualifiedNameOfException)) {
             return null;
         }
 

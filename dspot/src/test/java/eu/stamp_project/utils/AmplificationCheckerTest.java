@@ -35,6 +35,7 @@ public class AmplificationCheckerTest extends AbstractTest {
         assertTrue(AmplificationChecker.isTest(test));
         assertTrue(AmplificationChecker.isTest(classTest.getMethodsByName("testWithDeepCallToAssertion").get(0)));
         assertTrue(AmplificationChecker.isTest(classTest.getMethodsByName("notATestBecauseTooDeepCallToAssertion").get(0)));
+        assertTrue(AmplificationChecker.isTest(classTest.getMethodsByName("Junit5Test").get(0)));
         assertFalse(AmplificationChecker.isTest(classTest.getMethodsByName("notATestBecauseParameters").get(0)));
 //        assertFalse(AmplificationChecker.isTest(classTest.getMethodsByName("notATestBecauseMixinJunit3AndJunit4").get(0))); TODO
         assertFalse(AmplificationChecker.isTest(classTest.getMethodsByName("notATestBecauseParameters").get(0)));

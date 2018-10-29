@@ -163,7 +163,7 @@ public class AmplificationHelperTest extends AbstractTest {
         /*
             The resulting amplifies test class should:
                  (1) be renamed with Ampl in its name
-                 (2) should contains only 10 methods,
+                 (2) should contains only 11 methods,
                     such as the original since we faked an amplified test methods per original test methods
                  (3) all the references are replaced with the new one (i.e. the one with Ampl)
          */
@@ -181,8 +181,8 @@ public class AmplificationHelperTest extends AbstractTest {
 
         assertTrue(amplifiedTest.getSimpleName().contains("Ampl")); // (1)
 
-        assertEquals(10, amplifiedTest.getMethods().size()); // (2)
-        assertEquals(10, classTest.getMethods().size());// (2)
+        assertEquals(11, amplifiedTest.getMethods().size()); // (2)
+        assertEquals(11, classTest.getMethods().size());// (2)
 
         // (3)
         assertFalse(classTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
@@ -226,7 +226,7 @@ public class AmplificationHelperTest extends AbstractTest {
         // (1)
         assertFalse(amplifiedTest.getSimpleName().contains("Ampl"));
         // (2)
-        assertEquals(14, amplifiedTest.getMethods().size());
+        assertEquals(16, amplifiedTest.getMethods().size());
         // (3)
         assertFalse(classTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
             @Override
