@@ -1,6 +1,5 @@
 package eu.stamp_project.mutant.descartes;
 
-import eu.stamp_project.mutant.pit.MavenPitCommandAndOptions;
 import eu.stamp_project.program.InputConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -17,7 +16,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
