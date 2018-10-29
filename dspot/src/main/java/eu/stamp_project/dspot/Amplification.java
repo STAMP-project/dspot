@@ -1,9 +1,7 @@
 package eu.stamp_project.dspot;
 
-import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.assertgenerator.AssertGenerator;
 import eu.stamp_project.dspot.budget.Budgetizer;
-import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
@@ -12,9 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-import sun.rmi.runtime.Log;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,12 +25,6 @@ public class Amplification {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Amplification.class);
 
-    private InputConfiguration configuration;
-
-    private List<Amplifier> amplifiers;
-
-    private TestSelector testSelector;
-
     private AssertGenerator assertGenerator;
 
     private DSpotCompiler compiler;
@@ -48,12 +38,9 @@ public class Amplification {
         return globalNumberOfSelectedAmplification;
     }
 
-    public Amplification(InputConfiguration configuration, List<Amplifier> amplifiers, TestSelector testSelector, DSpotCompiler compiler) {
-        this.configuration = configuration;
-        this.amplifiers = amplifiers;
-        this.testSelector = testSelector;
+    public Amplification(DSpotCompiler compiler) {
         this.compiler = compiler;
-        this.assertGenerator = new AssertGenerator(this.configuration, this.compiler);
+        this.assertGenerator = new AssertGenerator(InputConfiguration.get(), this.compiler);
         this.globalNumberOfSelectedAmplification = 0;
     }
 
@@ -65,7 +52,7 @@ public class Amplification {
      * @param classTest    Test class
      * @param maxIteration Number of amplification iterations
      */
-    public void amplification(CtType<?> classTest, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
+    public void amplification(CtType<?> classTest, int maxIteration) {
         amplification(classTest, AmplificationHelper.getAllTest(classTest), maxIteration);
     }
 
@@ -81,10 +68,10 @@ public class Amplification {
     public void amplification(CtType<?> classTest, List<CtMethod<?>> tests, int maxIteration) {
         LOGGER.info("Amplification of {} ({} test(s))", classTest.getQualifiedName(), tests.size());
         LOGGER.info("Assertion amplification of {} ({} test(s))", classTest.getQualifiedName(), tests.size());
-        final List<CtMethod<?>> passingTests = TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(classTest, tests, this.compiler, this.configuration);
+        final List<CtMethod<?>> passingTests = TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(classTest, tests, this.compiler, InputConfiguration.get());
         final List<CtMethod<?>> selectedToBeAmplified;
         try {
-            selectedToBeAmplified = testSelector.selectToAmplify(classTest, passingTests);
+            selectedToBeAmplified = InputConfiguration.get().getSelector().selectToAmplify(classTest, passingTests);
         } catch (Exception | Error e) {
             // TODO log the errors and report it to the user at the end.
             LOGGER.warn("Something bad happened during selection before amplification");
@@ -93,16 +80,16 @@ public class Amplification {
         final List<CtMethod<?>> assertionAmplifiedTestMethods = this.assertionsAmplification(classTest, selectedToBeAmplified);
         final List<CtMethod<?>> amplifiedTestMethodsToKeep;
         try {
-            amplifiedTestMethodsToKeep = this.testSelector.selectToKeep(assertionAmplifiedTestMethods);
+            amplifiedTestMethodsToKeep = InputConfiguration.get().getSelector().selectToKeep(assertionAmplifiedTestMethods);
         } catch (Exception | Error e) {
             // TODO log the errors and report it to the user at the end.
-            LOGGER.warn("Something bad happened during selection before amplification");
+            LOGGER.warn("Something bad happened during selection after amplification");
             return;
         }
         this.globalNumberOfSelectedAmplification += amplifiedTestMethodsToKeep.size();
         LOGGER.info("{} amplified test methods has been selected to be kept. (global: {})", amplifiedTestMethodsToKeep.size(), this.globalNumberOfSelectedAmplification);
         // in case there is no amplifier, we can leave
-        if (this.amplifiers.isEmpty()) {
+        if (InputConfiguration.get().getAmplifiers().isEmpty()) {
             return;
         }
         LOGGER.info("Applying Input-amplification and Assertion-amplification test by test.");
@@ -139,7 +126,7 @@ public class Amplification {
             LOGGER.info("iteration {} / {}", i, maxIteration);
             final List<CtMethod<?>> selectedToBeAmplified;
             try {
-                selectedToBeAmplified = testSelector.selectToAmplify(classTest, currentTestList);
+                selectedToBeAmplified = InputConfiguration.get().getSelector().selectToAmplify(classTest, currentTestList);
             } catch (Exception | Error e) {
                 // TODO log the errors and report it to the user at the end.
                 LOGGER.warn("Something bad happened during selection before amplification");
@@ -170,7 +157,7 @@ public class Amplification {
             }
             final List<CtMethod<?>> amplifiedTestMethodsToKeep;
             try {
-                amplifiedTestMethodsToKeep = this.testSelector.selectToKeep(testsWithAssertions);
+                amplifiedTestMethodsToKeep = InputConfiguration.get().getSelector().selectToKeep(testsWithAssertions);
             } catch (Exception | Error e) {
                 // TODO log the errors and report it to the user at the end.
                 LOGGER.warn("Something bad happened during selection after amplification");
@@ -189,7 +176,7 @@ public class Amplification {
             testsWithAssertions= this.assertGenerator.assertionAmplification(classTest, testMethods);
         } catch (Exception | Error e) {
             // TODO log the errors and report it to the user at the end.
-            LOGGER.warn("Something bad happened during selection after amplification");
+            LOGGER.warn("Something bad happened during assertion amplification");
             return Collections.emptyList();
         }
         if (testsWithAssertions.isEmpty()) {
@@ -202,7 +189,7 @@ public class Amplification {
                         classTest,
                         testsWithAssertions,
                         this.compiler,
-                        this.configuration
+                        InputConfiguration.get()
                 );
         LOGGER.info("Assertion amplification: {} test method(s) has been successfully amplified.", amplifiedPassingTests.size());
         return amplifiedPassingTests;
@@ -210,7 +197,7 @@ public class Amplification {
 
 
     private void resetAmplifiers(CtType parentClass) {
-        this.amplifiers.forEach(amp -> amp.reset(parentClass));
+        InputConfiguration.get().getAmplifiers().forEach(amp -> amp.reset(parentClass));
     }
 
 }

@@ -30,12 +30,7 @@ public class AmplificationTest extends AbstractTest {
             The amplification will use ALL the implementation of the AbstractTestClass
          */
 
-        final Amplification amplification = new Amplification(
-                Utils.getInputConfiguration(),
-                Collections.emptyList(),
-                null,
-                Utils.getCompiler()
-        );
+        final Amplification amplification = new Amplification(Utils.getCompiler());
         final CtClass testClass = Utils.findClass("fr.inria.inheritance.Inherited");
 //        final TestListener testListener = amplification.compileAndRunTestsNoFail(testClass,
 //                Arrays.asList(Utils.findMethod(testClass, "test"), Utils.findMethod(testClass, "test2"))

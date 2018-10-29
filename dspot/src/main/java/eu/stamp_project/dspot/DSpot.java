@@ -225,7 +225,7 @@ public class DSpot {
         try {
             test = JUnit3Support.convertToJUnit4(test, this.inputConfiguration);
             Counter.reset();
-            Amplification testAmplification = new Amplification(this.inputConfiguration, this.amplifiers, this.testSelector, this.compiler);
+            Amplification testAmplification = new Amplification(this.compiler);
             final List<CtMethod<?>> filteredTestCases = this.filterTestCases(methods);
             long time = System.currentTimeMillis();
             testAmplification.amplification(test, filteredTestCases, numberOfIterations);
