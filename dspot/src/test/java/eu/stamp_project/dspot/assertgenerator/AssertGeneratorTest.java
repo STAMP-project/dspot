@@ -21,6 +21,7 @@ import java.util.List;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Created by Benjamin DANGLOT
@@ -34,6 +35,7 @@ public class AssertGeneratorTest extends AbstractTest {
     @Override
     @Before
     public void setUp() throws Exception {
+        Utils.reset();
         super.setUp();
         this.assertGenerator = new AssertGenerator(Utils.getInputConfiguration(), Utils.getCompiler());
     }
@@ -167,7 +169,11 @@ public class AssertGeneratorTest extends AbstractTest {
 		 */
         CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         CtMethod<?> test1 = Utils.findMethod("fr.inria.sample.TestClassWithoutAssert", "test1");
-        CtMethod<?> amplifiedTestMethod = assertGenerator.assertionAmplification(testClass, Collections.singletonList(test1)).get(0);
+        final List<CtMethod<?>> ctMethods = assertGenerator.assertionAmplification(testClass, Collections.singletonList(test1));
+        if (ctMethods.isEmpty()) {
+            fail("the assertion amplification should have result with at least one test.");
+        }
+        CtMethod<?> amplifiedTestMethod = ctMethods.get(0);
         assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getBoolean", ASSERT_TRUE)).size());
         assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getByte", ASSERT_EQUALS)).size());
         assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getShort", ASSERT_EQUALS)).size());
