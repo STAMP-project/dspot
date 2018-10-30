@@ -35,7 +35,7 @@ public class MavenPitCommandAndOptions {
 
     public static final String OPT_VALUE_TIMEOUT = "-DtimeoutConst=10000";
 
-    public static final String OPT_VALUE_MEMORY = "-DjvmArgs=16G";
+    public static final String OPT_JVM_ARGS = "-DjvmArgs=";
 
     public static final String OPT_MUTATORS = "-Dmutators=";
 

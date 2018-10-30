@@ -27,20 +27,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.CMD_PIT_MUTATION_COVERAGE;
-import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.GOAL_PIT_MUTATION_COVERAGE;
-import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_ADDITIONAL_CP_ELEMENTS;
-import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_EXCLUDED_CLASSES;
-import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_MUTATION_ENGINE_DEFAULT;
-import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_MUTATION_ENGINE_DESCARTES;
-import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_MUTATORS;
-import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_TARGET_CLASSES;
-import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_TARGET_TESTS;
-import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_VALUE_FORMAT;
-import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_VALUE_MEMORY;
-import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_VALUE_REPORT_DIR;
-import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.OPT_VALUE_TIMEOUT;
-import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.VALUE_MUTATORS_ALL;
+import static eu.stamp_project.mutant.pit.MavenPitCommandAndOptions.*;
 
 /**
  * Created by Benjamin DANGLOT
@@ -167,7 +154,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
                     OPT_VALUE_TIMEOUT, //
-                    OPT_VALUE_MEMORY, //
+                    (InputConfiguration.get().getJVMArgs().isEmpty() ? "" : OPT_JVM_ARGS + InputConfiguration.get().getJVMArgs()), //
                     OPT_TARGET_TESTS + Arrays.stream(testClasses).map(DSpotUtils::ctTypeToFullQualifiedName).collect(Collectors.joining(",")), //
                     OPT_ADDITIONAL_CP_ELEMENTS + DSpotUtils.getAbsolutePathToDSpotDependencies() +
                             (!InputConfiguration.get().getAdditionalClasspathElements().isEmpty() ?
@@ -210,7 +197,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
                     OPT_VALUE_REPORT_DIR, //
                     OPT_VALUE_FORMAT, //
                     OPT_VALUE_TIMEOUT, //
-                    OPT_VALUE_MEMORY, //
+                    (InputConfiguration.get().getJVMArgs().isEmpty() ? "" : OPT_JVM_ARGS + InputConfiguration.get().getJVMArgs()), //
                     InputConfiguration.get().isDescartesMode() ? OPT_MUTATION_ENGINE_DESCARTES : OPT_MUTATION_ENGINE_DEFAULT,
                     InputConfiguration.get().isDescartesMode() ? "" : OPT_MUTATORS + VALUE_MUTATORS_ALL, //
                     OPT_ADDITIONAL_CP_ELEMENTS + DSpotUtils.getAbsolutePathToDSpotDependencies() +
