@@ -53,7 +53,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MavenAutomaticBuilder.class);
 
-    private String classpath;
+    private String classpath = null;
 
     private String contentOfOriginalPom = null;
 
@@ -78,17 +78,19 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     @Override
     public String compileAndBuildClasspath() {
-        this.runGoals(InputConfiguration.get().getAbsolutePathToProjectRoot(), "clean",
-                "test",
-                "-DskipTests",
-                "dependency:build-classpath",
-                "-Dmdep.outputFile=" + "target/dspot/classpath"
-        );
-        final File classpathFile = new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/target/dspot/classpath");
-        try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
-            this.classpath = buffer.lines().collect(Collectors.joining());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (this.classpath == null) {
+            this.runGoals(InputConfiguration.get().getAbsolutePathToProjectRoot(), "clean",
+                    "test",
+                    "-DskipTests",
+                    "dependency:build-classpath",
+                    "-Dmdep.outputFile=" + "target/dspot/classpath"
+            );
+            final File classpathFile = new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/target/dspot/classpath");
+            try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
+                this.classpath = buffer.lines().collect(Collectors.joining());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
         return this.classpath;
     }
