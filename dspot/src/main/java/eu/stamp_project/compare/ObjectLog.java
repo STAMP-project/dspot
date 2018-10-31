@@ -52,14 +52,14 @@ public class ObjectLog {
     }
 
     public static void log(Object objectToObserve, String objectObservedAsString, String id) {
-        if (objectToObserve == null) {
+        /*if (objectToObserve == null) {
             getSingleton().addObservation(id, "null", null);
             return;
-        }
+        }*/
         getSingleton()._log(
                 objectToObserve,
                 objectToObserve,
-                objectToObserve.getClass(),
+                null,
                 objectObservedAsString,
                 id,
                 0,
@@ -78,7 +78,9 @@ public class ObjectLog {
             final boolean primitive = Utils.isPrimitive(objectToObserve);
             final boolean primitiveArray = Utils.isPrimitiveArray(objectToObserve);
             final boolean primitiveCollectionOrMap = Utils.isPrimitiveCollectionOrMap(objectToObserve);
-            if (isSerializable(objectToObserve) &&
+            if (objectToObserve == null) {
+                addObservation(id, observedObjectAsString, null);
+            } else if (isSerializable(objectToObserve) &&
                     (primitive || primitiveArray || primitiveCollectionOrMap)) {
                 addObservation(id, observedObjectAsString, objectToObserve);
             } else if (Utils.isCollection(objectToObserve)) {
@@ -88,7 +90,7 @@ public class ObjectLog {
             } else if (!objectToObserve.getClass().getName().toLowerCase().contains("mock")) {
                 observeNotNullObject(
                         startingObject,
-                        currentObservedClass,
+                        currentObservedClass == null ? objectToObserve.getClass() : currentObservedClass,
                         observedObjectAsString,
                         id,
                         deep,
