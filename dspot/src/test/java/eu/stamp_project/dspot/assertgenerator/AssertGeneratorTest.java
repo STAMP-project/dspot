@@ -7,6 +7,8 @@ import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -35,7 +37,6 @@ public class AssertGeneratorTest extends AbstractTest {
     @Override
     @Before
     public void setUp() throws Exception {
-        Utils.reset();
         super.setUp();
         this.assertGenerator = new AssertGenerator(Utils.getInputConfiguration(), Utils.getCompiler());
     }
@@ -157,8 +158,12 @@ public class AssertGeneratorTest extends AbstractTest {
         assertEquals(expectedBody, test1_buildNewAssert.get(0).getBody().toString());
     }
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AssertGeneratorTest.class);
+
     @Test
     public void testBuildNewAssert() throws Exception {
+        LOGGER.info("Running testBuildNewAssert");
+
         /*
 			DSpot is able to generate multiple assertion using getter inside the targeted class
 				- Boolean (assertTrue / assertFalse)
