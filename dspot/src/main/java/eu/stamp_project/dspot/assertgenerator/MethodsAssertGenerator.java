@@ -2,9 +2,7 @@ package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.compare.Observation;
-import eu.stamp_project.dspot.Amplification;
 import eu.stamp_project.dspot.AmplificationException;
-import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
