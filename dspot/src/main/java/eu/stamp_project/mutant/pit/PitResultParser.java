@@ -47,6 +47,7 @@ public class PitResultParser {
         return results;
     }
 
+    @Deprecated
     private static void checkFileExists(File fileResults) {
         if (fileResults == null || !fileResults.exists()) {
             throw new RuntimeException(fileResults.getAbsolutePath() + " does not exist!");

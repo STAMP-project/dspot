@@ -1,7 +1,6 @@
 package eu.stamp_project.automaticbuilder.gradle;
 
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.mutant.pit.GradlePitTaskAndOptions;
 import eu.stamp_project.program.InputConfiguration;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnector;
@@ -17,7 +16,7 @@ import java.io.FileReader;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.CMD_PIT_MUTATION_COVERAGE;
+import static eu.stamp_project.automaticbuilder.gradle.GradlePitTaskAndOptions.CMD_PIT_MUTATION_COVERAGE;
 
 /**
  * Created by Daniele Gagliardi
@@ -47,9 +46,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
 
     @Override
     public void compile() {
-        runTasks(InputConfiguration.get().getAbsolutePathToProjectRoot(),
-                "clean", "compileTest"
-        );
+        runTasks("clean", "compileTest");
     }
 
     @Override
@@ -61,7 +58,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
                 LOGGER.info("Injecting  Gradle task to print project classpath on stdout...");
                 this.gradleInjector.injectPrintClasspathTask(InputConfiguration.get().getAbsolutePathToProjectRoot());
                 LOGGER.info("Retrieving project classpath...");
-                runTasks(InputConfiguration.get().getAbsolutePathToProjectRoot(),GradleInjector.WRITE_CLASSPATH_TASK);
+                this.runTasks(GradleInjector.WRITE_CLASSPATH_TASK);
                 LOGGER.info("Writing project classpath on file " + JAVA_PROJECT_CLASSPATH + "...");
                 this.gradleInjector.resetOriginalGradleBuildFile(InputConfiguration.get().getAbsolutePathToProjectRoot());
             }
@@ -84,26 +81,26 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
     }
 
     @Override
-    public void runPit(String pathToRootOfProject) {
-        runPit(pathToRootOfProject, null);
+    public void runPit() {
+        runPit(null);
     }
 
     @Override
-    public void runPit(String pathToRootOfProject, CtType<?>... testClasses) {
+    public void runPit(CtType<?>... testClasses) {
         try {
             LOGGER.info("Injecting  Gradle task to run Pit...");
-            this.gradleInjector.injectPitTask(pathToRootOfProject, testClasses);
+            this.gradleInjector.injectPitTask(InputConfiguration.get().getAbsolutePathToProjectRoot(), testClasses);
             LOGGER.info("Running Pit...");
-            runTasks(pathToRootOfProject, CMD_PIT_MUTATION_COVERAGE);
+            runTasks(CMD_PIT_MUTATION_COVERAGE);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            this.gradleInjector.resetOriginalGradleBuildFile(pathToRootOfProject);
+            this.gradleInjector.resetOriginalGradleBuildFile(InputConfiguration.get().getAbsolutePathToProjectRoot());
         }
     }
 
-    protected byte[] runTasks(String pathToRootOfProject, String... tasks) {
-        ProjectConnection connection = GradleConnector.newConnector().forProjectDirectory(new File(pathToRootOfProject)).connect();
+    protected byte[] runTasks(String... tasks) {
+        ProjectConnection connection = GradleConnector.newConnector().forProjectDirectory(new File(InputConfiguration.get().getAbsolutePathToProjectRoot())).connect();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         LOGGER.info("Run gradle tasks: {}", String.join(" ", tasks));
         try {

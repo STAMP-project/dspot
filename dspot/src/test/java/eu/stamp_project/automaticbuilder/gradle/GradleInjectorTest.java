@@ -21,6 +21,7 @@ public class GradleInjectorTest extends AbstractTest {
             "    reportDir = 'build/pit-reports'" + AmplificationHelper.LINE_SEPARATOR +
             "    outputFormats = ['CSV','HTML']" + AmplificationHelper.LINE_SEPARATOR +
             "    pitestVersion = '1.4.0'" + AmplificationHelper.LINE_SEPARATOR +
+            "    timeoutConstInMillis = 10000" + AmplificationHelper.LINE_SEPARATOR +
             "    jvmArgs = ['-Xmx2048m','-Xms1024m','-Dis.admin.user=admin','-Dis.admin.passwd=$2pRSid#']" + AmplificationHelper.LINE_SEPARATOR +
             "    targetTests = ['']" + AmplificationHelper.LINE_SEPARATOR +
             "    mutationEngine = 'descartes'" + AmplificationHelper.LINE_SEPARATOR +

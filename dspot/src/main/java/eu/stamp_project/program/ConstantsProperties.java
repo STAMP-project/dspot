@@ -167,7 +167,7 @@ public class ConstantsProperties {
             new InputConfigurationProperty(
                     "pitVersion",
                     "specify the version of PIT to use.",
-                    "1.3.0"
+                    "1.4.0"
             );
 
     public static final InputConfigurationProperty DESCARTES_VERSION =
@@ -193,14 +193,6 @@ public class ConstantsProperties {
                     "excludedTestCases",
                     "specify the list of test cases to be excluded. " +
                             "Each is the name of a test case, separated by a comma \',\'.",
-                    ""
-            );
-
-    public static final InputConfigurationProperty TIMEOUT_PIT =
-            new InputConfigurationProperty(
-                    "pitTimeout",
-                    "specify the time out of PIT, if the PitMutantScoreSelector. " +
-                            "",
                     ""
             );
 
@@ -243,7 +235,6 @@ public class ConstantsProperties {
         inputConfigurationProperties.add(BASE_SHA);
         inputConfigurationProperties.add(AUTOMATIC_BUILDER_NAME);
         inputConfigurationProperties.add(PIT_VERSION);
-        inputConfigurationProperties.add(TIMEOUT_PIT);
         inputConfigurationProperties.add(JVM_ARGS);
         inputConfigurationProperties.add(FILTER);
         inputConfigurationProperties.add(DESCARTES_VERSION);

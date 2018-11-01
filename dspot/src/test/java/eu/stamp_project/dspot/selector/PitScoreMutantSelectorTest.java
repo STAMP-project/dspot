@@ -1,6 +1,7 @@
 package eu.stamp_project.dspot.selector;
 
 import eu.stamp_project.Utils;
+import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.minimization.PitMutantMinimizer;
 import org.junit.Before;
@@ -25,6 +26,7 @@ public class PitScoreMutantSelectorTest extends AbstractSelectorTest {
         Utils.reset(); // TODO somewhere, there is some states that is why we need to reset here.
         super.setUp();
         Utils.getInputConfiguration().setDescartesMode(false);
+        DSpotPOMCreator.createNewPom();
     }
 
     @Override

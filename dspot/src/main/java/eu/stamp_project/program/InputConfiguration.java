@@ -207,7 +207,7 @@ public class InputConfiguration {
                 .setDescartesVersion(ConstantsProperties.DESCARTES_VERSION.get(properties))
                 .setBaseSha(ConstantsProperties.BASE_SHA.get(properties))
                 .setExcludedClasses(ConstantsProperties.EXCLUDED_CLASSES.get(properties))
-                .setTimeoutPit(ConstantsProperties.TIMEOUT_PIT.get(properties))
+                //.setTimeoutPit(ConstantsProperties.TIMEOUT_PIT.get(properties))
                 .setJVMArgs(ConstantsProperties.JVM_ARGS.get(properties))
                 .setDescartesMutators(ConstantsProperties.DESCARTES_MUTATORS.get(properties))
                 .setPitVersion(ConstantsProperties.PIT_VERSION.get(properties))
@@ -440,7 +440,7 @@ public class InputConfiguration {
                 DSpotUtils.getAbsolutePathToDSpotDependencies();
     }
 
-    private String additionalClasspathElements;
+    private String additionalClasspathElements = "";
 
 
     public String getAdditionalClasspathElements() {
@@ -595,7 +595,7 @@ public class InputConfiguration {
         Amplification and Pit properties
      */
 
-    private String excludedClasses;
+    private String excludedClasses = "";
 
     public String getExcludedClasses() {
         return excludedClasses;
@@ -664,30 +664,19 @@ public class InputConfiguration {
         return this;
     }
 
-    private String timeoutPit;
-
-    public String getTimeoutPit() {
-        return timeoutPit;
-    }
-
-    public InputConfiguration setTimeoutPit(String timeoutPit) {
-        this.timeoutPit = timeoutPit;
-        return this;
-    }
-
-    private String JVMArgs;
+    private String JVMArgs = "";
 
     public String getJVMArgs() {
         return JVMArgs;
     }
 
     public InputConfiguration setJVMArgs(String JVMArgs) {
-        this.JVMArgs = String.join(" ", JVMArgs.split(","));
-        EntryPoint.JVMArgs = this.JVMArgs;
+        this.JVMArgs = JVMArgs ;
+        EntryPoint.JVMArgs = String.join(" ", JVMArgs.split(","));
         return this;
     }
 
-    private String descartesMutators;
+    private String descartesMutators = "";
 
     public String getDescartesMutators() {
         return descartesMutators;
@@ -709,7 +698,7 @@ public class InputConfiguration {
         if (this.descartesMode) {
             this.setPitVersion("1.4.0"); // forcing pit version 1.4.0 to work with descartes
         } else if (this.getPitVersion() == null) {
-            this.setPitVersion("1.3.0");
+            this.setPitVersion("1.4.0");
         }
         return this;
     }

@@ -56,7 +56,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         super.init(configuration);
         if (this.originalKilledMutants == null) {
             final AutomaticBuilder automaticBuilder = InputConfiguration.get().getBuilder();
-            automaticBuilder.runPit(this.configuration.getAbsolutePathToProjectRoot());
+            automaticBuilder.runPit();
             initOriginalPitResult(PitResultParser.parseAndDelete(this.configuration.getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit()) );
         }
     }
@@ -106,7 +106,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         DSpotCompiler.compile(this.configuration, DSpotCompiler.getPathToAmplifiedTestSrc(), classpath,
                 new File(this.configuration.getAbsolutePathToTestClasses()));
 
-        InputConfiguration.get().getBuilder().runPit(this.configuration.getAbsolutePathToProjectRoot(), clone);
+        InputConfiguration.get().getBuilder().runPit(clone);
         final List<PitResult> results = PitResultParser.parseAndDelete(this.configuration.getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit());
 
         Set<CtMethod<?>> selectedTests = new HashSet<>();

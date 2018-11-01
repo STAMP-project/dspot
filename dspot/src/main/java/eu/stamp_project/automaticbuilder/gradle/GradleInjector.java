@@ -16,7 +16,7 @@ import java.nio.file.*;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import static eu.stamp_project.mutant.pit.GradlePitTaskAndOptions.*;
+import static eu.stamp_project.automaticbuilder.gradle.GradlePitTaskAndOptions.*;
 
 /**
  * Created by Daniele Gagliardi
@@ -249,11 +249,10 @@ public class GradleInjector {
                 "    " + OPT_VALUE_REPORT_DIR + AmplificationHelper.LINE_SEPARATOR +
                 "    " + OPT_VALUE_FORMAT + AmplificationHelper.LINE_SEPARATOR +
                 "    " + OPT_PIT_VERSION + this.wrapWithSingleQuote(InputConfiguration.get().getPitVersion()) + AmplificationHelper.LINE_SEPARATOR +
-                (!InputConfiguration.get().getTimeoutPit().isEmpty() ?
-                        "    " + PROPERTY_VALUE_TIMEOUT + " = " + InputConfiguration.get().getTimeoutPit().isEmpty() + AmplificationHelper.LINE_SEPARATOR : "") +
+                        "    " + PROPERTY_VALUE_TIMEOUT + " = " + InputConfiguration.get().getTimeOutInMs() + AmplificationHelper.LINE_SEPARATOR +
                 (!InputConfiguration.get().getJVMArgs().isEmpty() ?
                         "    " + PROPERTY_VALUE_JVM_ARGS + " = [" +
-                                Arrays.stream(InputConfiguration.get().getJVMArgs().split(" ")).map(this::wrapWithSingleQuote).collect(Collectors.joining(",")) + "]"
+                                Arrays.stream(InputConfiguration.get().getJVMArgs().split(",")).map(this::wrapWithSingleQuote).collect(Collectors.joining(",")) + "]"
                                 + AmplificationHelper.LINE_SEPARATOR : "") +
                 (testClasses != null ? "    " + OPT_TARGET_TESTS + "['" + Arrays.stream(testClasses).map(DSpotUtils::ctTypeToFullQualifiedName).collect(Collectors.joining(",")) + "']" + AmplificationHelper.LINE_SEPARATOR : "") +
                 (!InputConfiguration.get().getAdditionalClasspathElements().isEmpty() ?

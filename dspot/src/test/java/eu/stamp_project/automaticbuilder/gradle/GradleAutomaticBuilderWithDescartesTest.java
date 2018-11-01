@@ -59,7 +59,7 @@ public class GradleAutomaticBuilderWithDescartesTest {
         Utils.LOGGER.info("Starting Gradle Automatic Builder runPit() test when a test class is specified...");
         CtClass<Object> testClass = Utils.getInputConfiguration().getFactory().Class().get("example.TestSuiteExample");
         InputConfiguration.get().setDescartesMode(true);
-        sut.runPit("src/test/resources/test-projects/", testClass);
+        sut.runPit( testClass);
         List<PitResult> pitResults = PitResultParser.parseAndDelete("src/test/resources/test-projects/" + sut.getOutputDirectoryPit());
         assertTrue("PIT results shouldn't be null", pitResults != null);
         assertTrue("PIT results shouldn't be empty", !pitResults.isEmpty());

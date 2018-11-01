@@ -1,4 +1,4 @@
-package eu.stamp_project.mutant.pit;
+package eu.stamp_project.automaticbuilder.gradle;
 
 /**
  * Created by Daniele Gagliardi

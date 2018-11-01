@@ -1,4 +1,4 @@
-package eu.stamp_project.automaticbuilder;
+package eu.stamp_project.automaticbuilder.maven;
 
 import eu.stamp_project.Utils;
 import eu.stamp_project.mutant.pit.PitResult;
@@ -58,7 +58,9 @@ public class MavenAutomaticBuilderTest {
         Utils.init("src/test/resources/test-projects/test-projects.properties");
         InputConfiguration.get().setFilter("");
 
-        Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot());
+        DSpotPOMCreator.createNewPom();
+
+        Utils.getBuilder().runPit();
         final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertEquals(28, pitResults.size());
@@ -79,23 +81,11 @@ public class MavenAutomaticBuilderTest {
         Utils.init("src/test/resources/test-projects/test-projects.properties");
         InputConfiguration.get().setDescartesMode(true);
         InputConfiguration.get().setFilter("");
-        String pomAsStr = "";
-        try (BufferedReader buffer = new BufferedReader(new FileReader(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + "pom.xml"))) {
-            pomAsStr = buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
-        }
 
-        InputConfiguration.get().getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot());
+        DSpotPOMCreator.createNewPom();
+
+        InputConfiguration.get().getBuilder().runPit();
         final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
-
-        try (BufferedReader buffer = new BufferedReader(new FileReader(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + "pom.xml"))) {
-            assertNotEquals(buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)), pomAsStr);
-        }
-
-        InputConfiguration.get().getBuilder().reset();
-
-        try (BufferedReader buffer = new BufferedReader(new FileReader(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + "pom.xml"))) {
-            assertEquals(buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)), pomAsStr);
-        }
 
         assertEquals(2, pitResults.size());
         assertEquals(0, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
@@ -107,17 +97,17 @@ public class MavenAutomaticBuilderTest {
 
         Utils.init("src/test/resources/mockito/mockito.properties");
         InputConfiguration.get().setDescartesMode(false);
+        DSpotPOMCreator.createNewPom();
 
         try {
-            Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot());
+            Utils.getBuilder().runPit();
             fail("Should have thrown a RuntimeException");
         } catch (RuntimeException e) {
             //success
         }
 
         try {
-            Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot(),
-                    Utils.findClass("info.sanaulla.dal.BookDALTest"));
+            Utils.getBuilder().runPit(Utils.findClass("info.sanaulla.dal.BookDALTest"));
             fail("Should have thrown a RuntimeException");
         } catch (RuntimeException e) {
             //success
@@ -128,8 +118,9 @@ public class MavenAutomaticBuilderTest {
     public void testSpecificClass() throws Exception {
         Utils.init("src/test/resources/test-projects/test-projects.properties");
         InputConfiguration.get().setDescartesMode(false);
+        DSpotPOMCreator.createNewPom();
 
-        Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot(), Utils.findClass("example.TestSuiteExample2"));
+        Utils.getBuilder().runPit(Utils.findClass("example.TestSuiteExample2"));
         final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertNotNull(pitResults);
@@ -142,8 +133,9 @@ public class MavenAutomaticBuilderTest {
     public void testMultipleClasses() throws Exception {
         Utils.init("src/test/resources/test-projects/test-projects.properties");
         InputConfiguration.get().setDescartesMode(false);
+        DSpotPOMCreator.createNewPom();
 
-        Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot(), Utils.findClass("example.TestSuiteExample2"), Utils.findClass("example.TestSuiteExample"));
+        Utils.getBuilder().runPit(Utils.findClass("example.TestSuiteExample2"), Utils.findClass("example.TestSuiteExample"));
         final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertNotNull(pitResults);
@@ -160,8 +152,7 @@ public class MavenAutomaticBuilderTest {
 
         FileUtils.deleteDirectory(new File("src/test/resources/sample/target/pit-reports"));
 
-        Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot(),
-                Utils.findClass("fr.inria.inheritance.Inherited"));
+        Utils.getBuilder().runPit(Utils.findClass("fr.inria.inheritance.Inherited"));
 
         final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
 
@@ -173,8 +164,9 @@ public class MavenAutomaticBuilderTest {
 
         Utils.init("src/test/resources/project-with-resources/project-with-resources.properties");
         InputConfiguration.get().setDescartesMode(false);
+        DSpotPOMCreator.createNewPom();
 
-        Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot());
+        Utils.getBuilder().runPit();
         final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertNotNull(pitResults);
@@ -186,11 +178,12 @@ public class MavenAutomaticBuilderTest {
     public void testUsingStarFilter() throws Exception {
         Utils.init("src/test/resources/test-projects/test-projects.properties");
         InputConfiguration.get().setDescartesMode(false);
-
         final InputConfiguration inputConfiguration = Utils.getInputConfiguration();
         inputConfiguration.setFilter("*");
+
+        DSpotPOMCreator.createNewPom();
         try {
-            Utils.getBuilder().runPit(Utils.getInputConfiguration().getAbsolutePathToProjectRoot(), Utils.findClass("example.TestSuiteExample2"), Utils.findClass("example.TestSuiteExample"));
+            Utils.getBuilder().runPit(Utils.findClass("example.TestSuiteExample2"), Utils.findClass("example.TestSuiteExample"));
             fail();
         } catch (Exception e) {
 
