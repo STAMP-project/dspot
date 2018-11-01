@@ -30,12 +30,6 @@ public enum SelectorEnum {
         public TestSelector buildSelector() {
             return new CloverCoverageSelector();
         }
-    },
-    ExecutedMutantSelector {
-        @Override
-        public TestSelector buildSelector() {
-            return new ExecutedMutantSelector();
-        }
     },*/
     ChangeDetectorSelector {
         @Override
