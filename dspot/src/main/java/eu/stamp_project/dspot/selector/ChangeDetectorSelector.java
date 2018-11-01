@@ -2,6 +2,7 @@ package eu.stamp_project.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.selector.json.change.TestCaseJSON;
 import eu.stamp_project.dspot.selector.json.change.TestClassJSON;
 import eu.stamp_project.minimization.ChangeMinimizer;
@@ -50,6 +51,7 @@ public class ChangeDetectorSelector implements TestSelector {
             this.pathToFirstVersionOfProgram = InputConfiguration.get().getAbsolutePathToProjectRoot();
             this.pathToSecondVersionOfProgram = InputConfiguration.get().getAbsolutePathToSecondVersionProjectRoot();
             InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
+            DSpotPOMCreator.createNewPom();
             InputConfiguration.get().getBuilder().compile();
             InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToFirstVersionOfProgram);
         } catch (Exception e) {
