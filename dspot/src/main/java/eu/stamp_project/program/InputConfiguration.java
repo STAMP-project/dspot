@@ -440,7 +440,7 @@ public class InputConfiguration {
                 DSpotUtils.getAbsolutePathToDSpotDependencies();
     }
 
-    private String additionalClasspathElements;
+    private String additionalClasspathElements = "";
 
 
     public String getAdditionalClasspathElements() {
@@ -595,7 +595,7 @@ public class InputConfiguration {
         Amplification and Pit properties
      */
 
-    private String excludedClasses;
+    private String excludedClasses = "";
 
     public String getExcludedClasses() {
         return excludedClasses;
@@ -664,7 +664,7 @@ public class InputConfiguration {
         return this;
     }
 
-    private String JVMArgs;
+    private String JVMArgs = "";
 
     public String getJVMArgs() {
         return JVMArgs;
@@ -676,7 +676,7 @@ public class InputConfiguration {
         return this;
     }
 
-    private String descartesMutators;
+    private String descartesMutators = "";
 
     public String getDescartesMutators() {
         return descartesMutators;
