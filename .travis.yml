@@ -15,6 +15,7 @@ env:
   - SCRIPT=travis-jar.sh
   - SCRIPT=travis-dspot-maven.sh
   - SCRIPT=travis-checkstyle.sh
+  - SCRIPT=travis-dhell.sh
 
 cache:
   directories:
