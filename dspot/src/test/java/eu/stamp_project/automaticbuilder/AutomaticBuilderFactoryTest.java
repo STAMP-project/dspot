@@ -1,6 +1,7 @@
 package eu.stamp_project.automaticbuilder;
 
 import eu.stamp_project.automaticbuilder.gradle.GradleAutomaticBuilder;
+import eu.stamp_project.automaticbuilder.maven.MavenAutomaticBuilder;
 import eu.stamp_project.program.InputConfiguration;
 import org.junit.After;
 import org.junit.Before;

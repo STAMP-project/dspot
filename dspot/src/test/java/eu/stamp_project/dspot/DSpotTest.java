@@ -37,7 +37,7 @@ public class DSpotTest extends AbstractTest {
             This test is quite weak, we rely on the good usage of JVMArgs by the EntryPoint
          */
 
-        assertEquals("-Xmx2048m -Xms1024m -Dis.admin.user=admin -Dis.admin.passwd=$2pRSid#", InputConfiguration.get().getJVMArgs());
+        assertEquals("-Xmx2048m,-Xms1024m,-Dis.admin.user=admin,-Dis.admin.passwd=$2pRSid#",InputConfiguration.get().getJVMArgs());
         assertEquals("-Xmx2048m -Xms1024m -Dis.admin.user=admin -Dis.admin.passwd=$2pRSid#", EntryPoint.JVMArgs);
     }
 

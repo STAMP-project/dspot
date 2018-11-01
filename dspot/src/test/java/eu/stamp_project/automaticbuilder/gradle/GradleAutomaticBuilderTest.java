@@ -90,7 +90,7 @@ public class GradleAutomaticBuilderTest {
     public void runPit_whenNoTestClassIsSpecified() throws Exception {
         Utils.LOGGER.info("Starting Gradle Automatic Builder runPit() test when no test class is specified...");
         InputConfiguration.get().setDescartesMode(false);
-        sut.runPit("src/test/resources/test-projects/");
+        sut.runPit();
         List<PitResult> pitResults = PitResultParser.parseAndDelete("src/test/resources/test-projects/" + sut.getOutputDirectoryPit());
         assertTrue("PIT results shouldn't be null", pitResults != null);
         assertTrue("PIT results shouldn't be empty", !pitResults.isEmpty());
@@ -105,7 +105,7 @@ public class GradleAutomaticBuilderTest {
 
         CtClass<Object> testClass = Utils.getInputConfiguration().getFactory().Class().get("example.TestSuiteExample");
 
-        sut.runPit("src/test/resources/test-projects/", testClass);
+        sut.runPit(testClass);
         List<PitResult> pitResults = PitResultParser.parseAndDelete("src/test/resources/test-projects/"+ sut.getOutputDirectoryPit());
 
         assertTrue("PIT results shouldn't be null", pitResults != null);
