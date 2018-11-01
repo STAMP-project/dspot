@@ -46,9 +46,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
 
     @Override
     public void compile() {
-        runTasks(InputConfiguration.get().getAbsolutePathToProjectRoot(),
-                "clean", "compileTest"
-        );
+        runTasks("clean", "compileTest");
     }
 
     @Override
@@ -60,7 +58,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
                 LOGGER.info("Injecting  Gradle task to print project classpath on stdout...");
                 this.gradleInjector.injectPrintClasspathTask(InputConfiguration.get().getAbsolutePathToProjectRoot());
                 LOGGER.info("Retrieving project classpath...");
-                runTasks(InputConfiguration.get().getAbsolutePathToProjectRoot(),GradleInjector.WRITE_CLASSPATH_TASK);
+                this.runTasks(GradleInjector.WRITE_CLASSPATH_TASK);
                 LOGGER.info("Writing project classpath on file " + JAVA_PROJECT_CLASSPATH + "...");
                 this.gradleInjector.resetOriginalGradleBuildFile(InputConfiguration.get().getAbsolutePathToProjectRoot());
             }

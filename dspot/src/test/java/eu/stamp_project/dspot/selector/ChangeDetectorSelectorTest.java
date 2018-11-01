@@ -1,10 +1,12 @@
 package eu.stamp_project.dspot.selector;
 
 import eu.stamp_project.Utils;
+import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.minimization.ChangeMinimizer;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -20,6 +22,13 @@ import static org.junit.Assert.assertFalse;
  */
 @SuppressWarnings("unchecked")
 public class ChangeDetectorSelectorTest extends AbstractSelectorTest {
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+        DSpotPOMCreator.createNewPom();
+    }
 
     @Override
     protected TestSelector getTestSelector() {
@@ -55,6 +64,7 @@ public class ChangeDetectorSelectorTest extends AbstractSelectorTest {
 
         Utils.getInputConfiguration().setVerbose(true);
         EntryPoint.verbose = true;
+        DSpotPOMCreator.createNewPom();
 
 		/*
             Test that we can use the Change Detector on a multi module project
