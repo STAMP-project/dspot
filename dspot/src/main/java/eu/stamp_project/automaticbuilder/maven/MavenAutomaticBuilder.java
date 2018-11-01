@@ -17,6 +17,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Function;
@@ -30,9 +31,9 @@ import java.util.stream.Collectors;
  */
 public class MavenAutomaticBuilder implements AutomaticBuilder {
 
-    public static final String CMD_PIT_MUTATION_COVERAGE = "org.pitest:pitest-maven";
+    public static final String CMD_PIT_MUTATION_COVERAGE = "org.pitest:pitest-maven:mutationCoverage";
 
-    public static final String OPT_TARGET_TESTS = "-DtargetTestClasses=";
+    public static final String OPT_TARGET_TESTS = "-DtargetTests=";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MavenAutomaticBuilder.class);
 
@@ -140,6 +141,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         LOGGER.info("Using {} to run maven.", pomPathname);
         request.setPomFile(new File(pomPathname));
         request.setJavaHome(new File(System.getProperty("java.home")));
+        request.setProfiles(Collections.singletonList(DSpotPOMCreator.PROFILE_ID));
 
         Properties properties = new Properties();
         properties.setProperty("enforcer.skip", "true");

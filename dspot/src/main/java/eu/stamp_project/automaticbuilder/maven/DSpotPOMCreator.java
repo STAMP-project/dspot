@@ -109,7 +109,7 @@ public class DSpotPOMCreator {
 
     private static final String ID = "id";
 
-    private static final String PROFILE_ID = "id-descartes-for-dspot";
+    public static final String PROFILE_ID = "id-descartes-for-dspot";
 
     private static Element createProfile(Document document) {
         final Element profile = document.createElement(PROFILE);
