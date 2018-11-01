@@ -207,7 +207,7 @@ public class InputConfiguration {
                 .setDescartesVersion(ConstantsProperties.DESCARTES_VERSION.get(properties))
                 .setBaseSha(ConstantsProperties.BASE_SHA.get(properties))
                 .setExcludedClasses(ConstantsProperties.EXCLUDED_CLASSES.get(properties))
-                .setTimeoutPit(ConstantsProperties.TIMEOUT_PIT.get(properties))
+                //.setTimeoutPit(ConstantsProperties.TIMEOUT_PIT.get(properties))
                 .setJVMArgs(ConstantsProperties.JVM_ARGS.get(properties))
                 .setDescartesMutators(ConstantsProperties.DESCARTES_MUTATORS.get(properties))
                 .setPitVersion(ConstantsProperties.PIT_VERSION.get(properties))
@@ -664,17 +664,6 @@ public class InputConfiguration {
         return this;
     }
 
-    private String timeoutPit;
-
-    public String getTimeoutPit() {
-        return timeoutPit;
-    }
-
-    public InputConfiguration setTimeoutPit(String timeoutPit) {
-        this.timeoutPit = timeoutPit;
-        return this;
-    }
-
     private String JVMArgs;
 
     public String getJVMArgs() {
@@ -682,8 +671,8 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setJVMArgs(String JVMArgs) {
-        this.JVMArgs = String.join(" ", JVMArgs.split(","));
-        EntryPoint.JVMArgs = this.JVMArgs;
+        this.JVMArgs = JVMArgs ;
+        EntryPoint.JVMArgs = String.join(" ", JVMArgs.split(","));
         return this;
     }
 

@@ -196,14 +196,6 @@ public class ConstantsProperties {
                     ""
             );
 
-    public static final InputConfigurationProperty TIMEOUT_PIT =
-            new InputConfigurationProperty(
-                    "pitTimeout",
-                    "specify the time out of PIT, if the PitMutantScoreSelector. " +
-                            "",
-                    ""
-            );
-
     public static final InputConfigurationProperty JVM_ARGS =
             new InputConfigurationProperty(
                     "jvmArgs",
@@ -243,7 +235,6 @@ public class ConstantsProperties {
         inputConfigurationProperties.add(BASE_SHA);
         inputConfigurationProperties.add(AUTOMATIC_BUILDER_NAME);
         inputConfigurationProperties.add(PIT_VERSION);
-        inputConfigurationProperties.add(TIMEOUT_PIT);
         inputConfigurationProperties.add(JVM_ARGS);
         inputConfigurationProperties.add(FILTER);
         inputConfigurationProperties.add(DESCARTES_VERSION);

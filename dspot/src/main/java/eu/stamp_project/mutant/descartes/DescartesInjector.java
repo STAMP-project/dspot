@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
  * benjamin.danglot@inria.fr
  * on 23/03/17
  */
+@Deprecated
 public class DescartesInjector {
 
     static final String GROUP_ID_DESCARTES = "eu.stamp-project";

@@ -20,6 +20,7 @@ import java.util.Optional;
  * benjamin.danglot@inria.fr
  * on 24/03/17
  */
+@Deprecated
 public class DescartesChecker {
 
     public static boolean shouldInjectDescartes(String pathToPom) {
