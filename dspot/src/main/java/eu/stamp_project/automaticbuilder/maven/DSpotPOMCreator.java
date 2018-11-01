@@ -214,7 +214,7 @@ public class DSpotPOMCreator {
 
     public static final String REPORT_DIRECTORY_VALUE = "target/pit-reports";
 
-    private static final String TIME_OUT = "timeoutConst";
+    private static final String TIME_OUT = "timeoutConstant";
 
     private static final String ADDITIONAL_CLASSPATH_ELEMENTS = "additionalClasspathElements";
 

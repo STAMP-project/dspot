@@ -1,4 +1,4 @@
-package eu.stamp_project.automaticbuilder;
+package eu.stamp_project.automaticbuilder.maven;
 
 import eu.stamp_project.Utils;
 import eu.stamp_project.mutant.pit.PitResult;
