@@ -1,6 +1,7 @@
 package eu.stamp_project.automaticbuilder.maven;
 
 import eu.stamp_project.program.InputConfiguration;
+import jdk.internal.util.xml.impl.Input;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -164,8 +165,10 @@ public class DSpotPOMCreator {
         final Element configuration = createConfiguration(document);
         plugin.appendChild(configuration);
 
-        final Element dependencies = createDependencies(document);
-        plugin.appendChild(dependencies);
+        if (InputConfiguration.get().isDescartesMode()) {
+            final Element dependencies = createDependencies(document);
+            plugin.appendChild(dependencies);
+        }
 
         return plugin;
     }
@@ -207,6 +210,8 @@ public class DSpotPOMCreator {
     private static final String EXCLUDED_TEST_CLASSES = "excludedTestClasses";
 
     private static final String MUTATORS = "mutators";
+
+    private static final String GREGOR_MUTATORS = "ALL";
 
     private static final String TARGET_CLASSES = "targetClasses";
 
@@ -259,9 +264,13 @@ public class DSpotPOMCreator {
             configuration.appendChild(excludedTestClasses);
         }
 
-        if (!InputConfiguration.get().getDescartesMutators().isEmpty()) {
+        if (!InputConfiguration.get().getDescartesMutators().isEmpty() || !InputConfiguration.get().isDescartesMode()) {
             final Element mutators = document.createElement(MUTATORS);
-            appendValuesToGivenNode(document, mutators, InputConfiguration.get().getDescartesMutators().split(","));
+            if (!InputConfiguration.get().getDescartesMutators().isEmpty()) {
+                appendValuesToGivenNode(document, mutators, InputConfiguration.get().getDescartesMutators().split(","));
+            } else {
+                appendValuesToGivenNode(document, mutators, GREGOR_MUTATORS);
+            }
             configuration.appendChild(mutators);
         }
 
