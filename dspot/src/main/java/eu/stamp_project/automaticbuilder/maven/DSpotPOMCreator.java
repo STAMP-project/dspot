@@ -265,7 +265,7 @@ public class DSpotPOMCreator {
 
         if (!InputConfiguration.get().getDescartesMutators().isEmpty() || !InputConfiguration.get().isDescartesMode()) {
             final Element mutators = document.createElement(MUTATORS);
-            if (!InputConfiguration.get().getDescartesMutators().isEmpty()) {
+            if (!InputConfiguration.get().getDescartesMutators().isEmpty() && InputConfiguration.get().isDescartesMode()) {
                 appendValuesToGivenNode(document, mutators, InputConfiguration.get().getDescartesMutators().split(","));
             } else {
                 appendValuesToGivenNode(document, mutators, GREGOR_MUTATORS);

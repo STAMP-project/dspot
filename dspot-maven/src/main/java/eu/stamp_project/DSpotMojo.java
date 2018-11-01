@@ -1,5 +1,6 @@
 package eu.stamp_project;
 
+import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.options.AmplifierEnum;
 import eu.stamp_project.options.BudgetizerEnum;
@@ -114,7 +115,7 @@ public class DSpotMojo extends AbstractMojo {
     /**
      *	Enable the descartes engine for Pit Mutant Score Selector.
      */
-    @Parameter(defaultValue = "false", property = "descartes")
+    @Parameter(defaultValue = "true", property = "descartes")
     private Boolean descartes;
 
     /**

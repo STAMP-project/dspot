@@ -698,7 +698,7 @@ public class InputConfiguration {
         if (this.descartesMode) {
             this.setPitVersion("1.4.0"); // forcing pit version 1.4.0 to work with descartes
         } else if (this.getPitVersion() == null) {
-            this.setPitVersion("1.3.0");
+            this.setPitVersion("1.4.0");
         }
         return this;
     }

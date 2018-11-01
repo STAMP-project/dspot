@@ -16,6 +16,7 @@ import spoon.reflect.declaration.CtType;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -40,7 +41,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     private String classpath = null;
 
     public MavenAutomaticBuilder() {
-        DSpotPOMCreator.createNewPom();
+        delete(false);
     }
 
     @Override
@@ -100,9 +101,21 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         return this.classpath;
     }
 
+    private void delete(boolean displayError) {
+        try {
+            FileUtils.forceDelete(new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.DSPOT_POM_FILE));
+        } catch (IOException e) {
+            if (displayError) {
+                LOGGER.warn("Something bad happened when trying to delete {}.", InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.DSPOT_POM_FILE);
+                e.printStackTrace();
+                LOGGER.warn("Ignoring, moving forward...");
+            }
+        }
+    }
+
     @Override
     public void reset() {
-        // empty
+        delete(true);
     }
 
     @Override
@@ -135,6 +148,9 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     }
 
     private int runGoals(String... goals) {
+        if (!new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.DSPOT_POM_FILE).exists()) {
+            DSpotPOMCreator.createNewPom();
+        }
         InvocationRequest request = new DefaultInvocationRequest();
         request.setGoals(Arrays.asList(goals));
         final String pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.DSPOT_POM_FILE;
