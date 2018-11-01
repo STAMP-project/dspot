@@ -1,7 +1,6 @@
 package eu.stamp_project.automaticbuilder.maven;
 
 import eu.stamp_project.program.InputConfiguration;
-import jdk.internal.util.xml.impl.Input;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
