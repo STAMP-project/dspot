@@ -15,9 +15,11 @@ dspot/src/test/resources/mockito/log/
 dspot/src/test/resources/multiple-pom/module-1/module-2-1/log/
 dspot/src/test/resources/sample/log/
 dspot/src/test/resources/test-projects/log/
-
-
-
+dspot/src/test/resources/mockito/.dspot_pom.xml
+dspot/src/test/resources/multiple-pom/module-1/module-2-1/.dspot_pom.xml
+dspot/src/test/resources/project-with-resources/.dspot_pom.xml
+dspot/src/test/resources/sample/.dspot_pom.xml
+dspot/src/test/resources/test-projects/.dspot_pom.xml
 
 target/
 pom.xml.tag
