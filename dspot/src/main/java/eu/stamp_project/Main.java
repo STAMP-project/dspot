@@ -40,6 +40,9 @@ public class Main {
 		} else {
 			run(configuration);
 		}
+
+		// global report handling
+		InputConfiguration.get().getReport().output();
 	}
 
 	public static void run(InputConfiguration configuration) throws Exception {

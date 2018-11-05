@@ -1,5 +1,11 @@
 package eu.stamp_project.dspot.report;
 
+import eu.stamp_project.utils.AmplificationHelper;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.function.Function;
+
 /**
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -15,4 +21,15 @@ public class Error {
         this.type = type;
         this.error = error;
     }
+
+    public String toString() {
+        return this.type.toString() + AmplificationHelper.LINE_SEPARATOR + this.getStackTrace.apply(this.error);
+    }
+
+    private Function<Throwable, String> getStackTrace = throwable -> {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        throwable.printStackTrace(pw);
+        return sw.toString(); // stack trace as a string
+    };
 }

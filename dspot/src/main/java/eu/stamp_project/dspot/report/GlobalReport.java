@@ -13,4 +13,5 @@ public interface GlobalReport {
 
     public List<Error> getErrors();
 
+    void output();
 }
