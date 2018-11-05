@@ -4,6 +4,9 @@ import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.assertgenerator.AssertGenerator;
+import eu.stamp_project.dspot.budget.NoBudgetizer;
+import eu.stamp_project.dspot.report.ErrorEnum;
+import eu.stamp_project.dspot.report.GlobalReportImpl;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TakeAllSelector;
 import eu.stamp_project.program.InputConfiguration;
@@ -17,6 +20,8 @@ import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
+
+import static org.junit.Assert.*;
 
 /**
  * created by Benjamin DANGLOT
@@ -94,23 +99,48 @@ public class RecoveryDSpotTest extends AbstractTest {
         final SelectorThatThrowsError selector = new SelectorThatThrowsError();
         InputConfiguration.get().setSelector(selector);
         selector.setThrowsToAmplify(true);
-        Amplification amplification = new Amplification(Utils.getCompiler());
+        Amplification amplification = new Amplification(
+                Utils.getCompiler(),
+                InputConfiguration.get().getAmplifiers(),
+                selector,
+                new NoBudgetizer()
+        );
         amplification.amplification(Utils.findClass("fr.inria.amp.OneLiteralTest"), 1);
+        assertEquals(1, InputConfiguration.get().getReport().getErrors().size());
+        assertSame(ErrorEnum.ERROR_PRE_SELECTION, InputConfiguration.get().getReport().getErrors().get(0).type);
+        InputConfiguration.get().setReport(new GlobalReportImpl());
 
         selector.setThrowsToAmplify(false);
         selector.setThrowsToKeep(true);
         amplification.amplification(Utils.findClass("fr.inria.amp.OneLiteralTest"), 1);
+        assertEquals(1, InputConfiguration.get().getReport().getErrors().size());
+        assertSame(ErrorEnum.ERROR_SELECTION, InputConfiguration.get().getReport().getErrors().get(0).type);
+        InputConfiguration.get().setReport(new GlobalReportImpl());
 
-        InputConfiguration.get().setSelector(new TakeAllSelector());
-        InputConfiguration.get().setAmplifiers(Collections.singletonList(new AmplifierThatThrowsError()));
+        final List<Amplifier> amplifiers = Collections.singletonList(new AmplifierThatThrowsError());
+        amplification = new Amplification(
+                Utils.getCompiler(),
+                amplifiers,
+                new TakeAllSelector(),
+                new NoBudgetizer(amplifiers)
+        );
         amplification.amplification(Utils.findClass("fr.inria.amp.OneLiteralTest"), 1);
+        assertEquals(1, InputConfiguration.get().getReport().getErrors().size());
+        assertSame(ErrorEnum.ERROR_INPUT_AMPLIFICATION, InputConfiguration.get().getReport().getErrors().get(0).type);
+        InputConfiguration.get().setReport(new GlobalReportImpl());
 
-        InputConfiguration.get().setAmplifiers(Collections.emptyList());
-        amplification.amplification(Utils.findClass("fr.inria.amp.OneLiteralTest"), 1);
-
+        amplification = new Amplification(
+                Utils.getCompiler(),
+                Collections.emptyList(),
+                new TakeAllSelector(),
+                new NoBudgetizer()
+        );
         final Field assertGenerator = amplification.getClass().getDeclaredField("assertGenerator");
         assertGenerator.setAccessible(true);
         assertGenerator.set(amplification, new AssertGeneratorThatThrowsError(Utils.getCompiler()));
         amplification.amplification(Utils.findClass("fr.inria.amp.OneLiteralTest"), 1);
+        assertEquals(1, InputConfiguration.get().getReport().getErrors().size());
+        assertSame(ErrorEnum.ERROR_ASSERT_AMPLIFICATION, InputConfiguration.get().getReport().getErrors().get(0).type);
+        InputConfiguration.get().setReport(new GlobalReportImpl());
     }
 }
