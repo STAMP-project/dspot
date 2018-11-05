@@ -37,7 +37,7 @@ public class DSpotUtilsTest extends AbstractTest {
          */
 
         final String[] allTestClasses = DSpotUtils.getAllTestClasses();
-        assertEquals(35, allTestClasses.length); // we got all
+        assertEquals(33, allTestClasses.length); // we got all
         assertTrue(Arrays.stream(allTestClasses).noneMatch(s -> s.startsWith("fr.inria.filter.failing."))); // but not excluded
     }
 
