@@ -90,7 +90,7 @@ public class DSpot {
                  BudgetizerEnum budgetizer) throws Exception {
         String dependencies = InputConfiguration.get().getDependencies();
         this.compiler = DSpotCompiler.createDSpotCompiler(InputConfiguration.get(), dependencies);
-        InputConfiguration.get().setFactory(compiler.getLauncher().getFactory());
+        InputConfiguration.get().setFactory(this.compiler.getLauncher().getFactory());
         this.amplifiers = new ArrayList<>(amplifiers);
         this.numberOfIterations = numberOfIterations;
         this.testSelector = testSelector;

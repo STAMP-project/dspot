@@ -47,7 +47,8 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     @Override
     public String compileAndBuildClasspath() {
         if (this.classpath == null) {
-            this.runGoals("clean",
+            this.runGoals(false,
+                    "clean",
                     "test",
                     "-DskipTests",
                     "dependency:build-classpath",
@@ -65,7 +66,8 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     @Override
     public void compile() {
-        this.runGoals("clean",
+        this.runGoals(false,
+                "clean",
                 "test",
                 "-DskipTests"
                 // TODO DEPRECATED
@@ -86,7 +88,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
             try {
                 final File classpathFile = new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/target/dspot/classpath");
                 if (!classpathFile.exists()) {
-                    this.runGoals(
+                    this.runGoals(false,
                             "dependency:build-classpath",
                             "-Dmdep.outputFile=" + "target/dspot/classpath"
                     );
@@ -134,7 +136,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
                                 .collect(Collectors.joining(",")) :
                         "" //
             };
-            if (this.runGoals(goals) != 0) {
+            if (this.runGoals(true, goals) != 0) {
                 throw new RuntimeException("Maven build failed! Enable verbose mode for more information (--verbose)");
             }
         } catch (Exception e) {
@@ -147,13 +149,13 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         this.runPit(new CtType<?>[0]);
     }
 
-    private int runGoals(String... goals) {
-        if (!new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.DSPOT_POM_FILE).exists()) {
+    private int runGoals(boolean specificPom, String... goals) {
+        if (specificPom && !new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.DSPOT_POM_FILE).exists()) {
             DSpotPOMCreator.createNewPom();
         }
         InvocationRequest request = new DefaultInvocationRequest();
         request.setGoals(Arrays.asList(goals));
-        final String pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.DSPOT_POM_FILE;
+        final String pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot() + (specificPom ? DSpotPOMCreator.DSPOT_POM_FILE :  DSpotPOMCreator.POM_FILE);
         LOGGER.info("Using {} to run maven.", pomPathname);
         request.setPomFile(new File(pomPathname));
         request.setJavaHome(new File(System.getProperty("java.home")));
