@@ -16,20 +16,21 @@ public class GlobalReportImpl implements GlobalReport {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Amplification.class);
 
-    private List<Throwable> errors;
+    private List<Error> errors;
 
     public GlobalReportImpl() {
         this.errors = new ArrayList<>();
     }
 
-    public List<Throwable> getErrors() {
+    @Override
+    public List<Error> getErrors() {
         return errors;
     }
 
     @Override
-    public void addError(ErrorEnum error, Throwable e) {
+    public void addError(ErrorEnum error, Throwable throwable) {
         LOGGER.warn(error.getMessage());
-        this.errors.add(e);
+        this.errors.add(new Error(error, throwable));
     }
 }
 

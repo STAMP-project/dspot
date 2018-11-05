@@ -1,5 +1,7 @@
 package eu.stamp_project.dspot.report;
 
+import java.util.List;
+
 /**
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -8,5 +10,7 @@ package eu.stamp_project.dspot.report;
 public interface GlobalReport {
 
     public void addError(ErrorEnum error, Throwable e);
+
+    public List<Error> getErrors();
 
 }
