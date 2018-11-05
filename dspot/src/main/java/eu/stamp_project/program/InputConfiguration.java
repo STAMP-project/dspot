@@ -4,9 +4,11 @@ import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.budget.Budgetizer;
-import eu.stamp_project.dspot.budget.NoBudgetizer;
+import eu.stamp_project.dspot.report.GlobalReport;
+import eu.stamp_project.dspot.report.GlobalReportImpl;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
+import eu.stamp_project.options.BudgetizerEnum;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
@@ -200,8 +202,7 @@ public class InputConfiguration {
                     });
         }
 
-        this.setBudgetizer(new NoBudgetizer())
-                .setOutputDirectory(ConstantsProperties.OUTPUT_DIRECTORY.get(properties))
+        this.setOutputDirectory(ConstantsProperties.OUTPUT_DIRECTORY.get(properties))
                 .setDelta(ConstantsProperties.DELTA_ASSERTS_FLOAT.get(properties))
                 .setFilter(ConstantsProperties.FILTER.get(properties))
                 .setDescartesVersion(ConstantsProperties.DESCARTES_VERSION.get(properties))
@@ -870,13 +871,13 @@ public class InputConfiguration {
         return this;
     }
 
-    private Budgetizer budgetizer;
+    private BudgetizerEnum budgetizer;
 
-    public Budgetizer getBudgetizer() {
+    public BudgetizerEnum getBudgetizer() {
         return budgetizer;
     }
 
-    public InputConfiguration setBudgetizer(Budgetizer budgetizer) {
+    public InputConfiguration setBudgetizer(BudgetizerEnum budgetizer) {
         this.budgetizer = budgetizer;
         return this;
     }
@@ -923,5 +924,15 @@ public class InputConfiguration {
     public InputConfiguration setKeepOriginalTestMethods(boolean keepOriginalTestMethods) {
         this.keepOriginalTestMethods = keepOriginalTestMethods;
         return this;
+    }
+
+    private GlobalReport report = new GlobalReportImpl();
+
+    public GlobalReport getReport() {
+        return report;
+    }
+
+    public void setReport(GlobalReport report) {
+        this.report = report;
     }
 }

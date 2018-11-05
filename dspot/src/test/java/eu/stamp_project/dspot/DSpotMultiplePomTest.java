@@ -42,8 +42,8 @@ public class DSpotMultiplePomTest {
         Utils.getInputConfiguration().setVerbose(true);
         EntryPoint.verbose = true;
 
-        final InputConfiguration configuration = InputConfiguration.initialize("src/test/resources/multiple-pom/deep-pom-modules.properties");
-        final DSpot dspot = new DSpot(configuration, new JacocoCoverageSelector());
+        InputConfiguration.initialize("src/test/resources/multiple-pom/deep-pom-modules.properties");
+        final DSpot dspot = new DSpot(new JacocoCoverageSelector());
         final List<CtType> ctTypes = dspot.amplifyAllTests();
         assertFalse(ctTypes.isEmpty());
 

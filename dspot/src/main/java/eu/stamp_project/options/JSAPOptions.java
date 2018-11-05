@@ -7,10 +7,12 @@ import com.martiansoftware.jsap.JSAPException;
 import com.martiansoftware.jsap.JSAPResult;
 import com.martiansoftware.jsap.Parameter;
 import com.martiansoftware.jsap.Switch;
+import eu.stamp_project.dspot.budget.NoBudgetizer;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
+import jdk.internal.util.xml.impl.Input;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +72,7 @@ public class JSAPOptions {
                 .setSeed(jsapConfig.getLong("seed"))
                 .setTimeOutInMs(jsapConfig.getInt("timeOut"))
                 .setMaxTestAmplified(jsapConfig.getInt("maxTestAmplified"))
-                .setBudgetizer(BudgetizerEnum.valueOf(jsapConfig.getString("budgetizer")).getBugtizer())
+                .setBudgetizer(BudgetizerEnum.valueOf(jsapConfig.getString("budgetizer")))
                 .setClean(jsapConfig.getBoolean("clean"))
                 .setMinimize(!jsapConfig.getBoolean("no-minimize"))
                 .setVerbose(jsapConfig.getBoolean("verbose"))

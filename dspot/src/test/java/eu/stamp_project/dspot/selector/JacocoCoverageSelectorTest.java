@@ -37,9 +37,8 @@ public class JacocoCoverageSelectorTest {
 			//ignored
 		}
 		RandomHelper.setSeedRandom(23L);
-		InputConfiguration configuration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
-		DSpot dspot = new DSpot(configuration,
-				2,
+		InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
+		DSpot dspot = new DSpot(2,
 				Arrays.asList(new TestDataMutator(), new MethodGeneratorAmplifier(), new ReturnValueAmplifier()),
 				new JacocoCoverageSelector());
 		dspot.amplifyTestClassTestMethod("example.TestSuiteExample", "test2");

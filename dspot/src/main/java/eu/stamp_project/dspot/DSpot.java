@@ -3,8 +3,12 @@ package eu.stamp_project.dspot;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.dspot.amplifier.Amplifier;
+import eu.stamp_project.dspot.budget.Budgetizer;
 import eu.stamp_project.dspot.selector.CloverCoverageSelector;
+import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
+import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
+import eu.stamp_project.options.BudgetizerEnum;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -48,52 +52,55 @@ public class DSpot {
 
     private TestSelector testSelector;
 
-    private InputConfiguration inputConfiguration;
+    private Budgetizer budgetizer;
 
     private DSpotCompiler compiler;
 
     private ProjectTimeJSON projectTimeJSON;
 
-    public DSpot(InputConfiguration inputConfiguration) throws Exception {
-        this(inputConfiguration, 3, Collections.emptyList(), new CloverCoverageSelector());
+    public DSpot() throws Exception {
+        this(3, Collections.emptyList(), new PitMutantScoreSelector(), BudgetizerEnum.NoBudgetizer);
     }
 
-    public DSpot(InputConfiguration configuration, int numberOfIterations) throws Exception {
-        this(configuration, numberOfIterations, Collections.emptyList());
+    public DSpot(int numberOfIterations) throws Exception {
+        this(numberOfIterations, Collections.emptyList(), new PitMutantScoreSelector(), BudgetizerEnum.NoBudgetizer);
     }
 
-    public DSpot(InputConfiguration configuration, TestSelector testSelector) throws Exception {
-        this(configuration, 3, Collections.emptyList(), testSelector);
+    public DSpot(TestSelector testSelector) throws Exception {
+        this(3, Collections.emptyList(), testSelector, BudgetizerEnum.NoBudgetizer);
     }
 
-    public DSpot(InputConfiguration configuration, int iteration, TestSelector testSelector) throws Exception {
-        this(configuration, iteration, Collections.emptyList(), testSelector);
+    public DSpot(int iteration, TestSelector testSelector) throws Exception {
+        this(iteration, Collections.emptyList(), testSelector, BudgetizerEnum.NoBudgetizer);
     }
 
-    public DSpot(InputConfiguration configuration, List<Amplifier> amplifiers) throws Exception {
-        this(configuration, 3, amplifiers);
+    public DSpot(List<Amplifier> amplifiers) throws Exception {
+        this(3, amplifiers, new PitMutantScoreSelector(), BudgetizerEnum.NoBudgetizer);
     }
 
-    public DSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers) throws Exception {
-        this(inputConfiguration, numberOfIterations, amplifiers, new CloverCoverageSelector());
+    public DSpot(int numberOfIterations, List<Amplifier> amplifiers) throws Exception {
+        this(numberOfIterations, amplifiers, new PitMutantScoreSelector(), BudgetizerEnum.NoBudgetizer);
     }
 
-    public DSpot(InputConfiguration inputConfiguration,
-                 int numberOfIterations,
+    public DSpot(int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws Exception {
+        this(numberOfIterations, amplifiers, testSelector, BudgetizerEnum.NoBudgetizer);
+    }
+
+    public DSpot(int numberOfIterations,
                  List<Amplifier> amplifiers,
-                 TestSelector testSelector) throws Exception {
-        this.inputConfiguration = inputConfiguration;
-        String dependencies = this.inputConfiguration.getDependencies();
-        this.compiler = DSpotCompiler.createDSpotCompiler(this.inputConfiguration, dependencies);
-        this.inputConfiguration.setFactory(compiler.getLauncher().getFactory());
+                 TestSelector testSelector,
+                 BudgetizerEnum budgetizer) throws Exception {
+        String dependencies = InputConfiguration.get().getDependencies();
+        this.compiler = DSpotCompiler.createDSpotCompiler(InputConfiguration.get(), dependencies);
+        InputConfiguration.get().setFactory(compiler.getLauncher().getFactory());
         this.amplifiers = new ArrayList<>(amplifiers);
         this.numberOfIterations = numberOfIterations;
         this.testSelector = testSelector;
-        this.testSelector.init(this.inputConfiguration);
+        this.testSelector.init(InputConfiguration.get());
 
         String splitter = File.separator.equals("/") ? "/" : "\\\\";
-        final String[] splittedPath = this.inputConfiguration.getAbsolutePathToProjectRoot().split(splitter);
-        final File projectJsonFile = new File(this.inputConfiguration.getOutputDirectory() +
+        final String[] splittedPath = InputConfiguration.get().getAbsolutePathToProjectRoot().split(splitter);
+        final File projectJsonFile = new File(InputConfiguration.get().getOutputDirectory() +
                 File.separator + splittedPath[splittedPath.length - 1] + ".json");
         if (projectJsonFile.exists()) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -101,6 +108,7 @@ public class DSpot {
         } else {
             this.projectTimeJSON = new ProjectTimeJSON(splittedPath[splittedPath.length - 1]);
         }
+        this.budgetizer = budgetizer.getBugtizer(this.amplifiers);
     }
 
     private Stream<CtType<?>> findTestClasses(String targetTestClasses) {
@@ -136,10 +144,11 @@ public class DSpot {
      * Amplify all the test methods of all the test classes that DSpot can find.
      * A class is considered as a test class if it contains at least one test method.
      * A method is considred as test method if it matches {@link AmplificationChecker#isTest(CtMethod)}
+     *
      * @return a list of amplified test classes with amplified test methods.
      */
     public List<CtType> amplifyAllTests() {
-        return this._amplifyTestClasses(this.inputConfiguration.getFactory().Class().getAll().stream()
+        return this._amplifyTestClasses(InputConfiguration.get().getFactory().Class().getAll().stream()
                 .filter(ctClass -> !ctClass.getModifiers().contains(ModifierKind.ABSTRACT))
                 .filter(ctClass ->
                         ctClass.getMethods()
@@ -150,6 +159,7 @@ public class DSpot {
 
     /**
      * Amplify the given test methods of the given test classes.
+     *
      * @param testClassToBeAmplified the test class to be amplified. It can be a java regex.
      * @return a list of amplified test classes with amplified test methods.
      */
@@ -159,8 +169,9 @@ public class DSpot {
 
     /**
      * Amplify the given test methods of the given test classes.
+     *
      * @param testClassToBeAmplified the test class to be amplified. It can be a java regex.
-     * @param testMethod the test method to be amplified. It can be a java regex.
+     * @param testMethod             the test method to be amplified. It can be a java regex.
      * @return a list of amplified test classes with amplified test methods.
      */
     public List<CtType> amplifyTestClassTestMethod(String testClassToBeAmplified, String testMethod) {
@@ -169,8 +180,9 @@ public class DSpot {
 
     /**
      * Amplify the given test methods of the given test classes.
+     *
      * @param testClassToBeAmplified the test class to be amplified. It can be a java regex.
-     * @param testMethods the list of test methods to be amplified. This list can be a list of java regex.
+     * @param testMethods            the list of test methods to be amplified. This list can be a list of java regex.
      * @return a list of amplified test classes with amplified test methods.
      */
     public List<CtType> amplifyTestClassTestMethods(String testClassToBeAmplified, List<String> testMethods) {
@@ -179,6 +191,7 @@ public class DSpot {
 
     /**
      * Amplify the given test methods of the given test classes.
+     *
      * @param testClassesToBeAmplified the list of test classes to be amplified. This list can be a list of java regex.
      * @return a list of amplified test classes with amplified test methods.
      */
@@ -188,6 +201,7 @@ public class DSpot {
 
     /**
      * Amplify the given test methods of the given test classes.
+     *
      * @param testClassesToBeAmplified the list of test classes to be amplified. This list can be a list of java regex.
      * @return a list of amplified test classes with amplified test methods.
      */
@@ -197,8 +211,9 @@ public class DSpot {
 
     /**
      * Amplify the given test methods of the given test classes.
+     *
      * @param testClassesToBeAmplified the list of test classes to be amplified. This list can be a list of java regex.
-     * @param testMethods the list of test methods to be amplified. This list can be a list of java regex.
+     * @param testMethods              the list of test methods to be amplified. This list can be a list of java regex.
      * @return a list of amplified test classes with amplified test methods.
      */
     public List<CtType> amplifyTestClassesTestMethods(List<String> testClassesToBeAmplified, List<String> testMethods) {
@@ -223,9 +238,9 @@ public class DSpot {
 
     protected CtType _amplify(CtType test, List<CtMethod<?>> methods) {
         try {
-            test = JUnit3Support.convertToJUnit4(test, this.inputConfiguration);
+            test = JUnit3Support.convertToJUnit4(test, InputConfiguration.get());
             Counter.reset();
-            Amplification testAmplification = new Amplification(this.compiler);
+            Amplification testAmplification = new Amplification(this.compiler, this.amplifiers, this.testSelector, this.budgetizer);
             final List<CtMethod<?>> filteredTestCases = this.filterTestCases(methods);
             long time = System.currentTimeMillis();
             testAmplification.amplification(test, filteredTestCases, numberOfIterations);
@@ -235,10 +250,10 @@ public class DSpot {
             final CtType clone = test.clone();
             test.getPackage().addType(clone);
             final CtType<?> amplification = AmplificationHelper.createAmplifiedTest(testSelector.getAmplifiedTestCases(), clone);
-            final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
+            final File outputDirectory = new File(InputConfiguration.get().getOutputDirectory());
             if (!testSelector.getAmplifiedTestCases().isEmpty()) {
                 LOGGER.info("Print {} with {} amplified test cases in {}", amplification.getSimpleName(),
-                        testSelector.getAmplifiedTestCases().size(), this.inputConfiguration.getOutputDirectory());
+                        testSelector.getAmplifiedTestCases().size(), InputConfiguration.get().getOutputDirectory());
                 DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory);
             } else {
                 LOGGER.warn("DSpot could not obtain any amplified test method.");
@@ -262,11 +277,11 @@ public class DSpot {
     }
 
     protected List<CtMethod<?>> filterTestCases(List<CtMethod<?>> testMethods) {
-        if (this.inputConfiguration.getExcludedTestCases().isEmpty()) {
+        if (InputConfiguration.get().getExcludedTestCases().isEmpty()) {
             return testMethods;
         } else {
             final List<String> excludedTestCases = Arrays.stream(
-                    this.inputConfiguration.getExcludedTestCases().split(",")
+                    InputConfiguration.get().getExcludedTestCases().split(",")
             ).collect(Collectors.toList());
             return testMethods.stream()
                     .filter(ctMethod ->
@@ -278,7 +293,7 @@ public class DSpot {
 
     private void writeTimeJson() {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        final File file = new File(this.inputConfiguration.getOutputDirectory() +
+        final File file = new File(InputConfiguration.get().getOutputDirectory() +
                 "/" + this.projectTimeJSON.projectName + ".json");
         try (FileWriter writer = new FileWriter(file, false)) {
             writer.write(gson.toJson(this.projectTimeJSON));
