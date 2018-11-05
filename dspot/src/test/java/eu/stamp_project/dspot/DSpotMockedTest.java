@@ -4,6 +4,7 @@ import eu.stamp_project.AbstractTest;
 import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
 import eu.stamp_project.dspot.amplifier.ReturnValueAmplifier;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
+import eu.stamp_project.dspot.selector.CloverCoverageSelector;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationChecker;
@@ -43,9 +44,7 @@ public class DSpotMockedTest extends AbstractTest {
         RandomHelper.setSeedRandom(23L);
         final InputConfiguration configuration = InputConfiguration.get();
         configuration.setAmplifiers(Arrays.asList(new MethodGeneratorAmplifier(), new ReturnValueAmplifier()));
-        DSpot dspot = new DSpot(configuration, 1,
-                configuration.getAmplifiers()
-        );
+        DSpot dspot = new DSpot( 1, configuration.getAmplifiers(), new CloverCoverageSelector());
         try {
             FileUtils.cleanDirectory(new File(configuration.getOutputDirectory()));
         } catch (Exception ignored) {

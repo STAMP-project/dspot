@@ -39,9 +39,8 @@ public class ProjectJSONTest {
 		if (file.exists()) {
 			file.delete();
 		}
-
-		DSpot dspot = new DSpot(InputConfiguration.initialize("src/test/resources/sample/sample.properties"),
-				1,
+		InputConfiguration.initialize("src/test/resources/sample/sample.properties");
+		DSpot dspot = new DSpot(1,
 				Collections.singletonList(new TestDataMutator()),
 				new JacocoCoverageSelector()
 		);

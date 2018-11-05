@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.budget;
 
+import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
@@ -21,9 +22,17 @@ import java.util.stream.Stream;
  * benjamin.danglot@inria.fr
  * on 19/07/18
  */
-public class NoBudgetizer implements Budgetizer {
+public class NoBudgetizer extends AbstractBugetizer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NoBudgetizer.class);
+
+    public NoBudgetizer() {
+        super();
+    }
+
+    public NoBudgetizer(List<Amplifier> amplifiers) {
+        super(amplifiers);
+    }
 
     /**
      * Input amplification for a single test.
@@ -32,9 +41,7 @@ public class NoBudgetizer implements Budgetizer {
      * @return New generated tests
      */
     protected Stream<CtMethod<?>> inputAmplifyTest(CtMethod<?> test, int i) {
-        return InputConfiguration.get()
-                .getAmplifiers()
-                .parallelStream()
+        return this.amplifiers.parallelStream()
                 .flatMap(amplifier -> amplifier.amplify(test, i));
     }
 

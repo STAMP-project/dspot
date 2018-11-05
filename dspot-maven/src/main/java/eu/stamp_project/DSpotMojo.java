@@ -233,7 +233,7 @@ public class DSpotMojo extends AbstractMojo {
                     .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(this.amplifiers.toArray(new String[this.amplifiers.size()])))
                     .setNbIteration(this.iteration)
                     .setTestClasses(this.test)
-                    .setBudgetizer(BudgetizerEnum.valueOf(this.budgetizer).getBugtizer())
+                    .setBudgetizer(BudgetizerEnum.valueOf(this.budgetizer))
                     .setTestCases(this.cases)
                     .setSeed(this.randomSeed)
                     .setTimeOutInMs(this.timeOut)

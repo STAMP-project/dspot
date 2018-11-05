@@ -13,9 +13,11 @@ import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import static eu.stamp_project.dspot.report.ErrorEnum.*;
 
 
 /**
@@ -27,32 +29,25 @@ public class Amplification {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Amplification.class);
 
-    private InputConfiguration configuration;
+    private AssertGenerator assertGenerator;
+
+    private DSpotCompiler compiler;
 
     private List<Amplifier> amplifiers;
 
     private TestSelector testSelector;
 
-    private AssertGenerator assertGenerator;
-
-    private DSpotCompiler compiler;
-
     private int globalNumberOfSelectedAmplification;
 
-    /**
-     * @return the number of selected amplified test method. This number is counted over the whole run, <i>i.e.</i> potentially for multiple test classes.
-     */
-    public int getGlobalNumberOfSelectedAmplification() {
-        return globalNumberOfSelectedAmplification;
-    }
+    private Budgetizer budgetizer;
 
-    public Amplification(InputConfiguration configuration, List<Amplifier> amplifiers, TestSelector testSelector, DSpotCompiler compiler) {
-        this.configuration = configuration;
+    public Amplification(DSpotCompiler compiler, List<Amplifier> amplifiers, TestSelector testSelector, Budgetizer budgetizer) {
+        this.compiler = compiler;
+        this.assertGenerator = new AssertGenerator(InputConfiguration.get(), this.compiler);
+        this.globalNumberOfSelectedAmplification = 0;
         this.amplifiers = amplifiers;
         this.testSelector = testSelector;
-        this.compiler = compiler;
-        this.assertGenerator = new AssertGenerator(this.configuration, this.compiler);
-        this.globalNumberOfSelectedAmplification = 0;
+        this.budgetizer = budgetizer;
     }
 
     /**
@@ -63,7 +58,7 @@ public class Amplification {
      * @param classTest    Test class
      * @param maxIteration Number of amplification iterations
      */
-    public void amplification(CtType<?> classTest, int maxIteration) throws IOException, InterruptedException, ClassNotFoundException {
+    public void amplification(CtType<?> classTest, int maxIteration) {
         amplification(classTest, AmplificationHelper.getAllTest(classTest), maxIteration);
     }
 
@@ -79,10 +74,22 @@ public class Amplification {
     public void amplification(CtType<?> classTest, List<CtMethod<?>> tests, int maxIteration) {
         LOGGER.info("Amplification of {} ({} test(s))", classTest.getQualifiedName(), tests.size());
         LOGGER.info("Assertion amplification of {} ({} test(s))", classTest.getQualifiedName(), tests.size());
-        final List<CtMethod<?>> passingTests = TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(classTest, tests, this.compiler, this.configuration);
-        final List<CtMethod<?>> selectedToBeAmplified = this.testSelector.selectToAmplify(classTest, passingTests);
+        final List<CtMethod<?>> passingTests = TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(classTest, tests, this.compiler, InputConfiguration.get());
+        final List<CtMethod<?>> selectedToBeAmplified;
+        try {
+            selectedToBeAmplified = this.testSelector.selectToAmplify(classTest, passingTests);
+        } catch (Exception | Error e) {
+            InputConfiguration.get().getReport().addError(ERROR_PRE_SELECTION, e);
+            return;
+        }
         final List<CtMethod<?>> assertionAmplifiedTestMethods = this.assertionsAmplification(classTest, selectedToBeAmplified);
-        final List<CtMethod<?>> amplifiedTestMethodsToKeep = this.testSelector.selectToKeep(assertionAmplifiedTestMethods);
+        final List<CtMethod<?>> amplifiedTestMethodsToKeep;
+        try {
+            amplifiedTestMethodsToKeep = this.testSelector.selectToKeep(assertionAmplifiedTestMethods);
+        } catch (Exception | Error e) {
+            InputConfiguration.get().getReport().addError(ERROR_SELECTION, e);
+            return;
+        }
         this.globalNumberOfSelectedAmplification += amplifiedTestMethodsToKeep.size();
         LOGGER.info("{} amplified test methods has been selected to be kept. (global: {})", amplifiedTestMethodsToKeep.size(), this.globalNumberOfSelectedAmplification);
         // in case there is no amplifier, we can leave
@@ -112,7 +119,7 @@ public class Amplification {
      * @param maxIteration Number of amplification iterations
      * @return Valid amplified tests
      */
-    private List<CtMethod<?>> amplification(CtType<?> classTest, CtMethod test, int maxIteration) {
+    protected List<CtMethod<?>> amplification(CtType<?> classTest, CtMethod test, int maxIteration) {
         // tmp list for current test methods to be amplified
         // this list must be a implementation that support remove / clear methods
         List<CtMethod<?>> currentTestList = new ArrayList<>();
@@ -121,7 +128,13 @@ public class Amplification {
         final List<CtMethod<?>> amplifiedTests = new ArrayList<>();
         for (int i = 0; i < maxIteration; i++) {
             LOGGER.info("iteration {} / {}", i, maxIteration);
-            final List<CtMethod<?>> selectedToBeAmplified = testSelector.selectToAmplify(classTest, currentTestList);
+            final List<CtMethod<?>> selectedToBeAmplified;
+            try {
+                selectedToBeAmplified = this.testSelector.selectToAmplify(classTest, currentTestList);
+            } catch (Exception | Error e) {
+                InputConfiguration.get().getReport().addError(ERROR_PRE_SELECTION, e);
+                return Collections.emptyList();
+            }
             if (selectedToBeAmplified.isEmpty()) {
                 LOGGER.warn("No test could be selected to be amplified.");
                 continue; // todo should we break the loop?
@@ -130,15 +143,26 @@ public class Amplification {
                     selectedToBeAmplified.size(),
                     currentTestList.size()
             );
-            final Budgetizer budgetizer = InputConfiguration.get().getBudgetizer();
-            final List<CtMethod<?>> inputAmplifiedTests = budgetizer.inputAmplify(selectedToBeAmplified, i);
+            final List<CtMethod<?>> inputAmplifiedTests;
+            try {
+                inputAmplifiedTests = this.budgetizer.inputAmplify(selectedToBeAmplified, i);
+            } catch (Exception | Error e) {
+                InputConfiguration.get().getReport().addError(ERROR_INPUT_AMPLIFICATION, e);
+                return Collections.emptyList();
+            }
             final List<CtMethod<?>> testsWithAssertions = this.assertionsAmplification(classTest, inputAmplifiedTests);
             // in case no test with assertions could be generated, we go for the next iteration.
             if (testsWithAssertions.isEmpty()) {
                 currentTestList = inputAmplifiedTests;
                 continue;
             }
-            final List<CtMethod<?>> amplifiedTestMethodsToKeep = this.testSelector.selectToKeep(testsWithAssertions);
+            final List<CtMethod<?>> amplifiedTestMethodsToKeep;
+            try {
+                amplifiedTestMethodsToKeep = this.testSelector.selectToKeep(testsWithAssertions);
+            } catch (Exception | Error e) {
+                InputConfiguration.get().getReport().addError(ERROR_SELECTION, e);
+                return Collections.emptyList();
+            }
             amplifiedTests.addAll(amplifiedTestMethodsToKeep);
             LOGGER.info("{} amplified test methods has been selected to be kept.", amplifiedTestMethodsToKeep.size());
             currentTestList = testsWithAssertions;
@@ -146,8 +170,14 @@ public class Amplification {
         return amplifiedTests;
     }
 
-    private List<CtMethod<?>> assertionsAmplification(CtType<?> classTest, List<CtMethod<?>> testMethods) {
-        List<CtMethod<?>> testsWithAssertions = this.assertGenerator.assertionAmplification(classTest, testMethods);
+    protected List<CtMethod<?>> assertionsAmplification(CtType<?> classTest, List<CtMethod<?>> testMethods) {
+        final List<CtMethod<?>> testsWithAssertions;
+        try {
+            testsWithAssertions = this.assertGenerator.assertionAmplification(classTest, testMethods);
+        } catch (Exception | Error e) {
+            InputConfiguration.get().getReport().addError(ERROR_ASSERT_AMPLIFICATION, e);
+            return Collections.emptyList();
+        }
         if (testsWithAssertions.isEmpty()) {
             return testsWithAssertions;
         }
@@ -158,7 +188,7 @@ public class Amplification {
                         classTest,
                         testsWithAssertions,
                         this.compiler,
-                        this.configuration
+                        InputConfiguration.get()
                 );
         LOGGER.info("Assertion amplification: {} test method(s) has been successfully amplified.", amplifiedPassingTests.size());
         return amplifiedPassingTests;

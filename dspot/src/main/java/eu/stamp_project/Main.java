@@ -4,6 +4,7 @@ import eu.stamp_project.diff.SelectorOnDiff;
 import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.dspot.amplifier.TestDataMutator;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
+import eu.stamp_project.options.BudgetizerEnum;
 import eu.stamp_project.options.JSAPOptions;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.utils.RandomHelper;
@@ -39,14 +40,17 @@ public class Main {
 		} else {
 			run(configuration);
 		}
+
+		// global report handling
+		InputConfiguration.get().getReport().output();
 	}
 
 	public static void run(InputConfiguration configuration) throws Exception {
 		DSpot dspot = new DSpot(
-				configuration,
 				configuration.getNbIteration(),
 				configuration.getAmplifiers(),
-				configuration.getSelector()
+				configuration.getSelector(),
+				configuration.getBudgetizer()
 		);
 		RandomHelper.setSeedRandom(configuration.getSeed());
 		createOutputDirectories(configuration);
@@ -86,10 +90,12 @@ public class Main {
 
 	static void runExample() {
 		try {
-			InputConfiguration configuration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
-			configuration.setAmplifiers(Collections.singletonList(new TestDataMutator()));
-			DSpot dSpot = new DSpot(configuration, 1, configuration.getAmplifiers(),
-					new JacocoCoverageSelector());
+			InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
+			DSpot dSpot = new DSpot(1,
+					Collections.singletonList(new TestDataMutator()),
+					new JacocoCoverageSelector(),
+					BudgetizerEnum.NoBudgetizer
+			);
 			dSpot.amplifyTestClassesTestMethods(Collections.singletonList("example.TestSuiteExample"), Collections.emptyList());
 		} catch (Exception e) {
 			throw new RuntimeException(e);

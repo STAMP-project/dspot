@@ -58,7 +58,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
             }
             final String targetClasses = this.configuration.getClasspathClassesProject();
             try {
-                initialCoverage = EntryPoint.runCoverageOnTestClasses(
+                this.initialCoverage = EntryPoint.runCoverageOnTestClasses(
                         classpath + AmplificationHelper.PATH_SEPARATOR + targetClasses,
                         targetClasses,
                         this.currentClassTestToBeAmplified.getQualifiedName()
@@ -223,11 +223,12 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                 throw new RuntimeException(e);
             }
             jsonReport(coverageResults);
-            this.currentClassTestToBeAmplified = null;
+
         } catch (TimeoutException e) {
             throw new RuntimeException(e);
+        } finally {
+            this.currentClassTestToBeAmplified = null;
         }
-
     }
 
     private void jsonReport(Coverage coverageResults) {

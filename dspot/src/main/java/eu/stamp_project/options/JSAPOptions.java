@@ -70,7 +70,7 @@ public class JSAPOptions {
                 .setSeed(jsapConfig.getLong("seed"))
                 .setTimeOutInMs(jsapConfig.getInt("timeOut"))
                 .setMaxTestAmplified(jsapConfig.getInt("maxTestAmplified"))
-                .setBudgetizer(BudgetizerEnum.valueOf(jsapConfig.getString("budgetizer")).getBugtizer())
+                .setBudgetizer(BudgetizerEnum.valueOf(jsapConfig.getString("budgetizer")))
                 .setClean(jsapConfig.getBoolean("clean"))
                 .setMinimize(!jsapConfig.getBoolean("no-minimize"))
                 .setVerbose(jsapConfig.getBoolean("verbose"))

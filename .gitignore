@@ -20,6 +20,9 @@ dspot/src/test/resources/multiple-pom/module-1/module-2-1/.dspot_pom.xml
 dspot/src/test/resources/project-with-resources/.dspot_pom.xml
 dspot/src/test/resources/sample/.dspot_pom.xml
 dspot/src/test/resources/test-projects/.dspot_pom.xml
+dspot/src/test/resources/multiple-pom_1/module-1/module-2-1/.dspot_pom.xml
+dspot/src/test/resources/regression/test-projects_0/.dspot_pom.xml
+dspot/src/test/resources/regression/test-projects_1/.dspot_pom.xml
 
 target/
 pom.xml.tag
