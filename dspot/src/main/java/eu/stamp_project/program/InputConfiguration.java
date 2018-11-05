@@ -3,7 +3,6 @@ package eu.stamp_project.program;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.dspot.amplifier.Amplifier;
-import eu.stamp_project.dspot.budget.Budgetizer;
 import eu.stamp_project.dspot.report.GlobalReport;
 import eu.stamp_project.dspot.report.GlobalReportImpl;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;

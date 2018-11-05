@@ -4,8 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.budget.Budgetizer;
-import eu.stamp_project.dspot.selector.CloverCoverageSelector;
-import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.options.BudgetizerEnum;
