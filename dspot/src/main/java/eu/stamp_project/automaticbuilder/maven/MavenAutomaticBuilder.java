@@ -159,7 +159,9 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         LOGGER.info("Using {} to run maven.", pomPathname);
         request.setPomFile(new File(pomPathname));
         request.setJavaHome(new File(System.getProperty("java.home")));
-        request.setProfiles(Collections.singletonList(DSpotPOMCreator.PROFILE_ID));
+        if (specificPom) {
+            request.setProfiles(Collections.singletonList(DSpotPOMCreator.PROFILE_ID));
+        }
 
         Properties properties = new Properties();
         properties.setProperty("enforcer.skip", "true");

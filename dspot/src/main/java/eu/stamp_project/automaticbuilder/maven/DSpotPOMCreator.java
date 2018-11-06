@@ -83,7 +83,7 @@ public class DSpotPOMCreator {
      */
 
     private static Node findOrCreateProfiles(Document document, Node root) {
-        final Node existingProfiles = findSpecificNodeFromGivenRoot(root, PROFILES);
+        final Node existingProfiles = findSpecificNodeFromGivenRoot(root.getFirstChild(), PROFILES);
         if (existingProfiles != null) {
             return existingProfiles;
         } else {
