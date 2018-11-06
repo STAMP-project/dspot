@@ -62,4 +62,10 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>test-resources</id>
+        </profile>
+    </profiles>
+
 </project>
