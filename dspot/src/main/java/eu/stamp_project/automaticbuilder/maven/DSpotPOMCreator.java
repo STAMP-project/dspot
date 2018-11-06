@@ -46,7 +46,7 @@ public class DSpotPOMCreator {
 
     private static final String[] outputFormats = new String[]{"CSV"};
 
-    private static final String POM_FILE = "pom.xml";
+    public static final String POM_FILE = "pom.xml";
 
     private static final String PROJECT = "project";
 
