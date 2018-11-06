@@ -28,6 +28,54 @@ public class DSpotUtilsTest extends AbstractTest {
     private final static File outputDirectory = new File("target/trash/");
 
     @Test
+    public void testPrintAmplifiedTestClassInDefaultPackage() throws Exception {
+        final String pathname = outputDirectory.getAbsolutePath() + "/TestSuiteExample.java";
+        final File javaFile = new File(pathname);
+        try {
+            FileUtils.forceDelete(javaFile);
+        } catch (IOException ignored) {
+            //ignored
+        }
+
+        Launcher launcher = new Launcher();
+        launcher.addInputResource("src/test/resources/TestSuiteExample.java");
+        launcher.getEnvironment().setNoClasspath(true);
+        launcher.buildModel();
+        final CtType<?> type = launcher.getFactory().Type().get("TestSuiteExample");
+
+        assertFalse(javaFile.exists());
+        DSpotUtils.printAmplifiedTestClass(type, outputDirectory);
+        assertTrue(javaFile.exists());
+
+        final CtMethod<?> clone = type.getMethods().stream()
+                .findFirst().get().clone();
+        final int nbMethodStart = type.getMethods().size();
+        type.getMethods().forEach(type::removeMethod);
+        clone.setSimpleName("MyNewMethod");
+        type.addMethod(clone);
+
+        DSpotUtils.printAmplifiedTestClass(type, outputDirectory);
+        launcher = new Launcher();
+        launcher.addInputResource(pathname );
+        launcher.getEnvironment().setNoClasspath(true);
+        launcher.buildModel();
+
+        assertEquals(nbMethodStart + 1, launcher.getFactory().Class().get("TestSuiteExample").getMethods().size());
+
+        type.getMethods().forEach(type::removeMethod);
+        clone.setSimpleName("MyNewMethod2");
+        type.addMethod(clone);
+
+        DSpotUtils.printAmplifiedTestClass(type, outputDirectory);
+        launcher = new Launcher();
+        launcher.addInputResource(pathname );
+        launcher.getEnvironment().setNoClasspath(true);
+        launcher.buildModel();
+
+        assertEquals(nbMethodStart + 2, launcher.getFactory().Class().get("TestSuiteExample").getMethods().size());
+    }
+
+    @Test
     public void testGetAllTestClasses() {
 
         /*
@@ -43,7 +91,8 @@ public class DSpotUtilsTest extends AbstractTest {
 
     @Test
     public void testPrintAmplifiedTestClass() throws Exception {
-        final File javaFile = new File(outputDirectory.getAbsolutePath() + "/" + "example.TestSuiteExample".replaceAll("\\.", "\\/") + ".java");
+        final String pathname = outputDirectory.getAbsolutePath() + "/example/TestSuiteExample.java";
+        final File javaFile = new File(pathname);
         try {
             FileUtils.forceDelete(javaFile);
         } catch (IOException ignored) {
@@ -69,7 +118,7 @@ public class DSpotUtilsTest extends AbstractTest {
 
         DSpotUtils.printAmplifiedTestClass(type, outputDirectory);
         launcher = new Launcher();
-        launcher.addInputResource(outputDirectory.getAbsolutePath() + "/" + "example.TestSuiteExample".replaceAll("\\.", "\\/") + ".java");
+        launcher.addInputResource(pathname);
         launcher.getEnvironment().setNoClasspath(true);
         launcher.buildModel();
 
@@ -81,7 +130,7 @@ public class DSpotUtilsTest extends AbstractTest {
 
         DSpotUtils.printAmplifiedTestClass(type, outputDirectory);
         launcher = new Launcher();
-        launcher.addInputResource(outputDirectory.getAbsolutePath() + "/" + "example.TestSuiteExample".replaceAll("\\.", "\\/") + ".java");
+        launcher.addInputResource(pathname);
         launcher.getEnvironment().setNoClasspath(true);
         launcher.buildModel();
 

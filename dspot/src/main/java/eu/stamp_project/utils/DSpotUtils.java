@@ -71,7 +71,8 @@ public class DSpotUtils {
 
     public static void printAmplifiedTestClass(CtType<?> type, File directory) {
         final String pathname = directory.getAbsolutePath() + File.separator +
-                type.getQualifiedName().replaceAll("\\\\.", File.separator)
+                (type.getQualifiedName().contains(".") ?
+                type.getQualifiedName().replaceAll("\\.", File.separator) : type.getQualifiedName())
                 + ".java";
         if (new File(pathname).exists()) {
             printCtTypeToGivenDirectory(addGeneratedTestToExistingClass(type, pathname), directory);
