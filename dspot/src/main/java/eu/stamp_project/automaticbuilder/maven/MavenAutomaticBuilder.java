@@ -40,6 +40,8 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     private String classpath = null;
 
+    private boolean hasGeneratePom = false;
+
     public MavenAutomaticBuilder() {
         delete(false);
     }
@@ -70,16 +72,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
                 "clean",
                 "test",
                 "-DskipTests"
-                // TODO DEPRECATED
-                //"dependency:build-classpath",
-                //"-Dmdep.outputFile=" + "target/dspot/classpath"
         );
-        /*final File classpathFile = new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/target/dspot/classpath");
-        try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
-            this.classpath = buffer.lines().collect(Collectors.joining());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }*/
     }
 
     @Override
@@ -104,13 +97,16 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     }
 
     private void delete(boolean displayError) {
-        try {
-            FileUtils.forceDelete(new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.DSPOT_POM_FILE));
-        } catch (IOException e) {
-            if (displayError) {
-                LOGGER.warn("Something bad happened when trying to delete {}.", InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.DSPOT_POM_FILE);
-                e.printStackTrace();
-                LOGGER.warn("Ignoring, moving forward...");
+        if (this.hasGeneratePom) {
+            this.hasGeneratePom = false;
+            try {
+                FileUtils.forceDelete(new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.DSPOT_POM_FILE));
+            } catch (IOException e) {
+                if (displayError) {
+                    LOGGER.warn("Something bad happened when trying to delete {}.", InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.DSPOT_POM_FILE);
+                    e.printStackTrace();
+                    LOGGER.warn("Ignoring, moving forward...");
+                }
             }
         }
     }
@@ -152,6 +148,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     private int runGoals(boolean specificPom, String... goals) {
         if (specificPom && !new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.DSPOT_POM_FILE).exists()) {
             DSpotPOMCreator.createNewPom();
+            this.hasGeneratePom = true;
         }
         InvocationRequest request = new DefaultInvocationRequest();
         request.setGoals(Arrays.asList(goals));
