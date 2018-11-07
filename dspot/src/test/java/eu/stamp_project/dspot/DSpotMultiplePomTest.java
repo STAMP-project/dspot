@@ -2,7 +2,7 @@ package eu.stamp_project.dspot;
 
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;

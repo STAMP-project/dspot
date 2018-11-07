@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.dspot.selector.json.coverage.TestCaseJSON;
 import eu.stamp_project.dspot.selector.json.coverage.TestClassJSON;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.coverage.Coverage;
 import eu.stamp_project.testrunner.runner.coverage.CoveragePerTestMethod;

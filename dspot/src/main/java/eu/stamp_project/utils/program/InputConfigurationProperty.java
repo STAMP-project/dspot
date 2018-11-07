@@ -1,4 +1,4 @@
-package eu.stamp_project.program;
+package eu.stamp_project.utils.program;
 
 import java.util.Properties;
 

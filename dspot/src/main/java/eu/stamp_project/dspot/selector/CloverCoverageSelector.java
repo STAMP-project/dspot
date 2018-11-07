@@ -1,13 +1,13 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.clover.CloverExecutor;
+import eu.stamp_project.utils.clover.CloverExecutor;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.coverage.Coverage;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;

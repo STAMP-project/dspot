@@ -5,7 +5,7 @@ import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
 import eu.stamp_project.dspot.amplifier.ReturnValueAmplifier;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
 import eu.stamp_project.dspot.selector.CloverCoverageSelector;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -19,7 +19,6 @@ import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;

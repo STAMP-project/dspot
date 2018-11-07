@@ -1,4 +1,4 @@
-package eu.stamp_project.program;
+package eu.stamp_project.utils.program;
 
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
@@ -7,7 +7,7 @@ import eu.stamp_project.dspot.report.GlobalReport;
 import eu.stamp_project.dspot.report.GlobalReportImpl;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.options.BudgetizerEnum;
+import eu.stamp_project.utils.options.BudgetizerEnum;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;

@@ -1,6 +1,6 @@
 package eu.stamp_project.utils;
 
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

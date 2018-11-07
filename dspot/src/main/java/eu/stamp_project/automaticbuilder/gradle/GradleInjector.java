@@ -1,6 +1,6 @@
 package eu.stamp_project.automaticbuilder.gradle;
 
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import org.jetbrains.annotations.NotNull;

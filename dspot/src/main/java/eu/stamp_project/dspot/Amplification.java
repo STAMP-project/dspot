@@ -4,7 +4,7 @@ import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.assertgenerator.AssertGenerator;
 import eu.stamp_project.dspot.budget.Budgetizer;
 import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;

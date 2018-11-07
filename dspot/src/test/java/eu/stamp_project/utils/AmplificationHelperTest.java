@@ -2,7 +2,7 @@ package eu.stamp_project.utils;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.junit.After;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
@@ -13,10 +13,8 @@ import spoon.reflect.declaration.CtType;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

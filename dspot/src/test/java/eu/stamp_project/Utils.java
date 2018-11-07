@@ -1,7 +1,7 @@
 package eu.stamp_project;
 
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import org.apache.commons.io.FileUtils;

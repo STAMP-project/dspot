@@ -1,6 +1,6 @@
 package eu.stamp_project.utils;
 
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import org.jetbrains.annotations.NotNull;

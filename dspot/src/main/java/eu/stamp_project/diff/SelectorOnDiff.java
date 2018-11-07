@@ -1,6 +1,6 @@
 package eu.stamp_project.diff;
 
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import gumtree.spoon.AstComparator;

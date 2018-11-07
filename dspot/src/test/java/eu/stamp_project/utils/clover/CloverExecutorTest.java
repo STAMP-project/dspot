@@ -1,4 +1,4 @@
-package eu.stamp_project.clover;
+package eu.stamp_project.utils.clover;
 
 import eu.stamp_project.Utils;
 import eu.stamp_project.AbstractTest;

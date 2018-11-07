@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.report;
 
 import eu.stamp_project.dspot.Amplification;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

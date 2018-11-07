@@ -1,13 +1,12 @@
 package eu.stamp_project;
 
-import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
-import eu.stamp_project.options.AmplifierEnum;
-import eu.stamp_project.options.BudgetizerEnum;
-import eu.stamp_project.options.JSAPOptions;
-import eu.stamp_project.options.SelectorEnum;
-import eu.stamp_project.program.ConstantsProperties;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.options.AmplifierEnum;
+import eu.stamp_project.utils.options.BudgetizerEnum;
+import eu.stamp_project.utils.options.JSAPOptions;
+import eu.stamp_project.utils.options.SelectorEnum;
+import eu.stamp_project.utils.program.ConstantsProperties;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.maven.model.Build;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -214,7 +213,7 @@ public class DSpotMojo extends AbstractMojo {
 
     /**
      * Allows to specify the path to the second version through command line, rather than using properties file.
-     * This parameter is the same than {@link eu.stamp_project.program.ConstantsProperties#PATH_TO_SECOND_VERSION}
+     * This parameter is the same than {@link eu.stamp_project.utils.program.ConstantsProperties#PATH_TO_SECOND_VERSION}
      * If this parameter is used, DSpot will ignore the value used in the properties file.
      * It is recommended to use an absolute path
      */

@@ -1,10 +1,7 @@
 package eu.stamp_project.utils;
 
 import eu.stamp_project.AbstractTest;
-import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtMethod;

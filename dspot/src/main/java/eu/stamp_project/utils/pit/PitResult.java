@@ -1,4 +1,4 @@
-package eu.stamp_project.mutant.pit;
+package eu.stamp_project.utils.pit;
 
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;

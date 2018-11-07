@@ -1,4 +1,4 @@
-package eu.stamp_project.options;
+package eu.stamp_project.utils.options;
 
 import com.martiansoftware.jsap.Flagged;
 import com.martiansoftware.jsap.FlaggedOption;
@@ -9,7 +9,7 @@ import com.martiansoftware.jsap.Parameter;
 import com.martiansoftware.jsap.Switch;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.dspot.AmplificationException;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;

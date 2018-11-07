@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.budget;
 
 import eu.stamp_project.dspot.amplifier.Amplifier;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 
 import java.util.List;
 

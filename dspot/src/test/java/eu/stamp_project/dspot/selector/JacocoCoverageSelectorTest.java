@@ -4,7 +4,7 @@ import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
 import eu.stamp_project.dspot.amplifier.ReturnValueAmplifier;
 import eu.stamp_project.dspot.amplifier.TestDataMutator;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.RandomHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -12,7 +12,6 @@ import org.junit.Test;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.Arrays;
-import java.util.Collections;
 
 /**
  * Created by Benjamin DANGLOT

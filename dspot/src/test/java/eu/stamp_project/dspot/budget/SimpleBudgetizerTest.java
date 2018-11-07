@@ -6,7 +6,7 @@ import eu.stamp_project.dspot.amplifier.IterationDecoratorAmplifier;
 import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
 import eu.stamp_project.dspot.amplifier.NumberLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.ReturnValueAmplifier;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.After;
 import org.junit.Before;

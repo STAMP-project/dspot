@@ -1,6 +1,6 @@
 package eu.stamp_project.automaticbuilder.maven;
 
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;

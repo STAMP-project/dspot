@@ -1,4 +1,4 @@
-package eu.stamp_project.clover;
+package eu.stamp_project.utils.clover;
 
 import com.atlassian.clover.CloverInstr;
 import com.atlassian.clover.reporters.html.HtmlReporter;
@@ -8,7 +8,7 @@ import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;

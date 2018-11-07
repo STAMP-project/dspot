@@ -7,7 +7,7 @@ import eu.stamp_project.dspot.selector.json.change.TestCaseJSON;
 import eu.stamp_project.dspot.selector.json.change.TestClassJSON;
 import eu.stamp_project.minimization.ChangeMinimizer;
 import eu.stamp_project.minimization.Minimizer;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.AmplificationChecker;

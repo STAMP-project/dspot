@@ -2,7 +2,7 @@ package eu.stamp_project.minimization;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.utils.AmplificationChecker;
 import org.junit.Ignore;

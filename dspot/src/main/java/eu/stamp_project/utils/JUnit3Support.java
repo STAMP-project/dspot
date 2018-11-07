@@ -1,6 +1,6 @@
 package eu.stamp_project.utils;
 
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import org.junit.After;
 import org.junit.Before;

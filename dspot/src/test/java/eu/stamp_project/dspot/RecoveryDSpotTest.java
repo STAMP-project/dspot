@@ -9,7 +9,7 @@ import eu.stamp_project.dspot.report.ErrorEnum;
 import eu.stamp_project.dspot.report.GlobalReportImpl;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TakeAllSelector;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import org.junit.After;
 import org.junit.Test;
