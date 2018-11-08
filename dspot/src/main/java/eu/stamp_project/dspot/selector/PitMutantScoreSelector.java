@@ -3,6 +3,7 @@ package eu.stamp_project.dspot.selector;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.test_framework.TestFrameworkFactory;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -91,7 +92,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         CtType clone = this.currentClassTestToBeAmplified.clone();
         clone.setParent(this.currentClassTestToBeAmplified.getParent());
         this.currentClassTestToBeAmplified.getMethods().stream()
-                .filter(AmplificationChecker::isTest)
+                .filter(TestFrameworkFactory.getCurrentTestFrameworkSupport()::isTest)
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
@@ -223,7 +224,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                     this.currentClassTestToBeAmplified.getQualifiedName(),
                     this.currentClassTestToBeAmplified.getMethods()
                             .stream()
-                            .filter(AmplificationChecker::isTest)
+                            .filter(TestFrameworkFactory.getCurrentTestFrameworkSupport()::isTest)
                             .count());
         }
         List<CtMethod> keys = new ArrayList<>(this.testThatKilledMutants.keySet());

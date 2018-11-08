@@ -1,6 +1,7 @@
 package eu.stamp_project;
 
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.test_framework.TestFrameworkFactory;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
@@ -107,7 +108,7 @@ public class Utils {
 		return testClass.filterChildren(new TypeFilter<CtMethod<?>>(CtMethod.class) {
 			@Override
 			public boolean matches(CtMethod<?> element) {
-				return AmplificationChecker.isTest(element);
+				return TestFrameworkFactory.getTestFrameworkSupport(testClass).isTest(element);
 			}
 		}).list();
 	}

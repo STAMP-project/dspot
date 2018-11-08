@@ -5,6 +5,7 @@ import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
 import eu.stamp_project.dspot.amplifier.ReturnValueAmplifier;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
 import eu.stamp_project.dspot.selector.CloverCoverageSelector;
+import eu.stamp_project.test_framework.TestFrameworkFactory;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationChecker;
@@ -13,6 +14,7 @@ import eu.stamp_project.utils.RandomHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.visitor.filter.TypeFilter;
@@ -49,13 +51,14 @@ public class DSpotMockedTest extends AbstractTest {
         } catch (Exception ignored) {
 
         }
-        final List<CtMethod<?>> originalTestMethods = AmplificationHelper.getAllTest(InputConfiguration.get().getFactory().Class().get("info.sanaulla.dal.BookDALTest"));
+        final CtClass<Object> testClass = InputConfiguration.get().getFactory().Class().get("info.sanaulla.dal.BookDALTest");
+        final List<CtMethod<?>> originalTestMethods = AmplificationHelper.getAllTest(testClass);
         assertEquals(5, originalTestMethods.size());
         assertEquals(28, originalTestMethods.stream().mapToLong(
                 ctMethod -> ctMethod.getElements(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
                     @Override
                     public boolean matches(CtInvocation<?> element) {
-                        return AmplificationChecker.isAssert(element);
+                        return TestFrameworkFactory.getTestFrameworkSupport(testClass).isAssert(element);
                     }
                 }).size()).sum());
 
@@ -69,7 +72,7 @@ public class DSpotMockedTest extends AbstractTest {
                 ctMethod -> ctMethod.getElements(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
                     @Override
                     public boolean matches(CtInvocation<?> element) {
-                        return AmplificationChecker.isAssert(element);
+                        return TestFrameworkFactory.getTestFrameworkSupport(testClass).isAssert(element);
                     }
                 }).size()).sum());
     }

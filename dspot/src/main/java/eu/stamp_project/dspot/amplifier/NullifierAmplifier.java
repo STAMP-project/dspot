@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
+import eu.stamp_project.test_framework.TestFrameworkFactory;
 import eu.stamp_project.utils.AmplificationChecker;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
@@ -45,7 +46,7 @@ public class NullifierAmplifier extends AbstractAmplifier<CtExpression<?>> {
                 }
                 if (element.getParent() instanceof CtInvocation) { // the element is an argument of a method call
                     final CtInvocation<?> parent = (CtInvocation<?>) element.getParent();
-                    if (AmplificationChecker.isAssert(parent) || element.equals(parent.getTarget())) {
+                    if (TestFrameworkFactory.getCurrentTestFrameworkSupport().isAssert(parent) || element.equals(parent.getTarget())) {
                         return false;
                     }
                     int i = 0;

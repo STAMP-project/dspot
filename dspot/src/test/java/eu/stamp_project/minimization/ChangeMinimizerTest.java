@@ -2,6 +2,7 @@ package eu.stamp_project.minimization;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
+import eu.stamp_project.test_framework.TestFrameworkFactory;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.utils.AmplificationChecker;
@@ -54,7 +55,7 @@ public class ChangeMinimizerTest extends AbstractTest {
         final CtInvocation assertion = test2.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
             @Override
             public boolean matches(CtInvocation element) {
-                return AmplificationChecker.isAssert(element);
+                return TestFrameworkFactory.getTestFrameworkSupport(testClass).isAssert(element);
             }
         }).get(0);
         final CtInvocation clone = assertion.clone();

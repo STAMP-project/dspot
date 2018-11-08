@@ -20,6 +20,7 @@ import java.io.File;
  * benjamin.danglot@inria.fr
  * on 09/08/18
  */
+@Deprecated
 public class JUnit3Support {
 
 
@@ -78,11 +79,13 @@ public class JUnit3Support {
         }
 
         // convertToJUnit4 JUnit3 into JUnit4 test methods
+        /*
         testClassJUnit3
                 .getElements(AmplificationChecker.IS_TEST_TYPE_FILTER)
                 .forEach(testMethod ->
                         CloneHelper.prepareTestMethod(testMethod, factory)
                 );
+                */
 
         // convert call to junit.framework.Assert calls to org.junit.Assert
         testClassJUnit3.filterChildren(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {

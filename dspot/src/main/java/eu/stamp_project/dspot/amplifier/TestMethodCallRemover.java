@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
+import eu.stamp_project.test_framework.TestFrameworkFactory;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
@@ -26,7 +27,7 @@ public class TestMethodCallRemover implements Amplifier {
                 @Override
                 public boolean matches(CtInvocation<?> invocation) {
                     return toRemove(invocation)
-                            && !AmplificationChecker.isAssert(invocation)
+                            && !TestFrameworkFactory.getCurrentTestFrameworkSupport().isAssert(invocation)
                             && !inWhileLoop(invocation)
                             && !containsIteratorNext(invocation);
                 }

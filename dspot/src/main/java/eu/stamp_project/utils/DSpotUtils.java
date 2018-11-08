@@ -50,13 +50,6 @@ public class DSpotUtils {
         }
     }
 
-    public static String[] getAllTestClasses() {
-        return InputConfiguration.get().getFactory().Class().getAll().stream()
-                .filter(ctType -> ctType.getMethods().stream().anyMatch(AmplificationChecker::isTest))
-                .filter(InputConfiguration.isNotExcluded)
-                .map(CtType::getQualifiedName).toArray(String[]::new);
-    }
-
     public static void printCtTypeToGivenDirectory(CtType<?> type, File directory) {
         Factory factory = type.getFactory();
         Environment env = factory.getEnvironment();

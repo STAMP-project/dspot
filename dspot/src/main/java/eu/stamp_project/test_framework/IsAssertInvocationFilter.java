@@ -118,14 +118,4 @@ public class IsAssertInvocationFilter {
         );
         return method != null && !method.getElements(new HasAssertInvocationFilter(deep - 1)).isEmpty();
     }
-
-    @Deprecated
-    private final static List<String> ASSERTIONS_PACKAGES =
-            Arrays.asList(
-                    "org.junit.Assert", // JUnit 4
-                    "org.junit.jupiter.api.Assertions", // JUnit 5
-                    "com.google.common.truth.*", // TODO Truth
-                    "org.assertj.core.api.*", //  assertJ
-                    "junit.framework.TestCase" // JUnit 3
-            );
 }

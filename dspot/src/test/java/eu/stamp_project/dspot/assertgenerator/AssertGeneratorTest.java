@@ -2,6 +2,7 @@ package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
+import eu.stamp_project.test_framework.TestFrameworkFactory;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.After;
@@ -93,7 +94,7 @@ public class AssertGeneratorTest extends AbstractTest {
         public boolean matches(CtInvocation<?> element) {
             return (!element.getElements(namedElementFilter).isEmpty() ||
                     !element.getElements(referenceFilter).isEmpty()
-            ) && AmplificationChecker.isAssert(element) && assertionName.equals(element.getExecutable().getSimpleName());
+            ) && TestFrameworkFactory.getCurrentTestFrameworkSupport().isAssert(element) && assertionName.equals(element.getExecutable().getSimpleName());
         }
 
         private final String assertionName;

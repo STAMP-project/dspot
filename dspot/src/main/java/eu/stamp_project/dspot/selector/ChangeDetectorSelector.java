@@ -7,6 +7,7 @@ import eu.stamp_project.dspot.selector.json.change.TestCaseJSON;
 import eu.stamp_project.dspot.selector.json.change.TestClassJSON;
 import eu.stamp_project.minimization.ChangeMinimizer;
 import eu.stamp_project.minimization.Minimizer;
+import eu.stamp_project.test_framework.TestFrameworkFactory;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.testrunner.runner.test.TestListener;
@@ -77,7 +78,7 @@ public class ChangeDetectorSelector implements TestSelector {
         CtType clone = this.currentClassTestToBeAmplified.clone();
         clone.setParent(this.currentClassTestToBeAmplified.getParent());
         this.currentClassTestToBeAmplified.getMethods().stream()
-                .filter(AmplificationChecker::isTest)
+                .filter(TestFrameworkFactory.getCurrentTestFrameworkSupport()::isTest)
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
 

@@ -2,6 +2,7 @@ package eu.stamp_project.utils;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
+import eu.stamp_project.test_framework.TestFrameworkFactory;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.junit.After;
 import org.junit.Test;
@@ -171,7 +172,7 @@ public class AmplificationHelperTest extends AbstractTest {
         CtClass<?> classTest = Utils.getFactory().Class().get("fr.inria.helper.ClassWithInnerClass");
         List<CtMethod<?>> fakeAmplifiedMethod = classTest.getMethods()
                 .stream()
-                .filter(AmplificationChecker::isTest)
+                .filter(TestFrameworkFactory.getTestFrameworkSupport(classTest)::isTest)
                 .map(CtMethod::clone)
                 .peek(ctMethod -> ctMethod.setSimpleName("ampl" + ctMethod.getSimpleName()))
                 .collect(Collectors.toList());
@@ -215,7 +216,7 @@ public class AmplificationHelperTest extends AbstractTest {
         CtClass<?> classTest = Utils.getFactory().Class().get("fr.inria.helper.ClassWithInnerClass");
         List<CtMethod<?>> fakeAmplifiedMethod = classTest.getMethods()
                 .stream()
-                .filter(AmplificationChecker::isTest)
+                .filter(TestFrameworkFactory.getTestFrameworkSupport(classTest)::isTest)
                 .map(CtMethod::clone)
                 .collect(Collectors.toList());
         fakeAmplifiedMethod.forEach(ctMethod -> ctMethod.setSimpleName("ampl" + ctMethod.getSimpleName()));

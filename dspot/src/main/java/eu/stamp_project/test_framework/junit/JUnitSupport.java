@@ -2,7 +2,6 @@ package eu.stamp_project.test_framework.junit;
 
 import eu.stamp_project.test_framework.IsAssertInvocationFilter;
 import eu.stamp_project.test_framework.TestFrameworkSupport;
-import eu.stamp_project.utils.AmplificationChecker;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.*;
@@ -21,7 +20,7 @@ import java.util.List;
 public abstract class JUnitSupport implements TestFrameworkSupport {
 
     @Override
-    public boolean isMyTestFramework(CtClass<?> testClass) {
+    public boolean isMyTestFramework(CtType<?> testClass) {
         return !testClass.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
             @Override
             public boolean matches(CtTypeReference element) {
@@ -58,6 +57,15 @@ public abstract class JUnitSupport implements TestFrameworkSupport {
     @Override
     public boolean isAssert(CtStatement candidate) {
         return this.filter.isAssert(candidate);
+    }
+
+    @Override
+    public boolean isInAssert(CtElement candidate) {
+        if (candidate.getParent(CtInvocation.class) != null) {
+            return this.isAssert(candidate.getParent(CtInvocation.class));
+        } else {
+            return false;
+        }
     }
 
     @Override

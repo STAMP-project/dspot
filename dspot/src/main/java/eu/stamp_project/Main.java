@@ -1,6 +1,5 @@
 package eu.stamp_project;
 
-import eu.stamp_project.diff.SelectorOnDiff;
 import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.dspot.amplifier.TestDataMutator;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
@@ -55,17 +54,9 @@ public class Main {
 		RandomHelper.setSeedRandom(configuration.getSeed());
 		createOutputDirectories(configuration);
 		final long startTime = System.currentTimeMillis();
-		final List<CtType> amplifiedTestClasses;
+		final List<CtType<?>> amplifiedTestClasses;
 		if (configuration.getTestClasses().isEmpty() || "all".equals(configuration.getTestClasses().get(0))) {
 			amplifiedTestClasses = dspot.amplifyAllTests();
-		} else if ("diff".equals(configuration.getTestClasses().get(0))) {
-			final Map<String, List<String>> testMethodsAccordingToADiff = SelectorOnDiff
-					.findTestMethodsAccordingToADiff(configuration);
-			amplifiedTestClasses = testMethodsAccordingToADiff.keySet().stream()
-					.flatMap(ctType ->
-							dspot.amplifyTestClassesTestMethods(Collections.singletonList(ctType), testMethodsAccordingToADiff.get(ctType)).stream()
-					).filter(Objects::nonNull)
-					.collect(Collectors.toList());
 		} else {
 			amplifiedTestClasses = dspot.amplifyTestClassesTestMethods(configuration.getTestClasses(), configuration.getTestCases());
 		}

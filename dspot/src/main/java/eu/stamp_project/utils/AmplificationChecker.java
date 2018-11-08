@@ -34,7 +34,7 @@ public class AmplificationChecker {
         return literal.getParent(CtCase.class) != null;
     }
 
-    public static boolean isAssert(CtStatement stmt) {
+    /*public static boolean isAssert(CtStatement stmt) {
         return stmt instanceof CtInvocation && isAssert((CtInvocation) stmt);
     }
 
@@ -46,7 +46,7 @@ public class AmplificationChecker {
                                 .getElements(new HasAssertInvocationFilter(3))
                                 .isEmpty()
                 );
-    }
+    }*/
 
     private final static List<String> ASSERTIONS_PACKAGES =
             Arrays.asList(
@@ -99,7 +99,7 @@ public class AmplificationChecker {
         }
     }
 
-    public static boolean isInAssert(CtLiteral lit) {
+    /*public static boolean isInAssert(CtLiteral lit) {
         return lit.getParent(CtInvocation.class) != null &&
                 AmplificationChecker.isAssert(lit.getParent(CtInvocation.class));
     }
@@ -167,7 +167,7 @@ public class AmplificationChecker {
                 ((candidate.getSimpleName().contains("test") || candidate.getSimpleName().contains("should"))
                         && !isTestJUnit4(parent))
         );
-    }
+    }*/
 
     /**
      * checks if the given test class inherit from {@link junit.framework.TestCase}, <i>i.e.</i> is JUnit3 test class.
@@ -217,7 +217,7 @@ public class AmplificationChecker {
                 );
     }
 
-    @Deprecated
+    /*@Deprecated
     public static boolean isTest(CtMethod candidate, String relativePath) {
         try {
             if (!relativePath.isEmpty() && candidate.getPosition() != null
@@ -230,5 +230,5 @@ public class AmplificationChecker {
             return false;
         }
         return isTest(candidate);
-    }
+    }*/
 }

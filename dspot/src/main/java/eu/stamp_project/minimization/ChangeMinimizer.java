@@ -1,5 +1,6 @@
 package eu.stamp_project.minimization;
 
+import eu.stamp_project.test_framework.TestFrameworkFactory;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.test.Failure;
@@ -140,7 +141,7 @@ public class ChangeMinimizer extends GeneralMinimizer {
     private boolean printAndCompile(InputConfiguration configuration, CtType<?> clone, CtMethod<?> amplifiedTestToBeMinimized) {
         clone.setParent(this.testClass.getParent());
         this.testClass.getMethods().stream()
-                .filter(AmplificationChecker::isTest)
+                .filter(TestFrameworkFactory.getTestFrameworkSupport(clone)::isTest)
                 .forEach(clone::removeMethod);
         clone.addMethod(amplifiedTestToBeMinimized);
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));

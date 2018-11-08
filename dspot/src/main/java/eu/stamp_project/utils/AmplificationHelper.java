@@ -1,5 +1,6 @@
 package eu.stamp_project.utils;
 
+import eu.stamp_project.test_framework.TestFrameworkFactory;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
@@ -78,7 +79,8 @@ public class AmplificationHelper {
         // keep original test methods
         if (!InputConfiguration.get().shouldKeepOriginalTestMethods()) {
             classTest.getMethods().stream()
-                    .filter(AmplificationChecker::isTest)
+                    .filter(TestFrameworkFactory.getTestFrameworkSupport(classTest)::isTest)
+                    //.filter(AmplificationChecker::isTest)
                     .forEach(currentTestClass::removeMethod);
         }
         // generate a new test class
@@ -190,10 +192,11 @@ public class AmplificationHelper {
         return currentTest;
     }
 
+    @Deprecated
     public static List<CtMethod<?>> getAllTest(CtType<?> classTest) {
         Set<CtMethod<?>> methods = classTest.getMethods();
         return methods.stream()
-                .filter(AmplificationChecker::isTest)
+                .filter(TestFrameworkFactory.getTestFrameworkSupport(classTest)::isTest)
                 .distinct()
                 .collect(Collectors.toList());
     }
@@ -211,7 +214,7 @@ public class AmplificationHelper {
     public static final TypeFilter<CtInvocation<?>> ASSERTIONS_FILTER = new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
         @Override
         public boolean matches(CtInvocation<?> element) {
-            return AmplificationChecker.isAssert(element);
+            return TestFrameworkFactory.getCurrentTestFrameworkSupport().isAssert(element);
         }
     };
 

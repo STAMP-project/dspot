@@ -38,7 +38,7 @@ public class DSpotSelectionTest {
         }
 
         @Override
-        protected CtType _amplify(CtType test, List<CtMethod<?>> methods) {
+        protected CtType<?> _amplify(CtType<?> test, List<CtMethod<?>> methods) {
             methodsToBeAmplified.addAll(methods);
             typesToBeAmplified.add(test);
             return test;

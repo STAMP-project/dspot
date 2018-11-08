@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
+import eu.stamp_project.test_framework.TestFrameworkFactory;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
@@ -23,7 +24,7 @@ public class TestMethodCallAdder implements Amplifier {
                 @Override
                 public boolean matches(CtInvocation<?> element) {
                     return AmplificationChecker.canBeAdded(element) &&
-                            !AmplificationChecker.isAssert(element);
+                            !TestFrameworkFactory.getCurrentTestFrameworkSupport().isAssert(element);
                 }
             });
             return invocations.stream().map(invocation -> apply(method, invocation));

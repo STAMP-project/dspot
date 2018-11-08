@@ -79,7 +79,7 @@ public class DSpotTest extends AbstractTest {
         // the test class fr.inria.filter.passing.PassingTest has 3 methods, but only two are amplified
         assertEquals(3, Utils.findClass("fr.inria.filter.passing.PassingTest").getMethods().size());
         // the test class fr.inria.filter.failing.FailingTest match the regex, but it is excluded in the properties
-        final List<CtType> ctTypes = dSpot.amplifyTestClass("fr.inria.filter.*");
+        final List<CtType<?>> ctTypes = dSpot.amplifyTestClass("fr.inria.filter.*");
         assertEquals(1, ctTypes.size());
         // uses the mock to retrieve the number of method to be amplified
         assertEquals(2, dSpot.numberOfMethod);

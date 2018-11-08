@@ -2,8 +2,9 @@ package eu.stamp_project.test_framework;
 
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
-import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
 
 /**
  * created by Benjamin DANGLOT
@@ -17,7 +18,7 @@ public interface TestFrameworkSupport {
      * @param testClass the test class
      * @return true if the implementation of {@link TestFrameworkSupport} support the used test framework, false otherwise
      */
-    public boolean isMyTestFramework(CtClass<?> testClass);
+    public boolean isMyTestFramework(CtType<?> testClass);
 
     /**
      * @param invocation check if this CtInvocation is directly an assertion call or an invocation to a method that contains assertion calls.
@@ -31,6 +32,13 @@ public interface TestFrameworkSupport {
      * @return true if the candidate is an assertion or call a method that contains assertions.
      */
     public boolean isAssert(CtStatement candidate);
+
+    /**
+     * Check that the given element in inside an assertion
+     * @param candidate the element
+     * @return true if a parent is an invocation to an assertion
+     */
+    public boolean isInAssert(CtElement candidate);
 
     /**
      * @param candidate the potential test method
