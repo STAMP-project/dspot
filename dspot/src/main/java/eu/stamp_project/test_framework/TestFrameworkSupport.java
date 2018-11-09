@@ -1,9 +1,12 @@
 package eu.stamp_project.test_framework;
 
+import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
+
+import java.util.List;
 
 /**
  * created by Benjamin DANGLOT
@@ -44,8 +47,12 @@ public interface TestFrameworkSupport {
     public boolean isTest(CtMethod<?> candidate) throws UnsupportedTestFrameworkException;
 
     /**
-     * @return an invocation to the corresponding assertion, with the correct arguments.
+     * Builds an invocation to <code>methodName</code>
+     * @param testMethod test method under amplification
+     * @param methodName the name of the assertion method
+     * @param arguments  the arguments of the assertion, <i>e.g.</i> the two element to be compared in {@link org.junit.Assert#assertEquals(Object, Object)}
+     * @return a spoon node representing the invocation to the assertion, ready to be inserted in a test method
      */
-    public CtInvocation<?> buildInvocationToAssertion();
+    public CtInvocation<?> buildInvocationToAssertion(CtMethod<?> testMethod, String methodName, List<CtExpression> arguments);
 
 }

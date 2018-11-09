@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.assertgenerator;
 
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.Counter;
@@ -76,7 +77,7 @@ public class TryCatchFailGenerator {
 
         List<CtCatch> catchers = new ArrayList<>(1);
         catchers.add(ctCatch);
-        addAssertionOnException(ctCatch, failure);
+        addAssertionOnException(test, ctCatch, failure);
         tryBlock.setCatchers(catchers);
 
         CtBlock body = factory.Core().createBlock();
@@ -89,7 +90,7 @@ public class TryCatchFailGenerator {
         return cloneMethodTest;
     }
 
-    private void addAssertionOnException(CtCatch ctCatch, Failure failure) {
+    private void addAssertionOnException(CtMethod<?> testMethod, CtCatch ctCatch, Failure failure) {
         final Factory factory = ctCatch.getFactory();
         final CtCatchVariable<? extends Throwable> parameter = ctCatch.getParameter();
         final CtInvocation<?> getMessage = factory.createInvocation(
@@ -98,7 +99,7 @@ public class TryCatchFailGenerator {
         );
         if (!AssertGeneratorHelper.containsObjectReferences(failure.messageOfFailure)) {
             ctCatch.getBody().addStatement(
-                    AssertGeneratorHelper.buildInvocation(factory,
+                    TestFramework.get().buildInvocationToAssertion(testMethod,
                             "assertEquals",
                             Arrays.asList(factory.createLiteral(failure.messageOfFailure), getMessage)
                     )

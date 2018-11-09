@@ -1,7 +1,5 @@
 package eu.stamp_project.test_framework.junit;
 
-import spoon.reflect.code.CtInvocation;
-
 /**
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -14,6 +12,11 @@ public class JUnit4Support extends JUnitSupport {
     }
 
     @Override
+    protected String getFullQualifiedNameOfAssertClass() {
+        return null;
+    }
+
+    @Override
     protected String getFullQualifiedNameOfAnnotationTest() {
         return "org.junit.Test";
     }
@@ -23,8 +26,4 @@ public class JUnit4Support extends JUnitSupport {
         return "org.junit.Ignore";
     }
 
-    @Override
-    public CtInvocation<?> buildInvocationToAssertion() {
-        return null;
-    }
 }

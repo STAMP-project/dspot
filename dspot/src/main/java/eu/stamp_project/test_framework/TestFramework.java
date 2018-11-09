@@ -6,6 +6,7 @@ import eu.stamp_project.test_framework.junit.JUnit5Support;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtElement;
@@ -13,9 +14,8 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -95,9 +95,27 @@ public class TestFramework implements TestFrameworkSupport {
         */
     }
 
+    // This method identify the test framework support used in the given test method
+    // The idea is to generate assertions that look like the original one,
+    // i.e. if the developer used JUnit4, we should generate JUnit4 assertions
+    // We determine is by taking the most common assertion type in the given test method.
+    private TestFrameworkSupport getTestFramework(CtMethod<?> testMethod) {
+        final Map<TestFrameworkSupport, Long> numberOfCallsToAssertionPerTestFramework = this.testFrameworkSupportList.stream()
+                .collect(Collectors.toMap(Function.identity(),
+                        testFrameworkSupport ->
+                                testMethod.getElements(new TypeFilter<>(CtStatement.class))
+                                        .stream()
+                                        .filter(testFrameworkSupport::isAssert)
+                                        .count()
+                ));
+
+        return Collections.max(numberOfCallsToAssertionPerTestFramework.entrySet(), Map.Entry.comparingByValue()).getKey();
+    }
+
     @Override
-    public CtInvocation<?> buildInvocationToAssertion() {
-        return null;
+    public CtInvocation<?> buildInvocationToAssertion(CtMethod<?> testMethod, String methodName, List<CtExpression> arguments) {
+        final TestFrameworkSupport testFramework = getTestFramework(testMethod);
+        return testFramework.buildInvocationToAssertion(testMethod, methodName, arguments);
     }
 
     /**
@@ -145,6 +163,7 @@ public class TestFramework implements TestFrameworkSupport {
     /**
      * return the list of method of the given test class.
      * We consider method as test method if the method matches {@link TestFramework#isTest(CtMethod)}
+     *
      * @param classTest the class of which we want the list of test methods
      * @return the list of test methods of the given test class
      */

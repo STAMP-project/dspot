@@ -1,17 +1,15 @@
 package eu.stamp_project.dspot.assertgenerator;
 
-import eu.stamp_project.utils.RandomHelper;
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.TypeUtils;
+import eu.stamp_project.utils.program.InputConfiguration;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtFieldRead;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.code.CtVariableAccess;
-import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtField;
-import spoon.reflect.declaration.CtModifiable;
-import spoon.reflect.declaration.CtNamedElement;
+import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtFieldReference;
@@ -35,89 +33,99 @@ import java.util.stream.Collectors;
 public class AssertBuilder {
 
     public static final int MAX_NUMBER_OF_CHECKED_ELEMENT_IN_LIST = 5;
-    private final static String JUNIT_ASSERT_CLASS_NAME = "org.junit.Assert";
 
     private static final Predicate<Object> isFloating = value ->
             value instanceof Double || value.getClass() == double.class ||
                     value instanceof Float || value.getClass() == float.class;
 
-    static List<CtStatement> buildAssert(Factory factory,
+    static List<CtStatement> buildAssert(CtMethod<?> testMethod,
                                          Set<String> notDeterministValues,
                                          Map<String, Object> observations,
                                          Double delta) {
+        final Factory factory = InputConfiguration.get().getFactory();
         final Translator translator = new Translator(factory);
-        return observations.keySet().stream()
-                .filter(key -> !notDeterministValues.contains(key)) // TODO we may want to generate assertion on not deterministic values when it is floats
-                .collect(ArrayList<CtStatement>::new,
-                        (expressions, key) -> {
-                            Object value = observations.get(key);
-                            final CtExpression variableRead = translator.translate(key);
-                            if (value == null) {
-                                expressions.add(AssertGeneratorHelper.buildInvocation(factory, "assertNull",
-                                        Collections.singletonList(variableRead))
-                                );
-                                variableRead.setType(factory.Type().NULL_TYPE);
-                            } else {
-                                if (value instanceof Boolean) {
-                                    expressions.add(
-                                            AssertGeneratorHelper.buildInvocation(factory,
-                                                    (Boolean) value ? "assertTrue" : "assertFalse",
-                                                    Collections.singletonList(variableRead)
-                                            )
-                                    );
-                                } else if (TypeUtils.isArray(value)) {//TODO
-                                    expressions.add(buildAssertForArray(factory, key, value));
-                                } else if (TypeUtils.isPrimitiveCollection(value)) {
-                                    Collection valueCollection = (Collection) value;
-                                    if (valueCollection.isEmpty()) {
-                                        final CtInvocation<?> isEmpty = factory.createInvocation(variableRead,
-                                                factory.Type().get(Collection.class).getMethodsByName("isEmpty").get(0).getReference()
-                                        );
-                                        expressions.add(AssertGeneratorHelper.buildInvocation(factory, "assertTrue",
-                                                Collections.singletonList(isEmpty))
-                                        );
-                                    } else {
-                                        expressions.addAll(buildSnippetAssertCollection(factory, key, (Collection) value));
-                                    }
-                                } else if (TypeUtils.isPrimitiveMap(value)) {//TODO
-                                    Map valueCollection = (Map) value;
-                                    if (valueCollection.isEmpty()) {
-                                        final CtInvocation<?> isEmpty = factory.createInvocation(variableRead,
-                                                factory.Type().get(Map.class).getMethodsByName("isEmpty").get(0).getReference()
-                                        );
-                                        expressions.add(AssertGeneratorHelper.buildInvocation(factory, "assertTrue",
-                                                Collections.singletonList(isEmpty))
-                                        );
-                                    } else {
-                                        expressions.addAll(buildSnippetAssertMap(factory, key, (Map) value));
-                                    }
-                                } else {
-                                    addTypeCastIfNeeded(variableRead, value);
-                                    if (isFloating.test(value)) {
-                                        expressions.add(AssertGeneratorHelper.buildInvocation(factory, "assertEquals",
-                                                Arrays.asList(
-                                                        printPrimitiveString(factory, value),
-                                                        variableRead,
-                                                        factory.createLiteral(delta)
-                                                )));
-                                    } else {
-                                        if (value instanceof String) {
-                                            if (!AssertGeneratorHelper.containsObjectReferences((String) value)) {
-                                                expressions.add(AssertGeneratorHelper.buildInvocation(factory, "assertEquals",
-                                                        Arrays.asList(printPrimitiveString(factory, value),
-                                                                variableRead)));
-                                            }
-                                        } else {
-                                            expressions.add(AssertGeneratorHelper.buildInvocation(factory, "assertEquals",
-                                                    Arrays.asList(printPrimitiveString(factory, value),
-                                                            variableRead)));
-                                        }
-                                    }
+        final List<CtStatement> invocations = new ArrayList<>();
+        for (String observationKey : observations.keySet()) {
+            if (!notDeterministValues.contains(observationKey)) {
+                Object value = observations.get(observationKey);
+                final CtExpression variableRead = translator.translate(observationKey);
+                if (value == null) {
+                    final CtInvocation<?> assertNull = TestFramework.get()
+                            .buildInvocationToAssertion(testMethod, "assertNull", Collections.singletonList(variableRead));
+                    invocations.add(assertNull);
+                    variableRead.setType(factory.Type().NULL_TYPE);
+                } else {
+                    /* Boolean */
+                    if (value instanceof Boolean) {
+                        invocations.add(
+                                TestFramework.get()
+                                        .buildInvocationToAssertion(testMethod,
+                                                (Boolean) value ? "assertTrue" : "assertFalse",
+                                                Collections.singletonList(variableRead)
+                                        )
+                        );
+                        /* Primitive collection */
+                    } else if (TypeUtils.isPrimitiveCollection(value)) {
+                        Collection valueCollection = (Collection) value;
+                        if (valueCollection.isEmpty()) {
+                            final CtInvocation<?> isEmpty = factory.createInvocation(variableRead,
+                                    factory.Type().get(Collection.class).getMethodsByName("isEmpty").get(0).getReference()
+                            );
+                            invocations.add(
+                                    TestFramework.get().buildInvocationToAssertion(testMethod, "assertTrue",
+                                            Collections.singletonList(isEmpty)
+                                    )
+                            );
+                        } else {
+                            invocations.addAll(buildSnippetAssertCollection(factory, testMethod, observationKey, (Collection) value));
+                        }
+                    } else if (TypeUtils.isArray(value)) {//TODO must be implemented
+                        //invocations.add(buildAssertForArray(factory, testMethod, observationKey, value));
+                    } else if (TypeUtils.isPrimitiveMap(value)) {//TODO
+                        Map valueCollection = (Map) value;
+                        if (valueCollection.isEmpty()) {
+                            final CtInvocation<?> isEmpty = factory.createInvocation(variableRead,
+                                    factory.Type().get(Map.class).getMethodsByName("isEmpty").get(0).getReference()
+                            );
+                            invocations.add(TestFramework.get().buildInvocationToAssertion(
+                                    testMethod,
+                                    "assertTrue",
+                                    Collections.singletonList(isEmpty)
+                                    )
+                            );
+                        } else {
+                            invocations.addAll(buildSnippetAssertMap(factory, testMethod, observationKey, (Map) value));
+                        }
+                    } else {
+                        /* Other types */
+                        addTypeCastIfNeeded(variableRead, value);
+                        if (isFloating.test(value)) {
+                            invocations.add(
+                                    TestFramework.get().buildInvocationToAssertion(testMethod, "assertEquals",
+                                            Arrays.asList(
+                                                    printPrimitiveString(factory, value),
+                                                    variableRead,
+                                                    factory.createLiteral(delta)
+                                            )));
+                        } else {
+                            if (value instanceof String) {
+                                if (!AssertGeneratorHelper.containsObjectReferences((String) value)) {
+                                    invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, "assertEquals",
+                                            Arrays.asList(printPrimitiveString(factory, value),
+                                                    variableRead)));
                                 }
-                                variableRead.setType(factory.Type().createReference(value.getClass()));
+                            } else {
+                                invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, "assertEquals",
+                                        Arrays.asList(printPrimitiveString(factory, value),
+                                                variableRead)));
                             }
-                        },
-                        ArrayList<CtStatement>::addAll);
+                        }
+                    }
+                    variableRead.setType(factory.Type().createReference(value.getClass()));
+                }
+            }
+        }
+        return invocations;
     }
 
     private static void addTypeCastIfNeeded(CtExpression<?> variableRead, Object value) {
@@ -138,7 +146,8 @@ public class AssertBuilder {
         }
     }
 
-    private static CtStatement buildAssertForArray(Factory factory, String expression, Object array) {
+    /*
+    private static CtInvocation<?> buildAssertForArray(Factory factory, String expression, Object array) {
         String type = array.getClass().getCanonicalName();
         String arrayLocalVar1 = "array_" + Math.abs(RandomHelper.getRandom().nextInt());
         String arrayLocalVar2 = "array_" + Math.abs(RandomHelper.getRandom().nextInt());
@@ -151,20 +160,22 @@ public class AssertBuilder {
                 + type + " " + arrayLocalVar2 + " = " + "(" + type + ")" + expression + ";\n"
                 + forLoop);
     }
+    */
 
     // TODO we need maybe limit assertion on a limited number of elements
     @SuppressWarnings("unchecked")
-    private static List<CtStatement> buildSnippetAssertCollection(Factory factory, String expression, Collection value) {
+    private static List<CtInvocation<?>> buildSnippetAssertCollection(Factory factory, CtMethod<?> testMethod, String expression, Collection value) {
         final CtVariableAccess variableRead = factory.createVariableRead(
                 factory.createLocalVariableReference().setSimpleName(expression),
                 false
         );
         final CtExecutableReference contains = factory.Type().get(Collection.class).getMethodsByName("contains").get(0).getReference();
-        return (List<CtStatement>) value.stream()
+        return (List<CtInvocation<?>>) value.stream()
                 .limit(Math.min(value.size(), MAX_NUMBER_OF_CHECKED_ELEMENT_IN_LIST))
                 .map(factory::createLiteral)
                 .map(o ->
-                        AssertGeneratorHelper.buildInvocation(factory, "assertTrue",
+                        TestFramework.get().buildInvocationToAssertion(
+                                testMethod, "assertTrue",
                                 Collections.singletonList(factory.createInvocation(variableRead,
                                         contains, (CtLiteral) o
                                         )
@@ -176,23 +187,23 @@ public class AssertBuilder {
 
     // TODO we need maybe limit assertion on a limited number of elements
     @SuppressWarnings("unchecked")
-    private static List<CtStatement> buildSnippetAssertMap(Factory factory, String expression, Map value) {
+    private static List<CtInvocation<?>> buildSnippetAssertMap(Factory factory, CtMethod<?> testMethod, String expression, Map value) {
         final CtVariableAccess variableRead = factory.createVariableRead(
                 factory.createLocalVariableReference().setSimpleName(expression),
                 false
         );
         final CtExecutableReference containsKey = factory.Type().get(Map.class).getMethodsByName("containsKey").get(0).getReference();
         final CtExecutableReference get = factory.Type().get(Map.class).getMethodsByName("get").get(0).getReference();
-        return (List<CtStatement>) value.keySet().stream()
+        return (List<CtInvocation<?>>) value.keySet().stream()
                 .flatMap(key ->
                         Arrays.stream(new CtInvocation<?>[]{
-                                        AssertGeneratorHelper.buildInvocation(factory, "assertTrue",
+                                        TestFramework.get().buildInvocationToAssertion(testMethod, "assertTrue",
                                                 Collections.singletonList(factory.createInvocation(variableRead,
                                                         containsKey, factory.createLiteral(key)
                                                         )
                                                 )
                                         ),
-                                        AssertGeneratorHelper.buildInvocation(factory, "assertEquals",
+                                        TestFramework.get().buildInvocationToAssertion(testMethod, "assertEquals",
                                                 Arrays.asList(factory.createLiteral(value.get(key)),
                                                         factory.createInvocation(variableRead,
                                                                 get, factory.createLiteral(key))

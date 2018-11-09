@@ -142,7 +142,7 @@ public class MethodsAssertGenerator {
                 continue;
             }
             final List<CtStatement> assertStatements = AssertBuilder.buildAssert(
-                    factory,
+                    test,
                     observations.get(id).getNotDeterministValues(),
                     observations.get(id).getObservationValues(),
                     Double.parseDouble(configuration.getDelta())

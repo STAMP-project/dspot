@@ -268,7 +268,6 @@ public class AssertGeneratorHelper {
      * @param methodName the name of the assertion method
      * @param arguments  the arguments of the assertion, <i>e.g.</i> the two element to be compared in {@link org.junit.Assert#assertEquals(Object, Object)}
      * @return a spoon node representing the invocation to the assertion, ready to be inserted in a test method
-     */
     public static CtInvocation buildInvocation(Factory factory, String methodName, List<CtExpression> arguments) {
         final CtInvocation invocation = factory.createInvocation();
         final CtExecutableReference<?> executableReference = factory.Core().createExecutableReference();
@@ -282,6 +281,7 @@ public class AssertGeneratorHelper {
         invocation.putMetadata(METADATA_ASSERT_AMPLIFICATION, true);
         return invocation;
     }
+     */
 
     public final static String METADATA_ASSERT_AMPLIFICATION = "A-Amplification";
 }

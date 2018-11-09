@@ -13,11 +13,8 @@ import spoon.reflect.reference.CtTypeReference;
  */
 public class JUnit3Support extends JUnitSupport {
 
-    protected final String qualifiedNameOfAssertClass;
-
     public JUnit3Support() {
         super("junit.framework.TestCase");
-        this.qualifiedNameOfAssertClass = "junit.framework.TestCase";
     }
 
     @Override
@@ -56,8 +53,4 @@ public class JUnit3Support extends JUnitSupport {
                 candidate.getAnnotations().isEmpty() && candidate.getSimpleName().startsWith("test");
     }
 
-    @Override
-    public CtInvocation<?> buildInvocationToAssertion() {
-        return null;
-    }
 }

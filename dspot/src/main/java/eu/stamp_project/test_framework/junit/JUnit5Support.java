@@ -23,8 +23,4 @@ public class JUnit5Support extends JUnitSupport {
         return "org.junit.jupiter.api.Disabled";
     }
 
-    @Override
-    public CtInvocation<?> buildInvocationToAssertion() {
-        return null;
-    }
 }

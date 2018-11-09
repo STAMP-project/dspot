@@ -1,7 +1,10 @@
 package eu.stamp_project.test_framework;
 
+import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtMethod;
+
+import java.util.List;
 
 /**
  * created by Benjamin DANGLOT
@@ -20,7 +23,7 @@ public class AssertJTestFramework extends AbstractTestFramework {
     }
 
     @Override
-    public CtInvocation<?> buildInvocationToAssertion() {
+    public CtInvocation<?> buildInvocationToAssertion(CtMethod<?> testMethod, String methodName, List<CtExpression> arguments) {
         return null;
     }
 }
