@@ -4,6 +4,7 @@ import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.assertgenerator.AssertGenerator;
 import eu.stamp_project.dspot.budget.Budgetizer;
 import eu.stamp_project.dspot.selector.TestSelector;
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
@@ -59,7 +60,7 @@ public class Amplification {
      * @param maxIteration Number of amplification iterations
      */
     public void amplification(CtType<?> classTest, int maxIteration) {
-        amplification(classTest, AmplificationHelper.getAllTest(classTest), maxIteration);
+        amplification(classTest, TestFramework.getAllTest(classTest), maxIteration);
     }
 
     /**

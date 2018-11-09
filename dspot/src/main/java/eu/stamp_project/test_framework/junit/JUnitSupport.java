@@ -1,12 +1,8 @@
 package eu.stamp_project.test_framework.junit;
 
-import eu.stamp_project.test_framework.IsAssertInvocationFilter;
-import eu.stamp_project.test_framework.TestFrameworkSupport;
+import eu.stamp_project.test_framework.AbstractTestFramework;
 import spoon.reflect.code.CtInvocation;
-import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.*;
-import spoon.reflect.reference.CtTypeReference;
-import spoon.reflect.visitor.filter.TypeFilter;
 
 /**
  * created by Benjamin DANGLOT
@@ -15,9 +11,7 @@ import spoon.reflect.visitor.filter.TypeFilter;
  *
  * This abstract class is used for JUnit4 and JUnit5 support
  */
-public abstract class JUnitSupport implements TestFrameworkSupport {
-
-    protected abstract String getFullQualifiedNameOfClassWithAssertions();
+public abstract class JUnitSupport extends AbstractTestFramework {
 
     protected abstract String getFullQualifiedNameOfAnnotationTest();
 
@@ -31,20 +25,8 @@ public abstract class JUnitSupport implements TestFrameworkSupport {
         return hasAnnotation(getFullQualifiedNameOfAnnotationTest(), candidate);
     }
 
-    private IsAssertInvocationFilter filter;
-
-    public JUnitSupport() {
-        this.filter = new IsAssertInvocationFilter(this.getFullQualifiedNameOfClassWithAssertions());
-    }
-
-    @Override
-    public boolean isAssert(CtInvocation<?> invocation) {
-        return this.filter.isAssert(invocation);
-    }
-
-    @Override
-    public boolean isAssert(CtStatement candidate) {
-        return this.filter.isAssert(candidate);
+    public JUnitSupport(String qualifiedNameOfAssertClass) {
+        super(qualifiedNameOfAssertClass);
     }
 
     @Override

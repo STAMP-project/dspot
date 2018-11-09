@@ -1,7 +1,10 @@
 package eu.stamp_project.test_framework.junit;
 
 import spoon.reflect.code.CtInvocation;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
+import spoon.reflect.reference.CtTypeReference;
 
 /**
  * created by Benjamin DANGLOT
@@ -10,9 +13,11 @@ import spoon.reflect.declaration.CtMethod;
  */
 public class JUnit3Support extends JUnitSupport {
 
-    @Override
-    protected String getFullQualifiedNameOfClassWithAssertions() {
-        return "junit.framework.TestCase";
+    protected final String qualifiedNameOfAssertClass;
+
+    public JUnit3Support() {
+        super("junit.framework.TestCase");
+        this.qualifiedNameOfAssertClass = "junit.framework.TestCase";
     }
 
     @Override
@@ -38,7 +43,17 @@ public class JUnit3Support extends JUnitSupport {
      */
     @Override
     protected boolean isATest(CtMethod<?> candidate) {
-        return candidate.getAnnotations().isEmpty() && candidate.getSimpleName().startsWith("test");
+        // check that the current test class inherit from TestCase
+        final CtType<?> testClass = candidate.getParent(CtType.class);
+        if (testClass == null) {
+            return false;
+        }
+        final CtTypeReference<?> superclassReference = testClass.getSuperclass();
+        if (superclassReference == null) {
+            return false;
+        }
+        return superclassReference.getQualifiedName().equals(this.qualifiedNameOfAssertClass) &&
+                candidate.getAnnotations().isEmpty() && candidate.getSimpleName().startsWith("test");
     }
 
     @Override

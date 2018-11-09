@@ -220,7 +220,7 @@ public class DSpot {
     }
 
     private CtType<?> _amplifyTestClass(CtType<?> test) {
-        return this._amplify(test, AmplificationHelper.getAllTest(test));
+        return this._amplify(test, TestFramework.getAllTest(test));
     }
 
     protected CtType<?> _amplify(CtType<?> test, List<CtMethod<?>> methods) {

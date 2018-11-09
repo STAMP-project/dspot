@@ -196,7 +196,7 @@ public class ChangeDetectorSelector implements TestSelector {
         } else {
             testClassJSON = new TestClassJSON(
                     this.currentClassTestToBeAmplified.getQualifiedName(),
-                    AmplificationHelper.getAllTest(this.currentClassTestToBeAmplified).size()
+                    TestFramework.getAllTest(this.currentClassTestToBeAmplified).size()
             );
         }
         this.getAmplifiedTestCases().stream()

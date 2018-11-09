@@ -9,9 +9,8 @@ import spoon.reflect.code.CtInvocation;
  */
 public class JUnit5Support extends JUnitSupport {
 
-    @Override
-    protected String getFullQualifiedNameOfClassWithAssertions() {
-        return "org.junit.jupiter.api.Assertions";
+    public JUnit5Support() {
+        super("org.junit.jupiter.api.Assertions");
     }
 
     @Override

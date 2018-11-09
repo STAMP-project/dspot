@@ -15,6 +15,7 @@ import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -22,7 +23,6 @@ import java.util.stream.Stream;
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
  * on 09/11/18
- * <p>
  * Singleton and Starting point of Chain of responsibility
  */
 public class TestFramework implements TestFrameworkSupport {
@@ -37,11 +37,14 @@ public class TestFramework implements TestFrameworkSupport {
         return _instance;
     }
 
+    // TestFramework:
     private TestFramework() {
         this.testFrameworkSupportList = new ArrayList<>();
         this.testFrameworkSupportList.add(new JUnit3Support());
         this.testFrameworkSupportList.add(new JUnit4Support());
         this.testFrameworkSupportList.add(new JUnit5Support());
+        this.testFrameworkSupportList.add(new GoogleTruthTestFramework());
+        this.testFrameworkSupportList.add(new AssertJTestFramework());
     }
 
     @Override
@@ -127,7 +130,9 @@ public class TestFramework implements TestFrameworkSupport {
      * We consider a class as test class if at least one of its method match {@link TestFramework#isTest(CtMethod)}
      */
     public static String[] getAllTestClassesName() {
-        return TestFramework.getAllTestClassesAsStream().toArray(String[]::new);
+        return TestFramework.getAllTestClassesAsStream()
+                .map(CtType::getQualifiedName)
+                .toArray(String[]::new);
     }
 
     public static final TypeFilter<CtInvocation<?>> ASSERTIONS_FILTER = new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
@@ -136,4 +141,18 @@ public class TestFramework implements TestFrameworkSupport {
             return TestFramework.get().isAssert(element);
         }
     };
+
+    /**
+     * return the list of method of the given test class.
+     * We consider method as test method if the method matches {@link TestFramework#isTest(CtMethod)}
+     * @param classTest the class of which we want the list of test methods
+     * @return the list of test methods of the given test class
+     */
+    public static List<CtMethod<?>> getAllTest(CtType<?> classTest) {
+        Set<CtMethod<?>> methods = classTest.getMethods();
+        return methods.stream()
+                .filter(TestFramework.get()::isTest)
+                .distinct()
+                .collect(Collectors.toList());
+    }
 }

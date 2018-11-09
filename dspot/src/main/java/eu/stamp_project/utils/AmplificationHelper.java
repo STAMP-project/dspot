@@ -166,6 +166,7 @@ public class AmplificationHelper {
         return AmplificationHelper.importByClass.get(type);
     }
 
+    @Deprecated
     public static List<CtMethod<?>> getPassingTests(List<CtMethod<?>> newTests, TestListener result) {
         final List<String> passingTests = result.getPassingTests();
         return newTests.stream()
@@ -182,6 +183,7 @@ public class AmplificationHelper {
         return amplifiedTest;
     }
 
+    @Deprecated
     public static CtMethod getTopParent(CtMethod test) {
         CtMethod topParent;
         CtMethod currentTest = test;
@@ -189,15 +191,6 @@ public class AmplificationHelper {
             currentTest = topParent;
         }
         return currentTest;
-    }
-
-    @Deprecated
-    public static List<CtMethod<?>> getAllTest(CtType<?> classTest) {
-        Set<CtMethod<?>> methods = classTest.getMethods();
-        return methods.stream()
-                .filter(TestFramework.get()::isTest)
-                .distinct()
-                .collect(Collectors.toList());
     }
 
     @Deprecated
