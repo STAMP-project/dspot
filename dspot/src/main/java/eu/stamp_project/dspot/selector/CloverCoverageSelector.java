@@ -1,10 +1,9 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.test_framework.TestFrameworkFactory;
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.clover.CloverExecutor;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.coverage.Coverage;
-import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
@@ -12,7 +11,6 @@ import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.declaration.CtTypeInformation;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -50,7 +48,7 @@ public class CloverCoverageSelector extends TakeAllSelector {
             this.initialCoverage = EntryPoint.runCoverageOnTestClasses(
                     classpath,
                     this.configuration.getClasspathClassesProject(),
-                    TestFrameworkFactory.getAllTestClassesName()
+                    TestFramework.getAllTestClassesName()
             );
         } catch (TimeoutException e) {
             throw new RuntimeException(e);
@@ -100,7 +98,7 @@ public class CloverCoverageSelector extends TakeAllSelector {
         CtType<?> clone = this.currentClassTestToBeAmplified.clone();
         clone.setParent(this.currentClassTestToBeAmplified.getParent());
         this.currentClassTestToBeAmplified.getMethods().stream()
-                .filter(TestFrameworkFactory.getCurrentTestFrameworkSupport()::isTest)
+                .filter(TestFramework.get()::isTest)
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
 

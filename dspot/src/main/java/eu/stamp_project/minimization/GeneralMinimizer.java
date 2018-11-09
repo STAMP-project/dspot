@@ -1,7 +1,6 @@
 package eu.stamp_project.minimization;
 
-import eu.stamp_project.test_framework.TestFrameworkFactory;
-import eu.stamp_project.utils.AmplificationChecker;
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.DSpotUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +55,7 @@ public class GeneralMinimizer implements Minimizer {
                                 @Override
                                 public boolean matches(CtInvocation<?> element) {
                                     return element.getParent(CtBlock.class).equals(block) &&
-                                            TestFrameworkFactory.getCurrentTestFrameworkSupport().isAssert(element);
+                                            TestFramework.get().isAssert(element);
                                 }
                             });
                     final List<CtInvocation<?>> duplicatesAssertions = findDuplicates(assertions); // One of them might be removed
@@ -82,7 +81,7 @@ public class GeneralMinimizer implements Minimizer {
         boolean canBeRemoved = true;
         for (int i = statements.indexOf(duplicatesAssertion) + 1;
              i < statements.lastIndexOf(duplicatesAssertion); i++) {
-            if (!TestFrameworkFactory.getCurrentTestFrameworkSupport().isAssert(statements.get(i))) {
+            if (!TestFramework.get().isAssert(statements.get(i))) {
                 final CtVariableRead<?> first = statements.get(i)
                         .filterChildren(new TypeFilter<CtVariableRead<?>>(CtVariableRead.class) {
                             @Override

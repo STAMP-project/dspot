@@ -2,8 +2,7 @@ package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.test_framework.TestFrameworkFactory;
-import eu.stamp_project.utils.AmplificationChecker;
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -13,7 +12,6 @@ import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.code.CtTry;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.visitor.filter.AllTypeMembersFunction;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import static org.junit.Assert.assertEquals;
@@ -92,7 +90,7 @@ public class AssertionRemoverTest extends AbstractTest {
         testClass.getMethodsByName("test1").get(0).getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
             @Override
             public boolean matches(CtInvocation element) {
-                return TestFrameworkFactory.getTestFrameworkSupport(testClass).isAssert(element);
+                return TestFramework.get().isAssert(element);
             }
         }).forEach(assertionRemover::removeAssertion);
 
@@ -116,7 +114,7 @@ public class AssertionRemoverTest extends AbstractTest {
         testClass.getMethodsByName("test1").get(0).getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
             @Override
             public boolean matches(CtInvocation element) {
-                return TestFrameworkFactory.getTestFrameworkSupport(testClass).isAssert(element);
+                return TestFramework.get().isAssert(element);
             }
         }).forEach(assertionRemover::removeAssertion);
 
@@ -146,7 +144,7 @@ public class AssertionRemoverTest extends AbstractTest {
         testClass.getMethodsByName("test2").get(0).getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
             @Override
             public boolean matches(CtInvocation element) {
-                return TestFrameworkFactory.getTestFrameworkSupport(testClass).isAssert(element);
+                return TestFramework.get().isAssert(element);
             }
         }).forEach(assertionRemover::removeAssertion);
 

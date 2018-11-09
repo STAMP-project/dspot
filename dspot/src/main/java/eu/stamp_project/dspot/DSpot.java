@@ -6,14 +6,12 @@ import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.budget.Budgetizer;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.test_framework.TestFrameworkFactory;
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.options.BudgetizerEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.JUnit3Support;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.json.ClassTimeJSON;
 import eu.stamp_project.utils.json.ProjectTimeJSON;
@@ -22,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.declaration.ModifierKind;
 
 import java.io.File;
 import java.io.FileReader;
@@ -115,8 +112,7 @@ public class DSpot {
             targetTestClasses = targetTestClasses.replaceAll("\\.", "\\\\\\.").replaceAll("\\*", ".*");
         }
         Pattern pattern = Pattern.compile(targetTestClasses);
-        return TestFrameworkFactory.getAllTestClasses()
-                .stream()
+        return TestFramework.getAllTestClassesAsStream()
                 .filter(ctType -> pattern.matcher(ctType.getQualifiedName()).matches())
                 .filter(InputConfiguration.isNotExcluded);
     }
@@ -125,7 +121,7 @@ public class DSpot {
         if (targetTestMethods.isEmpty()) {
             return testClass.getMethods()
                     .stream()
-                    .filter(TestFrameworkFactory.getTestFrameworkSupport(testClass)::isTest)
+                    .filter(TestFramework.get()::isTest)
                     .collect(Collectors.toList());
         } else {
             return targetTestMethods.stream().flatMap(pattern ->
@@ -144,7 +140,7 @@ public class DSpot {
      * @return a list of amplified test classes with amplified test methods.
      */
     public List<CtType<?>> amplifyAllTests() {
-        return this._amplifyTestClasses(TestFrameworkFactory.getAllTestClasses());
+        return this._amplifyTestClasses(TestFramework.getAllTestClasses());
     }
 
     /**
@@ -229,8 +225,6 @@ public class DSpot {
 
     protected CtType<?> _amplify(CtType<?> test, List<CtMethod<?>> methods) {
         try {
-            TestFrameworkFactory.getTestFrameworkSupport(test);
-            //test = JUnit3Support.convertToJUnit4(test, InputConfiguration.get());
             Counter.reset();
             Amplification testAmplification = new Amplification(this.compiler, this.amplifiers, this.testSelector, this.budgetizer);
             final List<CtMethod<?>> filteredTestCases = this.filterTestCases(methods);

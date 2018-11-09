@@ -1,6 +1,6 @@
 package eu.stamp_project.utils;
 
-import eu.stamp_project.test_framework.TestFrameworkFactory;
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtComment;
-import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtImport;
 import spoon.reflect.declaration.CtMethod;
@@ -79,7 +78,7 @@ public class AmplificationHelper {
         // keep original test methods
         if (!InputConfiguration.get().shouldKeepOriginalTestMethods()) {
             classTest.getMethods().stream()
-                    .filter(TestFrameworkFactory.getTestFrameworkSupport(classTest)::isTest)
+                    .filter(TestFramework.get()::isTest)
                     //.filter(AmplificationChecker::isTest)
                     .forEach(currentTestClass::removeMethod);
         }
@@ -196,7 +195,7 @@ public class AmplificationHelper {
     public static List<CtMethod<?>> getAllTest(CtType<?> classTest) {
         Set<CtMethod<?>> methods = classTest.getMethods();
         return methods.stream()
-                .filter(TestFrameworkFactory.getTestFrameworkSupport(classTest)::isTest)
+                .filter(TestFramework.get()::isTest)
                 .distinct()
                 .collect(Collectors.toList());
     }
@@ -210,12 +209,4 @@ public class AmplificationHelper {
                 }
         ).collect(Collectors.joining(PATH_SEPARATOR));
     }
-
-    public static final TypeFilter<CtInvocation<?>> ASSERTIONS_FILTER = new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
-        @Override
-        public boolean matches(CtInvocation<?> element) {
-            return TestFrameworkFactory.getCurrentTestFrameworkSupport().isAssert(element);
-        }
-    };
-
 }

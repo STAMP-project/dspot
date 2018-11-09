@@ -4,21 +4,18 @@ import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.declaration.CtType;
 
 /**
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
  * on 07/11/18
+ *
+ * Implementation of this interface should be stateless.
+ *
+ * If you implement a new TestFrameworkSupport, you should update the list of frameworks of the {@link TestFramework}
+ *
  */
 public interface TestFrameworkSupport {
-
-    /**
-     * This methods tells if the given test class is using the supported test framework
-     * @param testClass the test class
-     * @return true if the implementation of {@link TestFrameworkSupport} support the used test framework, false otherwise
-     */
-    public boolean isMyTestFramework(CtType<?> testClass);
 
     /**
      * @param invocation check if this CtInvocation is directly an assertion call or an invocation to a method that contains assertion calls.
@@ -44,7 +41,7 @@ public interface TestFrameworkSupport {
      * @param candidate the potential test method
      * @return true of the given candidate is a test method, false otherwise
      */
-    public boolean isTest(CtMethod<?> candidate);
+    public boolean isTest(CtMethod<?> candidate) throws UnsupportedTestFrameworkException;
 
     /**
      * @return an invocation to the corresponding assertion, with the correct arguments.

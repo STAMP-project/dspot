@@ -8,8 +8,6 @@ import spoon.reflect.declaration.*;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.util.List;
-
 /**
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -18,16 +16,6 @@ import java.util.List;
  * This abstract class is used for JUnit4 and JUnit5 support
  */
 public abstract class JUnitSupport implements TestFrameworkSupport {
-
-    @Override
-    public boolean isMyTestFramework(CtType<?> testClass) {
-        return !testClass.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
-            @Override
-            public boolean matches(CtTypeReference element) {
-                return element.getQualifiedName().equals(getFullQualifiedNameOfClassWithAssertions());
-            }
-        }).isEmpty();
-    }
 
     protected abstract String getFullQualifiedNameOfClassWithAssertions();
 
@@ -85,23 +73,6 @@ public abstract class JUnitSupport implements TestFrameworkSupport {
                 || candidate.getBody().getStatements().size() == 0
                 || !candidate.getParameters().isEmpty()) {
             return false;
-        }
-        // Look for any assertion inside the test method
-        List<CtInvocation<?>> listOfAssertion =
-                candidate.getBody().getElements(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
-                    @Override
-                    public boolean matches(CtInvocation<?> element) {
-                        return isAssert(element);
-                    }
-                });
-        // If there are no assertions, look up inside the method called for assertions
-        if (listOfAssertion.isEmpty()) {
-            listOfAssertion.addAll(
-                    candidate.getBody().getElements(this.filter::isAssert)
-            );
-        }
-        if (!listOfAssertion.isEmpty()) { // there is at least one assertion
-            return true;
         }
         // is a test according to the JUnit version
         return isATest(candidate);

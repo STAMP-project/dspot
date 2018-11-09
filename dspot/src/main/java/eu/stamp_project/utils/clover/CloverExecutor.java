@@ -4,10 +4,9 @@ import com.atlassian.clover.CloverInstr;
 import com.atlassian.clover.reporters.html.HtmlReporter;
 import com.atlassian.clover.reporters.json.JSONException;
 import com.atlassian.clover.reporters.json.JSONObject;
-import eu.stamp_project.test_framework.TestFrameworkFactory;
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
@@ -42,7 +41,7 @@ public class CloverExecutor {
                                                                      String pathToSources) {
 
         return CloverExecutor.execute(configuration, pathToSources,
-                TestFrameworkFactory.getAllTestClassesName()
+                TestFramework.getAllTestClassesName()
         );
     }
 
