@@ -16,9 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Created by Benjamin DANGLOT benjamin.danglot@inria.fr on 2/9/17

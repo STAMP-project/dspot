@@ -1,7 +1,5 @@
 package eu.stamp_project.test_framework.junit;
 
-import spoon.reflect.code.CtInvocation;
-import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.reference.CtTypeReference;

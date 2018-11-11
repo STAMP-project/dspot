@@ -24,6 +24,6 @@ public class AssertJTestFramework extends AbstractTestFramework {
 
     @Override
     public CtInvocation<?> buildInvocationToAssertion(CtMethod<?> testMethod, String methodName, List<CtExpression> arguments) {
-        return null;
+        throw new RuntimeException("Unsupported Operation");
     }
 }

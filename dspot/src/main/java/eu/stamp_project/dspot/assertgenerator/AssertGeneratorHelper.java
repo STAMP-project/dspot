@@ -5,7 +5,6 @@ import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.utils.CloneHelper;
 import spoon.reflect.code.CtAssignment;
 import spoon.reflect.code.CtBlock;
-import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.code.CtLoop;
@@ -259,29 +258,6 @@ public class AssertGeneratorHelper {
         }
         return false;
     };
-
-    /**
-     * Builds an invocation to <code>methodName</code> of {@link org.junit.Assert}.
-     * This should be a correct method name such as assertEquals, assertTrue...
-     *
-     * @param factory    the factory used to build the invocation
-     * @param methodName the name of the assertion method
-     * @param arguments  the arguments of the assertion, <i>e.g.</i> the two element to be compared in {@link org.junit.Assert#assertEquals(Object, Object)}
-     * @return a spoon node representing the invocation to the assertion, ready to be inserted in a test method
-    public static CtInvocation buildInvocation(Factory factory, String methodName, List<CtExpression> arguments) {
-        final CtInvocation invocation = factory.createInvocation();
-        final CtExecutableReference<?> executableReference = factory.Core().createExecutableReference();
-        executableReference.setStatic(true);
-        executableReference.setSimpleName(methodName);
-        executableReference.setDeclaringType(factory.Type().createReference("org.junit.Assert"));
-        invocation.setExecutable(executableReference);
-        invocation.setArguments(arguments); // TODO
-        invocation.setType(factory.Type().voidPrimitiveType());
-        invocation.setTarget(factory.createTypeAccess(factory.Type().createReference("org.junit.Assert")));
-        invocation.putMetadata(METADATA_ASSERT_AMPLIFICATION, true);
-        return invocation;
-    }
-     */
 
     public final static String METADATA_ASSERT_AMPLIFICATION = "A-Amplification";
 }

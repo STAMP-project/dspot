@@ -1,7 +1,6 @@
 package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtElement;

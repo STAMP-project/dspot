@@ -1,7 +1,5 @@
 package eu.stamp_project.test_framework.junit;
 
-import spoon.reflect.code.CtInvocation;
-
 /**
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
