@@ -108,7 +108,9 @@ public class TestFramework implements TestFrameworkSupport {
                                         .filter(testFrameworkSupport::isAssert)
                                         .count()
                 ));
-
+        if (numberOfCallsToAssertionPerTestFramework.values().stream().allMatch(aLong -> aLong == 0L)) {
+            return this.testFrameworkSupportList.get(1);
+        }
         return Collections.max(numberOfCallsToAssertionPerTestFramework.entrySet(), Map.Entry.comparingByValue()).getKey();
     }
 
