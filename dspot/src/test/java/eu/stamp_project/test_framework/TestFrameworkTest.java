@@ -8,6 +8,7 @@ import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
@@ -109,5 +110,15 @@ public class TestFrameworkTest extends AbstractTest {
                 Collections.singletonList(InputConfiguration.get().getFactory().createThisAccess(testClass.getReference()))
         );
         assertEquals(ctInvocation.toString(), nameOfExpectedAssertClass + "assertNotNull(this)", ctInvocation.toString());
+
+        ctInvocation = TestFramework.get().buildInvocationToAssertion(
+                testMethod,
+                AssertEnum.ASSERT_EQUALS,
+                Arrays.asList(
+                        InputConfiguration.get().getFactory().createThisAccess(testClass.getReference()),
+                        InputConfiguration.get().getFactory().createThisAccess(testClass.getReference())
+                )
+        );
+        assertEquals(ctInvocation.toString(), nameOfExpectedAssertClass + "assertEquals(this, this)", ctInvocation.toString());
     }
 }
