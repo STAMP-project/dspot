@@ -20,12 +20,6 @@ import java.util.List;
  */
 public abstract class JUnitSupport extends AbstractTestFramework {
 
-    protected final String qualifiedNameOfAssertClass;
-
-    protected String getFullQualifiedNameOfAssertClass() {
-        return this.qualifiedNameOfAssertClass;
-    }
-
     protected abstract String getFullQualifiedNameOfAnnotationTest();
 
     protected abstract String getFullQualifiedNameOfAnnotationIgnore();
@@ -40,7 +34,6 @@ public abstract class JUnitSupport extends AbstractTestFramework {
 
     public JUnitSupport(String qualifiedNameOfAssertClass) {
         super(qualifiedNameOfAssertClass);
-        this.qualifiedNameOfAssertClass = qualifiedNameOfAssertClass;
     }
 
     @Override

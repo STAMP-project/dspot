@@ -12,11 +12,6 @@ public class JUnit4Support extends JUnitSupport {
     }
 
     @Override
-    protected String getFullQualifiedNameOfAssertClass() {
-        return null;
-    }
-
-    @Override
     protected String getFullQualifiedNameOfAnnotationTest() {
         return "org.junit.Test";
     }

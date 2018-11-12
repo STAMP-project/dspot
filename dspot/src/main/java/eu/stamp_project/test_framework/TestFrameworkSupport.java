@@ -50,7 +50,10 @@ public interface TestFrameworkSupport {
      * Builds an invocation to <code>methodName</code>
      * @param testMethod test method under amplification
      * @param assertion the type of the assertion
-     * @param arguments  the arguments of the assertion, <i>e.g.</i> the two element to be compared in {@link org.junit.Assert#assertEquals(Object, Object)}
+     * @param arguments  the arguments of the assertion, <i>e.g.</i> the two element to be compared in {@link org.junit.Assert#assertEquals(Object, Object)}.
+     *                   The order of these arguments is arbitrary.
+     *                   Conventionally, the expected value is on the left of the assertion and the actual one is on the right.
+     *                   So, it expects that the expected value is the first element, and the actual the second element. (When the assertion requires two values).
      * @return a spoon node representing the invocation to the assertion, ready to be inserted in a test method
      */
     public CtInvocation<?> buildInvocationToAssertion(CtMethod<?> testMethod, AssertEnum assertion, List<CtExpression> arguments);

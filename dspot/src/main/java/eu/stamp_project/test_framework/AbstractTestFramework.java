@@ -13,8 +13,11 @@ public abstract class AbstractTestFramework implements TestFrameworkSupport {
 
     private IsAssertInvocationFilter filter;
 
+    protected final String qualifiedNameOfAssertClass;
+
     public AbstractTestFramework(String qualifiedNameOfAssertClass) {
         this.filter = new IsAssertInvocationFilter(qualifiedNameOfAssertClass);
+        this.qualifiedNameOfAssertClass = qualifiedNameOfAssertClass;
     }
 
     @Override
