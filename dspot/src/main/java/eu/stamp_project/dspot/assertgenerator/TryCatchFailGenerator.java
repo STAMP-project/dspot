@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.assertgenerator;
 
-import eu.stamp_project.test_framework.AssertEnum;
+import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.utils.CloneHelper;

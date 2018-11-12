@@ -1,6 +1,6 @@
 package eu.stamp_project.test_framework;
 
-import eu.stamp_project.test_framework.junit.JUnitSupport;
+import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
@@ -45,6 +45,11 @@ public class GoogleTruthTestFramework extends AbstractTestFramework {
         invocation.setTarget(assertThat);
         invocation.putMetadata(METADATA_ASSERT_AMPLIFICATION, true);
         return invocation;
+    }
+
+    @Override
+    public CtMethod<?> prepareTestMethod(CtMethod<?> testMethod) {
+        return testMethod;
     }
 
     @SuppressWarnings("unchecked")

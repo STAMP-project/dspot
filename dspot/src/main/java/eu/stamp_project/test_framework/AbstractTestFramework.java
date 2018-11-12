@@ -1,5 +1,6 @@
 package eu.stamp_project.test_framework;
 
+import eu.stamp_project.test_framework.assertions.IsAssertInvocationFilter;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtElement;

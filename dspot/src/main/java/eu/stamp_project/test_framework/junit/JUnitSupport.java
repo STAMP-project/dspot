@@ -1,7 +1,8 @@
 package eu.stamp_project.test_framework.junit;
 
 import eu.stamp_project.test_framework.AbstractTestFramework;
-import eu.stamp_project.test_framework.AssertEnum;
+import eu.stamp_project.test_framework.assertions.AssertEnum;
+import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.program.InputConfiguration;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
@@ -104,6 +105,19 @@ public abstract class JUnitSupport extends AbstractTestFramework {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public CtMethod<?> prepareTestMethod(CtMethod<?> testMethod) {
+        if (testMethod.getThrownTypes().isEmpty()) {
+            testMethod.addThrownType(
+                    InputConfiguration.get()
+                            .getFactory()
+                            .Type()
+                            .createReference(Exception.class)
+            );
+        }
+        return testMethod;
     }
 
     private static final String ASSERT_NULL = "assertNull";

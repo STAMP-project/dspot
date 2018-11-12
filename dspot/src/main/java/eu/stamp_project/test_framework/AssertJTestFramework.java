@@ -1,5 +1,6 @@
 package eu.stamp_project.test_framework;
 
+import eu.stamp_project.test_framework.assertions.AssertEnum;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtMethod;
@@ -25,5 +26,10 @@ public class AssertJTestFramework extends AbstractTestFramework {
     @Override
     public CtInvocation<?> buildInvocationToAssertion(CtMethod<?> testMethod, AssertEnum assertion, List<CtExpression> arguments) {
         throw new RuntimeException("Unsupported Operation");
+    }
+
+    @Override
+    public CtMethod<?> prepareTestMethod(CtMethod<?> testMethod) {
+        return testMethod;
     }
 }

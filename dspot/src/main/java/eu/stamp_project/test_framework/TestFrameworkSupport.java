@@ -1,5 +1,7 @@
 package eu.stamp_project.test_framework;
 
+import eu.stamp_project.test_framework.assertions.AssertEnum;
+import eu.stamp_project.test_framework.assertions.IsAssertInvocationFilter;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
@@ -62,5 +64,12 @@ public interface TestFrameworkSupport {
      *  key of metadata of spoon nodes to know if its result from amplification
      */
     public final static String METADATA_ASSERT_AMPLIFICATION = "A-Amplification";
+
+    /**
+     * prepare a test method for the amplification
+     * @param testMethod the test method to be prepared
+     * @return a prepared test method for the amplification
+     */
+    public CtMethod<?> prepareTestMethod(CtMethod<?> testMethod);
 
 }

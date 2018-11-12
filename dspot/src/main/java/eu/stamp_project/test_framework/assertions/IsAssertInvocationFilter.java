@@ -1,4 +1,4 @@
-package eu.stamp_project.test_framework;
+package eu.stamp_project.test_framework.assertions;
 
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;

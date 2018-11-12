@@ -1,4 +1,4 @@
-package eu.stamp_project.test_framework;
+package eu.stamp_project.test_framework.assertions;
 
 /**
  * created by Benjamin DANGLOT

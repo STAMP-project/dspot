@@ -1,5 +1,6 @@
 package eu.stamp_project.test_framework;
 
+import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.test_framework.junit.JUnit3Support;
 import eu.stamp_project.test_framework.junit.JUnit4Support;
 import eu.stamp_project.test_framework.junit.JUnit5Support;
@@ -116,8 +117,7 @@ public class TestFramework implements TestFrameworkSupport {
 
     @Override
     public CtInvocation<?> buildInvocationToAssertion(CtMethod<?> testMethod, AssertEnum assertEnum, List<CtExpression> arguments) {
-        final TestFrameworkSupport testFramework = getTestFramework(testMethod);
-        return testFramework.buildInvocationToAssertion(testMethod, assertEnum, arguments);
+        return getTestFramework(testMethod).buildInvocationToAssertion(testMethod, assertEnum, arguments);
     }
 
     /**
@@ -175,5 +175,10 @@ public class TestFramework implements TestFrameworkSupport {
                 .filter(TestFramework.get()::isTest)
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public CtMethod<?> prepareTestMethod(CtMethod<?> testMethod) {
+        return getTestFramework(testMethod).prepareTestMethod(testMethod);
     }
 }
