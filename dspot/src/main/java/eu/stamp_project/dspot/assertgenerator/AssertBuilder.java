@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.assertgenerator;
 
+import eu.stamp_project.test_framework.AssertEnum;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.TypeUtils;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -51,7 +52,7 @@ public class AssertBuilder {
                 final CtExpression variableRead = translator.translate(observationKey);
                 if (value == null) {
                     final CtInvocation<?> assertNull = TestFramework.get()
-                            .buildInvocationToAssertion(testMethod, "assertNull", Collections.singletonList(variableRead));
+                            .buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_NULL, Collections.singletonList(variableRead));
                     invocations.add(assertNull);
                     variableRead.setType(factory.Type().NULL_TYPE);
                 } else {
@@ -60,7 +61,7 @@ public class AssertBuilder {
                         invocations.add(
                                 TestFramework.get()
                                         .buildInvocationToAssertion(testMethod,
-                                                (Boolean) value ? "assertTrue" : "assertFalse",
+                                                (Boolean) value ? AssertEnum.ASSERT_TRUE : AssertEnum.ASSERT_FALSE,
                                                 Collections.singletonList(variableRead)
                                         )
                         );
@@ -72,7 +73,7 @@ public class AssertBuilder {
                                     factory.Type().get(Collection.class).getMethodsByName("isEmpty").get(0).getReference()
                             );
                             invocations.add(
-                                    TestFramework.get().buildInvocationToAssertion(testMethod, "assertTrue",
+                                    TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_TRUE,
                                             Collections.singletonList(isEmpty)
                                     )
                             );
@@ -89,7 +90,7 @@ public class AssertBuilder {
                             );
                             invocations.add(TestFramework.get().buildInvocationToAssertion(
                                     testMethod,
-                                    "assertTrue",
+                                    AssertEnum.ASSERT_TRUE,
                                     Collections.singletonList(isEmpty)
                                     )
                             );
@@ -101,7 +102,7 @@ public class AssertBuilder {
                         addTypeCastIfNeeded(variableRead, value);
                         if (isFloating.test(value)) {
                             invocations.add(
-                                    TestFramework.get().buildInvocationToAssertion(testMethod, "assertEquals",
+                                    TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_EQUALS,
                                             Arrays.asList(
                                                     printPrimitiveString(factory, value),
                                                     variableRead,
@@ -110,12 +111,12 @@ public class AssertBuilder {
                         } else {
                             if (value instanceof String) {
                                 if (!AssertGeneratorHelper.containsObjectReferences((String) value)) {
-                                    invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, "assertEquals",
+                                    invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_EQUALS,
                                             Arrays.asList(printPrimitiveString(factory, value),
                                                     variableRead)));
                                 }
                             } else {
-                                invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, "assertEquals",
+                                invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_EQUALS,
                                         Arrays.asList(printPrimitiveString(factory, value),
                                                 variableRead)));
                             }
@@ -175,7 +176,7 @@ public class AssertBuilder {
                 .map(factory::createLiteral)
                 .map(o ->
                         TestFramework.get().buildInvocationToAssertion(
-                                testMethod, "assertTrue",
+                                testMethod, AssertEnum.ASSERT_TRUE,
                                 Collections.singletonList(factory.createInvocation(variableRead,
                                         contains, (CtLiteral) o
                                         )
@@ -197,13 +198,13 @@ public class AssertBuilder {
         return (List<CtInvocation<?>>) value.keySet().stream()
                 .flatMap(key ->
                         Arrays.stream(new CtInvocation<?>[]{
-                                        TestFramework.get().buildInvocationToAssertion(testMethod, "assertTrue",
+                                        TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_TRUE,
                                                 Collections.singletonList(factory.createInvocation(variableRead,
                                                         containsKey, factory.createLiteral(key)
                                                         )
                                                 )
                                         ),
-                                        TestFramework.get().buildInvocationToAssertion(testMethod, "assertEquals",
+                                        TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_EQUALS,
                                                 Arrays.asList(factory.createLiteral(value.get(key)),
                                                         factory.createInvocation(variableRead,
                                                                 get, factory.createLiteral(key))

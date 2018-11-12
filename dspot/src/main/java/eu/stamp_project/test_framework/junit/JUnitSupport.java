@@ -1,6 +1,7 @@
 package eu.stamp_project.test_framework.junit;
 
 import eu.stamp_project.test_framework.AbstractTestFramework;
+import eu.stamp_project.test_framework.AssertEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
@@ -81,25 +82,20 @@ public abstract class JUnitSupport extends AbstractTestFramework {
     }
 
     /**
-     *  key of metadata of spoon nodes to know if its result from amplification
-     */
-    public final static String METADATA_ASSERT_AMPLIFICATION = "A-Amplification";
-
-    /**
      * Builds an invocation to <code>methodName</code> of {@link org.junit.Assert}.
      * This should be a correct method name such as assertEquals, assertTrue...
      *
-     * @param methodName the name of the assertion method
+     * @param assertion the type of the assertion method
      * @param arguments  the arguments of the assertion, <i>e.g.</i> the two element to be compared in {@link org.junit.Assert#assertEquals(Object, Object)}
      * @return a spoon node representing the invocation to the assertion, ready to be inserted in a test method
      */
     @Override
-    public CtInvocation<?> buildInvocationToAssertion(CtMethod<?> testMethod, String methodName, List<CtExpression> arguments) {
+    public CtInvocation<?> buildInvocationToAssertion(CtMethod<?> testMethod, AssertEnum assertion, List<CtExpression> arguments) {
         final Factory factory = InputConfiguration.get().getFactory();
         final CtInvocation invocation = factory.createInvocation();
         final CtExecutableReference<?> executableReference = factory.Core().createExecutableReference();
         executableReference.setStatic(true);
-        executableReference.setSimpleName(methodName);
+        executableReference.setSimpleName(assertEnumToMethodName(assertion));
         executableReference.setDeclaringType(factory.Type().createReference(this.qualifiedNameOfAssertClass));
         invocation.setExecutable(executableReference);
         invocation.setArguments(arguments); // TODO
@@ -108,4 +104,19 @@ public abstract class JUnitSupport extends AbstractTestFramework {
         invocation.putMetadata(METADATA_ASSERT_AMPLIFICATION, true);
         return invocation;
     }
+
+    private String assertEnumToMethodName(AssertEnum assertEnum) {
+        try {
+            return (String )JUnitSupport.class.getDeclaredField(assertEnum.name()).get(null);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static final String ASSERT_NULL = "assertNull";
+    private static final String ASSERT_NOT_NULL = "assertNotNull";
+    private static final String ASSERT_TRUE = "assertTrue";
+    private static final String ASSERT_FALSE = "assertFalse";
+    private static final String ASSERT_EQUALS = "assertEquals";
+    private static final String ASSERT_NOT_EQUALS = "assertNotEquals";
 }

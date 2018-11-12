@@ -23,7 +23,7 @@ public class GoogleTruthTestFramework extends AbstractTestFramework {
     }
 
     @Override
-    public CtInvocation<?> buildInvocationToAssertion(CtMethod<?> testMethod, String methodName, List<CtExpression> arguments) {
+    public CtInvocation<?> buildInvocationToAssertion(CtMethod<?> testMethod, AssertEnum assertion, List<CtExpression> arguments) {
         throw new RuntimeException("Unsupported Operation");
     }
 

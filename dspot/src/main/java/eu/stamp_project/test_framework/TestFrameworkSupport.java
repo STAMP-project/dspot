@@ -49,10 +49,15 @@ public interface TestFrameworkSupport {
     /**
      * Builds an invocation to <code>methodName</code>
      * @param testMethod test method under amplification
-     * @param methodName the name of the assertion method
+     * @param assertion the type of the assertion
      * @param arguments  the arguments of the assertion, <i>e.g.</i> the two element to be compared in {@link org.junit.Assert#assertEquals(Object, Object)}
      * @return a spoon node representing the invocation to the assertion, ready to be inserted in a test method
      */
-    public CtInvocation<?> buildInvocationToAssertion(CtMethod<?> testMethod, String methodName, List<CtExpression> arguments);
+    public CtInvocation<?> buildInvocationToAssertion(CtMethod<?> testMethod, AssertEnum assertion, List<CtExpression> arguments);
+
+    /**
+     *  key of metadata of spoon nodes to know if its result from amplification
+     */
+    public final static String METADATA_ASSERT_AMPLIFICATION = "A-Amplification";
 
 }

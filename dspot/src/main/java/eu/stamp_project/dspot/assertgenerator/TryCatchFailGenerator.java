@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.assertgenerator;
 
+import eu.stamp_project.test_framework.AssertEnum;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.utils.CloneHelper;
@@ -100,7 +101,7 @@ public class TryCatchFailGenerator {
         if (!AssertGeneratorHelper.containsObjectReferences(failure.messageOfFailure)) {
             ctCatch.getBody().addStatement(
                     TestFramework.get().buildInvocationToAssertion(testMethod,
-                            "assertEquals",
+                            AssertEnum.ASSERT_EQUALS,
                             Arrays.asList(factory.createLiteral(failure.messageOfFailure), getMessage)
                     )
             );

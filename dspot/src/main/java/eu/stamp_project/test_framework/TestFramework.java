@@ -115,9 +115,9 @@ public class TestFramework implements TestFrameworkSupport {
     }
 
     @Override
-    public CtInvocation<?> buildInvocationToAssertion(CtMethod<?> testMethod, String methodName, List<CtExpression> arguments) {
+    public CtInvocation<?> buildInvocationToAssertion(CtMethod<?> testMethod, AssertEnum assertEnum, List<CtExpression> arguments) {
         final TestFrameworkSupport testFramework = getTestFramework(testMethod);
-        return testFramework.buildInvocationToAssertion(testMethod, methodName, arguments);
+        return testFramework.buildInvocationToAssertion(testMethod, assertEnum, arguments);
     }
 
     /**
