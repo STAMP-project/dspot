@@ -2,9 +2,15 @@ package eu.stamp_project.test_framework;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.junit.Test;
+import spoon.reflect.code.CtInvocation;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
+import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -44,7 +50,64 @@ public class TestFrameworkTest extends AbstractTest {
     }
 
     @Test
-    public void testIsAssert() {
+    public void testBuildInvocationJUnit() {
 
+        /*
+            Test the generation of invocation to specific assert methods
+         */
+
+        // JUNIT 3
+        checksBuildInvocationForGivenJUnitVersion(
+                "fr.inria.helper.SecondClassJUnit3",
+                "test",
+                "junit.framework.TestCase."
+        );
+
+        // JUNIT 4
+        checksBuildInvocationForGivenJUnitVersion(
+                "fr.inria.helper.ClassWithInnerClass",
+                "test",
+                "org.junit.Assert."
+        );
+
+        // JUNIT 5
+        checksBuildInvocationForGivenJUnitVersion(
+                "fr.inria.helper.ClassWithInnerClass",
+                "Junit5Test",
+                "org.junit.jupiter.api.Assertions."
+        );
+    }
+
+    private void checksBuildInvocationForGivenJUnitVersion(String fullQualifiedName, String test, String nameOfExpectedAssertClass) {
+        final CtClass<?> testClass = Utils.findClass(fullQualifiedName);
+        final CtMethod testMethod = Utils.findMethod(fullQualifiedName, test);
+        CtInvocation<?> ctInvocation = TestFramework.get().buildInvocationToAssertion(
+                testMethod,
+                AssertEnum.ASSERT_TRUE,
+                Collections.singletonList(InputConfiguration.get().getFactory().createLiteral(true))
+        );
+
+        assertEquals(ctInvocation.toString(), nameOfExpectedAssertClass + "assertTrue(true)", ctInvocation.toString());
+
+        ctInvocation = TestFramework.get().buildInvocationToAssertion(
+                testMethod,
+                AssertEnum.ASSERT_FALSE,
+                Collections.singletonList(InputConfiguration.get().getFactory().createLiteral(false))
+        );
+        assertEquals(ctInvocation.toString(), nameOfExpectedAssertClass + "assertFalse(false)", ctInvocation.toString());
+
+        ctInvocation = TestFramework.get().buildInvocationToAssertion(
+                testMethod,
+                AssertEnum.ASSERT_NULL,
+                Collections.singletonList(InputConfiguration.get().getFactory().createLiteral(null))
+        );
+        assertEquals(ctInvocation.toString(), nameOfExpectedAssertClass + "assertNull(null)", ctInvocation.toString());
+
+        ctInvocation = TestFramework.get().buildInvocationToAssertion(
+                testMethod,
+                AssertEnum.ASSERT_NOT_NULL,
+                Collections.singletonList(InputConfiguration.get().getFactory().createThisAccess(testClass.getReference()))
+        );
+        assertEquals(ctInvocation.toString(), nameOfExpectedAssertClass + "assertNotNull(this)", ctInvocation.toString());
     }
 }
