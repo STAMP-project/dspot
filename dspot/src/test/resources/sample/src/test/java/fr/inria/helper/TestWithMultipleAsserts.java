@@ -24,6 +24,11 @@ public class TestWithMultipleAsserts {
         notVerify();
     }
 
+    @Test
+    public void testThrownException() {
+        throw new RuntimeException();
+    }
+
     private void notVerify() {
         // empty
     }
