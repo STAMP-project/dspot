@@ -1,6 +1,7 @@
 package eu.stamp_project.test_framework;
 
 import eu.stamp_project.test_framework.assertions.AssertEnum;
+import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.utils.program.InputConfiguration;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
@@ -23,7 +24,7 @@ public class GoogleTruthTestFramework extends AbstractTestFramework {
     }
 
     @Override
-    public boolean isTest(CtMethod<?> candidate) throws UnsupportedTestFrameworkException {
+    public boolean isTest(CtMethod<?> candidate) {
         return false;
     }
 
@@ -35,8 +36,8 @@ public class GoogleTruthTestFramework extends AbstractTestFramework {
         //isXXX(expected)
         final CtInvocation invocation = factory.createInvocation();
         final CtExecutableReference<?> executableReference = factory.Core().createExecutableReference();
-        executableReference.setSimpleName(assertEnumToMethodName(assertion));
-        executableReference.setDeclaringType(factory.Type().createReference(assertEnumToMethodName(assertion)));
+        executableReference.setSimpleName(assertion.toStringAccordingToClass(this.getClass()));
+        executableReference.setDeclaringType(factory.Type().createReference(assertion.toStringAccordingToClass(this.getClass())));
         invocation.setExecutable(executableReference);
         if (arguments.size() > 1) {
             invocation.setArguments(Collections.singletonList(arguments.get(0)));
@@ -50,6 +51,11 @@ public class GoogleTruthTestFramework extends AbstractTestFramework {
     @Override
     public CtMethod<?> prepareTestMethod(CtMethod<?> testMethod) {
         return testMethod;
+    }
+
+    @Override
+    public CtMethod<?> generateExpectedExceptionsBlock(CtMethod<?> test, Failure failure, int numberOfFail) {
+        return test;
     }
 
     @SuppressWarnings("unchecked")
@@ -66,14 +72,6 @@ public class GoogleTruthTestFramework extends AbstractTestFramework {
         invocation.setTarget(factory.createTypeAccess(factory.Type().createReference(this.qualifiedNameOfAssertClass)));
         invocation.putMetadata(METADATA_ASSERT_AMPLIFICATION, true);
         return invocation;
-    }
-
-    private String assertEnumToMethodName(AssertEnum assertEnum) {
-        try {
-            return (String ) GoogleTruthTestFramework.class.getDeclaredField(assertEnum.name()).get(null);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private static final String ASSERT_THAT = "assertThat";

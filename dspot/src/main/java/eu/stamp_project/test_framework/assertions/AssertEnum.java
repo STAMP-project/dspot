@@ -1,5 +1,7 @@
 package eu.stamp_project.test_framework.assertions;
 
+import eu.stamp_project.test_framework.GoogleTruthTestFramework;
+
 /**
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -12,6 +14,14 @@ public enum AssertEnum {
     ASSERT_TRUE,
     ASSERT_FALSE,
     ASSERT_EQUALS,
-    ASSERT_NOT_EQUALS
+    ASSERT_NOT_EQUALS;
+
+    public String toStringAccordingToClass(Class<?> clazz) {
+        try {
+            return (String ) clazz.getDeclaredField(this.name()).get(null);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }

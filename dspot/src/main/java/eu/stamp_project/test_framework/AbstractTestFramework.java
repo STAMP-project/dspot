@@ -1,9 +1,14 @@
 package eu.stamp_project.test_framework;
 
 import eu.stamp_project.test_framework.assertions.IsAssertInvocationFilter;
+import spoon.reflect.code.CtCatch;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtElement;
+import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.visitor.filter.TypeFilter;
+
+import java.util.List;
 
 /**
  * created by Benjamin DANGLOT
@@ -41,6 +46,21 @@ public abstract class AbstractTestFramework implements TestFrameworkSupport {
             return this.isAssert(candidate.getParent(CtInvocation.class));
         } else {
             return false;
+        }
+    }
+
+    // here, we get the correct name of the expected Exception.
+    // in JUnit, we use the name 'expected' for the exception in a try/catch block
+    // however, DSpot can generate several such block
+    // this return 'expected' + the number of catch block in the test
+    public String getCorrectExpectedNameOfException(CtMethod<?> test) {
+        String expectedName = "expected";
+        final List<CtCatch> catches =
+                test.getElements(new TypeFilter<>(CtCatch.class));
+        if (catches.isEmpty()) {
+            return expectedName;
+        } else {
+            return expectedName + "_" + catches.size();
         }
     }
 

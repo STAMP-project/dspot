@@ -1,6 +1,7 @@
 package fr.inria.helper;
 
 import static com.google.common.truth.Truth.*;
+
 import org.junit.Test;
 
 /**
@@ -20,5 +21,4 @@ public class GoogleTruthTestClass {
         assertThat(0.0F).isNotNaN();
         assertThat(true).isTrue();
     }
-
 }

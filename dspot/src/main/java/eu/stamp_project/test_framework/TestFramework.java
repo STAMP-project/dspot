@@ -4,6 +4,7 @@ import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.test_framework.junit.JUnit3Support;
 import eu.stamp_project.test_framework.junit.JUnit4Support;
 import eu.stamp_project.test_framework.junit.JUnit5Support;
+import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,5 +181,10 @@ public class TestFramework implements TestFrameworkSupport {
     @Override
     public CtMethod<?> prepareTestMethod(CtMethod<?> testMethod) {
         return getTestFramework(testMethod).prepareTestMethod(testMethod);
+    }
+
+    @Override
+    public CtMethod<?> generateExpectedExceptionsBlock(CtMethod<?> test, Failure failure, int numberOfFail) {
+        return this.getTestFramework(test).generateExpectedExceptionsBlock(test, failure, numberOfFail);
     }
 }

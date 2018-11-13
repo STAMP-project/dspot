@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class TestSupportJUnit5 {
 
     @Test
-    public void testJUnit3() {
+    public void testJUnit5() {
         assertTrue(true);
     }
 }

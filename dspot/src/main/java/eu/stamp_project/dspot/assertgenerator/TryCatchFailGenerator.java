@@ -53,74 +53,14 @@ public class TryCatchFailGenerator {
     public CtMethod<?> surroundWithTryCatchFail(CtMethod<?> test, Failure failure) {
         CtMethod cloneMethodTest = CloneHelper.cloneTestMethodForAmp(test, "");
         cloneMethodTest.setSimpleName(test.getSimpleName());
-        Factory factory = cloneMethodTest.getFactory();
-
         // TestTimedOutException means infinite loop
         // AssertionError means that some assertion remained in the test: TODO
         if (UNSUPPORTED_EXECEPTION.contains(failure.fullQualifiedNameOfException)) {
             return null;
         }
-
-        final String[] split = failure.fullQualifiedNameOfException.split("\\.");
-        final String simpleNameOfException = split[split.length - 1];
-
-        CtTry tryBlock = factory.Core().createTry();
-        tryBlock.setBody(cloneMethodTest.getBody());
-        String snippet = "org.junit.Assert.fail(\"" + test.getSimpleName() + " should have thrown " + simpleNameOfException + "\")";
-        tryBlock.getBody().addStatement(factory.Code().createCodeSnippetStatement(snippet));
-        DSpotUtils.addComment(tryBlock, "AssertGenerator generate try/catch block with fail statement", CtComment.CommentType.INLINE);
-
-        CtCatch ctCatch = factory.Core().createCatch();
-        CtTypeReference exceptionType = factory.Type().createReference(failure.fullQualifiedNameOfException);
-        ctCatch.setParameter(factory.Code().createCatchVariable(exceptionType, getCorrectExpectedNameOfException(test)));
-
-        ctCatch.setBody(factory.Core().createBlock());
-
-        List<CtCatch> catchers = new ArrayList<>(1);
-        catchers.add(ctCatch);
-        addAssertionOnException(test, ctCatch, failure);
-        tryBlock.setCatchers(catchers);
-
-        CtBlock body = factory.Core().createBlock();
-        body.addStatement(tryBlock);
-
-        cloneMethodTest.setBody(body);
-        cloneMethodTest.setSimpleName(cloneMethodTest.getSimpleName() + "_failAssert" + (numberOfFail++));
+        cloneMethodTest = TestFramework.get().generateExpectedExceptionsBlock(cloneMethodTest, failure, this.numberOfFail);
         Counter.updateAssertionOf(cloneMethodTest, 1);
-
         return cloneMethodTest;
-    }
-
-    private void addAssertionOnException(CtMethod<?> testMethod, CtCatch ctCatch, Failure failure) {
-        final Factory factory = ctCatch.getFactory();
-        final CtCatchVariable<? extends Throwable> parameter = ctCatch.getParameter();
-        final CtInvocation<?> getMessage = factory.createInvocation(
-                factory.createVariableRead(parameter.getReference(), false),
-                factory.Class().get(java.lang.Throwable.class).getMethodsByName("getMessage").get(0).getReference()
-        );
-        if (!AssertGeneratorHelper.containsObjectReferences(failure.messageOfFailure)) {
-            ctCatch.getBody().addStatement(
-                    TestFramework.get().buildInvocationToAssertion(testMethod,
-                            AssertEnum.ASSERT_EQUALS,
-                            Arrays.asList(factory.createLiteral(failure.messageOfFailure), getMessage)
-                    )
-            );
-        }
-    }
-
-    // here, we get the correct name of the expected Exception.
-    // in JUnit, we use the name 'expected' for the exception in a try/catch block
-    // however, DSpot can generate several such block
-    // this return 'expected' + the number of catch block in the test
-    private String getCorrectExpectedNameOfException(CtMethod<?> test) {
-        String expectedName = "expected";
-        final List<CtCatch> catches =
-                test.getElements(new TypeFilter<>(CtCatch.class));
-        if (catches.isEmpty()) {
-            return expectedName;
-        } else {
-            return expectedName + "_" + catches.size();
-        }
     }
 
 }

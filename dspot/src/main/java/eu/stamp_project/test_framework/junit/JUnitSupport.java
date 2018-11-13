@@ -1,15 +1,20 @@
 package eu.stamp_project.test_framework.junit;
 
+import eu.stamp_project.dspot.assertgenerator.AssertGeneratorHelper;
 import eu.stamp_project.test_framework.AbstractTestFramework;
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
-import eu.stamp_project.utils.CloneHelper;
+import eu.stamp_project.testrunner.runner.test.Failure;
+import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.program.InputConfiguration;
-import spoon.reflect.code.CtExpression;
-import spoon.reflect.code.CtInvocation;
+import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
+import spoon.reflect.reference.CtTypeReference;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -89,7 +94,7 @@ public abstract class JUnitSupport extends AbstractTestFramework {
         final CtInvocation invocation = factory.createInvocation();
         final CtExecutableReference<?> executableReference = factory.Core().createExecutableReference();
         executableReference.setStatic(true);
-        executableReference.setSimpleName(assertEnumToMethodName(assertion));
+        executableReference.setSimpleName(assertion.toStringAccordingToClass(JUnitSupport.class));
         executableReference.setDeclaringType(factory.Type().createReference(this.qualifiedNameOfAssertClass));
         invocation.setExecutable(executableReference);
         invocation.setArguments(arguments); // TODO
@@ -97,14 +102,6 @@ public abstract class JUnitSupport extends AbstractTestFramework {
         invocation.setTarget(factory.createTypeAccess(factory.Type().createReference(this.qualifiedNameOfAssertClass)));
         invocation.putMetadata(METADATA_ASSERT_AMPLIFICATION, true);
         return invocation;
-    }
-
-    private String assertEnumToMethodName(AssertEnum assertEnum) {
-        try {
-            return (String )JUnitSupport.class.getDeclaredField(assertEnum.name()).get(null);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
@@ -126,4 +123,56 @@ public abstract class JUnitSupport extends AbstractTestFramework {
     private static final String ASSERT_FALSE = "assertFalse";
     private static final String ASSERT_EQUALS = "assertEquals";
     private static final String ASSERT_NOT_EQUALS = "assertNotEquals";
+
+    @Override
+    public CtMethod<?> generateExpectedExceptionsBlock(CtMethod<?> test, Failure failure, int numberOfFail) {
+        final Factory factory = InputConfiguration.get().getFactory();
+
+        final String[] split = failure.fullQualifiedNameOfException.split("\\.");
+        final String simpleNameOfException = split[split.length - 1];
+
+        CtTry tryBlock = factory.Core().createTry();
+        tryBlock.setBody(test.getBody());
+        String snippet = "org.junit.Assert.fail(\"" + test.getSimpleName() + " should have thrown " + simpleNameOfException + "\")";
+        tryBlock.getBody().addStatement(factory.Code().createCodeSnippetStatement(snippet));
+        DSpotUtils.addComment(tryBlock, "AssertGenerator generate try/catch block with fail statement", CtComment.CommentType.INLINE);
+
+        CtCatch ctCatch = factory.Core().createCatch();
+        CtTypeReference exceptionType = factory.Type().createReference(failure.fullQualifiedNameOfException);
+        ctCatch.setParameter(factory.Code().createCatchVariable(exceptionType, this.getCorrectExpectedNameOfException(test)));
+
+        ctCatch.setBody(factory.Core().createBlock());
+
+        List<CtCatch> catchers = new ArrayList<>(1);
+        catchers.add(ctCatch);
+        addAssertionOnException(test, ctCatch, failure);
+        tryBlock.setCatchers(catchers);
+
+        CtBlock body = factory.Core().createBlock();
+        body.addStatement(tryBlock);
+
+        test.setBody(body);
+        test.setSimpleName(test.getSimpleName() + "_failAssert" + (numberOfFail));
+
+
+        return test;
+    }
+
+    private void addAssertionOnException(CtMethod<?> testMethod, CtCatch ctCatch, Failure failure) {
+        final Factory factory = ctCatch.getFactory();
+        final CtCatchVariable<? extends Throwable> parameter = ctCatch.getParameter();
+        final CtInvocation<?> getMessage = factory.createInvocation(
+                factory.createVariableRead(parameter.getReference(), false),
+                factory.Class().get(java.lang.Throwable.class).getMethodsByName("getMessage").get(0).getReference()
+        );
+        if (!AssertGeneratorHelper.containsObjectReferences(failure.messageOfFailure)) {
+            ctCatch.getBody().addStatement(
+                    TestFramework.get().buildInvocationToAssertion(
+                            testMethod,
+                            AssertEnum.ASSERT_EQUALS,
+                            Arrays.asList(factory.createLiteral(failure.messageOfFailure), getMessage)
+                    )
+            );
+        }
+    }
 }

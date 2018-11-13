@@ -2,6 +2,7 @@ package eu.stamp_project.test_framework;
 
 import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.test_framework.assertions.IsAssertInvocationFilter;
+import eu.stamp_project.testrunner.runner.test.Failure;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
@@ -46,7 +47,7 @@ public interface TestFrameworkSupport {
      * @param candidate the potential test method
      * @return true of the given candidate is a test method, false otherwise
      */
-    public boolean isTest(CtMethod<?> candidate) throws UnsupportedTestFrameworkException;
+    public boolean isTest(CtMethod<?> candidate);
 
     /**
      * Builds an invocation to <code>methodName</code>
@@ -71,5 +72,14 @@ public interface TestFrameworkSupport {
      * @return a prepared test method for the amplification
      */
     public CtMethod<?> prepareTestMethod(CtMethod<?> testMethod);
+
+    /**
+     * This method generate the code needed when a test set the program under a unstable state and throws an exception.
+     * @param test the test method under amplification
+     * @param failure the failure returned by the test runner
+     * @param numberOfFail the number of amplified test methods that expect a exception to be thrown. This int is used to identify uniquely the test.
+     * @return the test method expected the exception to be thrown by the program
+     */
+    public CtMethod<?> generateExpectedExceptionsBlock(CtMethod<?> test, Failure failure, int numberOfFail);
 
 }

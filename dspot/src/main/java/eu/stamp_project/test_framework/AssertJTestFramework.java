@@ -1,6 +1,7 @@
 package eu.stamp_project.test_framework;
 
 import eu.stamp_project.test_framework.assertions.AssertEnum;
+import eu.stamp_project.testrunner.runner.test.Failure;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtMethod;
@@ -19,7 +20,7 @@ public class AssertJTestFramework extends AbstractTestFramework {
     }
 
     @Override
-    public boolean isTest(CtMethod<?> candidate) throws UnsupportedTestFrameworkException {
+    public boolean isTest(CtMethod<?> candidate){
         return false;
     }
 
@@ -31,5 +32,10 @@ public class AssertJTestFramework extends AbstractTestFramework {
     @Override
     public CtMethod<?> prepareTestMethod(CtMethod<?> testMethod) {
         return testMethod;
+    }
+
+    @Override
+    public CtMethod<?> generateExpectedExceptionsBlock(CtMethod<?> test, Failure failure, int numberOfFail) {
+        return test;
     }
 }

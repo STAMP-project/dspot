@@ -2,6 +2,7 @@ package eu.stamp_project.test_framework;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
+import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;

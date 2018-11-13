@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
  */
 public class AssertGeneratorHelper {
 
-    static boolean containsObjectReferences(String candidate) {
+    public static boolean containsObjectReferences(String candidate) {
         return candidate != null &&
                 Pattern.compile("(\\w+\\.)*\\w@[a-f0-9]+").matcher(candidate).find();
     }
