@@ -68,9 +68,7 @@ public class JUnit4Support extends JUnitSupport {
                     values.put("timeout", newTimeout);
                 }
             }
-            if (values.containsKey("expected")) {
-                values.remove("expected");
-            }
+            values.remove("expected");
             testAnnotation.setValues(values);
         } else {
             CtAnnotation newTestAnnotation = factory.Core().createAnnotation();

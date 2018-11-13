@@ -76,11 +76,11 @@ public class GoogleTruthTestFramework extends AbstractTestFramework {
 
     private static final String ASSERT_THAT = "assertThat";
 
-    private static final String ASSERT_NULL = "isNull";
-    private static final String ASSERT_NOT_NULL = "isNotNull";
-    private static final String ASSERT_TRUE = "isTrue";
-    private static final String ASSERT_FALSE = "isFalse";
-    private static final String ASSERT_EQUALS = "isEqualsTo";
-    private static final String ASSERT_NOT_EQUALS = "isNotEqualsTo";
+    public static final String ASSERT_NULL = "isNull";
+    public static final String ASSERT_NOT_NULL = "isNotNull";
+    public static final String ASSERT_TRUE = "isTrue";
+    public static final String ASSERT_FALSE = "isFalse";
+    public static final String ASSERT_EQUALS = "isEqualsTo";
+    public static final String ASSERT_NOT_EQUALS = "isNotEqualsTo";
 
 }

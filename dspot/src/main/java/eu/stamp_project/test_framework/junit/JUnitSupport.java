@@ -117,12 +117,12 @@ public abstract class JUnitSupport extends AbstractTestFramework {
         return testMethod;
     }
 
-    private static final String ASSERT_NULL = "assertNull";
-    private static final String ASSERT_NOT_NULL = "assertNotNull";
-    private static final String ASSERT_TRUE = "assertTrue";
-    private static final String ASSERT_FALSE = "assertFalse";
-    private static final String ASSERT_EQUALS = "assertEquals";
-    private static final String ASSERT_NOT_EQUALS = "assertNotEquals";
+    public static final String ASSERT_NULL = "assertNull";
+    public static final String ASSERT_NOT_NULL = "assertNotNull";
+    public static final String ASSERT_TRUE = "assertTrue";
+    public static final String ASSERT_FALSE = "assertFalse";
+    public static final String ASSERT_EQUALS = "assertEquals";
+    public static final String ASSERT_NOT_EQUALS = "assertNotEquals";
 
     @Override
     public CtMethod<?> generateExpectedExceptionsBlock(CtMethod<?> test, Failure failure, int numberOfFail) {
@@ -133,7 +133,7 @@ public abstract class JUnitSupport extends AbstractTestFramework {
 
         CtTry tryBlock = factory.Core().createTry();
         tryBlock.setBody(test.getBody());
-        String snippet = "org.junit.Assert.fail(\"" + test.getSimpleName() + " should have thrown " + simpleNameOfException + "\")";
+        String snippet = this.qualifiedNameOfAssertClass + ".fail(\"" + test.getSimpleName() + " should have thrown " + simpleNameOfException + "\")";
         tryBlock.getBody().addStatement(factory.Code().createCodeSnippetStatement(snippet));
         DSpotUtils.addComment(tryBlock, "AssertGenerator generate try/catch block with fail statement", CtComment.CommentType.INLINE);
 
@@ -154,7 +154,6 @@ public abstract class JUnitSupport extends AbstractTestFramework {
         test.setBody(body);
         test.setSimpleName(test.getSimpleName() + "_failAssert" + (numberOfFail));
 
-
         return test;
     }
 
@@ -167,7 +166,7 @@ public abstract class JUnitSupport extends AbstractTestFramework {
         );
         if (!AssertGeneratorHelper.containsObjectReferences(failure.messageOfFailure)) {
             ctCatch.getBody().addStatement(
-                    TestFramework.get().buildInvocationToAssertion(
+                    this.buildInvocationToAssertion(
                             testMethod,
                             AssertEnum.ASSERT_EQUALS,
                             Arrays.asList(factory.createLiteral(failure.messageOfFailure), getMessage)
