@@ -2,7 +2,6 @@ package eu.stamp_project.test_framework.junit;
 
 import eu.stamp_project.dspot.assertgenerator.AssertGeneratorHelper;
 import eu.stamp_project.test_framework.AbstractTestFramework;
-import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.utils.DSpotUtils;

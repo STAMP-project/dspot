@@ -1,23 +1,11 @@
 package eu.stamp_project.dspot.assertgenerator;
 
-import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.runner.test.Failure;
 import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.Counter;
-import eu.stamp_project.utils.DSpotUtils;
-import spoon.reflect.code.CtBlock;
-import spoon.reflect.code.CtCatch;
-import spoon.reflect.code.CtCatchVariable;
-import spoon.reflect.code.CtComment;
-import spoon.reflect.code.CtInvocation;
-import spoon.reflect.code.CtTry;
 import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.factory.Factory;
-import spoon.reflect.reference.CtTypeReference;
-import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

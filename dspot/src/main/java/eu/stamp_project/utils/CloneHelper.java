@@ -1,22 +1,11 @@
 package eu.stamp_project.utils;
 
 import eu.stamp_project.test_framework.TestFramework;
-import spoon.reflect.code.CtExpression;
-import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.factory.Factory;
-import spoon.reflect.reference.CtPackageReference;
-import spoon.reflect.reference.CtTypeReference;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static java.lang.Integer.parseInt;
-import static java.lang.Long.parseLong;
-import static java.lang.Math.toIntExact;
 
 /**
  * Created by Benjamin DANGLOT

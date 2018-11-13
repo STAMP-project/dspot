@@ -1,7 +1,5 @@
 package eu.stamp_project.test_framework.assertions;
 
-import eu.stamp_project.test_framework.GoogleTruthTestFramework;
-
 /**
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
