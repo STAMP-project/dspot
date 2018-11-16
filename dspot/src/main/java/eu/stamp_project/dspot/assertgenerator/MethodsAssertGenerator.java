@@ -3,7 +3,7 @@ package eu.stamp_project.dspot.assertgenerator;
 import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.compare.Observation;
 import eu.stamp_project.dspot.AmplificationException;
-import eu.stamp_project.testrunner.runner.test.TestListener;
+import eu.stamp_project.testrunner.listener.TestListener;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.Counter;

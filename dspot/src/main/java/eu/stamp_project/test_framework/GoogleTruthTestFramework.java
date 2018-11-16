@@ -1,7 +1,7 @@
 package eu.stamp_project.test_framework;
 
 import eu.stamp_project.test_framework.assertions.AssertEnum;
-import eu.stamp_project.testrunner.runner.test.Failure;
+import eu.stamp_project.testrunner.runner.Failure;
 import eu.stamp_project.utils.program.InputConfiguration;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;

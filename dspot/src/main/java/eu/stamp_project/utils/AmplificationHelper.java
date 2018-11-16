@@ -1,8 +1,8 @@
 package eu.stamp_project.utils;
 
 import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.testrunner.listener.TestListener;
 import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;

@@ -1,10 +1,10 @@
 package eu.stamp_project.minimization;
 
 import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.testrunner.listener.TestListener;
+import eu.stamp_project.testrunner.runner.Failure;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
-import eu.stamp_project.testrunner.runner.test.Failure;
-import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
