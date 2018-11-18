@@ -23,14 +23,18 @@ import org.xml.sax.helpers.DefaultHandler;
 
 /*
 
+
+TODO: look at how PirXMLResult objects actually encodes
+
 TODO: implement getPathOfMutationsCsvFile and parseAndDelete
 TODO: represent methodDescription properly
-TODO: look at how PirXMLResult objects actually encodes
 
 TODO: abstract csv parser
 TODO: abstract csv pitresult
 
 TODO: abstract test?
+
+TODO: use utf8?
 
  */
 public class PitXMLResultParser extends AbstractParser {
@@ -57,17 +61,19 @@ public class PitXMLResultParser extends AbstractParser {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
             class Handler extends DefaultHandler {
+                private StringBuilder stringBuilder;
                 final List<PitXMLResult> results = new ArrayList<>();
-                AbstractPitResult.State state;
-                boolean bmethodDescription, blineNumber, bindex, bblock, bsourceFile, bmutatedClass, bmutatedMethod,
-                        bmutator, bkillingTest, bdescription = false;
-                boolean detected;
-                int numberOfTestsRun, lineNumber, index, block;
                 String sourceFile, methodDescription, mutatedClass, mutatedMethod, mutator, killingTest, description,
                         fullQualifiedNameMethod, fullQualifiedNameClass;
+                int numberOfTestsRun, lineNumber, index, block;
+                AbstractPitResult.State state;
+                boolean detected;
+                boolean startElement = false;
 
                 @Override
                 public void startElement(String uri, String localName, String qName, Attributes attributes) {
+                    startElement = true;
+                    stringBuilder = new StringBuilder();
                     if (qName.equalsIgnoreCase("mutation")) {
                         detected = Boolean.parseBoolean(attributes.getValue("detected"));
                         numberOfTestsRun = Integer.parseInt(attributes.getValue("numberOfTestsRun"));
@@ -77,76 +83,37 @@ public class PitXMLResultParser extends AbstractParser {
                             state = AbstractPitResult.State.NO_COVERAGE;
                         }
                     }
-                    if (qName.equalsIgnoreCase("sourceFile"))
-                        bsourceFile = true;
-                    if (qName.equalsIgnoreCase("mutatedClass"))
-                        bmutatedClass = true;
-                    if (qName.equalsIgnoreCase("mutatedMethod"))
-                        bmutatedMethod = true;
-                    if (qName.equalsIgnoreCase("methodDescription"))
-                        bmethodDescription = true;
-                    if (qName.equalsIgnoreCase("lineNumber"))
-                        blineNumber = true;
-                    if (qName.equalsIgnoreCase("mutator"))
-                        bmutator = true;
-                    if (qName.equalsIgnoreCase("index"))
-                        bindex = true;
-                    if (qName.equalsIgnoreCase("block"))
-                        bblock = true;
-                    if (qName.equalsIgnoreCase("killingTest"))
-                        bkillingTest = true;
-                    if (qName.equalsIgnoreCase("description"))
-                        bdescription = true;
                 }
 
                 @Override
                 public void characters(char ch[], int start, int length) {
-                    if (bsourceFile) {
-                        sourceFile = new String(ch, start, length);
-                        bsourceFile = false;
-                    }
-                    if (bmutatedClass) {
-                        mutatedClass = new String(ch, start, length);
-                        bmutatedClass = false;
-                    }
-                    if (bmutatedMethod) {
-                        mutatedMethod = new String(ch, start, length);
-                        bmutatedMethod = false;
-                    }
-                    if (bmethodDescription) {
-                        methodDescription = new String(ch, start, length);
-                        bmethodDescription = false;
-                    }
-                    if (blineNumber) {
-                        lineNumber = Integer.parseInt(new String(ch, start, length));
-                        blineNumber = false;
-                    }
-                    if (bmutator) {
-                        mutator = new String(ch, start, length);
-                        bmutator = false;
-                    }
-                    if (bindex) {
-                        index = Integer.parseInt(new String(ch, start, length));
-                        bindex = false;
-                    }
-                    if (bblock) {
-                        block = Integer.parseInt(new String(ch, start, length));
-                        bblock = false;
-                    }
-                    if (bkillingTest) {
-                        killingTest = new String(ch, start, length);
-                        bkillingTest = false;
-                    }
-                    if (bdescription) {
-                        description = new String(ch, start, length);
-                        bdescription = false;
-                    }
+                    stringBuilder.append(new String(ch, start, length));
                 }
 
                 @Override
                 public void endElement(String uri, String localName, String qName) {
+                    if (qName.equalsIgnoreCase("sourceFile"))
+                        sourceFile = stringBuilder.toString();
+                    if (qName.equalsIgnoreCase("mutatedClass"))
+                        mutatedClass = stringBuilder.toString();
+                    if (qName.equalsIgnoreCase("mutatedMethod"))
+                        mutatedMethod = stringBuilder.toString();
+                    if (qName.equalsIgnoreCase("methodDescription"))
+                        methodDescription = stringBuilder.toString();
+                    if (qName.equalsIgnoreCase("lineNumber"))
+                        lineNumber = Integer.parseInt(stringBuilder.toString());
+                    if (qName.equalsIgnoreCase("mutator"))
+                        mutator = stringBuilder.toString();
+                    if (qName.equalsIgnoreCase("index"))
+                        index = Integer.parseInt(stringBuilder.toString());
+                    if (qName.equalsIgnoreCase("block"))
+                        block = Integer.parseInt(stringBuilder.toString());
+                    if (qName.equalsIgnoreCase("killingTest"))
+                        killingTest = stringBuilder.toString();
+                    if (qName.equalsIgnoreCase("description"))
+                        description = stringBuilder.toString();
                     if (qName.equalsIgnoreCase("mutation")) {
-                        if (killingTest.trim().equals("none")) {
+                        if (killingTest.trim().equals("")) {
                             fullQualifiedNameMethod = "none";
                             fullQualifiedNameClass = "none";
                         } else {
@@ -164,6 +131,7 @@ public class PitXMLResultParser extends AbstractParser {
                                 lineNumber, mutatedMethod, methodDescription, description, index, block,
                                 numberOfTestsRun, detected));
                     }
+                    startElement = false;
                 }
 
                 public List<PitXMLResult> getResults() {
