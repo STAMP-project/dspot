@@ -135,56 +135,16 @@ public class PitXMLResultParser extends AbstractParser {
 
 
         try {
-            fullQualifiedNameOfMutatedClass, state, fullQualifiedNameMutantOperator, fullQualifiedNameMethod,
-                    fullQualifiedNameClass, lineNumber, nameOfLocalisation, methodDescription,
-                    index, block, numberOfTestsRun, detected
-
-
-
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
-
             DefaultHandler handler = new DefaultHandler() {
-
                 final List<PitXMLResult> results = new ArrayList<>();
                 AbstractPitResult.State state;
-
-                boolean bfullQualifiedNameOfMutatedClass= false;
-                boolean bstate= false;
-                boolean bfullQualifiedNameMutantOperator = false;
-                boolean bfullQualifiedNameMethod= false;
-                boolean bfullQualifiedNameClass = false;
-
-                boolean bnameOfLocalisation = false;
-                boolean bmutationDescription = false;
-
-                boolean bmethodDescription = false;
-                boolean blineNumber = false;
-                boolean bindex = false;
-                boolean bblock = false;
-                boolean bnumberOfTestsRun = false;
-                boolean bdetected = false;
-                boolean bsourceFile = false;
-                boolean bmutatedClass = false;
-                boolean bmutatedMethod = false;
-                boolean bmutator = false;
-                boolean bkillingTest = false;
-                boolean bdescription = false;
-
-                int numberOfTestsRun;
+                boolean bmethodDescription, blineNumber, bindex, bblock, bsourceFile, bmutatedClass, bmutatedMethod,
+                 bmutator, bkillingTest, bdescription = false;
                 boolean detected;
-                String methodDescription;
-                int lineNumber;
-                int index;
-                int block;
-                String sourceFile;
-                String mutatedClass;
-                String mutatedMethod;
-                String mutator;
-                String killingTest;
-                String description;
-
-                boolean a, b, c = false;
+                int numberOfTestsRun, lineNumber, index, block;
+                String sourceFile, methodDescription, mutatedClass, mutatedMethod, mutator, killingTest, description;
 
                 public void startElement(String uri, String localName, String qName, Attributes attributes) {
                     if (qName.equalsIgnoreCase("mutation")) {
@@ -259,7 +219,6 @@ public class PitXMLResultParser extends AbstractParser {
                                 numberOfTestsRun, detected));
                     }
                 }
-
             };
 
             File file = new File("c:\\file.xml");
