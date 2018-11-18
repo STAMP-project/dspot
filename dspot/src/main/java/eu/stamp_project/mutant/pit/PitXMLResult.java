@@ -93,10 +93,12 @@ public class PitXMLResult extends AbstractPitResult {
                 ", fullQualifiedNameOfKiller='" + fullQualifiedNameOfKiller + '\'' +
                 ", simpleNameMethod='" + simpleNameMethod + '\'' +
                 ", testCase=" + testCase + '\'' +
-                ", fullQualifiedNameOfKiller='" + methodDescription + '\'' +
-                ", methodDescription='" + mutationDescription + '\'' +
+                ", methodDescription='" + methodDescription + '\'' +
+                ", mutationDescription='" + mutationDescription + '\'' +
                 ", index='" + index + '\'' +
                 ", block='" + block + '\'' +
+                ", numberOfTestsRun='" + numberOfTestsRun + '\'' +
+                ", detected='" + detected + '\'' +
                 '}';
     }
 }
