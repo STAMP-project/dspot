@@ -16,7 +16,7 @@ public class AbstractPitResult {
 
     protected final int lineNumber;
 
-    protected final PitResult.State stateOfMutant;
+    protected final AbstractPitResult.State stateOfMutant;
 
     protected final String fullQualifiedNameOfKiller;
 
@@ -24,7 +24,7 @@ public class AbstractPitResult {
 
     protected CtMethod testCase = null;
 
-    public AbstractPitResult(String fullQualifiedNameOfMutatedClass, PitResult.State stateOfMutant,
+    public AbstractPitResult(String fullQualifiedNameOfMutatedClass, AbstractPitResult.State stateOfMutant,
                      String fullQualifiedNameMutantOperator,
                      String fullQualifiedNameMethod, String fullQualifiedNameOfKiller,
                      int lineNumber,
@@ -39,7 +39,7 @@ public class AbstractPitResult {
         this.nameOfMutatedMethod = nameOfLocalisation;
     }
 
-    public PitResult.State getStateOfMutant() {
+    public AbstractPitResult.State getStateOfMutant() {
         return stateOfMutant;
     }
 
