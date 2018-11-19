@@ -1,7 +1,7 @@
 package eu.stamp_project.automaticbuilder.maven;
 
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.DSpotUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
@@ -100,10 +100,10 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         if (this.hasGeneratePom) {
             this.hasGeneratePom = false;
             try {
-                FileUtils.forceDelete(new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.DSPOT_POM_FILE));
+                FileUtils.forceDelete(new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + DSpotPOMCreator.getPOMName()));
             } catch (IOException e) {
                 if (displayError) {
-                    LOGGER.warn("Something bad happened when trying to delete {}.", InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.DSPOT_POM_FILE);
+                    LOGGER.warn("Something bad happened when trying to delete {}.", DSpotPOMCreator.getPOMName());
                     e.printStackTrace();
                     LOGGER.warn("Ignoring, moving forward...");
                 }
@@ -124,13 +124,13 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
         }
         try {
-            String[] goals = new String[] {
-                CMD_PIT_MUTATION_COVERAGE, //
-                testClasses.length > 0 ?
-                        OPT_TARGET_TESTS + Arrays.stream(testClasses)
-                                .map(DSpotUtils::ctTypeToFullQualifiedName)
-                                .collect(Collectors.joining(",")) :
-                        "" //
+            String[] goals = new String[]{
+                    CMD_PIT_MUTATION_COVERAGE, //
+                    testClasses.length > 0 ?
+                            OPT_TARGET_TESTS + Arrays.stream(testClasses)
+                                    .map(DSpotUtils::ctTypeToFullQualifiedName)
+                                    .collect(Collectors.joining(",")) :
+                            "" //
             };
             if (this.runGoals(true, goals) != 0) {
                 throw new RuntimeException("Maven build failed! Enable verbose mode for more information (--verbose)");
@@ -146,13 +146,13 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     }
 
     private int runGoals(boolean specificPom, String... goals) {
-        if (specificPom && !new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.DSPOT_POM_FILE).exists()) {
+        if (specificPom && !new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.getPOMName()).exists()) {
             DSpotPOMCreator.createNewPom();
             this.hasGeneratePom = true;
         }
         InvocationRequest request = new DefaultInvocationRequest();
         request.setGoals(Arrays.asList(goals));
-        final String pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot() + (specificPom ? DSpotPOMCreator.DSPOT_POM_FILE :  DSpotPOMCreator.POM_FILE);
+        final String pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot() + (specificPom ? DSpotPOMCreator.getPOMName() : DSpotPOMCreator.POM_FILE);
         LOGGER.info("Using {} to run maven.", pomPathname);
         request.setPomFile(new File(pomPathname));
         request.setJavaHome(new File(System.getProperty("java.home")));

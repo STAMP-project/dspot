@@ -3,7 +3,7 @@ package eu.stamp_project.dspot;
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.Main;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -38,7 +38,7 @@ public class DSpotSelectionTest {
         }
 
         @Override
-        protected CtType _amplify(CtType test, List<CtMethod<?>> methods) {
+        protected CtType<?> _amplify(CtType<?> test, List<CtMethod<?>> methods) {
             methodsToBeAmplified.addAll(methods);
             typesToBeAmplified.add(test);
             return test;

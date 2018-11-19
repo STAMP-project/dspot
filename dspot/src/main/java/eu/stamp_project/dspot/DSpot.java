@@ -6,13 +6,12 @@ import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.budget.Budgetizer;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.options.BudgetizerEnum;
-import eu.stamp_project.program.InputConfiguration;
-import eu.stamp_project.utils.AmplificationChecker;
+import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.utils.options.BudgetizerEnum;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.JUnit3Support;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.json.ClassTimeJSON;
 import eu.stamp_project.utils.json.ProjectTimeJSON;
@@ -21,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.declaration.ModifierKind;
 
 import java.io.File;
 import java.io.FileReader;
@@ -114,12 +112,8 @@ public class DSpot {
             targetTestClasses = targetTestClasses.replaceAll("\\.", "\\\\\\.").replaceAll("\\*", ".*");
         }
         Pattern pattern = Pattern.compile(targetTestClasses);
-        return this.compiler.getFactory().Class().getAll().stream()
+        return TestFramework.getAllTestClassesAsStream()
                 .filter(ctType -> pattern.matcher(ctType.getQualifiedName()).matches())
-                .filter(ctClass ->
-                        ctClass.getMethods()
-                                .stream()
-                                .anyMatch(AmplificationChecker::isTest))
                 .filter(InputConfiguration.isNotExcluded);
     }
 
@@ -127,7 +121,7 @@ public class DSpot {
         if (targetTestMethods.isEmpty()) {
             return testClass.getMethods()
                     .stream()
-                    .filter(AmplificationChecker::isTest)
+                    .filter(TestFramework.get()::isTest)
                     .collect(Collectors.toList());
         } else {
             return targetTestMethods.stream().flatMap(pattern ->
@@ -141,18 +135,12 @@ public class DSpot {
     /**
      * Amplify all the test methods of all the test classes that DSpot can find.
      * A class is considered as a test class if it contains at least one test method.
-     * A method is considred as test method if it matches {@link AmplificationChecker#isTest(CtMethod)}
+     * A method is considred as test method if it matches {@link eu.stamp_project.test_framework.TestFrameworkSupport#isTest(CtMethod)}
      *
      * @return a list of amplified test classes with amplified test methods.
      */
-    public List<CtType> amplifyAllTests() {
-        return this._amplifyTestClasses(InputConfiguration.get().getFactory().Class().getAll().stream()
-                .filter(ctClass -> !ctClass.getModifiers().contains(ModifierKind.ABSTRACT))
-                .filter(ctClass ->
-                        ctClass.getMethods()
-                                .stream()
-                                .anyMatch(AmplificationChecker::isTest)
-                ).collect(Collectors.toList()));
+    public List<CtType<?>> amplifyAllTests() {
+        return this._amplifyTestClasses(TestFramework.getAllTestClasses());
     }
 
     /**
@@ -161,7 +149,7 @@ public class DSpot {
      * @param testClassToBeAmplified the test class to be amplified. It can be a java regex.
      * @return a list of amplified test classes with amplified test methods.
      */
-    public List<CtType> amplifyTestClass(String testClassToBeAmplified) {
+    public List<CtType<?>> amplifyTestClass(String testClassToBeAmplified) {
         return this.amplifyTestClassesTestMethods(Collections.singletonList(testClassToBeAmplified), Collections.emptyList());
     }
 
@@ -172,7 +160,7 @@ public class DSpot {
      * @param testMethod             the test method to be amplified. It can be a java regex.
      * @return a list of amplified test classes with amplified test methods.
      */
-    public List<CtType> amplifyTestClassTestMethod(String testClassToBeAmplified, String testMethod) {
+    public List<CtType<?>> amplifyTestClassTestMethod(String testClassToBeAmplified, String testMethod) {
         return this.amplifyTestClassesTestMethods(Collections.singletonList(testClassToBeAmplified), Collections.singletonList(testMethod));
     }
 
@@ -183,7 +171,7 @@ public class DSpot {
      * @param testMethods            the list of test methods to be amplified. This list can be a list of java regex.
      * @return a list of amplified test classes with amplified test methods.
      */
-    public List<CtType> amplifyTestClassTestMethods(String testClassToBeAmplified, List<String> testMethods) {
+    public List<CtType<?>> amplifyTestClassTestMethods(String testClassToBeAmplified, List<String> testMethods) {
         return this.amplifyTestClassesTestMethods(Collections.singletonList(testClassToBeAmplified), testMethods);
     }
 
@@ -193,7 +181,7 @@ public class DSpot {
      * @param testClassesToBeAmplified the list of test classes to be amplified. This list can be a list of java regex.
      * @return a list of amplified test classes with amplified test methods.
      */
-    public List<CtType> amplifyTestClasses(List<String> testClassesToBeAmplified) {
+    public List<CtType<?>> amplifyTestClasses(List<String> testClassesToBeAmplified) {
         return this.amplifyTestClassesTestMethods(testClassesToBeAmplified, Collections.emptyList());
     }
 
@@ -203,7 +191,8 @@ public class DSpot {
      * @param testClassesToBeAmplified the list of test classes to be amplified. This list can be a list of java regex.
      * @return a list of amplified test classes with amplified test methods.
      */
-    public List<CtType> amplifyTestClassesTestMethod(List<String> testClassesToBeAmplified, String testMethod) {
+    @Deprecated
+    public List<CtType<?>> amplifyTestClassesTestMethod(List<String> testClassesToBeAmplified, String testMethod) {
         return this.amplifyTestClassesTestMethods(testClassesToBeAmplified, Collections.singletonList(testMethod));
     }
 
@@ -214,7 +203,7 @@ public class DSpot {
      * @param testMethods              the list of test methods to be amplified. This list can be a list of java regex.
      * @return a list of amplified test classes with amplified test methods.
      */
-    public List<CtType> amplifyTestClassesTestMethods(List<String> testClassesToBeAmplified, List<String> testMethods) {
+    public List<CtType<?>> amplifyTestClassesTestMethods(List<String> testClassesToBeAmplified, List<String> testMethods) {
         final List<CtType<?>> testClassesToBeAmplifiedModel = testClassesToBeAmplified.stream()
                 .flatMap(this::findTestClasses)
                 .collect(Collectors.toList());
@@ -224,19 +213,18 @@ public class DSpot {
                 ).collect(Collectors.toList());
     }
 
-    private List<CtType> _amplifyTestClasses(List<CtType> testClassesToBeAmplified) {
+    private List<CtType<?>> _amplifyTestClasses(List<CtType<?>> testClassesToBeAmplified) {
         return testClassesToBeAmplified.stream()
                 .map(this::_amplifyTestClass)
                 .collect(Collectors.toList());
     }
 
-    private CtType _amplifyTestClass(CtType test) {
-        return this._amplify(test, AmplificationHelper.getAllTest(test));
+    private CtType<?> _amplifyTestClass(CtType<?> test) {
+        return this._amplify(test, TestFramework.getAllTest(test));
     }
 
-    protected CtType _amplify(CtType test, List<CtMethod<?>> methods) {
+    protected CtType<?> _amplify(CtType<?> test, List<CtMethod<?>> methods) {
         try {
-            test = JUnit3Support.convertToJUnit4(test, InputConfiguration.get());
             Counter.reset();
             Amplification testAmplification = new Amplification(this.compiler, this.amplifiers, this.testSelector, this.budgetizer);
             final List<CtMethod<?>> filteredTestCases = this.filterTestCases(methods);

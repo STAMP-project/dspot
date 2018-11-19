@@ -3,6 +3,7 @@ package eu.stamp_project.dspot.assertgenerator;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
@@ -61,7 +62,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
                                 )
                 ));
 
-        AssertGeneratorHelper.addAfterClassMethod(testClass);
+        TestFramework.get().generateAfterClassToSaveObservations(testClass, Collections.singletonList(Utils.findMethod(testClass, "test")));
         final CtMethod<?> afterClassMethod = testClass.getMethods()
                 .stream()
                 .filter(method ->
@@ -81,7 +82,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
                         statement.toString().endsWith("ObjectLog.save()")
                 )
         );
-        AssertGeneratorHelper.addAfterClassMethod(testClass);
+        TestFramework.get().generateAfterClassToSaveObservations(testClass, Collections.singletonList(Utils.findMethod(testClass, "test")));
         assertTrue(afterClassMethod.getBody()
                 .getStatements()
                 .stream()

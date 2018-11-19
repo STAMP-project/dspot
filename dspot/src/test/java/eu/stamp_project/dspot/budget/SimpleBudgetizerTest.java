@@ -6,7 +6,8 @@ import eu.stamp_project.dspot.amplifier.IterationDecoratorAmplifier;
 import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
 import eu.stamp_project.dspot.amplifier.NumberLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.ReturnValueAmplifier;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.After;
 import org.junit.Before;
@@ -56,7 +57,7 @@ public class SimpleBudgetizerTest extends AbstractTest {
          */
 
         final CtClass<?> testClass = Utils.findClass("fr.inria.statementadd.TestClassTargetAmplify");
-        List<CtMethod<?>> ctMethods = AmplificationHelper.getAllTest(testClass);
+        List<CtMethod<?>> ctMethods = TestFramework.getAllTest(testClass);
         final SimpleBudgetizer simpleBudgetizer = new SimpleBudgetizer();
         for (int i = 0 ; i < 3 ; i++) {
             ctMethods = simpleBudgetizer.inputAmplify(ctMethods, i); // !

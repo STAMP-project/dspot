@@ -1,6 +1,6 @@
 package eu.stamp_project;
 
-import eu.stamp_project.program.ConstantsProperties;
+import eu.stamp_project.utils.program.ConstantsProperties;
 import org.apache.maven.plugin.testing.MojoRule;
 import org.junit.Rule;
 import org.junit.Test;

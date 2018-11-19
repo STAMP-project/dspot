@@ -1,6 +1,7 @@
 package eu.stamp_project.automaticbuilder.maven;
 
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -21,12 +22,11 @@ import java.util.Arrays;
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
  * on 31/10/18
- *
+ * <p>
  * This class generate a copy of the original pom, with a new profile to run pit.
  * The profile is configured to fit the configuration of the Command and the properties file given to DSpot.
- *
+ * <p>
  * There is no more modification of the original pom.
- *
  */
 public class DSpotPOMCreator {
 
@@ -52,9 +52,37 @@ public class DSpotPOMCreator {
 
     private static final String PROFILES = "profiles";
 
-    public static final String DSPOT_POM_FILE = ".dspot_pom.xml";
+    private static final String DSPOT_POM_FILE = ".dspot_";
+
+    private static final String SUFFIX_JUNIT5 = "_junit5_";
 
     public static void createNewPom() {
+        new DSpotPOMCreator(true)._innerCreatePom();
+        new DSpotPOMCreator(false)._innerCreatePom();
+    }
+
+    public static String getPOMName() {
+        return DSPOT_POM_FILE + (InputConfiguration.get().isJUnit5() ? SUFFIX_JUNIT5 : "") + POM_FILE;
+    }
+
+    public String getPOMName(boolean isJUnit5) {
+        return DSPOT_POM_FILE + (isJUnit5 ? SUFFIX_JUNIT5 : "") + POM_FILE;
+    }
+
+    /*
+        This boolean is redundant with InputConfiguration.isJUnit5(), but it allows to create two pom directly.
+        We build two DSpotPOMCreator with true and false, and generate two different pom.
+        In this, way, we reuse the same code to generate.
+        We do that because at the moment we generate the pom, we do not if we  amplify JUnit5 tests or JUnit4.
+        Then, we use InputConfiguration.isJUnit5() to know which pom must be used.
+     */
+    private boolean isJUnit5;
+
+    private DSpotPOMCreator(boolean isJUnit5) {
+        this.isJUnit5 = isJUnit5;
+    }
+
+    private void _innerCreatePom() {
         try {
             final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -71,7 +99,7 @@ public class DSpotPOMCreator {
             final TransformerFactory transformerFactory = TransformerFactory.newInstance();
             final Transformer transformer = transformerFactory.newTransformer();
             final DOMSource source = new DOMSource(document);
-            final StreamResult result = new StreamResult(new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSPOT_POM_FILE));
+            final StreamResult result = new StreamResult(new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + this.getPOMName(this.isJUnit5)));
             transformer.transform(source, result);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -82,7 +110,7 @@ public class DSpotPOMCreator {
         POM XML MANAGEMENT
      */
 
-    private static Node findOrCreateProfiles(Document document, Node root) {
+    private Node findOrCreateProfiles(Document document, Node root) {
         final Node existingProfiles = findSpecificNodeFromGivenRoot(root.getFirstChild(), PROFILES);
         if (existingProfiles != null) {
             return existingProfiles;
@@ -93,7 +121,7 @@ public class DSpotPOMCreator {
         }
     }
 
-    private static Node findSpecificNodeFromGivenRoot(Node startingPoint, String nodeName) {
+    private Node findSpecificNodeFromGivenRoot(Node startingPoint, String nodeName) {
         Node currentChild = startingPoint;
         while (currentChild != null && !nodeName.equals(currentChild.getNodeName())) {
             currentChild = currentChild.getNextSibling();
@@ -111,7 +139,7 @@ public class DSpotPOMCreator {
 
     public static final String PROFILE_ID = "id-descartes-for-dspot";
 
-    private static Element createProfile(Document document) {
+    private Element createProfile(Document document) {
         final Element profile = document.createElement(PROFILE);
         final Element id = document.createElement(ID);
 
@@ -126,7 +154,7 @@ public class DSpotPOMCreator {
 
     private static final String PLUGINS = "plugins";
 
-    private static Element createBuild(Document document) {
+    private Element createBuild(Document document) {
         final Element build = document.createElement(BUILD);
         final Element plugins = document.createElement(PLUGINS);
 
@@ -146,7 +174,7 @@ public class DSpotPOMCreator {
 
     private static final String VERSION = "version";
 
-    private static Element createPlugin(Document document) {
+    private Element createPlugin(Document document) {
         final Element plugin = document.createElement(PLUGIN);
 
         final Element groupId = document.createElement(GROUP_ID);
@@ -164,7 +192,7 @@ public class DSpotPOMCreator {
         final Element configuration = createConfiguration(document);
         plugin.appendChild(configuration);
 
-        if (InputConfiguration.get().isDescartesMode()) {
+        if (InputConfiguration.get().isDescartesMode() || this.isJUnit5) {
             final Element dependencies = createDependencies(document);
             plugin.appendChild(dependencies);
         }
@@ -176,26 +204,54 @@ public class DSpotPOMCreator {
 
     private static final String DEPENDENCY = "dependency";
 
-    private static Element createDependencies(Document document) {
+    private static final String JUNIT5_PIT_PLUGIN = "pitest-junit5-plugin";
+
+    private static final String JUNIT5_PIT_PLUGIN_VERSION = "0.7";
+
+    private Element createDependencies(Document document) {
         final Element dependencies = document.createElement(DEPENDENCIES);
 
+        if (InputConfiguration.get().isDescartesMode()) {
+            final Element dependency = createDependency(document,
+                    GROUP_ID_DESCARTES,
+                    ARTIFACT_ID_DESCARTES,
+                    InputConfiguration.get().getDescartesVersion()
+            );
+            dependencies.appendChild(dependency);
+        }
+
+        if (this.isJUnit5) {
+            final Element dependency = createDependency(
+                    document,
+                    GROUP_ID_PIT,
+                    JUNIT5_PIT_PLUGIN,
+                    JUNIT5_PIT_PLUGIN_VERSION
+            );
+            dependencies.appendChild(dependency);
+        }
+
+        return dependencies;
+    }
+
+    @NotNull
+    private Element createDependency(Document document,
+                                     String groupIdValue,
+                                     String artifactIdValue,
+                                     String versionValue) {
         final Element dependency = document.createElement(DEPENDENCY);
 
         final Element groupId = document.createElement(GROUP_ID);
-        groupId.setTextContent(GROUP_ID_DESCARTES);
+        groupId.setTextContent(groupIdValue);
         dependency.appendChild(groupId);
 
         final Element artifactId = document.createElement(ARTIFACT_ID);
-        artifactId.setTextContent(ARTIFACT_ID_DESCARTES);
+        artifactId.setTextContent(artifactIdValue);
         dependency.appendChild(artifactId);
 
         final Element version = document.createElement(VERSION);
-        version.setTextContent(InputConfiguration.get().getDescartesVersion());
+        version.setTextContent(versionValue);
         dependency.appendChild(version);
-
-        dependencies.appendChild(dependency);
-
-        return dependencies;
+        return dependency;
     }
 
     private static final String CONFIGURATION = "configuration";
@@ -222,7 +278,7 @@ public class DSpotPOMCreator {
 
     private static final String ADDITIONAL_CLASSPATH_ELEMENTS = "additionalClasspathElements";
 
-    private static Element createConfiguration(Document document) {
+    private Element createConfiguration(Document document) {
         final Element configuration = document.createElement(CONFIGURATION);
 
         final Element mutationEngine = document.createElement(MUTATION_ENGINE);
@@ -246,7 +302,7 @@ public class DSpotPOMCreator {
         configuration.appendChild(timeOut);
 
         if (!InputConfiguration.get().getAdditionalClasspathElements().isEmpty()) {
-            final Element additionalClasspathElements = document.createElement(ADDITIONAL_CLASSPATH_ELEMENTS );
+            final Element additionalClasspathElements = document.createElement(ADDITIONAL_CLASSPATH_ELEMENTS);
             appendValuesToGivenNode(document, additionalClasspathElements, InputConfiguration.get().getAdditionalClasspathElements().split(","));
             configuration.appendChild(additionalClasspathElements);
         }
@@ -283,7 +339,7 @@ public class DSpotPOMCreator {
 
     private static final String MESSAGE_WARN_PIT_NO_FILTER = "You gave an empty filter. To use PIT, it is recommend to specify a filter, at least, the top package of your program, otherwise, PIT may take a long time or could not be run.";
 
-    private static String getFilter() {
+    private String getFilter() {
         if (InputConfiguration.get().getFilter().isEmpty()) {
             LOGGER.warn(MESSAGE_WARN_PIT_NO_FILTER);
             LOGGER.warn("Trying to compute the top package of the project...");
@@ -296,7 +352,7 @@ public class DSpotPOMCreator {
         return InputConfiguration.get().getFilter();
     }
 
-    private static void appendValuesToGivenNode(Document document, Element nodeParent, String... values) {
+    private void appendValuesToGivenNode(Document document, Element nodeParent, String... values) {
         Arrays.stream(values)
                 .map(value -> createValue(document, value))
                 .forEach(nodeParent::appendChild);
@@ -304,7 +360,7 @@ public class DSpotPOMCreator {
 
     private static final String VALUE = "value";
 
-    private static Element createValue(Document document, String stringValue) {
+    private Element createValue(Document document, String stringValue) {
         final Element value = document.createElement(VALUE);
         value.setTextContent(stringValue);
         return value;

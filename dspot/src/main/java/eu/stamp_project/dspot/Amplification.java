@@ -4,8 +4,9 @@ import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.assertgenerator.AssertGenerator;
 import eu.stamp_project.dspot.budget.Budgetizer;
 import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.program.InputConfiguration;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.testrunner.EntryPoint;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
 import org.slf4j.Logger;
@@ -59,7 +60,7 @@ public class Amplification {
      * @param maxIteration Number of amplification iterations
      */
     public void amplification(CtType<?> classTest, int maxIteration) {
-        amplification(classTest, AmplificationHelper.getAllTest(classTest), maxIteration);
+        amplification(classTest, TestFramework.getAllTest(classTest), maxIteration);
     }
 
     /**
@@ -74,6 +75,11 @@ public class Amplification {
     public void amplification(CtType<?> classTest, List<CtMethod<?>> tests, int maxIteration) {
         LOGGER.info("Amplification of {} ({} test(s))", classTest.getQualifiedName(), tests.size());
         LOGGER.info("Assertion amplification of {} ({} test(s))", classTest.getQualifiedName(), tests.size());
+
+        // here, we base the execution mode to the first test method given.
+        // the user should provide whether JUnit3/4 OR JUnit5 but not both at the same time.
+        // TODO DSpot could be able to switch from one to another version of JUnit, but I believe that the ROI is not worth it.
+        EntryPoint.jUnit5Mode = TestFramework.isJUnit5(tests.get(0));
         final List<CtMethod<?>> passingTests = TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(classTest, tests, this.compiler, InputConfiguration.get());
         final List<CtMethod<?>> selectedToBeAmplified;
         try {

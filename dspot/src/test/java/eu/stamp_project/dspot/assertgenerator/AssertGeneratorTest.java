@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.utils.AmplificationChecker;
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.After;
 import org.junit.Before;
@@ -93,7 +93,7 @@ public class AssertGeneratorTest extends AbstractTest {
         public boolean matches(CtInvocation<?> element) {
             return (!element.getElements(namedElementFilter).isEmpty() ||
                     !element.getElements(referenceFilter).isEmpty()
-            ) && AmplificationChecker.isAssert(element) && assertionName.equals(element.getExecutable().getSimpleName());
+            ) && TestFramework.get().isAssert(element) && assertionName.equals(element.getExecutable().getSimpleName());
         }
 
         private final String assertionName;
@@ -129,7 +129,7 @@ public class AssertGeneratorTest extends AbstractTest {
         CtMethod test = Utils.findMethod("fr.inria.multipleobservations.TestClassToBeTest", "test");
         List<CtMethod<?>> test_buildNewAssert = assertGenerator.assertionAmplification(testClass, Collections.singletonList(test));
         CtMethod<?> amplifiedTestMethod = test_buildNewAssert.get(0);
-        assertEquals(4, amplifiedTestMethod.getElements(AmplificationHelper.ASSERTIONS_FILTER).size());
+        assertEquals(4, amplifiedTestMethod.getElements(TestFramework.ASSERTIONS_FILTER).size());
 
         assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getInt", ASSERT_EQUALS)).size());
         assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getInteger", ASSERT_EQUALS)).size());

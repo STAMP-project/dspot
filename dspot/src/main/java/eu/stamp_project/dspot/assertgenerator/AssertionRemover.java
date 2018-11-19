@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.assertgenerator;
 
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.CloneHelper;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtElement;
@@ -42,7 +42,7 @@ public class AssertionRemover {
         CtMethod<?> testWithoutAssertion = CloneHelper.cloneTestMethodNoAmp(testMethod);
         variableAssertedPerTestMethod.put(testWithoutAssertion,
                 testWithoutAssertion
-                        .getElements(AmplificationHelper.ASSERTIONS_FILTER)
+                        .getElements(TestFramework.ASSERTIONS_FILTER)
                         .stream()
                         .flatMap(invocation -> this.removeAssertion(invocation).stream())
                         .collect(Collectors.toList())
