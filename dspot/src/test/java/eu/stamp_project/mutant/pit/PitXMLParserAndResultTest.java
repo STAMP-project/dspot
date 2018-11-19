@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 public class PitXMLParserAndResultTest {
     @Test
     public void test() throws Exception {
-        final List<PitXMLResult> pitXMLResults = (new PitXMLResultParser()).parse(new File("src/test/resources/mutations_test-projects.xml"));
+        final List<AbstractPitResult> pitXMLResults = (new PitXMLResultParser()).parse(new File("src/test/resources/mutations_test-projects.xml"));
         long nbErrors = pitXMLResults.stream()
                 .filter(pitResult ->
                         pitResult.getStateOfMutant() == AbstractPitResult.State.MEMORY_ERROR ||
