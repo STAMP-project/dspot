@@ -1,4 +1,4 @@
-package eu.stamp_project.utils.compilation;
+package eu.stamp_project.utils.execution;
 
 import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.testrunner.listener.TestListener;
@@ -20,6 +20,9 @@ import java.util.stream.Collectors;
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
  * on 27/06/18
+ *
+ * This class is a proxy for EntryPoint.
+ *
  */
 public class TestRunner {
 

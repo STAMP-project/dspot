@@ -1,5 +1,6 @@
 package eu.stamp_project.test_framework.junit;
 
+import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.dspot.assertgenerator.AssertGeneratorHelper;
 import eu.stamp_project.test_framework.AbstractTestFramework;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
@@ -28,6 +29,8 @@ public abstract class JUnitSupport extends AbstractTestFramework {
     protected abstract String getFullQualifiedNameOfAnnotationTest();
 
     protected abstract String getFullQualifiedNameOfAnnotationIgnore();
+
+    protected abstract String getFullQualifiedNameOfAnnotationAfterClass();
 
     protected boolean isIgnored(CtMethod<?> candidate) {
         return this.hasAnnotation(getFullQualifiedNameOfAnnotationIgnore(), candidate);
@@ -172,5 +175,45 @@ public abstract class JUnitSupport extends AbstractTestFramework {
                     )
             );
         }
+    }
+
+    @Override
+    public void generateAfterClassToSaveObservations(CtType<?> testClass, List<CtMethod<?>> testsToRun) {
+        // get AfterClassMethod is exist otherwise use initAfterClassMethod
+        final Factory factory = testClass.getFactory();
+        final CtMethod<?> afterClassMethod = testClass.getMethods()
+                .stream()
+                .filter(method ->
+                        method.getAnnotations()
+                                .stream()
+                                .anyMatch(ctAnnotation ->
+                                        this.getFullQualifiedNameOfAnnotationAfterClass().equals(ctAnnotation.getAnnotationType().getQualifiedName())
+                                )
+                ).findFirst()
+                .orElse(initAfterClassMethod(factory));
+        final CtTypeReference<?> ctTypeReference = factory.createCtTypeReference(ObjectLog.class);
+        final CtExecutableReference<?> reference = ctTypeReference
+                .getTypeDeclaration()
+                .getMethodsByName("save")
+                .get(0)
+                .getReference();
+        afterClassMethod.getBody().insertEnd(
+                factory.createInvocation(factory.createTypeAccess(ctTypeReference),
+                        reference)
+        );
+        testClass.addMethod(afterClassMethod);
+    }
+
+    private CtMethod<Void> initAfterClassMethod(Factory factory) {
+        final CtMethod<Void> afterClassMethod = factory.createMethod();
+        afterClassMethod.setType(factory.Type().VOID_PRIMITIVE);
+        afterClassMethod.addModifier(ModifierKind.PUBLIC);
+        afterClassMethod.addModifier(ModifierKind.STATIC);
+        afterClassMethod.setSimpleName("afterClass");
+        final CtAnnotation annotation = factory.createAnnotation();
+        annotation.setAnnotationType(factory.Annotation().create(this.getFullQualifiedNameOfAnnotationAfterClass()).getReference());
+        afterClassMethod.addAnnotation(annotation);
+        afterClassMethod.setBody(factory.createBlock());
+        return afterClassMethod;
     }
 }

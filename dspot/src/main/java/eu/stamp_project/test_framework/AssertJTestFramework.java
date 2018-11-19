@@ -5,6 +5,7 @@ import eu.stamp_project.testrunner.runner.Failure;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
 
 import java.util.List;
 
@@ -37,5 +38,10 @@ public class AssertJTestFramework extends AbstractTestFramework {
     @Override
     public CtMethod<?> generateExpectedExceptionsBlock(CtMethod<?> test, Failure failure, int numberOfFail) {
         return test;
+    }
+
+    @Override
+    public void generateAfterClassToSaveObservations(CtType<?> testClass, List<CtMethod<?>> testsToRun) {
+        // TODO
     }
 }

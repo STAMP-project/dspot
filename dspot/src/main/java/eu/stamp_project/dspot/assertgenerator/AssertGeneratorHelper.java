@@ -68,45 +68,6 @@ public class AssertGeneratorHelper {
         return clone;
     }
 
-    static void addAfterClassMethod(CtType<?> testClass) {
-        // get AfterClassMethod is exist otherwise use initAfterClassMethod
-        final Factory factory = testClass.getFactory();
-        final CtMethod<?> afterClassMethod = testClass.getMethods()
-                .stream()
-                .filter(method ->
-                        method.getAnnotations()
-                                .stream()
-                                .anyMatch(ctAnnotation ->
-                                        "org.junit.AfterClass".equals(ctAnnotation.getAnnotationType().getQualifiedName())
-                                )
-                ).findFirst()
-                .orElse(initAfterClassMethod(factory));
-        final CtTypeReference<?> ctTypeReference = factory.createCtTypeReference(ObjectLog.class);
-        final CtExecutableReference<?> reference = ctTypeReference
-                .getTypeDeclaration()
-                .getMethodsByName("save")
-                .get(0)
-                .getReference();
-        afterClassMethod.getBody().insertEnd(
-                factory.createInvocation(factory.createTypeAccess(ctTypeReference),
-                        reference)
-        );
-        testClass.addMethod(afterClassMethod);
-    }
-
-    private static CtMethod<Void> initAfterClassMethod(Factory factory) {
-        final CtMethod<Void> afterClassMethod = factory.createMethod();
-        afterClassMethod.setType(factory.Type().VOID_PRIMITIVE);
-        afterClassMethod.addModifier(ModifierKind.PUBLIC);
-        afterClassMethod.addModifier(ModifierKind.STATIC);
-        afterClassMethod.setSimpleName("afterClass");
-        final CtAnnotation annotation = factory.createAnnotation();
-        annotation.setAnnotationType(factory.Annotation().create("org.junit.AfterClass").getReference());
-        afterClassMethod.addAnnotation(annotation);
-        afterClassMethod.setBody(factory.createBlock());
-        return afterClassMethod;
-    }
-
     private static int indexOfByRef(List<CtStatement> statements, CtStatement statement) {
         for (int i = 0; i < statements.size(); i++) {
             if (statements.get(i) == statement) {

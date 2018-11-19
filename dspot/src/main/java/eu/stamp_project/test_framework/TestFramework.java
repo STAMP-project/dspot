@@ -4,8 +4,10 @@ import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.test_framework.junit.JUnit3Support;
 import eu.stamp_project.test_framework.junit.JUnit4Support;
 import eu.stamp_project.test_framework.junit.JUnit5Support;
+import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.runner.Failure;
 import eu.stamp_project.utils.program.InputConfiguration;
+import org.gradle.tooling.events.test.TestFailureResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtExpression;
@@ -39,7 +41,6 @@ public class TestFramework implements TestFrameworkSupport {
         return _instance;
     }
 
-    // TestFramework:
     private TestFramework() {
         this.testFrameworkSupportList = new ArrayList<>();
         this.testFrameworkSupportList.add(new JUnit3Support());
@@ -47,6 +48,20 @@ public class TestFramework implements TestFrameworkSupport {
         this.testFrameworkSupportList.add(new JUnit5Support());
         this.testFrameworkSupportList.add(new GoogleTruthTestFramework());
         this.testFrameworkSupportList.add(new AssertJTestFramework());
+    }
+
+    /**
+     * This method says whether the given test method is JUnit 5 or not.
+     *
+     * For now, only JUnit5 needs to be checked because JUnit3 and JUnit4 can be run with the same test runner and do not required any
+     * specific configuration (such as the pom for PIT, see TODO).
+     *
+     * @param ctMethod the test method to check
+     * @return true if the given ctMethod is a JUnit5, false otherwise.
+     */
+    public static boolean isJUnit5(CtMethod<?> ctMethod) {
+       InputConfiguration.get().setJUnit5(TestFramework.get().getTestFramework(ctMethod) instanceof JUnit5Support);
+       return InputConfiguration.get().isJUnit5();
     }
 
     @Override
@@ -111,6 +126,11 @@ public class TestFramework implements TestFrameworkSupport {
                                         .count()
                 ));
         if (numberOfCallsToAssertionPerTestFramework.values().stream().allMatch(aLong -> aLong == 0L)) {
+            for (TestFrameworkSupport testFrameworkSupport : testFrameworkSupportList) {
+                if (testFrameworkSupport.isTest(testMethod)) {
+                    return testFrameworkSupport;
+                }
+            }
             return this.testFrameworkSupportList.get(1);
         }
         return Collections.max(numberOfCallsToAssertionPerTestFramework.entrySet(), Map.Entry.comparingByValue()).getKey();
@@ -186,5 +206,10 @@ public class TestFramework implements TestFrameworkSupport {
     @Override
     public CtMethod<?> generateExpectedExceptionsBlock(CtMethod<?> test, Failure failure, int numberOfFail) {
         return this.getTestFramework(test).generateExpectedExceptionsBlock(test, failure, numberOfFail);
+    }
+
+    @Override
+    public void generateAfterClassToSaveObservations(CtType<?> testClass, List<CtMethod<?>> testsToRun) {
+        this.getTestFramework(testsToRun.get(0)).generateAfterClassToSaveObservations(testClass, testsToRun);
     }
 }

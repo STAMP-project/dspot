@@ -4,6 +4,8 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.reference.CtTypeReference;
 
+import java.util.List;
+
 /**
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -13,6 +15,11 @@ public class JUnit3Support extends JUnitSupport {
 
     public JUnit3Support() {
         super("junit.framework.TestCase");
+    }
+
+    @Override
+    protected String getFullQualifiedNameOfAnnotationAfterClass() {
+        return "";
     }
 
     @Override
@@ -51,4 +58,8 @@ public class JUnit3Support extends JUnitSupport {
                 candidate.getAnnotations().isEmpty() && candidate.getSimpleName().startsWith("test");
     }
 
+    @Override
+    public void generateAfterClassToSaveObservations(CtType<?> testClass, List<CtMethod<?>> testsToRun) {
+        // TODO
+    }
 }

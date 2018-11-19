@@ -934,4 +934,18 @@ public class InputConfiguration {
     public void setReport(GlobalReport report) {
         this.report = report;
     }
+
+
+    private boolean isJUnit5;
+
+    /**
+     * This boolean says if the current amplification is in JUnit5 or not.
+     */
+    public boolean isJUnit5() {
+        return isJUnit5;
+    }
+
+    public void setJUnit5(boolean JUnit5) {
+        isJUnit5 = JUnit5;
+    }
 }

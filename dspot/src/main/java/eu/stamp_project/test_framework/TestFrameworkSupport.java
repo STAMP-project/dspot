@@ -1,5 +1,6 @@
 package eu.stamp_project.test_framework;
 
+import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.test_framework.assertions.IsAssertInvocationFilter;
 import eu.stamp_project.testrunner.runner.Failure;
@@ -8,6 +9,7 @@ import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
 
 import java.util.List;
 
@@ -81,5 +83,13 @@ public interface TestFrameworkSupport {
      * @return the test method expected the exception to be thrown by the program
      */
     public CtMethod<?> generateExpectedExceptionsBlock(CtMethod<?> test, Failure failure, int numberOfFail);
+
+    /**
+     * This method is responsible to add to the test class that will be run a method that will call {@link ObjectLog#save()}.
+     * The test methods in the given test class should have calls to {@link ObjectLog#log(Object, String, String)}.
+     * @param testClass the test class that contains test method with logs. This testClass reference will be directly modified.
+     * @param testsToRun the list of instrumented test methods to be run
+     */
+    public void generateAfterClassToSaveObservations(CtType<?> testClass, List<CtMethod<?>> testsToRun);
 
 }

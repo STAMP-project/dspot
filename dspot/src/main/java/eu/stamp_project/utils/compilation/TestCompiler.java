@@ -2,6 +2,7 @@ package eu.stamp_project.utils.compilation;
 
 import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.testrunner.listener.TestListener;
+import eu.stamp_project.utils.execution.TestRunner;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
