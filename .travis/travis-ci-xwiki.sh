@@ -6,7 +6,7 @@ cd dspot
 git clone https://github.com/xwiki/xwiki-commons.git
 cd xwiki-commons
 git reset --hard fad7990ee27aa6de039412587fc9546b90845e34
-mvn clean install -DskipTests
+mvn clean install -DskipTests --quiet
 cd ..
 
 pwd
