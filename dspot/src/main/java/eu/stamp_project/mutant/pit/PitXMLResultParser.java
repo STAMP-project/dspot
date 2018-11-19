@@ -21,12 +21,12 @@ import org.xml.sax.helpers.DefaultHandler;
  * on 14/11/18
  */
 /*
-TODO: what should we do with methods description? leave it as is?
 
 TODO: abstract csv parser
 TODO: abstract csv pitresult
 
-TODO: abstract test?
+
+TODO: what should we do with methods description? leave it as is?
 
 TODO: use utf8?
  */
@@ -119,11 +119,10 @@ public class PitXMLResultParser extends AbstractParser {
                 }
             }
             Handler handler = new Handler();
-            InputStream inputStream = new FileInputStream(fileResults);
-            Reader reader = new InputStreamReader(inputStream, "UTF-8");
-            InputSource is = new InputSource(reader);
-            is.setEncoding("UTF-8");
-            saxParser.parse(is, handler);
+            saxParser.parse(fileResults, handler);
+            for(PitXMLResult p: handler.getResults()){
+                System.out.println(p);
+            }
             return handler.getResults();
         } catch (Exception e) {
             e.printStackTrace();
