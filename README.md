@@ -1,8 +1,6 @@
 # DSpot
 
-[![Build Status](https://travis-ci.org/STAMP-project/dspot.svg?branch=master)](https://travis-ci.org/STAMP-project/dspot)[![Coverage Status](https://coveralls.io/repos/github/STAMP-project/dspot/badge.svg?branch=master)](https://coveralls.io/github/STAMP-project/dspot?branch=master)[![Maven Central](https://maven-badges.herokuapp.com/maven-central/eu.stamp-project/dspot/badge.svg)](https://mavenbadges.herokuapp.com/maven-central/eu.stamp-project/dspot)
-
-[Riot chat room](https://riot.im/app/#/room/!vnCyWaGJbxESAkzyqh:matrix.org)
+[![Build Status](https://travis-ci.org/STAMP-project/dspot.svg?branch=master)](https://travis-ci.org/STAMP-project/dspot) [![Coverage Status](https://coveralls.io/repos/github/STAMP-project/dspot/badge.svg?branch=master)](https://coveralls.io/github/STAMP-project/dspot?branch=master) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/eu.stamp-project/dspot/badge.svg)](https://mavenbadges.herokuapp.com/maven-central/eu.stamp-project/dspot)
 
 DSpot is a tool that generates missing assertions in JUnit tests.
 DSpot takes as input a Java project with an existing test suite.
@@ -11,8 +9,9 @@ DSpot supports Java projects built with Maven and Gradle (see the `--automatic-b
 
 DSpot ecosystem:
 
-* Eclipse plugin: https://github.com/STAMP-project/eclipse-ide/
-* Jenkins plugin: TBD
+* [Eclipse plugin](https://github.com/STAMP-project/eclipse-ide/)
+* [Jenkins plugin](https://github.com/STAMP-project/dspot-jenkins-plugin)
+* [Eclipse plugin](https://github.com/STAMP-project/stamp-ide)
 * Travis integration: TBD
 
 ## Getting started
@@ -122,11 +121,7 @@ Amplified instruction coverage: 37 / 37
 100.00%
 
 [8411] INFO DSpot - Print TestSuiteExampleAmpl with 22 amplified test cases in target/trash/
-```
-
-### Wiki documentation
-
-For a more step by step documentation, see the [wiki](https://github.com/STAMP-project/dspot/wiki). 
+``` 
 
 ### Command Line Usage
 
@@ -362,23 +357,23 @@ For now, there is two implementation of the Budgetizer:
 2. SimpleBudgetizer: This Budgetizer selects a fair number of amplified test method per Amplifier per test methods, if possible. The total budget is specified by the command line option ``--max-test-amplified`, and is the total number of amplified test methods to keep, _i.e._ it will be divide by the number of Amplifiers and by the number of test methods to be amplified.
 Example: We have 2 Amplifiers. We apply them to 2 test methods. For each test methods, amplifiers generate 4 new test methods, totally 8 amplified test methods. If the budget is 6, it will select: 3 amplified test methods per amplifier, and 2 for one test method and 2 for the other.
 
-#### Selector on Diff from GitHub
+#### Supported Features
 
-**DSpot** can perform amplification according to a diff, from github. This is useful to enhance existing test suite on pull request for instance.
+DSpot supports:
 
-**DSpot** will select existing test classes according to a diff as follow:
+* JUnit3
+* JUnit4
+* JUnit5
 
-1. If any test class has been modified between the two versions, **DSpot** selects them.
-2. If there is not, **DSpot** selects test cases (and so, their test classes) according to the nem. If a test contain the name of a modified method, this test is selected.
-3. If there is not, **DSpot** analyzes statical the test suite and selects test classes that invoke modified methods. The maximum number of selected test classes is the value of `eu.stamp_project.diff.SelectorOnDiff.MAX_NUMBER_TEST_CLASSES`, randomly.
+and
 
-The requirements this feature is the following:
+* Google Truth assertions
 
-1. You must enable the mode by giving `diff` as value of the flag --test (-t), _i.e._ `--test diff`
-2. You must have specify baseSha, on which **DSpot** must compute the diff. **DSpot** executes: `git diff <baseSha>` to find which java file has been modified. To do this, you must specify the sha in the property file, by setting the property: `baseSha`, _e.g._ `baseSha=97393d96ea58110785e342fade2e054925c608ad`
-3. You must have locally both version of the program. One that you want to use amplify, and the other on which you want to compute the diff. The first is specified using the property `project` as explained in a classical way to amplify. The second is specified using the property `folderPath`.
+However, DSpot detects the used test framework at test class level. 
 
-You can specify a maximum number of selected test classes using the property `maxSelectedTestClasses`.
+Please, do not amplify test classes that mix test frameworks (test methods in JUnit4 and JUnit5 within the same test class.)
+
+If you have such test class, please amplify the different test framework separately.
 
 ### Using DSpot as an API
 
