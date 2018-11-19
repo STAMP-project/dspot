@@ -1,18 +1,11 @@
 package eu.stamp_project.mutant.pit;
 
-import org.apache.commons.io.FileUtils;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
@@ -20,29 +13,19 @@ import org.xml.sax.helpers.DefaultHandler;
  * abwogi@kth.se
  * on 14/11/18
  */
-/*
-
-TODO: abstract csv parser
-TODO: abstract csv pitresult
-
-
-TODO: what should we do with methods description? leave it as is?
-
-TODO: use utf8?
- */
 public class PitXMLResultParser extends AbstractParser {
 
     PitXMLResultParser(){
         super("/mutations.xml");
     }
 
-    public List<PitXMLResult> parse(File fileResults) {
+    public List<AbstractPitResult> parse(File fileResults) {
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
             class Handler extends DefaultHandler {
                 private StringBuilder stringBuilder;
-                final List<PitXMLResult> results = new ArrayList<>();
+                final List<AbstractPitResult> results = new ArrayList<>();
                 String sourceFile, methodDescription, mutatedClass, mutatedMethod, mutator, killingTest, description,
                         fullQualifiedNameMethod, fullQualifiedNameClass;
                 int numberOfTestsRun, lineNumber, index, block;
@@ -114,15 +97,12 @@ public class PitXMLResultParser extends AbstractParser {
                     startElement = false;
                 }
 
-                public List<PitXMLResult> getResults() {
+                public List<AbstractPitResult> getResults() {
                     return results;
                 }
             }
             Handler handler = new Handler();
             saxParser.parse(fileResults, handler);
-            for(PitXMLResult p: handler.getResults()){
-                System.out.println(p);
-            }
             return handler.getResults();
         } catch (Exception e) {
             e.printStackTrace();

@@ -84,7 +84,7 @@ public class PitXMLResult extends AbstractPitResult {
 
     @Override
     public String toString() {
-        return "PitResult{" +
+        return "PitXMLResult{" +
                 "fullQualifiedNameOfMutatedClass='" + fullQualifiedNameOfMutatedClass + '\'' +
                 ", fullQualifiedNameMutantOperator='" + fullQualifiedNameMutantOperator + '\'' +
                 ", nameOfMutatedMethod='" + nameOfMutatedMethod + '\'' +
