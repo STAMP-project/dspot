@@ -8,7 +8,6 @@ import eu.stamp_project.dspot.selector.json.change.TestClassJSON;
 import eu.stamp_project.minimization.ChangeMinimizer;
 import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.test_framework.TestFrameworkSupport;
 import eu.stamp_project.testrunner.listener.TestListener;
 import eu.stamp_project.testrunner.runner.Failure;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -18,7 +17,6 @@ import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.execution.TestRunner;
 import org.codehaus.plexus.util.FileUtils;
-import org.osgi.framework.launch.Framework;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
