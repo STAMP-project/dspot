@@ -1,10 +1,19 @@
 package eu.stamp_project.mutant.pit;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
-public class AbstractParser {
+abstract public class AbstractParser {
+    private final String PATH_TO_MUTATIONS_RESULT;
 
-    protected static File getPathOfMutationsCsvFile(String pathToDirectoryResults, String PATH_TO_MUTATIONS_RESULT) {
+    AbstractParser(String PATH_TO_MUTATIONS_RESULT){
+        this.PATH_TO_MUTATIONS_RESULT = PATH_TO_MUTATIONS_RESULT;
+    }
+
+    protected File getPathOfMutationsFile(String pathToDirectoryResults) {
         if (!new File(pathToDirectoryResults).exists()) {
             return null;
         }
@@ -21,4 +30,19 @@ public class AbstractParser {
         }
         return new File(directoryReportPit.getPath() + PATH_TO_MUTATIONS_RESULT);
     }
+
+    public List<PitXMLResult> parseAndDelete(String pathToDirectoryResults) {
+        final File fileResults = getPathOfMutationsFile(pathToDirectoryResults);
+        final List<PitXMLResult> results = parse(fileResults);
+        try {
+            FileUtils.deleteDirectory(new File(pathToDirectoryResults));
+        } catch (IOException e) {
+            // ignored
+        }
+        return results;
+    }
+
+    abstract public List<PitXMLResult> parse(File fileResults);
+
+
 }

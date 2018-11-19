@@ -20,14 +20,8 @@ import org.xml.sax.helpers.DefaultHandler;
  * abwogi@kth.se
  * on 14/11/18
  */
-
 /*
-
-
-TODO: look at how PirXMLResult objects actually encodes
-
-TODO: implement getPathOfMutationsCsvFile and parseAndDelete
-TODO: represent methodDescription properly
+TODO: what should we do with methods description? leave it as is?
 
 TODO: abstract csv parser
 TODO: abstract csv pitresult
@@ -35,28 +29,14 @@ TODO: abstract csv pitresult
 TODO: abstract test?
 
 TODO: use utf8?
-
  */
 public class PitXMLResultParser extends AbstractParser {
 
-    private static final String PATH_TO_MUTATIONS_RESULT = "/mutations.xml";
-
-    private static File getPathOfMutationsCsvFile(String pathToDirectoryResults) {
-        return getPathOfMutationsCsvFile(pathToDirectoryResults,PATH_TO_MUTATIONS_RESULT);
+    PitXMLResultParser(){
+        super("/mutations.xml");
     }
 
-    public static List<PitXMLResult> parseAndDelete(String pathToDirectoryResults) {
-        final File fileResults = PitXMLResultParser.getPathOfMutationsCsvFile(pathToDirectoryResults);
-        final List<PitXMLResult> results = PitXMLResultParser.parse(fileResults);
-        try {
-            FileUtils.deleteDirectory(new File(pathToDirectoryResults));
-        } catch (IOException e) {
-            // ignored
-        }
-        return results;
-    }
-
-    public static List<PitXMLResult> parse(File fileResults) {
+    public List<PitXMLResult> parse(File fileResults) {
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
