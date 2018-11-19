@@ -1,5 +1,6 @@
 package eu.stamp_project;
 
+import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
@@ -107,7 +108,6 @@ public class MainTest {
          */
 
         Main.main(new String[]{
-                "--clean",
                 "--verbose",
                 "--path-to-properties", "src/test/resources/sample/sample.properties",
                 "--test-criterion", "PitMutantScoreSelector",
@@ -118,6 +118,28 @@ public class MainTest {
         });
 
         assertTrue(new File("target/trash/fr.inria.sample.TestClassWithoutAssert_mutants_killed.json").exists());
+        assertFalse(new File("target/trash/fr/inria/filter/failing").exists());
+        assertTrue(new File("target/trash/fr/inria/sample/").exists());
+    }
+
+    @Test
+    public void testMainWithPitScoreSelectorJUnit5() throws Exception {
+
+        /*
+            The same as testMainWithPitScoreSelector but with a JUnit5 test
+         */
+
+        Main.main(new String[]{
+                "--verbose",
+                "--path-to-properties", "src/test/resources/sample/sample.properties",
+                "--test-criterion", "PitMutantScoreSelector",
+                "--test", "fr.inria.sample.TestClassWithoutAssertJUnit5",
+                "--path-pit-result", "src/test/resources/sample/mutations.csv",
+                "--gregor",
+                "--output-path", "target/trash",
+        });
+
+        assertTrue(new File("target/trash/fr.inria.sample.TestClassWithoutAssertJUnit5_mutants_killed.json").exists());
         assertFalse(new File("target/trash/fr/inria/filter/failing").exists());
         assertTrue(new File("target/trash/fr/inria/sample/").exists());
     }

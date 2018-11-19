@@ -23,7 +23,7 @@ public class DSpotPOMCreatorTest {
     @After
     public void tearDown() throws Exception {
         try {
-            FileUtils.forceDelete(new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.DSPOT_POM_FILE));
+            FileUtils.forceDelete(new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.getPOMName()));
         } catch (Exception ignored) {
             // ignored
         }
@@ -39,7 +39,7 @@ public class DSpotPOMCreatorTest {
         InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
         DSpotPOMCreator.createNewPom();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.DSPOT_POM_FILE))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.getPOMName()))) {
             final String content = reader.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
             assertTrue(content + AmplificationHelper.LINE_SEPARATOR +
                             "should be ends with " + AmplificationHelper.LINE_SEPARATOR +
@@ -60,7 +60,7 @@ public class DSpotPOMCreatorTest {
         InputConfiguration.initialize("src/test/resources/sample/sample.properties");
         DSpotPOMCreator.createNewPom();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.DSPOT_POM_FILE))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.getPOMName()))) {
             final String content = reader.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
             assertTrue(content + AmplificationHelper.LINE_SEPARATOR +
                             "should be ends with " + AmplificationHelper.LINE_SEPARATOR +
