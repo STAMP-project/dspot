@@ -1,6 +1,7 @@
 package eu.stamp_project.minimization;
 
-import eu.stamp_project.mutant.pit.PitResult;
+import eu.stamp_project.mutant.pit.AbstractPitResult;
+import eu.stamp_project.mutant.pit.PitCSVResult;
 import eu.stamp_project.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +22,11 @@ public class PitMutantMinimizer extends GeneralMinimizer {
 
     private final InputConfiguration configuration;
     private CtType<?> testClass;
-    private Map<CtMethod, Set<PitResult>> testThatKilledMutants;
+    private Map<CtMethod, Set<AbstractPitResult>> testThatKilledMutants;
 
     public PitMutantMinimizer(CtType<?> testClass,
                               InputConfiguration configuration,
-                              Map<CtMethod, Set<PitResult>> testThatKilledMutants) {
+                              Map<CtMethod, Set<AbstractPitResult>> testThatKilledMutants) {
         this.testThatKilledMutants = testThatKilledMutants;
         this.testClass = testClass;
         this.configuration = configuration;
@@ -47,13 +48,13 @@ public class PitMutantMinimizer extends GeneralMinimizer {
         );
         final long numberOfKilledMutant = this.testThatKilledMutants.get(amplifiedTestToBeMinimized)
                 .stream()
-                .filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED)
+                .filter(pitResult -> pitResult.getStateOfMutant() == PitCSVResult.State.KILLED)
                 .count();
         final List<CtInvocation<?>> removableAssertions = assertions.stream()
                 .filter(invocation ->
                         runPitUsingTheGivenCtMethod(removeGivenAssertions(reduced, invocation))
                                 .stream()
-                                .filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED)
+                                .filter(pitResult -> pitResult.getStateOfMutant() == PitCSVResult.State.KILLED)
                                 .count() == numberOfKilledMutant
                 ).collect(Collectors.toList());
         final CtMethod<?> clone = reduced.clone();
@@ -82,7 +83,7 @@ public class PitMutantMinimizer extends GeneralMinimizer {
         return clone;
     }
 
-    private List<PitResult> runPitUsingTheGivenCtMethod(CtMethod<?> testCase) {
+    private List<PitCSVResult> runPitUsingTheGivenCtMethod(CtMethod<?> testCase) {
         final InputProgram program = this.configuration.getInputProgram();
         final CtType<?> clone = this.testClass.clone();
         this.testClass.getPackage().addType(clone);
@@ -104,7 +105,7 @@ public class PitMutantMinimizer extends GeneralMinimizer {
         AutomaticBuilderFactory
                 .getAutomaticBuilder(this.configuration)
                 .runPit(program.getProgramDir(), clone);
-        return PitResultParser.parseAndDelete(program.getProgramDir() + automaticBuilder.getOutputDirectoryPit());
+        return PitCSVResultParser.parseAndDelete(program.getProgramDir() + automaticBuilder.getOutputDirectoryPit());
                 */
     }
 }

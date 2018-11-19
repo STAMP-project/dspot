@@ -31,9 +31,9 @@ abstract public class AbstractParser {
         return new File(directoryReportPit.getPath() + PATH_TO_MUTATIONS_RESULT);
     }
 
-    public List<PitXMLResult> parseAndDelete(String pathToDirectoryResults) {
+    public List<AbstractPitResult> parseAndDelete(String pathToDirectoryResults) {
         final File fileResults = getPathOfMutationsFile(pathToDirectoryResults);
-        final List<PitXMLResult> results = parse(fileResults);
+        final List<AbstractPitResult> results = parse(fileResults);
         try {
             FileUtils.deleteDirectory(new File(pathToDirectoryResults));
         } catch (IOException e) {
@@ -42,7 +42,7 @@ abstract public class AbstractParser {
         return results;
     }
 
-    abstract public List<PitXMLResult> parse(File fileResults);
+    abstract public List<AbstractPitResult> parse(File fileResults);
 
 
 }
