@@ -3,8 +3,6 @@ package eu.stamp_project.automaticbuilder.maven;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderHelper;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
