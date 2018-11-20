@@ -226,9 +226,11 @@ public class DSpotMojo extends AbstractMojo {
             JSAPOptions.showUsage();
         }
         Properties properties = initializeProperties();
-        final String[] split = properties.getProperty("targetModule").split("/");
-        if (!this.project.getName().equals(split[split.length - 1])) {
-            return;
+        if (properties.getProperty("targetModule") != null) {
+            final String[] split = properties.getProperty("targetModule").split("/");
+            if (!this.project.getName().equals(split[split.length - 1])) {
+                return;
+            }
         }
         try {
             InputConfiguration.initialize(properties)
