@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.List;
 
 abstract public class AbstractParser {
+
     private final String PATH_TO_MUTATIONS_RESULT;
 
     AbstractParser(String PATH_TO_MUTATIONS_RESULT){
@@ -43,6 +44,4 @@ abstract public class AbstractParser {
     }
 
     abstract public List<AbstractPitResult> parse(File fileResults);
-
-
 }
