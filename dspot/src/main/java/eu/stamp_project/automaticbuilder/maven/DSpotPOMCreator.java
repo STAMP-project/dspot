@@ -1,5 +1,6 @@
 package eu.stamp_project.automaticbuilder.maven;
 
+import eu.stamp_project.automaticbuilder.AutomaticBuilderHelper;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -7,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import spoon.reflect.declaration.CtPackage;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -29,8 +29,6 @@ import java.util.Arrays;
  * There is no more modification of the original pom.
  */
 public class DSpotPOMCreator {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DSpotPOMCreator.class);
 
     private static final String GROUP_ID_PIT = "org.pitest";
 
@@ -290,7 +288,7 @@ public class DSpotPOMCreator {
         configuration.appendChild(outputFormats);
 
         final Element targetClasses = document.createElement(TARGET_CLASSES);
-        targetClasses.setTextContent(getFilter());
+        targetClasses.setTextContent(AutomaticBuilderHelper.getFilter());
         configuration.appendChild(targetClasses);
 
         final Element reportsDirectory = document.createElement(REPORT_DIRECTORY);
@@ -336,21 +334,6 @@ public class DSpotPOMCreator {
     /*
         UTILS
      */
-
-    private static final String MESSAGE_WARN_PIT_NO_FILTER = "You gave an empty filter. To use PIT, it is recommend to specify a filter, at least, the top package of your program, otherwise, PIT may take a long time or could not be run.";
-
-    private String getFilter() {
-        if (InputConfiguration.get().getFilter().isEmpty()) {
-            LOGGER.warn(MESSAGE_WARN_PIT_NO_FILTER);
-            LOGGER.warn("Trying to compute the top package of the project...");
-            CtPackage currentPackage = InputConfiguration.get().getFactory().Package().getRootPackage();
-            while (currentPackage.getTypes().isEmpty()) {
-                currentPackage = (CtPackage) currentPackage.getPackages().toArray()[0];
-            }
-            InputConfiguration.get().setFilter(currentPackage.getQualifiedName() + ".*");
-        }
-        return InputConfiguration.get().getFilter();
-    }
 
     private void appendValuesToGivenNode(Document document, Element nodeParent, String... values) {
         Arrays.stream(values)

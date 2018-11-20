@@ -1,5 +1,6 @@
 package eu.stamp_project.automaticbuilder.gradle;
 
+import eu.stamp_project.automaticbuilder.AutomaticBuilderHelper;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
@@ -243,6 +244,9 @@ public class GradleInjector {
     }
 
     private String getPitTaskOptions(CtType<?>... testClasses) {
+        if (InputConfiguration.get().getFilter() == null || InputConfiguration.get().getFilter().isEmpty()) {
+            AutomaticBuilderHelper.getFilter();
+        }
         return AmplificationHelper.LINE_SEPARATOR + "pitest {" + AmplificationHelper.LINE_SEPARATOR +
                 "    " + OPT_TARGET_CLASSES + "['" + InputConfiguration.get().getFilter() + "']" + AmplificationHelper.LINE_SEPARATOR +
                 "    " + OPT_WITH_HISTORY + "true" + AmplificationHelper.LINE_SEPARATOR +
