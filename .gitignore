@@ -23,6 +23,18 @@ dspot/src/test/resources/test-projects/.dspot_pom.xml
 dspot/src/test/resources/multiple-pom_1/module-1/module-2-1/.dspot_pom.xml
 dspot/src/test/resources/regression/test-projects_0/.dspot_pom.xml
 dspot/src/test/resources/regression/test-projects_1/.dspot_pom.xml
+dspot/src/test/resources/mockito/.dspot__junit5_pom.xml
+dspot/src/test/resources/multiple-pom/module-1/module-2-1/.dspot__junit5_pom.xml
+dspot/src/test/resources/multiple-pom_1/module-1/module-2-1/.dspot__junit5_pom.xml
+dspot/src/test/resources/project-with-resources/.dspot__junit5_pom.xml
+dspot/src/test/resources/regression/test-projects_0/.dspot__junit5_pom.xml
+dspot/src/test/resources/regression/test-projects_1/.dspot__junit5_pom.xml
+dspot/src/test/resources/sample/.dspot__junit5_pom.xml
+dspot/src/test/resources/test-projects/.dspot__junit5_pom.xml
+
+dspot-out/
+
+*.properties
 
 target/
 pom.xml.tag
