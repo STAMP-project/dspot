@@ -13,9 +13,9 @@ pwd
 ls
 ls xwiki-commons
 
-java -jar /home/travis/build/STAMP-project/dspot/dspot/target/dspot-${DSPOT_VERSION}-jar-with-dependencies.jar --path-to-properties /home/travis/build/STAMP-project/dspot/dspot/src/test/resources/xwiki.properties --descartes --verbose --generate-new-test-class --test org.xwiki.xml.internal.html.DefaultHTMLCleanerTest
+java -jar target/dspot-${DSPOT_VERSION}-jar-with-dependencies.jar --path-to-properties src/test/resources/xwiki.properties --descartes --verbose --generate-new-test-class --test org.xwiki.xml.internal.html.DefaultHTMLCleanerTest
 
-if [ -f /home/travis/build/STAMP-project/dspot/dspot/dspot-out/xwiki-commons/org/xwiki/xml/internal/html/AmplDefaultHTMLCleanerTest.java ]; then
+if [ -f dspot-out/xwiki-commons/org/xwiki/xml/internal/html/AmplDefaultHTMLCleanerTest.java ]; then
     exit 0
 else
     exit 1
