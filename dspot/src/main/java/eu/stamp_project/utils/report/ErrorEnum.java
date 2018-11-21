@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.report;
+package eu.stamp_project.utils.report;
 
 /**
  * created by Benjamin DANGLOT
@@ -7,6 +7,15 @@ package eu.stamp_project.dspot.report;
  */
 public enum ErrorEnum {
 
+    /*
+        ERRORS BEFORE AMPLIFICATION PROCESS
+     */
+    ERROR_NO_TEST_COULD_BE_FOUND_MATCHING_REGEX("Could not find any test class that match the given regular expression."),
+    ERROR_NO_TEST_COULD_BE_FOUND("Could not find any test class that match at least one of the given regular expression."),
+
+    /*
+        ERRORS DURING AMPLIFICATION PROCESS
+     */
     ERROR_PRE_SELECTION("Something bad happened during selection before amplification."),
     ERROR_INPUT_AMPLIFICATION("Something bad happened during input amplification."),
     ERROR_ASSERT_AMPLIFICATION("Something bad happened during assertion amplification"),
@@ -21,5 +30,4 @@ public enum ErrorEnum {
     ErrorEnum(String message) {
         this.message = message;
     }
-
 }

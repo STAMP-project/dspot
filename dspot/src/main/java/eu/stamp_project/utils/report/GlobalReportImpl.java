@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.report;
+package eu.stamp_project.utils.report;
 
 import eu.stamp_project.dspot.Amplification;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -55,9 +55,9 @@ public class GlobalReportImpl implements GlobalReport {
     }
 
     @Override
-    public void addError(ErrorEnum error, Throwable throwable) {
-        LOGGER.warn(error.getMessage());
-        this.errors.add(new Error(error, throwable));
+    public void addError(Error error) {
+        LOGGER.warn(error.toString());
+        this.errors.add(error);
     }
 }
 
