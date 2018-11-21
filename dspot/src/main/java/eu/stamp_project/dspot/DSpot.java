@@ -15,6 +15,8 @@ import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.json.ClassTimeJSON;
 import eu.stamp_project.utils.json.ProjectTimeJSON;
+import eu.stamp_project.utils.report.Error;
+import eu.stamp_project.utils.report.ErrorEnum;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +27,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -204,6 +204,40 @@ public class DSpot {
      * @return a list of amplified test classes with amplified test methods.
      */
     public List<CtType<?>> amplifyTestClassesTestMethods(List<String> testClassesToBeAmplified, List<String> testMethods) {
+        final Map<String, List<CtType<?>>> collect = testClassesToBeAmplified.stream()
+                .collect(Collectors.toMap(
+                        Function.identity(),
+                        testClassName -> this.findTestClasses(testClassName).collect(Collectors.toList())
+                        )
+                );
+        final List<String> keys = collect.keySet()
+                .stream()
+                .filter(testClassName -> {
+                    if (collect.get(testClassName).isEmpty()) {
+                        InputConfiguration.get().getReport().addError(
+                                new Error(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND_MATCHING_REGEX, testClassName)
+                        );
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }).collect(Collectors.toList());
+        if (keys.isEmpty()) {
+            LOGGER.error("Could not find any test classes to be amplified.");
+            LOGGER.error("No one of the provided target test classes could find candidate:");
+            final String testClassToBeAmplifiedJoined = String.join(AmplificationHelper.LINE_SEPARATOR, testClassesToBeAmplified);
+            LOGGER.error("\t{}", testClassToBeAmplifiedJoined);
+            LOGGER.error("DSpot will stop here, please check your inputs.");
+            LOGGER.error("In particular, you should look at the values of following options:");
+            LOGGER.error("\t (-t | --test) should be followed by correct Java regular expression.");
+            LOGGER.error("\t Please, refer to the Java documentation of java.util.regex.Pattern.");
+            LOGGER.error("\t (-c | --cases) should be followed by correct method name,");
+            LOGGER.error("\t that are contained in the test classes that match the previous option, i.e. (-t | --test).");
+            InputConfiguration.get().getReport().addError(
+                    new Error(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND, testClassToBeAmplifiedJoined)
+            );
+            return Collections.emptyList();
+        }
         final List<CtType<?>> testClassesToBeAmplifiedModel = testClassesToBeAmplified.stream()
                 .flatMap(this::findTestClasses)
                 .collect(Collectors.toList());
