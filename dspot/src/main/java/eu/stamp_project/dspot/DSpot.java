@@ -23,10 +23,7 @@ import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -54,15 +51,15 @@ public class DSpot {
 
     private ProjectTimeJSON projectTimeJSON;
 
-    public DSpot() throws Exception {
+    public DSpot() {
         this(3, Collections.emptyList(), new PitMutantScoreSelector(), BudgetizerEnum.NoBudgetizer);
     }
 
-    public DSpot(int numberOfIterations) throws Exception {
+    public DSpot(int numberOfIterations) {
         this(numberOfIterations, Collections.emptyList(), new PitMutantScoreSelector(), BudgetizerEnum.NoBudgetizer);
     }
 
-    public DSpot(TestSelector testSelector) throws Exception {
+    public DSpot(TestSelector testSelector) {
         this(3, Collections.emptyList(), testSelector, BudgetizerEnum.NoBudgetizer);
     }
 
@@ -70,11 +67,11 @@ public class DSpot {
         this(iteration, Collections.emptyList(), testSelector, BudgetizerEnum.NoBudgetizer);
     }
 
-    public DSpot(List<Amplifier> amplifiers) throws Exception {
+    public DSpot(List<Amplifier> amplifiers) {
         this(3, amplifiers, new PitMutantScoreSelector(), BudgetizerEnum.NoBudgetizer);
     }
 
-    public DSpot(int numberOfIterations, List<Amplifier> amplifiers) throws Exception {
+    public DSpot(int numberOfIterations, List<Amplifier> amplifiers) {
         this(numberOfIterations, amplifiers, new PitMutantScoreSelector(), BudgetizerEnum.NoBudgetizer);
     }
 
@@ -85,7 +82,7 @@ public class DSpot {
     public DSpot(int numberOfIterations,
                  List<Amplifier> amplifiers,
                  TestSelector testSelector,
-                 BudgetizerEnum budgetizer) throws Exception {
+                 BudgetizerEnum budgetizer) {
         String dependencies = InputConfiguration.get().getDependencies();
         this.compiler = DSpotCompiler.createDSpotCompiler(InputConfiguration.get(), dependencies);
         InputConfiguration.get().setFactory(this.compiler.getLauncher().getFactory());
@@ -100,7 +97,11 @@ public class DSpot {
                 File.separator + splittedPath[splittedPath.length - 1] + ".json");
         if (projectJsonFile.exists()) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            this.projectTimeJSON = gson.fromJson(new FileReader(projectJsonFile), ProjectTimeJSON.class);
+            try {
+                this.projectTimeJSON = gson.fromJson(new FileReader(projectJsonFile), ProjectTimeJSON.class);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         } else {
             this.projectTimeJSON = new ProjectTimeJSON(splittedPath[splittedPath.length - 1]);
         }
@@ -109,6 +110,9 @@ public class DSpot {
 
     private Stream<CtType<?>> findTestClasses(String targetTestClasses) {
         if (!targetTestClasses.contains("\\")) {
+            // here, we make more usable, but maybe less reliable, dspot.
+            // we replace every * with .*, since in java.util.regex Pattern class
+            // the star (*) is just a quantifier (0, or infini) and the dot (.) is a wildcard
             targetTestClasses = targetTestClasses.replaceAll("\\.", "\\\\\\.").replaceAll("\\*", ".*");
         }
         Pattern pattern = Pattern.compile(targetTestClasses);

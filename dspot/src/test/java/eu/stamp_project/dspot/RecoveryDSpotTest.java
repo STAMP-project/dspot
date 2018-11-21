@@ -143,4 +143,13 @@ public class RecoveryDSpotTest extends AbstractTest {
         assertSame(ErrorEnum.ERROR_ASSERT_AMPLIFICATION, InputConfiguration.get().getReport().getErrors().get(0).type);
         InputConfiguration.get().setReport(new GlobalReportImpl());
     }
+
+    @Test
+    public void testNoMatchingTestClasses() {
+        final DSpot dSpot = new DSpot(new TakeAllSelector());
+        dSpot.amplifyTestClass("this.is.not.a.correct.package");
+        assertEquals(2, InputConfiguration.get().getReport().getErrors().size());
+        assertSame(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND_MATCHING_REGEX, InputConfiguration.get().getReport().getErrors().get(0).type);
+        assertSame(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND, InputConfiguration.get().getReport().getErrors().get(1).type);
+    }
 }
