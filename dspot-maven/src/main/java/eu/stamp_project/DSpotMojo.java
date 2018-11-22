@@ -24,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -234,7 +235,7 @@ public class DSpotMojo extends AbstractMojo {
         }
         try {
             InputConfiguration.initialize(properties)
-                    .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(this.amplifiers.toArray(new String[this.amplifiers.size()])))
+                    .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(new ArrayList<>(this.amplifiers)))
                     .setNbIteration(this.iteration)
                     .setTestClasses(this.test)
                     .setBudgetizer(BudgetizerEnum.valueOf(this.budgetizer))
