@@ -13,6 +13,7 @@ import eu.stamp_project.dspot.selector.TakeAllSelector;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -31,8 +32,16 @@ import static org.junit.Assert.*;
  */
 public class RecoveryDSpotTest extends AbstractTest {
 
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+        Main.globalReport.reset();
+    }
+
     @After
     public void tearDown() throws Exception {
+        Main.globalReport.reset();
         InputConfiguration.get().setSelector(new PitMutantScoreSelector());
     }
 
