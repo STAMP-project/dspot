@@ -1,6 +1,5 @@
 package eu.stamp_project;
 
-import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;

@@ -67,7 +67,7 @@ public class JSAPOptions {
         }
         final List<String> testClasses = Arrays.asList(jsapConfig.getStringArray("test"));
         final List<String> testCases = Arrays.asList(jsapConfig.getStringArray("testCases"));
-        InputConfiguration.initialize(jsapConfig.getString("path"), jsapConfig.getString("builder"));
+        InputConfiguration.initialize(jsapConfig.getString("path-to-properties"), jsapConfig.getString("builder"));
         if (InputConfiguration.get().getOutputDirectory().isEmpty()) {
             InputConfiguration.get().setOutputDirectory(jsapConfig.getString("output"));
         }
