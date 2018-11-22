@@ -43,8 +43,9 @@ public class Error {
         this.message = message;
     }
 
+    @Override
     public String toString() {
-        return this.type.toString() +
+        return this.type.getMessage() +
                 (this.error != null ? AmplificationHelper.LINE_SEPARATOR + this.getStackTrace.apply(this.error) : "") +
                 (this.message.isEmpty() ? "" : AmplificationHelper.LINE_SEPARATOR + this.message);
     }

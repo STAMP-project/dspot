@@ -925,17 +925,6 @@ public class InputConfiguration {
         return this;
     }
 
-    private GlobalReport report = new GlobalReportImpl();
-
-    public GlobalReport getReport() {
-        return report;
-    }
-
-    public void setReport(GlobalReport report) {
-        this.report = report;
-    }
-
-
     private boolean isJUnit5;
 
     /**

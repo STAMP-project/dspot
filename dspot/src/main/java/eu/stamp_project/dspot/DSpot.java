@@ -2,6 +2,7 @@ package eu.stamp_project.dspot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import eu.stamp_project.Main;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.budget.Budgetizer;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
@@ -105,7 +106,7 @@ public class DSpot {
         } else {
             this.projectTimeJSON = new ProjectTimeJSON(splittedPath[splittedPath.length - 1]);
         }
-        this.budgetizer = budgetizer.getBugtizer(this.amplifiers);
+        this.budgetizer = budgetizer.getBudgetizer(this.amplifiers);
     }
 
     private Stream<CtType<?>> findTestClasses(String targetTestClasses) {
@@ -218,8 +219,10 @@ public class DSpot {
                 .stream()
                 .filter(testClassName -> {
                     if (collect.get(testClassName).isEmpty()) {
-                        InputConfiguration.get().getReport().addError(
-                                new Error(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND_MATCHING_REGEX, testClassName)
+                        Main.globalReport.addError(
+                                new Error(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND_MATCHING_REGEX,
+                                        String.format("Your input:%n\t%s", testClassName)
+                                )
                         );
                         return false;
                     } else {
@@ -231,14 +234,16 @@ public class DSpot {
             LOGGER.error("No one of the provided target test classes could find candidate:");
             final String testClassToBeAmplifiedJoined = String.join(AmplificationHelper.LINE_SEPARATOR, testClassesToBeAmplified);
             LOGGER.error("\t{}", testClassToBeAmplifiedJoined);
-            LOGGER.error("DSpot will stop here, please check your inputs.");
+            LOGGER.error("DSpot will stop here, please checkEnum your inputs.");
             LOGGER.error("In particular, you should look at the values of following options:");
             LOGGER.error("\t (-t | --test) should be followed by correct Java regular expression.");
             LOGGER.error("\t Please, refer to the Java documentation of java.util.regex.Pattern.");
             LOGGER.error("\t (-c | --cases) should be followed by correct method name,");
             LOGGER.error("\t that are contained in the test classes that match the previous option, i.e. (-t | --test).");
-            InputConfiguration.get().getReport().addError(
-                    new Error(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND, testClassToBeAmplifiedJoined)
+            Main.globalReport.addError(
+                    new Error(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND,
+                            String.format("Your input:%n\t%s", testClassToBeAmplifiedJoined)
+                    )
             );
             return Collections.emptyList();
         }

@@ -8,6 +8,12 @@ package eu.stamp_project.utils.report;
 public enum ErrorEnum {
 
     /*
+        ERRORS INPUT
+     */
+    ERROR_NO_ENUM_VALUE_CORRESPOND_TO_GIVEN_INPUT("The given value does not match with any value of the corresponding options."),
+    ERROR_PATH_TO_PROPERTIES("There is a problem with the provided path to the properties file."),
+
+    /*
         ERRORS BEFORE AMPLIFICATION PROCESS
      */
     ERROR_NO_TEST_COULD_BE_FOUND_MATCHING_REGEX("Could not find any test class that match the given regular expression."),

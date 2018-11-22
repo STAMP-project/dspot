@@ -9,9 +9,15 @@ import java.util.List;
  */
 public interface GlobalReport {
 
+    public void addInputError(Error error);
+
     public void addError(Error error);
 
     public List<Error> getErrors();
 
+    public List<Error> getInputError();
+
     void output();
+
+    void reset();
 }

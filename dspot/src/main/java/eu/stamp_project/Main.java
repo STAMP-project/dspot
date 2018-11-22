@@ -7,6 +7,8 @@ import eu.stamp_project.utils.options.BudgetizerEnum;
 import eu.stamp_project.utils.options.JSAPOptions;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.RandomHelper;
+import eu.stamp_project.utils.report.GlobalReport;
+import eu.stamp_project.utils.report.GlobalReportImpl;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,9 +24,11 @@ import java.util.List;
  */
 public class Main {
 
+	public static final GlobalReport globalReport = new GlobalReportImpl();
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		try {
 			FileUtils.forceDelete(new File("target/dspot/"));
 		} catch (Exception ignored) {
@@ -36,12 +40,11 @@ public class Main {
 		} else {
 			run(configuration);
 		}
-
 		// global report handling
-		InputConfiguration.get().getReport().output();
+		Main.globalReport.output();
 	}
 
-	public static void run(InputConfiguration configuration) throws Exception {
+	public static void run(InputConfiguration configuration) {
 		DSpot dspot = new DSpot(
 				configuration.getNbIteration(),
 				configuration.getAmplifiers(),

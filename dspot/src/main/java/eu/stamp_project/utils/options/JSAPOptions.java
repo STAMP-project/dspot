@@ -9,11 +9,13 @@ import com.martiansoftware.jsap.Parameter;
 import com.martiansoftware.jsap.Switch;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
+import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -41,10 +43,18 @@ public class JSAPOptions {
         } else if (jsapConfig.getBoolean("example")) {
             return null;
         }
-        if (jsapConfig.getString("path") == null) {
-            System.err.println("Error: Parameter 'path' is required.");
-            showUsage();
-        }
+
+        // checking path to properties
+        Checker.checkPathToPropertiesValue(jsapConfig);
+
+        // checking enum values
+        final List<String> amplifiers = new ArrayList<>(Arrays.asList(jsapConfig.getStringArray("amplifiers")));
+        final String selector = jsapConfig.getString("test-criterion");
+        final String budgetizer = jsapConfig.getString("budgetizer");
+        Checker.checkEnum(AmplifierEnum.class, amplifiers, "amplifiers");
+        Checker.checkEnum(SelectorEnum.class, selector, "test-criterion");
+        Checker.checkEnum(BudgetizerEnum.class, budgetizer, "budgetizer");
+
         TestSelector testCriterion;
         if (jsapConfig.getString("mutant") != null) {
             if (!"PitMutantScoreSelector".equals(jsapConfig.getString("test-criterion"))) {
@@ -62,7 +72,7 @@ public class JSAPOptions {
             InputConfiguration.get().setOutputDirectory(jsapConfig.getString("output"));
         }
         return InputConfiguration.get()
-                .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(jsapConfig.getStringArray("amplifiers")))
+                .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(amplifiers))
                 .setNbIteration(jsapConfig.getInt("iteration"))
                 .setTestClasses(testClasses)
                 .setSelector(testCriterion)
@@ -70,7 +80,7 @@ public class JSAPOptions {
                 .setSeed(jsapConfig.getLong("seed"))
                 .setTimeOutInMs(jsapConfig.getInt("timeOut"))
                 .setMaxTestAmplified(jsapConfig.getInt("maxTestAmplified"))
-                .setBudgetizer(BudgetizerEnum.valueOf(jsapConfig.getString("budgetizer")))
+                .setBudgetizer(BudgetizerEnum.valueOf(budgetizer))
                 .setClean(jsapConfig.getBoolean("clean"))
                 .setMinimize(!jsapConfig.getBoolean("no-minimize"))
                 .setVerbose(jsapConfig.getBoolean("verbose"))
@@ -107,7 +117,7 @@ public class JSAPOptions {
         example.setShortFlag('e');
         example.setHelp("run the example of DSpot and leave");
 
-        FlaggedOption pathToConfigFile = new FlaggedOption("path");
+        FlaggedOption pathToConfigFile = new FlaggedOption("path-to-properties");
         pathToConfigFile.setAllowMultipleDeclarations(false);
         pathToConfigFile.setLongFlag("path-to-properties");
         pathToConfigFile.setShortFlag('p');
