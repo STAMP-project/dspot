@@ -3,7 +3,6 @@ package eu.stamp_project.utils.options;
 import eu.stamp_project.Main;
 import eu.stamp_project.dspot.amplifier.*;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.report.Error;
 import eu.stamp_project.utils.report.ErrorEnum;
 import org.jetbrains.annotations.NotNull;
