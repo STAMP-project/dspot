@@ -34,7 +34,7 @@ public class JSAPOptions {
 
     public static final JSAP options = initJSAP();
 
-    public static InputConfiguration parse(String[] args) {
+    public static boolean parse(String[] args) {
         JSAPResult jsapConfig = options.parse(args);
         if (!jsapConfig.success() || jsapConfig.getBoolean("help")) {
             System.err.println();
@@ -43,7 +43,7 @@ public class JSAPOptions {
             }
             showUsage();
         } else if (jsapConfig.getBoolean("example")) {
-            return null;
+            return true;
         }
 
         // checking path to properties
@@ -73,7 +73,7 @@ public class JSAPOptions {
         if (InputConfiguration.get().getOutputDirectory().isEmpty()) {
             InputConfiguration.get().setOutputDirectory(jsapConfig.getString("output"));
         }
-        return InputConfiguration.get()
+        InputConfiguration.get()
                 .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(amplifiers))
                 .setNbIteration(jsapConfig.getInt("iteration"))
                 .setTestClasses(testClasses)
@@ -92,6 +92,7 @@ public class JSAPOptions {
                 .setKeepOriginalTestMethods(jsapConfig.getBoolean("keep-original-test-methods"))
                 .setDescartesMode(jsapConfig.getBoolean("descartes") && !jsapConfig.getBoolean("gregor"))
                 .setUseMavenToExecuteTest(jsapConfig.getBoolean("use-maven-to-exe-test"));
+        return false;
     }
 
     private static String helpForEnums(Class<?> enumClass) {
