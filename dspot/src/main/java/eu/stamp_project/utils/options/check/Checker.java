@@ -3,6 +3,7 @@ package eu.stamp_project.utils.options.check;
 import com.martiansoftware.jsap.JSAPResult;
 import eu.stamp_project.Main;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.program.ConstantsProperties;
 import eu.stamp_project.utils.report.Error;
 import eu.stamp_project.utils.report.ErrorEnum;
 import org.jetbrains.annotations.NotNull;
@@ -10,10 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -26,25 +30,122 @@ public class Checker {
     private static final Logger LOGGER = LoggerFactory.getLogger(Checker.class);
 
     /*
-        PATH FILE CHECK
+        PROPERTIES CHECK
      */
 
-    public static void checkPathToPropertiesValue(JSAPResult jsapConfig) {
-        boolean error = false;
-        if (jsapConfig.getString("path-to-properties") == null) {
-            LOGGER.error("There is a problem with the command line option path-to-properties.");
-            Main.globalReport.addInputError(new Error(
-                    ErrorEnum.ERROR_PATH_TO_PROPERTIES, "You did not provide the path to your properties file, which is mandatory."
-            ));
-            error = true;
-        } else if (!new File(jsapConfig.getString("path-to-properties")).exists()) {
-            LOGGER.error("There is a problem with the command line option path-to-properties.");
-            Main.globalReport.addInputError(new Error(
-                    ErrorEnum.ERROR_PATH_TO_PROPERTIES, "The provided path to the properties file is incorrect, the properties does not exist."
-            ));
-            error = true;
+    public static void checkProperties(Properties properties) {
+        // project root is mandatory
+        Checker.checkPathnameNotNullAndFileExist(
+                properties.getProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName()),
+                ErrorEnum.ERROR_PATH_TO_PROJECT_ROOT_PROPERTY,
+                "You did not provide the path to the root folder of your project, which is mandatory.",
+                "The provided path to the root folder of your project is incorrect, the folder does not exist."
+        );
+        // target module
+        final String targetModulePropertyValue = properties.getProperty(ConstantsProperties.MODULE.getName());
+        Checker.checkRelativePathPropertyValue(
+                targetModulePropertyValue,
+                ErrorEnum.ERROR_PATH_TO_TARGET_MODULE_PROPERTY,
+                ConstantsProperties.MODULE.getNaturalLanguageDesignation()
+        );
+        // source folders: src and testSrc
+        Checker.checkRelativePathPropertyValue(
+                properties.getProperty(ConstantsProperties.SRC_CODE.getName()),
+                ErrorEnum.ERROR_PATH_TO_SRC_PROPERTY,
+                ConstantsProperties.SRC_CODE.getNaturalLanguageDesignation()
+        );
+        Checker.checkRelativePathPropertyValue(
+                properties.getProperty(ConstantsProperties.TEST_SRC_CODE.getName()),
+                ErrorEnum.ERROR_PATH_TO_TEST_SRC_PROPERTY,
+                ConstantsProperties.TEST_SRC_CODE.getNaturalLanguageDesignation()
+        );
+        // binary folders: classes and test-classes
+        Checker.checkRelativePathPropertyValue(
+                properties.getProperty(ConstantsProperties.SRC_CLASSES.getName()),
+                ErrorEnum.ERROR_PATH_TO_SRC_CLASSES_PROPERTY,
+                ConstantsProperties.SRC_CLASSES.getNaturalLanguageDesignation()
+        );
+        Checker.checkRelativePathPropertyValue(
+                properties.getProperty(ConstantsProperties.TEST_SRC_CODE.getName()),
+                ErrorEnum.ERROR_PATH_TO_TEST_CLASSES_PROPERTY,
+                ConstantsProperties.TEST_SRC_CODE.getNaturalLanguageDesignation()
+        );
+
+        // path to second version
+        Checker.checkRelativePathPropertyValue(
+                properties.getProperty(ConstantsProperties.PATH_TO_SECOND_VERSION.getName()),
+                ErrorEnum.ERROR_PATH_TO_SECOND_VERSION,
+                ConstantsProperties.PATH_TO_SECOND_VERSION.getNaturalLanguageDesignation()
+        );
+        // path to maven home
+        Checker.checkRelativePathPropertyValue(
+                properties.getProperty(ConstantsProperties.MAVEN_HOME.getName()),
+                ErrorEnum.ERROR_PATH_TO_MAVEN_HOME,
+                ConstantsProperties.MAVEN_HOME.getNaturalLanguageDesignation()
+        );
+
+        if (properties.getProperty(ConstantsProperties.DESCARTES_VERSION.getName()) != null) {
+            checkIsACorrectVersion(properties.getProperty(ConstantsProperties.DESCARTES_VERSION.getName()));
         }
-        if (error) {
+        if (properties.getProperty(ConstantsProperties.PIT_VERSION.getName()) != null) {
+            checkIsACorrectVersion(properties.getProperty(ConstantsProperties.PIT_VERSION.getName()));
+        }
+        // TODO check JVM args and System args
+    }
+
+    public boolean hasJvmArgument(String argument) {
+        List arguments = ManagementFactory.getRuntimeMXBean().getInputArguments();
+        return arguments.contains(argument);
+    }
+
+    public static void checkIsACorrectVersion(final String proposedVersion) {
+        if (!Pattern.compile("(\\p{Digit})+(\\.(\\p{Digit})+)*").matcher(proposedVersion).matches()) {
+            Main.globalReport.addInputError(new Error(
+                            ErrorEnum.ERROR_PATH_TO_PROPERTIES
+                    )
+            );
+            throw new InputErrorException();
+        }
+    }
+
+    private static void checkRelativePathPropertyValue(final String propertyValue,
+                                                       final ErrorEnum errorEnumInCaseOfError,
+                                                       final String naturalLanguageDesignation) {
+        if (propertyValue != null) {
+            final String additionalMessage = "The provided path to the " + naturalLanguageDesignation + " of your project is incorrect, the folder does not exist."
+                    + AmplificationHelper.LINE_SEPARATOR + " This path should be relative to the path pointed by "
+                    + ConstantsProperties.PROJECT_ROOT_PATH.getName() + " property.";
+            Checker.checkFileExists(propertyValue, errorEnumInCaseOfError, additionalMessage);
+        }
+    }
+
+    /*
+        PROPERTIES PATH FILE CHECK
+     */
+    public static void checkPathToPropertiesValue(JSAPResult jsapConfig) {
+        Checker.checkPathnameNotNullAndFileExist(
+                jsapConfig.getString("path-to-properties"),
+                ErrorEnum.ERROR_PATH_TO_PROPERTIES,
+                "You did not provide the path to your properties file, which is mandatory.",
+                "The provided path to the properties file is incorrect, the properties does not exist."
+        );
+    }
+
+    private static void checkPathnameNotNullAndFileExist(final String pathname,
+                                                         ErrorEnum errorEnumInCaseOfError,
+                                                         String additionalMessageWhenIsNull,
+                                                         String additionalMessageWhenDoesNotExist) {
+        if (pathname == null) {
+            Main.globalReport.addInputError(new Error(errorEnumInCaseOfError, additionalMessageWhenIsNull));
+            throw new InputErrorException();
+        } else {
+            checkFileExists(pathname, errorEnumInCaseOfError, additionalMessageWhenDoesNotExist);
+        }
+    }
+
+    private static void checkFileExists(final String pathname, ErrorEnum errorEnumInCaseOfError, String additionalMessage) {
+        if (!new File(pathname).exists()) {
+            Main.globalReport.addInputError(new Error(errorEnumInCaseOfError, additionalMessage));
             throw new InputErrorException();
         }
     }
@@ -74,8 +175,8 @@ public class Checker {
 
     private static String getPossibleValuesAsString(Class<?> enumClass) {
         return getPossibleValues(enumClass)
-                        .stream()
-                        .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR + Checker.indentation));
+                .stream()
+                .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR + Checker.indentation));
     }
 
     private static boolean checkEnumAndRemoveIfIncorrect(Class<?> enumClass, List<String> values) {

@@ -15,10 +15,7 @@ import eu.stamp_project.utils.AmplificationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -34,6 +31,12 @@ public class JSAPOptions {
 
     public static final JSAP options = initJSAP();
 
+    /**
+     * parse the command line argument
+     * @param args command line arguments. Refer to the README on the github page or use --help command line option to display all the accepted arguments.
+     * @return true if --example is pass through the command line. It will run DSpot with a small example to make a demonstration of the usage of DSpot.
+     * Otherwise, it returns false and DSpot will run normally, using the properties and the command line options.
+     */
     public static boolean parse(String[] args) {
         JSAPResult jsapConfig = options.parse(args);
         if (!jsapConfig.success() || jsapConfig.getBoolean("help")) {
@@ -67,9 +70,19 @@ public class JSAPOptions {
         } else {
             testCriterion = SelectorEnum.valueOf(jsapConfig.getString("test-criterion")).buildSelector();
         }
+
+        // these values need to be checked when the factory is available
+        // We check them in DSpot class since we have the codes that allow to check them easily
+        // and thus, the Factory will be created.
+        // Anyway, the verification in DSpot is not yet too late nor deep in the amplification's process.
         final List<String> testClasses = Arrays.asList(jsapConfig.getStringArray("test"));
         final List<String> testCases = Arrays.asList(jsapConfig.getStringArray("testCases"));
-        InputConfiguration.initialize(jsapConfig.getString("path-to-properties"), jsapConfig.getString("builder"));
+
+        // we check the properties before initializing the InputConfiguration.
+        final Properties properties = InputConfiguration.loadProperties(jsapConfig.getString("path-to-properties"));
+        Checker.checkProperties(properties);
+
+        InputConfiguration.initialize(properties, jsapConfig.getString("builder"));
         if (InputConfiguration.get().getOutputDirectory().isEmpty()) {
             InputConfiguration.get().setOutputDirectory(jsapConfig.getString("output"));
         }

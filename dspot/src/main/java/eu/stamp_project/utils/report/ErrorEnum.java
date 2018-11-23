@@ -1,5 +1,8 @@
 package eu.stamp_project.utils.report;
 
+import eu.stamp_project.utils.program.ConstantsProperties;
+import eu.stamp_project.utils.program.InputConfigurationProperty;
+
 /**
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -12,6 +15,18 @@ public enum ErrorEnum {
      */
     ERROR_NO_ENUM_VALUE_CORRESPOND_TO_GIVEN_INPUT("The given value does not match with any value of the corresponding options."),
     ERROR_PATH_TO_PROPERTIES("There is a problem with the provided path to the properties file."),
+
+    /*
+        ERRORS PROPERTIES
+     */
+    ERROR_PATH_TO_PROJECT_ROOT_PROPERTY(ConstantsProperties.PROJECT_ROOT_PATH),
+    ERROR_PATH_TO_TARGET_MODULE_PROPERTY(ConstantsProperties.MODULE),
+    ERROR_PATH_TO_SRC_PROPERTY(ConstantsProperties.SRC_CODE),
+    ERROR_PATH_TO_TEST_SRC_PROPERTY(ConstantsProperties.TEST_SRC_CODE),
+    ERROR_PATH_TO_SRC_CLASSES_PROPERTY(ConstantsProperties.SRC_CLASSES),
+    ERROR_PATH_TO_TEST_CLASSES_PROPERTY(ConstantsProperties.TEST_CLASSES),
+    ERROR_PATH_TO_SECOND_VERSION(ConstantsProperties.PATH_TO_SECOND_VERSION),
+    ERROR_PATH_TO_MAVEN_HOME(ConstantsProperties.MAVEN_HOME),
 
     /*
         ERRORS BEFORE AMPLIFICATION PROCESS
@@ -35,5 +50,11 @@ public enum ErrorEnum {
 
     ErrorEnum(String message) {
         this.message = message;
+    }
+
+    ErrorEnum(InputConfigurationProperty property) {
+        this.message =
+                "There is a problem with the provided path to the "
+                        + property.getNaturalLanguageDesignation() + "(" + property.getName() + " property)";
     }
 }

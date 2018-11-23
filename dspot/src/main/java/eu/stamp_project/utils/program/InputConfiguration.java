@@ -42,7 +42,7 @@ public class InputConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InputConfiguration.class);
 
-    private static Properties loadProperties(String pathToPropertiesFile) {
+    public static Properties loadProperties(String pathToPropertiesFile) {
         try {
             Properties properties = new Properties();
             if (pathToPropertiesFile == null || "".equals(pathToPropertiesFile)) {
@@ -217,6 +217,7 @@ public class InputConfiguration {
         this.builder = AutomaticBuilderFactory.getAutomaticBuilder(this.getBuilderName());
         this.dependencies = this.builder.compileAndBuildClasspath();
 
+        // TODO checks this. Since we support different Test Support, we may not need to add artificially junit in the classpath
         if (!this.dependencies.contains("junit" + File.separator + "junit" + File.separator + "4")) {
             this.dependencies = Test.class
                     .getProtectionDomain()
