@@ -101,7 +101,7 @@ public class Checker {
     }
 
     @NotNull
-    private static List<String> getPossibleValues(Class<?> enumClass) {
+    public static List<String> getPossibleValues(Class<?> enumClass) {
         return Arrays.stream(enumClass.getFields())
                 .filter(field -> enumClass.equals(field.getType()))
                 .map(Field::getName)

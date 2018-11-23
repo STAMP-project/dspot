@@ -30,6 +30,8 @@ public class JSAPOptions {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JSAPOptions.class);
 
+    private static final String SEPARATOR = AmplificationHelper.LINE_SEPARATOR + "\t\t - ";
+
     public static final JSAP options = initJSAP();
 
     public static InputConfiguration parse(String[] args) {
@@ -92,6 +94,11 @@ public class JSAPOptions {
                 .setUseMavenToExecuteTest(jsapConfig.getBoolean("use-maven-to-exe-test"));
     }
 
+    private static String helpForEnums(Class<?> enumClass) {
+        return AmplificationHelper.LINE_SEPARATOR + "Possible values are: " +
+                SEPARATOR + String.join(SEPARATOR, Checker.getPossibleValues(enumClass))
+                + AmplificationHelper.LINE_SEPARATOR;
+    }
 
     public static void showUsage() {
         System.err.println();
@@ -132,7 +139,7 @@ public class JSAPOptions {
         amplifiers.setStringParser(JSAP.STRING_PARSER);
         amplifiers.setUsageName("Amplifier");
         amplifiers.setDefault("None");
-        amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. " + AmplifierEnum.getPossibleValuesForInputAmplifier());
+        amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. " + JSAPOptions.helpForEnums(AmplifierEnum.class));
 
         FlaggedOption iteration = new FlaggedOption("iteration");
         iteration.setDefault("3");
@@ -148,7 +155,7 @@ public class JSAPOptions {
         selector.setShortFlag('s');
         selector.setStringParser(JSAP.STRING_PARSER);
         selector.setUsageName("PitMutantScoreSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector");
-        selector.setHelp("[optional] specify the test adequacy criterion to be maximized with amplification");
+        selector.setHelp("[optional] specify the test adequacy criterion to be maximized with amplification." + JSAPOptions.helpForEnums(SelectorEnum.class));
         selector.setDefault("PitMutantScoreSelector");
 
         FlaggedOption specificTestClass = new FlaggedOption("test");
@@ -233,7 +240,7 @@ public class JSAPOptions {
         budgetizer.setStringParser(JSAP.STRING_PARSER);
         budgetizer.setLongFlag("budgetizer");
         budgetizer.setUsageName("NoBudgetizer | SimpleBudgetizer");
-        budgetizer.setHelp("[optional] specify a Bugdetizer.");
+        budgetizer.setHelp("[optional] specify a Bugdetizer." + JSAPOptions.helpForEnums(BudgetizerEnum.class));
         budgetizer.setDefault("NoBudgetizer");
 
         Switch withComment = new Switch("comment");
