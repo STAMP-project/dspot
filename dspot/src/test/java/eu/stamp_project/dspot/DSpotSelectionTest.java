@@ -48,8 +48,8 @@ public class DSpotSelectionTest {
     @BeforeClass
     public static void setUpClass() throws Exception {
         Utils.reset();
-        final InputConfiguration inputConfiguration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
-        Main.createOutputDirectories(inputConfiguration);
+        InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
+        Main.createOutputDirectories();
         dspotUnderTest = new MockedDSpot(
                 1,
                 new JacocoCoverageSelector()

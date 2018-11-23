@@ -281,7 +281,7 @@ public class DSpotMojo extends AbstractMojo {
                     );
                 }
             }
-            Main.run(InputConfiguration.get());
+            Main.run();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
