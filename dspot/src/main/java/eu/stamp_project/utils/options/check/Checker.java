@@ -35,8 +35,9 @@ public class Checker {
 
     public static void checkProperties(Properties properties) {
         // project root is mandatory
+        String currentPath = properties.getProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName());
         Checker.checkPathnameNotNullAndFileExist(
-                properties.getProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName()),
+                currentPath,
                 ErrorEnum.ERROR_PATH_TO_PROJECT_ROOT_PROPERTY,
                 "You did not provide the path to the root folder of your project, which is mandatory.",
                 "The provided path to the root folder of your project is incorrect, the folder does not exist."
@@ -46,42 +47,51 @@ public class Checker {
         Checker.checkRelativePathPropertyValue(
                 targetModulePropertyValue,
                 ErrorEnum.ERROR_PATH_TO_TARGET_MODULE_PROPERTY,
-                ConstantsProperties.MODULE.getNaturalLanguageDesignation()
+                ConstantsProperties.MODULE.getNaturalLanguageDesignation(),
+                currentPath
         );
+        currentPath += targetModulePropertyValue != null ? targetModulePropertyValue : "";
+
         // source folders: src and testSrc
         Checker.checkRelativePathPropertyValue(
                 properties.getProperty(ConstantsProperties.SRC_CODE.getName()),
                 ErrorEnum.ERROR_PATH_TO_SRC_PROPERTY,
-                ConstantsProperties.SRC_CODE.getNaturalLanguageDesignation()
+                ConstantsProperties.SRC_CODE.getNaturalLanguageDesignation(),
+                currentPath
         );
         Checker.checkRelativePathPropertyValue(
                 properties.getProperty(ConstantsProperties.TEST_SRC_CODE.getName()),
                 ErrorEnum.ERROR_PATH_TO_TEST_SRC_PROPERTY,
-                ConstantsProperties.TEST_SRC_CODE.getNaturalLanguageDesignation()
+                ConstantsProperties.TEST_SRC_CODE.getNaturalLanguageDesignation(),
+                currentPath
         );
         // binary folders: classes and test-classes
         Checker.checkRelativePathPropertyValue(
                 properties.getProperty(ConstantsProperties.SRC_CLASSES.getName()),
                 ErrorEnum.ERROR_PATH_TO_SRC_CLASSES_PROPERTY,
-                ConstantsProperties.SRC_CLASSES.getNaturalLanguageDesignation()
+                ConstantsProperties.SRC_CLASSES.getNaturalLanguageDesignation(),
+                currentPath
         );
         Checker.checkRelativePathPropertyValue(
                 properties.getProperty(ConstantsProperties.TEST_SRC_CODE.getName()),
                 ErrorEnum.ERROR_PATH_TO_TEST_CLASSES_PROPERTY,
-                ConstantsProperties.TEST_SRC_CODE.getNaturalLanguageDesignation()
+                ConstantsProperties.TEST_SRC_CODE.getNaturalLanguageDesignation(),
+                currentPath
         );
 
         // path to second version
         Checker.checkRelativePathPropertyValue(
                 properties.getProperty(ConstantsProperties.PATH_TO_SECOND_VERSION.getName()),
                 ErrorEnum.ERROR_PATH_TO_SECOND_VERSION,
-                ConstantsProperties.PATH_TO_SECOND_VERSION.getNaturalLanguageDesignation()
+                ConstantsProperties.PATH_TO_SECOND_VERSION.getNaturalLanguageDesignation(),
+                currentPath
         );
         // path to maven home
         Checker.checkRelativePathPropertyValue(
                 properties.getProperty(ConstantsProperties.MAVEN_HOME.getName()),
                 ErrorEnum.ERROR_PATH_TO_MAVEN_HOME,
-                ConstantsProperties.MAVEN_HOME.getNaturalLanguageDesignation()
+                ConstantsProperties.MAVEN_HOME.getNaturalLanguageDesignation(),
+                currentPath
         );
 
         if (properties.getProperty(ConstantsProperties.DESCARTES_VERSION.getName()) != null) {
@@ -110,12 +120,13 @@ public class Checker {
 
     private static void checkRelativePathPropertyValue(final String propertyValue,
                                                        final ErrorEnum errorEnumInCaseOfError,
-                                                       final String naturalLanguageDesignation) {
+                                                       final String naturalLanguageDesignation,
+                                                       final String rootPathProject) {
         if (propertyValue != null) {
             final String additionalMessage = "The provided path to the " + naturalLanguageDesignation + " of your project is incorrect, the folder does not exist."
                     + AmplificationHelper.LINE_SEPARATOR + " This path should be relative to the path pointed by "
                     + ConstantsProperties.PROJECT_ROOT_PATH.getName() + " property.";
-            Checker.checkFileExists(propertyValue, errorEnumInCaseOfError, additionalMessage);
+            Checker.checkFileExists(rootPathProject + "/" + propertyValue, errorEnumInCaseOfError, additionalMessage);
         }
     }
 
@@ -127,7 +138,7 @@ public class Checker {
                 jsapConfig.getString("path-to-properties"),
                 ErrorEnum.ERROR_PATH_TO_PROPERTIES,
                 "You did not provide the path to your properties file, which is mandatory.",
-                "The provided path to the properties file is incorrect, the properties does not exist."
+                "The provided path to the properties file is incorrect, the properties file does not exist."
         );
     }
 
@@ -145,7 +156,7 @@ public class Checker {
 
     private static void checkFileExists(final String pathname, ErrorEnum errorEnumInCaseOfError, String additionalMessage) {
         if (!new File(pathname).exists()) {
-            Main.globalReport.addInputError(new Error(errorEnumInCaseOfError, additionalMessage));
+            Main.globalReport.addInputError(new Error(errorEnumInCaseOfError, additionalMessage + "(" + pathname + ")"));
             throw new InputErrorException();
         }
     }
