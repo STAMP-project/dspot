@@ -159,6 +159,21 @@ public class MainTest {
     }
 
     @Test
+    public void testOnParametrizedTestClass() throws Exception {
+        Main.main(new String[]{
+                "--clean",
+                "--verbose",
+                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
+                "--test-criterion", "TakeAllSelector",
+                "--test", "example.ParametrizedTestSuiteExample",
+                "--no-minimize"
+        });
+        final CtClass<?> amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("example.ParametrizedTestSuiteExample");
+        assertNotNull(amplifiedTestClass);
+        assertFalse(amplifiedTestClass.getMethods().isEmpty());
+    }
+
+    @Test
     public void testOnProjectWithResources() throws Exception {
         Main.main(new String[]{
                 "--verbose",
