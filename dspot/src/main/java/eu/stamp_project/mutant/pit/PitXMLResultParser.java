@@ -15,7 +15,7 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class PitXMLResultParser extends AbstractParser {
 
-    PitXMLResultParser(){
+    public PitXMLResultParser(){
         super("/mutations.xml");
     }
 

@@ -3,8 +3,7 @@ package eu.stamp_project.dspot.selector;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.mutant.pit.AbstractPitResult;
-import eu.stamp_project.mutant.pit.PitCSVResult;
+import eu.stamp_project.mutant.pit.*;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -12,7 +11,6 @@ import eu.stamp_project.dspot.selector.json.mutant.MutantJSON;
 import eu.stamp_project.dspot.selector.json.mutant.TestCaseJSON;
 import eu.stamp_project.dspot.selector.json.mutant.TestClassJSON;
 import eu.stamp_project.utils.Counter;
-import eu.stamp_project.mutant.pit.PitCSVResultParser;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.program.InputConfiguration;
 import eu.stamp_project.minimization.Minimizer;
@@ -43,11 +41,11 @@ public class PitMutantScoreSelector extends TakeAllSelector {
 
     private List<AbstractPitResult> mutantNotTestedByOriginal;
 
-    private PitCSVResultParser parser;
+    private AbstractParser parser;
 
     public PitMutantScoreSelector() {
         this.testThatKilledMutants = new HashMap<>();
-        parser = new PitCSVResultParser();
+        parser = new PitXMLResultParser();
     }
 
     public PitMutantScoreSelector(String pathToOriginalResultOfPit) {
@@ -68,12 +66,12 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     private void initOriginalPitResult(List<AbstractPitResult> results) {
         this.numberOfMutant = results.size();
         this.mutantNotTestedByOriginal = results.stream()
-                .filter(result -> result.getStateOfMutant() != PitCSVResult.State.KILLED)
-                .filter(result -> result.getStateOfMutant() != PitCSVResult.State.SURVIVED)
-                .filter(result -> result.getStateOfMutant() != PitCSVResult.State.NO_COVERAGE)
+                .filter(result -> result.getStateOfMutant() != AbstractPitResult.State.KILLED)
+                .filter(result -> result.getStateOfMutant() != AbstractPitResult.State.SURVIVED)
+                .filter(result -> result.getStateOfMutant() != AbstractPitResult.State.NO_COVERAGE)
                 .collect(Collectors.toList());
         this.originalKilledMutants = results.stream()
-                .filter(result -> result.getStateOfMutant() == PitCSVResult.State.KILLED)
+                .filter(result -> result.getStateOfMutant() == AbstractPitResult.State.KILLED)
                 .collect(Collectors.toList());
         LOGGER.info("The original test suite kill {} / {}", this.originalKilledMutants.size(), results.size());
     }
@@ -120,7 +118,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 LOGGER.warn("Number of generated mutant is different than the original one.");
             }
             results.stream()
-                    .filter(result -> result.getStateOfMutant() == PitCSVResult.State.KILLED &&
+                    .filter(result -> result.getStateOfMutant() == AbstractPitResult.State.KILLED &&
                             !this.originalKilledMutants.contains(result) &&
                             !this.mutantNotTestedByOriginal.contains(result))
                     .forEach(result -> {
@@ -232,9 +230,9 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         }
         List<CtMethod> keys = new ArrayList<>(this.testThatKilledMutants.keySet());
         keys.forEach(amplifiedTest -> {
-                    List<AbstractPitResult> pitCSVResults = new ArrayList<>(this.testThatKilledMutants.get(amplifiedTest));
+                    List<AbstractPitResult> pitResults = new ArrayList<>(this.testThatKilledMutants.get(amplifiedTest));
                     final List<MutantJSON> mutantsJson = new ArrayList<>();
-                    pitCSVResults.forEach(pitResult -> mutantsJson.add(new MutantJSON(
+                    pitResults.forEach(pitResult -> mutantsJson.add(new MutantJSON(
                             pitResult.getFullQualifiedNameMutantOperator(),
                             pitResult.getLineNumber(),
                             pitResult.getNameOfMutatedMethod()
