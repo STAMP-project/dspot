@@ -111,9 +111,10 @@ public class DSpotSelectionTest {
          */
 
         dspotUnderTest.amplifyTestClass("example.*");
-        assertEquals(2, typesToBeAmplified.size());
+        assertEquals(3, typesToBeAmplified.size());
         assertTrue(typesToBeAmplified.stream().map(CtType::getQualifiedName).anyMatch("example.TestSuiteExample"::equals));
         assertTrue(typesToBeAmplified.stream().map(CtType::getQualifiedName).anyMatch("example.TestSuiteExample2"::equals));
+        assertTrue(typesToBeAmplified.stream().map(CtType::getQualifiedName).anyMatch("example.ParametrizedTestSuiteExample"::equals));
     }
 
     @Test
@@ -136,8 +137,9 @@ public class DSpotSelectionTest {
          */
 
         dspotUnderTest.amplifyAllTests();
-        assertEquals(2, typesToBeAmplified.size());
+        assertEquals(3, typesToBeAmplified.size());
         assertTrue(typesToBeAmplified.stream().map(CtType::getQualifiedName).anyMatch("example.TestSuiteExample"::equals));
         assertTrue(typesToBeAmplified.stream().map(CtType::getQualifiedName).anyMatch("example.TestSuiteExample2"::equals));
+        assertTrue(typesToBeAmplified.stream().map(CtType::getQualifiedName).anyMatch("example.ParametrizedTestSuiteExample"::equals));
     }
 }
