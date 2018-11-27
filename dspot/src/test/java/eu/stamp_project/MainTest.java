@@ -160,12 +160,20 @@ public class MainTest {
 
     @Test
     public void testOnParametrizedTestClass() throws Exception {
+
+        /* run the main amplification process on a parametrized test method
+         *   The configuration is the same than example, but in a parametrizesd test
+         */
+
         Main.main(new String[]{
                 "--clean",
                 "--verbose",
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
-                "--test-criterion", "TakeAllSelector",
+                "--test-criterion", "JacocoCoverageSelector",
+                "--iteration", "1",
+                "--amplifiers", "TestDataMutator",
                 "--test", "example.ParametrizedTestSuiteExample",
+                "--budgetizer", "NoBudgetizer",
                 "--no-minimize"
         });
         final CtClass<?> amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("example.ParametrizedTestSuiteExample");
