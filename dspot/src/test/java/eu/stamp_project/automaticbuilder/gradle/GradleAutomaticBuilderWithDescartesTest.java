@@ -4,7 +4,7 @@ import eu.stamp_project.Utils;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.mutant.pit.AbstractPitResult;
-import eu.stamp_project.mutant.pit.PitCSVResultParser;
+import eu.stamp_project.mutant.pit.PitXMLResultParser;
 import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 public class GradleAutomaticBuilderWithDescartesTest {
 
     private AutomaticBuilder sut = null;
-    PitCSVResultParser parser;
+    PitXMLResultParser parser;
 
     @Before
     public void setUp() throws Exception {
@@ -43,7 +43,7 @@ public class GradleAutomaticBuilderWithDescartesTest {
         Utils.LOGGER.debug("Test Set-up - instantiating Automatic Builder (SUT)...");
         sut = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration.getBuilderName());
         Utils.LOGGER.debug("Test Set-up complete.");
-        parser = new PitCSVResultParser();
+        parser = new PitXMLResultParser();
     }
 
     @After
@@ -62,9 +62,9 @@ public class GradleAutomaticBuilderWithDescartesTest {
         CtClass<Object> testClass = Utils.getInputConfiguration().getFactory().Class().get("example.TestSuiteExample");
         InputConfiguration.get().setDescartesMode(true);
         sut.runPit( testClass);
-        List<AbstractPitResult> pitCSVResults = parser.parseAndDelete("src/test/resources/test-projects/" + sut.getOutputDirectoryPit());
-        assertTrue("PIT results shouldn't be null", pitCSVResults != null);
-        assertTrue("PIT results shouldn't be empty", !pitCSVResults.isEmpty());
+        List<AbstractPitResult> pitResults = parser.parseAndDelete("src/test/resources/test-projects/" + sut.getOutputDirectoryPit());
+        assertTrue("PIT results shouldn't be null", pitResults != null);
+        assertTrue("PIT results shouldn't be empty", !pitResults.isEmpty());
         Utils.LOGGER.info("Gradle Automatic Builder runPit() test complete when a test class is specified.");
     }
 
