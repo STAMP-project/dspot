@@ -1,7 +1,6 @@
 package eu.stamp_project.minimization;
 
 import eu.stamp_project.mutant.pit.AbstractPitResult;
-import eu.stamp_project.mutant.pit.PitCSVResult;
 import eu.stamp_project.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

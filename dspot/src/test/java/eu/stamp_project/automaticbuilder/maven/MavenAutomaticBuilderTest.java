@@ -2,7 +2,7 @@ package eu.stamp_project.automaticbuilder.maven;
 
 import eu.stamp_project.Utils;
 import eu.stamp_project.mutant.pit.AbstractPitResult;
-import eu.stamp_project.mutant.pit.PitCSVResult;
+import eu.stamp_project.mutant.pit.AbstractPitResult;
 import eu.stamp_project.mutant.pit.PitCSVResultParser;
 import eu.stamp_project.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
@@ -68,8 +68,8 @@ public class MavenAutomaticBuilderTest {
         final List<AbstractPitResult> pitCSVResults = parser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertEquals(28, pitCSVResults.size());
-        assertEquals(9, pitCSVResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitCSVResult.State.SURVIVED).count());
-        assertEquals(15, pitCSVResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitCSVResult.State.KILLED).count());
+        assertEquals(9, pitCSVResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
+        assertEquals(15, pitCSVResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
     }
 
     @Test
@@ -92,8 +92,8 @@ public class MavenAutomaticBuilderTest {
         final List<AbstractPitResult> pitCSVResults = parser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertEquals(2, pitCSVResults.size());
-        assertEquals(0, pitCSVResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitCSVResult.State.SURVIVED).count());
-        assertEquals(2, pitCSVResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitCSVResult.State.KILLED).count());
+        assertEquals(0, pitCSVResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
+        assertEquals(2, pitCSVResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
     }
 
     @Test
@@ -129,8 +129,8 @@ public class MavenAutomaticBuilderTest {
 
         assertNotNull(pitCSVResults);
         assertEquals(28, pitCSVResults.size());
-        assertEquals(9, pitCSVResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitCSVResult.State.SURVIVED).count());
-        assertEquals(15, pitCSVResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitCSVResult.State.KILLED).count());
+        assertEquals(9, pitCSVResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
+        assertEquals(15, pitCSVResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
     }
 
     @Test
@@ -144,8 +144,8 @@ public class MavenAutomaticBuilderTest {
 
         assertNotNull(pitCSVResults);
         assertEquals(28, pitCSVResults.size());
-        assertEquals(9, pitCSVResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitCSVResult.State.SURVIVED).count());
-        assertEquals(15, pitCSVResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitCSVResult.State.KILLED).count());
+        assertEquals(9, pitCSVResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
+        assertEquals(15, pitCSVResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
     }
 
     @Ignore
