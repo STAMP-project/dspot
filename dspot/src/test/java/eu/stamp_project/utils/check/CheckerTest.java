@@ -4,10 +4,9 @@ import eu.stamp_project.Main;
 import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.options.check.InputErrorException;
 import org.junit.Test;
+import spoon.testing.utils.Check;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * created by Benjamin DANGLOT
@@ -15,6 +14,26 @@ import static org.junit.Assert.fail;
  * on 22/11/18
  */
 public class CheckerTest {
+
+    @Test
+    public void testJVMArgs() {
+        assertTrue(Checker.checkJVMArgs("-Xms1024M"));
+        assertTrue(Checker.checkJVMArgs("-Xms1024m"));
+        assertTrue(Checker.checkJVMArgs("-Xms1G"));
+        assertTrue(Checker.checkJVMArgs("-Xms1g"));
+
+        assertTrue(Checker.checkJVMArgs("-Xmx1024M"));
+        assertTrue(Checker.checkJVMArgs("-Xmx1024m"));
+        assertTrue(Checker.checkJVMArgs("-Xmx1G"));
+        assertTrue(Checker.checkJVMArgs("-Xmx1g"));
+
+        assertTrue(Checker.checkJVMArgs("-Daproperty=3"));
+
+        assertFalse(Checker.checkJVMArgs("-Daproperty3"));
+        assertFalse(Checker.checkJVMArgs("-aproperty=3"));
+        assertFalse(Checker.checkJVMArgs("-Xmx1x"));
+        assertFalse(Checker.checkJVMArgs("-Xms1x"));
+    }
 
     @Test
     public void testCheckVersion() {

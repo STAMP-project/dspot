@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -101,11 +100,40 @@ public class Checker {
             checkIsACorrectVersion(properties.getProperty(ConstantsProperties.PIT_VERSION.getName()));
         }
         // TODO check JVM args and System args
+        checkJVMArgs(ConstantsProperties.JVM_ARGS.get(properties)); // no checks since it is a soft checks
+        Checker.checkProperties(ConstantsProperties.SYSTEM_PROPERTIES.get(properties));
     }
 
-    public boolean hasJvmArgument(String argument) {
-        List arguments = ManagementFactory.getRuntimeMXBean().getInputArguments();
-        return arguments.contains(argument);
+    // TODO must be enhanced.
+    /*
+        For now, I'll "soft" check the JVM args until we find a proper way to do so.
+        I'll restrict the check to jvmArgs=-Xmx2048m,-Xms1024m,-Dis.admin.user=admin,-Dis.admin.passwd=$2pRSid#,
+        i.e increase the memory and gives some property
+        By soft checks, I mean that DSpot won't throw errors (like others checks) but will display a warning.
+        Same for checkProperties
+     */
+    public static boolean checkJVMArgs(String jvmArgs) {
+        final String[] jvmArgsArrays = jvmArgs.split(",");
+        final Pattern memoryPattern = Pattern.compile("-Xm(x|s)(\\d+)(m|M|g|G)");
+        boolean isOkayGlobal = true;
+        for (int i = 0; i < jvmArgsArrays.length; i++) {
+            final String currentArgs = jvmArgsArrays[i];
+            boolean isOkay = memoryPattern.matcher(currentArgs).matches();
+            isOkay |= currentArgs.startsWith("-D") && currentArgs.contains("=");
+            if (!isOkay) {
+                LOGGER.warn("You gave JVM args through properties file.");
+                LOGGER.warn("DSpot could not recognize it: {}", currentArgs);
+                LOGGER.warn("DSpot will continue because for now, it able to recognize memory options and properties.");
+                LOGGER.warn("However, we advise you to double check them.");
+                isOkayGlobal = false;
+                // TODO should throws an error
+            }
+        }
+        return isOkayGlobal;
+    }
+
+    public static boolean checkProperties(String systemProperties) {
+        return true;
     }
 
     public static void checkIsACorrectVersion(final String proposedVersion) {
@@ -220,3 +248,4 @@ public class Checker {
                 .collect(Collectors.toList());
     }
 }
+
