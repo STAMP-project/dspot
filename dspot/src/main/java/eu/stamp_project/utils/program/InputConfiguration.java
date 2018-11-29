@@ -3,8 +3,6 @@ package eu.stamp_project.utils.program;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.dspot.amplifier.Amplifier;
-import eu.stamp_project.dspot.report.GlobalReport;
-import eu.stamp_project.dspot.report.GlobalReportImpl;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.options.BudgetizerEnum;
@@ -44,7 +42,7 @@ public class InputConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InputConfiguration.class);
 
-    private static Properties loadProperties(String pathToPropertiesFile) {
+    public static Properties loadProperties(String pathToPropertiesFile) {
         try {
             Properties properties = new Properties();
             if (pathToPropertiesFile == null || "".equals(pathToPropertiesFile)) {
@@ -219,6 +217,7 @@ public class InputConfiguration {
         this.builder = AutomaticBuilderFactory.getAutomaticBuilder(this.getBuilderName());
         this.dependencies = this.builder.compileAndBuildClasspath();
 
+        // TODO checks this. Since we support different Test Support, we may not need to add artificially junit in the classpath
         if (!this.dependencies.contains("junit" + File.separator + "junit" + File.separator + "4")) {
             this.dependencies = Test.class
                     .getProtectionDomain()
@@ -924,17 +923,6 @@ public class InputConfiguration {
         this.keepOriginalTestMethods = keepOriginalTestMethods;
         return this;
     }
-
-    private GlobalReport report = new GlobalReportImpl();
-
-    public GlobalReport getReport() {
-        return report;
-    }
-
-    public void setReport(GlobalReport report) {
-        this.report = report;
-    }
-
 
     private boolean isJUnit5;
 

@@ -135,7 +135,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 
         /*
          * This test aims at verifying that dspot does not generate assertion for generated object.
-         * To do this, it will check that the instrumentation does not add observation points on those objects.
+         * To do this, it will checkEnum that the instrumentation does not add observation points on those objects.
          * If no observation point is added, any assertion would be generated.
          * We verify the number of ObjectLog.log statement inside the instrumented tests
          */

@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.report;
+package eu.stamp_project.utils.report;
 
 import java.util.List;
 
@@ -9,9 +9,15 @@ import java.util.List;
  */
 public interface GlobalReport {
 
-    public void addError(ErrorEnum error, Throwable e);
+    public void addInputError(Error error);
+
+    public void addError(Error error);
 
     public List<Error> getErrors();
 
+    public List<Error> getInputError();
+
     void output();
+
+    void reset();
 }

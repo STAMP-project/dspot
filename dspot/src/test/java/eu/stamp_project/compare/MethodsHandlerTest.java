@@ -93,7 +93,7 @@ public class MethodsHandlerTest {
     public void testIsDefaulttoStringOrHashCode() throws Exception {
 
         /*
-            test the method checker is default toString or hashCode
+            test the method check is default toString or hashCode
                 In case of the method toString or hashCode has been implemented by the class, it returns false,
                 otherwise it returns false, i.e. it is the default implementation of the toString and hashCode, in java.lang.Object
          */

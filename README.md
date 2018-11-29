@@ -169,7 +169,7 @@ java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --path-to-properties d
 
 ```
 Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
-                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [--budgetizer <NoBudgetizer | SimpleBudgetizer>] [--max-test-amplified <integer>] [(-t|--test) my.package.MyClassTest | all | diff1:my.package.MyClassTest | all | diff2:...:my.package.MyClassTest | all | diffN ] [(-c|--cases) testCases1:testCases2:...:testCasesN ] [(-o|--output-path) <output>] [--clean] [(-m|--path-pit-result) <./path/to/mutations.csv>] [--descartes] [--automatic-builder <MavenBuilder | GradleBuilder>] [--maven-home <path to maven home>] [--randomSeed <long integer>] [--timeOut <long integer>] [--verbose] [--with-comment] [--no-minimize] [--working-directory] [--generate-new-test-class] [--keep-original-test-methods] [--use-maven-to-exe-test] [-e|--example] [-h|--help]
+                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [--budgetizer <NoBudgetizer | SimpleBudgetizer>] [--max-test-amplified <integer>] [(-t|--test) my.package.MyClassTest | all | diff1:my.package.MyClassTest | all | diff2:...:my.package.MyClassTest | all | diffN ] [(-c|--cases) testCases1:testCases2:...:testCasesN ] [(-o|--output-path) <output>] [--clean] [(-m|--path-pit-result) <./path/to/mutations.csv>] [--descartes] [--gregor] [--automatic-builder <MavenBuilder | GradleBuilder>] [--maven-home <path to maven home>] [--randomSeed <long integer>] [--timeOut <long integer>] [--verbose] [--with-comment] [--no-minimize] [--working-directory] [--generate-new-test-class] [--keep-original-test-methods] [--use-maven-to-exe-test] [-e|--example] [-h|--help]
 
   [(-p|--path-to-properties) <./path/to/myproject.properties>]
         [mandatory] specify the path to the configuration file (format Java
@@ -178,18 +178,20 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
   [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ]
         [optional] specify the list of amplifiers to use. Default with all
         available amplifiers. 
-        		 - StringLiteralAmplifier
-        		 - NumberLiteralAmplifier
-        		 - CharLiteralAmplifier
-        		 - BooleanLiteralAmplifier
-        		 - AllLiteralAmplifiers
+        Possible values are: 
         		 - MethodAdd
         		 - MethodRemove
-        		 - TestDataMutator (deprecated)
+        		 - TestDataMutator
         		 - MethodGeneratorAmplifier
         		 - ReturnValueAmplifier
+        		 - StringLiteralAmplifier
+        		 - NumberLiteralAmplifier
+        		 - BooleanLiteralAmplifier
+        		 - CharLiteralAmplifier
+        		 - AllLiteralAmplifiers
         		 - NullifierAmplifier
-        		 - None (default: None)
+        		 - None
+        (default: None)
 
   [(-i|--iteration) <iteration>]
         [optional] specify the number of amplification iterations. A larger
@@ -199,10 +201,20 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
 
   [(-s|--test-criterion) <PitMutantScoreSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>]
         [optional] specify the test adequacy criterion to be maximized with
-        amplification (default: PitMutantScoreSelector)
+        amplification.
+        Possible values are: 
+        		 - PitMutantScoreSelector
+        		 - JacocoCoverageSelector
+        		 - TakeAllSelector
+        		 - ChangeDetectorSelector
+        (default: PitMutantScoreSelector)
 
   [--budgetizer <NoBudgetizer | SimpleBudgetizer>]
-        [optional] specify a Bugdetizer. (default: NoBudgetizer)
+        [optional] specify a Bugdetizer.
+        Possible values are: 
+        		 - NoBudgetizer
+        		 - SimpleBudgetizer
+        (default: NoBudgetizer)
 
   [--max-test-amplified <integer>]
         [optional] specify the maximum number of amplified tests that dspot
@@ -234,6 +246,9 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
 
   [--descartes]
         Enable the descartes engine for Pit Mutant Score Selector.
+
+  [--gregor]
+        Enable the gregor engine for Pit Mutant Score Selector.
 
   [--automatic-builder <MavenBuilder | GradleBuilder>]
         [optional] specify the automatic builder to build the project (default:

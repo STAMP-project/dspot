@@ -282,7 +282,7 @@ public class AssertBuilder {
      * This method checks if the given value is a field. To do this, it uses the classes in <code>supportedClassesForFieldRead</code>
      * and reflection
      *
-     * @param value   value to check
+     * @param value   value to checkEnum
      * @param factory factory with spoon model
      * @return true if the value is a field read, false otherwise
      */

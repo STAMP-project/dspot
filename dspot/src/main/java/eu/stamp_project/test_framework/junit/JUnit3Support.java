@@ -45,7 +45,7 @@ public class JUnit3Support extends JUnitSupport {
      */
     @Override
     protected boolean isATest(CtMethod<?> candidate) {
-        // check that the current test class inherit from TestCase
+        // checkEnum that the current test class inherit from TestCase
         final CtType<?> testClass = candidate.getParent(CtType.class);
         if (testClass == null) {
             return false;

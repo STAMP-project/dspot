@@ -12,11 +12,23 @@ public class InputConfigurationProperty {
     private final String name;
     private final String description;
     private final String defaultValue;
+    private final String naturalLanguageDesignation;
 
     public InputConfigurationProperty(String name, String description, String defaultValue) {
         this.name = name;
         this.description = description;
         this.defaultValue = defaultValue;
+        this.naturalLanguageDesignation = "";
+    }
+
+    public InputConfigurationProperty(String name,
+                                      String description,
+                                      String defaultValue,
+                                      String naturalLanguageDesignation) {
+        this.name = name;
+        this.description = description;
+        this.defaultValue = defaultValue;
+        this.naturalLanguageDesignation = naturalLanguageDesignation;
     }
 
     public String getName() {
@@ -29,6 +41,10 @@ public class InputConfigurationProperty {
 
     public String getDefaultValue() {
         return defaultValue;
+    }
+
+    public String getNaturalLanguageDesignation() {
+        return naturalLanguageDesignation;
     }
 
     public boolean isRequired() {

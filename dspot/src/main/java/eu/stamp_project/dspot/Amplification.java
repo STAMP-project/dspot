@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot;
 
+import eu.stamp_project.Main;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.assertgenerator.AssertGenerator;
 import eu.stamp_project.dspot.budget.Budgetizer;
@@ -9,6 +10,7 @@ import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
+import eu.stamp_project.utils.report.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
@@ -18,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static eu.stamp_project.dspot.report.ErrorEnum.*;
+import static eu.stamp_project.utils.report.ErrorEnum.*;
 
 
 /**
@@ -84,16 +86,16 @@ public class Amplification {
         final List<CtMethod<?>> selectedToBeAmplified;
         try {
             selectedToBeAmplified = this.testSelector.selectToAmplify(classTest, passingTests);
-        } catch (Exception | Error e) {
-            InputConfiguration.get().getReport().addError(ERROR_PRE_SELECTION, e);
+        } catch (Exception | java.lang.Error e) {
+            Main.globalReport.addError(new Error(ERROR_PRE_SELECTION, e));
             return;
         }
         final List<CtMethod<?>> assertionAmplifiedTestMethods = this.assertionsAmplification(classTest, selectedToBeAmplified);
         final List<CtMethod<?>> amplifiedTestMethodsToKeep;
         try {
             amplifiedTestMethodsToKeep = this.testSelector.selectToKeep(assertionAmplifiedTestMethods);
-        } catch (Exception | Error e) {
-            InputConfiguration.get().getReport().addError(ERROR_SELECTION, e);
+        } catch (Exception | java.lang.Error e) {
+            Main.globalReport.addError(new Error(ERROR_SELECTION, e));
             return;
         }
         this.globalNumberOfSelectedAmplification += amplifiedTestMethodsToKeep.size();
@@ -137,8 +139,8 @@ public class Amplification {
             final List<CtMethod<?>> selectedToBeAmplified;
             try {
                 selectedToBeAmplified = this.testSelector.selectToAmplify(classTest, currentTestList);
-            } catch (Exception | Error e) {
-                InputConfiguration.get().getReport().addError(ERROR_PRE_SELECTION, e);
+            } catch (Exception | java.lang.Error e) {
+                Main.globalReport.addError(new Error(ERROR_PRE_SELECTION, e));
                 return Collections.emptyList();
             }
             if (selectedToBeAmplified.isEmpty()) {
@@ -152,8 +154,8 @@ public class Amplification {
             final List<CtMethod<?>> inputAmplifiedTests;
             try {
                 inputAmplifiedTests = this.budgetizer.inputAmplify(selectedToBeAmplified, i);
-            } catch (Exception | Error e) {
-                InputConfiguration.get().getReport().addError(ERROR_INPUT_AMPLIFICATION, e);
+            } catch (Exception | java.lang.Error e) {
+                Main.globalReport.addError(new Error(ERROR_INPUT_AMPLIFICATION, e));
                 return Collections.emptyList();
             }
             final List<CtMethod<?>> testsWithAssertions = this.assertionsAmplification(classTest, inputAmplifiedTests);
@@ -165,8 +167,8 @@ public class Amplification {
             final List<CtMethod<?>> amplifiedTestMethodsToKeep;
             try {
                 amplifiedTestMethodsToKeep = this.testSelector.selectToKeep(testsWithAssertions);
-            } catch (Exception | Error e) {
-                InputConfiguration.get().getReport().addError(ERROR_SELECTION, e);
+            } catch (Exception | java.lang.Error e) {
+                Main.globalReport.addError(new Error(ERROR_SELECTION, e));
                 return Collections.emptyList();
             }
             amplifiedTests.addAll(amplifiedTestMethodsToKeep);
@@ -180,14 +182,14 @@ public class Amplification {
         final List<CtMethod<?>> testsWithAssertions;
         try {
             testsWithAssertions = this.assertGenerator.assertionAmplification(classTest, testMethods);
-        } catch (Exception | Error e) {
-            InputConfiguration.get().getReport().addError(ERROR_ASSERT_AMPLIFICATION, e);
+        } catch (Exception | java.lang.Error e) {
+            Main.globalReport.addError(new Error(ERROR_ASSERT_AMPLIFICATION, e));
             return Collections.emptyList();
         }
         if (testsWithAssertions.isEmpty()) {
             return testsWithAssertions;
         }
-        // final check on A-amplified test, see if they all pass.
+        // final checkEnum on A-amplified test, see if they all pass.
         // If they don't, we just discard them.
         final List<CtMethod<?>> amplifiedPassingTests =
                 TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(

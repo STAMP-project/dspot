@@ -16,27 +16,27 @@ public enum BudgetizerEnum {
 
     NoBudgetizer {
         @Override
-        public Budgetizer getBugtizer() {
+        public Budgetizer getBudgetizer() {
             return new NoBudgetizer();
         }
         @Override
-        public Budgetizer getBugtizer(List<Amplifier> amplifiers) {
+        public Budgetizer getBudgetizer(List<Amplifier> amplifiers) {
             return new NoBudgetizer(amplifiers);
         }
     },
     SimpleBudgetizer {
         @Override
-        public Budgetizer getBugtizer() {
+        public Budgetizer getBudgetizer() {
             return new SimpleBudgetizer();
         }
         @Override
-        public Budgetizer getBugtizer(List<Amplifier> amplifiers) {
+        public Budgetizer getBudgetizer(List<Amplifier> amplifiers) {
             return new SimpleBudgetizer(amplifiers);
         }
     };
 
-    public abstract Budgetizer getBugtizer();
+    public abstract Budgetizer getBudgetizer();
 
-    public abstract Budgetizer getBugtizer(List<Amplifier> amplifiers);
+    public abstract Budgetizer getBudgetizer(List<Amplifier> amplifiers);
 
 }

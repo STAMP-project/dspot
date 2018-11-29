@@ -2,6 +2,7 @@ package eu.stamp_project.dspot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import eu.stamp_project.Main;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.budget.Budgetizer;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
@@ -15,20 +16,17 @@ import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.json.ClassTimeJSON;
 import eu.stamp_project.utils.json.ProjectTimeJSON;
+import eu.stamp_project.utils.report.Error;
+import eu.stamp_project.utils.report.ErrorEnum;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.io.*;
+import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -54,15 +52,15 @@ public class DSpot {
 
     private ProjectTimeJSON projectTimeJSON;
 
-    public DSpot() throws Exception {
+    public DSpot() {
         this(3, Collections.emptyList(), new PitMutantScoreSelector(), BudgetizerEnum.NoBudgetizer);
     }
 
-    public DSpot(int numberOfIterations) throws Exception {
+    public DSpot(int numberOfIterations) {
         this(numberOfIterations, Collections.emptyList(), new PitMutantScoreSelector(), BudgetizerEnum.NoBudgetizer);
     }
 
-    public DSpot(TestSelector testSelector) throws Exception {
+    public DSpot(TestSelector testSelector) {
         this(3, Collections.emptyList(), testSelector, BudgetizerEnum.NoBudgetizer);
     }
 
@@ -70,11 +68,11 @@ public class DSpot {
         this(iteration, Collections.emptyList(), testSelector, BudgetizerEnum.NoBudgetizer);
     }
 
-    public DSpot(List<Amplifier> amplifiers) throws Exception {
+    public DSpot(List<Amplifier> amplifiers) {
         this(3, amplifiers, new PitMutantScoreSelector(), BudgetizerEnum.NoBudgetizer);
     }
 
-    public DSpot(int numberOfIterations, List<Amplifier> amplifiers) throws Exception {
+    public DSpot(int numberOfIterations, List<Amplifier> amplifiers) {
         this(numberOfIterations, amplifiers, new PitMutantScoreSelector(), BudgetizerEnum.NoBudgetizer);
     }
 
@@ -85,7 +83,7 @@ public class DSpot {
     public DSpot(int numberOfIterations,
                  List<Amplifier> amplifiers,
                  TestSelector testSelector,
-                 BudgetizerEnum budgetizer) throws Exception {
+                 BudgetizerEnum budgetizer) {
         String dependencies = InputConfiguration.get().getDependencies();
         this.compiler = DSpotCompiler.createDSpotCompiler(InputConfiguration.get(), dependencies);
         InputConfiguration.get().setFactory(this.compiler.getLauncher().getFactory());
@@ -100,15 +98,22 @@ public class DSpot {
                 File.separator + splittedPath[splittedPath.length - 1] + ".json");
         if (projectJsonFile.exists()) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            this.projectTimeJSON = gson.fromJson(new FileReader(projectJsonFile), ProjectTimeJSON.class);
+            try {
+                this.projectTimeJSON = gson.fromJson(new FileReader(projectJsonFile), ProjectTimeJSON.class);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         } else {
             this.projectTimeJSON = new ProjectTimeJSON(splittedPath[splittedPath.length - 1]);
         }
-        this.budgetizer = budgetizer.getBugtizer(this.amplifiers);
+        this.budgetizer = budgetizer.getBudgetizer(this.amplifiers);
     }
 
     private Stream<CtType<?>> findTestClasses(String targetTestClasses) {
         if (!targetTestClasses.contains("\\")) {
+            // here, we make more usable, but maybe less reliable, dspot.
+            // we replace every * with .*, since in java.util.regex Pattern class
+            // the star (*) is just a quantifier (0, or infini) and the dot (.) is a wildcard
             targetTestClasses = targetTestClasses.replaceAll("\\.", "\\\\\\.").replaceAll("\\*", ".*");
         }
         Pattern pattern = Pattern.compile(targetTestClasses);
@@ -204,6 +209,44 @@ public class DSpot {
      * @return a list of amplified test classes with amplified test methods.
      */
     public List<CtType<?>> amplifyTestClassesTestMethods(List<String> testClassesToBeAmplified, List<String> testMethods) {
+        final Map<String, List<CtType<?>>> collect = testClassesToBeAmplified.stream()
+                .collect(Collectors.toMap(
+                        Function.identity(),
+                        testClassName -> this.findTestClasses(testClassName).collect(Collectors.toList())
+                        )
+                );
+        final List<String> keys = collect.keySet()
+                .stream()
+                .filter(testClassName -> {
+                    if (collect.get(testClassName).isEmpty()) {
+                        Main.globalReport.addError(
+                                new Error(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND_MATCHING_REGEX,
+                                        String.format("Your input:%n\t%s", testClassName)
+                                )
+                        );
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }).collect(Collectors.toList());
+        if (keys.isEmpty()) {
+            LOGGER.error("Could not find any test classes to be amplified.");
+            LOGGER.error("No one of the provided target test classes could find candidate:");
+            final String testClassToBeAmplifiedJoined = String.join(AmplificationHelper.LINE_SEPARATOR, testClassesToBeAmplified);
+            LOGGER.error("\t{}", testClassToBeAmplifiedJoined);
+            LOGGER.error("DSpot will stop here, please checkEnum your inputs.");
+            LOGGER.error("In particular, you should look at the values of following options:");
+            LOGGER.error("\t (-t | --test) should be followed by correct Java regular expression.");
+            LOGGER.error("\t Please, refer to the Java documentation of java.util.regex.Pattern.");
+            LOGGER.error("\t (-c | --cases) should be followed by correct method name,");
+            LOGGER.error("\t that are contained in the test classes that match the previous option, i.e. (-t | --test).");
+            Main.globalReport.addError(
+                    new Error(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND,
+                            String.format("Your input:%n\t%s", testClassToBeAmplifiedJoined)
+                    )
+            );
+            return Collections.emptyList();
+        }
         final List<CtType<?>> testClassesToBeAmplifiedModel = testClassesToBeAmplified.stream()
                 .flatMap(this::findTestClasses)
                 .collect(Collectors.toList());

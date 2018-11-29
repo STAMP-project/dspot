@@ -22,7 +22,8 @@ public class ConstantsProperties {
                     "specify the path to the root of the project. " +
                             "This path can be either absolute (recommended) or relative to the working directory of the DSpot process. " +
                             "We consider as root of the project folder that contain the top-most parent in a multi-module project.",
-                    null
+                    null,
+                    "project root"
             );
 
     public static final InputConfigurationProperty MODULE =
@@ -30,7 +31,8 @@ public class ConstantsProperties {
                     "targetModule",
                     "specify the module to be amplified. This value must be a relative path from the property " + PROJECT_ROOT_PATH.getName() + ". " +
                             "If your project is multi-module, you must use this property because DSpot works at module level.",
-                    ""
+                    "",
+                    "targeted module"
             );
 
     public static final InputConfigurationProperty SRC_CODE =
@@ -39,7 +41,8 @@ public class ConstantsProperties {
                     "specify the relative path from " +
                             PROJECT_ROOT_PATH.getName() + "/" + MODULE.getName() +
                             " of the folder that contain sources (.java).",
-                    "src/main/java/"
+                    "src/main/java/",
+                    "source folder"
             );
 
     public static final InputConfigurationProperty TEST_SRC_CODE =
@@ -48,7 +51,8 @@ public class ConstantsProperties {
                     "specify the relative path from " +
                             PROJECT_ROOT_PATH.getName() + "/" + MODULE.getName() +
                             " of the folder that contain test sources (.java).",
-                    "src/test/java/"
+                    "src/test/java/",
+                    "test source folder"
             );
 
     public static final InputConfigurationProperty SRC_CLASSES =
@@ -57,7 +61,8 @@ public class ConstantsProperties {
                     "specify the relative path from " +
                             PROJECT_ROOT_PATH.getName() + "/" + MODULE.getName() +
                             " of the folder that contain binaries of the source program (.class).",
-                    "target/classes/"
+                    "target/classes/",
+                    "binaries folder"
             );
 
     public static final InputConfigurationProperty TEST_CLASSES =
@@ -66,7 +71,8 @@ public class ConstantsProperties {
                     "specify the relative path from " +
                             PROJECT_ROOT_PATH.getName() + "/" + MODULE.getName() +
                             " of the folder that contain binaries of the test source program (.class).",
-                    "target/test-classes/"
+                    "target/test-classes/",
+                    "test binaries folder"
             );
 
     public static final InputConfigurationProperty ADDITIONAL_CP_ELEMENTS =
@@ -97,9 +103,11 @@ public class ConstantsProperties {
                             "This property should have for value the path to the root of " +
                             "the second version of the project. " +
                             "It is recommended to give an absolute path",
-                    ""
+                    "",
+                    "path to second version"
             );
 
+    @Deprecated
     public static final InputConfigurationProperty BASE_SHA =
             new InputConfigurationProperty(
                     "baseSha",
@@ -138,7 +146,8 @@ public class ConstantsProperties {
                             "DSpot will first look in both MAVEN_HOME and M2_HOME environment variables. " +
                             "If these variables are not set, DSpot will look for a maven home at default locations " +
                             "/usr/share/maven/, /usr/local/maven-3.3.9/ and /usr/share/maven3/.",
-                    ""
+                    "",
+                    "maven installation"
             );
 
     public static final InputConfigurationProperty DELTA_ASSERTS_FLOAT =
