@@ -55,27 +55,28 @@ public class PitXMLResultParser extends AbstractParser {
 
                 @Override
                 public void endElement(String uri, String localName, String qName) {
-                    if (qName.equalsIgnoreCase("sourceFile"))
+                    startElement = false;
+                    if (qName.equalsIgnoreCase("sourceFile")) {
                         sourceFile = stringBuilder.toString();
-                    if (qName.equalsIgnoreCase("mutatedClass"))
+                    } else if (qName.equalsIgnoreCase("mutatedClass")) {
                         mutatedClass = stringBuilder.toString();
-                    if (qName.equalsIgnoreCase("mutatedMethod"))
+                    } else if (qName.equalsIgnoreCase("mutatedMethod")) {
                         mutatedMethod = stringBuilder.toString();
-                    if (qName.equalsIgnoreCase("methodDescription"))
+                    } else if (qName.equalsIgnoreCase("methodDescription")) {
                         methodDescription = stringBuilder.toString();
-                    if (qName.equalsIgnoreCase("lineNumber"))
+                    } else if (qName.equalsIgnoreCase("lineNumber")) {
                         lineNumber = Integer.parseInt(stringBuilder.toString());
-                    if (qName.equalsIgnoreCase("mutator"))
+                    } else if (qName.equalsIgnoreCase("mutator")) {
                         mutator = stringBuilder.toString();
-                    if (qName.equalsIgnoreCase("index"))
+                    } else if (qName.equalsIgnoreCase("index")) {
                         index = Integer.parseInt(stringBuilder.toString());
-                    if (qName.equalsIgnoreCase("block"))
+                    } else if (qName.equalsIgnoreCase("block")) {
                         block = Integer.parseInt(stringBuilder.toString());
-                    if (qName.equalsIgnoreCase("killingTest"))
+                    } else if (qName.equalsIgnoreCase("killingTest")) {
                         killingTest = stringBuilder.toString();
-                    if (qName.equalsIgnoreCase("description"))
+                    } else if (qName.equalsIgnoreCase("description")) {
                         description = stringBuilder.toString();
-                    if (qName.equalsIgnoreCase("mutation")) {
+                    } else if (qName.equalsIgnoreCase("mutation")) {
                         if (killingTest.trim().equals("")) {
                             fullQualifiedNameMethod = "none";
                             fullQualifiedNameClass = "none";
@@ -94,7 +95,6 @@ public class PitXMLResultParser extends AbstractParser {
                                 lineNumber, mutatedMethod, methodDescription, description, index, block,
                                 numberOfTestsRun, detected));
                     }
-                    startElement = false;
                 }
 
                 public List<AbstractPitResult> getResults() {
