@@ -3,20 +3,14 @@ package eu.stamp_project.dspot.selector;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-<<<<<<< HEAD
-import eu.stamp_project.mutant.pit.*;
-=======
+import eu.stamp_project.utils.pit.*;
 import eu.stamp_project.test_framework.TestFramework;
->>>>>>> master
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.dspot.selector.json.mutant.MutantJSON;
 import eu.stamp_project.dspot.selector.json.mutant.TestCaseJSON;
 import eu.stamp_project.dspot.selector.json.mutant.TestClassJSON;
 import eu.stamp_project.utils.Counter;
-<<<<<<< HEAD
-=======
->>>>>>> master
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.minimization.Minimizer;
