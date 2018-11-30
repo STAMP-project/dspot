@@ -3,14 +3,15 @@ package eu.stamp_project.dspot.assertgenerator;
 import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.compare.Observation;
 import eu.stamp_project.dspot.AmplificationException;
-import eu.stamp_project.testrunner.runner.test.TestListener;
+import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.testrunner.listener.TestListener;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtBlock;
@@ -104,7 +105,8 @@ public class MethodsAssertGenerator {
         ));
         ObjectLog.reset();
         LOGGER.info("Run instrumented tests. ({})", testsToRun.size());
-        AssertGeneratorHelper.addAfterClassMethod(clone);
+        //AssertGeneratorHelper.addAfterClassMethod(clone);
+        TestFramework.get().generateAfterClassToSaveObservations(clone, testsToRun);
         try {
             final TestListener result = TestCompiler.compileAndRun(clone,
                     this.compiler,
@@ -142,7 +144,7 @@ public class MethodsAssertGenerator {
                 continue;
             }
             final List<CtStatement> assertStatements = AssertBuilder.buildAssert(
-                    factory,
+                    test,
                     observations.get(id).getNotDeterministValues(),
                     observations.get(id).getObservationValues(),
                     Double.parseDouble(configuration.getDelta())

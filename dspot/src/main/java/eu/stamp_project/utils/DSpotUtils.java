@@ -1,6 +1,6 @@
 package eu.stamp_project.utils;
 
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,13 +48,6 @@ public class DSpotUtils {
             System.out.println();
             progress = new StringBuilder(60);
         }
-    }
-
-    public static String[] getAllTestClasses() {
-        return InputConfiguration.get().getFactory().Class().getAll().stream()
-                .filter(ctType -> ctType.getMethods().stream().anyMatch(AmplificationChecker::isTest))
-                .filter(InputConfiguration.isNotExcluded)
-                .map(CtType::getQualifiedName).toArray(String[]::new);
     }
 
     public static void printCtTypeToGivenDirectory(CtType<?> type, File directory) {

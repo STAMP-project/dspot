@@ -59,6 +59,7 @@ public class ClassWithInnerClass {
 
     @org.junit.jupiter.api.Test
     public void  Junit5Test() {
+        org.junit.jupiter.api.Assertions.assertTrue(true);
         System.out.println("this is a test JUNIT 5 because of the annotation");
     }
 }

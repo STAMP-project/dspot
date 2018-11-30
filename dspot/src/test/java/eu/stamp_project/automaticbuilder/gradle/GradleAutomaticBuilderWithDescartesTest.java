@@ -3,9 +3,13 @@ package eu.stamp_project.automaticbuilder.gradle;
 import eu.stamp_project.Utils;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
+<<<<<<< HEAD
 import eu.stamp_project.mutant.pit.AbstractPitResult;
 import eu.stamp_project.mutant.pit.PitXMLResultParser;
 import eu.stamp_project.program.InputConfiguration;
+=======
+import eu.stamp_project.utils.program.InputConfiguration;
+>>>>>>> master
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;

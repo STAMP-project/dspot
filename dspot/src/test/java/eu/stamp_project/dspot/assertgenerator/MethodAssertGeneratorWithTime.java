@@ -3,8 +3,9 @@ package eu.stamp_project.dspot.assertgenerator;
 import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.compare.Observation;
 import eu.stamp_project.dspot.AmplificationException;
-import eu.stamp_project.program.InputConfiguration;
-import eu.stamp_project.testrunner.runner.test.TestListener;
+import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.testrunner.listener.TestListener;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.Counter;
@@ -106,7 +107,7 @@ public class MethodAssertGeneratorWithTime extends MethodsAssertGenerator {
         ObjectLog.reset();
         LOGGER.info("Run instrumented tests. ({})", testsToRun.size());
         final long timeRunningInstrumentation = System.currentTimeMillis();
-        AssertGeneratorHelper.addAfterClassMethod(clone);
+        TestFramework.get().generateAfterClassToSaveObservations(clone, testsToRun);
         try {
             final TestListener result = TestCompiler.compileAndRun(clone,
                     this.compiler,
@@ -158,7 +159,7 @@ public class MethodAssertGeneratorWithTime extends MethodsAssertGenerator {
                 continue;
             }
             final List<CtStatement> assertStatements = AssertBuilder.buildAssert(
-                    factory,
+                    test,
                     observations.get(id).getNotDeterministValues(),
                     observations.get(id).getObservationValues(),
                     Double.parseDouble(configuration.getDelta())

@@ -89,7 +89,7 @@ public class TypeUtils {
 
 		} catch (Exception e) {
 		    e.printStackTrace();
-            LOGGER.warn("Error during check isString on {}", type.toString());
+            LOGGER.warn("Error during checkEnum isString on {}", type.toString());
 		}
 		return false;
 	}

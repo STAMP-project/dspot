@@ -1,13 +1,14 @@
 package eu.stamp_project;
 
-import eu.stamp_project.diff.SelectorOnDiff;
 import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.dspot.amplifier.TestDataMutator;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
-import eu.stamp_project.options.BudgetizerEnum;
-import eu.stamp_project.options.JSAPOptions;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.options.BudgetizerEnum;
+import eu.stamp_project.utils.options.JSAPOptions;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.RandomHelper;
+import eu.stamp_project.utils.report.GlobalReport;
+import eu.stamp_project.utils.report.GlobalReportImpl;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,67 +18,57 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Created by Benjamin DANGLOT benjamin.danglot@inria.fr on 2/9/17
  */
 public class Main {
 
+	public static final GlobalReport globalReport = new GlobalReportImpl();
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		try {
 			FileUtils.forceDelete(new File("target/dspot/"));
 		} catch (Exception ignored) {
 
 		}
-		final InputConfiguration configuration = JSAPOptions.parse(args);
-		if (configuration == null) {
+		final boolean shouldRunExample = JSAPOptions.parse(args);
+		if (shouldRunExample) {
 			Main.runExample();
 		} else {
-			run(configuration);
+			run();
 		}
-
 		// global report handling
-		InputConfiguration.get().getReport().output();
+		Main.globalReport.output();
 	}
 
-	public static void run(InputConfiguration configuration) throws Exception {
+	public static void run() {
 		DSpot dspot = new DSpot(
-				configuration.getNbIteration(),
-				configuration.getAmplifiers(),
-				configuration.getSelector(),
-				configuration.getBudgetizer()
+				InputConfiguration.get().getNbIteration(),
+				InputConfiguration.get().getAmplifiers(),
+				InputConfiguration.get().getSelector(),
+				InputConfiguration.get().getBudgetizer()
 		);
-		RandomHelper.setSeedRandom(configuration.getSeed());
-		createOutputDirectories(configuration);
+		RandomHelper.setSeedRandom(InputConfiguration.get().getSeed());
+		createOutputDirectories();
 		final long startTime = System.currentTimeMillis();
-		final List<CtType> amplifiedTestClasses;
-		if (configuration.getTestClasses().isEmpty() || "all".equals(configuration.getTestClasses().get(0))) {
+		final List<CtType<?>> amplifiedTestClasses;
+		if (InputConfiguration.get().getTestClasses().isEmpty() || "all".equals(InputConfiguration.get().getTestClasses().get(0))) {
 			amplifiedTestClasses = dspot.amplifyAllTests();
-		} else if ("diff".equals(configuration.getTestClasses().get(0))) {
-			final Map<String, List<String>> testMethodsAccordingToADiff = SelectorOnDiff
-					.findTestMethodsAccordingToADiff(configuration);
-			amplifiedTestClasses = testMethodsAccordingToADiff.keySet().stream()
-					.flatMap(ctType ->
-							dspot.amplifyTestClassesTestMethods(Collections.singletonList(ctType), testMethodsAccordingToADiff.get(ctType)).stream()
-					).filter(Objects::nonNull)
-					.collect(Collectors.toList());
 		} else {
-			amplifiedTestClasses = dspot.amplifyTestClassesTestMethods(configuration.getTestClasses(), configuration.getTestCases());
+			amplifiedTestClasses = dspot.amplifyTestClassesTestMethods(InputConfiguration.get().getTestClasses(), InputConfiguration.get().getTestCases());
 		}
 		LOGGER.info("Amplification {}.", amplifiedTestClasses.isEmpty() ? "failed" : "succeed");
 		final long elapsedTime = System.currentTimeMillis() - startTime;
 		LOGGER.info("Elapsed time {} ms", elapsedTime);
 	}
 
-	public static void createOutputDirectories(InputConfiguration inputConfiguration) {
-		final File outputDirectory = new File(inputConfiguration.getOutputDirectory());
+	public static void createOutputDirectories() {
+		final File outputDirectory = new File(InputConfiguration.get().getOutputDirectory());
 		try {
-			if (inputConfiguration.shouldClean() && outputDirectory.exists()) {
+			if (InputConfiguration.get().shouldClean() && outputDirectory.exists()) {
 				FileUtils.forceDelete(outputDirectory);
 			}
 			if (!outputDirectory.exists()) {
@@ -90,7 +81,7 @@ public class Main {
 
 	static void runExample() {
 		try {
-			InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
+			InputConfiguration.get().initialize("src/test/resources/test-projects/test-projects.properties");
 			DSpot dSpot = new DSpot(1,
 					Collections.singletonList(new TestDataMutator()),
 					new JacocoCoverageSelector(),

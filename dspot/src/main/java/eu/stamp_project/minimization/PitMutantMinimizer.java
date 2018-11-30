@@ -1,7 +1,11 @@
 package eu.stamp_project.minimization;
 
+<<<<<<< HEAD
 import eu.stamp_project.mutant.pit.AbstractPitResult;
 import eu.stamp_project.program.InputConfiguration;
+=======
+import eu.stamp_project.utils.program.InputConfiguration;
+>>>>>>> master
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;

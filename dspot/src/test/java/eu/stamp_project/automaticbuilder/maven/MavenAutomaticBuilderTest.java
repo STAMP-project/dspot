@@ -1,18 +1,16 @@
 package eu.stamp_project.automaticbuilder.maven;
 
 import eu.stamp_project.Utils;
-import eu.stamp_project.mutant.pit.AbstractPitResult;
-import eu.stamp_project.mutant.pit.PitXMLResultParser;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.pit.AbstractPitResult;
+import eu.stamp_project.utils.pit.PitXMLResultParser;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
 import java.io.File;
 import java.util.List;
-
 import static org.junit.Assert.*;
 
 /**

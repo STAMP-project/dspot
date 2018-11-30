@@ -1,10 +1,10 @@
 package eu.stamp_project.minimization;
 
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.testrunner.listener.TestListener;
+import eu.stamp_project.testrunner.runner.Failure;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
-import eu.stamp_project.testrunner.runner.test.Failure;
-import eu.stamp_project.testrunner.runner.test.TestListener;
-import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
@@ -54,7 +54,7 @@ public class ChangeMinimizer extends GeneralMinimizer {
         final CtMethod<?> changeMinimize = generalMinimize.clone();
         final long time = System.currentTimeMillis();
         final Failure failureToKeep = this.failurePerAmplifiedTest.get(amplifiedTestToBeMinimized);
-        final List<CtInvocation> assertions = changeMinimize.filterChildren(AmplificationHelper.ASSERTIONS_FILTER).list();
+        final List<CtInvocation> assertions = changeMinimize.filterChildren(TestFramework.ASSERTIONS_FILTER).list();
         LOGGER.info("Minimizing {} assertions.", assertions.size());
         assertions.forEach(invocation -> {
                     DSpotUtils.printProgress(assertions.indexOf(invocation), assertions.size());
@@ -140,7 +140,7 @@ public class ChangeMinimizer extends GeneralMinimizer {
     private boolean printAndCompile(InputConfiguration configuration, CtType<?> clone, CtMethod<?> amplifiedTestToBeMinimized) {
         clone.setParent(this.testClass.getParent());
         this.testClass.getMethods().stream()
-                .filter(AmplificationChecker::isTest)
+                .filter(TestFramework.get()::isTest)
                 .forEach(clone::removeMethod);
         clone.addMethod(amplifiedTestToBeMinimized);
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));

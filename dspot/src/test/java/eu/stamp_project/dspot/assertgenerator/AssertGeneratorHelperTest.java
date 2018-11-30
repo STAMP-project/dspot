@@ -3,6 +3,7 @@ package eu.stamp_project.dspot.assertgenerator;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
@@ -61,7 +62,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
                                 )
                 ));
 
-        AssertGeneratorHelper.addAfterClassMethod(testClass);
+        TestFramework.get().generateAfterClassToSaveObservations(testClass, Collections.singletonList(Utils.findMethod(testClass, "test")));
         final CtMethod<?> afterClassMethod = testClass.getMethods()
                 .stream()
                 .filter(method ->
@@ -81,7 +82,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
                         statement.toString().endsWith("ObjectLog.save()")
                 )
         );
-        AssertGeneratorHelper.addAfterClassMethod(testClass);
+        TestFramework.get().generateAfterClassToSaveObservations(testClass, Collections.singletonList(Utils.findMethod(testClass, "test")));
         assertTrue(afterClassMethod.getBody()
                 .getStatements()
                 .stream()
@@ -134,7 +135,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 
         /*
          * This test aims at verifying that dspot does not generate assertion for generated object.
-         * To do this, it will check that the instrumentation does not add observation points on those objects.
+         * To do this, it will checkEnum that the instrumentation does not add observation points on those objects.
          * If no observation point is added, any assertion would be generated.
          * We verify the number of ObjectLog.log statement inside the instrumented tests
          */

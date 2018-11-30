@@ -1,17 +1,19 @@
 package eu.stamp_project.dspot;
 
 import eu.stamp_project.AbstractTest;
+import eu.stamp_project.Main;
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.assertgenerator.AssertGenerator;
 import eu.stamp_project.dspot.budget.NoBudgetizer;
-import eu.stamp_project.dspot.report.ErrorEnum;
-import eu.stamp_project.dspot.report.GlobalReportImpl;
+import eu.stamp_project.utils.report.ErrorEnum;
+import eu.stamp_project.utils.report.GlobalReportImpl;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TakeAllSelector;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -30,8 +32,16 @@ import static org.junit.Assert.*;
  */
 public class RecoveryDSpotTest extends AbstractTest {
 
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+        Main.globalReport.reset();
+    }
+
     @After
     public void tearDown() throws Exception {
+        Main.globalReport.reset();
         InputConfiguration.get().setSelector(new PitMutantScoreSelector());
     }
 
@@ -106,16 +116,16 @@ public class RecoveryDSpotTest extends AbstractTest {
                 new NoBudgetizer()
         );
         amplification.amplification(Utils.findClass("fr.inria.amp.OneLiteralTest"), 1);
-        assertEquals(1, InputConfiguration.get().getReport().getErrors().size());
-        assertSame(ErrorEnum.ERROR_PRE_SELECTION, InputConfiguration.get().getReport().getErrors().get(0).type);
-        InputConfiguration.get().setReport(new GlobalReportImpl());
+        assertEquals(1, Main.globalReport.getErrors().size());
+        assertSame(ErrorEnum.ERROR_PRE_SELECTION, Main.globalReport.getErrors().get(0).type);
+        Main.globalReport.reset();
 
         selector.setThrowsToAmplify(false);
         selector.setThrowsToKeep(true);
         amplification.amplification(Utils.findClass("fr.inria.amp.OneLiteralTest"), 1);
-        assertEquals(1, InputConfiguration.get().getReport().getErrors().size());
-        assertSame(ErrorEnum.ERROR_SELECTION, InputConfiguration.get().getReport().getErrors().get(0).type);
-        InputConfiguration.get().setReport(new GlobalReportImpl());
+        assertEquals(1, Main.globalReport.getErrors().size());
+        assertSame(ErrorEnum.ERROR_SELECTION, Main.globalReport.getErrors().get(0).type);
+        Main.globalReport.reset();
 
         final List<Amplifier> amplifiers = Collections.singletonList(new AmplifierThatThrowsError());
         amplification = new Amplification(
@@ -125,9 +135,9 @@ public class RecoveryDSpotTest extends AbstractTest {
                 new NoBudgetizer(amplifiers)
         );
         amplification.amplification(Utils.findClass("fr.inria.amp.OneLiteralTest"), 1);
-        assertEquals(1, InputConfiguration.get().getReport().getErrors().size());
-        assertSame(ErrorEnum.ERROR_INPUT_AMPLIFICATION, InputConfiguration.get().getReport().getErrors().get(0).type);
-        InputConfiguration.get().setReport(new GlobalReportImpl());
+        assertEquals(1, Main.globalReport.getErrors().size());
+        assertSame(ErrorEnum.ERROR_INPUT_AMPLIFICATION, Main.globalReport.getErrors().get(0).type);
+        Main.globalReport.reset();
 
         amplification = new Amplification(
                 Utils.getCompiler(),
@@ -139,8 +149,17 @@ public class RecoveryDSpotTest extends AbstractTest {
         assertGenerator.setAccessible(true);
         assertGenerator.set(amplification, new AssertGeneratorThatThrowsError(Utils.getCompiler()));
         amplification.amplification(Utils.findClass("fr.inria.amp.OneLiteralTest"), 1);
-        assertEquals(1, InputConfiguration.get().getReport().getErrors().size());
-        assertSame(ErrorEnum.ERROR_ASSERT_AMPLIFICATION, InputConfiguration.get().getReport().getErrors().get(0).type);
-        InputConfiguration.get().setReport(new GlobalReportImpl());
+        assertEquals(1, Main.globalReport.getErrors().size());
+        assertSame(ErrorEnum.ERROR_ASSERT_AMPLIFICATION, Main.globalReport.getErrors().get(0).type);
+        Main.globalReport.reset();
+    }
+
+    @Test
+    public void testNoMatchingTestClasses() {
+        final DSpot dSpot = new DSpot(new TakeAllSelector());
+        dSpot.amplifyTestClass("this.is.not.a.correct.package");
+        assertEquals(2, Main.globalReport.getErrors().size());
+        assertSame(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND_MATCHING_REGEX, Main.globalReport.getErrors().get(0).type);
+        assertSame(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND, Main.globalReport.getErrors().get(1).type);
     }
 }

@@ -1,13 +1,16 @@
 package eu.stamp_project.dspot;
 
+import eu.stamp_project.Main;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.assertgenerator.AssertGenerator;
 import eu.stamp_project.dspot.budget.Budgetizer;
 import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.program.InputConfiguration;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.testrunner.EntryPoint;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
+import eu.stamp_project.utils.report.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
@@ -17,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static eu.stamp_project.dspot.report.ErrorEnum.*;
+import static eu.stamp_project.utils.report.ErrorEnum.*;
 
 
 /**
@@ -59,7 +62,7 @@ public class Amplification {
      * @param maxIteration Number of amplification iterations
      */
     public void amplification(CtType<?> classTest, int maxIteration) {
-        amplification(classTest, AmplificationHelper.getAllTest(classTest), maxIteration);
+        amplification(classTest, TestFramework.getAllTest(classTest), maxIteration);
     }
 
     /**
@@ -74,20 +77,25 @@ public class Amplification {
     public void amplification(CtType<?> classTest, List<CtMethod<?>> tests, int maxIteration) {
         LOGGER.info("Amplification of {} ({} test(s))", classTest.getQualifiedName(), tests.size());
         LOGGER.info("Assertion amplification of {} ({} test(s))", classTest.getQualifiedName(), tests.size());
+
+        // here, we base the execution mode to the first test method given.
+        // the user should provide whether JUnit3/4 OR JUnit5 but not both at the same time.
+        // TODO DSpot could be able to switch from one to another version of JUnit, but I believe that the ROI is not worth it.
+        EntryPoint.jUnit5Mode = TestFramework.isJUnit5(tests.get(0));
         final List<CtMethod<?>> passingTests = TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(classTest, tests, this.compiler, InputConfiguration.get());
         final List<CtMethod<?>> selectedToBeAmplified;
         try {
             selectedToBeAmplified = this.testSelector.selectToAmplify(classTest, passingTests);
-        } catch (Exception | Error e) {
-            InputConfiguration.get().getReport().addError(ERROR_PRE_SELECTION, e);
+        } catch (Exception | java.lang.Error e) {
+            Main.globalReport.addError(new Error(ERROR_PRE_SELECTION, e));
             return;
         }
         final List<CtMethod<?>> assertionAmplifiedTestMethods = this.assertionsAmplification(classTest, selectedToBeAmplified);
         final List<CtMethod<?>> amplifiedTestMethodsToKeep;
         try {
             amplifiedTestMethodsToKeep = this.testSelector.selectToKeep(assertionAmplifiedTestMethods);
-        } catch (Exception | Error e) {
-            InputConfiguration.get().getReport().addError(ERROR_SELECTION, e);
+        } catch (Exception | java.lang.Error e) {
+            Main.globalReport.addError(new Error(ERROR_SELECTION, e));
             return;
         }
         this.globalNumberOfSelectedAmplification += amplifiedTestMethodsToKeep.size();
@@ -131,8 +139,8 @@ public class Amplification {
             final List<CtMethod<?>> selectedToBeAmplified;
             try {
                 selectedToBeAmplified = this.testSelector.selectToAmplify(classTest, currentTestList);
-            } catch (Exception | Error e) {
-                InputConfiguration.get().getReport().addError(ERROR_PRE_SELECTION, e);
+            } catch (Exception | java.lang.Error e) {
+                Main.globalReport.addError(new Error(ERROR_PRE_SELECTION, e));
                 return Collections.emptyList();
             }
             if (selectedToBeAmplified.isEmpty()) {
@@ -146,8 +154,8 @@ public class Amplification {
             final List<CtMethod<?>> inputAmplifiedTests;
             try {
                 inputAmplifiedTests = this.budgetizer.inputAmplify(selectedToBeAmplified, i);
-            } catch (Exception | Error e) {
-                InputConfiguration.get().getReport().addError(ERROR_INPUT_AMPLIFICATION, e);
+            } catch (Exception | java.lang.Error e) {
+                Main.globalReport.addError(new Error(ERROR_INPUT_AMPLIFICATION, e));
                 return Collections.emptyList();
             }
             final List<CtMethod<?>> testsWithAssertions = this.assertionsAmplification(classTest, inputAmplifiedTests);
@@ -159,8 +167,8 @@ public class Amplification {
             final List<CtMethod<?>> amplifiedTestMethodsToKeep;
             try {
                 amplifiedTestMethodsToKeep = this.testSelector.selectToKeep(testsWithAssertions);
-            } catch (Exception | Error e) {
-                InputConfiguration.get().getReport().addError(ERROR_SELECTION, e);
+            } catch (Exception | java.lang.Error e) {
+                Main.globalReport.addError(new Error(ERROR_SELECTION, e));
                 return Collections.emptyList();
             }
             amplifiedTests.addAll(amplifiedTestMethodsToKeep);
@@ -174,14 +182,14 @@ public class Amplification {
         final List<CtMethod<?>> testsWithAssertions;
         try {
             testsWithAssertions = this.assertGenerator.assertionAmplification(classTest, testMethods);
-        } catch (Exception | Error e) {
-            InputConfiguration.get().getReport().addError(ERROR_ASSERT_AMPLIFICATION, e);
+        } catch (Exception | java.lang.Error e) {
+            Main.globalReport.addError(new Error(ERROR_ASSERT_AMPLIFICATION, e));
             return Collections.emptyList();
         }
         if (testsWithAssertions.isEmpty()) {
             return testsWithAssertions;
         }
-        // final check on A-amplified test, see if they all pass.
+        // final checkEnum on A-amplified test, see if they all pass.
         // If they don't, we just discard them.
         final List<CtMethod<?>> amplifiedPassingTests =
                 TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(

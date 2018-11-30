@@ -22,4 +22,9 @@ public class SecondClassJUnit3 extends TestCase {
         assertTrue(true);
     }
 
+    public void testExpectingAnException() {
+        assertTrue(true);
+        throw new RuntimeException();
+    }
+
 }

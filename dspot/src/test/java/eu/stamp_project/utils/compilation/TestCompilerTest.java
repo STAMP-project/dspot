@@ -2,7 +2,7 @@ package eu.stamp_project.utils.compilation;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 
