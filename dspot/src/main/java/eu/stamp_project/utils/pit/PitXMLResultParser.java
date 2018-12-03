@@ -13,19 +13,19 @@ import org.xml.sax.helpers.DefaultHandler;
  * abwogi@kth.se
  * on 14/11/18
  */
-public class PitXMLResultParser extends AbstractParser {
+public class PitXMLResultParser extends AbstractParser<PitXMLResult> {
 
     public PitXMLResultParser(){
         super("/mutations.xml");
     }
 
-    public List<AbstractPitResult> parse(File fileResults) {
+    public List<PitXMLResult> parse(File fileResults) {
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
             class Handler extends DefaultHandler {
                 private StringBuilder stringBuilder;
-                final List<AbstractPitResult> results = new ArrayList<>();
+                final List<PitXMLResult> results = new ArrayList<>();
                 String sourceFile, methodDescription, mutatedClass, mutatedMethod, mutator, killingTest, description,
                         fullQualifiedNameMethod, fullQualifiedNameClass;
                 int numberOfTestsRun, lineNumber, index, block;
@@ -97,7 +97,7 @@ public class PitXMLResultParser extends AbstractParser {
                     }
                 }
 
-                public List<AbstractPitResult> getResults() {
+                public List<PitXMLResult> getResults() {
                     return results;
                 }
             }

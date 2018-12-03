@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-abstract public class AbstractParser {
+abstract public class AbstractParser<T extends  AbstractPitResult> {
 
     private final String PATH_TO_MUTATIONS_RESULT;
 
@@ -32,9 +32,9 @@ abstract public class AbstractParser {
         return new File(directoryReportPit.getPath() + PATH_TO_MUTATIONS_RESULT);
     }
 
-    public List<AbstractPitResult> parseAndDelete(String pathToDirectoryResults) {
+    public List<T> parseAndDelete(String pathToDirectoryResults) {
         final File fileResults = getPathOfMutationsFile(pathToDirectoryResults);
-        final List<AbstractPitResult> results = parse(fileResults);
+        final List<T> results = parse(fileResults);
         try {
             FileUtils.deleteDirectory(new File(pathToDirectoryResults));
         } catch (IOException e) {
@@ -43,5 +43,5 @@ abstract public class AbstractParser {
         return results;
     }
 
-    abstract public List<AbstractPitResult> parse(File fileResults);
+    abstract public List<T> parse(File fileResults);
 }

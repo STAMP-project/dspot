@@ -11,14 +11,14 @@ import java.util.List;
  * benjamin.danglot@inria.fr
  * on 1/4/17
  */
-public class PitCSVResultParser extends AbstractParser {
+public class PitCSVResultParser extends AbstractParser<PitCSVResult> {
 
     public PitCSVResultParser() {
         super("/mutations.csv");
     }
 
-    public List<AbstractPitResult> parse(File fileResults) {
-        final List<AbstractPitResult> results = new ArrayList<>();
+    public List<PitCSVResult> parse(File fileResults) {
+        final List<PitCSVResult> results = new ArrayList<>();
         try (BufferedReader buffer = new BufferedReader(new FileReader(fileResults))) {
             buffer.lines().forEach(line -> {
                 String[] splittedLines = line.split(",");
