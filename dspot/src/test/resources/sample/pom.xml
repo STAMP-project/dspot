@@ -41,7 +41,7 @@
         <dependency>
             <artifactId>junit</artifactId>
             <groupId>junit</groupId>
-            <version>4.11</version>
+            <version>4.12</version>
         </dependency>
         <dependency>
             <groupId>com.google.truth</groupId>
@@ -50,10 +50,22 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.1.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>1.7.1</version>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>test-resources</id>
+        </profile>
+    </profiles>
 
 </project>

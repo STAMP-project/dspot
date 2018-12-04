@@ -2,6 +2,7 @@ package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Ignore;
@@ -36,7 +37,7 @@ public class LiteralAmplifiersTest extends AbstractTest {
 
         final CtClass testClass = Utils.findClass("fr.inria.workload.WorkloadTest");
 
-        List<CtMethod<?>> allTest = AmplificationHelper.getAllTest(testClass);
+        List<CtMethod<?>> allTest = TestFramework.getAllTest(testClass);
         Amplifier amplifier = new NumberLiteralAmplifier();
         allTest = allTest.stream()
                 .flatMap(method -> amplifier.amplify(method, 0)) // we apply twice the NumberLiteralAmplifier. In one iteration, it explores every amplification that can be done

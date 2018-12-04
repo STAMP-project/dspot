@@ -38,7 +38,7 @@ public abstract class AbstractAmplifier<T extends CtElement> implements Amplifie
      * For most of amplification, amplify elements that are before the latest amplified elements produce
      * redundant amplifications.
      * For more information, and a provided example,
-     * see <url>https://github.com/STAMP-project/dspot/issues/454</url>
+     * see https://github.com/STAMP-project/dspot/issues/454
      *
      * @param elementsToBeReduced list of elements to be reduced
      * @return a reduced list of elements, according to previous amplification.

@@ -2,19 +2,20 @@ package eu.stamp_project.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.selector.json.change.TestCaseJSON;
 import eu.stamp_project.dspot.selector.json.change.TestClassJSON;
 import eu.stamp_project.minimization.ChangeMinimizer;
 import eu.stamp_project.minimization.Minimizer;
-import eu.stamp_project.program.InputConfiguration;
-import eu.stamp_project.testrunner.runner.test.Failure;
-import eu.stamp_project.testrunner.runner.test.TestListener;
-import eu.stamp_project.utils.AmplificationChecker;
+import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.testrunner.listener.TestListener;
+import eu.stamp_project.testrunner.runner.Failure;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.compilation.TestRunner;
+import eu.stamp_project.utils.execution.TestRunner;
 import org.codehaus.plexus.util.FileUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -50,6 +51,7 @@ public class ChangeDetectorSelector implements TestSelector {
             this.pathToFirstVersionOfProgram = InputConfiguration.get().getAbsolutePathToProjectRoot();
             this.pathToSecondVersionOfProgram = InputConfiguration.get().getAbsolutePathToSecondVersionProjectRoot();
             InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
+            DSpotPOMCreator.createNewPom();
             InputConfiguration.get().getBuilder().compile();
             InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToFirstVersionOfProgram);
         } catch (Exception e) {
@@ -75,7 +77,7 @@ public class ChangeDetectorSelector implements TestSelector {
         CtType clone = this.currentClassTestToBeAmplified.clone();
         clone.setParent(this.currentClassTestToBeAmplified.getParent());
         this.currentClassTestToBeAmplified.getMethods().stream()
-                .filter(AmplificationChecker::isTest)
+                .filter(TestFramework.get()::isTest)
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
@@ -194,7 +196,7 @@ public class ChangeDetectorSelector implements TestSelector {
         } else {
             testClassJSON = new TestClassJSON(
                     this.currentClassTestToBeAmplified.getQualifiedName(),
-                    AmplificationHelper.getAllTest(this.currentClassTestToBeAmplified).size()
+                    TestFramework.getAllTest(this.currentClassTestToBeAmplified).size()
             );
         }
         this.getAmplifiedTestCases().stream()

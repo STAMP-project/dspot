@@ -2,6 +2,7 @@
 
 package eu.stamp_project.dspot.amplifier;
 
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
@@ -49,7 +50,7 @@ public class TestDataMutator implements Amplifier {
 		int lit_index = 0;
 		for (CtLiteral lit : literals) {
 			try {
-				if (!AmplificationChecker.isInAssert(lit) && !AmplificationChecker.isCase(lit) && lit.getValue() != null) {
+				if (!TestFramework.get().isInAssert(lit) && !AmplificationChecker.isCase(lit) && lit.getValue() != null) {
 					if (lit.getValue() instanceof Number) {
 						methods.addAll(createAllNumberMutant(method, lit, lit_index));
 					}

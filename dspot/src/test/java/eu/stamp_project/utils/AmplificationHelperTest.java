@@ -2,7 +2,8 @@ package eu.stamp_project.utils;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.junit.After;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
@@ -13,10 +14,8 @@ import spoon.reflect.declaration.CtType;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -62,108 +61,12 @@ public class AmplificationHelperTest extends AbstractTest {
     }
 
     @Test
-    public void testConvertWithSuperClassIsJUnit3() throws Exception {
-
-        /*
-            Converting a test class that inherit from a JUnit3 test class should
-            convert also this super class
-         */
-
-        final CtClass secondTestClassJUnit3 = Utils.findClass("fr.inria.helper.SecondClassJUnit3");
-        final CtClass testClassJUnit3 = Utils.findClass("fr.inria.helper.SubClassOfJUnit3");
-        final CtType<?> converted = JUnit3Support.convertToJUnit4(testClassJUnit3,
-                Utils.getInputConfiguration()
-        );
-        assertEquals("public class SubClassOfJUnit3 extends fr.inria.helper.SecondClassJUnit3 {" + AmplificationHelper.LINE_SEPARATOR +
-                "    @java.lang.Override" + AmplificationHelper.LINE_SEPARATOR +
-                "    @org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
-                "    public void test() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
-                "        org.junit.Assert.assertEquals(3, 3);" + AmplificationHelper.LINE_SEPARATOR +
-                "    }" + AmplificationHelper.LINE_SEPARATOR +
-                "" + AmplificationHelper.LINE_SEPARATOR +
-                "    @org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
-                "    public void testThatIsATest() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
-                "        org.junit.Assert.assertEquals(3, 3);" + AmplificationHelper.LINE_SEPARATOR +
-                "    }" + AmplificationHelper.LINE_SEPARATOR +
-                "}", converted.toString());
-
-        assertEquals("public class SecondClassJUnit3 {" + AmplificationHelper.LINE_SEPARATOR +
-                        "    @org.junit.After" + AmplificationHelper.LINE_SEPARATOR +
-                        "    public void tearDown() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
-                        "    }" + AmplificationHelper.LINE_SEPARATOR +
-                        "" + AmplificationHelper.LINE_SEPARATOR +
-                        "    @org.junit.Before" + AmplificationHelper.LINE_SEPARATOR +
-                        "    public void setUp() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
-                        "    }" + AmplificationHelper.LINE_SEPARATOR +
-                        "" + AmplificationHelper.LINE_SEPARATOR +
-                        "    @org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
-                        "    public void test() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
-                        "        org.junit.Assert.assertEquals(3, 3);" + AmplificationHelper.LINE_SEPARATOR +
-                        "    }" + AmplificationHelper.LINE_SEPARATOR +
-                        "" + AmplificationHelper.LINE_SEPARATOR +
-                        "    @org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
-                        "    public void should() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
-                        "        org.junit.Assert.assertTrue(true);" + AmplificationHelper.LINE_SEPARATOR +
-                        "    }" + AmplificationHelper.LINE_SEPARATOR +
-                        "}",
-                secondTestClassJUnit3.toString());
-    }
-
-    @Test
-    public void testConvert() throws Exception {
-        final CtClass testClassJUnit3 = Utils.findClass("fr.inria.helper.ClassJunit3");
-        final CtType<?> converted = JUnit3Support.convertToJUnit4(testClassJUnit3,
-                Utils.getInputConfiguration()
-        );
-        System.out.println(converted);
-        assertEquals("public class ClassJunit3 {" + AmplificationHelper.LINE_SEPARATOR +
-                        "    class MyInnerClass {" + AmplificationHelper.LINE_SEPARATOR +
-                        "        int value;" + AmplificationHelper.LINE_SEPARATOR +
-                        "    }" + AmplificationHelper.LINE_SEPARATOR +
-                        "" + AmplificationHelper.LINE_SEPARATOR +
-                        "    @org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
-                        "    public void test() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
-                        "        fr.inria.helper.ClassJunit3.MyInnerClass innerClass = new fr.inria.helper.ClassJunit3.MyInnerClass();" + AmplificationHelper.LINE_SEPARATOR +
-                        "        innerClass.value = 4;" + AmplificationHelper.LINE_SEPARATOR +
-                        "        org.junit.Assert.assertEquals(4, innerClass.value);" + AmplificationHelper.LINE_SEPARATOR +
-                        "    }" + AmplificationHelper.LINE_SEPARATOR +
-                        "}",
-                converted.toString());
-
-        final CtClass secondTestClassJUnit3 = Utils.findClass("fr.inria.helper.SecondClassJUnit3");
-        final CtType<?> secondConverted = JUnit3Support.convertToJUnit4(secondTestClassJUnit3,
-                Utils.getInputConfiguration()
-        );
-        System.out.println(secondConverted);
-        assertEquals("public class SecondClassJUnit3 {" + AmplificationHelper.LINE_SEPARATOR +
-                        "    @org.junit.After" + AmplificationHelper.LINE_SEPARATOR +
-                        "    public void tearDown() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
-                        "    }" + AmplificationHelper.LINE_SEPARATOR +
-                        "" + AmplificationHelper.LINE_SEPARATOR +
-                        "    @org.junit.Before" + AmplificationHelper.LINE_SEPARATOR +
-                        "    public void setUp() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
-                        "    }" + AmplificationHelper.LINE_SEPARATOR +
-                        "" + AmplificationHelper.LINE_SEPARATOR +
-                        "    @org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
-                        "    public void test() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
-                        "        org.junit.Assert.assertEquals(3, 3);" + AmplificationHelper.LINE_SEPARATOR +
-                        "    }" + AmplificationHelper.LINE_SEPARATOR +
-                        "" + AmplificationHelper.LINE_SEPARATOR +
-                        "    @org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
-                        "    public void should() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
-                        "        org.junit.Assert.assertTrue(true);" + AmplificationHelper.LINE_SEPARATOR +
-                        "    }" + AmplificationHelper.LINE_SEPARATOR +
-                        "}",
-                secondConverted.toString());
-    }
-
-    @Test
     public void testCreateAmplifiedTestClass() throws Exception {
 
         /*
             The resulting amplifies test class should:
                  (1) be renamed with Ampl in its name
-                 (2) should contains only 10 methods,
+                 (2) should contains only 11 methods,
                     such as the original since we faked an amplified test methods per original test methods
                  (3) all the references are replaced with the new one (i.e. the one with Ampl)
          */
@@ -173,7 +76,7 @@ public class AmplificationHelperTest extends AbstractTest {
         CtClass<?> classTest = Utils.getFactory().Class().get("fr.inria.helper.ClassWithInnerClass");
         List<CtMethod<?>> fakeAmplifiedMethod = classTest.getMethods()
                 .stream()
-                .filter(AmplificationChecker::isTest)
+                .filter(TestFramework.get()::isTest)
                 .map(CtMethod::clone)
                 .peek(ctMethod -> ctMethod.setSimpleName("ampl" + ctMethod.getSimpleName()))
                 .collect(Collectors.toList());
@@ -181,8 +84,8 @@ public class AmplificationHelperTest extends AbstractTest {
 
         assertTrue(amplifiedTest.getSimpleName().contains("Ampl")); // (1)
 
-        assertEquals(10, amplifiedTest.getMethods().size()); // (2)
-        assertEquals(10, classTest.getMethods().size());// (2)
+        assertEquals(11, amplifiedTest.getMethods().size()); // (2)
+        assertEquals(11, classTest.getMethods().size());// (2)
 
         // (3)
         assertFalse(classTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
@@ -217,7 +120,7 @@ public class AmplificationHelperTest extends AbstractTest {
         CtClass<?> classTest = Utils.getFactory().Class().get("fr.inria.helper.ClassWithInnerClass");
         List<CtMethod<?>> fakeAmplifiedMethod = classTest.getMethods()
                 .stream()
-                .filter(AmplificationChecker::isTest)
+                .filter(TestFramework.get()::isTest)
                 .map(CtMethod::clone)
                 .collect(Collectors.toList());
         fakeAmplifiedMethod.forEach(ctMethod -> ctMethod.setSimpleName("ampl" + ctMethod.getSimpleName()));
@@ -226,7 +129,7 @@ public class AmplificationHelperTest extends AbstractTest {
         // (1)
         assertFalse(amplifiedTest.getSimpleName().contains("Ampl"));
         // (2)
-        assertEquals(14, amplifiedTest.getMethods().size());
+        assertEquals(15, amplifiedTest.getMethods().size());
         // (3)
         assertFalse(classTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
             @Override

@@ -1,12 +1,12 @@
 package eu.stamp_project;
 
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
-import eu.stamp_project.options.AmplifierEnum;
-import eu.stamp_project.options.BudgetizerEnum;
-import eu.stamp_project.options.JSAPOptions;
-import eu.stamp_project.options.SelectorEnum;
-import eu.stamp_project.program.ConstantsProperties;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.options.AmplifierEnum;
+import eu.stamp_project.utils.options.BudgetizerEnum;
+import eu.stamp_project.utils.options.JSAPOptions;
+import eu.stamp_project.utils.options.SelectorEnum;
+import eu.stamp_project.utils.program.ConstantsProperties;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.maven.model.Build;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -24,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -114,7 +115,7 @@ public class DSpotMojo extends AbstractMojo {
     /**
      *	Enable the descartes engine for Pit Mutant Score Selector.
      */
-    @Parameter(defaultValue = "false", property = "descartes")
+    @Parameter(defaultValue = "true", property = "descartes")
     private Boolean descartes;
 
     /**
@@ -213,7 +214,7 @@ public class DSpotMojo extends AbstractMojo {
 
     /**
      * Allows to specify the path to the second version through command line, rather than using properties file.
-     * This parameter is the same than {@link eu.stamp_project.program.ConstantsProperties#PATH_TO_SECOND_VERSION}
+     * This parameter is the same than {@link eu.stamp_project.utils.program.ConstantsProperties#PATH_TO_SECOND_VERSION}
      * If this parameter is used, DSpot will ignore the value used in the properties file.
      * It is recommended to use an absolute path
      */
@@ -225,14 +226,19 @@ public class DSpotMojo extends AbstractMojo {
         if (this.help) {
             JSAPOptions.showUsage();
         }
-
         Properties properties = initializeProperties();
+        if (properties.getProperty("targetModule") != null) {
+            final String[] split = properties.getProperty("targetModule").split("/");
+            if (!this.project.getName().equals(split[split.length - 1])) {
+                return;
+            }
+        }
         try {
             InputConfiguration.initialize(properties)
-                    .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(this.amplifiers.toArray(new String[this.amplifiers.size()])))
+                    .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(new ArrayList<>(this.amplifiers)))
                     .setNbIteration(this.iteration)
                     .setTestClasses(this.test)
-                    .setBudgetizer(BudgetizerEnum.valueOf(this.budgetizer).getBugtizer())
+                    .setBudgetizer(BudgetizerEnum.valueOf(this.budgetizer))
                     .setTestCases(this.cases)
                     .setSeed(this.randomSeed)
                     .setTimeOutInMs(this.timeOut)
@@ -275,7 +281,7 @@ public class DSpotMojo extends AbstractMojo {
                     );
                 }
             }
-            Main.run(InputConfiguration.get());
+            Main.run();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

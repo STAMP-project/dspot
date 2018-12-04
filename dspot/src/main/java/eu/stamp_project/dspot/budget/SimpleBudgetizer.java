@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.budget;
 
 import eu.stamp_project.dspot.amplifier.Amplifier;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.RandomHelper;
 import org.slf4j.Logger;
@@ -20,9 +20,16 @@ import java.util.stream.Collectors;
  * benjamin.danglot@inria.fr
  * on 19/07/18
  */
-public class SimpleBudgetizer implements Budgetizer {
+public class SimpleBudgetizer extends AbstractBugetizer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleBudgetizer.class);
+
+    public SimpleBudgetizer() {
+    }
+
+    public SimpleBudgetizer(List<Amplifier> amplifiers) {
+        super(amplifiers);
+    }
 
     /**
      * Input amplification of multiple tests.
@@ -36,7 +43,7 @@ public class SimpleBudgetizer implements Budgetizer {
         final int budget = InputConfiguration.get().getMaxTestAmplified();
         int totalBudget = InputConfiguration.get().getMaxTestAmplified();
         // copy the amplifiers, we will remove amplifier that does not generate more test
-        final List<Amplifier> amplifiers = new ArrayList<>(InputConfiguration.get().getAmplifiers());
+        final List<Amplifier> amplifiers = new ArrayList<>(this.amplifiers);
         // copy the test methods to be amplified
         final ArrayList<CtMethod<?>> testMethodsToBeAmplified = new ArrayList<>(testMethods);
         // Amplify all method using all amplifiers

@@ -3,7 +3,7 @@ package eu.stamp_project.dspot;
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.Main;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -13,9 +13,7 @@ import spoon.reflect.declaration.CtType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -34,14 +32,13 @@ public class DSpotSelectionTest {
     private static DSpot dspotUnderTest;
 
     private static class MockedDSpot extends DSpot {
-        public MockedDSpot(InputConfiguration inputConfiguration,
-                           int numberOfIterations,
+        public MockedDSpot(int numberOfIterations,
                            TestSelector testSelector) throws Exception {
-            super(inputConfiguration, numberOfIterations, testSelector);
+            super(numberOfIterations, testSelector);
         }
 
         @Override
-        protected CtType _amplify(CtType test, List<CtMethod<?>> methods) {
+        protected CtType<?> _amplify(CtType<?> test, List<CtMethod<?>> methods) {
             methodsToBeAmplified.addAll(methods);
             typesToBeAmplified.add(test);
             return test;
@@ -51,10 +48,9 @@ public class DSpotSelectionTest {
     @BeforeClass
     public static void setUpClass() throws Exception {
         Utils.reset();
-        final InputConfiguration inputConfiguration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
-        Main.createOutputDirectories(inputConfiguration);
+        InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
+        Main.createOutputDirectories();
         dspotUnderTest = new MockedDSpot(
-                inputConfiguration,
                 1,
                 new JacocoCoverageSelector()
         );

@@ -2,11 +2,13 @@ package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.utils.AmplificationChecker;
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -21,6 +23,7 @@ import java.util.List;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Created by Benjamin DANGLOT
@@ -90,7 +93,7 @@ public class AssertGeneratorTest extends AbstractTest {
         public boolean matches(CtInvocation<?> element) {
             return (!element.getElements(namedElementFilter).isEmpty() ||
                     !element.getElements(referenceFilter).isEmpty()
-            ) && AmplificationChecker.isAssert(element) && assertionName.equals(element.getExecutable().getSimpleName());
+            ) && TestFramework.get().isAssert(element) && assertionName.equals(element.getExecutable().getSimpleName());
         }
 
         private final String assertionName;
@@ -126,7 +129,7 @@ public class AssertGeneratorTest extends AbstractTest {
         CtMethod test = Utils.findMethod("fr.inria.multipleobservations.TestClassToBeTest", "test");
         List<CtMethod<?>> test_buildNewAssert = assertGenerator.assertionAmplification(testClass, Collections.singletonList(test));
         CtMethod<?> amplifiedTestMethod = test_buildNewAssert.get(0);
-        assertEquals(4, amplifiedTestMethod.getElements(AmplificationHelper.ASSERTIONS_FILTER).size());
+        assertEquals(4, amplifiedTestMethod.getElements(TestFramework.ASSERTIONS_FILTER).size());
 
         assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getInt", ASSERT_EQUALS)).size());
         assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getInteger", ASSERT_EQUALS)).size());
@@ -155,8 +158,12 @@ public class AssertGeneratorTest extends AbstractTest {
         assertEquals(expectedBody, test1_buildNewAssert.get(0).getBody().toString());
     }
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AssertGeneratorTest.class);
+
     @Test
     public void testBuildNewAssert() throws Exception {
+        LOGGER.info("Running testBuildNewAssert");
+
         /*
 			DSpot is able to generate multiple assertion using getter inside the targeted class
 				- Boolean (assertTrue / assertFalse)
@@ -167,7 +174,11 @@ public class AssertGeneratorTest extends AbstractTest {
 		 */
         CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         CtMethod<?> test1 = Utils.findMethod("fr.inria.sample.TestClassWithoutAssert", "test1");
-        CtMethod<?> amplifiedTestMethod = assertGenerator.assertionAmplification(testClass, Collections.singletonList(test1)).get(0);
+        final List<CtMethod<?>> ctMethods = assertGenerator.assertionAmplification(testClass, Collections.singletonList(test1));
+        if (ctMethods.isEmpty()) {
+            fail("the assertion amplification should have result with at least one test.");
+        }
+        CtMethod<?> amplifiedTestMethod = ctMethods.get(0);
         assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getBoolean", ASSERT_TRUE)).size());
         assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getByte", ASSERT_EQUALS)).size());
         assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getShort", ASSERT_EQUALS)).size());

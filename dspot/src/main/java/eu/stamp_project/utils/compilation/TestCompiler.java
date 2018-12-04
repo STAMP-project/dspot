@@ -1,9 +1,10 @@
 package eu.stamp_project.utils.compilation;
 
 import eu.stamp_project.dspot.AmplificationException;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.testrunner.listener.TestListener;
+import eu.stamp_project.utils.execution.TestRunner;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
-import eu.stamp_project.testrunner.runner.test.TestListener;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.DSpotUtils;
@@ -44,7 +45,6 @@ public class TestCompiler {
      * @param classTest       Test class
      * @param currentTestList test methods to be run
      * @return Results of tests' run
-     * @throws AmplificationException forward the AmplificationException thrown by {@link eu.stamp_project.utils.compilation.TestCompiler#compileAndRun(CtType, DSpotCompiler, List, InputConfiguration)}
      */
     public static List<CtMethod<?>> compileRunAndDiscardUncompilableAndFailingTestMethods(CtType classTest,
                                                                                     List<CtMethod<?>> currentTestList,
@@ -79,7 +79,7 @@ public class TestCompiler {
      * @param compiler      the compiler
      * @param testsToRun    the test methods to be run, should be in testClass
      * @param configuration
-     * @return an instance of {@link eu.stamp_project.testrunner.runner.test.TestListener}
+     * @return an instance of {@link eu.stamp_project.testrunner.listener.TestListener}
      * that contains the result of the execution of test methods if everything went fine, null otherwise.
      * @throws AmplificationException in case the compilation failed or a timeout has been thrown.
      */

@@ -7,7 +7,8 @@ import eu.stamp_project.dspot.amplifier.TestMethodCallAdder;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.dspot.selector.TakeAllSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.options.BudgetizerEnum;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.compilation.TestCompiler;
 import org.junit.AfterClass;
@@ -37,7 +38,7 @@ public class DSpotTest extends AbstractTest {
             This test is quite weak, we rely on the good usage of JVMArgs by the EntryPoint
          */
 
-        assertEquals("-Xmx2048m -Xms1024m -Dis.admin.user=admin -Dis.admin.passwd=$2pRSid#", InputConfiguration.get().getJVMArgs());
+        assertEquals("-Xmx2048m,-Xms1024m,-Dis.admin.user=admin,-Dis.admin.passwd=$2pRSid#",InputConfiguration.get().getJVMArgs());
         assertEquals("-Xmx2048m -Xms1024m -Dis.admin.user=admin -Dis.admin.passwd=$2pRSid#", EntryPoint.JVMArgs);
     }
 
@@ -51,7 +52,6 @@ public class DSpotTest extends AbstractTest {
 
         final CtClass<?> testClass = Utils.findClass("fr.inria.preparation.MustBeRenamedFromStart");
         final DSpot dSpot = new DSpot(
-                InputConfiguration.get(),
                 new TakeAllSelector()
         );
         final CtType amplifyTest = dSpot.amplifyTestClass("fr.inria.preparation.MustBeRenamedFromStart").get(0);
@@ -72,15 +72,14 @@ public class DSpotTest extends AbstractTest {
                 - excludedTestCases: list of name of test cases (methods) to be excluded (separated by comma ',')
          */
 
-        final MockDSpot dSpot = new MockDSpot(Utils.getInputConfiguration(),
-                1,
+        final MockDSpot dSpot = new MockDSpot(1,
                 Collections.singletonList(new TestMethodCallAdder()),
                 new JacocoCoverageSelector()
         );
         // the test class fr.inria.filter.passing.PassingTest has 3 methods, but only two are amplified
         assertEquals(3, Utils.findClass("fr.inria.filter.passing.PassingTest").getMethods().size());
         // the test class fr.inria.filter.failing.FailingTest match the regex, but it is excluded in the properties
-        final List<CtType> ctTypes = dSpot.amplifyTestClass("fr.inria.filter.*");
+        final List<CtType<?>> ctTypes = dSpot.amplifyTestClass("fr.inria.filter.*");
         assertEquals(1, ctTypes.size());
         // uses the mock to retrieve the number of method to be amplified
         assertEquals(2, dSpot.numberOfMethod);
@@ -90,8 +89,8 @@ public class DSpotTest extends AbstractTest {
 
         public int numberOfMethod = 0;
 
-        public MockDSpot(InputConfiguration inputConfiguration, int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws Exception {
-            super(inputConfiguration, numberOfIterations, amplifiers, testSelector);
+        public MockDSpot(int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws Exception {
+            super(numberOfIterations, amplifiers, testSelector, BudgetizerEnum.NoBudgetizer);
         }
 
         @Override

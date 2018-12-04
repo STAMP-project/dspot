@@ -4,21 +4,22 @@ import eu.stamp_project.AbstractTest;
 import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
 import eu.stamp_project.dspot.amplifier.ReturnValueAmplifier;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.dspot.selector.CloverCoverageSelector;
+import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
-import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.RandomHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -43,21 +44,20 @@ public class DSpotMockedTest extends AbstractTest {
         RandomHelper.setSeedRandom(23L);
         final InputConfiguration configuration = InputConfiguration.get();
         configuration.setAmplifiers(Arrays.asList(new MethodGeneratorAmplifier(), new ReturnValueAmplifier()));
-        DSpot dspot = new DSpot(configuration, 1,
-                configuration.getAmplifiers()
-        );
+        DSpot dspot = new DSpot( 1, configuration.getAmplifiers(), new CloverCoverageSelector());
         try {
             FileUtils.cleanDirectory(new File(configuration.getOutputDirectory()));
         } catch (Exception ignored) {
 
         }
-        final List<CtMethod<?>> originalTestMethods = AmplificationHelper.getAllTest(InputConfiguration.get().getFactory().Class().get("info.sanaulla.dal.BookDALTest"));
+        final CtClass<Object> testClass = InputConfiguration.get().getFactory().Class().get("info.sanaulla.dal.BookDALTest");
+        final List<CtMethod<?>> originalTestMethods = TestFramework.getAllTest(testClass);
         assertEquals(5, originalTestMethods.size());
         assertEquals(28, originalTestMethods.stream().mapToLong(
                 ctMethod -> ctMethod.getElements(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
                     @Override
                     public boolean matches(CtInvocation<?> element) {
-                        return AmplificationChecker.isAssert(element);
+                        return TestFramework.get().isAssert(element);
                     }
                 }).size()).sum());
 
@@ -65,13 +65,13 @@ public class DSpotMockedTest extends AbstractTest {
 
         CtType<?> amplifiedTest = dspot.amplifyTestClassTestMethod("info.sanaulla.dal.BookDALTest", "testGetBook").get(0);
 
-        final List<CtMethod<?>> amplifiedTestMethods = AmplificationHelper.getAllTest(amplifiedTest);
+        final List<CtMethod<?>> amplifiedTestMethods = TestFramework.getAllTest(amplifiedTest);
         assertEquals(6, amplifiedTestMethods.size());
         assertEquals(53, amplifiedTestMethods.stream().mapToLong(
                 ctMethod -> ctMethod.getElements(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
                     @Override
                     public boolean matches(CtInvocation<?> element) {
-                        return AmplificationChecker.isAssert(element);
+                        return TestFramework.get().isAssert(element);
                     }
                 }).size()).sum());
     }

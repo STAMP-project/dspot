@@ -3,17 +3,17 @@ package eu.stamp_project.dspot.selector;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.dspot.selector.json.mutant.MutantJSON;
 import eu.stamp_project.dspot.selector.json.mutant.TestCaseJSON;
 import eu.stamp_project.dspot.selector.json.mutant.TestClassJSON;
 import eu.stamp_project.utils.Counter;
-import eu.stamp_project.mutant.pit.PitResult;
-import eu.stamp_project.mutant.pit.PitResultParser;
+import eu.stamp_project.utils.pit.PitResult;
+import eu.stamp_project.utils.pit.PitResultParser;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.minimization.PitMutantMinimizer;
 import org.slf4j.Logger;
@@ -56,7 +56,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         super.init(configuration);
         if (this.originalKilledMutants == null) {
             final AutomaticBuilder automaticBuilder = InputConfiguration.get().getBuilder();
-            automaticBuilder.runPit(this.configuration.getAbsolutePathToProjectRoot());
+            automaticBuilder.runPit();
             initOriginalPitResult(PitResultParser.parseAndDelete(this.configuration.getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit()) );
         }
     }
@@ -91,7 +91,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         CtType clone = this.currentClassTestToBeAmplified.clone();
         clone.setParent(this.currentClassTestToBeAmplified.getParent());
         this.currentClassTestToBeAmplified.getMethods().stream()
-                .filter(AmplificationChecker::isTest)
+                .filter(TestFramework.get()::isTest)
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
@@ -106,7 +106,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         DSpotCompiler.compile(this.configuration, DSpotCompiler.getPathToAmplifiedTestSrc(), classpath,
                 new File(this.configuration.getAbsolutePathToTestClasses()));
 
-        InputConfiguration.get().getBuilder().runPit(this.configuration.getAbsolutePathToProjectRoot(), clone);
+        InputConfiguration.get().getBuilder().runPit(clone);
         final List<PitResult> results = PitResultParser.parseAndDelete(this.configuration.getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit());
 
         Set<CtMethod<?>> selectedTests = new HashSet<>();
@@ -223,7 +223,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                     this.currentClassTestToBeAmplified.getQualifiedName(),
                     this.currentClassTestToBeAmplified.getMethods()
                             .stream()
-                            .filter(AmplificationChecker::isTest)
+                            .filter(TestFramework.get()::isTest)
                             .count());
         }
         List<CtMethod> keys = new ArrayList<>(this.testThatKilledMutants.keySet());

@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.utils.AmplificationChecker;
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import spoon.reflect.code.CtAssignment;
 import spoon.reflect.code.CtBinaryOperator;
@@ -35,7 +35,7 @@ public abstract class AbstractLiteralAmplifier<T> extends AbstractAmplifier<CtEx
             try {
                 Class<?> clazzOfLiteral = null;
                 if ((literal.getParent() instanceof CtInvocation &&
-                        AmplificationChecker.isAssert((CtInvocation) literal.getParent()))
+                        TestFramework.get().isAssert((CtInvocation) literal.getParent()))
                         || isConcatenationOfLiteral(literal)
                         || literal.getParent(CtAnnotation.class) != null) {
                     return false;
@@ -74,7 +74,7 @@ public abstract class AbstractLiteralAmplifier<T> extends AbstractAmplifier<CtEx
                 currentElement = currentElement.getParent();
             }
             return currentElement.getParent() instanceof CtInvocation &&
-                    AmplificationChecker.isAssert((CtInvocation) currentElement.getParent());
+                    TestFramework.get().isAssert((CtInvocation) literal.getParent());
         }
     };
 

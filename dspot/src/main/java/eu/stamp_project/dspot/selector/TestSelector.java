@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.minimization.Minimizer;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
