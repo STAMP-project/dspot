@@ -32,6 +32,27 @@ public class Checker {
         PROPERTIES CHECK
      */
 
+    public static void checkBinariesFolders(Properties properties) {
+
+        String currentPath = properties.getProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName());
+        final String targetModulePropertyValue = properties.getProperty(ConstantsProperties.MODULE.getName());
+        currentPath += targetModulePropertyValue != null ? targetModulePropertyValue : "";
+
+        // binary folders: classes and test-classes
+        Checker.checkRelativePathPropertyValue(
+                properties.getProperty(ConstantsProperties.SRC_CLASSES.getName()),
+                ErrorEnum.ERROR_PATH_TO_SRC_CLASSES_PROPERTY,
+                ConstantsProperties.SRC_CLASSES.getNaturalLanguageDesignation(),
+                currentPath
+        );
+        Checker.checkRelativePathPropertyValue(
+                properties.getProperty(ConstantsProperties.TEST_SRC_CODE.getName()),
+                ErrorEnum.ERROR_PATH_TO_TEST_CLASSES_PROPERTY,
+                ConstantsProperties.TEST_SRC_CODE.getNaturalLanguageDesignation(),
+                currentPath
+        );
+    }
+
     public static void checkProperties(Properties properties) {
         // project root is mandatory
         String currentPath = properties.getProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName());
@@ -61,19 +82,6 @@ public class Checker {
         Checker.checkRelativePathPropertyValue(
                 properties.getProperty(ConstantsProperties.TEST_SRC_CODE.getName()),
                 ErrorEnum.ERROR_PATH_TO_TEST_SRC_PROPERTY,
-                ConstantsProperties.TEST_SRC_CODE.getNaturalLanguageDesignation(),
-                currentPath
-        );
-        // binary folders: classes and test-classes
-        Checker.checkRelativePathPropertyValue(
-                properties.getProperty(ConstantsProperties.SRC_CLASSES.getName()),
-                ErrorEnum.ERROR_PATH_TO_SRC_CLASSES_PROPERTY,
-                ConstantsProperties.SRC_CLASSES.getNaturalLanguageDesignation(),
-                currentPath
-        );
-        Checker.checkRelativePathPropertyValue(
-                properties.getProperty(ConstantsProperties.TEST_SRC_CODE.getName()),
-                ErrorEnum.ERROR_PATH_TO_TEST_CLASSES_PROPERTY,
                 ConstantsProperties.TEST_SRC_CODE.getNaturalLanguageDesignation(),
                 currentPath
         );
