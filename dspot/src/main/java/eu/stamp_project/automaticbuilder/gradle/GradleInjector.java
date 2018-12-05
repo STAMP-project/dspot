@@ -36,12 +36,9 @@ public class GradleInjector {
 
     public static final String GRADLE_BUILD_FILE = "build.gradle";
 
-    private String pathToOriginalGradleBuildFile;
-
     private File originalGradleBuildFile;
 
     public GradleInjector(String absolutePathToOriginalGradleBuildFile) {
-        this.pathToOriginalGradleBuildFile = absolutePathToOriginalGradleBuildFile;
         this.originalGradleBuildFile = new File(absolutePathToOriginalGradleBuildFile);
         if (!this.originalGradleBuildFile.exists()) {
             throw new RuntimeException(absolutePathToOriginalGradleBuildFile + " does not exists!");
@@ -70,8 +67,6 @@ public class GradleInjector {
         makeBackup(gradleBuildFile);
         String pitTask = getPitTask(testClasses);
         Files.write(Paths.get(originalGradleBuildFilename), pitTask.getBytes(), StandardOpenOption.WRITE);
-        LOGGER.info("Injected following Gradle task in the Gradle build file " + originalGradleBuildFilename + ":" + AmplificationHelper.LINE_SEPARATOR + " ");
-        LOGGER.info(pitTask);
     }
 
     /*
@@ -253,7 +248,7 @@ public class GradleInjector {
                 "    " + OPT_VALUE_REPORT_DIR + AmplificationHelper.LINE_SEPARATOR +
                 "    " + OPT_VALUE_FORMAT + AmplificationHelper.LINE_SEPARATOR +
                 "    " + OPT_PIT_VERSION + this.wrapWithSingleQuote(InputConfiguration.get().getPitVersion()) + AmplificationHelper.LINE_SEPARATOR +
-                        "    " + PROPERTY_VALUE_TIMEOUT + " = " + InputConfiguration.get().getTimeOutInMs() + AmplificationHelper.LINE_SEPARATOR +
+                "    " + PROPERTY_VALUE_TIMEOUT + " = " + InputConfiguration.get().getTimeOutInMs() + AmplificationHelper.LINE_SEPARATOR +
                 (!InputConfiguration.get().getJVMArgs().isEmpty() ?
                         "    " + PROPERTY_VALUE_JVM_ARGS + " = [" +
                                 Arrays.stream(InputConfiguration.get().getJVMArgs().split(",")).map(this::wrapWithSingleQuote).collect(Collectors.joining(",")) + "]"
