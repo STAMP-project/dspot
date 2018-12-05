@@ -178,8 +178,8 @@ public class MainTest {
                 "--cases", "test2"
         });
         final CtClass<?> amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("example.ParametrizedTestSuiteExample");
-        assertNotNull(amplifiedTestClass);
-        assertFalse(amplifiedTestClass.getMethods().isEmpty());
+        assertTrue(Main.globalReport.getErrors().isEmpty());
+        assertTrue(Main.globalReport.getInputError().isEmpty());
     }
 
     @Test
@@ -243,10 +243,10 @@ public class MainTest {
 
     private static final String expectedReportExample = AmplificationHelper.LINE_SEPARATOR +
             "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
-            "Initial instruction coverage: 33 / 37" + AmplificationHelper.LINE_SEPARATOR +
-            "89" + AmplificationHelper.DECIMAL_SEPARATOR + "19%" + AmplificationHelper.LINE_SEPARATOR +
+            "Initial instruction coverage: 30 / 34" + AmplificationHelper.LINE_SEPARATOR +
+            "88" + AmplificationHelper.DECIMAL_SEPARATOR + "24%" + AmplificationHelper.LINE_SEPARATOR +
             "Amplification results with 22 amplified tests." + AmplificationHelper.LINE_SEPARATOR +
-            "Amplified instruction coverage: 37 / 37" + AmplificationHelper.LINE_SEPARATOR +
+            "Amplified instruction coverage: 34 / 34" + AmplificationHelper.LINE_SEPARATOR +
             "100" + AmplificationHelper.DECIMAL_SEPARATOR + "00%" + AmplificationHelper.LINE_SEPARATOR;
 
     @Test

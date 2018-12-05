@@ -39,35 +39,35 @@ public class ParametrizedTestSuiteExample {
     @Test
     public void test3() {
         example.Example ex = new example.Example();
-        final char actual = ex.charAt(this.string, ((this.string.length()) - 1));
+        final char actual = ex.charAt("abcd", (("abcd".length()) - 1));
         assertEquals('d', actual);
     }
 
     @Test
     public void test4() {
         example.Example ex = new example.Example();
-        final char actual = ex.charAt(this.string, 12);
+        final char actual = ex.charAt("abcd", 12);
         assertEquals('d', actual);
     }
 
     @Test
     public void test7() {
         example.Example ex = new example.Example();
-        final char actual = ex.charAt(this.string, 2);
+        final char actual = ex.charAt("abcd", 2);
         assertEquals('c', actual);
     }
 
     @Test
     public void test8() {
         example.Example ex = new example.Example();
-        final char actual = ex.charAt(this.string, 1);
+        final char actual = ex.charAt("abcd", 1);
         assertEquals('b', actual);
     }
 
     @Test
     public void test2() {
         example.Example ex = new example.Example();
-        final char actual = ex.charAt(this.string, 3);
+        final char actual = ex.charAt("abcd", 3);
         assertEquals('d', actual);
     }
 
