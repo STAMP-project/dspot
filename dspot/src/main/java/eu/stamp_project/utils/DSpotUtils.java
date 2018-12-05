@@ -53,7 +53,8 @@ public class DSpotUtils {
     public static void printCtTypeToGivenDirectory(CtType<?> type, File directory) {
         Factory factory = type.getFactory();
         Environment env = factory.getEnvironment();
-        env.setAutoImports(true);
+        env.setAutoImports(false);
+        env.setNoClasspath(true);
         env.setCommentEnabled(InputConfiguration.get().withComment());
         JavaOutputProcessor processor = new JavaOutputProcessor(new DefaultJavaPrettyPrinter(env));
         processor.setFactory(factory);
