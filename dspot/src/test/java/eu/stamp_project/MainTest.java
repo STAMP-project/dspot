@@ -174,7 +174,8 @@ public class MainTest {
                 "--amplifiers", "TestDataMutator",
                 "--test", "example.ParametrizedTestSuiteExample",
                 "--budgetizer", "NoBudgetizer",
-                "--no-minimize"
+                "--no-minimize",
+                "--cases", "test2"
         });
         final CtClass<?> amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("example.ParametrizedTestSuiteExample");
         assertNotNull(amplifiedTestClass);
