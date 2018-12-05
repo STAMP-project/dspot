@@ -14,7 +14,6 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.reference.CtVariableReference;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 /**
