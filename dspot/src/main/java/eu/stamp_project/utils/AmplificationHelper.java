@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -170,8 +171,11 @@ public class AmplificationHelper {
     public static List<CtMethod<?>> getPassingTests(List<CtMethod<?>> newTests, TestListener result) {
         final List<String> passingTests = result.getPassingTests();
         return newTests.stream()
-                .filter(test -> passingTests.contains(test.getSimpleName()))
-                .collect(Collectors.toList());
+                .filter(test -> {
+                    final Pattern pattern = Pattern.compile(test.getSimpleName() + "\\[\\d+\\]");
+                    return passingTests.contains(test.getSimpleName()) ||
+                            passingTests.stream().anyMatch(passingTest -> pattern.matcher(passingTest).matches());
+                }).collect(Collectors.toList());
     }
 
     public static CtMethod<?> addOriginInComment(CtMethod<?> amplifiedTest, CtMethod<?> topParent) {
