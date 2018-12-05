@@ -69,7 +69,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
             this.selectedToBeAmplifiedCoverageResultsMap = null;
             this.selectedAmplifiedTest.clear();
         }
-        final CoveragePerTestMethod coveragePerTestMethod = computeCoverageForGivenTestMethdods(testsToBeAmplified);
+        final CoveragePerTestMethod coveragePerTestMethod = computeCoverageForGivenTestMethods(testsToBeAmplified);
         final List<String> pathExecuted = new ArrayList<>();
         final List<CtMethod<?>> filteredTests = testsToBeAmplified.stream()
                 .filter(ctMethod -> ctMethod != null &&
@@ -96,7 +96,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
         return filteredTests;
     }
 
-    private CoveragePerTestMethod computeCoverageForGivenTestMethdods(List<CtMethod<?>> testsToBeAmplified) {
+    private CoveragePerTestMethod computeCoverageForGivenTestMethods(List<CtMethod<?>> testsToBeAmplified) {
         final String[] methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).toArray(String[]::new);
         String classpath = InputConfiguration.get().getBuilder().buildClasspath();
         if (!this.configuration.getAdditionalClasspathElements().isEmpty()) {
@@ -120,7 +120,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
         if (amplifiedTestToBeKept.isEmpty()) {
             return amplifiedTestToBeKept;
         }
-        final CoveragePerTestMethod coveragePerTestMethod = computeCoverageForGivenTestMethdods(amplifiedTestToBeKept);
+        final CoveragePerTestMethod coveragePerTestMethod = computeCoverageForGivenTestMethods(amplifiedTestToBeKept);
         final List<String> pathExecuted = new ArrayList<>();
         final List<CtMethod<?>> methodsKept = amplifiedTestToBeKept.stream()
                 .filter(ctMethod -> {
@@ -137,8 +137,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                         pathExecuted.add(pathByExecInstructions);
                         return true;
                     }
-                })
-                .collect(Collectors.toList());
+                }).collect(Collectors.toList());
 
         this.selectedToBeAmplifiedCoverageResultsMap.putAll(methodsKept.stream()
                 .map(CtNamedElement::getSimpleName)
