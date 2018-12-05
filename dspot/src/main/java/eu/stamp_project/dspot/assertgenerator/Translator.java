@@ -107,16 +107,9 @@ public class Translator {
         }
         final CtTypeReference<?> reference = ctType.getReference();
         invocation.getTarget().addTypeCast(reference);
-        // we are sure that there is only one, since we use only getters
-        final Optional<CtMethod<?>> candidate = getAllMethods(ctType)
-                .stream()
-                .filter(ctMethod -> ctMethod.getSimpleName().equals(executableName))
-                .findFirst();
-        if (!candidate.isPresent()) {
-            LOGGER.error("Could not find {} in {}.", executableName, ctType.getQualifiedName());
-        }
-        final CtMethod<?> getter = candidate.get();
-        final CtExecutableReference<?> referenceToGetter = getter.getReference();
+        final CtExecutableReference<?> referenceToGetter = factory.createExecutableReference();
+        referenceToGetter.setSimpleName(executableName);
+        referenceToGetter.setDeclaringType(ctType.getReference());
         invocation.setExecutable(referenceToGetter);
         if (start != 1) {
             final String substringToBeRemove = invocationAsString.substring(start - 2, invocationAsString.indexOf("()") + 2);
