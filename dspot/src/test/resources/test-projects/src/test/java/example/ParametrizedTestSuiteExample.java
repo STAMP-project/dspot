@@ -1,13 +1,10 @@
 package example;
 
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
 import java.util.Collection;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * created by Benjamin DANGLOT
@@ -36,39 +33,42 @@ public class ParametrizedTestSuiteExample {
         );
     }
 
-    @Test
+    @org.junit.Test
     public void test3() {
         example.Example ex = new example.Example();
-        final char actual = ex.charAt("abcd", (("abcd".length()) - 1));
-        assertEquals('d', actual);
+        java.lang.String s = "abcd";
+        org.junit.Assert.assertEquals('d', ex.charAt(s, ((s.length()) - 1)));
     }
 
-    @Test
+    @org.junit.Test
     public void test4() {
         example.Example ex = new example.Example();
-        final char actual = ex.charAt("abcd", 12);
-        assertEquals('d', actual);
+        java.lang.String s = "abcd";
+        org.junit.Assert.assertEquals('d', ex.charAt(s, 12));
     }
 
-    @Test
+    @org.junit.Test
     public void test7() {
         example.Example ex = new example.Example();
-        final char actual = ex.charAt("abcd", 2);
-        assertEquals('c', actual);
+        org.junit.Assert.assertEquals('c', ex.charAt("abcd", 2));
     }
 
-    @Test
+    @org.junit.Test
     public void test8() {
         example.Example ex = new example.Example();
-        final char actual = ex.charAt("abcd", 1);
-        assertEquals('b', actual);
+        org.junit.Assert.assertEquals('b', ex.charAt("abcd", 1));
     }
 
-    @Test
+    @org.junit.Test
+    public void test9() {
+        example.Example ex = new example.Example();
+        org.junit.Assert.assertEquals('f', ex.charAt("abcdefghijklm", 5));
+    }
+
+    @org.junit.Test
     public void test2() {
         example.Example ex = new example.Example();
-        final char actual = ex.charAt("abcd", 3);
-        assertEquals('d', actual);
+        org.junit.Assert.assertEquals('d', ex.charAt("abcd", 3));
     }
 
 }

@@ -164,8 +164,6 @@ public class MainTest {
         /* run the main amplification process on a parametrized test method
          *   The configuration is the same than example, but in a parametrizesd test
          *
-         *   TODO for now it is a (very) weak oracle.
-         *
          */
 
         Main.main(new String[]{
@@ -181,6 +179,7 @@ public class MainTest {
                 "--cases", "test2"
         });
         final CtClass<?> amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("example.ParametrizedTestSuiteExample");
+        assertNotNull(amplifiedTestClass);
     }
 
     @Test
