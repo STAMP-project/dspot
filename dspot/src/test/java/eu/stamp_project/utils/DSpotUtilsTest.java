@@ -1,15 +1,19 @@
 package eu.stamp_project.utils;
 
 import eu.stamp_project.AbstractTest;
+import eu.stamp_project.Utils;
+import eu.stamp_project.automaticbuilder.gradle.GradleInjector;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -24,6 +28,29 @@ public class DSpotUtilsTest extends AbstractTest {
 
     private final static File outputDirectory = new File("target/trash/");
 
+    @Test
+    public void testWithLombokAnnotation() throws Exception {
+        DSpotUtils.printAndCompileToCheck(
+                Utils.findClass("fr.inria.lombok.LombokClassThatUseBuilderTest"),
+                outputDirectory
+        );
+        try (final BufferedReader reader =
+                     new BufferedReader(new FileReader(outputDirectory + "/fr/inria/lombok/LombokClassThatUseBuilderTest.java"))) {
+            assertEquals(
+                    "package fr.inria.lombok;" + AmplificationHelper.LINE_SEPARATOR +
+                            "" + AmplificationHelper.LINE_SEPARATOR +
+                            "" + AmplificationHelper.LINE_SEPARATOR +
+                            "public class LombokClassThatUseBuilderTest {" + AmplificationHelper.LINE_SEPARATOR +
+                            "    @org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
+                            "    public void test() {" + AmplificationHelper.LINE_SEPARATOR +
+                            "        fr.inria.lombok.LombokClassThatUseBuilder.builder().build();" + AmplificationHelper.LINE_SEPARATOR +
+                            "    }" + AmplificationHelper.LINE_SEPARATOR +
+                            "}" + AmplificationHelper.LINE_SEPARATOR,
+                    reader.lines()
+                            .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR))
+            );
+        }
+    }
 
     @Test
     public void testGetAllTestClasses() {
@@ -35,8 +62,8 @@ public class DSpotUtilsTest extends AbstractTest {
          */
 
 //        final String[] allTestClasses = DSpotUtils.getAllTestClasses();
- //       assertEquals(33, allTestClasses.length); // we got all
- //       assertTrue(Arrays.stream(allTestClasses).noneMatch(s -> s.startsWith("fr.inria.filter.failing."))); // but not excluded
+        //       assertEquals(33, allTestClasses.length); // we got all
+        //       assertTrue(Arrays.stream(allTestClasses).noneMatch(s -> s.startsWith("fr.inria.filter.failing."))); // but not excluded
     }
 
     @Test
@@ -55,7 +82,7 @@ public class DSpotUtilsTest extends AbstractTest {
         final CtType<?> type = launcher.getFactory().Type().get("example.TestSuiteExample");
 
         assertFalse(javaFile.exists());
-        DSpotUtils.printAmplifiedTestClass(type, outputDirectory);
+        DSpotUtils.printAndCompileToCheck(type, outputDirectory);
         assertTrue(javaFile.exists());
 
         final CtMethod<?> clone = type.getMethods().stream()
@@ -65,7 +92,7 @@ public class DSpotUtilsTest extends AbstractTest {
         clone.setSimpleName("MyNewMethod");
         type.addMethod(clone);
 
-        DSpotUtils.printAmplifiedTestClass(type, outputDirectory);
+        DSpotUtils.printCtTypeToGivenDirectory(type, outputDirectory);
         launcher = new Launcher();
         launcher.addInputResource(outputDirectory.getAbsolutePath() + "/" + "example.TestSuiteExample".replaceAll("\\.", "\\/") + ".java");
         launcher.getEnvironment().setNoClasspath(true);
@@ -77,7 +104,7 @@ public class DSpotUtilsTest extends AbstractTest {
         clone.setSimpleName("MyNewMethod2");
         type.addMethod(clone);
 
-        DSpotUtils.printAmplifiedTestClass(type, outputDirectory);
+        DSpotUtils.printAndCompileToCheck(type, outputDirectory);
         launcher = new Launcher();
         launcher.addInputResource(outputDirectory.getAbsolutePath() + "/" + "example.TestSuiteExample".replaceAll("\\.", "\\/") + ".java");
         launcher.getEnvironment().setNoClasspath(true);
