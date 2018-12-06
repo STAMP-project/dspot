@@ -1,5 +1,6 @@
 package eu.stamp_project.utils;
 
+import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -51,9 +52,14 @@ public class DSpotUtils {
     }
 
     public static void printCtTypeToGivenDirectory(CtType<?> type, File directory) {
+        DSpotUtils.printCtTypeToGivenDirectory(type, directory, false);
+    }
+
+    public static void printCtTypeToGivenDirectory(CtType<?> type, File directory, boolean autoImports) {
         Factory factory = type.getFactory();
         Environment env = factory.getEnvironment();
-        env.setAutoImports(true);
+        env.setAutoImports(autoImports);
+        env.setNoClasspath(true);
         env.setCommentEnabled(InputConfiguration.get().withComment());
         JavaOutputProcessor processor = new JavaOutputProcessor(new DefaultJavaPrettyPrinter(env));
         processor.setFactory(factory);
@@ -62,26 +68,52 @@ public class DSpotUtils {
         env.setAutoImports(false);
     }
 
-    public static void printAmplifiedTestClass(CtType<?> type, File directory) {
-        String regex = File.separator.equals("/") ? "/" : "\\\\";
+    /*
+        First, we print the amplified java test class with imports.
+        We compile it.
+        If the compilation fails, we re-print it without imports, i.e. using full qualified names.
+     */
+    public static void printAndCompileToCheck(CtType<?> type, File directory) {
+
+        // get the existing amplified test class, if so
+        final String regex = File.separator.equals("/") ? "/" : "\\\\";
         final String pathname = directory.getAbsolutePath() + File.separator + type.getQualifiedName().replaceAll("\\.", regex)
                 + ".java";
+        final CtType<?> existingAmplifiedTestClass;
         if (new File(pathname).exists()) {
-            printCtTypeToGivenDirectory(addGeneratedTestToExistingClass(type, pathname), directory);
-        } else {
-            printCtTypeToGivenDirectory(type, directory);
+            existingAmplifiedTestClass = getExistingClass(type, pathname);
+            existingAmplifiedTestClass.getMethods()
+                    .stream()
+                    .filter(testCase -> !type.getMethods().contains(testCase))
+                    .forEach(type::addMethod);
+        }
+        printCtTypeToGivenDirectory(type, directory, true);
+        // compile
+        final boolean compile = DSpotCompiler.compile(InputConfiguration.get(),
+                pathname,
+                InputConfiguration.get().getDependencies(),
+                new File(InputConfiguration.get().getOutputDirectory() + "/binaries/")
+        );
+        if (!compile) {
+            try {
+                FileUtils.forceDelete(new File(InputConfiguration.get().getOutputDirectory() + "/binaries/"));
+            } catch (IOException ignored) {
+                //ignored
+            }
+            LOGGER.warn("Could not compile {} with imports.", type.getQualifiedName());
+            LOGGER.warn("DSpot outputs it using full qualified names.");
+            LOGGER.warn("These problems can come from the fact your project use generated codes, such as Lombok annotations.");
+            printCtTypeToGivenDirectory(type, directory, false);
         }
     }
 
-    private static CtClass<?> addGeneratedTestToExistingClass(CtType<?> type, String pathname) {
+    private static CtClass<?> getExistingClass(CtType<?> type, String pathname) {
         Launcher launcher = new Launcher();
         launcher.getEnvironment().setNoClasspath(true);
         launcher.addInputResource(pathname);
         launcher.buildModel();
-        final CtClass<?> existingAmplifiedTest = launcher.getFactory().Class().get(type.getQualifiedName());
-        type.getMethods().stream().filter(testCase -> !existingAmplifiedTest.getMethods().contains(testCase))
-                .forEach(existingAmplifiedTest::addMethod);
-        return existingAmplifiedTest;
+        return launcher.getFactory().Class().get(type.getQualifiedName());
+
     }
 
     public static void addComment(CtElement element, String content, CtComment.CommentType type) {
@@ -99,12 +131,13 @@ public class DSpotUtils {
 
     private static final String[] DSPOT_CLASSES = new String[]{"MethodsHandler", "ObjectLog", "Observation", "Utils", "FailToObserveException"};
 
-    public static String getAbsolutePathToDSpotDependencies(){
-    	return InputConfiguration.get().getAbsolutePathToProjectRoot() + PATH_TO_DSPOT_DEPENDENCIES;
+    public static String getAbsolutePathToDSpotDependencies() {
+        return InputConfiguration.get().getAbsolutePathToProjectRoot() + PATH_TO_DSPOT_DEPENDENCIES;
     }
+
     public static void copyPackageFromResources() {
 
-      final String pathToTestClassesDirectory =  DSpotUtils.getAbsolutePathToDSpotDependencies() + PACKAGE_PATH;
+        final String pathToTestClassesDirectory = DSpotUtils.getAbsolutePathToDSpotDependencies() + PACKAGE_PATH;
         try {
             FileUtils.forceMkdir(new File(pathToTestClassesDirectory));
         } catch (IOException e) {
@@ -112,12 +145,12 @@ public class DSpotUtils {
         }
         Arrays.stream(DSPOT_CLASSES).forEach(file -> {
             try {
-            	InputStream stream = Thread.currentThread().getContextClassLoader()
-                         .getResourceAsStream(PACKAGE_NAME + "/" + file + ".class");
-            	// try this for Jenkins
-            	if(stream == null) {
-            		stream = DSpotUtils.class.getClassLoader()
+                InputStream stream = Thread.currentThread().getContextClassLoader()
                         .getResourceAsStream(PACKAGE_NAME + "/" + file + ".class");
+                // try this for Jenkins
+                if (stream == null) {
+                    stream = DSpotUtils.class.getClassLoader()
+                            .getResourceAsStream(PACKAGE_NAME + "/" + file + ".class");
                 }
                 final OutputStream resStreamOut = new FileOutputStream(pathToTestClassesDirectory + file + ".class");
 
