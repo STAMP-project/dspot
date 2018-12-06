@@ -260,6 +260,7 @@ public class MainTest {
                     - the fourth is the same of the third time, but not appended to the result of the second
          */
 
+        // run 1: lot of amplifiers
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
@@ -279,6 +280,7 @@ public class MainTest {
         launcher.buildModel();
         final CtClass<?> testClass1 = launcher.getFactory().Class().get("example.TestSuiteExample");
 
+        // run 2: some amplifiers
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
@@ -301,6 +303,8 @@ public class MainTest {
 
 
         // Assert that we do not have result from the first run
+        // run 3: some amplifiers
+        // run 2 + 3 = run 1
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
@@ -320,7 +324,7 @@ public class MainTest {
         launcher.buildModel();
         final CtClass<?> testClass3 = launcher.getFactory().Class().get("example.TestSuiteExample");
 
-        //
+        //run 4: equals to run 1 minus run 2 = run 3
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",

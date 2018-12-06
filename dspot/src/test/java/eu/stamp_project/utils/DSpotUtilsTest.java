@@ -2,7 +2,6 @@ package eu.stamp_project.utils;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.automaticbuilder.gradle.GradleInjector;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import spoon.Launcher;
@@ -92,7 +91,7 @@ public class DSpotUtilsTest extends AbstractTest {
         clone.setSimpleName("MyNewMethod");
         type.addMethod(clone);
 
-        DSpotUtils.printCtTypeToGivenDirectory(type, outputDirectory);
+        DSpotUtils.printAndCompileToCheck(type, outputDirectory);
         launcher = new Launcher();
         launcher.addInputResource(outputDirectory.getAbsolutePath() + "/" + "example.TestSuiteExample".replaceAll("\\.", "\\/") + ".java");
         launcher.getEnvironment().setNoClasspath(true);
