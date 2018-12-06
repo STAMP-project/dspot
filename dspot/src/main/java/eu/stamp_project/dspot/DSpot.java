@@ -283,7 +283,9 @@ public class DSpot {
             if (!testSelector.getAmplifiedTestCases().isEmpty()) {
                 LOGGER.info("Print {} with {} amplified test cases in {}", amplification.getSimpleName(),
                         testSelector.getAmplifiedTestCases().size(), InputConfiguration.get().getOutputDirectory());
-                DSpotUtils.printAmplifiedTestClass(amplification, outputDirectory);
+                // we try to compile the newly generated amplified test class (.java)
+                // if this fail, we re-print the java test class without imports
+                DSpotUtils.printAndCompileToCheck(amplification, outputDirectory);
             } else {
                 LOGGER.warn("DSpot could not obtain any amplified test method.");
                 LOGGER.warn("You can customize the following options: --amplifiers, --test-criterion, --iteration, --budgetizer etc, and retry with a new configuration.");
