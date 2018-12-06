@@ -82,10 +82,10 @@ public class DSpotUtils {
         final CtType<?> existingAmplifiedTestClass;
         if (new File(pathname).exists()) {
             existingAmplifiedTestClass = getExistingClass(type, pathname);
-            type.getMethods()
+            existingAmplifiedTestClass.getMethods()
                     .stream()
-                    .filter(testCase -> !existingAmplifiedTestClass.getMethods().contains(testCase))
-                    .forEach(existingAmplifiedTestClass::addMethod);
+                    .filter(testCase -> !type.getMethods().contains(testCase))
+                    .forEach(type::addMethod);
         }
         printCtTypeToGivenDirectory(type, directory, true);
         // compile
