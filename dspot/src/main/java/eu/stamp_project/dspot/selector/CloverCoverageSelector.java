@@ -45,7 +45,7 @@ public class CloverCoverageSelector extends TakeAllSelector {
                     this.configuration.getClasspathClassesProject();
             ;
 
-            this.initialCoverage = EntryPoint.runCoverageOnTestClasses(
+            this.initialCoverage = EntryPoint.runCoverage(
                     classpath,
                     this.configuration.getClasspathClassesProject(),
                     TestFramework.getAllTestClassesName()
@@ -182,7 +182,7 @@ public class CloverCoverageSelector extends TakeAllSelector {
                 new File(this.configuration.getAbsolutePathToTestClasses()));
 
         try {
-            return EntryPoint.runCoverageOnTestClasses(
+            return EntryPoint.runCoverage(
                     classpath,
                     this.configuration.getClasspathClassesProject(),
                     clone.getQualifiedName()

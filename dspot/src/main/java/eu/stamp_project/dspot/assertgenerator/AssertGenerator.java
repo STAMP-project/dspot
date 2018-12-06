@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -77,6 +78,10 @@ public class AssertGenerator {
         return amplifiedTestsWithAssertions;
     }
 
+    private boolean checkMethodName(String patternMethodName, String methodNameToBeChecked) {
+        return Pattern.compile(patternMethodName + "(\\[\\d+\\])?").matcher(methodNameToBeChecked).matches();
+    }
+
     /**
      * Generates assertions and try/catch/fail blocks for multiple tests.
      * <p>
@@ -119,16 +124,17 @@ public class AssertGenerator {
         // add assertion on passing tests
         if (!passingTestsName.isEmpty()) {
             LOGGER.info("{} test pass, generating assertion...", passingTestsName.size());
+            final List<CtMethod<?>> passingTestMethods = tests.stream()
+                    .filter(ctMethod ->
+                            passingTestsName.stream()
+                                    .anyMatch(passingTestName -> checkMethodName(ctMethod.getSimpleName(), passingTestName))
+                    ).collect(Collectors.toList());
             List<CtMethod<?>> passingTests = this.methodsAssertGenerator.addAssertions(testClass,
-                    tests.stream()
-                            .filter(ctMethod -> passingTestsName.contains(ctMethod.getSimpleName()))
-                            .collect(Collectors.toList()))
+                    passingTestMethods)
                     .stream()
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
-            if (passingTests != null) {
-                generatedTestWithAssertion.addAll(passingTests);
-            }
+            generatedTestWithAssertion.addAll(passingTests);
         }
 
         // add try/catch/fail on failing/error tests

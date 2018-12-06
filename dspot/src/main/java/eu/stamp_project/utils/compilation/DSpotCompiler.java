@@ -93,7 +93,6 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		finalArgs[0] = "-proceedOnError";
 		System.arraycopy(args, 0, finalArgs, 1, args.length);
 
-
 		LOGGER.info("Compiling with {}", String.join(" ", finalArgs));
 
 		compiler.compile(finalArgs);
