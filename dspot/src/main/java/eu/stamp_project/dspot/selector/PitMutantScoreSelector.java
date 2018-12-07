@@ -60,23 +60,19 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         }
     }
 
-    // todo give logger warning in the configuration?
-    public PitMutantScoreSelector(String pathToOriginalResultOfPit, OutputFormat outputFormat) {
-        this(outputFormat);
-        String originalResultFormat = pathToOriginalResultOfPit.substring(pathToOriginalResultOfPit.length()-4);
+    public PitMutantScoreSelector(String pathToOriginalResultOfPit, OutputFormat originalFormat, OutputFormat consecutiveFormat) {
+        this(consecutiveFormat);
         AbstractParser originalResultParser;
-        if(originalResultFormat.equals("xml")){
-            originalResultParser = new PitXMLResultParser();
-            initOriginalPitResult(originalResultParser.parse(new File(pathToOriginalResultOfPit)));
-        } else if (originalResultFormat.equals("csv")){
-            originalResultParser = new PitCSVResultParser();
-            initOriginalPitResult(originalResultParser.parse(new File(pathToOriginalResultOfPit)));
-        } else {
-            LOGGER.warn("You specified the wrong Pit format. Skipping expert mode.");
+        switch (originalFormat)
+        {
+            case CSV: parser = originalResultParser = new PitCSVResultParser();
+                break;
+            default: parser = originalResultParser = new PitXMLResultParser();
+                break;
         }
+        initOriginalPitResult(originalResultParser.parse(new File(pathToOriginalResultOfPit)));
     }
 
-    // todo initialize in the constructor
     @Override
     public void init(InputConfiguration configuration) {
         super.init(configuration);
