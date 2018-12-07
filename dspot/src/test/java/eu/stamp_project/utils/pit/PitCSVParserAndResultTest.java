@@ -16,7 +16,7 @@ public class PitCSVParserAndResultTest {
 
     @Test
     public void test() throws Exception {
-        final List<AbstractPitResult> pitCSVResults = (new PitCSVResultParser()).parse(new File("src/test/resources/mutations_spoon.csv"));
+        final List<? extends AbstractPitResult> pitCSVResults = (new PitCSVResultParser()).parse(new File("src/test/resources/mutations_spoon.csv"));
         long nbErrors = pitCSVResults.stream()
                 .filter(pitResult ->
                         pitResult.getStateOfMutant() == PitCSVResult.State.MEMORY_ERROR ||

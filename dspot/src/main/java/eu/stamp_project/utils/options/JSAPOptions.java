@@ -66,9 +66,35 @@ public class JSAPOptions {
                 LOGGER.warn("You specify a path to mutations.csv but you did not specified the right test-criterion");
                 LOGGER.warn("Forcing the Selector to PitMutantScoreSelector");
             }
-            testCriterion = new PitMutantScoreSelector(jsapConfig.getString("mutant"));
+            if(jsapConfig.getString("output-format") == null) {
+                testCriterion = new PitMutantScoreSelector(jsapConfig.getString("mutant"), PitMutantScoreSelector.OutputFormat.XML);
+            } else {
+                if (jsapConfig.getString("output-format").equals("xml")) {
+                    testCriterion = new PitMutantScoreSelector(jsapConfig.getString("mutant"), PitMutantScoreSelector.OutputFormat.XML);
+                } else if (jsapConfig.getString("output-format").equals("csv")) {
+                    testCriterion = new PitMutantScoreSelector(jsapConfig.getString("mutant"), PitMutantScoreSelector.OutputFormat.CSV);
+                } else {
+                    LOGGER.warn("You specified an invalid format. Using XML.");
+                    testCriterion = new PitMutantScoreSelector(jsapConfig.getString("mutant"), PitMutantScoreSelector.OutputFormat.XML);
+                }
+            }
         } else {
-            testCriterion = SelectorEnum.valueOf(jsapConfig.getString("test-criterion")).buildSelector();
+            if (!(jsapConfig.getString("output-format") == null)) {
+                if (!"PitMutantScoreSelector".equals(jsapConfig.getString("test-criterion"))) {
+                    LOGGER.warn("You specify a path to mutations.csv but you did not specified the right test-criterion");
+                    LOGGER.warn("Forcing the Selector to PitMutantScoreSelector");
+                }
+                if(jsapConfig.getString("output-format").equals("xml")){
+                    testCriterion = new PitMutantScoreSelector(PitMutantScoreSelector.OutputFormat.XML);
+                } else if (jsapConfig.getString("output-format").equals("csv")) {
+                    testCriterion = new PitMutantScoreSelector(PitMutantScoreSelector.OutputFormat.CSV);
+                } else {
+                    LOGGER.warn("You specified an invalid format. Using XML.");
+                    testCriterion = new PitMutantScoreSelector(PitMutantScoreSelector.OutputFormat.XML);
+                }
+            } else {
+                testCriterion = SelectorEnum.valueOf(jsapConfig.getString("test-criterion")).buildSelector();
+            }
         }
 
         // these values need to be checked when the factory is available
