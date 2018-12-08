@@ -90,10 +90,9 @@ public class JSAPOptions {
                 originalFormat = PitMutantScoreSelector.OutputFormat.XML;
             }
             testCriterion = new PitMutantScoreSelector(jsapConfig.getString("mutant"), originalFormat, consecutiveFormat);
-        }
 
         // default test selector mode
-        else {
+        } else {
             if (!(jsapConfig.getString("output-format") == null)) {
                 if (!"PitMutantScoreSelector".equals(jsapConfig.getString("test-criterion"))) {
                     LOGGER.warn("You specified an output format but you did not specify the right test-criterion");

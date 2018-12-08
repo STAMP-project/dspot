@@ -51,8 +51,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
 
     public PitMutantScoreSelector(OutputFormat format) {
         this.testThatKilledMutants = new HashMap<>();
-        switch (format)
-        {
+        switch (format) {
             case XML: parser = new PitXMLResultParser();
                 break;
             case CSV: parser = new PitCSVResultParser();
@@ -63,8 +62,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     public PitMutantScoreSelector(String pathToOriginalResultOfPit, OutputFormat originalFormat, OutputFormat consecutiveFormat) {
         this(consecutiveFormat);
         AbstractParser originalResultParser;
-        switch (originalFormat)
-        {
+        switch (originalFormat) {
             case CSV: parser = originalResultParser = new PitCSVResultParser();
                 break;
             default: parser = originalResultParser = new PitXMLResultParser();
