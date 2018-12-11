@@ -3,6 +3,7 @@ package eu.stamp_project.utils.options.check;
 import com.martiansoftware.jsap.JSAPResult;
 import eu.stamp_project.Main;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.program.ConstantsProperties;
 import eu.stamp_project.utils.report.Error;
 import eu.stamp_project.utils.report.ErrorEnum;
@@ -34,8 +35,8 @@ public class Checker {
 
     public static void checkBinariesFolders(Properties properties) {
 
-        String currentPath = properties.getProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName());
-        final String targetModulePropertyValue = properties.getProperty(ConstantsProperties.MODULE.getName());
+        String currentPath = DSpotUtils.shouldAddSeparator.apply(properties.getProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName()));
+        final String targetModulePropertyValue = DSpotUtils.shouldAddSeparator.apply(properties.getProperty(ConstantsProperties.MODULE.getName()));
         currentPath += targetModulePropertyValue != null ? targetModulePropertyValue : "";
 
         // binary folders: classes and test-classes
@@ -46,16 +47,16 @@ public class Checker {
                 currentPath
         );
         Checker.checkRelativePathPropertyValue(
-                properties.getProperty(ConstantsProperties.TEST_SRC_CODE.getName()),
+                properties.getProperty(ConstantsProperties.TEST_CLASSES.getName()),
                 ErrorEnum.ERROR_PATH_TO_TEST_CLASSES_PROPERTY,
-                ConstantsProperties.TEST_SRC_CODE.getNaturalLanguageDesignation(),
+                ConstantsProperties.TEST_CLASSES.getNaturalLanguageDesignation(),
                 currentPath
         );
     }
 
     public static void checkProperties(Properties properties) {
         // project root is mandatory
-        String currentPath = properties.getProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName());
+        String currentPath = DSpotUtils.shouldAddSeparator.apply(properties.getProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName()));
         Checker.checkPathnameNotNullAndFileExist(
                 currentPath,
                 ErrorEnum.ERROR_PATH_TO_PROJECT_ROOT_PROPERTY,
@@ -63,7 +64,7 @@ public class Checker {
                 "The provided path to the root folder of your project is incorrect, the folder does not exist."
         );
         // target module
-        final String targetModulePropertyValue = properties.getProperty(ConstantsProperties.MODULE.getName());
+        final String targetModulePropertyValue = DSpotUtils.shouldAddSeparator.apply(properties.getProperty(ConstantsProperties.MODULE.getName()));
         Checker.checkRelativePathPropertyValue(
                 targetModulePropertyValue,
                 ErrorEnum.ERROR_PATH_TO_TARGET_MODULE_PROPERTY,
