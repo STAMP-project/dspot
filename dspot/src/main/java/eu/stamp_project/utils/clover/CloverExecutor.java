@@ -76,7 +76,7 @@ public class CloverExecutor {
         );
 
         try {
-            EntryPoint.runTestClasses(finalClasspath, testClassesNames);
+            EntryPoint.runTests(finalClasspath, testClassesNames);
         } catch (TimeoutException e) {
             throw new RuntimeException(e);
         }

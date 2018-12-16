@@ -42,9 +42,9 @@ public class CloverCoverageSelectorTest extends AbstractSelectorTest {
     @Override
     protected String getContentReportFile() {
         return  "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
-                "Initial Coverage: 33 / 37" + AmplificationHelper.LINE_SEPARATOR +
+                "Initial Coverage: 30 / 34" + AmplificationHelper.LINE_SEPARATOR +
                 "The amplification results with: 1 amplified test cases" + AmplificationHelper.LINE_SEPARATOR +
-                "Amplified Coverage: 37 / 37";
+                "Amplified Coverage: 34 / 34";
     }
 
     @Override

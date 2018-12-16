@@ -159,6 +159,30 @@ public class MainTest {
     }
 
     @Test
+    public void testOnParametrizedTestClass() throws Exception {
+
+        /* run the main amplification process on a parametrized test method
+         *   The configuration is the same than example, but in a parametrizesd test
+         *
+         */
+
+        Main.main(new String[]{
+                "--clean",
+                "--verbose",
+                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
+                "--test-criterion", "JacocoCoverageSelector",
+                "--iteration", "1",
+                "--amplifiers", "TestDataMutator",
+                "--test", "example.ParametrizedTestSuiteExample",
+                "--budgetizer", "NoBudgetizer",
+                "--no-minimize",
+                "--cases", "test2"
+        });
+        final CtClass<?> amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("example.ParametrizedTestSuiteExample");
+        assertNotNull(amplifiedTestClass);
+    }
+
+    @Test
     public void testOnProjectWithResources() throws Exception {
         Main.main(new String[]{
                 "--verbose",
@@ -219,10 +243,10 @@ public class MainTest {
 
     private static final String expectedReportExample = AmplificationHelper.LINE_SEPARATOR +
             "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
-            "Initial instruction coverage: 33 / 37" + AmplificationHelper.LINE_SEPARATOR +
-            "89" + AmplificationHelper.DECIMAL_SEPARATOR + "19%" + AmplificationHelper.LINE_SEPARATOR +
+            "Initial instruction coverage: 30 / 34" + AmplificationHelper.LINE_SEPARATOR +
+            "88" + AmplificationHelper.DECIMAL_SEPARATOR + "24%" + AmplificationHelper.LINE_SEPARATOR +
             "Amplification results with 22 amplified tests." + AmplificationHelper.LINE_SEPARATOR +
-            "Amplified instruction coverage: 37 / 37" + AmplificationHelper.LINE_SEPARATOR +
+            "Amplified instruction coverage: 34 / 34" + AmplificationHelper.LINE_SEPARATOR +
             "100" + AmplificationHelper.DECIMAL_SEPARATOR + "00%" + AmplificationHelper.LINE_SEPARATOR;
 
     @Test
@@ -236,6 +260,7 @@ public class MainTest {
                     - the fourth is the same of the third time, but not appended to the result of the second
          */
 
+        // run 1: lot of amplifiers
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
@@ -255,6 +280,7 @@ public class MainTest {
         launcher.buildModel();
         final CtClass<?> testClass1 = launcher.getFactory().Class().get("example.TestSuiteExample");
 
+        // run 2: some amplifiers
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
@@ -277,6 +303,8 @@ public class MainTest {
 
 
         // Assert that we do not have result from the first run
+        // run 3: some amplifiers
+        // run 2 + 3 = run 1
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
@@ -296,7 +324,7 @@ public class MainTest {
         launcher.buildModel();
         final CtClass<?> testClass3 = launcher.getFactory().Class().get("example.TestSuiteExample");
 
-        //
+        //run 4: equals to run 1 minus run 2 = run 3
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",

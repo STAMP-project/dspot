@@ -119,6 +119,10 @@ public class JSAPOptions {
         if (InputConfiguration.get().getOutputDirectory().isEmpty()) {
             InputConfiguration.get().setOutputDirectory(jsapConfig.getString("output"));
         }
+
+        // we check now the binaries folders after the compilation
+        Checker.checkBinariesFolders(properties);
+
         InputConfiguration.get()
                 .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(amplifiers))
                 .setNbIteration(jsapConfig.getInt("iteration"))

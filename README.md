@@ -9,7 +9,6 @@ DSpot supports Java projects built with Maven and Gradle (see the `--automatic-b
 
 DSpot ecosystem:
 
-* [Eclipse plugin](https://github.com/STAMP-project/eclipse-ide/)
 * [Jenkins plugin](https://github.com/STAMP-project/dspot-jenkins-plugin)
 * [Eclipse plugin](https://github.com/STAMP-project/stamp-ide)
 * Travis integration: TBD

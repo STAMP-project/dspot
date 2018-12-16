@@ -37,12 +37,12 @@ public class GlobalReportImpl implements GlobalReport {
 
     @Override
     public List<Error> getErrors() {
-        return errors;
+        return this.errors;
     }
 
     @Override
     public List<Error> getInputError() {
-        return null;
+        return this.inputErrors;
     }
 
     private boolean hasError() {
