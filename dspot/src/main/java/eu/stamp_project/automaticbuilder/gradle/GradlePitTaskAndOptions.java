@@ -14,7 +14,7 @@ public class GradlePitTaskAndOptions {
 
     public static final String OPT_TARGET_CLASSES = "targetClasses = ";
 
-    public static final String OPT_VALUE_FORMAT = "outputFormats = ['CSV','HTML']";
+    public static final String OPT_VALUE_FORMAT = "outputFormats = ['CSV','HTML','XML']";
 
     public static final String OPT_TARGET_TESTS = "targetTests = ";
 

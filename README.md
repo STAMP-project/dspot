@@ -208,6 +208,13 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         		 - ChangeDetectorSelector
         (default: PitMutantScoreSelector)
 
+  [--pit-output-format <XML | CSV>]
+        [optional] specify the Pit output format.
+        Possible values are: 
+        		 - XML
+        		 - CSV
+        (default: XML)
+
   [--budgetizer <NoBudgetizer | SimpleBudgetizer>]
         [optional] specify a Bugdetizer.
         Possible values are: 
@@ -239,7 +246,7 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         else it will append the results to the exist files. (default: off)
 
   [(-m|--path-pit-result) <./path/to/mutations.csv>]
-        [optional, expert mode] specify the path to the .csv of the original
+        [optional, expert mode] specify the path to the .xml or .csv of the original
         result of Pit Test. If you use this option the selector will be forced
         to PitMutantScoreSelector
 

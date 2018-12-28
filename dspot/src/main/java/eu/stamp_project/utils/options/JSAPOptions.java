@@ -60,15 +60,48 @@ public class JSAPOptions {
         Checker.checkEnum(SelectorEnum.class, selector, "test-criterion");
         Checker.checkEnum(BudgetizerEnum.class, budgetizer, "budgetizer");
 
+        // pit output format
+        PitMutantScoreSelector.OutputFormat consecutiveFormat;
+        if (jsapConfig.getString("pit-output-format").toLowerCase().equals("xml")) {
+            consecutiveFormat = PitMutantScoreSelector.OutputFormat.XML;
+        } else if (jsapConfig.getString("pit-output-format").toLowerCase().equals("csv")) {
+            consecutiveFormat = PitMutantScoreSelector.OutputFormat.CSV;
+        } else {
+            LOGGER.warn("You specified an invalid format. Forcing the Pit output format to XML.");
+            consecutiveFormat = PitMutantScoreSelector.OutputFormat.XML;
+        }
+
+        // expert test selector mode
         TestSelector testCriterion;
         if (jsapConfig.getString("mutant") != null) {
             if (!"PitMutantScoreSelector".equals(jsapConfig.getString("test-criterion"))) {
-                LOGGER.warn("You specify a path to mutations.csv but you did not specified the right test-criterion");
+                LOGGER.warn("You specified a path to a mutations file but you did not specify the right test-criterion");
                 LOGGER.warn("Forcing the Selector to PitMutantScoreSelector");
             }
-            testCriterion = new PitMutantScoreSelector(jsapConfig.getString("mutant"));
+            String pathToOriginalResultOfPit = jsapConfig.getString("mutant");
+            String extension = pathToOriginalResultOfPit.substring(pathToOriginalResultOfPit.length()-4);
+            PitMutantScoreSelector.OutputFormat originalFormat;
+            if(extension.toLowerCase().equals("xml")){
+                originalFormat = PitMutantScoreSelector.OutputFormat.XML;
+            } else if (extension.toLowerCase().equals("csv")){
+                originalFormat = PitMutantScoreSelector.OutputFormat.CSV;
+            } else {
+                LOGGER.warn("You specified the wrong Pit format. Skipping expert mode.");
+                originalFormat = PitMutantScoreSelector.OutputFormat.XML;
+            }
+            testCriterion = new PitMutantScoreSelector(jsapConfig.getString("mutant"), originalFormat, consecutiveFormat);
+
+        // default test selector mode
         } else {
-            testCriterion = SelectorEnum.valueOf(jsapConfig.getString("test-criterion")).buildSelector();
+            if (!(jsapConfig.getString("output-format") == null)) {
+                if (!"PitMutantScoreSelector".equals(jsapConfig.getString("test-criterion"))) {
+                    LOGGER.warn("You specified an output format but you did not specify the right test-criterion");
+                    LOGGER.warn("Forcing the Selector to PitMutantScoreSelector");
+                }
+                testCriterion = new PitMutantScoreSelector(consecutiveFormat);
+            } else {
+                testCriterion = SelectorEnum.valueOf(jsapConfig.getString("test-criterion")).buildSelector();
+            }
         }
 
         // these values need to be checked when the factory is available
@@ -176,6 +209,14 @@ public class JSAPOptions {
         selector.setHelp("[optional] specify the test adequacy criterion to be maximized with amplification." + JSAPOptions.helpForEnums(SelectorEnum.class));
         selector.setDefault("PitMutantScoreSelector");
 
+        FlaggedOption pitOutputFormat = new FlaggedOption("pit-output-format");
+        pitOutputFormat.setAllowMultipleDeclarations(false);
+        pitOutputFormat.setLongFlag("pit-output-format");
+        pitOutputFormat.setStringParser(JSAP.STRING_PARSER);
+        pitOutputFormat.setUsageName("XML | CSV");
+        pitOutputFormat.setHelp("[optional] specify the Pit output format." + JSAPOptions.helpForEnums(PitMutantScoreSelector.OutputFormat.class));
+        pitOutputFormat.setDefault("XML");
+
         FlaggedOption specificTestClass = new FlaggedOption("test");
         specificTestClass.setStringParser(JSAP.STRING_PARSER);
         specificTestClass.setShortFlag('t');
@@ -205,7 +246,7 @@ public class JSAPOptions {
         mutantScore.setShortFlag('m');
         mutantScore.setLongFlag("path-pit-result");
         mutantScore.setUsageName("./path/to/mutations.csv");
-        mutantScore.setHelp("[optional, expert mode] specify the path to the .csv of the original result of Pit Test. If you use this option the selector will be forced to PitMutantScoreSelector");
+        mutantScore.setHelp("[optional, expert mode] specify the path to the .xml or .csv of the original result of Pit Test. If you use this option the selector will be forced to PitMutantScoreSelector");
 
         FlaggedOption testCases = new FlaggedOption("testCases");
         testCases.setList(true);
@@ -306,6 +347,7 @@ public class JSAPOptions {
             jsap.registerParameter(amplifiers);
             jsap.registerParameter(iteration);
             jsap.registerParameter(selector);
+            jsap.registerParameter(pitOutputFormat);
             jsap.registerParameter(budgetizer);
             jsap.registerParameter(maxTestAmplified);
             jsap.registerParameter(specificTestClass);

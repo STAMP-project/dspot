@@ -256,7 +256,8 @@ public class DSpotMojo extends AbstractMojo {
                     .setUseMavenToExecuteTest(this.useMavenToExeTest);
 
             if (this.pathPitResult != null && !this.pathPitResult.isEmpty()) {
-                InputConfiguration.get().setSelector(new PitMutantScoreSelector(this.pathPitResult));
+                InputConfiguration.get().setSelector(new PitMutantScoreSelector(this.pathPitResult,
+                        PitMutantScoreSelector.OutputFormat.XML, PitMutantScoreSelector.OutputFormat.XML));
             } else {
                 InputConfiguration.get().setSelector(SelectorEnum.valueOf(this.testCriterion).buildSelector());
             }
