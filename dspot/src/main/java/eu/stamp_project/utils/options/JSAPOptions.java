@@ -190,7 +190,7 @@ public class JSAPOptions {
         amplifiers.setStringParser(JSAP.STRING_PARSER);
         amplifiers.setUsageName("Amplifier");
         amplifiers.setDefault("None");
-        amplifiers.setHelp("[optional] specify the list of amplifiers to use. Default with all available amplifiers. " + JSAPOptions.helpForEnums(AmplifierEnum.class));
+        amplifiers.setHelp("[optional] specify the list of amplifiers to use. By default, DSpot does not use any amplifiers (None) and applies only assertion amplification." + JSAPOptions.helpForEnums(AmplifierEnum.class));
 
         FlaggedOption iteration = new FlaggedOption("iteration");
         iteration.setDefault("3");
