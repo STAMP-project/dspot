@@ -175,8 +175,8 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         properties) of the target project (e.g. ./foo.properties).
 
   [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ]
-        [optional] specify the list of amplifiers to use. Default with all
-        available amplifiers. 
+        [optional] specify the list of amplifiers to use. By default, DSpot does
+        not use any amplifiers (None) and applies only assertion amplification.
         Possible values are: 
         		 - MethodAdd
         		 - MethodRemove
