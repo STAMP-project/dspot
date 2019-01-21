@@ -31,8 +31,6 @@ import java.util.Properties;
 @Mojo(name = "amplify-unit-tests", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.TEST)
 public class DSpotMojo extends AbstractMojo {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DSpotMojo.class);
-
     /**
      * [optional] specify the path to the configuration file (format Java properties) of the target project (e.g. ./foo.properties).
      */

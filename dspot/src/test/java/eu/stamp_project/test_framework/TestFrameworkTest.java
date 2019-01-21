@@ -6,6 +6,7 @@ import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.testrunner.runner.Failure;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.program.InputConfiguration;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
@@ -24,6 +25,14 @@ import static org.junit.Assert.assertTrue;
  * on 09/11/18
  */
 public class TestFrameworkTest extends AbstractTest {
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        Utils.reset();
+        super.setUp();
+        InputConfiguration.get().setWithComment(true);
+    }
 
     @Test
     public void testGenerateExpectedExceptionsBlock() {
