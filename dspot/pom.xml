@@ -15,14 +15,6 @@
 
     <repositories>
         <repository>
-            <id>stamp-maven-repository-mvn-repo</id>
-            <url>https://stamp-project.github.io/stamp-maven-repository/</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-        </repository>
-        <repository>
             <id>gradle-repo</id>
             <name>Gradle Tooling API repository</name>
             <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
