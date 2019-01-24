@@ -190,7 +190,6 @@ public class PitMutantScoreSelector extends TakeAllSelector {
 
         // add result to baseline to prohibit selection of identical amplified tests
         originalKilledMutants.add(result);
-        
         return true;
     }
 
