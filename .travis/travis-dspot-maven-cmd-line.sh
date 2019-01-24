@@ -2,6 +2,11 @@
 
 DSPOT_VERSION=${1}
 
+git clone https://github.com/STAMP-project/testrunner.git
+cd testrunner
+mvn install -DskipTests
+cd ..
+
 cd dspot-maven/src/test/resources/multi-module
 mvn eu.stamp-project:dspot-maven:${DSPOT_VERSION}:amplify-unit-tests -Dverbose -Dpath-to-properties=multi-module.properties -Damplifiers=TestDataMutator -Diteration=1 -Dtest=example.TestSuiteExample -Dtest-criterion=JacocoCoverageSelector
 

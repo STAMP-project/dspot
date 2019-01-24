@@ -19,7 +19,7 @@ public class GradleInjectorTest extends AbstractTest {
             "    targetClasses = ['fr.inria.sample.*']" + AmplificationHelper.LINE_SEPARATOR +
             "    enableDefaultIncrementalAnalysis = true" + AmplificationHelper.LINE_SEPARATOR +
             "    reportDir = 'build/pit-reports'" + AmplificationHelper.LINE_SEPARATOR +
-            "    outputFormats = ['CSV','HTML']" + AmplificationHelper.LINE_SEPARATOR +
+            "    outputFormats = ['CSV','HTML','XML']" + AmplificationHelper.LINE_SEPARATOR +
             "    pitestVersion = '1.4.0'" + AmplificationHelper.LINE_SEPARATOR +
             "    timeoutConstInMillis = 10000" + AmplificationHelper.LINE_SEPARATOR +
             "    jvmArgs = ['-Xmx2048m','-Xms1024m','-Dis.admin.user=admin','-Dis.admin.passwd=$2pRSid#']" + AmplificationHelper.LINE_SEPARATOR +

@@ -3,8 +3,8 @@ package eu.stamp_project.automaticbuilder.gradle;
 import eu.stamp_project.Utils;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
-import eu.stamp_project.utils.pit.PitResult;
-import eu.stamp_project.utils.pit.PitResultParser;
+import eu.stamp_project.utils.pit.AbstractPitResult;
+import eu.stamp_project.utils.pit.PitXMLResultParser;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -32,6 +32,7 @@ import static org.junit.Assert.assertTrue;
 public class GradleAutomaticBuilderTest {
 
     private AutomaticBuilder sut = null;
+    PitXMLResultParser parser;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -51,6 +52,7 @@ public class GradleAutomaticBuilderTest {
         sut = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration.getBuilderName());
         sut.compile();
         Utils.LOGGER.debug("Test Set-up complete.");
+        parser = new PitXMLResultParser();
     }
 
     @After
@@ -91,7 +93,7 @@ public class GradleAutomaticBuilderTest {
         Utils.LOGGER.info("Starting Gradle Automatic Builder runPit() test when no test class is specified...");
         InputConfiguration.get().setDescartesMode(false);
         sut.runPit();
-        List<PitResult> pitResults = PitResultParser.parseAndDelete("src/test/resources/test-projects/" + sut.getOutputDirectoryPit());
+        List<? extends AbstractPitResult> pitResults = parser.parseAndDelete("src/test/resources/test-projects/" + sut.getOutputDirectoryPit());
         assertTrue("PIT results shouldn't be null", pitResults != null);
         assertTrue("PIT results shouldn't be empty", !pitResults.isEmpty());
         Utils.LOGGER.info("Gradle Automatic Builder runPit() test complete when no test class is specified.");
@@ -106,7 +108,7 @@ public class GradleAutomaticBuilderTest {
         CtClass<Object> testClass = Utils.getInputConfiguration().getFactory().Class().get("example.TestSuiteExample");
 
         sut.runPit(testClass);
-        List<PitResult> pitResults = PitResultParser.parseAndDelete("src/test/resources/test-projects/"+ sut.getOutputDirectoryPit());
+        List<? extends AbstractPitResult> pitResults = parser.parseAndDelete("src/test/resources/test-projects/"+ sut.getOutputDirectoryPit());
 
         assertTrue("PIT results shouldn't be null", pitResults != null);
         assertTrue("PIT results shouldn't be empty", !pitResults.isEmpty());

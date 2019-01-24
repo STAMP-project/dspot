@@ -145,26 +145,64 @@ outputDirectory=dspot-out/
 
 You can then execute DSpot by using:
 
-```
+```bash
 java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --path-to-properties dspot.properties
 # or in maven
 mvn exec:java -Dexec.mainClass="eu.stamp_project.Main" -Dexec.args="--path-to-properties dspot.properties"
 ```
 
 Amplify a specific test class
-```
+```bash
 java -jar /path/to/dspot-*-jar-with-dependencies.jar eu.stamp_project.Main --path-to-properties dspot.properties --test my.package.TestClass
 ```
 Amplify specific test classes according to a regex
-```
+```bash
 java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --path-to-properties dspot.properties --test my.package.*
 java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --path-to-properties dspot.properties --test my.package.Example*
 ```
 
 Amplify a specific test method from a specific test class
-```
+```bash
 java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --path-to-properties dspot.properties --test my.package.TestClass --cases testMethod
 ```
+
+### Maven plugin usage
+
+You can execute DSpot using the maven plugin. You can use this plugin on the command line as the jar:
+
+```bash
+mvn eu.stamp-project:dspot-maven:LATEST:amplify-unit-tests
+```  
+
+All the option can be pass through command line by prefixing the option with `-D`.
+For example: 
+
+```bash
+mvn eu.stamp-project:dspot-maven:LATEST:amplify-unit-tests -Dpath-to-properties dspot.properties -Dtest my.package.TestClass -Dcases testMethod
+```
+
+or, you can add the following to your `pom.xml`, in the plugins section of the build:
+
+```xml
+<plugin>
+    <groupId>eu.stamp-project</groupId>
+    <artifactId>dspot-maven</artifactId>
+    <version>LATEST</version>
+    <configuration>
+        <!-- your configuration --> 
+    </configuration>
+</plugin>
+```
+
+In case your project is a multi-module, we advise you to configure DSpot in the highest `pom.xml` and use the dedicated property `targetModule` to name the module you want to amplify
+
+After setting up your `pom.xml` and add your configuration with different options,run:
+
+```bash
+mvn dspot:amplify-unit-tests
+``` 
+
+### Command line options
 
 ```
 Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
@@ -175,8 +213,8 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         properties) of the target project (e.g. ./foo.properties).
 
   [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ]
-        [optional] specify the list of amplifiers to use. Default with all
-        available amplifiers. 
+        [optional] specify the list of amplifiers to use. By default, DSpot does
+        not use any amplifiers (None) and applies only assertion amplification.
         Possible values are: 
         		 - MethodAdd
         		 - MethodRemove
@@ -207,6 +245,13 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         		 - TakeAllSelector
         		 - ChangeDetectorSelector
         (default: PitMutantScoreSelector)
+
+  [--pit-output-format <XML | CSV>]
+        [optional] specify the Pit output format.
+        Possible values are: 
+        		 - XML
+        		 - CSV
+        (default: XML)
 
   [--budgetizer <NoBudgetizer | SimpleBudgetizer>]
         [optional] specify a Bugdetizer.
@@ -239,7 +284,7 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         else it will append the results to the exist files. (default: off)
 
   [(-m|--path-pit-result) <./path/to/mutations.csv>]
-        [optional, expert mode] specify the path to the .csv of the original
+        [optional, expert mode] specify the path to the .xml or .csv of the original
         result of Pit Test. If you use this option the selector will be forced
         to PitMutantScoreSelector
 

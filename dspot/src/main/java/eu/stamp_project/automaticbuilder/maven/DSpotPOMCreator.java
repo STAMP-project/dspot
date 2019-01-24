@@ -40,7 +40,7 @@ public class DSpotPOMCreator {
 
     private static final String MUTATION_ENGINE_DESCARTES = "descartes";
 
-    private static final String[] outputFormats = new String[]{"CSV"};
+    private static final String[] outputFormats = new String[]{"CSV","XML"};
 
     public static final String POM_FILE = "pom.xml";
 

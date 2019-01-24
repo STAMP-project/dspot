@@ -1,17 +1,16 @@
 package eu.stamp_project.automaticbuilder.maven;
 
 import eu.stamp_project.Utils;
-import eu.stamp_project.utils.pit.PitResult;
-import eu.stamp_project.utils.pit.PitResultParser;
+import eu.stamp_project.utils.pit.AbstractPitResult;
+import eu.stamp_project.utils.pit.PitXMLResultParser;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
 import java.io.File;
 import java.util.List;
-
 import static org.junit.Assert.*;
 
 /**
@@ -20,6 +19,13 @@ import static org.junit.Assert.*;
  * on 09/07/17.
  */
 public class MavenAutomaticBuilderTest {
+
+    PitXMLResultParser parser;
+
+    @Before
+    public void setUp() throws Exception {
+        parser = new PitXMLResultParser();
+    }
 
     @After
     public void tearDown() throws Exception {
@@ -56,11 +62,11 @@ public class MavenAutomaticBuilderTest {
         DSpotPOMCreator.createNewPom();
 
         Utils.getBuilder().runPit();
-        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
+        final List<? extends AbstractPitResult> pitResults = parser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertEquals(28, pitResults.size());
-        assertEquals(9, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
-        assertEquals(15, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count());
+        assertEquals(9, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
+        assertEquals(15, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
     }
 
     @Test
@@ -80,11 +86,11 @@ public class MavenAutomaticBuilderTest {
         DSpotPOMCreator.createNewPom();
 
         InputConfiguration.get().getBuilder().runPit();
-        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
+        final List<? extends AbstractPitResult> pitResults = parser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertEquals(2, pitResults.size());
-        assertEquals(0, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
-        assertEquals(2, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count());
+        assertEquals(0, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
+        assertEquals(2, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
     }
 
     @Test
@@ -116,12 +122,12 @@ public class MavenAutomaticBuilderTest {
         DSpotPOMCreator.createNewPom();
 
         Utils.getBuilder().runPit(Utils.findClass("example.TestSuiteExample2"));
-        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
+        final List<? extends AbstractPitResult> pitResults = parser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertNotNull(pitResults);
         assertEquals(28, pitResults.size());
-        assertEquals(9, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
-        assertEquals(15, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count());
+        assertEquals(9, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
+        assertEquals(15, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
     }
 
     @Test
@@ -131,12 +137,12 @@ public class MavenAutomaticBuilderTest {
         DSpotPOMCreator.createNewPom();
 
         Utils.getBuilder().runPit(Utils.findClass("example.TestSuiteExample2"), Utils.findClass("example.TestSuiteExample"));
-        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
+        final List<? extends AbstractPitResult> pitResults = parser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertNotNull(pitResults);
         assertEquals(28, pitResults.size());
-        assertEquals(9, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.SURVIVED).count());
-        assertEquals(15, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitResult.State.KILLED).count());
+        assertEquals(9, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
+        assertEquals(15, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
     }
 
     @Ignore
@@ -149,7 +155,7 @@ public class MavenAutomaticBuilderTest {
 
         Utils.getBuilder().runPit(Utils.findClass("fr.inria.inheritance.Inherited"));
 
-        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
+        final List<? extends AbstractPitResult> pitResults = parser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertEquals(31, pitResults.size());
     }
@@ -162,7 +168,7 @@ public class MavenAutomaticBuilderTest {
         DSpotPOMCreator.createNewPom();
 
         Utils.getBuilder().runPit();
-        final List<PitResult> pitResults = PitResultParser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
+        final List<? extends AbstractPitResult> pitResults = parser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
 
         assertNotNull(pitResults);
         assertEquals(88, pitResults.size());
