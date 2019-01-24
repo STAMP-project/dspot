@@ -127,7 +127,6 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 + AmplificationHelper.PATH_SEPARATOR +
                 this.configuration.getClasspathClassesProject()
                 + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies();
-
         DSpotCompiler.compile(this.configuration, DSpotCompiler.getPathToAmplifiedTestSrc(), classpath,
                 new File(this.configuration.getAbsolutePathToTestClasses()));
 
@@ -163,9 +162,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                         }
                     });
         }
-
         this.selectedAmplifiedTest.addAll(selectedTests);
-
         selectedTests.forEach(selectedTest ->
                 LOGGER.info("{} kills {} more mutants",
                         selectedTest == null ?
