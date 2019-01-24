@@ -58,10 +58,14 @@ public class AssertGenerator {
         }
         CtType cloneClass = testClass.clone();
         cloneClass.setParent(testClass.getParent());
+
+        // remove existing assertions from cloned test methods
         List<CtMethod<?>> testsWithoutAssertions = tests.stream()
                 .map(this.assertionRemover::removeAssertion)
                 .collect(Collectors.toList());
         testsWithoutAssertions.forEach(cloneClass::addMethod);
+
+        // set up methodsAssertGenerator for use in innerAssertionAmplification
         this.methodsAssertGenerator = new MethodsAssertGenerator(
                 testClass,
                 this.configuration,
@@ -99,6 +103,8 @@ public class AssertGenerator {
      * @return New tests with new assertions
      */
     private List<CtMethod<?>> innerAssertionAmplification(CtType testClass, List<CtMethod<?>> tests) {
+
+        // input amplified tests may throw new exceptions, test them
         LOGGER.info("Run tests. ({})", tests.size());
         final TestListener testResult;
         try {
@@ -112,15 +118,13 @@ public class AssertGenerator {
             e.printStackTrace();
             return Collections.emptyList();
         }
-
         final List<String> failuresMethodName = testResult.getFailingTests()
                 .stream()
                 .map(failure -> failure.testCaseName)
                 .collect(Collectors.toList());
-
         final List<String> passingTestsName = testResult.getPassingTests();
-
         final List<CtMethod<?>> generatedTestWithAssertion = new ArrayList<>();
+
         // add assertion on passing tests
         if (!passingTestsName.isEmpty()) {
             LOGGER.info("{} test pass, generating assertion...", passingTestsName.size());

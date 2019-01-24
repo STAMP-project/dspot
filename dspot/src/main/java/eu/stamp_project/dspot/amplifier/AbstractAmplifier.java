@@ -88,6 +88,8 @@ public abstract class AbstractAmplifier<T extends CtElement> implements Amplifie
 
     @Override
     public Stream<CtMethod<?>> amplify(CtMethod<?> testMethod, int iteration) {
+
+        // get appropriate test method expressions depending on amplifier
         List<T> originals = this.getOriginals(testMethod);
         List<T> reducedOriginals = this.reduceAlreadyAmplifiedElements(originals);
         return reducedOriginals.stream()

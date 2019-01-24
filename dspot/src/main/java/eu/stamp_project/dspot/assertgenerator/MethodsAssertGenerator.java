@@ -79,6 +79,8 @@ public class MethodsAssertGenerator {
         testClass.getPackage().addType(clone);
         LOGGER.info("Add observations points in passing tests.");
         LOGGER.info("Instrumentation...");
+
+        // create tests with logs
         final List<CtMethod<?>> testCasesWithLogs = testCases.stream()
                 .map(ctMethod -> {
                             DSpotUtils.printProgress(testCases.indexOf(ctMethod), testCases.size());
@@ -89,6 +91,8 @@ public class MethodsAssertGenerator {
                             );
                         }
                 ).collect(Collectors.toList());
+
+        // clone and set up tests with logs
         final List<CtMethod<?>> testsToRun = new ArrayList<>();
         IntStream.range(0, 3).forEach(i -> testsToRun.addAll(
                 testCasesWithLogs.stream()
@@ -104,8 +108,9 @@ public class MethodsAssertGenerator {
                         .collect(Collectors.toList())
         ));
         ObjectLog.reset();
+
+        // compile and run tests with logs
         LOGGER.info("Run instrumented tests. ({})", testsToRun.size());
-        //AssertGeneratorHelper.addAfterClassMethod(clone);
         TestFramework.get().generateAfterClassToSaveObservations(clone, testsToRun);
         try {
             final TestListener result = TestCompiler.compileAndRun(clone,
@@ -120,6 +125,8 @@ public class MethodsAssertGenerator {
             e.printStackTrace();
             return Collections.emptyList();
         }
+
+        // add assertions with values retrieved from logs in tests
         Map<String, Observation> observations = ObjectLog.getObservations();
         LOGGER.info("Generating assertions...");
         return testCases.stream()
