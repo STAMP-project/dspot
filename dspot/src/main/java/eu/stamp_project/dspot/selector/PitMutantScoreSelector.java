@@ -88,13 +88,18 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         if (amplifiedTestToBeKept.isEmpty()) {
             return amplifiedTestToBeKept;
         }
+
+        // prepare clone
         CtType clone = this.currentClassTestToBeAmplified.clone();
         clone.setParent(this.currentClassTestToBeAmplified.getParent());
+
+        // remove test methods from clone that are in original test class and add all methods from amplified test
         this.currentClassTestToBeAmplified.getMethods().stream()
                 .filter(TestFramework.get()::isTest)
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
+        // print to file and compile clone
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));
         final AutomaticBuilder automaticBuilder = InputConfiguration.get().getBuilder();
         final String classpath = InputConfiguration.get().getBuilder()
@@ -106,21 +111,25 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         DSpotCompiler.compile(this.configuration, DSpotCompiler.getPathToAmplifiedTestSrc(), classpath,
                 new File(this.configuration.getAbsolutePathToTestClasses()));
 
+        // run pit on clone
         InputConfiguration.get().getBuilder().runPit(clone);
         final List<PitResult> results = PitResultParser.parseAndDelete(this.configuration.getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit());
-
         Set<CtMethod<?>> selectedTests = new HashSet<>();
         if (results != null) {
             LOGGER.info("{} mutants has been generated ({})", results.size(), this.numberOfMutant);
             if (results.size() != this.numberOfMutant) {
                 LOGGER.warn("Number of generated mutant is different than the original one.");
             }
+
+            // keep results that are new mutant kills not killed, but tested, by original test
             results.stream()
                     .filter(result -> result.getStateOfMutant() == PitResult.State.KILLED &&
                             !this.originalKilledMutants.contains(result) &&
                             !this.mutantNotTestedByOriginal.contains(result))
                     .forEach(result -> {
                         CtMethod method = result.getMethod(clone);
+
+                        // keep methods that kills more mutants than the parent
                         if (killsMoreMutantThanParents(method, result)) {
                             if (!testThatKilledMutants.containsKey(method)) {
                                 testThatKilledMutants.put(method, new HashSet<>());
@@ -154,8 +163,14 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                     this.testThatKilledMutants.get(parent).contains(result)) {
                 return false;
             }
+
+            // input amplification can produce a chain of parents
             parent = AmplificationHelper.getAmpTestParent(parent);
         }
+
+        // add result to baseline to prohibit selection of identical amplified tests
+        originalKilledMutants.add(result);
+        
         return true;
     }
 
