@@ -287,6 +287,10 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         [optional, expert mode] specify the path to the .xml or .csv of the original
         result of Pit Test. If you use this option the selector will be forced
         to PitMutantScoreSelector
+  [--targetOneTestClass]
+        [optional, expert] enable this option will make DSpot computing the
+        mutation score of only one test class (the first pass through --test
+        command line option)        
 
   [--descartes]
         Enable the descartes engine for Pit Mutant Score Selector.

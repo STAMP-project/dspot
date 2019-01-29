@@ -76,7 +76,13 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         super.init(configuration);
         if (this.originalKilledMutants == null) {
             final AutomaticBuilder automaticBuilder = InputConfiguration.get().getBuilder();
-            automaticBuilder.runPit();
+            if (InputConfiguration.get().shouldTargetOneTestClass()) {
+                automaticBuilder.runPit(
+                        InputConfiguration.get().getFactory().Class().get(InputConfiguration.get().getTestClasses().get(0))
+                );
+            } else {
+                automaticBuilder.runPit();
+            }
             initOriginalPitResult(parser.parseAndDelete(this.configuration.getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit()) );
         }
     }

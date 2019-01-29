@@ -936,4 +936,15 @@ public class InputConfiguration {
     public void setJUnit5(boolean JUnit5) {
         isJUnit5 = JUnit5;
     }
+
+    private boolean targetOneTestClass = false;
+
+    public boolean shouldTargetOneTestClass() {
+        return this.targetOneTestClass;
+    }
+
+    public InputConfiguration setTargetOneTestClass(boolean targetOneTestClass) {
+        this.targetOneTestClass = targetOneTestClass;
+        return this;
+    }
 }

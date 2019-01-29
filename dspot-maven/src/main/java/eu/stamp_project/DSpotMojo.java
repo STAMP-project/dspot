@@ -111,6 +111,12 @@ public class DSpotMojo extends AbstractMojo {
     private String pathPitResult;
 
     /**
+     *	[optional, expert] enable this option will make DSpot computing the mutation score of only one test class (the first pass through --test command line option)
+     */
+    @Parameter(defaultValue = "false", property = "targetOneTestClass")
+    private Boolean targetOneTestClass;
+
+    /**
      * Enable the descartes engine for Pit Mutant Score Selector.
      */
     @Parameter(defaultValue = "true", property = "descartes")
@@ -253,7 +259,8 @@ public class DSpotMojo extends AbstractMojo {
                     .setGenerateAmplifiedTestClass(this.generateNewTestClass)
                     .setKeepOriginalTestMethods(this.keepOriginalTestMethods)
                     .setOutputDirectory(this.outputPath)
-                    .setUseMavenToExecuteTest(this.useMavenToExeTest);
+                    .setUseMavenToExecuteTest(this.useMavenToExeTest)
+                    .setTargetOneTestClass(this.targetOneTestClass);
 
             if (this.pathPitResult != null && !this.pathPitResult.isEmpty()) {
                 InputConfiguration.get().setSelector(new PitMutantScoreSelector(this.pathPitResult,
