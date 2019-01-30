@@ -121,10 +121,12 @@ public class CloverCoverageSelector extends TakeAllSelector {
                                 .anyMatch(className ->
                                         lineCoveragePerTestMethods.get(testMethodName).get(className)
                                                 .stream()
-                                                .anyMatch(executedLine ->
-                                                        !this.originalLineCoveragePerClass.get(
-                                                                this.configuration.getFactory().Type().get(className)
-                                                        ).contains(executedLine)
+                                                .anyMatch(executedLine -> {
+                                                    Set originalCoverage = this.originalLineCoveragePerClass.get(
+                                                            this.configuration.getFactory().Type().get(className));
+                                                    boolean b = originalCoverage.contains(executedLine);
+                                                    if(!b) { originalCoverage.add(executedLine); }
+                                                    return b;}
                                                 )
                                 )
                 )
