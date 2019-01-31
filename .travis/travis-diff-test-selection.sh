@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+cd dspot-diff-test-selection
+
 # retrieve submodules
 git pull --recurse-submodules && git submodule update --recursive
 
