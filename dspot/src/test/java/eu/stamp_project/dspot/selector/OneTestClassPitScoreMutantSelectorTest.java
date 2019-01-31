@@ -30,6 +30,7 @@ public class OneTestClassPitScoreMutantSelectorTest extends AbstractTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
+        InputConfiguration.get().getBuilder().reset();
         InputConfiguration.get().setTestClasses(Collections.singletonList(FULL_QUALIFIED_NAME_TEST_CLASS));
         InputConfiguration.get().setTargetOneTestClass(true);
     }
