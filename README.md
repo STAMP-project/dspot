@@ -4,7 +4,7 @@
 
 DSpot is a tool that generates missing assertions in JUnit tests.
 DSpot takes as input a Java project with an existing test suite.
-As output, DSpot outputs new test cases on console. 
+DSpot generates new test cases from existing ones and write them on disk. 
 DSpot supports Java projects built with Maven and Gradle (see the `--automatic-builder` option)
 
 DSpot ecosystem:
@@ -65,7 +65,7 @@ See <https://github.com/STAMP-project/dspot/releases>
 
 ## Contributing
 
-DSpot is licensed un LGPLv3. Pull request as are welcome.
+DSpot is licensed under LGPLv3. Contributors and pull requests are welcome.
 
 ## Usage
 
@@ -483,5 +483,5 @@ dspot.amplifyAllTests(); // will amplify all test in the test suite.
 
 ### Acknowledgement
 
-Dspot is partially funded by research project H2020 STAMP.
+Dspot is funded by [EU H2020 research project STAMP](https://www.stamp-project.eu/).
 
