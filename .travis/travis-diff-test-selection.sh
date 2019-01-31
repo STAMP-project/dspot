@@ -3,7 +3,7 @@
 cd dspot-diff-test-selection
 
 # retrieve submodules
-git pull --recurse-submodules && git submodule update --recursive
+git clone https://github.com/bugs-dot-jar/commons-math.git
 
 # build plugin and install it
 mvn install

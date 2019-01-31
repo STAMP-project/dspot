@@ -1,3 +1,0 @@
-[submodule "commons-math"]
-	path = dspot-diff-test-selection/commons-math
-	url = https://github.com/bugs-dot-jar/commons-math.git
