@@ -120,6 +120,7 @@
     <modules>
         <module>dspot</module>
         <module>dspot-maven</module>
+        <module>dspot-prettifier</module>
     </modules>
 
 </project>
