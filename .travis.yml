@@ -9,35 +9,35 @@ sudo: required
 jdk: openjdk8
 
 env:
-#  - SCRIPT=travis-openjdk8.sh
-#- SCRIPT=travis-oraclejdk8.sh
-# - SCRIPT=travis-coverage.sh
-# - SCRIPT=travis-jar.sh
-# - SCRIPT=travis-dspot-maven.sh
-# - SCRIPT=travis-checkstyle.sh
-# - SCRIPT=travis-dhell.sh
-# - SCRIPT=travis-ci-xwiki.sh
+  - SCRIPT=travis-openjdk8.sh
+  - SCRIPT=travis-oraclejdk8.sh
+  - SCRIPT=travis-coverage.sh
+  - SCRIPT=travis-jar.sh
+  - SCRIPT=travis-dspot-maven.sh
+  - SCRIPT=travis-checkstyle.sh
+  - SCRIPT=travis-dhell.sh
+  - SCRIPT=travis-ci-xwiki.sh
   - SCRIPT=travis-diff-test-selection.sh
 #  - SCRIPT=travis-dspot-maven-cmd-line.sh
 
 cache:
   directories:
-    - $HOME/.m2
+  - $HOME/.m2
 
 install:
-  - export DSPOT_VERSION=`grep '<version>' dspot/pom.xml | head -n 1 | sed -e 's/<version>//' -e 's/<\\/version>//' -e 's/ *//g'`
-  - export MAVEN_HOME=`mvn --version | grep 'Maven home' | sed -e 's/Maven h.* //'`
-  - mvn compile
-  - cd dspot && ./src/main/bash/update-classes-in-resources.sh
-  - cd ..
-  - mvn install -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip=true
+- export DSPOT_VERSION=`grep '<version>' dspot/pom.xml | head -n 1 | sed -e 's/<version>//' -e 's/<\\/version>//' -e 's/ *//g'`
+- export MAVEN_HOME=`mvn --version | grep 'Maven home' | sed -e 's/Maven h.* //'`
+- mvn compile
+- cd dspot && ./src/main/bash/update-classes-in-resources.sh
+- cd ..
+- mvn install -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip=true
 
 script:
-  - ./.travis/$SCRIPT $DSPOT_VERSION
+- ./.travis/$SCRIPT $DSPOT_VERSION
 
 after_success:
-  - ./.travis/travis-deploy.sh
+- ./.travis/travis-deploy.sh
 
 branch:
   only:
-    - master
+  - master

@@ -11,7 +11,7 @@
     <artifactId>dspot-diff-test-selection</artifactId>
     <packaging>maven-plugin</packaging>
 
-    <name>DSpot Diff Test Selection</name>
+    <name>DSpot - Diff Test Selection</name>
     <description>This maven plugin provides a list of test classes and their test methods that executes a given changes
         (based on a diff).
     </description>
