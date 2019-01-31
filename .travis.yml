@@ -17,6 +17,7 @@ env:
   - SCRIPT=travis-checkstyle.sh
   - SCRIPT=travis-dhell.sh
   - SCRIPT=travis-ci-xwiki.sh
+  - SCRIPT=travis-diff-test-selection.sh
 #  - SCRIPT=travis-dspot-maven-cmd-line.sh
 
 cache:
