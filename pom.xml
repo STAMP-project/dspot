@@ -121,6 +121,7 @@
         <module>dspot</module>
         <module>dspot-maven</module>
         <module>dspot-prettifier</module>
+    	<module>dspot-diff-test-selection</module>
     </modules>
 
 </project>

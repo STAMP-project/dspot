@@ -1,0 +1,3 @@
+[submodule "commons-math"]
+	path = commons-math
+	url = https://github.com/bugs-dot-jar/commons-math.git
