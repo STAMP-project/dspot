@@ -81,6 +81,7 @@ public class DiffTestSelectionMojo extends AbstractMojo {
         return file.getAbsolutePath();
     }
 
+    @Override
     public void execute() {
         checksArguments();
         final Map<String, Map<String, Map<String, List<Integer>>>> coverage = getCoverage();
@@ -107,7 +108,7 @@ public class DiffTestSelectionMojo extends AbstractMojo {
 
     private Map<String, Set<String>> getTestThatExecuteChanges(Map<String, Map<String, Map<String, List<Integer>>>> coverage) {
         final Map<String, Set<String>> testMethodPerTestClasses = new LinkedHashMap<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(new File(pathToDiff)))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(new File(this.pathToDiff)))) {
             String currentLine = null;
             while ((currentLine = reader.readLine()) != null) {
                 if ((currentLine.startsWith("+++") || currentLine.startsWith("---")) && currentLine.endsWith(".java")) {
