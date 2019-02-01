@@ -55,4 +55,10 @@ public class PitCSVResult extends AbstractPitResult{
                 ", testCase=" + testCase +
                 '}';
     }
+
+    @Override
+    public PitCSVResult clone() {
+        return new PitCSVResult(fullQualifiedNameOfMutatedClass, stateOfMutant, fullQualifiedNameMutantOperator,
+                simpleNameMethod, fullQualifiedNameOfKiller, lineNumber, nameOfMutatedMethod);
+    }
 }

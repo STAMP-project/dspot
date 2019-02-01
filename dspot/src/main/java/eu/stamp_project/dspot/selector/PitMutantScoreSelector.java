@@ -37,6 +37,8 @@ public class PitMutantScoreSelector extends TakeAllSelector {
 
     private List<AbstractPitResult> originalKilledMutants;
 
+    private List<AbstractPitResult> baselineKilledMutants;
+
     private Map<CtMethod, Set<AbstractPitResult>> testThatKilledMutants;
 
     private List<AbstractPitResult> mutantNotTestedByOriginal;
@@ -78,6 +80,11 @@ public class PitMutantScoreSelector extends TakeAllSelector {
             final AutomaticBuilder automaticBuilder = InputConfiguration.get().getBuilder();
             automaticBuilder.runPit();
             initOriginalPitResult(parser.parseAndDelete(this.configuration.getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit()) );
+        } else {
+            baselineKilledMutants = new ArrayList<>();
+            for(AbstractPitResult r : originalKilledMutants) {
+                baselineKilledMutants.add(r.clone());
+            }
         }
     }
 
@@ -92,6 +99,10 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 .filter(result -> result.getStateOfMutant() == AbstractPitResult.State.KILLED)
                 .collect(Collectors.toList());
         LOGGER.info("The original test suite kill {} / {}", this.originalKilledMutants.size(), results.size());
+        baselineKilledMutants = new ArrayList<>();
+        for(AbstractPitResult r : originalKilledMutants) {
+            baselineKilledMutants.add(r.clone());
+        }
     }
 
     @Override
@@ -143,7 +154,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
             // keep results that are new mutant kills not killed, but tested, by original test
             results.stream()
                     .filter(result -> result.getStateOfMutant() == AbstractPitResult.State.KILLED &&
-                            !this.originalKilledMutants.contains(result) &&
+                            !this.baselineKilledMutants.contains(result) &&
                             !this.mutantNotTestedByOriginal.contains(result))
                     .forEach(result -> {
                         CtMethod method = result.getMethod(clone);
@@ -186,7 +197,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         }
 
         // add result to baseline to prohibit selection of identical amplified tests
-        originalKilledMutants.add(result);
+        baselineKilledMutants.add(result);
         return true;
     }
 

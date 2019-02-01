@@ -5,7 +5,7 @@ import spoon.reflect.declaration.CtType;
 
 import java.util.List;
 
-public class AbstractPitResult {
+public abstract class AbstractPitResult {
     public enum State {SURVIVED, KILLED, NO_COVERAGE, TIMED_OUT, NON_VIABLE, MEMORY_ERROR}
 
     protected final String fullQualifiedNameOfMutatedClass;
@@ -77,4 +77,6 @@ public class AbstractPitResult {
             return this.testCase;
         }
     }
+
+    public abstract AbstractPitResult clone();
 }

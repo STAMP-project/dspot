@@ -101,4 +101,11 @@ public class PitXMLResult extends AbstractPitResult {
                 ", detected='" + detected + '\'' +
                 '}';
     }
+
+    @Override
+    public PitXMLResult clone() {
+        return new PitXMLResult(fullQualifiedNameOfMutatedClass, stateOfMutant, fullQualifiedNameMutantOperator,
+                simpleNameMethod, fullQualifiedNameOfKiller, lineNumber, nameOfMutatedMethod, methodDescription,
+                mutationDescription, index, block, numberOfTestsRun, detected);
+    }
 }
