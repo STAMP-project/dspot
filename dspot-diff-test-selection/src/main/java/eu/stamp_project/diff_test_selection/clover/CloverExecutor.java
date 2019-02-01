@@ -1,4 +1,4 @@
-package eu.stamp_project.diff_test_selection;
+package eu.stamp_project.diff_test_selection.clover;
 
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
@@ -29,7 +29,7 @@ public class CloverExecutor {
     /**
      * This class will execute, though maven goals, the instrumentation of Clover and the test of the project
      */
-    void instrumentAndRunTest(String pathToRootOfProject) {
+    public void instrumentAndRunTest(String pathToRootOfProject) {
         setMavenHome();
         runGoals(
                 pathToRootOfProject,

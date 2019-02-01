@@ -1,6 +1,7 @@
 package eu.stamp_project.diff_test_selection.diff;
 
-import org.apache.maven.plugin.logging.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,11 +16,7 @@ public class DiffComputer {
 
     public static final String DIFF_FILE_NAME = "patch.diff";
 
-    private final Log log;
-
-    public DiffComputer(Log log) {
-        this.log = log;
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(DiffComputer.class);
 
     /**
      * This method allows to call a shell command
@@ -28,7 +25,7 @@ public class DiffComputer {
      * @param pathToWorkingDirectory the directory from where the command must be launch
      */
     private void executeCommand(String command, File pathToWorkingDirectory) {
-        this.log.info(String.format("Executing: %s from %s", command,
+        LOGGER.info(String.format("Executing: %s from %s", command,
                 pathToWorkingDirectory != null ?
                         pathToWorkingDirectory.getAbsolutePath() :
                         System.getProperty("user.dir")
@@ -63,10 +60,10 @@ public class DiffComputer {
     }
 
     public void computeDiffWithDiffCommand(File directoryVersionOne, File directoryVersionTwo) {
-        this.log.info("Computing the diff with diff commnd line");
-        this.log.info("The diff will be computed between:");
-        this.log.info(directoryVersionOne.getAbsolutePath() + " and ");
-        this.log.info(directoryVersionTwo.getAbsolutePath());
+        LOGGER.info("Computing the diff with diff commnd line");
+        LOGGER.info("The diff will be computed between:");
+        LOGGER.info(directoryVersionOne.getAbsolutePath() + " and ");
+        LOGGER.info(directoryVersionTwo.getAbsolutePath());
         final String command = String.join(" ", new String[]{
                 "diff",
                 "-ru",

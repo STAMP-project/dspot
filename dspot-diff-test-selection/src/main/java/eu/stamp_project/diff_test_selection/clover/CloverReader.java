@@ -1,9 +1,8 @@
-package eu.stamp_project.diff_test_selection;
+package eu.stamp_project.diff_test_selection.clover;
 
 import com.atlassian.clover.reporters.html.HtmlReporter;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

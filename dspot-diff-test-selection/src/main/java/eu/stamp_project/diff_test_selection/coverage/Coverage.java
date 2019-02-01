@@ -1,6 +1,9 @@
 package eu.stamp_project.diff_test_selection.coverage;
 
+import eu.stamp_project.diff_test_selection.configuration.Options;
 import org.apache.maven.plugin.logging.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -17,12 +20,11 @@ public class Coverage {
 
     private Map<String, Set<Integer>> modifiedLinePerQualifiedName;
 
-    private final Log log;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Coverage.class);
 
-    public Coverage(Log log) {
+    public Coverage() {
         this.modifiedLinePerQualifiedName = new LinkedHashMap<>();
         this.executedLinePerQualifiedName = new LinkedHashMap<>();
-        this.log = log;
     }
 
     public void covered(String fullQualifiedName, Integer line) {
@@ -32,7 +34,7 @@ public class Coverage {
         if (this.modifiedLinePerQualifiedName.containsKey(fullQualifiedName) &&
                 this.modifiedLinePerQualifiedName.get(fullQualifiedName).contains(line)
                 && this.executedLinePerQualifiedName.get(fullQualifiedName).add(line)) {
-            this.log.info(fullQualifiedName + ":" + line + " covered.");
+            LOGGER.info(fullQualifiedName + ":" + line + " covered.");
         }
     }
 
@@ -41,7 +43,7 @@ public class Coverage {
             this.modifiedLinePerQualifiedName.put(fullQualifiedName, new HashSet<>());
         }
         this.modifiedLinePerQualifiedName.get(fullQualifiedName).add(line);
-        log.info(fullQualifiedName + ":" + line + " is modified.");
+        LOGGER.info(fullQualifiedName + ":" + line + " is modified.");
     }
 
     @Deprecated
@@ -54,7 +56,7 @@ public class Coverage {
                             newModifiedLinesPerQualifiedName.get(key)
                                     .forEach(line -> {
                                                 if (this.modifiedLinePerQualifiedName.get(key).add(line)) {
-                                                    log.info(key + ":" + line + " is modified.");
+                                                    LOGGER.info(key + ":" + line + " is modified.");
                                                 }
                                             }
                                     );

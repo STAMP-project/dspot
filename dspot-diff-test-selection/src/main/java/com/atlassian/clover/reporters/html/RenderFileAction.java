@@ -30,7 +30,7 @@ import com.atlassian.clover.reporters.json.JSONException;
 import com.atlassian.clover.reporters.json.JSONObject;
 import com.atlassian.clover.reporters.util.CloverChartFactory;
 import com.atlassian.clover.util.CloverUtils;
-import eu.stamp_project.diff_test_selection.CloverReader;
+import eu.stamp_project.diff_test_selection.clover.CloverReader;
 
 import java.io.File;
 import java.util.ArrayList;
