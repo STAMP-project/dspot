@@ -32,6 +32,8 @@ public class CloverCoverageSelector extends TakeAllSelector {
 
     private Map<CtType<?>, Set<Integer>> originalLineCoveragePerClass;
 
+    private Map<CtType<?>, Set<Integer>> baselineLineCoveragePerClass;
+
     private Coverage initialCoverage;
 
     @Override
@@ -75,6 +77,11 @@ public class CloverCoverageSelector extends TakeAllSelector {
                             )
                     );
 
+        }
+        baselineLineCoveragePerClass = new HashMap<>();
+        for (Map.Entry<CtType<?>, Set<Integer>> entry : originalLineCoveragePerClass.entrySet())
+        {
+            baselineLineCoveragePerClass.put(entry.getKey(),entry.getValue());
         }
         if (testsToBeAmplified.size() > 1) {
             final List<CtMethod<?>> collect = testsToBeAmplified.stream()
@@ -122,11 +129,12 @@ public class CloverCoverageSelector extends TakeAllSelector {
                                         lineCoveragePerTestMethods.get(testMethodName).get(className)
                                                 .stream()
                                                 .anyMatch(executedLine -> {
-                                                    Set originalCoverage = this.originalLineCoveragePerClass.get(
-                                                            this.configuration.getFactory().Type().get(className));
-                                                    boolean b = originalCoverage.contains(executedLine);
-                                                    if(!b) { originalCoverage.add(executedLine); }
-                                                    return b;}
+                                                            Set originalCoverage = this.baselineLineCoveragePerClass.get(
+                                                                    this.configuration.getFactory().Type().get(className));
+                                                            boolean b = originalCoverage.contains(executedLine);
+                                                            if(!b) { originalCoverage.add(executedLine); }
+                                                            return !b;
+                                                        }
                                                 )
                                 )
                 )
