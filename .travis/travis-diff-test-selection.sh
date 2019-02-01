@@ -4,14 +4,10 @@ DPSOT_VERSION=${1}
 
 cd dspot-diff-test-selection
 
-# retrieve submodules
-git clone https://github.com/bugs-dot-jar/commons-math.git
+./src/main/bash/setup-tavern.sh
 
-# build plugin and install it
-mvn install
+cd tavern
 
-# setup commons-math project
-./src/main/bash/setup-commons-math.sh
+git diff refactor > patch.diff
 
-# execute the plugin
-cd commons-math && mvn clean eu.stamp-project:dspot-diff-test-selection:${DSPOT_VERSION}:list -DpathToDiff=".bugs-dot-jar/developer-patch.diff" -DpathToOtherVersion="../commons-math_fixed"
+mvn clean eu.stamp-project:dspot-diff-test-selection:${DSPOT_VERSION}:list -DpathToDiff="patch.diff" -DpathToOtherVersion="../tavern-refactor" eu.stamp-project:dspot-maven:${DSPOT_VERSION}:amplify-unit-tests -Dpath-to-test-list-csv=testsThatExecuteTheChange.csv -Dverbose -Dtest-criterion=ChangeDetectorSelector -Dpath-to-properties=src/main/resources/tavern.properties -Damplifiers=NumberLiteralAmplifier -Diteration=2
