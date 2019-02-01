@@ -1,6 +1,7 @@
 package eu.stamp_project.diff_test_selection;
 
 import eu.stamp_project.diff_test_selection.coverage.Coverage;
+import eu.stamp_project.diff_test_selection.diff.DiffComputer;
 import eu.stamp_project.diff_test_selection.report.CSVReport;
 import eu.stamp_project.diff_test_selection.report.Report;
 import gumtree.spoon.AstComparator;
@@ -29,7 +30,7 @@ public class DiffTestSelectionMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}", required = true)
     private MavenProject project;
 
-    @Parameter(property = "pathToDiff", required = true)
+    @Parameter(property = "pathToDiff")
     private String pathToDiff;
 
     @Parameter(property = "pathToOtherVersion", required = true)
@@ -66,6 +67,11 @@ public class DiffTestSelectionMojo extends AbstractMojo {
 
     private void checksArguments() {
         this.pathToOtherVersion = checksIfExistAndUseAbsolutePath(this.pathToOtherVersion) + "/";
+        if (this.pathToDiff == null || !new File(this.pathToDiff).exists()) {
+            // computing the diff...
+            new DiffComputer(getLog()).computeDiffWithDiffCommand(this.project.getBasedir(), new File(this.pathToOtherVersion));
+            this.pathToDiff = this.project.getBasedir() + "/" + DiffComputer.DIFF_FILE_NAME;
+        }
         this.pathToDiff = checksIfExistAndUseAbsolutePath(this.pathToDiff) + "/";
         if (this.module == null) {
             this.module = "";
