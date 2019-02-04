@@ -1,4 +1,4 @@
-package eu.stamp_project.post_dspot.minimization;
+package eu.stamp_project.prettifier.minimization;
 
 import eu.stamp_project.minimization.GeneralMinimizer;
 import eu.stamp_project.test_framework.TestFramework;
@@ -15,10 +15,7 @@ import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
-import javax.swing.plaf.nimbus.State;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;

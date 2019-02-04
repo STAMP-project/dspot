@@ -1,4 +1,4 @@
-package eu.stamp_project.post_dspot.minimization;
+package eu.stamp_project.prettifier.minimization;
 
 import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.test_framework.TestFramework;

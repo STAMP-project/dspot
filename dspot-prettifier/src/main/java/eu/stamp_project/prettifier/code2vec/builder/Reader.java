@@ -1,4 +1,4 @@
-package eu.stamp_project.post_dspot.code2vec.builder;
+package eu.stamp_project.prettifier.code2vec.builder;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

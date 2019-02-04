@@ -1,4 +1,4 @@
-package eu.stamp_project.post_dspot.minimization;
+package eu.stamp_project.prettifier.minimization;
 
 import spoon.reflect.declaration.CtMethod;
 
