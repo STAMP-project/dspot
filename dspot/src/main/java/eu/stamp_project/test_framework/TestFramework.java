@@ -50,7 +50,7 @@ public class TestFramework implements TestFrameworkSupport {
 
     /**
      * This method says whether the given test method is JUnit 5 or not.
-     *
+
      * For now, only JUnit5 needs to be checked because JUnit3 and JUnit4 can be run with the same test runner and do not required any
      * specific configuration (such as the pom for PIT, see TODO).
      *
@@ -58,8 +58,7 @@ public class TestFramework implements TestFrameworkSupport {
      * @return true if the given ctMethod is a JUnit5, false otherwise.
      */
     public static boolean isJUnit5(CtMethod<?> ctMethod) {
-       InputConfiguration.get().setJUnit5(TestFramework.get().getTestFramework(ctMethod) instanceof JUnit5Support);
-       return InputConfiguration.get().isJUnit5();
+        return TestFramework.get().getTestFramework(ctMethod) instanceof JUnit5Support;
     }
 
     @Override

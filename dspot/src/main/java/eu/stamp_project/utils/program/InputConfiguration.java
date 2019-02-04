@@ -930,7 +930,7 @@ public class InputConfiguration {
      * This boolean says if the current amplification is in JUnit5 or not.
      */
     public boolean isJUnit5() {
-        return isJUnit5;
+        return this.isJUnit5;
     }
 
     public void setJUnit5(boolean JUnit5) {
