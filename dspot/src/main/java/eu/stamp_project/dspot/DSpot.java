@@ -90,7 +90,6 @@ public class DSpot {
         this.amplifiers = new ArrayList<>(amplifiers);
         this.numberOfIterations = numberOfIterations;
         this.testSelector = testSelector;
-        this.testSelector.init(InputConfiguration.get());
 
         String splitter = File.separator.equals("/") ? "/" : "\\\\";
         final String[] splittedPath = InputConfiguration.get().getAbsolutePathToProjectRoot().split(splitter);
