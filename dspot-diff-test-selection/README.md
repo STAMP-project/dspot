@@ -1,63 +1,122 @@
-# diff-test-selection[![Build Status](https://travis-ci.org/STAMP-project/diff-test-selection.svg?branch=master)](https://travis-ci.org/STAMP-project/diff-test-selection)[![Maven Central](https://maven-badges.herokuapp.com/maven-central/eu.stamp-project/diff-test-selection/badge.svg)](https://mavenbadges.herokuapp.com/maven-central/eu.stamp-project/diff-test-selection)
+[![Build Status](https://travis-ci.org/STAMP-project/diff-test-selection.svg?branch=master)](https://travis-ci.org/STAMP-project/diff-test-selection) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/eu.stamp-project/diff-test-selection/badge.svg)](https://mavenbadges.herokuapp.com/maven-central/eu.stamp-project/diff-test-selection)
+# diff-test-selection
 
-A maven plugin that gives the list of test classes, and their test methods, that execute a provided change (as an Unix diff)
+Diff-Test-Selection aims at selecting the subset of test classes and methods that execute the changed code between two versions of the same program. It relies on Clover and Maven to compute the coverage and returns this subset of tests.
+
+Diff-Test-Selection is implemented as a maven plugin that directly works from the command line, without modifying your `pom.xml`. See below for more details.
 
 ## Usage
 
-This plugin is meant to be run without modifying your `pom.xml`.
+We advise you to use the maven plugin. Note that this does not require modifying your `pom.xml`.
 
 You can run it with:
 
 ```shell
-mvn clean eu.stamp-project:diff-test-selection:list -DpathToDiff="<pathToDiff>" -DpathToOtherVersion="<pathToSecondVersion>"
+mvn clean eu.stamp-project:dspot-diff-test-selection:list -Dpath-dir-second-version="<pathToSecondVersion>"
 ```
 
-at the root (where your `pom.xml` is) of your project.
+at the root of your project, where your `pom.xml` is.
 
-The two properties `pathToDiff` and `pathToOtherVersion` are mandatory, see below for more information.
+Only the command-line argument `path-dir-second-version` is mandatory, see below for more information.
 
 ## Properties
 
-* `pathToDiff`: the path (can be relative from the root of the project) of a `.diff` file containing the changes.
+* `path-dir-second-version` \[mandatory\]: the path of the second version of the program (can be relative from the root of the project) 
 
-* `pathToOtherVersion`: the path (can be relative from the root of the project) of the second version of the program. You should obtain it by applying the changes on this project.
+* `output-format`: the kind of report you want to generate. Value: (CSV) (default: CSV)
 
-* `report`: the kind of report you want to generate. Value: (CSV) (default: CSV)
+* `output-path`: the path of the output. The output is dependent of the `report` property  (can be relative from the root of the project)
 
-* `outputPath`: the path (can be relative from the root of the project) of the output. The output is dependent of the `report` property
+* `module`: the relative path of the targeted module from the root of the project.
 
 ## Running Example
 
-You can try the plugin on the provided commons-math example (thanks to [bugs-dot-jar](https://github.com/bugs-dot-jar/bugs-dot-jar).
+We provide an example to try the this plugin. 
 
-1. clone:
-```shell
-git clone --recursive https://github.com/STAMP-project/diff-test-selection.git
-```
-2. build:
-```shell
-mvn install
-```
-3. prepare `commons-math` project:
-```shell
-./src/main/bash/setup-commons-math.sh
-```
-this script makes a copy of commons-math and apply the provided diff.
+First clone this repository.
 
-4. launch the plugin:
-```shell
-cd commons-math
-mvn clean eu.stamp-project:diff-test-selection:list -DpathToDiff=".bugs-dot-jar/developer-patch.diff" -DpathToOtherVersion="../commons-math_fixed" -Dreport=CSV -DoutputPath="testsThatExecuteTheChange.csv"
-```
-You will see a build failure, which is normal and not important (this version of `commons-math` has a bug)
-
-5. you will find in `commons-math` the following file: `testsThatExecuteTheChange.csv` with the content
-```
-org.apache.commons.math.optimization.linear.SimplexSolverTest;testRestrictVariablesToNonNegative;testInfeasibleSolution;testSimplexSolver;testMath272;testModelWithNoArtificialVars;testEpsilon;testSolutionWithNegativeDecisionVariable;testLargeModel;testMath286;testMinimization;testSingleVariableAndConstraint;testTrivialModel;testUnboundedSolution
-org.apache.commons.math.optimization.linear.SimplexTableauTest;testInitialization;testSerial;testdiscardArtificialVariables
+```bash
+git clone https://github.com/STAMP-project/dspot.git
 ```
 
-which is the list of full qualified test classes (1rst column), and their test method names that execute the provided diff.
+Then, go to the test resources of `diff-test-selection`:
+
+```bash
+cd dspot-diff-test-selection/src/test/resources/
+```
+
+In this folder, you have two versions of the same program: `tavern` and `tavern-refactor`.
+
+Now, we will execute `diff-test-selection` on tavern and selects the subset of test that execute the changes:
+
+```bash
+cd tavern
+mvn clean eu.stamp-project:dspot-diff-test-selection:list -Dpath-dir-second-version=../tavern-refactor
+```
+
+You should observe the following on the standard output:
+
+```text
+[INFO] Saving result in /home/bdanglot/workspace/dspot/dspot-diff-test-selection/src/test/resources/tavern/testsThatExecuteTheChange.csv ...
+[INFO] fr.inria.stamp.MainTest;test
+[INFO] Writing Coverage in /home/bdanglot/workspace/dspot/dspot-diff-test-selection/src/test/resources/tavern/testsThatExecuteTheChange_coverage.csv
+[INFO] fr.inria.stamp.tavern.Seller;12;13
+```
+
+This means that test method `fr.inria.stamp.MainTest#test` is the only one that executes the changes introduced by the refactoring.
+
+Two files are produced `testsThatExecuteTheChange.csv` and `testsThatExecuteTheChange_coverage.csv` which are respectively the subset of test classes and their test methods that execute the changes in a CSV format, and the changed line coverage of each test class.
+
+## Use case example with DSpot
+
+In this section, we present a use case example that uses DSpot and `dspot-diff-test-selection` in order to detect some regression introduced in the changes. This is meant to be used in continuous integration.
+
+First, let's have a look to the test resources of `dspot-diff-test-selection`:
+
+```bash
+cd dspot-diff-test-selection/src/test/resources/
+``` 
+
+In this folder, you have two versions of the same program: `tavern` and `tavern-refactor`.
+
+Let's consider the first one, `tavern` as the `master` branch and `tavern-refactor` as a refactor branch that a developer created. This developer wants to merge its changes in a pull request.
+The CI is triggered when the pull request is opened. Typically, the CI will execute the test suite and a bunch of scripts to verify that the program is correct.
+
+Here, we can enhance this verification with `DSpot` and `dspot-diff-test-selection` as follow:
+
+1. We compute the subset of test classes and their test methods that execute the changes with `dspot-diff-test-selection`.
+2. We amplify the selected test methods using `DSpot` and the `ChangeDetectorSelector`.
+3. The amplified test methods are test methods that pass on the master but fail on the refactor branch, meaning that they catch the behavioral change.
+
+Since the proposed change is a refactoring, and thus a refactoring should not modify the behavior of the program, it means that the changes contains a regression.
+
+This is done with one single command line as follow:
+
+```bash
+mvn clean eu.stamp-project:dspot-diff-test-selection:list \
+    -Dpath-dir-second-version="../tavern-refactor" \
+    eu.stamp-project:dspot-maven:amplify-unit-tests \
+    -Dpath-to-test-list-csv=testsThatExecuteTheChange.csv \
+    -Dverbose -Dtest-criterion=ChangeDetectorSelector \
+    -Dpath-to-properties=src/main/resources/tavern.properties \
+    -Damplifiers=NumberLiteralAmplifier -Diteration=2
+```
+
+This results in on the standard output:
+
+```text
+======= REPORT =======
+5 amplified test fails on the new versions.
+testlitNum10litNum158(fr.inria.stamp.MainTest): expected:<Seller{gold=[-2147483548], items=[Potion]}> but was:<Seller{gold=[100], items=[Potion]}>
+testlitNum11litNum117(fr.inria.stamp.MainTest): expected:<...ayer{gold=0, items=[[Potion]]}> but was:<...ayer{gold=0, items=[[]]}>
+testlitNum16litNum107(fr.inria.stamp.MainTest): expected:<Seller{gold=[-2147483548], items=[Potion]}> but was:<Seller{gold=[100], items=[Potion]}>
+testlitNum15litNum155(fr.inria.stamp.MainTest): expected:<Seller{gold=[-2147483549], items=[Potion]}> but was:<Seller{gold=[100], items=[Potion]}>
+testlitNum9litNum210(fr.inria.stamp.MainTest): expected:<Seller{gold=[-2147483549], items=[Potion]}> but was:<Seller{gold=[100], items=[Potion]}>
+```
+
+This means that DSpot obtained 5 amplified test methods that detect the regression.  
+
+Note: The `ChangeDetectorSelector` keeps amplified test methods that pass on one version of the program but fail on another one, _c.f._  `DSpot`'s[`README.md`](https://github.com/STAMP-project/dspot/blob/master/README.md) for more information.  
 
 ## Support on diff
 
@@ -79,15 +138,13 @@ patch -p1 <patch.diff
 ```
 at the root of the diff (make sure by checking the path in the diff).
 
-
 Please, open an issue if you have any question / suggestion. Pull request are welcome! 😃
 
 ### Licence
 
-Diff-Test-Selection is published under LGPL-3.0 (see [Licence.md](https://github.com/STAMP-project/testrunner/blob/master/LICENSE) for
-further details).
+Diff-Test-Selection is published under LGPL-3.0 (see [Licence.md](https://github.com/STAMP-project/testrunner/blob/master/LICENSE) for further details).
 
 ### Funding
 
-Diff-Test-Selection is partially funded by research project STAMP (European Commission - H2020)
+Diff-Test-Selection is funded by research project STAMP (European Commission - H2020)
 ![STAMP - European Commission - H2020](docs/logo_readme_md.png)
