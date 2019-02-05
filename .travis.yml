@@ -18,7 +18,8 @@ env:
   - SCRIPT=travis-dhell.sh
   - SCRIPT=travis-ci-xwiki.sh
   - SCRIPT=travis-diff-test-selection.sh
-#  - SCRIPT=travis-dspot-maven-cmd-line.sh
+  - SCRIPT=travis-prettifier.sh
+#  - SCRIPT=travis-dspot-maven-cmd-line.sh TODO FIXME
 
 cache:
   directories:

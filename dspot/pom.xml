@@ -11,7 +11,7 @@
     <artifactId>dspot</artifactId>
     <packaging>jar</packaging>
 
-    <name>DSpot</name>
+    <name>DSpot - Core</name>
 
     <repositories>
         <repository>
