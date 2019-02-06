@@ -21,6 +21,26 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>tmpDir/</directory>
+                        </fileset>
+                        <fileset>
+                            <directory>src/test/resources/</directory>
+                            <includes>
+                                <include>sample//target/</include>
+                            </includes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+
         </plugins>
 
     </build>
