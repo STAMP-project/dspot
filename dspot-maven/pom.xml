@@ -50,6 +50,7 @@
                             <directory>src/test/resources/</directory>
                             <includes>
                                 <include>test-projects/target/</include>
+                                <include>multi-module/module/target/</include>
                             </includes>
                             <followSymlinks>false</followSymlinks>
                         </fileset>
