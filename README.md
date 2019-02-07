@@ -174,11 +174,13 @@ You can execute DSpot using the maven plugin. You can use this plugin on the com
 mvn eu.stamp-project:dspot-maven:amplify-unit-tests
 ```  
 
+Replace `LATEST` with the latest DSpot version number available at Maven central: 1.2.3
+
 All the option can be pass through command line by prefixing the option with `-D`.
 For example: 
 
 ```bash
-mvn eu.stamp-project:dspot-maven:amplify-unit-tests -Dpath-to-properties=dspot.properties -Dtest=my.package.TestClass -Dcases=testMethod
+mvn eu.stamp-project:dspot-maven:LATEST:amplify-unit-tests -Dpath-to-properties=dspot.properties -Dtest=my.package.TestClass -Dcases=testMethod
 ```
 
 or, you can add the following to your `pom.xml`, in the plugins section of the build:
