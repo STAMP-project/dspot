@@ -80,7 +80,7 @@ public class AssertionRemover {
                 }
                 if (clone instanceof CtStatement) {
                     invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, (CtStatement) clone);
-                } else if (!(clone instanceof CtLiteral || clone instanceof CtVariableRead)) {
+                } else if (!(clone instanceof CtLiteral || clone instanceof CtVariableRead) && !(clone instanceof CtLambda)) {
                     CtTypeReference<?> typeOfParameter = clone.getType();
                     if (clone.getType()  == null || factory.Type().NULL_TYPE.equals(clone.getType())) {
                         typeOfParameter = factory.Type().createReference(Object.class);
