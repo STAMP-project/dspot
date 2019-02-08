@@ -171,14 +171,14 @@ java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --path-to-properties d
 You can execute DSpot using the maven plugin. You can use this plugin on the command line as the jar:
 
 ```bash
-mvn eu.stamp-project:dspot-maven:LATEST:amplify-unit-tests
+mvn eu.stamp-project:dspot-maven:amplify-unit-tests
 ```  
 
 All the option can be pass through command line by prefixing the option with `-D`.
 For example: 
 
 ```bash
-mvn eu.stamp-project:dspot-maven:LATEST:amplify-unit-tests -Dpath-to-properties dspot.properties -Dtest my.package.TestClass -Dcases testMethod
+mvn eu.stamp-project:dspot-maven:amplify-unit-tests -Dpath-to-properties=dspot.properties -Dtest=my.package.TestClass -Dcases=testMethod
 ```
 
 or, you can add the following to your `pom.xml`, in the plugins section of the build:
@@ -193,6 +193,7 @@ or, you can add the following to your `pom.xml`, in the plugins section of the b
     </configuration>
 </plugin>
 ```
+Replace `LATEST` with the latest DSpot version number available at Maven central: `2.0.0`
 
 In case your project is a multi-module, we advise you to configure DSpot in the highest `pom.xml` and use the dedicated property `targetModule` to name the module you want to amplify
 
