@@ -172,8 +172,11 @@ public class AssertGeneratorHelper {
                 );
                 insertAfter = invocation;
             } else {
-                final CtLocalVariable localVariable = stmt.getFactory().createLocalVariable(invocation.getType(),
-                        "o_" + id, invocation.clone());
+                final CtLocalVariable localVariable = stmt.getFactory().createLocalVariable(
+                        getCorrectTypeOfInvocation(invocation),
+                        "o_" + id,
+                        invocation.clone()
+                );
                 try {
                     stmt.replace(localVariable);
                 } catch (ClassCastException e) {
@@ -202,6 +205,12 @@ public class AssertGeneratorHelper {
                 getSize(stmt.getParent(CtMethod.class).getBody()) + 1 < 65535) {
             stmt.getParent(CtBlock.class).insertEnd(invocationToObjectLogAtTheEnd);
         }
+    }
+
+    public static CtTypeReference getCorrectTypeOfInvocation(CtInvocation<?> invocation) {
+        final CtTypeReference type = invocation.getType().clone();
+        type.getActualTypeArguments().removeIf(CtTypeReference::isGenerics);
+        return type;
     }
 
     private static final Predicate<CtStatement> shouldAddLogEndStatement = statement -> {

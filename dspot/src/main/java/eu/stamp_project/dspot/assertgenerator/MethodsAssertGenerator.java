@@ -88,19 +88,18 @@ public class MethodsAssertGenerator {
                                     this.variableReadsAsserted.get(ctMethod)
                             );
                         }
-                ).collect(Collectors.toList());
+                ).filter(ctMethod -> !ctMethod.getBody().getStatements().isEmpty())
+                .collect(Collectors.toList());
+        if (testCasesWithLogs.isEmpty()) {
+            LOGGER.warn("Could not continue the assertion amplification since all the instrumented test have an empty body.");
+            return testCasesWithLogs;
+        }
         final List<CtMethod<?>> testsToRun = new ArrayList<>();
         IntStream.range(0, 3).forEach(i -> testsToRun.addAll(
                 testCasesWithLogs.stream()
                         .map(CtMethod::clone)
-                        .map(ctMethod -> {
-                            ctMethod.setSimpleName(ctMethod.getSimpleName() + i);
-                            return ctMethod;
-                        })
-                        .map(ctMethod -> {
-                            clone.addMethod(ctMethod);
-                            return ctMethod;
-                        })
+                        .peek(ctMethod -> ctMethod.setSimpleName(ctMethod.getSimpleName() + i))
+                        .peek(clone::addMethod)
                         .collect(Collectors.toList())
         ));
         ObjectLog.reset();
@@ -173,7 +172,9 @@ public class MethodsAssertGenerator {
                             statementToBeAsserted.getParent() instanceof CtBlock) {
                         CtInvocation invocationToBeReplaced = (CtInvocation) statementToBeAsserted.clone();
                         final CtLocalVariable localVariable = factory.createLocalVariable(
-                                invocationToBeReplaced.getType(), "o_" + id.split("___")[0], invocationToBeReplaced
+                                AssertGeneratorHelper.getCorrectTypeOfInvocation(invocationToBeReplaced),
+                                "o_" + id.split("___")[0],
+                                invocationToBeReplaced
                         );
                         statementToBeAsserted.replace(localVariable);
                         DSpotUtils.addComment(localVariable, "AssertGenerator create local variable with return value of invocation", CtComment.CommentType.INLINE);

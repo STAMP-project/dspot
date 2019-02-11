@@ -223,7 +223,12 @@ public class AssertGeneratorTest extends AbstractTest {
             "}";
 
     @Test
-    public void testMakeFailureTest() throws Exception {
+    public void testCannotGenerateTestOnEmptyBodyTest() throws Exception {
+
+        /*
+            Test that when the test has an empty body.
+         */
+
         CtClass<?> testClass = Utils.findClass("fr.inria.filter.failing.FailingTest");
         final CtMethod testAssertionError = Utils.findMethod("fr.inria.filter.failing.FailingTest", "testAssertionError");
         final List<CtMethod<?>> generatedAssertion = assertGenerator.assertionAmplification(testClass, Collections.singletonList(testAssertionError));
@@ -232,9 +237,15 @@ public class AssertGeneratorTest extends AbstractTest {
 
     @Test
     public void testMakeExpectedFailureTest() throws Exception {
+
+        /*
+            Test that DSpot generate a try catch fail block when a Exception is thrown
+         */
+
         CtClass<?> testClass = Utils.findClass("fr.inria.filter.passing.PassingTest");
         final CtMethod testAssertionError = Utils.findMethod("fr.inria.filter.passing.PassingTest", "testNPEExpected");
         final List<CtMethod<?>> generatedAssertion = assertGenerator.assertionAmplification(testClass, Collections.singletonList(testAssertionError));
+        System.out.println(generatedAssertion);
         assertFalse(generatedAssertion.isEmpty());
     }
 }
