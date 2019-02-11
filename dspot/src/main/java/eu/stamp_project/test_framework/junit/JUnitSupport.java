@@ -136,7 +136,9 @@ public abstract class JUnitSupport extends AbstractTestFramework {
         CtTry tryBlock = factory.Core().createTry();
         tryBlock.setBody(test.getBody());
         String snippet = this.qualifiedNameOfAssertClass + ".fail(\"" + test.getSimpleName() + " should have thrown " + simpleNameOfException + "\")";
-        tryBlock.getBody().addStatement(factory.Code().createCodeSnippetStatement(snippet));
+        final CtCodeSnippetStatement failStatement = factory.Code().createCodeSnippetStatement(snippet);
+        failStatement.putMetadata(AssertGeneratorHelper.METADATA_ASSERT_AMPLIFICATION, true);
+        tryBlock.getBody().addStatement(failStatement);
         DSpotUtils.addComment(tryBlock, "AssertGenerator generate try/catch block with fail statement", CtComment.CommentType.INLINE);
 
         CtCatch ctCatch = factory.Core().createCatch();

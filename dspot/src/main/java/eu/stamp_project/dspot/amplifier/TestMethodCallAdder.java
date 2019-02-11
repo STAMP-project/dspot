@@ -24,6 +24,7 @@ public class TestMethodCallAdder implements Amplifier {
                 @Override
                 public boolean matches(CtInvocation<?> element) {
                     return AmplificationChecker.canBeAdded(element) &&
+                            !TestFramework.get().isInAssert(element) &&
                             !TestFramework.get().isAssert(element);
                 }
             });

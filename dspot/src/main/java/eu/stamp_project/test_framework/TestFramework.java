@@ -1,5 +1,6 @@
 package eu.stamp_project.test_framework;
 
+import eu.stamp_project.dspot.assertgenerator.AssertGeneratorHelper;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.test_framework.junit.JUnit3Support;
 import eu.stamp_project.test_framework.junit.JUnit4Support;
@@ -50,7 +51,6 @@ public class TestFramework implements TestFrameworkSupport {
 
     /**
      * This method says whether the given test method is JUnit 5 or not.
-
      * For now, only JUnit5 needs to be checked because JUnit3 and JUnit4 can be run with the same test runner and do not required any
      * specific configuration (such as the pom for PIT, see TODO).
      *
@@ -63,6 +63,11 @@ public class TestFramework implements TestFrameworkSupport {
 
     @Override
     public boolean isAssert(CtInvocation<?> invocation) {
+        // check if the given invocation is an amplified assertion. In this case, we can return directly true.
+        if (invocation.getMetadata(AssertGeneratorHelper.METADATA_ASSERT_AMPLIFICATION) != null &&
+                (boolean) invocation.getMetadata(AssertGeneratorHelper.METADATA_ASSERT_AMPLIFICATION)) {
+            return true;
+        }
         for (TestFrameworkSupport testFrameworkSupport : this.testFrameworkSupportList) {
             if (testFrameworkSupport.isAssert(invocation)) {
                 return true;
@@ -83,7 +88,8 @@ public class TestFramework implements TestFrameworkSupport {
     @Override
     public boolean isInAssert(CtElement candidate) {
         if (candidate.getParent(CtInvocation.class) != null) {
-            return isAssert(candidate.getParent(CtInvocation.class));
+            return isAssert(candidate.getParent(CtInvocation.class)) ||
+                    isInAssert(candidate.getParent());
         } else {
             return false;
         }

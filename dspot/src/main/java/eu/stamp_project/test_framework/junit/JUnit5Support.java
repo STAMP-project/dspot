@@ -1,5 +1,6 @@
 package eu.stamp_project.test_framework.junit;
 
+import eu.stamp_project.dspot.assertgenerator.AssertGeneratorHelper;
 import eu.stamp_project.testrunner.runner.Failure;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtFieldRead;
@@ -55,6 +56,7 @@ public class JUnit5Support extends JUnitSupport {
         invocation.setExecutable(executableReference);
         invocation.setType(factory.Type().voidPrimitiveType());
         invocation.setTarget(factory.createTypeAccess(factory.Type().createReference(this.qualifiedNameOfAssertClass)));
+        invocation.putMetadata(AssertGeneratorHelper.METADATA_ASSERT_AMPLIFICATION, true);
 
         final CtTypeReference<?> ctTypeOfException = factory.Type().createReference(failure.fullQualifiedNameOfException);
         final CtFieldRead<?> fieldRead = factory.createFieldRead();

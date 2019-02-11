@@ -14,21 +14,12 @@ import java.util.List;
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
  */
-
+@Deprecated
 public class AmplificationChecker {
 
     public static boolean isCase(CtLiteral literal) {
         return literal.getParent(CtCase.class) != null;
     }
-
-    private final static List<String> ASSERTIONS_PACKAGES =
-            Arrays.asList(
-                    "org.junit.Assert", // JUnit 4
-                    "org.junit.jupiter.api.Assertions", // JUnit 5
-                    "com.google.common.truth.*", // TODO Truth
-                    "org.assertj.core.api.*", //  assertJ
-                    "junit.framework.TestCase" // JUnit 3
-            );
 
     public static boolean canBeAdded(CtInvocation invocation) {
         return !invocation.toString().startsWith("super(");// && invocation.getParent() instanceof CtBlock;

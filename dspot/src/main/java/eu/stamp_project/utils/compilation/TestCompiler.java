@@ -155,19 +155,6 @@ public class TestCompiler {
                     .map(CtMethod::getSimpleName)
                     .map(methodName -> (CtMethod<?>) testClassToBeCompiled.getMethodsByName(methodName).get(0))
                     .collect(Collectors.toList());
-
-            // TODO can't remember why I did that
-            /*final List<CtMethod<?>> methodToKeep = newModelCtClass.getMethods().stream()
-                    .filter(ctMethod -> ctMethod.getBody().getStatements().stream()
-                            .anyMatch(statement ->
-                                    !(statement instanceof CtComment) && !methodsToRemove.contains(ctMethod)))
-                    .collect(Collectors.toList());
-
-            methodsToRemove.addAll(
-                    newModelCtClass.getMethods().stream()
-                            .filter(ctMethod -> !methodToKeep.contains(ctMethod))
-                            .collect(Collectors.toList())
-            );*/
             methodsToRemoveInOriginalModel.forEach(testClassToBeCompiled::removeMethod);
             final List<CtMethod<?>> recursiveMethodToRemove =
                     compileAndDiscardUncompilableMethods(compiler, testClassToBeCompiled, dependencies, numberOfTry + 1);
