@@ -90,6 +90,10 @@ public class MethodsAssertGenerator {
                         }
                 ).filter(ctMethod -> !ctMethod.getBody().getStatements().isEmpty())
                 .collect(Collectors.toList());
+        if (testCasesWithLogs.isEmpty()) {
+            LOGGER.warn("Could not continue the assertion amplification since all the instrumented test have an empty body.");
+            return testCasesWithLogs;
+        }
         final List<CtMethod<?>> testsToRun = new ArrayList<>();
         IntStream.range(0, 3).forEach(i -> testsToRun.addAll(
                 testCasesWithLogs.stream()
