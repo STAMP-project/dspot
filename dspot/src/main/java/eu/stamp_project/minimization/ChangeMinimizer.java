@@ -52,6 +52,8 @@ public class ChangeMinimizer extends GeneralMinimizer {
     public CtMethod<?> minimize(CtMethod<?> amplifiedTestToBeMinimized) {
         final CtMethod<?> generalMinimize = super.minimize(amplifiedTestToBeMinimized);
         final CtMethod<?> changeMinimize = generalMinimize.clone();
+        //Optimization: Tracking bound to the original method for future caching of associated TestFramework
+        AmplificationHelper.addTestBindingToOriginal(changeMinimize, generalMinimize);
         final long time = System.currentTimeMillis();
         final Failure failureToKeep = this.failurePerAmplifiedTest.get(amplifiedTestToBeMinimized);
         final List<CtInvocation> assertions = changeMinimize.filterChildren(TestFramework.ASSERTIONS_FILTER).list();
@@ -101,6 +103,8 @@ public class ChangeMinimizer extends GeneralMinimizer {
                                       CtInvocation<?> invocation,
                                       Failure failureToKeep) {
         final CtMethod<?> clone = amplifiedTestToBeMinimized.clone();
+       //Optimization: Tracking bound to the original method for future caching of associated TestFramework
+        AmplificationHelper.addTestBindingToOriginal(clone, amplifiedTestToBeMinimized);
         clone.getBody().removeStatement(invocation);
         if (checkIfMinimizationIsOk(clone, failureToKeep)) {
             amplifiedTestToBeMinimized.getBody().removeStatement(invocation);

@@ -43,6 +43,20 @@ public class CloneHelper {
     public static CtMethod cloneTestMethodNoAmp(CtMethod method) {
         return cloneTestMethod(method, "");
     }
+    
+    /**
+     * Clones a method and registers its bound to the original method.
+     *
+     * @param method Method to be cloned
+     * @return The cloned method
+     */
+    
+    public static CtMethod<?> cloneMethod(CtMethod<?> method) {
+        CtMethod cloned_method = method.clone();
+        //Optimization: Tracking bound to original method
+        AmplificationHelper.addTestBindingToOriginal(cloned_method, method);
+        return cloned_method;
+    }
 
     /**
      * Clones a method.
@@ -52,7 +66,8 @@ public class CloneHelper {
      * @return The cloned method
      */
     public static CtMethod cloneMethod(CtMethod<?> method, String suffix) {
-        CtMethod cloned_method = method.clone();
+        CtMethod cloned_method = cloneMethod(method);
+        
         //rename the clone
         cloned_method.setSimpleName(method.getSimpleName() + (suffix.isEmpty() ? "" : suffix + cloneNumber));
         cloneNumber++;

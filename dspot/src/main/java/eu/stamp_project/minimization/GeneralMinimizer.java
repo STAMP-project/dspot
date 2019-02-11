@@ -1,6 +1,7 @@
 package eu.stamp_project.minimization;
 
 import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,8 @@ public class GeneralMinimizer implements Minimizer {
     @Override
     public CtMethod<?> minimize(CtMethod<?> amplifiedTestToBeMinimized) {
         final CtMethod<?> clone = amplifiedTestToBeMinimized.clone();
+        //Optimization: Tracking bound to the original method for future caching of associated TestFramework
+        AmplificationHelper.addTestBindingToOriginal(clone, amplifiedTestToBeMinimized);
         final long time = System.currentTimeMillis();
         LOGGER.info("Inlining one time used variables...");
         inlineLocalVariable(clone);
