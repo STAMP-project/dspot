@@ -40,6 +40,7 @@ public class Main {
             try {
                 path = cloner.clone(userAndProject);
             } catch (Exception e) {
+                e.printStackTrace();
                 report.addToGivenMap(report.getErrorDuringCloning(), userAndProject, e);
                 continue;
             }
@@ -55,6 +56,7 @@ public class Main {
                 cloner.output(); // add current sha to shaPerProject file
                 LOGGER.info("{}: {}", userAndProject, numbersOfMethodsPerSet.toString());
             } catch (Exception e) {
+                e.printStackTrace();
                 report.addToGivenMap(report.getErrorDuringMethodExtraction(), userAndProject, e);
                 continue;
             }
