@@ -2,6 +2,10 @@ package eu.stamp_project.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtPackage;
 import spoon.reflect.reference.CtTypeReference;
 
 import java.util.*;
@@ -92,5 +96,26 @@ public class TypeUtils {
             LOGGER.warn("Error during checkEnum isString on {}", type.toString());
 		}
 		return false;
+	}
+	
+	/**
+	 * Returns the full Java qualified name of a method
+	 * @param method
+	 * @return qualified name
+	 */
+	public static String getQualifiedName (CtMethod method) {
+		StringBuilder qualifiedName = new StringBuilder();
+		if (method!=null) {
+			if (method.getParent() instanceof CtClass) {
+				if (method.getParent().getParent() instanceof CtPackage) {
+					qualifiedName.append(method.getParent().getParent());
+					qualifiedName.append(".");
+				}
+				qualifiedName.append(((CtClass)method.getParent()).getSimpleName());
+				qualifiedName.append(".");
+			}
+			qualifiedName.append(method.getSimpleName());
+		}
+		return qualifiedName.toString();
 	}
 }
