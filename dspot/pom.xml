@@ -111,6 +111,12 @@
             <artifactId>gumtree-spoon-ast-diff</artifactId>
             <version>${gumtree.spoon.ast.diff.version}</version>
         </dependency>
+        
+        <dependency>
+      		<groupId>org.ehcache</groupId>
+      		<artifactId>ehcache</artifactId>
+      		<version>3.6.1</version>
+    	</dependency>
 
         <dependency>
             <groupId>org.ehcache</groupId>
