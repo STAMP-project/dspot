@@ -56,6 +56,7 @@ public class AmplificationHelper {
     //(Optimisation) - trace bounds between cloned test methods and their original ones
     //This additional map is added (and ampTestToParent is not used) because
     //existing map does not account for all cloned test methods
+
     private static Map<CtMethod<?>, CtMethod> originalTestBindings = new IdentityHashMap<>();
 
     @Deprecated
