@@ -55,7 +55,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
         );*/
         correctTypeOfInvocation = AssertGeneratorHelper.getCorrectTypeOfInvocation(invocations.get(2));
         assertEquals("doest not have the correct type",
-                "fr.inria.ClassWithSpecificReturnType.Element<String>",
+                "fr.inria.ClassWithSpecificReturnType.Element<java.lang.String>",
                 correctTypeOfInvocation.toString()
         );
     }
