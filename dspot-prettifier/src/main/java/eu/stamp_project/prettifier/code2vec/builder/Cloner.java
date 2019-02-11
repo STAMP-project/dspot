@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +36,10 @@ public class Cloner {
     private static final String FILENAME = Main.ROOT_PATH_DATA + "shaPerProject.txt";
 
     public Cloner() {
+        if (!new File(FILENAME).exists()) {
+            this.shaPerProject = new HashMap<>();
+            return;
+        }
         try (BufferedReader reader = new BufferedReader(new FileReader(FILENAME))) {
             this.shaPerProject = reader.lines().collect(
                     Collectors.toMap(
@@ -73,8 +78,8 @@ public class Cloner {
      * @return the path to the tmp directory created
      */
     public Path clone(String userAndProject) throws Exception {
-        LOGGER.info("Cloning {}...", userAndProject);
         this.currentPath = Files.createTempDirectory(PREFIX);
+        LOGGER.info("Cloning {} in ", userAndProject, this.currentPath.toString());
         Git.cloneRepository()
                 .setURI(URL_GH + userAndProject)
                 .setDirectory(currentPath.toFile())
