@@ -67,7 +67,6 @@ public class CloneHelper {
      */
     public static CtMethod cloneMethod(CtMethod<?> method, String suffix) {
         CtMethod cloned_method = cloneMethod(method);
-
         //rename the clone
         cloned_method.setSimpleName(method.getSimpleName() + (suffix.isEmpty() ? "" : suffix + cloneNumber));
         cloneNumber++;
