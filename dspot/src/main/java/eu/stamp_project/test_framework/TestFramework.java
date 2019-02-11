@@ -7,10 +7,7 @@ import eu.stamp_project.test_framework.junit.JUnit5Support;
 import eu.stamp_project.testrunner.runner.Failure;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotCache;
-<<<<<<< HEAD
 import eu.stamp_project.utils.TypeUtils;
-=======
->>>>>>> DSpot optimization using caching of Test Framework associated to cloned test methods
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,7 +122,6 @@ public class TestFramework implements TestFrameworkSupport {
     	//Get original test method, using bounds of cloned methods in AmplificationHelper
     	CtMethod<?> originalMethod = AmplificationHelper.getOriginalTest(testMethod);
     	//Retrieving associated test framework from cache
-<<<<<<< HEAD
     	TestFrameworkSupport tfs = DSpotCache.getTestFrameworkCache().get(TypeUtils.getQualifiedName(originalMethod));
     	if (tfs == null){ //If not cached, test framework is computed and stored in cache.
     		tfs = getTestFrameworkImpl (testMethod);
@@ -133,16 +129,7 @@ public class TestFramework implements TestFrameworkSupport {
     	}
     	return tfs;
     }
-=======
-    	TestFrameworkSupport tfs = DSpotCache.getTestFrameworkCache().get(originalMethod.getSimpleName());
-    	if (tfs == null){ //If not cached, test framework is computed and stored in cache.
-    		tfs = getTestFrameworkImpl (testMethod);
-    		DSpotCache.getTestFrameworkCache().put(originalMethod.getSimpleName(), tfs);
-    	}
-    	return tfs;
-    }
-    	
->>>>>>> DSpot optimization using caching of Test Framework associated to cloned test methods
+
     // This method identify the test framework support used in the given test method
     // The idea is to generate assertions that look like the original one,
     // i.e. if the developer used JUnit4, we should generate JUnit4 assertions
