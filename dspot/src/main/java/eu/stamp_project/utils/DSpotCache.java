@@ -7,6 +7,7 @@ import org.ehcache.config.builders.CacheManagerBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 
 import eu.stamp_project.test_framework.TestFrameworkSupport;
+import eu.stamp_project.utils.program.ConstantsProperties;
 
 public class DSpotCache {
 	private static Cache<String, TestFrameworkSupport> frameworkCache;
@@ -15,7 +16,8 @@ public class DSpotCache {
 	static {
 		cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
 				.withCache("frameworkCache", CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class,
-						TestFrameworkSupport.class, ResourcePoolsBuilder.heap(10000)).build())
+						TestFrameworkSupport.class, ResourcePoolsBuilder.heap(
+								Long.parseLong(ConstantsProperties.CACHE_SIZE.getDefaultValue()))).build())
 				.build(true);
 
 		frameworkCache = cacheManager.getCache("frameworkCache", String.class, TestFrameworkSupport.class);
