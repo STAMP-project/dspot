@@ -9,7 +9,6 @@ import org.ehcache.config.builders.ResourcePoolsBuilder;
 import eu.stamp_project.test_framework.TestFrameworkSupport;
 import eu.stamp_project.utils.program.ConstantsProperties;
 
-
 public class DSpotCache {
 	private static Cache<String, TestFrameworkSupport> frameworkCache;
 	private static CacheManager cacheManager;
