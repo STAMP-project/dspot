@@ -1,10 +1,13 @@
 package eu.stamp_project.prettifier.code2vec.builder;
 
 import eu.stamp_project.utils.DSpotUtils;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtType;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
@@ -40,6 +43,7 @@ public class Main {
             try {
                 path = cloner.clone(userAndProject);
             } catch (Exception e) {
+                e.printStackTrace();
                 report.addToGivenMap(report.getErrorDuringCloning(), userAndProject, e);
                 continue;
             }
@@ -54,7 +58,13 @@ public class Main {
                 report.addNumberOfMethodsPerSetPerProject(userAndProject, numbersOfMethodsPerSet);
                 cloner.output(); // add current sha to shaPerProject file
                 LOGGER.info("{}: {}", userAndProject, numbersOfMethodsPerSet.toString());
+                LOGGER.info("Deleting now {} for saving space...", path.toString());
+                FileUtils.forceDelete(new File(path.toString()));
+            } catch (IOException ignored) {
+                LOGGER.warn("Something went bad while trying to delete the fresh clone of {}.", userAndProject);
+                LOGGER.warn("This is not a big deal, DSpot-Prettifier will proceed...");
             } catch (Exception e) {
+                e.printStackTrace();
                 report.addToGivenMap(report.getErrorDuringMethodExtraction(), userAndProject, e);
                 continue;
             }
