@@ -14,6 +14,14 @@ import static org.junit.Assert.assertTrue;
 public class TestClassWithAssert extends TestClassWithAssertOld {
 
     @Test
+    public void testWithALambda() {
+        org.junit.jupiter.api.Assertions.assertThrows(NullPointerException.class,
+                () -> {
+
+                });
+    }
+
+    @Test
     public void testWithCatchVariable() throws Exception {
         try {
             System.out.println("");
@@ -69,6 +77,6 @@ public class TestClassWithAssert extends TestClassWithAssertOld {
 
     @Test
     public void testWithArray() throws Exception {
-        assertEquals(new Integer[]{1,2}, new Integer[]{1,2});
+        assertEquals(new Integer[]{1, 2}, new Integer[]{1, 2});
     }
 }
