@@ -32,7 +32,7 @@ public class Cloner {
 
     public static String URL_GH = "https://github.com/";
 
-    private static final String FILENAME = "shaPerProject.txt";
+    private static final String FILENAME = Main.ROOT_PATH_DATA + "shaPerProject.txt";
 
     public Cloner() {
         try (BufferedReader reader = new BufferedReader(new FileReader(FILENAME))) {

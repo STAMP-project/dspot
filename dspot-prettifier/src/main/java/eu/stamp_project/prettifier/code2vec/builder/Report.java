@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  */
 public class Report {
 
-    private static final String PATH_NAME_CSV_NUMBERS = "numbers.csv";
+    private static final String PATH_NAME_CSV_NUMBERS = Main.ROOT_PATH_DATA + "numbers.csv";
 
     private Map<String, String> errorDuringMethodExtraction;
 
@@ -126,7 +126,7 @@ public class Report {
         StringBuilder report = new StringBuilder();
         addContentOfGivenMap(errorDuringMethodExtraction, headerMethodsExtraction, report);
         addContentOfGivenMap(errorDuringCloning, headerCloning, report);
-        write("errors.txt", report.toString());
+        write(Main.ROOT_PATH_DATA + "errors.txt", report.toString());
     }
 
     private void addContentOfGivenMap(Map<String, String> map, String header, StringBuilder report) {
