@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class Reader {
 
     // this file contains the user/project of repositories that will clone and extract test methods
-    public static final String FILE_PROJECTS = "projects.txt";
+    public static final String FILE_PROJECTS = Main.ROOT_PATH_DATA + "projects.txt";
 
     /**
      * read the file FILE_PROJECTS and return all the user/project inside.
