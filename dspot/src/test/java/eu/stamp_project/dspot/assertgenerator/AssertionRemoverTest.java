@@ -36,9 +36,9 @@ public class AssertionRemoverTest extends AbstractTest {
             Test that we can remove the assertion on a lambda expression
          */
         final CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
-        final CtMethod<?> testWithNullType= Utils.findMethod(testClass, "testWithALambda");
+        final CtMethod<?> testWithALambda= Utils.findMethod(testClass, "testWithALambda");
         final AssertionRemover assertionRemover = new AssertionRemover();
-        final CtMethod<?> ctMethod = assertionRemover.removeAssertion(testWithNullType);
+        final CtMethod<?> ctMethod = assertionRemover.removeAssertion(testWithALambda);
         System.out.println(ctMethod);
     }
 
