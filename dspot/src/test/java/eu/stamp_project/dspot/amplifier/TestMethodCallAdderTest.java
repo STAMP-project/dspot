@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Benjamin DANGLOT
@@ -21,6 +22,22 @@ import static org.junit.Assert.assertEquals;
  * on 12/7/16
  */
 public class TestMethodCallAdderTest extends AbstractTest {
+
+    @Test
+    public void testMethodDuplicationOfMethodInAssertions() {
+
+        /*
+            Test the duplication of an invocation in assertion
+            We prevent such case, since the method call in assertion should be stateless and thus, duplicate them is irrelevant to explore the solution space
+         */
+
+        CtClass<Object> testClass = Utils.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
+        TestMethodCallAdder methodCallAdder = new TestMethodCallAdder();
+        methodCallAdder.reset(testClass);
+        final CtMethod<?> originalMethod = testClass.getMethods().stream().filter(m -> "testMethodCallInAssertion".equals(m.getSimpleName())).findFirst().get();
+        final Stream<CtMethod<?>> amplify = methodCallAdder.amplify(originalMethod, 1);
+        assertTrue(amplify.collect(Collectors.toList()).isEmpty());
+    }
 
     @Test
     public void testMethodCallAddAll() throws Exception {

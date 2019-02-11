@@ -30,4 +30,10 @@ public class ClassUnderTestTest {
             assertTrue(true);
         }
     }
+
+    @Test
+    public void testMethodCallInAssertion() {
+        ClassUnderTest underTest = new ClassUnderTest();
+        assertEquals(2, underTest.plusOne(1));
+    }
 }
