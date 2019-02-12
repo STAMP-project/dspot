@@ -97,6 +97,7 @@ public class MethodsAssertGenerator {
         final List<CtMethod<?>> testsToRun = new ArrayList<>();
         IntStream.range(0, 3).forEach(i -> testsToRun.addAll(
                 testCasesWithLogs.stream()
+                	//Optimization: Tracking cloned test methods using AmplificationHelper as candidates
                 	//for caching their associated Test Framework
                         .map(CloneHelper::cloneMethod)
                         .peek(ctMethod -> ctMethod.setSimpleName(ctMethod.getSimpleName() + i))

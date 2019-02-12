@@ -231,7 +231,7 @@ public class ConstantsProperties {
                     "specify the list of descartes mutators to be used separated by comma. Please refer to the descartes documentation for more details: https://github.com/STAMP-project/pitest-descartes",
                     ""
             );
-    
+
     public static final InputConfigurationProperty CACHE_SIZE =
             new InputConfigurationProperty(
                     "cacheSize",
