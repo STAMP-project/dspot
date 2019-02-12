@@ -5,6 +5,9 @@ import eu.stamp_project.test_framework.junit.JUnit3Support;
 import eu.stamp_project.test_framework.junit.JUnit4Support;
 import eu.stamp_project.test_framework.junit.JUnit5Support;
 import eu.stamp_project.testrunner.runner.Failure;
+import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.DSpotCache;
+import eu.stamp_project.utils.TypeUtils;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,7 +116,26 @@ public class TestFramework implements TestFrameworkSupport {
     // The idea is to generate assertions that look like the original one,
     // i.e. if the developer used JUnit4, we should generate JUnit4 assertions
     // We determine is by taking the most common assertion type in the given test method.
+    // This method uses a cache to retrieve the test framework already determined for the original test method
+    // associated to input test method
     private TestFrameworkSupport getTestFramework(CtMethod<?> testMethod) {
+    	//Get original test method, using bounds of cloned methods in AmplificationHelper
+    	CtMethod<?> originalMethod = AmplificationHelper.getOriginalTest(testMethod);
+    	//Retrieving associated test framework from cache
+    	TestFrameworkSupport tfs = DSpotCache.getTestFrameworkCache().get(TypeUtils.getQualifiedName(originalMethod));
+    	if (tfs == null){ //If not cached, test framework is computed and stored in cache.
+    		tfs = getTestFrameworkImpl (testMethod);
+    		DSpotCache.getTestFrameworkCache().put(TypeUtils.getQualifiedName(originalMethod), tfs);
+    	}
+    	return tfs;
+    }
+
+
+    // This method identify the test framework support used in the given test method
+    // The idea is to generate assertions that look like the original one,
+    // i.e. if the developer used JUnit4, we should generate JUnit4 assertions
+    // We determine is by taking the most common assertion type in the given test method.
+    private TestFrameworkSupport getTestFrameworkImpl(CtMethod<?> testMethod) {
         final Map<TestFrameworkSupport, Long> numberOfCallsToAssertionPerTestFramework = this.testFrameworkSupportList.stream()
                 .collect(Collectors.toMap(Function.identity(),
                         testFrameworkSupport ->

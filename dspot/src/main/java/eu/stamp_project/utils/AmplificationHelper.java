@@ -53,12 +53,19 @@ public class AmplificationHelper {
      */
     public static Map<CtMethod<?>, CtMethod> ampTestToParent = new IdentityHashMap<>();
 
+
+    //(Optimisation) - trace bounds between cloned test methods and their original ones
+    //This additional map is added (and ampTestToParent is not used) because
+    //existing map does not account for all cloned test methods
+    private static Map<CtMethod<?>, CtMethod> originalTestBindings = new IdentityHashMap<>();
+
     @Deprecated
     private static Map<CtType, Set<CtType>> importByClass = new HashMap<>();
 
     public static void reset() {
         CloneHelper.reset();
         ampTestToParent.clear();
+        originalTestBindings.clear();
         importByClass.clear();
     }
 
@@ -123,6 +130,18 @@ public class AmplificationHelper {
 
     public static CtMethod removeAmpTestParent(CtMethod amplifiedTest) {
         return ampTestToParent.remove(amplifiedTest);
+    }
+
+    public static CtMethod addTestBindingToOriginal(CtMethod clonedTest, CtMethod originalTest) {
+        return originalTestBindings.put(clonedTest, originalTest);
+    }
+
+    public static CtMethod removeTestBindingToOriginal(CtMethod clonedTest) {
+        return originalTestBindings.remove(clonedTest);
+    }
+
+    public static CtMethod getTestBindingToOriginal(CtMethod clonedTest) {
+        return originalTestBindings.get(clonedTest);
     }
 
     @Deprecated
@@ -195,6 +214,15 @@ public class AmplificationHelper {
             currentTest = topParent;
         }
         return currentTest;
+    }
+
+    public static CtMethod getOriginalTest(CtMethod cloned) {
+        CtMethod topParent;
+        CtMethod original = cloned;
+        while ((topParent = getTestBindingToOriginal (original)) != null) {
+        	original = topParent;
+        }
+        return original;
     }
 
     @Deprecated
