@@ -129,7 +129,7 @@ public class TestFramework implements TestFrameworkSupport {
     	}
     	return tfs;
     }
-    	
+
     // This method identify the test framework support used in the given test method
     // The idea is to generate assertions that look like the original one,
     // i.e. if the developer used JUnit4, we should generate JUnit4 assertions

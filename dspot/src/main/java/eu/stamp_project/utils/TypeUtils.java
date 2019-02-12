@@ -97,7 +97,7 @@ public class TypeUtils {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns the full Java qualified name of a method
 	 * @param method
