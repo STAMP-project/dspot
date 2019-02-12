@@ -132,16 +132,16 @@ public class AmplificationHelper {
         return ampTestToParent.remove(amplifiedTest);
     }
 
-    public static CtMethod getTestBindingToOriginal(CtMethod clonedTest) {
-        return originalTestBindings.get(clonedTest);
-    }
-
     public static CtMethod addTestBindingToOriginal(CtMethod clonedTest, CtMethod originalTest) {
         return originalTestBindings.put(clonedTest, originalTest);
     }
 
     public static CtMethod removeTestBindingToOriginal(CtMethod clonedTest) {
         return originalTestBindings.remove(clonedTest);
+    }
+
+    public static CtMethod getTestBindingToOriginal(CtMethod clonedTest) {
+        return originalTestBindings.get(clonedTest);
     }
 
     @Deprecated
