@@ -21,12 +21,6 @@ public class DSpotCache {
 				.build(true);
 
 		frameworkCache = cacheManager.getCache("frameworkCache", String.class, TestFrameworkSupport.class);
-
-		// frameworkCache = cacheManager.createCache("methodCache",
-		// CacheConfigurationBuilder
-		// .newCacheConfigurationBuilder(String.class, TestFramework.class,
-		// ResourcePoolsBuilder.heap(100))
-		// .build());
 	}
 
 	public static Cache<String, TestFrameworkSupport> getTestFrameworkCache() {

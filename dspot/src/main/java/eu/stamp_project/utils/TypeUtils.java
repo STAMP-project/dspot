@@ -106,13 +106,11 @@ public class TypeUtils {
 	public static String getQualifiedName (CtMethod method) {
 		StringBuilder qualifiedName = new StringBuilder();
 		if (method!=null) {
-			if (method.getParent() instanceof CtClass) {
-				if (method.getParent().getParent() instanceof CtPackage) {
-					qualifiedName.append(method.getParent().getParent());
-					qualifiedName.append(".");
+			if (method.getParent(CtClass.class)!=null)  {
+				if (method.getParent(CtPackage.class) != null) {
+					qualifiedName.append(method.getParent(CtPackage.class)).append(".");
 				}
-				qualifiedName.append(((CtClass)method.getParent()).getSimpleName());
-				qualifiedName.append(".");
+				qualifiedName.append(method.getParent(CtClass.class).getSimpleName()).append(".");
 			}
 			qualifiedName.append(method.getSimpleName());
 		}
