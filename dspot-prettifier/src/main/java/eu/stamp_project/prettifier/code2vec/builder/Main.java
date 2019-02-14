@@ -21,7 +21,7 @@ public class Main {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
-    public static final String ROOT_PATH_DATA = "data/files/";
+    public static final String ROOT_PATH_DATA = "dspot-prettifier/data/files/";
 
     public static void main(String[] args) {
         // init values
@@ -50,19 +50,19 @@ public class Main {
             try {
                 final List<CtType<?>> testClasses =
                         TestMethodsExtractor.extractAllTestMethodsForGivenProject(path.toString());
-                final int numberOfTestMethods = testClasses.stream()
-                        .map(CtType::getMethods)
-                        .mapToInt(Set::size)
-                        .sum();
-                final NumbersOfMethodsPerSet numbersOfMethodsPerSet = output.output(testClasses, numberOfTestMethods);
-                report.addNumberOfMethodsPerSetPerProject(userAndProject, numbersOfMethodsPerSet);
+                if (!testClasses.isEmpty()) {
+                    final int numberOfTestMethods = testClasses.stream()
+                            .map(CtType::getMethods)
+                            .mapToInt(Set::size)
+                            .sum();
+                    final NumbersOfMethodsPerSet numbersOfMethodsPerSet = output.output(testClasses, numberOfTestMethods);
+                    report.addNumberOfMethodsPerSetPerProject(userAndProject, numbersOfMethodsPerSet);
+                    LOGGER.info("{}: {}", userAndProject, numbersOfMethodsPerSet.toString());
+                } else {
+                    LOGGER.warn("{}: no test could be found!", userAndProject);
+                }
                 cloner.output(); // add current sha to shaPerProject file
-                LOGGER.info("{}: {}", userAndProject, numbersOfMethodsPerSet.toString());
-                LOGGER.info("Deleting now {} for saving space...", path.toString());
-                FileUtils.forceDelete(new File(path.toString()));
-            } catch (IOException ignored) {
-                LOGGER.warn("Something went bad while trying to delete the fresh clone of {}.", userAndProject);
-                LOGGER.warn("This is not a big deal, DSpot-Prettifier will proceed...");
+                report.report(); // tmp output
             } catch (Exception e) {
                 e.printStackTrace();
                 report.addToGivenMap(report.getErrorDuringMethodExtraction(), userAndProject, e);
