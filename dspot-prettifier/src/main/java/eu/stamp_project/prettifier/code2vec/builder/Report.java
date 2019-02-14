@@ -142,7 +142,7 @@ public class Report {
     }
 
     private void write(String pathname, String content) {
-        try (FileWriter writer = new FileWriter(pathname)) {
+        try (FileWriter writer = new FileWriter(pathname, false)) {
             writer.write(content);
         } catch (Exception e) {
             throw new RuntimeException(e);
