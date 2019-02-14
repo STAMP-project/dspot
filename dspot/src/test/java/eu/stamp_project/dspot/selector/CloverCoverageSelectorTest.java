@@ -10,10 +10,13 @@ import spoon.reflect.declaration.CtMethod;
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
  * on 22/12/17
+ *
+ * This Selector has been disabled and should be remove soon
+ *
  */
 @SuppressWarnings("unchecked")
-public class CloverCoverageSelectorTest extends AbstractSelectorTest {
-
+public class CloverCoverageSelectorTest { //extends AbstractSelectorTest {
+    /*
     @Override
     @Before
     public void setUp() throws Exception {
@@ -51,4 +54,5 @@ public class CloverCoverageSelectorTest extends AbstractSelectorTest {
     protected Class<?> getClassMinimizer() {
         return GeneralMinimizer.class;
     }
+    */
 }
