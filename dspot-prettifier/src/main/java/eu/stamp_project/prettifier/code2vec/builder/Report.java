@@ -50,7 +50,7 @@ public class Report {
             try (final BufferedReader reader = new BufferedReader(new FileReader(PATH_NAME_CSV_NUMBERS))) {
                 this.numberOfMethodsPerSetPerProject = reader.lines()
                         .map(line -> line.split(";"))
-                        .filter(lineCsv -> "total".equals(lineCsv[1]))
+                        .filter(lineCsv -> !"total".equals(lineCsv[1]))
                         .collect(
                                 Collectors.toMap(
                                         lineCsv -> lineCsv[0],
