@@ -78,9 +78,13 @@ public class AssertionRemover {
                 if (clone instanceof CtUnaryOperator) {
                     clone = ((CtUnaryOperator) clone).getOperand();
                 }
-                if (clone instanceof CtStatement) {
+                if (clone instanceof CtLambda) {
+                    invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter,
+                            factory.createStatementList(((CtLambda) clone).getBody())
+                    );
+                } else if (clone instanceof CtStatement) {
                     invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, (CtStatement) clone);
-                } else if (!(clone instanceof CtLiteral || clone instanceof CtVariableRead) && !(clone instanceof CtLambda)) {
+                } else if (!(clone instanceof CtLiteral || clone instanceof CtVariableRead)) {
                     CtTypeReference<?> typeOfParameter = clone.getType();
                     if (clone.getType()  == null || factory.Type().NULL_TYPE.equals(clone.getType())) {
                         typeOfParameter = factory.Type().createReference(Object.class);

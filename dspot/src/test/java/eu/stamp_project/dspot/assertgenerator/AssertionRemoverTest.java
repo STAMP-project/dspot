@@ -15,6 +15,7 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
@@ -39,7 +40,7 @@ public class AssertionRemoverTest extends AbstractTest {
         final CtMethod<?> testWithALambda= Utils.findMethod(testClass, "testWithALambda");
         final AssertionRemover assertionRemover = new AssertionRemover();
         final CtMethod<?> ctMethod = assertionRemover.removeAssertion(testWithALambda);
-        System.out.println(ctMethod);
+        assertFalse(ctMethod.getBody().getStatements().isEmpty());
     }
 
     @Test
