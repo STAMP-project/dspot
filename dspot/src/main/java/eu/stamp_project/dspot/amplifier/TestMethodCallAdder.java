@@ -63,7 +63,8 @@ public class TestMethodCallAdder implements Amplifier {
 
     private void removeTypeCastIfSame(CtExpression<?> element) {
         if (!element.getTypeCasts().isEmpty() &&
-                element.getType().equals(element.getTypeCasts().get(0))) {
+                (element.getType() == null ||
+                element.getType().equals(element.getTypeCasts().get(0)))) {
             element.getTypeCasts().clear();
         }
     }
