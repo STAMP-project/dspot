@@ -87,6 +87,7 @@ public class TestRunner {
             if (! (new File(rootPath + DSpotPOMCreator.getPOMName()).exists())) {
                 DSpotPOMCreator.createNewPom();
             }
+            eu.stamp_project.testrunner.maven.EntryPoint.preGoals = InputConfiguration.get().getPreGoalsTestExecution();
             return eu.stamp_project.testrunner.maven.EntryPoint.runTestsSpecificPom(
                     rootPath,
                     fullQualifiedName,

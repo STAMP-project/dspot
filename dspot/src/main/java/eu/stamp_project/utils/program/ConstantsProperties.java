@@ -140,7 +140,7 @@ public class ConstantsProperties {
             new InputConfigurationProperty(
                     "maven.home",
                     "specify the maven home directory. " +
-                            "This properties is redundant with the command line option --maven-home. " +
+                            "This property is redundant with the command line option --maven-home. " +
                             "This property has the priority over the command line. " +
                             "If this property is not specified, nor the command line option --maven-home, " +
                             "DSpot will first look in both MAVEN_HOME and M2_HOME environment variables. " +
@@ -148,6 +148,17 @@ public class ConstantsProperties {
                             "/usr/share/maven/, /usr/local/maven-3.3.9/ and /usr/share/maven3/.",
                     "",
                     "maven installation"
+            );
+
+    public static final InputConfigurationProperty MAVEN_PRE_GOALS =
+            new InputConfigurationProperty(
+                    "maven.pre.goals",
+                    "specify pre goals to run before executing test with maven." +
+                            "This property will used as follow: the elements, separated by a comma," +
+                            "must be valid maven goals and they will be placed just before the \"test\" goal, e.g." +
+                            "maven.pre.goals=preGoal1,preGoal2 will give \"mvn preGoal1 preGoal2 test\"",
+                    "",
+                    "maven pre goals"
             );
 
     public static final InputConfigurationProperty DELTA_ASSERTS_FLOAT =
@@ -249,6 +260,7 @@ public class ConstantsProperties {
         inputConfigurationProperties.add(EXCLUDED_CLASSES);
         inputConfigurationProperties.add(EXCLUDED_TEST_CASES);
         inputConfigurationProperties.add(MAVEN_HOME);
+        inputConfigurationProperties.add(MAVEN_PRE_GOALS);
         inputConfigurationProperties.add(PATH_TO_SECOND_VERSION);
         inputConfigurationProperties.add(BASE_SHA);
         inputConfigurationProperties.add(AUTOMATIC_BUILDER_NAME);
