@@ -15,9 +15,10 @@ public class TestClassWithAssert extends TestClassWithAssertOld {
 
     @Test
     public void testWithALambda() {
-        org.junit.jupiter.api.Assertions.assertThrows(NullPointerException.class,
+        org.junit.jupiter.api.Assertions.assertThrows(Exception.class,
                 () -> {
-
+                    ClassThrowException cl = new ClassThrowException();
+                    cl.throwException();
                 });
     }
 
