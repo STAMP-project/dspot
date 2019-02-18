@@ -1,7 +1,7 @@
 package eu.stamp_project.utils.execution;
 
 import eu.stamp_project.dspot.AmplificationException;
-import eu.stamp_project.testrunner.listener.TestListener;
+import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -28,7 +29,7 @@ public class TestRunner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestRunner.class);
 
-    public static TestListener runSubClassesForAbstractTestClass(CtType<?> testClass, List<CtMethod<?>> testsToRun, String classPath) throws AmplificationException {
+    public static TestResult runSubClassesForAbstractTestClass(CtType<?> testClass, List<CtMethod<?>> testsToRun, String classPath) throws AmplificationException {
         try {
             return testClass.getFactory().Type()
                     .getAll()
@@ -46,7 +47,7 @@ public class TestRunner {
                         } catch (TimeoutException e) {
                             throw new RuntimeException(e);
                         }
-                    }).reduce(TestListener::aggregate)
+                    }).reduce(TestResult::aggregate)
                     .orElse(null);
         } catch (Exception e) {
             LOGGER.warn("Errors during execution of {}: {}",
@@ -59,15 +60,15 @@ public class TestRunner {
         }
     }
 
-    public static TestListener runGivenTestMethods(CtType<?> testClass, List<CtMethod<?>> testsToRun, String classPath) throws AmplificationException {
+    public static TestResult runGivenTestMethods(CtType<?> testClass, List<CtMethod<?>> testsToRun, String classPath) throws AmplificationException {
         try {
-            return EntryPoint.runTests(
-                    classPath + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies(),
+            return TestRunner.run(classPath + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies(),
+                    InputConfiguration.get().getAbsolutePathToProjectRoot(),
                     testClass.getQualifiedName(),
                     testsToRun.stream()
                             .map(CtMethod::getSimpleName)
                             .toArray(String[]::new)
-            );
+                    );
         } catch (TimeoutException e) {
             LOGGER.warn("Timeout during execution of {}: {}",
                     testClass.getQualifiedName(),
@@ -79,8 +80,9 @@ public class TestRunner {
         }
     }
 
-    public static TestListener run(String classpath, String rootPath, String fullQualifiedName, String... testToRun) throws TimeoutException {
+    public static TestResult run(String classpath, String rootPath, String fullQualifiedName, String... testToRun) throws TimeoutException {
         if (InputConfiguration.get().shouldUseMavenToExecuteTest()) {
+            EntryPoint.workingDirectory = new File(rootPath);
             return eu.stamp_project.testrunner.maven.EntryPoint.runTests(
                     rootPath,
                     fullQualifiedName,

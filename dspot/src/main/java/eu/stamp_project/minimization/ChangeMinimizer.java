@@ -1,7 +1,7 @@
 package eu.stamp_project.minimization;
 
 import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.testrunner.listener.TestListener;
+import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.testrunner.runner.Failure;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
@@ -87,7 +87,7 @@ public class ChangeMinimizer extends GeneralMinimizer {
         }
         // must have (the same?) failure
         try {
-            final TestListener result = EntryPoint.runTests(
+            final TestResult result = EntryPoint.runTests(
                     this.configuration.getFullClassPathWithExtraDependencies(),
                     clone.getQualifiedName(),
                     changeMinimize.getSimpleName());
@@ -128,7 +128,7 @@ public class ChangeMinimizer extends GeneralMinimizer {
             return false;
         }
         try {
-            final TestListener result = EntryPoint.runTests(
+            final TestResult result = EntryPoint.runTests(
                     this.getMixedClasspath(),
                     clone.getQualifiedName(),
                     amplifiedTestToBeMinimized.getSimpleName()
