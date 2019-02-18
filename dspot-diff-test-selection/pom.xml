@@ -22,14 +22,14 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.25</version>
+            <version>${slf4j.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.25</version>
+            <version>${slf4j.version}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -37,25 +37,25 @@
         <dependency>
             <groupId>org.apache.maven.shared</groupId>
             <artifactId>maven-invoker</artifactId>
-            <version>3.0.0</version>
+            <version>${maven.invoker.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.openclover</groupId>
             <artifactId>clover</artifactId>
-            <version>4.2.1</version>
+            <version>${clover.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
-            <version>3.0</version>
+            <version>${maven.plugin.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
-            <version>3.5</version>
+            <version>${maven.plugin.annotations}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -63,20 +63,20 @@
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
-            <version>3.5.4</version>
+            <version>${maven.plugin.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/fr.inria.gforge.spoon.labs/gumtree-spoon-ast-diff -->
         <dependency>
             <groupId>fr.inria.gforge.spoon.labs</groupId>
             <artifactId>gumtree-spoon-ast-diff</artifactId>
-            <version>1.5</version>
+            <version>${gumtree.spoon.ast.diff.version}</version>
         </dependency>
 
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>${junit4.version}</version>
             <type>jar</type>
             <scope>test</scope>
         </dependency>
