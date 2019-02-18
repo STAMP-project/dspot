@@ -42,11 +42,17 @@ public class DSpotPOMCreatorTest {
         try (BufferedReader reader = new BufferedReader(new FileReader(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.getPOMName()))) {
             final String content = reader.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
             assertTrue(content + AmplificationHelper.LINE_SEPARATOR +
+                            "must contain " + AmplificationHelper.LINE_SEPARATOR +
+                            MUST_CONTAIN,
+                    content.contains(MUST_CONTAIN));
+            assertTrue(content + AmplificationHelper.LINE_SEPARATOR +
                             "should be ends with " + AmplificationHelper.LINE_SEPARATOR +
                             ENDS_WITH,
                     content.endsWith(ENDS_WITH));
         }
     }
+
+    private static final String MUST_CONTAIN = "<plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-compiler-plugin</artifactId><executions><execution><id>default-testCompile</id><phase>none</phase></execution></executions></plugin></plugins>";
 
     private static final String ENDS_WITH = "<profiles><profile><id>id-descartes-for-dspot</id><build><plugins><plugin><groupId>org.pitest</groupId><artifactId>pitest-maven</artifactId><version>1.4.0</version><configuration><mutationEngine>descartes</mutationEngine><outputFormats><value>CSV</value><value>XML</value></outputFormats><targetClasses>example.*</targetClasses><reportsDirectory>target/pit-reports</reportsDirectory><timeoutConstant>10000</timeoutConstant><jvmArgs><value>-Xmx2048m</value><value>-Xms1024m</value></jvmArgs></configuration><dependencies><dependency><groupId>eu.stamp-project</groupId><artifactId>descartes</artifactId><version>1.2.4</version></dependency></dependencies></plugin></plugins></build></profile></profiles></project>";
 
