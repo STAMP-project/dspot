@@ -80,11 +80,10 @@ public class JSAPOptions {
                 LOGGER.warn("Forcing the Selector to PitMutantScoreSelector");
             }
             String pathToOriginalResultOfPit = jsapConfig.getString("mutant");
-            String extension = pathToOriginalResultOfPit.substring(pathToOriginalResultOfPit.length() - 4);
             PitMutantScoreSelector.OutputFormat originalFormat;
-            if (extension.toLowerCase().equals("xml")) {
+            if (pathToOriginalResultOfPit.toLowerCase().endsWith(".xml")) {
                 originalFormat = PitMutantScoreSelector.OutputFormat.XML;
-            } else if (extension.toLowerCase().equals("csv")) {
+            } else if (pathToOriginalResultOfPit.toLowerCase().endsWith(".csv")) {
                 originalFormat = PitMutantScoreSelector.OutputFormat.CSV;
             } else {
                 LOGGER.warn("You specified the wrong Pit format. Skipping expert mode.");
