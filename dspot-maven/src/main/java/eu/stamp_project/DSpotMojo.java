@@ -258,9 +258,12 @@ public class DSpotMojo extends AbstractMojo {
                     .setDescartesMode(this.descartes)
                     .setGenerateAmplifiedTestClass(this.generateNewTestClass)
                     .setKeepOriginalTestMethods(this.keepOriginalTestMethods)
-                    .setOutputDirectory(this.outputPath)
                     .setUseMavenToExecuteTest(this.useMavenToExeTest)
                     .setTargetOneTestClass(this.targetOneTestClass);
+
+            InputConfiguration.get().setOutputDirectory(
+                    properties.getProperty(ConstantsProperties.OUTPUT_DIRECTORY.getName()) == null ?
+                    this.outputPath : properties.getProperty(ConstantsProperties.OUTPUT_DIRECTORY.getName()));
 
             if (this.pathPitResult != null && !this.pathPitResult.isEmpty()) {
                 InputConfiguration.get().setSelector(new PitMutantScoreSelector(this.pathPitResult,
