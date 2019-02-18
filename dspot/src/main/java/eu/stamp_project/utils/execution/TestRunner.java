@@ -1,5 +1,6 @@
 package eu.stamp_project.utils.execution;
 
+import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -83,9 +84,13 @@ public class TestRunner {
     public static TestResult run(String classpath, String rootPath, String fullQualifiedName, String... testToRun) throws TimeoutException {
         if (InputConfiguration.get().shouldUseMavenToExecuteTest()) {
             EntryPoint.workingDirectory = new File(rootPath);
-            return eu.stamp_project.testrunner.maven.EntryPoint.runTests(
+            if (! (new File(rootPath + DSpotPOMCreator.getPOMName()).exists())) {
+                DSpotPOMCreator.createNewPom();
+            }
+            return eu.stamp_project.testrunner.maven.EntryPoint.runTestsSpecificPom(
                     rootPath,
                     fullQualifiedName,
+                    DSpotPOMCreator.getPOMName(),
                     testToRun
             );
         } else {
