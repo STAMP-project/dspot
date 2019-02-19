@@ -8,6 +8,9 @@ sudo: required
 
 jdk: openjdk8
 
+secure:
+  - REPOSITORY_TOKEN = eYNbeYY4NGcIEvcE0vreGwsMs606UziPk
+
 env:
   - SCRIPT=travis-openjdk8.sh
   - SCRIPT=travis-oraclejdk8.sh
@@ -34,7 +37,7 @@ install:
 - mvn install -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip=true
 
 script:
-- ./.travis/$SCRIPT $DSPOT_VERSION
+- ./.travis/$SCRIPT $DSPOT_VERSION $REPOSITORY_TOKEN
 
 after_success:
 - ./.travis/travis-deploy.sh
