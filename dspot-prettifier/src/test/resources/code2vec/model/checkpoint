@@ -1,0 +1,6 @@
+model_checkpoint_path: "saved_model"
+all_model_checkpoint_paths: "saved_model_iter17"
+all_model_checkpoint_paths: "saved_model_iter18"
+all_model_checkpoint_paths: "saved_model_iter19"
+all_model_checkpoint_paths: "saved_model_iter20"
+all_model_checkpoint_paths: "saved_model"
