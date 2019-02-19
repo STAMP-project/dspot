@@ -1,8 +1,8 @@
 package eu.stamp_project.prettifier;
 
-import eu.stamp_project.prettifier.code2vec.executor.Code2VecExecutor;
-import eu.stamp_project.prettifier.code2vec.executor.Code2VecParser;
-import eu.stamp_project.prettifier.code2vec.executor.Code2VecWriter;
+import eu.stamp_project.prettifier.code2vec.Code2VecExecutor;
+import eu.stamp_project.prettifier.code2vec.Code2VecParser;
+import eu.stamp_project.prettifier.code2vec.Code2VecWriter;
 import eu.stamp_project.prettifier.options.InputConfiguration;
 import eu.stamp_project.prettifier.options.JSAPOptions;
 import org.slf4j.Logger;

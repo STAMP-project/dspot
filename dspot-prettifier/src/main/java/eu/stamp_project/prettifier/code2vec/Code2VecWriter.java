@@ -1,4 +1,4 @@
-package eu.stamp_project.prettifier.code2vec.executor;
+package eu.stamp_project.prettifier.code2vec;
 
 import eu.stamp_project.utils.DSpotUtils;
 import spoon.reflect.declaration.CtMethod;
