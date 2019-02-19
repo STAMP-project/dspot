@@ -25,6 +25,10 @@ cache:
   directories:
   - $HOME/.m2
 
+before_install:
+- sudo apt-get update
+- sudo apt-get install python3
+
 install:
 - export DSPOT_VERSION=`grep '<version>' dspot/pom.xml | head -n 1 | sed -e 's/<version>//' -e 's/<\\/version>//' -e 's/ *//g'`
 - export MAVEN_HOME=`mvn --version | grep 'Maven home' | sed -e 's/Maven h.* //'`
