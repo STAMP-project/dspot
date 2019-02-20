@@ -205,6 +205,7 @@ public class InputConfiguration {
                 .setDescartesVersion(ConstantsProperties.DESCARTES_VERSION.get(properties))
                 .setBaseSha(ConstantsProperties.BASE_SHA.get(properties))
                 .setExcludedClasses(ConstantsProperties.EXCLUDED_CLASSES.get(properties))
+                .setPreGoalsTestExecution(ConstantsProperties.MAVEN_PRE_GOALS.get(properties))
                 //.setTimeoutPit(ConstantsProperties.TIMEOUT_PIT.get(properties))
                 .setJVMArgs(ConstantsProperties.JVM_ARGS.get(properties))
                 .setDescartesMutators(ConstantsProperties.DESCARTES_MUTATORS.get(properties))
@@ -907,6 +908,20 @@ public class InputConfiguration {
 
     public InputConfiguration setUseMavenToExecuteTest(boolean useMavenToExecuteTest) {
         this.useMavenToExecuteTest = useMavenToExecuteTest;
+        return this;
+    }
+
+    /**
+     *  pre goals to run in case tests' execution done by maven
+     */
+    private String preGoalsTestExecution = "";
+
+    public String getPreGoalsTestExecution() {
+        return this.preGoalsTestExecution;
+    }
+
+    public InputConfiguration setPreGoalsTestExecution(String preGoalsTestExecution) {
+        this.preGoalsTestExecution = preGoalsTestExecution;
         return this;
     }
 

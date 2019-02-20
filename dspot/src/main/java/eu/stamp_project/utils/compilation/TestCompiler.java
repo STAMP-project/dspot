@@ -1,7 +1,7 @@
 package eu.stamp_project.utils.compilation;
 
 import eu.stamp_project.dspot.AmplificationException;
-import eu.stamp_project.testrunner.listener.TestListener;
+import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.execution.TestRunner;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
@@ -52,7 +52,7 @@ public class TestCompiler {
                                                                                     InputConfiguration configuration) {
         CtType amplifiedTestClass = CloneHelper.cloneTestClassAndAddGivenTest(classTest, currentTestList);
         try {
-            final TestListener result = TestCompiler.compileAndRun(
+            final TestResult result = TestCompiler.compileAndRun(
                     amplifiedTestClass,
                     compiler,
                     currentTestList,
@@ -79,11 +79,11 @@ public class TestCompiler {
      * @param compiler      the compiler
      * @param testsToRun    the test methods to be run, should be in testClass
      * @param configuration
-     * @return an instance of {@link eu.stamp_project.testrunner.listener.TestListener}
+     * @return an instance of {@link eu.stamp_project.testrunner.listener.TestResult}
      * that contains the result of the execution of test methods if everything went fine, null otherwise.
      * @throws AmplificationException in case the compilation failed or a timeout has been thrown.
      */
-    public static TestListener compileAndRun(CtType<?> testClass,
+    public static TestResult compileAndRun(CtType<?> testClass,
                                              DSpotCompiler compiler,
                                              List<CtMethod<?>> testsToRun,
                                              InputConfiguration configuration) throws AmplificationException {

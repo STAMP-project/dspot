@@ -1,7 +1,7 @@
 package eu.stamp_project.utils;
 
 import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.testrunner.listener.TestListener;
+import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import org.jetbrains.annotations.NotNull;
@@ -187,7 +187,7 @@ public class AmplificationHelper {
     }
 
     @Deprecated
-    public static List<CtMethod<?>> getPassingTests(List<CtMethod<?>> newTests, TestListener result) {
+    public static List<CtMethod<?>> getPassingTests(List<CtMethod<?>> newTests, TestResult result) {
         final List<String> passingTests = result.getPassingTests();
         return newTests.stream()
                 .filter(test -> {

@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.dspot.AmplificationException;
-import eu.stamp_project.testrunner.listener.TestListener;
+import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -100,7 +100,7 @@ public class AssertGenerator {
      */
     private List<CtMethod<?>> innerAssertionAmplification(CtType testClass, List<CtMethod<?>> tests) {
         LOGGER.info("Run tests. ({})", tests.size());
-        final TestListener testResult;
+        final TestResult testResult;
         try {
             testResult = TestCompiler.compileAndRun(testClass,
                     this.compiler,

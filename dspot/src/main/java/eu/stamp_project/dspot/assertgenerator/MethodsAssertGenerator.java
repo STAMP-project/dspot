@@ -4,7 +4,7 @@ import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.compare.Observation;
 import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.testrunner.listener.TestListener;
+import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.Counter;
@@ -110,7 +110,7 @@ public class MethodsAssertGenerator {
         //AssertGeneratorHelper.addAfterClassMethod(clone);
         TestFramework.get().generateAfterClassToSaveObservations(clone, testsToRun);
         try {
-            final TestListener result = TestCompiler.compileAndRun(clone,
+            final TestResult result = TestCompiler.compileAndRun(clone,
                     this.compiler,
                     testsToRun,
                     this.configuration

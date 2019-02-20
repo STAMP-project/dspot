@@ -28,11 +28,19 @@ import java.util.Arrays;
  */
 public class DSpotPOMCreator {
 
+    /*
+        PIT
+     */
+
     private static final String GROUP_ID_PIT = "org.pitest";
 
     private static final String ARTIFACT_ID_PIT = "pitest-maven";
 
     private static final String MUTATION_ENGINE_GREGOR = "gregor";
+
+    /*
+        DESCARTES
+     */
 
     private static final String GROUP_ID_DESCARTES = "eu.stamp-project";
 
@@ -41,6 +49,28 @@ public class DSpotPOMCreator {
     private static final String MUTATION_ENGINE_DESCARTES = "descartes";
 
     private static final String[] outputFormats = new String[]{"CSV","XML"};
+
+    /*
+        MAVEN
+     */
+
+    private static final String ORG_MAVEN_PLUGINS_GROUP_ID = "org.apache.maven.plugins";
+
+    /*
+        PLUGIN TEST COMPILER
+     */
+
+    private static final String ARTIFACT_ID_TEST_COMPILE = "maven-compiler-plugin";
+
+    /*
+        PLUGIN TEST COMPILER
+     */
+
+    private static final String ARTIFACT_SUREFIRE_PLUGIN = "maven-surefire-plugin";
+
+    /*
+        GENERAL
+     */
 
     public static final String POM_FILE = "pom.xml";
 
@@ -86,9 +116,12 @@ public class DSpotPOMCreator {
 
             final Node root = findSpecificNodeFromGivenRoot(document.getFirstChild(), PROJECT);
 
+            // CONFIGURATION TO RUN INSTRUMENTED TEST
+            configureForInstrumentedTests(document, root);
+
             final Element profile = createProfile(document);
 
-            final Node profiles = findOrCreateProfiles(document, root);
+            final Node profiles = findOrCreateGivenNode(document, root, PROFILES);
             profiles.appendChild(profile);
 
             // write the content into xml file
@@ -102,16 +135,48 @@ public class DSpotPOMCreator {
         }
     }
 
+    private void configureForInstrumentedTests(Document document, Node root) {
+        // This will add two plugins to the build (or create a new build)
+
+        // First, we override the test compile lifecycle in order to not compile with mvn test
+        // otherwise, we would loose compilation done by dspot, more specifically
+        // instrumented test methods' compilation with observations points
+        final Element pluginTestCompile =
+                createPlugin(document, ORG_MAVEN_PLUGINS_GROUP_ID, ARTIFACT_ID_TEST_COMPILE, "");
+        final Element executions = createExecutions(document);
+        final Element execution = createExecution(document, ID_VALUE_TEST_COMPILE, PHASE_VALUE_TEST_COMPILE);
+        executions.appendChild(execution);
+        pluginTestCompile.appendChild(executions);
+        final Node build = findOrCreateGivenNode(document, root, BUILD);
+        final Node plugins = findOrCreateGivenNode(document, build, PLUGINS);
+
+        plugins.appendChild(pluginTestCompile);
+
+        // Second, we add an additionnal classpath element: the folder that contains
+        // instrumentation classes, i.e. eu.stamp_project.compare package
+        final Element surefirePlugin =
+                createPlugin(document, ORG_MAVEN_PLUGINS_GROUP_ID, ARTIFACT_SUREFIRE_PLUGIN, "");
+        final Element configuration = document.createElement(CONFIGURATION);
+        final Element additionalClasspathElements = document.createElement("additionalClasspathElements");
+        final Element additionalClasspathElement = document.createElement("additionalClasspathElement");
+        additionalClasspathElement.setTextContent("target/dspot/dependencies/");
+        additionalClasspathElements.appendChild(additionalClasspathElement);
+        configuration.appendChild(additionalClasspathElements);
+        surefirePlugin.appendChild(configuration);
+
+        plugins.appendChild(surefirePlugin);
+    }
+
     /*
         POM XML MANAGEMENT
      */
 
-    private Node findOrCreateProfiles(Document document, Node root) {
-        final Node existingProfiles = findSpecificNodeFromGivenRoot(root.getFirstChild(), PROFILES);
+    private Node findOrCreateGivenNode(Document document, Node root, String nodeToFind) {
+        final Node existingProfiles = findSpecificNodeFromGivenRoot(root.getFirstChild(), nodeToFind);
         if (existingProfiles != null) {
             return existingProfiles;
         } else {
-            final Element profiles = document.createElement(PROFILES);
+            final Element profiles = document.createElement(nodeToFind);
             root.appendChild(profiles);
             return profiles;
         }
@@ -141,7 +206,8 @@ public class DSpotPOMCreator {
 
         id.setTextContent(PROFILE_ID);
         profile.appendChild(id);
-        profile.appendChild(createBuild(document));
+        final Element build = createBuild(document);
+        profile.appendChild(build);
 
         return profile;
     }
@@ -150,12 +216,24 @@ public class DSpotPOMCreator {
 
     private static final String PLUGINS = "plugins";
 
+    private static final String ID_VALUE_TEST_COMPILE = "default-testCompile";
+
+    private static final String PHASE_VALUE_TEST_COMPILE = "none";
+
     private Element createBuild(Document document) {
         final Element build = document.createElement(BUILD);
         final Element plugins = document.createElement(PLUGINS);
 
-        final Element plugin = createPlugin(document);
-        plugins.appendChild(plugin);
+        // PIT PLUGIN
+        final Element pluginPit = createPlugin(document, GROUP_ID_PIT, ARTIFACT_ID_PIT, VERSION);
+        final Element configuration = createConfiguration(document);
+        pluginPit.appendChild(configuration);
+
+        if (InputConfiguration.get().isDescartesMode() || this.isJUnit5) {
+            final Element dependencies = createDependencies(document);
+            pluginPit.appendChild(dependencies);
+        }
+        plugins.appendChild(pluginPit);
 
         build.appendChild(plugins);
 
@@ -170,30 +248,52 @@ public class DSpotPOMCreator {
 
     private static final String VERSION = "version";
 
-    private Element createPlugin(Document document) {
+    private Element createPlugin(Document document,
+                                 String groupIdValue,
+                                 String artifactIdValue,
+                                 String versionValue) {
         final Element plugin = document.createElement(PLUGIN);
 
         final Element groupId = document.createElement(GROUP_ID);
-        groupId.setTextContent(GROUP_ID_PIT);
+        groupId.setTextContent(groupIdValue);
         plugin.appendChild(groupId);
 
         final Element artifactId = document.createElement(ARTIFACT_ID);
-        artifactId.setTextContent(ARTIFACT_ID_PIT);
+        artifactId.setTextContent(artifactIdValue);
         plugin.appendChild(artifactId);
 
-        final Element version = document.createElement(VERSION);
-        version.setTextContent(InputConfiguration.get().getPitVersion());
-        plugin.appendChild(version);
-
-        final Element configuration = createConfiguration(document);
-        plugin.appendChild(configuration);
-
-        if (InputConfiguration.get().isDescartesMode() || this.isJUnit5) {
-            final Element dependencies = createDependencies(document);
-            plugin.appendChild(dependencies);
+        if (!versionValue.isEmpty()) {
+            final Element version = document.createElement(versionValue);
+            version.setTextContent(InputConfiguration.get().getPitVersion());
+            plugin.appendChild(version);
         }
 
         return plugin;
+    }
+
+    private static final String EXECUTIONS = "executions";
+
+    @NotNull
+    private Element createExecutions(Document document) {
+        return document.createElement(EXECUTIONS);
+    }
+
+    private static final String EXECUTION = "execution";
+
+    private static final String PHASE = "phase";
+
+    private Element createExecution(Document document, String idValue, String phaseValue) {
+        final Element execution = document.createElement(EXECUTION);
+
+        final Element id = document.createElement(ID);
+        id.setTextContent(idValue);
+        execution.appendChild(id);
+
+        final Element phase = document.createElement(PHASE);
+        phase.setTextContent(phaseValue);
+        execution.appendChild(phase);
+
+        return execution;
     }
 
     private static final String DEPENDENCIES = "dependencies";
