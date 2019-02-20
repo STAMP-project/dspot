@@ -9,17 +9,17 @@ sudo: required
 jdk: openjdk8
 
 env:
-#  - SCRIPT=travis-openjdk8.sh
-#  - SCRIPT=travis-oraclejdk8.sh
+  - SCRIPT=travis-openjdk8.sh
+  - SCRIPT=travis-oraclejdk8.sh
   - SCRIPT=travis-coverage.sh
-#  - SCRIPT=travis-jar.sh
-#  - SCRIPT=travis-dspot-maven.sh
-#  - SCRIPT=travis-checkstyle.sh
-#  - SCRIPT=travis-dhell.sh
-#  - SCRIPT=travis-ci-xwiki.sh
-#  - SCRIPT=travis-diff-test-selection.sh
-#  - SCRIPT=travis-prettifier.sh
-#  - SCRIPT=travis-dspot-maven-cmd-line.sh TODO FIXME
+  - SCRIPT=travis-jar.sh
+  - SCRIPT=travis-dspot-maven.sh
+  - SCRIPT=travis-checkstyle.sh
+  - SCRIPT=travis-dhell.sh
+  - SCRIPT=travis-ci-xwiki.sh
+  - SCRIPT=travis-diff-test-selection.sh
+  - SCRIPT=travis-prettifier.sh
+  - SCRIPT=travis-dspot-maven-cmd-line.sh
 
 cache:
   directories:
@@ -34,7 +34,7 @@ install:
 - mvn install -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip=true
 
 script:
-- ./.travis/$SCRIPT $DSPOT_VERSION $REPOSITORY_TOKEN
+- ./.travis/$SCRIPT $DSPOT_VERSION
 
 after_success:
 - ./.travis/travis-deploy.sh
