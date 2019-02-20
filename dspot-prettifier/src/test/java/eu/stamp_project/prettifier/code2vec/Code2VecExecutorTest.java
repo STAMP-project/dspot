@@ -24,10 +24,11 @@ public class Code2VecExecutorTest {
         );
         code2VecExecutor.run();
         final String output = code2VecExecutor.getOutput();
+        System.out.println(output);
         assertTrue(output.startsWith(STARTS_WITH));
         assertTrue(output.contains(CONTAINS));
     }
 
-    private static final String STARTS_WITH = "Orginal name: f";
-    private static final String CONTAINS = "(1.000000) predicted: ['test']";
+    private static final String STARTS_WITH = "Original name:\tf";
+    private static final String CONTAINS = "\t(1.000000) predicted: ['test']";
 }
