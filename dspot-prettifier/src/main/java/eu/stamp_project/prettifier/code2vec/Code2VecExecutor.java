@@ -1,4 +1,4 @@
-package eu.stamp_project.prettifier.code2vec.executor;
+package eu.stamp_project.prettifier.code2vec;
 
 import eu.stamp_project.utils.AmplificationHelper;
 import org.slf4j.Logger;
@@ -44,7 +44,7 @@ public class Code2VecExecutor {
      * Construct the Code2VecExecutor.
      * This class will initialize the model of Code2Vec, then provide an API to predict a name for a test method.
      * @param root the path to the root folder of Code2Vec.
-     * @param pathToModel the relative path to the model to be used.
+     * @param pathToModel the absolute path to the model to be used.
      */
     public Code2VecExecutor(String root, String pathToModel) {
         this.root = root;

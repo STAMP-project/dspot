@@ -1,4 +1,4 @@
-package eu.stamp_project.prettifier.code2vec.executor;
+package eu.stamp_project.prettifier.code2vec;
 
 import java.io.PrintStream;
 

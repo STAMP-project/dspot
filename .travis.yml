@@ -19,11 +19,15 @@ env:
   - SCRIPT=travis-ci-xwiki.sh
   - SCRIPT=travis-diff-test-selection.sh
   - SCRIPT=travis-prettifier.sh
-  # - SCRIPT=travis-dspot-maven-cmd-line.sh TODO FIX ME
+#  - SCRIPT=travis-dspot-maven-cmd-line.sh TODO FIX ME
 
 cache:
   directories:
   - $HOME/.m2
+
+before_install:
+- sudo apt-get update
+- sudo apt-get install python3
 
 install:
 - export DSPOT_VERSION=`grep '<version>' dspot/pom.xml | head -n 1 | sed -e 's/<version>//' -e 's/<\\/version>//' -e 's/ *//g'`
@@ -32,6 +36,8 @@ install:
 - cd dspot && ./src/main/bash/update-classes-in-resources.sh
 - cd ..
 - mvn install -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip=true
+- python3 --version
+- which python3
 
 script:
 - ./.travis/$SCRIPT $DSPOT_VERSION

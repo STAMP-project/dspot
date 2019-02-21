@@ -267,7 +267,10 @@ public class DSpotMojo extends AbstractMojo {
 
             if (this.pathPitResult != null && !this.pathPitResult.isEmpty()) {
                 InputConfiguration.get().setSelector(new PitMutantScoreSelector(this.pathPitResult,
-                        PitMutantScoreSelector.OutputFormat.XML, PitMutantScoreSelector.OutputFormat.XML));
+                        this.pathPitResult.endsWith(".xml") ?
+                        PitMutantScoreSelector.OutputFormat.XML: PitMutantScoreSelector.OutputFormat.CSV,
+                        PitMutantScoreSelector.OutputFormat.XML)
+                );
             } else {
                 InputConfiguration.get().setSelector(SelectorEnum.valueOf(this.testCriterion).buildSelector());
             }
@@ -296,7 +299,6 @@ public class DSpotMojo extends AbstractMojo {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        ;
     }
 
     // visible for testing...
