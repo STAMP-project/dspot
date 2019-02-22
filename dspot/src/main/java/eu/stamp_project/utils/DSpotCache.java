@@ -19,6 +19,7 @@ public class DSpotCache {
 						TestFrameworkSupport.class, ResourcePoolsBuilder.heap(
 								Long.parseLong(ConstantsProperties.CACHE_SIZE.getDefaultValue()))).build())
 				.build(true);
+
 		frameworkCache = cacheManager.getCache("frameworkCache", String.class, TestFrameworkSupport.class);
 	}
 
