@@ -1,5 +1,7 @@
 package eu.stamp_project.prettifier.options;
 
+import eu.stamp_project.utils.options.check.InputErrorException;
+
 /**
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -27,6 +29,21 @@ public class InputConfiguration {
     /*
         PROPERTY
      */
+
+    private String pathToAmplifiedTestClass;
+
+    public String getPathToAmplifiedTestClass() {
+        return this.pathToAmplifiedTestClass;
+    }
+
+    public InputConfiguration setPathToAmplifiedTestClass(String pathToAmplifiedTestClass) {
+        if (!pathToAmplifiedTestClass.endsWith(".java")) {
+            // TODO must add this error to the global report
+            throw new InputErrorException();
+        }
+        this.pathToAmplifiedTestClass = pathToAmplifiedTestClass;
+        return this;
+    }
 
     private String pathToRootOfCode2Vec;
 
