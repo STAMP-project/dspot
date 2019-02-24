@@ -1,4 +1,4 @@
-package eu.stamp_project.test_framework.junit;
+package eu.stamp_project.test_framework.implementations.junit;
 
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;

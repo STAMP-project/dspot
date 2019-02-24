@@ -1,4 +1,4 @@
-package eu.stamp_project.test_framework.junit;
+package eu.stamp_project.test_framework.implementations.junit;
 
 import eu.stamp_project.testrunner.runner.Failure;
 import spoon.reflect.code.CtBlock;

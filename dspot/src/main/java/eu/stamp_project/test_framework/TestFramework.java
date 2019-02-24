@@ -1,14 +1,17 @@
 package eu.stamp_project.test_framework;
 
 import eu.stamp_project.test_framework.assertions.AssertEnum;
-import eu.stamp_project.test_framework.junit.JUnit3Support;
-import eu.stamp_project.test_framework.junit.JUnit4Support;
-import eu.stamp_project.test_framework.junit.JUnit5Support;
+import eu.stamp_project.test_framework.implementations.AssertJTestFramework;
+import eu.stamp_project.test_framework.implementations.GoogleTruthTestFramework;
+import eu.stamp_project.test_framework.implementations.junit.JUnit3Support;
+import eu.stamp_project.test_framework.implementations.junit.JUnit4Support;
+import eu.stamp_project.test_framework.implementations.junit.JUnit5Support;
 import eu.stamp_project.testrunner.runner.Failure;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotCache;
 import eu.stamp_project.utils.TypeUtils;
 import eu.stamp_project.utils.program.InputConfiguration;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtExpression;
@@ -145,14 +148,30 @@ public class TestFramework implements TestFrameworkSupport {
                                         .count()
                 ));
         if (numberOfCallsToAssertionPerTestFramework.values().stream().allMatch(aLong -> aLong == 0L)) {
-            for (TestFrameworkSupport testFrameworkSupport : testFrameworkSupportList) {
-                if (testFrameworkSupport.isTest(testMethod)) {
-                    return testFrameworkSupport;
-                }
+            TestFrameworkSupport testFrameworkSupport = getTestFrameworkSupportFromIsTest(testMethod);
+            if (testFrameworkSupport != null) {
+                return testFrameworkSupport;
             }
             return this.testFrameworkSupportList.get(1);
         }
-        return Collections.max(numberOfCallsToAssertionPerTestFramework.entrySet(), Map.Entry.comparingByValue()).getKey();
+        final TestFrameworkSupport selectedTestFramework = Collections.max(numberOfCallsToAssertionPerTestFramework.entrySet(), Map.Entry.comparingByValue()).getKey();
+        if (selectedTestFramework instanceof AbstractTestFrameworkDecorator) {
+            TestFrameworkSupport testFrameworkSupport = getTestFrameworkSupportFromIsTest(testMethod);
+            if (testFrameworkSupport != null) {
+                ((AbstractTestFrameworkDecorator) selectedTestFramework).setInnerTestFramework(testFrameworkSupport);
+            }
+        }
+        return selectedTestFramework;
+    }
+
+    @Nullable
+    private TestFrameworkSupport getTestFrameworkSupportFromIsTest(CtMethod<?> testMethod) {
+        for (TestFrameworkSupport testFrameworkSupport : testFrameworkSupportList) {
+            if (testFrameworkSupport.isTest(testMethod)) {
+                return testFrameworkSupport;
+            }
+        }
+        return null;
     }
 
     @Override

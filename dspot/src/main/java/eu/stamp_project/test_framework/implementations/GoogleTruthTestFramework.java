@@ -1,5 +1,6 @@
-package eu.stamp_project.test_framework;
+package eu.stamp_project.test_framework.implementations;
 
+import eu.stamp_project.test_framework.AbstractTestFrameworkDecorator;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.testrunner.runner.Failure;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -18,15 +19,10 @@ import java.util.List;
  * benjamin.danglot@inria.fr
  * on 09/11/18
  */
-public class GoogleTruthTestFramework extends AbstractTestFramework {
+public class GoogleTruthTestFramework extends AbstractTestFrameworkDecorator {
 
     public GoogleTruthTestFramework() {
         super("com.google.common.truth.Truth");
-    }
-
-    @Override
-    public boolean isTest(CtMethod<?> candidate) {
-        return false;
     }
 
     @Override
@@ -47,21 +43,6 @@ public class GoogleTruthTestFramework extends AbstractTestFramework {
         invocation.setTarget(assertThat);
         invocation.putMetadata(METADATA_ASSERT_AMPLIFICATION, true);
         return invocation;
-    }
-
-    @Override
-    public CtMethod<?> prepareTestMethod(CtMethod<?> testMethod) {
-        return testMethod;
-    }
-
-    @Override
-    public CtMethod<?> generateExpectedExceptionsBlock(CtMethod<?> test, Failure failure, int numberOfFail) {
-        return test;
-    }
-
-    @Override
-    public void generateAfterClassToSaveObservations(CtType<?> testClass, List<CtMethod<?>> testsToRun) {
-
     }
 
     @SuppressWarnings("unchecked")
