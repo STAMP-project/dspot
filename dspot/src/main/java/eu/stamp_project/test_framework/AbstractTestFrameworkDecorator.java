@@ -5,8 +5,6 @@ import eu.stamp_project.test_framework.implementations.NoneTestFrameworkSupport;
 import eu.stamp_project.testrunner.runner.Failure;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
-import spoon.reflect.code.CtStatement;
-import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
