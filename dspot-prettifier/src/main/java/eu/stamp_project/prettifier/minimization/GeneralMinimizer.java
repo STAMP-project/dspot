@@ -1,6 +1,7 @@
 package eu.stamp_project.prettifier.minimization;
 
 import eu.stamp_project.minimization.Minimizer;
+import eu.stamp_project.prettifier.Main;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.DSpotUtils;
 import org.slf4j.Logger;
@@ -11,11 +12,10 @@ import spoon.reflect.reference.CtLocalVariableReference;
 import spoon.reflect.reference.CtVariableReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static eu.stamp_project.test_framework.TestFramework.ASSERTIONS_FILTER;
 
 /**
  * Created by Benjamin DANGLOT
@@ -26,6 +26,8 @@ public class GeneralMinimizer implements Minimizer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(eu.stamp_project.minimization.GeneralMinimizer.class);
 
+    private List<Long> timesMinimizationInMillis = new ArrayList<>();
+
     @Override
     public CtMethod<?> minimize(CtMethod<?> amplifiedTestToBeMinimized) {
         final CtMethod<?> clone = amplifiedTestToBeMinimized.clone();
@@ -34,17 +36,26 @@ public class GeneralMinimizer implements Minimizer {
         inlineLocalVariable(clone);
         LOGGER.info("Remove redundant assertions...");
         removeRedundantAssertions(clone);
+        final long elapsedTime = System.currentTimeMillis() - time;
+        this.timesMinimizationInMillis.add(elapsedTime);
         LOGGER.info("Reduce {}, {} statements to {} statements in {} ms.",
                 amplifiedTestToBeMinimized.getSimpleName(),
                 amplifiedTestToBeMinimized.getBody().getStatements().size(),
                 clone.getBody().getStatements().size(),
-                System.currentTimeMillis() - time
+                elapsedTime
         );
         return clone;
     }
 
-    private void removeRedundantAssertions(CtMethod<?> amplifiedTestToBeMinimized) {
+    private List<Long> timesRemoveRedundantAssertionsInMillis = new ArrayList<>();
 
+    private List<Integer> numbersOfAssertionsBefore = new ArrayList<>();
+
+    private List<Integer> numbersOfAssertionsAfter = new ArrayList<>();
+
+    private void removeRedundantAssertions(CtMethod<?> amplifiedTestToBeMinimized) {
+        this.numbersOfAssertionsBefore.add(amplifiedTestToBeMinimized.getElements(ASSERTIONS_FILTER).size());
+        final long time = System.currentTimeMillis();
         amplifiedTestToBeMinimized.getElements(new TypeFilter<>(CtBlock.class))
                 .forEach(block -> {
                     final List<CtInvocation<?>> assertions =
@@ -66,6 +77,9 @@ public class GeneralMinimizer implements Minimizer {
                         );
                     });
                 });
+        final long elapsedTime = System.currentTimeMillis() - time;
+        this.numbersOfAssertionsAfter.add(amplifiedTestToBeMinimized.getElements(ASSERTIONS_FILTER).size());
+        this.timesRemoveRedundantAssertionsInMillis.add(elapsedTime);
     }
 
     private void removeUselessDuplicateAssertions(CtBlock<?> block,
@@ -118,8 +132,14 @@ public class GeneralMinimizer implements Minimizer {
         }
     }
 
+    private List<Integer> numbersOfLocalVariablesBefore = new ArrayList<>();
+
+    private List<Integer> numbersOfLocalVariablesAfter = new ArrayList<>();
+
+    private List<Long> timesToInlineLocalVariables = new ArrayList<>();
 
     private void inlineLocalVariable(CtMethod<?> amplifiedTestToBeMinimized) {
+        final long time = System.currentTimeMillis();
         final List<CtLocalVariable> localVariables =
                 amplifiedTestToBeMinimized.getElements(new TypeFilter<>(CtLocalVariable.class));
 
@@ -146,6 +166,24 @@ public class GeneralMinimizer implements Minimizer {
             return localVariable;
         }).forEach(amplifiedTestToBeMinimized.getBody()::removeStatement);
         //TODO we can inline all local variables that are used only in assertion
+        final long elapsedTime = System.currentTimeMillis() - time;
+        this.numbersOfLocalVariablesBefore.add(localVariables.size());
+        this.numbersOfLocalVariablesAfter.add(amplifiedTestToBeMinimized.getElements(new TypeFilter<>(CtLocalVariable.class)).size());
+        this.timesToInlineLocalVariables.add(elapsedTime);
+    }
+
+    public void updateReport() {
+        // inline
+        Main.report.globalMinimization.inlineLocalVariables.medianNumberOfLocalVariablesBefore = Main.getMedian(this.numbersOfLocalVariablesAfter);
+        Main.report.globalMinimization.inlineLocalVariables.medianNumberOfLocalVariablesAfter = Main.getMedian(this.numbersOfLocalVariablesBefore);
+        Main.report.globalMinimization.inlineLocalVariables.medianTimeInlineLocalVariablesInMillis = Main.getMedian(this.timesToInlineLocalVariables);
+        // remove redundant assertion
+        Main.report.globalMinimization.removeRedundantAssertions.medianNumberOfAssertionsBefore = Main.getMedian(this.numbersOfAssertionsBefore);
+        Main.report.globalMinimization.removeRedundantAssertions.medianNumberOfAssertionsAfter = Main.getMedian(this.numbersOfAssertionsAfter);
+        Main.report.globalMinimization.removeRedundantAssertions.medianTimeRemoveRedundantAssertionsInMillis = Main.getMedian(this.timesRemoveRedundantAssertionsInMillis);
+        // time minimization
+        Main.report.globalMinimization.medianTimeMinimizationInMillis = Main.getMedian(this.timesMinimizationInMillis);
     }
 
 }
+
