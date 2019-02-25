@@ -1,5 +1,6 @@
-package eu.stamp_project.test_framework;
+package eu.stamp_project.test_framework.implementations;
 
+import eu.stamp_project.test_framework.AbstractTestFramework;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.testrunner.runner.Failure;
 import spoon.reflect.code.CtExpression;
