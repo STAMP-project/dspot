@@ -2,6 +2,7 @@ package eu.stamp_project.prettifier;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.prettifier.code2vec.Code2VecExecutor;
 import eu.stamp_project.prettifier.code2vec.Code2VecParser;
 import eu.stamp_project.prettifier.code2vec.Code2VecWriter;
@@ -47,8 +48,7 @@ public class Main {
         final CtType<?> amplifiedTestClass = loadAmplifiedTestClass();
         final List<CtMethod<?>> prettifiedAmplifiedTestMethods = run(amplifiedTestClass);
         // output now
-        PrettifiedTestMethods.output(amplifiedTestClass, prettifiedAmplifiedTestMethods);
-        output();
+        output(amplifiedTestClass, prettifiedAmplifiedTestMethods);
     }
 
     public static CtType<?> loadAmplifiedTestClass() {
@@ -79,13 +79,22 @@ public class Main {
     }
 
     public static List<CtMethod<?>> applyMinimization(List<CtMethod<?>> amplifiedTestMethodsToBeRenamed) {
+
+        // 1rst apply a general minimization
         final GeneralMinimizer generalMinimizer = new GeneralMinimizer();
-        final List<CtMethod<?>> minimizedAmplifiedTestMethods = amplifiedTestMethodsToBeRenamed.stream()
+        final List<CtMethod<?>> generalMinimizedAmplifiedTestMethods = amplifiedTestMethodsToBeRenamed.stream()
                 .map(generalMinimizer::minimize)
                 .collect(Collectors.toList());
         generalMinimizer.updateReport();
-        return minimizedAmplifiedTestMethods;
 
+        // 2nd apply a specific minimization
+        final Minimizer minimizer = eu.stamp_project.utils.program.InputConfiguration.get().getSelector().getMinimizer();
+        final List<CtMethod<?>> minimizedAmplifiedTestMethods = generalMinimizedAmplifiedTestMethods.stream()
+                .map(minimizer::minimize)
+                    .collect(Collectors.toList());
+        // TODO REPORT
+
+        return minimizedAmplifiedTestMethods;
     }
 
     public static void applyCode2Vec(String pathToRootOfCode2Vec,
@@ -117,7 +126,8 @@ public class Main {
                 new Double(list.stream().skip(list.size() / 2).findFirst().get().toString());
     }
 
-    public static void output() {
+    public static void output(CtType<?> amplifiedTestClass, List<CtMethod<?>> prettifiedAmplifiedTestMethods) {
+        PrettifiedTestMethods.output(amplifiedTestClass, prettifiedAmplifiedTestMethods);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         final String pathname = eu.stamp_project.utils.program.InputConfiguration.get().getOutputDirectory() + "/report.json";
         LOGGER.info("Output a report in {}", pathname);
