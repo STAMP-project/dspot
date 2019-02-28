@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
  * benjamin.danglot@inria.fr
  * on 22/12/17
  */
+@Deprecated
 public class CloverCoverageSelector extends TakeAllSelector {
 
     private Map<CtType<?>, Set<Integer>> originalLineCoveragePerClass;

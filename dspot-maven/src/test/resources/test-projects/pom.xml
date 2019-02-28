@@ -28,7 +28,6 @@
             <plugin>
                 <groupId>eu.stamp-project</groupId>
                 <artifactId>dspot-maven</artifactId>
-                <version>1.2.2-SNAPSHOT</version>
                 <executions>
                     <execution>
                         <goals>

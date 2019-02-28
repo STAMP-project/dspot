@@ -4,7 +4,7 @@ import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.compare.Observation;
 import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.testrunner.listener.TestListener;
+import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
@@ -109,7 +109,7 @@ public class MethodAssertGeneratorWithTime extends MethodsAssertGenerator {
         final long timeRunningInstrumentation = System.currentTimeMillis();
         TestFramework.get().generateAfterClassToSaveObservations(clone, testsToRun);
         try {
-            final TestListener result = TestCompiler.compileAndRun(clone,
+            final TestResult result = TestCompiler.compileAndRun(clone,
                     this.compiler,
                     testsToRun,
                     this.configuration

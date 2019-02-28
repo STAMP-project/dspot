@@ -74,15 +74,19 @@ public class AssertionRemover {
                 (boolean) invocation.getMetadata(AssertGeneratorHelper.METADATA_ASSERT_AMPLIFICATION))) {
             for (CtExpression<?> argument : invocation.getArguments()) {
                 CtExpression clone = ((CtExpression) argument).clone();
+                clone.getTypeCasts().clear();
                 if (clone instanceof CtUnaryOperator) {
                     clone = ((CtUnaryOperator) clone).getOperand();
                 }
-                if (clone instanceof CtStatement) {
-                    clone.getTypeCasts().clear();
+                if (clone instanceof CtLambda) {
+                    invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter,
+                            factory.createStatementList(((CtLambda) clone).getBody())
+                    );
+                } else if (clone instanceof CtStatement) {
                     invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, (CtStatement) clone);
                 } else if (!(clone instanceof CtLiteral || clone instanceof CtVariableRead)) {
                     CtTypeReference<?> typeOfParameter = clone.getType();
-                    if (clone.getType().equals(factory.Type().NULL_TYPE)) {
+                    if (clone.getType()  == null || factory.Type().NULL_TYPE.equals(clone.getType())) {
                         typeOfParameter = factory.Type().createReference(Object.class);
                     }
                     final CtLocalVariable localVariable = factory.createLocalVariable(

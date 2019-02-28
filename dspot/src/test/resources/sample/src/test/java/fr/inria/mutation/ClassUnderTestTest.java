@@ -8,6 +8,12 @@ import static org.junit.Assert.assertTrue;
 public class ClassUnderTestTest {
 
     @Test
+    public void testWithCast() {
+        ClassUnderTest underTest = new ClassUnderTest();
+        System.out.println(((Integer)((ClassUnderTest)underTest).plusOne(1)).intValue());
+    }
+
+    @Test
     public void testLit() {
         ClassUnderTest underTest = new ClassUnderTest();
         assertEquals(1, underTest.plusOne(0));

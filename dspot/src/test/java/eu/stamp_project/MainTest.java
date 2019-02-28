@@ -122,6 +122,30 @@ public class MainTest {
     }
 
     @Test
+    public void testMainWithPitScoreSelectorWithMavenToExecuteTests() throws Exception {
+
+        /*
+            same as testMainWithPitScoreSelector but using the options --use-maven-to-exe-test enabled,
+                i.e. using maven to execute the test
+         */
+
+        Main.main(new String[]{
+                "--verbose",
+                "--path-to-properties", "src/test/resources/sample/sample.properties",
+                "--test-criterion", "PitMutantScoreSelector",
+                "--test", "fr.inria.sample.TestClassWithoutAssert:fr.inria.filter.failing.FailingTest",
+                "--path-pit-result", "src/test/resources/sample/mutations.csv",
+                "--gregor",
+                "--output-path", "target/trash",
+                "--use-maven-to-exe-test"
+        });
+
+        assertTrue(new File("target/trash/fr.inria.sample.TestClassWithoutAssert_mutants_killed.json").exists());
+        assertFalse(new File("target/trash/fr/inria/filter/failing").exists());
+        assertTrue(new File("target/trash/fr/inria/sample/").exists());
+    }
+
+    @Test
     public void testMainWithPitScoreSelectorJUnit5() throws Exception {
 
         /*

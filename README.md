@@ -4,7 +4,7 @@
 
 DSpot is a tool that generates missing assertions in JUnit tests.
 DSpot takes as input a Java project with an existing test suite.
-As output, DSpot outputs new test cases on console. 
+DSpot generates new test cases from existing ones and write them on disk. 
 DSpot supports Java projects built with Maven and Gradle (see the `--automatic-builder` option)
 
 DSpot ecosystem:
@@ -65,7 +65,7 @@ See <https://github.com/STAMP-project/dspot/releases>
 
 ## Contributing
 
-DSpot is licensed un LGPLv3. Pull request as are welcome.
+DSpot is licensed under LGPLv3. Contributors and pull requests are welcome.
 
 ## Usage
 
@@ -171,14 +171,14 @@ java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --path-to-properties d
 You can execute DSpot using the maven plugin. You can use this plugin on the command line as the jar:
 
 ```bash
-mvn eu.stamp-project:dspot-maven:LATEST:amplify-unit-tests
+mvn eu.stamp-project:dspot-maven:amplify-unit-tests
 ```  
 
 All the option can be pass through command line by prefixing the option with `-D`.
 For example: 
 
 ```bash
-mvn eu.stamp-project:dspot-maven:LATEST:amplify-unit-tests -Dpath-to-properties dspot.properties -Dtest my.package.TestClass -Dcases testMethod
+mvn eu.stamp-project:dspot-maven:amplify-unit-tests -Dpath-to-properties=dspot.properties -Dtest=my.package.TestClass -Dcases=testMethod
 ```
 
 or, you can add the following to your `pom.xml`, in the plugins section of the build:
@@ -193,6 +193,7 @@ or, you can add the following to your `pom.xml`, in the plugins section of the b
     </configuration>
 </plugin>
 ```
+Replace `LATEST` with the latest DSpot version number available at Maven central: `2.0.0`
 
 In case your project is a multi-module, we advise you to configure DSpot in the highest `pom.xml` and use the dedicated property `targetModule` to name the module you want to amplify
 
@@ -287,6 +288,10 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         [optional, expert mode] specify the path to the .xml or .csv of the original
         result of Pit Test. If you use this option the selector will be forced
         to PitMutantScoreSelector
+  [--targetOneTestClass]
+        [optional, expert] enable this option will make DSpot computing the
+        mutation score of only one test class (the first pass through --test
+        command line option)        
 
   [--descartes]
         Enable the descartes engine for Pit Mutant Score Selector.
@@ -357,15 +362,15 @@ Here is the list of configuration properties of DSpot:
 	* delta: specify the delta value for the assertions of floating-point numbers. If DSpot generates assertions for float, it uses Assert.assertEquals(expected, actual, delta). This property specify the delta value.(default: 0.1)
 	* excludedClasses: specify the full qualified name of excluded test classes. Each qualified name must be separated by a comma ','. These classes won't be amplified, nor executed during the mutation analysis, if the PitMutantScoreSelector is used.This property can be valued by a regex.
 	* excludedTestCases: specify the list of test cases to be excluded. Each is the name of a test case, separated by a comma ','.
-	* maven.home: specify the maven home directory. This properties is redundant with the command line option `--maven-home`. This property has the priority over the command line. If this property is not specified, nor the command line option `--maven-home,` `DSpot` will first look in both MAVEN_HOME and M2_HOME environment variables. If these variables are not set, DSpot will look for a maven home at default locations /usr/share/maven/, /usr/local/maven-3.3.9/ and /usr/share/maven3/.
+	* maven.home: specify the maven home directory. This property is redundant with the command line option `--maven-home`. This property has the priority over the command line. If this property is not specified, nor the command line option `--maven-home,` `DSpot` will first look in both MAVEN_HOME and M2_HOME environment variables. If these variables are not set, DSpot will look for a maven home at default locations /usr/share/maven/, /usr/local/maven-3.3.9/ and /usr/share/maven3/.
+	* maven.pre.goals: specify pre goals to run before executing test with maven.This property will used as follow: the elements, separated by a comma,must be valid maven goals and they will be placed just before the "test" goal, _e.g._maven.pre.goals=preGoal1,preGoal2 will give "mvn preGoal1 preGoal2 test"
 	* folderPath: when using the ChangeDetectorSelector or the command-line option-value `--test diff`, you must specify this property. This property should have for value the path to the root of the second version of the project. It is recommended to give an absolute path
 	* baseSha: when using the command-line option-value  `--test diff`, which select tests to be amplified according a diff, you must specify this property.This property should have for value the commit sha of the base branch, _i.e._ the version of the to project to be merged.
 	* automaticBuilderName: specify the type of automatic builder. This properties is redundant with the command line option `--automatic-builder`. It should have also the same value: (MavenBuilder | GradleBuilder). This property has the priority over the command line.
-	* pitVersion: specify the version of PIT to use.(default: 1.3.0)
-	* pitTimeout: specify the time out of PIT, if the PitMutantScoreSelector.
+	* pitVersion: specify the version of PIT to use.(default: 1.4.0)
 	* jvmArgs: specify JVM args to use when executing the test, PIT or other java process. This arguments should be a list, separated by a comma ',', _e.g._ jvmArgs=Xmx2048m,-Xms1024m',-Dis.admin.user=admin,-Dis.admin.passwd=$2pRSid#
 	* filter: specify the filter used by PIT. If you use PitMutantScoreSelector, we recommend you to set this property to your top-most package. This value will allow PIT to mutant all your code. However, if you want to restrict the scope of the mutation, you can specify a custom regex. If you do not specify any value, PIT will use the following filter: <groupId>.<artifactId>.* which might not match your packages.
-	* descartesVersion: specify the version of pit-descartes to use.(default: 1.2)
+	* descartesVersion: specify the version of pit-descartes to use.(default: 1.2.4)
 	* descartesMutators: specify the list of descartes mutators to be used separated by comma. Please refer to the descartes documentation for more details: https://github.com/STAMP-project/pitest-descartes
 You can find an example of properties file [here](https://github.com/STAMP-project/dspot/blob/master/dspot/src/test/resources/sample/sample.properties)).
 
@@ -479,5 +484,5 @@ dspot.amplifyAllTests(); // will amplify all test in the test suite.
 
 ### Acknowledgement
 
-Dspot is partially funded by research project H2020 STAMP.
+Dspot is funded by [EU H2020 research project STAMP](https://www.stamp-project.eu/).
 

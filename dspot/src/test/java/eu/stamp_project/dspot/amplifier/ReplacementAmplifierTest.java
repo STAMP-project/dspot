@@ -36,9 +36,9 @@ public class ReplacementAmplifierTest extends AbstractTest {
         assertEquals("{" + AmplificationHelper.LINE_SEPARATOR +
                 "    java.util.ArrayList<fr.inria.statementadd.TestClassTarget.Internal> internalList = new java.util.ArrayList<fr.inria.statementadd.TestClassTarget.Internal>(java.util.Collections.emptyList());" + AmplificationHelper.LINE_SEPARATOR +
                 "    internalList.add(new fr.inria.statementadd.TestClassTarget.Internal());" + AmplificationHelper.LINE_SEPARATOR +
-                "    for (fr.inria.statementadd.TestClassTarget.Internal i : internalList)" + AmplificationHelper.LINE_SEPARATOR +
+                "    for (fr.inria.statementadd.TestClassTarget.Internal i : internalList) {" + AmplificationHelper.LINE_SEPARATOR +
                 "        i.compute(0);" + AmplificationHelper.LINE_SEPARATOR +
-                "" + AmplificationHelper.LINE_SEPARATOR +
+                "    }" + AmplificationHelper.LINE_SEPARATOR +
                 "}", amplifiedMethods.get(0).getBody().toString());
     }
 

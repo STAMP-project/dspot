@@ -1,7 +1,7 @@
 package eu.stamp_project.minimization;
 
 import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.testrunner.listener.TestListener;
+import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.testrunner.runner.Failure;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
@@ -52,6 +52,8 @@ public class ChangeMinimizer extends GeneralMinimizer {
     public CtMethod<?> minimize(CtMethod<?> amplifiedTestToBeMinimized) {
         final CtMethod<?> generalMinimize = super.minimize(amplifiedTestToBeMinimized);
         final CtMethod<?> changeMinimize = generalMinimize.clone();
+        //Optimization: Tracking bound to the original method for future caching of associated TestFramework
+        AmplificationHelper.addTestBindingToOriginal(changeMinimize, generalMinimize);
         final long time = System.currentTimeMillis();
         final Failure failureToKeep = this.failurePerAmplifiedTest.get(amplifiedTestToBeMinimized);
         final List<CtInvocation> assertions = changeMinimize.filterChildren(TestFramework.ASSERTIONS_FILTER).list();
@@ -85,7 +87,7 @@ public class ChangeMinimizer extends GeneralMinimizer {
         }
         // must have (the same?) failure
         try {
-            final TestListener result = EntryPoint.runTests(
+            final TestResult result = EntryPoint.runTests(
                     this.configuration.getFullClassPathWithExtraDependencies(),
                     clone.getQualifiedName(),
                     changeMinimize.getSimpleName());
@@ -101,6 +103,8 @@ public class ChangeMinimizer extends GeneralMinimizer {
                                       CtInvocation<?> invocation,
                                       Failure failureToKeep) {
         final CtMethod<?> clone = amplifiedTestToBeMinimized.clone();
+       //Optimization: Tracking bound to the original method for future caching of associated TestFramework
+        AmplificationHelper.addTestBindingToOriginal(clone, amplifiedTestToBeMinimized);
         clone.getBody().removeStatement(invocation);
         if (checkIfMinimizationIsOk(clone, failureToKeep)) {
             amplifiedTestToBeMinimized.getBody().removeStatement(invocation);
@@ -124,7 +128,7 @@ public class ChangeMinimizer extends GeneralMinimizer {
             return false;
         }
         try {
-            final TestListener result = EntryPoint.runTests(
+            final TestResult result = EntryPoint.runTests(
                     this.getMixedClasspath(),
                     clone.getQualifiedName(),
                     amplifiedTestToBeMinimized.getSimpleName()

@@ -96,8 +96,13 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         return this.classpath;
     }
 
+    private boolean shouldDeleteGeneratedPom() {
+        return hasGeneratePom ||
+                new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + DSpotPOMCreator.getPOMName()).exists();
+    }
+
     private void delete(boolean displayError) {
-        if (this.hasGeneratePom) {
+        if (this.shouldDeleteGeneratedPom()) {
             this.hasGeneratePom = false;
             try {
                 FileUtils.forceDelete(new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + DSpotPOMCreator.getPOMName()));

@@ -1,11 +1,17 @@
 package eu.stamp_project.test_framework;
 
 import eu.stamp_project.test_framework.assertions.AssertEnum;
-import eu.stamp_project.test_framework.junit.JUnit3Support;
-import eu.stamp_project.test_framework.junit.JUnit4Support;
-import eu.stamp_project.test_framework.junit.JUnit5Support;
+import eu.stamp_project.test_framework.implementations.AssertJTestFramework;
+import eu.stamp_project.test_framework.implementations.GoogleTruthTestFramework;
+import eu.stamp_project.test_framework.implementations.junit.JUnit3Support;
+import eu.stamp_project.test_framework.implementations.junit.JUnit4Support;
+import eu.stamp_project.test_framework.implementations.junit.JUnit5Support;
 import eu.stamp_project.testrunner.runner.Failure;
+import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.DSpotCache;
+import eu.stamp_project.utils.TypeUtils;
 import eu.stamp_project.utils.program.InputConfiguration;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtExpression;
@@ -50,7 +56,7 @@ public class TestFramework implements TestFrameworkSupport {
 
     /**
      * This method says whether the given test method is JUnit 5 or not.
-     *
+
      * For now, only JUnit5 needs to be checked because JUnit3 and JUnit4 can be run with the same test runner and do not required any
      * specific configuration (such as the pom for PIT, see TODO).
      *
@@ -58,8 +64,7 @@ public class TestFramework implements TestFrameworkSupport {
      * @return true if the given ctMethod is a JUnit5, false otherwise.
      */
     public static boolean isJUnit5(CtMethod<?> ctMethod) {
-       InputConfiguration.get().setJUnit5(TestFramework.get().getTestFramework(ctMethod) instanceof JUnit5Support);
-       return InputConfiguration.get().isJUnit5();
+        return TestFramework.get().getTestFramework(ctMethod) instanceof JUnit5Support;
     }
 
     @Override
@@ -114,7 +119,26 @@ public class TestFramework implements TestFrameworkSupport {
     // The idea is to generate assertions that look like the original one,
     // i.e. if the developer used JUnit4, we should generate JUnit4 assertions
     // We determine is by taking the most common assertion type in the given test method.
+    // This method uses a cache to retrieve the test framework already determined for the original test method
+    // associated to input test method
     private TestFrameworkSupport getTestFramework(CtMethod<?> testMethod) {
+    	//Get original test method, using bounds of cloned methods in AmplificationHelper
+    	CtMethod<?> originalMethod = AmplificationHelper.getOriginalTest(testMethod);
+    	//Retrieving associated test framework from cache
+    	TestFrameworkSupport tfs = DSpotCache.getTestFrameworkCache().get(TypeUtils.getQualifiedName(originalMethod));
+    	if (tfs == null){ //If not cached, test framework is computed and stored in cache.
+    		tfs = getTestFrameworkImpl (testMethod);
+    		DSpotCache.getTestFrameworkCache().put(TypeUtils.getQualifiedName(originalMethod), tfs);
+    	}
+    	return tfs;
+    }
+
+
+    // This method identify the test framework support used in the given test method
+    // The idea is to generate assertions that look like the original one,
+    // i.e. if the developer used JUnit4, we should generate JUnit4 assertions
+    // We determine is by taking the most common assertion type in the given test method.
+    private TestFrameworkSupport getTestFrameworkImpl(CtMethod<?> testMethod) {
         final Map<TestFrameworkSupport, Long> numberOfCallsToAssertionPerTestFramework = this.testFrameworkSupportList.stream()
                 .collect(Collectors.toMap(Function.identity(),
                         testFrameworkSupport ->
@@ -124,14 +148,30 @@ public class TestFramework implements TestFrameworkSupport {
                                         .count()
                 ));
         if (numberOfCallsToAssertionPerTestFramework.values().stream().allMatch(aLong -> aLong == 0L)) {
-            for (TestFrameworkSupport testFrameworkSupport : testFrameworkSupportList) {
-                if (testFrameworkSupport.isTest(testMethod)) {
-                    return testFrameworkSupport;
-                }
+            TestFrameworkSupport testFrameworkSupport = getTestFrameworkSupportFromIsTest(testMethod);
+            if (testFrameworkSupport != null) {
+                return testFrameworkSupport;
             }
             return this.testFrameworkSupportList.get(1);
         }
-        return Collections.max(numberOfCallsToAssertionPerTestFramework.entrySet(), Map.Entry.comparingByValue()).getKey();
+        final TestFrameworkSupport selectedTestFramework = Collections.max(numberOfCallsToAssertionPerTestFramework.entrySet(), Map.Entry.comparingByValue()).getKey();
+        if (selectedTestFramework instanceof AbstractTestFrameworkDecorator) {
+            TestFrameworkSupport testFrameworkSupport = getTestFrameworkSupportFromIsTest(testMethod);
+            if (testFrameworkSupport != null) {
+                ((AbstractTestFrameworkDecorator) selectedTestFramework).setInnerTestFramework(testFrameworkSupport);
+            }
+        }
+        return selectedTestFramework;
+    }
+
+    @Nullable
+    private TestFrameworkSupport getTestFrameworkSupportFromIsTest(CtMethod<?> testMethod) {
+        for (TestFrameworkSupport testFrameworkSupport : testFrameworkSupportList) {
+            if (testFrameworkSupport.isTest(testMethod)) {
+                return testFrameworkSupport;
+            }
+        }
+        return null;
     }
 
     @Override

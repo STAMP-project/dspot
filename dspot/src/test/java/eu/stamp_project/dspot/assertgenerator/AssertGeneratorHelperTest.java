@@ -5,11 +5,13 @@ import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
+import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.Collections;
@@ -27,6 +29,36 @@ import static org.junit.Assert.assertTrue;
  * on 12/06/17
  */
 public class AssertGeneratorHelperTest extends AbstractTest {
+
+    @Test
+    public void testGetCorrectTypeOfInvocation() {
+
+        /*
+            Test that we remove correctly the actual type argument if it is generics.
+
+            TODO: I don't understand why Spoon change the <T> by <java.lang.Object> and makes the test failing...
+         */
+
+        final Factory factory = InputConfiguration.get().getFactory();
+        final CtClass<?> myClassWithSpecificReturnType = factory.Class().get("fr.inria.ClassWithSpecificReturnType");
+        final CtMethod<?> tryGetters = myClassWithSpecificReturnType.getMethodsByName("tryGetters").get(0);
+        final List<CtInvocation> invocations = tryGetters.getElements(new TypeFilter<>(CtInvocation.class));
+        CtTypeReference correctTypeOfInvocation = AssertGeneratorHelper.getCorrectTypeOfInvocation(invocations.get(0));
+        assertEquals("doest not have the correct type",
+                "fr.inria.ClassWithSpecificReturnType.Element<?>",
+                correctTypeOfInvocation.toString()
+        );
+        correctTypeOfInvocation = AssertGeneratorHelper.getCorrectTypeOfInvocation(invocations.get(1));
+        /*assertEquals("doest not have the correct type",
+                "fr.inria.ClassWithSpecificReturnType.Element",
+                correctTypeOfInvocation.toString()
+        );*/
+        correctTypeOfInvocation = AssertGeneratorHelper.getCorrectTypeOfInvocation(invocations.get(2));
+        assertEquals("doest not have the correct type",
+                "fr.inria.ClassWithSpecificReturnType.Element<java.lang.String>",
+                correctTypeOfInvocation.toString()
+        );
+    }
 
     @Test
     public void testContainsObjectReferences() throws Exception {

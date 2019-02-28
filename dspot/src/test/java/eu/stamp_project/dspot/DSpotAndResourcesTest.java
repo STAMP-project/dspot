@@ -3,7 +3,7 @@ package eu.stamp_project.dspot;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.testrunner.EntryPoint;
-import eu.stamp_project.testrunner.listener.TestListener;
+import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class DSpotAndResourcesTest extends AbstractTest {
 				+ AmplificationHelper.PATH_SEPARATOR +
 				configuration.getDependencies();
 
-		final TestListener result = EntryPoint.runTests(
+		final TestResult result = EntryPoint.runTests(
 				classpath,
 				classUsingResources.getQualifiedName(),
 				classUsingResources.getMethodsByName("testResources")

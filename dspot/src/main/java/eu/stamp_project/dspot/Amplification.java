@@ -81,7 +81,10 @@ public class Amplification {
         // here, we base the execution mode to the first test method given.
         // the user should provide whether JUnit3/4 OR JUnit5 but not both at the same time.
         // TODO DSpot could be able to switch from one to another version of JUnit, but I believe that the ROI is not worth it.
-        EntryPoint.jUnit5Mode = TestFramework.isJUnit5(tests.get(0));
+        final boolean jUnit5 = TestFramework.isJUnit5(tests.get(0));
+        EntryPoint.jUnit5Mode = jUnit5;
+        InputConfiguration.get().setJUnit5(jUnit5);
+        this.testSelector.init(InputConfiguration.get());
         final List<CtMethod<?>> passingTests = TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(classTest, tests, this.compiler, InputConfiguration.get());
         final List<CtMethod<?>> selectedToBeAmplified;
         try {

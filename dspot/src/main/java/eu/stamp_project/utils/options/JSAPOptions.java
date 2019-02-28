@@ -33,6 +33,7 @@ public class JSAPOptions {
 
     /**
      * parse the command line argument
+     *
      * @param args command line arguments. Refer to the README on the github page or use --help command line option to display all the accepted arguments.
      * @return true if --example is pass through the command line. It will run DSpot with a small example to make a demonstration of the usage of DSpot.
      * Otherwise, it returns false and DSpot will run normally, using the properties and the command line options.
@@ -79,11 +80,10 @@ public class JSAPOptions {
                 LOGGER.warn("Forcing the Selector to PitMutantScoreSelector");
             }
             String pathToOriginalResultOfPit = jsapConfig.getString("mutant");
-            String extension = pathToOriginalResultOfPit.substring(pathToOriginalResultOfPit.length()-4);
             PitMutantScoreSelector.OutputFormat originalFormat;
-            if(extension.toLowerCase().equals("xml")){
+            if (pathToOriginalResultOfPit.toLowerCase().endsWith(".xml")) {
                 originalFormat = PitMutantScoreSelector.OutputFormat.XML;
-            } else if (extension.toLowerCase().equals("csv")){
+            } else if (pathToOriginalResultOfPit.toLowerCase().endsWith(".csv")) {
                 originalFormat = PitMutantScoreSelector.OutputFormat.CSV;
             } else {
                 LOGGER.warn("You specified the wrong Pit format. Skipping expert mode.");
@@ -91,7 +91,7 @@ public class JSAPOptions {
             }
             testCriterion = new PitMutantScoreSelector(jsapConfig.getString("mutant"), originalFormat, consecutiveFormat);
 
-        // default test selector mode
+            // default test selector mode
         } else {
             if (!(jsapConfig.getString("output-format") == null)) {
                 if (!"PitMutantScoreSelector".equals(jsapConfig.getString("test-criterion"))) {
@@ -141,7 +141,8 @@ public class JSAPOptions {
                 .setGenerateAmplifiedTestClass(jsapConfig.getBoolean("generate-new-test-class"))
                 .setKeepOriginalTestMethods(jsapConfig.getBoolean("keep-original-test-methods"))
                 .setDescartesMode(jsapConfig.getBoolean("descartes") && !jsapConfig.getBoolean("gregor"))
-                .setUseMavenToExecuteTest(jsapConfig.getBoolean("use-maven-to-exe-test"));
+                .setUseMavenToExecuteTest(jsapConfig.getBoolean("use-maven-to-exe-test"))
+                .setTargetOneTestClass(jsapConfig.getBoolean("targetOneTestClass"));
         return false;
     }
 
@@ -247,6 +248,12 @@ public class JSAPOptions {
         mutantScore.setLongFlag("path-pit-result");
         mutantScore.setUsageName("./path/to/mutations.csv");
         mutantScore.setHelp("[optional, expert mode] specify the path to the .xml or .csv of the original result of Pit Test. If you use this option the selector will be forced to PitMutantScoreSelector");
+
+        Switch targetOneTestClass = new Switch("targetOneTestClass");
+        targetOneTestClass.setLongFlag("targetOneTestClass");
+        targetOneTestClass.setHelp("[optional, expert] enable this option will make DSpot computing the mutation score of only one test class (the first pass through --test command line option)");
+        targetOneTestClass.setDefault("false");
+
 
         FlaggedOption testCases = new FlaggedOption("testCases");
         testCases.setList(true);
@@ -355,6 +362,7 @@ public class JSAPOptions {
             jsap.registerParameter(output);
             jsap.registerParameter(cleanOutput);
             jsap.registerParameter(mutantScore);
+            jsap.registerParameter(targetOneTestClass);
             jsap.registerParameter(descartes);
             jsap.registerParameter(gregor);
             jsap.registerParameter(automaticBuilder);

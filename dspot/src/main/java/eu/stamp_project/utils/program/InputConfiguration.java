@@ -205,6 +205,7 @@ public class InputConfiguration {
                 .setDescartesVersion(ConstantsProperties.DESCARTES_VERSION.get(properties))
                 .setBaseSha(ConstantsProperties.BASE_SHA.get(properties))
                 .setExcludedClasses(ConstantsProperties.EXCLUDED_CLASSES.get(properties))
+                .setPreGoalsTestExecution(ConstantsProperties.MAVEN_PRE_GOALS.get(properties))
                 //.setTimeoutPit(ConstantsProperties.TIMEOUT_PIT.get(properties))
                 .setJVMArgs(ConstantsProperties.JVM_ARGS.get(properties))
                 .setDescartesMutators(ConstantsProperties.DESCARTES_MUTATORS.get(properties))
@@ -911,6 +912,20 @@ public class InputConfiguration {
     }
 
     /**
+     *  pre goals to run in case tests' execution done by maven
+     */
+    private String preGoalsTestExecution = "";
+
+    public String getPreGoalsTestExecution() {
+        return this.preGoalsTestExecution;
+    }
+
+    public InputConfiguration setPreGoalsTestExecution(String preGoalsTestExecution) {
+        this.preGoalsTestExecution = preGoalsTestExecution;
+        return this;
+    }
+
+    /**
      * This boolean say if the outputs test class should also contain original test methods.
      */
     private boolean keepOriginalTestMethods = false;
@@ -930,10 +945,21 @@ public class InputConfiguration {
      * This boolean says if the current amplification is in JUnit5 or not.
      */
     public boolean isJUnit5() {
-        return isJUnit5;
+        return this.isJUnit5;
     }
 
     public void setJUnit5(boolean JUnit5) {
         isJUnit5 = JUnit5;
+    }
+
+    private boolean targetOneTestClass = false;
+
+    public boolean shouldTargetOneTestClass() {
+        return this.targetOneTestClass;
+    }
+
+    public InputConfiguration setTargetOneTestClass(boolean targetOneTestClass) {
+        this.targetOneTestClass = targetOneTestClass;
+        return this;
     }
 }
