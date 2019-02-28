@@ -104,7 +104,7 @@ public class AssertGenerator {
      */
     private List<CtMethod<?>> innerAssertionAmplification(CtType testClass, List<CtMethod<?>> tests) {
 
-        // input amplified tests may throw new exceptions, test them
+        // check if input amplified tests throw new exceptions
         LOGGER.info("Run tests. ({})", tests.size());
         final TestListener testResult;
         try {
@@ -125,7 +125,7 @@ public class AssertGenerator {
         final List<String> passingTestsName = testResult.getPassingTests();
         final List<CtMethod<?>> generatedTestWithAssertion = new ArrayList<>();
 
-        // add assertion on passing tests
+        // add assertions on passing tests
         if (!passingTestsName.isEmpty()) {
             LOGGER.info("{} test pass, generating assertion...", passingTestsName.size());
             final List<CtMethod<?>> passingTestMethods = tests.stream()
@@ -141,7 +141,7 @@ public class AssertGenerator {
             generatedTestWithAssertion.addAll(passingTests);
         }
 
-        // add try/catch/fail on failing/error tests
+        // add try/catch block with fail statement in failing tests
         if (!failuresMethodName.isEmpty()) {
             LOGGER.info("{} test fail, generating try/catch/fail blocks...", failuresMethodName.size());
             final List<CtMethod<?>> failingTests = tests.stream()

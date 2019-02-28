@@ -93,7 +93,7 @@ public class Amplification {
             return;
         }
 
-        // Test generation by additional assertions
+        // generate tests with additional assertions
         final List<CtMethod<?>> assertionAmplifiedTestMethods = this.assertionsAmplification(classTest, selectedToBeAmplified);
         final List<CtMethod<?>> amplifiedTestMethodsToKeep;
         try {
@@ -111,7 +111,7 @@ public class Amplification {
             return;
         }
 
-        // Test generation by input modification with associated new assertions
+        // generate tests with input modification and associated new assertions
         LOGGER.info("Applying Input-amplification and Assertion-amplification test by test.");
         this.resetAmplifiers(classTest);
         for (int i = 0; i < tests.size(); i++) {
