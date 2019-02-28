@@ -79,8 +79,7 @@ public class CloverCoverageSelector extends TakeAllSelector {
 
         }
         baselineLineCoveragePerClass = new HashMap<>();
-        for (Map.Entry<CtType<?>, Set<Integer>> entry : originalLineCoveragePerClass.entrySet())
-        {
+        for (Map.Entry<CtType<?>, Set<Integer>> entry : originalLineCoveragePerClass.entrySet()) {
             baselineLineCoveragePerClass.put(entry.getKey(),entry.getValue());
         }
         if (testsToBeAmplified.size() > 1) {
@@ -132,7 +131,9 @@ public class CloverCoverageSelector extends TakeAllSelector {
                                                             Set baselineCoverage = this.baselineLineCoveragePerClass.get(
                                                                     this.configuration.getFactory().Type().get(className));
                                                             boolean b = baselineCoverage.contains(executedLine);
-                                                            if(!b) { baselineCoverage.add(executedLine); }
+                                                            if(!b) {
+                                                                baselineCoverage.add(executedLine);
+                                                            }
                                                             return !b;
                                                         }
                                                 )
