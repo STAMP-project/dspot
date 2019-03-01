@@ -142,6 +142,7 @@ public class GeneralMinimizer implements Minimizer {
         final long time = System.currentTimeMillis();
         final List<CtLocalVariable> localVariables =
                 amplifiedTestToBeMinimized.getElements(new TypeFilter<>(CtLocalVariable.class));
+        final int nbLocalVariables = localVariables.size();
 
         final List<CtVariableRead> variableReads = localVariables.stream().map(LOCAL_VARIABLE_READ_FILTER::new)
                 .flatMap(filter -> amplifiedTestToBeMinimized.getElements(filter).stream())
@@ -167,15 +168,15 @@ public class GeneralMinimizer implements Minimizer {
         }).forEach(amplifiedTestToBeMinimized.getBody()::removeStatement);
         //TODO we can inline all local variables that are used only in assertion
         final long elapsedTime = System.currentTimeMillis() - time;
-        this.numbersOfLocalVariablesBefore.add(localVariables.size());
+        this.numbersOfLocalVariablesBefore.add(nbLocalVariables);
         this.numbersOfLocalVariablesAfter.add(amplifiedTestToBeMinimized.getElements(new TypeFilter<>(CtLocalVariable.class)).size());
         this.timesToInlineLocalVariables.add(elapsedTime);
     }
 
     public void updateReport() {
         // inline
-        Main.report.globalMinimization.inlineLocalVariables.medianNumberOfLocalVariablesBefore = Main.getMedian(this.numbersOfLocalVariablesAfter);
-        Main.report.globalMinimization.inlineLocalVariables.medianNumberOfLocalVariablesAfter = Main.getMedian(this.numbersOfLocalVariablesBefore);
+        Main.report.globalMinimization.inlineLocalVariables.medianNumberOfLocalVariablesBefore = Main.getMedian(this.numbersOfLocalVariablesBefore);
+        Main.report.globalMinimization.inlineLocalVariables.medianNumberOfLocalVariablesAfter = Main.getMedian(this.numbersOfLocalVariablesAfter);
         Main.report.globalMinimization.inlineLocalVariables.medianTimeInlineLocalVariablesInMillis = Main.getMedian(this.timesToInlineLocalVariables);
         // remove redundant assertion
         Main.report.globalMinimization.removeRedundantAssertions.medianNumberOfAssertionsBefore = Main.getMedian(this.numbersOfAssertionsBefore);

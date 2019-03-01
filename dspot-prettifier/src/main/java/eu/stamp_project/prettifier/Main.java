@@ -2,7 +2,6 @@ package eu.stamp_project.prettifier;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.prettifier.code2vec.Code2VecExecutor;
 import eu.stamp_project.prettifier.code2vec.Code2VecParser;
 import eu.stamp_project.prettifier.code2vec.Code2VecWriter;
@@ -15,8 +14,10 @@ import eu.stamp_project.test_framework.TestFramework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.Launcher;
+import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -60,9 +61,11 @@ public class Main {
     }
 
     public static List<CtMethod<?>> run(CtType<?> amplifiedTestClass) {
+        final List<CtMethod<?>> testMethods = TestFramework.getAllTest(amplifiedTestClass);
+        Main.report.nbTestMethods = testMethods.size();
         // 1
         final List<CtMethod<?>> minimizedAmplifiedTestMethods = applyMinimization(
-                TestFramework.getAllTest(amplifiedTestClass)
+                testMethods
         );
         // 2
 
@@ -82,19 +85,30 @@ public class Main {
 
         // 1rst apply a general minimization
         final GeneralMinimizer generalMinimizer = new GeneralMinimizer();
+        Main.report.medianNbStatementBefore = Main.getMedian(amplifiedTestMethodsToBeRenamed.stream()
+                .map(ctMethod -> ctMethod.getElements(new TypeFilter<>(CtStatement.class)))
+                .map(List::size)
+                .collect(Collectors.toList()));
         final List<CtMethod<?>> generalMinimizedAmplifiedTestMethods = amplifiedTestMethodsToBeRenamed.stream()
                 .map(generalMinimizer::minimize)
                 .collect(Collectors.toList());
         generalMinimizer.updateReport();
 
+        /*
         // 2nd apply a specific minimization
         final Minimizer minimizer = eu.stamp_project.utils.program.InputConfiguration.get().getSelector().getMinimizer();
         final List<CtMethod<?>> minimizedAmplifiedTestMethods = generalMinimizedAmplifiedTestMethods.stream()
                 .map(minimizer::minimize)
-                    .collect(Collectors.toList());
+                .collect(Collectors.toList());
         // TODO REPORT
+        */
 
-        return minimizedAmplifiedTestMethods;
+        Main.report.medianNbStatementAfter = Main.getMedian(generalMinimizedAmplifiedTestMethods.stream()
+                .map(ctMethod -> ctMethod.getElements(new TypeFilter<>(CtStatement.class)))
+                .map(List::size)
+                .collect(Collectors.toList()));
+
+        return generalMinimizedAmplifiedTestMethods;
     }
 
     public static void applyCode2Vec(String pathToRootOfCode2Vec,
@@ -129,7 +143,8 @@ public class Main {
     public static void output(CtType<?> amplifiedTestClass, List<CtMethod<?>> prettifiedAmplifiedTestMethods) {
         PrettifiedTestMethods.output(amplifiedTestClass, prettifiedAmplifiedTestMethods);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        final String pathname = eu.stamp_project.utils.program.InputConfiguration.get().getOutputDirectory() + "/report.json";
+        final String pathname = eu.stamp_project.utils.program.InputConfiguration.get().getOutputDirectory() +
+                "/" + amplifiedTestClass.getSimpleName() + "report.json";
         LOGGER.info("Output a report in {}", pathname);
         final File file  = new File(pathname);
         try (FileWriter writer = new FileWriter(file, false)) {

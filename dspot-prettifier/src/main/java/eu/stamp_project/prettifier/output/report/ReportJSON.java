@@ -11,6 +11,12 @@ public class ReportJSON {
 
     public GlobalMinimizationJSON globalMinimization;
 
+    public int nbTestMethods;
+
+    public double medianNbStatementBefore;
+
+    public double medianNbStatementAfter;
+
     public ReportJSON() {
         this.globalMinimization = new GlobalMinimizationJSON();
     }
