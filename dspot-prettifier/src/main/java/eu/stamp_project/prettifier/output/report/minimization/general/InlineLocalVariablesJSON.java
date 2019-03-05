@@ -1,4 +1,4 @@
-package eu.stamp_project.prettifier.output.report.minimization;
+package eu.stamp_project.prettifier.output.report.minimization.general;
 
 /**
  * created by Benjamin DANGLOT

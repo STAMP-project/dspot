@@ -2,11 +2,12 @@ package eu.stamp_project.prettifier;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.prettifier.code2vec.Code2VecExecutor;
 import eu.stamp_project.prettifier.code2vec.Code2VecParser;
 import eu.stamp_project.prettifier.code2vec.Code2VecWriter;
 import eu.stamp_project.prettifier.minimization.GeneralMinimizer;
+import eu.stamp_project.prettifier.minimization.Minimizer;
+import eu.stamp_project.prettifier.minimization.PitMutantMinimizer;
 import eu.stamp_project.prettifier.options.InputConfiguration;
 import eu.stamp_project.prettifier.options.JSAPOptions;
 import eu.stamp_project.prettifier.output.PrettifiedTestMethods;
@@ -66,7 +67,8 @@ public class Main {
         Main.report.nbTestMethods = testMethods.size();
         // 1
         final List<CtMethod<?>> minimizedAmplifiedTestMethods = applyMinimization(
-                testMethods
+                testMethods,
+                amplifiedTestClass
         );
         // 2
 
@@ -77,31 +79,33 @@ public class Main {
         return minimizedAmplifiedTestMethods;
     }
 
-    public static List<CtMethod<?>> applyMinimization(List<CtMethod<?>> amplifiedTestMethodsToBeRenamed) {
+    public static List<CtMethod<?>> applyMinimization(List<CtMethod<?>> amplifiedTestMethodsToBeMinimized, CtType<?> amplifiedTestClass) {
+
+        Main.report.medianNbStatementBefore = Main.getMedian(amplifiedTestMethodsToBeMinimized.stream()
+                .map(ctMethod -> ctMethod.getElements(new TypeFilter<>(CtStatement.class)))
+                .map(List::size)
+                .collect(Collectors.toList()));
 
         // 1rst apply a general minimization
-        final GeneralMinimizer generalMinimizer = new GeneralMinimizer();
-        Main.report.medianNbStatementBefore = Main.getMedian(amplifiedTestMethodsToBeRenamed.stream()
-                .map(ctMethod -> ctMethod.getElements(new TypeFilter<>(CtStatement.class)))
-                .map(List::size)
-                .collect(Collectors.toList()));
-        final List<CtMethod<?>> generalMinimizedAmplifiedTestMethods = amplifiedTestMethodsToBeRenamed.stream()
-                .map(generalMinimizer::minimize)
-                .collect(Collectors.toList());
-        generalMinimizer.updateReport();
+        amplifiedTestMethodsToBeMinimized = Main.applyGivenMinimizer(new GeneralMinimizer(), amplifiedTestMethodsToBeMinimized);
 
         // 2nd apply a specific minimization
-        final Minimizer minimizer = eu.stamp_project.utils.program.InputConfiguration.get().getSelector().getMinimizer();
-        final List<CtMethod<?>> minimizedAmplifiedTestMethods = generalMinimizedAmplifiedTestMethods.stream()
-                .map(minimizer::minimize)
-                .collect(Collectors.toList());
+        amplifiedTestMethodsToBeMinimized = Main.applyGivenMinimizer(new PitMutantMinimizer(amplifiedTestClass), amplifiedTestMethodsToBeMinimized);
 
-        Main.report.medianNbStatementAfter = Main.getMedian(minimizedAmplifiedTestMethods.stream()
+        Main.report.medianNbStatementAfter = Main.getMedian(amplifiedTestMethodsToBeMinimized.stream()
                 .map(ctMethod -> ctMethod.getElements(new TypeFilter<>(CtStatement.class)))
                 .map(List::size)
                 .collect(Collectors.toList()));
 
-        return minimizedAmplifiedTestMethods ;
+        return amplifiedTestMethodsToBeMinimized;
+    }
+
+    private static List<CtMethod<?>> applyGivenMinimizer(Minimizer minimizer, List<CtMethod<?>> amplifiedTestMethodsToBeMinimized) {
+        final List<CtMethod<?>> minimizedAmplifiedTestMethods = amplifiedTestMethodsToBeMinimized.stream()
+                .map(minimizer::minimize)
+                .collect(Collectors.toList());
+        minimizer.updateReport(Main.report);
+        return minimizedAmplifiedTestMethods;
     }
 
     public static void applyCode2Vec(List<CtMethod<?>> amplifiedTestMethodsToBeRenamed) {

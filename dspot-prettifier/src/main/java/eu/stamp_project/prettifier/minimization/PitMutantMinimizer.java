@@ -1,6 +1,7 @@
 package eu.stamp_project.prettifier.minimization;
 
-import eu.stamp_project.minimization.GeneralMinimizer;
+import eu.stamp_project.prettifier.Main;
+import eu.stamp_project.prettifier.output.report.ReportJSON;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
@@ -24,31 +25,38 @@ import java.util.stream.Collectors;
  * benjamin.danglot@inria.fr
  * on 26/02/18
  */
-public class PitMutantMinimizer extends GeneralMinimizer {
+public class PitMutantMinimizer implements Minimizer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(eu.stamp_project.minimization.PitMutantMinimizer.class);
 
     private CtType<?> testClass;
 
-    final List<CtMethod<?>> allTest;
+    private final List<CtMethod<?>> allTest;
 
     private AbstractParser parser;
+
+    private List<Integer> numbersOfAssertionsBefore = new ArrayList<>();
+
+    private List<Integer> numbersOfAssertionsAfter = new ArrayList<>();
+
+    private List<Long> timesMinimizationInMillis = new ArrayList<>();
 
     public PitMutantMinimizer(CtType<?> testClass) {
         this.testClass = testClass;
         this.parser = new PitXMLResultParser();
         this.allTest = TestFramework.getAllTest(testClass);
-
     }
 
     @Override
     public CtMethod<?> minimize(CtMethod<?> amplifiedTestToBeMinimized) {
+        final long time = System.currentTimeMillis();
         final CtType<?> testClone = testClass.clone();
         this.testClass.getPackage().addType(testClone);
         allTest.stream().filter(test -> !test.equals(amplifiedTestToBeMinimized))
                 .forEach(testClone::removeMethod);
         final List<AbstractPitResult> pitResultBeforeMinimization = printCompileAndRunPit(testClass);
         final List<CtInvocation<?>> assertions = amplifiedTestToBeMinimized.getElements(TestFramework.ASSERTIONS_FILTER);
+        final int numberOfAssertionBefore = assertions.size();
         MethodAndListOfAssertions best = new MethodAndListOfAssertions(amplifiedTestToBeMinimized, assertions);
         List<MethodAndListOfAssertions> candidates = Collections.singletonList(best);
         while (!candidates.isEmpty()) {
@@ -63,7 +71,19 @@ public class PitMutantMinimizer extends GeneralMinimizer {
                 best = candidates.get(0);
             }
         }
+        final long elapsedTime = System.currentTimeMillis() - time;
+        this.timesMinimizationInMillis.add(elapsedTime);
+        this.numbersOfAssertionsBefore.add(numberOfAssertionBefore);
+        this.numbersOfAssertionsAfter.add(best.assertions.size());
+        LOGGER.info("Reduced {} assertions to {} in {} millis", numberOfAssertionBefore, best.assertions.size(), elapsedTime);
         return best.method;
+    }
+
+    @Override
+    public void updateReport(ReportJSON report) {
+        report.pitMinimizationJSON.medianTimeMinimizationInMillis = Main.getMedian(this.timesMinimizationInMillis);
+        report.pitMinimizationJSON.medianNumberOfAssertionsBefore = Main.getMedian(this.numbersOfAssertionsBefore);
+        report.pitMinimizationJSON.medianNumberOfAssertionsAfter = Main.getMedian(this.numbersOfAssertionsAfter);
     }
 
     private class MethodAndListOfAssertions {
