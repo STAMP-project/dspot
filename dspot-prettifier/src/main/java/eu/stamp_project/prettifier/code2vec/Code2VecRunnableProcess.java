@@ -22,6 +22,7 @@ public class Code2VecRunnableProcess implements Runnable {
     public void run() {
         try {
             (new Code2VecThread(this.output, this.process.getInputStream())).start();
+            (new Code2VecThread(System.err, this.process.getErrorStream())).start();
             this.process.waitFor();
         } catch (Exception var2) {
             throw new RuntimeException(var2);

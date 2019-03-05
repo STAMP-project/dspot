@@ -1,5 +1,6 @@
 package eu.stamp_project.prettifier.code2vec;
 
+import eu.stamp_project.prettifier.options.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +21,6 @@ public class Code2VecExecutor {
 
     private static final String PREDICT_ARGUMENT = " --predict";
 
-    private final String root;
-
-    private final String pathToModel;
-
     private final Process code2vecProcess;
 
     private final BufferedWriter writer;
@@ -34,8 +31,6 @@ public class Code2VecExecutor {
 
     private final Code2VecRunnableProcess task;
 
-    private final Code2VecWriter code2VecWriter;
-
     private PrintStream output;
 
     private ByteArrayOutputStream outStream;
@@ -43,31 +38,29 @@ public class Code2VecExecutor {
     /**
      * Construct the Code2VecExecutor.
      * This class will initialize the model of Code2Vec, then provide an API to predict a name for a test method.
-     * @param root the path to the root folder of Code2Vec.
-     * @param pathToModel the absolute path to the model to be used.
      */
-    public Code2VecExecutor(String root, String pathToModel) {
-        this.root = root;
-        this.code2VecWriter = new Code2VecWriter(this.root);
-        this.pathToModel = pathToModel;
+    public Code2VecExecutor() {
+        System.out.println(InputConfiguration.get());
+        final String root = InputConfiguration.get().getPathToRootOfCode2Vec();
+        final String pathToModel = InputConfiguration.get().getRelativePathToModelForCode2Vec();
+
         this.service = Executors.newSingleThreadExecutor();
         try {
-            this.code2vecProcess = Runtime.getRuntime().exec(
-                    COMMAND_LINE + this.pathToModel + PREDICT_ARGUMENT,
-                    (String[]) null, new File(this.root)
-            );
+            final String command = COMMAND_LINE + pathToModel + PREDICT_ARGUMENT;
+            this.code2vecProcess = Runtime.getRuntime().exec(command, (String[]) null, new File(root));
+            LOGGER.info("Executing: {} in {}", command, root);
         } catch (IOException var12) {
             throw new RuntimeException(var12);
         }
-        LOGGER.info("Executing: {} in {}", COMMAND_LINE, this.root);
+
         this.outStream = new ByteArrayOutputStream();
         this.output = new PrintStream(outStream);
         this.task = new Code2VecRunnableProcess(this.code2vecProcess, this.output);
         this.future = this.service.submit(this.task);
         this.writer = new BufferedWriter(new OutputStreamWriter(this.code2vecProcess.getOutputStream()));
         try {
-            LOGGER.info("Waiting 5 seconds that code2vec is well initialized...");
-            Thread.sleep(5000L);
+            LOGGER.info("Waiting {} seconds that code2vec is well initialized...", InputConfiguration.get().getTimeToWaitForCode2vecInMillis() / 1000);
+            Thread.sleep(InputConfiguration.get().getTimeToWaitForCode2vecInMillis());
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

@@ -72,12 +72,7 @@ public class Main {
         // TODO
 
         // 3
-        /*
-        applyCode2Vec(InputConfiguration.get().getPathToRootOfCode2Vec(),
-                InputConfiguration.get().getRelativePathToModelForCode2Vec(),
-                minimizedAmplifiedTestMethods
-        );
-        */
+        applyCode2Vec(minimizedAmplifiedTestMethods);
         return minimizedAmplifiedTestMethods;
     }
 
@@ -111,13 +106,11 @@ public class Main {
         return generalMinimizedAmplifiedTestMethods;
     }
 
-    public static void applyCode2Vec(String pathToRootOfCode2Vec,
-                                     String relativePathToModel,
-                                     List<CtMethod<?>> amplifiedTestMethodsToBeRenamed) {
-        Code2VecWriter writer = new Code2VecWriter(pathToRootOfCode2Vec);
+    public static void applyCode2Vec(List<CtMethod<?>> amplifiedTestMethodsToBeRenamed) {
+        Code2VecWriter writer = new Code2VecWriter();
         Code2VecExecutor code2VecExecutor = null;
         try {
-            code2VecExecutor = new Code2VecExecutor(pathToRootOfCode2Vec, relativePathToModel);
+            code2VecExecutor = new Code2VecExecutor();
             for (CtMethod<?> amplifiedTestMethodToBeRenamed : amplifiedTestMethodsToBeRenamed) {
                 writer.writeCtMethodToInputFile(amplifiedTestMethodToBeRenamed);
                 code2VecExecutor.run();
