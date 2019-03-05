@@ -24,6 +24,7 @@ public class JSAPOptions extends eu.stamp_project.utils.options.JSAPOptions {
      */
     public static boolean parse(String[] args) {
         SplittedCommandLineOptions splittedOptions = new SplittedCommandLineOptions(args);
+        System.out.println(splittedOptions);
         eu.stamp_project.utils.options.JSAPOptions.parse(splittedOptions.getDSpotOptions());
         JSAPResult jsapConfig = prettifierOptions.parse(splittedOptions.getPrettifierOptions());
         if (!jsapConfig.success() || jsapConfig.getBoolean("help")) {
@@ -38,6 +39,8 @@ public class JSAPOptions extends eu.stamp_project.utils.options.JSAPOptions {
                 .setPathToAmplifiedTestClass(jsapConfig.getString("path-to-amplified-test-class"))
                 .setPathToRootOfCode2Vec(jsapConfig.getString("path-to-code2vec"))
                 .setRelativePathToModelForCode2Vec(jsapConfig.getString("path-to-code2vec-model"));
+
+        System.out.println(InputConfiguration.get());
 
         return true;
     }
@@ -73,6 +76,14 @@ public class JSAPOptions extends eu.stamp_project.utils.options.JSAPOptions {
         }
         public String[] getPrettifierOptions() {
             return this.prettifierOptions.toArray(new String[this.prettifierOptions.size()]);
+        }
+
+        @Override
+        public String toString() {
+            return "SplittedCommandLineOptions{" +
+                    "dspotOptions=" + dspotOptions +
+                    ", prettifierOptions=" + prettifierOptions +
+                    '}';
         }
     }
 
