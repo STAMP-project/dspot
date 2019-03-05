@@ -1,15 +1,23 @@
 package eu.stamp_project.prettifier.minimization;
 
 import eu.stamp_project.minimization.GeneralMinimizer;
+import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.compilation.DSpotCompiler;
+import eu.stamp_project.utils.pit.AbstractParser;
 import eu.stamp_project.utils.pit.AbstractPitResult;
+import eu.stamp_project.utils.pit.PitXMLResultParser;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
-import java.util.Map;
-import java.util.Set;
+import java.io.File;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Benjamin DANGLOT
@@ -20,92 +28,117 @@ public class PitMutantMinimizer extends GeneralMinimizer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(eu.stamp_project.minimization.PitMutantMinimizer.class);
 
-    private final InputConfiguration configuration;
     private CtType<?> testClass;
-    private Map<CtMethod, Set<AbstractPitResult>> testThatKilledMutants;
 
-    public PitMutantMinimizer(CtType<?> testClass,
-                              InputConfiguration configuration,
-                              Map<CtMethod, Set<AbstractPitResult>> testThatKilledMutants) {
-        this.testThatKilledMutants = testThatKilledMutants;
+    final List<CtMethod<?>> allTest;
+
+    private AbstractParser parser;
+
+    public PitMutantMinimizer(CtType<?> testClass) {
         this.testClass = testClass;
-        this.configuration = configuration;
+        this.parser = new PitXMLResultParser();
+        this.allTest = TestFramework.getAllTest(testClass);
+
     }
 
     @Override
     public CtMethod<?> minimize(CtMethod<?> amplifiedTestToBeMinimized) {
-        CtMethod<?> reduced = super.minimize(amplifiedTestToBeMinimized);
-        return reduced;
-        /* TODO implement something faster, such as proposed by sbihel see #54
-        final long time = System.currentTimeMillis();
-        final List<CtInvocation<?>> assertions = reduced.getElements(
-                new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
-                    @Override
-                    public boolean matches(CtInvocation<?> element) {
-                        return AmplificationChecker.isAssert(element);
-                    }
-                }
-        );
-        final long numberOfKilledMutant = this.testThatKilledMutants.get(amplifiedTestToBeMinimized)
-                .stream()
-                .filter(pitResult -> pitResult.getStateOfMutant() == PitCSVResult.State.KILLED)
-                .count();
-        final List<CtInvocation<?>> removableAssertions = assertions.stream()
-                .filter(invocation ->
-                        runPitUsingTheGivenCtMethod(removeGivenAssertions(reduced, invocation))
-                                .stream()
-                                .filter(pitResult -> pitResult.getStateOfMutant() == PitCSVResult.State.KILLED)
-                                .count() == numberOfKilledMutant
-                ).collect(Collectors.toList());
-        final CtMethod<?> clone = reduced.clone();
-        removableAssertions.forEach(clone.getBody()::removeStatement);
-
-        LOGGER.info("Reduce {}, {} statements to {} statements in {} ms.",
-                reduced.getSimpleName(),
-                reduced.getBody().getStatements().size(),
-                clone.getBody().getStatements().size(),
-                System.currentTimeMillis() - time
-        );
-
-        return amplifiedTestToBeMinimized;
+        final CtType<?> testClone = testClass.clone();
+        this.testClass.getPackage().addType(testClone);
+        allTest.stream().filter(test -> !test.equals(amplifiedTestToBeMinimized))
+                .forEach(testClone::removeMethod);
+        final List<AbstractPitResult> pitResultBeforeMinimization = printCompileAndRunPit(testClass);
+        final List<CtInvocation<?>> assertions = amplifiedTestToBeMinimized.getElements(TestFramework.ASSERTIONS_FILTER);
+        MethodAndListOfAssertions best = new MethodAndListOfAssertions(amplifiedTestToBeMinimized, assertions);
+        List<MethodAndListOfAssertions> candidates = Collections.singletonList(best);
+        while (!candidates.isEmpty()) {
+            final int currentSize = best.assertions.size();
+            candidates = candidates.stream()
+                    .flatMap(candidate ->
+                            this.explore(candidate.method, pitResultBeforeMinimization, candidate.assertions).stream()
+                    ).filter(methodAndListOfAssertions ->
+                            methodAndListOfAssertions.assertions.size() < currentSize
+                    ).collect(Collectors.toList());
+            if (!candidates.isEmpty()) {
+                best = candidates.get(0);
+            }
+        }
+        return best.method;
     }
 
-    private CtMethod<?> removeGivenAssertions(CtMethod<?> amplifiedTest, CtStatement assertion) {
-        final CtMethod<?> clone = amplifiedTest.clone();
-        clone.getBody().removeStatement(
-                clone.getBody()
-                        .getStatements()
-                        .stream()
-                        .filter(assertion::equals)
-                        .findFirst()
-                        .get()
-        );
-        return clone;
+    private class MethodAndListOfAssertions {
+        final CtMethod<?> method;
+        final List<CtInvocation<?>> assertions;
+
+        MethodAndListOfAssertions(CtMethod<?> method, List<CtInvocation<?>> assertions) {
+            this.method = method;
+            this.assertions = assertions;
+        }
     }
 
-    private List<PitCSVResult> runPitUsingTheGivenCtMethod(CtMethod<?> testCase) {
-        final InputProgram program = this.configuration.getInputProgram();
+    private List<MethodAndListOfAssertions> explore(CtMethod<?> amplifiedTestToBeMinimized,
+                                                    List<AbstractPitResult> pitResultBeforeMinimization,
+                                                    List<CtInvocation<?>> assertions) {
+        List<MethodAndListOfAssertions> clonesWithOneAssertionLess = new ArrayList<>();
+        for (int i = 0; i < assertions.size(); i++) {
+            final CtMethod<?> testMethodWithOneLessAssertion =
+                    this.removeCloneAndInsert(assertions, amplifiedTestToBeMinimized, i);
+            if (runPitAndCheck(testMethodWithOneLessAssertion, pitResultBeforeMinimization)) {
+                final CtMethod<?> clone = amplifiedTestToBeMinimized.clone();
+                clone.getBody().getStatements().remove(assertions.get(i));
+                final ArrayList<CtInvocation<?>> copyAssertions = new ArrayList<>(assertions);
+                copyAssertions.remove(assertions.get(i));
+                clonesWithOneAssertionLess.add(new MethodAndListOfAssertions(clone, copyAssertions));
+            }
+        }
+        return clonesWithOneAssertionLess;
+    }
+
+    @SuppressWarnings("unchecked")
+    List<AbstractPitResult> printCompileAndRunPit(CtType<?> testClass) {
+        DSpotUtils.printCtTypeToGivenDirectory(testClass, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));
+        final String classpath = InputConfiguration.get().getBuilder()
+                .buildClasspath()
+                + AmplificationHelper.PATH_SEPARATOR +
+                InputConfiguration.get().getClasspathClassesProject()
+                + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies();
+        DSpotCompiler.compile(InputConfiguration.get(),
+                DSpotCompiler.getPathToAmplifiedTestSrc(),
+                classpath,
+                new File(InputConfiguration.get().getAbsolutePathToTestClasses())
+        );
+        InputConfiguration.get().getBuilder().runPit(testClass);
+        return parser.parseAndDelete(
+                InputConfiguration.get().getAbsolutePathToProjectRoot() +
+                        InputConfiguration.get().getBuilder().getOutputDirectoryPit()
+        );
+    }
+
+    private boolean runPitAndCheck(CtMethod<?> method, List<AbstractPitResult> pitResultBeforeMinimization) {
         final CtType<?> clone = this.testClass.clone();
         this.testClass.getPackage().addType(clone);
-        clone.getMethods().stream().filter(AmplificationChecker::isTest).forEach(clone::removeMethod);
-        clone.addMethod(testCase);
-        DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC));
-        final AutomaticBuilder automaticBuilder = AutomaticBuilderFactory
-                .getAutomaticBuilder(this.configuration);
-        final String classpath = AutomaticBuilderFactory
-                .getAutomaticBuilder(this.configuration)
-                .buildClasspath(program.getProgramDir())
-                + AmplificationHelper.PATH_SEPARATOR +
-                program.getProgramDir() + "/" + program.getClassesDir()
-                + AmplificationHelper.PATH_SEPARATOR + "target/dspot/dependencies/"
-                + AmplificationHelper.PATH_SEPARATOR +
-                program.getProgramDir() + "/" + program.getTestClassesDir();
-        DSpotCompiler.compile(DSpotCompiler.PATH_TO_AMPLIFIED_TEST_SRC, classpath,
-                new File(program.getProgramDir() + "/" + program.getTestClassesDir()));
-        AutomaticBuilderFactory
-                .getAutomaticBuilder(this.configuration)
-                .runPit(program.getProgramDir(), clone);
-        return PitCSVResultParser.parseAndDelete(program.getProgramDir() + automaticBuilder.getOutputDirectoryPit());
-                */
+        clone.addMethod(method);
+        final List<AbstractPitResult> resultMinimized = printCompileAndRunPit(clone);
+        if (pitResultBeforeMinimization.size() != resultMinimized.size()) {
+            throw new RuntimeException("Something is wrong, both mutation analysis gave different number of mutants.");
+        }
+        for (int i = 0; i < pitResultBeforeMinimization.size(); i++) {
+            final AbstractPitResult before = pitResultBeforeMinimization.get(i);
+            final AbstractPitResult after = resultMinimized.get(i);
+            if (!before.equals(after) ||
+                    (before.getStateOfMutant() == AbstractPitResult.State.KILLED &&
+                            before.getStateOfMutant() != after.getStateOfMutant())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    CtMethod<?> removeCloneAndInsert(final List<CtInvocation<?>> assertions, CtMethod<?> amplifiedTestToBeMinimized, int indexOfAssertion) {
+        final int index = amplifiedTestToBeMinimized.getBody().getStatements().indexOf(assertions.get(indexOfAssertion));
+        amplifiedTestToBeMinimized.getBody().removeStatement(assertions.get(indexOfAssertion));
+        final CtMethod<?> clone = amplifiedTestToBeMinimized.clone();
+        amplifiedTestToBeMinimized.getBody().addStatement(index, assertions.get(indexOfAssertion).clone());
+        return clone;
     }
 }
