@@ -2,6 +2,7 @@ package eu.stamp_project.prettifier;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.prettifier.code2vec.Code2VecExecutor;
 import eu.stamp_project.prettifier.code2vec.Code2VecParser;
 import eu.stamp_project.prettifier.code2vec.Code2VecWriter;
@@ -89,21 +90,18 @@ public class Main {
                 .collect(Collectors.toList());
         generalMinimizer.updateReport();
 
-        /*
         // 2nd apply a specific minimization
         final Minimizer minimizer = eu.stamp_project.utils.program.InputConfiguration.get().getSelector().getMinimizer();
         final List<CtMethod<?>> minimizedAmplifiedTestMethods = generalMinimizedAmplifiedTestMethods.stream()
                 .map(minimizer::minimize)
                 .collect(Collectors.toList());
-        // TODO REPORT
-        */
 
-        Main.report.medianNbStatementAfter = Main.getMedian(generalMinimizedAmplifiedTestMethods.stream()
+        Main.report.medianNbStatementAfter = Main.getMedian(minimizedAmplifiedTestMethods.stream()
                 .map(ctMethod -> ctMethod.getElements(new TypeFilter<>(CtStatement.class)))
                 .map(List::size)
                 .collect(Collectors.toList()));
 
-        return generalMinimizedAmplifiedTestMethods;
+        return minimizedAmplifiedTestMethods ;
     }
 
     public static void applyCode2Vec(List<CtMethod<?>> amplifiedTestMethodsToBeRenamed) {
@@ -139,7 +137,7 @@ public class Main {
         final String pathname = eu.stamp_project.utils.program.InputConfiguration.get().getOutputDirectory() +
                 "/" + amplifiedTestClass.getSimpleName() + "report.json";
         LOGGER.info("Output a report in {}", pathname);
-        final File file  = new File(pathname);
+        final File file = new File(pathname);
         try (FileWriter writer = new FileWriter(file, false)) {
             writer.write(gson.toJson(Main.report));
         } catch (IOException e) {
