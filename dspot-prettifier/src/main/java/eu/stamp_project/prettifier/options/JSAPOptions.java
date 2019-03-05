@@ -3,7 +3,9 @@ package eu.stamp_project.prettifier.options;
 import com.martiansoftware.jsap.*;
 import eu.stamp_project.utils.AmplificationHelper;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * created by Benjamin DANGLOT
@@ -21,8 +23,10 @@ public class JSAPOptions extends eu.stamp_project.utils.options.JSAPOptions {
      * @return always true
      */
     public static boolean parse(String[] args) {
-        eu.stamp_project.utils.options.JSAPOptions.parse(args);
-        JSAPResult jsapConfig = options.parse(args);
+        SplittedCommandLineOptions splittedOptions = new SplittedCommandLineOptions(args);
+        System.out.println(splittedOptions);
+        eu.stamp_project.utils.options.JSAPOptions.parse(splittedOptions.getDSpotOptions());
+        JSAPResult jsapConfig = prettifierOptions.parse(splittedOptions.getPrettifierOptions());
         if (!jsapConfig.success() || jsapConfig.getBoolean("help")) {
             System.err.println();
             for (Iterator<?> errs = jsapConfig.getErrorMessageIterator(); errs.hasNext(); ) {
@@ -32,8 +36,11 @@ public class JSAPOptions extends eu.stamp_project.utils.options.JSAPOptions {
         }
 
         InputConfiguration.get()
+                .setPathToAmplifiedTestClass(jsapConfig.getString("path-to-amplified-test-class"))
                 .setPathToRootOfCode2Vec(jsapConfig.getString("path-to-code2vec"))
                 .setRelativePathToModelForCode2Vec(jsapConfig.getString("path-to-code2vec-model"));
+
+        System.out.println(InputConfiguration.get());
 
         return true;
     }
@@ -46,6 +53,46 @@ public class JSAPOptions extends eu.stamp_project.utils.options.JSAPOptions {
         System.err.println();
         System.err.println(prettifierOptions.getHelp());
         System.exit(1);
+    }
+
+    private static class SplittedCommandLineOptions {
+        private List<String> dspotOptions;
+        private List<String> prettifierOptions;
+        public SplittedCommandLineOptions(String [] args) {
+            this.dspotOptions = new ArrayList<>();
+            this.prettifierOptions = new ArrayList<>();
+            for (int i = 0; i < args.length ;) {
+                if (PRETTIFIER_OPTIONS.contains(args[i])) {
+                    this.prettifierOptions.add(args[i++]);
+                    this.prettifierOptions.add(args[i++]);
+                } else {
+                    this.dspotOptions.add(args[i++]);
+                    this.dspotOptions.add(args[i++]);
+                }
+            }
+        }
+        public String[] getDSpotOptions() {
+            return this.dspotOptions.toArray(new String[this.dspotOptions.size()]);
+        }
+        public String[] getPrettifierOptions() {
+            return this.prettifierOptions.toArray(new String[this.prettifierOptions.size()]);
+        }
+
+        @Override
+        public String toString() {
+            return "SplittedCommandLineOptions{" +
+                    "dspotOptions=" + dspotOptions +
+                    ", prettifierOptions=" + prettifierOptions +
+                    '}';
+        }
+    }
+
+    private final static List<String> PRETTIFIER_OPTIONS = new ArrayList<>();
+
+    static {
+        PRETTIFIER_OPTIONS.add("--path-to-amplified-test-class");
+        PRETTIFIER_OPTIONS.add("--path-to-code2vec");
+        PRETTIFIER_OPTIONS.add("--path-to-code2vec-model");
     }
 
     private static JSAP initPrettifierOptions() {
@@ -64,6 +111,13 @@ public class JSAPOptions extends eu.stamp_project.utils.options.JSAPOptions {
         help.setShortFlag('h');
         help.setHelp("show this help");
 
+        FlaggedOption pathToAmplifiedTestClass = new FlaggedOption("path-to-amplified-test-class");
+        pathToAmplifiedTestClass.setStringParser(JSAP.STRING_PARSER);
+        pathToAmplifiedTestClass.setLongFlag("path-to-amplified-test-class");
+        pathToAmplifiedTestClass.setRequired(true);
+        pathToAmplifiedTestClass.setHelp("[mandatory] Specify the path to the java test class that has been amplified " + AmplificationHelper.LINE_SEPARATOR +
+                    "and that contains some amplified test methods to be \"prettified\".");
+
         FlaggedOption pathToCode2Vec = new FlaggedOption("path-to-code2vec");
         pathToCode2Vec.setStringParser(JSAP.STRING_PARSER);
         pathToCode2Vec.setLongFlag("path-to-code2vec");
@@ -80,6 +134,7 @@ public class JSAPOptions extends eu.stamp_project.utils.options.JSAPOptions {
                 "This path will be use relatively from --path-to-code2vec value.");
 
         try {
+            jsap.registerParameter(pathToAmplifiedTestClass);
             jsap.registerParameter(pathToCode2Vec);
             jsap.registerParameter(pathToModel);
             jsap.registerParameter(help);

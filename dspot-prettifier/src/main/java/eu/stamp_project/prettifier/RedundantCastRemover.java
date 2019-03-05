@@ -19,7 +19,10 @@ public class RedundantCastRemover {
     public CtMethod<?> remove(CtMethod<?> testMethod) {
         final List<CtInvocation<?>> assertions = testMethod.getElements(TestFramework.ASSERTIONS_FILTER);
         for (CtInvocation<?> assertion : assertions) {
-            this.remove(assertion);
+            // it should be a assertTrue or assertFalse
+            if (assertion.getArguments().size() >= 2) {
+                this.remove(assertion);
+            }
         }
         return testMethod;
     }

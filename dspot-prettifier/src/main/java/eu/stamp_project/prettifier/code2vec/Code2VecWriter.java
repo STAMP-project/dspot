@@ -1,5 +1,6 @@
 package eu.stamp_project.prettifier.code2vec;
 
+import eu.stamp_project.prettifier.options.InputConfiguration;
 import eu.stamp_project.utils.DSpotUtils;
 import spoon.reflect.declaration.CtMethod;
 
@@ -14,22 +15,13 @@ public class Code2VecWriter {
 
     public static final String FILENAME = "Input.java";
 
-    private final String root;
-
-    /**
-     * @param root the path to the root folder of Code2Vec.
-     */
-    public Code2VecWriter(String root) {
-        this.root = DSpotUtils.shouldAddSeparator.apply(root);
-    }
-
     /**
      * write the given test method in the Input.java file.
      * @param testMethod
      */
     public void writeCtMethodToInputFile(CtMethod<?> testMethod) {
         try {
-            FileWriter writer = new FileWriter(this.root + FILENAME, false);
+            FileWriter writer = new FileWriter(InputConfiguration.get().getPathToRootOfCode2Vec() + FILENAME, false);
             writer.write(testMethod.toString());
             writer.close();
         } catch (Exception e) {
