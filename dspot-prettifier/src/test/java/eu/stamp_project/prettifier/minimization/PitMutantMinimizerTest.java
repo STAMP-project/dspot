@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 01/03/19
  */
-public class PitMutantMinimizerTest extends AbstractTest  {
+public class PitMutantMinimizerTest extends AbstractTest {
 
     CtClass<?> testClass;
     CtMethod<?> testMethod;
@@ -58,7 +58,7 @@ public class PitMutantMinimizerTest extends AbstractTest  {
          */
 
         final List<AbstractPitResult> abstractPitResults = minimizer.printCompileAndRunPit(testClass);
-        assertEquals(3, abstractPitResults.size());
+        assertEquals(12, abstractPitResults.size());
         System.out.println(abstractPitResults);
     }
 
