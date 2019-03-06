@@ -13,12 +13,12 @@ import eu.stamp_project.utils.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtInvocation;
+import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created by Benjamin DANGLOT
@@ -35,11 +35,19 @@ public class PitMutantMinimizer implements Minimizer {
 
     private AbstractParser parser;
 
+    private List<Integer> numbersOfNonAssertionsBefore = new ArrayList<>();
+
+    private List<Integer> numbersOfNonAssertionsAfter = new ArrayList<>();
+
     private List<Integer> numbersOfAssertionsBefore = new ArrayList<>();
 
     private List<Integer> numbersOfAssertionsAfter = new ArrayList<>();
 
     private List<Long> timesMinimizationInMillis = new ArrayList<>();
+
+    private List<Long> timesMinimizationPitInMillis = new ArrayList<>();
+
+    private List<Long> timesMinimizationOnStatementAfterLastAssertionInMillis = new ArrayList<>();
 
     public PitMutantMinimizer(CtType<?> testClass) {
         this.testClass = testClass;
@@ -49,33 +57,55 @@ public class PitMutantMinimizer implements Minimizer {
 
     @Override
     public CtMethod<?> minimize(CtMethod<?> amplifiedTestToBeMinimized) {
+
+        // statistics before minimization
+        final List<CtInvocation<?>> assertions = amplifiedTestToBeMinimized.getElements(TestFramework.ASSERTIONS_FILTER);
+        final int numberOfAssertionBefore = assertions.size();
+        final List<CtStatement> statements = new ArrayList<>(amplifiedTestToBeMinimized.getBody().getStatements());
+        statements.removeAll(assertions);
+        final int numberOfNonAssertionsBefore = statements.size();
+        final int numberOfStatementBefore = amplifiedTestToBeMinimized.getBody().getStatements().size();
+
+        // minimize
         final long time = System.currentTimeMillis();
         final CtType<?> testClone = testClass.clone();
         this.testClass.getPackage().addType(testClone);
         allTest.stream().filter(test -> !test.equals(amplifiedTestToBeMinimized))
                 .forEach(testClone::removeMethod);
         final List<AbstractPitResult> pitResultBeforeMinimization = printCompileAndRunPit(testClass);
-        final List<CtInvocation<?>> assertions = amplifiedTestToBeMinimized.getElements(TestFramework.ASSERTIONS_FILTER);
-        final int numberOfAssertionBefore = assertions.size();
         MethodAndListOfAssertions best = new MethodAndListOfAssertions(amplifiedTestToBeMinimized, assertions);
-        List<MethodAndListOfAssertions> candidates = Collections.singletonList(best);
-        while (!candidates.isEmpty()) {
-            final int currentSize = best.assertions.size();
-            candidates = candidates.stream()
-                    .flatMap(candidate ->
-                            this.explore(candidate.method, pitResultBeforeMinimization, candidate.assertions).stream()
-                    ).filter(methodAndListOfAssertions ->
-                            methodAndListOfAssertions.assertions.size() < currentSize
-                    ).collect(Collectors.toList());
-            if (!candidates.isEmpty()) {
-                best = candidates.get(0);
+        MethodAndListOfAssertions candidate = best;
+        while (candidate != null) {
+            candidate = this.explore(best.method, pitResultBeforeMinimization, best.assertions);
+            if (candidate != null) {
+                best = candidate;
             }
         }
         final long elapsedTime = System.currentTimeMillis() - time;
-        this.timesMinimizationInMillis.add(elapsedTime);
+        // now remove all the statement after the last assertion since it seems that these statement are not useful.
+        final long timeMinimizationOfStatementsAfterLastAssertion = System.currentTimeMillis();
+        final int indexOfLastAssertionInWholeBody = best.getIndexOfLastAssertionInWholeBody();
+        while (best.method.getBody().getStatements().size() != indexOfLastAssertionInWholeBody + 1) {
+            best.method.getBody().getStatements().remove(indexOfLastAssertionInWholeBody + 1);
+        }
+        final long elapsedTimeMinimizationOfStatementsAfterLastAssertion = System.currentTimeMillis() - timeMinimizationOfStatementsAfterLastAssertion;
+
+        // saving statistics
+        this.timesMinimizationInMillis.add(elapsedTime + elapsedTimeMinimizationOfStatementsAfterLastAssertion);
+        this.timesMinimizationPitInMillis.add(elapsedTime);
+        this.timesMinimizationOnStatementAfterLastAssertionInMillis.add(elapsedTimeMinimizationOfStatementsAfterLastAssertion);
+        this.numbersOfNonAssertionsBefore.add(numberOfNonAssertionsBefore);
         this.numbersOfAssertionsBefore.add(numberOfAssertionBefore);
-        this.numbersOfAssertionsAfter.add(best.assertions.size());
-        LOGGER.info("Reduced {} assertions to {} in {} millis", numberOfAssertionBefore, best.assertions.size(), elapsedTime);
+        this.numbersOfNonAssertionsAfter.add(best.getNumberOfNonAssertions());
+        this.numbersOfAssertionsAfter.add(best.getNumberOfAssertion());
+        LOGGER.info("Reduced {} assertions to {} in {} millis.", numberOfAssertionBefore, best.getNumberOfAssertion(), elapsedTime);
+        LOGGER.info("Removed {} statements after the last remaining assertion in {} millis.",
+                numberOfNonAssertionsBefore - best.getNumberOfNonAssertions(), elapsedTimeMinimizationOfStatementsAfterLastAssertion
+        );
+        LOGGER.info("Total reduction from {} statements to {} statements, including assertions, in {} millis.",
+                numberOfStatementBefore, best.getNumberOfStatement(),
+                elapsedTime + elapsedTimeMinimizationOfStatementsAfterLastAssertion
+        );
         return best.method;
     }
 
@@ -84,6 +114,11 @@ public class PitMutantMinimizer implements Minimizer {
         report.pitMinimizationJSON.medianTimeMinimizationInMillis = Main.getMedian(this.timesMinimizationInMillis);
         report.pitMinimizationJSON.medianNumberOfAssertionsBefore = Main.getMedian(this.numbersOfAssertionsBefore);
         report.pitMinimizationJSON.medianNumberOfAssertionsAfter = Main.getMedian(this.numbersOfAssertionsAfter);
+        report.pitMinimizationJSON.medianNumberOfNonAssertionBefore = Main.getMedian(this.numbersOfNonAssertionsBefore);
+        report.pitMinimizationJSON.medianNumberOfNonAssertionAfter = Main.getMedian(this.numbersOfNonAssertionsAfter);
+        report.pitMinimizationJSON.medianTimePitMinimization = Main.getMedian(this.timesMinimizationPitInMillis);
+        report.pitMinimizationJSON.medianTimeMinimizationOfStatementsAfterLastAssertionsInMillis = Main.getMedian(this.timesMinimizationOnStatementAfterLastAssertionInMillis);
+
     }
 
     private class MethodAndListOfAssertions {
@@ -94,13 +129,29 @@ public class PitMutantMinimizer implements Minimizer {
             this.method = method;
             this.assertions = assertions;
         }
+        public CtInvocation<?> getLastAssertion() {
+            return this.assertions.get(this.assertions.size() - 1);
+        }
+        public int getIndexOfLastAssertionInWholeBody() {
+            return this.method.getBody().getStatements().indexOf(this.getLastAssertion());
+        }
+        public int getNumberOfAssertion() {
+            return this.assertions.size();
+        }
+        public int getNumberOfNonAssertions() {
+            final List<CtStatement> statements = new ArrayList<>(this.method.getBody().getStatements());
+            statements.removeAll(this.assertions);
+            return statements.size();
+        }
+        public int getNumberOfStatement() {
+            return this.method.getBody().getStatements().size();
+        }
     }
 
-    private List<MethodAndListOfAssertions> explore(CtMethod<?> amplifiedTestToBeMinimized,
+    private MethodAndListOfAssertions explore(CtMethod<?> amplifiedTestToBeMinimized,
                                                     List<AbstractPitResult> pitResultBeforeMinimization,
                                                     List<CtInvocation<?>> assertions) {
-        List<MethodAndListOfAssertions> clonesWithOneAssertionLess = new ArrayList<>();
-        for (int i = 0; i < assertions.size(); i++) {
+        for (int i = assertions.size() - 1; i >= 0; i--) {
             final CtMethod<?> testMethodWithOneLessAssertion =
                     this.removeCloneAndInsert(assertions, amplifiedTestToBeMinimized, i);
             if (runPitAndCheck(testMethodWithOneLessAssertion, pitResultBeforeMinimization)) {
@@ -108,10 +159,10 @@ public class PitMutantMinimizer implements Minimizer {
                 clone.getBody().getStatements().remove(assertions.get(i));
                 final ArrayList<CtInvocation<?>> copyAssertions = new ArrayList<>(assertions);
                 copyAssertions.remove(assertions.get(i));
-                clonesWithOneAssertionLess.add(new MethodAndListOfAssertions(clone, copyAssertions));
+                return new MethodAndListOfAssertions(clone, copyAssertions);
             }
         }
-        return clonesWithOneAssertionLess;
+        return null;
     }
 
     @SuppressWarnings("unchecked")
