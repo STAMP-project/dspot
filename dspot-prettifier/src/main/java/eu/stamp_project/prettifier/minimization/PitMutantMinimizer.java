@@ -10,6 +10,7 @@ import eu.stamp_project.utils.pit.AbstractParser;
 import eu.stamp_project.utils.pit.AbstractPitResult;
 import eu.stamp_project.utils.pit.PitXMLResultParser;
 import eu.stamp_project.utils.program.InputConfiguration;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtInvocation;
@@ -30,6 +31,8 @@ public class PitMutantMinimizer implements Minimizer {
     private static final Logger LOGGER = LoggerFactory.getLogger(eu.stamp_project.minimization.PitMutantMinimizer.class);
 
     private CtType<?> testClass;
+
+    private CtType<?> currentTestClass;
 
     private final List<CtMethod<?>> allTest;
 
@@ -58,6 +61,8 @@ public class PitMutantMinimizer implements Minimizer {
     @Override
     public CtMethod<?> minimize(CtMethod<?> amplifiedTestToBeMinimized) {
 
+        LOGGER.info("Pit Minimization of {}", amplifiedTestToBeMinimized.getSimpleName());
+
         // statistics before minimization
         final List<CtInvocation<?>> assertions = amplifiedTestToBeMinimized.getElements(TestFramework.ASSERTIONS_FILTER);
         final int numberOfAssertionBefore = assertions.size();
@@ -68,21 +73,21 @@ public class PitMutantMinimizer implements Minimizer {
 
         // minimize
         final long time = System.currentTimeMillis();
-        final CtType<?> testClone = testClass.clone();
-        this.testClass.getPackage().addType(testClone);
-        allTest.stream().filter(test -> !test.equals(amplifiedTestToBeMinimized))
-                .forEach(testClone::removeMethod);
-        final List<AbstractPitResult> pitResultBeforeMinimization = printCompileAndRunPit(testClass);
+        // compute current mutation score: must keep it
+        this.currentTestClass = cloneAndRemoveAllTestsButTheGivenOne(amplifiedTestToBeMinimized);
+        final List<AbstractPitResult> pitResultBeforeMinimization = printCompileAndRunPit(this.currentTestClass);
+
+        // start the minimization
         MethodAndListOfAssertions best = new MethodAndListOfAssertions(amplifiedTestToBeMinimized, assertions);
         MethodAndListOfAssertions candidate = best;
-        while (candidate != null) {
+        while (candidate != null && best.assertions.size() > 1) {
             candidate = this.explore(best.method, pitResultBeforeMinimization, best.assertions);
             if (candidate != null) {
                 best = candidate;
             }
         }
         final long elapsedTime = System.currentTimeMillis() - time;
-        // now remove all the statement after the last assertion since it seems that these statement are not useful.
+        // now remove all the statement after the last assertion    since it seems that these statement are not useful.
         final long timeMinimizationOfStatementsAfterLastAssertion = System.currentTimeMillis();
         final int indexOfLastAssertionInWholeBody = best.getIndexOfLastAssertionInWholeBody();
         while (best.method.getBody().getStatements().size() != indexOfLastAssertionInWholeBody + 1) {
@@ -107,6 +112,15 @@ public class PitMutantMinimizer implements Minimizer {
                 elapsedTime + elapsedTimeMinimizationOfStatementsAfterLastAssertion
         );
         return best.method;
+    }
+
+    @NotNull
+    private CtType<?> cloneAndRemoveAllTestsButTheGivenOne(CtMethod<?> amplifiedTestToBeMinimized) {
+        final CtType<?> testClone = testClass.clone();
+        this.testClass.getPackage().addType(testClone);
+        this.allTest.stream().filter(test -> !test.equals(amplifiedTestToBeMinimized))
+                .forEach(testClone::removeMethod);
+        return testClone;
     }
 
     @Override
@@ -154,7 +168,8 @@ public class PitMutantMinimizer implements Minimizer {
         for (int i = assertions.size() - 1; i >= 0; i--) {
             final CtMethod<?> testMethodWithOneLessAssertion =
                     this.removeCloneAndInsert(assertions, amplifiedTestToBeMinimized, i);
-            if (runPitAndCheck(testMethodWithOneLessAssertion, pitResultBeforeMinimization)) {
+            final List<AbstractPitResult> minimizedPitResult = runPit(testMethodWithOneLessAssertion, pitResultBeforeMinimization);
+            if (check(pitResultBeforeMinimization, minimizedPitResult)) {
                 final CtMethod<?> clone = amplifiedTestToBeMinimized.clone();
                 clone.getBody().getStatements().remove(assertions.get(i));
                 final ArrayList<CtInvocation<?>> copyAssertions = new ArrayList<>(assertions);
@@ -185,14 +200,18 @@ public class PitMutantMinimizer implements Minimizer {
         );
     }
 
-    private boolean runPitAndCheck(CtMethod<?> method, List<AbstractPitResult> pitResultBeforeMinimization) {
-        final CtType<?> clone = this.testClass.clone();
-        this.testClass.getPackage().addType(clone);
+    private List<AbstractPitResult> runPit(CtMethod<?> method, List<AbstractPitResult> pitResultBeforeMinimization) {
+        final CtType<?> clone = this.currentTestClass.clone();
+        this.currentTestClass.getPackage().addType(clone);
         clone.addMethod(method);
         final List<AbstractPitResult> resultMinimized = printCompileAndRunPit(clone);
         if (pitResultBeforeMinimization.size() != resultMinimized.size()) {
             throw new RuntimeException("Something is wrong, both mutation analysis gave different number of mutants.");
         }
+        return resultMinimized;
+    }
+
+    private boolean check(List<AbstractPitResult> pitResultBeforeMinimization, List<AbstractPitResult> resultMinimized) {
         for (int i = 0; i < pitResultBeforeMinimization.size(); i++) {
             final AbstractPitResult before = pitResultBeforeMinimization.get(i);
             final AbstractPitResult after = resultMinimized.get(i);

@@ -24,6 +24,7 @@ import spoon.reflect.visitor.filter.TypeFilter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -63,7 +64,7 @@ public class Main {
     }
 
     public static List<CtMethod<?>> run(CtType<?> amplifiedTestClass) {
-        final List<CtMethod<?>> testMethods = TestFramework.getAllTest(amplifiedTestClass);
+        final List<CtMethod<?>> testMethods = TestFramework.getAllTest(amplifiedTestClass).subList(0, 2);
         Main.report.nbTestMethods = testMethods.size();
         // 1
         final List<CtMethod<?>> minimizedAmplifiedTestMethods = applyMinimization(
@@ -88,6 +89,12 @@ public class Main {
 
         // 1rst apply a general minimization
         amplifiedTestMethodsToBeMinimized = Main.applyGivenMinimizer(new GeneralMinimizer(), amplifiedTestMethodsToBeMinimized);
+        // update the test class with minimized test methods
+        final ArrayList<CtMethod<?>> allMethods = new ArrayList<>(amplifiedTestClass.getMethods());
+        allMethods.stream()
+                .filter(TestFramework.get()::isTest)
+                .forEach(amplifiedTestClass::removeMethod);
+        amplifiedTestMethodsToBeMinimized.forEach(amplifiedTestClass::addMethod);
 
         // 2nd apply a specific minimization
         amplifiedTestMethodsToBeMinimized = Main.applyGivenMinimizer(new PitMutantMinimizer(amplifiedTestClass), amplifiedTestMethodsToBeMinimized);
