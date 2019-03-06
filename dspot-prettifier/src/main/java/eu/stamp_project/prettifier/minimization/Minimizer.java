@@ -1,5 +1,6 @@
 package eu.stamp_project.prettifier.minimization;
 
+import eu.stamp_project.prettifier.output.report.ReportJSON;
 import spoon.reflect.declaration.CtMethod;
 
 /**
@@ -16,4 +17,8 @@ public interface Minimizer {
      */
     CtMethod<?> minimize(CtMethod<?> amplifiedTestToBeMinimized);
 
+    /**
+     * This method update the internal report of the minimizer
+     */
+    void updateReport(ReportJSON report);
 }

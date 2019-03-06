@@ -1,6 +1,7 @@
 package eu.stamp_project.prettifier.output.report;
 
-import eu.stamp_project.prettifier.output.report.minimization.GlobalMinimizationJSON;
+import eu.stamp_project.prettifier.output.report.minimization.general.GeneralMinimizationJSON;
+import eu.stamp_project.prettifier.output.report.minimization.pit.PitMinimizationJSON;
 
 /**
  * created by Benjamin DANGLOT
@@ -9,7 +10,9 @@ import eu.stamp_project.prettifier.output.report.minimization.GlobalMinimization
  */
 public class ReportJSON {
 
-    public GlobalMinimizationJSON globalMinimization;
+    public GeneralMinimizationJSON generalMinimizationJSON;
+
+    public PitMinimizationJSON pitMinimizationJSON;
 
     public int nbTestMethods;
 
@@ -18,7 +21,8 @@ public class ReportJSON {
     public double medianNbStatementAfter;
 
     public ReportJSON() {
-        this.globalMinimization = new GlobalMinimizationJSON();
+        this.generalMinimizationJSON = new GeneralMinimizationJSON();
+        this.pitMinimizationJSON = new PitMinimizationJSON();
     }
 
 }

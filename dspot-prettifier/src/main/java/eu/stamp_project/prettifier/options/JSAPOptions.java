@@ -35,6 +35,9 @@ public class JSAPOptions extends eu.stamp_project.utils.options.JSAPOptions {
             showUsage();
         }
 
+        eu.stamp_project.utils.program.InputConfiguration.get().setVerbose(true);
+        //eu.stamp_project.utils.program.InputConfiguration.get().setDescartesMode(false);
+
         InputConfiguration.get()
                 .setPathToAmplifiedTestClass(jsapConfig.getString("path-to-amplified-test-class"))
                 .setPathToRootOfCode2Vec(jsapConfig.getString("path-to-code2vec"))

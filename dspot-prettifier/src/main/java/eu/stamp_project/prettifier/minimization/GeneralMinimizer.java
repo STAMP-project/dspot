@@ -1,7 +1,7 @@
 package eu.stamp_project.prettifier.minimization;
 
-import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.prettifier.Main;
+import eu.stamp_project.prettifier.output.report.ReportJSON;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.DSpotUtils;
 import org.slf4j.Logger;
@@ -173,17 +173,18 @@ public class GeneralMinimizer implements Minimizer {
         this.timesToInlineLocalVariables.add(elapsedTime);
     }
 
-    public void updateReport() {
+    @Override
+    public void updateReport(ReportJSON report) {
         // inline
-        Main.report.globalMinimization.inlineLocalVariables.medianNumberOfLocalVariablesBefore = Main.getMedian(this.numbersOfLocalVariablesBefore);
-        Main.report.globalMinimization.inlineLocalVariables.medianNumberOfLocalVariablesAfter = Main.getMedian(this.numbersOfLocalVariablesAfter);
-        Main.report.globalMinimization.inlineLocalVariables.medianTimeInlineLocalVariablesInMillis = Main.getMedian(this.timesToInlineLocalVariables);
+        report.generalMinimizationJSON.inlineLocalVariables.medianNumberOfLocalVariablesBefore = Main.getMedian(this.numbersOfLocalVariablesBefore);
+        report.generalMinimizationJSON.inlineLocalVariables.medianNumberOfLocalVariablesAfter = Main.getMedian(this.numbersOfLocalVariablesAfter);
+        report.generalMinimizationJSON.inlineLocalVariables.medianTimeInlineLocalVariablesInMillis = Main.getMedian(this.timesToInlineLocalVariables);
         // remove redundant assertion
-        Main.report.globalMinimization.removeRedundantAssertions.medianNumberOfAssertionsBefore = Main.getMedian(this.numbersOfAssertionsBefore);
-        Main.report.globalMinimization.removeRedundantAssertions.medianNumberOfAssertionsAfter = Main.getMedian(this.numbersOfAssertionsAfter);
-        Main.report.globalMinimization.removeRedundantAssertions.medianTimeRemoveRedundantAssertionsInMillis = Main.getMedian(this.timesRemoveRedundantAssertionsInMillis);
+        report.generalMinimizationJSON.removeRedundantAssertions.medianNumberOfAssertionsBefore = Main.getMedian(this.numbersOfAssertionsBefore);
+        report.generalMinimizationJSON.removeRedundantAssertions.medianNumberOfAssertionsAfter = Main.getMedian(this.numbersOfAssertionsAfter);
+        report.generalMinimizationJSON.removeRedundantAssertions.medianTimeMinimizationInMillis = Main.getMedian(this.timesRemoveRedundantAssertionsInMillis);
         // time minimization
-        Main.report.globalMinimization.medianTimeMinimizationInMillis = Main.getMedian(this.timesMinimizationInMillis);
+        report.generalMinimizationJSON.medianTimeMinimizationInMillis = Main.getMedian(this.timesMinimizationInMillis);
     }
 
 }
