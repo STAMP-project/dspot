@@ -64,7 +64,7 @@ public class Main {
     }
 
     public static List<CtMethod<?>> run(CtType<?> amplifiedTestClass) {
-        final List<CtMethod<?>> testMethods = TestFramework.getAllTest(amplifiedTestClass).subList(0, 2);
+        final List<CtMethod<?>> testMethods = TestFramework.getAllTest(amplifiedTestClass);
         Main.report.nbTestMethods = testMethods.size();
         // 1
         final List<CtMethod<?>> minimizedAmplifiedTestMethods = applyMinimization(
