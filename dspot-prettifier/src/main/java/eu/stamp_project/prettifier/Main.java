@@ -64,7 +64,7 @@ public class Main {
     }
 
     public static List<CtMethod<?>> run(CtType<?> amplifiedTestClass) {
-        final List<CtMethod<?>> testMethods = TestFramework.getAllTest(amplifiedTestClass).subList(0, 2);
+        final List<CtMethod<?>> testMethods = TestFramework.getAllTest(amplifiedTestClass);
         Main.report.nbTestMethods = testMethods.size();
         // 1
         final List<CtMethod<?>> minimizedAmplifiedTestMethods = applyMinimization(
@@ -117,6 +117,7 @@ public class Main {
 
     public static void applyCode2Vec(List<CtMethod<?>> amplifiedTestMethodsToBeRenamed) {
         Code2VecWriter writer = new Code2VecWriter();
+        Code2VecParser parser = new Code2VecParser();
         Code2VecExecutor code2VecExecutor = null;
         try {
             code2VecExecutor = new Code2VecExecutor();
@@ -124,7 +125,7 @@ public class Main {
                 writer.writeCtMethodToInputFile(amplifiedTestMethodToBeRenamed);
                 code2VecExecutor.run();
                 final String code2vecOutput = code2VecExecutor.getOutput();
-                final String predictedSimpleName = Code2VecParser.parse(code2vecOutput);
+                final String predictedSimpleName = parser.parse(code2vecOutput);
                 LOGGER.info("Code2Vec predicted {} for {} as new name", predictedSimpleName, amplifiedTestMethodToBeRenamed.getSimpleName());
                 amplifiedTestMethodToBeRenamed.setSimpleName(predictedSimpleName);
             }

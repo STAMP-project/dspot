@@ -1,7 +1,10 @@
 package eu.stamp_project.prettifier.code2vec;
 
+import eu.stamp_project.prettifier.Main;
 import eu.stamp_project.prettifier.options.InputConfiguration;
 import eu.stamp_project.utils.DSpotUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 
 import java.io.FileWriter;
@@ -15,13 +18,17 @@ public class Code2VecWriter {
 
     public static final String FILENAME = "Input.java";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Code2VecWriter.class);
+
     /**
      * write the given test method in the Input.java file.
      * @param testMethod
      */
     public void writeCtMethodToInputFile(CtMethod<?> testMethod) {
         try {
-            FileWriter writer = new FileWriter(InputConfiguration.get().getPathToRootOfCode2Vec() + FILENAME, false);
+            final String fileName = InputConfiguration.get().getPathToRootOfCode2Vec() + FILENAME;
+            LOGGER.info("Writing content of {} into {}.", testMethod.getSimpleName(), fileName);
+            FileWriter writer = new FileWriter(fileName, false);
             writer.write(testMethod.toString());
             writer.close();
         } catch (Exception e) {
