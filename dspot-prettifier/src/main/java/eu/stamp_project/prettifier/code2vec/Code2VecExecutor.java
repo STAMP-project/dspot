@@ -40,7 +40,6 @@ public class Code2VecExecutor {
      * This class will initialize the model of Code2Vec, then provide an API to predict a name for a test method.
      */
     public Code2VecExecutor() {
-        System.out.println(InputConfiguration.get());
         final String root = InputConfiguration.get().getPathToRootOfCode2Vec();
         final String pathToModel = InputConfiguration.get().getRelativePathToModelForCode2Vec();
 
