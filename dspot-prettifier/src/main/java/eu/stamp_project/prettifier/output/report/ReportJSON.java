@@ -1,7 +1,7 @@
 package eu.stamp_project.prettifier.output.report;
 
-import eu.stamp_project.prettifier.output.report.minimization.MinimizationOfAssertionsJSON;
 import eu.stamp_project.prettifier.output.report.minimization.general.GeneralMinimizationJSON;
+import eu.stamp_project.prettifier.output.report.minimization.pit.PitMinimizationJSON;
 
 /**
  * created by Benjamin DANGLOT
@@ -12,7 +12,7 @@ public class ReportJSON {
 
     public GeneralMinimizationJSON generalMinimizationJSON;
 
-    public MinimizationOfAssertionsJSON pitMinimizationJSON;
+    public PitMinimizationJSON pitMinimizationJSON;
 
     public int nbTestMethods;
 
@@ -22,7 +22,7 @@ public class ReportJSON {
 
     public ReportJSON() {
         this.generalMinimizationJSON = new GeneralMinimizationJSON();
-        this.pitMinimizationJSON = new MinimizationOfAssertionsJSON();
+        this.pitMinimizationJSON = new PitMinimizationJSON();
     }
 
 }
