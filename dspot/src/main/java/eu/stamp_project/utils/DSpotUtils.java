@@ -10,6 +10,7 @@ import spoon.compiler.Environment;
 import spoon.reflect.code.CtComment;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtElement;
+import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.factory.Factory;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -81,15 +83,16 @@ public class DSpotUtils {
                 + ".java";
         final CtType<?> existingAmplifiedTestClass;
         if (new File(pathname).exists()) {
-            existingAmplifiedTestClass = getExistingClass(type, pathname);
+            existingAmplifiedTestClass = getExistingClass(type, pathname);//FIXME: analyse for optimisation (16% total execution time)
+            Set<CtMethod<?>> methods = type.getMethods();
             existingAmplifiedTestClass.getMethods()
                     .stream()
-                    .filter(testCase -> !type.getMethods().contains(testCase))
+                    .filter(testCase -> !methods.contains(testCase))//Optimization: extracting type.getMethods invocation.
                     .forEach(type::addMethod);
         }
         printCtTypeToGivenDirectory(type, directory, true);
         // compile
-        final boolean compile = DSpotCompiler.compile(InputConfiguration.get(),
+        final boolean compile = DSpotCompiler.compile(InputConfiguration.get(), //FIXME: analyse for optimisation (36% total execution time)
                 pathname,
                 InputConfiguration.get().getDependencies(),
                 new File(InputConfiguration.get().getOutputDirectory() + "/binaries/")
@@ -103,7 +106,7 @@ public class DSpotUtils {
             LOGGER.warn("Could not compile {} with imports.", type.getQualifiedName());
             LOGGER.warn("DSpot outputs it using full qualified names.");
             LOGGER.warn("These problems can come from the fact your project use generated codes, such as Lombok annotations.");
-            printCtTypeToGivenDirectory(type, directory, false);
+            printCtTypeToGivenDirectory(type, directory, false); //FIXME: analyse for optimisation (13% total execution time)
         }
     }
 
