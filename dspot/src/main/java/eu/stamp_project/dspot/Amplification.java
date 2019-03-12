@@ -8,6 +8,7 @@ import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
 import eu.stamp_project.utils.report.Error;
@@ -137,6 +138,8 @@ public class Amplification {
         currentTestList.add(test);
         // output
         final List<CtMethod<?>> amplifiedTests = new ArrayList<>();
+        //Optimisation: Reset dictionary of cloned methods pointing to original ones
+        AmplificationHelper.resetTestBindingToOriginal();
         for (int i = 0; i < maxIteration; i++) {
             LOGGER.info("iteration {} / {}", i, maxIteration);
             final List<CtMethod<?>> selectedToBeAmplified;
