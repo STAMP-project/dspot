@@ -26,61 +26,23 @@ export MAVEN_HOME=path/to/maven/
 
 DSpot uses maven to compile, and build the classpath of your project. The environment variable JAVA_HOME must point to a valid JDK installation (and not a JRE).
 
-### Compilation
-
-1) Clone the project:
-```
-git clone https://github.com/STAMP-project/dspot.git
-cd dspot/dspot
-```
-
-2) Compile DSpot
-```
-mvn compile
-```
-
-3) Run the tests
-```
-mvn test
-```
-
-4) Create the jar (_e.g._ `target/dspot-1.0.0-jar-with-dependencies.jar`)
-```
-mvn package
-# check that this is successful
-ls target/dspot-*-jar-with-dependencies.jar
-```
-
-5) Run the jar
-```
-java -cp target/dspot-*-jar-with-dependencies.jar eu.stamp_project.Main -p path/To/my.properties
-```
-
-For more info, see section **Usage** below.
-
 ### Releases
 
-See <https://github.com/STAMP-project/dspot/releases>
-
-
-## Contributing
-
-DSpot is licensed under LGPLv3. Contributors and pull requests are welcome.
+We advise you to start by downloading the latest release, see <https://github.com/STAMP-project/dspot/releases>.
 
 ## Usage
 
-
 ### First Tutorial
 
-After having cloned DSpot (see the previous section), you can run the provided example by running
+After having downloaded DSpot (see the previous section), you can run the provided example by running
 `eu.stamp_project.Main` from your IDE, or with
 
 ```
 java -jar target/dspot-LATEST-jar-with-dependencies.jar --example
 ```
 
-replacing `LATEST` by the latest version of DSpot, _e.g._ 1.1.0 would give :
- `dspot-1.1.0-jar-with-dependencies.jar`
+replacing `LATEST` by the latest version of DSpot, _e.g._ 2.0.0 would give :
+ `dspot-2.0.0-jar-with-dependencies.jar`
 
 This example is an implementation of the function `chartAt(s, i)` (in `src/test/resources/test-projects/`), which
 returns the char at the index _i_ in the String _s_.
@@ -147,8 +109,6 @@ You can then execute DSpot by using:
 
 ```bash
 java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --path-to-properties dspot.properties
-# or in maven
-mvn exec:java -Dexec.mainClass="eu.stamp_project.Main" -Dexec.args="--path-to-properties dspot.properties"
 ```
 
 Amplify a specific test class
@@ -344,6 +304,15 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         show this help
 ```
 
+Each command line options is translated into an option for the maven plugin. You must prefix each of them with `-D`. Examples:
+
+    * `--path-to-properties dspot.properties` gives `-Dpath-to-properties=dspot.properties`
+    * `--test my.package.MyTestClass1:my.package.MyTestClass2` gives `-Dtest=my.package.MyTestClass1,my.package.MyTestClass2`
+    * `--output-path output` gives `-Doutput-path=output`
+    
+For options that take list, the used separator is a comma `,`, whatever the platform you use.
+    
+
 ### Configuration
 
 Here is the list of configuration properties of DSpot:
@@ -384,7 +353,7 @@ However, **DSpot** provide different kind of `Amplifier`:
    * `NumberLiteralAmplifier`: modifies number literals: replace by boundaries (_e.g._ Integer_MAX_VALUE for int), increment and decrement values
    * `CharLiteralAmplifier`: modifies char literals: replace by special chars (_e.g._ '\0')
    * `BooleanLiteralAmplifier`: modifies boolean literals: nagate the value
-   * `AllLiteralAmplifier`: combines all literals amplifiers, _i.e._ StringLiteralAmplifier, NumberLiteralAmplifier, CharLiteralAmplifier and BooleanLiteralAmplifier
+   * `AllLiteralAmplifiers`: combines all literals amplifiers, _i.e._ StringLiteralAmplifier, NumberLiteralAmplifier, CharLiteralAmplifier and BooleanLiteralAmplifier
    * `MethodAdd`: duplicates an existing method call
    * `MethodRemove`: removes an existing method call
    * `StatementAdd`: adds a method call, and generate required parameter
@@ -439,48 +408,11 @@ Please, do not amplify test classes that mix test frameworks (test methods in JU
 
 If you have such test class, please amplify the different test framework separately.
 
-### Using DSpot as an API
+## Contributing
 
-In this section, we explain the API of **DSpot**. To amplify your tests with **DSpot** you must do 3 steps:
-First of all, you have to create an `InputConfiguration`. Only the path to your _properties_ is required:
+DSpot is licensed under LGPLv3. Contributors and pull requests are welcome :-).
 
-```java
-// 1. Instantiate `InputConfiguration` and `InputProgram`
-String propertiesFilePath = <pathToYourPropertiesFile>;
-InputConfiguration inputConfiguration = new InputConfiguration(propertiesFilePath);
-```
-
-Then you have to build the `InputProgram`, this is done by attaching the `InputProgram` to your `InputConfiguration`:
-
-```java
-InputProgram program = new InputProgram();
-inputConfiguration.setInputProgram(program);
-```
-Then, you are ready to construct the `DSpot` object that will allow you to amplify your test.
-There are a lot of constructor available, all of them allow you to custom your `DSpot` object, and so your amplification.
-Following the shortest constructor with all default values of `DSpot`, and the longest, which allows to custom all values of `DSpot`:
-
-```java
-// 2. Instantiate `DSpot` object
-DSpot dspot = new DSpot(InputConfiguration);
-DSpot dspot = new DSpot(
-    InputConfiguration inputConfiguration, // input configuration built at step 1
-    int numberOfIterations, // number of time that the main loop will be applied (-i | --iteration option of the CLI)
-    List<Amplifier> amplifiers, // list of the amplifiers to be used (-a | --amplifiers option of the CLI)
-    TestSelector testSelector // test selector criterion (-s | --test-selector option of the CLI)
-);
-```
-
-Now that you have your `DSpot`, you will be able to amplify your tests.
-`DSpot` has several methods to amplify, but all of them starts with amplify key-word:
-
-```java
-// 3. start ampification
-dspot.amplifyTest(String regex); // will amplify all test classes that match the given regex
-dspot.amplifyTest(String fulQualifiedName, List<String> testCasesName); // will amplify test cases that have their name in testCasesName in the test class fulQualifiedName
-dspot.amplifyAllTests(); // will amplify all test in the test suite.
-```
-
+For more information on development, see the dedicated [README-developers.md](https://github.com/STAMP-project/dspot/blob/master/README-developers.md)
 
 ### Acknowledgement
 
