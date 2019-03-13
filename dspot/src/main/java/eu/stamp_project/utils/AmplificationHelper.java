@@ -65,7 +65,6 @@ public class AmplificationHelper {
     public static void reset() {
         CloneHelper.reset();
         ampTestToParent.clear();
-        originalTestBindings.clear();
         importByClass.clear();
     }
 
@@ -133,15 +132,44 @@ public class AmplificationHelper {
     }
 
     public static CtMethod addTestBindingToOriginal(CtMethod clonedTest, CtMethod originalTest) {
-        return originalTestBindings.put(clonedTest, originalTest);
+        synchronized(originalTestBindings) {
+            return originalTestBindings.put(clonedTest, originalTest);
+        }
     }
 
     public static CtMethod removeTestBindingToOriginal(CtMethod clonedTest) {
-        return originalTestBindings.remove(clonedTest);
+        synchronized(originalTestBindings) {
+            //Remove entries pointing at this clonedTest
+            if (originalTestBindings.containsValue(clonedTest)) {
+                removeKeysForValue (originalTestBindings, clonedTest);
+            }
+            return originalTestBindings.remove(clonedTest);
+        }
+    }
+
+    private static Set<CtMethod> getKeysForValue (Map<CtMethod<?>, CtMethod> map, CtMethod value) {
+        return map.entrySet().stream().filter (o -> o.getValue().equals(value)).map(Map.Entry::getKey).collect(Collectors.toCollection(HashSet::new));
+    }
+
+    private static void removeKeysForValue (Map<CtMethod<?>, CtMethod> map, CtMethod method) {
+        Set<CtMethod> keys = getKeysForValue(map, method);
+        keys.forEach(i->map.remove(i));
     }
 
     public static CtMethod getTestBindingToOriginal(CtMethod clonedTest) {
-        return originalTestBindings.get(clonedTest);
+        synchronized(originalTestBindings) {
+            return originalTestBindings.get(clonedTest);
+        }
+    }
+
+    public static int getTestBindingToOriginalSize() {
+        return originalTestBindings.size();
+    }
+
+    public static void resetTestBindingToOriginal() {
+        synchronized(originalTestBindings) {
+            originalTestBindings.clear();
+        }
     }
 
     @Deprecated

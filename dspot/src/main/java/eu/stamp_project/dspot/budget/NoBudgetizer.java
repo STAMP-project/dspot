@@ -108,7 +108,11 @@ public class NoBudgetizer extends AbstractBugetizer {
         } else {
             tests.stream()
                     .filter(test -> !reducedTests.contains(test))
-                    .forEach(discardedTest -> AmplificationHelper.ampTestToParent.remove(discardedTest));
+                    .forEach(discardedTest -> {
+                        AmplificationHelper.ampTestToParent.remove(discardedTest);
+                        //Optimisation: removing discarded tests from dictionary of cloned methods
+                        AmplificationHelper.removeTestBindingToOriginal(discardedTest);
+                    });
         }
         return reducedTests;
     }
