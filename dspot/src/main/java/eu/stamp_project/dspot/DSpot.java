@@ -278,12 +278,12 @@ public class DSpot {
         test.getPackage().addType(clone);
         final CtType<?> amplification = AmplificationHelper.createAmplifiedTest(testSelector.getAmplifiedTestCases(), clone);
         final File outputDirectory = new File(InputConfiguration.get().getOutputDirectory());
-        
-        //Optimization: this object is not required anymore 
+
+        //Optimization: this object is not required anymore
         //and holds a dictionary with large number of cloned CtMethods.
-        testAmplification = null; 
-        //Optimization: this.testSelector.getAmplifiedTestCases() also holds a large number of cloned CtMethods, 
-        //but it is clear before iterating again for next test class 
+        testAmplification = null;
+        //Optimization: this.testSelector.getAmplifiedTestCases() also holds a large number of cloned CtMethods,
+        //but it is clear before iterating again for next test class
         LOGGER.debug("OPTIMIZATION: GC invoked");
         System.gc(); //Optimization: cleaning up heap before printing the amplified class
         if (!testSelector.getAmplifiedTestCases().isEmpty()) {
@@ -301,8 +301,8 @@ public class DSpot {
             LOGGER.warn("DSpot could not obtain any amplified test method.");
             LOGGER.warn("You can customize the following options: --amplifiers, --test-criterion, --iteration, --budgetizer etc, and retry with a new configuration.");
         }
-        // TODO if something bad happened, the call to TestSelector#report() might throw an exception.
-        // For now, I wrap it in a try/catch, but we might think of a better way to handle this.
+        //TODO if something bad happened, the call to TestSelector#report() might throw an exception.
+        //For now, I wrap it in a try/catch, but we might think of a better way to handle this.
         try {
             Main.GLOBAL_REPORT.addTestSelectorReportForTestClass(test, testSelector.report());
         } catch (Exception e) {
