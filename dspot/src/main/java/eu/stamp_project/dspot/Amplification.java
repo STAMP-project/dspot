@@ -8,7 +8,6 @@ import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
 import eu.stamp_project.utils.report.error.Error;

@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -133,7 +132,7 @@ public class AmplificationHelper {
     public static CtMethod removeAmpTestParent(CtMethod amplifiedTest) {
         return ampTestToParent.remove(amplifiedTest);
     }
-    
+
     public static int getAmpTestParentSize() {
         return ampTestToParent.size();
     }
