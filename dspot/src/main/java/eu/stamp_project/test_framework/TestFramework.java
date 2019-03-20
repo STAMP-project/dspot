@@ -123,7 +123,7 @@ public class TestFramework implements TestFrameworkSupport {
     // associated to input test method
     private TestFrameworkSupport getTestFramework(CtMethod<?> testMethod) {
     	//Get original test method, using bounds of cloned methods in AmplificationHelper
-    	CtMethod<?> originalMethod = AmplificationHelper.getOriginalTest(testMethod);
+    	CtMethod<?> originalMethod = AmplificationHelper.getOriginalTestMethod(testMethod);
     	//Retrieving associated test framework from cache
     	TestFrameworkSupport tfs = DSpotCache.getTestFrameworkCache().get(TypeUtils.getQualifiedName(originalMethod));
     	if (tfs == null){ //If not cached, test framework is computed and stored in cache.

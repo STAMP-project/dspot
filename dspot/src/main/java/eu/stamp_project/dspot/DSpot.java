@@ -278,6 +278,14 @@ public class DSpot {
         test.getPackage().addType(clone);
         final CtType<?> amplification = AmplificationHelper.createAmplifiedTest(testSelector.getAmplifiedTestCases(), clone);
         final File outputDirectory = new File(InputConfiguration.get().getOutputDirectory());
+        
+        //Optimization: this object is not required anymore 
+        //and holds a dictionary with large number of cloned CtMethods.
+        testAmplification = null; 
+        //Optimization: this.testSelector.getAmplifiedTestCases() also holds a large number of cloned CtMethods, 
+        //but it is clear before iterating again for next test class 
+        LOGGER.debug("OPTIMIZATION: GC invoked");
+        System.gc(); //Optimization: cleaning up heap before printing the amplified class
         if (!testSelector.getAmplifiedTestCases().isEmpty()) {
             Main.GLOBAL_REPORT.addNumberAmplifiedTestMethodsToTotal(testSelector.getAmplifiedTestCases().size());
             Main.GLOBAL_REPORT.addPrintedTestClasses(
