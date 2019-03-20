@@ -138,8 +138,6 @@ public class Amplification {
         currentTestList.add(test);
         // output
         final List<CtMethod<?>> amplifiedTests = new ArrayList<>();
-        //Optimisation: Reset dictionary of cloned methods pointing to original ones
-        AmplificationHelper.resetTestBindingToOriginal();
         for (int i = 0; i < maxIteration; i++) {
             LOGGER.info("iteration {} / {}", i, maxIteration);
             final List<CtMethod<?>> selectedToBeAmplified;
