@@ -1,6 +1,7 @@
 package eu.stamp_project;
 
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
+import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.options.AmplifierEnum;
 import eu.stamp_project.utils.options.BudgetizerEnum;
@@ -25,8 +26,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 @Mojo(name = "amplify-unit-tests", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.TEST)
 public class DSpotMojo extends AbstractMojo {
@@ -111,7 +114,7 @@ public class DSpotMojo extends AbstractMojo {
     private String pathPitResult;
 
     /**
-     *	[optional, expert] enable this option will make DSpot computing the mutation score of only one test class (the first pass through --test command line option)
+     * [optional, expert] enable this option will make DSpot computing the mutation score of only one test class (the first pass through --test command line option)
      */
     @Parameter(defaultValue = "false", property = "targetOneTestClass")
     private Boolean targetOneTestClass;
@@ -239,6 +242,11 @@ public class DSpotMojo extends AbstractMojo {
                 return;
             }
         }
+        if (this.amplifiers.size() == 1 &&
+                this.amplifiers.get(0).contains(AmplificationHelper.PATH_SEPARATOR)) {
+            this.amplifiers = Arrays.stream(this.amplifiers.get(0).split(AmplificationHelper.PATH_SEPARATOR))
+                    .collect(Collectors.toList());
+        }
         try {
             InputConfiguration.initialize(properties)
                     .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(new ArrayList<>(this.amplifiers)))
@@ -263,12 +271,12 @@ public class DSpotMojo extends AbstractMojo {
 
             InputConfiguration.get().setOutputDirectory(
                     properties.getProperty(ConstantsProperties.OUTPUT_DIRECTORY.getName()) == null ?
-                    this.outputPath : properties.getProperty(ConstantsProperties.OUTPUT_DIRECTORY.getName()));
+                            this.outputPath : properties.getProperty(ConstantsProperties.OUTPUT_DIRECTORY.getName()));
 
             if (this.pathPitResult != null && !this.pathPitResult.isEmpty()) {
                 InputConfiguration.get().setSelector(new PitMutantScoreSelector(this.pathPitResult,
                         this.pathPitResult.endsWith(".xml") ?
-                        PitMutantScoreSelector.OutputFormat.XML: PitMutantScoreSelector.OutputFormat.CSV,
+                                PitMutantScoreSelector.OutputFormat.XML : PitMutantScoreSelector.OutputFormat.CSV,
                         PitMutantScoreSelector.OutputFormat.XML)
                 );
             } else {
