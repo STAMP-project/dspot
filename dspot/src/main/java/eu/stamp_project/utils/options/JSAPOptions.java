@@ -142,7 +142,7 @@ public class JSAPOptions {
                 .setGenerateAmplifiedTestClass(jsapConfig.getBoolean("generate-new-test-class"))
                 .setKeepOriginalTestMethods(jsapConfig.getBoolean("keep-original-test-methods"))
                 .setDescartesMode(jsapConfig.getBoolean("descartes") && !jsapConfig.getBoolean("gregor"))
-                .setUseMavenToExecuteTest(jsapConfig.getBoolean("use-maven-to-exe-test"))
+                .setUseAutomaticBuilder(jsapConfig.getBoolean("use-automatic-builder"))
                 .setTargetOneTestClass(jsapConfig.getBoolean("targetOneTestClass"));
         return false;
     }
@@ -345,10 +345,10 @@ public class JSAPOptions {
         keepOriginalTestMethods.setDefault("false");
         keepOriginalTestMethods.setHelp("If enabled, DSpot keeps original test methods of the amplified test class.");
 
-        Switch useMavenToExecuteTests = new Switch("use-maven-to-exe-test");
-        useMavenToExecuteTests.setLongFlag("use-maven-to-exe-test");
-        useMavenToExecuteTests.setDefault("false");
-        useMavenToExecuteTests.setHelp("If enabled, DSpot will use maven to execute the tests.");
+        Switch useAutomaticBuilder = new Switch("use-automatic-builder");
+        useAutomaticBuilder.setLongFlag("use-automatic-builder");
+        useAutomaticBuilder.setDefault("false");
+        useAutomaticBuilder.setHelp("If enabled, DSpot will use automatic builder to compute classpath, to execute the tests and test-criterion.");
 
         FlaggedOption classpath = new FlaggedOption("classpath");
         classpath.setLongFlag("classpath");
@@ -386,7 +386,7 @@ public class JSAPOptions {
             jsap.registerParameter(useWorkingDirectory);
             jsap.registerParameter(generateNewTestClass);
             jsap.registerParameter(keepOriginalTestMethods);
-            jsap.registerParameter(useMavenToExecuteTests);
+            jsap.registerParameter(useAutomaticBuilder);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {
