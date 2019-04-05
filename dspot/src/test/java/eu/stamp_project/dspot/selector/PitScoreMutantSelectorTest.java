@@ -3,7 +3,6 @@ package eu.stamp_project.dspot.selector;
 import eu.stamp_project.Utils;
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.minimization.PitMutantMinimizer;
 import org.junit.Before;
 import spoon.reflect.declaration.CtMethod;
 
@@ -56,8 +55,4 @@ public class PitScoreMutantSelectorTest extends AbstractSelectorTest {
                 "it kills 1 more mutants";
     }
 
-    @Override
-    protected Class<?> getClassMinimizer() {
-        return PitMutantMinimizer.class;
-    }
 }

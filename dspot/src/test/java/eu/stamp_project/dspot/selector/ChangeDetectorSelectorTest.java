@@ -2,13 +2,11 @@ package eu.stamp_project.dspot.selector;
 
 import eu.stamp_project.Utils;
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
-import eu.stamp_project.minimization.ChangeMinimizer;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
-import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
 import java.io.File;
@@ -52,11 +50,6 @@ public class ChangeDetectorSelectorTest extends AbstractSelectorTest {
         return  "======= REPORT ======="+ AmplificationHelper.LINE_SEPARATOR +
                 "1 amplified test fails on the new versions."+ AmplificationHelper.LINE_SEPARATOR +
                 "test2(example.TestSuiteExample): String index out of range: -1";
-    }
-
-    @Override
-    protected Class<?> getClassMinimizer() {
-        return ChangeMinimizer.class;
     }
 
     @Test

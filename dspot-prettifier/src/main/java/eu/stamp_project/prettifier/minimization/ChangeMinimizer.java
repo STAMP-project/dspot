@@ -1,6 +1,5 @@
 package eu.stamp_project.prettifier.minimization;
 
-import eu.stamp_project.minimization.GeneralMinimizer;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.listener.TestResult;
@@ -27,7 +26,7 @@ import java.util.concurrent.TimeoutException;
  */
 public class ChangeMinimizer extends GeneralMinimizer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(eu.stamp_project.minimization.ChangeMinimizer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChangeMinimizer.class);
 
     private CtType<?> testClass;
 
