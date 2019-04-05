@@ -47,8 +47,6 @@ public abstract class AbstractSelectorTest {
 
     protected TestSelector testSelectorUnderTest;
 
-    protected abstract Class<?> getClassMinimizer();
-
     @Before
     public void setUp() throws Exception {
         final String configurationPath = getPathToProperties();
@@ -83,6 +81,5 @@ public abstract class AbstractSelectorTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        assertTrue(this.testSelectorUnderTest.getMinimizer().getClass() == getClassMinimizer());
     }
 }

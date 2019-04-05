@@ -1,8 +1,6 @@
 package eu.stamp_project.dspot.selector;
 
 import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.minimization.GeneralMinimizer;
-import eu.stamp_project.minimization.Minimizer;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -61,8 +59,4 @@ public class TakeAllSelector implements TestSelector {
 		this.currentClassTestToBeAmplified = null;
 	}
 
-	@Override
-	public Minimizer getMinimizer() {
-		return new GeneralMinimizer();
-	}
 }

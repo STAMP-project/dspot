@@ -28,7 +28,7 @@ import java.util.*;
  */
 public class PitMutantMinimizer implements Minimizer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(eu.stamp_project.minimization.PitMutantMinimizer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PitMutantMinimizer.class);
 
     private CtType<?> testClass;
 

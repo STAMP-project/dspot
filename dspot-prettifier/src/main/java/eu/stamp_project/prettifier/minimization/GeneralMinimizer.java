@@ -24,7 +24,7 @@ import static eu.stamp_project.test_framework.TestFramework.ASSERTIONS_FILTER;
  */
 public class GeneralMinimizer implements Minimizer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(eu.stamp_project.minimization.GeneralMinimizer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeneralMinimizer.class);
 
     private List<Long> timesMinimizationInMillis = new ArrayList<>();
 
