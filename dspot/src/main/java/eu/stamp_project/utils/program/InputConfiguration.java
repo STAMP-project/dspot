@@ -221,19 +221,20 @@ public class InputConfiguration {
                 .setExcludedTestCases(ConstantsProperties.EXCLUDED_TEST_CASES.get(properties));
     }
 
+    // this method is called only if the option 
     private void initializeBuilder(Properties properties) {
         this.setMavenHome(ConstantsProperties.MAVEN_HOME.get(properties));
         this.builder = AutomaticBuilderFactory.getAutomaticBuilder(this.getBuilderName());
-        this.dependencies = this.builder.compileAndBuildClasspath();
+        this.classpath = this.builder.compileAndBuildClasspath();
 
         // TODO checks this. Since we support different Test Support, we may not need to add artificially junit in the classpath
-        if (!this.dependencies.contains("junit" + File.separator + "junit" + File.separator + "4")) {
-            this.dependencies = Test.class
+        if (!this.classpath.contains("junit" + File.separator + "junit" + File.separator + "4")) {
+            this.classpath = Test.class
                     .getProtectionDomain()
                     .getCodeSource()
                     .getLocation()
                     .getFile() +
-                    AmplificationHelper.PATH_SEPARATOR + this.dependencies;
+                    AmplificationHelper.PATH_SEPARATOR + this.classpath;
         }
 
         final String additionalClasspathElements = ConstantsProperties.ADDITIONAL_CP_ELEMENTS.get(properties);
@@ -245,7 +246,7 @@ public class InputConfiguration {
                                 additionalClasspathElements
                         );
             }
-            this.dependencies += PATH_SEPARATOR + pathToAdditionalClasspathElements;
+            this.classpath += PATH_SEPARATOR + pathToAdditionalClasspathElements;
         }
         this.setAdditionalClasspathElements(ConstantsProperties.ADDITIONAL_CP_ELEMENTS.get(properties));
     }
@@ -426,24 +427,29 @@ public class InputConfiguration {
         return this.getAbsolutePathToClasses() + AmplificationHelper.PATH_SEPARATOR + this.getAbsolutePathToTestClasses();
     }
 
-    private String dependencies;
+    private String classpath;
 
     /**
      * This method compute the path to all dependencies of the project, separated by the path separator of the System.
      * The dependencies is compute by an implementation of a {@link eu.stamp_project.automaticbuilder.AutomaticBuilder}
      *
-     * @return the dependencies of the project
+     * @return the classpath of the project
      */
-    public String getDependencies() {
-        return this.dependencies;
+    public String getClasspath() {
+        return this.classpath;
+    }
+
+    public InputConfiguration setClasspath(String classpath) {
+        this.classpath = classpath;
+        return this;
     }
 
     /**
-     * @return the full classpath of the project. This full classpath is composed of: the returned values of {@link #getClasspathClassesProject}, {@link #getDependencies()} and {@link DSpotUtils#getAbsolutePathToDSpotDependencies()} separated by the path separator of the system, <i>i.e.</i> as a classpath.
+     * @return the full classpath of the project. This full classpath is composed of: the returned values of {@link #getClasspathClassesProject}, {@link #getClasspath()} and {@link DSpotUtils#getAbsolutePathToDSpotDependencies()} separated by the path separator of the system, <i>i.e.</i> as a classpath.
      */
     public String getFullClassPathWithExtraDependencies() {
         return this.getClasspathClassesProject() + AmplificationHelper.PATH_SEPARATOR +
-                this.getDependencies() + AmplificationHelper.PATH_SEPARATOR +
+                this.getClasspath() + AmplificationHelper.PATH_SEPARATOR +
                 DSpotUtils.getAbsolutePathToDSpotDependencies();
     }
 

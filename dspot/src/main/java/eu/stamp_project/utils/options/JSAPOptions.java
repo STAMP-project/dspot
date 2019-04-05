@@ -124,6 +124,7 @@ public class JSAPOptions {
         Checker.checkBinariesFolders(properties);
 
         InputConfiguration.get()
+                .setClasspath(jsapConfig.getString("classpath"))
                 .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(amplifiers))
                 .setNbIteration(jsapConfig.getInt("iteration"))
                 .setTestClasses(testClasses)
@@ -349,8 +350,18 @@ public class JSAPOptions {
         useMavenToExecuteTests.setDefault("false");
         useMavenToExecuteTests.setHelp("If enabled, DSpot will use maven to execute the tests.");
 
+        FlaggedOption classpath = new FlaggedOption("classpath");
+        classpath.setLongFlag("classpath");
+        classpath.setShortFlag('x');
+        classpath.setRequired(false);
+        classpath.setHelp("Specify the classpath of the project to amplify.");
+        classpath.setUsageName("classpath");
+        classpath.setStringParser(JSAP.STRING_PARSER);
+        classpath.setAllowMultipleDeclarations(false);
+
         try {
             jsap.registerParameter(pathToConfigFile);
+            jsap.registerParameter(classpath);
             jsap.registerParameter(amplifiers);
             jsap.registerParameter(iteration);
             jsap.registerParameter(selector);
