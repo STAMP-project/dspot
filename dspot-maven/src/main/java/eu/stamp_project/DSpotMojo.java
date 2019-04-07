@@ -17,7 +17,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -308,7 +307,6 @@ public class DSpotMojo extends AbstractMojo {
     }
 
     // visible for testing...
-    @NotNull
     Properties initializeProperties() {
         Properties properties = new Properties();
         if (this.pathToProperties != null && !this.pathToProperties.isEmpty()) {

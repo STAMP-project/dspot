@@ -10,7 +10,6 @@ import eu.stamp_project.utils.pit.AbstractParser;
 import eu.stamp_project.utils.pit.AbstractPitResult;
 import eu.stamp_project.utils.pit.PitXMLResultParser;
 import eu.stamp_project.utils.program.InputConfiguration;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtInvocation;
@@ -114,7 +113,6 @@ public class PitMutantMinimizer implements Minimizer {
         return best.method;
     }
 
-    @NotNull
     private CtType<?> cloneAndRemoveAllTestsButTheGivenOne(CtMethod<?> amplifiedTestToBeMinimized) {
         final CtType<?> testClone = testClass.clone();
         this.testClass.getPackage().addType(testClone);

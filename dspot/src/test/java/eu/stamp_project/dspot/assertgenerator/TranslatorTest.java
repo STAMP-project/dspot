@@ -2,7 +2,6 @@ package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.code.CtExpression;
@@ -30,14 +29,12 @@ public class TranslatorTest extends AbstractTest {
 
     private Translator translatorUnderTest;
 
-    @NotNull
     private CtInvocation<?> translateInvocation(String statementToBeTranslated) {
         final CtExpression<?> translate = this.translatorUnderTest.translate(statementToBeTranslated);
         assertTrue(translate instanceof CtInvocation<?>);
         return (CtInvocation<?>) translate;
     }
 
-    @NotNull
     private CtVariableRead<?> translateVariableRead(String statementToBeTranslated) {
         final CtExpression<?> translate = this.translatorUnderTest.translate(statementToBeTranslated);
         assertTrue(translate instanceof CtVariableRead<?>);

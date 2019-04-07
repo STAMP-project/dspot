@@ -6,7 +6,6 @@ import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 
 import org.apache.cxf.common.util.WeakIdentityHashMap;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtComment;
@@ -73,14 +72,6 @@ public class AmplificationHelper {
     @SuppressWarnings("unchecked")
     public static CtType<?> createAmplifiedTest(List<CtMethod<?>> ampTest, CtType<?> classTest) {
         final Stream<CtMethod<?>> methodToAdd;
-        // TODO the minimization is not stable for now.
-        // TODO I disabled it
-        /*if (InputConfiguration.get().shouldMinimize()) {
-            final Minimizer minimizer = InputConfiguration.get().getSelector().getMinimizer();
-            methodToAdd = ampTest.stream().map(minimizer::minimize);
-        } else {
-            methodToAdd = ampTest.stream();
-        }*/
         methodToAdd = ampTest.stream();
         final CtType<?> currentTestClass = classTest.clone();
         methodToAdd.forEach(currentTestClass::addMethod);
@@ -88,7 +79,6 @@ public class AmplificationHelper {
         if (!InputConfiguration.get().shouldKeepOriginalTestMethods()) {
             classTest.getMethods().stream()
                     .filter(TestFramework.get()::isTest)
-                    //.filter(AmplificationChecker::isTest)
                     .forEach(currentTestClass::removeMethod);
         }
         // generate a new test class
@@ -118,7 +108,6 @@ public class AmplificationHelper {
         return currentTestClass;
     }
 
-    @NotNull
     private static String getAmplifiedName(CtType<?> classTest) {
         return classTest.getSimpleName().startsWith("Test") ?
                 classTest.getSimpleName() + "Ampl" :

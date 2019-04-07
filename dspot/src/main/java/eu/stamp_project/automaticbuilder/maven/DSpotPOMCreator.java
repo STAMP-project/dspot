@@ -2,7 +2,6 @@ package eu.stamp_project.automaticbuilder.maven;
 
 import eu.stamp_project.automaticbuilder.AutomaticBuilderHelper;
 import eu.stamp_project.utils.program.InputConfiguration;
-import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -273,7 +272,6 @@ public class DSpotPOMCreator {
 
     private static final String EXECUTIONS = "executions";
 
-    @NotNull
     private Element createExecutions(Document document) {
         return document.createElement(EXECUTIONS);
     }
@@ -329,7 +327,6 @@ public class DSpotPOMCreator {
         return dependencies;
     }
 
-    @NotNull
     private Element createDependency(Document document,
                                      String groupIdValue,
                                      String artifactIdValue,

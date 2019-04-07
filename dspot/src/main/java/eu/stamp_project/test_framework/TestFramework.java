@@ -11,7 +11,6 @@ import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotCache;
 import eu.stamp_project.utils.TypeUtils;
 import eu.stamp_project.utils.program.InputConfiguration;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtExpression;
@@ -164,7 +163,6 @@ public class TestFramework implements TestFrameworkSupport {
         return selectedTestFramework;
     }
 
-    @Nullable
     private TestFrameworkSupport getTestFrameworkSupportFromIsTest(CtMethod<?> testMethod) {
         for (TestFrameworkSupport testFrameworkSupport : testFrameworkSupportList) {
             if (testFrameworkSupport.isTest(testMethod)) {
