@@ -177,6 +177,7 @@ public class InputConfiguration {
             InputConfiguration.instance.setBuilderName(builderName);
         }
         if (InputConfiguration.instance.useAutomaticBuilder ||
+                InputConfiguration.instance.classpath == null ||
                 InputConfiguration.instance.classpath.isEmpty()) { // if no classpath has been provided, DSpot will use the automatic builder to compute it.
             InputConfiguration.instance.initializeBuilder(properties);
         }
@@ -222,6 +223,9 @@ public class InputConfiguration {
                 .setDescartesMutators(ConstantsProperties.DESCARTES_MUTATORS.get(properties))
                 .setPitVersion(ConstantsProperties.PIT_VERSION.get(properties))
                 .setExcludedTestCases(ConstantsProperties.EXCLUDED_TEST_CASES.get(properties));
+        if (!ConstantsProperties.CLASSPATH.get(properties).isEmpty()) {
+            this.setClasspath(ConstantsProperties.CLASSPATH.get(properties));
+        }
     }
 
     // this method is called only if the option 

@@ -74,6 +74,20 @@ public class ConstantsProperties {
                     "test binaries folder"
             );
 
+    public static final InputConfigurationProperty CLASSPATH =
+            new InputConfigurationProperty(
+                    "classpath",
+                    "specify the classpath of the project." +
+                    "It is not necessary to specify the classes of the project, e.g. target/classes/. " +
+                            "This properties is redundant with the command line option --classpath. " +
+                            "This property has the priority over the command line. " +
+                            "If no value for this property, nor for the command is provided, " +
+                            "DSpot will automatically uses the automatic builder.",
+                            "" ,
+                    ""
+            );
+
+    @Deprecated // TODO this property might be redundant with the property CLASSPATH
     public static final InputConfigurationProperty ADDITIONAL_CP_ELEMENTS =
             new InputConfigurationProperty(
                     "additionalClasspathElements",
@@ -211,8 +225,8 @@ public class ConstantsProperties {
             new InputConfigurationProperty(
                     "jvmArgs",
                     "specify JVM args to use when executing the test, PIT or other java process. " +
-                                "This arguments should be a list, separated by a comma \',\', "+
-                                "e.g. jvmArgs=Xmx2048m,-Xms1024m',-Dis.admin.user=admin,-Dis.admin.passwd=$2pRSid#",
+                            "This arguments should be a list, separated by a comma \',\', " +
+                            "e.g. jvmArgs=Xmx2048m,-Xms1024m',-Dis.admin.user=admin,-Dis.admin.passwd=$2pRSid#",
                     ""
             );
 
@@ -231,9 +245,9 @@ public class ConstantsProperties {
             );
 
 
-
     /**
      * main method to generate the documentation. This method will output the documentation on the standard output, in markdown format.
+     *
      * @param args unused
      */
     public static void main(String[] args) {
@@ -244,6 +258,7 @@ public class ConstantsProperties {
         inputConfigurationProperties.add(TEST_SRC_CODE);
         inputConfigurationProperties.add(SRC_CLASSES);
         inputConfigurationProperties.add(TEST_CLASSES);
+        inputConfigurationProperties.add(CLASSPATH);
         inputConfigurationProperties.add(ADDITIONAL_CP_ELEMENTS);
         inputConfigurationProperties.add(SYSTEM_PROPERTIES);
         inputConfigurationProperties.add(OUTPUT_DIRECTORY);
@@ -288,7 +303,7 @@ public class ConstantsProperties {
                 } else {
                     wrappedSplit.add("`" + split[i] + "`");
                     if (i + 1 < split.length) {
-                        wrappedSplit.add("`" + split[i+1] + "`");
+                        split[i + 1] = "`" + split[i + 1] + "`";
                     }
                 }
             } else {
