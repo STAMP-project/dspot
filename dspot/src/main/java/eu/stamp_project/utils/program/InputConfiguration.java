@@ -179,6 +179,7 @@ public class InputConfiguration {
         if (InputConfiguration.instance.useAutomaticBuilder ||
                 InputConfiguration.instance.classpath == null ||
                 InputConfiguration.instance.classpath.isEmpty()) { // if no classpath has been provided, DSpot will use the automatic builder to compute it.
+            // TODO should turn on the automatic builder mode ?
             InputConfiguration.instance.initializeBuilder(properties);
         }
         return InputConfiguration.instance;
@@ -449,6 +450,14 @@ public class InputConfiguration {
     public InputConfiguration setClasspath(String classpath) {
         this.classpath = classpath;
         return this;
+    }
+
+    /**
+     *
+     * @return the full classpath of the project This full classpath is composed of: the returned values of {@link #getClasspathClassesProject} and {@link #getClasspath()} separated by the path separator of the system, <i>i.e.</i> as a classpath.
+     */
+    public String getFullClassPath() {
+        return this.getClasspathClassesProject() + AmplificationHelper.PATH_SEPARATOR + this.getClasspath();
     }
 
     /**
