@@ -111,7 +111,7 @@ public class ChangeMinimizer extends GeneralMinimizer {
     // on the source (business) of the second version to see if the amplified test (still) detects the changes.
     // this method return a mixed classpath between the first and the second version
     private String getMixedClasspath() {
-        return InputConfiguration.get().getDependencies() + AmplificationHelper.PATH_SEPARATOR +
+        return InputConfiguration.get().getClasspath() + AmplificationHelper.PATH_SEPARATOR +
                 DSpotUtils.getAbsolutePathToDSpotDependencies() + AmplificationHelper.PATH_SEPARATOR +
                 InputConfiguration.get().getAbsolutePathToTestClasses() + AmplificationHelper.PATH_SEPARATOR +
                 this.pathToSecondVersionOfProgram + InputConfiguration.get().getPathToClasses();

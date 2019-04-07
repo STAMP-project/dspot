@@ -84,7 +84,7 @@ public class DSpot {
                  List<Amplifier> amplifiers,
                  TestSelector testSelector,
                  BudgetizerEnum budgetizer) {
-        String dependencies = InputConfiguration.get().getDependencies();
+        String dependencies = InputConfiguration.get().getClasspath();
         this.compiler = DSpotCompiler.createDSpotCompiler(InputConfiguration.get(), dependencies);
         InputConfiguration.get().setFactory(this.compiler.getLauncher().getFactory());
         this.amplifiers = new ArrayList<>(amplifiers);

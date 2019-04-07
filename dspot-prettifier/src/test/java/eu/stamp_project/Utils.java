@@ -72,7 +72,7 @@ public class Utils {
 			Utils.getInputConfiguration().setMinimize(false);
 			Utils.getInputConfiguration().setVerbose(true);
 			builder = inputConfiguration.getBuilder();
-			compiler = DSpotCompiler.createDSpotCompiler(inputConfiguration, inputConfiguration.getDependencies());
+			compiler = DSpotCompiler.createDSpotCompiler(inputConfiguration, inputConfiguration.getClasspath());
 			inputConfiguration.setFactory(compiler.getLauncher().getFactory());
 			currentInputConfigurationLoaded = pathToConfFile;
 		} catch (Exception e) {

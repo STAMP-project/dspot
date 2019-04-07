@@ -9,20 +9,15 @@ import eu.stamp_project.utils.options.JSAPOptions;
 import eu.stamp_project.utils.options.SelectorEnum;
 import eu.stamp_project.utils.program.ConstantsProperties;
 import eu.stamp_project.utils.program.InputConfiguration;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.model.Build;
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -266,7 +261,7 @@ public class DSpotMojo extends AbstractMojo {
                     .setDescartesMode(this.descartes)
                     .setGenerateAmplifiedTestClass(this.generateNewTestClass)
                     .setKeepOriginalTestMethods(this.keepOriginalTestMethods)
-                    .setUseMavenToExecuteTest(this.useMavenToExeTest)
+                    .setUseAutomaticBuilder(this.useMavenToExeTest)
                     .setTargetOneTestClass(this.targetOneTestClass);
 
             InputConfiguration.get().setOutputDirectory(

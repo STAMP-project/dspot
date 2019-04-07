@@ -31,7 +31,7 @@ public class DSpotAndResourcesTest extends AbstractTest {
 		final InputConfiguration configuration = Utils.getInputConfiguration();
 		final String classpath = configuration.getClasspathClassesProject()
 				+ AmplificationHelper.PATH_SEPARATOR +
-				configuration.getDependencies();
+				configuration.getClasspath();
 
 		final TestResult result = EntryPoint.runTests(
 				classpath,
