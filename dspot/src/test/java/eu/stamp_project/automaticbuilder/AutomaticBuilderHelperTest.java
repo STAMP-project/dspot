@@ -14,12 +14,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 08/04/19
  */
-public class AutomaticBuilderTest extends AbstractTest {
-
-    @Override
-    public String getPathToPropertiesFile() {
-        return "src/test/resources/test-projects/test-projects.properties";
-    }
+public class AutomaticBuilderHelperTest extends AbstractTest {
 
     @Test
     public void testGetFilter() {
@@ -30,7 +25,7 @@ public class AutomaticBuilderTest extends AbstractTest {
         
         Utils.reset();
         Utils.init(getPathToPropertiesFile());
-        assertEquals("example.*", AutomaticBuilderHelper.getFilter());
+        assertEquals("fr.inria.sample.*", AutomaticBuilderHelper.getFilter());
     }
 
     @Test
@@ -41,7 +36,7 @@ public class AutomaticBuilderTest extends AbstractTest {
          */
 
         InputConfiguration.get().setFilter("");
-        assertEquals("example.*", AutomaticBuilderHelper.getFilter());
+        assertEquals("fr.inria.*", AutomaticBuilderHelper.getFilter());
     }
 
     @Test
@@ -53,7 +48,7 @@ public class AutomaticBuilderTest extends AbstractTest {
 
         InputConfiguration.get().setFilter("");
         InputConfiguration.get().getFactory().createClass("FakeClass");
-        assertEquals("FakeClass,example.*", AutomaticBuilderHelper.getFilter());
+        assertEquals("FakeClass,fr.inria.*", AutomaticBuilderHelper.getFilter());
     }
 
     @After
