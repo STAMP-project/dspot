@@ -4,6 +4,7 @@ import eu.stamp_project.utils.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtPackage;
+import spoon.reflect.declaration.CtType;
 
 /**
  * created by Benjamin DANGLOT
@@ -19,12 +20,22 @@ public class AutomaticBuilderHelper {
     public static String getFilter() {
         if (InputConfiguration.get().getFilter().isEmpty()) {
             LOGGER.warn(MESSAGE_WARN_PIT_NO_FILTER);
-            LOGGER.warn("Trying to compute the top package of the project...");
             CtPackage currentPackage = InputConfiguration.get().getFactory().Package().getRootPackage();
+            StringBuilder filter = new StringBuilder();
+            if (!currentPackage.getTypes().isEmpty()) {
+                LOGGER.warn("There is a class in the default package:");
+                currentPackage.getTypes().stream()
+                        .map(CtType::getQualifiedName)
+                        .peek(type -> LOGGER.warn("\t- {}", type))
+                        .forEach(type -> filter.append(type).append(","));
+            }
+            currentPackage = (CtPackage) currentPackage.getPackages().toArray()[0];
             while (currentPackage.getTypes().isEmpty()) {
                 currentPackage = (CtPackage) currentPackage.getPackages().toArray()[0];
             }
-            InputConfiguration.get().setFilter(currentPackage.getQualifiedName() + ".*");
+            filter.append(currentPackage.getQualifiedName()).append(".*");
+            LOGGER.info("A new filter has been computed on the fly: {}", filter.toString());
+            InputConfiguration.get().setFilter(filter.toString());
         }
         return InputConfiguration.get().getFilter();
     }
