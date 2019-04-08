@@ -201,7 +201,7 @@ public class InputConfiguration {
 
         this.setOutputDirectory(ConstantsProperties.OUTPUT_DIRECTORY.get(properties))
                 .setDelta(ConstantsProperties.DELTA_ASSERTS_FLOAT.get(properties))
-                .setFilter(ConstantsProperties.FILTER.get(properties))
+                .setFilter(ConstantsProperties.PIT_FILTER_CLASSES_TO_KEEP.get(properties))
                 .setDescartesVersion(ConstantsProperties.DESCARTES_VERSION.get(properties))
                 .setBaseSha(ConstantsProperties.BASE_SHA.get(properties))
                 .setExcludedClasses(ConstantsProperties.EXCLUDED_CLASSES.get(properties))

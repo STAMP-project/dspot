@@ -171,15 +171,14 @@ public class ConstantsProperties {
                     "0.1"
             );
 
-    public static final InputConfigurationProperty FILTER =
+    public static final InputConfigurationProperty PIT_FILTER_CLASSES_TO_KEEP =
             new InputConfigurationProperty(
-                    "filter",
-                    "specify the filter used by PIT. " +
+                    "pitFilterClassesToKeep",
+                    "specify the filter of classes to keep used by PIT. " +
                             "If you use PitMutantScoreSelector, we recommend you to set this property to your top-most package. " +
                             "This value will allow PIT to mutant all your code. " +
                             "However, if you want to restrict the scope of the mutation, you can specify a custom regex. " +
-                            "If you do not specify any value, PIT will use the following filter: <groupId>.<artifactId>.* " +
-                            "which might not match your packages.",
+                            "If you do not specify any value, DSpot will compute a filter of classes to keep on the fly, trying to match the most of your classes, i.e. your top-most package.",
                     ""
             );
 
@@ -266,7 +265,7 @@ public class ConstantsProperties {
         inputConfigurationProperties.add(AUTOMATIC_BUILDER_NAME);
         inputConfigurationProperties.add(PIT_VERSION);
         inputConfigurationProperties.add(JVM_ARGS);
-        inputConfigurationProperties.add(FILTER);
+        inputConfigurationProperties.add(PIT_FILTER_CLASSES_TO_KEEP);
         inputConfigurationProperties.add(DESCARTES_VERSION);
         inputConfigurationProperties.add(DESCARTES_MUTATORS);
         System.out.println(new StringBuilder().append("* Required properties")
