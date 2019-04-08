@@ -131,7 +131,12 @@ java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --path-to-properties d
 You can execute DSpot using the maven plugin. You can use this plugin on the command line as the jar:
 
 ```bash
+# this amplifies the Junit tests to kill more mutants
 mvn eu.stamp-project:dspot-maven:amplify-unit-tests
+
+# this amplifies the Junit tests to improve coverage
+mvn eu.stamp-project:dspot-maven:amplify-unit-tests -Dtest-criterion=JacocoCoverageSelector
+
 ```  
 
 All the option can be pass through command line by prefixing the option with `-D`.
