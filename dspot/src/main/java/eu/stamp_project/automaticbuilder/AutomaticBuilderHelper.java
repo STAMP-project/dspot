@@ -28,6 +28,7 @@ public class AutomaticBuilderHelper {
                         .map(CtType::getQualifiedName)
                         .peek(type -> LOGGER.warn("\t- {}", type))
                         .forEach(type -> filter.append(type).append(","));
+                LOGGER.warn("DSpot will add them to the pit filter of classes to keep.");
             }
             currentPackage = (CtPackage) currentPackage.getPackages().toArray()[0];
             while (currentPackage.getTypes().isEmpty()) {
