@@ -5,10 +5,8 @@ import com.google.gson.GsonBuilder;
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.selector.json.change.TestCaseJSON;
 import eu.stamp_project.dspot.selector.json.change.TestClassJSON;
-import eu.stamp_project.minimization.ChangeMinimizer;
-import eu.stamp_project.minimization.Minimizer;
 import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.testrunner.listener.TestListener;
+import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.testrunner.runner.Failure;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -92,7 +90,7 @@ public class ChangeDetectorSelector implements TestSelector {
                 new File(this.pathToSecondVersionOfProgram + InputConfiguration.get().getPathToTestClasses())
         );
 
-        final TestListener results;
+        final TestResult results;
         try {
             results = TestRunner.run(
                     InputConfiguration.get().getFullClassPathWithExtraDependencies(),
@@ -125,15 +123,6 @@ public class ChangeDetectorSelector implements TestSelector {
     @Override
     public List<CtMethod<?>> getAmplifiedTestCases() {
         return new ArrayList<>(this.failurePerAmplifiedTest.keySet());
-    }
-
-    @Override
-    public Minimizer getMinimizer() {
-        return new ChangeMinimizer(
-                this.currentClassTestToBeAmplified,
-                InputConfiguration.get(),
-                this.failurePerAmplifiedTest
-        );
     }
 
     protected void reset() {

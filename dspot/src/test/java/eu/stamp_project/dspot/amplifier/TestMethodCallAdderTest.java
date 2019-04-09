@@ -23,6 +23,22 @@ import static org.junit.Assert.assertEquals;
 public class TestMethodCallAdderTest extends AbstractTest {
 
     @Test
+    public void testMethodCallAddOnInvocationWithCast() {
+        /*
+            In case of the invocation has type cast(s), we need to remove them.
+         */
+
+        CtClass<Object> testClass = Utils.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
+
+        TestMethodCallAdder methodCallAdder = new TestMethodCallAdder();
+        methodCallAdder.reset(testClass);
+
+        final CtMethod<?> originalMethod = testClass.getMethods().stream().filter(m -> "testWithCast".equals(m.getSimpleName())).findFirst().get();
+        List<CtMethod> amplifiedMethods = methodCallAdder.amplify(originalMethod, 0).collect(Collectors.toList());
+        System.out.println(amplifiedMethods);
+    }
+
+    @Test
     public void testMethodCallAddAll() throws Exception {
 
         /*

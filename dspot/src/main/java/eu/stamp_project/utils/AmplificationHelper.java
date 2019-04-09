@@ -1,7 +1,7 @@
 package eu.stamp_project.utils;
 
 import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.testrunner.listener.TestListener;
+import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import org.jetbrains.annotations.NotNull;
@@ -52,6 +52,12 @@ public class AmplificationHelper {
      * Link between an amplified test and its parent (i.e. the original test).
      */
     public static Map<CtMethod<?>, CtMethod> ampTestToParent = new IdentityHashMap<>();
+
+
+    //(Optimisation) - trace bounds between cloned test methods and their original ones
+    //This additional map is added (and ampTestToParent is not used) because
+    //existing map does not account for all cloned test methods
+    private static Map<CtMethod<?>, CtMethod> originalTestBindings = new IdentityHashMap<>();
 
     @Deprecated
     private static Map<CtType, Set<CtType>> importByClass = new HashMap<>();
@@ -125,6 +131,47 @@ public class AmplificationHelper {
         return ampTestToParent.remove(amplifiedTest);
     }
 
+    public static CtMethod addTestBindingToOriginal(CtMethod clonedTest, CtMethod originalTest) {
+        synchronized(originalTestBindings) {
+            return originalTestBindings.put(clonedTest, originalTest);
+        }
+    }
+
+    public static CtMethod removeTestBindingToOriginal(CtMethod clonedTest) {
+        synchronized(originalTestBindings) {
+            //Remove entries pointing at this clonedTest
+            if (originalTestBindings.containsValue(clonedTest)) {
+                removeKeysForValue (originalTestBindings, clonedTest);
+            }
+            return originalTestBindings.remove(clonedTest);
+        }
+    }
+
+    private static Set<CtMethod> getKeysForValue (Map<CtMethod<?>, CtMethod> map, CtMethod value) {
+        return map.entrySet().stream().filter (o -> o.getValue().equals(value)).map(Map.Entry::getKey).collect(Collectors.toCollection(HashSet::new));
+    }
+
+    private static void removeKeysForValue (Map<CtMethod<?>, CtMethod> map, CtMethod method) {
+        Set<CtMethod> keys = getKeysForValue(map, method);
+        keys.forEach(i->map.remove(i));
+    }
+
+    public static CtMethod getTestBindingToOriginal(CtMethod clonedTest) {
+        synchronized(originalTestBindings) {
+            return originalTestBindings.get(clonedTest);
+        }
+    }
+
+    public static int getTestBindingToOriginalSize() {
+        return originalTestBindings.size();
+    }
+
+    public static void resetTestBindingToOriginal() {
+        synchronized(originalTestBindings) {
+            originalTestBindings.clear();
+        }
+    }
+
     @Deprecated
     public static Set<CtType> computeClassProvider(CtType testClass) {
         List<CtType> types = Query.getElements(testClass.getParent(CtPackage.class), new TypeFilter(CtType.class));
@@ -168,7 +215,7 @@ public class AmplificationHelper {
     }
 
     @Deprecated
-    public static List<CtMethod<?>> getPassingTests(List<CtMethod<?>> newTests, TestListener result) {
+    public static List<CtMethod<?>> getPassingTests(List<CtMethod<?>> newTests, TestResult result) {
         final List<String> passingTests = result.getPassingTests();
         return newTests.stream()
                 .filter(test -> {
@@ -195,6 +242,15 @@ public class AmplificationHelper {
             currentTest = topParent;
         }
         return currentTest;
+    }
+
+    public static CtMethod getOriginalTest(CtMethod cloned) {
+        CtMethod topParent;
+        CtMethod original = cloned;
+        while ((topParent = getTestBindingToOriginal (original)) != null) {
+        	original = topParent;
+        }
+        return original;
     }
 
     @Deprecated

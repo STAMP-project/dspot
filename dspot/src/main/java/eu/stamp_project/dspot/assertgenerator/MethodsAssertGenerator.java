@@ -4,7 +4,7 @@ import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.compare.Observation;
 import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.testrunner.listener.TestListener;
+import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.Counter;
@@ -88,19 +88,21 @@ public class MethodsAssertGenerator {
                                     this.variableReadsAsserted.get(ctMethod)
                             );
                         }
-                ).collect(Collectors.toList());
+                ).filter(ctMethod -> !ctMethod.getBody().getStatements().isEmpty())
+                .collect(Collectors.toList());
+        if (testCasesWithLogs.isEmpty()) {
+            LOGGER.warn("Could not continue the assertion amplification since all the instrumented test have an empty body.");
+            return testCasesWithLogs;
+        }
         final List<CtMethod<?>> testsToRun = new ArrayList<>();
         IntStream.range(0, 3).forEach(i -> testsToRun.addAll(
                 testCasesWithLogs.stream()
-                        .map(CtMethod::clone)
-                        .map(ctMethod -> {
-                            ctMethod.setSimpleName(ctMethod.getSimpleName() + i);
-                            return ctMethod;
-                        })
-                        .map(ctMethod -> {
-                            clone.addMethod(ctMethod);
-                            return ctMethod;
-                        })
+
+                	//Optimization: Tracking cloned test methods using AmplificationHelper as candidates
+                	//for caching their associated Test Framework
+                        .map(CloneHelper::cloneMethod)
+                        .peek(ctMethod -> ctMethod.setSimpleName(ctMethod.getSimpleName() + i))
+                        .peek(clone::addMethod)
                         .collect(Collectors.toList())
         ));
         ObjectLog.reset();
@@ -108,7 +110,7 @@ public class MethodsAssertGenerator {
         //AssertGeneratorHelper.addAfterClassMethod(clone);
         TestFramework.get().generateAfterClassToSaveObservations(clone, testsToRun);
         try {
-            final TestListener result = TestCompiler.compileAndRun(clone,
+            final TestResult result = TestCompiler.compileAndRun(clone,
                     this.compiler,
                     testsToRun,
                     this.configuration
@@ -173,7 +175,9 @@ public class MethodsAssertGenerator {
                             statementToBeAsserted.getParent() instanceof CtBlock) {
                         CtInvocation invocationToBeReplaced = (CtInvocation) statementToBeAsserted.clone();
                         final CtLocalVariable localVariable = factory.createLocalVariable(
-                                invocationToBeReplaced.getType(), "o_" + id.split("___")[0], invocationToBeReplaced
+                                AssertGeneratorHelper.getCorrectTypeOfInvocation(invocationToBeReplaced),
+                                "o_" + id.split("___")[0],
+                                invocationToBeReplaced
                         );
                         statementToBeAsserted.replace(localVariable);
                         DSpotUtils.addComment(localVariable, "AssertGenerator create local variable with return value of invocation", CtComment.CommentType.INLINE);

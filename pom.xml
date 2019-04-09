@@ -10,7 +10,7 @@
 
     <groupId>eu.stamp-project</groupId>
     <artifactId>dspot-parent</artifactId>
-    <version>1.2.3-SNAPSHOT</version>
+    <version>2.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>DSpot - Parent</name>
@@ -22,6 +22,16 @@
         <default.encoding>UTF-8</default.encoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+
+        <!-- version of common dependencies -->
+        <spoon.version>7.3.0</spoon.version>
+        <junit4.version>4.12</junit4.version>
+        <slf4j.version>1.7.25</slf4j.version>
+        <maven.invoker.version>3.0.0</maven.invoker.version>
+        <gumtree.spoon.ast.diff.version>1.5</gumtree.spoon.ast.diff.version>
+        <maven.plugin.version>3.5.4</maven.plugin.version>
+        <maven.plugin.annotations>3.5</maven.plugin.annotations>
+        <clover.version>4.2.1</clover.version>
     </properties>
 
     <licenses>
@@ -120,6 +130,8 @@
     <modules>
         <module>dspot</module>
         <module>dspot-maven</module>
+        <module>dspot-prettifier</module>
+    	<module>dspot-diff-test-selection</module>
     </modules>
 
 </project>

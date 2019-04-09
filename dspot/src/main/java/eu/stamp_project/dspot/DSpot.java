@@ -90,7 +90,6 @@ public class DSpot {
         this.amplifiers = new ArrayList<>(amplifiers);
         this.numberOfIterations = numberOfIterations;
         this.testSelector = testSelector;
-        this.testSelector.init(InputConfiguration.get());
 
         String splitter = File.separator.equals("/") ? "/" : "\\\\";
         final String[] splittedPath = InputConfiguration.get().getAbsolutePathToProjectRoot().split(splitter);
@@ -267,52 +266,53 @@ public class DSpot {
     }
 
     protected CtType<?> _amplify(CtType<?> test, List<CtMethod<?>> methods) {
-        try {
-            Counter.reset();
-            Amplification testAmplification = new Amplification(this.compiler, this.amplifiers, this.testSelector, this.budgetizer);
-            final List<CtMethod<?>> filteredTestCases = this.filterTestCases(methods);
-            long time = System.currentTimeMillis();
-            testAmplification.amplification(test, filteredTestCases, numberOfIterations);
-            final long elapsedTime = System.currentTimeMillis() - time;
-            LOGGER.info("elapsedTime {}", elapsedTime);
-            this.projectTimeJSON.add(new ClassTimeJSON(test.getQualifiedName(), elapsedTime));
-            final CtType clone = test.clone();
-            test.getPackage().addType(clone);
-            final CtType<?> amplification = AmplificationHelper.createAmplifiedTest(testSelector.getAmplifiedTestCases(), clone);
-            final File outputDirectory = new File(InputConfiguration.get().getOutputDirectory());
-            if (!testSelector.getAmplifiedTestCases().isEmpty()) {
-                LOGGER.info("Print {} with {} amplified test cases in {}", amplification.getSimpleName(),
-                        testSelector.getAmplifiedTestCases().size(), InputConfiguration.get().getOutputDirectory());
-                // we try to compile the newly generated amplified test class (.java)
-                // if this fail, we re-print the java test class without imports
-                DSpotUtils.printAndCompileToCheck(amplification, outputDirectory);
-            } else {
-                LOGGER.warn("DSpot could not obtain any amplified test method.");
-                LOGGER.warn("You can customize the following options: --amplifiers, --test-criterion, --iteration, --budgetizer etc, and retry with a new configuration.");
-            }
-            // TODO if something bad happened, the call to TestSelector#report() might throw an exception.
-            // For now, I wrap it in a try/catch, but we might think of a better way to handle this.
-            try {
-                testSelector.report();
-            } catch (Exception e) {
-                e.printStackTrace();
-                LOGGER.error("Something bad happened during the report fot test-criterion.");
-                LOGGER.error("Dspot might not have output correctly!");
-            }
-            FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
-            try {
-                String pathToDotClass = compiler.getBinaryOutputDirectory().getAbsolutePath() + "/" +
-                        test.getQualifiedName().replaceAll("\\.", "/") + ".class";
-                FileUtils.forceDelete(new File(pathToDotClass));
-            } catch (IOException ignored) {
-                //ignored
-            }
-            writeTimeJson();
-            InputConfiguration.get().getBuilder().reset();
-            return amplification;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        Counter.reset();
+        Amplification testAmplification = new Amplification(this.compiler, this.amplifiers, this.testSelector, this.budgetizer);
+        final List<CtMethod<?>> filteredTestCases = this.filterTestCases(methods);
+        long time = System.currentTimeMillis();
+        testAmplification.amplification(test, filteredTestCases, numberOfIterations);
+        final long elapsedTime = System.currentTimeMillis() - time;
+        LOGGER.info("elapsedTime {}", elapsedTime);
+        this.projectTimeJSON.add(new ClassTimeJSON(test.getQualifiedName(), elapsedTime));
+        final CtType clone = test.clone();
+        test.getPackage().addType(clone);
+        final CtType<?> amplification = AmplificationHelper.createAmplifiedTest(testSelector.getAmplifiedTestCases(), clone);
+        final File outputDirectory = new File(InputConfiguration.get().getOutputDirectory());
+        if (!testSelector.getAmplifiedTestCases().isEmpty()) {
+            LOGGER.info("Print {} with {} amplified test cases in {}", amplification.getSimpleName(),
+                    testSelector.getAmplifiedTestCases().size(), InputConfiguration.get().getOutputDirectory());
+            // we try to compile the newly generated amplified test class (.java)
+            // if this fail, we re-print the java test class without imports
+            DSpotUtils.printAndCompileToCheck(amplification, outputDirectory);
+        } else {
+            LOGGER.warn("DSpot could not obtain any amplified test method.");
+            LOGGER.warn("You can customize the following options: --amplifiers, --test-criterion, --iteration, --budgetizer etc, and retry with a new configuration.");
         }
+        // TODO if something bad happened, the call to TestSelector#report() might throw an exception.
+        // For now, I wrap it in a try/catch, but we might think of a better way to handle this.
+        try {
+            testSelector.report();
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error("Something bad happened during the report fot test-criterion.");
+            LOGGER.error("Dspot might not have output correctly!");
+        }
+        try {
+            FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            LOGGER.warn("Something went wrong when trying to cleaning temporary sources directory: {}", compiler.getSourceOutputDirectory());
+        }
+        try {
+            String pathToDotClass = compiler.getBinaryOutputDirectory().getAbsolutePath() + "/" +
+                    test.getQualifiedName().replaceAll("\\.", "/") + ".class";
+            FileUtils.forceDelete(new File(pathToDotClass));
+        } catch (IOException ignored) {
+            //ignored
+        }
+        writeTimeJson();
+        InputConfiguration.get().getBuilder().reset();
+        return amplification;
     }
 
     protected List<CtMethod<?>> filterTestCases(List<CtMethod<?>> testMethods) {

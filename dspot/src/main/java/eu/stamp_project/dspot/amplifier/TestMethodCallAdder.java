@@ -6,6 +6,7 @@ import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.Counter;
 import spoon.reflect.code.CtBlock;
+import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtMethod;
@@ -49,12 +50,32 @@ public class TestMethodCallAdder implements Amplifier {
 
     private CtMethod<?> apply(CtMethod<?> method, CtInvocation<?> invocation) {
         final CtInvocation<?> invocationToBeInserted = invocation.clone();
+        removeAllTypeCast(invocationToBeInserted);
         final CtStatement insertionPoint = this.getRightInsertionPoint(invocation);
         insertionPoint.insertBefore(invocationToBeInserted);
         final CtMethod<?> clone = CloneHelper.cloneTestMethodForAmp(method, "_add");
         AmplifierHelper.getParent(invocationToBeInserted).getStatements().remove(invocationToBeInserted);
         Counter.updateInputOf(clone, 1);
         return clone;
+    }
+
+    private void removeTypeCastIfSame(CtExpression<?> element) {
+        if (!element.getTypeCasts().isEmpty() &&
+                (element.getType() == null ||
+                element.getType().equals(element.getTypeCasts().get(0)))) {
+            element.getTypeCasts().clear();
+        }
+    }
+
+    private void removeAllTypeCast(CtInvocation<?> invocation) {
+        invocation.getTypeCasts().clear();
+        removeTypeCastIfSame(invocation.getTarget());
+        CtInvocation<?> current = invocation;
+        while (current.getTarget() instanceof CtInvocation<?>) {
+            current = (CtInvocation<?>) current.getTarget();
+            removeTypeCastIfSame(current);
+        }
+        removeTypeCastIfSame(current);
     }
 
 }

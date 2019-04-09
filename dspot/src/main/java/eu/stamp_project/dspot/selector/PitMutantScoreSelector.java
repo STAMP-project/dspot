@@ -13,8 +13,6 @@ import eu.stamp_project.dspot.selector.json.mutant.TestClassJSON;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.minimization.Minimizer;
-import eu.stamp_project.minimization.PitMutantMinimizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
@@ -76,7 +74,13 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         super.init(configuration);
         if (this.originalKilledMutants == null) {
             final AutomaticBuilder automaticBuilder = InputConfiguration.get().getBuilder();
-            automaticBuilder.runPit();
+            if (InputConfiguration.get().shouldTargetOneTestClass()) {
+                automaticBuilder.runPit(
+                        InputConfiguration.get().getFactory().Class().get(InputConfiguration.get().getTestClasses().get(0))
+                );
+            } else {
+                automaticBuilder.runPit();
+            }
             initOriginalPitResult(parser.parseAndDelete(this.configuration.getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit()) );
         }
     }
@@ -288,8 +292,4 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 .count();
     }
 
-    @Override
-    public Minimizer getMinimizer() {
-        return new PitMutantMinimizer(this.currentClassTestToBeAmplified, this.configuration, this.testThatKilledMutants);
-    }
 }
