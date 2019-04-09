@@ -16,7 +16,7 @@ import java.io.IOException;
  */
 public class TestSelectorElementReportImpl implements TestSelectorElementReport {
 
-    private final static String SUFFIX_PATH_TO_JSON_FILE = "report.json";
+    private final static String SUFFIX_PATH_TO_JSON_FILE = "_report.json";
 
     private String textualReport;
 
