@@ -16,6 +16,7 @@ public enum ErrorEnum {
     ERROR_NO_ENUM_VALUE_CORRESPOND_TO_GIVEN_INPUT("The given value does not match with any value of the corresponding options."),
     ERROR_PATH_TO_PROPERTIES("There is a problem with the provided path to the properties file."),
 
+
     /*
         ERRORS PROPERTIES
      */
@@ -27,6 +28,7 @@ public enum ErrorEnum {
     ERROR_PATH_TO_TEST_CLASSES_PROPERTY(ConstantsProperties.TEST_CLASSES),
     ERROR_PATH_TO_SECOND_VERSION(ConstantsProperties.PATH_TO_SECOND_VERSION),
     ERROR_PATH_TO_MAVEN_HOME(ConstantsProperties.MAVEN_HOME),
+    ERROR_INVALID_VERSION("Invalid version"),
 
     /*
         ERRORS BEFORE AMPLIFICATION PROCESS

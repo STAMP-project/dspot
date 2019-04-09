@@ -146,9 +146,9 @@ public class Checker {
     }
 
     public static void checkIsACorrectVersion(final String proposedVersion) {
-        if (!Pattern.compile("(\\p{Digit})+(\\.(\\p{Digit})+)*").matcher(proposedVersion).matches()) {
+        if (!Pattern.compile("(\\p{Digit})+(\\.(\\p{Digit})+)*(-SNAPSHOT)?").matcher(proposedVersion).matches()) {
             Main.globalReport.addInputError(new Error(
-                            ErrorEnum.ERROR_PATH_TO_PROPERTIES
+                            ErrorEnum.ERROR_INVALID_VERSION, "Version " + proposedVersion + " is not a valid version"
                     )
             );
             throw new InputErrorException();
