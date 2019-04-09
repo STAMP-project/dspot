@@ -8,7 +8,7 @@ import java.util.List;
  * benjamin.danglot@inria.fr
  * on 2/17/17
  */
-public class TestClassJSON {
+public class TestClassJSON implements eu.stamp_project.utils.report.output.selector.TestClassJSON {
 
     public final int nbMutantKilledOriginally;
     private final String name;

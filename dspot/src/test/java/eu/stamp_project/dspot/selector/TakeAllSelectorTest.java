@@ -26,11 +26,6 @@ public class TakeAllSelectorTest extends AbstractSelectorTest {
 	}
 
 	@Override
-	protected String getPathToReportFile() {
-		return "";
-	}
-
-	@Override
 	protected String getContentReportFile() {
 		return "";
 	}

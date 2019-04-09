@@ -3,13 +3,17 @@ package eu.stamp_project.dspot.selector;
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.RandomHelper;
+import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -41,8 +45,6 @@ public abstract class AbstractSelectorTest {
 
     protected abstract CtMethod<?> getAmplifiedTest();
 
-    protected abstract String getPathToReportFile();
-
     protected abstract String getContentReportFile();
 
     protected TestSelector testSelectorUnderTest;
@@ -72,14 +74,10 @@ public abstract class AbstractSelectorTest {
                 )
         );
         assertFalse(this.testSelectorUnderTest.getAmplifiedTestCases().isEmpty());
-
-        this.testSelectorUnderTest.report();
-        try (BufferedReader buffer = new BufferedReader(new FileReader(getPathToReportFile()))) {
-            assertEquals(getContentReportFile(),
-                    buffer.lines()
-                            .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        final File directory = new File(DSpotUtils.shouldAddSeparator.apply(InputConfiguration.get().getOutputDirectory()));
+        if (!directory.exists()) {
+            directory.mkdir();
         }
+        assertEquals(getContentReportFile(), this.testSelectorUnderTest.report().output(this.getTestClass()));
     }
 }

@@ -1,6 +1,5 @@
 package eu.stamp_project.utils.report;
 
-import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.report.error.Error;
 import eu.stamp_project.utils.report.error.ErrorReport;
 import eu.stamp_project.utils.report.output.OutputReport;
@@ -26,10 +25,6 @@ public class GlobalReport implements Report, ErrorReport, OutputReport, TestSele
     public GlobalReport(OutputReport outputReport, ErrorReport errorReport, TestSelectorReport testSelectorReport) {
         this.outputReport = outputReport;
         this.errorReport = errorReport;
-        this.testSelectorReport = testSelectorReport;
-    }
-
-    public void setTestSelectorReport(TestSelectorReport testSelectorReport) {
         this.testSelectorReport = testSelectorReport;
     }
 
