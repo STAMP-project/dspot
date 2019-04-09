@@ -265,8 +265,7 @@ public class MainTest {
             "        Assert.assertEquals('d', ((char) (o_test2_literalMutationString2__3)));" + AmplificationHelper.LINE_SEPARATOR +
             "    }";
 
-    private static final String expectedReportExample = AmplificationHelper.LINE_SEPARATOR +
-            "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
+    private static final String expectedReportExample = 
             "Initial instruction coverage: 30 / 34" + AmplificationHelper.LINE_SEPARATOR +
             "88" + AmplificationHelper.DECIMAL_SEPARATOR + "24%" + AmplificationHelper.LINE_SEPARATOR +
             "Amplification results with 22 amplified tests." + AmplificationHelper.LINE_SEPARATOR +
