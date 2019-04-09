@@ -69,7 +69,7 @@ public class DSpotMojoTest {
         mojoUnderTest.setOutputPath("target/dspot-output");
         mojoUnderTest.execute();
 
-        assertTrue(new File("target/dspot-output/example.TestSuiteExample_jacoco_instr_coverage_report.txt").exists());
+        assertTrue(new File("target/dspot-output/report.txt").exists());
     }
 
     @Test
@@ -90,6 +90,6 @@ public class DSpotMojoTest {
         mojoUnderTest.setOutputPath("target/dspot-output");
         mojoUnderTest.execute();
 
-        assertTrue(new File("target/dspot-output/example.TestSuiteExample_jacoco_instr_coverage_report.txt").exists());
+        assertTrue(new File("target/dspot-output/report.txt").exists());
     }
 }
