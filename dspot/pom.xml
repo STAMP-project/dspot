@@ -84,7 +84,6 @@
             <groupId>eu.stamp-project</groupId>
             <artifactId>test-runner</artifactId>
             <version>2.0.8-SNAPSHOT</version>
-            <classifier>jar-with-dependencies</classifier>
         </dependency>
 
         <dependency>
