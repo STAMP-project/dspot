@@ -3,8 +3,10 @@ package eu.stamp_project.dspot.selector;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
-import eu.stamp_project.dspot.selector.json.change.TestCaseJSON;
-import eu.stamp_project.dspot.selector.json.change.TestClassJSON;
+import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
+import eu.stamp_project.utils.report.output.selector.TestSelectorReport;
+import eu.stamp_project.utils.report.output.selector.change.json.TestCaseJSON;
+import eu.stamp_project.utils.report.output.selector.change.json.TestClassJSON;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.testrunner.runner.Failure;
@@ -14,7 +16,6 @@ import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.execution.TestRunner;
-import org.codehaus.plexus.util.FileUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -125,35 +126,25 @@ public class ChangeDetectorSelector implements TestSelector {
         return new ArrayList<>(this.failurePerAmplifiedTest.keySet());
     }
 
+    @Override
+    public TestSelectorReport getReport() {
+        return null;
+    }
+
     protected void reset() {
         this.currentClassTestToBeAmplified = null;
     }
 
     @Override
-    public void report() {
-        final String output = "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
-                this.failurePerAmplifiedTest.size() + " amplified test fails on the new versions." +
-                AmplificationHelper.LINE_SEPARATOR +
-                this.failurePerAmplifiedTest.keySet()
-                        .stream()
-                        .reduce("",
-                                (acc, amplifiedTest) -> acc +
-                                        this.failurePerAmplifiedTest.get(amplifiedTest).toString() +
-                                        AmplificationHelper.LINE_SEPARATOR,
-                                String::concat);
-        System.out.println(output);
-        try {
-            FileUtils.forceMkdir(new File(InputConfiguration.get().getOutputDirectory() + "/" +
-                    this.currentClassTestToBeAmplified.getQualifiedName()));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        try (FileWriter writer = new FileWriter(new File(InputConfiguration.get().getOutputDirectory() + "/" +
-                this.currentClassTestToBeAmplified.getQualifiedName() + "_change_report.txt"))) {
-            writer.write(output);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public TestSelectorElementReport report() {
+        final StringBuilder output = new StringBuilder();
+        output.append(this.failurePerAmplifiedTest.size()).append(" amplified test fails on the new versions.");
+        this.failurePerAmplifiedTest.keySet()
+                .stream()
+                .map(this.failurePerAmplifiedTest::get)
+                .map(Object::toString)
+                .map(AmplificationHelper.LINE_SEPARATOR::concat)
+                .forEachOrdered(output::append);
         try (FileWriter writer = new FileWriter(new File(InputConfiguration.get().getOutputDirectory() + "/" +
                 this.currentClassTestToBeAmplified.getQualifiedName() + "_stacktraces.txt"))) {
             final PrintWriter printWriter = new PrintWriter(writer);
@@ -166,6 +157,7 @@ public class ChangeDetectorSelector implements TestSelector {
         }
         this.reportJson();
         this.reset();
+        return null;
     }
 
     private void reportJson() {
@@ -190,7 +182,7 @@ public class ChangeDetectorSelector implements TestSelector {
         }
         this.getAmplifiedTestCases().stream()
                 .map(ctMethod ->
-                    new TestCaseJSON(ctMethod.getSimpleName(), Counter.getInputOfSinceOrigin(ctMethod), Counter.getAssertionOfSinceOrigin(ctMethod))
+                        new TestCaseJSON(ctMethod.getSimpleName(), Counter.getInputOfSinceOrigin(ctMethod), Counter.getAssertionOfSinceOrigin(ctMethod))
                 ).forEach(testClassJSON.testCases::add);
         try (FileWriter writer = new FileWriter(file, false)) {
             writer.write(gson.toJson(testClassJSON));

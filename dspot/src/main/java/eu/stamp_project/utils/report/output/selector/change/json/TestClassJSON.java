@@ -1,4 +1,4 @@
-package eu.stamp_project.utils.report.output.selector.json.change;
+package eu.stamp_project.utils.report.output.selector.change.json;
 
 import java.util.ArrayList;
 import java.util.List;

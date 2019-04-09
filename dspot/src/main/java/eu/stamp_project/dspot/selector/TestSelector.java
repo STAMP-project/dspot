@@ -1,6 +1,8 @@
 package eu.stamp_project.dspot.selector;
 
 import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
+import eu.stamp_project.utils.report.output.selector.TestSelectorReport;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -33,8 +35,16 @@ public interface TestSelector {
      */
     List<CtMethod<?>> selectToKeep(List<CtMethod<?>> amplifiedTestToBeKept);
 
-    void report();
+    /**
+     * this method should wrap up the result of the amplification according to the test criterion.
+     * @return an instance of {@link TestSelectorElementReport} that contains all the result of the amplification for one test class
+     */
+    TestSelectorElementReport report();
 
     List<CtMethod<?>> getAmplifiedTestCases();
 
+    /**
+     * @return an instance of the report
+     */
+    TestSelectorReport getReport();
 }

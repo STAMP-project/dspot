@@ -7,9 +7,13 @@ import eu.stamp_project.utils.pit.*;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.dspot.selector.json.mutant.MutantJSON;
-import eu.stamp_project.dspot.selector.json.mutant.TestCaseJSON;
-import eu.stamp_project.dspot.selector.json.mutant.TestClassJSON;
+import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
+import eu.stamp_project.utils.report.output.selector.TestSelectorReport;
+import eu.stamp_project.utils.report.output.selector.mutant.PitMutantScoreSelectorElementReport;
+import eu.stamp_project.utils.report.output.selector.mutant.PitMutantScoreSelectorReport;
+import eu.stamp_project.utils.report.output.selector.mutant.json.MutantJSON;
+import eu.stamp_project.utils.report.output.selector.mutant.json.TestCaseJSON;
+import eu.stamp_project.utils.report.output.selector.mutant.json.TestClassJSON;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -184,40 +188,27 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     }
 
     @Override
-    public void report() {
-        reportStdout();
-        reportJSONMutants();
+    public TestSelectorElementReport report() {
+        final String reportStdout = reportStdout();
+        final TestClassJSON testClassJSON = reportJSONMutants();
         //clean up for the next class
         this.currentClassTestToBeAmplified = null;
         this.testThatKilledMutants.clear();
         this.selectedAmplifiedTest.clear();
+        return new PitMutantScoreSelectorElementReport(reportStdout, testClassJSON);
     }
 
-    private void reportStdout() {
-        final StringBuilder string = new StringBuilder();
-        final String nl = System.getProperty("line.separator");
-        long nbOfTotalMutantKilled = getNbTotalNewMutantKilled();
-        string.append(nl).append("======= REPORT =======").append(nl);
-        string.append("PitMutantScoreSelector: ").append(nl);
-        string.append("The original test suite kills ").append(this.originalKilledMutants.size()).append(" mutants").append(nl);
-        string.append("The amplification results with ").append(
-                this.testThatKilledMutants.size()).append(" new tests").append(nl);
-        string.append("it kills ")
-                .append(nbOfTotalMutantKilled).append(" more mutants").append(nl);
-        System.out.println(string.toString());
-
-        File reportDir = new File(this.configuration.getOutputDirectory());
-        if (!reportDir.exists()) {
-            reportDir.mkdir();
-        }
-        if (this.currentClassTestToBeAmplified != null) {
-            try (FileWriter writer = new FileWriter(this.configuration.getOutputDirectory() + "/" +
-                    this.currentClassTestToBeAmplified.getQualifiedName() + "_mutants_report.txt", false)) {
-                writer.write(string.toString());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+    private String reportStdout() {
+        return "Test class that has been amplified: "+ this.currentClassTestToBeAmplified.getQualifiedName() +
+                AmplificationHelper.LINE_SEPARATOR +
+                "The original test suite kills " +
+                this.originalKilledMutants.size() +
+                " mutants" + AmplificationHelper.LINE_SEPARATOR +
+                "The amplification results with " +
+                this.testThatKilledMutants.size() +
+                " new tests" + AmplificationHelper.LINE_SEPARATOR +
+                "it kills " + getNbTotalNewMutantKilled() +
+                " more mutants" + AmplificationHelper.LINE_SEPARATOR;
     }
 
     private long getNbTotalNewMutantKilled() {
@@ -228,9 +219,15 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 .count();
     }
 
-    private void reportJSONMutants() {
+    private TestClassJSON reportJSONMutants() {
         if (this.currentClassTestToBeAmplified == null) {
-            return;
+            LOGGER.warn("The current test class is null.");
+            return new TestClassJSON(getNbMutantKilledOriginally(this.currentClassTestToBeAmplified.getQualifiedName()),
+                    "unknown",
+                    this.currentClassTestToBeAmplified.getMethods()
+                            .stream()
+                            .filter(TestFramework.get()::isTest)
+                            .count());
         }
         TestClassJSON testClassJSON;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -276,12 +273,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                     }
                 }
         );
-        try (FileWriter writer = new FileWriter(file, false)) {
-            writer.write(gson.toJson(testClassJSON));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
+        return testClassJSON;
     }
 
     private int getNbMutantKilledOriginally(String qualifiedName) {
@@ -290,6 +282,11 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                         qualifiedName.equals(pitResult.getFullQualifiedNameOfKiller())
                 )
                 .count();
+    }
+
+    @Override
+    public TestSelectorReport getReport() {
+        return new PitMutantScoreSelectorReport();
     }
 
 }

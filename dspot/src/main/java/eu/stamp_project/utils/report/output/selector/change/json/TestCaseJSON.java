@@ -1,4 +1,4 @@
-package eu.stamp_project.utils.report.output.selector.json.change;
+package eu.stamp_project.utils.report.output.selector.change.json;
 
 /**
  * created by Benjamin DANGLOT

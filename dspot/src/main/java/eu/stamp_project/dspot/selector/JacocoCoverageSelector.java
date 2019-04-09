@@ -2,8 +2,9 @@ package eu.stamp_project.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.dspot.selector.json.coverage.TestCaseJSON;
-import eu.stamp_project.dspot.selector.json.coverage.TestClassJSON;
+import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
+import eu.stamp_project.utils.report.output.selector.coverage.json.TestCaseJSON;
+import eu.stamp_project.utils.report.output.selector.coverage.json.TestClassJSON;
 import eu.stamp_project.testrunner.listener.Coverage;
 import eu.stamp_project.testrunner.listener.CoveragePerTestMethod;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -163,7 +164,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
     }
 
     @Override
-    public void report() {
+    public TestSelectorElementReport report() {
         final String nl = System.getProperty("line.separator");
         StringBuilder report = new StringBuilder();
         report.append(nl).append("======= REPORT =======").append(nl);
@@ -228,6 +229,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
         } finally {
             this.currentClassTestToBeAmplified = null;
         }
+        return null;
     }
 
     private void jsonReport(Coverage coverageResults) {
