@@ -3,7 +3,6 @@ package eu.stamp_project.dspot.selector;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
-import eu.stamp_project.utils.report.output.selector.TestSelectorReport;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
