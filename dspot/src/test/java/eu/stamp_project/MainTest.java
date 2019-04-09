@@ -116,7 +116,7 @@ public class MainTest {
                 "--output-path", "target/trash",
         });
 
-        assertTrue(new File("target/trash/fr.inria.sample.TestClassWithoutAssert_mutants_killed.json").exists());
+        assertTrue(new File("target/trash/report.json").exists());
         assertFalse(new File("target/trash/fr/inria/filter/failing").exists());
         assertTrue(new File("target/trash/fr/inria/sample/").exists());
     }
@@ -140,7 +140,7 @@ public class MainTest {
                 "--use-maven-to-exe-test"
         });
 
-        assertTrue(new File("target/trash/fr.inria.sample.TestClassWithoutAssert_mutants_killed.json").exists());
+        assertTrue(new File("target/trash/report.json").exists());
         assertFalse(new File("target/trash/fr/inria/filter/failing").exists());
         assertTrue(new File("target/trash/fr/inria/sample/").exists());
     }
@@ -162,7 +162,7 @@ public class MainTest {
                 "--output-path", "target/trash",
         });
 
-        assertTrue(new File("target/trash/fr.inria.sample.TestClassWithoutAssertJUnit5_mutants_killed.json").exists());
+        assertTrue(new File("target/trash/report.json").exists());
         assertFalse(new File("target/trash/fr/inria/filter/failing").exists());
         assertTrue(new File("target/trash/fr/inria/sample/").exists());
     }
@@ -225,10 +225,10 @@ public class MainTest {
          */
 
         Main.main(new String[]{"--verbose", "--example"});
-        final File reportFile = new File("target/trash/example.TestSuiteExample_jacoco_instr_coverage_report.txt");
+        final File reportFile = new File("target/trash/report.txt");
         final File amplifiedTestClass = new File("target/trash/example/TestSuiteExample.java");
         assertTrue(reportFile.exists());
-        assertTrue(new File("target/trash/example.TestSuiteExample_jacoco_instr_coverage.json").exists());
+        assertTrue(new File("target/trash/report.json").exists());
         assertTrue(amplifiedTestClass.exists());
         try (BufferedReader reader = new BufferedReader(new FileReader(reportFile))) {
             String content = reader.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)) + AmplificationHelper.LINE_SEPARATOR;

@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
-import eu.stamp_project.utils.report.output.selector.TestSelectorReport;
+import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
 import eu.stamp_project.utils.report.output.selector.change.json.TestCaseJSON;
 import eu.stamp_project.utils.report.output.selector.change.json.TestClassJSON;
 import eu.stamp_project.test_framework.TestFramework;
@@ -126,11 +126,6 @@ public class ChangeDetectorSelector implements TestSelector {
         return new ArrayList<>(this.failurePerAmplifiedTest.keySet());
     }
 
-    @Override
-    public TestSelectorReport getReport() {
-        return null;
-    }
-
     protected void reset() {
         this.currentClassTestToBeAmplified = null;
     }
@@ -145,29 +140,23 @@ public class ChangeDetectorSelector implements TestSelector {
                 .map(Object::toString)
                 .map(AmplificationHelper.LINE_SEPARATOR::concat)
                 .forEachOrdered(output::append);
-        try (FileWriter writer = new FileWriter(new File(InputConfiguration.get().getOutputDirectory() + "/" +
-                this.currentClassTestToBeAmplified.getQualifiedName() + "_stacktraces.txt"))) {
-            final PrintWriter printWriter = new PrintWriter(writer);
-            this.failurePerAmplifiedTest.keySet()
-                    .forEach(amplifiedTest ->
-                            printWriter.write(this.failurePerAmplifiedTest.get(amplifiedTest).stackTrace)
-                    );
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        this.reportJson();
+        this.failurePerAmplifiedTest.keySet()
+                .forEach(amplifiedTest ->
+                        output.append(this.failurePerAmplifiedTest.get(amplifiedTest).stackTrace)
+                );
+        final TestClassJSON testClassJSON = this.reportJson();
         this.reset();
-        return null;
+        return new TestSelectorElementReportImpl(output.toString(), testClassJSON);
     }
 
-    private void reportJson() {
+    private TestClassJSON reportJson() {
         if (this.currentClassTestToBeAmplified == null) {
-            return;
+            return null;
         }
         TestClassJSON testClassJSON;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         final File file = new File(InputConfiguration.get().getOutputDirectory() + "/" +
-                this.currentClassTestToBeAmplified.getQualifiedName() + "_change_detector.json");
+                this.currentClassTestToBeAmplified.getQualifiedName() + "report.json");
         if (file.exists()) {
             try {
                 testClassJSON = gson.fromJson(new FileReader(file), TestClassJSON.class);
@@ -184,12 +173,6 @@ public class ChangeDetectorSelector implements TestSelector {
                 .map(ctMethod ->
                         new TestCaseJSON(ctMethod.getSimpleName(), Counter.getInputOfSinceOrigin(ctMethod), Counter.getAssertionOfSinceOrigin(ctMethod))
                 ).forEach(testClassJSON.testCases::add);
-        try (FileWriter writer = new FileWriter(file, false)) {
-            writer.write(gson.toJson(testClassJSON));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-
+        return testClassJSON;
     }
 }

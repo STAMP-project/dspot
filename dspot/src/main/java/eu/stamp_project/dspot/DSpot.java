@@ -338,6 +338,10 @@ public class DSpot {
     }
 
     private void writeTimeJson() {
+        final File file1 = new File(InputConfiguration.get().getOutputDirectory());
+        if (!file1.exists()) {
+            file1.mkdir();
+        }
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         final File file = new File(InputConfiguration.get().getOutputDirectory() +
                 "/" + this.projectTimeJSON.projectName + ".json");

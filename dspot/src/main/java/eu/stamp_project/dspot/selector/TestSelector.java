@@ -43,8 +43,4 @@ public interface TestSelector {
 
     List<CtMethod<?>> getAmplifiedTestCases();
 
-    /**
-     * @return an instance of the report
-     */
-    TestSelectorReport getReport();
 }

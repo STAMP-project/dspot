@@ -116,6 +116,7 @@ public class InputConfiguration {
     public static InputConfiguration initialize(Properties properties) {
         if (InputConfiguration.instance != null) {
             LOGGER.warn("Erasing old instance of InputConfiguration");
+            Main.GLOBAL_REPORT.reset();
         }
         InputConfiguration.instance = new InputConfiguration(properties);
         InputConfiguration.instance.configPath = "";
@@ -794,7 +795,6 @@ public class InputConfiguration {
 
     public InputConfiguration setSelector(TestSelector selector) {
         this.selector = selector;
-        Main.GLOBAL_REPORT.setTestSelectorReport(selector.getReport());
         return this;
     }
 

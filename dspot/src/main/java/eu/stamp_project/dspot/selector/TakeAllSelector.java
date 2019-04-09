@@ -2,6 +2,7 @@ package eu.stamp_project.dspot.selector;
 
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
+import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
 import eu.stamp_project.utils.report.output.selector.TestSelectorReport;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -48,19 +49,14 @@ public class TakeAllSelector implements TestSelector {
 
 	@Override
 	public TestSelectorElementReport report() {
-		System.out.println("Amplification results with " + this.selectedAmplifiedTest.size() + " new tests.");
+		final String report = "Amplification results with " + this.selectedAmplifiedTest.size() + " new tests.";
 		reset();
-		return null;
+		return new TestSelectorElementReportImpl(report, null);
 	}
 
 	@Override
 	public List<CtMethod<?>> getAmplifiedTestCases() {
 		return this.selectedAmplifiedTest;
-	}
-
-	@Override
-	public TestSelectorReport getReport() {
-		return null;
 	}
 
 	protected void reset() {

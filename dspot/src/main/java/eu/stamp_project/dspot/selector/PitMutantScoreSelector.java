@@ -9,8 +9,8 @@ import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
 import eu.stamp_project.utils.report.output.selector.TestSelectorReport;
-import eu.stamp_project.utils.report.output.selector.mutant.PitMutantScoreSelectorElementReport;
-import eu.stamp_project.utils.report.output.selector.mutant.PitMutantScoreSelectorReport;
+import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
+import eu.stamp_project.utils.report.output.selector.TestSelectorReportImpl;
 import eu.stamp_project.utils.report.output.selector.mutant.json.MutantJSON;
 import eu.stamp_project.utils.report.output.selector.mutant.json.TestCaseJSON;
 import eu.stamp_project.utils.report.output.selector.mutant.json.TestClassJSON;
@@ -195,7 +195,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         this.currentClassTestToBeAmplified = null;
         this.testThatKilledMutants.clear();
         this.selectedAmplifiedTest.clear();
-        return new PitMutantScoreSelectorElementReport(reportStdout, testClassJSON);
+        return new TestSelectorElementReportImpl(reportStdout, testClassJSON);
     }
 
     private String reportStdout() {
@@ -232,7 +232,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         TestClassJSON testClassJSON;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         final File file = new File(this.configuration.getOutputDirectory() + "/" +
-                this.currentClassTestToBeAmplified.getQualifiedName() + "_mutants_killed.json");
+                this.currentClassTestToBeAmplified.getQualifiedName() + "report.json");
         if (file.exists()) {
             try {
                 testClassJSON = gson.fromJson(new FileReader(file), TestClassJSON.class);
@@ -282,11 +282,6 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                         qualifiedName.equals(pitResult.getFullQualifiedNameOfKiller())
                 )
                 .count();
-    }
-
-    @Override
-    public TestSelectorReport getReport() {
-        return new PitMutantScoreSelectorReport();
     }
 
 }

@@ -30,6 +30,9 @@ public class DSpotMultiplePomTest {
         } catch (Exception ignored) {
             //ignored
         }
+        Utils.init("src/test/resources/multiple-pom/deep-pom-modules.properties");
+        Utils.getInputConfiguration().setVerbose(true);
+        EntryPoint.verbose = true;
     }
 
     @Test
@@ -39,10 +42,6 @@ public class DSpotMultiplePomTest {
             Contract: DSpot is able to amplify a multi-module project
          */
 
-        Utils.getInputConfiguration().setVerbose(true);
-        EntryPoint.verbose = true;
-
-        InputConfiguration.initialize("src/test/resources/multiple-pom/deep-pom-modules.properties");
         final DSpot dspot = new DSpot(new JacocoCoverageSelector());
         final List<CtType<?>> ctTypes = dspot.amplifyAllTests();
         assertFalse(ctTypes.isEmpty());
