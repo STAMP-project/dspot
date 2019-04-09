@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.selector.json.mutant;
+package eu.stamp_project.utils.report.output.selector.json.mutant;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,23 +1,17 @@
 package eu.stamp_project.utils.report;
 
-import java.util.List;
+import eu.stamp_project.utils.report.error.ErrorReport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
  * on 29/10/18
  */
-public interface GlobalReport {
+public class GlobalReportImpl {
 
-    public void addInputError(Error error);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ErrorReport.class);
 
-    public void addError(Error error);
 
-    public List<Error> getErrors();
-
-    public List<Error> getInputError();
-
-    void output();
-
-    void reset();
 }

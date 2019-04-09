@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.selector.json.change;
+package eu.stamp_project.utils.report.output.selector.json.change;
 
 import java.util.ArrayList;
 import java.util.List;

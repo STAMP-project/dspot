@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.selector.json.coverage;
+package eu.stamp_project.utils.report.output.selector.json.coverage;
 
 import java.util.ArrayList;
 import java.util.List;
