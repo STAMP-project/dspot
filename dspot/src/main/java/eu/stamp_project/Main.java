@@ -8,7 +8,9 @@ import eu.stamp_project.utils.options.JSAPOptions;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.RandomHelper;
 import eu.stamp_project.utils.report.GlobalReport;
-import eu.stamp_project.utils.report.GlobalReportImpl;
+import eu.stamp_project.utils.report.error.ErrorReportImpl;
+import eu.stamp_project.utils.report.output.OutputReportImpl;
+import eu.stamp_project.utils.report.output.selector.mutant.PitMutantScoreSelectorReport;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +26,8 @@ import java.util.List;
  */
 public class Main {
 
-	public static final GlobalReport globalReport = new GlobalReportImpl();
+	public static final GlobalReport GLOBAL_REPORT =
+			new GlobalReport(new OutputReportImpl(), new ErrorReportImpl(), new PitMutantScoreSelectorReport());
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
@@ -41,7 +44,7 @@ public class Main {
 			run();
 		}
 		// global report handling
-		Main.globalReport.output();
+		Main.GLOBAL_REPORT.output();
 	}
 
 	public static void run() {

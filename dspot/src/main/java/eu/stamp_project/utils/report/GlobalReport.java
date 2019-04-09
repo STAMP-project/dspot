@@ -1,17 +1,92 @@
 package eu.stamp_project.utils.report;
 
+import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.report.error.Error;
 import eu.stamp_project.utils.report.error.ErrorReport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import eu.stamp_project.utils.report.output.OutputReport;
+import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
+import eu.stamp_project.utils.report.output.selector.TestSelectorReport;
+import spoon.reflect.declaration.CtType;
+
+import java.util.List;
 
 /**
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
- * on 29/10/18
+ * on 29/10/18CtType<?> type
  */
-public class GlobalReportImpl {
+public class GlobalReport implements Report, ErrorReport, OutputReport, TestSelectorReport {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ErrorReport.class);
+    private OutputReport outputReport;
 
+    private ErrorReport errorReport;
 
+    private TestSelectorReport testSelectorReport;
+
+    public GlobalReport(OutputReport outputReport, ErrorReport errorReport, TestSelectorReport testSelectorReport) {
+        this.outputReport = outputReport;
+        this.errorReport = errorReport;
+        this.testSelectorReport = testSelectorReport;
+    }
+
+    public void setTestSelectorReport(TestSelectorReport testSelectorReport) {
+        this.testSelectorReport = testSelectorReport;
+    }
+
+    /* REPORT METHODS */
+
+    @Override
+    public void output() {
+        this.testSelectorReport.output();
+        this.errorReport.output();
+        this.outputReport.output();
+    }
+
+    @Override
+    public void reset() {
+        this.testSelectorReport.reset();
+        this.errorReport.reset();
+        this.outputReport.reset();
+    }
+
+    /* ERROR REPORT METHODS */
+
+    @Override
+    public void addInputError(Error error) {
+        this.errorReport.addInputError(error);
+    }
+
+    @Override
+    public void addError(Error error) {
+        this.errorReport.addError(error);
+    }
+
+    @Override
+    public List<Error> getErrors() {
+        return this.errorReport.getErrors();
+    }
+
+    @Override
+    public List<Error> getInputError() {
+        return this.errorReport.getInputError();
+    }
+
+    /* TEST SELECTOR REPORT METHODS */
+
+    @Override
+    public void addTestSelectorReportForTestClass(CtType<?> testClass, TestSelectorElementReport report) {
+        this.testSelectorReport.addTestSelectorReportForTestClass(testClass, report);
+    }
+
+    /* OUTPUT REPORT METHODS */
+
+    @Override
+    public void addNumberAmplifiedTestMethodsToTotal(int numberOfAmplifiedTestMethods) {
+        this.outputReport.addNumberAmplifiedTestMethodsToTotal(numberOfAmplifiedTestMethods);
+    }
+
+    @Override
+    public void addPrintedTestClasses(String line) {
+        this.outputReport.addPrintedTestClasses(line);
+    }
 }

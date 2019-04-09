@@ -1,5 +1,6 @@
 package eu.stamp_project.utils.program;
 
+import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.dspot.amplifier.Amplifier;
@@ -793,6 +794,7 @@ public class InputConfiguration {
 
     public InputConfiguration setSelector(TestSelector selector) {
         this.selector = selector;
+        Main.GLOBAL_REPORT.setTestSelectorReport(selector.getReport());
         return this;
     }
 

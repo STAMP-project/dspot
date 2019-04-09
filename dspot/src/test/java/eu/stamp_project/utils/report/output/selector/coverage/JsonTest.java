@@ -1,7 +1,8 @@
-package eu.stamp_project.utils.report.output.selector.json.coverage;
+package eu.stamp_project.utils.report.output.selector.coverage;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import eu.stamp_project.utils.report.output.selector.coverage.json.TestClassJSON;
 import org.junit.Test;
 
 import java.io.File;
