@@ -58,7 +58,7 @@ public class GeneratePropertiesMojo extends AbstractMojo {
         this.properties.put(ConstantsProperties.SRC_CODE.getName(), this.project.getCompileSourceRoots().get(0));
         this.properties.put(ConstantsProperties.TEST_SRC_CODE.getName(), this.project.getTestCompileSourceRoots().get(0));
         final File testSrcDirectory = new File(this.project.getCompileSourceRoots().get(0));
-        this.properties.put(ConstantsProperties.FILTER.getName(), buildFilter(testSrcDirectory));
+        this.properties.put(ConstantsProperties.PIT_FILTER_CLASSES_TO_KEEP.getName(), buildFilter(testSrcDirectory));
         this.output();
     }
 

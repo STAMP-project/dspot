@@ -203,9 +203,8 @@ public class InputConfiguration {
 
         this.setOutputDirectory(ConstantsProperties.OUTPUT_DIRECTORY.get(properties))
                 .setDelta(ConstantsProperties.DELTA_ASSERTS_FLOAT.get(properties))
-                .setFilter(ConstantsProperties.FILTER.get(properties))
+                .setFilter(ConstantsProperties.PIT_FILTER_CLASSES_TO_KEEP.get(properties))
                 .setDescartesVersion(ConstantsProperties.DESCARTES_VERSION.get(properties))
-                .setBaseSha(ConstantsProperties.BASE_SHA.get(properties))
                 .setExcludedClasses(ConstantsProperties.EXCLUDED_CLASSES.get(properties))
                 .setPreGoalsTestExecution(ConstantsProperties.MAVEN_PRE_GOALS.get(properties))
                 //.setTimeoutPit(ConstantsProperties.TIMEOUT_PIT.get(properties))
@@ -579,17 +578,6 @@ public class InputConfiguration {
     public InputConfiguration setAbsolutePathToSecondVersionProjectRoot(String absolutePathToSecondVersionProjectRoot) {
         this.absolutePathToSecondVersionProjectRoot =
                 DSpotUtils.shouldAddSeparator.apply(absolutePathToSecondVersionProjectRoot);
-        return this;
-    }
-
-    private String baseSha;
-
-    public String getBaseSha() {
-        return baseSha;
-    }
-
-    public InputConfiguration setBaseSha(String baseSha) {
-        this.baseSha = baseSha;
         return this;
     }
 
