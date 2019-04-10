@@ -1,4 +1,4 @@
-package eu.stamp_project.utils.report;
+package eu.stamp_project.utils.report.error;
 
 import eu.stamp_project.utils.program.ConstantsProperties;
 import eu.stamp_project.utils.program.InputConfigurationProperty;

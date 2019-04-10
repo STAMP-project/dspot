@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.selector.json.coverage;
+package eu.stamp_project.utils.report.output.selector.coverage.json;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.List;
  * benjamin.danglot@inria.fr
  * on 31/07/17
  */
-public class TestClassJSON {
+public class TestClassJSON implements eu.stamp_project.utils.report.output.selector.TestClassJSON {
 
 	private final String name;
 	private final long nbOriginalTestCases;

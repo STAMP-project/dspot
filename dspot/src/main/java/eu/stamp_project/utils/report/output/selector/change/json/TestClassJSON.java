@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.selector.json.change;
+package eu.stamp_project.utils.report.output.selector.change.json;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.List;
  * benjamin.danglot@inria.fr
  * on 25/09/18
  */
-public class TestClassJSON {
+public class TestClassJSON implements eu.stamp_project.utils.report.output.selector.TestClassJSON {
 
     public final String name;
     public final long nbOriginalTestCases;

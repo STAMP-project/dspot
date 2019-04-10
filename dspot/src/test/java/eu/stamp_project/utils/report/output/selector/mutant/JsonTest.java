@@ -1,8 +1,11 @@
-package eu.stamp_project.dspot.selector.json.mutant;
+package eu.stamp_project.utils.report.output.selector.mutant;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.report.output.selector.mutant.json.MutantJSON;
+import eu.stamp_project.utils.report.output.selector.mutant.json.TestCaseJSON;
+import eu.stamp_project.utils.report.output.selector.mutant.json.TestClassJSON;
 import org.junit.Test;
 
 import java.io.*;

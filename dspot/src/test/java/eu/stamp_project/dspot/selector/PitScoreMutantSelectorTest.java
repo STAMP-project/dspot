@@ -41,18 +41,11 @@ public class PitScoreMutantSelectorTest extends AbstractSelectorTest {
     }
 
     @Override
-    protected String getPathToReportFile() {
-        return "target/trash/example.TestSuiteExample_mutants_report.txt";
-    }
-
-    @Override
     protected String getContentReportFile() {
-        return AmplificationHelper.LINE_SEPARATOR +
-                "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
-                "PitMutantScoreSelector: " + AmplificationHelper.LINE_SEPARATOR +
+        return "Test class that has been amplified: example.TestSuiteExample" + AmplificationHelper.LINE_SEPARATOR +
                 "The original test suite kills 15 mutants" + AmplificationHelper.LINE_SEPARATOR +
                 "The amplification results with 1 new tests" + AmplificationHelper.LINE_SEPARATOR +
-                "it kills 1 more mutants";
+                "it kills 1 more mutants" + AmplificationHelper.LINE_SEPARATOR;
     }
 
 }

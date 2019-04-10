@@ -1,7 +1,7 @@
-package eu.stamp_project.utils.report;
+package eu.stamp_project.utils.report.error;
 
-import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,17 +14,17 @@ import java.util.stream.Collectors;
 /**
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
- * on 29/10/18
+ * on 08/04/19
  */
-public class GlobalReportImpl implements GlobalReport {
+public class ErrorReportImpl implements ErrorReport {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalReport.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ErrorReport.class);
 
     protected List<Error> errors;
 
     protected List<Error> inputErrors;
 
-    public GlobalReportImpl() {
+    public ErrorReportImpl() {
         this.errors = new ArrayList<>();
         this.inputErrors = new ArrayList<>();
     }
@@ -95,4 +95,5 @@ public class GlobalReportImpl implements GlobalReport {
         LOGGER.warn(newError.toString());
         givenErrors.add(newError);
     }
+
 }
