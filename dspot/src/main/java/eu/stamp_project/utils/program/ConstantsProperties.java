@@ -107,18 +107,6 @@ public class ConstantsProperties {
                     "path to second version"
             );
 
-    @Deprecated
-    public static final InputConfigurationProperty BASE_SHA =
-            new InputConfigurationProperty(
-                    "baseSha",
-                    "when using the command-line option-value  `--test diff`, " +
-                            "which select tests to be amplified according a diff, " +
-                            "you must specify this property." +
-                            "This property should have for value the commit sha of the base branch, " +
-                            "i.e. the version of the to project to be merged.",
-                    ""
-            );
-
     public static final InputConfigurationProperty AUTOMATIC_BUILDER_NAME =
             new InputConfigurationProperty(
                     "automaticBuilderName",
@@ -138,7 +126,7 @@ public class ConstantsProperties {
 
     public static final InputConfigurationProperty MAVEN_HOME =
             new InputConfigurationProperty(
-                    "maven.home",
+                    "mavenHome",
                     "specify the maven home directory. " +
                             "This property is redundant with the command line option --maven-home. " +
                             "This property has the priority over the command line. " +
@@ -147,19 +135,21 @@ public class ConstantsProperties {
                             "If these variables are not set, DSpot will look for a maven home at default locations " +
                             "/usr/share/maven/, /usr/local/maven-3.3.9/ and /usr/share/maven3/.",
                     "",
-                    "maven installation"
+                    "maven installation",
+                    "maven.home"
             );
 
     public static final InputConfigurationProperty MAVEN_PRE_GOALS =
             new InputConfigurationProperty(
-                    "maven.pre.goals",
+                    "mavenPreGoals",
                     "specify pre goals to run before executing test with maven." +
                             "This property will used as follow: the elements, separated by a comma," +
                             "must be valid maven goals and they will be placed just before the \"test\" goal, e.g." +
                             "maven.pre.goals=preGoal1,preGoal2 will give \"mvn preGoal1 preGoal2 test\"",
                     "",
-                    "maven pre goals"
-            );
+                    "maven pre goals",
+                    "maven.pre.goals"
+                    );
 
     public static final InputConfigurationProperty DELTA_ASSERTS_FLOAT =
             new InputConfigurationProperty(
@@ -179,7 +169,9 @@ public class ConstantsProperties {
                             "This value will allow PIT to mutant all your code. " +
                             "However, if you want to restrict the scope of the mutation, you can specify a custom regex. " +
                             "If you do not specify any value, DSpot will compute a filter of classes to keep on the fly, trying to match the most of your classes, i.e. your top-most package.",
-                    ""
+                    "",
+                    "",
+                    "filter"
             );
 
     public static final InputConfigurationProperty PIT_VERSION =
@@ -261,32 +253,28 @@ public class ConstantsProperties {
         inputConfigurationProperties.add(MAVEN_HOME);
         inputConfigurationProperties.add(MAVEN_PRE_GOALS);
         inputConfigurationProperties.add(PATH_TO_SECOND_VERSION);
-        inputConfigurationProperties.add(BASE_SHA);
         inputConfigurationProperties.add(AUTOMATIC_BUILDER_NAME);
         inputConfigurationProperties.add(PIT_VERSION);
         inputConfigurationProperties.add(JVM_ARGS);
         inputConfigurationProperties.add(PIT_FILTER_CLASSES_TO_KEEP);
         inputConfigurationProperties.add(DESCARTES_VERSION);
         inputConfigurationProperties.add(DESCARTES_MUTATORS);
-        System.out.println(new StringBuilder().append("* Required properties")
-                .append(AmplificationHelper.LINE_SEPARATOR)
-                .append(
-                        getRequiredProperties.apply(inputConfigurationProperties)
-                                .map(InputConfigurationProperty::toString)
-                                .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR))
-                )
-                .append(AmplificationHelper.LINE_SEPARATOR)
-                .append("* Optional properties")
-                .append(AmplificationHelper.LINE_SEPARATOR)
-                .append(getOptionalProperties.apply(inputConfigurationProperties)
+        System.out.println("* Required properties" +
+                AmplificationHelper.LINE_SEPARATOR +
+                getRequiredProperties.apply(inputConfigurationProperties)
+                        .map(InputConfigurationProperty::toString)
+                        .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)) +
+                AmplificationHelper.LINE_SEPARATOR +
+                "* Optional properties" +
+                AmplificationHelper.LINE_SEPARATOR +
+                getOptionalProperties.apply(inputConfigurationProperties)
                         .map(InputConfigurationProperty::toString)
                         .map(s -> s.replaceAll("i\\.e\\.", "_i.e._"))
                         .map(s -> s.replaceAll("e\\.g\\.", "_e.g._"))
                         .map(wrapOptionWithQuote)
-                        .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)))
-                .append(AmplificationHelper.LINE_SEPARATOR)
-                .append("You can find an example of properties file [here](https://github.com/STAMP-project/dspot/blob/master/dspot/src/test/resources/sample/sample.properties)).")
-                .toString());
+                        .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)) +
+                AmplificationHelper.LINE_SEPARATOR +
+                "You can find an example of properties file [here](https://github.com/STAMP-project/dspot/blob/master/dspot/src/test/resources/sample/sample.properties)).");
     }
 
     private final static Function<String, String> wrapOptionWithQuote = s -> {
@@ -303,7 +291,7 @@ public class ConstantsProperties {
                 }
             }
         }
-        return Arrays.stream(split).collect(Collectors.joining(" "));
+        return String.join(" ", split);
     };
 
     private final static Function<List<InputConfigurationProperty>, Stream<InputConfigurationProperty>> getRequiredProperties =

@@ -1,5 +1,8 @@
 package eu.stamp_project.utils.program;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Properties;
 
 /**
@@ -9,16 +12,20 @@ import java.util.Properties;
  */
 public class InputConfigurationProperty {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(InputConfigurationProperty.class);
+
     private final String name;
     private final String description;
     private final String defaultValue;
     private final String naturalLanguageDesignation;
+    private final String oldName;
 
     public InputConfigurationProperty(String name, String description, String defaultValue) {
         this.name = name;
         this.description = description;
         this.defaultValue = defaultValue;
         this.naturalLanguageDesignation = "";
+        this.oldName = "";
     }
 
     public InputConfigurationProperty(String name,
@@ -29,6 +36,15 @@ public class InputConfigurationProperty {
         this.description = description;
         this.defaultValue = defaultValue;
         this.naturalLanguageDesignation = naturalLanguageDesignation;
+        this.oldName = "";
+    }
+
+    public InputConfigurationProperty(String name, String description, String defaultValue, String naturalLanguageDesignation, String oldName) {
+        this.name = name;
+        this.description = description;
+        this.defaultValue = defaultValue;
+        this.naturalLanguageDesignation = naturalLanguageDesignation;
+        this.oldName = oldName;
     }
 
     public String getName() {
@@ -56,16 +72,26 @@ public class InputConfigurationProperty {
     }
 
     public String get(Properties properties) {
-        if (!isRequired()) {
-            return properties.getProperty(this.getName(), this.getDefaultValue());
+        if (properties.containsKey(this.oldName)) {
+            LOGGER.warn("You used the old name ({}) for {}.", this.oldName, this.getName());
+            LOGGER.warn("The old name will be removed in future versions.");
+            LOGGER.warn("Please, update your properties file.");
+            return this.get(properties, this.oldName);
         } else {
-            return properties.getProperty(this.getName());
+            return this.get(properties, this.getName());
+        }
+    }
+
+    private String get(Properties properties, String keyToUse) {
+        if (!isRequired()) {
+            return properties.getProperty(keyToUse, this.getDefaultValue());
+        } else {
+            return properties.getProperty(keyToUse);
         }
     }
 
     /**
-     * This method return in markdown format a description of the Property
-     * @return
+     * @return This method return in markdown format a description of the Property
      */
     @Override
     public String toString() {
