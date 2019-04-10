@@ -94,7 +94,7 @@ public class DSpotUtils {
         // compile
         final boolean compile = DSpotCompiler.compile(InputConfiguration.get(), //FIXME: analyse for optimisation (36% total execution time)
                 pathname,
-                InputConfiguration.get().getDependencies(),
+                InputConfiguration.get().getFullClassPathWithExtraDependencies(),
                 new File(InputConfiguration.get().getOutputDirectory() + "/binaries/")
         );
         if (!compile) {
