@@ -6,6 +6,7 @@ import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
+import eu.stamp_project.utils.DSpotCache;
 import eu.stamp_project.utils.options.BudgetizerEnum;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -117,6 +118,8 @@ public class InputConfiguration {
         if (InputConfiguration.instance != null) {
             LOGGER.warn("Erasing old instance of InputConfiguration");
             Main.GLOBAL_REPORT.reset();
+            DSpotCache.reset();
+            AmplificationHelper.reset();
         }
         InputConfiguration.instance = new InputConfiguration(properties);
         InputConfiguration.instance.configPath = "";
@@ -148,6 +151,7 @@ public class InputConfiguration {
     public static InputConfiguration initialize(Properties properties, String builderName) {
         if (InputConfiguration.instance != null) {
             LOGGER.warn("Erasing old instance of InputConfiguration");
+            DSpotCache.reset();
         }
         InputConfiguration.instance = new InputConfiguration(properties);
         InputConfiguration.instance.configPath = "";
