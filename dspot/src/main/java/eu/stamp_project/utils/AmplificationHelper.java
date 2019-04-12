@@ -157,9 +157,9 @@ public class AmplificationHelper {
         return originalTestBindings.size();
     }
 
-//    public static void resetTestBindingToOriginal() {
-//        originalTestBindings.clear();
-//    }
+    public static void resetTestBindingToOriginal() {
+          originalTestBindings.clear();
+    }
 
     @Deprecated
     public static Set<CtType> computeClassProvider(CtType testClass) {
