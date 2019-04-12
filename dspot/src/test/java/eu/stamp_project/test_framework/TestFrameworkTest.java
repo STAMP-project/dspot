@@ -35,8 +35,8 @@ public class TestFrameworkTest extends AbstractTest {
     }
 
     private CtMethod findAndRegister(String ctClass, String methodName) {
-        final CtMethod testExpectingAnException = Utils.findMethod("fr.inria.helper.SecondClassJUnit3", "testExpectingAnException");
-        AmplificationHelper.addOriginInComment(testExpectingAnException, testExpectingAnException);
+        final CtMethod testExpectingAnException = Utils.findMethod(ctClass, methodName);
+        AmplificationHelper.addTestBindingToOriginal(testExpectingAnException, testExpectingAnException);
         return testExpectingAnException;
     }
 
@@ -166,7 +166,6 @@ public class TestFrameworkTest extends AbstractTest {
                 AssertEnum.ASSERT_TRUE,
                 Collections.singletonList(InputConfiguration.get().getFactory().createLiteral(true))
         );
-
         assertEquals(ctInvocation.toString(), nameOfExpectedAssertClass + "assertTrue(true)", ctInvocation.toString());
 
         ctInvocation = TestFramework.get().buildInvocationToAssertion(
