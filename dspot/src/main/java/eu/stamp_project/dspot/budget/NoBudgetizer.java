@@ -2,7 +2,6 @@ package eu.stamp_project.dspot.budget;
 
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,14 +104,6 @@ public class NoBudgetizer extends AbstractBugetizer {
         }
         if (reducedTests.isEmpty()) {
             reducedTests.addAll(tests);
-        } else {
-            tests.stream()
-                    .filter(test -> !reducedTests.contains(test))
-                    .forEach(discardedTest -> {
-                        AmplificationHelper.ampTestToParent.remove(discardedTest);
-                        //Optimisation: removing discarded tests from dictionary of cloned methods
-                        AmplificationHelper.removeTestBindingToOriginal(discardedTest);
-                    });
         }
         return reducedTests;
     }

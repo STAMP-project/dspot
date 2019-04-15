@@ -26,4 +26,8 @@ public class DSpotCache {
 	public static Cache<String, TestFrameworkSupport> getTestFrameworkCache() {
 		return frameworkCache;
 	}
+
+	public static void reset() {
+		frameworkCache.clear();
+	}
 }
