@@ -97,7 +97,7 @@ public class ConstantsProperties {
     public static final InputConfigurationProperty PATH_TO_SECOND_VERSION =
             new InputConfigurationProperty(
                     "folderPath",
-                    "when using the ChangeDetectorSelector or the command-line option-value `--test diff`" +
+                    "when using the ChangeDetectorSelector7" +
                             ", you must specify this property. " +
                             "This property should have for value the path to the root of " +
                             "the second version of the project. " +

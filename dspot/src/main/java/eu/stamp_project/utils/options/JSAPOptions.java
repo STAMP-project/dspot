@@ -225,8 +225,8 @@ public class JSAPOptions {
         specificTestClass.setAllowMultipleDeclarations(false);
         specificTestClass.setLongFlag("test");
         specificTestClass.setDefault("all");
-        specificTestClass.setUsageName("my.package.MyClassTest | all | diff");
-        specificTestClass.setHelp("[optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite. You can also use regex to describe a set of test classes. By default, DSpot selects all the tests (value all). You can use the value diff, to select tests according to a diff between two versions of the same program. Be careful, using --test diff, you must specify both properties folderPath and baseSha.");
+        specificTestClass.setUsageName("my.package.MyClassTest | all");
+        specificTestClass.setHelp("[optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite. You can also use regex to describe a set of test classes. By default, DSpot selects all the tests (value all).");
 
         FlaggedOption output = new FlaggedOption("output");
         output.setStringParser(JSAP.STRING_PARSER);
@@ -239,7 +239,7 @@ public class JSAPOptions {
         Switch cleanOutput = new Switch("clean");
         cleanOutput.setLongFlag("clean");
         cleanOutput.setDefault("false");
-        cleanOutput.setHelp("[optional] if enabled, DSpot will remove the out directory if exists, else it will append the results to the exist files. (default: off)");
+        cleanOutput.setHelp("[optional] if enabled, DSpot will remove the out directory if exists, else it will append the results to the exist files.");
 
         FlaggedOption mutantScore = new FlaggedOption("mutant");
         mutantScore.setStringParser(JSAP.STRING_PARSER);

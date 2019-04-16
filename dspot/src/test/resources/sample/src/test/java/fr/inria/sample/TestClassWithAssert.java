@@ -1,6 +1,8 @@
 package fr.inria.sample;
 
 import org.junit.Test;
+import java.io.FileInputStream;
+import java.io.File;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -12,6 +14,13 @@ import static org.junit.Assert.assertTrue;
  * Time: 10:58
  */
 public class TestClassWithAssert extends TestClassWithAssertOld {
+
+    @Test
+    public void testWithTryWithResource() throws Exception {
+        try (FileInputStream fis = new FileInputStream(new File("."))) {
+            assertEquals("Content is not equal.", fis.toString());
+        }
+    }
 
     @Test
     public void testWithALambda() {
