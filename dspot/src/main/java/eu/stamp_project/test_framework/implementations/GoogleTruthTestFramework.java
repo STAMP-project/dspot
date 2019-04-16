@@ -65,7 +65,7 @@ public class GoogleTruthTestFramework extends AbstractTestFrameworkDecorator {
     public static final String ASSERT_NOT_NULL = "isNotNull";
     public static final String ASSERT_TRUE = "isTrue";
     public static final String ASSERT_FALSE = "isFalse";
-    public static final String ASSERT_EQUALS = "isEqualsTo";
-    public static final String ASSERT_NOT_EQUALS = "isNotEqualsTo";
+    public static final String ASSERT_EQUALS = "isEqualTo";
+    public static final String ASSERT_NOT_EQUALS = "isNotEqualTo";
 
 }
