@@ -172,7 +172,7 @@ mvn dspot:amplify-unit-tests
 
 ```
 Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
-                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [--budgetizer <NoBudgetizer | SimpleBudgetizer>] [--max-test-amplified <integer>] [(-t|--test) my.package.MyClassTest | all | diff1:my.package.MyClassTest | all | diff2:...:my.package.MyClassTest | all | diffN ] [(-c|--cases) testCases1:testCases2:...:testCasesN ] [(-o|--output-path) <output>] [--clean] [(-m|--path-pit-result) <./path/to/mutations.csv>] [--descartes] [--gregor] [--automatic-builder <MavenBuilder | GradleBuilder>] [--maven-home <path to maven home>] [--randomSeed <long integer>] [--timeOut <long integer>] [--verbose] [--with-comment] [--no-minimize] [--working-directory] [--generate-new-test-class] [--keep-original-test-methods] [--use-maven-to-exe-test] [-e|--example] [-h|--help]
+                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [--pit-output-format <XML | CSV>] [--budgetizer <NoBudgetizer | SimpleBudgetizer>] [--max-test-amplified <integer>] [(-t|--test) my.package.MyClassTest | all1:my.package.MyClassTest | all2:...:my.package.MyClassTest | allN ] [(-c|--cases) testCases1:testCases2:...:testCasesN ] [(-o|--output-path) <output>] [--clean] [(-m|--path-pit-result) <./path/to/mutations.csv>] [--targetOneTestClass] [--descartes] [--gregor] [--automatic-builder <MavenBuilder | GradleBuilder>] [--maven-home <path to maven home>] [--randomSeed <long integer>] [--timeOut <long integer>] [--verbose] [--with-comment] [--no-minimize] [--working-directory] [--generate-new-test-class] [--keep-original-test-methods] [--use-maven-to-exe-test] [-e|--example] [-h|--help]
 
   [(-p|--path-to-properties) <./path/to/myproject.properties>]
         [mandatory] specify the path to the configuration file (format Java
@@ -230,14 +230,11 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         [optional] specify the maximum number of amplified tests that dspot
         keeps (before generating assertion) (default: 200)
 
-  [(-t|--test) my.package.MyClassTest | all | diff1:my.package.MyClassTest | all | diff2:...:my.package.MyClassTest | all | diffN ]
+  [(-t|--test) my.package.MyClassTest | all1:my.package.MyClassTest | all2:...:my.package.MyClassTest | allN ]
         [optional] fully qualified names of test classes to be amplified. If the
         value is all, DSpot will amplify the whole test suite. You can also use
         regex to describe a set of test classes. By default, DSpot selects all
-        the tests (value all). You can use the value diff, to select tests
-        according to a diff between two versions of the same program. Be
-        careful, using --test diff, you must specify both properties folderPath
-        and baseSha. (default: all)
+        the tests (value all). (default: all)
 
   [(-c|--cases) testCases1:testCases2:...:testCasesN ]
         specify the test cases to amplify
@@ -247,16 +244,17 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
 
   [--clean]
         [optional] if enabled, DSpot will remove the out directory if exists,
-        else it will append the results to the exist files. (default: off)
+        else it will append the results to the exist files.
 
   [(-m|--path-pit-result) <./path/to/mutations.csv>]
-        [optional, expert mode] specify the path to the .xml or .csv of the original
-        result of Pit Test. If you use this option the selector will be forced
-        to PitMutantScoreSelector
+        [optional, expert mode] specify the path to the .xml or .csv of the
+        original result of Pit Test. If you use this option the selector will be
+        forced to PitMutantScoreSelector
+
   [--targetOneTestClass]
         [optional, expert] enable this option will make DSpot computing the
         mutation score of only one test class (the first pass through --test
-        command line option)        
+        command line option)
 
   [--descartes]
         Enable the descartes engine for Pit Mutant Score Selector.
