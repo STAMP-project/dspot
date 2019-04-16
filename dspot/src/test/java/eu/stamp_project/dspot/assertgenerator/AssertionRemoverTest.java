@@ -32,12 +32,29 @@ public class AssertionRemoverTest extends AbstractTest {
     }
 
     @Test
+    public void testOnTestWithTryWithResource() {
+        /*
+            Test that the AssertionRemoverTest is able to remove assertion but not try with resources
+         */
+        final CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
+        final CtMethod<?> testWithALambda = Utils.findMethod(testClass, "testWithTryWithResource");
+        final AssertionRemover assertionRemover = new AssertionRemover();
+        final CtMethod<?> ctMethod = assertionRemover.removeAssertion(testWithALambda);
+        final String expectedBody = "{" + AmplificationHelper.LINE_SEPARATOR +
+                "    try (final java.io.FileInputStream fis = new java.io.FileInputStream(new java.io.File(\".\"))) {" + AmplificationHelper.LINE_SEPARATOR +
+                "        fis.toString();" + AmplificationHelper.LINE_SEPARATOR +
+                "    }" + AmplificationHelper.LINE_SEPARATOR +
+                "}";
+        assertEquals(expectedBody, ctMethod.getBody().toString());
+    }
+
+    @Test
     public void testOnAssertionWithALambda() {
         /*
             Test that we can remove the assertion on a lambda expression
          */
         final CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
-        final CtMethod<?> testWithALambda= Utils.findMethod(testClass, "testWithALambda");
+        final CtMethod<?> testWithALambda = Utils.findMethod(testClass, "testWithALambda");
         final AssertionRemover assertionRemover = new AssertionRemover();
         final CtMethod<?> ctMethod = assertionRemover.removeAssertion(testWithALambda);
         assertFalse(ctMethod.getBody().getStatements().isEmpty());
