@@ -48,10 +48,20 @@ public class AssertionRemover {
                         .collect(Collectors.toList())
         );
 
-        testWithoutAssertion.getElements(new TypeFilter<>(CtTry.class))
-                .forEach(ctTry -> ctTry.insertBefore((CtStatement) ctTry.getBody().clone()));
-        testWithoutAssertion.getElements(new TypeFilter<>(CtTry.class))
-                .forEach(testWithoutAssertion.getBody()::removeStatement);
+        testWithoutAssertion.getElements(new TypeFilter<CtTry>(CtTry.class) {
+            @Override
+            public boolean matches(CtTry element) {
+                return !(element instanceof CtTryWithResource);
+            }
+        }).forEach(ctTry -> ctTry.insertBefore((CtStatement) ctTry.getBody().clone()));
+        testWithoutAssertion.getElements(
+                new TypeFilter<CtTry>(CtTry.class) {
+                    @Override
+                    public boolean matches(CtTry element) {
+                        return !(element instanceof CtTryWithResource);
+                    }
+                }
+        ).forEach(testWithoutAssertion.getBody()::removeStatement);
 
         return testWithoutAssertion;
     }

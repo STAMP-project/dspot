@@ -87,13 +87,6 @@ public class Checker {
                 currentPath
         );
 
-        // path to second version
-        Checker.checkRelativePathPropertyValue(
-                properties.getProperty(ConstantsProperties.PATH_TO_SECOND_VERSION.getName()),
-                ErrorEnum.ERROR_PATH_TO_SECOND_VERSION,
-                ConstantsProperties.PATH_TO_SECOND_VERSION.getNaturalLanguageDesignation(),
-                currentPath
-        );
         // path to maven home
         Checker.checkRelativePathPropertyValue(
                 properties.getProperty(ConstantsProperties.MAVEN_HOME.getName()),
