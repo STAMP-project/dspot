@@ -73,7 +73,7 @@ public class GoogleTruthTest extends AbstractTest {
                         InputConfiguration.get().getFactory().createThisAccess(testClass.getReference())
                 )
         );
-        assertEquals(ctInvocation.toString(), nameOfExpectedAssertClass + "assertThat(this).isEqualsTo(this)", ctInvocation.toString());
+        assertEquals(ctInvocation.toString(), nameOfExpectedAssertClass + "assertThat(this).isEqualTo(this)", ctInvocation.toString());
 
         TestFramework.get().generateAfterClassToSaveObservations(testClass, Collections.singletonList(testMethod));
         assertTrue(!testClass.getMethodsByName("afterClass").isEmpty());
