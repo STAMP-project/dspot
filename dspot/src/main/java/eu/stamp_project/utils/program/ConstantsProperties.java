@@ -66,7 +66,7 @@ public class ConstantsProperties {
 
     public static final InputConfigurationProperty TEST_CLASSES =
             new InputConfigurationProperty(
-                    "testclasses",
+                    "testClasses",
                     "specify the relative path from " +
                             PROJECT_ROOT_PATH.getName() + "/" + MODULE.getName() +
                             " of the folder that contain binaries of the test source program (.class).",
