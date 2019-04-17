@@ -270,8 +270,8 @@ public class DSpotMojo extends AbstractMojo {
                     .setTargetOneTestClass(this.targetOneTestClass);
 
             InputConfiguration.get().setOutputDirectory(
-                    properties.getProperty(ConstantsProperties.OUTPUT_DIRECTORY.getName()) == null ?
-                            this.outputPath : properties.getProperty(ConstantsProperties.OUTPUT_DIRECTORY.getName()));
+                    ConstantsProperties.OUTPUT_DIRECTORY.get(properties).isEmpty() ?
+                            this.outputPath : ConstantsProperties.OUTPUT_DIRECTORY.get(properties));
 
             if (this.pathPitResult != null && !this.pathPitResult.isEmpty()) {
                 InputConfiguration.get().setSelector(new PitMutantScoreSelector(this.pathPitResult,

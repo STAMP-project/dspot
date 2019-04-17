@@ -34,10 +34,12 @@ public class TestSelectorReportImpl implements TestSelectorReport {
                 .map(testClass -> this.testSelectorElementReportPerTestClass.get(testClass).output(testClass))
                 .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
         LOGGER.info("{}{}", AmplificationHelper.LINE_SEPARATOR, allReports);
-        try (FileWriter writer = new FileWriter(
-                DSpotUtils.shouldAddSeparator.apply(InputConfiguration.get().getOutputDirectory()) + "report.txt", false)
-        ) {
+        final String reportPathName = DSpotUtils.shouldAddSeparator
+                .apply(InputConfiguration.get().getOutputDirectory()) +
+                "report.txt";
+        try (FileWriter writer = new FileWriter(reportPathName, false)) {
             writer.write(allReports);
+            LOGGER.info("Writing report in {}", reportPathName);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
