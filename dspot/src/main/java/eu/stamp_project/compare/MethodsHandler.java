@@ -15,6 +15,8 @@ public class MethodsHandler {
 
     private static final List<String> forbiddenClasses;
 
+    private static final List<String> forbiddenPackages;
+
     static {
         forbiddenMethods = new ArrayList<>();
         forbiddenMethods.add("equals");
@@ -42,14 +44,24 @@ public class MethodsHandler {
         forbiddenClasses.add("java.lang.Enum");
         forbiddenClasses.add("java.util.Date");
         forbiddenClasses.add("java.util.Calendar");
+
+        forbiddenPackages = new ArrayList<>();
+        forbiddenPackages.add("java.time");
     }
 
     public MethodsHandler() {
         this.cache = new HashMap<>();
     }
 
+    private boolean matchOnForbiddenPackage(String className) {
+        return forbiddenPackages.stream()
+                .anyMatch(className::startsWith);
+    }
+
     public List<Method> getAllMethods(Class<?> clazz) {
-        if (forbiddenClasses.contains(clazz.getName())) {
+        if (forbiddenClasses.contains(clazz.getName()) ||
+            this.matchOnForbiddenPackage(clazz.getName())
+        ) {
             return Collections.emptyList();
         }
         if (!cache.containsKey(clazz)) {
