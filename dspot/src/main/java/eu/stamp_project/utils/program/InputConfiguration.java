@@ -295,8 +295,7 @@ public class InputConfiguration {
                                 pathToProjectRoot
                         ) + targetModule
                 ).getAbsolutePath()
-        )
-                .setPathToSourceCode(pathToSource)
+                ).setPathToSourceCode(pathToSource)
                 .setPathToTestSourceCode(pathToTestSource)
                 .setPathToClasses(pathToClasses)
                 .setPathToTestClasses(pathToTestClasses)
