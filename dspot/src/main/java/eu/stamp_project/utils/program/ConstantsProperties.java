@@ -96,14 +96,15 @@ public class ConstantsProperties {
 
     public static final InputConfigurationProperty PATH_TO_SECOND_VERSION =
             new InputConfigurationProperty(
-                    "folderPath",
-                    "when using the ChangeDetectorSelector7" +
+                    "pathToSecondVersion",
+                    "when using the ChangeDetectorSelector" +
                             ", you must specify this property. " +
                             "This property should have for value the path to the root of " +
                             "the second version of the project. " +
                             "It is recommended to give an absolute path",
                     "",
-                    "path to second version"
+                    "path to second version",
+                    "folderPath"
             );
 
     public static final InputConfigurationProperty AUTOMATIC_BUILDER_NAME =

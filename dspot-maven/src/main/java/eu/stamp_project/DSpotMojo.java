@@ -84,7 +84,7 @@ public class DSpotMojo extends AbstractMojo {
     private Integer maxTestAmplified;
 
     /**
-     * [optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite. You can also use regex to describe a set of test classes. By default, DSpot selects all the tests (value all). You can use the value diff, to select tests according to a diff between two versions of the same program. Be careful, using --test diff, you must specify both properties folderPath and baseSha.
+     * [optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite. You can also use regex to describe a set of test classes. By default, DSpot selects all the tests (value all).
      */
     @Parameter(defaultValue = "all", property = "test")
     private List<String> test;
