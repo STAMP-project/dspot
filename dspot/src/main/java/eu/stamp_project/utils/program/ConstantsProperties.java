@@ -2,8 +2,6 @@ package eu.stamp_project.utils.program;
 
 import eu.stamp_project.utils.AmplificationHelper;
 
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
