@@ -192,7 +192,7 @@ public class Amplification {
         if (testsWithAssertions.isEmpty()) {
             return testsWithAssertions;
         }
-        // final checkEnum on A-amplified test, see if they all pass.
+        // final check on A-amplified test, see if they all pass.
         // If they don't, we just discard them.
         final List<CtMethod<?>> amplifiedPassingTests =
                 TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(

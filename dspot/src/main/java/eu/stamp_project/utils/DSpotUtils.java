@@ -79,8 +79,9 @@ public class DSpotUtils {
 
         // get the existing amplified test class, if so
         final String regex = File.separator.equals("/") ? "/" : "\\\\";
-        final String pathname = directory.getAbsolutePath() + File.separator + type.getQualifiedName().replaceAll("\\.", regex)
-                + ".java";
+        final String pathname =
+                directory.getAbsolutePath() + File.separator +
+                        type.getQualifiedName().replaceAll("\\.", regex) + ".java";
         final CtType<?> existingAmplifiedTestClass;
         if (new File(pathname).exists()) {
             existingAmplifiedTestClass = getExistingClass(type, pathname);//FIXME: analyse for optimisation (16% total execution time)
