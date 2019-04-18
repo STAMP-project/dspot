@@ -2,6 +2,8 @@ package eu.stamp_project.utils.program;
 
 import eu.stamp_project.utils.AmplificationHelper;
 
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -259,7 +261,7 @@ public class ConstantsProperties {
         inputConfigurationProperties.add(PIT_FILTER_CLASSES_TO_KEEP);
         inputConfigurationProperties.add(DESCARTES_VERSION);
         inputConfigurationProperties.add(DESCARTES_MUTATORS);
-        System.out.println("* Required properties" +
+        final String output = "* Required properties" +
                 AmplificationHelper.LINE_SEPARATOR +
                 getRequiredProperties.apply(inputConfigurationProperties)
                         .map(InputConfigurationProperty::toString)
@@ -274,24 +276,28 @@ public class ConstantsProperties {
                         .map(wrapOptionWithQuote)
                         .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)) +
                 AmplificationHelper.LINE_SEPARATOR +
-                "You can find an example of properties file [here](https://github.com/STAMP-project/dspot/blob/master/dspot/src/test/resources/sample/sample.properties)).");
+                "You can find an example of properties file [here](https://github.com/STAMP-project/dspot/blob/master/dspot/src/test/resources/sample/sample.properties)).";
+        System.out.println(output);
     }
 
     private final static Function<String, String> wrapOptionWithQuote = s -> {
         final String[] split = s.split(" ");
+        List<String> wrappedSplit = new ArrayList<>();
         for (int i = 0; i < split.length; i++) {
             if (split[i].startsWith("--")) {
                 if (split[i].endsWith(".")) {
-                    split[i] = "`" + split[i].substring(0, split[i].length() - 1) + "`.";
+                    wrappedSplit.add("`" + split[i].substring(0, split[i].length() - 1) + "`.");
                 } else {
-                    split[i] = "`" + split[i] + "`";
+                    wrappedSplit.add("`" + split[i] + "`");
                     if (i + 1 < split.length) {
-                        split[i+1] = "`" + split[i+1] + "`";
+                        wrappedSplit.add("`" + split[i+1] + "`");
                     }
                 }
+            } else {
+                wrappedSplit.add(split[i]);
             }
         }
-        return String.join(" ", split);
+        return String.join(" ", wrappedSplit);
     };
 
     private final static Function<List<InputConfigurationProperty>, Stream<InputConfigurationProperty>> getRequiredProperties =
