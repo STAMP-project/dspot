@@ -43,6 +43,7 @@ public class MethodsHandler {
         forbiddenClasses.add("java.lang.Object");
         forbiddenClasses.add("java.lang.Enum");
         forbiddenClasses.add("java.util.Date");
+        forbiddenClasses.add("java.net.URL");
         forbiddenClasses.add("java.util.Calendar");
 
         forbiddenPackages = new ArrayList<>();
