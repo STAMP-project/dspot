@@ -16,6 +16,17 @@ import static org.junit.Assert.assertTrue;
 public class TestClassWithAssert extends TestClassWithAssertOld {
 
     @Test
+    public void testWithAMethodCallThatContainsAssertionsAndItsReturnedValueIsUsed() {
+        String aString = verify("aString");
+        assertEquals("aString", aString);
+    }
+
+    private String verify(String string) {
+        assertEquals("aString", string);
+        return string;
+    }
+
+    @Test
     public void testWithTryWithResource() throws Exception {
         try (FileInputStream fis = new FileInputStream(new File("."))) {
             assertEquals("Content is not equal.", fis.toString());
