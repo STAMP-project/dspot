@@ -44,6 +44,7 @@ public class AssertionRemover {
                 testWithoutAssertion
                         .getElements(TestFramework.ASSERTIONS_FILTER)
                         .stream()
+                        .filter(invocation -> !(invocation.getParent() instanceof CtRHSReceiver)) // it means that the return type is used in the test.
                         .flatMap(invocation -> this.removeAssertion(invocation).stream())
                         .collect(Collectors.toList())
         );

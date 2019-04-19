@@ -32,6 +32,27 @@ public class AssertionRemoverTest extends AbstractTest {
     }
 
     @Test
+    public void testRemoveInvocationWhenReturnedValueIsUsed() {
+
+        /*
+            Test that when a method call that contains assertions AND
+                its returned type is used in the test is not removed
+                TODO this may produce some failing tests
+                TODO however, we consider developers that makes such invocations
+                TODO should be aware that the oracles must not rely on state of the current test
+         */
+        final CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
+        final CtMethod<?> testWithALambda = Utils.findMethod(testClass, "testWithAMethodCallThatContainsAssertionsAndItsReturnedValueIsUsed");
+        final AssertionRemover assertionRemover = new AssertionRemover();
+        final CtMethod<?> ctMethod = assertionRemover.removeAssertion(testWithALambda);
+        final String expectedMethodString = "@org.junit.Test(timeout = 10000)\n" +
+                "public void testWithAMethodCallThatContainsAssertionsAndItsReturnedValueIsUsed() throws java.lang.Exception {\n" +
+                "    java.lang.String aString = verify(\"aString\");\n" +
+                "}";
+        assertEquals(expectedMethodString, ctMethod.toString());
+    }
+
+    @Test
     public void testOnTestWithTryWithResource() {
         /*
             Test that the AssertionRemoverTest is able to remove assertion but not try with resources
