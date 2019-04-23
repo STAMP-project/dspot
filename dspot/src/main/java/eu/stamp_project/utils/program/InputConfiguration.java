@@ -958,4 +958,18 @@ public class InputConfiguration {
         this.targetOneTestClass = targetOneTestClass;
         return this;
     }
+    
+    //Tests reduce method for NoBudgetizer
+    public enum TEST_REDUCE_METHOD{
+        TEXTUAL_DISTANCE, RANDOM
+    }
+    private TEST_REDUCE_METHOD testReduceMethod = TEST_REDUCE_METHOD.TEXTUAL_DISTANCE;
+    
+    public TEST_REDUCE_METHOD getTestReduceMethod(){
+        return testReduceMethod;
+    }
+    
+    public void setTestReduceMethod(TEST_REDUCE_METHOD method){
+        this.testReduceMethod = method;
+    }
 }

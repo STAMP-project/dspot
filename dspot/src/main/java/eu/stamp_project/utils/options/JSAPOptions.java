@@ -142,7 +142,8 @@ public class JSAPOptions {
                 .setKeepOriginalTestMethods(jsapConfig.getBoolean("keep-original-test-methods"))
                 .setDescartesMode(jsapConfig.getBoolean("descartes") && !jsapConfig.getBoolean("gregor"))
                 .setUseMavenToExecuteTest(jsapConfig.getBoolean("use-maven-to-exe-test"))
-                .setTargetOneTestClass(jsapConfig.getBoolean("targetOneTestClass"));
+                .setTargetOneTestClass(jsapConfig.getBoolean("targetOneTestClass"))
+                .setTestReduceMethod(InputConfiguration.TEST_REDUCE_METHOD.valueOf(jsapConfig.getString("tests-reduce-method").toUpperCase()));
         return false;
     }
 
@@ -308,6 +309,13 @@ public class JSAPOptions {
         budgetizer.setUsageName("NoBudgetizer | SimpleBudgetizer");
         budgetizer.setHelp("[optional] specify a Bugdetizer." + JSAPOptions.helpForEnums(BudgetizerEnum.class));
         budgetizer.setDefault("NoBudgetizer");
+        
+        FlaggedOption testsReduceMethod = new FlaggedOption("tests-reduce-method");
+        testsReduceMethod.setStringParser(JSAP.STRING_PARSER);
+        testsReduceMethod.setLongFlag("tests-reduce-method");
+        testsReduceMethod.setUsageName("textual_distance|random");
+        testsReduceMethod.setHelp("[optional] specify the tests reducion method for NoBudgetizer");
+        testsReduceMethod.setDefault("textual_distance");
 
         Switch withComment = new Switch("comment");
         withComment.setLongFlag("with-comment");
@@ -378,6 +386,7 @@ public class JSAPOptions {
             jsap.registerParameter(useMavenToExecuteTests);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
+            jsap.registerParameter(testsReduceMethod);
         } catch (JSAPException e) {
             throw new RuntimeException(e);
         }

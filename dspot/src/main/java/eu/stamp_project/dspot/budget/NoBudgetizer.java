@@ -62,7 +62,11 @@ public class NoBudgetizer extends AbstractBugetizer {
                     return inputAmplifiedTestMethods;
                 }).collect(Collectors.toList());
         LOGGER.info("{} new tests generated", inputAmplifiedTests.size());
-        return randomReduce(inputAmplifiedTests);
+        if (InputConfiguration.get().getTestReduceMethod() == InputConfiguration.TEST_REDUCE_METHOD.RANDOM) {
+            return randomReduce(inputAmplifiedTests);
+        }else {
+            return reduce(inputAmplifiedTests);
+        }
     }
 
     /**
@@ -117,7 +121,14 @@ public class NoBudgetizer extends AbstractBugetizer {
         if (testsSize > maxNumTests) {
             Random random = new Random();
             LOGGER.warn("Too many tests have been generated: {}", testsSize);
-            IntStream.of (0, maxNumTests).forEach(i->reducedTests.add(tests.get(random.nextInt(testsSize))));
+            for (int i=0;i<maxNumTests; i++) {
+                reducedTests.add(tests.get(random.nextInt(testsSize)));
+            }
+            //IntStream.rangeClosed(1, maxNumTests).forEach(i->reducedTests.add(tests.get(random.nextInt(testsSize))));
+            LOGGER.info("Number of generated test reduced to {}", reducedTests.size());
+        }
+        if (reducedTests.isEmpty()) {
+            reducedTests.addAll(tests);
         }
         return reducedTests;
     }
