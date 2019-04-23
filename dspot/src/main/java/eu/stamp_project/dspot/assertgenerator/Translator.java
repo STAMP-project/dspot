@@ -14,6 +14,7 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.reference.CtVariableReference;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Created by Benjamin DANGLOT
@@ -68,11 +69,10 @@ public class Translator {
             final CtType<?> listCtType = factory.Type()
                     .get(java.util.List.class);
             final CtMethod<?> isEmpty = listCtType.getMethodsByName("isEmpty").get(0);
-            final CtInvocation<?> isEmptyInvocation = factory.createInvocation(
+            return factory.createInvocation(
                     invocation,
                     isEmpty.getReference()
             );
-            return isEmptyInvocation;
         } else {
             return invocation;
         }
@@ -81,10 +81,11 @@ public class Translator {
     private void addTypeCastToCollectionIfNeeded(CtExpression<?> invocation) {
         try {
             if (invocation instanceof CtInvocation<?>) {
-                if (!((CtInvocation<?>) invocation).getExecutable()
+                final Class<?> actualClass = ((CtInvocation<?>) invocation).getExecutable()
                         .getDeclaration()
                         .getType()
-                        .getActualClass().equals(Collection.class)) {
+                        .getActualClass();
+                if (!actualClass.equals(Collection.class) && !actualClass.isAssignableFrom(Map.class) ) {
                     invocation.addTypeCast(invocation.getFactory().createCtTypeReference(Collection.class));
                 }
             }
