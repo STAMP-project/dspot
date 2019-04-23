@@ -1,8 +1,6 @@
 package fr.inria.sample;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Random;
+import java.util.*;
 
 /**
  * User: Simon
@@ -64,6 +62,92 @@ public class ClassWithBoolean {
         strings.add("a");
         strings.add("b");
         return strings;
+    }
+
+    public Iterable<String> getEmptyCollectionAsIterable() {
+        return new ArrayList<>();
+    }
+
+    public class MyIterable implements Iterable<String> {
+        @Override
+        public Iterator<String> iterator() {
+            return null;
+        }
+    }
+
+    public Iterable<String> getEmptyMyIterable() {
+        return new MyIterable();
+    }
+
+    public class MyList implements Collection<String> {
+        @Override
+        public int size() {
+            return 0;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return false;
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            return false;
+        }
+
+        @Override
+        public Iterator<String> iterator() {
+            return null;
+        }
+
+        @Override
+        public Object[] toArray() {
+            return new Object[0];
+        }
+
+        @Override
+        public <T> T[] toArray(T[] a) {
+            return null;
+        }
+
+        @Override
+        public boolean add(String s) {
+            return false;
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            return false;
+        }
+
+        @Override
+        public boolean containsAll(Collection<?> c) {
+            return false;
+        }
+
+        @Override
+        public boolean addAll(Collection<? extends String> c) {
+            return false;
+        }
+
+        @Override
+        public boolean removeAll(Collection<?> c) {
+            return false;
+        }
+
+        @Override
+        public boolean retainAll(Collection<?> c) {
+            return false;
+        }
+
+        @Override
+        public void clear() {
+
+        }
+    }
+
+    public Iterable<String> getEmptyMyListAsIterable() {
+        return new MyList();
     }
 
     public boolean getBoolean() {
