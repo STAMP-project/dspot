@@ -87,7 +87,7 @@ public class ObjectLogTest {
         assertNotNull(add__0);
 //        assertEquals(1, add__0.getNotDeterministValues().size());
         final Map<String, Object> observationValues = add__0.getObservationValues();
-        assertEquals(6, observationValues.size());
+        assertEquals(5, observationValues.size());
 //        assertEquals(25, observationValues.get("(myInternalClass ).compute()"));
         assertEquals(3, observationValues.get("(myInternalClass ).getA()"));
         assertEquals(20, observationValues.get("(myInternalClass ).getB()"));
