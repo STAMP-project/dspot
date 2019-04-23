@@ -13,7 +13,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -60,7 +62,7 @@ public class NoBudgetizer extends AbstractBugetizer {
                     return inputAmplifiedTestMethods;
                 }).collect(Collectors.toList());
         LOGGER.info("{} new tests generated", inputAmplifiedTests.size());
-        return reduce(inputAmplifiedTests);
+        return randomReduce(inputAmplifiedTests);
     }
 
     /**
@@ -104,6 +106,18 @@ public class NoBudgetizer extends AbstractBugetizer {
         }
         if (reducedTests.isEmpty()) {
             reducedTests.addAll(tests);
+        }
+        return reducedTests;
+    }
+    
+    public List<CtMethod<?>> randomReduce(List<CtMethod<?>> tests) {
+        final List<CtMethod<?>> reducedTests = new ArrayList<>();
+        final int maxNumTests = InputConfiguration.get().getMaxTestAmplified();
+        final int testsSize = tests.size();
+        if (testsSize > maxNumTests) {
+            Random random = new Random();
+            LOGGER.warn("Too many tests have been generated: {}", testsSize);
+            IntStream.of (0, maxNumTests).forEach(i->reducedTests.add(tests.get(random.nextInt(testsSize))));
         }
         return reducedTests;
     }
