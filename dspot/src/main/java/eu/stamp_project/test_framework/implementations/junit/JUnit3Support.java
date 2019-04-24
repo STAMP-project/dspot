@@ -1,10 +1,17 @@
 package eu.stamp_project.test_framework.implementations.junit;
 
+import junit.extensions.TestSetup;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import spoon.reflect.code.CtReturn;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.declaration.ModifierKind;
+import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * created by Benjamin DANGLOT
@@ -65,6 +72,38 @@ public class JUnit3Support extends JUnitSupport {
 
     @Override
     public void generateAfterClassToSaveObservations(CtType<?> testClass, List<CtMethod<?>> testsToRun) {
-        // TODO
+        final Factory factory = testClass.getFactory();
+        final CtMethod<?> suiteMethod = factory.createMethod();
+        suiteMethod.setModifiers(
+                new HashSet<>(Arrays.asList(ModifierKind.PUBLIC, ModifierKind.STATIC))
+        );
+        suiteMethod.setSimpleName("suite");
+        suiteMethod.setType(
+                factory.createCtTypeReference(Test.class)
+        );
+        final CtClass<?> testSetupClass = factory.Class().create("junit.extensions.TestSetup");
+        final CtReturn<?> returnStatement = factory.createReturn();
+        returnStatement.setReturnedExpression(
+                factory.Code().createNewClass(
+                        factory.createCtTypeReference(TestSetup.class),
+                        testSetupClass,
+                        factory.Code().
+                                createConstructorCall(
+                                        factory.createCtTypeReference(TestSuite.class),
+                                        factory.createCodeSnippetExpression(testClass.getQualifiedName() + ".class")
+                                )
+                )
+        );
+        suiteMethod.setBody(returnStatement);
+        final CtMethod tearDown = factory.createMethod();
+        tearDown.setModifiers(
+                new HashSet<>(Collections.singletonList(ModifierKind.PROTECTED))
+        );
+        tearDown.setSimpleName("tearDown");
+        tearDown.addThrownType(factory.createCtTypeReference(Exception.class));
+        tearDown.setType(factory.Type().VOID_PRIMITIVE);
+        createCallToSaveAndInsertAtTheEnd(factory, tearDown);
+        testSetupClass.addMethod(tearDown);
+        testClass.addMethod(suiteMethod);
     }
 }
