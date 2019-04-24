@@ -95,6 +95,6 @@ public class InputConfigurationProperty {
      */
     @Override
     public String toString() {
-        return "\t* " + this.name + ": " + this.description + (this.hasDefaultValue() ? "(default: " + this.defaultValue + ")" : "");
+        return "\t* `" + this.name + "`: " + this.description + (this.hasDefaultValue() ? "(default: " + this.defaultValue + ")" : "");
     }
 }
