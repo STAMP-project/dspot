@@ -11,6 +11,7 @@ import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,6 +39,26 @@ public class TestFrameworkTest extends AbstractTest {
         final CtMethod testExpectingAnException = Utils.findMethod(ctClass, methodName);
         AmplificationHelper.addTestBindingToOriginal(testExpectingAnException, testExpectingAnException);
         return testExpectingAnException;
+    }
+
+    @Test
+    public void testGenerateAfterClassToSaveObservations() {
+
+        /*
+            Test generate after class to save observations
+         */
+
+        final CtMethod<?> testJUnit3 = this.findAndRegister("fr.inria.helper.SecondClassJUnit3", "testExpectingAnException");
+        final CtType type = InputConfiguration.get().getFactory().Type().get("fr.inria.helper.SecondClassJUnit3");
+        TestFramework.get().generateAfterClassToSaveObservations(type, Collections.singletonList(testJUnit3));
+        final String expectedToString = "public static junit.framework.Test suite() {" + AmplificationHelper.LINE_SEPARATOR +
+                "    return new junit.extensions.TestSetup(new junit.framework.TestSuite(fr.inria.helper.SecondClassJUnit3.class)) {" + AmplificationHelper.LINE_SEPARATOR +
+                "        protected void tearDown() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
+                "            eu.stamp_project.compare.ObjectLog.save();" + AmplificationHelper.LINE_SEPARATOR +
+                "        }" + AmplificationHelper.LINE_SEPARATOR +
+                "    };" + AmplificationHelper.LINE_SEPARATOR +
+                "}";
+        assertEquals(expectedToString, type.getMethodsByName("suite").get(0).toString());
     }
 
     @Test

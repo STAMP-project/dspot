@@ -191,17 +191,26 @@ public abstract class JUnitSupport extends AbstractTestFramework {
                                 )
                 ).findFirst()
                 .orElse(initAfterClassMethod(factory));
+        createCallToSaveAndInsertAtTheEnd(factory, afterClassMethod);
+        testClass.addMethod(afterClassMethod);
+    }
+
+    protected void createCallToSaveAndInsertAtTheEnd(Factory factory, CtMethod<?> afterClassMethod) {
         final CtTypeReference<?> ctTypeReference = factory.createCtTypeReference(ObjectLog.class);
         final CtExecutableReference<?> reference = ctTypeReference
                 .getTypeDeclaration()
                 .getMethodsByName("save")
                 .get(0)
                 .getReference();
-        afterClassMethod.getBody().insertEnd(
-                factory.createInvocation(factory.createTypeAccess(ctTypeReference),
-                        reference)
-        );
-        testClass.addMethod(afterClassMethod);
+        if (afterClassMethod.getBody() == null) {
+            afterClassMethod.setBody(
+                    factory.createInvocation(factory.createTypeAccess(ctTypeReference), reference)
+            );
+        } else {
+            afterClassMethod.getBody().insertEnd(
+                    factory.createInvocation(factory.createTypeAccess(ctTypeReference), reference)
+            );
+        }
     }
 
     private CtMethod<Void> initAfterClassMethod(Factory factory) {
