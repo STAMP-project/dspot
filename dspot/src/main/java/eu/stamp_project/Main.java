@@ -89,7 +89,7 @@ public class Main {
 			DSpot dSpot = new DSpot(1,
 					Collections.singletonList(new TestDataMutator()),
 					new JacocoCoverageSelector(),
-					BudgetizerEnum.NoBudgetizer
+					BudgetizerEnum.RandomBudgetizer
 			);
 			dSpot.amplifyTestClassesTestMethods(Collections.singletonList("example.TestSuiteExample"), Collections.emptyList());
 		} catch (Exception e) {

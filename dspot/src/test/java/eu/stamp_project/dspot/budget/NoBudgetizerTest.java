@@ -56,7 +56,7 @@ public class NoBudgetizerTest extends AbstractTest {
         methods.add(clone);
         methods.add(methodInteger);
 
-        final List<CtMethod<?>> reduce = new NoBudgetizer().reduce(methods);
+        final List<CtMethod<?>> reduce = new TextualDistanceBudgetizer().reduce(methods);
         assertEquals(2, reduce.size());
 
     }

@@ -1,37 +1,36 @@
 package eu.stamp_project.dspot.budget;
 
-import eu.stamp_project.dspot.amplifier.Amplifier;
-import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.utils.DSpotUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import spoon.reflect.declaration.CtMethod;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import eu.stamp_project.dspot.amplifier.Amplifier;
+import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.program.InputConfiguration;
+import spoon.reflect.declaration.CtMethod;
 
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
  * on 19/07/18
  */
-public class NoBudgetizer extends AbstractBugetizer {
+public class TextualDistanceBudgetizer extends AbstractBugetizer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NoBudgetizer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TextualDistanceBudgetizer.class);
 
-    public NoBudgetizer() {
+    public TextualDistanceBudgetizer() {
         super();
     }
 
-    public NoBudgetizer(List<Amplifier> amplifiers) {
+    public TextualDistanceBudgetizer(List<Amplifier> amplifiers) {
         super(amplifiers);
     }
 
@@ -62,11 +61,7 @@ public class NoBudgetizer extends AbstractBugetizer {
                     return inputAmplifiedTestMethods;
                 }).collect(Collectors.toList());
         LOGGER.info("{} new tests generated", inputAmplifiedTests.size());
-        if (InputConfiguration.get().getTestReduceMethod() == InputConfiguration.TEST_REDUCE_METHOD.RANDOM) {
-            return randomReduce(inputAmplifiedTests);
-        }else {
-            return reduce(inputAmplifiedTests);
-        }
+        return reduce(inputAmplifiedTests);
     }
 
     /**
@@ -106,25 +101,6 @@ public class NoBudgetizer extends AbstractBugetizer {
                     }
                 }
             }
-            LOGGER.info("Number of generated test reduced to {}", reducedTests.size());
-        }
-        if (reducedTests.isEmpty()) {
-            reducedTests.addAll(tests);
-        }
-        return reducedTests;
-    }
-    
-    public List<CtMethod<?>> randomReduce(List<CtMethod<?>> tests) {
-        final List<CtMethod<?>> reducedTests = new ArrayList<>();
-        final int maxNumTests = InputConfiguration.get().getMaxTestAmplified();
-        final int testsSize = tests.size();
-        if (testsSize > maxNumTests) {
-            Random random = new Random();
-            LOGGER.warn("Too many tests have been generated: {}", testsSize);
-            for (int i=0;i<maxNumTests; i++) {
-                reducedTests.add(tests.get(random.nextInt(testsSize)));
-            }
-            //IntStream.rangeClosed(1, maxNumTests).forEach(i->reducedTests.add(tests.get(random.nextInt(testsSize))));
             LOGGER.info("Number of generated test reduced to {}", reducedTests.size());
         }
         if (reducedTests.isEmpty()) {

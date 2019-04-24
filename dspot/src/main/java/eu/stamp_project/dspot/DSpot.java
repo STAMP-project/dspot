@@ -53,31 +53,31 @@ public class DSpot {
     private ProjectTimeJSON projectTimeJSON;
 
     public DSpot() {
-        this(3, Collections.emptyList(), new PitMutantScoreSelector(), BudgetizerEnum.NoBudgetizer);
+        this(3, Collections.emptyList(), new PitMutantScoreSelector(), BudgetizerEnum.RandomBudgetizer);
     }
 
     public DSpot(int numberOfIterations) {
-        this(numberOfIterations, Collections.emptyList(), new PitMutantScoreSelector(), BudgetizerEnum.NoBudgetizer);
+        this(numberOfIterations, Collections.emptyList(), new PitMutantScoreSelector(), BudgetizerEnum.RandomBudgetizer);
     }
 
     public DSpot(TestSelector testSelector) {
-        this(3, Collections.emptyList(), testSelector, BudgetizerEnum.NoBudgetizer);
+        this(3, Collections.emptyList(), testSelector, BudgetizerEnum.RandomBudgetizer);
     }
 
     public DSpot(int iteration, TestSelector testSelector) throws Exception {
-        this(iteration, Collections.emptyList(), testSelector, BudgetizerEnum.NoBudgetizer);
+        this(iteration, Collections.emptyList(), testSelector, BudgetizerEnum.RandomBudgetizer);
     }
 
     public DSpot(List<Amplifier> amplifiers) {
-        this(3, amplifiers, new PitMutantScoreSelector(), BudgetizerEnum.NoBudgetizer);
+        this(3, amplifiers, new PitMutantScoreSelector(), BudgetizerEnum.RandomBudgetizer);
     }
 
     public DSpot(int numberOfIterations, List<Amplifier> amplifiers) {
-        this(numberOfIterations, amplifiers, new PitMutantScoreSelector(), BudgetizerEnum.NoBudgetizer);
+        this(numberOfIterations, amplifiers, new PitMutantScoreSelector(), BudgetizerEnum.RandomBudgetizer);
     }
 
     public DSpot(int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws Exception {
-        this(numberOfIterations, amplifiers, testSelector, BudgetizerEnum.NoBudgetizer);
+        this(numberOfIterations, amplifiers, testSelector, BudgetizerEnum.RandomBudgetizer);
     }
 
     public DSpot(int numberOfIterations,
