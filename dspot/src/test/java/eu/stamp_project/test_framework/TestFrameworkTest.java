@@ -113,6 +113,8 @@ public class TestFrameworkTest extends AbstractTest {
         //JUnit3
         final CtMethod testJUnit3 = this.findAndRegister("fr.inria.helper.SecondClassJUnit3", "test");
         assertTrue(TestFramework.get().isTest(testJUnit3));
+        final CtMethod testJUnit3WithInheritance = this.findAndRegister("fr.inria.helper.ThirdClassJUnit3", "test");
+        assertTrue(TestFramework.get().isTest(testJUnit3WithInheritance));
         //JUnit4
         final CtMethod testJUnit4 = this.findAndRegister("fr.inria.helper.TestWithMultipleAsserts", "test");
         assertTrue(TestFramework.get().isTest(testJUnit4));
