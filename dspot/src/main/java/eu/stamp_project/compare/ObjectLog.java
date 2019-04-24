@@ -52,10 +52,6 @@ public class ObjectLog {
     }
 
     public static void log(Object objectToObserve, String objectObservedAsString, String id) {
-        /*if (objectToObserve == null) {
-            getSingleton().addObservation(id, "null", null);
-            return;
-        }*/
         getSingleton()._log(
                 objectToObserve,
                 objectToObserve,
@@ -77,13 +73,13 @@ public class ObjectLog {
         if (deep <= maxDeep) {
             final boolean primitive = Utils.isPrimitive(objectToObserve);
             final boolean primitiveArray = Utils.isPrimitiveArray(objectToObserve);
-            final boolean primitiveCollectionOrMap = Utils.isPrimitiveCollectionOrMap(objectToObserve);
+            final boolean primitiveCollectionOrMap = Utils.isNonEmptyPrimitiveCollectionOrMap(objectToObserve);
             if (objectToObserve == null) {
                 addObservation(id, observedObjectAsString, null);
             } else if (isSerializable(objectToObserve) &&
                     (primitive || primitiveArray || primitiveCollectionOrMap)) {
                 addObservation(id, observedObjectAsString, objectToObserve);
-            } else if (Utils.isCollection(objectToObserve)) {
+            } else if (Utils.isCollection(objectToObserve)) { // the object is empty here
                 addObservation(id, observedObjectAsString + ".isEmpty()", ((Collection) objectToObserve).isEmpty());
             } else if (Utils.isMap(objectToObserve)) {
                 addObservation(id, observedObjectAsString + ".isEmpty()", ((Map) objectToObserve).isEmpty());

@@ -45,6 +45,7 @@ public class MethodsHandler {
         forbiddenClasses.add("java.util.Date");
         forbiddenClasses.add("java.net.URL");
         forbiddenClasses.add("java.util.Calendar");
+        forbiddenClasses.add("java.io.File");
 
         forbiddenPackages = new ArrayList<>();
         forbiddenPackages.add("java.time");

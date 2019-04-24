@@ -4,10 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -63,6 +60,12 @@ public class ObjectLogTest {
         public String getAbsolutePath() {
             return new File(".").getAbsolutePath();
         }
+        public Iterable<String> getIterable() {
+            return Collections.singleton("");
+        }
+        public Collection<String> getCollection() {
+            return Collections.singleton("");
+        }
     }
 
     public static Integer add(Integer a, Integer b) {
@@ -84,7 +87,7 @@ public class ObjectLogTest {
         assertNotNull(add__0);
 //        assertEquals(1, add__0.getNotDeterministValues().size());
         final Map<String, Object> observationValues = add__0.getObservationValues();
-        assertEquals(3, observationValues.size());
+        assertEquals(5, observationValues.size());
 //        assertEquals(25, observationValues.get("(myInternalClass ).compute()"));
         assertEquals(3, observationValues.get("(myInternalClass ).getA()"));
         assertEquals(20, observationValues.get("(myInternalClass ).getB()"));
