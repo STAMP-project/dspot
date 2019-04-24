@@ -45,17 +45,22 @@ public class JUnit3Support extends JUnitSupport {
      */
     @Override
     protected boolean isATest(CtMethod<?> candidate) {
-        // checkEnum that the current test class inherit from TestCase
+        // check that the current test class inherit from TestCase
         final CtType<?> testClass = candidate.getParent(CtType.class);
         if (testClass == null) {
             return false;
         }
-        final CtTypeReference<?> superclassReference = testClass.getSuperclass();
-        if (superclassReference == null) {
+        return matchOneSuperClassToAssertClass(testClass.getReference()) &&
+                //candidate.getAnnotations().isEmpty() && TODO checks if needed
+                candidate.getSimpleName().startsWith("test");
+    }
+
+    private boolean matchOneSuperClassToAssertClass(CtTypeReference<?> currentTestClass) {
+        if (currentTestClass.getSuperclass() == null) {
             return false;
         }
-        return superclassReference.getQualifiedName().equals(this.qualifiedNameOfAssertClass) &&
-                candidate.getAnnotations().isEmpty() && candidate.getSimpleName().startsWith("test");
+        return currentTestClass.getQualifiedName().equals(this.qualifiedNameOfAssertClass) ||
+                matchOneSuperClassToAssertClass(currentTestClass.getSuperclass());
     }
 
     @Override
