@@ -62,6 +62,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         return this.classpath;
     }
 
+
     @Override
     public void compile() {
         this.runGoals(false, "clean", "test", "-DskipTests");
