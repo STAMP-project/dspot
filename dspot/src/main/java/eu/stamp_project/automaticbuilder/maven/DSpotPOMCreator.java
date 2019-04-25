@@ -90,11 +90,6 @@ public class DSpotPOMCreator {
         new DSpotPOMCreator(false)._innerCreatePom();
     }
     
-//    public static void createNewPom(String fullQualifiedName) {
-//        new DSpotPOMCreator(true)._innerCreatePom(fullQualifiedName);
-//        new DSpotPOMCreator(false)._innerCreatePom(fullQualifiedName);
-//    }
-    
     public static String createNewPomForComputingClassPathWithParallelExecution() {
         return new DSpotPOMCreator(InputConfiguration.get().isJUnit5())._createNewPomForComputingClassPathWithParallelExecution();
     }
@@ -220,6 +215,7 @@ public class DSpotPOMCreator {
             currentChild = currentChild.getNextSibling();
         }
         return currentChild == null? false: currentChild.getTextContent().equals(artifactId);
+
     }
 
     public static String getParallelPOMName() {

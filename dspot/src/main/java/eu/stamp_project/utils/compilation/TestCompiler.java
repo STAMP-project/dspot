@@ -57,7 +57,6 @@ public class TestCompiler {
                                                                                     DSpotCompiler compiler,
                                                                                     InputConfiguration configuration) {
         CtType amplifiedTestClass = CloneHelper.cloneTestClassAndAddGivenTest(classTest, currentTestList);
-        
         try {
             final TestResult result = TestCompiler.compileAndRun(
                     amplifiedTestClass,
