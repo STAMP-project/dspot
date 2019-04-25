@@ -79,12 +79,63 @@ public class DSpotPOMCreator {
     private static final String PROFILES = "profiles";
 
     private static final String DSPOT_POM_FILE = ".dspot_";
+    
+    private static final String DSPOT_PARALLEL_POM_FILE = ".dspot_parallel_";
 
     private static final String SUFFIX_JUNIT5 = "_junit5_";
 
     public static void createNewPom() {
         new DSpotPOMCreator(true)._innerCreatePom();
         new DSpotPOMCreator(false)._innerCreatePom();
+    }
+    
+    public static String createNewPomForParallelExecution() {
+        return new DSpotPOMCreator(InputConfiguration.get().isJUnit5())._createNewPomForParallelExecution();
+    }
+        
+    public String _createNewPomForParallelExecution() {
+        try {
+            //Duplicate target pom
+        
+            final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            final DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+            final Document document = docBuilder.parse(InputConfiguration.get().getAbsolutePathToProjectRoot() + POM_FILE);
+
+            final Node root = findSpecificNodeFromGivenRoot(document.getFirstChild(), PROJECT);
+        
+            //Add JUnit4/5 dependencies and surefire plugin configuration
+            final Node dependencies = findOrCreateGivenNode(document, root, DEPENDENCIES);
+            addJUnitDependencies(document, dependencies);
+        
+            // write the content into xml file
+            final TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            final Transformer transformer = transformerFactory.newTransformer();
+            final DOMSource source = new DOMSource(document);
+            String newPomFilename = InputConfiguration.get().getAbsolutePathToProjectRoot() + this.getParallelPOMName();
+            final StreamResult result = new StreamResult(new File(newPomFilename));
+            transformer.transform(source, result);
+            
+            return newPomFilename;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    private void addJUnitDependencies(Document document, Node dependencies) {
+        if (this.isJUnit5) {
+            
+        }else {
+            final Element dependency = createDependency(document,
+                    "com.googlecode.junit-toolbox",
+                    "junit-toolbox",
+                    "2.4"
+            );
+            dependencies.appendChild(dependency);
+        }
+    }
+
+    public static String getParallelPOMName() {
+        return DSPOT_PARALLEL_POM_FILE + (InputConfiguration.get().isJUnit5() ? SUFFIX_JUNIT5 : "") + POM_FILE;
     }
 
     public static String getPOMName() {
