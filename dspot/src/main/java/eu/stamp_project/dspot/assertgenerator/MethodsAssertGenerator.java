@@ -116,7 +116,8 @@ public class MethodsAssertGenerator {
         TestFramework.get().generateAfterClassToSaveObservations(clone, testsToRun);
         try {
             //Add parallel test execution support (JUnit4, JUnit5) for execution method (CMD, Maven)
-            CloneHelper.addParallelExecutionAnnotation (clone, testsToRun);
+//            CloneHelper.addParallelExecutionAnnotation (clone, testsToRun);
+            CloneHelper.removeParallelExecutionAnnotation (clone, testsToRun);
             final TestResult result = TestCompiler.compileAndRun(clone,
                     this.compiler,
                     testsToRun,
