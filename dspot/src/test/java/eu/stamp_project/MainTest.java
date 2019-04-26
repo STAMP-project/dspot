@@ -198,7 +198,7 @@ public class MainTest {
                 "--iteration", "1",
                 "--amplifiers", "TestDataMutator",
                 "--test", "example.ParametrizedTestSuiteExample",
-                "--budgetizer", "NoBudgetizer",
+                "--budgetizer", "TextualDistanceBudgetizer",
                 "--no-minimize",
                 "--cases", "test2"
         });
