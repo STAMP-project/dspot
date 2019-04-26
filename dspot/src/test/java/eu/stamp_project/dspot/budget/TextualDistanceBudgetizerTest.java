@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 09/08/18
  */
-public class NoBudgetizerTest extends AbstractTest {
+public class TextualDistanceBudgetizerTest extends AbstractTest {
 
     @After
     public void tearDown() throws Exception {
