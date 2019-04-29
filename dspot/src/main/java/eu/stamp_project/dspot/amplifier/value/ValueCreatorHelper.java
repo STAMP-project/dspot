@@ -10,7 +10,9 @@ import spoon.reflect.reference.CtWildcardReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,11 +24,21 @@ public class ValueCreatorHelper {
 
     private static Map<String, Boolean> canGenerateAValueForType = new HashMap<>();
 
+    private static List<String> fullQualifiedNameOfValueUnderChecking = new ArrayList<>();
+
     public static boolean canGenerateAValueForType(CtTypeReference type) {
-        boolean result = false;
+        boolean result;
+        // already computed, using the cache
         if (canGenerateAValueForType.containsKey(type.getQualifiedName())){
             return canGenerateAValueForType.get(type.getQualifiedName());
         }
+        // we are checking if DSpot can generate a value for the type,
+        // we return true since this recursive call would result with the same answer than the first call
+        // we avoid here a stack over flow
+        if (fullQualifiedNameOfValueUnderChecking.contains(type.getQualifiedName())) {
+            return true;
+        }
+        fullQualifiedNameOfValueUnderChecking.add(type.getQualifiedName());
         try {
             if (type instanceof CtWildcardReference) {
                 result = false;
@@ -53,6 +65,7 @@ public class ValueCreatorHelper {
             result = false;
         }
         canGenerateAValueForType.put(type.getQualifiedName(), result);
+        fullQualifiedNameOfValueUnderChecking.remove(type.getQualifiedName());
         return result;
     }
 
@@ -62,7 +75,6 @@ public class ValueCreatorHelper {
         if (typeDeclaration == null) {
             return false;
         }
-
         final boolean canBeConstructed = (!typeDeclaration.getElements(new TypeFilter<CtConstructor<?>>(CtConstructor.class) {
             // we can use at least one constructor
             @Override
@@ -71,7 +83,7 @@ public class ValueCreatorHelper {
                         element.getParameters()
                                 .stream()
                                 .map(CtParameter::getType)
-                                .filter(reference -> ! reference.equals(type))
+                                .filter(reference -> !reference.equals(type))
                                 .allMatch(ValueCreatorHelper::canGenerateAValueForType);
             }
         }).isEmpty()) ||
