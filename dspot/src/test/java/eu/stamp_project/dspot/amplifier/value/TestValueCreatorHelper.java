@@ -20,6 +20,18 @@ import static org.junit.Assert.assertTrue;
 public class TestValueCreatorHelper extends AbstractTest {
 
     @Test
+    public void testCanGenerateValueForObjectThatAreChained() {
+
+        /*
+            test that we can check that we can generate a value for an object A that need am Object B, while be need an Object A
+         */
+
+        final Factory factory = Utils.getFactory();
+        assertTrue(ValueCreatorHelper.canGenerateAValueForType(factory.Class().get("fr.inria.linkedobjects.ObjectA").getReference()));
+        assertTrue(ValueCreatorHelper.canGenerateAValueForType(factory.Class().get("fr.inria.linkedobjects.ObjectB").getReference()));
+    }
+
+    @Test
     public void testCanGenerateValueFor() throws Exception {
         final Factory factory = Utils.getFactory();
         assertTrue(ValueCreatorHelper.canGenerateAValueForType(factory.Class().get(Integer.class).getReference()));
