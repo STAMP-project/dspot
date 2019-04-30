@@ -1,6 +1,5 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
 import spoon.reflect.declaration.CtMethod;
@@ -18,8 +17,6 @@ public class TakeAllSelector implements TestSelector {
 
 	protected List<CtMethod<?>> selectedAmplifiedTest;
 
-	protected InputConfiguration configuration;
-
 	protected CtType<?> currentClassTestToBeAmplified;
 
 	public TakeAllSelector() {
@@ -27,8 +24,8 @@ public class TakeAllSelector implements TestSelector {
 	}
 
 	@Override
-	public void init(InputConfiguration configuration) {
-		this.configuration = configuration;
+	public boolean init() {
+		return true;
 	}
 
 	@Override

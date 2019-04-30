@@ -98,7 +98,7 @@ public class ChangeDetectorSelectorTest extends AbstractSelectorTest {
         final String configurationPath = "src/test/resources/multiple-pom/deep-pom-modules.properties";
         Utils.init(configurationPath);
         final ChangeDetectorSelector changeDetectorSelector = new ChangeDetectorSelector();
-        changeDetectorSelector.init(Utils.getInputConfiguration());
+        changeDetectorSelector.init();
         assertFalse(changeDetectorSelector.selectToKeep(changeDetectorSelector.selectToAmplify(
                 Utils.findClass("fr.inria.multiple.pom.HelloWorldTest"), Utils.getAllTestMethodsFrom("fr.inria.multiple.pom.HelloWorldTest"))
         ).isEmpty());
