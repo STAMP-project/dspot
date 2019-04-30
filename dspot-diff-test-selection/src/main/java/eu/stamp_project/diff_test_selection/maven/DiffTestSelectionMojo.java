@@ -17,6 +17,12 @@ public class DiffTestSelectionMojo extends AbstractMojo {
     private MavenProject project;
 
     /**
+     *	[Mandatory] Specify the path to root directory of the project in the first version.
+     */
+    @Parameter(property = "path-dir-first-version")
+    private String pathDirFirstVersion;
+
+    /**
      *	[Mandatory] Specify the path to root directory of the project in the second version.
      */
     @Parameter(property = "path-dir-second-version")

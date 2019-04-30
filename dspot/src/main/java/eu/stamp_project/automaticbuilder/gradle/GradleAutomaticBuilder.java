@@ -10,12 +10,12 @@ import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtType;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import static eu.stamp_project.automaticbuilder.gradle.GradlePitTaskAndOptions.ARGUMENTS_SKIP_COMPILE_TEST;
 import static eu.stamp_project.automaticbuilder.gradle.GradlePitTaskAndOptions.CMD_PIT_MUTATION_COVERAGE;
 
 /**
@@ -46,7 +46,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
 
     @Override
     public void compile() {
-        runTasks("clean", "compileTest");
+        runTasks(false, "clean", "compileTest");
     }
 
     @Override
@@ -58,7 +58,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
                 LOGGER.info("Injecting  Gradle task to print project classpath on stdout...");
                 this.gradleInjector.injectPrintClasspathTask(InputConfiguration.get().getAbsolutePathToProjectRoot());
                 LOGGER.info("Retrieving project classpath...");
-                this.runTasks(GradleInjector.WRITE_CLASSPATH_TASK);
+                this.runTasks(false, GradleInjector.WRITE_CLASSPATH_TASK);
                 LOGGER.info("Writing project classpath on file " + JAVA_PROJECT_CLASSPATH + "...");
                 this.gradleInjector.resetOriginalGradleBuildFile(InputConfiguration.get().getAbsolutePathToProjectRoot());
             }
@@ -91,7 +91,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
             LOGGER.info("Injecting  Gradle task to run Pit...");
             this.gradleInjector.injectPitTask(InputConfiguration.get().getAbsolutePathToProjectRoot(), testClasses);
             LOGGER.info("Running Pit...");
-            runTasks(CMD_PIT_MUTATION_COVERAGE);
+            runTasks(true, CMD_PIT_MUTATION_COVERAGE);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -99,22 +99,25 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
         }
     }
 
-    protected byte[] runTasks(String... tasks) {
+    protected void runTasks(boolean skipTest, String... tasks) {
         ProjectConnection connection = GradleConnector.newConnector().forProjectDirectory(new File(InputConfiguration.get().getAbsolutePathToProjectRoot())).connect();
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         LOGGER.info("Run gradle tasks: {}", String.join(" ", tasks));
         try {
-            BuildLauncher build = connection.newBuild();
-            build.forTasks(tasks);
-            build.setStandardOutput(outputStream);
-            build.setStandardError(outputStream);
-            build.run();
+            final BuildLauncher buildLauncher = connection.newBuild()
+                    .forTasks(tasks);
+            if (skipTest) {
+                buildLauncher.withArguments(ARGUMENTS_SKIP_COMPILE_TEST);
+            }
+            if (InputConfiguration.get().isVerbose()) {
+                buildLauncher.setStandardError(System.err);
+                buildLauncher.setStandardOutput(System.out);
+            }
+            buildLauncher.run();
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             connection.close();
         }
-        return outputStream.toByteArray();
     }
 
     @Override

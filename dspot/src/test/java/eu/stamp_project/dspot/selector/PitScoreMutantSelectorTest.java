@@ -3,7 +3,6 @@ package eu.stamp_project.dspot.selector;
 import eu.stamp_project.Utils;
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.minimization.PitMutantMinimizer;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
 
@@ -70,11 +69,6 @@ public class PitScoreMutantSelectorTest {
         }
 
         @Override
-        protected String getPathToReportFile() {
-            return "target/trash/example.TestSuiteExample_mutants_report.txt";
-        }
-
-        @Override
         protected String getContentReportFile() {
             return AmplificationHelper.LINE_SEPARATOR +
                     "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
@@ -82,11 +76,6 @@ public class PitScoreMutantSelectorTest {
                     "The original test suite kills 15 mutants" + AmplificationHelper.LINE_SEPARATOR +
                     "The amplification results with 1 new tests" + AmplificationHelper.LINE_SEPARATOR +
                     "it kills 1 more mutants";
-        }
-
-        @Override
-        protected Class<?> getClassMinimizer() {
-            return PitMutantMinimizer.class;
         }
     }
 

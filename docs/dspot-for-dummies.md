@@ -57,7 +57,7 @@ javaVersion=8
 # (optional) path to the output folder, default to "output_diversify"
 outputDirectory=dspot-out/
 # (optional) filter on the package name for mutation analysis ("example" => "example.*")
-filter=eu.stamp.examples.dhell*
+pitFilterClassesToKeep=eu.stamp.examples.dhell*
 ```
 
 2. Execute DSpot
@@ -160,7 +160,7 @@ javaVersion=8
 # (optional) path to the output folder, default to "output_diversify"
 outputDirectory=dspot-out/
 # (optional) filter on the package name for mutation analysis ("example" => "example.*")
-filter=eu.stamp.examples.dhell*
+pitFilterClassesToKeep=eu.stamp.examples.dhell*
 ```
 
 2. Execute DSpot

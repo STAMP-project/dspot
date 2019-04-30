@@ -5,6 +5,9 @@ import com.martiansoftware.jsap.*;
 import eu.stamp_project.diff_test_selection.diff.DiffComputer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spoon.reflect.declaration.CtClass;
+import spoon.reflect.reference.CtExecutableReference;
+import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.File;
 import java.util.Arrays;

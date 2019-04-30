@@ -1,10 +1,12 @@
 package eu.stamp_project.utils.program;
 
+import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
+import eu.stamp_project.utils.DSpotCache;
 import eu.stamp_project.utils.options.BudgetizerEnum;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -114,13 +116,20 @@ public class InputConfiguration {
      */
     public static InputConfiguration initialize(Properties properties) {
         if (InputConfiguration.instance != null) {
-            LOGGER.warn("Erasing old instance of InputConfiguration");
+            reset();
         }
         InputConfiguration.instance = new InputConfiguration(properties);
         InputConfiguration.instance.configPath = "";
         InputConfiguration.instance.setBuilderName(ConstantsProperties.AUTOMATIC_BUILDER_NAME.get(properties));
         InputConfiguration.instance.initializeBuilder(properties);
         return InputConfiguration.instance;
+    }
+
+    private static void reset() {
+        LOGGER.warn("Erasing old instance of InputConfiguration");
+        DSpotCache.reset();
+        Main.GLOBAL_REPORT.reset();
+        AmplificationHelper.reset();
     }
 
     /**
@@ -145,7 +154,7 @@ public class InputConfiguration {
      */
     public static InputConfiguration initialize(Properties properties, String builderName) {
         if (InputConfiguration.instance != null) {
-            LOGGER.warn("Erasing old instance of InputConfiguration");
+            reset();
         }
         InputConfiguration.instance = new InputConfiguration(properties);
         InputConfiguration.instance.configPath = "";
@@ -201,9 +210,8 @@ public class InputConfiguration {
 
         this.setOutputDirectory(ConstantsProperties.OUTPUT_DIRECTORY.get(properties))
                 .setDelta(ConstantsProperties.DELTA_ASSERTS_FLOAT.get(properties))
-                .setFilter(ConstantsProperties.FILTER.get(properties))
+                .setFilter(ConstantsProperties.PIT_FILTER_CLASSES_TO_KEEP.get(properties))
                 .setDescartesVersion(ConstantsProperties.DESCARTES_VERSION.get(properties))
-                .setBaseSha(ConstantsProperties.BASE_SHA.get(properties))
                 .setExcludedClasses(ConstantsProperties.EXCLUDED_CLASSES.get(properties))
                 .setPreGoalsTestExecution(ConstantsProperties.MAVEN_PRE_GOALS.get(properties))
                 //.setTimeoutPit(ConstantsProperties.TIMEOUT_PIT.get(properties))
@@ -287,8 +295,7 @@ public class InputConfiguration {
                                 pathToProjectRoot
                         ) + targetModule
                 ).getAbsolutePath()
-        )
-                .setPathToSourceCode(pathToSource)
+                ).setPathToSourceCode(pathToSource)
                 .setPathToTestSourceCode(pathToTestSource)
                 .setPathToClasses(pathToClasses)
                 .setPathToTestClasses(pathToTestClasses)
@@ -577,17 +584,6 @@ public class InputConfiguration {
     public InputConfiguration setAbsolutePathToSecondVersionProjectRoot(String absolutePathToSecondVersionProjectRoot) {
         this.absolutePathToSecondVersionProjectRoot =
                 DSpotUtils.shouldAddSeparator.apply(absolutePathToSecondVersionProjectRoot);
-        return this;
-    }
-
-    private String baseSha;
-
-    public String getBaseSha() {
-        return baseSha;
-    }
-
-    public InputConfiguration setBaseSha(String baseSha) {
-        this.baseSha = baseSha;
         return this;
     }
 

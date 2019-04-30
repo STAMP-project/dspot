@@ -2,7 +2,6 @@ package eu.stamp_project.prettifier.minimization;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.minimization.ChangeMinimizer;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.runner.Failure;
 import eu.stamp_project.utils.program.InputConfiguration;

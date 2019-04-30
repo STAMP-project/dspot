@@ -38,7 +38,20 @@ public class Code2VecParserTest {
 
     @Test
     public void testParsing() {
-        final String parse = Code2VecParser.parse(outputOfCode2Vec);
+
+        /*
+            Test the parser. It should returns the concatenation of predicted labels that have the most probability
+                In case of it predicts twice the same name, we:
+                    add an index at the end of the name in order to make it unique
+                        TODO check if this is the best strategy
+         */
+
+        final Code2VecParser code2VecParser = new Code2VecParser();
+        String parse = code2VecParser.parse(outputOfCode2Vec);
         assertEquals("testEqualslitString" , parse);
+        for (int i = 1 ; i < 11 ; i ++) {
+            parse = code2VecParser.parse(outputOfCode2Vec);
+            assertEquals("testEqualslitString" + i , parse);
+        }
     }
 }

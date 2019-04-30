@@ -4,6 +4,8 @@ import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
+
+import org.apache.cxf.common.util.WeakIdentityHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +23,9 @@ import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -51,13 +53,13 @@ public class AmplificationHelper {
     /**
      * Link between an amplified test and its parent (i.e. the original test).
      */
-    public static Map<CtMethod<?>, CtMethod> ampTestToParent = new IdentityHashMap<>();
+    public static Map<CtMethod<?>, CtMethod> ampTestToParent = Collections.synchronizedMap(new WeakIdentityHashMap<>());
 
 
     //(Optimisation) - trace bounds between cloned test methods and their original ones
     //This additional map is added (and ampTestToParent is not used) because
     //existing map does not account for all cloned test methods
-    private static Map<CtMethod<?>, CtMethod> originalTestBindings = new IdentityHashMap<>();
+    private static Map<CtMethod<?>, CtMethod> originalTestBindings = Collections.synchronizedMap(new WeakIdentityHashMap<>());
 
     @Deprecated
     private static Map<CtType, Set<CtType>> importByClass = new HashMap<>();
@@ -65,7 +67,6 @@ public class AmplificationHelper {
     public static void reset() {
         CloneHelper.reset();
         ampTestToParent.clear();
-        originalTestBindings.clear();
         importByClass.clear();
     }
 
@@ -132,16 +133,32 @@ public class AmplificationHelper {
         return ampTestToParent.remove(amplifiedTest);
     }
 
-    public static CtMethod addTestBindingToOriginal(CtMethod clonedTest, CtMethod originalTest) {
-        return originalTestBindings.put(clonedTest, originalTest);
+    public static int getAmpTestParentSize() {
+        return ampTestToParent.size();
     }
 
-    public static CtMethod removeTestBindingToOriginal(CtMethod clonedTest) {
-        return originalTestBindings.remove(clonedTest);
+    public static void addTestBindingToOriginal(CtMethod clonedTest, CtMethod fromTest) {
+        CtMethod originalTest = fromTest;
+        if (originalTestBindings.containsKey(fromTest)) {
+            originalTest = originalTestBindings.get(fromTest);
+        }
+        originalTestBindings.put(clonedTest, originalTest);
     }
 
-    public static CtMethod getTestBindingToOriginal(CtMethod clonedTest) {
+    public static void removeTestBindingToOriginal(CtMethod clonedTest) {
+        originalTestBindings.remove(clonedTest);
+    }
+
+    public static CtMethod getOriginalTestMethod(CtMethod clonedTest) {
         return originalTestBindings.get(clonedTest);
+    }
+
+    public static int getTestBindingToOriginalSize() {
+        return originalTestBindings.size();
+    }
+
+    public static void resetTestBindingToOriginal() {
+          originalTestBindings.clear();
     }
 
     @Deprecated
@@ -214,15 +231,6 @@ public class AmplificationHelper {
             currentTest = topParent;
         }
         return currentTest;
-    }
-
-    public static CtMethod getOriginalTest(CtMethod cloned) {
-        CtMethod topParent;
-        CtMethod original = cloned;
-        while ((topParent = getTestBindingToOriginal (original)) != null) {
-        	original = topParent;
-        }
-        return original;
     }
 
     @Deprecated

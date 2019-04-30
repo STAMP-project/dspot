@@ -13,8 +13,8 @@ import spoon.reflect.reference.CtLocalVariableReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.reference.CtVariableReference;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * Created by Benjamin DANGLOT
@@ -60,9 +60,12 @@ public class Translator {
         final CtExpression<?> invocation = this.buildInvocationFromString(invocationAsString, null);
         if (invocation instanceof CtInvocation<?> &&
                 "isEmpty".equals(((CtInvocation) invocation).getExecutable().getSimpleName())) {
+            // TODO check if this block is used
+            addTypeCastToCollectionIfNeeded(invocation);
             return invocation;
         }
         if (invocationAsString.endsWith("isEmpty()")) {
+            addTypeCastToCollectionIfNeeded(invocation);
             final CtType<?> listCtType = factory.Type()
                     .get(java.util.List.class);
             final CtMethod<?> isEmpty = listCtType.getMethodsByName("isEmpty").get(0);
@@ -72,6 +75,23 @@ public class Translator {
             );
         } else {
             return invocation;
+        }
+    }
+
+    private void addTypeCastToCollectionIfNeeded(CtExpression<?> invocation) {
+        try {
+            if (invocation instanceof CtInvocation<?>) {
+                final Class<?> actualClass = ((CtInvocation<?>) invocation).getExecutable()
+                        .getDeclaration()
+                        .getType()
+                        .getActualClass();
+                if (!actualClass.equals(Collection.class) && !actualClass.isAssignableFrom(Map.class) ) {
+                    invocation.addTypeCast(invocation.getFactory().createCtTypeReference(Collection.class));
+                }
+            }
+        } catch (Exception ignored) {
+            // we force the cast here, but the test will be probably uncompilable.
+            invocation.addTypeCast(invocation.getFactory().createCtTypeReference(Collection.class));
         }
     }
 
@@ -116,23 +136,6 @@ public class Translator {
             return buildInvocationFromString(invocationAsString, invocation);
         } else {
             return invocation;
-        }
-    }
-
-    // TODO this a hotfix, and must be reworked. The issue has been reported in Spoon see: https://github.com/INRIA/spoon/issues/2378
-    @Deprecated
-    private Set<CtMethod<?>> getAllMethods(CtType<?> type) {
-        try {
-            return type.getAllMethods();
-        } catch (StackOverflowError e) {
-            LOGGER.error("Overflow!");
-            final Set<CtMethod<?>> methods = new HashSet<>(type.getMethods());
-            CtTypeReference<?> currentSuperClass = type.getSuperclass();
-            while (currentSuperClass != null) {
-                methods.addAll(currentSuperClass.getTypeDeclaration().getMethods());
-                currentSuperClass = currentSuperClass.getSuperclass();
-            }
-            return methods;
         }
     }
 

@@ -6,8 +6,7 @@ import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.assertgenerator.AssertGenerator;
 import eu.stamp_project.dspot.budget.NoBudgetizer;
-import eu.stamp_project.utils.report.ErrorEnum;
-import eu.stamp_project.utils.report.GlobalReportImpl;
+import eu.stamp_project.utils.report.error.ErrorEnum;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TakeAllSelector;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -36,12 +35,12 @@ public class RecoveryDSpotTest extends AbstractTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        Main.globalReport.reset();
+        Main.GLOBAL_REPORT.reset();
     }
 
     @After
     public void tearDown() throws Exception {
-        Main.globalReport.reset();
+        Main.GLOBAL_REPORT.reset();
         InputConfiguration.get().setSelector(new PitMutantScoreSelector());
     }
 
@@ -116,16 +115,16 @@ public class RecoveryDSpotTest extends AbstractTest {
                 new NoBudgetizer()
         );
         amplification.amplification(Utils.findClass("fr.inria.amp.OneLiteralTest"), 1);
-        assertEquals(1, Main.globalReport.getErrors().size());
-        assertSame(ErrorEnum.ERROR_PRE_SELECTION, Main.globalReport.getErrors().get(0).type);
-        Main.globalReport.reset();
+        assertEquals(1, Main.GLOBAL_REPORT.getErrors().size());
+        assertSame(ErrorEnum.ERROR_PRE_SELECTION, Main.GLOBAL_REPORT.getErrors().get(0).type);
+        Main.GLOBAL_REPORT.reset();
 
         selector.setThrowsToAmplify(false);
         selector.setThrowsToKeep(true);
         amplification.amplification(Utils.findClass("fr.inria.amp.OneLiteralTest"), 1);
-        assertEquals(1, Main.globalReport.getErrors().size());
-        assertSame(ErrorEnum.ERROR_SELECTION, Main.globalReport.getErrors().get(0).type);
-        Main.globalReport.reset();
+        assertEquals(1, Main.GLOBAL_REPORT.getErrors().size());
+        assertSame(ErrorEnum.ERROR_SELECTION, Main.GLOBAL_REPORT.getErrors().get(0).type);
+        Main.GLOBAL_REPORT.reset();
 
         final List<Amplifier> amplifiers = Collections.singletonList(new AmplifierThatThrowsError());
         amplification = new Amplification(
@@ -135,9 +134,9 @@ public class RecoveryDSpotTest extends AbstractTest {
                 new NoBudgetizer(amplifiers)
         );
         amplification.amplification(Utils.findClass("fr.inria.amp.OneLiteralTest"), 1);
-        assertEquals(1, Main.globalReport.getErrors().size());
-        assertSame(ErrorEnum.ERROR_INPUT_AMPLIFICATION, Main.globalReport.getErrors().get(0).type);
-        Main.globalReport.reset();
+        assertEquals(1, Main.GLOBAL_REPORT.getErrors().size());
+        assertSame(ErrorEnum.ERROR_INPUT_AMPLIFICATION, Main.GLOBAL_REPORT.getErrors().get(0).type);
+        Main.GLOBAL_REPORT.reset();
 
         amplification = new Amplification(
                 Utils.getCompiler(),
@@ -149,17 +148,17 @@ public class RecoveryDSpotTest extends AbstractTest {
         assertGenerator.setAccessible(true);
         assertGenerator.set(amplification, new AssertGeneratorThatThrowsError(Utils.getCompiler()));
         amplification.amplification(Utils.findClass("fr.inria.amp.OneLiteralTest"), 1);
-        assertEquals(1, Main.globalReport.getErrors().size());
-        assertSame(ErrorEnum.ERROR_ASSERT_AMPLIFICATION, Main.globalReport.getErrors().get(0).type);
-        Main.globalReport.reset();
+        assertEquals(1, Main.GLOBAL_REPORT.getErrors().size());
+        assertSame(ErrorEnum.ERROR_ASSERT_AMPLIFICATION, Main.GLOBAL_REPORT.getErrors().get(0).type);
+        Main.GLOBAL_REPORT.reset();
     }
 
     @Test
     public void testNoMatchingTestClasses() {
         final DSpot dSpot = new DSpot(new TakeAllSelector());
         dSpot.amplifyTestClass("this.is.not.a.correct.package");
-        assertEquals(2, Main.globalReport.getErrors().size());
-        assertSame(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND_MATCHING_REGEX, Main.globalReport.getErrors().get(0).type);
-        assertSame(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND, Main.globalReport.getErrors().get(1).type);
+        assertEquals(2, Main.GLOBAL_REPORT.getErrors().size());
+        assertSame(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND_MATCHING_REGEX, Main.GLOBAL_REPORT.getErrors().get(0).type);
+        assertSame(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND, Main.GLOBAL_REPORT.getErrors().get(1).type);
     }
 }

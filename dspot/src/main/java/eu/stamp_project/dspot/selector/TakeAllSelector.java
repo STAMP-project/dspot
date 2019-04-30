@@ -1,8 +1,8 @@
 package eu.stamp_project.dspot.selector;
 
 import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.minimization.GeneralMinimizer;
-import eu.stamp_project.minimization.Minimizer;
+import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
+import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -47,9 +47,10 @@ public class TakeAllSelector implements TestSelector {
 	}
 
 	@Override
-	public void report() {
-		System.out.println("Amplification results with " + this.selectedAmplifiedTest.size() + " new tests.");
+	public TestSelectorElementReport report() {
+		final String report = "Amplification results with " + this.selectedAmplifiedTest.size() + " new tests.";
 		reset();
+		return new TestSelectorElementReportImpl(report, null);
 	}
 
 	@Override
@@ -61,8 +62,4 @@ public class TakeAllSelector implements TestSelector {
 		this.currentClassTestToBeAmplified = null;
 	}
 
-	@Override
-	public Minimizer getMinimizer() {
-		return new GeneralMinimizer();
-	}
 }

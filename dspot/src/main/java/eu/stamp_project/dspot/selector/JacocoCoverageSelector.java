@@ -2,8 +2,10 @@ package eu.stamp_project.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.dspot.selector.json.coverage.TestCaseJSON;
-import eu.stamp_project.dspot.selector.json.coverage.TestClassJSON;
+import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
+import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
+import eu.stamp_project.utils.report.output.selector.coverage.json.TestCaseJSON;
+import eu.stamp_project.utils.report.output.selector.coverage.json.TestClassJSON;
 import eu.stamp_project.testrunner.listener.Coverage;
 import eu.stamp_project.testrunner.listener.CoveragePerTestMethod;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -20,7 +22,6 @@ import spoon.reflect.declaration.CtType;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -164,17 +165,22 @@ public class JacocoCoverageSelector extends TakeAllSelector {
     }
 
     @Override
-    public void report() {
-        final String nl = System.getProperty("line.separator");
-        StringBuilder report = new StringBuilder();
-        report.append(nl).append("======= REPORT =======").append(nl);
-        report.append("Initial instruction coverage: ").append(this.initialCoverage.getInstructionsCovered())
-                .append(" / ").append(this.initialCoverage.getInstructionsTotal()).append(nl)
+    public TestSelectorElementReport report() {
+        // 1 textual report
+        StringBuilder report = new StringBuilder()
+                .append("Initial instruction coverage: ")
+                .append(this.initialCoverage.getInstructionsCovered())
+                .append(" / ")
+                .append(this.initialCoverage.getInstructionsTotal())
+                .append(AmplificationHelper.LINE_SEPARATOR)
                 .append(String.format("%.2f", 100.0D * ((double) this.initialCoverage.getInstructionsCovered() /
-                        (double) this.initialCoverage.getInstructionsTotal()))).append("%").append(nl);
-        report.append("Amplification results with ").append(this.selectedAmplifiedTest.size())
-                .append(" amplified tests.").append(nl);
+                        (double) this.initialCoverage.getInstructionsTotal()))).append("%").append(AmplificationHelper.LINE_SEPARATOR)
+                .append("Amplification results with ")
+                .append(this.selectedAmplifiedTest.size())
+                .append(" amplified tests.")
+                .append(AmplificationHelper.LINE_SEPARATOR);
 
+        // compute the new coverage obtained by the amplification
         final CtType<?> clone = this.currentClassTestToBeAmplified.clone();
         this.currentClassTestToBeAmplified.getPackage().addType(clone);
         this.selectedAmplifiedTest.forEach(clone::addMethod);
@@ -184,14 +190,8 @@ public class JacocoCoverageSelector extends TakeAllSelector {
             //ignored
         }
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));
-        //this.currentClassTestToBeAmplified.getPackage().removeType(clone);
 
-        final String fileSeparator = System.getProperty("file.separator");
-        String classpath = InputConfiguration.get().getBuilder()
-                .buildClasspath()
-                + AmplificationHelper.PATH_SEPARATOR +
-                this.configuration.getClasspathClassesProject();
-
+        String classpath = InputConfiguration.get().getFullClassPathWithExtraDependencies();
         if (!this.configuration.getAdditionalClasspathElements().isEmpty()) {
             classpath += PATH_SEPARATOR + this.configuration.getProcessedAddtionalClasspathElements();
         }
@@ -206,36 +206,29 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                     targetClasses,
                     this.currentClassTestToBeAmplified.getQualifiedName()
             );
-            report.append("Amplified instruction coverage: ").append(coverageResults.getInstructionsCovered())
-                    .append(" / ").append(coverageResults.getInstructionsTotal()).append(nl)
+            report.append("Amplified instruction coverage: ")
+                    .append(coverageResults.getInstructionsCovered())
+                    .append(" / ")
+                    .append(coverageResults.getInstructionsTotal())
+                    .append(AmplificationHelper.LINE_SEPARATOR)
                     .append(String.format("%.2f", 100.0D * ((double) coverageResults.getInstructionsCovered() /
-                            (double) coverageResults.getInstructionsTotal()))).append("%").append(nl);
-            System.out.println(report.toString());
-            File reportDir = new File(this.configuration.getOutputDirectory());
-            if (!reportDir.exists()) {
-                reportDir.mkdir();
-            }
-            try (FileWriter writer = new FileWriter(this.configuration.getOutputDirectory() +
-                    fileSeparator + this.currentClassTestToBeAmplified.getQualifiedName()
-                    + "_jacoco_instr_coverage_report.txt", false)) {
-                writer.write(report.toString());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            jsonReport(coverageResults);
-
+                            (double) coverageResults.getInstructionsTotal())))
+                    .append("%")
+                    .append(AmplificationHelper.LINE_SEPARATOR);
+            return new TestSelectorElementReportImpl(report.toString(), jsonReport(coverageResults));
         } catch (TimeoutException e) {
             throw new RuntimeException(e);
         } finally {
             this.currentClassTestToBeAmplified = null;
         }
+
     }
 
-    private void jsonReport(Coverage coverageResults) {
+    private TestClassJSON jsonReport(Coverage coverageResults) {
         TestClassJSON testClassJSON;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         final File file = new File(this.configuration.getOutputDirectory() + "/" +
-                this.currentClassTestToBeAmplified.getQualifiedName() + "_jacoco_instr_coverage.json");
+                this.currentClassTestToBeAmplified.getQualifiedName() + "report.json");
         if (file.exists()) {
             try {
                 testClassJSON = gson.fromJson(new FileReader(file), TestClassJSON.class);
@@ -257,10 +250,6 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                         this.selectedToBeAmplifiedCoverageResultsMap.get(ctMethod.getSimpleName()).getInstructionsTotal()
                 )
         );
-        try (FileWriter writer = new FileWriter(file, false)) {
-            writer.write(gson.toJson(testClassJSON));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return testClassJSON;
     }
 }

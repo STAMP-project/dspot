@@ -1,6 +1,7 @@
 package eu.stamp_project;
 
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
+import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.options.AmplifierEnum;
 import eu.stamp_project.utils.options.BudgetizerEnum;
@@ -25,8 +26,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 @Mojo(name = "amplify-unit-tests", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.TEST)
 public class DSpotMojo extends AbstractMojo {
@@ -81,7 +84,7 @@ public class DSpotMojo extends AbstractMojo {
     private Integer maxTestAmplified;
 
     /**
-     * [optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite. You can also use regex to describe a set of test classes. By default, DSpot selects all the tests (value all). You can use the value diff, to select tests according to a diff between two versions of the same program. Be careful, using --test diff, you must specify both properties folderPath and baseSha.
+     * [optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite. You can also use regex to describe a set of test classes. By default, DSpot selects all the tests (value all).
      */
     @Parameter(defaultValue = "all", property = "test")
     private List<String> test;
@@ -111,7 +114,7 @@ public class DSpotMojo extends AbstractMojo {
     private String pathPitResult;
 
     /**
-     *	[optional, expert] enable this option will make DSpot computing the mutation score of only one test class (the first pass through --test command line option)
+     * [optional, expert] enable this option will make DSpot computing the mutation score of only one test class (the first pass through --test command line option)
      */
     @Parameter(defaultValue = "false", property = "targetOneTestClass")
     private Boolean targetOneTestClass;
@@ -239,6 +242,11 @@ public class DSpotMojo extends AbstractMojo {
                 return;
             }
         }
+        if (this.amplifiers.size() == 1 &&
+                this.amplifiers.get(0).contains(AmplificationHelper.PATH_SEPARATOR)) {
+            this.amplifiers = Arrays.stream(this.amplifiers.get(0).split(AmplificationHelper.PATH_SEPARATOR))
+                    .collect(Collectors.toList());
+        }
         try {
             InputConfiguration.initialize(properties)
                     .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(new ArrayList<>(this.amplifiers)))
@@ -262,13 +270,13 @@ public class DSpotMojo extends AbstractMojo {
                     .setTargetOneTestClass(this.targetOneTestClass);
 
             InputConfiguration.get().setOutputDirectory(
-                    properties.getProperty(ConstantsProperties.OUTPUT_DIRECTORY.getName()) == null ?
-                    this.outputPath : properties.getProperty(ConstantsProperties.OUTPUT_DIRECTORY.getName()));
+                    ConstantsProperties.OUTPUT_DIRECTORY.get(properties).isEmpty() ?
+                            this.outputPath : ConstantsProperties.OUTPUT_DIRECTORY.get(properties));
 
             if (this.pathPitResult != null && !this.pathPitResult.isEmpty()) {
                 InputConfiguration.get().setSelector(new PitMutantScoreSelector(this.pathPitResult,
                         this.pathPitResult.endsWith(".xml") ?
-                        PitMutantScoreSelector.OutputFormat.XML: PitMutantScoreSelector.OutputFormat.CSV,
+                                PitMutantScoreSelector.OutputFormat.XML : PitMutantScoreSelector.OutputFormat.CSV,
                         PitMutantScoreSelector.OutputFormat.XML)
                 );
             } else {
@@ -299,6 +307,9 @@ public class DSpotMojo extends AbstractMojo {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        // global report handling
+        Main.GLOBAL_REPORT.output();
+        Main.GLOBAL_REPORT.reset();
     }
 
     // visible for testing...

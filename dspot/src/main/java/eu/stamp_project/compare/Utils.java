@@ -11,7 +11,7 @@ public class Utils {
 
     protected static Set<Class<?>> WRAPPER_TYPES = getWrapperTypes();
 
-    public static boolean isPrimitiveCollectionOrMap(Object collectionOrMap) {
+    public static boolean isNonEmptyPrimitiveCollectionOrMap(Object collectionOrMap) {
         try {
             return collectionOrMap != null &&
                     (isNonEmptyPrimitiveCollection(collectionOrMap) || isNonEmptyPrimitiveMap(collectionOrMap));

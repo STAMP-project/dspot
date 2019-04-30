@@ -1,10 +1,9 @@
 package eu.stamp_project.compare;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -19,21 +18,21 @@ public class UtilsTest {
     @Test//TODO empty collection / map are considered as primitive, we may need to found a semantic of the method.
     public void testIsPrimitiveCollectionOrMap() throws Exception {
         final ArrayList<Integer> list = new ArrayList<>();
-        assertFalse(Utils.isPrimitiveCollectionOrMap(list));
+        assertFalse(Utils.isNonEmptyPrimitiveCollectionOrMap(list));
         list.add(1);
-        assertTrue(Utils.isPrimitiveCollectionOrMap(list));
+        assertTrue(Utils.isNonEmptyPrimitiveCollectionOrMap(list));
 
         final HashMap<Integer, Integer> map = new HashMap<>();
-        assertFalse(Utils.isPrimitiveCollectionOrMap(map));
+        assertFalse(Utils.isNonEmptyPrimitiveCollectionOrMap(map));
         map.put(1,1);
-        assertTrue(Utils.isPrimitiveCollectionOrMap(map));
+        assertTrue(Utils.isNonEmptyPrimitiveCollectionOrMap(map));
 
         final HashSet<Integer> set = new HashSet<>();
-        assertFalse(Utils.isPrimitiveCollectionOrMap(set));
+        assertFalse(Utils.isNonEmptyPrimitiveCollectionOrMap(set));
         set.add(1);
-        assertTrue(Utils.isPrimitiveCollectionOrMap(set));
+        assertTrue(Utils.isNonEmptyPrimitiveCollectionOrMap(set));
 
-        assertFalse(Utils.isPrimitiveCollectionOrMap(1));
+        assertFalse(Utils.isNonEmptyPrimitiveCollectionOrMap(1));
     }
 
     @Test

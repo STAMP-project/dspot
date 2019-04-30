@@ -11,6 +11,7 @@ import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,13 +35,39 @@ public class TestFrameworkTest extends AbstractTest {
         InputConfiguration.get().setWithComment(true);
     }
 
+    private CtMethod findAndRegister(String ctClass, String methodName) {
+        final CtMethod testExpectingAnException = Utils.findMethod(ctClass, methodName);
+        AmplificationHelper.addTestBindingToOriginal(testExpectingAnException, testExpectingAnException);
+        return testExpectingAnException;
+    }
+
+    @Test
+    public void testGenerateAfterClassToSaveObservations() {
+
+        /*
+            Test generate after class to save observations
+         */
+
+        final CtMethod<?> testJUnit3 = this.findAndRegister("fr.inria.helper.SecondClassJUnit3", "testExpectingAnException");
+        final CtType type = InputConfiguration.get().getFactory().Type().get("fr.inria.helper.SecondClassJUnit3");
+        TestFramework.get().generateAfterClassToSaveObservations(type, Collections.singletonList(testJUnit3));
+        final String expectedToString = "public static junit.framework.Test suite() {" + AmplificationHelper.LINE_SEPARATOR +
+                "    return new junit.extensions.TestSetup(new junit.framework.TestSuite(fr.inria.helper.SecondClassJUnit3.class)) {" + AmplificationHelper.LINE_SEPARATOR +
+                "        protected void tearDown() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
+                "            eu.stamp_project.compare.ObjectLog.save();" + AmplificationHelper.LINE_SEPARATOR +
+                "        }" + AmplificationHelper.LINE_SEPARATOR +
+                "    };" + AmplificationHelper.LINE_SEPARATOR +
+                "}";
+        assertEquals(expectedToString, type.getMethodsByName("suite").get(0).toString());
+    }
+
     @Test
     public void testGenerateExpectedExceptionsBlock() {
 
         /*
             Test the generation of code that make a test expecting a given Exception
          */
-        final CtMethod testJUnit3 = Utils.findMethod("fr.inria.helper.SecondClassJUnit3", "testExpectingAnException");
+        final CtMethod testJUnit3 = this.findAndRegister("fr.inria.helper.SecondClassJUnit3", "testExpectingAnException");
         final CtMethod<?> actualJUnit3 = TestFramework.get().generateExpectedExceptionsBlock(
                 testJUnit3,
                 new Failure("", "", new RuntimeException()),
@@ -48,7 +75,7 @@ public class TestFrameworkTest extends AbstractTest {
         );
         assertEquals(actualJUnit3.toString(), JUnit3WithExceptionThrown, actualJUnit3.toString());
 
-        final CtMethod testJUnit4 = Utils.findMethod("fr.inria.helper.TestWithMultipleAsserts", "testThrownException");
+        final CtMethod testJUnit4 = this.findAndRegister("fr.inria.helper.TestWithMultipleAsserts", "testThrownException");
         final CtMethod<?> actualJUnit4 = TestFramework.get().generateExpectedExceptionsBlock(
                 testJUnit4,
                 new Failure("", "", new RuntimeException()),
@@ -56,7 +83,7 @@ public class TestFrameworkTest extends AbstractTest {
         );
         assertEquals(actualJUnit4.toString(), JUnit4WithExceptionThrown, actualJUnit4.toString());
 
-        final CtMethod testJUnit5 = Utils.findMethod("fr.inria.testframework.TestSupportJUnit5", "testExpectAnException");
+        final CtMethod testJUnit5 = this.findAndRegister("fr.inria.testframework.TestSupportJUnit5", "testExpectAnException");
         final CtMethod<?> actualJUnit5 = TestFramework.get().generateExpectedExceptionsBlock(
                 testJUnit5,
                 new Failure("", "", new RuntimeException()),
@@ -105,21 +132,23 @@ public class TestFrameworkTest extends AbstractTest {
          */
 
         //JUnit3
-        final CtMethod testJUnit3 = Utils.findMethod("fr.inria.helper.SecondClassJUnit3", "test");
+        final CtMethod testJUnit3 = this.findAndRegister("fr.inria.helper.SecondClassJUnit3", "test");
         assertTrue(TestFramework.get().isTest(testJUnit3));
+        final CtMethod testJUnit3WithInheritance = this.findAndRegister("fr.inria.helper.ThirdClassJUnit3", "test");
+        assertTrue(TestFramework.get().isTest(testJUnit3WithInheritance));
         //JUnit4
-        final CtMethod testJUnit4 = Utils.findMethod("fr.inria.helper.TestWithMultipleAsserts", "test");
+        final CtMethod testJUnit4 = this.findAndRegister("fr.inria.helper.TestWithMultipleAsserts", "test");
         assertTrue(TestFramework.get().isTest(testJUnit4));
         //JUnit5
-        final CtMethod testJUnit5 = Utils.findMethod("fr.inria.helper.ClassWithInnerClass", "Junit5Test");
+        final CtMethod testJUnit5 = this.findAndRegister("fr.inria.helper.ClassWithInnerClass", "Junit5Test");
         assertTrue(TestFramework.get().isTest(testJUnit5));
 
         // NOT A TEST
-        CtMethod currentNotATest = Utils.findMethod("fr.inria.helper.ClassWithInnerClass", "notATestBecauseEmpty");
+        CtMethod currentNotATest = this.findAndRegister("fr.inria.helper.ClassWithInnerClass", "notATestBecauseEmpty");
         assertFalse(TestFramework.get().isTest(currentNotATest));
-        currentNotATest = Utils.findMethod("fr.inria.helper.ClassWithInnerClass", "notATestBecauseParameters");
+        currentNotATest = this.findAndRegister("fr.inria.helper.ClassWithInnerClass", "notATestBecauseParameters");
         assertFalse(TestFramework.get().isTest(currentNotATest));
-        currentNotATest = Utils.findMethod("fr.inria.helper.ClassWithInnerClass", "methodIntermediate1");
+        currentNotATest = this.findAndRegister("fr.inria.helper.ClassWithInnerClass", "methodIntermediate1");
         assertFalse(TestFramework.get().isTest(currentNotATest));
     }
 
@@ -154,13 +183,12 @@ public class TestFrameworkTest extends AbstractTest {
 
     private void checksBuildInvocationForGivenJUnitVersion(String fullQualifiedName, String test, String nameOfExpectedAssertClass) {
         final CtClass<?> testClass = Utils.findClass(fullQualifiedName);
-        final CtMethod testMethod = Utils.findMethod(fullQualifiedName, test);
+        final CtMethod testMethod = this.findAndRegister(fullQualifiedName, test);
         CtInvocation<?> ctInvocation = TestFramework.get().buildInvocationToAssertion(
                 testMethod,
                 AssertEnum.ASSERT_TRUE,
                 Collections.singletonList(InputConfiguration.get().getFactory().createLiteral(true))
         );
-
         assertEquals(ctInvocation.toString(), nameOfExpectedAssertClass + "assertTrue(true)", ctInvocation.toString());
 
         ctInvocation = TestFramework.get().buildInvocationToAssertion(

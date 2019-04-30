@@ -44,14 +44,25 @@ public class AssertionRemover {
                 testWithoutAssertion
                         .getElements(TestFramework.ASSERTIONS_FILTER)
                         .stream()
+                        .filter(invocation -> !(invocation.getParent() instanceof CtRHSReceiver)) // it means that the return type is used in the test.
                         .flatMap(invocation -> this.removeAssertion(invocation).stream())
                         .collect(Collectors.toList())
         );
 
-        testWithoutAssertion.getElements(new TypeFilter<>(CtTry.class))
-                .forEach(ctTry -> ctTry.insertBefore((CtStatement) ctTry.getBody().clone()));
-        testWithoutAssertion.getElements(new TypeFilter<>(CtTry.class))
-                .forEach(testWithoutAssertion.getBody()::removeStatement);
+        testWithoutAssertion.getElements(new TypeFilter<CtTry>(CtTry.class) {
+            @Override
+            public boolean matches(CtTry element) {
+                return !(element instanceof CtTryWithResource);
+            }
+        }).forEach(ctTry -> ctTry.insertBefore((CtStatement) ctTry.getBody().clone()));
+        testWithoutAssertion.getElements(
+                new TypeFilter<CtTry>(CtTry.class) {
+                    @Override
+                    public boolean matches(CtTry element) {
+                        return !(element instanceof CtTryWithResource);
+                    }
+                }
+        ).forEach(testWithoutAssertion.getBody()::removeStatement);
 
         return testWithoutAssertion;
     }

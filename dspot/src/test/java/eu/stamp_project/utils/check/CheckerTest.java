@@ -48,6 +48,9 @@ public class CheckerTest {
         Checker.checkIsACorrectVersion("10.1.10");
         Checker.checkIsACorrectVersion("10.10.10");
 
+        //Version with snapshot
+        Checker.checkIsACorrectVersion("1.2.5-SNAPSHOT");
+
         try {
             Checker.checkIsACorrectVersion("1.");
             fail("should have thrown InputErrorException");

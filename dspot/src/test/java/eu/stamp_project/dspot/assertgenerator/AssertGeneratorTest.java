@@ -4,6 +4,10 @@ import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.program.InputConfigurationProperty;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,11 +23,10 @@ import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Created by Benjamin DANGLOT
@@ -32,6 +35,7 @@ import static org.junit.Assert.fail;
  */
 public class AssertGeneratorTest extends AbstractTest {
 
+    public static final String THE_METHOD_IS_EMPTY_IS_UNDEFINED_FOR_THE_TYPE = "The method isEmpty() is undefined for the type ";
     private AssertGenerator assertGenerator;
 
     @Override
@@ -69,8 +73,8 @@ public class AssertGeneratorTest extends AbstractTest {
 
     private static final String ASSERT_EQUALS = "assertEquals";
     private static final String ASSERT_TRUE = "assertTrue";
-    private static final String ASSERT_FALSE= "assertFalse";
-    private static final String ASSERT_NULL= "assertNull";
+    private static final String ASSERT_FALSE = "assertFalse";
+    private static final String ASSERT_NULL = "assertNull";
 
     /**
      * This class is used to verify that the method, with the given name, is inside an assertion
@@ -103,7 +107,7 @@ public class AssertGeneratorTest extends AbstractTest {
     }
 
     @Test
-    public void testOnFieldRead() throws Exception {
+    public void testOnFieldRead() {
 
         /*
             Test that we can generate as expected variable in assertion field read such as DOUBLE.NEGATIVE_INFINITY
@@ -119,12 +123,11 @@ public class AssertGeneratorTest extends AbstractTest {
         assertEquals(1, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getInfinity", ASSERT_EQUALS)).size());
         assertEquals(1, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("NaN", ASSERT_EQUALS)).size());
         assertEquals(1, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getNaN", ASSERT_EQUALS)).size());
-//        assertEquals(1, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("MAX_VALUE", ASSERT_EQUALS)).size());
-//        assertEquals(1, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getMax_VALUE", ASSERT_EQUALS)).size());
+        assertEquals(1, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getMax_VALUE", ASSERT_EQUALS)).size());
     }
 
     @Test
-    public void testMultipleObservationsPoints() throws Exception {
+    public void testMultipleObservationsPoints() {
         CtClass testClass = Utils.findClass("fr.inria.multipleobservations.TestClassToBeTest");
         CtMethod test = Utils.findMethod("fr.inria.multipleobservations.TestClassToBeTest", "test");
         List<CtMethod<?>> test_buildNewAssert = assertGenerator.assertionAmplification(testClass, Collections.singletonList(test));
@@ -136,9 +139,8 @@ public class AssertGeneratorTest extends AbstractTest {
     }
 
 
-
     @Test
-    public void testBuildAssertOnSpecificCases() throws Exception {
+    public void testBuildAssertOnSpecificCases() {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithSpecificCaseToBeAsserted");
         CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithSpecificCaseToBeAsserted", "test1");
         List<CtMethod<?>> test1_buildNewAssert = assertGenerator.assertionAmplification(testClass, Collections.singletonList(test1));
@@ -161,7 +163,7 @@ public class AssertGeneratorTest extends AbstractTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(AssertGeneratorTest.class);
 
     @Test
-    public void testBuildNewAssert() throws Exception {
+    public void testBuildNewAssert() {
         LOGGER.info("Running testBuildNewAssert");
 
         /*
@@ -170,6 +172,7 @@ public class AssertGeneratorTest extends AbstractTest {
 				- primitive type and String (assertEquals)
 				- null value (assertNull)
 				- Collection: with elements (assertTrue(contains())) and empty (assertTrue(isEmpty()))
+				- Iterable
 				//TODO support generation of assertion on array
 		 */
         CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
@@ -179,6 +182,7 @@ public class AssertGeneratorTest extends AbstractTest {
             fail("the assertion amplification should have result with at least one test.");
         }
         CtMethod<?> amplifiedTestMethod = ctMethods.get(0);
+        LOGGER.info("{}", amplifiedTestMethod.toString());
         assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getBoolean", ASSERT_TRUE)).size());
         assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getByte", ASSERT_EQUALS)).size());
         assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getShort", ASSERT_EQUALS)).size());
@@ -191,8 +195,24 @@ public class AssertGeneratorTest extends AbstractTest {
         assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getString", ASSERT_EQUALS)).size());
         assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getChar", ASSERT_EQUALS)).size());
         assertEquals(4, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("contains", ASSERT_TRUE)).size());
-        assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("isEmpty", ASSERT_TRUE)).size());
         assertEquals(2, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getNull", ASSERT_NULL)).size());
+        assertEquals(4, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("isEmpty", ASSERT_TRUE)).size());
+        // must not match
+        assertEquals(0, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("getEmptyMyIterable", ASSERT_TRUE)).size());
+        // check that the amplified test method can be compiled
+        final CtClass<?> clone = testClass.clone();
+        clone.addMethod(amplifiedTestMethod);
+        DSpotUtils.printCtTypeToGivenDirectory(clone, Utils.getCompiler().getSourceOutputDirectory());
+        final List<CategorizedProblem> categorizedProblems = Utils.getCompiler().compileAndReturnProblems(InputConfiguration.get().getClasspathClassesProject());
+        assertTrue(
+                categorizedProblems.stream().filter(categorizedProblem ->
+                                categorizedProblem.getMessage().startsWith(THE_METHOD_IS_EMPTY_IS_UNDEFINED_FOR_THE_TYPE))
+                        .map(CategorizedProblem::toString).collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)),
+                categorizedProblems.stream()
+                        .noneMatch(categorizedProblem ->
+                                categorizedProblem.getMessage().startsWith(THE_METHOD_IS_EMPTY_IS_UNDEFINED_FOR_THE_TYPE)
+                        )
+        );
     }
 
     @Test

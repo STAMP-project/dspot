@@ -5,8 +5,8 @@ import eu.stamp_project.Main;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.program.ConstantsProperties;
-import eu.stamp_project.utils.report.Error;
-import eu.stamp_project.utils.report.ErrorEnum;
+import eu.stamp_project.utils.report.error.Error;
+import eu.stamp_project.utils.report.error.ErrorEnum;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,13 +87,6 @@ public class Checker {
                 currentPath
         );
 
-        // path to second version
-        Checker.checkRelativePathPropertyValue(
-                properties.getProperty(ConstantsProperties.PATH_TO_SECOND_VERSION.getName()),
-                ErrorEnum.ERROR_PATH_TO_SECOND_VERSION,
-                ConstantsProperties.PATH_TO_SECOND_VERSION.getNaturalLanguageDesignation(),
-                currentPath
-        );
         // path to maven home
         Checker.checkRelativePathPropertyValue(
                 properties.getProperty(ConstantsProperties.MAVEN_HOME.getName()),
@@ -146,9 +139,9 @@ public class Checker {
     }
 
     public static void checkIsACorrectVersion(final String proposedVersion) {
-        if (!Pattern.compile("(\\p{Digit})+(\\.(\\p{Digit})+)*").matcher(proposedVersion).matches()) {
-            Main.globalReport.addInputError(new Error(
-                            ErrorEnum.ERROR_PATH_TO_PROPERTIES
+        if (!Pattern.compile("(\\p{Digit})+(\\.(\\p{Digit})+)*(-SNAPSHOT)?").matcher(proposedVersion).matches()) {
+            Main.GLOBAL_REPORT.addInputError(new Error(
+                            ErrorEnum.ERROR_INVALID_VERSION, "Version " + proposedVersion + " is not a valid version"
                     )
             );
             throw new InputErrorException();
@@ -184,7 +177,7 @@ public class Checker {
                                                          String additionalMessageWhenIsNull,
                                                          String additionalMessageWhenDoesNotExist) {
         if (pathname == null) {
-            Main.globalReport.addInputError(new Error(errorEnumInCaseOfError, additionalMessageWhenIsNull));
+            Main.GLOBAL_REPORT.addInputError(new Error(errorEnumInCaseOfError, additionalMessageWhenIsNull));
             throw new InputErrorException();
         } else {
             checkFileExists(pathname, errorEnumInCaseOfError, additionalMessageWhenDoesNotExist);
@@ -193,7 +186,7 @@ public class Checker {
 
     private static void checkFileExists(final String pathname, ErrorEnum errorEnumInCaseOfError, String additionalMessage) {
         if (!new File(pathname).exists()) {
-            Main.globalReport.addInputError(new Error(errorEnumInCaseOfError, additionalMessage + "(" + pathname + ")"));
+            Main.GLOBAL_REPORT.addInputError(new Error(errorEnumInCaseOfError, additionalMessage + "(" + pathname + ")"));
             throw new InputErrorException();
         }
     }
@@ -233,7 +226,7 @@ public class Checker {
         final ArrayList<String> copyValues = new ArrayList<>(values);
         for (String value : copyValues) {
             if (!possibleValues.contains(value)) {
-                Main.globalReport
+                Main.GLOBAL_REPORT
                         .addInputError(
                                 new Error(ErrorEnum.ERROR_NO_ENUM_VALUE_CORRESPOND_TO_GIVEN_INPUT, Checker.toString(enumClass, value))
                         );

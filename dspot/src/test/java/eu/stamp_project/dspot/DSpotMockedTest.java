@@ -4,11 +4,10 @@ import eu.stamp_project.AbstractTest;
 import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
 import eu.stamp_project.dspot.amplifier.ReturnValueAmplifier;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
-import eu.stamp_project.dspot.selector.CloverCoverageSelector;
+import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
-import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.RandomHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -44,7 +43,7 @@ public class DSpotMockedTest extends AbstractTest {
         RandomHelper.setSeedRandom(23L);
         final InputConfiguration configuration = InputConfiguration.get();
         configuration.setAmplifiers(Arrays.asList(new MethodGeneratorAmplifier(), new ReturnValueAmplifier()));
-        DSpot dspot = new DSpot( 1, configuration.getAmplifiers(), new CloverCoverageSelector());
+        DSpot dspot = new DSpot( 1, configuration.getAmplifiers(), new JacocoCoverageSelector());
         try {
             FileUtils.cleanDirectory(new File(configuration.getOutputDirectory()));
         } catch (Exception ignored) {
@@ -67,7 +66,7 @@ public class DSpotMockedTest extends AbstractTest {
 
         final List<CtMethod<?>> amplifiedTestMethods = TestFramework.getAllTest(amplifiedTest);
         assertEquals(6, amplifiedTestMethods.size());
-        assertEquals(53, amplifiedTestMethods.stream().mapToLong(
+        assertEquals(70, amplifiedTestMethods.stream().mapToLong(
                 ctMethod -> ctMethod.getElements(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
                     @Override
                     public boolean matches(CtInvocation<?> element) {

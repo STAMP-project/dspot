@@ -31,7 +31,9 @@ public class GradlePitTaskAndOptions {
 
     public static final String CMD_PIT_MUTATION_COVERAGE = "pitest";
 
-    public static final String PROPERTY_VALUE_TIMEOUT =  "timeoutConstInMillis";
+    public static final String[] ARGUMENTS_SKIP_COMPILE_TEST = new String[]{"-x", "compileTest"};
+
+    public static final String PROPERTY_VALUE_TIMEOUT = "timeoutConstInMillis";
 
     public static final String PROPERTY_VALUE_JVM_ARGS = "jvmArgs";
 
