@@ -60,7 +60,7 @@ public abstract class AbstractSelectorTest {
 
     @Test
     public void testSelector() throws Exception {
-        this.testSelectorUnderTest.init(Utils.getInputConfiguration());
+        this.testSelectorUnderTest.init();
         this.testSelectorUnderTest.selectToKeep(
                 this.testSelectorUnderTest.selectToAmplify(
                         getTestClass(), Collections.singletonList(getTest())
