@@ -42,6 +42,8 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 
     private Coverage initialCoverage;
 
+    private List<String> pathExecuted = new ArrayList<>();
+
     @Override
     public void init(InputConfiguration configuration) {
         super.init(configuration);
@@ -121,7 +123,6 @@ public class JacocoCoverageSelector extends TakeAllSelector {
             return amplifiedTestToBeKept;
         }
         final CoveragePerTestMethod coveragePerTestMethod = computeCoverageForGivenTestMethods(amplifiedTestToBeKept);
-        final List<String> pathExecuted = new ArrayList<>();
         final List<CtMethod<?>> methodsKept = amplifiedTestToBeKept.stream()
                 .filter(ctMethod -> {
                     final String simpleNameOfFirstParent = getFirstParentThatHasBeenRun(ctMethod).getSimpleName();

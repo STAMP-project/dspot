@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>example</groupId>
+  <artifactId>example</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>test-projects_0</name>
+
+  <properties>
+    <default.encoding>UTF-8</default.encoding>
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
+  </properties>
+
+  <dependencies>
+  	<dependency>
+  		<groupId>junit</groupId>
+  		<artifactId>junit</artifactId>
+  		<version>4.11</version>
+  	</dependency>
+  </dependencies>
+<build><plugins><plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-compiler-plugin</artifactId><executions><execution><id>default-testCompile</id><phase>none</phase></execution></executions></plugin><plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-surefire-plugin</artifactId><configuration><additionalClasspathElements><additionalClasspathElement>target/dspot/dependencies/</additionalClasspathElement></additionalClasspathElements></configuration></plugin></plugins></build><profiles><profile><id>id-descartes-for-dspot</id><build><plugins><plugin><groupId>org.pitest</groupId><artifactId>pitest-maven</artifactId><version>1.4.0</version><configuration><mutationEngine>descartes</mutationEngine><outputFormats><value>CSV</value><value>XML</value></outputFormats><targetClasses>example.*</targetClasses><reportsDirectory>target/pit-reports</reportsDirectory><timeoutConstant>10000</timeoutConstant></configuration><dependencies><dependency><groupId>eu.stamp-project</groupId><artifactId>descartes</artifactId><version>1.2.4</version></dependency><dependency><groupId>org.pitest</groupId><artifactId>pitest-junit5-plugin</artifactId><version>0.7</version></dependency></dependencies></plugin></plugins></build></profile></profiles></project>
