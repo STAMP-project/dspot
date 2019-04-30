@@ -1,6 +1,5 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -14,7 +13,11 @@ import java.util.List;
  */
 public interface TestSelector {
 
-    void init(InputConfiguration configuration);
+    /**
+       This methods initialize the test selector
+       @return a boolean to tell whether the initialization went well (true) or not (false)
+     */
+    boolean init();
 
     /**
      * This method selects test method to be amplified among the provided test list.

@@ -44,9 +44,10 @@ public class JacocoCoverageSelector extends TakeAllSelector {
     private Coverage initialCoverage;
 
     @Override
-    public void init(InputConfiguration configuration) {
-        super.init(configuration);
+    public boolean init() {
+        super.init();
         this.selectedAmplifiedTest.clear();
+        return true;
     }
 
     @Override
@@ -54,10 +55,10 @@ public class JacocoCoverageSelector extends TakeAllSelector {
         if (this.currentClassTestToBeAmplified == null) {
             this.currentClassTestToBeAmplified = classTest;
             String classpath = InputConfiguration.get().getBuilder().buildClasspath();
-            if (!this.configuration.getAdditionalClasspathElements().isEmpty()) {
-                classpath += PATH_SEPARATOR + this.configuration.getProcessedAddtionalClasspathElements();
+            if (!InputConfiguration.get().getAdditionalClasspathElements().isEmpty()) {
+                classpath += PATH_SEPARATOR + InputConfiguration.get().getProcessedAddtionalClasspathElements();
             }
-            final String targetClasses = this.configuration.getClasspathClassesProject();
+            final String targetClasses = InputConfiguration.get().getClasspathClassesProject();
             try {
                 this.initialCoverage = EntryPoint.runCoverage(
                         classpath + AmplificationHelper.PATH_SEPARATOR + targetClasses,
@@ -100,10 +101,10 @@ public class JacocoCoverageSelector extends TakeAllSelector {
     private CoveragePerTestMethod computeCoverageForGivenTestMethods(List<CtMethod<?>> testsToBeAmplified) {
         final String[] methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).toArray(String[]::new);
         String classpath = InputConfiguration.get().getBuilder().buildClasspath();
-        if (!this.configuration.getAdditionalClasspathElements().isEmpty()) {
-            classpath += PATH_SEPARATOR + this.configuration.getProcessedAddtionalClasspathElements();
+        if (!InputConfiguration.get().getAdditionalClasspathElements().isEmpty()) {
+            classpath += PATH_SEPARATOR + InputConfiguration.get().getProcessedAddtionalClasspathElements();
         }
-        final String targetClasses = this.configuration.getClasspathClassesProject();
+        final String targetClasses = InputConfiguration.get().getClasspathClassesProject();
         try {
             return EntryPoint.runCoveragePerTestMethods(
                     classpath + AmplificationHelper.PATH_SEPARATOR + targetClasses,
@@ -191,14 +192,14 @@ public class JacocoCoverageSelector extends TakeAllSelector {
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));
 
         String classpath = InputConfiguration.get().getFullClassPathWithExtraDependencies();
-        if (!this.configuration.getAdditionalClasspathElements().isEmpty()) {
-            classpath += PATH_SEPARATOR + this.configuration.getProcessedAddtionalClasspathElements();
+        if (!InputConfiguration.get().getAdditionalClasspathElements().isEmpty()) {
+            classpath += PATH_SEPARATOR + InputConfiguration.get().getProcessedAddtionalClasspathElements();
         }
 
-        DSpotCompiler.compile(configuration, DSpotCompiler.getPathToAmplifiedTestSrc(), classpath,
-                new File(this.configuration.getAbsolutePathToTestClasses()));
+        DSpotCompiler.compile(InputConfiguration.get(), DSpotCompiler.getPathToAmplifiedTestSrc(), classpath,
+                new File(InputConfiguration.get().getAbsolutePathToTestClasses()));
 
-        final String targetClasses = this.configuration.getClasspathClassesProject();
+        final String targetClasses = InputConfiguration.get().getClasspathClassesProject();
         try {
             final Coverage coverageResults = EntryPoint.runCoverage(
                     classpath,
@@ -226,7 +227,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
     private TestClassJSON jsonReport(Coverage coverageResults) {
         TestClassJSON testClassJSON;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        final File file = new File(this.configuration.getOutputDirectory() + "/" +
+        final File file = new File(InputConfiguration.get().getOutputDirectory() + "/" +
                 this.currentClassTestToBeAmplified.getQualifiedName() + "report.json");
         if (file.exists()) {
             try {

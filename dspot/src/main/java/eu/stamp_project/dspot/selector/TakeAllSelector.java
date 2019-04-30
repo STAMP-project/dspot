@@ -18,8 +18,6 @@ public class TakeAllSelector implements TestSelector {
 
 	protected List<CtMethod<?>> selectedAmplifiedTest;
 
-	protected InputConfiguration configuration;
-
 	protected CtType<?> currentClassTestToBeAmplified;
 
 	public TakeAllSelector() {
@@ -27,8 +25,8 @@ public class TakeAllSelector implements TestSelector {
 	}
 
 	@Override
-	public void init(InputConfiguration configuration) {
-		this.configuration = configuration;
+	public boolean init() {
+		return true;
 	}
 
 	@Override
