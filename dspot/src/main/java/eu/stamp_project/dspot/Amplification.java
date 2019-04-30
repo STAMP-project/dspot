@@ -85,7 +85,13 @@ public class Amplification {
         EntryPoint.jUnit5Mode = jUnit5;
         InputConfiguration.get().setJUnit5(jUnit5);
         this.testSelector.init(InputConfiguration.get());
-        final List<CtMethod<?>> passingTests = TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(classTest, tests, this.compiler, InputConfiguration.get());
+        final List<CtMethod<?>> passingTests;
+        try {
+        passingTests = TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(classTest, tests, this.compiler, InputConfiguration.get());
+        } catch (Exception | java.lang.Error e) {
+            Main.GLOBAL_REPORT.addError(new Error(ERROR_EXEC_TEST_BEFORE_AMPLIFICATION, e));
+            return;
+        }
         final List<CtMethod<?>> selectedToBeAmplified;
         try {
             selectedToBeAmplified = this.testSelector.selectToAmplify(classTest, passingTests);

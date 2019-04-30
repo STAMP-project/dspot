@@ -39,6 +39,7 @@ public enum ErrorEnum {
     /*
         ERRORS DURING AMPLIFICATION PROCESS
      */
+    ERROR_EXEC_TEST_BEFORE_AMPLIFICATION("Something bad happened when DSpot tried to execute the tests before starting the amplification."),
     ERROR_PRE_SELECTION("Something bad happened during selection before amplification."),
     ERROR_INPUT_AMPLIFICATION("Something bad happened during input amplification."),
     ERROR_ASSERT_AMPLIFICATION("Something bad happened during assertion amplification"),
