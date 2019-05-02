@@ -168,8 +168,9 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 
     @Override
     public TestSelectorElementReport report() {
-        if(currentClassTestToBeAmplified == null)
+        if(currentClassTestToBeAmplified == null) {
             return lastReport;
+        }
         // 1 textual report
         StringBuilder report = new StringBuilder()
                 .append("Initial instruction coverage: ")
