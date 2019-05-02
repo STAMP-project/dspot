@@ -84,7 +84,9 @@ public class Amplification {
         final boolean jUnit5 = TestFramework.isJUnit5(tests.get(0));
         EntryPoint.jUnit5Mode = jUnit5;
         InputConfiguration.get().setJUnit5(jUnit5);
-        this.testSelector.init(InputConfiguration.get());
+        if (!this.testSelector.init()) {
+            return;
+        }
         final List<CtMethod<?>> passingTests;
         try {
         passingTests = TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(classTest, tests, this.compiler, InputConfiguration.get());

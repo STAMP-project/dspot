@@ -45,7 +45,7 @@ public class ChangeDetectorSelector implements TestSelector {
     }
 
     @Override
-    public void init(InputConfiguration configuration) {
+    public boolean init() {
         try {
             this.pathToFirstVersionOfProgram = InputConfiguration.get().getAbsolutePathToProjectRoot();
             this.pathToSecondVersionOfProgram = InputConfiguration.get().getAbsolutePathToSecondVersionProjectRoot();
@@ -56,6 +56,7 @@ public class ChangeDetectorSelector implements TestSelector {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        return true;
     }
 
     @Override

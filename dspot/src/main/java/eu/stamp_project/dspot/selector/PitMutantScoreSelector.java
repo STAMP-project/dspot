@@ -2,11 +2,14 @@ package eu.stamp_project.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.utils.pit.*;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.report.error.Error;
+import eu.stamp_project.utils.report.error.ErrorEnum;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
 import eu.stamp_project.utils.report.output.selector.mutant.json.MutantJSON;
@@ -45,7 +48,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
 
     private AbstractParser parser;
 
-    public enum OutputFormat {XML,CSV}
+    public enum OutputFormat {XML, CSV}
 
     private TestSelectorElementReport lastReport;
 
@@ -56,9 +59,11 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     public PitMutantScoreSelector(OutputFormat format) {
         this.testThatKilledMutants = new HashMap<>();
         switch (format) {
-            case XML: parser = new PitXMLResultParser();
+            case XML:
+                parser = new PitXMLResultParser();
                 break;
-            case CSV: parser = new PitCSVResultParser();
+            case CSV:
+                parser = new PitCSVResultParser();
                 break;
         }
     }
@@ -67,17 +72,18 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         this(consecutiveFormat);
         AbstractParser originalResultParser;
         switch (originalFormat) {
-            case CSV: parser = originalResultParser = new PitCSVResultParser();
+            case CSV:
+                parser = originalResultParser = new PitCSVResultParser();
                 break;
-            default: parser = originalResultParser = new PitXMLResultParser();
+            default:
+                parser = originalResultParser = new PitXMLResultParser();
                 break;
         }
         initOriginalPitResult(originalResultParser.parse(new File(pathToOriginalResultOfPit)));
     }
 
     @Override
-    public void init(InputConfiguration configuration) {
-        super.init(configuration);
+    public boolean init() {
         if (this.originalKilledMutants == null) {
             final AutomaticBuilder automaticBuilder = InputConfiguration.get().getBuilder();
             if (InputConfiguration.get().shouldTargetOneTestClass()) {
@@ -85,15 +91,21 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                         InputConfiguration.get().getFactory().Class().get(InputConfiguration.get().getTestClasses().get(0))
                 );
             } else {
-                automaticBuilder.runPit();
+                try {
+                    automaticBuilder.runPit();
+                } catch (Throwable e) {
+                    LOGGER.error(ErrorEnum.ERROR_ORIGINAL_MUTATION_SCORE.getMessage());
+                    Main.GLOBAL_REPORT.addError(new Error(ErrorEnum.ERROR_ORIGINAL_MUTATION_SCORE, e));
+                    return false;
+                }
             }
-            initOriginalPitResult(parser.parseAndDelete(this.configuration.getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit()) );
-        } else {
+            initOriginalPitResult(parser.parseAndDelete(InputConfiguration.get().getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit()));        } else {
             baselineKilledMutants = new ArrayList<>();
             for(AbstractPitResult r : originalKilledMutants) {
                 baselineKilledMutants.add(r.clone());
             }
         }
+        return true;
     }
 
     private void initOriginalPitResult(List<AbstractPitResult> results) {
@@ -144,12 +156,13 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         final String classpath = InputConfiguration.get().getBuilder()
                 .buildClasspath()
                 + AmplificationHelper.PATH_SEPARATOR +
-                this.configuration.getClasspathClassesProject()
+                InputConfiguration.get().getClasspathClassesProject()
                 + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies();
-        DSpotCompiler.compile(this.configuration, DSpotCompiler.getPathToAmplifiedTestSrc(), classpath,
-                new File(this.configuration.getAbsolutePathToTestClasses()));
+        DSpotCompiler.compile(InputConfiguration.get(), DSpotCompiler.getPathToAmplifiedTestSrc(), classpath,
+                new File(InputConfiguration.get().getAbsolutePathToTestClasses()));
+
         InputConfiguration.get().getBuilder().runPit(clone);
-        final List<AbstractPitResult> results = parser.parseAndDelete(this.configuration.getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit());
+        final List<AbstractPitResult> results = parser.parseAndDelete(InputConfiguration.get().getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit());
         Set<CtMethod<?>> selectedTests = new HashSet<>();
         if (results != null) {
             LOGGER.info("{} mutants has been generated ({})", results.size(), this.numberOfMutant);
@@ -218,7 +231,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     }
 
     private String reportStdout() {
-        return "Test class that has been amplified: "+ this.currentClassTestToBeAmplified.getQualifiedName() +
+        return "Test class that has been amplified: " + this.currentClassTestToBeAmplified.getQualifiedName() +
                 AmplificationHelper.LINE_SEPARATOR +
                 "The original test suite kills " +
                 this.originalKilledMutants.size() +
@@ -250,7 +263,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         }
         TestClassJSON testClassJSON;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        final File file = new File(this.configuration.getOutputDirectory() + "/" +
+        final File file = new File(InputConfiguration.get().getOutputDirectory() + "/" +
                 this.currentClassTestToBeAmplified.getQualifiedName() + "report.json");
         if (file.exists()) {
             try {

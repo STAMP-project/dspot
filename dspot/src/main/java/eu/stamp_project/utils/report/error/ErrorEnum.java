@@ -1,5 +1,6 @@
 package eu.stamp_project.utils.report.error;
 
+import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.program.ConstantsProperties;
 import eu.stamp_project.utils.program.InputConfigurationProperty;
 
@@ -43,7 +44,27 @@ public enum ErrorEnum {
     ERROR_PRE_SELECTION("Something bad happened during selection before amplification."),
     ERROR_INPUT_AMPLIFICATION("Something bad happened during input amplification."),
     ERROR_ASSERT_AMPLIFICATION("Something bad happened during assertion amplification"),
-    ERROR_SELECTION("Something bad happened during selection to keep amplified tests (post-amplification).");
+    ERROR_SELECTION("Something bad happened during selection to keep amplified tests (post-amplification)."),
+
+    /*
+        ERRORS LINKED TO A SPECIFIC IMPLEMENTATION
+     */
+
+    //  PitMutantScoreSelector
+    ERROR_ORIGINAL_MUTATION_SCORE("Something bad happened when DSpot tried to computed the original mutation score."
+            + AmplificationHelper.LINE_SEPARATOR +
+            "This is usually due to the value of the property " + ConstantsProperties.PIT_FILTER_CLASSES_TO_KEEP.getName() + "."
+            + AmplificationHelper.LINE_SEPARATOR +
+            ConstantsProperties.PIT_FILTER_CLASSES_TO_KEEP.getDescription()
+            + AmplificationHelper.LINE_SEPARATOR +
+            "This is can be also due to a specific configuration of your test suite. If any test fails,"
+            + AmplificationHelper.LINE_SEPARATOR +
+            "PIT (and so DSpot) won't be able to be executed. Please, check your environment variables,"
+            + AmplificationHelper.LINE_SEPARATOR +
+            "external files, etc. You can use " + ConstantsProperties.EXCLUDED_CLASSES + " and " + ConstantsProperties.EXCLUDED_TEST_CASES
+            + AmplificationHelper.LINE_SEPARATOR +
+            " to exclude respectively specific test classes ans test cases."
+    );
 
     private String message;
 

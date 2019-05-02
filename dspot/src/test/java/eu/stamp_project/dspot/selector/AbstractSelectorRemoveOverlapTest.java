@@ -43,7 +43,7 @@ public abstract class AbstractSelectorRemoveOverlapTest {
 
     @Test
     public void testRemoveOverlappingTests() throws Exception {
-        this.testSelectorUnderTest.init(Utils.getInputConfiguration());
+        this.testSelectorUnderTest.init();
         DSpot dspot = new DSpot(1, Arrays.asList(new StringLiteralAmplifier()), testSelectorUnderTest);
         dspot.amplifyTestClass("example.TestSuiteOverlapExample");
         final File directory = new File(DSpotUtils.shouldAddSeparator.apply(InputConfiguration.get().getOutputDirectory()));
