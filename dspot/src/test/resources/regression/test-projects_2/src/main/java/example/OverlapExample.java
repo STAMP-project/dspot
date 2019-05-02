@@ -1,6 +1,6 @@
 package example;
 
-public class DuplicationExample {
+public class OverlapExample {
 
 	/*
 	 * Return the index char of s 
@@ -25,7 +25,7 @@ public class DuplicationExample {
 		return s;
 	}
 	
-	public DuplicationExample() {
+	public OverlapExample() {
 		int variableInsideConstructor;
 		variableInsideConstructor = 15; 
 		index = 2 * variableInsideConstructor;

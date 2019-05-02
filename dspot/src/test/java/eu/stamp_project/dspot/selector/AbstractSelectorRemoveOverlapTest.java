@@ -3,13 +3,13 @@ package eu.stamp_project.dspot.selector;
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.dspot.amplifier.StringLiteralAmplifier;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.junit.Before;
 import org.junit.Test;
-import java.io.BufferedReader;
-import java.io.FileReader;
+import spoon.reflect.declaration.CtClass;
+import java.io.File;
 import java.util.Arrays;
-import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -25,11 +25,13 @@ public abstract class AbstractSelectorRemoveDuplicationTest {
 
     protected abstract TestSelector getTestSelector();
 
-    protected abstract String getPathToReportFileDuplication();
-
-    protected abstract String getContentReportFileDuplication();
+    protected abstract String getContentReportFile();
 
     protected TestSelector testSelectorUnderTest;
+
+    protected CtClass<?> getTestClass() {
+        return Utils.findClass("example.TestSuiteDuplicationExample");
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -41,14 +43,13 @@ public abstract class AbstractSelectorRemoveDuplicationTest {
 
     @Test
     public void testRemoveOverlappingTests() throws Exception {
+        this.testSelectorUnderTest.init(Utils.getInputConfiguration());
         DSpot dspot = new DSpot(1, Arrays.asList(new StringLiteralAmplifier()), testSelectorUnderTest);
         dspot.amplifyTestClass("example.TestSuiteDuplicationExample");
-        try (BufferedReader buffer = new BufferedReader(new FileReader(getPathToReportFileDuplication()))) {
-            assertEquals(getContentReportFileDuplication(),
-                    buffer.lines()
-                            .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        final File directory = new File(DSpotUtils.shouldAddSeparator.apply(InputConfiguration.get().getOutputDirectory()));
+        if (!directory.exists()) {
+            directory.mkdir();
         }
+        assertEquals(getContentReportFile(), this.testSelectorUnderTest.report().output(this.getTestClass()));
     }
 }
