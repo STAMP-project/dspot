@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 16/03/18
  */
-public abstract class AbstractSelectorRemoveDuplicationTest {
+public abstract class AbstractSelectorRemoveOverlapTest {
 
     protected String getPathToProperties() {
         return "src/test/resources/regression/test-projects_2/test-projects.properties";
@@ -30,7 +30,7 @@ public abstract class AbstractSelectorRemoveDuplicationTest {
     protected TestSelector testSelectorUnderTest;
 
     protected CtClass<?> getTestClass() {
-        return Utils.findClass("example.TestSuiteDuplicationExample");
+        return Utils.findClass("example.TestSuiteOverlapExample");
     }
 
     @Before
@@ -45,7 +45,7 @@ public abstract class AbstractSelectorRemoveDuplicationTest {
     public void testRemoveOverlappingTests() throws Exception {
         this.testSelectorUnderTest.init(Utils.getInputConfiguration());
         DSpot dspot = new DSpot(1, Arrays.asList(new StringLiteralAmplifier()), testSelectorUnderTest);
-        dspot.amplifyTestClass("example.TestSuiteDuplicationExample");
+        dspot.amplifyTestClass("example.TestSuiteOverlapExample");
         final File directory = new File(DSpotUtils.shouldAddSeparator.apply(InputConfiguration.get().getOutputDirectory()));
         if (!directory.exists()) {
             directory.mkdir();

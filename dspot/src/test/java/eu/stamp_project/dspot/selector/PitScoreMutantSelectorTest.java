@@ -19,11 +19,11 @@ public class PitScoreMutantSelectorTest {
                     we compare the mutation score before and after.
          */
 
-    private DuplicationDelegator duplicationDelegator = new DuplicationDelegator();
+    private OverlapDelegator overlapDelegator = new OverlapDelegator();
 
     private AmplificationDelegator amplificationDelegator = new AmplificationDelegator();
 
-    private class DuplicationDelegator extends AbstractSelectorRemoveDuplicationTest {
+    private class OverlapDelegator extends AbstractSelectorRemoveOverlapTest {
 
         @Override
         protected TestSelector getTestSelector() {
@@ -31,18 +31,11 @@ public class PitScoreMutantSelectorTest {
         }
 
         @Override
-        protected String getPathToReportFileDuplication() {
-            return "target/trash/example.TestSuiteDuplicationExample_mutants_report.txt";
-        }
-
-        @Override
-        protected String getContentReportFileDuplication() {
-            return AmplificationHelper.LINE_SEPARATOR +
-                    "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
-                    "PitMutantScoreSelector: " + AmplificationHelper.LINE_SEPARATOR +
+        protected String getContentReportFile() {
+            return "Test class that has been amplified: example.TestSuiteOverlapExample" + AmplificationHelper.LINE_SEPARATOR +
                     "The original test suite kills 2 mutants" + AmplificationHelper.LINE_SEPARATOR +
                     "The amplification results with 1 new tests" + AmplificationHelper.LINE_SEPARATOR +
-                    "it kills 3 more mutants";
+                    "it kills 3 more mutants" + AmplificationHelper.LINE_SEPARATOR;
         }
     }
 
@@ -70,12 +63,10 @@ public class PitScoreMutantSelectorTest {
 
         @Override
         protected String getContentReportFile() {
-            return AmplificationHelper.LINE_SEPARATOR +
-                    "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
-                    "PitMutantScoreSelector: " + AmplificationHelper.LINE_SEPARATOR +
+            return "Test class that has been amplified: example.TestSuiteExample" + AmplificationHelper.LINE_SEPARATOR +
                     "The original test suite kills 15 mutants" + AmplificationHelper.LINE_SEPARATOR +
                     "The amplification results with 1 new tests" + AmplificationHelper.LINE_SEPARATOR +
-                    "it kills 1 more mutants";
+                    "it kills 1 more mutants" + AmplificationHelper.LINE_SEPARATOR;
         }
     }
 
@@ -87,7 +78,7 @@ public class PitScoreMutantSelectorTest {
 
     @Test
     public void testRemoveOverlappingTests() throws Exception {
-        duplicationDelegator.setUp();
-        duplicationDelegator.testRemoveOverlappingTests();
+        overlapDelegator.setUp();
+        overlapDelegator.testRemoveOverlappingTests();
     }
 }
