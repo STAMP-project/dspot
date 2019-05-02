@@ -99,7 +99,8 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                     return false;
                 }
             }
-            initOriginalPitResult(parser.parseAndDelete(InputConfiguration.get().getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit()));        } else {
+            initOriginalPitResult(parser.parseAndDelete(InputConfiguration.get().getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit()));
+        } else {
             baselineKilledMutants = new ArrayList<>();
             for(AbstractPitResult r : originalKilledMutants) {
                 baselineKilledMutants.add(r.clone());
