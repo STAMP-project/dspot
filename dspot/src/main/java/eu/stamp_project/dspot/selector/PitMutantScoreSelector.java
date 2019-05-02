@@ -47,6 +47,8 @@ public class PitMutantScoreSelector extends TakeAllSelector {
 
     public enum OutputFormat {XML,CSV}
 
+    private TestSelectorElementReport lastReport;
+
     public PitMutantScoreSelector() {
         this(OutputFormat.XML);
     }
@@ -202,13 +204,17 @@ public class PitMutantScoreSelector extends TakeAllSelector {
 
     @Override
     public TestSelectorElementReport report() {
+        if(currentClassTestToBeAmplified == null) {
+            return lastReport;
+        }
         final String reportStdout = reportStdout();
         final TestClassJSON testClassJSON = reportJSONMutants();
         //clean up for the next class
         this.currentClassTestToBeAmplified = null;
         this.testThatKilledMutants.clear();
         this.selectedAmplifiedTest.clear();
-        return new TestSelectorElementReportImpl(reportStdout, testClassJSON);
+        lastReport = new TestSelectorElementReportImpl(reportStdout, testClassJSON);
+        return lastReport;
     }
 
     private String reportStdout() {
