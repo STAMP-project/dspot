@@ -268,7 +268,7 @@ public class MainTest {
     private static final String expectedReportExample = 
             "Initial instruction coverage: 30 / 34" + AmplificationHelper.LINE_SEPARATOR +
             "88" + AmplificationHelper.DECIMAL_SEPARATOR + "24%" + AmplificationHelper.LINE_SEPARATOR +
-            "Amplification results with 22 amplified tests." + AmplificationHelper.LINE_SEPARATOR +
+            "Amplification results with 5 amplified tests." + AmplificationHelper.LINE_SEPARATOR +
             "Amplified instruction coverage: 34 / 34" + AmplificationHelper.LINE_SEPARATOR +
             "100" + AmplificationHelper.DECIMAL_SEPARATOR + "00%" + AmplificationHelper.LINE_SEPARATOR;
 
