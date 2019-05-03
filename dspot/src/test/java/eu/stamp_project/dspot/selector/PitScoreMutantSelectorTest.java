@@ -2,6 +2,7 @@ package eu.stamp_project.dspot.selector;
 
 import eu.stamp_project.Utils;
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
+import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.Before;
 import spoon.reflect.declaration.CtMethod;
@@ -43,9 +44,9 @@ public class PitScoreMutantSelectorTest extends AbstractSelectorTest {
     @Override
     protected String getContentReportFile() {
         return "Test class that has been amplified: example.TestSuiteExample" + AmplificationHelper.LINE_SEPARATOR +
-                "The original test suite kills 15 mutants" + AmplificationHelper.LINE_SEPARATOR +
+                "The original test suite kills 45 mutants" + AmplificationHelper.LINE_SEPARATOR +
                 "The amplification results with 1 new tests" + AmplificationHelper.LINE_SEPARATOR +
-                "it kills 1 more mutants" + AmplificationHelper.LINE_SEPARATOR;
+                "it kills 2 more mutants" + AmplificationHelper.LINE_SEPARATOR;
     }
 
 }

@@ -1,8 +1,8 @@
 package eu.stamp_project.automaticbuilder.maven;
 
 import eu.stamp_project.Utils;
-import eu.stamp_project.utils.pit.AbstractPitResult;
-import eu.stamp_project.utils.pit.PitXMLResultParser;
+import eu.stamp_project.testrunner.listener.pit.AbstractPitResult;
+import eu.stamp_project.testrunner.listener.pit.PitXMLResultParser;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -33,6 +33,32 @@ public class MavenAutomaticBuilderTest {
     }
 
     @Test
+    public void testRunPitJUnit5() {
+
+        /*
+            test that we can run pit using maven on junit 5 tests
+         */
+
+        Utils.init("src/test/resources/sample/sample.properties");
+        InputConfiguration.get().setDescartesMode(true);
+        InputConfiguration.get().setJUnit5(true);
+        InputConfiguration.get().setPitFilterClassesToKeep("fr.inria.pit.*");
+
+        DSpotPOMCreator.createNewPom();
+
+        InputConfiguration.get().getBuilder().runPit(
+                Utils.findClass("fr.inria.pit.junit5.TestClass")
+        );
+        final List<? extends AbstractPitResult> pitResults =
+                parser.parseAndDelete(Utils.getInputConfiguration().getAbsolutePathToProjectRoot() + Utils.getBuilder().getOutputDirectoryPit());
+
+        assertEquals(1, pitResults.size());
+        assertEquals(0, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
+        assertEquals(1, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
+
+    }
+
+    @Test
     public void testGetDependenciesOf() throws Exception {
 
         try {
@@ -57,7 +83,7 @@ public class MavenAutomaticBuilderTest {
     public void testRunPit() throws Exception {
 
         Utils.init("src/test/resources/test-projects/test-projects.properties");
-        InputConfiguration.get().setFilter("");
+        InputConfiguration.get().setPitFilterClassesToKeep("");
 
         DSpotPOMCreator.createNewPom();
 
@@ -81,7 +107,7 @@ public class MavenAutomaticBuilderTest {
 
         Utils.init("src/test/resources/test-projects/test-projects.properties");
         InputConfiguration.get().setDescartesMode(true);
-        InputConfiguration.get().setFilter("");
+        InputConfiguration.get().setPitFilterClassesToKeep("");
 
         DSpotPOMCreator.createNewPom();
 
@@ -180,7 +206,7 @@ public class MavenAutomaticBuilderTest {
         Utils.init("src/test/resources/test-projects/test-projects.properties");
         InputConfiguration.get().setDescartesMode(false);
         final InputConfiguration inputConfiguration = Utils.getInputConfiguration();
-        inputConfiguration.setFilter("*");
+        inputConfiguration.setPitFilterClassesToKeep("*");
 
         DSpotPOMCreator.createNewPom();
         try {

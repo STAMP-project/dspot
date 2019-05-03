@@ -20,7 +20,7 @@ public class AutomaticBuilderHelperTest extends AbstractTest {
     public void testGetFilter() {
 
         /*
-            Test that getFilter returns the setted filter in the InputConfiguration
+            Test that getPitFilterClassesToKeep returns the setted filter in the InputConfiguration
          */
         
         Utils.reset();
@@ -32,21 +32,21 @@ public class AutomaticBuilderHelperTest extends AbstractTest {
     public void testGetFilterNoFilterSpecified() {
 
         /*
-            Test that getFilter compute on the fly the filter when no filter is specified in the InputConfiguration
+            Test that getPitFilterClassesToKeep compute on the fly the filter when no filter is specified in the InputConfiguration
          */
 
-        InputConfiguration.get().setFilter("");
+        InputConfiguration.get().setPitFilterClassesToKeep("");
         assertEquals("fr.inria.*", AutomaticBuilderHelper.getFilter());
     }
 
     @Test
     public void testGetFilterNoFilterSpecifiedAndClassInDefaultPackage() {
         /*
-            Test that getFilter compute on the fly the filter when no filter is specified in the InputConfiguration
+            Test that getPitFilterClassesToKeep compute on the fly the filter when no filter is specified in the InputConfiguration
                 and there is at least on class in the default package, i.e. no package
          */
 
-        InputConfiguration.get().setFilter("");
+        InputConfiguration.get().setPitFilterClassesToKeep("");
         InputConfiguration.get().getFactory().createClass("FakeClass");
         assertEquals("FakeClass,fr.inria.*", AutomaticBuilderHelper.getFilter());
     }
