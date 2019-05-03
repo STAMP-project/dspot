@@ -18,7 +18,7 @@ public class AutomaticBuilderHelper {
     private static final String MESSAGE_WARN_PIT_NO_FILTER = "You gave an empty filter. To use PIT, it is recommend to specify a filter, at least, the top package of your program, otherwise, PIT may take a long time or could not be run.";
 
     public static String getFilter() {
-        if (InputConfiguration.get().getFilter().isEmpty()) {
+        if (InputConfiguration.get().getPitFilterClassesToKeep().isEmpty()) {
             LOGGER.warn(MESSAGE_WARN_PIT_NO_FILTER);
             CtPackage currentPackage = InputConfiguration.get().getFactory().Package().getRootPackage();
             StringBuilder filter = new StringBuilder();
@@ -36,8 +36,8 @@ public class AutomaticBuilderHelper {
             }
             filter.append(currentPackage.getQualifiedName()).append(".*");
             LOGGER.info("A new filter has been computed on the fly: {}", filter.toString());
-            InputConfiguration.get().setFilter(filter.toString());
+            InputConfiguration.get().setPitFilterClassesToKeep(filter.toString());
         }
-        return InputConfiguration.get().getFilter();
+        return InputConfiguration.get().getPitFilterClassesToKeep();
     }
 }

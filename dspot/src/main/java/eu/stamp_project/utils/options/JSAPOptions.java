@@ -9,6 +9,7 @@ import com.martiansoftware.jsap.Parameter;
 import com.martiansoftware.jsap.Switch;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
+import eu.stamp_project.testrunner.listener.pit.AbstractParser;
 import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -62,14 +63,14 @@ public class JSAPOptions {
         Checker.checkEnum(BudgetizerEnum.class, budgetizer, "budgetizer");
 
         // pit output format
-        PitMutantScoreSelector.OutputFormat consecutiveFormat;
+        AbstractParser.OutputFormat consecutiveFormat;
         if (jsapConfig.getString("pit-output-format").toLowerCase().equals("xml")) {
-            consecutiveFormat = PitMutantScoreSelector.OutputFormat.XML;
+            consecutiveFormat = AbstractParser.OutputFormat.XML;
         } else if (jsapConfig.getString("pit-output-format").toLowerCase().equals("csv")) {
-            consecutiveFormat = PitMutantScoreSelector.OutputFormat.CSV;
+            consecutiveFormat = AbstractParser.OutputFormat.CSV;
         } else {
             LOGGER.warn("You specified an invalid format. Forcing the Pit output format to XML.");
-            consecutiveFormat = PitMutantScoreSelector.OutputFormat.XML;
+            consecutiveFormat = AbstractParser.OutputFormat.XML;
         }
 
         // expert test selector mode
@@ -80,14 +81,14 @@ public class JSAPOptions {
                 LOGGER.warn("Forcing the Selector to PitMutantScoreSelector");
             }
             String pathToOriginalResultOfPit = jsapConfig.getString("mutant");
-            PitMutantScoreSelector.OutputFormat originalFormat;
+            AbstractParser.OutputFormat originalFormat;
             if (pathToOriginalResultOfPit.toLowerCase().endsWith(".xml")) {
-                originalFormat = PitMutantScoreSelector.OutputFormat.XML;
+                originalFormat = AbstractParser.OutputFormat.XML;
             } else if (pathToOriginalResultOfPit.toLowerCase().endsWith(".csv")) {
-                originalFormat = PitMutantScoreSelector.OutputFormat.CSV;
+                originalFormat = AbstractParser.OutputFormat.CSV;
             } else {
                 LOGGER.warn("You specified the wrong Pit format. Skipping expert mode.");
-                originalFormat = PitMutantScoreSelector.OutputFormat.XML;
+                originalFormat = AbstractParser.OutputFormat.XML;
             }
             testCriterion = new PitMutantScoreSelector(jsapConfig.getString("mutant"), originalFormat, consecutiveFormat);
 
@@ -216,7 +217,7 @@ public class JSAPOptions {
         pitOutputFormat.setLongFlag("pit-output-format");
         pitOutputFormat.setStringParser(JSAP.STRING_PARSER);
         pitOutputFormat.setUsageName("XML | CSV");
-        pitOutputFormat.setHelp("[optional] specify the Pit output format." + JSAPOptions.helpForEnums(PitMutantScoreSelector.OutputFormat.class));
+        pitOutputFormat.setHelp("[optional] specify the Pit output format." + JSAPOptions.helpForEnums(AbstractParser.OutputFormat.class));
         pitOutputFormat.setDefault("XML");
 
         FlaggedOption specificTestClass = new FlaggedOption("test");

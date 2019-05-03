@@ -6,6 +6,7 @@ import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
+import eu.stamp_project.testrunner.utils.ConstantsHelper;
 import eu.stamp_project.utils.DSpotCache;
 import eu.stamp_project.utils.options.BudgetizerEnum;
 import eu.stamp_project.testrunner.EntryPoint;
@@ -215,7 +216,7 @@ public class InputConfiguration {
 
         this.setOutputDirectory(ConstantsProperties.OUTPUT_DIRECTORY.get(properties))
                 .setDelta(ConstantsProperties.DELTA_ASSERTS_FLOAT.get(properties))
-                .setFilter(ConstantsProperties.PIT_FILTER_CLASSES_TO_KEEP.get(properties))
+                .setPitFilterClassesToKeep(ConstantsProperties.PIT_FILTER_CLASSES_TO_KEEP.get(properties))
                 .setDescartesVersion(ConstantsProperties.DESCARTES_VERSION.get(properties))
                 .setExcludedClasses(ConstantsProperties.EXCLUDED_CLASSES.get(properties))
                 .setPreGoalsTestExecution(ConstantsProperties.MAVEN_PRE_GOALS.get(properties))
@@ -649,14 +650,14 @@ public class InputConfiguration {
         Pit properties
      */
 
-    private String filter;
+    private String pitFilterClassesToKeep;
 
-    public String getFilter() {
-        return filter;
+    public String getPitFilterClassesToKeep() {
+        return pitFilterClassesToKeep;
     }
 
-    public InputConfiguration setFilter(String filter) {
-        this.filter = filter;
+    public InputConfiguration setPitFilterClassesToKeep(String pitFilterClassesToKeep) {
+        this.pitFilterClassesToKeep = pitFilterClassesToKeep;
         return this;
     }
 
@@ -714,10 +715,15 @@ public class InputConfiguration {
     public InputConfiguration setDescartesMode(boolean descartesMode) {
         this.descartesMode = descartesMode;
         if (this.descartesMode) {
-            this.setPitVersion("1.4.0"); // forcing pit version 1.4.0 to work with descartes
+            this.setPitVersion("1.4.7"); // forcing pit version 1.4.0 to work with descartes
         } else if (this.getPitVersion() == null) {
-            this.setPitVersion("1.4.0");
+            this.setPitVersion("1.4.7");
         }
+        EntryPoint.setMutationEngine(
+                this.descartesMode ?
+                ConstantsHelper.MutationEngine.DESCARTES :
+                ConstantsHelper.MutationEngine.GREGOR
+        );
         return this;
     }
 
@@ -967,7 +973,8 @@ public class InputConfiguration {
     }
 
     public void setJUnit5(boolean JUnit5) {
-        isJUnit5 = JUnit5;
+        this.isJUnit5 = JUnit5;
+        EntryPoint.jUnit5Mode = this.isJUnit5;
     }
 
     private boolean targetOneTestClass = false;

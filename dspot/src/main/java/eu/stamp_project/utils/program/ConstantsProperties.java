@@ -192,14 +192,14 @@ public class ConstantsProperties {
             new InputConfigurationProperty(
                     "pitVersion",
                     "specify the version of PIT to use.",
-                    "1.4.0"
+                    "1.4.7"
             );
 
     public static final InputConfigurationProperty DESCARTES_VERSION =
             new InputConfigurationProperty(
                     "descartesVersion",
                     "specify the version of pit-descartes to use.",
-                    "1.2.4"
+                    "1.2.5"
             );
 
     public static final InputConfigurationProperty EXCLUDED_CLASSES =

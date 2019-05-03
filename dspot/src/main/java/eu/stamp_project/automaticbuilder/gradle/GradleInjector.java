@@ -231,11 +231,11 @@ public class GradleInjector {
     }
 
     private String getPitTaskOptions(CtType<?>... testClasses) {
-        if (InputConfiguration.get().getFilter() == null || InputConfiguration.get().getFilter().isEmpty()) {
+        if (InputConfiguration.get().getPitFilterClassesToKeep() == null || InputConfiguration.get().getPitFilterClassesToKeep().isEmpty()) {
             AutomaticBuilderHelper.getFilter();
         }
         return AmplificationHelper.LINE_SEPARATOR + "pitest {" + AmplificationHelper.LINE_SEPARATOR +
-                "    " + OPT_TARGET_CLASSES + "['" + InputConfiguration.get().getFilter() + "']" + AmplificationHelper.LINE_SEPARATOR +
+                "    " + OPT_TARGET_CLASSES + "['" + InputConfiguration.get().getPitFilterClassesToKeep() + "']" + AmplificationHelper.LINE_SEPARATOR +
                 "    " + OPT_WITH_HISTORY + "true" + AmplificationHelper.LINE_SEPARATOR +
                 "    " + OPT_VALUE_REPORT_DIR + AmplificationHelper.LINE_SEPARATOR +
                 "    " + OPT_VALUE_FORMAT + AmplificationHelper.LINE_SEPARATOR +
