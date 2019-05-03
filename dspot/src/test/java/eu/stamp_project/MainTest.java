@@ -125,7 +125,7 @@ public class MainTest {
     public void testMainWithPitScoreSelectorWithMavenToExecuteTests() throws Exception {
 
         /*
-            same as testMainWithPitScoreSelector but using the options --use-maven-to-exe-test enabled,
+            same as testMainWithPitScoreSelector but using the options --use-automatic-builder enabled,
                 i.e. using maven to execute the test
          */
 
@@ -137,7 +137,7 @@ public class MainTest {
                 "--path-pit-result", "src/test/resources/sample/mutations.csv",
                 "--gregor",
                 "--output-path", "target/trash",
-                "--use-maven-to-exe-test"
+                "--use-automatic-builder"
         });
 
         assertTrue(new File("target/trash/fr.inria.sample.TestClassWithoutAssert_report.json").exists());
