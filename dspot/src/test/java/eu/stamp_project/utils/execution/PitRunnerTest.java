@@ -1,32 +1,37 @@
 package eu.stamp_project.utils.execution;
 
-import eu.stamp_project.testrunner.EntryPoint;
+import eu.stamp_project.AbstractTest;
+import eu.stamp_project.Utils;
 import eu.stamp_project.testrunner.listener.pit.AbstractPitResult;
-import eu.stamp_project.testrunner.utils.ConstantsHelper;
 import eu.stamp_project.utils.program.InputConfiguration;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.pitest.mutationtest.engine.gregor.GregorMutationEngine;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
  * on 07/04/19
  */
-public class PitRunnerTest {
+public class PitRunnerTest extends AbstractTest {
 
-    @BeforeEach
-    void setUp() {
-        InputConfiguration.initialize("src/test/resources/sample/sample.properties");
-        EntryPoint.setMutationEngine(ConstantsHelper.MutationEngine.DESCARTES);
+    @Before
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        InputConfiguration.get().getBuilder().reset();
+        InputConfiguration.get().setPitFilterClassesToKeep("fr.inria.sample.*");
+        InputConfiguration.get().setUseAutomaticBuilder(false);
+        InputConfiguration.get().setJUnit5(false);
+        InputConfiguration.get().setDescartesMode(true);
     }
 
     @Test
-    void testRunPitAPI() {
+    public void testRunPitAPI() {
 
         /*
             Test execution of pit using API
@@ -36,26 +41,32 @@ public class PitRunnerTest {
 
         // DESCARTES MODE (default)
 
+        InputConfiguration.get().setPitFilterClassesToKeep("fr.inria.pit.*");
         List<? extends AbstractPitResult> pitResults =
-                //PitRunner.runPit(InputConfiguration.get().getFilter());
-                PitRunner.runPit("fr.inria.testframework.TestSupportJUnit5");
-        assertEquals(2, pitResults.size());
-        assertEquals(2, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
+                new PitRunner().runPit(Utils.findClass("fr.inria.pit.TestClass"));
+        assertEquals(1, pitResults.size());
+        assertEquals(1, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
+        assertEquals(0, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
+
+        // RUN ALL THE TEST
+
+        InputConfiguration.get().setPitFilterClassesToKeep("fr.inria.pit.*");
+        pitResults = new PitRunner().runPit();
+        assertEquals(1, pitResults.size());
+        assertEquals(1, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
         assertEquals(0, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
 
         // GREGOR MODE (with ALL mutators)
 
-        EntryPoint.setMutationEngine(ConstantsHelper.MutationEngine.GREGOR);
-        pitResults =
-                //PitRunner.runPit(InputConfiguration.get().getFilter());
-                PitRunner.runPit("fr.inria.testframework.TestSupportJUnit5");
-        System.out.println(pitResults.size());
-        System.out.println(pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
-        System.out.println(pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
+        InputConfiguration.get().setDescartesMode(false);
+        pitResults = new PitRunner().runPit(Utils.findClass("fr.inria.pit.TestClass"));
+        assertEquals(24, pitResults.size());
+        assertEquals(19, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
+        assertEquals(5, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
     }
 
     @Test
-    void testRunPitAPIJUnit5() {
+    public void testRunPitAPIJUnit5() {
 
         /*
             Test execution of pit using API
@@ -65,28 +76,105 @@ public class PitRunnerTest {
 
         // DESCARTES MODE (default)
 
-        List<? extends AbstractPitResult> pitResults =
-                PitRunner.runPit(InputConfiguration.get().getFilter());
-        assertEquals(2, pitResults.size());
-        assertEquals(2, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
+        InputConfiguration.get().setJUnit5(true);
+        InputConfiguration.get().setPitFilterClassesToKeep("fr.inria.pit.*");
+        List<? extends AbstractPitResult> pitResults = new PitRunner().runPit(Utils.findClass("fr.inria.pit.junit5.TestClass"));
+        assertEquals(1, pitResults.size());
+        assertEquals(1, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
+        assertEquals(0, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
+
+        // RUN ALL THE TEST
+
+        InputConfiguration.get().setPitFilterClassesToKeep("fr.inria.pit.*");
+        pitResults = new PitRunner().runPit();
+        assertEquals(1, pitResults.size());
+        assertEquals(1, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
         assertEquals(0, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
 
         // GREGOR MODE (with ALL mutators)
 
-        EntryPoint.setMutationEngine(ConstantsHelper.MutationEngine.GREGOR);
-        pitResults = PitRunner.runPit(InputConfiguration.get().getFilter());
-        System.out.println(pitResults.size());
-        System.out.println(pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
-        System.out.println(pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
+        InputConfiguration.get().setDescartesMode(false);
+        pitResults = new PitRunner().runPit(Utils.findClass("fr.inria.pit.junit5.TestClass"));
+        assertEquals(24, pitResults.size());
+        assertEquals(19, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
+        assertEquals(5, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
     }
 
     @Test
-    void testRunPitAutomaticBuilder() {
+    public void testRunPitAutomaticBuilder() {
 
         /*
-            Test execution of pit using API
+            Test execution of pit using maven
          */
 
+        // DESCARTES MODE (default)
+
+        InputConfiguration.get().setPitFilterClassesToKeep("fr.inria.pit.*");
+        InputConfiguration.get().setUseAutomaticBuilder(true);
+        List<? extends AbstractPitResult> pitResults =
+                new PitRunner().runPit(Utils.findClass("fr.inria.pit.TestClass"));
+        assertEquals(1, pitResults.size());
+        assertEquals(1, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
+        assertEquals(0, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
+
+        // RUN ALL THE TEST
+
+        InputConfiguration.get().setPitFilterClassesToKeep("fr.inria.pit.*");
+        pitResults = new PitRunner().runPit();
+        assertEquals(1, pitResults.size());
+        assertEquals(1, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
+        assertEquals(0, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
+
+        // GREGOR MODE (with ALL mutators)
+
+        InputConfiguration.get().getBuilder().reset();
+        InputConfiguration.get().setDescartesMode(false);
+        pitResults = new PitRunner().runPit(Utils.findClass("fr.inria.pit.TestClass"));
+        assertEquals(31, pitResults.size());
+        assertEquals(24, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
+        assertEquals(7, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
+    }
+
+    @Ignore
+    @Test
+    public void testRunPitAutomaticBuilderJUnit5() {
+
+        /*
+            Test execution of pit using maven on junit 5
+                TODO
+                Cannot be run, it seems that the sample project is not well formed
+                the mixin of junit4 and junit5 tests are breaking the maven execution
+
+         */
+
+        // DESCARTES MODE (default)
+
+        InputConfiguration.get().setJUnit5(true);
+        InputConfiguration.get().setPitFilterClassesToKeep("fr.inria.pit.*");
+        InputConfiguration.get().setUseAutomaticBuilder(true);
+        InputConfiguration.get().getBuilder().reset();
+        List<? extends AbstractPitResult> pitResults =
+                new PitRunner().runPit(Utils.findClass("fr.inria.pit.TestClass"));
+        assertEquals(1, pitResults.size());
+        assertEquals(1, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
+        assertEquals(0, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
+
+        // RUN ALL THE TEST
+
+        InputConfiguration.get().setPitFilterClassesToKeep("fr.inria.pit.*");
+        pitResults = new PitRunner().runPit();
+        assertEquals(1, pitResults.size());
+        assertEquals(1, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
+        assertEquals(0, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
+
+        // GREGOR MODE (with ALL mutators)
+
+        InputConfiguration.get().getBuilder().reset();
+        InputConfiguration.get().setDescartesMode(false);
+        pitResults = new PitRunner().runPit(Utils.findClass("fr.inria.pit.TestClass"));
+        assertEquals(31, pitResults.size());
+        assertEquals(24, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count());
+        assertEquals(7, pitResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.SURVIVED).count());
     }
 
 }
