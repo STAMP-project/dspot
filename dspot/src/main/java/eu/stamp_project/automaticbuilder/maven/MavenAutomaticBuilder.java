@@ -151,7 +151,9 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     }
 
     private int runGoals(boolean specificPom, String... goals) {
-        if (specificPom && !new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.getPOMName()).exists()) {
+        if (specificPom &&
+                !this.hasGeneratePom &&
+                !new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.getPOMName()).exists()) {
             DSpotPOMCreator.createNewPom();
             this.hasGeneratePom = true;
         }
