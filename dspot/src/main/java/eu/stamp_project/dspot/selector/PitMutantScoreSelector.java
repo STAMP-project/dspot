@@ -2,14 +2,14 @@ package eu.stamp_project.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.Main;
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.utils.pit.*;
+import eu.stamp_project.testrunner.listener.pit.AbstractParser;
+import eu.stamp_project.testrunner.listener.pit.AbstractPitResult;
+import eu.stamp_project.testrunner.listener.pit.PitCSVResultParser;
+import eu.stamp_project.testrunner.listener.pit.PitXMLResultParser;
+import eu.stamp_project.utils.execution.PitRunner;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.report.error.Error;
-import eu.stamp_project.utils.report.error.ErrorEnum;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
 import eu.stamp_project.utils.report.output.selector.mutant.json.MutantJSON;
@@ -38,41 +38,37 @@ public class PitMutantScoreSelector extends TakeAllSelector {
 
     private int numberOfMutant;
 
-    private List<AbstractPitResult> originalKilledMutants;
+    private List<? extends AbstractPitResult> originalKilledMutants;
 
     private Map<CtMethod, Set<AbstractPitResult>> testThatKilledMutants;
 
     private List<AbstractPitResult> mutantNotTestedByOriginal;
 
-    private AbstractParser parser;
+    private PitRunner pitRunner;
 
-    public enum OutputFormat {XML, CSV}
+    private HashMap<AbstractPitResult, CtMethod<?>> methodPerMutant;
 
     public PitMutantScoreSelector() {
-        this(OutputFormat.XML);
+        this(AbstractParser.OutputFormat.XML);
     }
 
-    public PitMutantScoreSelector(OutputFormat format) {
+    public PitMutantScoreSelector(AbstractParser.OutputFormat format) {
         this.testThatKilledMutants = new HashMap<>();
-        switch (format) {
-            case XML:
-                parser = new PitXMLResultParser();
-                break;
-            case CSV:
-                parser = new PitCSVResultParser();
-                break;
-        }
+        this.pitRunner = new PitRunner(format);
+        this.methodPerMutant = new HashMap<>();
     }
 
-    public PitMutantScoreSelector(String pathToOriginalResultOfPit, OutputFormat originalFormat, OutputFormat consecutiveFormat) {
+    public PitMutantScoreSelector(String pathToOriginalResultOfPit,
+                                  AbstractParser.OutputFormat originalFormat,
+                                  AbstractParser.OutputFormat consecutiveFormat) {
         this(consecutiveFormat);
         AbstractParser originalResultParser;
         switch (originalFormat) {
             case CSV:
-                parser = originalResultParser = new PitCSVResultParser();
+                originalResultParser = new PitCSVResultParser();
                 break;
             default:
-                parser = originalResultParser = new PitXMLResultParser();
+                originalResultParser = new PitXMLResultParser();
                 break;
         }
         initOriginalPitResult(originalResultParser.parse(new File(pathToOriginalResultOfPit)));
@@ -81,26 +77,21 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     @Override
     public boolean init() {
         if (this.originalKilledMutants == null) {
-            final AutomaticBuilder automaticBuilder = InputConfiguration.get().getBuilder();
+            final List<? extends AbstractPitResult> results;
             if (InputConfiguration.get().shouldTargetOneTestClass()) {
-                automaticBuilder.runPit(
-                        InputConfiguration.get().getFactory().Class().get(InputConfiguration.get().getTestClasses().get(0))
-                );
+                results = this.pitRunner.runPit(InputConfiguration.get().getFactory().Class().get(InputConfiguration.get().getTestClasses().get(0)));
             } else {
-                try {
-                    automaticBuilder.runPit();
-                } catch (Throwable e) {
-                    LOGGER.error(ErrorEnum.ERROR_ORIGINAL_MUTATION_SCORE.getMessage());
-                    Main.GLOBAL_REPORT.addError(new Error(ErrorEnum.ERROR_ORIGINAL_MUTATION_SCORE, e));
-                    return false;
-                }
+                results = this.pitRunner.runPit();
             }
-            initOriginalPitResult(parser.parseAndDelete(InputConfiguration.get().getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit()));
+            if (results == null) {
+                return false;
+            }
+            initOriginalPitResult(results);
         }
         return true;
     }
 
-    private void initOriginalPitResult(List<AbstractPitResult> results) {
+    private void initOriginalPitResult(List<? extends AbstractPitResult> results) {
         this.numberOfMutant = results.size();
         this.mutantNotTestedByOriginal = results.stream()
                 .filter(result -> result.getStateOfMutant() != AbstractPitResult.State.KILLED)
@@ -135,7 +126,6 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));
-        final AutomaticBuilder automaticBuilder = InputConfiguration.get().getBuilder();
         final String classpath = InputConfiguration.get().getBuilder()
                 .buildClasspath()
                 + AmplificationHelper.PATH_SEPARATOR +
@@ -145,8 +135,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         DSpotCompiler.compile(InputConfiguration.get(), DSpotCompiler.getPathToAmplifiedTestSrc(), classpath,
                 new File(InputConfiguration.get().getAbsolutePathToTestClasses()));
 
-        InputConfiguration.get().getBuilder().runPit(clone);
-        final List<AbstractPitResult> results = parser.parseAndDelete(InputConfiguration.get().getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit());
+        final List<? extends AbstractPitResult> results = this.pitRunner.runPit(clone);
 
         Set<CtMethod<?>> selectedTests = new HashSet<>();
         if (results != null) {
@@ -159,7 +148,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                             !this.originalKilledMutants.contains(result) &&
                             !this.mutantNotTestedByOriginal.contains(result))
                     .forEach(result -> {
-                        CtMethod method = result.getMethod(clone);
+                        CtMethod method = this.getMethod(result, clone);
                         if (killsMoreMutantThanParents(method, result)) {
                             if (!testThatKilledMutants.containsKey(method)) {
                                 testThatKilledMutants.put(method, new HashSet<>());
@@ -184,6 +173,26 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                                 this.testThatKilledMutants.get(selectedTest).size() : this.testThatKilledMutants.get(null))
         );
         return new ArrayList<>(selectedTests);
+    }
+
+
+    private CtMethod getMethod(AbstractPitResult result, CtType<?> ctClass) {
+        if ("none".equals(result.getSimpleNameMethod())) {
+            return null;
+        } else {
+            if (!this.methodPerMutant.containsKey(result)) {
+                List<CtMethod<?>> methodsByName = ctClass.getMethodsByName(result.getSimpleNameMethod());
+                if (methodsByName.isEmpty()) {
+                    if (ctClass.getSuperclass() != null) {
+                        return getMethod(result, ctClass.getSuperclass().getDeclaration());
+                    } else {
+                        return null;
+                    }
+                }
+                this.methodPerMutant.put(result, methodsByName.get(0));
+            }
+            return this.methodPerMutant.get(result);
+        }
     }
 
     private boolean killsMoreMutantThanParents(CtMethod test, AbstractPitResult result) {
