@@ -29,6 +29,7 @@ dspot/src/test/resources/multiple-pom_1/module-1/module-2-1/.dspot__junit5_pom.x
 dspot/src/test/resources/project-with-resources/.dspot__junit5_pom.xml
 dspot/src/test/resources/regression/test-projects_0/.dspot__junit5_pom.xml
 dspot/src/test/resources/regression/test-projects_1/.dspot__junit5_pom.xml
+dspot/src/test/resources/regression/test-projects_2/.dspot__junit5_pom.xml
 dspot/src/test/resources/sample/.dspot__junit5_pom.xml
 dspot/src/test/resources/test-projects/.dspot__junit5_pom.xml
 dspot-maven/src/test/resources/multi-module/module/.dspot__junit5_pom.xml
