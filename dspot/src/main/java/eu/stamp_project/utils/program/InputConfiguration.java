@@ -232,9 +232,9 @@ public class InputConfiguration {
 
     // this method is called only if the option
     private void initializeBuilder(Properties properties) {
-        this.setMavenHome(ConstantsProperties.MAVEN_HOME.get(properties));
-        this.builder = AutomaticBuilderFactory.getAutomaticBuilder(this.getBuilderName());
-        this.classpath = this.builder.compileAndBuildClasspath();
+        this.setMavenHome(ConstantsProperties.MAVEN_HOME.get(properties))
+                .setBuilder(AutomaticBuilderFactory.getAutomaticBuilder(this.getBuilderName()))
+                .setClasspath(this.builder.compileAndBuildClasspath());
 
         // TODO checks this. Since we support different Test Support, we may not need to add artificially junit in the classpath
         if (!this.classpath.contains("junit" + File.separator + "junit" + File.separator + "4")) {
@@ -305,7 +305,7 @@ public class InputConfiguration {
                                 pathToProjectRoot
                         ) + targetModule
                 ).getAbsolutePath()
-                ).setPathToSourceCode(pathToSource)
+        ).setPathToSourceCode(pathToSource)
                 .setPathToTestSourceCode(pathToTestSource)
                 .setPathToClasses(pathToClasses)
                 .setPathToTestClasses(pathToTestClasses)
@@ -454,7 +454,6 @@ public class InputConfiguration {
     }
 
     /**
-     *
      * @return the full classpath of the project This full classpath is composed of: the returned values of {@link #getClasspathClassesProject} and {@link #getClasspath()} separated by the path separator of the system, <i>i.e.</i> as a classpath.
      */
     public String getFullClassPath() {
@@ -721,8 +720,8 @@ public class InputConfiguration {
         }
         EntryPoint.setMutationEngine(
                 this.descartesMode ?
-                ConstantsHelper.MutationEngine.DESCARTES :
-                ConstantsHelper.MutationEngine.GREGOR
+                        ConstantsHelper.MutationEngine.DESCARTES :
+                        ConstantsHelper.MutationEngine.GREGOR
         );
         return this;
     }

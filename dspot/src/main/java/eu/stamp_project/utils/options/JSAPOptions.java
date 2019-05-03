@@ -124,8 +124,11 @@ public class JSAPOptions {
         // we check now the binaries folders after the compilation
         Checker.checkBinariesFolders(properties);
 
+        if (jsapConfig.getString("classpath") != null) {
+            InputConfiguration.get()
+                    .setClasspath(jsapConfig.getString("classpath"));
+        }
         InputConfiguration.get()
-                .setClasspath(jsapConfig.getString("classpath"))
                 .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(amplifiers))
                 .setNbIteration(jsapConfig.getInt("iteration"))
                 .setTestClasses(testClasses)
