@@ -230,7 +230,7 @@ public class InputConfiguration {
         }
     }
 
-    // this method is called only if the option 
+    // this method is called only if the option
     private void initializeBuilder(Properties properties) {
         this.setMavenHome(ConstantsProperties.MAVEN_HOME.get(properties));
         this.builder = AutomaticBuilderFactory.getAutomaticBuilder(this.getBuilderName());
