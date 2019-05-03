@@ -80,6 +80,7 @@ public class DSpotPOMCreator {
     private static final String DSPOT_POM_FILE = ".dspot_";
 
     private static final String SUFFIX_JUNIT5 = "_junit5_";
+    public static final String MUTATOR = "mutator";
 
     public static void createNewPom() {
         new DSpotPOMCreator(true)._innerCreatePom();
@@ -300,7 +301,7 @@ public class DSpotPOMCreator {
 
     private static final String JUNIT5_PIT_PLUGIN = "pitest-junit5-plugin";
 
-    private static final String JUNIT5_PIT_PLUGIN_VERSION = "0.7";
+    private static final String JUNIT5_PIT_PLUGIN_VERSION = "0.8";
 
     private Element createDependencies(Document document) {
         final Element dependencies = document.createElement(DEPENDENCIES);
@@ -417,7 +418,9 @@ public class DSpotPOMCreator {
             if (!InputConfiguration.get().getDescartesMutators().isEmpty() && InputConfiguration.get().isDescartesMode()) {
                 appendValuesToGivenNode(document, mutators, InputConfiguration.get().getDescartesMutators().split(","));
             } else {
-                appendValuesToGivenNode(document, mutators, GREGOR_MUTATORS);
+                final Element value = document.createElement(MUTATOR);
+                value.setTextContent(GREGOR_MUTATORS);
+                mutators.appendChild(value);
             }
             configuration.appendChild(mutators);
         }
