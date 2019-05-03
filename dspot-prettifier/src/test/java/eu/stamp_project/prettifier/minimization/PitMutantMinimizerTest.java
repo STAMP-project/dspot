@@ -2,9 +2,8 @@ package eu.stamp_project.prettifier.minimization;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.prettifier.options.InputConfiguration;
 import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.pit.AbstractPitResult;
+import eu.stamp_project.testrunner.listener.pit.AbstractPitResult;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;

@@ -1,6 +1,7 @@
 package eu.stamp_project;
 
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
+import eu.stamp_project.testrunner.listener.pit.AbstractParser;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.options.AmplifierEnum;
@@ -270,8 +271,8 @@ public class DSpotMojo extends AbstractMojo {
             if (this.pathPitResult != null && !this.pathPitResult.isEmpty()) {
                 InputConfiguration.get().setSelector(new PitMutantScoreSelector(this.pathPitResult,
                         this.pathPitResult.endsWith(".xml") ?
-                                PitMutantScoreSelector.OutputFormat.XML : PitMutantScoreSelector.OutputFormat.CSV,
-                        PitMutantScoreSelector.OutputFormat.XML)
+                                AbstractParser.OutputFormat.XML : AbstractParser.OutputFormat.CSV,
+                        AbstractParser.OutputFormat.XML)
                 );
             } else {
                 InputConfiguration.get().setSelector(SelectorEnum.valueOf(this.testCriterion).buildSelector());
