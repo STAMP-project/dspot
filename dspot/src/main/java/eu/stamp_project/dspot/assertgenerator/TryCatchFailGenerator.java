@@ -22,7 +22,8 @@ public class TryCatchFailGenerator {
         this.numberOfFail = 0;
     }
 
-    private final static List<String> UNSUPPORTED_EXECEPTION = Arrays.asList(
+    private final static List<String> UNSUPPORTED_EXCEPTION = Arrays.asList(
+            "junit.framework.ComparisonFailure",
             "org.junit.runners.model.TestTimedOutException",
             "java.lang.OutOfMemoryError",
             "java.lang.StackOverflowError",
@@ -43,7 +44,7 @@ public class TryCatchFailGenerator {
         cloneMethodTest.setSimpleName(test.getSimpleName());
         // TestTimedOutException means infinite loop
         // AssertionError means that some assertion remained in the test: TODO
-        if (UNSUPPORTED_EXECEPTION.contains(failure.fullQualifiedNameOfException)) {
+        if (UNSUPPORTED_EXCEPTION.contains(failure.fullQualifiedNameOfException)) {
             return null;
         }
         cloneMethodTest = TestFramework.get().generateExpectedExceptionsBlock(cloneMethodTest, failure, this.numberOfFail);
