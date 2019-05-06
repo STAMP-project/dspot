@@ -21,6 +21,8 @@ import spoon.reflect.reference.CtWildcardReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
 
+import java.io.File;
+import java.net.URL;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -31,6 +33,22 @@ import java.util.regex.Pattern;
  * on 3/3/17
  */
 public class AssertGeneratorHelper {
+
+    public static boolean containsAPath(String candidate) {
+        new File("");
+        if (new File(candidate).exists()) {
+            return true;
+        }
+        if (Pattern.compile(".*((.*/)+).*").matcher(candidate).matches()) {
+            return true;
+        }
+        try {
+            new URL(candidate);
+            return true;
+        } catch (Exception e) {
+            return  false;
+        }
+    }
 
     public static boolean containsObjectReferences(String candidate) {
         return candidate != null &&

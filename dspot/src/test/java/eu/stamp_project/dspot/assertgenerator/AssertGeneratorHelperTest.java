@@ -6,6 +6,7 @@ import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.program.InputConfiguration;
+import org.junit.Assert;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
@@ -29,6 +30,19 @@ import static org.junit.Assert.assertTrue;
  * on 12/06/17
  */
 public class AssertGeneratorHelperTest extends AbstractTest {
+
+    @Test
+    public void testContainsAPath() {
+
+        /*
+            Test the method to check if a string contains a path
+         */
+
+        assertTrue(AssertGeneratorHelper.containsAPath(InputConfiguration.get().getAbsolutePathToProjectRoot()));
+        assertTrue(AssertGeneratorHelper.containsAPath("yes/no"));
+        assertTrue(AssertGeneratorHelper.containsAPath(InputConfiguration.get().getAbsolutePathToProjectRoot() + " is a directory"));
+        assertFalse(AssertGeneratorHelper.containsAPath("This is not a path"));
+    }
 
     @Test
     public void testGetCorrectTypeOfInvocation() {
