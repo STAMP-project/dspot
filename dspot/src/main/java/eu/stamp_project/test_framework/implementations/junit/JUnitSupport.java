@@ -166,7 +166,8 @@ public abstract class JUnitSupport extends AbstractTestFramework {
                 factory.createVariableRead(parameter.getReference(), false),
                 factory.Class().get(java.lang.Throwable.class).getMethodsByName("getMessage").get(0).getReference()
         );
-        if (!AssertGeneratorHelper.containsObjectReferences(failure.messageOfFailure)) {
+        if (!AssertGeneratorHelper.containsObjectReferences(failure.messageOfFailure)
+                || !AssertGeneratorHelper.containsAPath(failure.messageOfFailure)) {
             ctCatch.getBody().addStatement(
                     this.buildInvocationToAssertion(
                             testMethod,
