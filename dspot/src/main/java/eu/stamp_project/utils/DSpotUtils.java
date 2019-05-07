@@ -118,22 +118,28 @@ public class DSpotUtils {
         }
         printCtTypeToGivenDirectory(type, directory, true);
         // compile
-        final boolean compile = DSpotCompiler.compile(InputConfiguration.get(), //FIXME: analyse for optimisation (36% total execution time)
-                pathname,
-                InputConfiguration.get().getFullClassPathWithExtraDependencies(),
-                new File(InputConfiguration.get().getOutputDirectory() + "/binaries/")
-        );
-        if (!compile) {
-            try {
-                FileUtils.forceDelete(new File(InputConfiguration.get().getOutputDirectory() + "/binaries/"));
-            } catch (IOException ignored) {
-                //ignored
+        try {
+            final boolean compile = DSpotCompiler.compile(InputConfiguration.get(), //FIXME: analyse for optimisation (36% total execution time)
+                    pathname,
+                    InputConfiguration.get().getFullClassPathWithExtraDependencies(),
+                    new File(InputConfiguration.get().getOutputDirectory() + "/binaries/")
+            );
+            if (!compile) {
+                try {
+                    FileUtils.forceDelete(new File(InputConfiguration.get().getOutputDirectory() + "/binaries/"));
+                } catch (Exception ignored) {
+
+                }
+                LOGGER.warn("Could not compile {} with imports.", type.getQualifiedName());
+                LOGGER.warn("DSpot outputs it using full qualified names.");
+                LOGGER.warn("These problems can come from the fact your project use generated codes, such as Lombok annotations.");
+                printCtTypeToGivenDirectory(type, directory, false); //FIXME: analyse for optimisation (13% total execution time)
             }
-            LOGGER.warn("Could not compile {} with imports.", type.getQualifiedName());
-            LOGGER.warn("DSpot outputs it using full qualified names.");
-            LOGGER.warn("These problems can come from the fact your project use generated codes, such as Lombok annotations.");
-            printCtTypeToGivenDirectory(type, directory, false); //FIXME: analyse for optimisation (13% total execution time)
+        } catch (Exception ignored) {
+            LOGGER.warn("Couldn't compile the final amplified test class.");
+            LOGGER.warn("It might be uncompilable and could require manual modification.");
         }
+
     }
 
     private static CtClass<?> getExistingClass(CtType<?> type, String pathname) {

@@ -86,7 +86,7 @@ public class InputConfiguration {
      * Then, uses the properties to initialize other values.
      *
      * @param pathToPropertiesFile the path to the properties file. It is recommended to use an absolute path.
-     * @param builderName the name of the builder. Can be either Maven or Gradle (not case sensitive).
+     * @param builderName          the name of the builder. Can be either Maven or Gradle (not case sensitive).
      * @return the new instance of the InputConfiguration
      */
     public static InputConfiguration initialize(String pathToPropertiesFile, String builderName) {
@@ -148,7 +148,7 @@ public class InputConfiguration {
      * <li>{@link ConstantsProperties#MODULE}, in case of multi module project</li>
      * </ul>
      *
-     * @param properties the properties. See {@link ConstantsProperties}
+     * @param properties  the properties. See {@link ConstantsProperties}
      * @param builderName the name of the builder. Can be either Maven or Gradle (not case sensitive).
      * @return the new instance of the InputConfiguration
      */
@@ -295,7 +295,7 @@ public class InputConfiguration {
                                 pathToProjectRoot
                         ) + targetModule
                 ).getAbsolutePath()
-                ).setPathToSourceCode(pathToSource)
+        ).setPathToSourceCode(pathToSource)
                 .setPathToTestSourceCode(pathToTestSource)
                 .setPathToClasses(pathToClasses)
                 .setPathToTestClasses(pathToTestClasses)
@@ -667,7 +667,7 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setJVMArgs(String JVMArgs) {
-        this.JVMArgs = JVMArgs ;
+        this.JVMArgs = JVMArgs;
         EntryPoint.JVMArgs = String.join(" ", JVMArgs.split(","));
         return this;
     }
@@ -908,7 +908,7 @@ public class InputConfiguration {
     }
 
     /**
-     *  pre goals to run in case tests' execution done by maven
+     * pre goals to run in case tests' execution done by maven
      */
     private String preGoalsTestExecution = "";
 
