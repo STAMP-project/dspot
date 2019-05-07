@@ -100,7 +100,11 @@ public class DSpotUtils {
                     new File(InputConfiguration.get().getOutputDirectory() + "/binaries/")
             );
             if (!compile) {
-                FileUtils.forceDelete(new File(InputConfiguration.get().getOutputDirectory() + "/binaries/"));
+                try {
+                    FileUtils.forceDelete(new File(InputConfiguration.get().getOutputDirectory() + "/binaries/"));
+                } catch (Exception ignored) {
+
+                }
                 LOGGER.warn("Could not compile {} with imports.", type.getQualifiedName());
                 LOGGER.warn("DSpot outputs it using full qualified names.");
                 LOGGER.warn("These problems can come from the fact your project use generated codes, such as Lombok annotations.");
