@@ -90,7 +90,7 @@ public class InputConfiguration {
      * @return the new instance of the InputConfiguration
      */
     public static InputConfiguration initialize(String pathToPropertiesFile, String builderName) {
-        InputConfiguration.initialize(loadProperties(pathToPropertiesFile), builderName);
+        InputConfiguration.initialize(loadProperties(pathToPropertiesFile), builderName, false);
         InputConfiguration.instance.configPath = pathToPropertiesFile;
         return InputConfiguration.instance;
     }
@@ -152,7 +152,7 @@ public class InputConfiguration {
      * @param builderName the name of the builder. Can be either Maven or Gradle (not case sensitive).
      * @return the new instance of the InputConfiguration
      */
-    public static InputConfiguration initialize(Properties properties, String builderName) {
+    public static InputConfiguration initialize(Properties properties, String builderName, boolean parallelTestExecution) {
         if (InputConfiguration.instance != null) {
             reset();
         }
@@ -176,6 +176,7 @@ public class InputConfiguration {
             LOGGER.warn("Using the value gave on the command-line {}", builderName);
             InputConfiguration.instance.setBuilderName(builderName);
         }
+        InputConfiguration.instance.setExecuteTestsInParallel(parallelTestExecution);
         InputConfiguration.instance.initializeBuilder(properties);
         return InputConfiguration.instance;
     }
@@ -908,7 +909,21 @@ public class InputConfiguration {
     }
 
     /**
-     * pre goals to run in case tests' execution done by maven
+    * This boolean say if we must use execute the test in parallel. If not, the tests will be executed sequentially
+    */
+    private boolean executeTestsInParallel = false;
+
+    public boolean shouldExecuteTestsInParallel() {
+        return executeTestsInParallel;
+    }
+
+    public InputConfiguration setExecuteTestsInParallel(boolean executeTestsInParallel) {
+        this.executeTestsInParallel = executeTestsInParallel;
+        return this;
+    }
+    
+    /**
+     *  pre goals to run in case tests' execution done by maven
      */
     private String preGoalsTestExecution = "";
 

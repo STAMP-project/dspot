@@ -114,8 +114,10 @@ public class JSAPOptions {
         // we check the properties before initializing the InputConfiguration.
         final Properties properties = InputConfiguration.loadProperties(jsapConfig.getString("path-to-properties"));
         Checker.checkProperties(properties);
+        
+        boolean parallelTestExecution = jsapConfig.getBoolean("execute-test-parallel");
 
-        InputConfiguration.initialize(properties, jsapConfig.getString("builder"));
+        InputConfiguration.initialize(properties, jsapConfig.getString("builder"), parallelTestExecution);
         if (InputConfiguration.get().getOutputDirectory().isEmpty()) {
             InputConfiguration.get().setOutputDirectory(jsapConfig.getString("output"));
         }
@@ -142,8 +144,9 @@ public class JSAPOptions {
                 .setKeepOriginalTestMethods(jsapConfig.getBoolean("keep-original-test-methods"))
                 .setDescartesMode(jsapConfig.getBoolean("descartes") && !jsapConfig.getBoolean("gregor"))
                 .setUseMavenToExecuteTest(jsapConfig.getBoolean("use-maven-to-exe-test"))
-                .setTargetOneTestClass(jsapConfig.getBoolean("targetOneTestClass"))
-                .setAllowPathInAssertion(jsapConfig.getBoolean("allow-path-in-assertions"));
+                .setAllowPathInAssertion(jsapConfig.getBoolean("allow-path-in-assertions"))
+                .setExecuteTestsInParallel(jsapConfig.getBoolean("execute-test-parallel"))
+                .setTargetOneTestClass(jsapConfig.getBoolean("targetOneTestClass"));
         return false;
     }
 
@@ -349,6 +352,11 @@ public class JSAPOptions {
         useMavenToExecuteTests.setLongFlag("use-maven-to-exe-test");
         useMavenToExecuteTests.setDefault("false");
         useMavenToExecuteTests.setHelp("If enabled, DSpot will use maven to execute the tests.");
+        
+        Switch executeTestParallel = new Switch("execute-test-parallel");
+        executeTestParallel.setLongFlag("execute-test-parallel");
+        executeTestParallel.setDefault("false");
+        executeTestParallel.setHelp("If enabled, DSpot will execute the tests in parallel.");
 
         /*
             This switch allows DSpot to generate assertion on string values that look like paths.
@@ -386,6 +394,7 @@ public class JSAPOptions {
             jsap.registerParameter(keepOriginalTestMethods);
             jsap.registerParameter(useMavenToExecuteTests);
             jsap.registerParameter(allowPathInAssertions);
+            jsap.registerParameter(executeTestParallel);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {

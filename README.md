@@ -305,6 +305,9 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
           If enabled, DSpot will generate assertions for values that seems like to
           be paths.      
 
+  [--execute-test-parallel]
+        If enabled, DSpot will execute the tests in parallel.
+
   [-e|--example]
         run the example of DSpot and leave
 
