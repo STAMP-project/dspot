@@ -1,7 +1,10 @@
 package eu.stamp_project.utils;
 
+import eu.stamp_project.Main;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.report.error.Error;
+import eu.stamp_project.utils.report.error.ErrorEnum;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +21,7 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.DefaultJavaPrettyPrinter;
 import spoon.support.JavaOutputProcessor;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.function.Function;
@@ -34,6 +33,8 @@ import java.util.stream.Collectors;
 public class DSpotUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DSpotUtils.class);
+
+    private static final String JAVA_EXTENSION = ".java";
 
     private static StringBuilder progress = new StringBuilder(60);
 
@@ -58,16 +59,40 @@ public class DSpotUtils {
     }
 
     public static void printCtTypeToGivenDirectory(CtType<?> type, File directory, boolean autoImports) {
-        Factory factory = type.getFactory();
-        Environment env = factory.getEnvironment();
-        env.setAutoImports(autoImports);
-        env.setNoClasspath(true);
-        env.setCommentEnabled(InputConfiguration.get().withComment());
-        JavaOutputProcessor processor = new JavaOutputProcessor(new DefaultJavaPrettyPrinter(env));
-        processor.setFactory(factory);
-        processor.getEnvironment().setSourceOutputDirectory(directory);
-        processor.createJavaFile(type);
-        env.setAutoImports(false);
+        try {
+            Factory factory = type.getFactory();
+            Environment env = factory.getEnvironment();
+            env.setAutoImports(autoImports);
+            env.setNoClasspath(true);
+            env.setCommentEnabled(InputConfiguration.get().withComment());
+            JavaOutputProcessor processor = new JavaOutputProcessor(new DefaultJavaPrettyPrinter(env));
+            processor.setFactory(factory);
+            processor.getEnvironment().setSourceOutputDirectory(directory);
+            processor.createJavaFile(type);
+            env.setAutoImports(false);
+        } catch (Exception e) {
+            printCtTypUsingToStringToGivenDirectory(type, directory);
+        }
+    }
+
+    static void printCtTypUsingToStringToGivenDirectory(CtType<?> type, File directory) {
+        LOGGER.warn("Something bad happened when trying to output {} in {}", type.getQualifiedName(), directory.getAbsolutePath());
+        LOGGER.warn("DSpot will now print the toString() in the given file instead of using Spoon...");
+        String directoryPathname = DSpotUtils.shouldAddSeparator.apply(directory.getAbsolutePath()) +
+                type.getQualifiedName().substring(0, type.getQualifiedName().length() - type.getSimpleName().length()
+                ).replaceAll("\\.", "/");
+        try {
+            FileUtils.forceMkdir(new File(directoryPathname));
+        } catch (IOException e) {
+            Main.GLOBAL_REPORT.addError(new Error(ErrorEnum.ERROR_PRINT_USING_TO_STRING, e));
+        }
+        try (FileWriter fileWriter = new FileWriter(
+                DSpotUtils.shouldAddSeparator.apply(directoryPathname) + type.getSimpleName() + JAVA_EXTENSION)
+        ) {
+            fileWriter.write(type.toString());
+        } catch (IOException e) {
+            Main.GLOBAL_REPORT.addError(new Error(ErrorEnum.ERROR_PRINT_USING_TO_STRING, e));
+        }
     }
 
     /*
