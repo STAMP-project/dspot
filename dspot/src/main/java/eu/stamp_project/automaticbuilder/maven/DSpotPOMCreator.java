@@ -86,8 +86,8 @@ public class DSpotPOMCreator {
     private static final String SUFFIX_JUNIT5 = "_junit5_";
 
     public static void createNewPom() {
-        new DSpotPOMCreator(true)._innerCreatePom();
-        new DSpotPOMCreator(false)._innerCreatePom();
+        new DSpotPOMCreator(true)._innerCreatePom(null);
+        new DSpotPOMCreator(false)._innerCreatePom(null);
     }
     
     public static String createNewPomForComputingClassPathWithParallelExecution() {
@@ -217,6 +217,26 @@ public class DSpotPOMCreator {
         return currentChild == null? false: currentChild.getTextContent().equals(artifactId);
 
     }
+    
+    private void addSurefirePluginConfiguration(Document document, Node root, String fullQualifiedName) {
+        final Node build = findOrCreateGivenNode(document, root, BUILD);
+        final Node plugins = findOrCreateGivenNode(document, build, PLUGINS);
+        final Node surefirePlugin = findPluginByArtifactId(document, plugins, ARTIFACT_SUREFIRE_PLUGIN);
+        final Node configuration = findOrCreateGivenNode(document, surefirePlugin, CONFIGURATION);
+        
+        final Element parallel = document.createElement("parallel");
+        final Element useUnlimitedThreads = document.createElement("useUnlimitedThreads");
+        parallel.setTextContent("methods");
+        useUnlimitedThreads.setTextContent("true");
+        configuration.appendChild(parallel);
+        configuration.appendChild(useUnlimitedThreads);
+        
+        final Element includes = document.createElement("includes");
+        final Element include = document.createElement("include");
+        include.setTextContent(fullQualifiedName);
+        includes.appendChild(include);
+        configuration.appendChild(includes);
+    }
 
     public static String getParallelPOMName() {
         return DSPOT_PARALLEL_POM_FILE + (InputConfiguration.get().isJUnit5() ? SUFFIX_JUNIT5 : "") + POM_FILE;
@@ -243,7 +263,7 @@ public class DSpotPOMCreator {
         this.isJUnit5 = isJUnit5;
     }
 
-    private void _innerCreatePom() {
+    private void _innerCreatePom(String fullQualifiedName) {
         try {
             final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
