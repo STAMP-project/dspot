@@ -153,6 +153,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         } else {
             DSpotPOMCreator.createNewPom();
             pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.getPOMName();
+
         }
         this.hasGeneratePom = true;
         LOGGER.info("Using {} to run maven.", pomPathname);
