@@ -15,6 +15,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * created by Benjamin DANGLOT
@@ -85,15 +86,20 @@ public class DSpotPOMCreator {
     private static final String SUFFIX_JUNIT5 = "_junit5_";
 
     public static void createNewPom() {
-        new DSpotPOMCreator(true)._innerCreatePom();
-        new DSpotPOMCreator(false)._innerCreatePom();
+        new DSpotPOMCreator(true)._innerCreatePom(null);
+        new DSpotPOMCreator(false)._innerCreatePom(null);
     }
     
-    public static String createNewPomForParallelExecution() {
-        return new DSpotPOMCreator(InputConfiguration.get().isJUnit5())._createNewPomForParallelExecution();
+    public static void createNewPom(String fullQualifiedName) {
+        new DSpotPOMCreator(true)._innerCreatePom(fullQualifiedName);
+        new DSpotPOMCreator(false)._innerCreatePom(fullQualifiedName);
+    }
+    
+    public static String createNewPomForComputingClassPathWithParallelExecution() {
+        return new DSpotPOMCreator(InputConfiguration.get().isJUnit5())._createNewPomForComputingClassPathWithParallelExecution();
     }
         
-    public String _createNewPomForParallelExecution() {
+    public String _createNewPomForComputingClassPathWithParallelExecution() {
         try {
             //Duplicate target pom
         
@@ -103,9 +109,9 @@ public class DSpotPOMCreator {
 
             final Node root = findSpecificNodeFromGivenRoot(document.getFirstChild(), PROJECT);
         
-            //Add JUnit4/5 dependencies and surefire plugin configuration
+            //Add JUnit4/5 dependencies
             final Node dependencies = findOrCreateGivenNode(document, root, DEPENDENCIES);
-            addJUnitDependencies(document, dependencies);
+            addJUnitDependencies(document, root);
         
             // write the content into xml file
             final TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -121,7 +127,8 @@ public class DSpotPOMCreator {
         }
     }
     
-    private void addJUnitDependencies(Document document, Node dependencies) {
+    private void addJUnitDependencies(Document document, Node root) {
+        final Node dependencies = findOrCreateGivenNode(document, root, DEPENDENCIES);
         if (this.isJUnit5) {
             
         }else {
@@ -132,6 +139,42 @@ public class DSpotPOMCreator {
             );
             dependencies.appendChild(dependency);
         }
+    }
+    
+    private void addSurefirePluginConfiguration(Document document, Node root, String fullQualifiedName) {
+        final Node build = findOrCreateGivenNode(document, root, BUILD);
+        final Node plugins = findOrCreateGivenNode(document, build, PLUGINS);
+        final Node surefirePlugin = findPluginByArtifactId(document, plugins, ARTIFACT_SUREFIRE_PLUGIN);
+        final Node configuration = findOrCreateGivenNode(document, surefirePlugin, CONFIGURATION);
+        
+        final Element parallel = document.createElement("parallel");
+        final Element useUnlimitedThreads = document.createElement("useUnlimitedThreads");
+        parallel.setTextContent("methods");
+        useUnlimitedThreads.setTextContent("true");
+        configuration.appendChild(parallel);
+        configuration.appendChild(useUnlimitedThreads);
+        
+        final Element includes = document.createElement("includes");
+        final Element include = document.createElement("include");
+        include.setTextContent(fullQualifiedName);
+        includes.appendChild(include);
+        configuration.appendChild(includes);
+    }
+
+    private Node findPluginByArtifactId(Document document, Node pluginsNode, String artifactId) {
+        Node plugin = pluginsNode.getFirstChild();
+        while (plugin != null && !hasArtifactId (plugin, artifactId)) {
+            plugin = plugin.getNextSibling();
+        }
+        return plugin;
+    }
+
+    private boolean hasArtifactId(Node node, String artifactId) {
+        Node currentChild = node.getFirstChild();
+        while (currentChild != null && !"artifactId".equals(currentChild.getNodeName())) {
+            currentChild = currentChild.getNextSibling();
+        }
+        return currentChild == null? false: currentChild.getTextContent().equals(artifactId);
     }
 
     public static String getParallelPOMName() {
@@ -159,7 +202,7 @@ public class DSpotPOMCreator {
         this.isJUnit5 = isJUnit5;
     }
 
-    private void _innerCreatePom() {
+    private void _innerCreatePom(String fullQualifiedName) {
         try {
             final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -169,6 +212,11 @@ public class DSpotPOMCreator {
 
             // CONFIGURATION TO RUN INSTRUMENTED TEST
             configureForInstrumentedTests(document, root);
+            
+            //Add JUnit4/5 dependencies
+            //Add Surefire plugin configuration
+            addJUnitDependencies(document, root);
+            addSurefirePluginConfiguration (document, root, fullQualifiedName);
 
             final Element profile = createProfile(document);
 
