@@ -125,7 +125,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		launcher.getEnvironment().setNoClasspath(true);
 		launcher.getEnvironment().setCommentEnabled(true);
 		launcher.getEnvironment().setOutputType(OutputType.CLASSES);
-		DSpotUtils.copyPackageFromResources();
+		DSpotUtils.copyPackageFromResources(); // sources of problem. TODO check if we need to copy the resources each time we compile
 		String[] sourcesArray = (pathToSources + PATH_SEPARATOR).split(PATH_SEPARATOR);
 		Arrays.stream(sourcesArray).forEach(launcher::addInputResource);
 		String[] dependenciesArray = dependencies.split(PATH_SEPARATOR);
