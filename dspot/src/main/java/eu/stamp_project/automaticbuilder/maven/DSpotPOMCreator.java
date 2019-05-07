@@ -218,62 +218,10 @@ public class DSpotPOMCreator {
 
     }
     
-    private void addSurefirePluginConfiguration(Document document, Node root, String fullQualifiedName) {
-        final Node build = findOrCreateGivenNode(document, root, BUILD);
-        final Node plugins = findOrCreateGivenNode(document, build, PLUGINS);
-        final Node surefirePlugin = findPluginByArtifactId(document, plugins, ARTIFACT_SUREFIRE_PLUGIN);
-        final Node configuration = findOrCreateGivenNode(document, surefirePlugin, CONFIGURATION);
-        
-        final Element parallel = document.createElement("parallel");
-        final Element useUnlimitedThreads = document.createElement("useUnlimitedThreads");
-        parallel.setTextContent("methods");
-        useUnlimitedThreads.setTextContent("true");
-        configuration.appendChild(parallel);
-        configuration.appendChild(useUnlimitedThreads);
-        
-        final Element includes = document.createElement("includes");
-        final Element include = document.createElement("include");
-        include.setTextContent(fullQualifiedName);
-        includes.appendChild(include);
-        configuration.appendChild(includes);
-    }
-
     public static String getParallelPOMName() {
         return DSPOT_PARALLEL_POM_FILE + (InputConfiguration.get().isJUnit5() ? SUFFIX_JUNIT5 : "") + POM_FILE;
     }
     
-    public static String createNewPomForParallelExecution() {
-        return new DSpotPOMCreator(InputConfiguration.get().isJUnit5())._createNewPomForParallelExecution();
-    }
-        
-    public String _createNewPomForParallelExecution() {
-        try {
-            //Duplicate target pom
-        
-            final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-            final DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            final Document document = docBuilder.parse(InputConfiguration.get().getAbsolutePathToProjectRoot() + POM_FILE);
-
-            final Node root = findSpecificNodeFromGivenRoot(document.getFirstChild(), PROJECT);
-        
-            //Add JUnit4/5 dependencies and surefire plugin configuration
-            final Node dependencies = findOrCreateGivenNode(document, root, DEPENDENCIES);
-            addJUnitDependencies(document, dependencies);
-        
-            // write the content into xml file
-            final TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            final Transformer transformer = transformerFactory.newTransformer();
-            final DOMSource source = new DOMSource(document);
-            String newPomFilename = InputConfiguration.get().getAbsolutePathToProjectRoot() + this.getParallelPOMName();
-            final StreamResult result = new StreamResult(new File(newPomFilename));
-            transformer.transform(source, result);
-            
-            return newPomFilename;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static String getPOMName() {
         return DSPOT_POM_FILE + (InputConfiguration.get().isJUnit5() ? SUFFIX_JUNIT5 : "") + POM_FILE;
     }

@@ -85,7 +85,7 @@ public class TestRunner {
         if (InputConfiguration.get().shouldUseMavenToExecuteTest()) {
             EntryPoint.workingDirectory = new File(rootPath);
             if (! (new File(rootPath + DSpotPOMCreator.getPOMName()).exists())) {
-                DSpotPOMCreator.createNewPom();
+                DSpotPOMCreator.createNewPom(fullQualifiedName);
             }
             eu.stamp_project.testrunner.maven.EntryPoint.preGoals = InputConfiguration.get().getPreGoalsTestExecution();
             return eu.stamp_project.testrunner.maven.EntryPoint.runTestsSpecificPom(
