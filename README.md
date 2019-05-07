@@ -301,6 +301,9 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
   [--use-maven-to-exe-test]
         If enabled, DSpot will use maven to execute the tests.
 
+  [--execute-test-parallel]
+        If enabled, DSpot will execute the tests in parallel.
+
   [-e|--example]
         run the example of DSpot and leave
 
