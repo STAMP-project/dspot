@@ -219,12 +219,13 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         		 - CSV
         (default: XML)
 
-  [--budgetizer <NoBudgetizer | SimpleBudgetizer>]
+ [--budgetizer <RandomBudgetizer | TextualDistanceBudgetizer | SimpleBudgetizer>]
         [optional] specify a Bugdetizer.
         Possible values are: 
-        		 - NoBudgetizer
+        		 - RandomBudgetizer
+        		 - TextualDistanceBudgetizer
         		 - SimpleBudgetizer
-        (default: NoBudgetizer)
+        (default: RandomBudgetizer)
 
   [--max-test-amplified <integer>]
         [optional] specify the maximum number of amplified tests that dspot
