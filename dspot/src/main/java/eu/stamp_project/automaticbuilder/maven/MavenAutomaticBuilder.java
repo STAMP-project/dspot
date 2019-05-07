@@ -50,8 +50,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     public String compileAndBuildClasspath() {
         //Create temporal pom.xml based on original one. Add JUnit4/5 required dependencies and obtain classpath. Remove temporal pom.xml
         if (this.classpath == null) {
-            boolean parallelExecution = true;
-            this.runGoals(true, parallelExecution,
+            this.computeClasspath( 
                     "clean",
                     "test",
                     "-DskipTests",
@@ -152,24 +151,29 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         this.runPit(new CtType<?>[0]);
     }
 
-    private int runGoals(boolean specificPom, String... goals) {
-        return runGoals (specificPom, false, goals);
+    private int computeClasspath(String... goals) {
+        DSpotPOMCreator.createNewPomForComputingClassPathWithParallelExecution();
+        this.hasGeneratePom = true;
+        final String pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot() + 
+                DSpotPOMCreator.getParallelPOMName();
+        LOGGER.info("Using {} to run maven.", pomPathname);
+        return _runGoals(true, pomPathname, goals);
     }
     
-    private int runGoals(boolean specificPom, boolean parallelExecution, String... goals) {
+    private int runGoals(boolean specificPom, String... goals) {
         if (specificPom && !new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.getPOMName()).exists()) {
-            if (parallelExecution) {
-                DSpotPOMCreator.createNewPomForParallelExecution();
-            }else {
-                DSpotPOMCreator.createNewPom();
-            }
+            DSpotPOMCreator.createNewPom();
             this.hasGeneratePom = true;
         }
+        final String pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot() + 
+                (specificPom ? DSpotPOMCreator.getPOMName() : DSpotPOMCreator.POM_FILE);
+        LOGGER.info("Using {} to run maven.", pomPathname);
+        return _runGoals(specificPom, pomPathname, goals);
+    }
+
+    private int _runGoals(boolean specificPom, final String pomPathname, String... goals) {
         InvocationRequest request = new DefaultInvocationRequest();
         request.setGoals(Arrays.asList(goals));
-        final String pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot() + 
-                (specificPom ? (parallelExecution ? DSpotPOMCreator.getParallelPOMName() : DSpotPOMCreator.getPOMName()) : DSpotPOMCreator.POM_FILE);
-        LOGGER.info("Using {} to run maven.", pomPathname);
         request.setPomFile(new File(pomPathname));
         request.setJavaHome(new File(System.getProperty("java.home")));
         if (specificPom) {
