@@ -79,6 +79,8 @@ public class MethodsAssertGenerator {
         testClass.getPackage().addType(clone);
         LOGGER.info("Add observations points in passing tests.");
         LOGGER.info("Instrumentation...");
+
+        // add logs in tests to observe state of tested program
         final List<CtMethod<?>> testCasesWithLogs = testCases.stream()
                 .map(ctMethod -> {
                             DSpotUtils.printProgress(testCases.indexOf(ctMethod), testCases.size());
@@ -94,6 +96,8 @@ public class MethodsAssertGenerator {
             LOGGER.warn("Could not continue the assertion amplification since all the instrumented test have an empty body.");
             return testCasesWithLogs;
         }
+
+        // clone and set up tests with added logs
         final List<CtMethod<?>> testsToRun = new ArrayList<>();
         IntStream.range(0, 3).forEach(i -> testsToRun.addAll(
                 testCasesWithLogs.stream()
@@ -106,8 +110,9 @@ public class MethodsAssertGenerator {
                         .collect(Collectors.toList())
         ));
         ObjectLog.reset();
+
+        // compile and run tests with added logs
         LOGGER.info("Run instrumented tests. ({})", testsToRun.size());
-        //AssertGeneratorHelper.addAfterClassMethod(clone);
         TestFramework.get().generateAfterClassToSaveObservations(clone, testsToRun);
         try {
             final TestResult result = TestCompiler.compileAndRun(
@@ -123,6 +128,8 @@ public class MethodsAssertGenerator {
             e.printStackTrace();
             return Collections.emptyList();
         }
+
+        // add assertions with values retrieved from logs in tests
         Map<String, Observation> observations = ObjectLog.getObservations();
         LOGGER.info("Generating assertions...");
         return testCases.stream()

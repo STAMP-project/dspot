@@ -43,6 +43,10 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 
     private Coverage initialCoverage;
 
+    private List<String> pathExecuted = new ArrayList<>();
+
+    private TestSelectorElementReport lastReport;
+
     @Override
     public boolean init() {
         super.init();
@@ -123,7 +127,6 @@ public class JacocoCoverageSelector extends TakeAllSelector {
             return amplifiedTestToBeKept;
         }
         final CoveragePerTestMethod coveragePerTestMethod = computeCoverageForGivenTestMethods(amplifiedTestToBeKept);
-        final List<String> pathExecuted = new ArrayList<>();
         final List<CtMethod<?>> methodsKept = amplifiedTestToBeKept.stream()
                 .filter(ctMethod -> {
                     final String simpleNameOfFirstParent = getFirstParentThatHasBeenRun(ctMethod).getSimpleName();
@@ -166,6 +169,9 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 
     @Override
     public TestSelectorElementReport report() {
+        if(currentClassTestToBeAmplified == null) {
+            return lastReport;
+        }
         // 1 textual report
         StringBuilder report = new StringBuilder()
                 .append("Initial instruction coverage: ")
@@ -215,7 +221,8 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                             (double) coverageResults.getInstructionsTotal())))
                     .append("%")
                     .append(AmplificationHelper.LINE_SEPARATOR);
-            return new TestSelectorElementReportImpl(report.toString(), jsonReport(coverageResults));
+            lastReport = new TestSelectorElementReportImpl(report.toString(), jsonReport(coverageResults));
+            return lastReport;
         } catch (TimeoutException e) {
             throw new RuntimeException(e);
         } finally {
