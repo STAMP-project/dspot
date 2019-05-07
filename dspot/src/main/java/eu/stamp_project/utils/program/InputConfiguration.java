@@ -958,4 +958,5 @@ public class InputConfiguration {
         this.targetOneTestClass = targetOneTestClass;
         return this;
     }
+
 }

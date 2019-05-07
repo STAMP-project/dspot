@@ -305,9 +305,9 @@ public class JSAPOptions {
         FlaggedOption budgetizer = new FlaggedOption("budgetizer");
         budgetizer.setStringParser(JSAP.STRING_PARSER);
         budgetizer.setLongFlag("budgetizer");
-        budgetizer.setUsageName("NoBudgetizer | SimpleBudgetizer");
+        budgetizer.setUsageName("RandomBudgetizer | TextualDistanceBudgetizer | SimpleBudgetizer");
         budgetizer.setHelp("[optional] specify a Bugdetizer." + JSAPOptions.helpForEnums(BudgetizerEnum.class));
-        budgetizer.setDefault("NoBudgetizer");
+        budgetizer.setDefault("RandomBudgetizer");
 
         Switch withComment = new Switch("comment");
         withComment.setLongFlag("with-comment");

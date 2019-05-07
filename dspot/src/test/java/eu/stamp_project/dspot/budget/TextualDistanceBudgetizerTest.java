@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 09/08/18
  */
-public class NoBudgetizerTest extends AbstractTest {
+public class TextualDistanceBudgetizerTest extends AbstractTest {
 
     @After
     public void tearDown() throws Exception {
@@ -56,7 +56,7 @@ public class NoBudgetizerTest extends AbstractTest {
         methods.add(clone);
         methods.add(methodInteger);
 
-        final List<CtMethod<?>> reduce = new NoBudgetizer().reduce(methods);
+        final List<CtMethod<?>> reduce = new TextualDistanceBudgetizer().reduce(methods);
         assertEquals(2, reduce.size());
 
     }

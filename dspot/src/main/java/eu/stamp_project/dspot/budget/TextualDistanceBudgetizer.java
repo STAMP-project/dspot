@@ -1,12 +1,5 @@
 package eu.stamp_project.dspot.budget;
 
-import eu.stamp_project.dspot.amplifier.Amplifier;
-import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.utils.DSpotUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import spoon.reflect.declaration.CtMethod;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -16,20 +9,28 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import eu.stamp_project.dspot.amplifier.Amplifier;
+import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.program.InputConfiguration;
+import spoon.reflect.declaration.CtMethod;
+
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
  * on 19/07/18
  */
-public class NoBudgetizer extends AbstractBugetizer {
+public class TextualDistanceBudgetizer extends AbstractBugetizer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NoBudgetizer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TextualDistanceBudgetizer.class);
 
-    public NoBudgetizer() {
+    public TextualDistanceBudgetizer() {
         super();
     }
 
-    public NoBudgetizer(List<Amplifier> amplifiers) {
+    public TextualDistanceBudgetizer(List<Amplifier> amplifiers) {
         super(amplifiers);
     }
 

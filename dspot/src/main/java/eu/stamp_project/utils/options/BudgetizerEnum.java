@@ -2,7 +2,8 @@ package eu.stamp_project.utils.options;
 
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.budget.Budgetizer;
-import eu.stamp_project.dspot.budget.NoBudgetizer;
+import eu.stamp_project.dspot.budget.RandomBudgetizer;
+import eu.stamp_project.dspot.budget.TextualDistanceBudgetizer;
 import eu.stamp_project.dspot.budget.SimpleBudgetizer;
 
 import java.util.List;
@@ -14,14 +15,24 @@ import java.util.List;
  */
 public enum BudgetizerEnum {
 
-    NoBudgetizer {
+    RandomBudgetizer {
         @Override
         public Budgetizer getBudgetizer() {
-            return new NoBudgetizer();
+            return new RandomBudgetizer();
         }
         @Override
         public Budgetizer getBudgetizer(List<Amplifier> amplifiers) {
-            return new NoBudgetizer(amplifiers);
+            return new RandomBudgetizer(amplifiers);
+        }
+    },
+    TextualDistanceBudgetizer {
+        @Override
+        public Budgetizer getBudgetizer() {
+            return new TextualDistanceBudgetizer();
+        }
+        @Override
+        public Budgetizer getBudgetizer(List<Amplifier> amplifiers) {
+            return new TextualDistanceBudgetizer(amplifiers);
         }
     },
     SimpleBudgetizer {

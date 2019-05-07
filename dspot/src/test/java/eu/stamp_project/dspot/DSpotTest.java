@@ -90,7 +90,7 @@ public class DSpotTest extends AbstractTest {
         public int numberOfMethod = 0;
 
         public MockDSpot(int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws Exception {
-            super(numberOfIterations, amplifiers, testSelector, BudgetizerEnum.NoBudgetizer);
+            super(numberOfIterations, amplifiers, testSelector, BudgetizerEnum.RandomBudgetizer);
         }
 
         @Override
