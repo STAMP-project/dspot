@@ -217,10 +217,12 @@ public class DSpotPOMCreator {
             // CONFIGURATION TO RUN INSTRUMENTED TEST
             configureForInstrumentedTests(document, root);
             
-            //Add JUnit4/5 dependencies
-            //Add Surefire plugin configuration
-            addJUnitDependencies(document, root);
-            addSurefirePluginConfiguration (document, root, fullQualifiedName);
+            if (InputConfiguration.get().shouldExecuteTestsInParallel()) {
+                //Add JUnit4/5 dependencies for parallel execution
+                //Add Surefire plugin configuration for parallel execution
+                addJUnitDependencies(document, root);
+                addSurefirePluginConfiguration (document, root, fullQualifiedName);
+            }
 
             final Element profile = createProfile(document);
 
