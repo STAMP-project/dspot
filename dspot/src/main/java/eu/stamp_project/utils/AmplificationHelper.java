@@ -236,8 +236,8 @@ public class AmplificationHelper {
     @Deprecated
     public static String getClassPath(DSpotCompiler compiler, InputConfiguration configuration) {
         return Arrays.stream(new String[]{
-                        compiler.getBinaryOutputDirectory().getAbsolutePath(),
                         configuration.getAbsolutePathToClasses(),
+                        compiler.getBinaryOutputDirectory().getAbsolutePath(),
                         compiler.getDependencies(),
                 }
         ).collect(Collectors.joining(PATH_SEPARATOR));

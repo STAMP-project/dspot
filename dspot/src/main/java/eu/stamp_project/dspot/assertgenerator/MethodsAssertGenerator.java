@@ -110,7 +110,8 @@ public class MethodsAssertGenerator {
         //AssertGeneratorHelper.addAfterClassMethod(clone);
         TestFramework.get().generateAfterClassToSaveObservations(clone, testsToRun);
         try {
-            final TestResult result = TestCompiler.compileAndRun(clone,
+            final TestResult result = TestCompiler.compileAndRun(
+                    clone,
                     this.compiler,
                     testsToRun,
                     this.configuration
