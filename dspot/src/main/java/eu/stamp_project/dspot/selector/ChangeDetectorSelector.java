@@ -94,6 +94,7 @@ public class ChangeDetectorSelector implements TestSelector {
 
         final TestResult results;
         try {
+            InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
             results = TestRunner.run(
                     InputConfiguration.get().getFullClassPathWithExtraDependencies(),
                     this.pathToSecondVersionOfProgram,

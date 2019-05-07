@@ -423,7 +423,7 @@ public class InputConfiguration {
      * the path separator of the system.
      */
     public String getClasspathClassesProject() {
-        return this.getAbsolutePathToClasses() + AmplificationHelper.PATH_SEPARATOR + this.getAbsolutePathToTestClasses();
+        return this.getAbsolutePathToTestClasses() + AmplificationHelper.PATH_SEPARATOR + this.getAbsolutePathToClasses();
     }
 
     private String dependencies;

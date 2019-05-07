@@ -87,8 +87,7 @@ public class TestCompiler {
                                              DSpotCompiler compiler,
                                              List<CtMethod<?>> testsToRun,
                                              InputConfiguration configuration) throws AmplificationException {
-        final String dependencies = configuration.getClasspathClassesProject()
-                + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies();
+        final String dependencies = InputConfiguration.get().getFullClassPathWithExtraDependencies();
         DSpotUtils.copyPackageFromResources();
         testsToRun = TestCompiler.compileAndDiscardUncompilableMethods(compiler, testClass, dependencies, testsToRun);
         final String classPath = AmplificationHelper.getClassPath(compiler, configuration);
