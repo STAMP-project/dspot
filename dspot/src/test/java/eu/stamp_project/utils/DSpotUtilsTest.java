@@ -35,18 +35,15 @@ public class DSpotUtilsTest extends AbstractTest {
         );
         try (final BufferedReader reader =
                                           new BufferedReader(new FileReader(outputDirectory + "/fr/inria/lombok/LombokClassThatUseBuilderTest.java"))) {
-            assertEquals(
-                    "package fr.inria.lombok;" + AmplificationHelper.LINE_SEPARATOR +
-                            "" + AmplificationHelper.LINE_SEPARATOR +
-                            "" + AmplificationHelper.LINE_SEPARATOR +
+            assertTrue(reader.lines()
+                            .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)).endsWith(
                             "public class LombokClassThatUseBuilderTest {" + AmplificationHelper.LINE_SEPARATOR +
-                            "    @org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
-                            "    public void test() {" + AmplificationHelper.LINE_SEPARATOR +
-                            "        fr.inria.lombok.LombokClassThatUseBuilder.builder().build();" + AmplificationHelper.LINE_SEPARATOR +
-                            "    }" + AmplificationHelper.LINE_SEPARATOR +
-                            "}" + AmplificationHelper.LINE_SEPARATOR,
-                    reader.lines()
-                            .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR))
+                                    "    @org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
+                                    "    public void test() {" + AmplificationHelper.LINE_SEPARATOR +
+                                    "        fr.inria.lombok.LombokClassThatUseBuilder.builder().build();" + AmplificationHelper.LINE_SEPARATOR +
+                                    "    }" + AmplificationHelper.LINE_SEPARATOR +
+                                    "}"
+                    )
             );
         }
     }
