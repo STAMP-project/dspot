@@ -46,6 +46,11 @@ public enum ErrorEnum {
     ERROR_ASSERT_AMPLIFICATION("Something bad happened during assertion amplification"),
     ERROR_SELECTION("Something bad happened during selection to keep amplified tests (post-amplification)."),
 
+     /*
+        ERRORS DUE TO I/O
+     */
+     ERROR_PRINT_USING_TO_STRING("Sonething bad happened when DSpot tried to print a test class using the toString()"),
+
     /*
         ERRORS LINKED TO A SPECIFIC IMPLEMENTATION
      */
