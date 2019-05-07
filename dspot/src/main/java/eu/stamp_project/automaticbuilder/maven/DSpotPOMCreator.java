@@ -147,6 +147,10 @@ public class DSpotPOMCreator {
         final Node surefirePlugin = findPluginByArtifactId(document, plugins, ARTIFACT_SUREFIRE_PLUGIN);
         final Node configuration = findOrCreateGivenNode(document, surefirePlugin, CONFIGURATION);
         
+        final Element version = document.createElement("version");
+        version.setTextContent("2.22.0");
+        surefirePlugin.appendChild(version);
+        
         final Element parallel = document.createElement("parallel");
         final Element useUnlimitedThreads = document.createElement("useUnlimitedThreads");
         parallel.setTextContent("methods");

@@ -51,7 +51,7 @@ public class ObjectLog {
         singleton = new ObjectLog();
     }
 
-    public static void log(Object objectToObserve, String objectObservedAsString, String id) {
+    public static synchronized void log(Object objectToObserve, String objectObservedAsString, String id) {
         /*if (objectToObserve == null) {
             getSingleton().addObservation(id, "null", null);
             return;
