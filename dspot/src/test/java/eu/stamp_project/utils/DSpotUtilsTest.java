@@ -28,6 +28,30 @@ public class DSpotUtilsTest extends AbstractTest {
     private final static File outputDirectory = new File("target/trash/");
 
     @Test
+    public void testOutputUsingToString() throws Exception {
+        DSpotUtils.printCtTypUsingToStringToGivenDirectory(
+                Utils.findClass("fr.inria.lombok.LombokClassThatUseBuilderTest"),
+                outputDirectory
+        );
+        try (final BufferedReader reader =
+                                          new BufferedReader(new FileReader(outputDirectory + "/fr/inria/lombok/LombokClassThatUseBuilderTest.java"))) {
+            assertEquals(
+                    "package fr.inria.lombok;" + AmplificationHelper.LINE_SEPARATOR +
+                            "" + AmplificationHelper.LINE_SEPARATOR +
+                            "" + AmplificationHelper.LINE_SEPARATOR +
+                            "public class LombokClassThatUseBuilderTest {" + AmplificationHelper.LINE_SEPARATOR +
+                            "    @org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
+                            "    public void test() {" + AmplificationHelper.LINE_SEPARATOR +
+                            "        fr.inria.lombok.LombokClassThatUseBuilder.builder().build();" + AmplificationHelper.LINE_SEPARATOR +
+                            "    }" + AmplificationHelper.LINE_SEPARATOR +
+                            "}" + AmplificationHelper.LINE_SEPARATOR,
+                    reader.lines()
+                            .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR))
+            );
+        }
+    }
+
+    @Test
     public void testWithLombokAnnotation() throws Exception {
         DSpotUtils.printAndCompileToCheck(
                 Utils.findClass("fr.inria.lombok.LombokClassThatUseBuilderTest"),
