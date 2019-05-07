@@ -308,6 +308,9 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
   [--execute-test-parallel]
         If enabled, DSpot will execute the tests in parallel.
 
+  [--execute-test-parallel]
+        If enabled, DSpot will execute the tests in parallel.
+
   [-e|--example]
         run the example of DSpot and leave
 
