@@ -86,8 +86,8 @@ public class DSpotPOMCreator {
     private static final String SUFFIX_JUNIT5 = "_junit5_";
 
     public static void createNewPom() {
-        new DSpotPOMCreator(true)._innerCreatePom();
-        new DSpotPOMCreator(false)._innerCreatePom();
+        new DSpotPOMCreator(true)._innerCreatePom(null);
+        new DSpotPOMCreator(false)._innerCreatePom(null);
     }
     
     public static String createNewPomForComputingClassPathWithParallelExecution() {
@@ -95,7 +95,6 @@ public class DSpotPOMCreator {
     }
         
     public String _createNewPomForComputingClassPathWithParallelExecution() {
-
         try {
             //Duplicate target pom
         
@@ -201,6 +200,26 @@ public class DSpotPOMCreator {
 //        includes.appendChild(include);
 //        configuration.appendChild(includes);
     }
+    
+    private void addSurefirePluginConfiguration(Document document, Node root, String fullQualifiedName) {
+        final Node build = findOrCreateGivenNode(document, root, BUILD);
+        final Node plugins = findOrCreateGivenNode(document, build, PLUGINS);
+        final Node surefirePlugin = findPluginByArtifactId(document, plugins, ARTIFACT_SUREFIRE_PLUGIN);
+        final Node configuration = findOrCreateGivenNode(document, surefirePlugin, CONFIGURATION);
+        
+        final Element parallel = document.createElement("parallel");
+        final Element useUnlimitedThreads = document.createElement("useUnlimitedThreads");
+        parallel.setTextContent("methods");
+        useUnlimitedThreads.setTextContent("true");
+        configuration.appendChild(parallel);
+        configuration.appendChild(useUnlimitedThreads);
+        
+        final Element includes = document.createElement("includes");
+        final Element include = document.createElement("include");
+        include.setTextContent(fullQualifiedName);
+        includes.appendChild(include);
+        configuration.appendChild(includes);
+    }
 
     private Node findPluginByArtifactId(Document document, Node pluginsNode, String artifactId) {
         Node plugin = pluginsNode.getFirstChild();
@@ -244,7 +263,7 @@ public class DSpotPOMCreator {
         this.isJUnit5 = isJUnit5;
     }
 
-    private void _innerCreatePom() {
+    private void _innerCreatePom(String fullQualifiedName) {
         try {
             final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder docBuilder = docFactory.newDocumentBuilder();

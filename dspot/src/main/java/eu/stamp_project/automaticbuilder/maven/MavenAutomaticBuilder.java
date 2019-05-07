@@ -49,7 +49,6 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         // Create temporal pom.xml based on original one. Add JUnit4/5 required
         // dependencies and obtain classpath. Remove temporal pom.xml
         if (this.classpath == null) {
-
             this.computeClasspath(
                     "clean", 
                     "test", 
