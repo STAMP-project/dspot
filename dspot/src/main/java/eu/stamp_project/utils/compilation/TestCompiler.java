@@ -52,7 +52,9 @@ public class TestCompiler {
                                                                                     InputConfiguration configuration) {
         CtType amplifiedTestClass = CloneHelper.cloneTestClassAndAddGivenTest(classTest, currentTestList);
         //Add parallel test execution support (JUnit4, JUnit5) for execution method (CMD, Maven)
-        CloneHelper.addParallelExecutionAnnotation (amplifiedTestClass, currentTestList);
+        if (InputConfiguration.get().shouldExecuteTestsInParallel()) {
+            CloneHelper.addParallelExecutionAnnotation (amplifiedTestClass, currentTestList);
+        }
         try {
             final TestResult result = TestCompiler.compileAndRun(
                     amplifiedTestClass,
