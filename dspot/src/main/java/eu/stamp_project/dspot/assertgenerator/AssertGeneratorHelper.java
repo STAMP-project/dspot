@@ -35,7 +35,9 @@ import java.util.regex.Pattern;
 public class AssertGeneratorHelper {
 
     public static boolean containsAPath(String candidate) {
-        new File("");
+        if (candidate == null) {
+            return false;
+        }
         if (new File(candidate).exists()) {
             return true;
         }
