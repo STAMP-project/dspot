@@ -34,6 +34,11 @@ import java.util.regex.Pattern;
  */
 public class AssertGeneratorHelper {
 
+    public static boolean canGenerateAnAssertionFor(String candidate) {
+        return !AssertGeneratorHelper.containsObjectReferences(candidate)
+                && !AssertGeneratorHelper.containsAPath(candidate);
+    }
+
     public static boolean containsAPath(String candidate) {
         if (candidate == null) {
             return false;

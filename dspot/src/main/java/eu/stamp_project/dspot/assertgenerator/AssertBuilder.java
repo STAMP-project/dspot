@@ -110,7 +110,7 @@ public class AssertBuilder {
                                             )));
                         } else {
                             if (value instanceof String) {
-                                if (!AssertGeneratorHelper.containsObjectReferences((String) value)) {
+                                if (!AssertGeneratorHelper.canGenerateAnAssertionFor((String) value)) {
                                     invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_EQUALS,
                                             Arrays.asList(printPrimitiveString(factory, value),
                                                     variableRead)));
