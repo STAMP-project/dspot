@@ -32,6 +32,25 @@ import static org.junit.Assert.assertTrue;
 public class AssertGeneratorHelperTest extends AbstractTest {
 
     @Test
+    public void testCanGeneraterAssertionFor() {
+        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor(InputConfiguration.get().getAbsolutePathToProjectRoot()));
+        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor("yes/no"));
+        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor(InputConfiguration.get().getAbsolutePathToProjectRoot() + " is a directory"));
+        assertTrue(AssertGeneratorHelper.canGenerateAnAssertionFor("This is not a path"));
+
+        assertTrue(AssertGeneratorHelper.canGenerateAnAssertionFor("thaliana"));
+        assertTrue(AssertGeneratorHelper.canGenerateAnAssertionFor("thaliana.thaliana@"));
+        assertTrue(AssertGeneratorHelper.canGenerateAnAssertionFor("thaliana.thaliana$f465"));
+        assertTrue(AssertGeneratorHelper.canGenerateAnAssertionFor("thaliana.thaliana@z0545"));
+        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor("thaliana@041a"));
+        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor("thaliana.thaliana@041a"));
+        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor(new Object().toString()));
+        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor("Expected message : " + new Object().toString() + "not found"));
+        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor("Expected message : " + new Object().toString()));
+        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor(new Object().toString() + "not found"));
+    }
+
+    @Test
     public void testContainsAPath() {
 
         /*
