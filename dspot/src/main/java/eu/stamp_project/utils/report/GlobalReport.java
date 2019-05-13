@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
- * on 29/10/18CtType<?> type
+ * on 29/10/18
  */
 public class GlobalReport implements Report, ErrorReport, OutputReport, TestSelectorReport {
 

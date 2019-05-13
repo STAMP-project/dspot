@@ -193,6 +193,7 @@ public class DSpot {
      * Amplify the given test methods of the given test classes.
      *
      * @param testClassesToBeAmplified the list of test classes to be amplified. This list can be a list of java regex.
+     * @param testMethod               the test method to be amplified. This can be a java regex.
      * @return a list of amplified test classes with amplified test methods.
      */
     @Deprecated
