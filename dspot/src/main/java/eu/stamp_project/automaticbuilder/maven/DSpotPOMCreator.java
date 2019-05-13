@@ -86,8 +86,8 @@ public class DSpotPOMCreator {
     private static final String SUFFIX_JUNIT5 = "_junit5_";
 
     public static void createNewPom() {
-        new DSpotPOMCreator(true)._innerCreatePom(null);
-        new DSpotPOMCreator(false)._innerCreatePom(null);
+        new DSpotPOMCreator(true)._innerCreatePom();
+        new DSpotPOMCreator(false)._innerCreatePom();
     }
     
     public static String createNewPomForComputingClassPathWithParallelExecution() {
@@ -243,7 +243,7 @@ public class DSpotPOMCreator {
         this.isJUnit5 = isJUnit5;
     }
 
-    private void _innerCreatePom(String fullQualifiedName) {
+    private void _innerCreatePom() {
         try {
             final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder docBuilder = docFactory.newDocumentBuilder();

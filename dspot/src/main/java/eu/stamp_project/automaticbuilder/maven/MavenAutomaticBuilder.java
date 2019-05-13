@@ -49,6 +49,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         // Create temporal pom.xml based on original one. Add JUnit4/5 required
         // dependencies and obtain classpath. Remove temporal pom.xml
         if (this.classpath == null) {
+
             this.computeClasspath(
                     "clean", 
                     "test", 
@@ -56,6 +57,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
                     "dependency:build-classpath",
                     "-Dmdep.outputFile=" + "target/dspot/classpath"
             );
+
             final File classpathFile = new File(
                     InputConfiguration.get().getAbsolutePathToProjectRoot() + "/target/dspot/classpath");
             try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
