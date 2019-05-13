@@ -46,14 +46,21 @@ public class AssertGeneratorHelper {
         if (new File(candidate).exists()) {
             return true;
         }
-        if (Pattern.compile(".*((.*/)+).*").matcher(candidate).matches()) {
-            return true;
+
+        String[] split = candidate.split(" ");
+        final Pattern pattern = Pattern.compile(".*((.*/)+).*");
+        for (String s : split) {
+            if (s.length() < 4096 &&
+                    pattern.matcher(s).matches()) {
+                return true;
+            }
         }
+
         try {
             new URL(candidate);
             return true;
         } catch (Exception e) {
-            return  false;
+            return false;
         }
     }
 
