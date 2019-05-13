@@ -125,10 +125,15 @@ public class TestFramework implements TestFrameworkSupport {
     	//Get original test method, using bounds of cloned methods in AmplificationHelper
     	CtMethod<?> originalMethod = AmplificationHelper.getOriginalTestMethod(testMethod);
     	//Retrieving associated test framework from cache
-    	TestFrameworkSupport tfs = DSpotCache.getTestFrameworkCache().get(TypeUtils.getQualifiedName(originalMethod));
+    	TestFrameworkSupport tfs = null;
+    	if (originalMethod != null) {
+        	tfs = DSpotCache.getTestFrameworkCache().get(TypeUtils.getQualifiedName(originalMethod));
+    	}
     	if (tfs == null){ //If not cached, test framework is computed and stored in cache.
     		tfs = getTestFrameworkImpl (testMethod);
-    		DSpotCache.getTestFrameworkCache().put(TypeUtils.getQualifiedName(originalMethod), tfs);
+    		if (originalMethod != null) {
+    		    DSpotCache.getTestFrameworkCache().put(TypeUtils.getQualifiedName(originalMethod), tfs);
+    		}
     	}
     	return tfs;
     }

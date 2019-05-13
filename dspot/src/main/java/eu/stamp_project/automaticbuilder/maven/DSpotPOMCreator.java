@@ -86,14 +86,14 @@ public class DSpotPOMCreator {
     private static final String SUFFIX_JUNIT5 = "_junit5_";
 
     public static void createNewPom() {
-        new DSpotPOMCreator(true)._innerCreatePom(null);
-        new DSpotPOMCreator(false)._innerCreatePom(null);
+        new DSpotPOMCreator(true)._innerCreatePom();
+        new DSpotPOMCreator(false)._innerCreatePom();
     }
     
-    public static void createNewPom(String fullQualifiedName) {
-        new DSpotPOMCreator(true)._innerCreatePom(fullQualifiedName);
-        new DSpotPOMCreator(false)._innerCreatePom(fullQualifiedName);
-    }
+//    public static void createNewPom(String fullQualifiedName) {
+//        new DSpotPOMCreator(true)._innerCreatePom(fullQualifiedName);
+//        new DSpotPOMCreator(false)._innerCreatePom(fullQualifiedName);
+//    }
     
     public static String createNewPomForComputingClassPathWithParallelExecution() {
         return new DSpotPOMCreator(InputConfiguration.get().isJUnit5())._createNewPomForComputingClassPathWithParallelExecution();
@@ -129,19 +129,45 @@ public class DSpotPOMCreator {
     
     private void addJUnitDependencies(Document document, Node root) {
         final Node dependencies = findOrCreateGivenNode(document, root, DEPENDENCIES);
-        if (this.isJUnit5) {
-            
-        }else {
-            final Element dependency = createDependency(document,
-                    "com.googlecode.junit-toolbox",
-                    "junit-toolbox",
-                    "2.4"
-            );
-            dependencies.appendChild(dependency);
-        }
+        Element dependency = createDependency(document,
+                "org.junit.jupiter",
+                "junit-jupiter-api",
+                "5.3.2"
+        );
+        dependencies.appendChild(dependency);
+        dependency = createDependency(document,
+                "org.junit.jupiter",
+                "junit-jupiter-engine",
+                "5.3.2"
+        );
+        dependencies.appendChild(dependency);
+        dependency = createDependency(document,
+                "org.junit.platform",
+                "junit-platform-engine",
+                "1.3.2"
+        );
+        dependencies.appendChild(dependency);
+        dependency = createDependency(document,
+                "org.junit.platform",
+                "junit-platform-launcher",
+                "1.3.2"
+        );
+        dependencies.appendChild(dependency);
+        dependency = createDependency(document,
+                "org.junit.vintage",
+                "junit-vintage-engine",
+                "5.3.2"
+        );
+        dependencies.appendChild(dependency);
+        dependency = createDependency(document,
+                "com.googlecode.junit-toolbox",
+                "junit-toolbox",
+                "2.4"
+        );
+        dependencies.appendChild(dependency);
     }
     
-    private void addSurefirePluginConfiguration(Document document, Node root, String fullQualifiedName) {
+    private void addSurefirePluginConfiguration(Document document, Node root) {
         final Node build = findOrCreateGivenNode(document, root, BUILD);
         final Node plugins = findOrCreateGivenNode(document, build, PLUGINS);
         final Node surefirePlugin = findPluginByArtifactId(document, plugins, ARTIFACT_SUREFIRE_PLUGIN);
@@ -150,19 +176,34 @@ public class DSpotPOMCreator {
         final Element version = document.createElement("version");
         version.setTextContent("2.22.0");
         surefirePlugin.appendChild(version);
-        
-        final Element parallel = document.createElement("parallel");
-        final Element useUnlimitedThreads = document.createElement("useUnlimitedThreads");
-        parallel.setTextContent("methods");
-        useUnlimitedThreads.setTextContent("true");
-        configuration.appendChild(parallel);
-        configuration.appendChild(useUnlimitedThreads);
-        
-        final Element includes = document.createElement("includes");
-        final Element include = document.createElement("include");
-        include.setTextContent(fullQualifiedName);
-        includes.appendChild(include);
-        configuration.appendChild(includes);
+        if (InputConfiguration.get().isJUnit5()) {
+            final Node dependencies = findOrCreateGivenNode(document, surefirePlugin, DEPENDENCIES);
+            Element dependency = createDependency(document,
+                    "org.junit.platform",
+                    "junit-platform-surefire-provider",
+                    "1.3.2"
+            );
+            dependencies.appendChild(dependency);
+            dependency = createDependency(document,
+                    "org.junit.jupiter",
+                    "junit-jupiter-engine",
+                    "5.3.2"
+            );
+            dependencies.appendChild(dependency);
+            
+        }else {
+            final Element parallel = document.createElement("parallel");
+            final Element useUnlimitedThreads = document.createElement("useUnlimitedThreads");
+            parallel.setTextContent("methods");
+            useUnlimitedThreads.setTextContent("true");
+            configuration.appendChild(parallel);
+            configuration.appendChild(useUnlimitedThreads);
+        }
+//        final Element includes = document.createElement("includes");
+//        final Element include = document.createElement("include");
+//        include.setTextContent(fullQualifiedName);
+//        includes.appendChild(include);
+//        configuration.appendChild(includes);
     }
 
     private Node findPluginByArtifactId(Document document, Node pluginsNode, String artifactId) {
@@ -206,7 +247,7 @@ public class DSpotPOMCreator {
         this.isJUnit5 = isJUnit5;
     }
 
-    private void _innerCreatePom(String fullQualifiedName) {
+    private void _innerCreatePom() {
         try {
             final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -217,11 +258,11 @@ public class DSpotPOMCreator {
             // CONFIGURATION TO RUN INSTRUMENTED TEST
             configureForInstrumentedTests(document, root);
             
-            if (InputConfiguration.get().shouldExecuteTestsInParallel()) {
+            if (InputConfiguration.get().shouldExecuteTestsInParallel() && InputConfiguration.get().shouldUseMavenToExecuteTest()) {
                 //Add JUnit4/5 dependencies for parallel execution
                 //Add Surefire plugin configuration for parallel execution
                 addJUnitDependencies(document, root);
-                addSurefirePluginConfiguration (document, root, fullQualifiedName);
+                addSurefirePluginConfiguration (document, root);
             }
 
             final Element profile = createProfile(document);

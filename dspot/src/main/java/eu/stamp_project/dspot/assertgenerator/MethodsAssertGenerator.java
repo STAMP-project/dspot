@@ -115,10 +115,7 @@ public class MethodsAssertGenerator {
         LOGGER.info("Run instrumented tests. ({})", testsToRun.size());
         TestFramework.get().generateAfterClassToSaveObservations(clone, testsToRun);
         try {
-            //Add parallel test execution support (JUnit4, JUnit5) for execution method (CMD, Maven)
-            if (InputConfiguration.get().shouldExecuteTestsInParallel()) {
-                CloneHelper.addParallelExecutionAnnotation (testClass, testsToRun);
-            }
+            
             final TestResult result = TestCompiler.compileAndRun(clone,
                     this.compiler,
                     testsToRun,
