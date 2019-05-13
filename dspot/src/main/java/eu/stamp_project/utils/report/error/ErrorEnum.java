@@ -49,7 +49,7 @@ public enum ErrorEnum {
      /*
         ERRORS DUE TO I/O
      */
-     ERROR_PRINT_USING_TO_STRING("Sonething bad happened when DSpot tried to print a test class using the toString()"),
+     ERROR_PRINT_USING_TO_STRING("Something bad happened when DSpot tried to print a test class using the toString()"),
 
     /*
         ERRORS LINKED TO A SPECIFIC IMPLEMENTATION

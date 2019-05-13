@@ -90,7 +90,7 @@ public class DSpotUtils {
                 DSpotUtils.shouldAddSeparator.apply(directoryPathname) + type.getSimpleName() + JAVA_EXTENSION)
         ) {
             fileWriter.write(type.toString());
-        } catch (IOException e) {
+        } catch (Exception e) {
             Main.GLOBAL_REPORT.addError(new Error(ErrorEnum.ERROR_PRINT_USING_TO_STRING, e));
         }
     }
