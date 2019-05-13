@@ -115,7 +115,6 @@ public class MethodsAssertGenerator {
         LOGGER.info("Run instrumented tests. ({})", testsToRun.size());
         TestFramework.get().generateAfterClassToSaveObservations(clone, testsToRun);
         try {
-            
             final TestResult result = TestCompiler.compileAndRun(clone,
                     this.compiler,
                     testsToRun,

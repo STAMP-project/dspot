@@ -100,6 +100,12 @@
 			<version>2.0.7</version>
 			<classifier>jar-with-dependencies</classifier>
 		</dependency>
+		
+		<dependency>
+			<groupId>com.googlecode.junit-toolbox</groupId>
+			<artifactId>junit-toolbox</artifactId>
+			<version>2.4</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.openclover</groupId>

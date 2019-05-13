@@ -86,14 +86,14 @@ public class DSpotPOMCreator {
     private static final String SUFFIX_JUNIT5 = "_junit5_";
 
     public static void createNewPom() {
-        new DSpotPOMCreator(true)._innerCreatePom();
-        new DSpotPOMCreator(false)._innerCreatePom();
+        new DSpotPOMCreator(true)._innerCreatePom(null);
+        new DSpotPOMCreator(false)._innerCreatePom(null);
     }
     
-//    public static void createNewPom(String fullQualifiedName) {
-//        new DSpotPOMCreator(true)._innerCreatePom(fullQualifiedName);
-//        new DSpotPOMCreator(false)._innerCreatePom(fullQualifiedName);
-//    }
+    public static void createNewPom(String fullQualifiedName) {
+        new DSpotPOMCreator(true)._innerCreatePom(fullQualifiedName);
+        new DSpotPOMCreator(false)._innerCreatePom(fullQualifiedName);
+    }
     
     public static String createNewPomForComputingClassPathWithParallelExecution() {
         return new DSpotPOMCreator(InputConfiguration.get().isJUnit5())._createNewPomForComputingClassPathWithParallelExecution();
@@ -126,6 +126,11 @@ public class DSpotPOMCreator {
             throw new RuntimeException(e);
         }
     }
+    
+//    public static void createNewPom(String fullQualifiedName) {
+//        new DSpotPOMCreator(true)._innerCreatePom(fullQualifiedName);
+//        new DSpotPOMCreator(false)._innerCreatePom(fullQualifiedName);
+//    }
     
     private void addJUnitDependencies(Document document, Node root) {
         final Node dependencies = findOrCreateGivenNode(document, root, DEPENDENCIES);
@@ -247,7 +252,7 @@ public class DSpotPOMCreator {
         this.isJUnit5 = isJUnit5;
     }
 
-    private void _innerCreatePom() {
+    private void _innerCreatePom(String fullQualifiedName) {
         try {
             final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder docBuilder = docFactory.newDocumentBuilder();

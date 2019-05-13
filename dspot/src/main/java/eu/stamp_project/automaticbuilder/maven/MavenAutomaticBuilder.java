@@ -148,11 +148,12 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         final String pomPathname;
         if (InputConfiguration.get().shouldExecuteTestsInParallel()) {
             DSpotPOMCreator.createNewPomForComputingClassPathWithParallelExecution();
-            pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot()
-                    + DSpotPOMCreator.getParallelPOMName();
-        } else {
+            pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot() + 
+                    DSpotPOMCreator.getParallelPOMName();
+        }else {
             DSpotPOMCreator.createNewPom();
-            pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.getPOMName();
+            pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot() + 
+                    DSpotPOMCreator.getPOMName();
         }
         this.hasGeneratePom = true;
         LOGGER.info("Using {} to run maven.", pomPathname);
@@ -166,8 +167,8 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
             DSpotPOMCreator.createNewPom();
             this.hasGeneratePom = true;
         }
-        final String pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot()
-                + (specificPom ? DSpotPOMCreator.getPOMName() : DSpotPOMCreator.POM_FILE);
+        final String pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot() + 
+                (specificPom ? DSpotPOMCreator.getPOMName() : DSpotPOMCreator.POM_FILE);
         LOGGER.info("Using {} to run maven.", pomPathname);
         return _runGoals(specificPom, pomPathname, goals);
     }
