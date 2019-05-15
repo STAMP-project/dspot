@@ -2,6 +2,7 @@ package eu.stamp_project.diff_test_selection;
 
 import eu.stamp_project.diff_test_selection.configuration.Configuration;
 import eu.stamp_project.diff_test_selection.coverage.Coverage;
+import eu.stamp_project.diff_test_selection.report.CSVReport;
 import gumtree.spoon.AstComparator;
 import gumtree.spoon.diff.Diff;
 import gumtree.spoon.diff.operations.Operation;
@@ -46,30 +47,42 @@ public class DiffTestSelection {
 
     Map<String, Set<String>> getTestThatExecuteChanges() {
         final Map<String, Set<String>> testMethodPerTestClasses = new LinkedHashMap<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(new File(configuration.pathToDiff)))) {
-            String currentLine = null;
-            while ((currentLine = reader.readLine()) != null) {
-                if ((currentLine.startsWith("+++") || currentLine.startsWith("---")) && currentLine.endsWith(".java")) {
-                    Map<String, List<Integer>> modifiedLinesPerQualifiedName =
-                            getModifiedLinesPerQualifiedName(currentLine, reader.readLine());
-                    if (modifiedLinesPerQualifiedName == null) {
-                        continue;
-                    }
-                    //this.coverage.addModifiedLines(modifiedLinesPerQualifiedName);
-                    Map<String, Set<String>> matchedChangedWithCoverage = matchChangedWithCoverage(this.mapCoverage, modifiedLinesPerQualifiedName);
-                    matchedChangedWithCoverage.keySet().forEach(key -> {
-                        if (!testMethodPerTestClasses.containsKey(key)) {
-                            testMethodPerTestClasses.put(key, matchedChangedWithCoverage.get(key));
-                        } else {
-                            testMethodPerTestClasses.get(key).addAll(matchedChangedWithCoverage.get(key));
-                        }
-                    });
+        String[] lines = configuration.diff.split(System.getProperty("line.separator"));
+        for (int i = 0; i < lines.length; i++) {
+            String currentLine = lines[i];
+            if ((currentLine.startsWith("+++") || currentLine.startsWith("---")) &&
+                    !getJavaFile(currentLine).isEmpty()) {
+                Map<String, List<Integer>> modifiedLinesPerQualifiedName =
+                        getModifiedLinesPerQualifiedName(currentLine, lines[++i]);
+                if (modifiedLinesPerQualifiedName == null) {
+                    continue;
                 }
+                //this.coverage.addModifiedLines(modifiedLinesPerQualifiedName);
+                Map<String, Set<String>> matchedChangedWithCoverage = matchChangedWithCoverage(this.mapCoverage, modifiedLinesPerQualifiedName);
+                matchedChangedWithCoverage.keySet().forEach(key -> {
+                    if (!testMethodPerTestClasses.containsKey(key)) {
+                        testMethodPerTestClasses.put(key, matchedChangedWithCoverage.get(key));
+                    } else {
+                        testMethodPerTestClasses.get(key).addAll(matchedChangedWithCoverage.get(key));
+                    }
+                });
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         return testMethodPerTestClasses;
+    }
+
+    private String getJavaFile(String currentLine) {
+        for (String item : currentLine.split(" ")) {
+            if (item.endsWith(".java")) {
+                return item;
+            }
+            for (String value : item.split("\t")) {
+                if (value.endsWith(".java")) {
+                    return value;
+                }
+            }
+        }
+        return "";
     }
 
     private Map<String, Set<String>> matchChangedWithCoverage(Map<String, Map<String, Map<String, List<Integer>>>> coverage,
@@ -96,13 +109,12 @@ public class DiffTestSelection {
         return testClassNamePerTestMethodNamesThatCoverChanges;
     }
 
-    @Nullable
     private Map<String, List<Integer>> getModifiedLinesPerQualifiedName(String currentLine,
-                                                                        String secondLine) throws Exception {
+                                                                        String secondLine) {
         final File baseDir = new File(this.configuration.pathToFirstVersion);
         final String file1 = getCorrectPathFile(currentLine);
         final String file2 = getCorrectPathFile(secondLine);
-        if (!file2.endsWith(file1)) {
+        if (!file2.endsWith(file1.substring(this.configuration.pathToFirstVersion.length()))) {
             LOGGER.warn("Could not match " + file1 + " and " + file2);
             return null;
         }
@@ -126,7 +138,7 @@ public class DiffTestSelection {
         final List<CtStatement> statements = new ArrayList<>();
         for (Operation operation : allOperations) {
             final CtElement node = filterOperation(operation);
-            if ( node != null && !statements.contains(node.getParent(CtStatement.class))) {
+            if (node != null && !statements.contains(node.getParent(CtStatement.class))) {
                 final int line = node.getPosition().getLine();
                 final String qualifiedName = node
                         .getPosition()
@@ -137,7 +149,7 @@ public class DiffTestSelection {
                     modifiedLinesPerQualifiedName.put(qualifiedName, new ArrayList<>());
                 }
                 modifiedLinesPerQualifiedName.get(qualifiedName).add(line);
-                if (!(node.getParent(CtStatement.class)instanceof CtBlock<?>)) {
+                if (!(node.getParent(CtStatement.class) instanceof CtBlock<?>)) {
                     this.coverage.addModifiedLine(qualifiedName, line);
                 }
                 statements.add(node.getParent(CtStatement.class));
@@ -168,19 +180,19 @@ public class DiffTestSelection {
     }
 
     private File getCorrectFile(String baseDir, String fileName) {
+        File file = new File(fileName);
+        if (file.isAbsolute()) {
+            return file;
+        }
         if (fileName.substring(1).startsWith(this.configuration.module)) {
             fileName = fileName.substring(this.configuration.module.length() + 1);
         }
-        final File file = new File(baseDir + "/" + fileName);
+        file = new File(baseDir + "/" + fileName);
         return file.exists() ? file : new File(baseDir + "/../" + fileName);
     }
 
     private String getCorrectPathFile(String path) {
-        final String s = path.split(" ")[1];
-        if (s.contains("\t")) {
-            return removeDiffPrefix(s.split("\t")[0]);
-        }
-        return removeDiffPrefix(s);
+        return removeDiffPrefix(getJavaFile(path));
     }
 
     private String removeDiffPrefix(String s) {
