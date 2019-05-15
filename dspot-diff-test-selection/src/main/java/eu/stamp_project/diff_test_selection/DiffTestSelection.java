@@ -114,7 +114,7 @@ public class DiffTestSelection {
         final File baseDir = new File(this.configuration.pathToFirstVersion);
         final String file1 = getCorrectPathFile(currentLine);
         final String file2 = getCorrectPathFile(secondLine);
-        if (!file2.endsWith(file1.substring(this.configuration.pathToFirstVersion.length()))) {
+        if (shouldSkip(file1, file2)) {
             LOGGER.warn("Could not match " + file1 + " and " + file2);
             return null;
         }
@@ -129,6 +129,18 @@ public class DiffTestSelection {
             LOGGER.error("Error when trying to compare " + f1 + " and " + f2);
             return null;
         }
+    }
+
+    private boolean shouldSkip(String file1, String file2) {
+        if (file2.endsWith(file1)) {
+            return false;
+        }
+        if (new File(file1).isAbsolute() && new File(file2).isAbsolute() &&
+                file2.endsWith(file1.substring(this.configuration.pathToFirstVersion.length()))) {
+            return false;
+        }
+        LOGGER.warn("Could not match " + file1 + " and " + file2);
+        return true;
     }
 
     @NotNull
@@ -181,7 +193,7 @@ public class DiffTestSelection {
 
     private File getCorrectFile(String baseDir, String fileName) {
         File file = new File(fileName);
-        if (file.isAbsolute()) {
+        if (file.isAbsolute() && file.exists()) {
             return file;
         }
         if (fileName.substring(1).startsWith(this.configuration.module)) {
