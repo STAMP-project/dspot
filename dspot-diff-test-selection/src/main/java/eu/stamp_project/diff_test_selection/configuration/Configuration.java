@@ -40,22 +40,16 @@ public class Configuration {
         this.reportFormat = ReportEnum.valueOf(reportFormat);
         this.module = module == null ? "" : module;
         if (pathToDiff == null || pathToDiff.isEmpty()) {
-            if (!new File(pathToFirstVersion + "/" + DiffComputer.DIFF_FILE_NAME).exists()) {
-                LOGGER.warn("No path to diff file has been specified.");
-                LOGGER.warn("I'll compute a diff file using the UNIX diff command");
-                LOGGER.warn("You may encounter troubles.");
-                LOGGER.warn("If so, please specify a path to a correct diff file");
-                LOGGER.warn("or implement a new way to compute a diff file.");
-                this.diff = new DiffComputer().computeDiffWithDiffCommand(
-                        new File(pathToFirstVersion), new File(pathToSecondVersion)
-                );
-            } else {
-                this.diff = this.readFile(pathToFirstVersion + "/" + DiffComputer.DIFF_FILE_NAME);
-            }
+            LOGGER.warn("No path to diff file has been specified.");
+            LOGGER.warn("I'll compute a diff file using the UNIX diff command");
+            LOGGER.warn("You may encounter troubles.");
+            LOGGER.warn("If so, please specify a path to a correct diff file");
+            LOGGER.warn("or implement a new way to compute a diff file.");
+            this.diff = new DiffComputer()
+                    .computeDiffWithDiffCommand(new File(pathToFirstVersion), new File(pathToSecondVersion));
         } else {
             this.diff = this.readFile(pathToDiff);
         }
-        System.out.println(this.diff);
         if (outputPath == null || outputPath.isEmpty()) {
             this.outputPath = this.pathToFirstVersion +
                     (this.pathToFirstVersion.endsWith("/") ? "" : "/") +
@@ -66,13 +60,16 @@ public class Configuration {
     }
 
     private String readFile(String pathToFileToRead) {
-        String fileContent = "";
+        final String nl = System.getProperty("line.separator");
+        StringBuilder builder = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new FileReader(new File(pathToFileToRead)))) {
-            fileContent += reader.readLine();
+            reader.lines().forEach(
+                    line -> builder.append(line).append(nl)
+            );
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return fileContent;
+        return builder.toString();
     }
 
     public enum ReportEnum {
