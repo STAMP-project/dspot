@@ -190,6 +190,11 @@ public class DSpotMojo extends AbstractMojo {
     @Parameter(defaultValue = "false", property = "use-maven-to-exe-test")
     private Boolean useMavenToExeTest = false;
 
+    /**
+     *	If enabled, DSpot will generate assertions for values that seems like to be paths.
+     */
+    @Parameter(defaultValue = "false", property = "allow-path-in-assertions")
+    private Boolean allowPathInAssertions;
 
     /**
      * run the example of DSpot and leave
@@ -266,7 +271,8 @@ public class DSpotMojo extends AbstractMojo {
                     .setGenerateAmplifiedTestClass(this.generateNewTestClass)
                     .setKeepOriginalTestMethods(this.keepOriginalTestMethods)
                     .setUseMavenToExecuteTest(this.useMavenToExeTest)
-                    .setTargetOneTestClass(this.targetOneTestClass);
+                    .setTargetOneTestClass(this.targetOneTestClass)
+                    .setAllowPathInAssertion(this.allowPathInAssertions);
 
             InputConfiguration.get().setOutputDirectory(
                     ConstantsProperties.OUTPUT_DIRECTORY.get(properties).isEmpty() ?

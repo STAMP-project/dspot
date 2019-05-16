@@ -959,4 +959,16 @@ public class InputConfiguration {
         return this;
     }
 
+    private boolean allowPathInAssertion = false;
+
+    public boolean shouldAllowPathInAssertion() {
+        return this.targetOneTestClass;
+    }
+
+    public InputConfiguration setAllowPathInAssertion(boolean allowPathInAssertion) {
+        this.allowPathInAssertion = allowPathInAssertion;
+        return this;
+    }
+
+
 }

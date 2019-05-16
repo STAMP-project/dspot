@@ -3,6 +3,7 @@ package eu.stamp_project.dspot.assertgenerator;
 import eu.stamp_project.compare.MethodsHandler;
 import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.utils.CloneHelper;
+import eu.stamp_project.utils.program.InputConfiguration;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
@@ -29,8 +30,8 @@ import java.util.regex.Pattern;
 public class AssertGeneratorHelper {
 
     public static boolean canGenerateAnAssertionFor(String candidate) {
-        return !AssertGeneratorHelper.containsObjectReferences(candidate)
-                && !AssertGeneratorHelper.containsAPath(candidate);
+        return !AssertGeneratorHelper.containsObjectReferences(candidate) &&
+                (InputConfiguration.get().shouldUseMavenToExecuteTest() || !AssertGeneratorHelper.containsAPath(candidate));
     }
 
     public static boolean containsAPath(String candidate) {
