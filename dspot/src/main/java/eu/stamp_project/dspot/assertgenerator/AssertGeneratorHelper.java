@@ -31,7 +31,7 @@ public class AssertGeneratorHelper {
 
     public static boolean canGenerateAnAssertionFor(String candidate) {
         return !AssertGeneratorHelper.containsObjectReferences(candidate) &&
-                (InputConfiguration.get().shouldUseMavenToExecuteTest() || !AssertGeneratorHelper.containsAPath(candidate));
+                (InputConfiguration.get().shouldAllowPathInAssertion() || !AssertGeneratorHelper.containsAPath(candidate));
     }
 
     public static boolean containsAPath(String candidate) {

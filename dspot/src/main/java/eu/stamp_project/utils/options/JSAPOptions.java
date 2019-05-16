@@ -350,6 +350,9 @@ public class JSAPOptions {
         useMavenToExecuteTests.setDefault("false");
         useMavenToExecuteTests.setHelp("If enabled, DSpot will use maven to execute the tests.");
 
+        /*
+            This switch allows DSpot to generate assertion on string values that look like paths.
+        */
         Switch allowPathInAssertions = new Switch("allow-path-in-assertions");
         allowPathInAssertions.setLongFlag("allow-path-in-assertions");
         allowPathInAssertions.setDefault("false");

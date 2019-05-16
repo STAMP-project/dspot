@@ -962,7 +962,7 @@ public class InputConfiguration {
     private boolean allowPathInAssertion = false;
 
     public boolean shouldAllowPathInAssertion() {
-        return this.targetOneTestClass;
+        return this.allowPathInAssertion;
     }
 
     public InputConfiguration setAllowPathInAssertion(boolean allowPathInAssertion) {
