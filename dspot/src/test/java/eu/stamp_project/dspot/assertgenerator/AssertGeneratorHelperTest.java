@@ -50,7 +50,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
         assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor(new Object().toString() + "not found"));
 
         InputConfiguration.get().setAllowPathInAssertion(true);
-        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor("yes/no"));
+        assertTrue(AssertGeneratorHelper.canGenerateAnAssertionFor("yes/no"));
     }
 
     @Test
