@@ -31,9 +31,10 @@ import static org.junit.Assert.assertTrue;
 public class AssertGeneratorHelperTest extends AbstractTest {
 
     @Test
-    public void testCanGeneraterAssertionFor() {
-        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor(InputConfiguration.get().getAbsolutePathToProjectRoot()));
+    public void testCanGenerateAssertionFor() {
         assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor("yes/no"));
+
+        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor(InputConfiguration.get().getAbsolutePathToProjectRoot()));
         assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor(InputConfiguration.get().getAbsolutePathToProjectRoot() + " is a directory"));
         assertTrue(AssertGeneratorHelper.canGenerateAnAssertionFor("This is not a path"));
 
@@ -47,6 +48,9 @@ public class AssertGeneratorHelperTest extends AbstractTest {
         assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor("Expected message : " + new Object().toString() + "not found"));
         assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor("Expected message : " + new Object().toString()));
         assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor(new Object().toString() + "not found"));
+
+        InputConfiguration.get().setAllowPathInAssertion(true);
+        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor("yes/no"));
     }
 
     @Test
