@@ -14,6 +14,8 @@ import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.util.Collections;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -29,6 +31,30 @@ public class AssertionRemoverTest extends AbstractTest {
     @BeforeClass
     public static void beforeClass() throws Exception {
         Utils.reset();
+    }
+
+    @Test
+    public void testThatWeGenerateLogStatementOnValuesThatWasAssertedByTheOriginalTest() {
+
+        /*
+            We execute the assertion remover then the instrumentation of the logging
+            w/e was in the assertion. DSpot generates a log statement around it
+                e.g. assertEquals("aString", new MyObject().toString()) would give
+                new MyObject().toString(); then
+                log(new MyObject().toString())
+         */
+
+        CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
+        final CtMethod<?> test1 = (CtMethod<?>) testClass.getMethodsByName("testWithNewSomethingWithoutLocalVariables").get(0);
+        final AssertionRemover assertionRemover = new AssertionRemover();
+        final CtMethod<?> ctMethod = assertionRemover.removeAssertion(test1);
+        final CtMethod<?> testWithLog =
+                AssertGeneratorHelper.createTestWithLog(ctMethod, "fr.inria.sample", Collections.emptyList());
+        assertEquals("@org.junit.Test(timeout = 10000)\n" +
+                "public void testWithNewSomethingWithoutLocalVariables_withlog() throws java.lang.Exception {\n" +
+                "    java.lang.String o_testWithNewSomethingWithoutLocalVariables__1 = new fr.inria.sample.ClassWithBoolean().toString();\n" +
+                "    eu.stamp_project.compare.ObjectLog.log(o_testWithNewSomethingWithoutLocalVariables__1, \"o_testWithNewSomethingWithoutLocalVariables__1\", \"testWithNewSomethingWithoutLocalVariables__1\");\n" +
+                "}", testWithLog.toString());
     }
 
     @Test

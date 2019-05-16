@@ -52,6 +52,20 @@ public class AssertGeneratorTest extends AbstractTest {
     }
 
     @Test
+    public void testOnTestWithAssertedValues() {
+
+        /*
+            If there is any asserted values, DSpot should regenerate an assertion on them
+         */
+
+        CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
+        final CtMethod<?> test1 = (CtMethod<?>) testClass.getMethodsByName("testWithNewSomethingWithoutLocalVariables").get(0);
+        final List<CtMethod<?>> assertionAmplifications =
+                this.assertGenerator.assertionAmplification(testClass, Collections.singletonList(test1));
+        System.out.println(assertionAmplifications);
+    }
+
+    @Test
     public void testCreateLogOnClassObject() throws Exception {
         final CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         final CtMethod<?> testOnClass = Utils.findMethod(testClass, "testOnClass");
