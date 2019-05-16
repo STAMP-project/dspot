@@ -3,18 +3,13 @@ package eu.stamp_project.dspot.assertgenerator;
 import eu.stamp_project.compare.MethodsHandler;
 import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.utils.CloneHelper;
-import spoon.reflect.code.CtAssignment;
-import spoon.reflect.code.CtBlock;
-import spoon.reflect.code.CtInvocation;
-import spoon.reflect.code.CtLocalVariable;
-import spoon.reflect.code.CtLoop;
-import spoon.reflect.code.CtStatement;
-import spoon.reflect.code.CtTypeAccess;
-import spoon.reflect.code.CtVariableAccess;
-import spoon.reflect.code.CtVariableWrite;
+import eu.stamp_project.utils.program.InputConfiguration;
+import spoon.reflect.code.*;
+import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
 import spoon.reflect.declaration.CtTypedElement;
+import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.reference.CtWildcardReference;
@@ -35,8 +30,8 @@ import java.util.regex.Pattern;
 public class AssertGeneratorHelper {
 
     public static boolean canGenerateAnAssertionFor(String candidate) {
-        return !AssertGeneratorHelper.containsObjectReferences(candidate)
-                && !AssertGeneratorHelper.containsAPath(candidate);
+        return !AssertGeneratorHelper.containsObjectReferences(candidate) &&
+                (InputConfiguration.get().shouldAllowPathInAssertion() || !AssertGeneratorHelper.containsAPath(candidate));
     }
 
     public static boolean containsAPath(String candidate) {
@@ -122,8 +117,9 @@ public class AssertGeneratorHelper {
 
         if (statement instanceof CtInvocation) {
             CtInvocation invocation = (CtInvocation) statement;
-            return (isCorrectReturn(invocation)
-                    && !isGetter(invocation));
+            return (invocation.getMetadata(METADATA_WAS_IN_ASSERTION) != null &&
+                            (Boolean) invocation.getMetadata(METADATA_WAS_IN_ASSERTION)) ||
+                            (isCorrectReturn(invocation) && !isGetter(invocation));
         }
 
         if (statement instanceof CtLocalVariable ||
@@ -168,17 +164,19 @@ public class AssertGeneratorHelper {
             return;
         }
 
-        final CtTypeAccess<ObjectLog> typeAccess = stmt.getFactory().createTypeAccess(
-                stmt.getFactory().Type().createReference(ObjectLog.class)
+        final Factory factory = stmt.getFactory();
+
+        final CtTypeAccess<ObjectLog> typeAccess = factory.createTypeAccess(
+                factory.Type().createReference(ObjectLog.class)
         );
 
-        final CtExecutableReference objectLogExecRef = stmt.getFactory().createExecutableReference()
+        final CtExecutableReference objectLogExecRef = factory.createExecutableReference()
                 .setStatic(true)
-                .setDeclaringType(stmt.getFactory().Type().createReference(ObjectLog.class))
+                .setDeclaringType(factory.Type().createReference(ObjectLog.class))
                 .setSimpleName("log");
-        objectLogExecRef.setType(stmt.getFactory().Type().voidPrimitiveType());
+        objectLogExecRef.setType(factory.Type().voidPrimitiveType());
 
-        final CtInvocation invocationToObjectLog = stmt.getFactory().createInvocation(typeAccess, objectLogExecRef);
+        final CtInvocation invocationToObjectLog = factory.createInvocation(typeAccess, objectLogExecRef);
 
         CtStatement insertAfter;
         if (stmt instanceof CtVariableWrite) {//TODO
@@ -186,25 +184,29 @@ public class AssertGeneratorHelper {
             insertAfter = stmt;
         } else if (stmt instanceof CtLocalVariable) {
             CtLocalVariable localVar = (CtLocalVariable) stmt;
-            final CtVariableAccess variableRead = stmt.getFactory().createVariableRead(localVar.getReference(), false);// TODO checks static
+            final CtVariableAccess variableRead = factory.createVariableRead(localVar.getReference(), false);// TODO checks static
             invocationToObjectLog.addArgument(variableRead);
-            invocationToObjectLog.addArgument(stmt.getFactory().createLiteral(localVar.getSimpleName()));
+            invocationToObjectLog.addArgument(factory.createLiteral(localVar.getSimpleName()));
             insertAfter = stmt;
         } else if (stmt instanceof CtAssignment) {
             CtAssignment localVar = (CtAssignment) stmt;
             invocationToObjectLog.addArgument(localVar.getAssigned());
-            invocationToObjectLog.addArgument(stmt.getFactory().createLiteral(localVar.getAssigned().toString()));
+            invocationToObjectLog.addArgument(factory.createLiteral(localVar.getAssigned().toString()));
             insertAfter = stmt;
         } else if (stmt instanceof CtInvocation) {
+            // in case of a new Something() or a method call,
+            // we put the new Something() in a local variable
+            // then we replace it by the an access to this local variable
+            // and we add a log statement on it
             CtInvocation invocation = (CtInvocation) stmt;
             if (isVoidReturn(invocation)) {
                 invocationToObjectLog.addArgument(invocation.getTarget());
-                invocationToObjectLog.addArgument(stmt.getFactory().createLiteral(
+                invocationToObjectLog.addArgument(factory.createLiteral(
                         invocation.getTarget().toString().replace("\"", "\\\""))
                 );
                 insertAfter = invocation;
             } else {
-                final CtLocalVariable localVariable = stmt.getFactory().createLocalVariable(
+                final CtLocalVariable localVariable = factory.createLocalVariable(
                         getCorrectTypeOfInvocation(invocation),
                         "o_" + id,
                         invocation.clone()
@@ -214,18 +216,39 @@ public class AssertGeneratorHelper {
                 } catch (ClassCastException e) {
                     throw new RuntimeException(e);
                 }
-                invocationToObjectLog.addArgument(stmt.getFactory().createVariableRead(localVariable.getReference(), false));
-                invocationToObjectLog.addArgument(stmt.getFactory().createLiteral("o_" + id));
+                invocationToObjectLog.addArgument(factory.createVariableRead(localVariable.getReference(), false));
+                invocationToObjectLog.addArgument(factory.createLiteral("o_" + id));
                 insertAfter = localVariable;
             }
+        } else if (stmt instanceof CtConstructorCall) {
+            final CtConstructorCall constructorCall = (CtConstructorCall<?>) stmt;
+            final CtLocalVariable<?> localVariable = factory.createLocalVariable(
+                    constructorCall.getType(),
+                    "o_" + id,
+                    constructorCall.clone()
+            );
+            try {
+                getTopStatement(stmt).insertBefore(localVariable);
+            } catch (IndexOutOfBoundsException e) {
+                throw new RuntimeException(e);
+            }
+
+            try {
+                stmt.replace(factory.createVariableRead(localVariable.getReference(), false));
+            } catch (ClassCastException e) {
+                throw new RuntimeException(e);
+            }
+            invocationToObjectLog.addArgument(factory.createVariableRead(localVariable.getReference(), false));
+            invocationToObjectLog.addArgument(factory.createLiteral("o_" + id));
+            insertAfter = localVariable;
         } else {
             throw new RuntimeException("Could not find the proper type to add log statement" + stmt.toString());
         }
 
         // clone the statement invocation for add it to the end of the tests
         CtInvocation invocationToObjectLogAtTheEnd = invocationToObjectLog.clone();
-        invocationToObjectLogAtTheEnd.addArgument(stmt.getFactory().createLiteral(id + "___" + "end"));
-        invocationToObjectLog.addArgument(stmt.getFactory().createLiteral(id));
+        invocationToObjectLogAtTheEnd.addArgument(factory.createLiteral(id + "___" + "end"));
+        invocationToObjectLog.addArgument(factory.createLiteral(id));
 
         //TODO checks this if this condition is ok.
         if (getSize(stmt.getParent(CtMethod.class).getBody()) + 1 < 65535) {
@@ -257,5 +280,15 @@ public class AssertGeneratorHelper {
         return false;
     };
 
+    public final static String METADATA_WAS_IN_ASSERTION = "Was-Asserted";
+
     public final static String METADATA_ASSERT_AMPLIFICATION = "A-Amplification";
+
+    public static CtStatement getTopStatement(CtElement start) {
+        CtElement topStatement = start;
+        while (!(topStatement.getParent() instanceof CtStatementList)) {
+            topStatement = topStatement.getParent();
+        }
+        return (CtStatement) topStatement;
+    }
 }

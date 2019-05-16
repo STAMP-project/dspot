@@ -6,7 +6,6 @@ import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.program.InputConfiguration;
-import org.junit.Assert;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
@@ -32,9 +31,10 @@ import static org.junit.Assert.assertTrue;
 public class AssertGeneratorHelperTest extends AbstractTest {
 
     @Test
-    public void testCanGeneraterAssertionFor() {
-        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor(InputConfiguration.get().getAbsolutePathToProjectRoot()));
+    public void testCanGenerateAssertionFor() {
         assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor("yes/no"));
+
+        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor(InputConfiguration.get().getAbsolutePathToProjectRoot()));
         assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor(InputConfiguration.get().getAbsolutePathToProjectRoot() + " is a directory"));
         assertTrue(AssertGeneratorHelper.canGenerateAnAssertionFor("This is not a path"));
 
@@ -48,6 +48,9 @@ public class AssertGeneratorHelperTest extends AbstractTest {
         assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor("Expected message : " + new Object().toString() + "not found"));
         assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor("Expected message : " + new Object().toString()));
         assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor(new Object().toString() + "not found"));
+
+        InputConfiguration.get().setAllowPathInAssertion(true);
+        assertTrue(AssertGeneratorHelper.canGenerateAnAssertionFor("yes/no"));
     }
 
     @Test

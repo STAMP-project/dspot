@@ -25,5 +25,6 @@ public abstract class AbstractTest {
         Utils.getInputConfiguration().setMinimize(false);
         InputConfiguration.get().setGenerateAmplifiedTestClass(false);
         InputConfiguration.get().setKeepOriginalTestMethods(false);
+        InputConfiguration.get().setAllowPathInAssertion(false);
     }
 }

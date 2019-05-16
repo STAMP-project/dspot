@@ -66,7 +66,7 @@ public class DSpotMockedTest extends AbstractTest {
 
         final List<CtMethod<?>> amplifiedTestMethods = TestFramework.getAllTest(amplifiedTest);
         assertEquals(6, amplifiedTestMethods.size());
-        assertEquals(70, amplifiedTestMethods.stream().mapToLong(
+        assertEquals(89, amplifiedTestMethods.stream().mapToLong(
                 ctMethod -> ctMethod.getElements(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
                     @Override
                     public boolean matches(CtInvocation<?> element) {

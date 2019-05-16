@@ -142,7 +142,8 @@ public class JSAPOptions {
                 .setKeepOriginalTestMethods(jsapConfig.getBoolean("keep-original-test-methods"))
                 .setDescartesMode(jsapConfig.getBoolean("descartes") && !jsapConfig.getBoolean("gregor"))
                 .setUseMavenToExecuteTest(jsapConfig.getBoolean("use-maven-to-exe-test"))
-                .setTargetOneTestClass(jsapConfig.getBoolean("targetOneTestClass"));
+                .setTargetOneTestClass(jsapConfig.getBoolean("targetOneTestClass"))
+                .setAllowPathInAssertion(jsapConfig.getBoolean("allow-path-in-assertions"));
         return false;
     }
 
@@ -349,6 +350,14 @@ public class JSAPOptions {
         useMavenToExecuteTests.setDefault("false");
         useMavenToExecuteTests.setHelp("If enabled, DSpot will use maven to execute the tests.");
 
+        /*
+            This switch allows DSpot to generate assertion on string values that look like paths.
+        */
+        Switch allowPathInAssertions = new Switch("allow-path-in-assertions");
+        allowPathInAssertions.setLongFlag("allow-path-in-assertions");
+        allowPathInAssertions.setDefault("false");
+        allowPathInAssertions.setHelp("If enabled, DSpot will generate assertions for values that seems like to be paths.");
+
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
@@ -376,6 +385,7 @@ public class JSAPOptions {
             jsap.registerParameter(generateNewTestClass);
             jsap.registerParameter(keepOriginalTestMethods);
             jsap.registerParameter(useMavenToExecuteTests);
+            jsap.registerParameter(allowPathInAssertions);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {

@@ -16,6 +16,11 @@ import static org.junit.Assert.assertTrue;
 public class TestClassWithAssert extends TestClassWithAssertOld {
 
     @Test
+    public void testWithNewSomethingWithoutLocalVariables() {
+        assertEquals("", new ClassWithBoolean().toString());
+    }
+
+    @Test
     public void testWithAMethodCallThatContainsAssertionsAndItsReturnedValueIsUsed() {
         String aString = verify("aString");
         assertEquals("aString", aString);
