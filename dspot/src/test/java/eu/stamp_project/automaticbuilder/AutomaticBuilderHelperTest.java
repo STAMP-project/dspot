@@ -4,6 +4,7 @@ import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtType;
 
@@ -16,15 +17,19 @@ import static org.junit.Assert.assertEquals;
  */
 public class AutomaticBuilderHelperTest extends AbstractTest {
 
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        Utils.reset();
+        super.setUp();
+    }
+
     @Test
     public void testGetFilter() {
 
         /*
             Test that getFilter returns the setted filter in the InputConfiguration
          */
-        
-        Utils.reset();
-        Utils.init(getPathToPropertiesFile());
         assertEquals("fr.inria.sample.*", AutomaticBuilderHelper.getFilter());
     }
 
