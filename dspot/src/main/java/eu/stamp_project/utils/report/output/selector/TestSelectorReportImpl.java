@@ -31,6 +31,7 @@ public class TestSelectorReportImpl implements TestSelectorReport {
     @Override
     public void output() {
         final String allReports = this.testSelectorElementReportPerTestClass.keySet().stream()
+                .filter(this.testSelectorElementReportPerTestClass::containsKey)
                 .map(testClass -> this.testSelectorElementReportPerTestClass.get(testClass).output(testClass))
                 .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
         LOGGER.info("{}{}", AmplificationHelper.LINE_SEPARATOR, allReports);
