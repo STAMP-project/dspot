@@ -1,12 +1,8 @@
 package eu.stamp_project;
 
-import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.options.AmplifierEnum;
-import eu.stamp_project.utils.options.BudgetizerEnum;
-import eu.stamp_project.utils.options.JSAPOptions;
-import eu.stamp_project.utils.options.SelectorEnum;
+import eu.stamp_project.utils.options.*;
 import eu.stamp_project.utils.program.ConstantsProperties;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.commons.io.FilenameUtils;
@@ -20,7 +16,6 @@ import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -266,6 +261,7 @@ public class DSpotMojo extends AbstractMojo {
                 return;
             }
         }
+
         if (this.amplifiers.size() == 1 &&
                 this.amplifiers.get(0).contains(AmplificationHelper.PATH_SEPARATOR)) {
             this.amplifiers = Arrays.stream(this.amplifiers.get(0).split(AmplificationHelper.PATH_SEPARATOR))
@@ -273,38 +269,33 @@ public class DSpotMojo extends AbstractMojo {
         }
         try {
 
-            InputConfiguration.initialize(properties);
-
-            InputConfiguration.setUp(
-                    this.amplifiers, this.budgetizer,
-                    SelectorEnum.valueOf(this.testCriterion).buildSelector(), this.test,
-                    this.testCases, this.iteration,
-                    this.randomSeed, this.timeOut,
-                    this.maxTestAmplified, this.clean,
-                    this.verbose, this.workingDirectory,
-                    this.withComment, this.generateNewTestClass,
-                    this.keepOriginalTestMethods, false,
-                    this.descartes, this.useMavenToExeTest,
-                    this.targetOneTestClass, this.allowPathInAssertions
+            Configuration.configure(
+                    properties,
+            this.amplifiers,
+                    this.testCriterion,
+                    this.budgetizer,
+                    this.pitOutputFormat,
+                    this.pathPitResult,
+                    this.AUTOMATIC_BUILDER_NAME,
+                    this.outputPath,
+                    this.iteration,
+                    this.randomSeed,
+                    this.timeOut,
+                    this.maxTestAmplified,
+                    this.clean,
+                    this.verbose,
+                    this.workingDirectory,
+                    this.withComment,
+                    this.generateNewTestClass,
+                    this.keepOriginalTestMethods,
+                    this.gregor,
+                    this.descartes,
+                    this.useMavenToExeTest,
+                    this.targetOneTestClass,
+                    this.allowPathInAssertions,
+                    this.test,
+                    this.testCases
             );
-
-            InputConfiguration.get().setOutputDirectory(
-                    ConstantsProperties.OUTPUT_DIRECTORY.get(properties).isEmpty() ?
-                            this.outputPath : ConstantsProperties.OUTPUT_DIRECTORY.get(properties));
-
-            if (this.pathPitResult != null && !this.pathPitResult.isEmpty()) {
-                InputConfiguration.get().setSelector(new PitMutantScoreSelector(this.pathPitResult,
-                        this.pathPitResult.endsWith(".xml") ?
-                                PitMutantScoreSelector.OutputFormat.XML : PitMutantScoreSelector.OutputFormat.CSV,
-                        PitMutantScoreSelector.OutputFormat.XML)
-                );
-            } else {
-                InputConfiguration.get().setSelector(SelectorEnum.valueOf(this.testCriterion).buildSelector());
-            }
-
-            if (!this.pathToSecondVersion.isEmpty()) {
-                InputConfiguration.get().setAbsolutePathToSecondVersionProjectRoot(this.pathToSecondVersion);
-            }
 
             if (!this.pathToTestListCsv.isEmpty()) {
                 // clear both list of test classes and test cases

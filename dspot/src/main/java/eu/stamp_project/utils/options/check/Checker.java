@@ -1,9 +1,11 @@
 package eu.stamp_project.utils.options.check;
 
-import com.martiansoftware.jsap.JSAPResult;
 import eu.stamp_project.Main;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.options.AmplifierEnum;
+import eu.stamp_project.utils.options.BudgetizerEnum;
+import eu.stamp_project.utils.options.SelectorEnum;
 import eu.stamp_project.utils.program.ConstantsProperties;
 import eu.stamp_project.utils.report.error.Error;
 import eu.stamp_project.utils.report.error.ErrorEnum;
@@ -28,6 +30,26 @@ import java.util.stream.Collectors;
 public class Checker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Checker.class);
+
+    /*
+        Checking algo
+     */
+
+    public static void preChecking(List<String> amplifiers,
+                                   String selector,
+                                   String budgetizer,
+                                   Properties properties) {
+        Checker.checkEnum(AmplifierEnum.class, amplifiers, "amplifiers");
+        Checker.checkEnum(SelectorEnum.class, selector, "test-criterion");
+        Checker.checkEnum(BudgetizerEnum.class, budgetizer, "budgetizer");
+        Checker.checkProperties(properties);
+    }
+
+    public static void postChecking(Properties properties) {
+        // we check now the binaries folders after the compilation
+        Checker.checkBinariesFolders(properties);
+    }
+
 
     /*
         PROPERTIES CHECK
@@ -103,7 +125,7 @@ public class Checker {
         }
         // TODO check JVM args and System args
         checkJVMArgs(ConstantsProperties.JVM_ARGS.get(properties)); // no checks since it is a soft checks
-        Checker.checkProperties(ConstantsProperties.SYSTEM_PROPERTIES.get(properties));
+        checkSystemProperties(ConstantsProperties.SYSTEM_PROPERTIES.get(properties));
     }
 
     // TODO must be enhanced.
@@ -112,7 +134,7 @@ public class Checker {
         I'll restrict the check to jvmArgs=-Xmx2048m,-Xms1024m,-Dis.admin.user=admin,-Dis.admin.passwd=$2pRSid#,
         i.e increase the memory and gives some property
         By soft checks, I mean that DSpot won't throw errors (like others checks) but will display a warning.
-        Same for checkProperties
+        Same for checkSystemProperties
      */
     public static boolean checkJVMArgs(String jvmArgs) {
         final String[] jvmArgsArrays = jvmArgs.split(",");
@@ -134,7 +156,7 @@ public class Checker {
         return isOkayGlobal;
     }
 
-    public static boolean checkProperties(String systemProperties) {
+    public static boolean checkSystemProperties(String systemProperties) {
         return true;
     }
 
@@ -163,9 +185,9 @@ public class Checker {
     /*
         PROPERTIES PATH FILE CHECK
      */
-    public static void checkPathToPropertiesValue(JSAPResult jsapConfig) {
+    public static void checkPathToPropertiesValue(String pathToPropertiesFile) {
         Checker.checkPathnameNotNullAndFileExist(
-                jsapConfig.getString("path-to-properties"),
+                pathToPropertiesFile,
                 ErrorEnum.ERROR_PATH_TO_PROPERTIES,
                 "You did not provide the path to your properties file, which is mandatory.",
                 "The provided path to the properties file is incorrect, the properties file does not exist."

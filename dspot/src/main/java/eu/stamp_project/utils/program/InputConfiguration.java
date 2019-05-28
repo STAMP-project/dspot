@@ -12,6 +12,7 @@ import eu.stamp_project.utils.options.BudgetizerEnum;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.options.Configuration;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,20 +46,6 @@ public class InputConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InputConfiguration.class);
 
-    public static Properties loadProperties(String pathToPropertiesFile) {
-        try {
-            Properties properties = new Properties();
-            if (pathToPropertiesFile == null || "".equals(pathToPropertiesFile)) {
-                LOGGER.warn("You did not specify any path for the properties file. Using only default values.");
-            } else {
-                properties.load(new FileInputStream(pathToPropertiesFile));
-            }
-            return properties;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static InputConfiguration get() {
         return InputConfiguration.instance;
     }
@@ -74,7 +61,7 @@ public class InputConfiguration {
      * @return the new instance of the InputConfiguration
      */
     public static InputConfiguration initialize(String pathToPropertiesFile) {
-        InputConfiguration.initialize(loadProperties(pathToPropertiesFile));
+        InputConfiguration.initialize(Configuration.loadProperties(pathToPropertiesFile));
         InputConfiguration.instance.configPath = pathToPropertiesFile;
         return InputConfiguration.instance;
     }
@@ -91,7 +78,7 @@ public class InputConfiguration {
      * @return the new instance of the InputConfiguration
      */
     public static InputConfiguration initialize(String pathToPropertiesFile, String builderName) {
-        InputConfiguration.initialize(loadProperties(pathToPropertiesFile), builderName);
+        InputConfiguration.initialize(Configuration.loadProperties(pathToPropertiesFile), builderName);
         InputConfiguration.instance.configPath = pathToPropertiesFile;
         return InputConfiguration.instance;
     }
