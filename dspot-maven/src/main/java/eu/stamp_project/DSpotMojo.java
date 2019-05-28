@@ -317,9 +317,6 @@ public class DSpotMojo extends AbstractMojo {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        // global report handling
-        Main.GLOBAL_REPORT.output();
-        Main.GLOBAL_REPORT.reset();
     }
 
     // visible for testing...

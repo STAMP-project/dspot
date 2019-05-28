@@ -37,12 +37,8 @@ public class Main {
 		} catch (Exception ignored) {
 
 		}
-		final boolean shouldRunExample = JSAPOptions.parse(args);
-		if (shouldRunExample) {
-			Main.runExample();
-		} else {
-			run();
-		}
+		JSAPOptions.parse(args);
+		run();
 		// global report handling
 		Main.GLOBAL_REPORT.output();
 		Main.GLOBAL_REPORT.reset();
@@ -80,20 +76,6 @@ public class Main {
 			}
 		} catch (IOException ignored) {
 			// ignored
-		}
-	}
-
-	static void runExample() {
-		try {
-			InputConfiguration.get().initialize("src/test/resources/test-projects/test-projects.properties");
-			DSpot dSpot = new DSpot(1,
-					Collections.singletonList(new TestDataMutator()),
-					new JacocoCoverageSelector(),
-					BudgetizerEnum.RandomBudgetizer
-			);
-			dSpot.amplifyTestClassesTestMethods(Collections.singletonList("example.TestSuiteExample"), Collections.emptyList());
-		} catch (Exception e) {
-			throw new RuntimeException(e);
 		}
 	}
 

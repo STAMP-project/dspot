@@ -1,5 +1,7 @@
 package eu.stamp_project.utils.options;
 
+import eu.stamp_project.dspot.amplifier.TestDataMutator;
+import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.options.check.Checker;
@@ -9,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -20,6 +23,21 @@ import java.util.Properties;
 public class Configuration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
+
+    static void configureExample() {
+        try {
+
+            InputConfiguration.get().initialize("src/test/resources/test-projects/test-projects.properties");
+            InputConfiguration.get().setNbIteration(1);
+            InputConfiguration.get().setAmplifiers(Collections.singletonList(new TestDataMutator()));
+            InputConfiguration.get().setSelector(new JacocoCoverageSelector());
+            InputConfiguration.get().setBudgetizer(BudgetizerEnum.RandomBudgetizer);
+            InputConfiguration.get().setTestClasses(Collections.singletonList("example.TestSuiteExample"));
+            InputConfiguration.get().setTestClasses(Collections.emptyList());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static void configure(final String pathToPropertiesFile,
                                  final List<String> amplifiers,

@@ -36,10 +36,9 @@ public class JSAPOptions {
      * parse the command line argument
      *
      * @param args command line arguments. Refer to the README on the github page or use --help command line option to display all the accepted arguments.
-     * @return true if --example is pass through the command line. It will run DSpot with a small example to make a demonstration of the usage of DSpot.
      * Otherwise, it returns false and DSpot will run normally, using the properties and the command line options.
      */
-    public static boolean parse(String[] args) {
+    public static void parse(String[] args) {
         JSAPResult jsapConfig = options.parse(args);
         if (!jsapConfig.success() || jsapConfig.getBoolean("help")) {
             System.err.println();
@@ -48,7 +47,8 @@ public class JSAPOptions {
             }
             showUsage();
         } else if (jsapConfig.getBoolean("example")) {
-            return true;
+            Configuration.configureExample();
+            return;
         }
 
         // getting first all the values of the command line.
@@ -109,8 +109,6 @@ public class JSAPOptions {
                 testClasses,
                 testCases
         );
-
-        return false;
     }
 
     private static String helpForEnums(Class<?> enumClass) {
