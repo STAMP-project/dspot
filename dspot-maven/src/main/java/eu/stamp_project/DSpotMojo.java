@@ -252,28 +252,22 @@ public class DSpotMojo extends AbstractMojo {
                     .collect(Collectors.toList());
         }
         try {
-            InputConfiguration.initialize(properties)
-                    .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(new ArrayList<>(this.amplifiers)))
-                    .setNbIteration(this.iteration)
-                    .setTestClasses(this.test)
-                    .setBudgetizer(BudgetizerEnum.valueOf(this.budgetizer))
-                    .setTestCases(this.cases)
-                    .setSeed(this.randomSeed)
-                    .setTimeOutInMs(this.timeOut)
-                    .setBuilderName(this.automaticBuilder)
-                    .setMaxTestAmplified(this.maxTestAmplified)
-                    .setClean(this.clean)
-                    .setMinimize(this.noMinimize)
-                    .setVerbose(this.verbose)
-                    .setUseWorkingDirectory(this.workingDirectory)
-                    .setWithComment(this.withComment)
-                    .setDescartesMode(this.descartes)
-                    .setGenerateAmplifiedTestClass(this.generateNewTestClass)
-                    .setKeepOriginalTestMethods(this.keepOriginalTestMethods)
-                    .setUseMavenToExecuteTest(this.useMavenToExeTest)
-                    .setTargetOneTestClass(this.targetOneTestClass)
-                    .setAllowPathInAssertion(this.allowPathInAssertions);
 
+            InputConfiguration.initialize(properties);
+
+            InputConfiguration.setUp(
+                    this.amplifiers, this.budgetizer,
+                    SelectorEnum.valueOf(this.testCriterion).buildSelector(), this.test,
+                    this.cases, this.iteration,
+                    this.randomSeed, this.timeOut,
+                    this.maxTestAmplified, this.clean,
+                    this.verbose, this.workingDirectory,
+                    this.withComment, this.generateNewTestClass,
+                    this.keepOriginalTestMethods, false,
+                    this.descartes, this.useMavenToExeTest,
+                    this.targetOneTestClass, this.allowPathInAssertions
+            );
+            
             InputConfiguration.get().setOutputDirectory(
                     ConstantsProperties.OUTPUT_DIRECTORY.get(properties).isEmpty() ?
                             this.outputPath : ConstantsProperties.OUTPUT_DIRECTORY.get(properties));
@@ -321,26 +315,25 @@ public class DSpotMojo extends AbstractMojo {
     @NotNull
     Properties initializeProperties() {
         Properties properties = new Properties();
+        properties.setProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName(), project.getBasedir().getAbsolutePath());
+        final Build build = project.getBuild();
+        properties.setProperty(ConstantsProperties.SRC_CODE.getName(), build.getSourceDirectory());
+        properties.setProperty(ConstantsProperties.TEST_SRC_CODE.getName(), build.getTestSourceDirectory());
+        properties.setProperty(ConstantsProperties.SRC_CLASSES.getName(), build.getOutputDirectory());
+        properties.setProperty(ConstantsProperties.TEST_CLASSES.getName(), build.getTestOutputDirectory());
+        // TODO checks that we can use an empty module for multi module project
+        // TODO the guess here is that the user will launch the plugin from the root of the targeted module
+        // TODO and thus, we do not need to compute the relative path from its parents
+        // TODO however, it may lacks some dependencies and the user should run a resolve dependency goal
+        // TODO before using the dspot plugin
+        // TODO we must maybe need to use a correct lifecycle
+        properties.setProperty(ConstantsProperties.MODULE.getName(), "");
         if (this.pathToProperties != null && !this.pathToProperties.isEmpty()) {
             try {
                 properties.load(new FileInputStream(this.pathToProperties));
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } else {
-            properties.setProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName(), project.getBasedir().getAbsolutePath());
-            final Build build = project.getBuild();
-            properties.setProperty(ConstantsProperties.SRC_CODE.getName(), build.getSourceDirectory());
-            properties.setProperty(ConstantsProperties.TEST_SRC_CODE.getName(), build.getTestSourceDirectory());
-            properties.setProperty(ConstantsProperties.SRC_CLASSES.getName(), build.getOutputDirectory());
-            properties.setProperty(ConstantsProperties.TEST_CLASSES.getName(), build.getTestOutputDirectory());
-            // TODO checks that we can use an empty module for multi module project
-            // TODO the guess here is that the user will launch the plugin from the root of the targeted module
-            // TODO and thus, we do not need to compute the relative path from its parents
-            // TODO however, it may lacks some dependencies and the user should run a resolve dependency goal
-            // TODO before using the dspot plugin
-            // TODO we must maybe need to use a correct lifecycle
-            properties.setProperty(ConstantsProperties.MODULE.getName(), "");
         }
         return properties;
     }

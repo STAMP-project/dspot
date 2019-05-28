@@ -123,27 +123,18 @@ public class JSAPOptions {
         // we check now the binaries folders after the compilation
         Checker.checkBinariesFolders(properties);
 
-        InputConfiguration.get()
-                .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(amplifiers))
-                .setNbIteration(jsapConfig.getInt("iteration"))
-                .setTestClasses(testClasses)
-                .setSelector(testCriterion)
-                .setTestCases(testCases)
-                .setSeed(jsapConfig.getLong("seed"))
-                .setTimeOutInMs(jsapConfig.getInt("timeOut"))
-                .setMaxTestAmplified(jsapConfig.getInt("maxTestAmplified"))
-                .setBudgetizer(BudgetizerEnum.valueOf(budgetizer))
-                .setClean(jsapConfig.getBoolean("clean"))
-                .setMinimize(!jsapConfig.getBoolean("no-minimize"))
-                .setVerbose(jsapConfig.getBoolean("verbose"))
-                .setUseWorkingDirectory(jsapConfig.getBoolean("working-directory"))
-                .setWithComment(jsapConfig.getBoolean("comment"))
-                .setGenerateAmplifiedTestClass(jsapConfig.getBoolean("generate-new-test-class"))
-                .setKeepOriginalTestMethods(jsapConfig.getBoolean("keep-original-test-methods"))
-                .setDescartesMode(jsapConfig.getBoolean("descartes") && !jsapConfig.getBoolean("gregor"))
-                .setUseMavenToExecuteTest(jsapConfig.getBoolean("use-maven-to-exe-test"))
-                .setTargetOneTestClass(jsapConfig.getBoolean("targetOneTestClass"))
-                .setAllowPathInAssertion(jsapConfig.getBoolean("allow-path-in-assertions"));
+        InputConfiguration.setUp(
+                amplifiers, budgetizer,
+                testCriterion, testClasses,
+                testCases, jsapConfig.getInt("iteration"),
+                jsapConfig.getLong("seed"), jsapConfig.getInt("timeOut"),
+                jsapConfig.getInt("maxTestAmplified"), jsapConfig.getBoolean("clean"),
+                jsapConfig.getBoolean("verbose"), jsapConfig.getBoolean("working-directory"),
+                jsapConfig.getBoolean("comment"), jsapConfig.getBoolean("generate-new-test-class"),
+                jsapConfig.getBoolean("keep-original-test-methods"), jsapConfig.getBoolean("gregor"),
+                jsapConfig.getBoolean("descartes"), jsapConfig.getBoolean("use-maven-to-exe-test"),
+                jsapConfig.getBoolean("targetOneTestClass"), jsapConfig.getBoolean("allow-path-in-assertions")
+        );
         return false;
     }
 

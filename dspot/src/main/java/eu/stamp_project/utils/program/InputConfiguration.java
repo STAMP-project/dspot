@@ -7,6 +7,7 @@ import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.DSpotCache;
+import eu.stamp_project.utils.options.AmplifierEnum;
 import eu.stamp_project.utils.options.BudgetizerEnum;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -303,6 +304,41 @@ public class InputConfiguration {
                 .setVerbose(true);
         // force here verbose mode, to have debug during the construction of the InputConfiguration
         // then it will take the command line value (default: false)
+    }
+
+    /**
+
+     */
+    public static void setUp(List<String> amplifiers, String budgetizer,
+                             TestSelector testCriterion, List<String> testClasses,
+                             List<String> testCases, int iteration,
+                             long seed, int timeOut,
+                             int maxTestAmplified, boolean clean,
+                             boolean verbose, boolean workingDirectory,
+                             boolean comment, boolean generateNewTestClass,
+                             boolean keepOriginalTestMethods, boolean gregor,
+                             boolean descartes, boolean useMavenToExecuteTest,
+                             boolean targetOneTestClass, boolean allowPathInAssertion) {
+        InputConfiguration.get()
+                .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(amplifiers))
+                .setNbIteration(iteration)
+                .setTestClasses(testClasses)
+                .setSelector(testCriterion)
+                .setTestCases(testCases)
+                .setSeed(seed)
+                .setTimeOutInMs(timeOut)
+                .setMaxTestAmplified(maxTestAmplified)
+                .setBudgetizer(BudgetizerEnum.valueOf(budgetizer))
+                .setClean(clean)
+                .setVerbose(verbose)
+                .setUseWorkingDirectory(workingDirectory)
+                .setWithComment(comment)
+                .setGenerateAmplifiedTestClass(generateNewTestClass)
+                .setKeepOriginalTestMethods(keepOriginalTestMethods)
+                .setDescartesMode(descartes && !gregor)
+                .setUseMavenToExecuteTest(useMavenToExecuteTest)
+                .setTargetOneTestClass(targetOneTestClass)
+                .setAllowPathInAssertion(allowPathInAssertion);
     }
 
     /*
