@@ -127,13 +127,13 @@ public class JSAPOptions {
                 amplifiers, budgetizer,
                 testCriterion, testClasses,
                 testCases, jsapConfig.getInt("iteration"),
-                jsapConfig.getLong("seed"), jsapConfig.getInt("timeOut"),
-                jsapConfig.getInt("maxTestAmplified"), jsapConfig.getBoolean("clean"),
+                jsapConfig.getLong("random-seed"), jsapConfig.getInt("time-out"),
+                jsapConfig.getInt("max-test-amplified"), jsapConfig.getBoolean("clean"),
                 jsapConfig.getBoolean("verbose"), jsapConfig.getBoolean("working-directory"),
                 jsapConfig.getBoolean("comment"), jsapConfig.getBoolean("generate-new-test-class"),
                 jsapConfig.getBoolean("keep-original-test-methods"), jsapConfig.getBoolean("gregor"),
                 jsapConfig.getBoolean("descartes"), jsapConfig.getBoolean("use-maven-to-exe-test"),
-                jsapConfig.getBoolean("targetOneTestClass"), jsapConfig.getBoolean("allow-path-in-assertions")
+                jsapConfig.getBoolean("target-one-test-class"), jsapConfig.getBoolean("allow-path-in-assertions")
         );
         return false;
     }
@@ -241,42 +241,42 @@ public class JSAPOptions {
         mutantScore.setUsageName("./path/to/mutations.csv");
         mutantScore.setHelp("[optional, expert mode] specify the path to the .xml or .csv of the original result of Pit Test. If you use this option the selector will be forced to PitMutantScoreSelector");
 
-        Switch targetOneTestClass = new Switch("targetOneTestClass");
-        targetOneTestClass.setLongFlag("targetOneTestClass");
+        Switch targetOneTestClass = new Switch("target-one-test-class");
+        targetOneTestClass.setLongFlag("target-one-test-class");
         targetOneTestClass.setHelp("[optional, expert] enable this option will make DSpot computing the mutation score of only one test class (the first pass through --test command line option)");
         targetOneTestClass.setDefault("false");
 
 
-        FlaggedOption testCases = new FlaggedOption("testCases");
+        FlaggedOption testCases = new FlaggedOption("test-cases");
         testCases.setList(true);
         testCases.setAllowMultipleDeclarations(false);
-        testCases.setLongFlag("cases");
+        testCases.setLongFlag("test-cases");
         testCases.setShortFlag('c');
         testCases.setStringParser(JSAP.STRING_PARSER);
         testCases.setHelp("specify the test cases to amplify");
 
-        FlaggedOption seed = new FlaggedOption("seed");
+        FlaggedOption seed = new FlaggedOption("random-seed");
         seed.setStringParser(JSAP.LONG_PARSER);
-        seed.setLongFlag("randomSeed");
+        seed.setLongFlag("random-seed");
         seed.setUsageName("long integer");
         seed.setHelp("specify a seed for the random object (used for all randomized operation)");
         seed.setDefault("23");
 
-        FlaggedOption timeOut = new FlaggedOption("timeOut");
+        FlaggedOption timeOut = new FlaggedOption("time-out");
         timeOut.setStringParser(JSAP.INTEGER_PARSER);
-        timeOut.setLongFlag("timeOut");
+        timeOut.setLongFlag("time-out");
         timeOut.setUsageName("long integer");
         timeOut.setHelp("specify the timeout value of the degenerated tests in millisecond");
         timeOut.setDefault("10000");
 
-        FlaggedOption automaticBuilder = new FlaggedOption("builder");
+        FlaggedOption automaticBuilder = new FlaggedOption("automatic-builder");
         automaticBuilder.setStringParser(JSAP.STRING_PARSER);
         automaticBuilder.setLongFlag("automatic-builder");
         automaticBuilder.setUsageName("MavenBuilder | GradleBuilder");
         automaticBuilder.setHelp("[optional] specify the automatic builder to build the project");
         automaticBuilder.setDefault("");
 
-        FlaggedOption mavenHome = new FlaggedOption("mavenHome");
+        FlaggedOption mavenHome = new FlaggedOption("maven-home");
         mavenHome.setStringParser(JSAP.STRING_PARSER);
         mavenHome.setLongFlag("maven-home");
         mavenHome.setUsageName("path to maven home");
@@ -287,7 +287,7 @@ public class JSAPOptions {
         verbose.setDefault("false");
         verbose.setHelp("Enable verbose mode of DSpot.");
 
-        FlaggedOption maxTestAmplified = new FlaggedOption("maxTestAmplified");
+        FlaggedOption maxTestAmplified = new FlaggedOption("max-test-amplified");
         maxTestAmplified.setStringParser(JSAP.INTEGER_PARSER);
         maxTestAmplified.setLongFlag("max-test-amplified");
         maxTestAmplified.setUsageName("integer");
@@ -301,7 +301,7 @@ public class JSAPOptions {
         budgetizer.setHelp("[optional] specify a Bugdetizer." + JSAPOptions.helpForEnums(BudgetizerEnum.class));
         budgetizer.setDefault("RandomBudgetizer");
 
-        Switch withComment = new Switch("comment");
+        Switch withComment = new Switch("with-comment");
         withComment.setLongFlag("with-comment");
         withComment.setDefault("false");
         withComment.setHelp("Enable comment on amplified test: details steps of the Amplification.");
