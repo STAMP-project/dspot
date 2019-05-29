@@ -64,7 +64,7 @@ public class JSAPOptions {
         final boolean clean = jsapConfig.getBoolean("clean");
         final boolean verbose = jsapConfig.getBoolean("verbose");
         final boolean workingDirectory = jsapConfig.getBoolean("working-directory");
-        final boolean comment = jsapConfig.getBoolean("comment");
+        final boolean comment = jsapConfig.getBoolean("with-comment");
         final boolean generateNewTestClass = jsapConfig.getBoolean("generate-new-test-class");
         final boolean keepOriginalTestMethods = jsapConfig.getBoolean("keep-original-test-methods");
         final boolean gregor = jsapConfig.getBoolean("gregor");
