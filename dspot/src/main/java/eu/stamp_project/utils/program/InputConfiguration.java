@@ -147,7 +147,7 @@ public class InputConfiguration {
         InputConfiguration.instance = new InputConfiguration(properties);
         InputConfiguration.instance.configPath = "";
         final String builderNameProperties = ConstantsProperties.AUTOMATIC_BUILDER_NAME.get(properties);
-        if (builderName.isEmpty() && builderNameProperties.isEmpty()) {
+        if (builderName == null || (builderName.isEmpty() && builderNameProperties.isEmpty())) {
             LOGGER.warn("No builder has been specified.");
             LOGGER.warn("Using Maven as a default builder.");
             LOGGER.warn("You can use the command-line option --automatic-builder");
