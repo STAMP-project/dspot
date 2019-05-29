@@ -1,7 +1,7 @@
 package eu.stamp_project;
 
-import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -83,7 +83,7 @@ public class MainTest {
                 "--path-to-properties", "src/test/resources/sample/sample.properties",
                 "--test-criterion", "TakeAllSelector",
                 "--test", "fr.inria.sample.TestClassWithoutAssert:fr.inria.sample.TestClassWithAssert",
-                "--cases", "test1:test:anOldTest",
+                "--test-cases", "test1:test:anOldTest",
                 "--no-minimize"
         });
         // an amplification happened, w/e it is
