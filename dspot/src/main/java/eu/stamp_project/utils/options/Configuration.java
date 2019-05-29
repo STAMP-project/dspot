@@ -149,18 +149,8 @@ public class Configuration {
                 originalFormat = PitMutantScoreSelector.OutputFormat.XML;
             }
             testCriterion = new PitMutantScoreSelector(pathPitResult, originalFormat, consecutiveFormat);
-
-            // default test selector mode
         } else {
-            if (!(pitOutputFormat == null)) {
-                if (!"PitMutantScoreSelector".equals(selector)) {
-                    LOGGER.warn("You specified an output format but you did not specify the right test-criterion");
-                    LOGGER.warn("Forcing the Selector to PitMutantScoreSelector");
-                }
-                testCriterion = new PitMutantScoreSelector(consecutiveFormat);
-            } else {
-                testCriterion = SelectorEnum.valueOf(selector).buildSelector();
-            }
+            testCriterion = SelectorEnum.valueOf(selector).buildSelector();
         }
 
         Checker.preChecking(
