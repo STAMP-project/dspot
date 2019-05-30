@@ -131,6 +131,13 @@ public class Configuration {
             consecutiveFormat = PitMutantScoreSelector.OutputFormat.XML;
         }
 
+        Checker.preChecking(
+                amplifiers,
+                selector,
+                budgetizer,
+                properties
+        );
+
         // expert test selector mode
         TestSelector testCriterion;
         if (pathPitResult != null) {
@@ -151,13 +158,6 @@ public class Configuration {
         } else {
             testCriterion = SelectorEnum.valueOf(selector).buildSelector();
         }
-
-        Checker.preChecking(
-                amplifiers,
-                selector,
-                budgetizer,
-                properties
-        );
 
         InputConfiguration.initialize(properties, builder);
         if (InputConfiguration.get().getOutputDirectory().isEmpty()) {
