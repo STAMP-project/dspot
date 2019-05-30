@@ -1,9 +1,6 @@
 package eu.stamp_project;
 
 import eu.stamp_project.dspot.DSpot;
-import eu.stamp_project.dspot.amplifier.TestDataMutator;
-import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
-import eu.stamp_project.utils.options.BudgetizerEnum;
 import eu.stamp_project.utils.options.JSAPOptions;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.RandomHelper;
@@ -18,7 +15,6 @@ import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 /**
