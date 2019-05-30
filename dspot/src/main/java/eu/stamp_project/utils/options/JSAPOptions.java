@@ -77,7 +77,7 @@ public class JSAPOptions {
         // and thus, the Factory will be created.
         // Anyway, the verification in DSpot is not yet too late nor deep in the amplification's process.
         final List<String> testClasses = Arrays.asList(jsapConfig.getStringArray("test"));
-        final List<String> testCases = Arrays.asList(jsapConfig.getStringArray("testCases"));
+        final List<String> testCases = Arrays.asList(jsapConfig.getStringArray("test-cases"));
 
         Configuration.configure(
                 pathToPropertiesFile,
