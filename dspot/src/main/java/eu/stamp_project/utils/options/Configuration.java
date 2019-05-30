@@ -26,8 +26,7 @@ public class Configuration {
 
     static void configureExample() {
         try {
-
-            InputConfiguration.get().initialize("src/test/resources/test-projects/test-projects.properties");
+            InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
             InputConfiguration.get().setNbIteration(1);
             InputConfiguration.get().setAmplifiers(Collections.singletonList(new TestDataMutator()));
             InputConfiguration.get().setSelector(new JacocoCoverageSelector());
