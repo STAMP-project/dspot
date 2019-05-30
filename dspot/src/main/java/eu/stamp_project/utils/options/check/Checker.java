@@ -62,13 +62,13 @@ public class Checker {
         currentPath += targetModulePropertyValue != null ? targetModulePropertyValue : "";
 
         // binary folders: classes and test-classes
-        Checker.checkRelativePathPropertyValue(
+        Checker.checkPathPropertyValue(
                 properties.getProperty(ConstantsProperties.SRC_CLASSES.getName()),
                 ErrorEnum.ERROR_PATH_TO_SRC_CLASSES_PROPERTY,
                 ConstantsProperties.SRC_CLASSES.getNaturalLanguageDesignation(),
                 currentPath
         );
-        Checker.checkRelativePathPropertyValue(
+        Checker.checkPathPropertyValue(
                 properties.getProperty(ConstantsProperties.TEST_CLASSES.getName()),
                 ErrorEnum.ERROR_PATH_TO_TEST_CLASSES_PROPERTY,
                 ConstantsProperties.TEST_CLASSES.getNaturalLanguageDesignation(),
@@ -87,7 +87,7 @@ public class Checker {
         );
         // target module
         final String targetModulePropertyValue = DSpotUtils.shouldAddSeparator.apply(properties.getProperty(ConstantsProperties.MODULE.getName()));
-        Checker.checkRelativePathPropertyValue(
+        Checker.checkPathPropertyValue(
                 targetModulePropertyValue,
                 ErrorEnum.ERROR_PATH_TO_TARGET_MODULE_PROPERTY,
                 ConstantsProperties.MODULE.getNaturalLanguageDesignation(),
@@ -96,13 +96,13 @@ public class Checker {
         currentPath += targetModulePropertyValue != null ? targetModulePropertyValue : "";
 
         // source folders: src and testSrc
-        Checker.checkRelativePathPropertyValue(
+        Checker.checkPathPropertyValue(
                 properties.getProperty(ConstantsProperties.SRC_CODE.getName()),
                 ErrorEnum.ERROR_PATH_TO_SRC_PROPERTY,
                 ConstantsProperties.SRC_CODE.getNaturalLanguageDesignation(),
                 currentPath
         );
-        Checker.checkRelativePathPropertyValue(
+        Checker.checkPathPropertyValue(
                 properties.getProperty(ConstantsProperties.TEST_SRC_CODE.getName()),
                 ErrorEnum.ERROR_PATH_TO_TEST_SRC_PROPERTY,
                 ConstantsProperties.TEST_SRC_CODE.getNaturalLanguageDesignation(),
@@ -110,7 +110,7 @@ public class Checker {
         );
 
         // path to maven home
-        Checker.checkRelativePathPropertyValue(
+        Checker.checkPathPropertyValue(
                 properties.getProperty(ConstantsProperties.MAVEN_HOME.getName()),
                 ErrorEnum.ERROR_PATH_TO_MAVEN_HOME,
                 ConstantsProperties.MAVEN_HOME.getNaturalLanguageDesignation(),
@@ -167,6 +167,23 @@ public class Checker {
                     )
             );
             throw new InputErrorException();
+        }
+    }
+
+    private static void checkPathPropertyValue(final String propertyValue,
+                                                       final ErrorEnum errorEnumInCaseOfError,
+                                                       final String naturalLanguageDesignation,
+                                                       final String rootPathProject) {
+        if (propertyValue != null) {
+            final String additionalMessage = "The provided path to the " + naturalLanguageDesignation + " of your project is incorrect, the folder does not exist."
+                    + AmplificationHelper.LINE_SEPARATOR + " This path should be either relative to the path pointed by "
+                    + ConstantsProperties.PROJECT_ROOT_PATH.getName() + " property "
+                    + AmplificationHelper.LINE_SEPARATOR + "or an absolute path";
+            if (new File(propertyValue).isAbsolute()) {
+                Checker.checkFileExists(propertyValue, errorEnumInCaseOfError, additionalMessage);
+            } else {
+                Checker.checkFileExists(rootPathProject + "/" + propertyValue, errorEnumInCaseOfError, additionalMessage);
+            }
         }
     }
 

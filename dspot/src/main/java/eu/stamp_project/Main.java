@@ -35,9 +35,6 @@ public class Main {
 		}
 		JSAPOptions.parse(args);
 		run();
-		// global report handling
-		Main.GLOBAL_REPORT.output();
-		Main.GLOBAL_REPORT.reset();
 	}
 
 	public static void run() {
@@ -59,6 +56,9 @@ public class Main {
 		LOGGER.info("Amplification {}.", amplifiedTestClasses.isEmpty() ? "failed" : "succeed");
 		final long elapsedTime = System.currentTimeMillis() - startTime;
 		LOGGER.info("Elapsed time {} ms", elapsedTime);
+		// global report handling
+		Main.GLOBAL_REPORT.output();
+		Main.GLOBAL_REPORT.reset();
 	}
 
 	public static void createOutputDirectories() {
