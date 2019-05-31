@@ -15,6 +15,7 @@ import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtFieldReference;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -80,8 +81,22 @@ public class AssertBuilder {
                         } else {
                             invocations.addAll(buildSnippetAssertCollection(factory, testMethod, observationKey, (Collection) value));
                         }
-                    } else if (TypeUtils.isArray(value)) {//TODO must be implemented
-                        //invocations.add(buildAssertForArray(factory, testMethod, observationKey, value));
+
+                        // Arrays
+                    } else if (TypeUtils.isArray(value)) {
+                        if(isPrimitiveArray(value)){
+                            CtExpression expectedValue = factory.createCodeSnippetExpression(getNewArrayExpression(value));
+                            List<CtExpression> list;
+                            if(getArrayComponentType(value).equals("float")){
+                                list = Arrays.asList(expectedValue,variableRead,factory.createLiteral(0.1F));
+                            } else if(getArrayComponentType(value).equals("double")){
+                                list = Arrays.asList(expectedValue,variableRead,factory.createLiteral(0.1));
+                            } else {
+                                list = Arrays.asList(expectedValue,variableRead);
+                            }
+                            invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod,
+                                    AssertEnum.ASSERT_ARRAY_EQUALS, list));
+                        }
                     } else if (TypeUtils.isPrimitiveMap(value)) {//TODO
                         Map valueCollection = (Map) value;
                         if (valueCollection.isEmpty()) {
@@ -146,22 +161,6 @@ public class AssertBuilder {
             variableRead.addTypeCast(variableRead.getFactory().Type().characterPrimitiveType());
         }
     }
-
-    /*
-    private static CtInvocation<?> buildAssertForArray(Factory factory, String expression, Object array) {
-        String type = array.getClass().getCanonicalName();
-        String arrayLocalVar1 = "array_" + Math.abs(RandomHelper.getRandom().nextInt());
-        String arrayLocalVar2 = "array_" + Math.abs(RandomHelper.getRandom().nextInt());
-
-
-        String forLoop = "\tfor(int ii = 0; ii <" + arrayLocalVar1 + ".length; ii++) {\n\t\t"
-                + JUNIT_ASSERT_CLASS_NAME + ".assertEquals(" + arrayLocalVar1 + "[ii], " + arrayLocalVar2 + "[ii]);\n\t}";
-
-        return factory.createCodeSnippetStatement(type + " " + arrayLocalVar1 + " = " + primitiveArrayToString(array, factory) + ";\n\t"
-                + type + " " + arrayLocalVar2 + " = " + "(" + type + ")" + expression + ";\n"
-                + forLoop);
-    }
-    */
 
     // TODO we need maybe limit assertion on a limited number of elements
     @SuppressWarnings("unchecked")
@@ -303,64 +302,99 @@ public class AssertBuilder {
                                 }));
     }
 
-    private static String primitiveArrayToString(Object array, Factory factory) {
-        String type = array.getClass().getCanonicalName();
-
-        String tmp;
-        if (type.equals("int[]")) {
-            final String elements = Arrays.stream((int[]) array)
-                    .boxed()
-                    .map(value -> getFieldReadOrLiteral(factory, value))
-                    .map(Object::toString)
-                    .collect(Collectors.joining(","));
-            return "new int[]{" + elements + "}";
+    private static String getNewArrayExpression(Object array){
+        StringBuilder sb = new StringBuilder();
+        ArrayList<Integer> al = new ArrayList<>();
+        getArrayInstance(array,sb,al);
+        int dimensions = getDimensions(array);
+        for(int i = dimensions; i>0; i--){
+            sb.insert(0,"[]");
         }
-        if (type.equals("short[]")) {
-            tmp = Arrays.toString((short[]) array);
-            return "new short[]{" + tmp.substring(1, tmp.length() - 1) + "}";
-        }
-        if (type.equals("byte[]")) {
-            tmp = Arrays.toString((byte[]) array);
-            return "new byte[]{" + tmp.substring(1, tmp.length() - 1) + "}";
-        }
-        if (type.equals("long[]")) {
-            tmp = Arrays.toString((long[]) array);
-            return "new long[]{" + tmp.substring(1, tmp.length() - 1) + "}";
-        }
-        if (type.equals("float[]")) {
-            tmp = Arrays.toString((float[]) array);
-            return "new float[]{" + tmp.substring(1, tmp.length() - 1) + "}";
-        }
-        if (type.equals("double[]")) {
-            final String elements = Arrays.stream((double[]) array)
-                    .boxed()
-                    .map(value -> getFieldReadOrLiteral(factory, value))
-                    .map(Object::toString)
-                    .collect(Collectors.joining(","));
-            return "new double[]{" + elements + "}";
-        }
-        if (type.equals("boolean[]")) {
-            tmp = Arrays.toString((boolean[]) array);
-            return "new boolean[]{" + tmp.substring(1, tmp.length() - 1) + "}";
-        }
-        if (type.equals("char[]")) {
-            char[] arrayChar = (char[]) array;
-
-            if (arrayChar.length == 0) {
-                return "new char[]{}";
-            }
-            if (arrayChar.length == 1) {
-                return "new char[]{\'" + arrayChar[0] + "\'}";
-            } else {
-                String ret = "new char[]{\'" + arrayChar[0];
-                for (int i = 1; i < arrayChar.length - 1; i++) {
-                    ret += "\',\'" + arrayChar[i];
-                }
-                return ret + "\'}";
+        for(int i = 1; i<sb.length(); i++){
+            if(sb.charAt(i-1) == '}' && sb.charAt(i) == '{') {
+                sb.insert(i,",");
             }
         }
-
-        return null;
+        sb.insert(0,"new " + getArrayComponentType(array));
+        return sb.toString();
     }
 
+    private static void getArrayInstance(Object array, StringBuilder sb, ArrayList al) {
+        sb.append("{");
+        int size = Array.getLength(array);
+        al.add(size);
+        for (int i = 0; i < size; i++) {
+            Object element = Array.get(array, i);
+            if (element.getClass().isArray()) {
+                getArrayInstance(element, sb, al);
+            } else {
+                addValue(element,sb);
+                if(i+1 < size) {
+                    sb.append(",");
+                }
+            }
+        }
+        sb.append("}");
+    }
+
+    private static void addValue(Object element,StringBuilder sb) {
+        if(element instanceof Character) {
+            switch ((char) element) {
+                case '\t':
+                    sb.append("'\\t'");
+                    break;
+                case '\b':
+                    sb.append("'\\b'");
+                    break;
+                case '\n':
+                    sb.append("'\\n'");
+                    break;
+                case '\r':
+                    sb.append("'\\r'");
+                    break;
+                case '\f':
+                    sb.append("'\\f'");
+                    break;
+                case '\'':
+                    sb.append("'\\''");
+                    break;
+                case '\"':
+                    sb.append("'\\\"'");
+                    break;
+                case '\\':
+                    sb.append("'\\\\'");
+                    break;
+                default:
+                    sb.append("'" + element + "'");
+            }
+        } else if(element instanceof Float) {
+            sb.append(element + "F");
+        } else {
+            sb.append(element);
+        }
+    }
+
+    private static String getArrayComponentType(Object array) {
+        int dimensions = getDimensions(array);
+        char type = array.getClass().getName().charAt(dimensions);
+        switch(type){
+            case 'Z': return "boolean";
+            case 'B': return "byte";
+            case 'C': return "char";
+            case 'D': return "double";
+            case 'F': return "float";
+            case 'I': return "int";
+            case 'J': return "long";
+            case 'S': return "short";
+            default : return "";
+        }
+    }
+
+    private static Boolean isPrimitiveArray(Object array) {
+        return !array.getClass().getName().contains("L");
+    }
+
+    private static int getDimensions(Object array) {
+        return 1 + array.getClass().getName().lastIndexOf('[');
+    }
 }
