@@ -149,6 +149,8 @@ public class MethodsAssertGenerator {
         CtMethod testWithAssert = CloneHelper.cloneTestMethodForAmp(test, "");
         int numberOfAddedAssertion = 0;
         List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter(CtStatement.class));
+
+        // for every observation, create an assertion
         for (String id : observations.keySet()) {
             if (!id.split("__")[0].equals(testWithAssert.getSimpleName())) {
                 continue;
@@ -160,6 +162,7 @@ public class MethodsAssertGenerator {
                     Double.parseDouble(configuration.getDelta())
             );
 
+            // skip the current observation if it leads to an assertion identical to the last assertion put into the test method
             if (assertStatements.stream()
                     .map(Object::toString)
                     .map("// AssertGenerator add assertion\n"::concat)
@@ -178,21 +181,30 @@ public class MethodsAssertGenerator {
                     if (statementToBeAsserted instanceof CtBlock) {
                         break;
                     }
+
+                    // if the statement to be asserted is a method or constructor call, replace that invocation in the
+                    // assertion with an equivalent local variable
                     if (statementToBeAsserted instanceof CtInvocation &&
                             !AssertGeneratorHelper.isVoidReturn((CtInvocation) statementToBeAsserted) &&
                             statementToBeAsserted.getParent() instanceof CtBlock) {
+
+                        // create a new local variable and assign the invocation to it
                         CtInvocation invocationToBeReplaced = (CtInvocation) statementToBeAsserted.clone();
                         final CtLocalVariable localVariable = factory.createLocalVariable(
                                 AssertGeneratorHelper.getCorrectTypeOfInvocation(invocationToBeReplaced),
                                 "o_" + id.split("___")[0],
                                 invocationToBeReplaced
                         );
+
+                        // put the new local variable into the assertion and the assertion into the test method
                         statementToBeAsserted.replace(localVariable);
                         DSpotUtils.addComment(localVariable, "AssertGenerator create local variable with return value of invocation", CtComment.CommentType.INLINE);
                         localVariable.setParent(statementToBeAsserted.getParent());
                         addAtCorrectPlace(id, localVariable, assertStatement, statementToBeAsserted);
                         statements.remove(line);
                         statements.add(line, localVariable);
+
+                        // no creation of local variable is needed, just put the assertion into the test method
                     } else {
                         addAtCorrectPlace(id, lastStmt, assertStatement, statementToBeAsserted);
                     }
