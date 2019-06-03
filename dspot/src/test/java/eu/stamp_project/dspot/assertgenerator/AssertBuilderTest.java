@@ -27,17 +27,22 @@ public class AssertBuilderTest extends AbstractTest {
         List<CtStatement> statement = AssertBuilder.buildAssert(ignore,empty,map,0.0);
         assertEquals("[org.junit.Assert.assertArrayEquals(new int[][]{{1,1,1},{2,2,2}}, test)]", statement.toString());
 
-        char[] charArray = "\\\"q".toCharArray();
+        long[] longArray = {1L,2l};
+        map.put("test", longArray);
+        statement = AssertBuilder.buildAssert(ignore,empty,map,0.0);
+        assertEquals("[org.junit.Assert.assertArrayEquals(new long[]{1L,2L}, test)]", statement.toString());
+
+        char[] charArray = "\\\"q\u00F1".toCharArray();
         map.put("test", charArray);
         statement = AssertBuilder.buildAssert(ignore,empty,map,0.0);
-        assertEquals("[org.junit.Assert.assertArrayEquals(new char[]{'\\\\','\\\"','q'}, test)]", statement.toString());
+        assertEquals("[org.junit.Assert.assertArrayEquals(new char[]{'\\\\','\\\"','q','\u00F1'}, test)]", statement.toString());
 
         double[] doubleArray = {1.1,2.2};
         map.put("test", doubleArray);
         statement = AssertBuilder.buildAssert(ignore,empty,map,0.0);
         assertEquals("[org.junit.Assert.assertArrayEquals(new double[]{1.1,2.2}, test, 0.1)]", statement.toString());
 
-        float[] floatArray = {1.1F,2.2F};
+        float[] floatArray = {1.1F,2.2f};
         map.put("test", floatArray);
         statement = AssertBuilder.buildAssert(ignore,empty,map,0.0);
         assertEquals("[org.junit.Assert.assertArrayEquals(new float[]{1.1F,2.2F}, test, 0.1F)]", statement.toString());

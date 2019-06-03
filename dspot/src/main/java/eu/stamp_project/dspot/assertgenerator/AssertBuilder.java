@@ -369,6 +369,8 @@ public class AssertBuilder {
             }
         } else if(element instanceof Float) {
             sb.append(element + "F");
+        } else if(element instanceof Long) {
+            sb.append(element + "L");
         } else {
             sb.append(element);
         }
