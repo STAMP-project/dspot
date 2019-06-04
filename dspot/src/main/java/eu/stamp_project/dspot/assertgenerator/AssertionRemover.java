@@ -9,10 +9,7 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.reference.CtVariableReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -89,9 +86,19 @@ public class AssertionRemover {
                     clone = ((CtUnaryOperator) clone).getOperand();
                 }
                 if (clone instanceof CtLambda) {
-                    invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter,
-                            factory.createStatementList(((CtLambda) clone).getBody())
-                    );
+                    CtLambda lambda = ((CtLambda) clone);
+                    if (lambda.getBody() != null) {
+                        invocation.getParent(CtStatementList.class).insertBefore(
+                                statementTypeFilter,
+                                factory.createStatementList(lambda.getBody())
+                        );
+                    } else {
+                        final CtBlock block = factory.createBlock();
+                        block.setStatements(Collections.singletonList((CtInvocation)lambda.getExpression().clone()));
+                        invocation.getParent(CtStatementList.class).insertBefore(
+                                statementTypeFilter, factory.createStatementList(block)
+                        );
+                    }
                 } else if (clone instanceof CtStatement) {
                     invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, (CtStatement) clone);
                     clone.putMetadata(AssertGeneratorHelper.METADATA_WAS_IN_ASSERTION, true);
