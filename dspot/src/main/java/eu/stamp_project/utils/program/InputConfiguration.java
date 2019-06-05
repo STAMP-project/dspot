@@ -363,17 +363,6 @@ public class InputConfiguration {
         return this;
     }
 
-    private String removeProjectRootIfAbsoluteAndAddSeparator(String path) {
-        System.out.println(path);
-        System.out.println(this.absolutePathToProjectRoot);
-        if (new File(path).isAbsolute()) {
-            System.out.println(path.substring(this.absolutePathToProjectRoot.length()));
-            return DSpotUtils.shouldAddSeparator.apply(path.substring(this.absolutePathToProjectRoot.length()));
-        } else {
-            return DSpotUtils.shouldAddSeparator.apply(path);
-        }
-    }
-
     private String pathToSourceCode;
 
     public String getPathToSourceCode() {
@@ -385,7 +374,7 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setPathToSourceCode(String pathToSourceCode) {
-        this.pathToSourceCode =removeProjectRootIfAbsoluteAndAddSeparator(pathToSourceCode);
+        this.pathToSourceCode = DSpotUtils.removeProjectRootIfAbsoluteAndAddSeparator(this.absolutePathToProjectRoot, pathToSourceCode);
         return this;
     }
 
@@ -396,7 +385,7 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setPathToTestSourceCode(String pathToTestSourceCode) {
-        this.pathToTestSourceCode = removeProjectRootIfAbsoluteAndAddSeparator(pathToTestSourceCode);
+        this.pathToTestSourceCode = DSpotUtils.removeProjectRootIfAbsoluteAndAddSeparator(this.absolutePathToProjectRoot, pathToTestSourceCode);
         return this;
     }
 
@@ -415,7 +404,7 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setPathToClasses(String pathToClasses) {
-        this.pathToClasses = removeProjectRootIfAbsoluteAndAddSeparator(pathToClasses);
+        this.pathToClasses = DSpotUtils.removeProjectRootIfAbsoluteAndAddSeparator(this.absolutePathToProjectRoot, pathToClasses);
         return this;
     }
 
@@ -434,7 +423,7 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setPathToTestClasses(String pathToTestClasses) {
-        this.pathToTestClasses = removeProjectRootIfAbsoluteAndAddSeparator(pathToTestClasses);
+        this.pathToTestClasses = DSpotUtils.removeProjectRootIfAbsoluteAndAddSeparator(this.absolutePathToProjectRoot, pathToTestClasses);
         return this;
     }
 
