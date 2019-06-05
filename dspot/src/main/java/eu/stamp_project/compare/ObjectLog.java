@@ -47,11 +47,11 @@ public class ObjectLog {
         return singleton;
     }
 
-    public static void reset() {
+    public static synchronized void reset() {
         singleton = new ObjectLog();
     }
 
-    public static void log(Object objectToObserve, String objectObservedAsString, String id) {
+    public static synchronized void log(Object objectToObserve, String objectObservedAsString, String id) {
         getSingleton()._log(
                 objectToObserve,
                 objectToObserve,
@@ -63,7 +63,7 @@ public class ObjectLog {
         );
     }
 
-    private void _log(Object startingObject,
+    private synchronized void _log(Object startingObject,
                       Object objectToObserve,
                       Class<?> currentObservedClass,
                       String observedObjectAsString,
@@ -105,7 +105,7 @@ public class ObjectLog {
         }
     }
 
-    private void addObservation(String id, String observedObjectAsString, Object actualValue) {
+    private synchronized void addObservation(String id, String observedObjectAsString, Object actualValue) {
         if (isSerializable(actualValue)) {
             if (actualValue instanceof String &&
                     // we forbid absolute paths
@@ -122,7 +122,7 @@ public class ObjectLog {
         }
     }
 
-    private Object chainInvocationOfMethods(List<Method> methodsToInvoke, Object startingObject) throws FailToObserveException {
+    private synchronized Object chainInvocationOfMethods(List<Method> methodsToInvoke, Object startingObject) throws FailToObserveException {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         FutureTask task = null;
         Object currentObject = null;
@@ -154,7 +154,7 @@ public class ObjectLog {
         return currentObject;
     }
 
-    private void observeNotNullObject(Object startingObject,
+    private synchronized void observeNotNullObject(Object startingObject,
                                       Class<?> currentObservedClass,
                                       String stringObject,
                                       String id,
@@ -196,7 +196,7 @@ public class ObjectLog {
         }
     }
 
-    private String getVisibleClass(Class<?> currentObservedClass) {
+    private synchronized String getVisibleClass(Class<?> currentObservedClass) {
         if (currentObservedClass == null || currentObservedClass == Object.class) {
             return "";
         } else if (Modifier.isPrivate(currentObservedClass.getModifiers()) ||
@@ -207,7 +207,7 @@ public class ObjectLog {
         }
     }
 
-    public static Map<String, Observation> getObservations() {
+    public synchronized static Map<String, Observation> getObservations() {
         if (getSingleton().observations.isEmpty()) {
             return load();
         } else {
@@ -217,14 +217,15 @@ public class ObjectLog {
 
     private static final String OBSERVATIONS_PATH_FILE_NAME = "target/dspot/observations.ser";
 
-    public static void save() {
+    public synchronized static void save() {
+        final File file = new File(OBSERVATIONS_PATH_FILE_NAME);
         getSingleton().observations.values().forEach(Observation::purify);
         try (FileOutputStream fout = new FileOutputStream(OBSERVATIONS_PATH_FILE_NAME)) {
             try (ObjectOutputStream oos = new ObjectOutputStream(fout)) {
                 oos.writeObject(getSingleton().observations);
                 System.out.println(
                         String.format("File saved to the following path: %s",
-                                new File(OBSERVATIONS_PATH_FILE_NAME).getAbsolutePath())
+                                file.getAbsolutePath())
                 );
             } catch (Exception e) {
                 e.printStackTrace();
@@ -236,7 +237,7 @@ public class ObjectLog {
         }
     }
 
-    public static Map<String, Observation> load() {
+    public synchronized static Map<String, Observation> load() {
         try (FileInputStream fi = new FileInputStream(new File(
                 (EntryPoint.workingDirectory != null ? // in case we modified the working directory
                         EntryPoint.workingDirectory.getAbsolutePath() + "/" : "") +
