@@ -1,6 +1,9 @@
 package eu.stamp_project.utils;
 
 import org.junit.Test;
+import spoon.Launcher;
+import spoon.reflect.CtModelImpl;
+import spoon.reflect.factory.Factory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,6 +18,16 @@ import static org.junit.Assert.assertTrue;
  * on 07/08/17
  */
 public class TypeUtilsTest {
+
+	@Test
+	public void testIsString() {
+		final Launcher launcher = new Launcher();
+		launcher.buildModel();
+		final Factory factory = launcher.getFactory();
+		assertTrue(TypeUtils.isString(factory.createLiteral("").getType()));
+		assertFalse(TypeUtils.isString(factory.createLiteral(1f).getType()));
+		assertFalse(TypeUtils.isString(null));
+	}
 
 	@Test
 	public void testIsPrimitiveCollection() throws Exception {

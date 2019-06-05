@@ -87,6 +87,9 @@ public class TypeUtils {
 	}
 
 	public static boolean isString(CtTypeReference type) {
+        if (type == null) {
+            return false;
+        }
 		try {
             return String.class.isAssignableFrom(type.getActualClass());
         } catch (spoon.support.SpoonClassNotFoundException ignored) {
