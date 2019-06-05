@@ -363,6 +363,17 @@ public class InputConfiguration {
         return this;
     }
 
+    private String removeProjectRootIfAbsoluteAndAddSeparator(String path) {
+        System.out.println(path);
+        System.out.println(this.absolutePathToProjectRoot);
+        if (new File(path).isAbsolute()) {
+            System.out.println(path.substring(this.absolutePathToProjectRoot.length()));
+            return DSpotUtils.shouldAddSeparator.apply(path.substring(this.absolutePathToProjectRoot.length()));
+        } else {
+            return DSpotUtils.shouldAddSeparator.apply(path);
+        }
+    }
+
     private String pathToSourceCode;
 
     public String getPathToSourceCode() {
@@ -374,10 +385,7 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setPathToSourceCode(String pathToSourceCode) {
-        if (new File(pathToSourceCode).isAbsolute()) {
-            pathToSourceCode = pathToSourceCode.substring(this.absolutePathToProjectRoot.length());
-        }
-        this.pathToSourceCode = DSpotUtils.shouldAddSeparator.apply(pathToSourceCode);
+        this.pathToSourceCode =removeProjectRootIfAbsoluteAndAddSeparator(pathToSourceCode);
         return this;
     }
 
@@ -388,10 +396,7 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setPathToTestSourceCode(String pathToTestSourceCode) {
-        if (new File(pathToTestSourceCode).isAbsolute()) {
-            pathToTestSourceCode = pathToTestSourceCode.substring(this.absolutePathToProjectRoot.length());
-        }
-        this.pathToTestSourceCode = DSpotUtils.shouldAddSeparator.apply(pathToTestSourceCode);
+        this.pathToTestSourceCode = removeProjectRootIfAbsoluteAndAddSeparator(pathToTestSourceCode);
         return this;
     }
 
@@ -410,10 +415,7 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setPathToClasses(String pathToClasses) {
-        if (new File(pathToClasses).isAbsolute()) {
-            pathToClasses = pathToClasses.substring(this.absolutePathToProjectRoot.length());
-        }
-        this.pathToClasses = DSpotUtils.shouldAddSeparator.apply(pathToClasses);
+        this.pathToClasses = removeProjectRootIfAbsoluteAndAddSeparator(pathToClasses);
         return this;
     }
 
@@ -432,10 +434,7 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setPathToTestClasses(String pathToTestClasses) {
-        if (new File(pathToTestClasses).isAbsolute()) {
-            pathToTestClasses = pathToTestClasses.substring(this.absolutePathToProjectRoot.length());
-        }
-        this.pathToTestClasses = DSpotUtils.shouldAddSeparator.apply(pathToTestClasses);
+        this.pathToTestClasses = removeProjectRootIfAbsoluteAndAddSeparator(pathToTestClasses);
         return this;
     }
 
