@@ -323,12 +323,17 @@ public class DSpotMojo extends AbstractMojo {
     @NotNull
     Properties initializeProperties() {
         Properties properties = new Properties();
-        properties.setProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName(), project.getBasedir().getAbsolutePath());
+        final String absolutePathProjectRoot = project.getBasedir().getAbsolutePath();
+        properties.setProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName(), absolutePathProjectRoot);
         final Build build = project.getBuild();
-        properties.setProperty(ConstantsProperties.SRC_CODE.getName(), build.getSourceDirectory());
-        properties.setProperty(ConstantsProperties.TEST_SRC_CODE.getName(), build.getTestSourceDirectory());
-        properties.setProperty(ConstantsProperties.SRC_CLASSES.getName(), build.getOutputDirectory());
-        properties.setProperty(ConstantsProperties.TEST_CLASSES.getName(), build.getTestOutputDirectory());
+        properties.setProperty(ConstantsProperties.SRC_CODE.getName(),
+                build.getSourceDirectory().substring(absolutePathProjectRoot.length()));
+        properties.setProperty(ConstantsProperties.TEST_SRC_CODE.getName(),
+                build.getTestSourceDirectory().substring(absolutePathProjectRoot.length()));
+        properties.setProperty(ConstantsProperties.SRC_CLASSES.getName(),
+                build.getOutputDirectory().substring(absolutePathProjectRoot.length()));
+        properties.setProperty(ConstantsProperties.TEST_CLASSES.getName(),
+                build.getTestOutputDirectory().substring(absolutePathProjectRoot.length()));
         // TODO checks that we can use an empty module for multi module project
         // TODO the guess here is that the user will launch the plugin from the root of the targeted module
         // TODO and thus, we do not need to compute the relative path from its parents
