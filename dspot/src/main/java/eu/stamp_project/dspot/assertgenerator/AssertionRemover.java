@@ -93,6 +93,11 @@ public class AssertionRemover {
                                 factory.createStatementList(lambda.getBody())
                         );
                     } else {
+                        // in case of we have something like () -> "string"
+                        if (lambda.getExpression() instanceof CtLiteral) {
+                            continue;
+                        }
+                        // TODO check that we support all cases by casting into CtInvocation
                         final CtBlock block = factory.createBlock();
                         block.setStatements(Collections.singletonList((CtInvocation)lambda.getExpression().clone()));
                         invocation.getParent(CtStatementList.class).insertBefore(
