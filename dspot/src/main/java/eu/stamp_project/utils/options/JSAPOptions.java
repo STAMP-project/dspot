@@ -364,7 +364,7 @@ public class JSAPOptions {
         executeTestParallel.setDefault("0");
         executeTestParallel.setStringParser(JSAP.INTEGER_PARSER);
         executeTestParallel.setAllowMultipleDeclarations(false);
-        executeTestParallel.setHelp("[optional] If enabled, DSpot will execute the tests in parallel using the number of given processors (specify 0 to take the number of available core processors)");
+        executeTestParallel.setHelp("[optional] If enabled, DSpot will execute the tests in parallel. For JUnit5 tests it will use the number of given processors (specify 0 to take the number of available core processors). For JUnit4 tests, it will use the number of available CPU processors (given number of processors is ignored).");
         
         /*
             This switch allows DSpot to generate assertion on string values that look like paths.
