@@ -109,7 +109,6 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
                 }else {
                     FileUtils.forceDelete(new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + DSpotPOMCreator.getPOMName()));
                 }
-
             } catch (IOException e) {
                 if (displayError) {
                     LOGGER.warn("Something bad happened when trying to delete {}.", DSpotPOMCreator.getPOMName());
