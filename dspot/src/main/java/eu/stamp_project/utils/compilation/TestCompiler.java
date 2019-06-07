@@ -10,7 +10,6 @@ import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.DSpotUtils;
 
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.slf4j.Logger;
@@ -24,9 +23,7 @@ import spoon.reflect.declaration.ModifierKind;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -107,7 +104,7 @@ public class TestCompiler {
             //Create a junit-platform.properties for JUnit5 parallel execution
             if (TestFramework.isJUnit5(testsToRun.get(0))) {
                 //Create junit-platform.properties file in target project classpath folder.
-                Properties props = new Properties();     
+                Properties props = new Properties();
                 props.setProperty("junit.jupiter.execution.parallel.enabled", "true");
                 props.setProperty("junit.jupiter.execution.parallel.config.strategy", "fixed");
                 int numberProcessors = InputConfiguration.get().getNumberParallelExecutionProcessors();

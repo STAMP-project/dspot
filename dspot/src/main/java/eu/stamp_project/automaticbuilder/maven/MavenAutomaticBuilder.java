@@ -50,9 +50,9 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         // dependencies and obtain classpath. Remove temporal pom.xml
         if (this.classpath == null) {
             this.computeClasspath(
-                    "clean", 
-                    "test", 
-                    "-DskipTests", 
+                    "clean",
+                    "test",
+                    "-DskipTests",
                     "dependency:build-classpath",
                     "-Dmdep.outputFile=" + "target/dspot/classpath"
             );
@@ -109,7 +109,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
                 }else {
                     FileUtils.forceDelete(new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + DSpotPOMCreator.getPOMName()));
                 }
-                
+
             } catch (IOException e) {
                 if (displayError) {
                     LOGGER.warn("Something bad happened when trying to delete {}.", DSpotPOMCreator.getPOMName());

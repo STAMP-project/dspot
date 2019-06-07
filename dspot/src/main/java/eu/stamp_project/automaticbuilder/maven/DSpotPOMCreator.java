@@ -15,7 +15,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * created by Benjamin DANGLOT
@@ -80,7 +79,7 @@ public class DSpotPOMCreator {
     private static final String PROFILES = "profiles";
 
     private static final String DSPOT_POM_FILE = ".dspot_";
-    
+
     private static final String DSPOT_PARALLEL_POM_FILE = ".dspot_parallel_";
 
     private static final String SUFFIX_JUNIT5 = "junit5_";
@@ -89,25 +88,25 @@ public class DSpotPOMCreator {
         new DSpotPOMCreator(true)._innerCreatePom();
         new DSpotPOMCreator(false)._innerCreatePom();
     }
-    
+
     public static String createNewPomForComputingClassPathWithParallelExecution() {
         return new DSpotPOMCreator(InputConfiguration.get().isJUnit5())._createNewPomForComputingClassPathWithParallelExecution();
     }
-        
+
     public String _createNewPomForComputingClassPathWithParallelExecution() {
         try {
             //Duplicate target pom
-        
+
             final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
             final Document document = docBuilder.parse(InputConfiguration.get().getAbsolutePathToProjectRoot() + POM_FILE);
 
             final Node root = findSpecificNodeFromGivenRoot(document.getFirstChild(), PROJECT);
-        
+
             //Add JUnit4/5 dependencies
             final Node dependencies = findOrCreateGivenNode(document, root, DEPENDENCIES);
             addJUnitDependencies(document, root);
-        
+
             // write the content into xml file
             final TransformerFactory transformerFactory = TransformerFactory.newInstance();
             final Transformer transformer = transformerFactory.newTransformer();
@@ -115,17 +114,16 @@ public class DSpotPOMCreator {
             String newPomFilename = InputConfiguration.get().getAbsolutePathToProjectRoot() + this.getParallelPOMName();
             final StreamResult result = new StreamResult(new File(newPomFilename));
             transformer.transform(source, result);
-            
+
             return newPomFilename;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-    
+
     private void addJUnitDependencies(Document document, Node root) {
         final Node dependencies = findOrCreateGivenNode(document, root, DEPENDENCIES);
-        
-        
+
         Element dependency;
         if (!hasDependencyByArtifactId(dependencies, "junit-jupiter-api")) {
             dependency = createDependency(document,
@@ -143,7 +141,7 @@ public class DSpotPOMCreator {
             );
             dependencies.appendChild(dependency);
         }
-        
+
         if (!hasDependencyByArtifactId(dependencies, "junit-platform-engine")) {
             dependency = createDependency(document,
                     "org.junit.platform",
@@ -152,7 +150,7 @@ public class DSpotPOMCreator {
             );
             dependencies.appendChild(dependency);
         }
-        
+
         if (!hasDependencyByArtifactId(dependencies, "junit-platform-launcher")) {
             dependency = createDependency(document,
                     "org.junit.platform",
@@ -161,7 +159,7 @@ public class DSpotPOMCreator {
             );
             dependencies.appendChild(dependency);
         }
-        
+
         if (!hasDependencyByArtifactId(dependencies, "junit-vintage-engine")) {
             dependency = createDependency(document,
                     "org.junit.vintage",
@@ -170,7 +168,7 @@ public class DSpotPOMCreator {
             );
             dependencies.appendChild(dependency);
         }
-        
+
         if (!hasDependencyByArtifactId(dependencies, "junit-vintage-engine")) {
             dependency = createDependency(document,
                     "com.googlecode.junit-toolbox",
@@ -180,13 +178,13 @@ public class DSpotPOMCreator {
             dependencies.appendChild(dependency);
         }
     }
-    
+
     private void addSurefirePluginConfiguration(Document document, Node root) {
         final Node build = findOrCreateGivenNode(document, root, BUILD);
         final Node plugins = findOrCreateGivenNode(document, build, PLUGINS);
         final Node surefirePlugin = findChildByArtifactId(plugins, ARTIFACT_SUREFIRE_PLUGIN);
         final Node configuration = findOrCreateGivenNode(document, surefirePlugin, CONFIGURATION);
-        
+
         final Element version = document.createElement("version");
         version.setTextContent("2.22.0");
         surefirePlugin.appendChild(version);
@@ -209,7 +207,7 @@ public class DSpotPOMCreator {
                 );
                 dependencies.appendChild(dependency);
             }
-            
+
         }else {
             final Element parallel = document.createElement("parallel");
             final Element useUnlimitedThreads = document.createElement("useUnlimitedThreads");
@@ -218,11 +216,6 @@ public class DSpotPOMCreator {
             configuration.appendChild(parallel);
             configuration.appendChild(useUnlimitedThreads);
         }
-//        final Element includes = document.createElement("includes");
-//        final Element include = document.createElement("include");
-//        include.setTextContent(fullQualifiedName);
-//        includes.appendChild(include);
-//        configuration.appendChild(includes);
     }
 
     private Node findChildByArtifactId(Node node, String artifactId) {
@@ -232,7 +225,7 @@ public class DSpotPOMCreator {
         }
         return child;
     }
-    
+
     private boolean hasDependencyByArtifactId(Node dependencies, String artifactId) {
         return findChildByArtifactId(dependencies, artifactId) != null;
     }
@@ -243,13 +236,12 @@ public class DSpotPOMCreator {
             currentChild = currentChild.getNextSibling();
         }
         return currentChild == null? false: currentChild.getTextContent().equals(artifactId);
-
     }
-    
+
     public static String getParallelPOMName() {
         return DSPOT_PARALLEL_POM_FILE + (InputConfiguration.get().isJUnit5() ? SUFFIX_JUNIT5 : "") + POM_FILE;
     }
-    
+
     public static String getPOMName() {
         return DSPOT_POM_FILE + (InputConfiguration.get().isJUnit5() ? SUFFIX_JUNIT5 : "") + POM_FILE;
     }
@@ -281,7 +273,7 @@ public class DSpotPOMCreator {
 
             // CONFIGURATION TO RUN INSTRUMENTED TEST
             configureForInstrumentedTests(document, root);
-            
+
             if (InputConfiguration.get().shouldExecuteTestsInParallel() && InputConfiguration.get().shouldUseMavenToExecuteTest()) {
                 //Add JUnit4/5 dependencies for parallel execution
                 //Add Surefire plugin configuration for parallel execution

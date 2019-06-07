@@ -152,7 +152,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
         // print clone to file and run pit on it
-        //PIT cannot be executed on test classes containing parallel execution annotations 
+        //PIT cannot be executed on test classes containing parallel execution annotations
         CloneHelper.removeParallelExecutionAnnotation(clone, amplifiedTestToBeKept);
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));
         final AutomaticBuilder automaticBuilder = InputConfiguration.get().getBuilder();

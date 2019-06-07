@@ -114,7 +114,7 @@ public class JSAPOptions {
         // we check the properties before initializing the InputConfiguration.
         final Properties properties = InputConfiguration.loadProperties(jsapConfig.getString("path-to-properties"));
         Checker.checkProperties(properties);
-        
+
         int numberProcessors = jsapConfig.getInt("execute-test-parallel-with-number-processors");
         boolean parallelTestExecution = jsapConfig.userSpecified("execute-test-parallel-with-number-processors");
 
@@ -148,7 +148,7 @@ public class JSAPOptions {
                 .setAllowPathInAssertion(jsapConfig.getBoolean("allow-path-in-assertions"))
                 .setExecuteTestsInParallel(jsapConfig.userSpecified("execute-test-parallel-with-number-processors"))
                 .setTargetOneTestClass(jsapConfig.getBoolean("targetOneTestClass"));
-        
+
         if (jsapConfig.getInt("execute-test-parallel-with-number-processors")!=0) {
             InputConfiguration.get().setNumberParallelExecutionProcessors(jsapConfig.getInt("execute-test-parallel-with-number-processors"));
         }
@@ -358,14 +358,14 @@ public class JSAPOptions {
         useMavenToExecuteTests.setLongFlag("use-maven-to-exe-test");
         useMavenToExecuteTests.setDefault("false");
         useMavenToExecuteTests.setHelp("If enabled, DSpot will use maven to execute the tests.");
-        
+
         FlaggedOption executeTestParallel = new FlaggedOption("execute-test-parallel-with-number-processors");
         executeTestParallel.setLongFlag("execute-test-parallel-with-number-processors");
         executeTestParallel.setDefault("0");
         executeTestParallel.setStringParser(JSAP.INTEGER_PARSER);
         executeTestParallel.setAllowMultipleDeclarations(false);
         executeTestParallel.setHelp("[optional] If enabled, DSpot will execute the tests in parallel. For JUnit5 tests it will use the number of given processors (specify 0 to take the number of available core processors). For JUnit4 tests, it will use the number of available CPU processors (given number of processors is ignored).");
-        
+
         /*
             This switch allows DSpot to generate assertion on string values that look like paths.
         */

@@ -922,16 +922,16 @@ public class InputConfiguration {
         this.executeTestsInParallel = executeTestsInParallel;
         return this;
     }
-    
+
     public int getNumberParallelExecutionProcessors() {
         return numberParallelExecutionProcessors;
     }
-    
+
     public InputConfiguration setNumberParallelExecutionProcessors(int numberParallelExecutionProcessors) {
         this.numberParallelExecutionProcessors = numberParallelExecutionProcessors;
         return this;
     }
-    
+
     /**
      *  pre goals to run in case tests' execution done by maven
      */
