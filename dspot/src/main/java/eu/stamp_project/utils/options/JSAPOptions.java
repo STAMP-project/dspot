@@ -115,7 +115,8 @@ public class JSAPOptions {
         final Properties properties = InputConfiguration.loadProperties(jsapConfig.getString("path-to-properties"));
         Checker.checkProperties(properties);
         
-        boolean parallelTestExecution = jsapConfig.getBoolean("execute-test-parallel");
+        int numberProcessors = jsapConfig.getInt("execute-test-parallel-with-number-processors");
+        boolean parallelTestExecution = jsapConfig.userSpecified("execute-test-parallel-with-number-processors");
 
         InputConfiguration.initialize(properties, jsapConfig.getString("builder"), parallelTestExecution);
         if (InputConfiguration.get().getOutputDirectory().isEmpty()) {
@@ -145,8 +146,13 @@ public class JSAPOptions {
                 .setDescartesMode(jsapConfig.getBoolean("descartes") && !jsapConfig.getBoolean("gregor"))
                 .setUseMavenToExecuteTest(jsapConfig.getBoolean("use-maven-to-exe-test"))
                 .setAllowPathInAssertion(jsapConfig.getBoolean("allow-path-in-assertions"))
-                .setExecuteTestsInParallel(jsapConfig.getBoolean("execute-test-parallel"))
+                .setExecuteTestsInParallel(jsapConfig.userSpecified("execute-test-parallel-with-number-processors"))
                 .setTargetOneTestClass(jsapConfig.getBoolean("targetOneTestClass"));
+        
+        if (jsapConfig.getInt("execute-test-parallel-with-number-processors")!=0) {
+            InputConfiguration.get().setNumberParallelExecutionProcessors(jsapConfig.getInt("execute-test-parallel-with-number-processors"));
+        }
+
         return false;
     }
 
@@ -353,11 +359,13 @@ public class JSAPOptions {
         useMavenToExecuteTests.setDefault("false");
         useMavenToExecuteTests.setHelp("If enabled, DSpot will use maven to execute the tests.");
         
-        Switch executeTestParallel = new Switch("execute-test-parallel");
-        executeTestParallel.setLongFlag("execute-test-parallel");
-        executeTestParallel.setDefault("false");
-        executeTestParallel.setHelp("If enabled, DSpot will execute the tests in parallel.");
-
+        FlaggedOption executeTestParallel = new FlaggedOption("execute-test-parallel-with-number-processors");
+        executeTestParallel.setLongFlag("execute-test-parallel-with-number-processors");
+        executeTestParallel.setDefault("0");
+        executeTestParallel.setStringParser(JSAP.INTEGER_PARSER);
+        executeTestParallel.setAllowMultipleDeclarations(false);
+        executeTestParallel.setHelp("[optional] If enabled, DSpot will execute the tests in parallel using the number of given processors (specify 0 to take the number of available core processors)");
+        
         /*
             This switch allows DSpot to generate assertion on string values that look like paths.
         */

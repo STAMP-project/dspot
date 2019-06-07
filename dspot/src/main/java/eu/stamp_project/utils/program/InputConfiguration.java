@@ -912,6 +912,7 @@ public class InputConfiguration {
     * This boolean say if we must use execute the test in parallel. If not, the tests will be executed sequentially
     */
     private boolean executeTestsInParallel = false;
+    private int numberParallelExecutionProcessors = Runtime.getRuntime().availableProcessors();
 
     public boolean shouldExecuteTestsInParallel() {
         return executeTestsInParallel;
@@ -919,6 +920,15 @@ public class InputConfiguration {
 
     public InputConfiguration setExecuteTestsInParallel(boolean executeTestsInParallel) {
         this.executeTestsInParallel = executeTestsInParallel;
+        return this;
+    }
+    
+    public int getNumberParallelExecutionProcessors() {
+        return numberParallelExecutionProcessors;
+    }
+    
+    public InputConfiguration setNumberParallelExecutionProcessors(int numberParallelExecutionProcessors) {
+        this.numberParallelExecutionProcessors = numberParallelExecutionProcessors;
         return this;
     }
     

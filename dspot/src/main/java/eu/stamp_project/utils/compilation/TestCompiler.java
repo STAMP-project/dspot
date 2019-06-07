@@ -9,6 +9,8 @@ import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.DSpotUtils;
+
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.slf4j.Logger;
@@ -23,6 +25,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -107,14 +110,25 @@ public class TestCompiler {
                 Properties props = new Properties();     
                 props.setProperty("junit.jupiter.execution.parallel.enabled", "true");
                 props.setProperty("junit.jupiter.execution.parallel.config.strategy", "fixed");
-                int numberThreads = Runtime.getRuntime().availableProcessors();
-                props.setProperty("junit.jupiter.execution.parallel.config.fixed.parallelism", String.valueOf(numberThreads));
+                int numberProcessors = InputConfiguration.get().getNumberParallelExecutionProcessors();
+                props.setProperty("junit.jupiter.execution.parallel.config.fixed.parallelism", Integer.toString(numberProcessors));
                 String rootPath = classPath.split(":")[0];
                 String junit5PropertiesPath = rootPath + "junit-platform.properties";
                 try {
                     props.store(new FileWriter(junit5PropertiesPath), "JUnit5 parallel execution configuration");
                 } catch (IOException e) {
                     throw new AmplificationException(e);
+                }
+            }
+        }else {
+            //Delete junit-platform.properties if exits
+            if (TestFramework.isJUnit5(testsToRun.get(0))) {
+                String rootPath = classPath.split(":")[0];
+                String junit5PropertiesPath = rootPath + "junit-platform.properties";
+                try {
+                    Files.deleteIfExists(Paths.get(junit5PropertiesPath));
+                } catch (IOException e) {
+                    // Ignore
                 }
             }
         }
