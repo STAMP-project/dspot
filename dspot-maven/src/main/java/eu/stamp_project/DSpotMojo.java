@@ -254,11 +254,16 @@ public class DSpotMojo extends AbstractMojo {
         }
         Properties properties = initializeProperties();
         if (properties.getProperty(ConstantsProperties.MODULE.getName()) != null) {
-            final String absolutePath = new File(DSpotUtils.shouldAddSeparator.apply(ConstantsProperties.PROJECT_ROOT_PATH.get(properties))
-                    + ConstantsProperties.MODULE.get(properties)).getAbsolutePath();
-            if (!FilenameUtils.normalize(absolutePath).equals(
-                    this.project.getBasedir().getAbsolutePath())) {
+            if (!this.project.getBasedir().getAbsolutePath().endsWith(ConstantsProperties.MODULE.get(properties))) {
                 return;
+            } else {
+                getLog().error(properties.toString());
+                properties.put(ConstantsProperties.PROJECT_ROOT_PATH.getName(),
+                        ConstantsProperties.PROJECT_ROOT_PATH.get(properties).substring(0,
+                                ConstantsProperties.PROJECT_ROOT_PATH.get(properties).length() - ConstantsProperties.MODULE.get(properties).length()
+                        )
+                );
+                getLog().error(properties.toString());
             }
         }
 
