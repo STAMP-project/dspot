@@ -253,17 +253,16 @@ public class DSpotMojo extends AbstractMojo {
             JSAPOptions.showUsage();
         }
         Properties properties = initializeProperties();
-        if (properties.getProperty(ConstantsProperties.MODULE.getName()) != null) {
+        if (properties.getProperty(ConstantsProperties.MODULE.getName()) != null ||
+                !properties.getProperty(ConstantsProperties.MODULE.getName()).isEmpty()) {
             if (!this.project.getBasedir().getAbsolutePath().endsWith(ConstantsProperties.MODULE.get(properties))) {
                 return;
             } else {
-                getLog().error(properties.toString());
                 properties.put(ConstantsProperties.PROJECT_ROOT_PATH.getName(),
                         ConstantsProperties.PROJECT_ROOT_PATH.get(properties).substring(0,
                                 ConstantsProperties.PROJECT_ROOT_PATH.get(properties).length() - ConstantsProperties.MODULE.get(properties).length()
                         )
                 );
-                getLog().error(properties.toString());
             }
         }
 
