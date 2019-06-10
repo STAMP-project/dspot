@@ -1,9 +1,11 @@
 package eu.stamp_project.utils.options.check;
 
-import com.martiansoftware.jsap.JSAPResult;
 import eu.stamp_project.Main;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.options.AmplifierEnum;
+import eu.stamp_project.utils.options.BudgetizerEnum;
+import eu.stamp_project.utils.options.SelectorEnum;
 import eu.stamp_project.utils.program.ConstantsProperties;
 import eu.stamp_project.utils.report.error.Error;
 import eu.stamp_project.utils.report.error.ErrorEnum;
@@ -30,6 +32,26 @@ public class Checker {
     private static final Logger LOGGER = LoggerFactory.getLogger(Checker.class);
 
     /*
+        Checking algo
+     */
+
+    public static void preChecking(List<String> amplifiers,
+                                   String selector,
+                                   String budgetizer,
+                                   Properties properties) {
+        Checker.checkEnum(AmplifierEnum.class, amplifiers, "amplifiers");
+        Checker.checkEnum(SelectorEnum.class, selector, "test-criterion");
+        Checker.checkEnum(BudgetizerEnum.class, budgetizer, "budgetizer");
+        Checker.checkProperties(properties);
+    }
+
+    public static void postChecking(Properties properties) {
+        // we check now the binaries folders after the compilation
+        Checker.checkBinariesFolders(properties);
+    }
+
+
+    /*
         PROPERTIES CHECK
      */
 
@@ -40,13 +62,13 @@ public class Checker {
         currentPath += targetModulePropertyValue != null ? targetModulePropertyValue : "";
 
         // binary folders: classes and test-classes
-        Checker.checkRelativePathPropertyValue(
+        Checker.checkPathPropertyValue(
                 properties.getProperty(ConstantsProperties.SRC_CLASSES.getName()),
                 ErrorEnum.ERROR_PATH_TO_SRC_CLASSES_PROPERTY,
                 ConstantsProperties.SRC_CLASSES.getNaturalLanguageDesignation(),
                 currentPath
         );
-        Checker.checkRelativePathPropertyValue(
+        Checker.checkPathPropertyValue(
                 properties.getProperty(ConstantsProperties.TEST_CLASSES.getName()),
                 ErrorEnum.ERROR_PATH_TO_TEST_CLASSES_PROPERTY,
                 ConstantsProperties.TEST_CLASSES.getNaturalLanguageDesignation(),
@@ -65,7 +87,7 @@ public class Checker {
         );
         // target module
         final String targetModulePropertyValue = DSpotUtils.shouldAddSeparator.apply(properties.getProperty(ConstantsProperties.MODULE.getName()));
-        Checker.checkRelativePathPropertyValue(
+        Checker.checkPathPropertyValue(
                 targetModulePropertyValue,
                 ErrorEnum.ERROR_PATH_TO_TARGET_MODULE_PROPERTY,
                 ConstantsProperties.MODULE.getNaturalLanguageDesignation(),
@@ -74,13 +96,13 @@ public class Checker {
         currentPath += targetModulePropertyValue != null ? targetModulePropertyValue : "";
 
         // source folders: src and testSrc
-        Checker.checkRelativePathPropertyValue(
+        Checker.checkPathPropertyValue(
                 properties.getProperty(ConstantsProperties.SRC_CODE.getName()),
                 ErrorEnum.ERROR_PATH_TO_SRC_PROPERTY,
                 ConstantsProperties.SRC_CODE.getNaturalLanguageDesignation(),
                 currentPath
         );
-        Checker.checkRelativePathPropertyValue(
+        Checker.checkPathPropertyValue(
                 properties.getProperty(ConstantsProperties.TEST_SRC_CODE.getName()),
                 ErrorEnum.ERROR_PATH_TO_TEST_SRC_PROPERTY,
                 ConstantsProperties.TEST_SRC_CODE.getNaturalLanguageDesignation(),
@@ -88,7 +110,7 @@ public class Checker {
         );
 
         // path to maven home
-        Checker.checkRelativePathPropertyValue(
+        Checker.checkPathPropertyValue(
                 properties.getProperty(ConstantsProperties.MAVEN_HOME.getName()),
                 ErrorEnum.ERROR_PATH_TO_MAVEN_HOME,
                 ConstantsProperties.MAVEN_HOME.getNaturalLanguageDesignation(),
@@ -103,7 +125,7 @@ public class Checker {
         }
         // TODO check JVM args and System args
         checkJVMArgs(ConstantsProperties.JVM_ARGS.get(properties)); // no checks since it is a soft checks
-        Checker.checkProperties(ConstantsProperties.SYSTEM_PROPERTIES.get(properties));
+        checkSystemProperties(ConstantsProperties.SYSTEM_PROPERTIES.get(properties));
     }
 
     // TODO must be enhanced.
@@ -112,7 +134,7 @@ public class Checker {
         I'll restrict the check to jvmArgs=-Xmx2048m,-Xms1024m,-Dis.admin.user=admin,-Dis.admin.passwd=$2pRSid#,
         i.e increase the memory and gives some property
         By soft checks, I mean that DSpot won't throw errors (like others checks) but will display a warning.
-        Same for checkProperties
+        Same for checkSystemProperties
      */
     public static boolean checkJVMArgs(String jvmArgs) {
         final String[] jvmArgsArrays = jvmArgs.split(",");
@@ -134,7 +156,7 @@ public class Checker {
         return isOkayGlobal;
     }
 
-    public static boolean checkProperties(String systemProperties) {
+    public static boolean checkSystemProperties(String systemProperties) {
         return true;
     }
 
@@ -145,6 +167,23 @@ public class Checker {
                     )
             );
             throw new InputErrorException();
+        }
+    }
+
+    private static void checkPathPropertyValue(final String propertyValue,
+                                                       final ErrorEnum errorEnumInCaseOfError,
+                                                       final String naturalLanguageDesignation,
+                                                       final String rootPathProject) {
+        if (propertyValue != null) {
+            final String additionalMessage = "The provided path to the " + naturalLanguageDesignation + " of your project is incorrect, the folder does not exist."
+                    + AmplificationHelper.LINE_SEPARATOR + " This path should be either relative to the path pointed by "
+                    + ConstantsProperties.PROJECT_ROOT_PATH.getName() + " property "
+                    + AmplificationHelper.LINE_SEPARATOR + "or an absolute path";
+            if (new File(propertyValue).isAbsolute()) {
+                Checker.checkFileExists(propertyValue, errorEnumInCaseOfError, additionalMessage);
+            } else {
+                Checker.checkFileExists(rootPathProject + "/" + propertyValue, errorEnumInCaseOfError, additionalMessage);
+            }
         }
     }
 
@@ -163,9 +202,9 @@ public class Checker {
     /*
         PROPERTIES PATH FILE CHECK
      */
-    public static void checkPathToPropertiesValue(JSAPResult jsapConfig) {
+    public static void checkPathToPropertiesValue(String pathToPropertiesFile) {
         Checker.checkPathnameNotNullAndFileExist(
-                jsapConfig.getString("path-to-properties"),
+                pathToPropertiesFile,
                 ErrorEnum.ERROR_PATH_TO_PROPERTIES,
                 "You did not provide the path to your properties file, which is mandatory.",
                 "The provided path to the properties file is incorrect, the properties file does not exist."

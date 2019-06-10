@@ -201,6 +201,17 @@ public class DSpotUtils {
         });
     }
 
+    public static String removeProjectRootIfAbsoluteAndAddSeparator(final String prefix, String path) {
+        if (new File(path).isAbsolute()) {
+            path = path.substring(prefix.length());
+            return DSpotUtils.shouldAddSeparator.apply(
+                    path.startsWith("/") ? path.substring(1) : path
+            );
+        } else {
+            return DSpotUtils.shouldAddSeparator.apply(path);
+        }
+    }
+
     public static final Function<String, String> shouldAddSeparator = string ->
             string != null ? string + (string.endsWith(File.separator) ? "" : File.separator) : null;
 

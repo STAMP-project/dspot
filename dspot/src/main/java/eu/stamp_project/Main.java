@@ -1,9 +1,6 @@
 package eu.stamp_project;
 
 import eu.stamp_project.dspot.DSpot;
-import eu.stamp_project.dspot.amplifier.TestDataMutator;
-import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
-import eu.stamp_project.utils.options.BudgetizerEnum;
 import eu.stamp_project.utils.options.JSAPOptions;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.RandomHelper;
@@ -18,7 +15,6 @@ import spoon.reflect.declaration.CtType;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -37,15 +33,8 @@ public class Main {
 		} catch (Exception ignored) {
 
 		}
-		final boolean shouldRunExample = JSAPOptions.parse(args);
-		if (shouldRunExample) {
-			Main.runExample();
-		} else {
-			run();
-		}
-		// global report handling
-		Main.GLOBAL_REPORT.output();
-		Main.GLOBAL_REPORT.reset();
+		JSAPOptions.parse(args);
+		run();
 	}
 
 	public static void run() {
@@ -67,6 +56,9 @@ public class Main {
 		LOGGER.info("Amplification {}.", amplifiedTestClasses.isEmpty() ? "failed" : "succeed");
 		final long elapsedTime = System.currentTimeMillis() - startTime;
 		LOGGER.info("Elapsed time {} ms", elapsedTime);
+		// global report handling
+		Main.GLOBAL_REPORT.output();
+		Main.GLOBAL_REPORT.reset();
 	}
 
 	public static void createOutputDirectories() {
@@ -80,20 +72,6 @@ public class Main {
 			}
 		} catch (IOException ignored) {
 			// ignored
-		}
-	}
-
-	static void runExample() {
-		try {
-			InputConfiguration.get().initialize("src/test/resources/test-projects/test-projects.properties");
-			DSpot dSpot = new DSpot(1,
-					Collections.singletonList(new TestDataMutator()),
-					new JacocoCoverageSelector(),
-					BudgetizerEnum.RandomBudgetizer
-			);
-			dSpot.amplifyTestClassesTestMethods(Collections.singletonList("example.TestSuiteExample"), Collections.emptyList());
-		} catch (Exception e) {
-			throw new RuntimeException(e);
 		}
 	}
 
