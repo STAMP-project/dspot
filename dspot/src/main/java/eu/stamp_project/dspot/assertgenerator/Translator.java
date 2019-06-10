@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.assertgenerator;
 
+import eu.stamp_project.utils.TypeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtExpression;
@@ -85,6 +86,9 @@ public class Translator {
                         .getDeclaration()
                         .getType()
                         .getActualClass();
+                if (TypeUtils.isPrimitive(actualClass)) {
+                    return;
+                }
                 if (!actualClass.equals(Collection.class) && !actualClass.isAssignableFrom(Map.class) ) {
                     invocation.addTypeCast(invocation.getFactory().createCtTypeReference(Collection.class));
                 }
