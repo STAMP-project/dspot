@@ -56,7 +56,7 @@ public class JSAPOptions {
         final String pitOutputFormat = jsapConfig.getString("pit-output-format");
         final String pathPitResult = jsapConfig.getString("path-pit-result");
         final String builder = jsapConfig.getString("builder");
-        final String output = jsapConfig.getString("output");
+        final String output = jsapConfig.getString("output-path");
         final int iteration = jsapConfig.getInt("iteration");
         final long randomSeed = jsapConfig.getLong("random-seed");
         final int timeOut = jsapConfig.getInt("time-out");
