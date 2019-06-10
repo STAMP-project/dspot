@@ -12,7 +12,8 @@ public enum AssertEnum {
     ASSERT_TRUE,
     ASSERT_FALSE,
     ASSERT_EQUALS,
-    ASSERT_NOT_EQUALS;
+    ASSERT_NOT_EQUALS,
+    ASSERT_ARRAY_EQUALS;
 
     public String toStringAccordingToClass(Class<?> clazz) {
         try {

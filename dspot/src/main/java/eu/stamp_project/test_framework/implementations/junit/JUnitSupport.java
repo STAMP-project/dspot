@@ -125,6 +125,7 @@ public abstract class JUnitSupport extends AbstractTestFramework {
     public static final String ASSERT_FALSE = "assertFalse";
     public static final String ASSERT_EQUALS = "assertEquals";
     public static final String ASSERT_NOT_EQUALS = "assertNotEquals";
+    public static final String ASSERT_ARRAY_EQUALS = "assertArrayEquals";
 
     @Override
     public CtMethod<?> generateExpectedExceptionsBlock(CtMethod<?> test, Failure failure, int numberOfFail) {
