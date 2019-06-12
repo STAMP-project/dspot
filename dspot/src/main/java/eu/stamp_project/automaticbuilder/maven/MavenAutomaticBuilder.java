@@ -49,7 +49,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     @Override
     public String compileAndBuildClasspath() {
         if (this.classpath == null) {
-            this.runGoals(false,
+            this.computeClasspath(
                     "clean",
                     "test",
                     "-DskipTests",
@@ -65,6 +65,22 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         }
         return this.classpath;
     }
+
+    private int computeClasspath(String... goals) {
+        final String pomPathname;
+        if (InputConfiguration.get().shouldExecuteTestsInParallel()) {
+            DSpotPOMCreator.createNewPomForComputingClassPathWithParallelExecution();
+            pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot()
+                    + DSpotPOMCreator.getParallelPOMName();
+        } else {
+            DSpotPOMCreator.createNewPom();
+            pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.getPOMName();
+        }
+        this.hasGeneratePom = true;
+        LOGGER.info("Using {} to run maven.", pomPathname);
+        return _runGoals(true, pomPathname, goals);
+    }
+
 
     @Override
     public void compile() {
@@ -105,7 +121,18 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         if (this.shouldDeleteGeneratedPom()) {
             this.hasGeneratePom = false;
             try {
-                FileUtils.forceDelete(new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + DSpotPOMCreator.getPOMName()));
+                if (InputConfiguration.get().shouldExecuteTestsInParallel()) {
+                    if (new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + DSpotPOMCreator.getParallelPOMName()).exists()) {
+                        FileUtils.forceDelete(
+                                new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + DSpotPOMCreator.getParallelPOMName()));
+                    }
+                }
+                if (InputConfiguration.get().shouldUseMavenToExecuteTest()){
+                    if (new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + DSpotPOMCreator.getPOMName()).exists()) {
+                        FileUtils.forceDelete(
+                                new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + DSpotPOMCreator.getPOMName()));
+                    }
+                }
             } catch (IOException e) {
                 if (displayError) {
                     LOGGER.warn("Something bad happened when trying to delete {}.", DSpotPOMCreator.getPOMName());
@@ -155,10 +182,15 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
             DSpotPOMCreator.createNewPom();
             this.hasGeneratePom = true;
         }
+        final String pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot()
+                + (specificPom ? DSpotPOMCreator.getPOMName() : DSpotPOMCreator.POM_FILE);
+        LOGGER.info("Using {} to run maven.", pomPathname);
+        return _runGoals(specificPom, pomPathname, goals);
+        }
+
+    private int _runGoals(boolean specificPom, final String pomPathname, String... goals) {
         InvocationRequest request = new DefaultInvocationRequest();
         request.setGoals(Arrays.asList(goals));
-        final String pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot() + (specificPom ? DSpotPOMCreator.getPOMName() : DSpotPOMCreator.POM_FILE);
-        LOGGER.info("Using {} to run maven.", pomPathname);
         request.setPomFile(new File(pomPathname));
         request.setJavaHome(new File(System.getProperty("java.home")));
         if (specificPom) {

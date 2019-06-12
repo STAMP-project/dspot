@@ -303,7 +303,10 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         
   [--allow-path-in-assertions]
           If enabled, DSpot will generate assertions for values that seems like to
-          be paths.      
+          be paths.   
+
+  [--execute-test-parallel-with-number-processors]
+        [optional] If enabled, DSpot will execute the tests in parallel. For JUnit5 tests it will use the number of given processors (specify 0 to take the number of available core processors). For JUnit4 tests, it will use the number of available CPU processors (given number of processors is ignored).
 
   [-e|--example]
         run the example of DSpot and leave

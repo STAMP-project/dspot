@@ -8,6 +8,7 @@ import eu.stamp_project.utils.pit.*;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.report.error.Error;
 import eu.stamp_project.utils.report.error.ErrorEnum;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
@@ -152,6 +153,8 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
         // print clone to file and run pit on it
+        //PIT cannot be executed on test classes containing parallel execution annotations
+        CloneHelper.removeParallelExecutionAnnotation(clone, amplifiedTestToBeKept);
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));
         final AutomaticBuilder automaticBuilder = InputConfiguration.get().getBuilder();
         final String classpath = InputConfiguration.get().getBuilder()
