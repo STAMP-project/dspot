@@ -172,7 +172,7 @@ mvn dspot:amplify-unit-tests
 
 ```
 Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
-                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [--pit-output-format <XML | CSV>] [--budgetizer <NoBudgetizer | SimpleBudgetizer>] [--max-test-amplified <integer>] [(-t|--test) my.package.MyClassTest | all1:my.package.MyClassTest | all2:...:my.package.MyClassTest | allN ] [(-c|--cases) testCases1:testCases2:...:testCasesN ] [(-o|--output-path) <output>] [--clean] [(-m|--path-pit-result) <./path/to/mutations.csv>] [--targetOneTestClass] [--descartes] [--gregor] [--automatic-builder <MavenBuilder | GradleBuilder>] [--maven-home <path to maven home>] [--randomSeed <long integer>] [--timeOut <long integer>] [--verbose] [--with-comment] [--no-minimize] [--working-directory] [--generate-new-test-class] [--keep-original-test-methods] [--use-maven-to-exe-test] [-e|--example] [-h|--help]
+                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [--pit-output-format <XML | CSV>] [--budgetizer <RandomBudgetizer | TextualDistanceBudgetizer | SimpleBudgetizer>] [--max-test-amplified <integer>] [(-t|--test) my.package.MyClassTest | all1:my.package.MyClassTest | all2:...:my.package.MyClassTest | allN ] [(-c|--test-cases) test-cases1:test-cases2:...:test-casesN ] [(-o|--output-path) <output-path>] [--clean] [(-m|--path-pit-result) <./path/to/mutations.csv>] [--target-one-test-class] [--descartes] [--gregor] [--automatic-builder <MavenBuilder | GradleBuilder>] [--maven-home <path to maven home>] [--random-seed <long integer>] [--time-out <long integer>] [--verbose] [--with-comment] [--no-minimize] [--working-directory] [--generate-new-test-class] [--keep-original-test-methods] [--use-maven-to-exe-test] [--allow-path-in-assertions] [--execute-test-parallel-with-number-processors <execute-test-parallel-with-number-processors>] [-e|--example] [-h|--help]
 
   [(-p|--path-to-properties) <./path/to/myproject.properties>]
         [mandatory] specify the path to the configuration file (format Java
@@ -219,7 +219,7 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         		 - CSV
         (default: XML)
 
- [--budgetizer <RandomBudgetizer | TextualDistanceBudgetizer | SimpleBudgetizer>]
+  [--budgetizer <RandomBudgetizer | TextualDistanceBudgetizer | SimpleBudgetizer>]
         [optional] specify a Bugdetizer.
         Possible values are: 
         		 - RandomBudgetizer
@@ -237,10 +237,10 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         regex to describe a set of test classes. By default, DSpot selects all
         the tests (value all). (default: all)
 
-  [(-c|--cases) testCases1:testCases2:...:testCasesN ]
+  [(-c|--test-cases) test-cases1:test-cases2:...:test-casesN ]
         specify the test cases to amplify
 
-  [(-o|--output-path) <output>]
+  [(-o|--output-path) <output-path>]
         [optional] specify the output folder (default: target/dspot/output)
 
   [--clean]
@@ -252,7 +252,7 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         original result of Pit Test. If you use this option the selector will be
         forced to PitMutantScoreSelector
 
-  [--targetOneTestClass]
+  [--target-one-test-class]
         [optional, expert] enable this option will make DSpot computing the
         mutation score of only one test class (the first pass through --test
         command line option)
@@ -270,11 +270,11 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
   [--maven-home <path to maven home>]
         specify the path to the maven home
 
-  [--randomSeed <long integer>]
+  [--random-seed <long integer>]
         specify a seed for the random object (used for all randomized operation)
         (default: 23)
 
-  [--timeOut <long integer>]
+  [--time-out <long integer>]
         specify the timeout value of the degenerated tests in millisecond
         (default: 10000)
 
@@ -300,13 +300,17 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
 
   [--use-maven-to-exe-test]
         If enabled, DSpot will use maven to execute the tests.
-        
-  [--allow-path-in-assertions]
-          If enabled, DSpot will generate assertions for values that seems like to
-          be paths.   
 
-  [--execute-test-parallel-with-number-processors]
-        [optional] If enabled, DSpot will execute the tests in parallel. For JUnit5 tests it will use the number of given processors (specify 0 to take the number of available core processors). For JUnit4 tests, it will use the number of available CPU processors (given number of processors is ignored).
+  [--allow-path-in-assertions]
+        If enabled, DSpot will generate assertions for values that seems like to
+        be paths.
+
+  [--execute-test-parallel-with-number-processors <execute-test-parallel-with-number-processors>]
+        [optional] If enabled, DSpot will execute the tests in parallel. For
+        JUnit5 tests it will use the number of given processors (specify 0 to
+        take the number of available core processors). For JUnit4 tests, it will
+        use the number of available CPU processors (given number of processors
+        is ignored). (default: 0)
 
   [-e|--example]
         run the example of DSpot and leave
