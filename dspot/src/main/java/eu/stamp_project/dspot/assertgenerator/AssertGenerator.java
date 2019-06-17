@@ -110,7 +110,7 @@ public class AssertGenerator {
         final TestResult testResult;
         try {
             //Add parallel test execution support (JUnit4, JUnit5) for execution method (CMD, Maven)
-            CloneHelper.addParallelExecutionAnnotation (testClass, tests);
+            CloneHelper.addParallelExecutionAnnotation(testClass, tests);
             testResult = TestCompiler.compileAndRun(testClass,
                     this.compiler,
                     tests,
