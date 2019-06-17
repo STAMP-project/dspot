@@ -72,13 +72,14 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
             DSpotPOMCreator.createNewPomForComputingClassPathWithParallelExecution();
             pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot()
                     + DSpotPOMCreator.getParallelPOMName();
+            this.hasGeneratePom = true;
+            LOGGER.info("Using {} to run maven.", pomPathname);
+            return _runGoals(true, pomPathname, goals);
         } else {
-            DSpotPOMCreator.createNewPom();
-            pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.getPOMName();
+            pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.POM_FILE;
+            LOGGER.info("Using {} to run maven.", pomPathname);
+            return _runGoals(false, pomPathname, goals);
         }
-        this.hasGeneratePom = true;
-        LOGGER.info("Using {} to run maven.", pomPathname);
-        return _runGoals(true, pomPathname, goals);
     }
 
 
