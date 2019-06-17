@@ -27,17 +27,19 @@ public class CloneHelper {
     }
 
     public static void addParallelExecutionAnnotation(CtType clone, List<CtMethod<?>> tests) {
-        if (TestFramework.isJUnit5(tests.get(0))) {
-            addJUnit5ParallelExecutionAnnotation(clone);
-        }else {
-            addJUnit4ParallelExecutionAnnotation(clone);
+        if (InputConfiguration.get().shouldExecuteTestsInParallel()) {
+            if (TestFramework.isJUnit5(tests.get(0))) {
+                addJUnit5ParallelExecutionAnnotation(clone);
+            } else {
+                addJUnit4ParallelExecutionAnnotation(clone);
+            }
         }
     }
 
     public static void removeParallelExecutionAnnotation(CtType clone, List<CtMethod<?>> tests) {
         if (TestFramework.isJUnit5(tests.get(0))) {
             removeJUnit5ParallelExecutionAnnotation(clone);
-        }else {
+        } else {
             removeJUnit4ParallelExecutionAnnotation(clone);
         }
     }
@@ -54,7 +56,7 @@ public class CloneHelper {
         CtAnnotation existing_annotation = clone.getAnnotations().stream()
                 .filter(annotation -> annotation.toString().contains(label))
                 .findFirst().orElse(null);
-        if (existing_annotation!=null) {
+        if (existing_annotation != null) {
             clone.removeAnnotation(existing_annotation);
         }
     }
@@ -63,7 +65,7 @@ public class CloneHelper {
         CtAnnotation existing_annotation = clone.getAnnotations().stream()
                 .filter(annotation -> annotation.toString().contains("RunWith"))
                 .findFirst().orElse(null);
-        if (existing_annotation==null) {
+        if (existing_annotation == null) {
             CtAnnotation<Annotation> annotation =
                     factory.Code().createAnnotation(factory.Code().createCtTypeReference(org.junit.runner.RunWith.class));
             annotation.addValue("value", ParallelRunner.class);
@@ -75,7 +77,7 @@ public class CloneHelper {
         CtAnnotation existing_annotation = clone.getAnnotations().stream()
                 .filter(annotation -> annotation.toString().contains("Execution"))
                 .findFirst().orElse(null);
-        if (existing_annotation==null) {
+        if (existing_annotation == null) {
             CtAnnotation<Annotation> annotation =
                     factory.Code().createAnnotation(factory.Code().createCtTypeReference(org.junit.jupiter.api.parallel.Execution.class));
             annotation.addValue("value", org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT);
