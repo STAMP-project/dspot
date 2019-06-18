@@ -1,6 +1,7 @@
 package eu.stamp_project.utils.compilation;
 
 import eu.stamp_project.dspot.AmplificationException;
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.execution.TestRunner;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -18,12 +19,16 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 import static org.codehaus.plexus.util.FileUtils.forceDelete;
@@ -90,8 +95,40 @@ public class TestCompiler {
         final String dependencies = configuration.getClasspathClassesProject()
                 + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies();
         DSpotUtils.copyPackageFromResources();
-        testsToRun = TestCompiler.compileAndDiscardUncompilableMethods(compiler, testClass, dependencies, testsToRun);
         final String classPath = AmplificationHelper.getClassPath(compiler, configuration);
+        //Add parallel test execution support (JUnit4, JUnit5) for execution method (CMD, Maven)
+        if (InputConfiguration.get().shouldExecuteTestsInParallel()) {
+            CloneHelper.addParallelExecutionAnnotation (testClass, testsToRun);
+            //Create a junit-platform.properties for JUnit5 parallel execution
+            if (TestFramework.isJUnit5(testsToRun.get(0))) {
+                //Create junit-platform.properties file in target project classpath folder.
+                Properties props = new Properties();
+                props.setProperty("junit.jupiter.execution.parallel.enabled", "true");
+                props.setProperty("junit.jupiter.execution.parallel.config.strategy", "fixed");
+                int numberProcessors = InputConfiguration.get().getNumberParallelExecutionProcessors();
+                props.setProperty("junit.jupiter.execution.parallel.config.fixed.parallelism", Integer.toString(numberProcessors));
+                String rootPath = classPath.split(":")[0];
+                String junit5PropertiesPath = rootPath + "junit-platform.properties";
+                try {
+                    props.store(new FileWriter(junit5PropertiesPath), "JUnit5 parallel execution configuration");
+                } catch (IOException e) {
+                    throw new AmplificationException(e);
+                }
+            }
+        }else {
+            //Delete junit-platform.properties if exits
+            if (TestFramework.isJUnit5(testsToRun.get(0))) {
+                String rootPath = classPath.split(":")[0];
+                String junit5PropertiesPath = rootPath + "junit-platform.properties";
+                try {
+                    Files.deleteIfExists(Paths.get(junit5PropertiesPath));
+                } catch (IOException e) {
+                    // Ignore
+                }
+            }
+        }
+
+        testsToRun = TestCompiler.compileAndDiscardUncompilableMethods(compiler, testClass, dependencies, testsToRun);
         EntryPoint.timeoutInMs = 1000 + (configuration.getTimeOutInMs() * testsToRun.size());
         if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) { // if the test class is abstract, we use one of its implementation
             return TestRunner.runSubClassesForAbstractTestClass(testClass, testsToRun, classPath);

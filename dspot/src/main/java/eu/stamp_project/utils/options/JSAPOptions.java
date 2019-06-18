@@ -72,6 +72,11 @@ public class JSAPOptions {
         final boolean useMavenToExecuteTest = jsapConfig.getBoolean("use-maven-to-exe-test");
         final boolean targetOneTestClass = jsapConfig.getBoolean("target-one-test-class");
         final boolean allowPathInAssertion = jsapConfig.getBoolean("allow-path-in-assertions");
+        final int numberParallelExecutionProcessors =
+                jsapConfig.getInt("execute-test-parallel-with-number-processors")!=0?
+                        jsapConfig.getInt("execute-test-parallel-with-number-processors"):Runtime.getRuntime().availableProcessors();
+        final boolean executeTestsInParallel = jsapConfig.userSpecified("execute-test-parallel-with-number-processors");
+
         // these values need to be checked when the factory is available
         // We check them in DSpot class since we have the codes that allow to check them easily
         // and thus, the Factory will be created.
@@ -103,6 +108,8 @@ public class JSAPOptions {
                 useMavenToExecuteTest,
                 targetOneTestClass,
                 allowPathInAssertion,
+                executeTestsInParallel,
+                numberParallelExecutionProcessors,
                 testClasses,
                 testCases
         );
@@ -311,6 +318,13 @@ public class JSAPOptions {
         useMavenToExecuteTests.setDefault("false");
         useMavenToExecuteTests.setHelp("If enabled, DSpot will use maven to execute the tests.");
 
+        FlaggedOption executeTestParallel = new FlaggedOption("execute-test-parallel-with-number-processors");
+        executeTestParallel.setLongFlag("execute-test-parallel-with-number-processors");
+        executeTestParallel.setDefault("0");
+        executeTestParallel.setStringParser(JSAP.INTEGER_PARSER);
+        executeTestParallel.setAllowMultipleDeclarations(false);
+        executeTestParallel.setHelp("[optional] If enabled, DSpot will execute the tests in parallel. For JUnit5 tests it will use the number of given processors (specify 0 to take the number of available core processors). For JUnit4 tests, it will use the number of available CPU processors (given number of processors is ignored).");
+
         /*
             This switch allows DSpot to generate assertion on string values that look like paths.
         */
@@ -347,6 +361,7 @@ public class JSAPOptions {
             jsap.registerParameter(keepOriginalTestMethods);
             jsap.registerParameter(useMavenToExecuteTests);
             jsap.registerParameter(allowPathInAssertions);
+            jsap.registerParameter(executeTestParallel);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {

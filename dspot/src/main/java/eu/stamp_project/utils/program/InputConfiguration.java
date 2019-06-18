@@ -75,11 +75,12 @@ public class InputConfiguration {
      * @param builderName          the name of the builder. Can be either Maven or Gradle (not case sensitive).
      * @return the new instance of the InputConfiguration
      */
-    public static InputConfiguration initialize(String pathToPropertiesFile, String builderName) {
-        InputConfiguration.initialize(Configuration.loadProperties(pathToPropertiesFile), builderName);
-        InputConfiguration.instance.configPath = pathToPropertiesFile;
-        return InputConfiguration.instance;
-    }
+// FIXME This method is not invoked from DSpot code and makes difficult to setup parallel execution classpath, so I commented it out
+//    public static InputConfiguration initialize(String pathToPropertiesFile, String builderName) {
+//        InputConfiguration.initialize(Configuration.loadProperties(pathToPropertiesFile), builderName);
+//        InputConfiguration.instance.configPath = pathToPropertiesFile;
+//        return InputConfiguration.instance;
+//    }
 
     /**
      * This method initialize the instance of the Singleton {@link InputConfiguration}.
@@ -138,7 +139,7 @@ public class InputConfiguration {
      * @param builderName the name of the builder. Can be either Maven or Gradle (not case sensitive).
      * @return the new instance of the InputConfiguration
      */
-    public static InputConfiguration initialize(Properties properties, String builderName) {
+    public static InputConfiguration initialize(Properties properties, String builderName, boolean executeTestsInParallel) {
         if (InputConfiguration.instance != null) {
             reset();
         }
@@ -162,6 +163,7 @@ public class InputConfiguration {
             LOGGER.warn("Using the value gave on the command-line {}", builderName);
             InputConfiguration.instance.setBuilderName(builderName);
         }
+        InputConfiguration.instance.setExecuteTestsInParallel(executeTestsInParallel);
         InputConfiguration.instance.initializeBuilder(properties);
         return InputConfiguration.instance;
     }
@@ -303,7 +305,8 @@ public class InputConfiguration {
                              boolean comment, boolean generateNewTestClass,
                              boolean keepOriginalTestMethods, boolean gregor,
                              boolean descartes, boolean useMavenToExecuteTest,
-                             boolean targetOneTestClass, boolean allowPathInAssertion) {
+                             boolean targetOneTestClass, boolean allowPathInAssertion,
+                             boolean executeTestsInParallel, int numberParallelExecutionProcessors) {
         InputConfiguration.get()
                 .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(amplifiers))
                 .setNbIteration(iteration)
@@ -323,7 +326,9 @@ public class InputConfiguration {
                 .setDescartesMode(descartes && !gregor)
                 .setUseMavenToExecuteTest(useMavenToExecuteTest)
                 .setTargetOneTestClass(targetOneTestClass)
-                .setAllowPathInAssertion(allowPathInAssertion);
+                .setAllowPathInAssertion(allowPathInAssertion)
+                .setExecuteTestsInParallel(executeTestsInParallel)
+                .setNumberParallelExecutionProcessors(numberParallelExecutionProcessors);
     }
 
     /*
@@ -979,5 +984,28 @@ public class InputConfiguration {
         return this;
     }
 
+    /**
+    * This boolean say if we must use execute the test in parallel. If not, the tests will be executed sequentially
+    */
+    private boolean executeTestsInParallel = false;
+    private int numberParallelExecutionProcessors = Runtime.getRuntime().availableProcessors();
+
+    public boolean shouldExecuteTestsInParallel() {
+        return executeTestsInParallel;
+    }
+
+    public InputConfiguration setExecuteTestsInParallel(boolean executeTestsInParallel) {
+        this.executeTestsInParallel = executeTestsInParallel;
+        return this;
+    }
+
+    public int getNumberParallelExecutionProcessors() {
+        return numberParallelExecutionProcessors;
+    }
+
+    public InputConfiguration setNumberParallelExecutionProcessors(int numberParallelExecutionProcessors) {
+        this.numberParallelExecutionProcessors = numberParallelExecutionProcessors;
+        return this;
+    }
 
 }

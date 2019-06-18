@@ -246,6 +246,14 @@ public class DSpotMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "", property = "path-to-second-version")
     private String pathToSecondVersion = "";
+    
+    /**
+     * [optional] If enabled, DSpot will execute the tests in parallel. 
+     * For JUnit5 tests it will use the number of given processors (specify 0 to take the number of available core processors). 
+     * For JUnit4 tests, it will use the number of available CPU processors (given number of processors is ignored)
+     */
+    @Parameter(defaultValue = "-1", property = "execute-test-parallel-with-number-processors")
+    private Integer numberParallelExecutionProcessors;
 
     @Override
     public void execute() {
@@ -272,7 +280,7 @@ public class DSpotMojo extends AbstractMojo {
                     .collect(Collectors.toList());
         }
         try {
-
+            boolean executeTestsInParallel = this.numberParallelExecutionProcessors < 0? false:true;
             Configuration.configure(
                     properties,
                     this.amplifiers,
@@ -297,6 +305,8 @@ public class DSpotMojo extends AbstractMojo {
                     this.useMavenToExeTest,
                     this.targetOneTestClass,
                     this.allowPathInAssertions,
+                    executeTestsInParallel,
+                    this.numberParallelExecutionProcessors,
                     this.test,
                     this.testCases
             );
