@@ -55,7 +55,7 @@ public class JSAPOptions {
         final String budgetizer = jsapConfig.getString("budgetizer");
         final String pitOutputFormat = jsapConfig.getString("pit-output-format");
         final String pathPitResult = jsapConfig.getString("path-pit-result");
-        final String builder = jsapConfig.getString("builder");
+        final String automaticBuilder = jsapConfig.getString("automatic-builder");
         final String outputPath = jsapConfig.getString("output-path");
         final int iteration = jsapConfig.getInt("iteration");
         final long randomSeed = jsapConfig.getLong("random-seed");
@@ -91,7 +91,7 @@ public class JSAPOptions {
                 budgetizer,
                 pitOutputFormat,
                 pathPitResult,
-                builder,
+                automaticBuilder,
                 outputPath,
                 iteration,
                 randomSeed,
