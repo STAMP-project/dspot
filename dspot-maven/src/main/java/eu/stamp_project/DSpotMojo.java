@@ -303,7 +303,7 @@ public class DSpotMojo extends AbstractMojo {
 
         try {
             Configuration.configure(
-                    pathToProperties,
+                    properties,
                     amplifiers,
                     testCriterion,
                     budgetizer,
