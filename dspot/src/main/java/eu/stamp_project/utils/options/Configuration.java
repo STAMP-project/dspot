@@ -44,7 +44,7 @@ public class Configuration {
                                  final String budgetizer,
                                  final String pitOutputFormat,
                                  final String pathPitResult,
-                                 final String builder,
+                                 final String automaticBuilder,
                                  final String output,
                                  final int iteration,
                                  final long randomSeed,
@@ -75,7 +75,7 @@ public class Configuration {
                 budgetizer,
                 pitOutputFormat,
                 pathPitResult,
-                builder,
+                automaticBuilder,
                 output,
                 iteration,
                 randomSeed,
@@ -105,7 +105,7 @@ public class Configuration {
                                  final String budgetizer,
                                  final String pitOutputFormat,
                                  final String pathPitResult,
-                                 final String builder,
+                                 final String automaticBuilder,
                                  final String output,
                                  final int iteration,
                                  final long randomSeed,
@@ -166,7 +166,7 @@ public class Configuration {
         }
         //ExecuteTestsInParallel needs to be setup before initializing InputConfiguration
         //because it is required to compute the classpath of the MavenAutomaticBuilder
-        InputConfiguration.initialize(properties, builder, executeTestsInParallel);
+        InputConfiguration.initialize(properties, automaticBuilder, executeTestsInParallel);
         if (InputConfiguration.get().getOutputDirectory().isEmpty()) {
 
             InputConfiguration.get().setOutputDirectory(output);
