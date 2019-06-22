@@ -44,7 +44,7 @@ public class Configuration {
                                  final String budgetizer,
                                  final String pitOutputFormat,
                                  final String pathPitResult,
-                                 final String builder,
+                                 final String automaticBuilder,
                                  final String output,
                                  final int iteration,
                                  final long randomSeed,
@@ -61,6 +61,8 @@ public class Configuration {
                                  final boolean useMavenToExecuteTest,
                                  final boolean targetOneTestClass,
                                  final boolean allowPathInAssertion,
+                                 final boolean executeTestsInParallel,
+                                 final int numberParallelExecutionProcessors,
                                  final List<String> testClasses,
                                  final List<String> testCases) {
 
@@ -73,7 +75,7 @@ public class Configuration {
                 budgetizer,
                 pitOutputFormat,
                 pathPitResult,
-                builder,
+                automaticBuilder,
                 output,
                 iteration,
                 randomSeed,
@@ -90,6 +92,8 @@ public class Configuration {
                 useMavenToExecuteTest,
                 targetOneTestClass,
                 allowPathInAssertion,
+                executeTestsInParallel,
+                numberParallelExecutionProcessors,
                 testClasses,
                 testCases
         );
@@ -101,7 +105,7 @@ public class Configuration {
                                  final String budgetizer,
                                  final String pitOutputFormat,
                                  final String pathPitResult,
-                                 final String builder,
+                                 final String automaticBuilder,
                                  final String output,
                                  final int iteration,
                                  final long randomSeed,
@@ -118,6 +122,8 @@ public class Configuration {
                                  final boolean useMavenToExecuteTest,
                                  final boolean targetOneTestClass,
                                  final boolean allowPathInAssertion,
+                                 final boolean executeTestsInParallel,
+                                 final int numberParallelExecutionProcessors,
                                  final List<String> testClasses,
                                  final List<String> testCases) {
         // pit output format
@@ -158,8 +164,9 @@ public class Configuration {
         } else {
             testCriterion = SelectorEnum.valueOf(selector).buildSelector();
         }
-
-        InputConfiguration.initialize(properties, builder);
+        //ExecuteTestsInParallel needs to be setup before initializing InputConfiguration
+        //because it is required to compute the classpath of the MavenAutomaticBuilder
+        InputConfiguration.initialize(properties, automaticBuilder, executeTestsInParallel);
         if (InputConfiguration.get().getOutputDirectory().isEmpty()) {
 
             InputConfiguration.get().setOutputDirectory(output);
@@ -187,7 +194,9 @@ public class Configuration {
                 descartes,
                 useMavenToExecuteTest,
                 targetOneTestClass,
-                allowPathInAssertion
+                allowPathInAssertion,
+                executeTestsInParallel,
+                numberParallelExecutionProcessors
         );
     }
 

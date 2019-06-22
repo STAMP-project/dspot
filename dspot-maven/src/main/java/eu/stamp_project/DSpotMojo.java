@@ -5,7 +5,6 @@ import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.options.*;
 import eu.stamp_project.utils.program.ConstantsProperties;
 import eu.stamp_project.utils.program.InputConfiguration;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.model.Build;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -24,206 +23,217 @@ import java.util.stream.Collectors;
 @Mojo(name = "amplify-unit-tests", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.TEST)
 public class DSpotMojo extends AbstractMojo {
 
+    // >>>>>> BEGIN GENERATED >>>>>>
+    // The following codes, i.e. maven parameters, are generated using the main function in eu.stamp_project.utils.options.JSAPOptions
+
     /**
-     * [mandatory] specify the path to the configuration file (format Java properties) of the target project (e.g. ./foo.properties).
+     *	[mandatory] specify the path to the configuration file (format Java properties) of the target project (e.g. ./foo.properties).
      */
     @Parameter(property = "path-to-properties")
     private String pathToProperties;
 
     /**
-     * [optional] specify the list of amplifiers to use. By default, DSpot does not use any amplifiers (None) and applies only assertion amplification.
-     * Possible values are:
-     * - MethodAdd
-     * - MethodRemove
-     * - TestDataMutator
-     * - MethodGeneratorAmplifier
-     * - ReturnValueAmplifier
-     * - StringLiteralAmplifier
-     * - NumberLiteralAmplifier
-     * - BooleanLiteralAmplifier
-     * - CharLiteralAmplifier
-     * - AllLiteralAmplifiers
-     * - NullifierAmplifier
-     * - None
+     *	[optional] specify the list of amplifiers to use. By default, DSpot does not use any amplifiers (None) and applies only assertion amplification.
+     *	Possible values are:
+     *			 - MethodAdd
+     *			 - MethodRemove
+     *			 - TestDataMutator
+     *			 - MethodGeneratorAmplifier
+     *			 - ReturnValueAmplifier
+     *			 - StringLiteralAmplifier
+     *			 - NumberLiteralAmplifier
+     *			 - BooleanLiteralAmplifier
+     *			 - CharLiteralAmplifier
+     *			 - AllLiteralAmplifiers
+     *			 - NullifierAmplifier
+     *			 - None
      */
     @Parameter(defaultValue = "None", property = "amplifiers")
     private List<String> amplifiers;
 
     /**
-     * [optional] specify the number of amplification iterations. A larger number may help to improve the test criterion (e.g. a larger number of iterations may help to kill more mutants). This has an impact on the execution time: the more iterations, the longer DSpot runs.
+     *	[optional] specify the number of amplification iterations. A larger number may help to improve the test criterion (e.g. a larger number of iterations may help to kill more mutants). This has an impact on the execution time: the more iterations, the longer DSpot runs.
      */
     @Parameter(defaultValue = "3", property = "iteration")
     private Integer iteration;
 
     /**
-     * [optional] specify the test adequacy criterion to be maximized with amplification.
-     * Possible values are:
-     * - PitMutantScoreSelector
-     * - JacocoCoverageSelector
-     * - TakeAllSelector
-     * - ChangeDetectorSelector
+     *	[optional] specify the test adequacy criterion to be maximized with amplification.
+     *	Possible values are:
+     *			 - PitMutantScoreSelector
+     *			 - JacocoCoverageSelector
+     *			 - TakeAllSelector
+     *			 - ChangeDetectorSelector
      */
     @Parameter(defaultValue = "PitMutantScoreSelector", property = "test-criterion")
     private String testCriterion;
 
     /**
-     * [optional] specify the Pit output format.
-     * Possible values are:
-     * - XML
-     * - CSV
+     *	[optional] specify the Pit output format.
+     *	Possible values are:
+     *			 - XML
+     *			 - CSV
      */
     @Parameter(defaultValue = "XML", property = "pit-output-format")
     private String pitOutputFormat;
 
     /**
-     * [optional] specify a Bugdetizer.
-     * Possible values are:
-     * - RandomBudgetizer
-     * - TextualDistanceBudgetizer
-     * - SimpleBudgetizer
+     *	[optional] specify a Bugdetizer.
+     *	Possible values are:
+     *			 - RandomBudgetizer
+     *			 - TextualDistanceBudgetizer
+     *			 - SimpleBudgetizer
      */
     @Parameter(defaultValue = "RandomBudgetizer", property = "budgetizer")
     private String budgetizer;
 
     /**
-     * [optional] specify the maximum number of amplified tests that dspot keeps (before generating assertion)
+     *	[optional] specify the maximum number of amplified tests that dspot keeps (before generating assertion)
      */
     @Parameter(defaultValue = "200", property = "max-test-amplified")
     private Integer maxTestAmplified;
 
     /**
-     * [optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite. You can also use regex to describe a set of test classes. By default, DSpot selects all the tests (value all).
+     *	[optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite. You can also use regex to describe a set of test classes. By default, DSpot selects all the tests (value all).
      */
     @Parameter(defaultValue = "all", property = "test")
     private List<String> test;
 
     /**
-     * specify the test cases to amplify
+     *	specify the test cases to amplify
      */
     @Parameter(property = "test-cases")
     private List<String> testCases;
 
     /**
-     * [optional] specify the output folder
+     *	[optional] specify the output folder
      */
     @Parameter(defaultValue = "target/dspot/output", property = "output-path")
     private String outputPath;
 
     /**
-     * [optional] if enabled, DSpot will remove the out directory if exists, else it will append the results to the exist files.
+     *	[optional] if enabled, DSpot will remove the out directory if exists, else it will append the results to the exist files.
      */
     @Parameter(defaultValue = "false", property = "clean")
     private Boolean clean;
 
     /**
-     * [optional, expert mode] specify the path to the .xml or .csv of the original result of Pit Test. If you use this option the selector will be forced to PitMutantScoreSelector
+     *	[optional, expert mode] specify the path to the .xml or .csv of the original result of Pit Test. If you use this option the selector will be forced to PitMutantScoreSelector
      */
     @Parameter(property = "path-pit-result")
     private String pathPitResult;
 
     /**
-     * [optional, expert] enable this option will make DSpot computing the mutation score of only one test class (the first pass through --test command line option)
+     *	[optional, expert] enable this option will make DSpot computing the mutation score of only one test class (the first pass through --test command line option)
      */
     @Parameter(defaultValue = "false", property = "target-one-test-class")
     private Boolean targetOneTestClass;
 
     /**
-     * Enable the descartes engine for Pit Mutant Score Selector.
+     *	Enable the descartes engine for Pit Mutant Score Selector.
      */
     @Parameter(defaultValue = "true", property = "descartes")
     private Boolean descartes;
 
     /**
-     * Enable the gregor engine for Pit Mutant Score Selector.
+     *	Enable the gregor engine for Pit Mutant Score Selector.
      */
     @Parameter(defaultValue = "false", property = "gregor")
     private Boolean gregor;
 
     /**
-     * [optional] specify the automatic builder to build the project
+     *	[optional] specify the automatic builder to build the project
      */
     @Parameter(defaultValue = "", property = "automatic-builder")
     private String automaticBuilder;
 
     /**
-     * specify the path to the maven home
+     *	specify the path to the maven home
      */
     @Parameter(property = "maven-home")
     private String mavenHome;
 
     /**
-     * specify a seed for the random object (used for all randomized operation)
+     *	specify a seed for the random object (used for all randomized operation)
      */
     @Parameter(defaultValue = "23", property = "random-seed")
     private Long randomSeed;
 
     /**
-     * specify the timeout value of the degenerated tests in millisecond
+     *	specify the timeout value of the degenerated tests in millisecond
      */
     @Parameter(defaultValue = "10000", property = "time-out")
     private Integer timeOut;
 
     /**
-     * Enable verbose mode of DSpot.
+     *	Enable verbose mode of DSpot.
      */
     @Parameter(defaultValue = "false", property = "verbose")
     private Boolean verbose;
 
     /**
-     * Enable comment on amplified test: details steps of the Amplification.
+     *	Enable comment on amplified test: details steps of the Amplification.
      */
     @Parameter(defaultValue = "false", property = "with-comment")
     private Boolean withComment;
 
     /**
-     * Disable the minimization of amplified tests.
+     *	Disable the minimization of amplified tests.
      */
     @Parameter(defaultValue = "false", property = "no-minimize")
     private Boolean noMinimize;
 
     /**
-     * Enable this option to change working directory with the root of the project.
+     *	Enable this option to change working directory with the root of the project.
      */
     @Parameter(defaultValue = "false", property = "working-directory")
     private Boolean workingDirectory;
 
     /**
-     * Enable the creation of a new test class.
+     *	Enable the creation of a new test class.
      */
     @Parameter(defaultValue = "false", property = "generate-new-test-class")
     private Boolean generateNewTestClass;
 
     /**
-     * If enabled, DSpot keeps original test methods of the amplified test class.
+     *	If enabled, DSpot keeps original test methods of the amplified test class.
      */
     @Parameter(defaultValue = "false", property = "keep-original-test-methods")
     private Boolean keepOriginalTestMethods;
 
     /**
-     * If enabled, DSpot will use maven to execute the tests.
+     *	If enabled, DSpot will use maven to execute the tests.
      */
     @Parameter(defaultValue = "false", property = "use-maven-to-exe-test")
     private Boolean useMavenToExeTest;
 
     /**
-     * If enabled, DSpot will generate assertions for values that seems like to be paths.
+     *	If enabled, DSpot will generate assertions for values that seems like to be paths.
      */
     @Parameter(defaultValue = "false", property = "allow-path-in-assertions")
     private Boolean allowPathInAssertions;
 
     /**
-     * run the example of DSpot and leave
+     *	[optional] If enabled, DSpot will execute the tests in parallel. For JUnit5 tests it will use the number of given processors (specify 0 to take the number of available core processors). For JUnit4 tests, it will use the number of available CPU processors (given number of processors is ignored).
+     */
+    @Parameter(defaultValue = "-1", property = "execute-test-parallel-with-number-processors")
+    private Integer executeTestParallelWithNumberProcessors;
+
+    /**
+     *	run the example of DSpot and leave
      */
     @Parameter(defaultValue = "false", property = "example")
     private Boolean example;
 
     /**
-     * show this help
+     *	show this help
      */
     @Parameter(defaultValue = "false", property = "help")
     private Boolean help;
 
-    private final String AUTOMATIC_BUILDER_NAME = "MAVEN";
+    // <<<<<< END GENERATED <<<<<<
+
+    private final String builder = "MAVEN";
 
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
     private MavenProject project;
@@ -246,6 +256,20 @@ public class DSpotMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "", property = "path-to-second-version")
     private String pathToSecondVersion = "";
+    
+    /**
+     * [optional] If enabled, DSpot will execute the tests in parallel. 
+     * For JUnit5 tests it will use the number of given processors (specify 0 to take the number of available core processors). 
+     * For JUnit4 tests, it will use the number of available CPU processors (given number of processors is ignored)
+     */
+    @Parameter(defaultValue = "-1", property = "execute-test-parallel-with-number-processors")
+    private Integer numberParallelExecutionProcessors;
+
+    /**
+     * Enable the parallel execution of test during amplification process
+     */
+    @Parameter(defaultValue = "false", property = "path-to-second-version")
+    private boolean executeTestsInParallel = false;
 
     @Override
     public void execute() {
@@ -271,34 +295,41 @@ public class DSpotMojo extends AbstractMojo {
             this.amplifiers = Arrays.stream(this.amplifiers.get(0).split(AmplificationHelper.PATH_SEPARATOR))
                     .collect(Collectors.toList());
         }
-        try {
 
+        boolean executeTestsInParallel = executeTestParallelWithNumberProcessors > 0;
+        if (executeTestParallelWithNumberProcessors == 0) {
+            this.executeTestParallelWithNumberProcessors = Runtime.getRuntime().availableProcessors();
+        }
+
+        try {
             Configuration.configure(
                     properties,
-                    this.amplifiers,
-                    this.testCriterion,
-                    this.budgetizer,
-                    this.pitOutputFormat,
-                    this.pathPitResult,
-                    this.AUTOMATIC_BUILDER_NAME,
-                    this.outputPath,
-                    this.iteration,
-                    this.randomSeed,
-                    this.timeOut,
-                    this.maxTestAmplified,
-                    this.clean,
-                    this.verbose,
-                    this.workingDirectory,
-                    this.withComment,
-                    this.generateNewTestClass,
-                    this.keepOriginalTestMethods,
-                    this.gregor,
-                    this.descartes,
-                    this.useMavenToExeTest,
-                    this.targetOneTestClass,
-                    this.allowPathInAssertions,
-                    this.test,
-                    this.testCases
+                    amplifiers,
+                    testCriterion,
+                    budgetizer,
+                    pitOutputFormat,
+                    pathPitResult,
+                    builder,
+                    outputPath,
+                    iteration,
+                    randomSeed,
+                    timeOut,
+                    maxTestAmplified,
+                    clean,
+                    verbose,
+                    workingDirectory,
+                    withComment,
+                    generateNewTestClass,
+                    keepOriginalTestMethods,
+                    gregor,
+                    descartes,
+                    useMavenToExeTest,
+                    targetOneTestClass,
+                    allowPathInAssertions,
+                    executeTestsInParallel,
+                    executeTestParallelWithNumberProcessors,
+                    test,
+                    testCases
             );
 
             if (!this.pathToTestListCsv.isEmpty()) {
