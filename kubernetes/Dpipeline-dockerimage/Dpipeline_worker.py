@@ -119,12 +119,15 @@ def run_Dspot_preconfig(POM_FILE,reposlug,timecap):
 def configure(module_name, module_path, root_name, project_path, outputdir):
     config = ConfigParser.RawConfigParser()
     config.optionxform = str
-    config.read('dspot.properties')
+
+    config.add_section('SPECS')
     config.set('SPECS', 'project', project_path)
     config.set('SPECS', 'targetModule', module_path)
+    config.set('SPECS','src','src/main/java')
+    config.set('SPECS','testSrc','src/test/java')
+    config.set('SPECS','javaVersion','8')
     config.set('SPECS', 'outputDirectory', outputdir)
-
-    logging.warning('start saving file')
+    print('start saving file')
     with open('project.properties', 'w') as configfile:
         config.write(configfile)
 

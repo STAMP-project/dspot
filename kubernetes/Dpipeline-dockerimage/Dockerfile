@@ -4,7 +4,6 @@ FROM maven:3.6.1-jdk-8
 ADD https://github.com/STAMP-project/dspot/releases/download/dspot-2.1.0/dspot-2.1.0-jar-with-dependencies.jar /root/
 
 COPY Dpipeline_worker.py /root/
-COPY dspot.properties /root/
 
 # Can be specified or changed later in the dspot-pipeline.yaml file
 ENV MONGODB_HOST=mongodb://mongo:27017
