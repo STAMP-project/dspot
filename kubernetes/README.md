@@ -1,5 +1,7 @@
 # Introduction
-The design for Dspot on Kubernetes(K8s) is meant for deploying in parallel with repairnator as the initial goal(Check out this [fork](https://github.com/gluckzhang/repairnator/tree/kubernetes/repairnator/docker-images/kubernetes) and [issue](https://github.com/Spirals-Team/repairnator/issues/813) for more detais), but it can also be deployed completely alone without any side effects. The idea is given a Travis build id from ActiveMQ queue server possiblly submitted from a build scanner like repairnator scanner, then dspot will first clone the repo and check the top most level pomfile of the repo and see if the project support dspot. If it does then we run with the provided configuration in the pom file for Dspot, otherwise we will try provide some basic services by autoconfiguring dspot.properties for the repo and run it with some basic amplifications like only generating assertions for the main tests (not the tests in resources). This way we will still be acquiring some data for research or bug detection even though the Git project does not use Dspot. Either cases will be submit output files on Mongodb and also commit to a new branch on Github if enough information are provided for in the dspot-pipeline.yaml file before deploying.
+The design for Dspot on Kubernetes(K8s) is meant for deploying in parallel with repairnator as the initial goal(Check out this [fork](https://github.com/gluckzhang/repairnator/tree/kubernetes/repairnator/docker-images/kubernetes) and [issue](https://github.com/Spirals-Team/repairnator/issues/813) for more detais), but it can also be deployed completely alone without any side effects. The idea is given a Travis build id from ActiveMQ queue server possiblly submitted from a build scanner like repairnator scanner, then dspot will first clone the repo and check the top most level pomfile of the repo and see if the project support dspot. If it does then we run with the provided configuration in the pom file for Dspot, otherwise we will try provide some basic services by autoconfiguring dspot.properties for the repo and run it with some basic amplifications like only generating assertions for the main tests (not the tests in resources). This way we will still be acquiring some data for research or bug detection even though the Git project does not use Dspot. Either cases will be submit output files on Mongodb and also commit to a new branch on Github if enough information are provided for in the dspot-pipeline.yaml file before deploying. Right below here is the current idea sketch for Dspot on Kubernetes.
+
+![Design](K8sDspotDesign.png)
 
 # To deploy Dspot on Kubenetes
 
@@ -11,19 +13,29 @@ Then create the mongodb deployemnt using mongodb.yaml in the k8s-mongodb folder 
 * kubectl create -f k8s-mongodb/mongodb.yaml
 
 Try it out
+
 * kubectl get pods 
+
 Our mongodb pod should be named like "mongo-controller-XXXXX" then we can get into the pod 
+
 * kubectl exec -it mongo-controller-XXXXX bash
 * mongo
 
 Now deploy ActiveMQ for effective queue managements of jobs to the pipeline and scanner. First apply the yaml file inside the queue-for-buildids folder
 * kubectl create -f /queue-for-buildids/activemq.yaml
+
 To access to the web interface
+
 * kubectl get pods 
+
 It should look like activemq-XXXXXXX-XXXXX. Then 
+
 * kubectl exec -it activemq-XXXXXXX-XXXXX bash
+
 To expose to localhost for webinterface access and also publishing(sending message to queue) outside the cluster. 
+
 * kubectl port-forward activemq-XXXXXXX-XXXXX 8161:8161 61613:61613
+
 Access webinterface with "http://localhost:8161/admin/" in your browser. The default username is "admin" and password is also "admin".
 
 To send message to queue use the publisher.py script in queue-for-buildids folder. Syntax
@@ -50,12 +62,14 @@ Now in the "Dspot-yamlfile" folder, we filled in the name of the pushed image in
 ```
 
 Also, the pipeline can also commit back to some github repo by specifying 
+
 * PUSH_URL : the https github url like for instance "https://github.com/STAMP-project/dspot/"
 * GIT_USERNAME: It's just the committer's name so it can be anything but not empty, maybe "Dspot" is a good name.
 * GIT_EMAIL: just a regular email address.
 * GITHUB_OAUTH: a git token elligible for pushing to the repo specified by the PUSH_URL
 
 Now we can deploy by applying the yaml file.
+
 * kubectl create -f dspot-pipeline.yaml
 * kubectl get pods
 
@@ -67,15 +81,19 @@ To see some actions, there are 2 build ids related to this [repo](https://github
 * 551741145 : with dspot plugin (with_dspot branch). Travis link: https://travis-ci.org/Tailp/travisplay/builds/551741145
 
 Now open a new terminal then we need to log the dspot-pipeline in realtime for its output
+
 * kubectl logs -f dspot-pipeline-XXXXXXXX-XXXX
 
 Since we have port forwarded previously for ActiveMQ server we now use the script "publisher.py" in "queue-for-buildids" to send these build ids to the queue all the dspot-pipelines listen to.
+
 * python publisher.py -d /queue/Dpipeline 551693890 551741145
 
 To this point you should see some reaction from the terminal logging the dspot pod announcing like a new build id has arrived. 
 
 To scale dspot, for instance
-* kubectl scale --replicas=3 -f dspot-pipeline.yal
+
+* kubectl scale --replicas=3 -f dspot-pipeline.yalm
+
 This will create 2 more dspot-pipelines. The ActiveMQ Dpipeline queue should now have 3 consumers.
 Note that the build id from queue will only be pulled one at a time by any free dspot-pipeline.
 
