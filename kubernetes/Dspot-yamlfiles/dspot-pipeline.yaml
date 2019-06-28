@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dspot-pipeline
+  labels:
+    app: dspot-pipeline
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dspot-pipeline
+  template:
+    metadata:
+      labels:
+        app: dspot-pipeline
+    spec:
+      containers:
+      - name: dspot-pipeline
+        image: IMAGENAME
+        env:
+        # Default values if deploying to kubernetes assumming that 
+        # Service for Mongodb is named mongo
+        # Service for AcriveMQ is named activemq
+        - name: MONGODB_HOST
+          value: mongodb://mongo:27017
+        - name: ACTIVEMQ_HOST
+          value: activemq
+        # Optional if decide pushing to github related to the pushurl at end process.
+        - name: GITHUB_OAUTH
+          value: 
+        - name: GITHUB_USERNAME
+          value: 
+        - name: GITHUB_USEREMAIL
+          value: 
+        - name: PUSH_URL
+          value: 
