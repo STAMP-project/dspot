@@ -59,8 +59,6 @@ def check_endprocess_gitcommit():
         return True
 
 # Check if it supports Dspot
-
-
 def check_Dspot_supported(POM_FILE):
     tree = ElementTree.parse(POM_FILE)
     root = tree.getroot()
@@ -72,10 +70,55 @@ def check_Dspot_supported(POM_FILE):
         if (groupId == "eu.stamp-project") and (artifactId == "dspot-maven"):
             return True
     return False
+
+# Find and return the JAVA version specified in maven pom.
+def find_JAVA_VERSION(POM_FILE):
+    version_dictionary = {''}
+
+    tree = ElementTree.parse(POM_FILE)
+    root = tree.getroot()
+    namespace = root.tag.split('}')[0] + '}' # Acquire namespace of the pom
+    properties = root.find(namespace + 'properties')
+
+    JAVA_VERSION_FOUND = False
+    str_to_find = [namespace + 'maven.compiler.source',namespace + 'maven.compiler.release',namespace + 'java.version']
+    JAVA_VERSION = ''
+    # Look for version in properties first
+    for find_string in str_to_find:
+        property = properties.find(find_string)
+        if property is not None:
+            JAVA_VERSION = property.text
+            JAVA_VERSION_FOUND = True
+            break
+
+    # If not found then look for it in plugins
+    if not JAVA_VERSION_FOUND:
+        # here means that Java version might not be stored in properties but in plugins instead
+        for plugin in root.iter(namespace + 'plugin'):
+            text = plugin.find(namespace + 'artifactId').text
+            # Check if it's the correct plugin
+            if text == ('maven-compiler-plugin'):
+                configuration = plugin.find(namespace + 'configuration')
+                str_to_find = [namespace + 'source',namespace + 'release']
+                for find_string in str_to_find:
+                    config_object = configuration.find(find_string)
+                    if config_object is not None:
+                        JAVA_VERSION = config_object.text
+                        JAVA_VERSION_FOUND = True
+                        break
+            if JAVA_VERSION_FOUND :
+                break
+
+    if not JAVA_VERSION_FOUND:
+        print("No java version found, malconfigured pom ?")
+        return ''
+    else:
+        return JAVA_VERSION
+
+
+
 # Run Dspot preconfigured, the project support Dspot
 # and has configured in the pom file
-
-
 def run_Dspot_preconfig(POM_FILE,reposlug,timecap):
     # This is fixed if running maven Dspot plugin
     outputdir = "target/dspot/output"
@@ -116,7 +159,7 @@ def run_Dspot_preconfig(POM_FILE,reposlug,timecap):
 # This help providing some basic configurations for projects that does not support Dspot
 # Configure the dspot.properties file for each root project module.
 # Output with a properties file for using.
-def configure(module_name, module_path, root_name, project_path, outputdir):
+def configure(module_name, module_path, root_name, project_path, outputdir,java_version):
     config = ConfigParser.RawConfigParser()
     config.optionxform = str
 
@@ -125,7 +168,7 @@ def configure(module_name, module_path, root_name, project_path, outputdir):
     config.set('SPECS', 'targetModule', module_path)
     config.set('SPECS','src','src/main/java')
     config.set('SPECS','testSrc','src/test/java')
-    config.set('SPECS','javaVersion','8')
+    config.set('SPECS','javaVersion',java_version)
     config.set('SPECS', 'outputDirectory', outputdir)
     print('start saving file')
     with open('project.properties', 'w') as configfile:
@@ -161,7 +204,7 @@ def run_Dspot_autoconfig(reposlug,timecap):
         root_path = listln[0]
         root_name = root_path.split('/')[-1]
         project_path = exec_get_output(
-            'realpath --relative-to=. ' + root_path, True)
+            'realpath --relative-to=. ' + root_path, True).strip()
         # default values of module if there are no modules(a.k.a not a
         # multimodules project)
         module_path = '.'
@@ -181,8 +224,11 @@ def run_Dspot_autoconfig(reposlug,timecap):
                                 root_name + " rootpath: " + module_name)
                 if os.path.exists(listln[i] + '/src/test/java'):
                     outputdir = 'dspot-out/' + root_name + '_' + module_name + '/'
+                    print('project_path: ' + project_path)
+                    print('module_path: ' + module_path)
+                    JAVA_VERSION = find_JAVA_VERSION(project_path + '/pom.xml')
                     configure(module_name, module_path,
-                              root_name, project_path, outputdir)
+                              root_name, project_path, outputdir,JAVA_VERSION)
                     logging.warning('Running Dspot')
                     logging.warning(exec_get_output(['java', '-jar', 'dspot-2.1.0-jar-with-dependencies.jar', '--path-to-properties',
                                                      'project.properties', '--test-criterion', 'TakeAllSelector', '--iteration', '1', '--descartes', '--gregor']))
@@ -200,8 +246,9 @@ def run_Dspot_autoconfig(reposlug,timecap):
             if os.path.exists(root_path + '/src/test/java'):
                 logging.warning("Running Dpot on rootname: " + root_name)
                 outputdir = 'clonedrepo/dspot-out/RootProject'
+                JAVA_VERSION = find_JAVA_VERSION(project_path + '/pom.xml')
                 configure(module_name, module_path,
-                          root_name, project_path, outputdir)
+                          root_name, project_path, outputdir,JAVA_VERSION)
                 logging.warning('Running Dspot')
                 logging.warning(exec_get_output(['java', '-jar', 'dspot-2.1.0-jar-with-dependencies.jar', '--path-to-properties',
                                                  'project.properties', '--test-criterion', 'TakeAllSelector', '--iteration', '1', '--descartes', '--gregor']))
@@ -290,7 +337,7 @@ class BuildIdListener(object):
             pushurl = templist[0] + '//' + token + '@' + templist[1] 
             branch_name = reposlug.replace('/', "-") + timecap
 
-            logging.warning('Commit to git new repo ' + branch_name)
+            logging.warning('Commit to git as new branch with name ' + branch_name)
 
             current = repo.git.checkout('-b', branch_name)
             # current.checkout()
