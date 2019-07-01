@@ -5,6 +5,9 @@ import com.google.gson.GsonBuilder;
 import eu.stamp_project.prettifier.code2vec.Code2VecExecutor;
 import eu.stamp_project.prettifier.code2vec.Code2VecParser;
 import eu.stamp_project.prettifier.code2vec.Code2VecWriter;
+import eu.stamp_project.prettifier.context2code.Context2CodeExecutor;
+import eu.stamp_project.prettifier.context2code.Context2CodeParser;
+import eu.stamp_project.prettifier.context2code.Context2CodeWriter;
 import eu.stamp_project.prettifier.minimization.GeneralMinimizer;
 import eu.stamp_project.prettifier.minimization.Minimizer;
 import eu.stamp_project.prettifier.minimization.PitMutantMinimizer;
@@ -72,9 +75,7 @@ public class Main {
                 amplifiedTestClass
         );
         // 2
-
-        // TODO
-
+//        applyContext2Code(minimizedAmplifiedTestMethods);
         // 3
         applyCode2Vec(minimizedAmplifiedTestMethods);
         return minimizedAmplifiedTestMethods;
@@ -113,6 +114,30 @@ public class Main {
                 .collect(Collectors.toList());
         minimizer.updateReport(Main.report);
         return minimizedAmplifiedTestMethods;
+    }
+
+    public static void applyContext2Code(List<CtMethod<?>> amplifiedTestMethodsToBeRenamed) {
+        Context2CodeWriter writer = new Context2CodeWriter();
+        Context2CodeParser parser = new Context2CodeParser();
+        Context2CodeExecutor context2codeExecutor = null;
+        try {
+            context2codeExecutor = new Context2CodeExecutor();
+            for (CtMethod<?> amplifiedTestMethodToBeRenamed : amplifiedTestMethodsToBeRenamed) {
+                writer.writeCtMethodToInputFile(amplifiedTestMethodToBeRenamed);
+                context2codeExecutor.run();
+                // TODO (one method-name) -> (numerous variable-names)
+                final String context2codeOutput = context2codeExecutor.getOutput();
+                final String predictedSimpleName = parser.parse(context2codeOutput);
+                LOGGER.info("Context2Code predicted {} for {} as new name", predictedSimpleName, amplifiedTestMethodToBeRenamed.getSimpleName());
+                amplifiedTestMethodToBeRenamed.setSimpleName(predictedSimpleName);
+                // TODO add scripts, models, test files
+                // TODO uncomment Line78
+            }
+        } finally {
+            if (context2codeExecutor != null) {
+                context2codeExecutor.stop();
+            }
+        }
     }
 
     public static void applyCode2Vec(List<CtMethod<?>> amplifiedTestMethodsToBeRenamed) {

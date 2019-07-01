@@ -46,6 +46,54 @@ public class InputConfiguration {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return "InputConfiguration{" +
+                "pathToAmplifiedTestClass='" + pathToAmplifiedTestClass + '\'' +
+                ", pathToRootOfContext2Code='" + pathToRootOfContext2Code + '\'' +
+                ", relativePathToModelForContext2Code='" + relativePathToModelForContext2Code + '\'' +
+                ", pathToRootOfCode2Vec='" + pathToRootOfCode2Vec + '\'' +
+                ", relativePathToModelForCode2Vec='" + relativePathToModelForCode2Vec + '\'' +
+                '}';
+    }
+
+    // Context2Code
+
+    private String pathToRootOfContext2Code;
+
+    public String getPathToRootOfContext2Code() {
+        return pathToRootOfContext2Code;
+    }
+
+    public InputConfiguration setPathToRootOfContext2Code(String pathToRootOfContext2Code) {
+        this.pathToRootOfContext2Code = DSpotUtils.shouldAddSeparator.apply(pathToRootOfContext2Code);
+        return this;
+    }
+
+    private String relativePathToModelForContext2Code;
+
+    public String getRelativePathToModelForContext2Code() {
+        return relativePathToModelForContext2Code;
+    }
+
+    public InputConfiguration setRelativePathToModelForContext2Code(String relativePathToModelForContext2Code) {
+        this.relativePathToModelForContext2Code = relativePathToModelForContext2Code;
+        return this;
+    }
+
+    private long timeToWaitForContext2codeInMillis = 90000;
+
+    public long getTimeToWaitForContext2codeInMillis() {
+        return this.timeToWaitForContext2codeInMillis;
+    }
+
+    public InputConfiguration setTimeToWaitForContext2codeInMillis(long timeToWaitForContext2codeInMillis) {
+        this.timeToWaitForContext2codeInMillis = timeToWaitForContext2codeInMillis;
+        return this;
+    }
+
+    // Code2Vec
+
     private String pathToRootOfCode2Vec;
 
     public String getPathToRootOfCode2Vec() {
@@ -77,14 +125,5 @@ public class InputConfiguration {
     public InputConfiguration setTimeToWaitForCode2vecInMillis(long timeToWaitForCode2vecInMillis) {
         this.timeToWaitForCode2vecInMillis = timeToWaitForCode2vecInMillis;
         return this;
-    }
-
-    @Override
-    public String toString() {
-        return "InputConfiguration{" +
-                "pathToAmplifiedTestClass='" + pathToAmplifiedTestClass + '\'' +
-                ", pathToRootOfCode2Vec='" + pathToRootOfCode2Vec + '\'' +
-                ", relativePathToModelForCode2Vec='" + relativePathToModelForCode2Vec + '\'' +
-                '}';
     }
 }
