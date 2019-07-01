@@ -33,7 +33,7 @@ public class JSAPOptions {
      * parse the command line argument
      *
      * @param args command line arguments. Refer to the README on the github page or use --help command line option to display all the accepted arguments.
-     * Otherwise, it returns false and DSpot will run normally, using the properties and the command line options.
+     *             Otherwise, it returns false and DSpot will run normally, using the properties and the command line options.
      */
     public static void parse(String[] args) {
         JSAPResult jsapConfig = options.parse(args);
@@ -49,14 +49,14 @@ public class JSAPOptions {
         }
 
         // getting first all the values of the command line.
-        final String pathToPropertiesFile = jsapConfig.getString("path-to-properties");
+        final String pathToProperties = jsapConfig.getString("path-to-properties");
         final List<String> amplifiers = new ArrayList<>(Arrays.asList(jsapConfig.getStringArray("amplifiers")));
-        final String selector = jsapConfig.getString("test-criterion");
+        final String testCriterion = jsapConfig.getString("test-criterion");
         final String budgetizer = jsapConfig.getString("budgetizer");
         final String pitOutputFormat = jsapConfig.getString("pit-output-format");
         final String pathPitResult = jsapConfig.getString("path-pit-result");
-        final String builder = jsapConfig.getString("builder");
-        final String output = jsapConfig.getString("output-path");
+        final String automaticBuilder = jsapConfig.getString("automatic-builder");
+        final String outputPath = jsapConfig.getString("output-path");
         final int iteration = jsapConfig.getInt("iteration");
         final long randomSeed = jsapConfig.getLong("random-seed");
         final int timeOut = jsapConfig.getInt("time-out");
@@ -64,30 +64,35 @@ public class JSAPOptions {
         final boolean clean = jsapConfig.getBoolean("clean");
         final boolean verbose = jsapConfig.getBoolean("verbose");
         final boolean workingDirectory = jsapConfig.getBoolean("working-directory");
-        final boolean comment = jsapConfig.getBoolean("with-comment");
+        final boolean withComment = jsapConfig.getBoolean("with-comment");
         final boolean generateNewTestClass = jsapConfig.getBoolean("generate-new-test-class");
         final boolean keepOriginalTestMethods = jsapConfig.getBoolean("keep-original-test-methods");
         final boolean gregor = jsapConfig.getBoolean("gregor");
         final boolean descartes = jsapConfig.getBoolean("descartes");
-        final boolean useMavenToExecuteTest = jsapConfig.getBoolean("use-maven-to-exe-test");
+        final boolean useMavenToExeTest = jsapConfig.getBoolean("use-maven-to-exe-test");
         final boolean targetOneTestClass = jsapConfig.getBoolean("target-one-test-class");
-        final boolean allowPathInAssertion = jsapConfig.getBoolean("allow-path-in-assertions");
+        final boolean allowPathInAssertions = jsapConfig.getBoolean("allow-path-in-assertions");
+        final int executeTestParallelWithNumberProcessors =
+                jsapConfig.getInt("execute-test-parallel-with-number-processors") != 0 ?
+                        jsapConfig.getInt("execute-test-parallel-with-number-processors") : Runtime.getRuntime().availableProcessors();
+        final boolean executeTestsInParallel = jsapConfig.userSpecified("execute-test-parallel-with-number-processors");
+
         // these values need to be checked when the factory is available
         // We check them in DSpot class since we have the codes that allow to check them easily
         // and thus, the Factory will be created.
         // Anyway, the verification in DSpot is not yet too late nor deep in the amplification's process.
-        final List<String> testClasses = Arrays.asList(jsapConfig.getStringArray("test"));
+        final List<String> test = Arrays.asList(jsapConfig.getStringArray("test"));
         final List<String> testCases = Arrays.asList(jsapConfig.getStringArray("test-cases"));
 
         Configuration.configure(
-                pathToPropertiesFile,
+                pathToProperties,
                 amplifiers,
-                selector,
+                testCriterion,
                 budgetizer,
                 pitOutputFormat,
                 pathPitResult,
-                builder,
-                output,
+                automaticBuilder,
+                outputPath,
                 iteration,
                 randomSeed,
                 timeOut,
@@ -95,15 +100,17 @@ public class JSAPOptions {
                 clean,
                 verbose,
                 workingDirectory,
-                comment,
+                withComment,
                 generateNewTestClass,
                 keepOriginalTestMethods,
                 gregor,
                 descartes,
-                useMavenToExecuteTest,
+                useMavenToExeTest,
                 targetOneTestClass,
-                allowPathInAssertion,
-                testClasses,
+                allowPathInAssertions,
+                executeTestsInParallel,
+                executeTestParallelWithNumberProcessors,
+                test,
                 testCases
         );
     }
@@ -311,6 +318,13 @@ public class JSAPOptions {
         useMavenToExecuteTests.setDefault("false");
         useMavenToExecuteTests.setHelp("If enabled, DSpot will use maven to execute the tests.");
 
+        FlaggedOption executeTestParallel = new FlaggedOption("execute-test-parallel-with-number-processors");
+        executeTestParallel.setLongFlag("execute-test-parallel-with-number-processors");
+        executeTestParallel.setDefault("0");
+        executeTestParallel.setStringParser(JSAP.INTEGER_PARSER);
+        executeTestParallel.setAllowMultipleDeclarations(false);
+        executeTestParallel.setHelp("[optional] If enabled, DSpot will execute the tests in parallel. For JUnit5 tests it will use the number of given processors (specify 0 to take the number of available core processors). For JUnit4 tests, it will use the number of available CPU processors (given number of processors is ignored).");
+
         /*
             This switch allows DSpot to generate assertion on string values that look like paths.
         */
@@ -347,6 +361,7 @@ public class JSAPOptions {
             jsap.registerParameter(keepOriginalTestMethods);
             jsap.registerParameter(useMavenToExecuteTests);
             jsap.registerParameter(allowPathInAssertions);
+            jsap.registerParameter(executeTestParallel);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {
