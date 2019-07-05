@@ -367,7 +367,7 @@ Here is the list of configuration properties of DSpot:
 	* `automaticBuilderName`: specify the type of automatic builder. This properties is redundant with the command line option `--automatic-builder`. It should have also the same value: (MavenBuilder | GradleBuilder). This property has the priority over the command line.
 	* `pitVersion`: specify the version of PIT to use.(default: 1.4.0)
 	* `jvmArgs`: specify JVM args to use when executing the test, PIT or other java process. This arguments should be a list, separated by a comma ',', _e.g._ jvmArgs=Xmx2048m,-Xms1024m',-Dis.admin.user=admin,-Dis.admin.passwd=$2pRSid#
-	* `pitFilterClassesToKeep`: specify the filter of classes to keep used by PIT. If you use PitMutantScoreSelector, we recommend you to set this property to your top-most package. This value will allow PIT to mutant all your code. However, if you want to restrict the scope of the mutation, you can specify a custom regex. If you do not specify any value, DSpot will compute a filter of classes to keep on the fly, trying to match the most of your classes, _i.e._ your top-most package.
+	* `pitFilterClassesToKeep`: specify the filter of classes to keep used by PIT. This allow you restrict the scope of the mutation done by PIT.
 	* `descartesVersion`: specify the version of pit-descartes to use.(default: 1.2.4)
 	* `descartesMutators`: specify the list of descartes mutators to be used separated by comma. Please refer to the descartes documentation for more details: https://github.com/STAMP-project/pitest-descartes
 You can find an example of properties file [here](https://github.com/STAMP-project/dspot/blob/master/dspot/src/test/resources/sample/sample.properties)).
