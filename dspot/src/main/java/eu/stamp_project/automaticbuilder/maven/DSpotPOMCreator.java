@@ -1,6 +1,5 @@
 package eu.stamp_project.automaticbuilder.maven;
 
-import eu.stamp_project.automaticbuilder.AutomaticBuilderHelper;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
@@ -548,9 +547,12 @@ public class DSpotPOMCreator {
         appendValuesToGivenNode(document, outputFormats, DSpotPOMCreator.outputFormats);
         configuration.appendChild(outputFormats);
 
-        final Element targetClasses = document.createElement(TARGET_CLASSES);
-        targetClasses.setTextContent(AutomaticBuilderHelper.getFilter());
-        configuration.appendChild(targetClasses);
+        if (InputConfiguration.get().getFilter() != null &&
+                !InputConfiguration.get().getFilter().isEmpty()) {
+            final Element targetClasses = document.createElement(TARGET_CLASSES);
+            targetClasses.setTextContent(InputConfiguration.get().getFilter());
+            configuration.appendChild(targetClasses);
+        }
 
         final Element reportsDirectory = document.createElement(REPORT_DIRECTORY);
         reportsDirectory.setTextContent(REPORT_DIRECTORY_VALUE);

@@ -165,10 +165,7 @@ public class ConstantsProperties {
             new InputConfigurationProperty(
                     "pitFilterClassesToKeep",
                     "specify the filter of classes to keep used by PIT. " +
-                            "If you use PitMutantScoreSelector, we recommend you to set this property to your top-most package. " +
-                            "This value will allow PIT to mutant all your code. " +
-                            "However, if you want to restrict the scope of the mutation, you can specify a custom regex. " +
-                            "If you do not specify any value, DSpot will compute a filter of classes to keep on the fly, trying to match the most of your classes, i.e. your top-most package.",
+                            "This allow you restrict the scope of the mutation done by PIT.",
                     "",
                     "",
                     "filter"
