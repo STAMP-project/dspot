@@ -83,12 +83,29 @@ public class AssertGeneratorHelper {
         clone.setSimpleName(test.getSimpleName() + "_withlog");
         final List<CtStatement> allStatement = clone.getElements(new TypeFilter<>(CtStatement.class));
         allStatement.stream()
-                .filter(statement -> isStmtToLog(filter, statement) || ctVariableReads.contains(statement))
-                .forEach(statement ->
+                .filter(statement ->
+                        (isStmtToLog(filter, statement) ||
+                                ctVariableReads.contains(statement)) &&
+                                isNotFromPreviousAmplification(allStatement, statement, test)
+                ).forEach(statement ->
                         addLogStmt(statement,
                                 test.getSimpleName() + "__" + indexOfByRef(allStatement, statement))
                 );
         return clone;
+    }
+
+    // This method aims at infer from the name of the local variables if it came from a previous amplification.
+    // see the use case available here: https://github.com/STAMP-project/dspot/issues/825
+    private static boolean isNotFromPreviousAmplification(final List<CtStatement> allStatement,
+                                                          CtStatement statement,
+                                                          CtMethod<?> test) {
+        final String id = test.getSimpleName() + "__" + indexOfByRef(allStatement, statement);
+        return test.getElements(new TypeFilter<CtLocalVariable>(CtLocalVariable.class) {
+            @Override
+            public boolean matches(CtLocalVariable element) {
+                return element.getSimpleName().endsWith(id);
+            }
+        }).isEmpty();
     }
 
     private static int indexOfByRef(List<CtStatement> statements, CtStatement statement) {
@@ -118,8 +135,8 @@ public class AssertGeneratorHelper {
         if (statement instanceof CtInvocation) {
             CtInvocation invocation = (CtInvocation) statement;
             return (invocation.getMetadata(METADATA_WAS_IN_ASSERTION) != null &&
-                            (Boolean) invocation.getMetadata(METADATA_WAS_IN_ASSERTION)) ||
-                            (isCorrectReturn(invocation) && !isGetter(invocation));
+                    (Boolean) invocation.getMetadata(METADATA_WAS_IN_ASSERTION)) ||
+                    (isCorrectReturn(invocation) && !isGetter(invocation));
         }
 
         if (statement instanceof CtLocalVariable ||
