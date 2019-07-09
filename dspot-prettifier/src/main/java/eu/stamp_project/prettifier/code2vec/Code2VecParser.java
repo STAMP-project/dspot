@@ -28,7 +28,7 @@ public class Code2VecParser {
 
     /**
      * This method parse the output of Code2Vec.
-     *
+     * @param output path to the file to read
      * @return the predicted test method name
      */
     public String parse(String output) {

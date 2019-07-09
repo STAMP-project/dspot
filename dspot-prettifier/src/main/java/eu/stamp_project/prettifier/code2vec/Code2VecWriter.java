@@ -22,7 +22,7 @@ public class Code2VecWriter {
 
     /**
      * write the given test method in the Input.java file.
-     * @param testMethod
+     * @param testMethod method to output in the file
      */
     public void writeCtMethodToInputFile(CtMethod<?> testMethod) {
         try {
