@@ -192,9 +192,6 @@
                 <configuration>
                     <filesets>
                         <fileset>
-                            <directory>tmpDir/</directory>
-                        </fileset>
-                        <fileset>
                             <directory>src/test/resources/</directory>
                             <includes>
                                 <include>descartes/target/</include>
