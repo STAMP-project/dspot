@@ -48,7 +48,12 @@ public class AssertBuilder {
         for (String observationKey : observations.keySet()) {
             if (!notDeterministValues.contains(observationKey)) {
                 Object value = observations.get(observationKey);
-                final CtExpression variableRead = translator.translate(observationKey);
+                final CtExpression variableRead;
+                if(observationKey.contains("[")){
+                    variableRead = factory.createCodeSnippetExpression(observationKey);
+                } else {
+                    variableRead = translator.translate(observationKey);
+                }
                 if (value == null) {
                     final CtInvocation<?> assertNull = TestFramework.get()
                             .buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_NULL, Collections.singletonList(variableRead));
