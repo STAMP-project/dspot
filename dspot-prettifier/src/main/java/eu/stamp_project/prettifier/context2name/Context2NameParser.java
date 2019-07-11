@@ -1,4 +1,4 @@
-package eu.stamp_project.prettifier.context2code;
+package eu.stamp_project.prettifier.context2name;
 
 import eu.stamp_project.utils.AmplificationHelper;
 import org.slf4j.Logger;
@@ -15,19 +15,19 @@ import java.util.stream.Collectors;
  * benjamin.danglot@inria.fr
  * on 11/02/19
  */
-public class Context2CodeParser {
+public class Context2NameParser {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Context2CodeParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Context2NameParser.class);
 
     // this list is used in order to not have two test methods with the same name.
     private List<String> predictedNames;
 
-    public Context2CodeParser() {
+    public Context2NameParser() {
         this.predictedNames = new ArrayList<>();
     }
 
     /**
-     * This method parse the output of Context2Code.
+     * This method parse the output of Context2Name.
      *
      * @return the predicted test method name
      */

@@ -1,4 +1,4 @@
-package eu.stamp_project.prettifier.context2code;
+package eu.stamp_project.prettifier.context2name;
 
 import eu.stamp_project.prettifier.options.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -13,15 +13,15 @@ import java.util.concurrent.*;
  * benjamin.danglot@inria.fr
  * on 11/02/19
  */
-public class Context2CodeExecutor {
+public class Context2NameExecutor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Context2CodeExecutor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Context2NameExecutor.class);
 
-    private static final String COMMAND_LINE = "python3 context2code.py --load ";
+    private static final String COMMAND_LINE = "python3 context2name.py --load ";
 
     private static final String PREDICT_ARGUMENT = " --predict";
 
-    private final Process context2codeProcess;
+    private final Process context2nameProcess;
 
     private final BufferedWriter writer;
 
@@ -29,24 +29,24 @@ public class Context2CodeExecutor {
 
     private final ExecutorService service;
 
-    private final Context2CodeRunnableProcess task;
+    private final Context2NameRunnableProcess task;
 
     private PrintStream output;
 
     private ByteArrayOutputStream outStream;
 
     /**
-     * Construct the Context2CodeExecutor.
-     * This class will initialize the model of Context2Code, then provide an API to predict a name for a test method.
+     * Construct the Context2NameExecutor.
+     * This class will initialize the model of Context2Name, then provide an API to predict a name for a test method.
      */
-    public Context2CodeExecutor() {
-        final String root = InputConfiguration.get().getPathToRootOfContext2Code();
-        final String pathToModel = InputConfiguration.get().getRelativePathToModelForContext2Code();
+    public Context2NameExecutor() {
+        final String root = InputConfiguration.get().getPathToRootOfContext2Name();
+        final String pathToModel = InputConfiguration.get().getRelativePathToModelForContext2Name();
 
         this.service = Executors.newSingleThreadExecutor();
         try {
             final String command = COMMAND_LINE + pathToModel + PREDICT_ARGUMENT;
-            this.context2codeProcess = Runtime.getRuntime().exec(command, (String[]) null, new File(root));
+            this.context2nameProcess = Runtime.getRuntime().exec(command, (String[]) null, new File(root));
             LOGGER.info("Executing: {} in {}", command, root);
         } catch (IOException var12) {
             throw new RuntimeException(var12);
@@ -54,12 +54,12 @@ public class Context2CodeExecutor {
 
         this.outStream = new ByteArrayOutputStream();
         this.output = new PrintStream(outStream);
-        this.task = new Context2CodeRunnableProcess(this.context2codeProcess, this.output);
+        this.task = new Context2NameRunnableProcess(this.context2nameProcess, this.output);
         this.future = this.service.submit(this.task);
-        this.writer = new BufferedWriter(new OutputStreamWriter(this.context2codeProcess.getOutputStream()));
+        this.writer = new BufferedWriter(new OutputStreamWriter(this.context2nameProcess.getOutputStream()));
         try {
-            LOGGER.info("Waiting {} seconds that context2code is well initialized...", InputConfiguration.get().getTimeToWaitForContext2codeInMillis() / 1000);
-            Thread.sleep(InputConfiguration.get().getTimeToWaitForContext2codeInMillis());
+            LOGGER.info("Waiting {} seconds that context2name is well initialized...", InputConfiguration.get().getTimeToWaitForContext2nameInMillis() / 1000);
+            Thread.sleep(InputConfiguration.get().getTimeToWaitForContext2nameInMillis());
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -67,12 +67,12 @@ public class Context2CodeExecutor {
 
     public void run() {
         try {
-            LOGGER.info("Writing go to the stdin of the context2code's process");
+            LOGGER.info("Writing go to the stdin of the context2name's process");
             this.outStream.reset();
             this.writer.write("go" + AmplificationHelper.LINE_SEPARATOR);
             this.writer.flush();
             try {
-                LOGGER.info("Waiting 5 seconds that context2code is doing its job...");
+                LOGGER.info("Waiting 5 seconds that context2name is doing its job...");
                 Thread.sleep(5000L);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -92,8 +92,8 @@ public class Context2CodeExecutor {
         } catch (Exception var11) {
             throw new RuntimeException(var11);
         } finally {
-            if (this.context2codeProcess != null) {
-                this.context2codeProcess.destroyForcibly();
+            if (this.context2nameProcess != null) {
+                this.context2nameProcess.destroyForcibly();
             }
             this.future.cancel(true);
             this.service.shutdownNow();

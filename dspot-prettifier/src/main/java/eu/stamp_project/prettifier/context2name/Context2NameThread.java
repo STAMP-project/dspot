@@ -1,14 +1,14 @@
-package eu.stamp_project.prettifier.context2code;
+package eu.stamp_project.prettifier.context2name;
 
 import java.io.InputStream;
 import java.io.PrintStream;
 
-public class Context2CodeThread extends Thread {
+public class Context2NameThread extends Thread {
 
     private final PrintStream output;
     private final InputStream input;
 
-    Context2CodeThread(PrintStream output, InputStream input) {
+    Context2NameThread(PrintStream output, InputStream input) {
         this.output = output;
         this.input = input;
     }

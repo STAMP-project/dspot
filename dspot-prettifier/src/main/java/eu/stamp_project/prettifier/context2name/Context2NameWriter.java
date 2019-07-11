@@ -1,4 +1,4 @@
-package eu.stamp_project.prettifier.context2code;
+package eu.stamp_project.prettifier.context2name;
 
 import eu.stamp_project.prettifier.options.InputConfiguration;
 import org.slf4j.Logger;
@@ -12,11 +12,11 @@ import java.io.FileWriter;
  * benjamin.danglot@inria.fr
  * on 11/02/19
  */
-public class Context2CodeWriter {
+public class Context2NameWriter {
 
     public static final String FILENAME = "Input.java";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Context2CodeWriter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Context2NameWriter.class);
 
     /**
      * write the given test method in the Input.java file.
@@ -24,7 +24,7 @@ public class Context2CodeWriter {
      */
     public void writeCtMethodToInputFile(CtMethod<?> testMethod) {
         try {
-            final String fileName = InputConfiguration.get().getPathToRootOfContext2Code() + FILENAME;
+            final String fileName = InputConfiguration.get().getPathToRootOfContext2Name() + FILENAME;
             LOGGER.info("Writing content of {} into {}.", testMethod.getSimpleName(), fileName);
             FileWriter writer = new FileWriter(fileName, false);
             writer.write(testMethod.toString());
