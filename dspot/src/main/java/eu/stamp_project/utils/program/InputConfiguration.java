@@ -137,9 +137,14 @@ public class InputConfiguration {
      *
      * @param properties  the properties. See {@link ConstantsProperties}
      * @param builderName the name of the builder. Can be either Maven or Gradle (not case sensitive).
+     * @param executeTestsInParallel tell whether or not Dspot execute the test in parallel
+     * @param fullClasspath classpath of the project, if null or empty, Dspot will use the AutomaticBuilder
      * @return the new instance of the InputConfiguration
      */
-    public static InputConfiguration initialize(Properties properties, String builderName, boolean executeTestsInParallel) {
+    public static InputConfiguration initialize(Properties properties,
+                                                String builderName,
+                                                boolean executeTestsInParallel,
+                                                String fullClasspath) {
         if (InputConfiguration.instance != null) {
             reset();
         }
@@ -164,7 +169,7 @@ public class InputConfiguration {
             InputConfiguration.instance.setBuilderName(builderName);
         }
         InputConfiguration.instance.setExecuteTestsInParallel(executeTestsInParallel);
-        InputConfiguration.instance.initializeBuilder(properties);
+        InputConfiguration.instance.initializeBuilder(properties, fullClasspath);
         return InputConfiguration.instance;
     }
 
@@ -210,9 +215,20 @@ public class InputConfiguration {
     }
 
     private void initializeBuilder(Properties properties) {
+        this.initializeBuilder(properties, "");
+    }
+
+    private void initializeBuilder(Properties properties, String classpath) {
         this.setMavenHome(ConstantsProperties.MAVEN_HOME.get(properties));
         this.builder = AutomaticBuilderFactory.getAutomaticBuilder(this.getBuilderName());
-        this.dependencies = this.builder.compileAndBuildClasspath();
+
+
+        if (classpath != null && !classpath.isEmpty()) {
+            this.dependencies = classpath;
+        }
+        else {
+            this.dependencies = this.builder.compileAndBuildClasspath();
+        }
 
         // TODO checks this. Since we support different Test Support, we may not need to add artificially junit in the classpath
         if (!this.dependencies.contains("junit" + File.separator + "junit" + File.separator + "4")) {

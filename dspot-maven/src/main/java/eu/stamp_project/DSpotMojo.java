@@ -336,7 +336,8 @@ public class DSpotMojo extends AbstractMojo {
                     executeTestsInParallel,
                     executeTestParallelWithNumberProcessors,
                     test,
-                    testCases
+                    testCases,
+                    null
             );
 
             if (!this.pathToTestListCsv.isEmpty()) {

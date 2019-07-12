@@ -76,6 +76,7 @@ public class JSAPOptions {
                 jsapConfig.getInt("execute-test-parallel-with-number-processors") != 0 ?
                         jsapConfig.getInt("execute-test-parallel-with-number-processors") : Runtime.getRuntime().availableProcessors();
         final boolean executeTestsInParallel = jsapConfig.userSpecified("execute-test-parallel-with-number-processors");
+        final String fullClasspath = jsapConfig.getString("full-classpath");
 
         // these values need to be checked when the factory is available
         // We check them in DSpot class since we have the codes that allow to check them easily
@@ -111,7 +112,8 @@ public class JSAPOptions {
                 executeTestsInParallel,
                 executeTestParallelWithNumberProcessors,
                 test,
-                testCases
+                testCases,
+                fullClasspath
         );
     }
 
@@ -333,6 +335,14 @@ public class JSAPOptions {
         allowPathInAssertions.setDefault("false");
         allowPathInAssertions.setHelp("If enabled, DSpot will generate assertions for values that seems like to be paths.");
 
+        FlaggedOption fullClasspath = new FlaggedOption("full-classpath");
+        fullClasspath.setLongFlag("full-classpath");
+        fullClasspath.setRequired(false);
+        fullClasspath.setAllowMultipleDeclarations(false);
+        fullClasspath.setStringParser(JSAP.STRING_PARSER);
+        fullClasspath.setHelp("[optional] specify the classpath of the project. If this option is used, DSpot won't use an AutomaticBuilder (e.g. Maven) to clean, compile and get the classpath of the project. " +
+                "Please ensure that your project is in a good shape, i.e. clean and correctly compiled, sources and test sources.");
+
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
@@ -362,6 +372,7 @@ public class JSAPOptions {
             jsap.registerParameter(useMavenToExecuteTests);
             jsap.registerParameter(allowPathInAssertions);
             jsap.registerParameter(executeTestParallel);
+            jsap.registerParameter(fullClasspath);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {

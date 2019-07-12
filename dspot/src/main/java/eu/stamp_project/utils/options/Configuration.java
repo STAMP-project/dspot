@@ -64,7 +64,8 @@ public class Configuration {
                                  final boolean executeTestsInParallel,
                                  final int numberParallelExecutionProcessors,
                                  final List<String> testClasses,
-                                 final List<String> testCases) {
+                                 final List<String> testCases,
+                                 final String fullClasspath) {
 
         Checker.checkPathToPropertiesValue(pathToPropertiesFile);
         final Properties properties = loadProperties(pathToPropertiesFile);
@@ -95,7 +96,8 @@ public class Configuration {
                 executeTestsInParallel,
                 numberParallelExecutionProcessors,
                 testClasses,
-                testCases
+                testCases,
+                fullClasspath
         );
     }
 
@@ -125,7 +127,8 @@ public class Configuration {
                                  final boolean executeTestsInParallel,
                                  final int numberParallelExecutionProcessors,
                                  final List<String> testClasses,
-                                 final List<String> testCases) {
+                                 final List<String> testCases,
+                                 final String fullClasspath) {
         // pit output format
         PitMutantScoreSelector.OutputFormat consecutiveFormat;
         if (pitOutputFormat.toLowerCase().equals("xml")) {
@@ -166,7 +169,8 @@ public class Configuration {
         }
         //ExecuteTestsInParallel needs to be setup before initializing InputConfiguration
         //because it is required to compute the classpath of the MavenAutomaticBuilder
-        InputConfiguration.initialize(properties, automaticBuilder, executeTestsInParallel);
+        InputConfiguration.initialize(properties, automaticBuilder, executeTestsInParallel, fullClasspath);
+
         if (InputConfiguration.get().getOutputDirectory().isEmpty()) {
 
             InputConfiguration.get().setOutputDirectory(output);
