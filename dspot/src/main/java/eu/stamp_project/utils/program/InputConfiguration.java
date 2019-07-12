@@ -225,8 +225,7 @@ public class InputConfiguration {
 
         if (classpath != null && !classpath.isEmpty()) {
             this.dependencies = classpath;
-        }
-        else {
+        } else {
             this.dependencies = this.builder.compileAndBuildClasspath();
         }
 
