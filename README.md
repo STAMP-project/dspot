@@ -312,6 +312,13 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         use the number of available CPU processors (given number of processors
         is ignored). (default: 0)
 
+  [--full-classpath <full-classpath>]
+        [optional] specify the classpath of the project. If this option is used,
+        DSpot won't use an AutomaticBuilder (e.g. Maven) to clean, compile and
+        get the classpath of the project. Please ensure that your project is in
+        a good shape, i.e. clean and correctly compiled, sources and test
+        sources.        
+
   [-e|--example]
         run the example of DSpot and leave
 
