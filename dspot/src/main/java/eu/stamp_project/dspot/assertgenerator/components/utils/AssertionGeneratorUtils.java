@@ -27,11 +27,11 @@ import java.util.regex.Pattern;
  * benjamin.danglot@inria.fr
  * on 3/3/17
  */
-public class AssertGeneratorHelper {
+public class AssertionGeneratorUtils {
 
     public static boolean canGenerateAnAssertionFor(String candidate) {
-        return !AssertGeneratorHelper.containsObjectReferences(candidate) &&
-                (InputConfiguration.get().shouldAllowPathInAssertion() || !AssertGeneratorHelper.containsAPath(candidate));
+        return !AssertionGeneratorUtils.containsObjectReferences(candidate) &&
+                (InputConfiguration.get().shouldAllowPathInAssertion() || !AssertionGeneratorUtils.containsAPath(candidate));
     }
 
     public static boolean containsAPath(String candidate) {
@@ -170,7 +170,7 @@ public class AssertGeneratorHelper {
         return block.getStatements().size() +
                 block.getStatements().stream()
                         .filter(statement -> statement instanceof CtBlock)
-                        .mapToInt(childBlock -> AssertGeneratorHelper.getSize((CtBlock<?>) childBlock))
+                        .mapToInt(childBlock -> AssertionGeneratorUtils.getSize((CtBlock<?>) childBlock))
                         .sum();
     }
 

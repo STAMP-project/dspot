@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.dspot.AmplificationException;
-import eu.stamp_project.dspot.assertgenerator.components.MethodsAssertGenerator;
+import eu.stamp_project.dspot.assertgenerator.components.TestMethodReconstructor;
 import eu.stamp_project.dspot.assertgenerator.components.TryCatchFailGenerator;
 import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -18,9 +18,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class AssertionGeneratorWithTime extends AssertGenerator {
+public class AssertionGeneratorWithTime extends AssertionGenerator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AssertGenerator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AssertionGenerator.class);
 
     private InputConfiguration configuration;
 
@@ -90,7 +90,7 @@ public class AssertionGeneratorWithTime extends AssertGenerator {
      * <li>Generation of new assertions in place of observation points.
      * Generation of catch blocks if a test raises an exception.</li>
      * </ol>
-     * The details of the first two points are in {@link MethodsAssertGenerator#addAssertions(CtType, List)}.
+     * The details of the first two points are in {@link TestMethodReconstructor#addAssertions(CtType, List)}.
      *
      * @param testClass Test class
      * @param tests     Test methods

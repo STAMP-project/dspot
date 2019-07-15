@@ -93,7 +93,7 @@ public class TestFrameworkTest extends AbstractTest {
     }
 
     private final static String JUnit3WithExceptionThrown = "public void testExpectingAnException_failAssert0() {" + AmplificationHelper.LINE_SEPARATOR +
-            "    // AssertGenerator generate try/catch block with fail statement" + AmplificationHelper.LINE_SEPARATOR +
+            "    // AssertionGenerator generate try/catch block with fail statement" + AmplificationHelper.LINE_SEPARATOR +
             "    try {" + AmplificationHelper.LINE_SEPARATOR +
             "        junit.framework.TestCase.assertTrue(true);" + AmplificationHelper.LINE_SEPARATOR +
             "        throw new java.lang.RuntimeException();" + AmplificationHelper.LINE_SEPARATOR +
@@ -105,7 +105,7 @@ public class TestFrameworkTest extends AbstractTest {
 
     private final static String JUnit4WithExceptionThrown = "@org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
             "public void testThrownException_failAssert0() {" + AmplificationHelper.LINE_SEPARATOR +
-            "    // AssertGenerator generate try/catch block with fail statement" + AmplificationHelper.LINE_SEPARATOR +
+            "    // AssertionGenerator generate try/catch block with fail statement" + AmplificationHelper.LINE_SEPARATOR +
             "    try {" + AmplificationHelper.LINE_SEPARATOR +
             "        throw new java.lang.RuntimeException();" + AmplificationHelper.LINE_SEPARATOR +
             "        org.junit.Assert.fail(\"testThrownException should have thrown RuntimeException\");" + AmplificationHelper.LINE_SEPARATOR +

@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.assertgenerator.components;
 
-import eu.stamp_project.dspot.assertgenerator.components.utils.AssertGeneratorHelper;
+import eu.stamp_project.dspot.assertgenerator.components.utils.AssertionGeneratorUtils;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.CloneHelper;
 import spoon.reflect.code.*;
@@ -78,8 +78,8 @@ public class AssertionRemover {
                 return element.equals(invocation);
             }
         };
-        if (!(invocation.getMetadata(AssertGeneratorHelper.METADATA_ASSERT_AMPLIFICATION) != null &&
-                (boolean) invocation.getMetadata(AssertGeneratorHelper.METADATA_ASSERT_AMPLIFICATION))) {
+        if (!(invocation.getMetadata(AssertionGeneratorUtils.METADATA_ASSERT_AMPLIFICATION) != null &&
+                (boolean) invocation.getMetadata(AssertionGeneratorUtils.METADATA_ASSERT_AMPLIFICATION))) {
             for (CtExpression<?> argument : invocation.getArguments()) {
                 CtExpression clone = ((CtExpression) argument).clone();
                 clone.getTypeCasts().clear();
@@ -107,7 +107,7 @@ public class AssertionRemover {
                     }
                 } else if (clone instanceof CtStatement) {
                     invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, (CtStatement) clone);
-                    clone.putMetadata(AssertGeneratorHelper.METADATA_WAS_IN_ASSERTION, true);
+                    clone.putMetadata(AssertionGeneratorUtils.METADATA_WAS_IN_ASSERTION, true);
                 } else if (!(clone instanceof CtLiteral || clone instanceof CtVariableRead)) {
                     // TODO EXPLAIN
                     CtTypeReference<?> typeOfParameter = clone.getType();
@@ -120,7 +120,7 @@ public class AssertionRemover {
                             clone
                     );
                     invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, localVariable);
-                    localVariable.putMetadata(AssertGeneratorHelper.METADATA_WAS_IN_ASSERTION, true);
+                    localVariable.putMetadata(AssertionGeneratorUtils.METADATA_WAS_IN_ASSERTION, true);
                 } else if (clone instanceof CtVariableRead && !(clone instanceof CtFieldRead)) {
                     final CtVariableReference variable = ((CtVariableRead) clone).getVariable();
                     final List<CtLocalVariable> assertedVariables = invocation.getParent(CtBlock.class).getElements(
@@ -142,7 +142,7 @@ public class AssertionRemover {
         }
         // must find the first statement list to remove the invocation from it, e.g. the block that contains the assertions
         // the assertion can be inside other stuff, than directly in the block
-        CtStatement topStatement = AssertGeneratorHelper.getTopStatement(invocation);
+        CtStatement topStatement = AssertionGeneratorUtils.getTopStatement(invocation);
         ((CtStatementList) topStatement.getParent()).removeStatement(topStatement);
         return variableReadsAsserted;
     }

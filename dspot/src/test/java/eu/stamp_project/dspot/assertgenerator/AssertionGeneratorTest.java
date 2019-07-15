@@ -33,16 +33,16 @@ import static org.junit.Assert.*;
  * benjamin.danglot@inria.fr
  * on 3/4/17
  */
-public class AssertGeneratorTest extends AbstractTest {
+public class AssertionGeneratorTest extends AbstractTest {
 
     public static final String THE_METHOD_IS_EMPTY_IS_UNDEFINED_FOR_THE_TYPE = "The method isEmpty() is undefined for the type ";
-    private AssertGenerator assertGenerator;
+    private AssertionGenerator assertionGenerator;
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        this.assertGenerator = new AssertGenerator(Utils.getInputConfiguration(), Utils.getCompiler());
+        this.assertionGenerator = new AssertionGenerator(Utils.getInputConfiguration(), Utils.getCompiler());
     }
 
     @After
@@ -61,7 +61,7 @@ public class AssertGeneratorTest extends AbstractTest {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
         final CtMethod<?> test1 = (CtMethod<?>) testClass.getMethodsByName("testWithNewSomethingWithoutLocalVariables").get(0);
         final List<CtMethod<?>> assertionAmplifications =
-                this.assertGenerator.assertionAmplification(testClass, Collections.singletonList(test1));
+                this.assertionGenerator.assertionAmplification(testClass, Collections.singletonList(test1));
         System.out.println(assertionAmplifications);
     }
 
@@ -72,7 +72,7 @@ public class AssertGeneratorTest extends AbstractTest {
         final AssertionRemover assertionRemover = new AssertionRemover();
         final CtMethod<?> testWithoutAssertions = assertionRemover.removeAssertion(testOnClass);
         System.out.println(
-                assertGenerator.assertionAmplification(testClass, Collections.singletonList(testWithoutAssertions))
+                assertionGenerator.assertionAmplification(testClass, Collections.singletonList(testWithoutAssertions))
         );
     }
 
@@ -81,7 +81,7 @@ public class AssertGeneratorTest extends AbstractTest {
         Utils.getInputConfiguration().setTimeOutInMs(1000);
         final CtClass testClass = Utils.findClass("fr.inria.infinite.LoopTest");
         CtMethod test = Utils.findMethod("fr.inria.infinite.LoopTest", "testLoop");
-        List<CtMethod<?>> test_buildNewAssert = assertGenerator.assertionAmplification(testClass, Collections.singletonList(test));
+        List<CtMethod<?>> test_buildNewAssert = assertionGenerator.assertionAmplification(testClass, Collections.singletonList(test));
         assertTrue(test_buildNewAssert.isEmpty());
     }
 
@@ -130,7 +130,7 @@ public class AssertGeneratorTest extends AbstractTest {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithFieldRead");
         CtMethod test = Utils.findMethod(testClass, "test");
 
-        List<CtMethod<?>> test_buildNewAssert = assertGenerator.assertionAmplification(testClass, Collections.singletonList(test));
+        List<CtMethod<?>> test_buildNewAssert = assertionGenerator.assertionAmplification(testClass, Collections.singletonList(test));
         CtMethod<?> amplifiedTestMethod = test_buildNewAssert.get(0);
         System.out.println(amplifiedTestMethod);
         assertEquals(1, amplifiedTestMethod.getElements(new AssertionFilterNameOnInvocation("NEGATIVE_INFINITY", ASSERT_EQUALS)).size());
@@ -144,7 +144,7 @@ public class AssertGeneratorTest extends AbstractTest {
     public void testMultipleObservationsPoints() {
         CtClass testClass = Utils.findClass("fr.inria.multipleobservations.TestClassToBeTest");
         CtMethod test = Utils.findMethod("fr.inria.multipleobservations.TestClassToBeTest", "test");
-        List<CtMethod<?>> test_buildNewAssert = assertGenerator.assertionAmplification(testClass, Collections.singletonList(test));
+        List<CtMethod<?>> test_buildNewAssert = assertionGenerator.assertionAmplification(testClass, Collections.singletonList(test));
         CtMethod<?> amplifiedTestMethod = test_buildNewAssert.get(0);
         assertEquals(4, amplifiedTestMethod.getElements(TestFramework.ASSERTIONS_FILTER).size());
 
@@ -157,7 +157,7 @@ public class AssertGeneratorTest extends AbstractTest {
     public void testBuildAssertOnSpecificCases() {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithSpecificCaseToBeAsserted");
         CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithSpecificCaseToBeAsserted", "test1");
-        List<CtMethod<?>> test1_buildNewAssert = assertGenerator.assertionAmplification(testClass, Collections.singletonList(test1));
+        List<CtMethod<?>> test1_buildNewAssert = assertionGenerator.assertionAmplification(testClass, Collections.singletonList(test1));
 
         final String expectedBody = "{" + AmplificationHelper.LINE_SEPARATOR +
                 "    int a = 0;" + AmplificationHelper.LINE_SEPARATOR +
@@ -174,7 +174,7 @@ public class AssertGeneratorTest extends AbstractTest {
         assertEquals(expectedBody, test1_buildNewAssert.get(0).getBody().toString());
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AssertGeneratorTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AssertionGeneratorTest.class);
 
     @Test
     public void testBuildNewAssert() {
@@ -191,7 +191,7 @@ public class AssertGeneratorTest extends AbstractTest {
 		 */
         CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         CtMethod<?> test1 = Utils.findMethod("fr.inria.sample.TestClassWithoutAssert", "test1");
-        final List<CtMethod<?>> ctMethods = assertGenerator.assertionAmplification(testClass, Collections.singletonList(test1));
+        final List<CtMethod<?>> ctMethods = assertionGenerator.assertionAmplification(testClass, Collections.singletonList(test1));
         if (ctMethods.isEmpty()) {
             fail("the assertion amplification should have result with at least one test.");
         }
@@ -233,7 +233,7 @@ public class AssertGeneratorTest extends AbstractTest {
     public void testAssertsOnMaps() throws Exception {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithoutAssert", "test3");
-        List<CtMethod<?>> test1_buildNewAssert = assertGenerator.assertionAmplification(testClass, Collections.singletonList(test1));
+        List<CtMethod<?>> test1_buildNewAssert = assertionGenerator.assertionAmplification(testClass, Collections.singletonList(test1));
         assertEquals(expectedBodyWithMap, test1_buildNewAssert.get(0).getBody().toString());
     }
 
@@ -265,7 +265,7 @@ public class AssertGeneratorTest extends AbstractTest {
 
         CtClass<?> testClass = Utils.findClass("fr.inria.filter.failing.FailingTest");
         final CtMethod testAssertionError = Utils.findMethod("fr.inria.filter.failing.FailingTest", "testAssertionError");
-        final List<CtMethod<?>> generatedAssertion = assertGenerator.assertionAmplification(testClass, Collections.singletonList(testAssertionError));
+        final List<CtMethod<?>> generatedAssertion = assertionGenerator.assertionAmplification(testClass, Collections.singletonList(testAssertionError));
         assertTrue(generatedAssertion.isEmpty());
     }
 
@@ -278,7 +278,7 @@ public class AssertGeneratorTest extends AbstractTest {
 
         CtClass<?> testClass = Utils.findClass("fr.inria.filter.passing.PassingTest");
         final CtMethod testAssertionError = Utils.findMethod("fr.inria.filter.passing.PassingTest", "testNPEExpected");
-        final List<CtMethod<?>> generatedAssertion = assertGenerator.assertionAmplification(testClass, Collections.singletonList(testAssertionError));
+        final List<CtMethod<?>> generatedAssertion = assertionGenerator.assertionAmplification(testClass, Collections.singletonList(testAssertionError));
         System.out.println(generatedAssertion);
         assertFalse(generatedAssertion.isEmpty());
     }

@@ -1,8 +1,8 @@
 package eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor;
 
-import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.syntaxbuilder.AggregateTypeBuilder;
-import eu.stamp_project.dspot.assertgenerator.components.utils.AssertGeneratorHelper;
-import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.syntaxbuilder.Translator;
+import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.assertionsyntaxbuilder.AggregateTypeBuilder;
+import eu.stamp_project.dspot.assertgenerator.components.utils.AssertionGeneratorUtils;
+import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.assertionsyntaxbuilder.Translator;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.TypeUtils;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * benjamin.danglot@inria.fr
  * on 3/17/17
  */
-public class AssertBuilder {
+public class AssertionSyntaxBuilder {
 
     public static final int MAX_NUMBER_OF_CHECKED_ELEMENT_IN_LIST = 5;
 
@@ -131,7 +131,7 @@ public class AssertBuilder {
                                             )));
                         } else {
                             if (value instanceof String) {
-                                if (AssertGeneratorHelper.canGenerateAnAssertionFor((String) value)) {
+                                if (AssertionGeneratorUtils.canGenerateAnAssertionFor((String) value)) {
                                     invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_EQUALS,
                                             Arrays.asList(printPrimitiveString(factory, value),
                                                     variableRead)));

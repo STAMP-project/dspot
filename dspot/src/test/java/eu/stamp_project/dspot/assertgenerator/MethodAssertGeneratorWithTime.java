@@ -3,9 +3,9 @@ package eu.stamp_project.dspot.assertgenerator;
 import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.compare.Observation;
 import eu.stamp_project.dspot.AmplificationException;
-import eu.stamp_project.dspot.assertgenerator.components.MethodsAssertGenerator;
-import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.AssertBuilder;
-import eu.stamp_project.dspot.assertgenerator.components.utils.AssertGeneratorHelper;
+import eu.stamp_project.dspot.assertgenerator.components.TestMethodReconstructor;
+import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.AssertionSyntaxBuilder;
+import eu.stamp_project.dspot.assertgenerator.components.utils.AssertionGeneratorUtils;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -40,7 +40,7 @@ import java.util.stream.IntStream;
  * benjamin.danglot@inria.fr
  * on 18/07/18
  */
-public class MethodAssertGeneratorWithTime extends MethodsAssertGenerator {
+public class MethodAssertGeneratorWithTime extends TestMethodReconstructor {
 
 
     public MethodAssertGeneratorWithTime(CtType originalClass, InputConfiguration configuration, DSpotCompiler compiler, Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted) {
@@ -52,7 +52,7 @@ public class MethodAssertGeneratorWithTime extends MethodsAssertGenerator {
         this.variableReadsAsserted = variableReadsAsserted;
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MethodsAssertGenerator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestMethodReconstructor.class);
 
     private CtType originalClass;
 
@@ -68,7 +68,7 @@ public class MethodAssertGeneratorWithTime extends MethodsAssertGenerator {
      * Adds new assertions in multiple tests.
      * <p>
      * <p>Instruments the tests to have observation points.
-     * Details in {@link AssertGeneratorHelper#createTestWithLog(CtMethod, String, List)}.
+     * Details in {@link AssertionGeneratorUtils#createTestWithLog(CtMethod, String, List)}.
      * <p>
      * <p>Details of the assertion generation in {@link #buildTestWithAssert(CtMethod, Map)}.
      *
@@ -85,7 +85,7 @@ public class MethodAssertGeneratorWithTime extends MethodsAssertGenerator {
         final List<CtMethod<?>> testCasesWithLogs = testCases.stream()
                 .map(ctMethod -> {
                             DSpotUtils.printProgress(testCases.indexOf(ctMethod), testCases.size());
-                            return AssertGeneratorHelper.createTestWithLog(
+                            return AssertionGeneratorUtils.createTestWithLog(
                                     ctMethod,
                                     this.originalClass.getPackage().getQualifiedName(),
                                     this.variableReadsAsserted.get(ctMethod)
@@ -161,7 +161,7 @@ public class MethodAssertGeneratorWithTime extends MethodsAssertGenerator {
             if (!id.split("__")[0].equals(testWithAssert.getSimpleName())) {
                 continue;
             }
-            final List<CtStatement> assertStatements = AssertBuilder.buildAssert(
+            final List<CtStatement> assertStatements = AssertionSyntaxBuilder.buildAssert(
                     test,
                     observations.get(id).getNotDeterministValues(),
                     observations.get(id).getObservationValues(),
@@ -170,14 +170,14 @@ public class MethodAssertGeneratorWithTime extends MethodsAssertGenerator {
 
             if (assertStatements.stream()
                     .map(Object::toString)
-                    .map("// AssertGenerator add assertion\n"::concat)
+                    .map("// AssertionGenerator add assertion\n"::concat)
                     .anyMatch(testWithAssert.getBody().getLastStatement().toString()::equals)) {
                 continue;
             }
             int line = Integer.parseInt(id.split("__")[1]);
             CtStatement lastStmt = null;
             for (CtStatement assertStatement : assertStatements) {
-                DSpotUtils.addComment(assertStatement, "AssertGenerator add assertion", CtComment.CommentType.INLINE);
+                DSpotUtils.addComment(assertStatement, "AssertionGenerator add assertion", CtComment.CommentType.INLINE);
                 try {
                     CtStatement statementToBeAsserted = statements.get(line);
                     if (lastStmt == null) {
@@ -187,14 +187,14 @@ public class MethodAssertGeneratorWithTime extends MethodsAssertGenerator {
                         break;
                     }
                     if (statementToBeAsserted instanceof CtInvocation &&
-                            !AssertGeneratorHelper.isVoidReturn((CtInvocation) statementToBeAsserted) &&
+                            !AssertionGeneratorUtils.isVoidReturn((CtInvocation) statementToBeAsserted) &&
                             statementToBeAsserted.getParent() instanceof CtBlock) {
                         CtInvocation invocationToBeReplaced = (CtInvocation) statementToBeAsserted.clone();
                         final CtLocalVariable localVariable = factory.createLocalVariable(
                                 invocationToBeReplaced.getType(), "o_" + id.split("___")[0], invocationToBeReplaced
                         );
                         statementToBeAsserted.replace(localVariable);
-                        DSpotUtils.addComment(localVariable, "AssertGenerator create local variable with return value of invocation", CtComment.CommentType.INLINE);
+                        DSpotUtils.addComment(localVariable, "AssertionGenerator create local variable with return value of invocation", CtComment.CommentType.INLINE);
                         localVariable.setParent(statementToBeAsserted.getParent());
                         addAtCorrectPlace(id, localVariable, assertStatement, statementToBeAsserted);
                         statements.remove(line);

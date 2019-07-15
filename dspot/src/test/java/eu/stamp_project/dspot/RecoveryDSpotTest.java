@@ -4,7 +4,7 @@ import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Main;
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.amplifier.Amplifier;
-import eu.stamp_project.dspot.assertgenerator.AssertGenerator;
+import eu.stamp_project.dspot.assertgenerator.AssertionGenerator;
 import eu.stamp_project.dspot.budget.TextualDistanceBudgetizer;
 import eu.stamp_project.utils.report.error.ErrorEnum;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
@@ -87,8 +87,8 @@ public class RecoveryDSpotTest extends AbstractTest {
         }
     }
 
-    public class AssertGeneratorThatThrowsError extends AssertGenerator {
-        public AssertGeneratorThatThrowsError(DSpotCompiler compiler) {
+    public class AssertionGeneratorThatThrowsError extends AssertionGenerator {
+        public AssertionGeneratorThatThrowsError(DSpotCompiler compiler) {
             super(InputConfiguration.get(), compiler);
         }
 
@@ -144,9 +144,9 @@ public class RecoveryDSpotTest extends AbstractTest {
                 new TakeAllSelector(),
                 new TextualDistanceBudgetizer()
         );
-        final Field assertGenerator = amplification.getClass().getDeclaredField("assertGenerator");
+        final Field assertGenerator = amplification.getClass().getDeclaredField("assertionGenerator");
         assertGenerator.setAccessible(true);
-        assertGenerator.set(amplification, new AssertGeneratorThatThrowsError(Utils.getCompiler()));
+        assertGenerator.set(amplification, new AssertionGeneratorThatThrowsError(Utils.getCompiler()));
         amplification.amplification(Utils.findClass("fr.inria.amp.OneLiteralTest"), 1);
         assertEquals(1, Main.GLOBAL_REPORT.getErrors().size());
         assertSame(ErrorEnum.ERROR_ASSERT_AMPLIFICATION, Main.GLOBAL_REPORT.getErrors().get(0).type);

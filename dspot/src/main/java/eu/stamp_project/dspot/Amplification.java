@@ -2,7 +2,7 @@ package eu.stamp_project.dspot;
 
 import eu.stamp_project.Main;
 import eu.stamp_project.dspot.amplifier.Amplifier;
-import eu.stamp_project.dspot.assertgenerator.AssertGenerator;
+import eu.stamp_project.dspot.assertgenerator.AssertionGenerator;
 import eu.stamp_project.dspot.budget.Budgetizer;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.test_framework.TestFramework;
@@ -32,7 +32,7 @@ public class Amplification {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Amplification.class);
 
-    private AssertGenerator assertGenerator;
+    private AssertionGenerator assertionGenerator;
 
     private DSpotCompiler compiler;
 
@@ -46,7 +46,7 @@ public class Amplification {
 
     public Amplification(DSpotCompiler compiler, List<Amplifier> amplifiers, TestSelector testSelector, Budgetizer budgetizer) {
         this.compiler = compiler;
-        this.assertGenerator = new AssertGenerator(InputConfiguration.get(), this.compiler);
+        this.assertionGenerator = new AssertionGenerator(InputConfiguration.get(), this.compiler);
         this.globalNumberOfSelectedAmplification = 0;
         this.amplifiers = amplifiers;
         this.testSelector = testSelector;
@@ -211,7 +211,7 @@ public class Amplification {
     protected List<CtMethod<?>> assertionsAmplification(CtType<?> classTest, List<CtMethod<?>> testMethods) {
         final List<CtMethod<?>> testsWithAssertions;
         try {
-            testsWithAssertions = this.assertGenerator.assertionAmplification(classTest, testMethods);
+            testsWithAssertions = this.assertionGenerator.assertionAmplification(classTest, testMethods);
         } catch (Exception | java.lang.Error e) {
             Main.GLOBAL_REPORT.addError(new Error(ERROR_ASSERT_AMPLIFICATION, e));
             return Collections.emptyList();

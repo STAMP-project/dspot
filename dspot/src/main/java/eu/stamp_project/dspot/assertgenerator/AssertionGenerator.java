@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.dspot.assertgenerator.components.AssertionRemover;
-import eu.stamp_project.dspot.assertgenerator.components.MethodsAssertGenerator;
+import eu.stamp_project.dspot.assertgenerator.components.TestMethodReconstructor;
 import eu.stamp_project.dspot.assertgenerator.components.TryCatchFailGenerator;
 import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.CloneHelper;
@@ -26,9 +26,9 @@ import java.util.stream.Collectors;
  * Date: 12/02/16
  * Time: 10:31
  */
-public class AssertGenerator {
+public class AssertionGenerator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AssertGenerator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AssertionGenerator.class);
 
     private InputConfiguration configuration;
 
@@ -38,9 +38,9 @@ public class AssertGenerator {
 
     private TryCatchFailGenerator tryCatchFailGenerator;
 
-    private MethodsAssertGenerator methodsAssertGenerator;
+    private TestMethodReconstructor testMethodReconstructor;
 
-    public AssertGenerator(InputConfiguration configuration, DSpotCompiler compiler) {
+    public AssertionGenerator(InputConfiguration configuration, DSpotCompiler compiler) {
         this.configuration = configuration;
         this.compiler = compiler;
         this.assertionRemover = new AssertionRemover();
@@ -69,8 +69,8 @@ public class AssertGenerator {
                 .collect(Collectors.toList());
         testsWithoutAssertions.forEach(cloneClass::addMethod);
 
-        // set up methodsAssertGenerator for use in innerAssertionAmplification
-        this.methodsAssertGenerator = new MethodsAssertGenerator(
+        // set up testMethodReconstructor for use in innerAssertionAmplification
+        this.testMethodReconstructor = new TestMethodReconstructor(
                 testClass,
                 this.configuration,
                 compiler,
@@ -100,7 +100,7 @@ public class AssertGenerator {
      * <li>Generation of new assertions in place of observation points.
      * Generation of catch blocks if a test raises an exception.</li>
      * </ol>
-     * The details of the first two points are in {@link MethodsAssertGenerator#addAssertions(CtType, List)}.
+     * The details of the first two points are in {@link TestMethodReconstructor#addAssertions(CtType, List)}.
      *
      * @param testClass Test class
      * @param tests     Test methods
@@ -139,7 +139,7 @@ public class AssertGenerator {
                             passingTestsName.stream()
                                     .anyMatch(passingTestName -> checkMethodName(ctMethod.getSimpleName(), passingTestName))
                     ).collect(Collectors.toList());
-            List<CtMethod<?>> passingTests = this.methodsAssertGenerator.addAssertions(testClass,
+            List<CtMethod<?>> passingTests = this.testMethodReconstructor.addAssertions(testClass,
                     passingTestMethods)
                     .stream()
                     .filter(Objects::nonNull)

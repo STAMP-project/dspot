@@ -3,7 +3,7 @@ package eu.stamp_project.dspot.assertgenerator;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.assertgenerator.components.AssertionRemover;
-import eu.stamp_project.dspot.assertgenerator.components.utils.AssertGeneratorHelper;
+import eu.stamp_project.dspot.assertgenerator.components.utils.AssertionGeneratorUtils;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.BeforeClass;
@@ -70,7 +70,7 @@ public class AssertionRemoverTest extends AbstractTest {
         final AssertionRemover assertionRemover = new AssertionRemover();
         final CtMethod<?> ctMethod = assertionRemover.removeAssertion(test1);
         final CtMethod<?> testWithLog =
-                AssertGeneratorHelper.createTestWithLog(ctMethod, "fr.inria.sample", Collections.emptyList());
+                AssertionGeneratorUtils.createTestWithLog(ctMethod, "fr.inria.sample", Collections.emptyList());
         assertEquals("@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void testWithNewSomethingWithoutLocalVariables_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
                 "    java.lang.String o_testWithNewSomethingWithoutLocalVariables__1 = new fr.inria.sample.ClassWithBoolean().toString();" + AmplificationHelper.LINE_SEPARATOR +

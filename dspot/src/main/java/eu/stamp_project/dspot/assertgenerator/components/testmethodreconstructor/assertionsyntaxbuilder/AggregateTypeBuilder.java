@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.syntaxbuilder;
+package eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.assertionsyntaxbuilder;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
