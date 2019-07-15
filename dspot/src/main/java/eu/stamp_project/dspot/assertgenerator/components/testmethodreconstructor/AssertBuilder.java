@@ -1,5 +1,8 @@
-package eu.stamp_project.dspot.assertgenerator;
+package eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor;
 
+import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.syntaxbuilder.AggregateTypeBuilder;
+import eu.stamp_project.dspot.assertgenerator.components.utils.AssertGeneratorHelper;
+import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.syntaxbuilder.Translator;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.TypeUtils;
@@ -38,7 +41,7 @@ public class AssertBuilder {
             value instanceof Double || value.getClass() == double.class ||
                     value instanceof Float || value.getClass() == float.class;
 
-    static List<CtStatement> buildAssert(CtMethod<?> testMethod,
+    public static List<CtStatement> buildAssert(CtMethod<?> testMethod,
                                          Set<String> notDeterministValues,
                                          Map<String, Object> observations,
                                          Double delta) {

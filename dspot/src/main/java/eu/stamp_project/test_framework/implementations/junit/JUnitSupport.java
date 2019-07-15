@@ -1,7 +1,7 @@
 package eu.stamp_project.test_framework.implementations.junit;
 
 import eu.stamp_project.compare.ObjectLog;
-import eu.stamp_project.dspot.assertgenerator.AssertGeneratorHelper;
+import eu.stamp_project.dspot.assertgenerator.components.utils.AssertGeneratorHelper;
 import eu.stamp_project.test_framework.AbstractTestFramework;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.testrunner.runner.Failure;

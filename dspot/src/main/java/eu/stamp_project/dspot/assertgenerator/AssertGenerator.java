@@ -1,6 +1,9 @@
 package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.dspot.AmplificationException;
+import eu.stamp_project.dspot.assertgenerator.components.AssertionRemover;
+import eu.stamp_project.dspot.assertgenerator.components.MethodsAssertGenerator;
+import eu.stamp_project.dspot.assertgenerator.components.TryCatchFailGenerator;
 import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;

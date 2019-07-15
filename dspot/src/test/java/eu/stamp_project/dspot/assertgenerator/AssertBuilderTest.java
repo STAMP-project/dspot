@@ -2,6 +2,7 @@ package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.AssertBuilder;
 import org.junit.Test;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtMethod;

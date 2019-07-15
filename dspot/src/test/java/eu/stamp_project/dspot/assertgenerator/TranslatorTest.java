@@ -2,6 +2,7 @@ package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.syntaxbuilder.Translator;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;

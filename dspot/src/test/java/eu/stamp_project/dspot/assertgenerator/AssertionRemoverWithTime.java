@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.assertgenerator;
 
+import eu.stamp_project.dspot.assertgenerator.components.AssertionRemover;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.declaration.CtMethod;

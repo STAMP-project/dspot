@@ -1,5 +1,6 @@
-package eu.stamp_project.dspot.assertgenerator;
+package eu.stamp_project.dspot.assertgenerator.components;
 
+import eu.stamp_project.dspot.assertgenerator.components.utils.AssertGeneratorHelper;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.CloneHelper;
 import spoon.reflect.code.*;

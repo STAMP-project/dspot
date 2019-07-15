@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.assertgenerator;
+package eu.stamp_project.dspot.assertgenerator.components.utils;
 
 import eu.stamp_project.compare.MethodsHandler;
 import eu.stamp_project.compare.ObjectLog;
@@ -72,12 +72,12 @@ public class AssertGeneratorHelper {
                 !("java.lang.Class".equals(invocation.getType().getTypeDeclaration().getQualifiedName()));
     }
 
-    static boolean isVoidReturn(CtInvocation invocation) {
+    public static boolean isVoidReturn(CtInvocation invocation) {
         return (invocation.getType().equals(invocation.getFactory().Type().voidType()) ||
                 invocation.getType().equals(invocation.getFactory().Type().voidPrimitiveType()));
     }
 
-    static CtMethod<?> createTestWithLog(CtMethod test, final String filter,
+    public static CtMethod<?> createTestWithLog(CtMethod test, final String filter,
                                          List<CtLocalVariable<?>> ctVariableReads) {
         CtMethod clone = CloneHelper.cloneTestMethodNoAmp(test);
         clone.setSimpleName(test.getSimpleName() + "_withlog");

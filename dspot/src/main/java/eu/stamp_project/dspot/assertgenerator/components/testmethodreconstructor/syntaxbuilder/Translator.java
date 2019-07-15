@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.assertgenerator;
+package eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.syntaxbuilder;
 
 import eu.stamp_project.utils.TypeUtils;
 import org.slf4j.Logger;

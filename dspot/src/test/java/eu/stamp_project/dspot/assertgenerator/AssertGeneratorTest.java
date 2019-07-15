@@ -2,11 +2,11 @@ package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.assertgenerator.components.AssertionRemover;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.utils.program.InputConfigurationProperty;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.junit.After;
 import org.junit.Before;
