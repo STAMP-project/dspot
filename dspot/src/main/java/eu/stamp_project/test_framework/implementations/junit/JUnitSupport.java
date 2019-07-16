@@ -32,7 +32,7 @@ public abstract class JUnitSupport extends AbstractTestFramework {
 
     protected abstract String getFullQualifiedNameOfAnnotationAfterClass();
 
-    protected boolean isIgnored(CtMethod<?> candidate) {
+    public boolean isIgnored(CtElement candidate) {
         return this.hasAnnotation(getFullQualifiedNameOfAnnotationIgnore(), candidate);
     }
 

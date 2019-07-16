@@ -72,17 +72,13 @@ public class TestFramework implements TestFrameworkSupport {
      * @param ctType the test suite to check
      * @return true if the given test suite has been ignored/disabled
      */
-    public static boolean isTestSuiteIgnore (CtType<?> ctType) {
-        boolean result = false;
-        //JUnit4 case
-        result = ctType.getAnnotations().stream()
-            .anyMatch(annotation -> annotation.toString().equals("@org.junit.Ignore"));
-        //JUnit5 case
-        if (!result){
-            result = ctType.getAnnotations().stream()
-                .anyMatch(annotation -> annotation.toString().equals("@org.junit.jupiter.api.Disabled"));
+    public boolean isIgnored (CtElement candidate) {
+        for (TestFrameworkSupport testFrameworkSupport : this.testFrameworkSupportList) {
+            if (testFrameworkSupport.isIgnored(candidate)) {
+                return true;
+            }
         }
-        return result;
+        return false;
     }
 
     @Override
