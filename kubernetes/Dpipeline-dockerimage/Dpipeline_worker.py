@@ -15,7 +15,6 @@ import stomp
 import git
 import datetime
 import requests
-import ConfigParser
 import StringIO
 from travispy import TravisPy
 from pymongo import MongoClient
