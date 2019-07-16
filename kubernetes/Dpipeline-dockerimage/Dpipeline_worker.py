@@ -149,7 +149,7 @@ def run_Dspot_preconfig(POM_FILE,reposlug,timecap):
         text_file_doc = {
             "file_name": file_name, "contents": text}
         col.insert(text_file_doc)
-    exec_get_output('mv ' + outputdir + ' clonedrepo',True)
+    exec_get_output('cp -rf ' + outputdir + ' clonedrepo',True)
     exec_get_output('rm -rf NUL target/ clonedrepo/target', True)
     return True # Dspot was preconfigured
 
@@ -301,6 +301,7 @@ class BuildIdListener(object):
     def on_message(self, headers, message):
         logging.warning("New build id arrived: %s" % message)
         # Remove output file after each run to avoid filling up the container.
+        self.conn.ack(headers.get('message-id'), headers.get('subscription'))
         os.system("rm -rf clonedrepo")
         # Fetch slug and branch name from travis given buildid.
         t = TravisPy()
@@ -313,38 +314,43 @@ class BuildIdListener(object):
         token = os.getenv('GITHUB_OAUTH') or ''
         url = 'https://github.com/' + reposlug + '.git'
         repo = None
+        branch_exist = True
         logging.warning('Cloning url ' + url)
+
         try:
             repo = git.Repo.clone_from(url, 'clonedrepo', branch=repobranch)
         except:
             logging.warning("Branch " + str(repobranch) + " or the repo " +
                             str(reposlug) + " itself does not exist anymore")
-        self.conn.ack(headers.get('message-id'), headers.get('subscription'))
+            branch_exist = False
+
         # Check if project support dspot otherwise try autoconfiguring 
         # assuming that dspot configurations is in the top most directory of
         # the project
         POM_FILE = "clonedrepo/pom.xml"
         timecap = '-{date:%Y-%m-%d-%H-%M-%S}'.format(
             date=datetime.datetime.now())
-        if not run_Dspot_preconfig(POM_FILE,reposlug,timecap):
-            logging.warning("PROJECT DOES NOT SUPPORT DSPOT")
-            run_Dspot_autoconfig(reposlug,timecap)
 
-        # Commit build to github
-        if check_endprocess_gitcommit():
-            templist = os.getenv("PUSH_URL").split('//')
-            pushurl = templist[0] + '//' + token + '@' + templist[1] 
-            branch_name = reposlug.replace('/', "-") + timecap
+        if branch_exist:
+            if not run_Dspot_preconfig(POM_FILE,reposlug,timecap):
+                logging.warning("PROJECT DOES NOT SUPPORT DSPOT")
+                run_Dspot_autoconfig(reposlug,timecap)
 
-            logging.warning('Commit to git as new branch with name ' + branch_name)
+            # Commit build to github
+            if check_endprocess_gitcommit():
+                templist = os.getenv("PUSH_URL").split('//')
+                pushurl = templist[0] + '//' + token + '@' + templist[1] 
+                branch_name = reposlug.replace('/', "-") + timecap
 
-            current = repo.git.checkout('-b', branch_name)
-            # current.checkout()
-            time.sleep(10)
-            repo.git.add(A=True)
-            repo.git.commit(m='update')
-            repo.git.push(pushurl, branch_name)
-        logging.warning("PIPELINE MESSAGE: DONE , AWAITING FOR NEW BUILD ID")
+                logging.warning('Commit to git as new branch with name ' + branch_name)
+
+                current = repo.git.checkout('-b', branch_name)
+                # current.checkout()
+                time.sleep(10)
+                repo.git.add(A=True)
+                repo.git.commit(m='update')
+                repo.git.push(pushurl, branch_name)
+            logging.warning("PIPELINE MESSAGE: DONE , AWAITING FOR NEW BUILD ID")
 
 conn = stomp.Connection10([(host, port)])
 conn.set_listener(LISTENER_NAME, BuildIdListener(conn))

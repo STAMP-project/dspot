@@ -1,9 +1,9 @@
 # Introduction
 The design for dspot on Kubernetes(K8s) is meant for deploying in parallel with repairnator as the initial goal(Check out this [fork](https://github.com/gluckzhang/repairnator/tree/kubernetes/repairnator/docker-images/kubernetes) and [issue](https://github.com/Spirals-Team/repairnator/issues/813) for more detais), but it can also be deployed completely alone without any side effects. 
 
-The idea is given a Travis build id from ActiveMQ queue server possiblly submitted from a build scanner like repairnator scanner or manually by a developer, then dspot will first clone the repo and check the top most level pomfile of the repo and see if the project support dspot. If it does then we run with the provided configuration in the pom file for dspot, otherwise we will try provide some basic services by autoconfiguring dspot.properties for the repo and run it with some basic amplifications like only generating assertions for the main tests (not the tests in resources). This way we will still be acquiring some data for research or bug detection even though the Git project does not use dspot. Either cases will be submit output files on Mongodb and also commit to a new branch on Github if enough information are provided for in the dspot-pipeline.yaml file before deploying. Right below here is the current idea sketch for dspot on Kubernetes.
+The idea is given a Travis build id from ActiveMQ dspot-pipeline queue server possiblly submitted from a build scanner like repairnator scanner or manually by a developer, then dspot will first clone the repo and check the top most level pom file of the repo and see if the project support dspot. If it does then we run with the provided configuration in the pom file for dspot, otherwise we will try provide some basic services by autoconfiguring dspot.properties for the repo and run it with some basic amplifications like only generating assertions for the main tests (not the tests in resources). This way we will still be acquiring some data for research or bug detection even though the Git project does not use dspot. Either cases will be submit output files on Mongodb and also commit to a new branch on Github if enough information are provided for in the dspot-pipeline.yaml file before deploying. 
 
-![Design](K8sDspotDesign.png)
+Other than submit a Travis build id directly to the dspot pipeline, a repo slug such as "Tailp/travisplay" can also be submitted to the scanner instead. The scanner will scan the branches on the repo and submit the most recent build id only from those branches with "passed" travis status to the dspot-pipeline queue for amplication and ofcource the scanner will first check if the id belong a java project repo otherwise it will be ignored. 
 
 # To deploy dspot on Kubenetes
 
@@ -47,7 +47,8 @@ queue-name is according to the format /queue/name. For instance /queue/scanner w
 You can use this later to manually input build id to the pipeline queue or project to the scanner queue
 
 
-## Setup Dspotpipeline
+## Setup Dspot pipeline
+
 Now go to "Dpipeline-dockerimage" folder and directly build and push it to a image registry like docker hub. No change need to be made to the Dockerfile, since we can change or specify enviroment variables in the deployment yaml file later. 
 
 * docker build -t dspot-pipeline:tagname .
@@ -94,9 +95,28 @@ To this point you should see some reaction from the terminal logging the dspot p
 
 To scale dspot, for instance
 
-* kubectl scale --replicas=3 -f dspot-pipeline.yalm
+* kubectl scale --replicas=3 -f dspot-pipeline.yaml
 
 This will create 2 more dspot-pipelines. The ActiveMQ Dpipeline queue should now have 3 consumers.
 Note that the build id from queue will only be pulled one at a time by any free dspot-pipeline.
 
+## Setup Dspot scanner
 
+Similar to the pipeline but simpler, we just need to go into "Dpipeline-dockerimage" directly build and push the docker image with out any changes 
+
+* docker build -t dspot-scanner:tagname .
+* docker tag dspot-pipeline:tagname YOUR_DOCKERHUB_NAME/dspot-scanner
+* docker push YOUR_DOCKERHUB_NAME/dspot-scanner:tagname
+
+Then again in the "Dspot-yamlfile" folder, filled in the "YOUR_DOCKERHUB_NAME/dspot-scanner:tagname" in the "dspot-scanner.yaml" then deploy it
+
+* kubectl create -f dspot-pipeline.yaml
+* kubectl get pods
+
+to monitor this use 
+
+* kubectl logs -f dspot-scanner-XXXXXXXX-XXXX
+
+and scale this with 
+
+* kubectl scale --replicas=3 -f dspot-scanner.yaml

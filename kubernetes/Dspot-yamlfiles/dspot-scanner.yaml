@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dspot-scanner
+  labels:
+    app: dspot-scanner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dspot-scanner
+  template:
+    metadata:
+      labels:
+        app: dspot-scanner
+    spec:
+      containers:
+      - name: dspot-scanner
+        image: tailp/dspot-scanner
