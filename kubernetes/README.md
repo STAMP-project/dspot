@@ -8,9 +8,11 @@ Other than submit a Travis build id directly to the dspot pipeline, a repo slug 
 # To deploy dspot on Kubenetes
 
 ## Setup mongodb and ActiveMQ
-First set up mongodb on kubernetes with a persistent memory volume(PVC)(This mean that even if you erase the deployment and redeploy nothing will be lost, the database would look the same)
+First set up mongodb on kubernetes with a persistent memory volume(PVC) called mongo-disk(This mean that even if you erase the deployment and redeploy nothing will be lost, the database would look the same)
 
-Then create the mongodb deployemnt using mongodb.yaml in the k8s-mongodb folder .
+* gcloud compute disks create --size=200GB --zone=$ZONE mongo-disk
+
+Then create the mongodb deployment using mongodb.yaml in the k8s-mongodb folder .
 
 * kubectl create -f k8s-mongodb/mongodb.yaml
 
