@@ -144,7 +144,11 @@ public class DSpot {
      * @return a list of amplified test classes with amplified test methods.
      */
     public List<CtType<?>> amplifyAllTests() {
-        return this._amplifyTestClasses(TestFramework.getAllTestClasses());
+        return this._amplifyTestClasses(
+                TestFramework.getAllTestClasses().stream()
+                .filter(InputConfiguration.isNotExcluded)
+                .collect(Collectors.toList())
+        );
     }
 
     /**
