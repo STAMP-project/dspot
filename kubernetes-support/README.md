@@ -6,6 +6,9 @@ The idea is given a Travis build id from ActiveMQ dspot-pipeline queue server po
 Other than submit a Travis build id directly to the dspot pipeline, a repo slug such as "Tailp/travisplay" can also be submitted to the scanner instead. The scanner will scan the branches on the repo and submit the most recent build id only from those branches with "passed" travis status to the dspot-pipeline queue for amplication and ofcource the scanner will first check if the id belong a java project repo otherwise it will be ignored. 
 
 This design also provides git webhook service described in details at the end of this README. Currently, This server which monitor git webhook is configured to be sending reposlug to the dspot-scanner only when the build is success travis badge status for further amplication of the passed build's tests. Then, the scanner will scan as described previously and submit the build ids to the dspot-pipeline for amplifying.
+
+![Design](K8sDspotDesign.png)
+
 # To deploy dspot on Kubenetes
 ## Setup mongodb
 Note: if you already have a mongodb outside kubernetes then you can map it as an external service described in [this link](ttps://cloud.google.com/blog/products/gcp/kubernetes-best-practices-mapping-external-services) and this part can be skipped , just remember to name the service as mongo for k8s dns look-up then nothing need to be changed.
