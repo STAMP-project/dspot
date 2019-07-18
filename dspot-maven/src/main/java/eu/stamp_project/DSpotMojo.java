@@ -37,7 +37,7 @@ public class DSpotMojo extends AbstractMojo {
      *	Possible values are:
      *			 - MethodAdd
      *			 - MethodRemove
-     *			 - TestDataMutator
+     *			 - FastLiteralAmplifier
      *			 - MethodGeneratorAmplifier
      *			 - ReturnValueAmplifier
      *			 - StringLiteralAmplifier

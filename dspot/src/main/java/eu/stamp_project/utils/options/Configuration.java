@@ -1,6 +1,6 @@
 package eu.stamp_project.utils.options;
 
-import eu.stamp_project.dspot.amplifier.TestDataMutator;
+import eu.stamp_project.dspot.amplifier.FastLiteralAmplifier;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
@@ -28,7 +28,7 @@ public class Configuration {
         try {
             InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
             InputConfiguration.get().setNbIteration(1);
-            InputConfiguration.get().setAmplifiers(Collections.singletonList(new TestDataMutator()));
+            InputConfiguration.get().setAmplifiers(Collections.singletonList(new FastLiteralAmplifier()));
             InputConfiguration.get().setSelector(new JacocoCoverageSelector());
             InputConfiguration.get().setBudgetizer(BudgetizerEnum.RandomBudgetizer);
             InputConfiguration.get().setTestClasses(Collections.singletonList("example.TestSuiteExample"));

@@ -11,7 +11,7 @@ public enum AmplifierEnum {
 
     MethodAdd(new TestMethodCallAdder()),
     MethodRemove(new TestMethodCallRemover()),
-    TestDataMutator(new TestDataMutator()),
+    FastLiteralAmplifier(new FastLiteralAmplifier()),
     MethodGeneratorAmplifier(new MethodGeneratorAmplifier()),
     ReturnValueAmplifier(new ReturnValueAmplifier()),
     StringLiteralAmplifier(new StringLiteralAmplifier()),
