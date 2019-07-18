@@ -174,9 +174,9 @@ Next is deploying the repo monitor itself on K8s. First you need to go to the "r
 
 This will create a pod named "repo-monitor-XXXXXXXX-XXXX" together with a service creating a Loadbalancer with an external address for github. We need to fetch this address by this command 
 ```
-
+  kubectl get svc 
 ```
-* kubectl get svc 
+
 and look for a service named "repo-monitor" then take its external IP (it usually takes a while before the LoadBalancer finish setting up).
 Then go to your repo github page -> setting -> webhook -> add new webhook and then add the Payload URL" as "http://LoadBalancer_IP/" shown in the picture below, "Content type" is set as "application/json" then secret is the "gitSecret" previously added to the database "123456789" (Note: this should be a hash of some kind like a MD5 hash to be safer) then also select "Let me select individual events" to scroll down a bit to select "Statuses". The reason we choose only sending status update is because the server is set to only activate the pipeline when the build status is failure.
 ![repo-monitor-picture](repo-monitor-example.png)
