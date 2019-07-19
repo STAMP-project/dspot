@@ -184,7 +184,7 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         Possible values are: 
         		 - MethodAdd
         		 - MethodRemove
-        		 - TestDataMutator
+        		 - FastLiteralAmplifier
         		 - MethodGeneratorAmplifier
         		 - ReturnValueAmplifier
         		 - StringLiteralAmplifier
@@ -394,7 +394,7 @@ However, **DSpot** provide different kind of `Amplifier`:
    * `MethodRemove`: removes an existing method call
    * `StatementAdd`: adds a method call, and generate required parameter
    * `ReplacementAmplifier`: replaces a local variable by a generated one
-   * `TestDataMutator`: old amplifier of literals (all types, deprecated)
+   * `FastLiteralAmplifier`: a faster amplifier for the literals
 
 All amplifiers are just instanciable without any parameters, _e.g._ new StringLiteralAmplifier.
 

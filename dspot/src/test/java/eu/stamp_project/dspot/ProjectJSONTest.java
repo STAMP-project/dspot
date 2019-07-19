@@ -2,8 +2,7 @@ package eu.stamp_project.dspot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.Utils;
-import eu.stamp_project.dspot.amplifier.TestDataMutator;
+import eu.stamp_project.dspot.amplifier.FastLiteralAmplifier;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.json.ProjectTimeJSON;
@@ -16,7 +15,6 @@ import spoon.reflect.declaration.CtPackage;
 
 import java.io.*;
 import java.util.Collections;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -46,7 +44,7 @@ public class ProjectJSONTest {
         }
         InputConfiguration.initialize("src/test/resources/sample/sample.properties");
         DSpot dspot = new DSpot(1,
-                Collections.singletonList(new TestDataMutator()),
+                Collections.singletonList(new FastLiteralAmplifier()),
                 new JacocoCoverageSelector()
         );
 
