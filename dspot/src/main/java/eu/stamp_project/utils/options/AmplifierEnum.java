@@ -1,6 +1,8 @@
 package eu.stamp_project.utils.options;
 
 import eu.stamp_project.dspot.amplifier.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +14,7 @@ public enum AmplifierEnum {
     MethodAdd(new TestMethodCallAdder()),
     MethodRemove(new TestMethodCallRemover()),
     FastLiteralAmplifier(new FastLiteralAmplifier()),
+    TestDataMutator(new FastLiteralAmplifier()),
     MethodGeneratorAmplifier(new MethodGeneratorAmplifier()),
     ReturnValueAmplifier(new ReturnValueAmplifier()),
     StringLiteralAmplifier(new StringLiteralAmplifier()),
@@ -31,6 +34,11 @@ public enum AmplifierEnum {
 
     private static Amplifier stringToAmplifier(String amplifier) {
         try {
+            if ("TestDataMutator".equals(amplifier)) {
+                JSAPOptions.LOGGER.warn("You are using an old name for TestDataMutator.");
+                JSAPOptions.LOGGER.warn("You should use the new name: FastLiteralAmplifier.");
+                JSAPOptions.LOGGER.warn("The entry TestDataMutator will be deleted very soon.");
+            }
             return AmplifierEnum.valueOf(amplifier).amplifier;
         } catch (IllegalArgumentException e) {
             // should not happen since we checked values with Checker.checkEnumAndRemoveIfIncorrect
