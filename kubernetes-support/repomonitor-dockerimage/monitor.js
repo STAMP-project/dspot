@@ -80,7 +80,7 @@ app.post('/', function(request, response){
     }catch(error) {
     }
     // Connect to mongodb
-    // Will only activate if the build status is failure reported by travis.
+    // Will only activate if the build status is success reported by travis and the author commiter is not dspot.
     if (status == "success" && authorName != process.env.GITHUB_USERNAME) {
       const MongoClient = require('mongodb').MongoClient;
       const assert = require('assert');
@@ -116,7 +116,6 @@ app.post('/', function(request, response){
     else{
       response.status(200).send('Webhook ignored, only activate upon success travis build and the committer is not Dspot');
     }
-    //console.log(createComparisonSignature(request.body));
   });
 
 app.listen(port, () => console.log(`Listening on port ${port}!`))   
