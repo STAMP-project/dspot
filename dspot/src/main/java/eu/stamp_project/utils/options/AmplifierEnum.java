@@ -1,8 +1,6 @@
 package eu.stamp_project.utils.options;
 
 import eu.stamp_project.dspot.amplifier.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
