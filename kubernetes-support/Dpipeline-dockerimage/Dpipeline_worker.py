@@ -21,7 +21,13 @@ from pymongo import MongoClient
 from xml.etree import ElementTree
 
 # login into mongodb
-client = MongoClient(os.getenv('MONGODB_HOST') or 'mongodb://localhost:27017/')
+client = MongoClient(os.getenv('MONGODB_HOST') or 'mongodb://localhost:27017/',5)
+mongo_connected = True
+try:
+    client.server_info()
+except:
+    mongo_connected = False
+    logging.warning("Failed to connect to mongodb")
 # Start ActiveMQ listener
 host = os.getenv("ACTIVEMQ_HOST") or "activemq"
 port = 61613
@@ -137,20 +143,23 @@ def run_Dspot_preconfig(POM_FILE,reposlug,timecap):
     
     # push to Mongodb when done
     # get database
-    db = client['Dspot']
-    colname = reposlug.split('/')[1] + 'RootProject' + '-' + timecap
-    col = db[colname]
-    # get all output files but the binaries .class files
-    files = exec_get_output(
-            'find ' + outputdir + ' -type f | grep -v .class', True).rstrip().split('\n')
-    for file in files:
-        f = open(file)  # open a file
-        text = f.read()    # read the entire contents, should be UTF-8 text
-        file_name = file.split('/')[-1]
-        logging.warning('File to Mongodb: ' + file_name)
-        text_file_doc = {
-            "file_name": file_name, "contents": text}
-        col.insert(text_file_doc)
+    if mongo_connected:
+        db = client['Dspot']
+        colname = reposlug.split('/')[1] + 'RootProject' + '-' + timecap
+        col = db[colname]
+        # get all output files but the binaries .class files
+        files = exec_get_output(
+                'find ' + outputdir + ' -type f | grep -v .class', True).rstrip().split('\n')
+        for file in files:
+            f = open(file)  # open a file
+            text = f.read()    # read the entire contents, should be UTF-8 text
+            file_name = file.split('/')[-1]
+            logging.warning('File to Mongodb: ' + file_name)
+            text_file_doc = {
+                "file_name": file_name, "contents": text}
+            col.insert(text_file_doc)
+    else:
+        logging.waring("Nothing will be submit since mongodb is not connected")
     exec_get_output('cp -rf ' + outputdir + ' clonedrepo',True)
     exec_get_output('rm -rf NUL target/ clonedrepo/target', True)
     return True # Dspot was preconfigured
@@ -262,31 +271,34 @@ def run_Dspot_autoconfig(reposlug,timecap):
                 logging.warning(root_name + " ignored due to no tests found")
     # Save files in mongodb
     # get database
-    db = client['Dspot']
-    # insert all docs in a directory into database
-    # List all directories in clonedrepo/dspot-out/ folder
-    dirs = exec_get_output(
-        'find clonedrepo/dspot-out/ -maxdepth 1 -mindepth 1 -type d', True).rstrip().split('\n')
-    if isinstance(dirs, str):
-        dirs = [dirs]
+    if mongo_connected:
+        db = client['Dspot']
+        # insert all docs in a directory into database
+        # List all directories in clonedrepo/dspot-out/ folder
+        dirs = exec_get_output(
+            'find clonedrepo/dspot-out/ -maxdepth 1 -mindepth 1 -type d', True).rstrip().split('\n')
+        if isinstance(dirs, str):
+            dirs = [dirs]
 
-    for dir in dirs:
-        # extract directory name and use it as the colectioname for
-        dirname = dir.split('/')[-1]
-        colname = reposlug.split('/')[1] + dirname + '-' + timecap
-        logging.warning(dir)
-        col = db[colname]
-        # get all files path in dir, but not the binaries .class files
-        files = exec_get_output(
-            'find ' + dir + ' -type f | grep -v .class', True).rstrip().split('\n')
-        for file in files:
-            f = open(file)  # open a file
-            text = f.read()    # read the entire contents, should be UTF-8 text
-            file_name = file.split('/')[-1]
-            logging.warning('File to Mongodb: ' + file_name)
-            text_file_doc = {
-                "file_name": file_name, "contents": text}
-            col.insert(text_file_doc)
+        for dir in dirs:
+            # extract directory name and use it as the colectioname for
+            dirname = dir.split('/')[-1]
+            colname = reposlug.split('/')[1] + dirname + '-' + timecap
+            logging.warning(dir)
+            col = db[colname]
+            # get all files path in dir, but not the binaries .class files
+            files = exec_get_output(
+                'find ' + dir + ' -type f | grep -v .class', True).rstrip().split('\n')
+            for file in files:
+                f = open(file)  # open a file
+                text = f.read()    # read the entire contents, should be UTF-8 text
+                file_name = file.split('/')[-1]
+                logging.warning('File to Mongodb: ' + file_name)
+                text_file_doc = {
+                    "file_name": file_name, "contents": text}
+                col.insert(text_file_doc)
+    else:
+        logging.waring("Nothing will be submit since mongodb is not connected")
 
 
 class BuildIdListener(object):
