@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
  * Date: 12/02/16
  * Time: 10:31
  */
+// todo rename tests to reflect new refactoring. find and fix AssertionGeneratorWithTime. place compare folder right.
+// todo place AssertionGeneratorUtils in general utils? rename everything to correct name. finnish docs everywhere.
 public class AssertionGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AssertionGenerator.class);

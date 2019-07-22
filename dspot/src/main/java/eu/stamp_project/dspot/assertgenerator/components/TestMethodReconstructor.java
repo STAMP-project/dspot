@@ -1,19 +1,16 @@
 package eu.stamp_project.dspot.assertgenerator.components;
 
-import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.compare.Observation;
 import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.AssertionSyntaxBuilder;
 import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.Observer;
+import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.observer.ObserverUtils;
 import eu.stamp_project.dspot.assertgenerator.components.utils.AssertionGeneratorUtils;
-import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.compilation.TestCompiler;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +25,10 @@ import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * Created by Benjamin DANGLOT
@@ -75,7 +70,7 @@ public class TestMethodReconstructor {
      * Adds new assertions in multiple tests.
      * <p>
      * <p>Instruments the tests to have observation points.
-     * Details in {@link AssertionGeneratorUtils#createTestWithLog(CtMethod, String, List)}.
+     * Details in {@link ObserverUtils#createTestWithLog(CtMethod, String, List)}.
      * <p>
      * <p>Details of the assertion generation in {@link #buildTestWithAssert(CtMethod, Map)}.
      *

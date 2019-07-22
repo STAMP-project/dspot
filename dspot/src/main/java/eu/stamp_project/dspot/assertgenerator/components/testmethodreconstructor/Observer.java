@@ -3,7 +3,7 @@ package eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructo
 import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.compare.Observation;
 import eu.stamp_project.dspot.AmplificationException;
-import eu.stamp_project.dspot.assertgenerator.components.utils.AssertionGeneratorUtils;
+import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.observer.ObserverUtils;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.CloneHelper;
@@ -67,7 +67,7 @@ public class Observer {
         List<CtMethod<?>> testCasesWithLogs = testCases.stream()
                 .map(ctMethod -> {
                             DSpotUtils.printProgress(testCases.indexOf(ctMethod), testCases.size());
-                            return AssertionGeneratorUtils.createTestWithLog(
+                            return ObserverUtils.createTestWithLog(
                                     ctMethod,
                                     this.originalClass.getPackage().getQualifiedName(),
                                     this.variableReadsAsserted.get(ctMethod)
