@@ -75,6 +75,9 @@ public class Main {
                 amplifiedTestClass
         );
         // 2
+        // todo check links
+        // https://github.com/STAMP-project/dspot/pull/718
+        // https://github.com/STAMP-project/dspot/pull/730
 //        applyContext2Name(minimizedAmplifiedTestMethods);
         // 3
         applyCode2Vec(minimizedAmplifiedTestMethods);
