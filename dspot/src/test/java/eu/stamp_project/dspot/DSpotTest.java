@@ -3,7 +3,7 @@ package eu.stamp_project.dspot;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.amplifier.Amplifier;
-import eu.stamp_project.dspot.amplifier.TestMethodCallAdder;
+import eu.stamp_project.dspot.amplifier.MethodDuplicationAmplifier;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.dspot.selector.TakeAllSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
@@ -73,7 +73,7 @@ public class DSpotTest extends AbstractTest {
          */
 
         final MockDSpot dSpot = new MockDSpot(1,
-                Collections.singletonList(new TestMethodCallAdder()),
+                Collections.singletonList(new MethodDuplicationAmplifier()),
                 new JacocoCoverageSelector()
         );
         // the test class fr.inria.filter.passing.PassingTest has 3 methods, but only two are amplified

@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
+import eu.stamp_project.dspot.amplifier.MethodAdderOnExistingObjectsAmplifier;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -210,7 +210,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 
         final String packageName = "fr.inria.statementaddarray";
         final Factory factory = Utils.getFactory();
-        MethodGeneratorAmplifier amplifier = new MethodGeneratorAmplifier();
+        MethodAdderOnExistingObjectsAmplifier amplifier = new MethodAdderOnExistingObjectsAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".ClassTargetAmplify"));
 
         CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
