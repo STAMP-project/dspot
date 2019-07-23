@@ -37,7 +37,7 @@ public class DSpotMojo extends AbstractMojo {
      *	Possible values are:
      *			 - MethodAdd
      *			 - MethodRemove
-     *			 - TestDataMutator
+     *			 - FastLiteralAmplifier
      *			 - MethodGeneratorAmplifier
      *			 - ReturnValueAmplifier
      *			 - StringLiteralAmplifier
@@ -271,14 +271,21 @@ public class DSpotMojo extends AbstractMojo {
     @Parameter(defaultValue = "false", property = "path-to-second-version")
     private boolean executeTestsInParallel = false;
 
+    /**
+     * Enable to execute DSpot on all modules. This parameter do not take into account the value of targetModule.
+     */
+    @Parameter(defaultValue = "false", property = "run-on-all-modules")
+    private boolean runOnAllModules = false;
+
     @Override
     public void execute() {
         if (this.help) {
             JSAPOptions.showUsage();
         }
         Properties properties = initializeProperties();
-        if (properties.getProperty(ConstantsProperties.MODULE.getName()) != null ||
-                !properties.getProperty(ConstantsProperties.MODULE.getName()).isEmpty()) {
+        if (this.runOnAllModules ||
+                (properties.getProperty(ConstantsProperties.MODULE.getName()) != null ||
+                !properties.getProperty(ConstantsProperties.MODULE.getName()).isEmpty())) {
             if (!this.project.getBasedir().getAbsolutePath().endsWith(ConstantsProperties.MODULE.get(properties))) {
                 return;
             } else {
@@ -329,7 +336,8 @@ public class DSpotMojo extends AbstractMojo {
                     executeTestsInParallel,
                     executeTestParallelWithNumberProcessors,
                     test,
-                    testCases
+                    testCases,
+                    null
             );
 
             if (!this.pathToTestListCsv.isEmpty()) {
@@ -350,7 +358,7 @@ public class DSpotMojo extends AbstractMojo {
             }
             Main.run();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 

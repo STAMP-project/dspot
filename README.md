@@ -184,7 +184,7 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         Possible values are: 
         		 - MethodAdd
         		 - MethodRemove
-        		 - TestDataMutator
+        		 - FastLiteralAmplifier
         		 - MethodGeneratorAmplifier
         		 - ReturnValueAmplifier
         		 - StringLiteralAmplifier
@@ -312,6 +312,13 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         use the number of available CPU processors (given number of processors
         is ignored). (default: 0)
 
+  [--full-classpath <full-classpath>]
+        [optional] specify the classpath of the project. If this option is used,
+        DSpot won't use an AutomaticBuilder (e.g. Maven) to clean, compile and
+        get the classpath of the project. Please ensure that your project is in
+        a good shape, i.e. clean and correctly compiled, sources and test
+        sources.        
+
   [-e|--example]
         run the example of DSpot and leave
 
@@ -387,7 +394,7 @@ However, **DSpot** provide different kind of `Amplifier`:
    * `MethodRemove`: removes an existing method call
    * `StatementAdd`: adds a method call, and generate required parameter
    * `ReplacementAmplifier`: replaces a local variable by a generated one
-   * `TestDataMutator`: old amplifier of literals (all types, deprecated)
+   * `FastLiteralAmplifier`: a faster amplifier for the literals
 
 All amplifiers are just instanciable without any parameters, _e.g._ new StringLiteralAmplifier.
 

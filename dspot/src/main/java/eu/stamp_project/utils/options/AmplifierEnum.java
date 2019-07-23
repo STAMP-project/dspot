@@ -11,7 +11,8 @@ public enum AmplifierEnum {
 
     MethodAdd(new TestMethodCallAdder()),
     MethodRemove(new TestMethodCallRemover()),
-    TestDataMutator(new TestDataMutator()),
+    FastLiteralAmplifier(new FastLiteralAmplifier()),
+    TestDataMutator(new FastLiteralAmplifier()),
     MethodGeneratorAmplifier(new MethodGeneratorAmplifier()),
     ReturnValueAmplifier(new ReturnValueAmplifier()),
     StringLiteralAmplifier(new StringLiteralAmplifier()),
@@ -31,6 +32,11 @@ public enum AmplifierEnum {
 
     private static Amplifier stringToAmplifier(String amplifier) {
         try {
+            if ("TestDataMutator".equals(amplifier)) {
+                JSAPOptions.LOGGER.warn("You are using an old name for TestDataMutator.");
+                JSAPOptions.LOGGER.warn("You should use the new name: FastLiteralAmplifier.");
+                JSAPOptions.LOGGER.warn("The entry TestDataMutator will be deleted very soon.");
+            }
             return AmplifierEnum.valueOf(amplifier).amplifier;
         } catch (IllegalArgumentException e) {
             // should not happen since we checked values with Checker.checkEnumAndRemoveIfIncorrect

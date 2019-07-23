@@ -144,7 +144,11 @@ public class DSpot {
      * @return a list of amplified test classes with amplified test methods.
      */
     public List<CtType<?>> amplifyAllTests() {
-        return this._amplifyTestClasses(TestFramework.getAllTestClasses());
+        return this._amplifyTestClasses(
+                TestFramework.getAllTestClasses().stream()
+                .filter(InputConfiguration.isNotExcluded)
+                .collect(Collectors.toList())
+        );
     }
 
     /**
@@ -250,9 +254,17 @@ public class DSpot {
         final List<CtType<?>> testClassesToBeAmplifiedModel = testClassesToBeAmplified.stream()
                 .flatMap(this::findTestClasses)
                 .collect(Collectors.toList());
+        //Filtering out testClasses tagged as ignored (JUnit4) or disable (JUnit 5)
         return testClassesToBeAmplifiedModel.stream()
-                .map(ctType ->
-                        this._amplify(ctType, this.buildListOfTestMethodsToBeAmplified(ctType, testMethods))
+                .filter(ctType-> {
+                    boolean isIgnored = TestFramework.get().isIgnored(ctType);
+                    if (isIgnored) {
+                        LOGGER.info("Skiping test suite {} since it is annotated as ignored/disabled", ctType.getSimpleName());
+                    }
+                    return !isIgnored;
+                }
+                ).map(ctType ->
+                    this._amplify(ctType, this.buildListOfTestMethodsToBeAmplified(ctType, testMethods))
                 ).collect(Collectors.toList());
     }
 

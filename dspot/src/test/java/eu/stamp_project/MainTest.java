@@ -196,7 +196,7 @@ public class MainTest {
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
                 "--iteration", "1",
-                "--amplifiers", "TestDataMutator",
+                "--amplifiers", "FastLiteralAmplifier",
                 "--test", "example.ParametrizedTestSuiteExample",
                 "--budgetizer", "TextualDistanceBudgetizer",
                 "--no-minimize",
@@ -299,7 +299,7 @@ public class MainTest {
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + AmplificationHelper.PATH_SEPARATOR + "TestDataMutator" + AmplificationHelper.PATH_SEPARATOR + "MethodGeneratorAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
+                "--amplifiers", "MethodAdd" + AmplificationHelper.PATH_SEPARATOR + "FastLiteralAmplifier" + AmplificationHelper.PATH_SEPARATOR + "MethodGeneratorAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
                 "--iteration", "1",
                 "--random-seed", "72",
                 "--test", "example.TestSuiteExample",
@@ -319,7 +319,7 @@ public class MainTest {
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + AmplificationHelper.PATH_SEPARATOR + "TestDataMutator",
+                "--amplifiers", "MethodAdd" + AmplificationHelper.PATH_SEPARATOR + "FastLiteralAmplifier",
                 "--iteration", "1",
                 "--random-seed", "72",
                 "--test", "example.TestSuiteExample",

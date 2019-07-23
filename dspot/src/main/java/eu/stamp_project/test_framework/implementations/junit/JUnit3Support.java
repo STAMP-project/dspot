@@ -5,6 +5,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import spoon.reflect.code.CtReturn;
 import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
@@ -41,10 +42,11 @@ public class JUnit3Support extends JUnitSupport {
 
     /*
         For JUnit3, a test method starts by test, otherwise we consider ignored
+        Test suites cannot be ignore at class level
      */
     @Override
-    protected boolean isIgnored(CtMethod<?> candidate) {
-        return !candidate.getSimpleName().startsWith("test");
+    public boolean isIgnored(CtElement candidate) {
+        return candidate instanceof CtMethod?!((CtMethod<?>)candidate).getSimpleName().startsWith("test"):false;
     }
 
     /*

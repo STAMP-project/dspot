@@ -92,4 +92,10 @@ public interface TestFrameworkSupport {
      */
     public void generateAfterClassToSaveObservations(CtType<?> testClass, List<CtMethod<?>> testsToRun);
 
+    /**
+     * This method detects whether or not the given element (test or suite) has been annotated to be ignored (JUnit4) or disabled (JUnit5)
+     * @param ctType the test suite to check
+     * @return true if the given test suite has been ignored/disabled
+     */
+    public boolean isIgnored(CtElement candidate);
 }

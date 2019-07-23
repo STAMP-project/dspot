@@ -1,6 +1,6 @@
 package eu.stamp_project.utils.options;
 
-import eu.stamp_project.dspot.amplifier.TestDataMutator;
+import eu.stamp_project.dspot.amplifier.FastLiteralAmplifier;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
@@ -28,7 +28,7 @@ public class Configuration {
         try {
             InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
             InputConfiguration.get().setNbIteration(1);
-            InputConfiguration.get().setAmplifiers(Collections.singletonList(new TestDataMutator()));
+            InputConfiguration.get().setAmplifiers(Collections.singletonList(new FastLiteralAmplifier()));
             InputConfiguration.get().setSelector(new JacocoCoverageSelector());
             InputConfiguration.get().setBudgetizer(BudgetizerEnum.RandomBudgetizer);
             InputConfiguration.get().setTestClasses(Collections.singletonList("example.TestSuiteExample"));
@@ -64,7 +64,8 @@ public class Configuration {
                                  final boolean executeTestsInParallel,
                                  final int numberParallelExecutionProcessors,
                                  final List<String> testClasses,
-                                 final List<String> testCases) {
+                                 final List<String> testCases,
+                                 final String fullClasspath) {
 
         Checker.checkPathToPropertiesValue(pathToPropertiesFile);
         final Properties properties = loadProperties(pathToPropertiesFile);
@@ -95,7 +96,8 @@ public class Configuration {
                 executeTestsInParallel,
                 numberParallelExecutionProcessors,
                 testClasses,
-                testCases
+                testCases,
+                fullClasspath
         );
     }
 
@@ -125,7 +127,8 @@ public class Configuration {
                                  final boolean executeTestsInParallel,
                                  final int numberParallelExecutionProcessors,
                                  final List<String> testClasses,
-                                 final List<String> testCases) {
+                                 final List<String> testCases,
+                                 final String fullClasspath) {
         // pit output format
         PitMutantScoreSelector.OutputFormat consecutiveFormat;
         if (pitOutputFormat.toLowerCase().equals("xml")) {
@@ -166,7 +169,8 @@ public class Configuration {
         }
         //ExecuteTestsInParallel needs to be setup before initializing InputConfiguration
         //because it is required to compute the classpath of the MavenAutomaticBuilder
-        InputConfiguration.initialize(properties, automaticBuilder, executeTestsInParallel);
+        InputConfiguration.initialize(properties, automaticBuilder, executeTestsInParallel, fullClasspath);
+
         if (InputConfiguration.get().getOutputDirectory().isEmpty()) {
 
             InputConfiguration.get().setOutputDirectory(output);

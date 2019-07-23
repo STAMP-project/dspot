@@ -20,14 +20,14 @@ import java.util.stream.Stream;
 
 /* This processor is meant to replace all literal values in test cases by other literal values
  * */
-public class TestDataMutator implements Amplifier {
+public class FastLiteralAmplifier implements Amplifier {
 
 
 	private Map<CtType, Set<Object>> literalByClass;
 
 	private Map<Class<?>, List<Object>> literals;
 
-	public TestDataMutator() {
+	public FastLiteralAmplifier() {
 		this.literalByClass = new HashMap<>();
 	}
 
@@ -110,7 +110,7 @@ public class TestDataMutator implements Amplifier {
 		}
 		toReplace.replace(newLiteral);
 		Counter.updateInputOf(cloned_method, 1);
-		DSpotUtils.addComment(toReplace, "TestDataMutator on numbers", CtComment.CommentType.INLINE);
+		DSpotUtils.addComment(toReplace, "FastLiteralAmplifier on numbers", CtComment.CommentType.INLINE);
 		return cloned_method;
 	}
 
@@ -133,7 +133,7 @@ public class TestDataMutator implements Amplifier {
 		CtLiteral toReplace = Query.getElements(cloned_method.getBody(), new LiteralToBeMutedFilter())
 				.get(original_lit_index);
 		toReplace.replace(cloned_method.getFactory().Code().createLiteral(newValue));
-		DSpotUtils.addComment(toReplace, "TestDataMutator on strings", CtComment.CommentType.INLINE);
+		DSpotUtils.addComment(toReplace, "FastLiteralAmplifier on strings", CtComment.CommentType.INLINE);
 		return cloned_method;
 	}
 
@@ -149,7 +149,7 @@ public class TestDataMutator implements Amplifier {
 		CtLiteral toReplace = Query.getElements(cloned_method.getBody(), new LiteralToBeMutedFilter())
 				.get(original_lit_index);
 		toReplace.replace(cloned_method.getFactory().Code().createLiteral(newValue));
-		DSpotUtils.addComment(toReplace, "TestDataMutator on strings", CtComment.CommentType.INLINE);
+		DSpotUtils.addComment(toReplace, "FastLiteralAmplifier on strings", CtComment.CommentType.INLINE);
 		return cloned_method;
 	}
 
@@ -223,7 +223,7 @@ public class TestDataMutator implements Amplifier {
 		newValue.setValue(!value);
 		newValue.setTypeCasts(booleanLiteral.getTypeCasts());
 		Counter.updateInputOf(cloned_method, 1);
-		DSpotUtils.addComment(newValue, "TestDataMutator on boolean", CtComment.CommentType.INLINE);
+		DSpotUtils.addComment(newValue, "FastLiteralAmplifier on boolean", CtComment.CommentType.INLINE);
 		return cloned_method;
 	}
 
