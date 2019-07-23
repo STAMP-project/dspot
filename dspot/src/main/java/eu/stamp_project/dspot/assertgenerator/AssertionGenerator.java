@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
  */
 // todo rename tests to reflect new refactoring. find and fix AssertionGeneratorWithTime. place compare folder right.
 // todo place AssertionGeneratorUtils in general utils? rename everything to correct name. finnish docs everywhere.
+    // todo divide methods into smaller methods
+
 public class AssertionGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AssertionGenerator.class);

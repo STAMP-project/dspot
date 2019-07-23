@@ -19,6 +19,8 @@ import java.util.function.Predicate;
 
 public class ObserverUtils {
 
+    private static final Predicate<CtStatement> shouldAddLogEndStatement = shouldAddLogEndStatement();
+
     /**
      *
      * @param test
@@ -52,25 +54,21 @@ public class ObserverUtils {
         if (statement.getParent(CtLoop.class) != null) {
             return false;
         }
-
         if (statement instanceof CtInvocation) {
             CtInvocation invocation = (CtInvocation) statement;
             return (invocation.getMetadata(AssertionGeneratorUtils.METADATA_WAS_IN_ASSERTION) != null &&
                     (Boolean) invocation.getMetadata(AssertionGeneratorUtils.METADATA_WAS_IN_ASSERTION)) ||
                     (isCorrectReturn(invocation) && !isGetter(invocation));
         }
-
         if (statement instanceof CtLocalVariable ||
                 statement instanceof CtAssignment ||
                 statement instanceof CtVariableWrite) {
-
             if (statement instanceof CtNamedElement) {
                 if (((CtNamedElement) statement).getSimpleName()
                         .startsWith("__DSPOT_")) {
                     return false;
                 }
             }
-
             final CtTypeReference type = ((CtTypedElement) statement).getType();
             if (type.getQualifiedName().startsWith(filter)) {
                 return true;
@@ -146,72 +144,99 @@ public class ObserverUtils {
 
         CtStatement insertAfter;
         if (stmt instanceof CtVariableWrite) {//TODO
-            CtVariableWrite varWrite = (CtVariableWrite) stmt;
             insertAfter = stmt;
         } else if (stmt instanceof CtLocalVariable) {
-            CtLocalVariable localVar = (CtLocalVariable) stmt;
-            final CtVariableAccess variableRead = factory.createVariableRead(localVar.getReference(), false);// TODO checks static
-            invocationToObjectLog.addArgument(variableRead);
-            invocationToObjectLog.addArgument(factory.createLiteral(localVar.getSimpleName()));
-            insertAfter = stmt;
+            insertAfter = localVariableLogStmt(stmt,factory,invocationToObjectLog);
         } else if (stmt instanceof CtAssignment) {
-            CtAssignment localVar = (CtAssignment) stmt;
-            invocationToObjectLog.addArgument(localVar.getAssigned());
-            invocationToObjectLog.addArgument(factory.createLiteral(localVar.getAssigned().toString()));
-            insertAfter = stmt;
+            insertAfter = assignmentLogStmt(stmt,factory,invocationToObjectLog);
         } else if (stmt instanceof CtInvocation) {
-            // in case of a new Something() or a method call,
-            // we put the new Something() in a local variable
-            // then we replace it by the an access to this local variable
-            // and we add a log statement on it
-            CtInvocation invocation = (CtInvocation) stmt;
-            if (AssertionGeneratorUtils.isVoidReturn(invocation)) {
-                invocationToObjectLog.addArgument(invocation.getTarget());
-                invocationToObjectLog.addArgument(factory.createLiteral(
-                        invocation.getTarget().toString().replace("\"", "\\\""))
-                );
-                insertAfter = invocation;
-            } else {
-                final CtLocalVariable localVariable = factory.createLocalVariable(
-                        AssertionGeneratorUtils.getCorrectTypeOfInvocation(invocation),
-                        "o_" + id,
-                        invocation.clone()
-                );
-                try {
-                    stmt.replace(localVariable);
-                } catch (ClassCastException e) {
-                    throw new RuntimeException(e);
-                }
-                invocationToObjectLog.addArgument(factory.createVariableRead(localVariable.getReference(), false));
-                invocationToObjectLog.addArgument(factory.createLiteral("o_" + id));
-                insertAfter = localVariable;
-            }
+            insertAfter = invocationLogStmt(stmt,factory,invocationToObjectLog,id);
         } else if (stmt instanceof CtConstructorCall) {
-            final CtConstructorCall constructorCall = (CtConstructorCall<?>) stmt;
-            final CtLocalVariable<?> localVariable = factory.createLocalVariable(
-                    constructorCall.getType(),
+            insertAfter = constructorCallLogStmt(stmt,factory,invocationToObjectLog,id);
+        } else {
+            throw new RuntimeException("Could not find the proper type to add log statement" + stmt.toString());
+        }
+        CtInvocation invocationToObjectLogAtTheEnd = insertStatement(stmt,factory,invocationToObjectLog,id,insertAfter);
+
+        // if between the two log statements there is only log statement, we do not add the log end statement
+        if (ObserverUtils.shouldAddLogEndStatement.test(invocationToObjectLog) &&
+                ObserverUtils.getSize(stmt.getParent(CtMethod.class).getBody()) + 1 < 65535) {
+            stmt.getParent(CtBlock.class).insertEnd(invocationToObjectLogAtTheEnd);
+        }
+    }
+
+    private static CtStatement localVariableLogStmt(CtStatement stmt, Factory factory, CtInvocation invocationToObjectLog){
+        CtLocalVariable localVar = (CtLocalVariable) stmt;
+        final CtVariableAccess variableRead = factory.createVariableRead(localVar.getReference(), false);// TODO checks static
+        invocationToObjectLog.addArgument(variableRead);
+        invocationToObjectLog.addArgument(factory.createLiteral(localVar.getSimpleName()));
+        return stmt;
+    }
+
+    private static CtStatement assignmentLogStmt(CtStatement stmt, Factory factory, CtInvocation invocationToObjectLog){
+        CtAssignment localVar = (CtAssignment) stmt;
+        invocationToObjectLog.addArgument(localVar.getAssigned());
+        invocationToObjectLog.addArgument(factory.createLiteral(localVar.getAssigned().toString()));
+        return stmt;
+    }
+
+    private static CtStatement invocationLogStmt(CtStatement stmt, Factory factory,
+                                                 CtInvocation invocationToObjectLog, String id) {
+
+        // in case of a new Something() or a method call,
+        // we put the new Something() in a local variable
+        // then we replace it by the an access to this local variable
+        // and we add a log statement on it
+        CtInvocation invocation = (CtInvocation) stmt;
+        if (AssertionGeneratorUtils.isVoidReturn(invocation)) {
+            invocationToObjectLog.addArgument(invocation.getTarget());
+            invocationToObjectLog.addArgument(factory.createLiteral(
+                    invocation.getTarget().toString().replace("\"", "\\\""))
+            );
+            return invocation;
+        } else {
+            final CtLocalVariable localVariable = factory.createLocalVariable(
+                    AssertionGeneratorUtils.getCorrectTypeOfInvocation(invocation),
                     "o_" + id,
-                    constructorCall.clone()
+                    invocation.clone()
             );
             try {
-                AssertionGeneratorUtils.getTopStatement(stmt).insertBefore(localVariable);
-            } catch (IndexOutOfBoundsException e) {
-                throw new RuntimeException(e);
-            }
-
-            try {
-                stmt.replace(factory.createVariableRead(localVariable.getReference(), false));
+                stmt.replace(localVariable);
             } catch (ClassCastException e) {
                 throw new RuntimeException(e);
             }
             invocationToObjectLog.addArgument(factory.createVariableRead(localVariable.getReference(), false));
             invocationToObjectLog.addArgument(factory.createLiteral("o_" + id));
-            insertAfter = localVariable;
-        } else {
-            throw new RuntimeException("Could not find the proper type to add log statement" + stmt.toString());
+            return localVariable;
         }
+    }
 
-        // clone the statement invocation for add it to the end of the tests
+    private static CtStatement constructorCallLogStmt(CtStatement stmt, Factory factory,
+                                                      CtInvocation invocationToObjectLog, String id) {
+        final CtConstructorCall constructorCall = (CtConstructorCall<?>) stmt;
+        final CtLocalVariable<?> localVariable = factory.createLocalVariable(
+                constructorCall.getType(),
+                "o_" + id,
+                constructorCall.clone()
+        );
+        try {
+            AssertionGeneratorUtils.getTopStatement(stmt).insertBefore(localVariable);
+        } catch (IndexOutOfBoundsException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            stmt.replace(factory.createVariableRead(localVariable.getReference(), false));
+        } catch (ClassCastException e) {
+            throw new RuntimeException(e);
+        }
+        invocationToObjectLog.addArgument(factory.createVariableRead(localVariable.getReference(), false));
+        invocationToObjectLog.addArgument(factory.createLiteral("o_" + id));
+        return localVariable;
+    }
+
+    // clone the statement invocation for add it to the end of the tests
+    private static CtInvocation insertStatement(CtStatement stmt, Factory factory,
+                                 CtInvocation invocationToObjectLog, String id, CtStatement insertAfter){
         CtInvocation invocationToObjectLogAtTheEnd = invocationToObjectLog.clone();
         invocationToObjectLogAtTheEnd.addArgument(factory.createLiteral(id + "___" + "end"));
         invocationToObjectLog.addArgument(factory.createLiteral(id));
@@ -220,21 +245,8 @@ public class ObserverUtils {
         if (ObserverUtils.getSize(stmt.getParent(CtMethod.class).getBody()) + 1 < 65535) {
             insertAfter.insertAfter(invocationToObjectLog);
         }
-
-        // if between the two log statements there is only log statement, we do not add the log end statement
-        if (ObserverUtils.shouldAddLogEndStatement.test(invocationToObjectLog) &&
-                ObserverUtils.getSize(stmt.getParent(CtMethod.class).getBody()) + 1 < 65535) {
-            stmt.getParent(CtBlock.class).insertEnd(invocationToObjectLogAtTheEnd);
-        }
+        return invocationToObjectLogAtTheEnd;
     }
-    /*
-    private static CtStatement localVariableLogStmt(CtStatement stmt, CtStatement insertAfter){
-        CtLocalVariable localVar = (CtLocalVariable) stmt;
-        final CtVariableAccess variableRead = factory.createVariableRead(localVar.getReference(), false);// TODO checks static
-        invocationToObjectLog.addArgument(variableRead);
-        invocationToObjectLog.addArgument(factory.createLiteral(localVar.getSimpleName()));
-        insertAfter = stmt;
-    }*/
 
     private static int getSize(CtBlock<?> block) {
         return block.getStatements().size() +
@@ -244,15 +256,17 @@ public class ObserverUtils {
                         .sum();
     }
 
-    private static final Predicate<CtStatement> shouldAddLogEndStatement = statement -> {
-        final List<CtStatement> statements = statement.getParent(CtBlock.class).getStatements();
-        for (int i = statements.indexOf(statement) + 1; i < statements.size(); i++) {
-            if (!(statements.get(i) instanceof CtInvocation) ||
-                    !((CtInvocation) statements.get(i)).getTarget().equals(statement.getFactory().createTypeAccess(
-                            statement.getFactory().Type().createReference(ObjectLog.class)))) {
-                return true;
+    private static Predicate<CtStatement> shouldAddLogEndStatement() {
+        return statement -> {
+            final List<CtStatement> statements = statement.getParent(CtBlock.class).getStatements();
+            for (int i = statements.indexOf(statement) + 1; i < statements.size(); i++) {
+                if (!(statements.get(i) instanceof CtInvocation) ||
+                        !((CtInvocation) statements.get(i)).getTarget().equals(statement.getFactory().createTypeAccess(
+                                statement.getFactory().Type().createReference(ObjectLog.class)))) {
+                    return true;
+                }
             }
-        }
-        return false;
-    };
+            return false;
+        };
+    }
 }
