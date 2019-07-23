@@ -39,56 +39,58 @@ public class C2N {
         Map<Scoper.Scope, List<String>> sequences = new HashMap<>();
         scoper.listIdentifierNode.forEach(node -> {
             Range range = node.getRange().orElse(null);
-            Scoper.Scope scope = scoper.mapRange2Scope.get(range);
-            int index = scoper.mapRange2ScopeIdx.get(range);
+            if (scoper.mapRange2Scope.containsKey(range)) {
+                Scoper.Scope scope = scoper.mapRange2Scope.get(range);
+                int index = scoper.mapRange2ScopeIdx.get(range);
 
-            if (scoper.listScope.get(index - 1).getKind() == DOT) {
-                return; // we do not handle static variables
-            }
-            if (scope.id > 0) {
-                List<String> arr = new ArrayList<>();
-                for (int i = index - 1; arr.size() < WIDTH; i--) {
-                    if (i < 0) {
-                        arr.add("0START");
-                    } else if (i >= scoper.listScope.size()) {
-                        arr.add("0END");
-                    } else {
-                        Scoper.Scope t = scoper.listScope.get(i);
-                        Scoper.Scope prev = scoper.listScope.get(i - 1);
-                        if (t.getKind() == IDENTIFIER && prev.getKind() != DOT) {
-                            if (t.id != null) {
-                                arr.add("1ID:" + t.id + ":" + t.name);
-                            } else {
-                                arr.add("1ID:-1:" + t.name);
+                if (scoper.listScope.get(index - 1).getKind() == DOT) {
+                    return; // we do not handle static variables
+                }
+                if (scope.id > 0) {
+                    List<String> arr = new ArrayList<>();
+                    for (int i = index - 1; arr.size() < WIDTH; i--) {
+                        if (i <= 0) {
+                            arr.add("0START");
+                        } else if (i >= scoper.listScope.size()) {
+                            arr.add("0END");
+                        } else {
+                            Scoper.Scope t = scoper.listScope.get(i);
+                            Scoper.Scope prev = scoper.listScope.get(i - 1);
+                            if (t.getKind() == IDENTIFIER && prev.getKind() != DOT) {
+                                if (t.id != null) {
+                                    arr.add("1ID:" + t.id + ":" + t.name);
+                                } else {
+                                    arr.add("1ID:-1:" + t.name);
+                                }
+                            } else if (t.getKind() != LPAREN/*(*/ && t.getKind() != RPAREN/*)*/ && t.getKind() != DOT/*.*/) {
+                                arr.add(t.name);
                             }
-                        } else if (t.getKind() != LPAREN/*(*/ && t.getKind() != RPAREN/*)*/ && t.getKind() != DOT/*.*/) {
-                            arr.add(t.name);
                         }
                     }
-                }
-                Collections.reverse(arr);
-                arr.add(0, scope.name);
-                arr.add(0, scope.id.toString());
-                for (int i = index + 1; arr.size() < 2 + 2 * WIDTH; i++) {
-                    if (i < 0) {
-                        arr.add("0START");
-                    } else if (i >= scoper.listScope.size()) {
-                        arr.add("0END");
-                    } else {
-                        Scoper.Scope t = scoper.listScope.get(i);
-                        Scoper.Scope prev = scoper.listScope.get(i - 1);
-                        if (t.getKind() == IDENTIFIER && prev.getKind() != DOT) {
-                            if (t.id > 0) {
-                                arr.add("1ID:" + t.id + ":" + t.name);
-                            } else {
-                                arr.add("1ID:-1:" + t.name);
+                    Collections.reverse(arr);
+                    arr.add(0, scope.name);
+                    arr.add(0, scope.id.toString());
+                    for (int i = index + 1; arr.size() < 2 + 2 * WIDTH; i++) {
+                        if (i < 0) {
+                            arr.add("0START");
+                        } else if (i >= scoper.listScope.size()) {
+                            arr.add("0END");
+                        } else {
+                            Scoper.Scope t = scoper.listScope.get(i);
+                            Scoper.Scope prev = scoper.listScope.get(i - 1);
+                            if (t.getKind() == IDENTIFIER && prev.getKind() != DOT) {
+                                if (t.id > 0) {
+                                    arr.add("1ID:" + t.id + ":" + t.name);
+                                } else {
+                                    arr.add("1ID:-1:" + t.name);
+                                }
+                            } else if (t.getKind() != LPAREN/*(*/ && t.getKind() != RPAREN/*)*/ && t.getKind() != DOT/*.*/) {
+                                arr.add(t.name);
                             }
-                        } else if (t.getKind() != LPAREN/*(*/ && t.getKind() != RPAREN/*)*/ && t.getKind() != DOT/*.*/) {
-                            arr.add(t.name);
                         }
                     }
+                    sequences.put(scope, arr);
                 }
-                sequences.put(scope, arr);
             }
         });
         return sequences;
@@ -249,19 +251,22 @@ public class C2N {
         for (String line : lines) {
             LOGGER.info(line);
             compilationUnit = parseFile(line);
-            scoper = new Scoper(compilationUnit);
-            dumpSequences(line, recovery);
+            if (compilationUnit != null) {
+                scoper = new Scoper(compilationUnit);
+                dumpSequences(line, recovery);
+            }
         }
     }
 
     public static void main(String[] args) {
         C2N c2n = new C2N();
-//        c2n.process("training.txt", false);
-//        c2n.process("validation.txt", false);
-        c2n.process("testing.txt", true);
+        c2n.process("training.txt", false);
+        c2n.process("validation.txt", false);
+//        c2n.process("testing.txt", true);
     }
 
     // todo
-    //  1 check ID
-    //  2 check JSON
+    //  0 FileNotFoundException
+    //  1 ID or JSON issue?
+    //  2 check the entire process
 }

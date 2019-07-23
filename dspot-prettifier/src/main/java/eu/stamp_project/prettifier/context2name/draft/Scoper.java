@@ -56,18 +56,22 @@ public class Scoper {
         compilationUnit.findAll(Parameter.class)
             .forEach(node -> listIdentifierNode.addAll(mapName2NodeList.get(node.getName().toString())));
         // MemberExpression/Property in 'Identifier'
-        compilationUnit.findAll(VariableDeclarator.class)
-            .forEach(node -> listIdentifierNode.addAll(mapName2NodeList.get(node.getName().toString())));
-        // Label in 'Identifier'
-        compilationUnit.findAll(LabeledStmt.class)
-            .forEach(node -> listIdentifierNode.addAll(mapName2NodeList.get(node.getLabel().toString())));
+//        compilationUnit.findAll(VariableDeclarator.class)
+//            .forEach(node -> listIdentifierNode.addAll(mapName2NodeList.get(node.getName().toString())));
+//        // Label in 'Identifier'
+//        compilationUnit.findAll(LabeledStmt.class)
+//            .forEach(node -> listIdentifierNode.addAll(mapName2NodeList.get(node.getLabel().toString())));
 
         // prepare checkingMap
         Set<String> names = new HashSet<>();
         for (Node node : listIdentifierNode) {
             Range range = node.getRange().orElse(null);
-            Scope scope = mapRange2Scope.get(range);
-            names.add(scope.name);
+            // sometimes we meet issues of JavaParser, such as
+            // https://github.com/javaparser/javaparser/issues/2310
+            if (mapRange2Scope.containsKey(range)) {
+                Scope scope = mapRange2Scope.get(range);
+                names.add(scope.name);
+            }
         }
         for (String name : names) {
             // we always care about the first node
@@ -140,8 +144,10 @@ public class Scoper {
         mapName2NodeList.get(oldName).forEach(
             node -> {
                 Range range = node.getRange().orElse(null);
-                Scope scope = mapRange2Scope.get(range);
-                scope.name = newName;
+                if (mapRange2Scope.containsKey(range)) {
+                    Scope scope = mapRange2Scope.get(range);
+                    scope.name = newName;
+                }
             }
         );
         renamingMap.put(oldName, newName);
