@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css"
+        integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous" />
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>Document</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <style>
+        .nav-item {
+            font-size: 100%;
+        }
+
+        .navbar {
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        .navbar-light .navbar-brand {
+            color: #ffffff;
+        }
+
+        .nav-link:hover {
+            background-color: #0366cf;
+            opacity: 1;
+        }
+
+        .active {
+            background-color: #0366cf;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+
+    <nav class="navbar navbar-expand-sm bg-primary navbar-dark align-items-center">
+        <div class="container">
+            <a class="navbar-brand" href="/">Dspot</a>
+            <!-- Links -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/"><i class="fa fa-home"></i> Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/repos"><i class="fas fa-archive"></i> Repos</a>
+                </li>
+                <li class="nav-item mr-auto">
+                    <a class="nav-link" href="/about"><i class="fas fa-info-circle"></i> About</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav align-items-end ml-auto">
+                <li class="nav-item dropdown ml-auto">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                        Sign in
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <div class="container-fluid">
+                            <form action="/action_page.php">
+                                <div class="form-group">
+                                    <label for="email">Email address:</label>
+                                    <input type="email" class="form-control" id="email" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="pwd">Password:</label>
+                                    <input type="password" class="form-control" id="pwd" />
+                                </div>
+                                <div class="form-group form-check">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" type="checkbox" /> Remember
+                                        me
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block">
+                                    Submit
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+    </nav>
+
+    <div class="bg-white">
+        <div class="container" style="padding-top:5%;padding-bottom:10%">
+            <div class="row"  ng-app="repoInfoApp" ng-controller="repoInfoCtr">
+                <div class="col-md-4">
+                    <h4 >Most recent scan</h4>
+                    <div class="p-2">
+                        <canvas id="repoPieGraph"></canvas>
+                        {{addDonutGraph("repoPieGraph",recentRepoData[0].data)}}
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <h4>Data over a period</h4>
+                    <div class="align-items-center">
+                        <canvas id="repoLineGraph"></canvas>
+                        {{addLineGraph("repoLineGraph",[86,114,106,106,107,111,133,221,783,2478],[1500,1600,1700,1750,1800,1850,1900,1950,1999,2050])}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+<script>
+    var RepoName = window.location.pathname.split('/').pop();
+    var colors = ["#007bff", "#28a745", "#e53935", "#c3e6cb", "#dc3545", "#6c757d"];
+    var repoinfoapp = angular.module("repoInfoApp", []);
+    repoinfoapp.controller("repoInfoCtr", function ($scope, $http) {
+        $http.get("/repodata/" + RepoName + "/" + "recent").then(function (res) {
+            console.log(res.data)
+            $scope.recentRepoData = res.data;
+        }); 
+        $http.get("/repodata/" + RepoName + "/" + "all").then(function (res) {
+            console.log(res.data) 
+            /* $scope.repoInfoData = res.data; */
+        }); 
+        $scope.addDonutGraph = function (elemId, donutdata) {
+            new Chart(document.getElementById(elemId), {
+                type: "doughnut",
+                data: {
+                    datasets: [
+                        {
+                            data: donutdata,
+                            backgroundColor: [
+                                "#007bff",
+                                "#28a745",
+                                "#e53935",
+                                "#c3e6cb",
+                                "#dc3545",
+                                "#6c757d"
+                            ]
+                        }
+                    ],
+
+                    // These labels appear in the legend and in the tooltips when hovering different arcs
+                    labels: ["Blue", "Green", "Red"]
+                },
+                responsive: true,
+                maintainAspectRatio: true,
+                options: {
+                    legend: {
+                        position: 'right'
+                    }
+
+                }
+            });
+        };
+        
+        $scope.addLineGraph = function(elemId,lineData,labelData) {
+            new Chart(document.getElementById(elemId), {
+                type: "line",
+                data: {
+                    labels: labelData,
+                    datasets: [{ 
+                        data: lineData,
+                        label: "Africa",
+                        borderColor: "#3e95cd",
+                        fill: false
+                    }]
+                },
+                responsive: true,
+                maintainAspectRatio: true,
+                options: {
+
+                }
+            });
+        }
+    });
+
+
+</script>
+
+</html>
