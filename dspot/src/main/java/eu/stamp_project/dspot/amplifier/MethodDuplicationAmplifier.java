@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 
-public class TestMethodCallAdder implements Amplifier {
+public class MethodDuplicationAmplifier implements Amplifier {
 
     public Stream<CtMethod<?>> amplify(CtMethod<?> method, int iteration) {
         if (method.getDeclaringType() != null) {
