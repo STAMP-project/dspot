@@ -1,7 +1,5 @@
 # Introduction
-The design for dspot on Kubernetes(K8s) is meant for deploying in parallel with repairnator as the initial goal(Check out this [issue](https://github.com/Spirals-Team/repairnator/issues/813) for more detais), but it can also be deployed completely alone without any side effects as design-wise it is identical to repairnator. 
-
-The idea is given a Travis build id from ActiveMQ dspot-pipeline queue server possiblly submitted from a build scanner like repairnator scanner or manually by a developer, then dspot will first clone the repo and check the top most level pom file of the repo and see if the project support dspot. If it does then we run with the provided configuration in the pom file for dspot, otherwise we will try provide some basic services by autoconfiguring dspot.properties for the repo and run it with some basic amplifications like only generating assertions for the main tests (not the tests in resources). This way we will still be acquiring some data for research or bug detection even though the Git project does not use dspot. Either cases will be submit output files on Mongodb and also commit to a new branch on Github if enough information are provided for in the dspot-pipeline.yaml file before deploying. 
+The idea for this K8s deployment design is given a Travis build id from ActiveMQ dspot-pipeline queue server possiblly submitted from a scanner or manually by a developer, then dspot will first clone the repo and check the top most level pom file of the repo and see if the project support dspot. If it does then we run with the provided configuration in the pom file for dspot, otherwise we will try provide some basic services by autoconfiguring dspot.properties for the repo and run it with some basic amplifications like only generating assertions for the main tests (not the tests in resources). This way we will still be acquiring some data for research or bug detection even though the Git project does not use dspot. Either cases will be submit output files on Mongodb and also commit to a new branch on Github if enough information are provided for in the dspot-pipeline.yaml file before deploying. 
 
 Other than submit a Travis build id directly to the dspot pipeline, a repo slug such as "Tailp/travisplay" can also be submitted to the scanner instead. The scanner will scan the branches on the repo and submit the most recent build id only from those branches with "passed" travis status to the dspot-pipeline queue for amplication and ofcource the scanner will first check if the id belong a java project repo otherwise it will be ignored. 
 
@@ -96,7 +94,7 @@ Now in the "Dspot-yamlfile" folder, we filled in the name of the pushed image in
 ...
 	containers:
       - name: dspot-pipeline
-        image: YOUR_DOCKERHUB_NAME/repairnator-scanner:tagname
+        image: YOUR_DOCKERHUB_NAME/dspot-scanner:tagname
 ...
 ```
 
@@ -180,10 +178,10 @@ The idea with this monitor is that it first check any incoming github webhook if
 Then we need to create a database called "githook" (note that it must be named like this according to the script if you don't plan to change it) and insert some information into a collection called "gitSecrets". These are done by these steps below.
 ```
   use githook
-  db.gitSecrets.insert({"slugName" : "Spirals-Team/repairnator", "gitSecret" : "123456789"})
+  db.gitSecrets.insert({"slugName" : "Stamp/Dspot", "gitSecret" : "123456789"})
 ```
 
-Next is deploying the repo monitor itself on K8s. First you need to go to the "repomonitor-dockerimage" to build and push an image to docker just like how we did with the scanner. Then there is also a yaml file in "repairnator-deployment-yamlfiles" folder for deploying and also here we need to replace in the "repo-monitor.yaml" file the name of your image you tagged before when pushing to docker (format DOCKER_USER_NAME/IMAGE_NAME). Then apply the yaml
+Next is deploying the repo monitor itself on K8s. First you need to go to the "repomonitor-dockerimage" to build and push an image to docker just like how we did with the scanner. Then there is also a yaml file in "Dspot-yamlfiles" folder for deploying and also here we need to replace in the "repo-monitor.yaml" file the name of your image you tagged before when pushing to docker (format DOCKER_USER_NAME/IMAGE_NAME). Then apply the yaml
 ```
   kubectl create -f repo-monitor.yaml
 ``` 
@@ -208,13 +206,13 @@ You should be able to see something like
 ```
 Listening on port 30050!
 Authorized
-Sending scan request for slug Spirals-Team/repairnator
+Sending scan request for slug Stamp/Dspot
 ```
 Same logic apply for any repo want to be monitored. First register the slug in database with a secret then add a webhook like mentioned before then we are done. 
 
 ## Delete deployment
-Provided with every yaml files mentioned in this readme (all of them are in "repairnator-deployment-yamlfile" folder), call 
+Provided with every yaml files mentioned in this readme 
 ```
   kubectl delete -f "yamlfile" 
 ```
-To remove each of them. For instance kubectl delete -f repairnator-scanner.yaml to remove the scanners. 
+To remove each of them. For instance kubectl delete -f dspot-scanner.yaml to remove the scanners. 
