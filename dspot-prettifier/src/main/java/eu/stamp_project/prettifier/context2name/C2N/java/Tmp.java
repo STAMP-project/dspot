@@ -1,4 +1,4 @@
-package eu.stamp_project.prettifier.context2name.draft;
+package eu.stamp_project.prettifier.context2name.C2N.java;
 
 import com.github.javaparser.*;
 import com.github.javaparser.ast.CompilationUnit;

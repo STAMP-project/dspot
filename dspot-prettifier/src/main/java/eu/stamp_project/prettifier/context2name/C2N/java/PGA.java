@@ -1,4 +1,4 @@
-package eu.stamp_project.prettifier.context2name.draft;
+package eu.stamp_project.prettifier.context2name.C2N.java;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +86,7 @@ public class PGA {
                 }
             }
         } catch (Exception e) {
-            LOGGER.error(e.toString());
+            e.printStackTrace();
         }
     }
 
@@ -161,7 +161,7 @@ public class PGA {
                 bw.flush();
             }
         } catch (Exception e) {
-            LOGGER.error(e.toString());
+            e.printStackTrace();
         }
     }
 

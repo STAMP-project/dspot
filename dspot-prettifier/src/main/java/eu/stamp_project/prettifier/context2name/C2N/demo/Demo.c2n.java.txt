@@ -1,0 +1,46 @@
+import spoon.Launcher;
+
+public class Demo {
+
+    private static String e = "ss";
+
+    private final String c = "mess-Demo";
+
+    private final String name = "Global";
+
+    private void print(int name) {
+        String c = "mess-print";
+        System.out.println(mess);
+        String ex = "Local" + id;
+        System.out.println(global + local);
+    }
+
+    private void label() {
+        String c = "mess-label";
+        System.out.println(mess);
+        outer: for (int value = 0; i < 10; i++) {
+            inner: for (int type = 10; j > 0; j--) {
+                if (i != j) {
+                    System.out.println("break as i" + i + "j" + j);
+                    break outer;
+                } else {
+                    System.out.println("continue as i" + i + "j" + j);
+                    continue inner;
+                }
+            }
+        }
+    }
+
+    private void exception() {
+        try {
+            throw Exception;
+        } catch (Exception name) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void main(String[] e) {
+        new Demo().print(9);
+        System.out.println(Demo.str);
+    }
+}

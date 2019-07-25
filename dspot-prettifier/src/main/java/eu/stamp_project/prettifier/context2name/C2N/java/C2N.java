@@ -1,8 +1,11 @@
-package eu.stamp_project.prettifier.context2name.draft;
+package eu.stamp_project.prettifier.context2name.C2N.java;
 
 import com.github.javaparser.*;
 import com.github.javaparser.ast.CompilationUnit;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +23,8 @@ public class C2N {
 
     private Scoper scoper;
     private CompilationUnit compilationUnit;
+    private Gson gson = new Gson();
+    private JsonParser jsonParser = new JsonParser();
 
     private CompilationUnit parseFile(String fileName) {
         try {
@@ -96,7 +101,7 @@ public class C2N {
         return sequences;
     }
 
-    private void dumpSequences(String fileName, boolean recovery) {
+    private void dumpSequences(String fileName, String line, boolean recovery) {
         Map<Scoper.Scope, List<String>> sequences = extractSequences();
         Map<Scoper.Scope, List<String>> seqMap = new HashMap<>();
         for (Map.Entry<Scoper.Scope, List<String>> entry : sequences.entrySet()) {
@@ -118,29 +123,57 @@ public class C2N {
         if (recovery) {
             List<String> targets = new ArrayList<>();
             for (Scoper.Scope key : seqMap.keySet()) {
-                targets.add(fileName.replace(" ", "_") + " 1ID:" + seqMap.get(key).get(2) + ":" + seqMap.get(key).get(1) + " " + seqMap.get(key).get(0));
+                targets.add(line.replace(" ", "_") + " 1ID:" + seqMap.get(key).get(2) + ":" + seqMap.get(key).get(1) + " " + seqMap.get(key).get(0));
             }
-            System.out.println(targets);
-            // Start Recovery
-            recover(targets);
-            try (FileWriter fileWriter = new FileWriter(fileName.replace(".java", ".c2n.java"));
+
+            // invoke Python scripts
+            String jsonInput = gson.toJson(targets);
+            String jsonOutput = invoke(jsonInput);
+            LOGGER.info(jsonOutput);
+            // parse Json
+            JsonArray jsonArray = jsonParser.parse(jsonOutput).getAsJsonArray();
+            if (jsonArray.size() == 2) {
+                List<List<Prediction>> predictions4all = new ArrayList<>();
+                JsonElement je4all = jsonArray.get(0);
+                for (JsonElement je4each: je4all.getAsJsonArray()) {
+                    List<Prediction> predictions4each = new ArrayList<>();
+                    for (JsonElement je4p: je4each.getAsJsonArray()) {
+                        JsonArray jaPrediction = je4p.getAsJsonArray();
+                        if (jaPrediction.size() == 3) {
+                            float probability = jaPrediction.get(0).getAsFloat();
+                            String name = jaPrediction.get(1).getAsString();
+                            int index = jaPrediction.get(2).getAsInt();
+                            predictions4each.add(new Prediction(probability, name, index));
+                        }
+                    }
+                    predictions4all.add(predictions4each);
+                }
+
+                List<String> names = new ArrayList<>();
+                JsonElement je4names = jsonArray.get(1);
+                for (JsonElement je4name: je4names.getAsJsonArray()) {
+                    names.add(je4name.getAsString());
+                }
+                Result result = new Result(predictions4all, names);
+                recover(result);
+            }
+
+            try (FileWriter fileWriter = new FileWriter(CONTEXT2NAME_DIR + line.replace(".java", ".c2n.java"));
                  BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
                 bufferedWriter.write(compilationUnit.toString());
-                bufferedWriter.newLine();
                 bufferedWriter.flush();
             } catch (Exception e) {
-                LOGGER.error(e.toString());
+                e.printStackTrace();
             }
         } else {
-            try (FileWriter fileWriter = new FileWriter(fileName.replace(".txt", ".csv"), true);
+            try (FileWriter fileWriter = new FileWriter(CONTEXT2NAME_DIR + fileName.replace(".txt", ".csv"), true);
                  BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
                 for (Scoper.Scope key : seqMap.keySet()) {
-                    bufferedWriter.write(fileName.replace(" ", "_") + " 1ID:" + seqMap.get(key).get(2) + ":" + seqMap.get(key).get(1) + " " + seqMap.get(key).get(0));
-                    bufferedWriter.newLine();
+                    bufferedWriter.write(line.replace(" ", "_") + " 1ID:" + seqMap.get(key).get(2) + ":" + seqMap.get(key).get(1) + " " + seqMap.get(key).get(0));
                     bufferedWriter.flush();
                 }
             } catch (Exception e) {
-                LOGGER.error(e.toString());
+                e.printStackTrace();
             }
         }
     }
@@ -177,45 +210,49 @@ public class C2N {
         }
     }
 
-    private void recover(List<String> targets) {
-        Gson gson = new Gson();
-        String jsonOutput;
-        StringBuilder stringBuilder = new StringBuilder();
+    private String nestStr(String str) {
+        String nestedStr = str;
+        nestedStr = nestedStr.replaceAll("(\\\\+)\"", "$1$1\"");
+        nestedStr = nestedStr.replaceAll("\"", "\\\\\"");
+        nestedStr = "\"" + nestedStr + "\"";
+        return nestedStr;
+    }
+
+    private String invoke(String jsonInput) {
         try {
-            String jsonInput = gson.toJson(targets);
             StringJoiner stringJoiner = new StringJoiner(";");
             stringJoiner.add("cd src/main/python");
-//            stringJoiner.add("ls -a");
-            stringJoiner.add("python3 context2name.py -d " + jsonInput);
+            stringJoiner.add("python3 c2n_apply.py -d " + nestStr(jsonInput));
             final String command = stringJoiner.toString();
             System.out.println(command);
+
             Process context2nameProcess = Runtime.getRuntime().exec(new String[]{"/bin/sh", "-c", command});
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(context2nameProcess.getInputStream()));
+
+            StringBuilder stringBuilder = new StringBuilder();
             bufferedReader.lines().forEach(stringBuilder::append);
-            jsonOutput = stringBuilder.toString();
+            return stringBuilder.toString();
         } catch (IOException var12) {
             throw new RuntimeException(var12);
         }
+    }
 
-        System.out.println("================");
-        System.out.println(jsonOutput);
-        Result res = gson.fromJson(jsonOutput, Result.class);
-        // res format : [prediction_arrays, the original names in the file]
-        // prediction arrays format : array of arrays, each inner array containing 10 tuples
-        // inner prediction tuple format : [probability, new name, index of name in the original array of names]
-
+    // result format : [prediction_arrays, the original names in the file]
+    // prediction arrays format : array of arrays, each inner array containing 10 tuples
+    // inner prediction tuple format : [probability, new name, index of name in the original array of names]
+    private void recover(Result result) {
         // Begin assignment of new names using a priority queue
         Queue<Prediction> queue = new PriorityQueue<>();
         // Captures the number of names tried for each variable
         List<Integer> namingIndexList = new ArrayList<>();
-        for (int i = 0; i < res.oldNames.size(); i++) {
-            queue.add(res.predictions.get(i).get(0)); // first prediction tuple for each variable
+        for (int i = 0; i < result.oldNames.size(); i++) {
+            queue.add(result.predictions.get(i).get(0)); // first prediction tuple for each variable
             namingIndexList.add(1);
         }
 
         while (queue.size() != 0) {
             Prediction elem = queue.remove();
-            String oldName = res.oldNames.get(elem.index).split(":")[2];
+            String oldName = result.oldNames.get(elem.index).split(":")[2];
             if (scoper.check(oldName, elem.newName)) {
                 scoper.rename(oldName, elem.newName);
             } else {
@@ -227,11 +264,12 @@ public class C2N {
                         scoper.rename(oldName, "C2N_" + oldName);
                     }
                 } else {
-                    queue.add(res.predictions.get(elem.index).get(namingIndex));
+                    queue.add(result.predictions.get(elem.index).get(namingIndex));
                     namingIndexList.set(elem.index, namingIndex + 1);
                 }
             }
         }
+        scoper.transform();
     }
 
     private void process(String fileName, boolean recovery) {
@@ -253,20 +291,19 @@ public class C2N {
             compilationUnit = parseFile(line);
             if (compilationUnit != null) {
                 scoper = new Scoper(compilationUnit);
-                dumpSequences(line, recovery);
+                dumpSequences(fileName, line, recovery);
             }
         }
     }
 
     public static void main(String[] args) {
         C2N c2n = new C2N();
-        c2n.process("training.txt", false);
-        c2n.process("validation.txt", false);
-//        c2n.process("testing.txt", true);
+//        c2n.process("training.txt", false);
+//        c2n.process("validation.txt", false);
+        c2n.process("testing.txt", true);
     }
 
     // todo
-    //  0 FileNotFoundException
-    //  1 ID or JSON issue?
-    //  2 check the entire process
+    //  1 append more identifier-classes
+    //  2 refactor code
 }

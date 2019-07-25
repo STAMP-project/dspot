@@ -1,11 +1,10 @@
-package eu.stamp_project.prettifier.context2name.draft;
+package eu.stamp_project.prettifier.context2name.C2N.java;
 
 import com.github.javaparser.JavaToken;
 import com.github.javaparser.Range;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.*;
-import com.github.javaparser.ast.stmt.LabeledStmt;
 
 import static com.github.javaparser.GeneratedJavaParserConstants.IDENTIFIER;
 import static com.github.javaparser.JavaToken.Category.*;
@@ -56,9 +55,9 @@ public class Scoper {
         compilationUnit.findAll(Parameter.class)
             .forEach(node -> listIdentifierNode.addAll(mapName2NodeList.get(node.getName().toString())));
         // MemberExpression/Property in 'Identifier'
-//        compilationUnit.findAll(VariableDeclarator.class)
-//            .forEach(node -> listIdentifierNode.addAll(mapName2NodeList.get(node.getName().toString())));
-//        // Label in 'Identifier'
+        compilationUnit.findAll(VariableDeclarator.class)
+            .forEach(node -> listIdentifierNode.addAll(mapName2NodeList.get(node.getName().toString())));
+        // Label in 'Identifier'
 //        compilationUnit.findAll(LabeledStmt.class)
 //            .forEach(node -> listIdentifierNode.addAll(mapName2NodeList.get(node.getLabel().toString())));
 
@@ -74,7 +73,7 @@ public class Scoper {
             }
         }
         for (String name : names) {
-            // we always care about the first node
+            // we only care about the first node
             Node firstNode = mapName2NodeList.get(name).get(0);
             Set<String> keyNames = new HashSet<>();
             while (firstNode.getParentNode().isPresent()) {
@@ -93,13 +92,13 @@ public class Scoper {
                         }
                     })
                 );
-                parentNode.findAll(LabeledStmt.class).forEach(childNode ->
-                    childNode.getParentNode().ifPresent(anotherParentNode -> {
-                        if (parentNode == anotherParentNode) {
-                            keyNames.add(childNode.getLabel().toString());
-                        }
-                    })
-                );
+//                parentNode.findAll(LabeledStmt.class).forEach(childNode ->
+//                    childNode.getParentNode().ifPresent(anotherParentNode -> {
+//                        if (parentNode == anotherParentNode) {
+//                            keyNames.add(childNode.getLabel().toString());
+//                        }
+//                    })
+//                );
                 firstNode = parentNode;
             }
             checkingMap.put(name, keyNames);
@@ -151,6 +150,30 @@ public class Scoper {
             }
         );
         renamingMap.put(oldName, newName);
+    }
+
+    public void transform() {
+        // Parameter in 'Identifier'
+        compilationUnit.findAll(Parameter.class)
+            .forEach(node -> {
+                String name = node.getName().toString();
+                String renaming = renamingMap.get(name);
+                node.setName(renaming);
+            });
+        // MemberExpression/Property in 'Identifier'
+        compilationUnit.findAll(VariableDeclarator.class)
+            .forEach(node -> {
+                String name = node.getName().toString();
+                String renaming = renamingMap.get(name);
+                node.setName(renaming);
+            });
+        // Label in 'Identifier'
+//        compilationUnit.findAll(LabeledStmt.class)
+//            .forEach(node -> {
+//                String name = node.getLabel().toString();
+//                String renaming = renamingMap.get(name);
+//                node.setLabel(new SimpleName(renaming));
+//            });
     }
 
     public class Scope {
