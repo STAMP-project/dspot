@@ -41,113 +41,166 @@ public class AssertionSyntaxBuilder {
             value instanceof Double || value.getClass() == double.class ||
                     value instanceof Float || value.getClass() == float.class;
 
+    /**
+     *
+     * @param testMethod
+     * @param notDeterministValues
+     * @param observations
+     * @param delta
+     * @return
+     */
     public static List<CtStatement> buildAssert(CtMethod<?> testMethod,
                                          Set<String> notDeterministValues,
                                          Map<String, Object> observations,
                                          Double delta) {
         final Factory factory = InputConfiguration.get().getFactory();
-        final Translator translator = new Translator(factory);
         final List<CtStatement> invocations = new ArrayList<>();
         for (String observationKey : observations.keySet()) {
             if (!notDeterministValues.contains(observationKey)) {
                 Object value = observations.get(observationKey);
-                final CtExpression variableRead;
-                if(observationKey.contains("[")){
-                    variableRead = factory.createCodeSnippetExpression(observationKey);
-                } else {
-                    variableRead = translator.translate(observationKey);
-                }
+                final CtExpression variableRead = translate(observationKey,factory);
                 if (value == null) {
-                    final CtInvocation<?> assertNull = TestFramework.get()
-                            .buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_NULL, Collections.singletonList(variableRead));
-                    invocations.add(assertNull);
-                    variableRead.setType(factory.Type().NULL_TYPE);
+                    nullValue(invocations,testMethod,variableRead,factory);
                 } else {
-                    /* Boolean */
-                    if (value instanceof Boolean) {
-                        invocations.add(
-                                TestFramework.get()
-                                        .buildInvocationToAssertion(testMethod,
-                                                (Boolean) value ? AssertEnum.ASSERT_TRUE : AssertEnum.ASSERT_FALSE,
-                                                Collections.singletonList(variableRead)
-                                        )
-                        );
-                        /* Primitive collection */
-                    } else if (TypeUtils.isPrimitiveCollection(value)) {
-                        Collection valueCollection = (Collection) value;
-                        if (valueCollection.isEmpty()) {
-                            final CtInvocation<?> isEmpty = factory.createInvocation(variableRead,
-                                    factory.Type().get(Collection.class).getMethodsByName("isEmpty").get(0).getReference()
-                            );
-                            invocations.add(
-                                    TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_TRUE,
-                                            Collections.singletonList(isEmpty)
-                                    )
-                            );
-                        } else {
-                            invocations.addAll(buildSnippetAssertCollection(factory, testMethod, observationKey, (Collection) value));
-                        }
 
-                        // Arrays
+                    // Boolean
+                    if (value instanceof Boolean) {
+                        addBoolean(invocations,testMethod,value,variableRead);
+                    } else if (TypeUtils.isPrimitiveCollection(value)) {
+
+                        // Primitive collection
+                        addPrimitiveCollection(invocations,testMethod,value,variableRead,factory,observationKey);
                     } else if (TypeUtils.isArray(value)) {
-                        if(AggregateTypeBuilder.isPrimitiveArray(value)){
-                            CtExpression expectedValue = factory.createCodeSnippetExpression(AggregateTypeBuilder.getNewArrayExpression(value));
-                            List<CtExpression> list;
-                            if(AggregateTypeBuilder.getArrayComponentType(value).equals("float")){
-                                list = Arrays.asList(expectedValue,variableRead,factory.createLiteral(0.1F));
-                            } else if(AggregateTypeBuilder.getArrayComponentType(value).equals("double")){
-                                list = Arrays.asList(expectedValue,variableRead,factory.createLiteral(0.1));
-                            } else {
-                                list = Arrays.asList(expectedValue,variableRead);
-                            }
-                            invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod,
-                                    AssertEnum.ASSERT_ARRAY_EQUALS, list));
-                        }
+
+                        // Array
+                        addArray(invocations,testMethod,value,variableRead,factory);
                     } else if (TypeUtils.isPrimitiveMap(value)) {//TODO
-                        Map valueCollection = (Map) value;
-                        if (valueCollection.isEmpty()) {
-                            final CtInvocation<?> isEmpty = factory.createInvocation(variableRead,
-                                    factory.Type().get(Map.class).getMethodsByName("isEmpty").get(0).getReference()
-                            );
-                            invocations.add(TestFramework.get().buildInvocationToAssertion(
-                                    testMethod,
-                                    AssertEnum.ASSERT_TRUE,
-                                    Collections.singletonList(isEmpty)
-                                    )
-                            );
-                        } else {
-                            invocations.addAll(buildSnippetAssertMap(factory, testMethod, observationKey, (Map) value));
-                        }
+
+                        // Primitive map
+                        addPrimitiveMap(invocations,testMethod,value,variableRead,factory,observationKey);
                     } else {
-                        /* Other types */
-                        addTypeCastIfNeeded(variableRead, value);
-                        if (isFloating.test(value)) {
-                            invocations.add(
-                                    TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_EQUALS,
-                                            Arrays.asList(
-                                                    printPrimitiveString(factory, value),
-                                                    variableRead,
-                                                    factory.createLiteral(delta)
-                                            )));
-                        } else {
-                            if (value instanceof String) {
-                                if (AssertionGeneratorUtils.canGenerateAnAssertionFor((String) value)) {
-                                    invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_EQUALS,
-                                            Arrays.asList(printPrimitiveString(factory, value),
-                                                    variableRead)));
-                                }
-                            } else {
-                                invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_EQUALS,
-                                        Arrays.asList(printPrimitiveString(factory, value),
-                                                variableRead)));
-                            }
-                        }
+
+                        // Other types
+                        addOtherType(invocations,testMethod,value,variableRead,factory,delta);
                     }
                     variableRead.setType(factory.Type().createReference(value.getClass()));
                 }
             }
         }
         return invocations;
+    }
+
+    private static CtExpression translate(String observationKey,Factory factory) {
+        final Translator translator = new Translator(factory);
+        if (observationKey.contains("[")) {
+            return factory.createCodeSnippetExpression(observationKey);
+        } else {
+            return translator.translate(observationKey);
+        }
+    }
+
+    private static void nullValue(List<CtStatement> invocations,CtMethod<?> testMethod,
+                                  CtExpression variableRead,Factory factory) {
+        final CtInvocation<?> assertNull = TestFramework.get()
+                .buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_NULL, Collections.singletonList(variableRead));
+        invocations.add(assertNull);
+        variableRead.setType(factory.Type().NULL_TYPE);
+    }
+
+    private static void addBoolean(List<CtStatement> invocations,CtMethod<?> testMethod,
+                                   Object value,CtExpression variableRead){
+        invocations.add(
+                TestFramework.get()
+                        .buildInvocationToAssertion(testMethod,
+                                (Boolean) value ? AssertEnum.ASSERT_TRUE : AssertEnum.ASSERT_FALSE,
+                                Collections.singletonList(variableRead)
+                        )
+        );
+    }
+
+    private static void addPrimitiveCollection(List<CtStatement> invocations,CtMethod<?> testMethod,
+                                   Object value,CtExpression variableRead,Factory factory,String observationKey) {
+        Collection valueCollection = (Collection) value;
+        if (valueCollection.isEmpty()) {
+            final CtInvocation<?> isEmpty = factory.createInvocation(variableRead,
+                    factory.Type().get(Collection.class).getMethodsByName("isEmpty").get(0).getReference()
+            );
+            invocations.add(
+                    TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_TRUE,
+                            Collections.singletonList(isEmpty)
+                    )
+            );
+        } else {
+            invocations.addAll(buildSnippetAssertCollection(factory, testMethod, observationKey, (Collection) value));
+        }
+    }
+
+    private static void addArray(List<CtStatement> invocations,CtMethod<?> testMethod,
+                                               Object value,CtExpression variableRead,Factory factory) {
+        if (AggregateTypeBuilder.isPrimitiveArray(value)) {
+            CtExpression expectedValue = factory.createCodeSnippetExpression(AggregateTypeBuilder.getNewArrayExpression(value));
+            List<CtExpression> list;
+            if (AggregateTypeBuilder.getArrayComponentType(value).equals("float")) {
+                list = Arrays.asList(expectedValue, variableRead, factory.createLiteral(0.1F));
+            } else if (AggregateTypeBuilder.getArrayComponentType(value).equals("double")) {
+                list = Arrays.asList(expectedValue, variableRead, factory.createLiteral(0.1));
+            } else {
+                list = Arrays.asList(expectedValue, variableRead);
+            }
+            invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod,
+                    AssertEnum.ASSERT_ARRAY_EQUALS, list));
+        }
+    }
+
+    private static void addPrimitiveMap(List<CtStatement> invocations,CtMethod<?> testMethod,
+                                 Object value,CtExpression variableRead,Factory factory,String observationKey) {
+        Map valueCollection = (Map) value;
+        if (valueCollection.isEmpty()) {
+            final CtInvocation<?> isEmpty = factory.createInvocation(variableRead,
+                    factory.Type().get(Map.class).getMethodsByName("isEmpty").get(0).getReference()
+            );
+            invocations.add(TestFramework.get().buildInvocationToAssertion(
+                    testMethod,
+                    AssertEnum.ASSERT_TRUE,
+                    Collections.singletonList(isEmpty)
+                    )
+            );
+        } else {
+            invocations.addAll(buildSnippetAssertMap(factory, testMethod, observationKey, (Map) value));
+        }
+    }
+
+    private static void addOtherType(List<CtStatement> invocations,CtMethod<?> testMethod,
+                                        Object value,CtExpression variableRead,Factory factory,Double delta) {
+        addTypeCastIfNeeded(variableRead, value);
+        if (isFloating.test(value)) {
+            invocations.add(
+                    TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_EQUALS,
+                            Arrays.asList(
+                                    printPrimitiveString(factory, value),
+                                    variableRead,
+                                    factory.createLiteral(delta)
+                            )));
+        } else {
+            if (value instanceof String) {
+
+                // String
+                addString(invocations,testMethod,value,variableRead,factory);
+            } else {
+                invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_EQUALS,
+                        Arrays.asList(printPrimitiveString(factory, value),
+                                variableRead)));
+            }
+        }
+    }
+
+    private static void addString(List<CtStatement> invocations,CtMethod<?> testMethod,
+                                     Object value,CtExpression variableRead,Factory factory) {
+        if (AssertionGeneratorUtils.canGenerateAnAssertionFor((String) value)) {
+            invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_EQUALS,
+                    Arrays.asList(printPrimitiveString(factory, value),
+                            variableRead)));
+        }
     }
 
     private static void addTypeCastIfNeeded(CtExpression<?> variableRead, Object value) {
