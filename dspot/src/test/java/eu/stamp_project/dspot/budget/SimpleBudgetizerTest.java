@@ -3,12 +3,11 @@ package eu.stamp_project.dspot.budget;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.amplifier.IterationDecoratorAmplifier;
-import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
+import eu.stamp_project.dspot.amplifier.MethodAdderOnExistingObjectsAmplifier;
 import eu.stamp_project.dspot.amplifier.NumberLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.ReturnValueAmplifier;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +34,7 @@ public class SimpleBudgetizerTest extends AbstractTest {
         InputConfiguration.get().setAmplifiers(
                 Arrays.asList(
                         new IterationDecoratorAmplifier(new ReturnValueAmplifier(), 3),
-                        new IterationDecoratorAmplifier(new MethodGeneratorAmplifier(), 2),
+                        new IterationDecoratorAmplifier(new MethodAdderOnExistingObjectsAmplifier(), 2),
                         new NumberLiteralAmplifier()
                 )
         );

@@ -299,7 +299,7 @@ public class MainTest {
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + AmplificationHelper.PATH_SEPARATOR + "FastLiteralAmplifier" + AmplificationHelper.PATH_SEPARATOR + "MethodGeneratorAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
+                "--amplifiers", "MethodAdd" + AmplificationHelper.PATH_SEPARATOR + "FastLiteralAmplifier" + AmplificationHelper.PATH_SEPARATOR + "MethodAdderOnExistingObjectsAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
                 "--iteration", "1",
                 "--random-seed", "72",
                 "--test", "example.TestSuiteExample",
@@ -343,7 +343,7 @@ public class MainTest {
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodGeneratorAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
+                "--amplifiers", "MethodAdderOnExistingObjectsAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
                 "--iteration", "1",
                 "--random-seed", "72",
                 "--test", "example.TestSuiteExample",
@@ -363,7 +363,7 @@ public class MainTest {
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodGeneratorAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
+                "--amplifiers", "MethodAdderOnExistingObjectsAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
                 "--iteration", "1",
                 "--random-seed", "72",
                 "--test", "example.TestSuiteExample",

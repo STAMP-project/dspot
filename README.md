@@ -179,22 +179,25 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         properties) of the target project (e.g. ./foo.properties).
 
   [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ]
-        [optional] specify the list of amplifiers to use. By default, DSpot does
-        not use any amplifiers (None) and applies only assertion amplification.
-        Possible values are: 
-        		 - MethodAdd
-        		 - MethodRemove
-        		 - FastLiteralAmplifier
-        		 - MethodGeneratorAmplifier
-        		 - ReturnValueAmplifier
-        		 - StringLiteralAmplifier
-        		 - NumberLiteralAmplifier
-        		 - BooleanLiteralAmplifier
-        		 - CharLiteralAmplifier
-        		 - AllLiteralAmplifiers
-        		 - NullifierAmplifier
-        		 - None
-        (default: None)
+          [optional] specify the list of amplifiers to use. By default, DSpot does
+          not use any amplifiers (None) and applies only assertion amplification.
+          Possible values are: 
+          		 - MethodAdd
+          		 - MethodDuplicationAmplifier
+          		 - MethodRemove
+          		 - FastLiteralAmplifier
+          		 - TestDataMutator
+          		 - MethodGeneratorAmplifier
+          		 - MethodAdderOnExistingObjectsAmplifier
+          		 - ReturnValueAmplifier
+          		 - StringLiteralAmplifier
+          		 - NumberLiteralAmplifier
+          		 - BooleanLiteralAmplifier
+          		 - CharLiteralAmplifier
+          		 - AllLiteralAmplifiers
+          		 - NullifierAmplifier
+          		 - None
+          (default: None)
 
   [(-i|--iteration) <iteration>]
         [optional] specify the number of amplification iterations. A larger
