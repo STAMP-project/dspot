@@ -1,5 +1,7 @@
 package eu.stamp_project.dspot.selector;
 
+import org.bson.Document;
+import eu.stamp_project.mongodb.MongodbManager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
@@ -185,7 +187,9 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                 .append(this.selectedAmplifiedTest.size())
                 .append(" amplified tests.")
                 .append(AmplificationHelper.LINE_SEPARATOR);
-
+        /*Sending info to Mongodb, format original/newkills/percentage*/
+        Document infoDoc = new Document();
+        infoDoc.append("initialCoverage","" + this.initialCoverage.getInstructionsCovered());
         // compute the new coverage obtained by the amplification
         final CtType<?> clone = this.currentClassTestToBeAmplified.clone();
         this.currentClassTestToBeAmplified.getPackage().addType(clone);
@@ -222,6 +226,13 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                     .append("%")
                     .append(AmplificationHelper.LINE_SEPARATOR);
             lastReport = new TestSelectorElementReportImpl(report.toString(), jsonReport(coverageResults));
+            /*Sending data to Mongodb*/
+            String s = this.currentClassTestToBeAmplified.getQualifiedName();
+            infoDoc.append("ampCoverage","" + coverageResults.getInstructionsCovered());
+            infoDoc.append("totalCoverage","" + coverageResults.getInstructionsTotal());
+
+            MongodbManager.getInstance().jacocoSelectorDocs.add(new Document(s.replace(".","/D/"),infoDoc));
+
             return lastReport;
         } catch (TimeoutException e) {
             throw new RuntimeException(e);
