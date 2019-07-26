@@ -5,7 +5,7 @@ import eu.stamp_project.compare.Observation;
 import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.dspot.assertgenerator.components.TestMethodReconstructor;
 import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.AssertionSyntaxBuilder;
-import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.observer.ObserverUtils;
+import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.observer.TestWithLogGenerator;
 import eu.stamp_project.dspot.assertgenerator.components.utils.AssertionGeneratorUtils;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.listener.TestResult;
@@ -69,7 +69,7 @@ public class MethodAssertGeneratorWithTime extends TestMethodReconstructor {
      * Adds new assertions in multiple tests.
      * <p>
      * <p>Instruments the tests to have observation points.
-     * Details in {@link ObserverUtils#createTestWithLog(CtMethod, String, List)}.
+     * Details in {@link TestWithLogGenerator#createTestWithLog(CtMethod, String, List)}.
      * <p>
      * <p>Details of the assertion generation in {@link #buildTestWithAssert(CtMethod, Map)}.
      *
@@ -86,7 +86,7 @@ public class MethodAssertGeneratorWithTime extends TestMethodReconstructor {
         final List<CtMethod<?>> testCasesWithLogs = testCases.stream()
                 .map(ctMethod -> {
                             DSpotUtils.printProgress(testCases.indexOf(ctMethod), testCases.size());
-                            return ObserverUtils.createTestWithLog(
+                            return TestWithLogGenerator.createTestWithLog(
                                     ctMethod,
                                     this.originalClass.getPackage().getQualifiedName(),
                                     this.variableReadsAsserted.get(ctMethod)
