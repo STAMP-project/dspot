@@ -6,7 +6,7 @@ import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.dspot.assertgenerator.components.TestMethodReconstructor;
 import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.AssertionSyntaxBuilder;
 import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.observer.TestWithLogGenerator;
-import eu.stamp_project.dspot.assertgenerator.components.utils.AssertionGeneratorUtils;
+import eu.stamp_project.dspot.assertgenerator.utils.AssertionGeneratorUtils;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.program.InputConfiguration;

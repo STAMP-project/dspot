@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.observer.components;
 
 import eu.stamp_project.compare.ObjectLog;
-import eu.stamp_project.dspot.assertgenerator.components.utils.AssertionGeneratorUtils;
+import eu.stamp_project.dspot.assertgenerator.utils.AssertionGeneratorUtils;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;

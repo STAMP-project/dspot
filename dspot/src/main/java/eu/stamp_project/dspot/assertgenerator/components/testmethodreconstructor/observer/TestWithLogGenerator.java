@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructo
 
 import eu.stamp_project.compare.MethodsHandler;
 import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.observer.components.LogBuilder;
-import eu.stamp_project.dspot.assertgenerator.components.utils.AssertionGeneratorUtils;
+import eu.stamp_project.dspot.assertgenerator.utils.AssertionGeneratorUtils;
 import eu.stamp_project.utils.CloneHelper;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
