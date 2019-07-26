@@ -20,7 +20,7 @@ import java.util.stream.Stream;
  * on 19/07/18
  */
 @SuppressWarnings("unchecked")
-public class MethodGeneratorAmplifier implements Amplifier {
+public class MethodAdderOnExistingObjectsAmplifier implements Amplifier {
 
     @Override
     public Stream<CtMethod<?>> amplify(CtMethod<?> testMethod, int iteration) {
