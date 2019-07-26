@@ -7,6 +7,7 @@ import com.martiansoftware.jsap.JSAPException;
 import com.martiansoftware.jsap.JSAPResult;
 import com.martiansoftware.jsap.Parameter;
 import com.martiansoftware.jsap.Switch;
+import eu.stamp_project.mongodb.MongodbManager;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -84,6 +85,11 @@ public class JSAPOptions {
         // Anyway, the verification in DSpot is not yet too late nor deep in the amplification's process.
         final List<String> test = Arrays.asList(jsapConfig.getStringArray("test"));
         final List<String> testCases = Arrays.asList(jsapConfig.getStringArray("test-cases"));
+        final String mongoUrl = jsapConfig.getString("mongo-url");
+        final String mongoDbname = jsapConfig.getString("mongo-dbname");
+        final String mongoColname = jsapConfig.getString("mongo-colname");
+        final String repoSlug = jsapConfig.getString("repo-slug");
+
 
         Configuration.configure(
                 pathToProperties,
@@ -115,6 +121,16 @@ public class JSAPOptions {
                 testCases,
                 fullClasspath
         );
+
+        // Sending options to mongodb to record the properties of this run
+        MongodbManager mongodbManager = MongodbManager.getInstance();
+        mongodbManager.initMongodbManager(mongoUrl,mongoDbname,mongoColname,repoSlug);
+        mongodbManager.argsDoc.append("amplifiers",Arrays.toString(jsapConfig.getStringArray("amplifiers")));
+        mongodbManager.argsDoc.append("test-criterion",testCriterion);
+        mongodbManager.argsDoc.append("iteration",Integer.toString(iteration));
+        mongodbManager.argsDoc.append("gregor","" + gregor);
+        mongodbManager.argsDoc.append("descartes","" + descartes);
+        mongodbManager.argsDoc.append("executeTestParallelWithNumberProcessors",Integer.toString(executeTestParallelWithNumberProcessors));
     }
 
     private static String helpForEnums(Class<?> enumClass) {
@@ -343,6 +359,39 @@ public class JSAPOptions {
         fullClasspath.setHelp("[optional] specify the classpath of the project. If this option is used, DSpot won't use an AutomaticBuilder (e.g. Maven) to clean, compile and get the classpath of the project. " +
                 "Please ensure that your project is in a good shape, i.e. clean and correctly compiled, sources and test sources.");
 
+        FlaggedOption mongoUrl = new FlaggedOption("mongo-url");
+        mongoUrl.setLongFlag("mongo-url");
+        mongoUrl.setDefault("mongodb://localhost:27017");
+        mongoUrl.setRequired(false);
+        mongoUrl.setStringParser(JSAP.STRING_PARSER);
+        mongoUrl.setAllowMultipleDeclarations(false);
+        mongoUrl.setHelp("[optional] If valid url, DSpot will submit to Mongodb database.");
+
+        FlaggedOption mongoDbname = new FlaggedOption("mongo-dbname");
+        mongoDbname.setLongFlag("mongo-dbname");
+        mongoDbname.setDefault("Dspot");
+        mongoDbname.setRequired(false);
+        mongoDbname.setStringParser(JSAP.STRING_PARSER);
+        mongoDbname.setAllowMultipleDeclarations(false);
+        mongoDbname.setHelp("[optional] If valid mongo-url provided, DSpot will submit to the provided database name.");
+
+        FlaggedOption mongoColname = new FlaggedOption("mongo-colname");
+        mongoColname.setLongFlag("mongo-colname");
+        mongoColname.setDefault("AmpRecords");
+        mongoColname.setRequired(false);
+        mongoColname.setStringParser(JSAP.STRING_PARSER);
+        mongoColname.setAllowMultipleDeclarations(false);
+        mongoColname.setHelp("[optional] If valid mongo-url and mongo-dbname provided, DSpot will submit to the provided collection name.");
+
+        FlaggedOption repoSlug = new FlaggedOption("repo-slug");
+        repoSlug.setLongFlag("repo-slug");
+        repoSlug.setDefault("UnknownSlug");
+        repoSlug.setRequired(false);
+        repoSlug.setStringParser(JSAP.STRING_PARSER);
+        repoSlug.setAllowMultipleDeclarations(false);
+        repoSlug.setHelp("[optional] If valid mongo-url provided, DSpot will submit to Mongodb database with the provided slug as identifier for the amplification data submitted.");
+
+
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
@@ -373,6 +422,10 @@ public class JSAPOptions {
             jsap.registerParameter(allowPathInAssertions);
             jsap.registerParameter(executeTestParallel);
             jsap.registerParameter(fullClasspath);
+            jsap.registerParameter(mongoUrl);
+            jsap.registerParameter(mongoDbname);
+            jsap.registerParameter(mongoColname);
+            jsap.registerParameter(repoSlug);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {
