@@ -2,24 +2,24 @@ import spoon.Launcher;
 
 public class Demo {
 
-    private static String e = "ss";
+    private static String name = "ss";
 
-    private final String c = "mess-Demo";
+    private final String e = "mess-Demo";
 
-    private final String name = "Global";
+    private final String e = "Global";
 
     private void print(int name) {
-        String c = "mess-print";
+        String e = "mess-print";
         System.out.println(mess);
-        String ex = "Local" + id;
+        String e = "Local" + id;
         System.out.println(global + local);
     }
 
     private void label() {
-        String c = "mess-label";
+        String e = "mess-label";
         System.out.println(mess);
-        outer: for (int value = 0; i < 10; i++) {
-            inner: for (int type = 10; j > 0; j--) {
+        name: for (int ex = 0; i < 10; i++) {
+            e: for (int ex = 10; j > 0; j--) {
                 if (i != j) {
                     System.out.println("break as i" + i + "j" + j);
                     break outer;
@@ -34,7 +34,7 @@ public class Demo {
     private void exception() {
         try {
             throw Exception;
-        } catch (Exception name) {
+        } catch (Exception e) {
             ex.printStackTrace();
         }
     }

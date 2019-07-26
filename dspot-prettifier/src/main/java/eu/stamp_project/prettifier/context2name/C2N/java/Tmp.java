@@ -1,5 +1,3 @@
-package eu.stamp_project.prettifier.context2name.C2N.java;
-
 import com.github.javaparser.*;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
@@ -54,15 +52,18 @@ public class Tmp {
 
         List<Node> nodesList = new ArrayList<>();
         // Parameter in 'Identifier'
-        compilationUnit.findAll(Parameter.class)
+//        compilationUnit.findAll(Parameter.class)
+//            .forEach(node -> nodesList.addAll(nodesMap.get(node.getName().toString())));
+        compilationUnit.findAll(NameExpr.class)
             .forEach(node -> nodesList.addAll(nodesMap.get(node.getName().toString())));
         // MemberExpression/Property in 'Identifier'
-        compilationUnit.findAll(VariableDeclarator.class)
-            .forEach(node -> nodesList.addAll(nodesMap.get(node.getName().toString())));
+//        compilationUnit.findAll(VariableDeclarator.class)
+//            .forEach(node -> nodesList.addAll(nodesMap.get(node.getName().toString())));
         // Label in 'Identifier'
-        compilationUnit.findAll(LabeledStmt.class)
-            .forEach(node -> nodesList.addAll(nodesMap.get(node.getLabel().toString())));
+//        compilationUnit.findAll(LabeledStmt.class)
+//            .forEach(node -> nodesList.addAll(nodesMap.get(node.getLabel().toString())));
         System.out.println("nodesList\n" + nodesList);
+        nodesList.forEach(node -> System.out.println(node.toString() + node.getRange()));
 
 //        nodesList.forEach(
 //            node -> {

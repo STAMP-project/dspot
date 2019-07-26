@@ -1,5 +1,3 @@
-package eu.stamp_project.prettifier.context2name.C2N.java;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.io.FileUtils;

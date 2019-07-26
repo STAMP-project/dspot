@@ -1,5 +1,3 @@
-package eu.stamp_project.prettifier.context2name.C2N.java;
-
 import com.github.javaparser.*;
 import com.github.javaparser.ast.CompilationUnit;
 import com.google.gson.Gson;
@@ -178,12 +176,12 @@ public class C2N {
         }
     }
 
-    class Prediction implements Comparable<Prediction> {
+    static class Prediction implements Comparable<Prediction> {
         float probability;
         String newName;
         int index;
 
-        public Prediction(float probability, String newName, int index) {
+        Prediction(float probability, String newName, int index) {
             this.probability = probability;
             this.newName = newName;
             this.index = index;
@@ -200,11 +198,11 @@ public class C2N {
         }
     }
 
-    class Result {
+    static class Result {
         List<List<Prediction>> predictions;
         List<String> oldNames;
 
-        public Result(List<List<Prediction>> predictions, List<String> oldNames) {
+        Result(List<List<Prediction>> predictions, List<String> oldNames) {
             this.predictions = predictions;
             this.oldNames = oldNames;
         }
@@ -254,14 +252,14 @@ public class C2N {
             Prediction elem = queue.remove();
             String oldName = result.oldNames.get(elem.index).split(":")[2];
             if (scoper.check(oldName, elem.newName)) {
-                scoper.rename(oldName, elem.newName);
+                scoper.link(oldName, elem.newName);
             } else {
                 Integer namingIndex = namingIndexList.get(elem.index);
                 if (namingIndex > 9) { // no more predictions left
                     if (scoper.check(oldName, oldName)) {
-                        scoper.rename(oldName, oldName);
+                        scoper.link(oldName, oldName);
                     } else {
-                        scoper.rename(oldName, "C2N_" + oldName);
+                        scoper.link(oldName, "C2N_" + oldName);
                     }
                 } else {
                     queue.add(result.predictions.get(elem.index).get(namingIndex));
@@ -303,7 +301,5 @@ public class C2N {
         c2n.process("testing.txt", true);
     }
 
-    // todo
-    //  1 append more identifier-classes
-    //  2 refactor code
+    // todo debug & check
 }
