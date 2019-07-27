@@ -21,8 +21,13 @@ import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
 import java.util.List;
-/*import java.util.ArrayList;
-*/
+
+import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
+import java.nio.file.Paths;
+import java.io.IOException;
+
 public class MongodbManager {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MongodbManager.class);
 	/*Format of date for saving in Mongodb*/
@@ -46,10 +51,14 @@ public class MongodbManager {
 	/*Argumets from input*/
 	public Document argsDoc;
 
+	/*Output paths for java files*/
+	public List<String> javaPathList;
+
 	private MongodbManager () {
 		this.jacocoSelectorDocs = new ArrayList<Document>();
 		this.pitMutantScoreSelectorDocs = new ArrayList<Document>();
 		this.argsDoc = new Document();
+		this.javaPathList = new ArrayList<String>();
 	}
 
 	public static MongodbManager getInstance() {
@@ -73,6 +82,11 @@ public class MongodbManager {
 		return this.dateFormat.format(date);
 	}
 
+	private String getFileNameGivenPath(String path) {
+		String[] bits = path.split("/");
+		return bits[bits.length - 1];
+	}
+
 	private boolean testConnectionToDb() {
 		try {
 			MongoClient mongoClient = new MongoClient(new MongoClientURI(this.mongoUrl));
@@ -81,6 +95,16 @@ public class MongodbManager {
 		}catch (Exception e) {
 			LOGGER.info("failed to connect to mongodb");
 			return false;
+		}
+	}
+
+
+	static String readFile(String path, Charset encoding) {
+		try {
+			byte[] encoded = Files.readAllBytes(Paths.get(path));
+			return new String(encoded, encoding);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -108,6 +132,16 @@ public class MongodbManager {
         		mainDoc.append("AmpResult",mergedDoc);
         	}
 
+
+        	Document ampFiles = new Document();
+        	for (String path : javaPathList) {
+        		String fileName = this.getFileNameGivenPath(path).replace(".java","");
+        		String content = this.readFile(path,StandardCharsets.US_ASCII).replace(".","/D/");
+        		LOGGER.warn("fileName: " + fileName);
+        		LOGGER.warn("content: " + content);
+        		ampFiles.append(fileName,content);
+        	}
+        	mainDoc.append("Files",ampFiles);
 			coll.insertOne(mainDoc);
 			mongoClient.close();
 		}catch (Exception e) {
