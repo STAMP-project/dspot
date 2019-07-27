@@ -35,11 +35,11 @@ public class MongodbManager {
 	private static MongodbManager single_instance = null;
 
 	/*Empty later*/
-	private static boolean dbConnectable;
 	private static String mongoUrl;
 	private static String dbName;
 	private static String repoSlug;
 	private static String colName;
+	private static boolean dbConnectable;
 	private static MongoClient mongoClient;
 
 	/*Jacoco Selector*/
