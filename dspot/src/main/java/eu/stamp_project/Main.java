@@ -61,7 +61,7 @@ public class Main {
 		Main.GLOBAL_REPORT.output();
 		Main.GLOBAL_REPORT.reset();
 		// Send info to Mongodb
-		if (MongodbManager.getInstance().dbConnectable) {
+		if (MongodbManager.getInstance().getDbConnectable()) {
 			MongodbManager.getInstance().sendInfoToDb();
 		}
 	}

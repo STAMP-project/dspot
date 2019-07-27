@@ -110,7 +110,7 @@ public class DSpotUtils {
                         type.getQualifiedName().replaceAll("\\.", regex) + ".java";
 
         // Save path to mongodb.
-        if (MongodbManager.getInstance().dbConnectable) {
+        if (MongodbManager.getInstance().getDbConnectable()) {
             MongodbManager.getInstance().javaPathList.add(pathname);
             LOGGER.warn("Henry- Pathname : " + pathname);
         }

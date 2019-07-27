@@ -190,7 +190,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                 .append(" amplified tests.")
                 .append(AmplificationHelper.LINE_SEPARATOR);
         /*Sending info to Mongodb, format original/newkills/percentage*/
-        if (MongodbManager.getInstance().dbConnectable) {
+        if (MongodbManager.getInstance().getDbConnectable()) {
             infoDoc = new Document();
             infoDoc.append("initialCoverage","" + this.initialCoverage.getInstructionsCovered());
         }
@@ -231,7 +231,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                     .append(AmplificationHelper.LINE_SEPARATOR);
             lastReport = new TestSelectorElementReportImpl(report.toString(), jsonReport(coverageResults));
             /*Sending data to Mongodb*/
-            if (MongodbManager.getInstance().dbConnectable) {
+            if (MongodbManager.getInstance().getDbConnectable()) {
                 String s = this.currentClassTestToBeAmplified.getQualifiedName();
                 infoDoc.append("ampCoverage","" + coverageResults.getInstructionsCovered());
                 infoDoc.append("totalCoverage","" + coverageResults.getInstructionsTotal());

@@ -35,12 +35,12 @@ public class MongodbManager {
 	private static MongodbManager single_instance = null;
 
 	/*Empty later*/
-	public boolean dbConnectable;
-	private String mongoUrl = "mongodb://localhost:27017";
-	private String dbName = "Dspot";
-	private String repoSlug = "travisplay";
-	private String colName = "testRecords";
-
+	private static boolean dbConnectable;
+	private static String mongoUrl;
+	private static String dbName;
+	private static String repoSlug;
+	private static String colName;
+	private static MongoClient mongoClient;
 
 	/*Jacoco Selector*/
 	public List<Document> jacocoSelectorDocs;
@@ -59,6 +59,7 @@ public class MongodbManager {
 		this.pitMutantScoreSelectorDocs = new ArrayList<Document>();
 		this.argsDoc = new Document();
 		this.javaPathList = new ArrayList<String>();
+		this.dbConnectable = testConnectionToDb();
 	}
 
 	public static MongodbManager getInstance() {
@@ -69,27 +70,18 @@ public class MongodbManager {
 	}
 
 
-	public void initMongodbManager (String mongoUrl, String dbName, String colName, String repoSlug) {
-		this.mongoUrl = mongoUrl;
-		this.dbName = dbName;
-		this.colName = colName;
-		this.repoSlug = repoSlug;
-		this.dbConnectable = this.testConnectionToDb();
+	public static void initMongodbManager (String mongoUrl_ln, String dbName_ln, String colName_ln, String repoSlug_ln) {
+		mongoUrl = mongoUrl_ln;
+		dbName = dbName_ln;
+		colName = colName_ln;
+		repoSlug = repoSlug_ln;
+		dbConnectable = testConnectionToDb();
 	}
 
-	private String getCurrentDate() {
-		Date date = new Date();
-		return this.dateFormat.format(date);
-	}
 
-	private String getFileNameGivenPath(String path) {
-		String[] bits = path.split("/");
-		return bits[bits.length - 1];
-	}
-
-	private boolean testConnectionToDb() {
+	private static boolean testConnectionToDb() {
 		try {
-			MongoClient mongoClient = new MongoClient(new MongoClientURI(this.mongoUrl));
+			mongoClient = new MongoClient(new MongoClientURI(mongoUrl));
 			mongoClient.close();
 			LOGGER.warn("Mongodb connection Successful");
 			return true;
@@ -99,19 +91,13 @@ public class MongodbManager {
 		}
 	}
 
-
-	static String readFile(String path, Charset encoding) {
-		try {
-			byte[] encoded = Files.readAllBytes(Paths.get(path));
-			return new String(encoded, encoding);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+	public boolean getDbConnectable() {
+		return dbConnectable;
 	}
 
 	public void sendInfoToDb() {
 		try {
-		    MongoClient mongoClient = new MongoClient(new MongoClientURI(this.mongoUrl));
+		    mongoClient = new MongoClient(new MongoClientURI(this.mongoUrl));
 			MongoDatabase database = mongoClient.getDatabase(this.dbName);
 			MongoCollection<Document> coll = database.getCollection(this.colName);
 
@@ -142,11 +128,30 @@ public class MongodbManager {
         		LOGGER.warn("content: " + content);
         		ampFiles.append(fileName,content);
         	}
-        	mainDoc.append("Files",ampFiles);
+        	mainDoc.append("AmpTestFiles",ampFiles);
 			coll.insertOne(mainDoc);
 			mongoClient.close();
 		}catch (Exception e) {
 			System.out.println("failed to connect to mongodb");
 		}
+	}
+
+	private static String readFile(String path, Charset encoding) {
+		try {
+			byte[] encoded = Files.readAllBytes(Paths.get(path));
+			return new String(encoded, encoding);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private String getCurrentDate() {
+		Date date = new Date();
+		return this.dateFormat.format(date);
+	}
+
+	private String getFileNameGivenPath(String path) {
+		String[] bits = path.split("/");
+		return bits[bits.length - 1];
 	}
 }

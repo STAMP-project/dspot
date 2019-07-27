@@ -239,7 +239,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     }
 
     private String reportStdout() {
-        if (MongodbManager.getInstance().dbConnectable) {
+        if (MongodbManager.getInstance().getDbConnectable()) {
             String s = this.currentClassTestToBeAmplified.getQualifiedName();
             infoDoc = new Document();
             infoDoc.append("originalKilledMutants","" + this.originalKilledMutants.size());

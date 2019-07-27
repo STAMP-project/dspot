@@ -123,8 +123,9 @@ public class JSAPOptions {
         );
 
         // Sending options to mongodb to record the properties of this run
+        MongodbManager.initMongodbManager(mongoUrl,mongoDbname,mongoColname,repoSlug);
         MongodbManager mongodbManager = MongodbManager.getInstance();
-        if (MongodbManager.getInstance().dbConnectable) {
+        if (MongodbManager.getInstance().getDbConnectable()) {
             mongodbManager.initMongodbManager(mongoUrl,mongoDbname,mongoColname,repoSlug);
             mongodbManager.argsDoc.append("amplifiers",Arrays.toString(jsapConfig.getStringArray("amplifiers")));
             mongodbManager.argsDoc.append("test-criterion",testCriterion);
