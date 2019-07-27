@@ -38,6 +38,7 @@ public class MongodbManager {
 	private static String mongoUrl;
 	private static String dbName;
 	private static String repoSlug;
+	private static String repoBranch;
 	private static String colName;
 	private static boolean dbConnectable;
 
@@ -68,11 +69,12 @@ public class MongodbManager {
 		return single_instance;
 	}
 
-	public static void initMongodbManager (String mongoUrl_ln, String dbName_ln, String colName_ln, String repoSlug_ln) {
+	public static void initMongodbManager (String mongoUrl_ln, String dbName_ln, String colName_ln, String repoSlug_ln, String repoBranch_ln) {
 		mongoUrl = mongoUrl_ln;
 		dbName = dbName_ln;
 		colName = colName_ln;
 		repoSlug = repoSlug_ln;
+		repoBranch = repoBranch_ln;
 		dbConnectable = testConnectionToDb();
 	}
 
@@ -111,6 +113,7 @@ public class MongodbManager {
 			MongoCollection<Document> coll = getCollection(this.colName,database);
 
 			Document mainDoc = new Document("RepoSlug", this.repoSlug)
+				.append("RepoBranch",this.repoBranch)
 				.append("Date",this.getCurrentDate());
         	mainDoc.append("AmpOptions",argsDoc);
 

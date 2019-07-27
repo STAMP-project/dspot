@@ -89,7 +89,7 @@ public class JSAPOptions {
         final String mongoDbname = jsapConfig.getString("mongo-dbname");
         final String mongoColname = jsapConfig.getString("mongo-colname");
         final String repoSlug = jsapConfig.getString("repo-slug");
-
+        final String repoBranch = jsapConfig.getString("repo-branch");
 
         Configuration.configure(
                 pathToProperties,
@@ -123,10 +123,9 @@ public class JSAPOptions {
         );
 
         // Sending options to mongodb to record the properties of this run
-        MongodbManager.initMongodbManager(mongoUrl,mongoDbname,mongoColname,repoSlug);
+        MongodbManager.initMongodbManager(mongoUrl,mongoDbname,mongoColname,repoSlug,repoBranch);
         MongodbManager mongodbManager = MongodbManager.getInstance();
         if (MongodbManager.getInstance().getDbConnectable()) {
-            mongodbManager.initMongodbManager(mongoUrl,mongoDbname,mongoColname,repoSlug);
             mongodbManager.argsDoc.append("amplifiers",Arrays.toString(jsapConfig.getStringArray("amplifiers")));
             mongodbManager.argsDoc.append("test-criterion",testCriterion);
             mongodbManager.argsDoc.append("iteration",Integer.toString(iteration));
@@ -392,8 +391,15 @@ public class JSAPOptions {
         repoSlug.setRequired(false);
         repoSlug.setStringParser(JSAP.STRING_PARSER);
         repoSlug.setAllowMultipleDeclarations(false);
-        repoSlug.setHelp("[optional] If valid mongo-url provided, DSpot will submit to Mongodb database with the provided slug as identifier for the amplification data submitted.");
+        repoSlug.setHelp("[optional] slug of the repo for instance Stamp/Dspot,this is used by mongodb as a identifier for analyzed repo's submitted data ");
 
+        FlaggedOption repoBranch = new FlaggedOption("repo-branch");
+        repoBranch.setLongFlag("repo-branch");
+        repoBranch.setDefault("UnknownBranch");
+        repoBranch.setRequired(false);
+        repoBranch.setStringParser(JSAP.STRING_PARSER);
+        repoBranch.setAllowMultipleDeclarations(false);
+        repoBranch.setHelp("[optional] branch name of the submitted repo,this is used by mongodb as a identifier for analyzed repo's submitted data");
 
         try {
             jsap.registerParameter(pathToConfigFile);
@@ -429,6 +435,7 @@ public class JSAPOptions {
             jsap.registerParameter(mongoDbname);
             jsap.registerParameter(mongoColname);
             jsap.registerParameter(repoSlug);
+            jsap.registerParameter(repoBranch);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {
