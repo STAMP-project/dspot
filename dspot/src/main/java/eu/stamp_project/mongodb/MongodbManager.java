@@ -40,7 +40,6 @@ public class MongodbManager {
 	private static String repoSlug;
 	private static String colName;
 	private static boolean dbConnectable;
-	private static MongoClient mongoClient;
 
 	/*Jacoco Selector*/
 	public List<Document> jacocoSelectorDocs;
@@ -69,7 +68,6 @@ public class MongodbManager {
 		return single_instance;
 	}
 
-
 	public static void initMongodbManager (String mongoUrl_ln, String dbName_ln, String colName_ln, String repoSlug_ln) {
 		mongoUrl = mongoUrl_ln;
 		dbName = dbName_ln;
@@ -78,6 +76,17 @@ public class MongodbManager {
 		dbConnectable = testConnectionToDb();
 	}
 
+	public static MongoClient connectToMongo (String mongoUrl) {
+		return new MongoClient(new MongoClientURI(mongoUrl));
+	}
+
+	public static MongoDatabase getDatabase (String dbName , MongoClient mongoClient) {
+		return mongoClient.getDatabase(dbName);
+	} 
+
+	public static MongoCollection<Document> getCollection (String colName,MongoDatabase database) {
+		return database.getCollection(colName);
+	}
 
 	private static boolean testConnectionToDb() {
 		try {
@@ -97,9 +106,9 @@ public class MongodbManager {
 
 	public void sendInfoToDb() {
 		try {
-		    mongoClient = new MongoClient(new MongoClientURI(this.mongoUrl));
-			MongoDatabase database = mongoClient.getDatabase(this.dbName);
-			MongoCollection<Document> coll = database.getCollection(this.colName);
+		    MongoClient mongoClient = connectToMongo(this.mongoUrl);
+			MongoDatabase database = getDatabase(this.dbName,mongoClient);
+			MongoCollection<Document> coll = getCollection(this.colName,database);
 
 			Document mainDoc = new Document("RepoSlug", this.repoSlug)
 				.append("Date",this.getCurrentDate());
