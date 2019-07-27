@@ -28,7 +28,9 @@ cache:
 before_install:
 - sudo apt-get update
 - sudo apt-get install python3
-
+# Pull Mongodb image to test
+- docker pull mongo:latest
+- docker run --net=host mongo:latest
 install:
 - export DSPOT_VERSION=`grep '<version>' dspot/pom.xml | head -n 1 | sed -e 's/<version>//' -e 's/<\\/version>//' -e 's/ *//g'`
 - export MAVEN_HOME=`mvn --version | grep 'Maven home' | sed -e 's/Maven h.* //'`

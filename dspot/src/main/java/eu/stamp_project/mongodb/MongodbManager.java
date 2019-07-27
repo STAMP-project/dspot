@@ -34,7 +34,7 @@ public class MongodbManager {
 	private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 	private static MongodbManager single_instance = null;
 
-	/*Empty later*/
+	private static MongoClient mongoClient;
 	private static String mongoUrl;
 	private static String dbName;
 	private static String repoSlug;
@@ -82,7 +82,7 @@ public class MongodbManager {
 
 	public static MongoDatabase getDatabase (String dbName , MongoClient mongoClient) {
 		return mongoClient.getDatabase(dbName);
-	} 
+	}
 
 	public static MongoCollection<Document> getCollection (String colName,MongoDatabase database) {
 		return database.getCollection(colName);
@@ -106,7 +106,7 @@ public class MongodbManager {
 
 	public void sendInfoToDb() {
 		try {
-		    MongoClient mongoClient = connectToMongo(this.mongoUrl);
+		    mongoClient = connectToMongo(this.mongoUrl);
 			MongoDatabase database = getDatabase(this.dbName,mongoClient);
 			MongoCollection<Document> coll = getCollection(this.colName,database);
 
