@@ -49,6 +49,8 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 
     private TestSelectorElementReport lastReport;
 
+    private Document infoDoc;
+
     @Override
     public boolean init() {
         super.init();
@@ -188,8 +190,10 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                 .append(" amplified tests.")
                 .append(AmplificationHelper.LINE_SEPARATOR);
         /*Sending info to Mongodb, format original/newkills/percentage*/
-        Document infoDoc = new Document();
-        infoDoc.append("initialCoverage","" + this.initialCoverage.getInstructionsCovered());
+        if (MongodbManager.getInstance().dbConnectable) {
+            infoDoc = new Document();
+            infoDoc.append("initialCoverage","" + this.initialCoverage.getInstructionsCovered());
+        }
         // compute the new coverage obtained by the amplification
         final CtType<?> clone = this.currentClassTestToBeAmplified.clone();
         this.currentClassTestToBeAmplified.getPackage().addType(clone);
@@ -227,11 +231,13 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                     .append(AmplificationHelper.LINE_SEPARATOR);
             lastReport = new TestSelectorElementReportImpl(report.toString(), jsonReport(coverageResults));
             /*Sending data to Mongodb*/
-            String s = this.currentClassTestToBeAmplified.getQualifiedName();
-            infoDoc.append("ampCoverage","" + coverageResults.getInstructionsCovered());
-            infoDoc.append("totalCoverage","" + coverageResults.getInstructionsTotal());
+            if (MongodbManager.getInstance().dbConnectable) {
+                String s = this.currentClassTestToBeAmplified.getQualifiedName();
+                infoDoc.append("ampCoverage","" + coverageResults.getInstructionsCovered());
+                infoDoc.append("totalCoverage","" + coverageResults.getInstructionsTotal());
 
-            MongodbManager.getInstance().jacocoSelectorDocs.add(new Document(s.replace(".","/D/"),infoDoc));
+                MongodbManager.getInstance().jacocoSelectorDocs.add(new Document(s.replace(".","/D/"),infoDoc));
+            }
 
             return lastReport;
         } catch (TimeoutException e) {

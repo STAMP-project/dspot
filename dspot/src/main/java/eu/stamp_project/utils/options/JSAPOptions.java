@@ -124,13 +124,15 @@ public class JSAPOptions {
 
         // Sending options to mongodb to record the properties of this run
         MongodbManager mongodbManager = MongodbManager.getInstance();
-        mongodbManager.initMongodbManager(mongoUrl,mongoDbname,mongoColname,repoSlug);
-        mongodbManager.argsDoc.append("amplifiers",Arrays.toString(jsapConfig.getStringArray("amplifiers")));
-        mongodbManager.argsDoc.append("test-criterion",testCriterion);
-        mongodbManager.argsDoc.append("iteration",Integer.toString(iteration));
-        mongodbManager.argsDoc.append("gregor","" + gregor);
-        mongodbManager.argsDoc.append("descartes","" + descartes);
-        mongodbManager.argsDoc.append("executeTestParallelWithNumberProcessors",Integer.toString(executeTestParallelWithNumberProcessors));
+        if (MongodbManager.getInstance().dbConnectable) {
+            mongodbManager.initMongodbManager(mongoUrl,mongoDbname,mongoColname,repoSlug);
+            mongodbManager.argsDoc.append("amplifiers",Arrays.toString(jsapConfig.getStringArray("amplifiers")));
+            mongodbManager.argsDoc.append("test-criterion",testCriterion);
+            mongodbManager.argsDoc.append("iteration",Integer.toString(iteration));
+            mongodbManager.argsDoc.append("gregor","" + gregor);
+            mongodbManager.argsDoc.append("descartes","" + descartes);
+            mongodbManager.argsDoc.append("executeTestParallelWithNumberProcessors",Integer.toString(executeTestParallelWithNumberProcessors));
+        }
     }
 
     private static String helpForEnums(Class<?> enumClass) {

@@ -110,8 +110,11 @@ public class DSpotUtils {
                         type.getQualifiedName().replaceAll("\\.", regex) + ".java";
 
         // Save path to mongodb.
-        MongodbManager.getInstance().javaPathList.add(pathname);
-        LOGGER.warn("Henry- Pathname : " + pathname);
+        if (MongodbManager.getInstance().dbConnectable) {
+            MongodbManager.getInstance().javaPathList.add(pathname);
+            LOGGER.warn("Henry- Pathname : " + pathname);
+        }
+
         final CtType<?> existingAmplifiedTestClass;
         if (new File(pathname).exists()) {
             existingAmplifiedTestClass = getExistingClass(type, pathname);//FIXME: analyse for optimisation (16% total execution time)

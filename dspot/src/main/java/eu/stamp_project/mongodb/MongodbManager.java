@@ -91,9 +91,10 @@ public class MongodbManager {
 		try {
 			MongoClient mongoClient = new MongoClient(new MongoClientURI(this.mongoUrl));
 			mongoClient.close();
+			LOGGER.warn("Mongodb connection Successful");
 			return true;
 		}catch (Exception e) {
-			LOGGER.info("failed to connect to mongodb");
+			LOGGER.warn("failed to connect to mongodb, No information will be submitted at the end");
 			return false;
 		}
 	}

@@ -55,6 +55,8 @@ public class PitMutantScoreSelector extends TakeAllSelector {
 
     private TestSelectorElementReport lastReport;
 
+    private Document infoDoc;
+
     public PitMutantScoreSelector() {
         this(OutputFormat.XML);
     }
@@ -237,11 +239,13 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     }
 
     private String reportStdout() {
-        String s = this.currentClassTestToBeAmplified.getQualifiedName();
-        Document infoDoc = new Document();
-        infoDoc.append("originalKilledMutants","" + this.originalKilledMutants.size());
-        infoDoc.append("NewMutantKilled","" + getNbTotalNewMutantKilled());
-        MongodbManager.getInstance().pitMutantScoreSelectorDocs.add(new Document(s.replace(".","/D/"),infoDoc));
+        if (MongodbManager.getInstance().dbConnectable) {
+            String s = this.currentClassTestToBeAmplified.getQualifiedName();
+            infoDoc = new Document();
+            infoDoc.append("originalKilledMutants","" + this.originalKilledMutants.size());
+            infoDoc.append("NewMutantKilled","" + getNbTotalNewMutantKilled());
+            MongodbManager.getInstance().pitMutantScoreSelectorDocs.add(new Document(s.replace(".","/D/"),infoDoc));
+        }
 
         return "Test class that has been amplified: " + this.currentClassTestToBeAmplified.getQualifiedName() +
                 AmplificationHelper.LINE_SEPARATOR +

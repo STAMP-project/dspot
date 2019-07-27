@@ -61,7 +61,9 @@ public class Main {
 		Main.GLOBAL_REPORT.output();
 		Main.GLOBAL_REPORT.reset();
 		// Send info to Mongodb
-		MongodbManager.getInstance().sendInfoToDb();
+		if (MongodbManager.getInstance().dbConnectable) {
+			MongodbManager.getInstance().sendInfoToDb();
+		}
 	}
 
 	public static void createOutputDirectories() {
