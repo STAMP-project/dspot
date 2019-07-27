@@ -364,11 +364,11 @@ public class JSAPOptions {
 
         FlaggedOption mongoUrl = new FlaggedOption("mongo-url");
         mongoUrl.setLongFlag("mongo-url");
-        mongoUrl.setDefault("mongodb://localhost:27017");
+        mongoUrl.setDefault("mongodb://IPORHOSTNAME:PORT");
         mongoUrl.setRequired(false);
         mongoUrl.setStringParser(JSAP.STRING_PARSER);
         mongoUrl.setAllowMultipleDeclarations(false);
-        mongoUrl.setHelp("[optional] If valid url, DSpot will submit to Mongodb database.");
+        mongoUrl.setHelp("[optional] If valid url, DSpot will submit to Mongodb database. For default use mongodb://localhost:27017");
 
         FlaggedOption mongoDbname = new FlaggedOption("mongo-dbname");
         mongoDbname.setLongFlag("mongo-dbname");
