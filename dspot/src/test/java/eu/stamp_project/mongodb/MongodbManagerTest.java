@@ -38,19 +38,19 @@ public class MongodbManagerTest {
                 "--repo-branch","master"
         });
 
-		/*Fetch submitted document*/
-		MongoClient mongoClient = MongodbManager.connectToMongo("mongodb://localhost:27017");
-		MongoCollection<Document> coll = MongodbManager.getCollection("AmpTestRecords",MongodbManager.getDatabase("Dspot",mongoClient));
+	/*Fetch submitted document*/
+	MongoClient mongoClient = MongodbManager.connectToMongo("mongodb://localhost:27017");
+	MongoCollection<Document> coll = MongodbManager.getCollection("AmpTestRecords",MongodbManager.getDatabase("Dspot",mongoClient));
 
-		Document foundDoc = coll.find(eq("RepoSlug","Dspot/mongo-test")).projection(fields(excludeId(),exclude("Date"),exclude("AmpTestFiles"),exclude("executeTestParallelWithNumberProcessors"))).first();
-		/*Remove from database*/
-		coll.deleteOne(foundDoc);
+	Document foundDoc = coll.find(eq("RepoSlug","Dspot/mongo-test")).projection(fields(excludeId(),exclude("Date"),exclude("AmpTestFiles"),exclude("executeTestParallelWithNumberProcessors"))).first();
+	/*Remove from database*/
+	coll.deleteOne(foundDoc);
 
-		Document unwanted = foundDoc.get("AmpOptions",Document.class);
-		unwanted.remove("executeTestParallelWithNumberProcessors");
-		foundDoc.append("AmpOptions",unwanted);
+	Document unwanted = foundDoc.get("AmpOptions",Document.class);
+	unwanted.remove("executeTestParallelWithNumberProcessors");
+	foundDoc.append("AmpOptions",unwanted);
 
-		String expectedDocStr = "Document{{RepoSlug=Dspot/mongo-test, RepoBranch=master, AmpOptions=Document{{amplifiers=[None], test-criterion=PitMutantScoreSelector, iteration=3, gregor=true, descartes=true}}, AmpResult=Document{{fr/D/inria/D/sample/D/TestClassWithoutAssert=Document{{originalKilledMutants=0, NewMutantKilled=67}}}}}}";
+	String expectedDocStr = "Document{{RepoSlug=Dspot/mongo-test, RepoBranch=master, AmpOptions=Document{{amplifiers=[None], test-criterion=PitMutantScoreSelector, iteration=3, gregor=true, descartes=true}}, AmpResult=Document{{fr/D/inria/D/sample/D/TestClassWithoutAssert=Document{{originalKilledMutants=0, NewMutantKilled=67}}}}}}";
 
         assertEquals(foundDoc.toString(),expectedDocStr);
 	}
@@ -68,14 +68,14 @@ public class MongodbManagerTest {
                 "--repo-branch","master"
         });
         MongoClient mongoClient = MongodbManager.connectToMongo("mongodb://localhost:27017");
-		MongoCollection<Document> coll = MongodbManager.getCollection("AmpTestRecords",MongodbManager.getDatabase("Dspot",mongoClient));
+	MongoCollection<Document> coll = MongodbManager.getCollection("AmpTestRecords",MongodbManager.getDatabase("Dspot",mongoClient));
 
-		Document foundDoc = coll.find(eq("RepoSlug","Dspot/mongo-test")).projection(fields(excludeId(),exclude("Date"),exclude("AmpTestFiles"),exclude("executeTestParallelWithNumberProcessors"))).first();
-		coll.deleteOne(foundDoc);
+	Document foundDoc = coll.find(eq("RepoSlug","Dspot/mongo-test")).projection(fields(excludeId(),exclude("Date"),exclude("AmpTestFiles"),exclude("executeTestParallelWithNumberProcessors"))).first();
+	coll.deleteOne(foundDoc);
 
-		Document unwanted = foundDoc.get("AmpOptions",Document.class);
-		unwanted.remove("executeTestParallelWithNumberProcessors");
-		foundDoc.append("AmpOptions",unwanted);
+	Document unwanted = foundDoc.get("AmpOptions",Document.class);
+	unwanted.remove("executeTestParallelWithNumberProcessors");
+	foundDoc.append("AmpOptions",unwanted);
 
         String expectedDocStr = "Document{{RepoSlug=Dspot/mongo-test, RepoBranch=master, AmpOptions=Document{{amplifiers=[None], test-criterion=JacocoCoverageSelector, iteration=1, gregor=false, descartes=true}}, AmpResult=Document{{resolver/D/ClasspathResolverTest=Document{{initialCoverage=123, ampCoverage=123, totalCoverage=130}}, textresources/D/in/D/sources/D/TestResourcesInSources=Document{{initialCoverage=4, ampCoverage=4, totalCoverage=130}}}}}}";
 

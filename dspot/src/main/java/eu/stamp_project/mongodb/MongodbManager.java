@@ -14,6 +14,7 @@ import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Updates.*;
 import org.bson.Document;
 
+
 /*Parsing date*/
 import java.util.Date;
 import java.text.DateFormat;
@@ -41,6 +42,7 @@ public class MongodbManager {
 	private static String repoBranch;
 	private static String colName;
 	private static boolean dbConnectable;
+	private static boolean restful;
 
 	/*Jacoco Selector*/
 	public List<Document> jacocoSelectorDocs;
@@ -69,12 +71,13 @@ public class MongodbManager {
 		return single_instance;
 	}
 
-	public static void initMongodbManager (String mongoUrl_ln, String dbName_ln, String colName_ln, String repoSlug_ln, String repoBranch_ln) {
+	public static void initMongodbManager (String mongoUrl_ln, String dbName_ln, String colName_ln, String repoSlug_ln, String repoBranch_ln, boolean restful_ln) {
 		mongoUrl = mongoUrl_ln;
 		dbName = dbName_ln;
 		colName = colName_ln;
 		repoSlug = repoSlug_ln;
 		repoBranch = repoBranch_ln;
+		restful = restful_ln;
 		dbConnectable = testConnectionToDb();
 	}
 
@@ -112,36 +115,56 @@ public class MongodbManager {
 			MongoDatabase database = getDatabase(this.dbName,mongoClient);
 			MongoCollection<Document> coll = getCollection(this.colName,database);
 
-			Document mainDoc = new Document("RepoSlug", this.repoSlug)
+
+			Document mainDoc;
+			if (!restful) {
+				mainDoc = new Document("RepoSlug", this.repoSlug)
 				.append("RepoBranch",this.repoBranch)
 				.append("Date",this.getCurrentDate());
-        	mainDoc.append("AmpOptions",argsDoc);
-
-        	if (argsDoc.get("test-criterion").equals("JacocoCoverageSelector")) {
+        		mainDoc.append("AmpOptions",argsDoc);
+			}else {
+				mainDoc = coll.find(and(eq("RepoSlug",this.repoSlug),eq("RepoBranch",this.repoBranch),eq("State","pending"))).projection(fields(excludeId())).first();
+				if (mainDoc != null) {
+					mainDoc.append("State","recent");
+				}
+			}
+			System.out.println(mainDoc.toString());
+			if (mainDoc != null) {
+				if (argsDoc.get("test-criterion").equals("JacocoCoverageSelector")) {
         		Document mergedDoc = new Document();
         		for (Document doc : jacocoSelectorDocs) {
         			mergedDoc.putAll(doc);
         		}
         		mainDoc.append("AmpResult",mergedDoc);
-        	}else if (argsDoc.get("test-criterion").equals("PitMutantScoreSelector")) {
-        		Document mergedDoc = new Document();
-        		for (Document doc : pitMutantScoreSelectorDocs) {
-        			mergedDoc.putAll(doc);
-        		}
-        		mainDoc.append("AmpResult",mergedDoc);
-        	}
+	        	}else if (argsDoc.get("test-criterion").equals("PitMutantScoreSelector")) {
+	        		Document mergedDoc = new Document();
+	        		for (Document doc : pitMutantScoreSelectorDocs) {
+	        			mergedDoc.putAll(doc);
+	        		}
+	        		mainDoc.append("AmpResult",mergedDoc);
+	        	}
 
 
-        	Document ampFiles = new Document();
-        	for (String path : javaPathList) {
-        		String fileName = this.getFileNameGivenPath(path).replace(".java","");
-        		String content = this.readFile(path,StandardCharsets.US_ASCII).replace(".","/D/");
-        		LOGGER.warn("fileName: " + fileName);
-        		LOGGER.warn("content: " + content);
-        		ampFiles.append(fileName,content);
-        	}
-        	mainDoc.append("AmpTestFiles",ampFiles);
-			coll.insertOne(mainDoc);
+	        	Document ampFiles = new Document();
+	        	for (String path : javaPathList) {
+	        		String fileName = this.getFileNameGivenPath(path).replace(".java","");
+	        		String content = this.readFile(path,StandardCharsets.US_ASCII).replace(".","/D/");
+	        		LOGGER.warn("fileName: " + fileName);
+	        		LOGGER.warn("content: " + content);
+	        		ampFiles.append(fileName,content);
+	        	}
+	        	mainDoc.append("AmpTestFiles",ampFiles);
+	        	if (!restful) {
+	        		coll.insertOne(mainDoc);
+	        	} else {
+	        		// Set the previous recent repo as old
+	        		coll.updateOne(and(eq("RepoSlug",this.repoSlug),eq("RepoBranch",this.repoBranch),eq("State","recent")),new Document("$set",new Document("State","old")));
+	        		coll.updateOne(and(eq("RepoSlug",this.repoSlug),eq("RepoBranch",this.repoBranch),eq("State","pending")),new Document("$set",mainDoc));
+	        	}
+			}else {
+				LOGGER.warn("Main document for submitting is not initialized, No document found in restful mode.");
+			}
+
 			mongoClient.close();
 		}catch (Exception e) {
 			System.out.println("failed to connect to mongodb");

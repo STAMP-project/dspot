@@ -90,6 +90,7 @@ public class JSAPOptions {
         final String mongoColname = jsapConfig.getString("mongo-colname");
         final String repoSlug = jsapConfig.getString("repo-slug");
         final String repoBranch = jsapConfig.getString("repo-branch");
+        final boolean restful = jsapConfig.getBoolean("restful");
 
         Configuration.configure(
                 pathToProperties,
@@ -123,7 +124,7 @@ public class JSAPOptions {
         );
 
         // Sending options to mongodb to record the properties of this run
-        MongodbManager.initMongodbManager(mongoUrl,mongoDbname,mongoColname,repoSlug,repoBranch);
+        MongodbManager.initMongodbManager(mongoUrl,mongoDbname,mongoColname,repoSlug,repoBranch,restful);
         MongodbManager mongodbManager = MongodbManager.getInstance();
         if (MongodbManager.getInstance().getDbConnectable()) {
             mongodbManager.argsDoc.append("amplifiers",Arrays.toString(jsapConfig.getStringArray("amplifiers")));
@@ -401,6 +402,11 @@ public class JSAPOptions {
         repoBranch.setAllowMultipleDeclarations(false);
         repoBranch.setHelp("[optional] branch name of the submitted repo,this is used by mongodb as a identifier for analyzed repo's submitted data");
 
+        Switch restful = new Switch("restful");
+        restful.setLongFlag("restful");
+        restful.setDefault("false");
+        restful.setHelp("If 1 or true it will enable restful mode for managing mongodb database in sync with nodejs webinterface server. Provided with the repo slug and branch, it will first look the document with pending state submitted by Nodejs and build on that.");
+
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
@@ -436,6 +442,7 @@ public class JSAPOptions {
             jsap.registerParameter(mongoColname);
             jsap.registerParameter(repoSlug);
             jsap.registerParameter(repoBranch);
+            jsap.registerParameter(restful);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {
