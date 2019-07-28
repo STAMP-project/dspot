@@ -1,6 +1,7 @@
 package eu.stamp_project.utils;
 
 import eu.stamp_project.Main;
+import eu.stamp_project.mongodb.MongodbManager;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.error.Error;
@@ -107,6 +108,13 @@ public class DSpotUtils {
         final String pathname =
                 directory.getAbsolutePath() + File.separator +
                         type.getQualifiedName().replaceAll("\\.", regex) + ".java";
+
+        // Save path to mongodb.
+        if (MongodbManager.getInstance().getDbConnectable()) {
+            MongodbManager.getInstance().javaPathList.add(pathname);
+            LOGGER.warn("Henry- Pathname : " + pathname);
+        }
+
         final CtType<?> existingAmplifiedTestClass;
         if (new File(pathname).exists()) {
             existingAmplifiedTestClass = getExistingClass(type, pathname);//FIXME: analyse for optimisation (16% total execution time)

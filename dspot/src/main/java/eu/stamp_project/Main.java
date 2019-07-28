@@ -8,6 +8,7 @@ import eu.stamp_project.utils.report.GlobalReport;
 import eu.stamp_project.utils.report.error.ErrorReportImpl;
 import eu.stamp_project.utils.report.output.OutputReportImpl;
 import eu.stamp_project.utils.report.output.selector.TestSelectorReportImpl;
+import eu.stamp_project.mongodb.MongodbManager;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +60,10 @@ public class Main {
 		// global report handling
 		Main.GLOBAL_REPORT.output();
 		Main.GLOBAL_REPORT.reset();
+		// Send info to Mongodb
+		if (MongodbManager.getInstance().getDbConnectable()) {
+			MongodbManager.getInstance().sendInfoToDb();
+		}
 	}
 
 	public static void createOutputDirectories() {
