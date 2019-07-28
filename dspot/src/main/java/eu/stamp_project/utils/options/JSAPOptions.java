@@ -84,6 +84,11 @@ public class JSAPOptions {
         // Anyway, the verification in DSpot is not yet too late nor deep in the amplification's process.
         final List<String> test = Arrays.asList(jsapConfig.getStringArray("test"));
         final List<String> testCases = Arrays.asList(jsapConfig.getStringArray("test-cases"));
+        final String mongoUrl = jsapConfig.getString("mongo-url");
+        final String mongoDbname = jsapConfig.getString("mongo-dbname");
+        final String mongoColname = jsapConfig.getString("mongo-colname");
+        final String repoSlug = jsapConfig.getString("repo-slug");
+        final String repoBranch = jsapConfig.getString("repo-branch");
 
         Configuration.configure(
                 pathToProperties,
@@ -343,6 +348,46 @@ public class JSAPOptions {
         fullClasspath.setHelp("[optional] specify the classpath of the project. If this option is used, DSpot won't use an AutomaticBuilder (e.g. Maven) to clean, compile and get the classpath of the project. " +
                 "Please ensure that your project is in a good shape, i.e. clean and correctly compiled, sources and test sources.");
 
+        FlaggedOption mongoUrl = new FlaggedOption("mongo-url");
+        mongoUrl.setLongFlag("mongo-url");
+        mongoUrl.setDefault("mongodb://IPORHOSTNAME:PORT");
+        mongoUrl.setRequired(false);
+        mongoUrl.setStringParser(JSAP.STRING_PARSER);
+        mongoUrl.setAllowMultipleDeclarations(false);
+        mongoUrl.setHelp("[optional] If valid url, DSpot will submit to Mongodb database. For default use mongodb://localhost:27017");
+
+        FlaggedOption mongoDbname = new FlaggedOption("mongo-dbname");
+        mongoDbname.setLongFlag("mongo-dbname");
+        mongoDbname.setDefault("Dspot");
+        mongoDbname.setRequired(false);
+        mongoDbname.setStringParser(JSAP.STRING_PARSER);
+        mongoDbname.setAllowMultipleDeclarations(false);
+        mongoDbname.setHelp("[optional] If valid mongo-url provided, DSpot will submit to the provided database name.");
+
+        FlaggedOption mongoColname = new FlaggedOption("mongo-colname");
+        mongoColname.setLongFlag("mongo-colname");
+        mongoColname.setDefault("AmpRecords");
+        mongoColname.setRequired(false);
+        mongoColname.setStringParser(JSAP.STRING_PARSER);
+        mongoColname.setAllowMultipleDeclarations(false);
+        mongoColname.setHelp("[optional] If valid mongo-url and mongo-dbname provided, DSpot will submit to the provided collection name.");
+
+        FlaggedOption repoSlug = new FlaggedOption("repo-slug");
+        repoSlug.setLongFlag("repo-slug");
+        repoSlug.setDefault("UnknownSlug");
+        repoSlug.setRequired(false);
+        repoSlug.setStringParser(JSAP.STRING_PARSER);
+        repoSlug.setAllowMultipleDeclarations(false);
+        repoSlug.setHelp("[optional] slug of the repo for instance Stamp/Dspot,this is used by mongodb as a identifier for analyzed repo's submitted data ");
+
+        FlaggedOption repoBranch = new FlaggedOption("repo-branch");
+        repoBranch.setLongFlag("repo-branch");
+        repoBranch.setDefault("UnknownBranch");
+        repoBranch.setRequired(false);
+        repoBranch.setStringParser(JSAP.STRING_PARSER);
+        repoBranch.setAllowMultipleDeclarations(false);
+        repoBranch.setHelp("[optional] branch name of the submitted repo,this is used by mongodb as a identifier for analyzed repo's submitted data");
+
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
@@ -373,6 +418,11 @@ public class JSAPOptions {
             jsap.registerParameter(allowPathInAssertions);
             jsap.registerParameter(executeTestParallel);
             jsap.registerParameter(fullClasspath);
+            jsap.registerParameter(mongoUrl);
+            jsap.registerParameter(mongoDbname);
+            jsap.registerParameter(mongoColname);
+            jsap.registerParameter(repoSlug);
+            jsap.registerParameter(repoBranch);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {
