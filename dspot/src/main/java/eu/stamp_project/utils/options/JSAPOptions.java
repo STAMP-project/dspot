@@ -7,6 +7,7 @@ import com.martiansoftware.jsap.JSAPException;
 import com.martiansoftware.jsap.JSAPResult;
 import com.martiansoftware.jsap.Parameter;
 import com.martiansoftware.jsap.Switch;
+import eu.stamp_project.mongodb.MongodbManager;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -120,6 +121,18 @@ public class JSAPOptions {
                 testCases,
                 fullClasspath
         );
+
+        // Sending options to mongodb to record the properties of this run
+        MongodbManager.initMongodbManager(mongoUrl,mongoDbname,mongoColname,repoSlug,repoBranch);
+        MongodbManager mongodbManager = MongodbManager.getInstance();
+        if (MongodbManager.getInstance().getDbConnectable()) {
+            mongodbManager.argsDoc.append("amplifiers",Arrays.toString(jsapConfig.getStringArray("amplifiers")));
+            mongodbManager.argsDoc.append("test-criterion",testCriterion);
+            mongodbManager.argsDoc.append("iteration",Integer.toString(iteration));
+            mongodbManager.argsDoc.append("gregor","" + gregor);
+            mongodbManager.argsDoc.append("descartes","" + descartes);
+            mongodbManager.argsDoc.append("executeTestParallelWithNumberProcessors",Integer.toString(executeTestParallelWithNumberProcessors));
+        }
     }
 
     private static String helpForEnums(Class<?> enumClass) {
