@@ -1,6 +1,5 @@
 package eu.stamp_project.dspot.selector;
 
-import org.bson.Document;
 import eu.stamp_project.mongodb.MongodbManager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -48,8 +47,6 @@ public class JacocoCoverageSelector extends TakeAllSelector {
     private List<String> pathExecuted = new ArrayList<>();
 
     private TestSelectorElementReport lastReport;
-
-    private Document infoDoc;
 
     @Override
     public boolean init() {
@@ -189,11 +186,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                 .append(this.selectedAmplifiedTest.size())
                 .append(" amplified tests.")
                 .append(AmplificationHelper.LINE_SEPARATOR);
-        /*Sending info to Mongodb, format original/newkills/percentage*/
-        if (MongodbManager.getInstance().getDbConnectable()) {
-            infoDoc = new Document();
-            infoDoc.append("initialCoverage","" + this.initialCoverage.getInstructionsCovered());
-        }
+
         // compute the new coverage obtained by the amplification
         final CtType<?> clone = this.currentClassTestToBeAmplified.clone();
         this.currentClassTestToBeAmplified.getPackage().addType(clone);
@@ -230,14 +223,9 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                     .append("%")
                     .append(AmplificationHelper.LINE_SEPARATOR);
             lastReport = new TestSelectorElementReportImpl(report.toString(), jsonReport(coverageResults));
-            /*Sending data to Mongodb*/
-            if (MongodbManager.getInstance().getDbConnectable()) {
-                String s = this.currentClassTestToBeAmplified.getQualifiedName();
-                infoDoc.append("ampCoverage","" + coverageResults.getInstructionsCovered());
-                infoDoc.append("totalCoverage","" + coverageResults.getInstructionsTotal());
 
-                MongodbManager.getInstance().jacocoSelectorDocs.add(new Document(s.replace(".","/D/"),infoDoc));
-            }
+            // Sending data to Mongodb
+            MongodbManager.getInstance().reportJacocoMongoDb(this.currentClassTestToBeAmplified.getQualifiedName(),"" + this.initialCoverage.getInstructionsCovered(),"" + coverageResults.getInstructionsCovered(),"" + coverageResults.getInstructionsTotal());
 
             return lastReport;
         } catch (TimeoutException e) {

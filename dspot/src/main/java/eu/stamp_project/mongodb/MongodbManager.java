@@ -35,6 +35,8 @@ public class MongodbManager {
 	private static MongodbManager single_instance = null;
 
 	private static MongoClient mongoClient;
+	private static MongoDatabase database;
+	private static MongoCollection<Document> coll;
 	private static String mongoUrl;
 	private static String dbName;
 	private static String repoSlug;
@@ -78,6 +80,32 @@ public class MongodbManager {
 		dbConnectable = testConnectionToDb();
 	}
 
+	public void reportPitMutantMongoDB(String qualifiedName, String originalKilledMutants, String nbTotalNewMutantKilled) {
+		if (this.getDbConnectable()) {
+            Document infoDoc = new Document();
+            infoDoc.append("originalKilledMutants",originalKilledMutants);
+            infoDoc.append("NewMutantKilled",nbTotalNewMutantKilled);
+            this.pitMutantScoreSelectorDocs.add(new Document(qualifiedName.replace(".","/D/"),infoDoc));
+        }
+	}
+
+	public void reportJacocoMongoDb(String qualifiedName, String initialCoverage, String ampCoverage, String total) {
+		if (this.getDbConnectable()) {
+            Document infoDoc = new Document();
+            infoDoc.append("initialCoverage",initialCoverage);
+            infoDoc.append("ampCoverage", ampCoverage);
+            infoDoc.append("totalCoverage", total);
+
+            this.jacocoSelectorDocs.add(new Document(qualifiedName.replace(".","/D/"),infoDoc));
+        }
+	}
+
+	public void addOutFilePath(String pathname) {
+        if (this.getDbConnectable()) {
+            this.javaPathList.add(pathname);
+        }
+	}
+
 	public static MongoClient connectToMongo (String mongoUrl) {
 		return new MongoClient(new MongoClientURI(mongoUrl));
 	}
@@ -109,8 +137,8 @@ public class MongodbManager {
 	public void sendInfoToDb() {
 		try {
 		    mongoClient = connectToMongo(this.mongoUrl);
-			MongoDatabase database = getDatabase(this.dbName,mongoClient);
-			MongoCollection<Document> coll = getCollection(this.colName,database);
+			database = getDatabase(this.dbName,mongoClient);
+			coll = getCollection(this.colName,database);
 
 			Document mainDoc = new Document("RepoSlug", this.repoSlug)
 				.append("RepoBranch",this.repoBranch)
@@ -144,7 +172,7 @@ public class MongodbManager {
 			coll.insertOne(mainDoc);
 			mongoClient.close();
 		}catch (Exception e) {
-			System.out.println("failed to connect to mongodb");
+			LOGGER.warn("failed to connect to mongodb");
 		}
 	}
 
