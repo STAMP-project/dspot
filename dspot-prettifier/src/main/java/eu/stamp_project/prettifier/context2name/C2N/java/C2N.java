@@ -1,3 +1,5 @@
+package eu.stamp_project.prettifier.context2name.C2N.java;
+
 import com.github.javaparser.*;
 import com.github.javaparser.ast.CompilationUnit;
 import com.google.gson.Gson;
@@ -39,14 +41,17 @@ public class C2N {
     }
 
     private Map<Scoper.Scope, List<String>> extractSequences() {
+        // we skip identifiers such as static variables
+        List<String> tabooList = new ArrayList<>();
+
         Map<Scoper.Scope, List<String>> sequences = new HashMap<>();
         scoper.listIdentifierNode.forEach(node -> {
             Range range = node.getRange().orElse(null);
             if (scoper.mapRange2Scope.containsKey(range)) {
                 Scoper.Scope scope = scoper.mapRange2Scope.get(range);
                 int index = scoper.mapRange2ScopeIdx.get(range);
-
                 if (scoper.listScope.get(index - 1).getKind() == DOT) {
+                    tabooList.add(scoper.listScope.get(index).name);
                     return; // we do not handle static variables
                 }
                 if (scope.id > 0) {
@@ -92,19 +97,26 @@ public class C2N {
                             }
                         }
                     }
-                    sequences.put(scope, arr);
+                    if (!tabooList.contains(scope.name)) {
+                        sequences.put(scope, arr);
+                    }
                 }
             }
         });
-        return sequences;
+        // ignore elements in tabooList
+        Map<Scoper.Scope, List<String>> checkedSequences = new HashMap<>();
+        sequences.forEach((scope, arr)->{
+            if (!tabooList.contains(scope.name)) {
+                checkedSequences.put(scope, arr);
+            }
+        });
+        return checkedSequences;
     }
 
     private void dumpSequences(String fileName, String line, boolean recovery) {
         Map<Scoper.Scope, List<String>> sequences = extractSequences();
         Map<Scoper.Scope, List<String>> seqMap = new HashMap<>();
-        for (Map.Entry<Scoper.Scope, List<String>> entry : sequences.entrySet()) {
-            Scoper.Scope key = entry.getKey();
-            List<String> value = entry.getValue();
+        sequences.forEach((key, value) -> {
             seqMap.putIfAbsent(key, new ArrayList<>(asList("", value.get(1), value.get(0))));
             List<String> val = seqMap.get(key);
             for (int j = 2; j < value.size(); j++) {
@@ -116,7 +128,7 @@ public class C2N {
                 }
                 val.set(0, val.get(0) + token);
             }
-        }
+        });
 
         if (recovery) {
             List<String> targets = new ArrayList<>();
@@ -133,9 +145,9 @@ public class C2N {
             if (jsonArray.size() == 2) {
                 List<List<Prediction>> predictions4all = new ArrayList<>();
                 JsonElement je4all = jsonArray.get(0);
-                for (JsonElement je4each: je4all.getAsJsonArray()) {
+                for (JsonElement je4each : je4all.getAsJsonArray()) {
                     List<Prediction> predictions4each = new ArrayList<>();
-                    for (JsonElement je4p: je4each.getAsJsonArray()) {
+                    for (JsonElement je4p : je4each.getAsJsonArray()) {
                         JsonArray jaPrediction = je4p.getAsJsonArray();
                         if (jaPrediction.size() == 3) {
                             float probability = jaPrediction.get(0).getAsFloat();
@@ -149,7 +161,7 @@ public class C2N {
 
                 List<String> names = new ArrayList<>();
                 JsonElement je4names = jsonArray.get(1);
-                for (JsonElement je4name: je4names.getAsJsonArray()) {
+                for (JsonElement je4name : je4names.getAsJsonArray()) {
                     names.add(je4name.getAsString());
                 }
                 Result result = new Result(predictions4all, names);
@@ -239,35 +251,95 @@ public class C2N {
     // prediction arrays format : array of arrays, each inner array containing 10 tuples
     // inner prediction tuple format : [probability, new name, index of name in the original array of names]
     private void recover(Result result) {
-        // Begin assignment of new names using a priority queue
-        Queue<Prediction> queue = new PriorityQueue<>();
-        // Captures the number of names tried for each variable
-        List<Integer> namingIndexList = new ArrayList<>();
+        // as we need to make sure program still valid after rename
+        // also it seems inconvenient to trace scopes efficiently
+        // here we append one extra step to:
+        // 1 make sure same variables will never be renamed differently
+        // 2 avoid complex approach to trace scopes of different variables
+        // by replace same/different old names with same/different new names
+        Map<String, List<Integer>> indicesMap = new HashMap<>();
+        // gather results for same oldNames
         for (int i = 0; i < result.oldNames.size(); i++) {
-            queue.add(result.predictions.get(i).get(0)); // first prediction tuple for each variable
-            namingIndexList.add(1);
+            String oldName = result.oldNames.get(i).split(":")[2];
+            indicesMap.putIfAbsent(oldName, new ArrayList<>());
+            indicesMap.get(oldName).add(i);
+        }
+        // map oldName with 10 most promising newNames
+        Map<String, List<String>> namesMap = new HashMap<>();
+        for (String oldName : indicesMap.keySet()) {
+            List<Integer> indices = indicesMap.get(oldName);
+            Map<String, Prediction> predictionMap = new HashMap<>();
+            // gather newNames with highest pr for each oldName
+            for (int index : indices) {
+                List<Prediction> predictions = result.predictions.get(index);
+                for (Prediction prediction : predictions) {
+                    predictionMap.putIfAbsent(prediction.newName, prediction);
+                    Prediction existingPrediction = predictionMap.get(prediction.newName);
+                    if (prediction.probability > existingPrediction.probability) {
+                        predictionMap.put(prediction.newName, prediction);
+                    }
+                }
+            }
+            // focus on the top 10 newNames for each oldName
+            List<Map.Entry<String, Prediction>> predictionEntryList = new ArrayList<>(predictionMap.entrySet());
+            predictionEntryList.sort((entry1, entry2) -> {
+                float pr1 = entry1.getValue().probability;
+                float pr2 = entry2.getValue().probability;
+                return -Float.compare(pr1, pr2);
+            });
+            predictionEntryList.subList(0, 10).forEach(prediction -> {
+                namesMap.putIfAbsent(oldName, new ArrayList<>());
+                namesMap.get(oldName).add(prediction.getKey());
+            });
         }
 
-        while (queue.size() != 0) {
-            Prediction elem = queue.remove();
-            String oldName = result.oldNames.get(elem.index).split(":")[2];
-            if (scoper.check(oldName, elem.newName)) {
-                scoper.link(oldName, elem.newName);
-            } else {
-                Integer namingIndex = namingIndexList.get(elem.index);
-                if (namingIndex > 9) { // no more predictions left
+        namesMap.forEach((oldName, newNames) -> {
+            for (int index = 0; index < 10; index++) {
+                String newName = newNames.get(index);
+                if (scoper.check(oldName, newName)) {
+                    scoper.link(oldName, newName);
+                    break;
+                }
+                if (index == 9) { // no more predictions left
                     if (scoper.check(oldName, oldName)) {
                         scoper.link(oldName, oldName);
                     } else {
                         scoper.link(oldName, "C2N_" + oldName);
                     }
-                } else {
-                    queue.add(result.predictions.get(elem.index).get(namingIndex));
-                    namingIndexList.set(elem.index, namingIndex + 1);
                 }
             }
-        }
+        });
         scoper.transform();
+
+//        // Begin assignment of new names using a priority queue
+//        Queue<Prediction> queue = new PriorityQueue<>();
+//        // Captures the number of names tried for each variable
+//        List<Integer> namingIndexList = new ArrayList<>();
+//        for (int i = 0; i < result.oldNames.size(); i++) {
+//            queue.add(result.predictions.get(i).get(0)); // first prediction tuple for each variable
+//            namingIndexList.add(1);
+//        }
+//
+//        while (queue.size() != 0) {
+//            Prediction elem = queue.remove();
+//            String oldName = result.oldNames.get(elem.index).split(":")[2];
+//            if (scoper.check(oldName, elem.newName)) {
+//                scoper.link(oldName, elem.newName);
+//            } else {
+//                Integer namingIndex = namingIndexList.get(elem.index);
+//                if (namingIndex > 9) { // no more predictions left
+//                    if (scoper.check(oldName, oldName)) {
+//                        scoper.link(oldName, oldName);
+//                    } else {
+//                        scoper.link(oldName, "C2N_" + oldName);
+//                    }
+//                } else {
+//                    queue.add(result.predictions.get(elem.index).get(namingIndex));
+//                    namingIndexList.set(elem.index, namingIndex + 1);
+//                }
+//            }
+//        }
+//        scoper.transform();
     }
 
     private void process(String fileName, boolean recovery) {

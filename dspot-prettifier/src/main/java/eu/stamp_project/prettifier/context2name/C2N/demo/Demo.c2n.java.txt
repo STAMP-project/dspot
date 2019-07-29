@@ -2,30 +2,30 @@ import spoon.Launcher;
 
 public class Demo {
 
-    private static String name = "ss";
+    private static String str = "ss";
 
-    private final String e = "mess-Demo";
+    private final String x = "mess-Demo";
 
-    private final String e = "Global";
+    private final String type = "Global";
 
-    private void print(int name) {
-        String e = "mess-print";
-        System.out.println(mess);
-        String e = "Local" + id;
-        System.out.println(global + local);
+    private void print(int node) {
+        String x = "mess-print";
+        System.out.println(x);
+        String key = "Local" + node;
+        System.out.println(type + key);
     }
 
     private void label() {
-        String e = "mess-label";
-        System.out.println(mess);
-        name: for (int ex = 0; i < 10; i++) {
-            e: for (int ex = 10; j > 0; j--) {
-                if (i != j) {
-                    System.out.println("break as i" + i + "j" + j);
-                    break outer;
+        String x = "mess-label";
+        System.out.println(x);
+        ex: for (int value = 0; value < 10; value++) {
+            context: for (int c = 10; c > 0; c--) {
+                if (value != c) {
+                    System.out.println("break as i" + value + "j" + c);
+                    break ex;
                 } else {
-                    System.out.println("continue as i" + i + "j" + j);
-                    continue inner;
+                    System.out.println("continue as i" + value + "j" + c);
+                    break context;
                 }
             }
         }
@@ -34,8 +34,8 @@ public class Demo {
     private void exception() {
         try {
             throw Exception;
-        } catch (Exception e) {
-            ex.printStackTrace();
+        } catch (Exception name) {
+            name.printStackTrace();
         }
     }
 

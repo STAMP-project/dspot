@@ -24,7 +24,7 @@ public class Demo {
                     break outer;
                 } else {
                     System.out.println("continue as i" + i + "j" + j);
-                    continue inner;
+                    break inner;
                 }
             }
         }
