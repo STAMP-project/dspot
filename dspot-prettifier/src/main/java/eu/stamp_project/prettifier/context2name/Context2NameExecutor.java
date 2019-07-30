@@ -100,4 +100,55 @@ public class Context2NameExecutor {
         }
     }
 
+    static class Context2NameRunnableProcess implements Runnable {
+
+        private Process process;
+
+        private PrintStream output;
+
+        public Context2NameRunnableProcess(Process process, PrintStream output) {
+            this.process = process;
+            this.output = output;
+        }
+
+        @Override
+        public void run() {
+            try {
+                (new Context2NameThread(this.output, this.process.getInputStream())).start();
+                (new Context2NameThread(System.err, this.process.getErrorStream())).start();
+                this.process.waitFor();
+            } catch (Exception var2) {
+                throw new RuntimeException(var2);
+            }
+        }
+    }
+
+    static class Context2NameThread extends Thread {
+
+        private final PrintStream output;
+        private final InputStream input;
+
+        Context2NameThread(PrintStream output, InputStream input) {
+            this.output = output;
+            this.input = input;
+        }
+
+        public synchronized void start() {
+            while (true) {
+                try {
+                    int read;
+                    if ((read = this.input.read()) != -1) {
+                        this.output.print((char) read);
+                        continue;
+                    }
+                } catch (Exception var6) {
+
+                } finally {
+                    this.interrupt();
+                }
+
+                return;
+            }
+        }
+    }
 }

@@ -74,10 +74,7 @@ public class Main {
                 testMethods,
                 amplifiedTestClass
         );
-        // 2
-        // todo check links
-        // https://github.com/STAMP-project/dspot/pull/718
-        // https://github.com/STAMP-project/dspot/pull/730
+        // 2 todo retrain one Context2Name model
 //        applyContext2Name(minimizedAmplifiedTestMethods);
         // 3
         applyCode2Vec(minimizedAmplifiedTestMethods);
@@ -133,7 +130,6 @@ public class Main {
                 final String predictedSimpleName = parser.parse(context2nameOutput);
                 LOGGER.info("Context2Name predicted {} for {} as new name", predictedSimpleName, amplifiedTestMethodToBeRenamed.getSimpleName());
                 amplifiedTestMethodToBeRenamed.setSimpleName(predictedSimpleName);
-                // TODO add scripts, models, test files
                 // TODO uncomment Line78
             }
         } finally {

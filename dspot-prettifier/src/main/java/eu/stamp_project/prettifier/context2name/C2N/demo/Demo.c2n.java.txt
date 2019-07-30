@@ -6,26 +6,26 @@ public class Demo {
 
     private final String mess = "mess-Demo";
 
-    private final String c = "global";
+    private final String gridBagConstraints = "global";
 
-    private void mess(int x) {
+    private void mess(int result) {
         String mess = "mess-print";
         System.out.print(mess);
-        String key = "local" + x;
-        System.out.print(c + key);
+        String context = "local" + result;
+        System.out.print(gridBagConstraints + context);
     }
 
     private void test() {
         String mess = "mess-label";
         System.out.print(mess);
-        ex: for (int value = 0; value < 10; value++) {
-            node: for (int type = 10; type > 0; type--) {
-                if (value != type) {
-                    System.out.print("break as i" + value + "j" + type);
-                    break ex;
+        tc: for (int c = 0; c < 10; c++) {
+            ex: for (int name = 10; name > 0; name--) {
+                if (c != name) {
+                    System.out.print("break as i" + c + "j" + name);
+                    break tc;
                 } else {
-                    System.out.print("continue as i" + value + "j" + type);
-                    continue node;
+                    System.out.print("continue as i" + c + "j" + name);
+                    continue ex;
                 }
             }
         }
@@ -34,12 +34,13 @@ public class Demo {
     private void exception() {
         try {
             throw Exception;
-        } catch (Exception name) {
-            name.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    public static void main(String[] e) {
+    public static void main(String[] i) {
         System.out.print(Demo.str);
     }
 }
+

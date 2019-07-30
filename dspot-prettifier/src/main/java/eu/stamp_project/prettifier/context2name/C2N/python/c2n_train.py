@@ -42,7 +42,7 @@ class Config:
 
 
 def easy_path(file_path):
-    return f"/content/gdrive/My Drive/C2N/{file_path}"
+    return f"/content/gdrive/My Drive/C2N/model/{file_path}"
 
 
 def easy_open(file_path, mode):
@@ -366,7 +366,7 @@ def train_lstm_aux(embedding, lstm, training_generator, eval_generator, n_chunks
         myfile.write("")
 
     for i in range(config.NUM_EPOCHS):
-        for j in range(min(n_chunks, 100)):
+        for j in range(min(n_chunks, 10)):
             # for j in range(n_chunks):
             train_data = next(training_generator)
             eval_data = next(eval_generator)

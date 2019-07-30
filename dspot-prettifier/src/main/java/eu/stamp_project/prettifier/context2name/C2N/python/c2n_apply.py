@@ -36,7 +36,7 @@ class Config:
 
 
 def easy_path(file_path):
-    return f"model/{file_path}"
+    return f"../model/{file_path}"
 
 
 def easy_open(file_path, mode):

@@ -168,6 +168,7 @@ public class C2N {
             try (FileWriter fileWriter = new FileWriter(CONTEXT2NAME_DIR + line.replace(".java", ".c2n.java"));
                  BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
                 bufferedWriter.write(compilationUnit.toString());
+                bufferedWriter.newLine();
                 bufferedWriter.flush();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -177,6 +178,7 @@ public class C2N {
                  BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
                 for (Scoper.Scope key : seqMap.keySet()) {
                     bufferedWriter.write(line.replace(" ", "_") + " 1ID:" + seqMap.get(key).get(2) + ":" + seqMap.get(key).get(1) + " " + seqMap.get(key).get(0));
+                    bufferedWriter.newLine();
                     bufferedWriter.flush();
                 }
             } catch (Exception e) {
@@ -357,7 +359,6 @@ public class C2N {
             LOGGER.info(line);
             compilationUnit = parseFile(line);
             if (compilationUnit != null) {
-                System.out.println("......");
                 scoper = new Scoper(compilationUnit);
                 dumpSequences(fileName, line, recovery);
             }
