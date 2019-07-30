@@ -53,17 +53,17 @@ public class Tmp {
         System.out.println("nodesMap\n" + nodesMap);
 
         // Parameter in 'Identifier'
-//        compilationUnit.findAll(Parameter.class)
-//            .forEach(node -> nodesList.addAll(nodesMap.get(node.getName().toString())));
+        compilationUnit.findAll(Parameter.class)
+            .forEach(node -> nodesList.addAll(nodesMap.get(node.getName().getIdentifier())));
         // MemberExpression/Property in 'Identifier'
-//        compilationUnit.findAll(VariableDeclarator.class)
-//            .forEach(node -> nodesList.addAll(nodesMap.get(node.getName().toString())));
+        compilationUnit.findAll(VariableDeclarator.class)
+            .forEach(node -> nodesList.addAll(nodesMap.get(node.getName().getIdentifier())));
         // Label in 'Identifier'
-//        compilationUnit.findAll(LabeledStmt.class)
-//            .forEach(node -> nodesList.addAll(nodesMap.get(node.getLabel().toString())));
-        // NameExpr in 'Identifier'
-        compilationUnit.findAll(NameExpr.class)
-            .forEach(node -> nodesList.addAll(nodesMap.get(node.getName().toString())));
+        compilationUnit.findAll(LabeledStmt.class)
+            .forEach(node -> nodesList.addAll(nodesMap.get(node.getLabel().getIdentifier())));
+        // SimpleName in 'Identifier'
+        compilationUnit.findAll(SimpleName.class)
+            .forEach(node -> nodesList.addAll(nodesMap.get(node.getIdentifier())));
         nodesList.forEach(
             node -> System.out.println(node.toString() + node.getRange())
         );

@@ -41,9 +41,6 @@ public class C2N {
     }
 
     private Map<Scoper.Scope, List<String>> extractSequences() {
-        // we skip identifiers such as static variables
-        List<String> tabooList = new ArrayList<>();
-
         Map<Scoper.Scope, List<String>> sequences = new HashMap<>();
         scoper.listIdentifierNode.forEach(node -> {
             Range range = node.getRange().orElse(null);
@@ -51,8 +48,8 @@ public class C2N {
                 Scoper.Scope scope = scoper.mapRange2Scope.get(range);
                 int index = scoper.mapRange2ScopeIdx.get(range);
                 if (scoper.listScope.get(index - 1).getKind() == DOT) {
-                    tabooList.add(scoper.listScope.get(index).name);
-                    return; // we do not handle static variables
+                    scoper.setTabooIdentifier.add(scoper.listScope.get(index).name);
+                    return; // we do not handle this kind of variables
                 }
                 if (scope.id > 0) {
                     List<String> arr = new ArrayList<>();
@@ -97,16 +94,16 @@ public class C2N {
                             }
                         }
                     }
-                    if (!tabooList.contains(scope.name)) {
+                    if (!scoper.setTabooIdentifier.contains(scope.name)) {
                         sequences.put(scope, arr);
                     }
                 }
             }
         });
-        // ignore elements in tabooList
+        // ignore identifiers in tabooSet
         Map<Scoper.Scope, List<String>> checkedSequences = new HashMap<>();
         sequences.forEach((scope, arr)->{
-            if (!tabooList.contains(scope.name)) {
+            if (!scoper.setTabooIdentifier.contains(scope.name)) {
                 checkedSequences.put(scope, arr);
             }
         });
@@ -360,6 +357,7 @@ public class C2N {
             LOGGER.info(line);
             compilationUnit = parseFile(line);
             if (compilationUnit != null) {
+                System.out.println("......");
                 scoper = new Scoper(compilationUnit);
                 dumpSequences(fileName, line, recovery);
             }
@@ -372,6 +370,4 @@ public class C2N {
 //        c2n.process("validation.txt", false);
         c2n.process("testing.txt", true);
     }
-
-    // todo debug & check
 }

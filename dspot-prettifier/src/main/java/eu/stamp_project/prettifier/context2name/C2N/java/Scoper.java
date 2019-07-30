@@ -4,9 +4,9 @@ import com.github.javaparser.JavaToken;
 import com.github.javaparser.Range;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.stmt.LabeledStmt;
 
@@ -19,11 +19,14 @@ import static java.util.Arrays.asList;
 /**
  * here explains the reason of using ...
  * using JavaToken is to index tokens
- * using NameExpr is to find all identifiers
+ * using SimpleName is to find all identifiers
  * using Node is to utilize Range
  * using SimpleName is to retrieve by name
  * using specific classes is to find sign identifiers
  */
+// issues found in JavaParser
+// https://github.com/javaparser/javaparser/issues/2310
+// https://github.com/javaparser/javaparser/issues/2313
 public class Scoper {
     private static int counter = 0;
     private CompilationUnit compilationUnit;
@@ -31,6 +34,9 @@ public class Scoper {
     // checking & renaming
     private Map<String, Set<String>> checkingMap = new HashMap<>();
     private Map<String, String> renamingMap = new HashMap<>();
+    // 1 to skip identifiers of specific types
+    // 2 to avoid renaming with these identifiers
+    Set<String> setTabooIdentifier = new HashSet<>();
     // for all tokens
     List<Scope> listScope = new ArrayList<>();
     Map<Range, Scope> mapRange2Scope = new HashMap<>();
@@ -42,6 +48,26 @@ public class Scoper {
         this.compilationUnit = compilationUnit;
         organizeTokens();
         organizeIdentifiers();
+    }
+
+    private void organizeTokens() {
+        ArrayList<JavaToken.Category> IGNORED_TOKEN_CATEGORIES = new ArrayList<>(asList(WHITESPACE_NO_EOL, EOL, COMMENT));
+        compilationUnit.getTokenRange().ifPresent(tokenRange -> {
+            for (JavaToken javaToken : tokenRange) {
+                if (IGNORED_TOKEN_CATEGORIES.contains(javaToken.getCategory())) {
+                    continue;
+                }
+                Scope scope = new Scope(javaToken);
+                listScope.add(scope);
+                Range range = scope.getRange().orElse(null);
+                mapRange2Scope.put(range, scope);
+            }
+        });
+        for (int idx = 0; idx < listScope.size(); idx++) {
+            Scope scope = listScope.get(idx);
+            Range range = scope.getRange().orElse(null);
+            mapRange2ScopeIdx.put(range, idx);
+        }
     }
 
     private void organizeIdentifiers() {
@@ -67,11 +93,12 @@ public class Scoper {
             String identifier = node.getLabel().getIdentifier();
             listIdentifierNode.addAll(mapName2NodeList.get(identifier));
         });
-        // we do not consider NameExpr here as they were declared by types above
 
-        // issues found in JavaParser
-        // https://github.com/javaparser/javaparser/issues/2310
-        // https://github.com/javaparser/javaparser/issues/2313
+        // for setTabooIdentifier
+        compilationUnit.findAll(MethodDeclaration.class).forEach(node -> {
+            String identifier = node.getName().getIdentifier();
+            setTabooIdentifier.add(identifier);
+        });
 
 //        // prepare checkingMap
 //        Set<String> names = new HashSet<>();
@@ -94,7 +121,7 @@ public class Scoper {
 //                    parentNode.findAll(Parameter.class).forEach(childNode ->
 //                        childNode.getParentNode().ifPresent(anotherParentNode -> {
 //                            if (parentNode == anotherParentNode) {
-//                                notableNames.add(childNode.getName().toString());
+//                                notableNames.add(childNode.getName().getIdentifier());
 //                            }
 //                        })
 //                    );
@@ -102,7 +129,7 @@ public class Scoper {
 //                    parentNode.findAll(VariableDeclarator.class).forEach(childNode ->
 //                        childNode.getParentNode().ifPresent(anotherParentNode -> {
 //                            if (parentNode == anotherParentNode) {
-//                                notableNames.add(childNode.getName().toString());
+//                                notableNames.add(childNode.getName().getIdentifier());
 //                            }
 //                        })
 //                    );
@@ -110,7 +137,7 @@ public class Scoper {
 //                    parentNode.findAll(LabeledStmt.class).forEach(childNode ->
 //                        childNode.getParentNode().ifPresent(anotherParentNode -> {
 //                            if (parentNode == anotherParentNode) {
-//                                notableNames.add(childNode.getLabel().toString());
+//                                notableNames.add(childNode.getLabel().getIdentifier());
 //                            }
 //                        })
 //                    );
@@ -122,26 +149,6 @@ public class Scoper {
 //        }
     }
 
-    private void organizeTokens() {
-        ArrayList<JavaToken.Category> IGNORED_TOKEN_CATEGORIES = new ArrayList<>(asList(WHITESPACE_NO_EOL, EOL, COMMENT));
-        compilationUnit.getTokenRange().ifPresent(tokenRange -> {
-            for (JavaToken javaToken : tokenRange) {
-                if (IGNORED_TOKEN_CATEGORIES.contains(javaToken.getCategory())) {
-                    continue;
-                }
-                Scope scope = new Scope(javaToken);
-                listScope.add(scope);
-                Range range = scope.getRange().orElse(null);
-                mapRange2Scope.put(range, scope);
-            }
-        });
-        for (int idx = 0; idx < listScope.size(); idx++) {
-            Scope scope = listScope.get(idx);
-            Range range = scope.getRange().orElse(null);
-            mapRange2ScopeIdx.put(range, idx);
-        }
-    }
-
     public boolean check(String oldName, String newName) {
 //        for (String notableName : checkingMap.get(oldName)) {
 //            if (renamingMap.getOrDefault(notableName, "@").equals(newName)) {
@@ -149,7 +156,7 @@ public class Scoper {
 //            }
 //        }
 //        return true;
-        return !renamingMap.containsValue(newName);
+        return !renamingMap.containsValue(newName) && !setTabooIdentifier.contains(newName);
     }
 
     public void link(String oldName, String newName) {
@@ -158,40 +165,12 @@ public class Scoper {
     }
 
     public void transform() {
-        // Parameter in 'Identifier'
-        compilationUnit.findAll(Parameter.class).forEach(node -> {
-            String name = node.getName().getIdentifier();
-            // for the case of elements in tabooList
-            if (renamingMap.containsKey(name)) {
-                String renaming = renamingMap.get(name);
-                node.setName(renaming);
-            }
-        });
-        // MemberExpression/Property in 'Identifier'
-        compilationUnit.findAll(VariableDeclarator.class).forEach(node -> {
-            String name = node.getName().getIdentifier();
-            // for the case of elements in tabooList
-            if (renamingMap.containsKey(name)) {
-                String renaming = renamingMap.get(name);
-                node.setName(renaming);
-            }
-        });
-        // Label in 'Identifier'
-        compilationUnit.findAll(LabeledStmt.class).forEach(node -> {
-            String name = node.getLabel().getIdentifier();
-            // for the case of elements in tabooList
-            if (renamingMap.containsKey(name)) {
-                String renaming = renamingMap.get(name);
-                node.setLabel(new SimpleName(renaming));
-            }
-        });
-        // NameExpr in 'Identifier'
-        compilationUnit.findAll(NameExpr.class).forEach(node -> {
-            String name = node.getName().getIdentifier();
+        compilationUnit.findAll(SimpleName.class).forEach(node -> {
+            String name = node.getIdentifier();
             // for some cases like `System` in `System.out.print();`
             if (renamingMap.containsKey(name)) {
                 String renaming = renamingMap.get(name);
-                node.setName(renaming);
+                node.setIdentifier(renaming);
             }
         });
     }
