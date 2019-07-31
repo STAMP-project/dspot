@@ -8,11 +8,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.concurrent.*;
 
-/**
- * created by Benjamin DANGLOT
- * benjamin.danglot@inria.fr
- * on 11/02/19
- */
 public class Context2NameExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Context2NameExecutor.class);

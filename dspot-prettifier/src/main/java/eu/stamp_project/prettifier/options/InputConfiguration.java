@@ -57,41 +57,6 @@ public class InputConfiguration {
                 '}';
     }
 
-    // Context2Name
-
-    private String pathToRootOfContext2Name;
-
-    public String getPathToRootOfContext2Name() {
-        return pathToRootOfContext2Name;
-    }
-
-    public InputConfiguration setPathToRootOfContext2Name(String pathToRootOfContext2Name) {
-        this.pathToRootOfContext2Name = DSpotUtils.shouldAddSeparator.apply(pathToRootOfContext2Name);
-        return this;
-    }
-
-    private String relativePathToModelForContext2Name;
-
-    public String getRelativePathToModelForContext2Name() {
-        return relativePathToModelForContext2Name;
-    }
-
-    public InputConfiguration setRelativePathToModelForContext2Name(String relativePathToModelForContext2Name) {
-        this.relativePathToModelForContext2Name = relativePathToModelForContext2Name;
-        return this;
-    }
-
-    private long timeToWaitForContext2nameInMillis = 90000;
-
-    public long getTimeToWaitForContext2nameInMillis() {
-        return this.timeToWaitForContext2nameInMillis;
-    }
-
-    public InputConfiguration setTimeToWaitForContext2nameInMillis(long timeToWaitForContext2nameInMillis) {
-        this.timeToWaitForContext2nameInMillis = timeToWaitForContext2nameInMillis;
-        return this;
-    }
-
     // Code2Vec
 
     private String pathToRootOfCode2Vec;
@@ -124,6 +89,41 @@ public class InputConfiguration {
 
     public InputConfiguration setTimeToWaitForCode2vecInMillis(long timeToWaitForCode2vecInMillis) {
         this.timeToWaitForCode2vecInMillis = timeToWaitForCode2vecInMillis;
+        return this;
+    }
+    
+    // Context2Name
+
+    private String pathToRootOfContext2Name;
+
+    public String getPathToRootOfContext2Name() {
+        return pathToRootOfContext2Name;
+    }
+
+    public InputConfiguration setPathToRootOfContext2Name(String pathToRootOfContext2Name) {
+        this.pathToRootOfContext2Name = DSpotUtils.shouldAddSeparator.apply(pathToRootOfContext2Name);
+        return this;
+    }
+
+    private String relativePathToModelForContext2Name;
+
+    public String getRelativePathToModelForContext2Name() {
+        return relativePathToModelForContext2Name;
+    }
+
+    public InputConfiguration setRelativePathToModelForContext2Name(String relativePathToModelForContext2Name) {
+        this.relativePathToModelForContext2Name = relativePathToModelForContext2Name;
+        return this;
+    }
+
+    private long timeToWaitForContext2nameInMillis = 90000;
+
+    public long getTimeToWaitForContext2nameInMillis() {
+        return this.timeToWaitForContext2nameInMillis;
+    }
+
+    public InputConfiguration setTimeToWaitForContext2nameInMillis(long timeToWaitForContext2nameInMillis) {
+        this.timeToWaitForContext2nameInMillis = timeToWaitForContext2nameInMillis;
         return this;
     }
 }

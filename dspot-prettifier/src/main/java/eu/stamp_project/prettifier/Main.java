@@ -45,9 +45,9 @@ public class Main {
 
     /*
         Apply the following algorithm:
-            1) Minimize the amplified test methods.
-            2) Rename local variables
-            3) rename the test methods
+            1) Minimize amplified test methods.
+            2) rename test methods
+            3) Rename local variables
      */
 
     public static void main(String[] args) {
@@ -74,10 +74,10 @@ public class Main {
                 testMethods,
                 amplifiedTestClass
         );
-        // 2 todo retrain one Context2Name model
-//        applyContext2Name(minimizedAmplifiedTestMethods);
-        // 3
+        // 2
         applyCode2Vec(minimizedAmplifiedTestMethods);
+        // 3 TODO train one better model
+        applyContext2Name(minimizedAmplifiedTestMethods);
         return minimizedAmplifiedTestMethods;
     }
 
@@ -116,29 +116,6 @@ public class Main {
         return minimizedAmplifiedTestMethods;
     }
 
-    public static void applyContext2Name(List<CtMethod<?>> amplifiedTestMethodsToBeRenamed) {
-        Context2NameWriter writer = new Context2NameWriter();
-        Context2NameParser parser = new Context2NameParser();
-        Context2NameExecutor context2nameExecutor = null;
-        try {
-            context2nameExecutor = new Context2NameExecutor();
-            for (CtMethod<?> amplifiedTestMethodToBeRenamed : amplifiedTestMethodsToBeRenamed) {
-                writer.writeCtMethodToInputFile(amplifiedTestMethodToBeRenamed);
-                context2nameExecutor.run();
-                // TODO (one method-name) -> (numerous variable-names)
-                final String context2nameOutput = context2nameExecutor.getOutput();
-                final String predictedSimpleName = parser.parse(context2nameOutput);
-                LOGGER.info("Context2Name predicted {} for {} as new name", predictedSimpleName, amplifiedTestMethodToBeRenamed.getSimpleName());
-                amplifiedTestMethodToBeRenamed.setSimpleName(predictedSimpleName);
-                // TODO uncomment Line78
-            }
-        } finally {
-            if (context2nameExecutor != null) {
-                context2nameExecutor.stop();
-            }
-        }
-    }
-
     public static void applyCode2Vec(List<CtMethod<?>> amplifiedTestMethodsToBeRenamed) {
         Code2VecWriter writer = new Code2VecWriter();
         Code2VecParser parser = new Code2VecParser();
@@ -156,6 +133,28 @@ public class Main {
         } finally {
             if (code2VecExecutor != null) {
                 code2VecExecutor.stop();
+            }
+        }
+    }
+
+    public static void applyContext2Name(List<CtMethod<?>> amplifiedTestMethodsToBeRenamed) {
+        Context2NameWriter writer = new Context2NameWriter();
+        Context2NameParser parser = new Context2NameParser();
+        Context2NameExecutor context2nameExecutor = null;
+        try {
+            context2nameExecutor = new Context2NameExecutor();
+            for (CtMethod<?> amplifiedTestMethodToBeRenamed : amplifiedTestMethodsToBeRenamed) {
+                writer.writeCtMethodToInputFile(amplifiedTestMethodToBeRenamed);
+                context2nameExecutor.run();
+                // TODO (one method-name) -> (numerous variable-names)
+                final String context2nameOutput = context2nameExecutor.getOutput();
+                final String predictedSimpleName = parser.parse(context2nameOutput);
+                LOGGER.info("Context2Name predicted {} for {} as new name", predictedSimpleName, amplifiedTestMethodToBeRenamed.getSimpleName());
+                amplifiedTestMethodToBeRenamed.setSimpleName(predictedSimpleName);
+            }
+        } finally {
+            if (context2nameExecutor != null) {
+                context2nameExecutor.stop();
             }
         }
     }

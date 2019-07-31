@@ -10,11 +10,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * created by Benjamin DANGLOT
- * benjamin.danglot@inria.fr
- * on 11/02/19
- */
 public class Context2NameParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Context2NameParser.class);

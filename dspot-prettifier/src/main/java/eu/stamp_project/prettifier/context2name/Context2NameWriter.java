@@ -7,11 +7,6 @@ import spoon.reflect.declaration.CtMethod;
 
 import java.io.FileWriter;
 
-/**
- * created by Benjamin DANGLOT
- * benjamin.danglot@inria.fr
- * on 11/02/19
- */
 public class Context2NameWriter {
 
     public static final String FILENAME = "Input.java";
