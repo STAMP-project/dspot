@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import eu.stamp_project.prettifier.code2vec.Code2VecExecutor;
 import eu.stamp_project.prettifier.code2vec.Code2VecParser;
 import eu.stamp_project.prettifier.code2vec.Code2VecWriter;
+import eu.stamp_project.prettifier.context2name.Context2Name;
 import eu.stamp_project.prettifier.context2name.Context2NameExecutor;
 import eu.stamp_project.prettifier.context2name.Context2NameParser;
 import eu.stamp_project.prettifier.context2name.Context2NameWriter;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.Launcher;
 import spoon.reflect.code.CtStatement;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.visitor.filter.TypeFilter;
@@ -27,9 +29,7 @@ import spoon.reflect.visitor.filter.TypeFilter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -76,9 +76,8 @@ public class Main {
         );
         // 2
         applyCode2Vec(minimizedAmplifiedTestMethods);
-        // 3 TODO train one better model
-        applyContext2Name(minimizedAmplifiedTestMethods);
-        return minimizedAmplifiedTestMethods;
+        // 3 TODO 1 train one better model 2 sync model 3 MultiProcess
+        return applyContext2Name(minimizedAmplifiedTestMethods);
     }
 
     public static List<CtMethod<?>> applyMinimization(List<CtMethod<?>> amplifiedTestMethodsToBeMinimized, CtType<?> amplifiedTestClass) {
@@ -137,26 +136,22 @@ public class Main {
         }
     }
 
-    public static void applyContext2Name(List<CtMethod<?>> amplifiedTestMethodsToBeRenamed) {
-        Context2NameWriter writer = new Context2NameWriter();
-        Context2NameParser parser = new Context2NameParser();
-        Context2NameExecutor context2nameExecutor = null;
-        try {
-            context2nameExecutor = new Context2NameExecutor();
-            for (CtMethod<?> amplifiedTestMethodToBeRenamed : amplifiedTestMethodsToBeRenamed) {
-                writer.writeCtMethodToInputFile(amplifiedTestMethodToBeRenamed);
-                context2nameExecutor.run();
-                // TODO (one method-name) -> (numerous variable-names)
-                final String context2nameOutput = context2nameExecutor.getOutput();
-                final String predictedSimpleName = parser.parse(context2nameOutput);
-                LOGGER.info("Context2Name predicted {} for {} as new name", predictedSimpleName, amplifiedTestMethodToBeRenamed.getSimpleName());
-                amplifiedTestMethodToBeRenamed.setSimpleName(predictedSimpleName);
-            }
-        } finally {
-            if (context2nameExecutor != null) {
-                context2nameExecutor.stop();
+    public static List<CtMethod<?>> applyContext2Name(List<CtMethod<?>> amplifiedTestMethods) {
+        Context2Name context2name = new Context2Name();
+        CtClass tmpClass = Launcher.parseClass("class Tmp {}");
+
+        Set<CtMethod<?>> tmpMethods = new HashSet<>();
+        for (CtMethod<?> amplifiedTestMethod : amplifiedTestMethods) {
+            tmpClass.setMethods(new HashSet<>(Collections.singletonList(amplifiedTestMethod)));
+            String strTmpClass = tmpClass.toString();
+            String strProcessedClass = context2name.process(strTmpClass);
+            CtClass processedClass = Launcher.parseClass(strProcessedClass);
+            Set<CtMethod> processedMethods = processedClass.getMethods();
+            for(CtMethod processedMethod: processedMethods) {
+                tmpMethods.add(processedMethod);
             }
         }
+        return new ArrayList<>(tmpMethods);
     }
 
     public static <T extends Number & Comparable<T>> Double getMedian(List<T> list) {

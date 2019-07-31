@@ -15,25 +15,30 @@ import java.util.*;
 import static com.github.javaparser.GeneratedJavaParserConstants.*;
 import static java.util.Arrays.asList;
 
-public class C2N {
-    private static final Logger LOGGER = LoggerFactory.getLogger(C2N.class);
+public class Context2Name {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Context2Name.class);
 
     private final int WIDTH = 5;
-    private final String CONTEXT2NAME_DIR = "src/main/resources/context2name/";
+    private String RESOURCES_DIR = getClass().getClassLoader().getResource("").getPath().replace("/target/test-classes/", "/target/classes/");
+    private final String CONTEXT2NAME_DIR = RESOURCES_DIR + "context2name/";
 
     private Scoper scoper;
     private CompilationUnit compilationUnit;
     private Gson gson = new Gson();
     private JsonParser jsonParser = new JsonParser();
 
+    private CompilationUnit parseCode(String code) {
+        ParseResult<CompilationUnit> parseResult = new JavaParser().parse(code);
+        Optional<CompilationUnit> optionalCompilationUnit = parseResult.getResult();
+        return optionalCompilationUnit.orElse(null);
+    }
+
     private CompilationUnit parseFile(String fileName) {
         try {
             File file = new File(CONTEXT2NAME_DIR + fileName);
             ParseResult<CompilationUnit> parseResult = new JavaParser().parse(file);
             Optional<CompilationUnit> optionalCompilationUnit = parseResult.getResult();
-            if (optionalCompilationUnit.isPresent()) {
-                return optionalCompilationUnit.get();
-            }
+            return optionalCompilationUnit.orElse(null);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -102,12 +107,76 @@ public class C2N {
         });
         // ignore identifiers in tabooSet
         Map<Scoper.Scope, List<String>> checkedSequences = new HashMap<>();
-        sequences.forEach((scope, arr)->{
+        sequences.forEach((scope, arr) -> {
             if (!scoper.setTabooIdentifier.contains(scope.name)) {
                 checkedSequences.put(scope, arr);
             }
         });
         return checkedSequences;
+    }
+
+    private String dumpSequences() {
+        String line = "Tmp.java";
+
+        Map<Scoper.Scope, List<String>> sequences = extractSequences();
+        Map<Scoper.Scope, List<String>> seqMap = new HashMap<>();
+        sequences.forEach((key, value) -> {
+            seqMap.putIfAbsent(key, new ArrayList<>(asList("", value.get(1), value.get(0))));
+            List<String> val = seqMap.get(key);
+            for (int j = 2; j < value.size(); j++) {
+                String token = value.get(j);
+                String[] tokens = token.split("/(\\s+)/");
+                token = tokens[0];
+                if (val.get(0).length() > 0) {
+                    val.set(0, val.get(0) + " ");
+                }
+                val.set(0, val.get(0) + token);
+            }
+        });
+
+        {
+            List<String> targets = new ArrayList<>();
+            for (Scoper.Scope key : seqMap.keySet()) {
+                targets.add(line.replace(" ", "_") + " 1ID:" + seqMap.get(key).get(2) + ":" + seqMap.get(key).get(1) + " " + seqMap.get(key).get(0));
+            }
+
+            // invoke Python scripts
+            String jsonInput = gson.toJson(targets);
+            String jsonOutput = invoke(jsonInput);
+            LOGGER.info(jsonOutput);
+
+            // parse Json
+            JsonElement je = jsonParser.parse(jsonOutput);
+            if (!je.isJsonNull()) {
+                JsonArray jsonArray = jsonParser.parse(jsonOutput).getAsJsonArray();
+                if (jsonArray.size() == 2) {
+                    List<List<Prediction>> predictions4all = new ArrayList<>();
+                    JsonElement je4all = jsonArray.get(0);
+                    for (JsonElement je4each : je4all.getAsJsonArray()) {
+                        List<Prediction> predictions4each = new ArrayList<>();
+                        for (JsonElement je4p : je4each.getAsJsonArray()) {
+                            JsonArray jaPrediction = je4p.getAsJsonArray();
+                            if (jaPrediction.size() == 3) {
+                                float probability = jaPrediction.get(0).getAsFloat();
+                                String name = jaPrediction.get(1).getAsString();
+                                int index = jaPrediction.get(2).getAsInt();
+                                predictions4each.add(new Prediction(probability, name, index));
+                            }
+                        }
+                        predictions4all.add(predictions4each);
+                    }
+
+                    List<String> names = new ArrayList<>();
+                    JsonElement je4names = jsonArray.get(1);
+                    for (JsonElement je4name : je4names.getAsJsonArray()) {
+                        names.add(je4name.getAsString());
+                    }
+                    Result result = new Result(predictions4all, names);
+                    recover(result);
+                }
+            }
+            return compilationUnit.toString();
+        }
     }
 
     private void dumpSequences(String fileName, String line, boolean recovery) {
@@ -137,32 +206,36 @@ public class C2N {
             String jsonInput = gson.toJson(targets);
             String jsonOutput = invoke(jsonInput);
             LOGGER.info(jsonOutput);
-            // parse Json
-            JsonArray jsonArray = jsonParser.parse(jsonOutput).getAsJsonArray();
-            if (jsonArray.size() == 2) {
-                List<List<Prediction>> predictions4all = new ArrayList<>();
-                JsonElement je4all = jsonArray.get(0);
-                for (JsonElement je4each : je4all.getAsJsonArray()) {
-                    List<Prediction> predictions4each = new ArrayList<>();
-                    for (JsonElement je4p : je4each.getAsJsonArray()) {
-                        JsonArray jaPrediction = je4p.getAsJsonArray();
-                        if (jaPrediction.size() == 3) {
-                            float probability = jaPrediction.get(0).getAsFloat();
-                            String name = jaPrediction.get(1).getAsString();
-                            int index = jaPrediction.get(2).getAsInt();
-                            predictions4each.add(new Prediction(probability, name, index));
-                        }
-                    }
-                    predictions4all.add(predictions4each);
-                }
 
-                List<String> names = new ArrayList<>();
-                JsonElement je4names = jsonArray.get(1);
-                for (JsonElement je4name : je4names.getAsJsonArray()) {
-                    names.add(je4name.getAsString());
+            // parse Json
+            JsonElement je = jsonParser.parse(jsonOutput);
+            if (!je.isJsonNull()) {
+                JsonArray jsonArray = jsonParser.parse(jsonOutput).getAsJsonArray();
+                if (jsonArray.size() == 2) {
+                    List<List<Prediction>> predictions4all = new ArrayList<>();
+                    JsonElement je4all = jsonArray.get(0);
+                    for (JsonElement je4each : je4all.getAsJsonArray()) {
+                        List<Prediction> predictions4each = new ArrayList<>();
+                        for (JsonElement je4p : je4each.getAsJsonArray()) {
+                            JsonArray jaPrediction = je4p.getAsJsonArray();
+                            if (jaPrediction.size() == 3) {
+                                float probability = jaPrediction.get(0).getAsFloat();
+                                String name = jaPrediction.get(1).getAsString();
+                                int index = jaPrediction.get(2).getAsInt();
+                                predictions4each.add(new Prediction(probability, name, index));
+                            }
+                        }
+                        predictions4all.add(predictions4each);
+                    }
+
+                    List<String> names = new ArrayList<>();
+                    JsonElement je4names = jsonArray.get(1);
+                    for (JsonElement je4name : je4names.getAsJsonArray()) {
+                        names.add(je4name.getAsString());
+                    }
+                    Result result = new Result(predictions4all, names);
+                    recover(result);
                 }
-                Result result = new Result(predictions4all, names);
-                recover(result);
             }
 
             try (FileWriter fileWriter = new FileWriter(CONTEXT2NAME_DIR + line.replace(".java", ".c2n.java"));
@@ -230,7 +303,7 @@ public class C2N {
     private String invoke(String jsonInput) {
         try {
             StringJoiner stringJoiner = new StringJoiner(";");
-            stringJoiner.add("cd src/main/python");
+            stringJoiner.add("cd " + CONTEXT2NAME_DIR + "python");
             stringJoiner.add("python3 c2n_apply.py -d " + nestStr(jsonInput));
             final String command = stringJoiner.toString();
             System.out.println(command);
@@ -341,6 +414,15 @@ public class C2N {
 //        scoper.transform();
     }
 
+    public String process(String code) {
+        compilationUnit = parseCode(code);
+        if (compilationUnit != null) {
+            scoper = new Scoper(compilationUnit);
+            return dumpSequences();
+        }
+        return null;
+    }
+
     private void process(String fileName, boolean recovery) {
         List<String> lines = new ArrayList<>();
         try {
@@ -365,12 +447,20 @@ public class C2N {
         }
     }
 
-    public static void main(String[] args) {
-        C2N c2n = new C2N();
+    public void fnCorpus() {
         // if you want to process corpus
-//        c2n.process("training.txt", false);
-//        c2n.process("validation.txt", false);
-        // if you want to run one demo
-        c2n.process("demo.txt", true);
+        process("training.txt", false);
+        process("validation.txt", false);
     }
+
+    public void fnDemo() {
+        // if you want to run one demo
+        process("demo.txt", true);
+    }
+
+//    public static void main(String[] args) {
+//        Context2Name context2Name = new Context2Name();
+//        context2Name.fnCorpus();
+//        context2Name.fnDemo();
+//    }
 }

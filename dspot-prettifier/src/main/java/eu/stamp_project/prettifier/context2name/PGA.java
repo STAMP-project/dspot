@@ -63,7 +63,8 @@ pga list -l java -f json | jq -r 'select(.commitsCount >= 1000) | select(.commit
 public class PGA {
     private static final Logger LOGGER = LoggerFactory.getLogger(PGA.class);
 
-    private final String CONTEXT2NAME_DIR = "src/main/resources/context2name/";
+    private final String RESOURCES_DIR = getClass().getClassLoader().getResource("").getPath();
+    private final String CONTEXT2NAME_DIR = RESOURCES_DIR + "context2name/";
     private final String SIVA_DATA_DIR = CONTEXT2NAME_DIR + "siva_data/";
     private final String SIVA_UNPACKED_DIR = CONTEXT2NAME_DIR + "siva_unpacked/";
     private final String SIVA_EXPLORED_DIR = CONTEXT2NAME_DIR + "siva_explored/";

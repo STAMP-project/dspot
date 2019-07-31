@@ -15,6 +15,6 @@ For __code2vec__, you need to run `install_code2vec.sh` to download repo.
 For __context2name__, if you want to train one better model:
 
 1. Prepare corpus. You could run `PGA.java` directly or make some adjustments to customize corpus.
-2. Process corpus. You just need to run `C2N.java`.
+2. Process corpus. You just need to call `fnCorpus()` of `C2N.java`, then `training.csv` and `validation.csv` get generated.
 3. Train model. You just need to run `c2n_train.py` with `training.csv`, `validation.csv` and `config.json` at hand.
-4. Run one demo. You just need to run `C2N.java`.
+4. Run one demo. You just need to call `fnDemo()` of `C2N.java`.
