@@ -51,7 +51,7 @@ public class AssertionGenerator {
     /**
      * Adds new assertions in multiple tests.
      * <p>
-     * <p>Details of the assertions generation in {@link #innerAssertionAmplification(CtType, List)}.
+     * <p>Details of the assertions generation in {@link #assertPassingAndFailingTests(CtType, List)}.
      *
      * @param testClass Test class
      * @param tests     Test methods to amplify
@@ -63,14 +63,9 @@ public class AssertionGenerator {
         }
         CtType cloneClass = testClass.clone();
         cloneClass.setParent(testClass.getParent());
+        List<CtMethod<?>> testsWithoutAssertions = removeAssertions(tests,cloneClass);
 
-        // remove existing assertions from cloned test methods
-        List<CtMethod<?>> testsWithoutAssertions = tests.stream()
-                .map(this.assertionRemover::removeAssertion)
-                .collect(Collectors.toList());
-        testsWithoutAssertions.forEach(cloneClass::addMethod);
-
-        // set up testMethodReconstructor for use in innerAssertionAmplification
+        // set up testMethodReconstructor for use in assertPassingAndFailingTests
         this.testMethodReconstructor = new TestMethodReconstructor(
                 testClass,
                 this.configuration,
@@ -78,17 +73,26 @@ public class AssertionGenerator {
                 this.assertionRemover.getVariableAssertedPerTestMethod()
         );
         final List<CtMethod<?>> amplifiedTestsWithAssertions =
-                this.innerAssertionAmplification(cloneClass, testsWithoutAssertions);
+                this.assertPassingAndFailingTests(cloneClass, testsWithoutAssertions);
+        decideLoggerOutput(amplifiedTestsWithAssertions);
+        return amplifiedTestsWithAssertions;
+    }
+
+    // remove existing assertions from cloned test methods
+    private List<CtMethod<?>> removeAssertions(List<CtMethod<?>> tests,CtType cloneClass){
+        List<CtMethod<?>> testsWithoutAssertions = tests.stream()
+                .map(this.assertionRemover::removeAssertion)
+                .collect(Collectors.toList());
+        testsWithoutAssertions.forEach(cloneClass::addMethod);
+        return testsWithoutAssertions;
+    }
+
+    private void decideLoggerOutput(List<CtMethod<?>> amplifiedTestsWithAssertions){
         if (amplifiedTestsWithAssertions.isEmpty()) {
             LOGGER.info("Could not generate any test with assertions");
         } else {
             LOGGER.info("{} new tests with assertions generated", amplifiedTestsWithAssertions.size());
         }
-        return amplifiedTestsWithAssertions;
-    }
-
-    private boolean checkMethodName(String patternMethodName, String methodNameToBeChecked) {
-        return Pattern.compile(patternMethodName + "(\\[\\d+\\])?").matcher(methodNameToBeChecked).matches();
     }
 
     /**
@@ -107,12 +111,11 @@ public class AssertionGenerator {
      * @param tests     Test methods
      * @return New tests with new assertions
      */
-    private List<CtMethod<?>> innerAssertionAmplification(CtType testClass, List<CtMethod<?>> tests) {
-
-        // check if input amplified tests throw new exceptions
+    private List<CtMethod<?>> assertPassingAndFailingTests(CtType testClass, List<CtMethod<?>> tests) {
         LOGGER.info("Run tests. ({})", tests.size());
         final TestResult testResult;
         try {
+
             //Add parallel test execution support (JUnit4, JUnit5) for execution method (CMD, Maven)
             CloneHelper.addParallelExecutionAnnotation(testClass, tests);
             testResult = TestCompiler.compileAndRun(testClass,
@@ -125,14 +128,15 @@ public class AssertionGenerator {
             e.printStackTrace();
             return Collections.emptyList();
         }
-        final List<String> failuresMethodName = testResult.getFailingTests()
-                .stream()
-                .map(failure -> failure.testCaseName)
-                .collect(Collectors.toList());
-        final List<String> passingTestsName = testResult.getPassingTests();
         final List<CtMethod<?>> generatedTestWithAssertion = new ArrayList<>();
+        generatedTestWithAssertion.addAll(addAssertionsOnPassingTests(testResult,tests,testClass));
+        generatedTestWithAssertion.addAll(addTryCatchBlockOnFailingTests(testResult,tests));
+        return generatedTestWithAssertion;
+    }
 
-        // add assertions on passing tests
+    private List<CtMethod<?>> addAssertionsOnPassingTests(TestResult testResult,List<CtMethod<?>> tests,CtType testClass){
+        final List<CtMethod<?>> generatedTestWithAssertion = new ArrayList<>();
+        final List<String> passingTestsName = testResult.getPassingTests();
         if (!passingTestsName.isEmpty()) {
             LOGGER.info("{} test pass, generating assertion...", passingTestsName.size());
             final List<CtMethod<?>> passingTestMethods = tests.stream()
@@ -146,9 +150,21 @@ public class AssertionGenerator {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
             generatedTestWithAssertion.addAll(passingTests);
+            return generatedTestWithAssertion;
         }
+        return new ArrayList<>();
+    }
 
-        // add try/catch block with fail statement in failing tests
+    private boolean checkMethodName(String patternMethodName, String methodNameToBeChecked) {
+        return Pattern.compile(patternMethodName + "(\\[\\d+\\])?").matcher(methodNameToBeChecked).matches();
+    }
+
+    // add try/catch block with fail statement in failing tests
+    private List<CtMethod<?>> addTryCatchBlockOnFailingTests(TestResult testResult,List<CtMethod<?>> tests){
+        final List<String> failuresMethodName = testResult.getFailingTests()
+                .stream()
+                .map(failure -> failure.testCaseName)
+                .collect(Collectors.toList());
         if (!failuresMethodName.isEmpty()) {
             LOGGER.info("{} test fail, generating try/catch/fail blocks...", failuresMethodName.size());
             final List<CtMethod<?>> failingTests = tests.stream()
@@ -161,9 +177,10 @@ public class AssertionGenerator {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
             if (!failingTests.isEmpty()) {
-                generatedTestWithAssertion.addAll(failingTests);
+                return failingTests;
             }
         }
-        return generatedTestWithAssertion;
+        return new ArrayList<>();
     }
 }
+
