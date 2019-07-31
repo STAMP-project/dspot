@@ -24,7 +24,6 @@ import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -39,15 +38,9 @@ public class TestMethodReconstructor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestMethodReconstructor.class);
 
-    private CtType originalClass;
-
     private Factory factory;
 
     private InputConfiguration configuration;
-
-    private DSpotCompiler compiler;
-
-    private Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted;
 
     private Observer observer;
 
@@ -55,11 +48,8 @@ public class TestMethodReconstructor {
                                    InputConfiguration configuration,
                                    DSpotCompiler compiler,
                                    Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted) {
-        this.originalClass = originalClass;
         this.configuration = configuration;
-        this.compiler = compiler;
         this.factory = configuration.getFactory();
-        this.variableReadsAsserted = variableReadsAsserted;
         this.observer = new Observer(originalClass,
                 configuration,
                 compiler,
@@ -87,12 +77,11 @@ public class TestMethodReconstructor {
             return Collections.emptyList();
         }
         LOGGER.info("Generating assertions...");
-        return addAssertions(testCases,observations);
+        return buildEachTest(testCases,observations);
     }
 
-    // add assertions with values retrieved from logs
-    private List<CtMethod<?>> addAssertions(List<CtMethod<?>> testCases,Map<String, Observation> observations) {
-        LOGGER.info("Generating assertions...");
+    // add assertions to each test with values retrieved from logs
+    private List<CtMethod<?>> buildEachTest(List<CtMethod<?>> testCases,Map<String, Observation> observations) {
         return testCases.stream()
                 .map(ctMethod -> this.buildTestWithAssert(ctMethod, observations))
                 .collect(Collectors.toList());
@@ -108,7 +97,7 @@ public class TestMethodReconstructor {
     @SuppressWarnings("unchecked")
     private CtMethod<?> buildTestWithAssert(CtMethod test, Map<String, Observation> observations) {
         CtMethod testWithAssert = CloneHelper.cloneTestMethodForAmp(test, "");
-        int numberOfAddedAssertion = 0;
+        Integer numberOfAddedAssertion = 0;
         List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter(CtStatement.class));
 
         // for every observation, create an assertion
@@ -123,66 +112,80 @@ public class TestMethodReconstructor {
                     Double.parseDouble(configuration.getDelta())
             );
 
-            // skip the current observation if it leads to an assertion identical to the last assertion put into the test method
+            /* skip the current observation if it leads to
+            an assertion identical to the last assertion put into the test method */
             if (assertStatements.stream()
                     .map(Object::toString)
                     .map("// AssertionGenerator add assertion\n"::concat)
                     .anyMatch(testWithAssert.getBody().getLastStatement().toString()::equals)) {
                 continue;
             }
-            int line = Integer.parseInt(id.split("__")[1]);
-            CtStatement lastStmt = null;
-            for (CtStatement assertStatement : assertStatements) {
-                DSpotUtils.addComment(assertStatement, "AssertionGenerator add assertion", CtComment.CommentType.INLINE);
-                try {
-                    CtStatement statementToBeAsserted = statements.get(line);
-                    if (lastStmt == null) {
-                        lastStmt = statementToBeAsserted;
-                    }
-                    if (statementToBeAsserted instanceof CtBlock) {
-                        break;
-                    }
-
-                    // if the statement to be asserted is a method or constructor call, replace that invocation in the
-                    // assertion with an equivalent local variable
-                    if (statementToBeAsserted instanceof CtInvocation &&
-                            !AssertionGeneratorUtils.isVoidReturn((CtInvocation) statementToBeAsserted) &&
-                            statementToBeAsserted.getParent() instanceof CtBlock) {
-
-                        // create a new local variable and assign the invocation to it
-                        CtInvocation invocationToBeReplaced = (CtInvocation) statementToBeAsserted.clone();
-                        final CtLocalVariable localVariable = factory.createLocalVariable(
-                                AssertionGeneratorUtils.getCorrectTypeOfInvocation(invocationToBeReplaced),
-                                "o_" + id.split("___")[0],
-                                invocationToBeReplaced
-                        );
-
-                        // put the new local variable into the assertion and the assertion into the test method
-                        statementToBeAsserted.replace(localVariable);
-                        DSpotUtils.addComment(localVariable, "AssertionGenerator create local variable with return value of invocation", CtComment.CommentType.INLINE);
-                        localVariable.setParent(statementToBeAsserted.getParent());
-                        addAtCorrectPlace(id, localVariable, assertStatement, statementToBeAsserted);
-                        statements.remove(line);
-                        statements.add(line, localVariable);
-
-                        // no creation of local variable is needed, just put the assertion into the test method
-                    } else {
-                        addAtCorrectPlace(id, lastStmt, assertStatement, statementToBeAsserted);
-                    }
-                    lastStmt = assertStatement;
-                    numberOfAddedAssertion++;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
+            goThroughAssertionStatements(assertStatements,id,statements,numberOfAddedAssertion);
         }
         Counter.updateAssertionOf(testWithAssert, numberOfAddedAssertion);
-        if (!testWithAssert.equals(test)) {
-            return testWithAssert;
-        } else {
-            AmplificationHelper.removeAmpTestParent(testWithAssert);
-            return null;
+        return decideReturn(testWithAssert,test);
+    }
+
+    private void goThroughAssertionStatements(List<CtStatement> assertStatements,String id,
+                                               List<CtStatement> statements,Integer numberOfAddedAssertion){
+        int line = Integer.parseInt(id.split("__")[1]);
+        CtStatement lastStmt = null;
+        for (CtStatement assertStatement : assertStatements) {
+            DSpotUtils.addComment(assertStatement,
+                    "AssertionGenerator add assertion",
+                    CtComment.CommentType.INLINE);
+            try {
+                CtStatement statementToBeAsserted = statements.get(line);
+                if (lastStmt == null) {
+                    lastStmt = statementToBeAsserted;
+                }
+                if (statementToBeAsserted instanceof CtBlock) {
+                    break;
+                }
+                decideInvocationReplacement(statementToBeAsserted,id,assertStatement,statements,line,lastStmt);
+                lastStmt = assertStatement;
+                numberOfAddedAssertion++;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
+    }
+
+    private void decideInvocationReplacement(CtStatement statementToBeAsserted,String id,CtStatement assertStatement,
+                                   List<CtStatement> statements,int line,CtStatement lastStmt){
+
+        /* if the statement to be asserted is a method or constructor call, replace that invocation in the
+        assertion with an equivalent local variable */
+        if (statementToBeAsserted instanceof CtInvocation &&
+                !AssertionGeneratorUtils.isVoidReturn((CtInvocation) statementToBeAsserted) &&
+                statementToBeAsserted.getParent() instanceof CtBlock) {
+            replaceInvocation(statementToBeAsserted,id,assertStatement,statements,line);
+
+            // no creation of local variable is needed, just put the assertion into the test method
+        } else {
+            addAtCorrectPlace(id, lastStmt, assertStatement, statementToBeAsserted);
+        }
+    }
+    private void replaceInvocation(CtStatement statementToBeAsserted,String id,CtStatement assertStatement,
+                                   List<CtStatement> statements,int line){
+
+        // create a new local variable and assign the invocation to it
+        CtInvocation invocationToBeReplaced = (CtInvocation) statementToBeAsserted.clone();
+        final CtLocalVariable localVariable = factory.createLocalVariable(
+                AssertionGeneratorUtils.getCorrectTypeOfInvocation(invocationToBeReplaced),
+                "o_" + id.split("___")[0],
+                invocationToBeReplaced
+        );
+
+        // put the new local variable into the assertion and the assertion into the test method
+        statementToBeAsserted.replace(localVariable);
+        DSpotUtils.addComment(localVariable,
+                "AssertionGenerator create local variable with return value of invocation",
+                CtComment.CommentType.INLINE);
+        localVariable.setParent(statementToBeAsserted.getParent());
+        addAtCorrectPlace(id, localVariable, assertStatement, statementToBeAsserted);
+        statements.remove(line);
+        statements.add(line, localVariable);
     }
 
     private void addAtCorrectPlace(String id,
@@ -193,6 +196,15 @@ public class TestMethodReconstructor {
             statementToBeAsserted.getParent(CtBlock.class).insertEnd(assertStatement);
         } else {
             lastStmt.insertAfter(assertStatement);
+        }
+    }
+
+    private CtMethod decideReturn(CtMethod testWithAssert,CtMethod test){
+        if (!testWithAssert.equals(test)) {
+            return testWithAssert;
+        } else {
+            AmplificationHelper.removeAmpTestParent(testWithAssert);
+            return null;
         }
     }
 }
