@@ -1,8 +1,8 @@
-package eu.stamp_project.dspot.assertgenerator;
+package eu.stamp_project.dspot.assertiongenerator;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.assertionsyntaxbuilder.Translator;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.testmethodreconstructor_components.assertionsyntaxbuilder_components.Translator;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;

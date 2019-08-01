@@ -1,8 +1,8 @@
-package eu.stamp_project.dspot.assertgenerator;
+package eu.stamp_project.dspot.assertiongenerator;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.dspot.assertgenerator.components.TryCatchFailGenerator;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.TryCatchFailGenerator;
 import eu.stamp_project.testrunner.runner.Failure;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;

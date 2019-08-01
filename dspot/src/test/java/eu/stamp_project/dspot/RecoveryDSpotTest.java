@@ -4,7 +4,7 @@ import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Main;
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.amplifier.Amplifier;
-import eu.stamp_project.dspot.assertgenerator.AssertionGenerator;
+import eu.stamp_project.dspot.assertiongenerator.AssertionGenerator;
 import eu.stamp_project.dspot.budget.TextualDistanceBudgetizer;
 import eu.stamp_project.utils.report.error.ErrorEnum;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;

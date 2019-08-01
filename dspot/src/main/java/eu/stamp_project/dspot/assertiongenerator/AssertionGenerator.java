@@ -1,12 +1,14 @@
-package eu.stamp_project.dspot.assertgenerator;
+package eu.stamp_project.dspot.assertiongenerator;
 
 import eu.stamp_project.dspot.AmplificationException;
-import eu.stamp_project.dspot.assertgenerator.components.TestMethodReconstructor;
-import eu.stamp_project.dspot.assertgenerator.components.TryCatchFailGenerator;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.AssertionRemover;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.TestMethodReconstructor;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.TryCatchFailGenerator;
 import eu.stamp_project.testrunner.listener.TestResult;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
@@ -16,9 +18,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class AssertionGeneratorWithTime extends AssertionGenerator {
+/**
+ * User: Simon
+ * Date: 12/02/16
+ * Time: 10:31
+ */
+
+public class AssertionGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AssertionGenerator.class);
 
@@ -26,29 +35,23 @@ public class AssertionGeneratorWithTime extends AssertionGenerator {
 
     private DSpotCompiler compiler;
 
-    public AssertionRemoverWithTime assertionRemover;
+    private AssertionRemover assertionRemover;
 
-    public TryCatchFailGenerator tryCatchFailGenerator;
+    private TryCatchFailGenerator tryCatchFailGenerator;
 
-    public MethodAssertGeneratorWithTime methodsAssertGenerator;
+    private TestMethodReconstructor testMethodReconstructor;
 
-    public AssertionGeneratorWithTime(InputConfiguration configuration, DSpotCompiler compiler) {
-        super(configuration, compiler);
+    public AssertionGenerator(InputConfiguration configuration, DSpotCompiler compiler) {
         this.configuration = configuration;
         this.compiler = compiler;
-        this.assertionRemover = new AssertionRemoverWithTime();
+        this.assertionRemover = new AssertionRemover();
         this.tryCatchFailGenerator = new TryCatchFailGenerator();
-    }
-
-    public void reset() {
-        this.assertionRemover.reset();
-        this.methodsAssertGenerator.reset();
     }
 
     /**
      * Adds new assertions in multiple tests.
      * <p>
-     * <p>Details of the assertions generation in {@link #innerAssertionAmplification(CtType, List)}.
+     * <p>Details of the assertions generation in {@link #assertPassingAndFailingTests(CtType, List)}.
      *
      * @param testClass Test class
      * @param tests     Test methods to amplify
@@ -60,24 +63,36 @@ public class AssertionGeneratorWithTime extends AssertionGenerator {
         }
         CtType cloneClass = testClass.clone();
         cloneClass.setParent(testClass.getParent());
-        List<CtMethod<?>> testsWithoutAssertions = tests.stream()
-                .map(this.assertionRemover::removeAssertion)
-                .collect(Collectors.toList());
-        testsWithoutAssertions.forEach(cloneClass::addMethod);
-        this.methodsAssertGenerator = new MethodAssertGeneratorWithTime(
+        List<CtMethod<?>> testsWithoutAssertions = removeAssertions(tests,cloneClass);
+
+        // set up testMethodReconstructor for use in assertPassingAndFailingTests
+        this.testMethodReconstructor = new TestMethodReconstructor(
                 testClass,
                 this.configuration,
                 compiler,
                 this.assertionRemover.getVariableAssertedPerTestMethod()
         );
         final List<CtMethod<?>> amplifiedTestsWithAssertions =
-                this.innerAssertionAmplification(cloneClass, testsWithoutAssertions);
+                this.assertPassingAndFailingTests(cloneClass, testsWithoutAssertions);
+        decideLoggerOutput(amplifiedTestsWithAssertions);
+        return amplifiedTestsWithAssertions;
+    }
+
+    // remove existing assertions from cloned test methods
+    private List<CtMethod<?>> removeAssertions(List<CtMethod<?>> tests,CtType cloneClass){
+        List<CtMethod<?>> testsWithoutAssertions = tests.stream()
+                .map(this.assertionRemover::removeAssertion)
+                .collect(Collectors.toList());
+        testsWithoutAssertions.forEach(cloneClass::addMethod);
+        return testsWithoutAssertions;
+    }
+
+    private void decideLoggerOutput(List<CtMethod<?>> amplifiedTestsWithAssertions){
         if (amplifiedTestsWithAssertions.isEmpty()) {
             LOGGER.info("Could not generate any test with assertions");
         } else {
             LOGGER.info("{} new tests with assertions generated", amplifiedTestsWithAssertions.size());
         }
-        return amplifiedTestsWithAssertions;
     }
 
     /**
@@ -96,10 +111,13 @@ public class AssertionGeneratorWithTime extends AssertionGenerator {
      * @param tests     Test methods
      * @return New tests with new assertions
      */
-    private List<CtMethod<?>> innerAssertionAmplification(CtType testClass, List<CtMethod<?>> tests) {
+    private List<CtMethod<?>> assertPassingAndFailingTests(CtType testClass, List<CtMethod<?>> tests) {
         LOGGER.info("Run tests. ({})", tests.size());
         final TestResult testResult;
         try {
+
+            //Add parallel test execution support (JUnit4, JUnit5) for execution method (CMD, Maven)
+            CloneHelper.addParallelExecutionAnnotation(testClass, tests);
             testResult = TestCompiler.compileAndRun(testClass,
                     this.compiler,
                     tests,
@@ -110,31 +128,43 @@ public class AssertionGeneratorWithTime extends AssertionGenerator {
             e.printStackTrace();
             return Collections.emptyList();
         }
+        final List<CtMethod<?>> generatedTestWithAssertion = new ArrayList<>();
+        generatedTestWithAssertion.addAll(addAssertionsOnPassingTests(testResult,tests,testClass));
+        generatedTestWithAssertion.addAll(addTryCatchBlockOnFailingTests(testResult,tests));
+        return generatedTestWithAssertion;
+    }
 
+    private List<CtMethod<?>> addAssertionsOnPassingTests(TestResult testResult,List<CtMethod<?>> tests,CtType testClass){
+        final List<CtMethod<?>> generatedTestWithAssertion = new ArrayList<>();
+        final List<String> passingTestsName = testResult.getPassingTests();
+        if (!passingTestsName.isEmpty()) {
+            LOGGER.info("{} test pass, generating assertion...", passingTestsName.size());
+            final List<CtMethod<?>> passingTestMethods = tests.stream()
+                    .filter(ctMethod ->
+                            passingTestsName.stream()
+                                    .anyMatch(passingTestName -> checkMethodName(ctMethod.getSimpleName(), passingTestName))
+                    ).collect(Collectors.toList());
+            List<CtMethod<?>> passingTests = this.testMethodReconstructor.addAssertions(testClass,
+                    passingTestMethods)
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            generatedTestWithAssertion.addAll(passingTests);
+            return generatedTestWithAssertion;
+        }
+        return new ArrayList<>();
+    }
+
+    private boolean checkMethodName(String patternMethodName, String methodNameToBeChecked) {
+        return Pattern.compile(patternMethodName + "(\\[\\d+\\])?").matcher(methodNameToBeChecked).matches();
+    }
+
+    // add try/catch block with fail statement in failing tests
+    private List<CtMethod<?>> addTryCatchBlockOnFailingTests(TestResult testResult,List<CtMethod<?>> tests){
         final List<String> failuresMethodName = testResult.getFailingTests()
                 .stream()
                 .map(failure -> failure.testCaseName)
                 .collect(Collectors.toList());
-
-        final List<String> passingTestsName = testResult.getPassingTests();
-
-        final List<CtMethod<?>> generatedTestWithAssertion = new ArrayList<>();
-        // add assertion on passing tests
-        if (!passingTestsName.isEmpty()) {
-            LOGGER.info("{} test pass, generating assertion...", passingTestsName.size());
-            List<CtMethod<?>> passingTests = this.methodsAssertGenerator.addAssertions(testClass,
-                    tests.stream()
-                            .filter(ctMethod -> passingTestsName.contains(ctMethod.getSimpleName()))
-                            .collect(Collectors.toList()))
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-            if (passingTests != null) {
-                generatedTestWithAssertion.addAll(passingTests);
-            }
-        }
-
-        // add try/catch/fail on failing/error tests
         if (!failuresMethodName.isEmpty()) {
             LOGGER.info("{} test fail, generating try/catch/fail blocks...", failuresMethodName.size());
             final List<CtMethod<?>> failingTests = tests.stream()
@@ -147,10 +177,10 @@ public class AssertionGeneratorWithTime extends AssertionGenerator {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
             if (!failingTests.isEmpty()) {
-                generatedTestWithAssertion.addAll(failingTests);
+                return failingTests;
             }
         }
-        return generatedTestWithAssertion;
+        return new ArrayList<>();
     }
-
 }
+

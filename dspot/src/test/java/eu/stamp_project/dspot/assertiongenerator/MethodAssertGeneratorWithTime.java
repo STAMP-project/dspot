@@ -1,12 +1,12 @@
-package eu.stamp_project.dspot.assertgenerator;
+package eu.stamp_project.dspot.assertiongenerator;
 
 import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.compare.Observation;
 import eu.stamp_project.dspot.AmplificationException;
-import eu.stamp_project.dspot.assertgenerator.components.TestMethodReconstructor;
-import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.AssertionSyntaxBuilder;
-import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.observer.TestWithLogGenerator;
-import eu.stamp_project.dspot.assertgenerator.utils.AssertionGeneratorUtils;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.TestMethodReconstructor;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.testmethodreconstructor_components.AssertionSyntaxBuilder;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.testmethodreconstructor_components.observer_components.TestWithLogGenerator;
+import eu.stamp_project.dspot.assertiongenerator.utils.AssertionGeneratorUtils;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.program.InputConfiguration;

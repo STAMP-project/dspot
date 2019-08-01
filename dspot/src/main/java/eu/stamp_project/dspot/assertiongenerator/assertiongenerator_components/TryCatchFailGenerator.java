@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.assertgenerator.components;
+package eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components;
 
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.runner.Failure;
