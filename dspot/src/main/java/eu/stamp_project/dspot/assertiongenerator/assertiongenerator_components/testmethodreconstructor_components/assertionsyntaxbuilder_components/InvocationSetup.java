@@ -21,13 +21,15 @@ public class InvocationSetup {
                     value instanceof Float || value.getClass() == float.class;
 
     /**
+     * Setup and create assertion syntax for a type other than boolean, primitive collection, array and primitive map.
+     * The new assertion syntax is put into the {@code invocations} parameter.
      *
-     * @param invocations
-     * @param testMethod
-     * @param value
-     * @param variableRead
-     * @param factory
-     * @param delta
+     * @param invocations A list holding assertion syntaxes
+     * @param testMethod Test Method
+     * @param value Expected value of assertion
+     * @param variableRead Name of variable holding actual value of assertion
+     * @param factory Factory
+     * @param delta Precision for floating type assertions
      */
     public static void addRemainingType(List<CtStatement> invocations, CtMethod<?> testMethod,
                                         Object value, CtExpression variableRead, Factory factory, Double delta) {

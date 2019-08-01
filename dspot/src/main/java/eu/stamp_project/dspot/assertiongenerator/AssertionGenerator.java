@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,7 +48,7 @@ public class AssertionGenerator {
     }
 
     /**
-     * Adds new assertions in multiple tests.
+     * Removes old assertions and adds new assertions and fail statements in multiple tests.
      * <p>
      * <p>Details of the assertions generation in {@link #assertPassingAndFailingTests(CtType, List)}.
      *
@@ -130,7 +129,7 @@ public class AssertionGenerator {
         }
         final List<CtMethod<?>> generatedTestWithAssertion = new ArrayList<>();
         generatedTestWithAssertion.addAll(addAssertionsOnPassingTests(testResult,tests,testClass));
-        generatedTestWithAssertion.addAll(addTryCatchBlockOnFailingTests(testResult,tests));
+        generatedTestWithAssertion.addAll(addFailStatementOnFailingTests(testResult,tests));
         return generatedTestWithAssertion;
     }
 
@@ -160,7 +159,7 @@ public class AssertionGenerator {
     }
 
     // add try/catch block with fail statement in failing tests
-    private List<CtMethod<?>> addTryCatchBlockOnFailingTests(TestResult testResult,List<CtMethod<?>> tests){
+    private List<CtMethod<?>> addFailStatementOnFailingTests(TestResult testResult, List<CtMethod<?>> tests){
         final List<String> failuresMethodName = testResult.getFailingTests()
                 .stream()
                 .map(failure -> failure.testCaseName)

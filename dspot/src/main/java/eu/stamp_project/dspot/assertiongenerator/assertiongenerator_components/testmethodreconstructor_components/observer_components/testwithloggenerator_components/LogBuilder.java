@@ -14,9 +14,10 @@ public class LogBuilder {
     private static final Predicate<CtStatement> shouldAddLogEndStatement = shouldAddLogEndStatement();
 
     /**
-     * This method will add a log statement at the given statement AND at the end of the test.
-     * @param stmt
-     * @param id
+     * This method will construct the log statement and add it at the given statement AND at the end of the test.
+     *
+     * @param stmt Given statement
+     * @param id id
      */
     @SuppressWarnings("unchecked")
     public static void addLogStmt(CtStatement stmt, String id) {

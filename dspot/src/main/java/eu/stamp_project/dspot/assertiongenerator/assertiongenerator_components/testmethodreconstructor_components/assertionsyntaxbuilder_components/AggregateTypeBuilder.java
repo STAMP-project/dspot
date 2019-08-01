@@ -4,6 +4,13 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class AggregateTypeBuilder {
+
+    /**
+     * Produces an array literal from a primitive array object.
+     *
+     * @param array Primitive array object
+     * @return A string representing the array literal
+     */
     public static String getNewArrayExpression(Object array){
         StringBuilder sb = new StringBuilder();
         ArrayList<Integer> al = new ArrayList<>();

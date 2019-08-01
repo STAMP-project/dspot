@@ -17,11 +17,13 @@ import java.util.List;
 public class TestWithLogGenerator {
 
     /**
+     * Instruments tests with logs. First there is a decision about what kinds of statements should be logged.
+     * Then the actual log construction is done. Details of log construction in {@link LogBuilder#addLogStmt(CtStatement, String)}.
      *
-     * @param test
-     * @param filter
-     * @param ctVariableReads
-     * @return
+     * @param test Test to be instrumented
+     * @param filter Filter
+     * @param  ctVariableReads ctVariableReads
+     * @return Instrumented tests
      */
     public static CtMethod<?> createTestWithLog(CtMethod test, final String filter,
                                                 List<CtLocalVariable<?>> ctVariableReads) {

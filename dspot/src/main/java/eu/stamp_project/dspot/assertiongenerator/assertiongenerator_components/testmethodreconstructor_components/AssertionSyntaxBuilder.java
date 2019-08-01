@@ -34,12 +34,13 @@ public class AssertionSyntaxBuilder {
     public static final int MAX_NUMBER_OF_CHECKED_ELEMENT_IN_LIST = 5;
 
     /**
+     * Builds the syntax for assert statements.
      *
-     * @param testMethod
-     * @param notDeterministValues
-     * @param observations
-     * @param delta
-     * @return
+     * @param testMethod Test method
+     * @param notDeterministValues notDeterministValues
+     * @param observations Observation point values
+     * @param delta Precision for floating type assertions
+     * @return Assert statements
      */
     public static List<CtStatement> buildAssert(CtMethod<?> testMethod,
                                                 Set<String> notDeterministValues,

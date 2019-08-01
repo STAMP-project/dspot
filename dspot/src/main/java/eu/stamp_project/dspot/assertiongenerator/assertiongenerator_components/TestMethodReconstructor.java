@@ -4,7 +4,6 @@ import eu.stamp_project.compare.Observation;
 import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.testmethodreconstructor_components.AssertionSyntaxBuilder;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.testmethodreconstructor_components.Observer;
-import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.testmethodreconstructor_components.observer_components.TestWithLogGenerator;
 import eu.stamp_project.dspot.assertiongenerator.utils.AssertionGeneratorUtils;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
@@ -27,6 +26,7 @@ import spoon.reflect.visitor.filter.TypeFilter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -57,10 +57,10 @@ public class TestMethodReconstructor {
     }
 
     /**
-     * Adds new assertions in multiple tests.
+     * Adds new assertions in multiple passing tests.
      * <p>
      * <p>Instruments the tests to have observation points.
-     * Details in {@link TestWithLogGenerator#createTestWithLog(CtMethod, String, List)}.
+     * Details in {@link Observer#getObservations(CtType, List)}.
      * <p>
      * <p>Details of the assertion generation in {@link #buildTestWithAssert(CtMethod, Map)}.
      *
@@ -89,7 +89,8 @@ public class TestMethodReconstructor {
 
     /**
      * Adds new assertions to a test from observation points.
-     *
+     * <p>
+     * <p>Details of constructing the syntax for the assertions in {@link AssertionSyntaxBuilder#buildAssert(CtMethod, Set, Map, Double)}.
      * @param test         Test method
      * @param observations Observation points of the test suite
      * @return Test with new assertions
@@ -166,6 +167,7 @@ public class TestMethodReconstructor {
             addAtCorrectPlace(id, lastStmt, assertStatement, statementToBeAsserted);
         }
     }
+
     private void replaceInvocation(CtStatement statementToBeAsserted,String id,CtStatement assertStatement,
                                    List<CtStatement> statements,int line){
 
