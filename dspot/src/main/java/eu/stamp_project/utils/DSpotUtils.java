@@ -110,7 +110,7 @@ public class DSpotUtils {
                         type.getQualifiedName().replaceAll("\\.", regex) + ".java";
 
         // Save path to mongodb.
-        MongodbManager.getInstance().addOutFilePath(pathname);
+        reportPathToMongoDB(pathname);
 
         final CtType<?> existingAmplifiedTestClass;
         if (new File(pathname).exists()) {
@@ -145,6 +145,10 @@ public class DSpotUtils {
             LOGGER.warn("It might be uncompilable and could require manual modification.");
         }
 
+    }
+
+    private static void reportPathToMongoDB(String pathname) {
+        MongodbManager.getInstance().addOutFilePath(pathname);
     }
 
     private static CtClass<?> getExistingClass(CtType<?> type, String pathname) {

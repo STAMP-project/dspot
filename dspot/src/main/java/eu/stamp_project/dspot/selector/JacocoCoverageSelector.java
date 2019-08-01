@@ -223,9 +223,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                     .append("%")
                     .append(AmplificationHelper.LINE_SEPARATOR);
             lastReport = new TestSelectorElementReportImpl(report.toString(), jsonReport(coverageResults));
-
-            // Sending data to Mongodb
-            MongodbManager.getInstance().reportJacocoMongoDb(this.currentClassTestToBeAmplified.getQualifiedName(),"" + this.initialCoverage.getInstructionsCovered(),"" + coverageResults.getInstructionsCovered(),"" + coverageResults.getInstructionsTotal());
+            this.reportMongoDB(coverageResults);
 
             return lastReport;
         } catch (TimeoutException e) {
@@ -234,6 +232,10 @@ public class JacocoCoverageSelector extends TakeAllSelector {
             this.currentClassTestToBeAmplified = null;
         }
 
+    }
+
+    private void reportMongoDB(Coverage coverageResults) {
+        MongodbManager.getInstance().reportJacocoMongoDb(this.currentClassTestToBeAmplified.getQualifiedName(),"" + this.initialCoverage.getInstructionsCovered(),"" + coverageResults.getInstructionsCovered(),"" + coverageResults.getInstructionsTotal());
     }
 
     private TestClassJSON jsonReport(Coverage coverageResults) {

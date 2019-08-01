@@ -227,6 +227,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         }
         final String reportStdout = reportStdout();
         final TestClassJSON testClassJSON = reportJSONMutants();
+        this.reportMongoDB();
         //clean up for the next class
         this.currentClassTestToBeAmplified = null;
         this.testThatKilledMutants.clear();
@@ -236,7 +237,6 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     }
 
     private String reportStdout() {
-        MongodbManager.getInstance().reportPitMutantMongoDB(this.currentClassTestToBeAmplified.getQualifiedName(),"" + this.originalKilledMutants.size(),"" + this.getNbTotalNewMutantKilled());
 
         return "Test class that has been amplified: " + this.currentClassTestToBeAmplified.getQualifiedName() +
                 AmplificationHelper.LINE_SEPARATOR +
@@ -248,6 +248,10 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 " new tests" + AmplificationHelper.LINE_SEPARATOR +
                 "it kills " + this.getNbTotalNewMutantKilled() +
                 " more mutants" + AmplificationHelper.LINE_SEPARATOR;
+    }
+
+    private void reportMongoDB() {
+        MongodbManager.getInstance().reportPitMutantMongoDB(this.currentClassTestToBeAmplified.getQualifiedName(),"" + this.originalKilledMutants.size(),"" + this.getNbTotalNewMutantKilled());
     }
 
     private long getNbTotalNewMutantKilled() {
