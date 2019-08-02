@@ -15,7 +15,7 @@ public class AssertionSyntaxBuilderTest extends AbstractTest {
     public void testAssertArrays() {
 
         /*
-            Make sure that observations containing arrays of single or multiple dimensions with assertiongenerator_components of primitive type
+            Make sure that observations containing arrays of single or multiple dimensions with components of primitive type
             and empty arrays correctly generate assertions statements.
          */
 

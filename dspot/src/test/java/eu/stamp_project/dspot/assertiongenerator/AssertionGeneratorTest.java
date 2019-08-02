@@ -20,11 +20,9 @@ import spoon.reflect.declaration.CtNamedElement;
 import spoon.reflect.reference.CtReference;
 import spoon.reflect.visitor.filter.NamedElementFilter;
 import spoon.reflect.visitor.filter.TypeFilter;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.*;
 

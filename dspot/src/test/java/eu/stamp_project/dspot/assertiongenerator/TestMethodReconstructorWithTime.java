@@ -41,10 +41,10 @@ import java.util.stream.IntStream;
  * benjamin.danglot@inria.fr
  * on 18/07/18
  */
-public class MethodAssertGeneratorWithTime extends TestMethodReconstructor {
+public class TestMethodReconstructorWithTime extends TestMethodReconstructor {
 
 
-    public MethodAssertGeneratorWithTime(CtType originalClass, InputConfiguration configuration, DSpotCompiler compiler, Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted) {
+    public TestMethodReconstructorWithTime(CtType originalClass, InputConfiguration configuration, DSpotCompiler compiler, Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted) {
         super(originalClass, configuration, compiler, variableReadsAsserted);
         this.originalClass = originalClass;
         this.configuration = configuration;
