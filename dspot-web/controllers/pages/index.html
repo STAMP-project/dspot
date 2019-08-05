@@ -110,20 +110,22 @@
                                     <label for="exampleInputEmail1">Email address</label>
                                     <input type="email" ng-model="user.email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
                                 </div>
-                                <div class="form-group">
+                                <!-- Hidden remove d-none if want to show -->
+                                <div class="form-group d-none">
                                     <label for="gitBranch">Git Branch</label>
                                     <input type="text" ng-model="user.repo.branch" class="form-control" id="gitBranch" placeholder="Enter branch name">
                                 </div>
-                                <div class="form-group" ng-init="user.dspot.selector='PitMutantScoreSelector'">
+                                <!-- Hidden remove d-none if want to show -->
+                                <div class="form-group d-none" ng-init="user.dspot.selector='PitMutantScoreSelector'">
                                     <label>Test criterion</label><br />
                                     <div class="form-check-inline">
                                         <label class="form-check-label">
                                             <input type="radio" class="form-check-input" ng-model="user.dspot.selector" value="PitMutantScoreSelector">PitMutantScore
                                         </label>
                                     </div>
-                                    <div class="form-check-inline">
+                                    <div class="form-check-inline ">
                                         <label class="form-check-label">
-                                            <input type="radio" class="form-check-input" ng-model="user.dspot.selector" value="JacocoCoverageSelector">JacocoCoverage
+                                            <input type="radio" class=".d-noneform-check-input" ng-model="user.dspot.selector" value="JacocoCoverageSelector" >JacocoCoverage
                                         </label>
                                     </div>
                                 </div>

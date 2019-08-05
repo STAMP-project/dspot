@@ -10,6 +10,9 @@ formApp.controller("formCtr", function($scope, $http) {
     }
 
     $scope.submit = function() {
+        /*Default branch name as master - removed in later version*/
+        document.getElementById("gitBranch").defaultValue = "master";
+
         $scope.successAlert = false;
         $scope.failedAlert = false;
         var dataToSubmit = angular.copy($scope.user);
