@@ -18,13 +18,13 @@ npm run-script start
 
 ## Screenshots
 
-![Pic 1](./dspot-web/pic1.png)
-![Pic 2](./dspot-web/pic2.png)
-![Pic 3](./dspot-web/pic3.png)
-![Pic 4](./dspot-web/pic4.png)
-![Pic 5](./dspot-web/pic5.png)
-![Pic 6](./dspot-web/pic6.png)
-![Pic 7](./dspot-web/pic7.png)
+![Pic 1](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic1.png)
+![Pic 2](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic2.png)
+![Pic 3](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic3.png)
+![Pic 4](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic4.png)
+![Pic 5](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic5.png)
+![Pic 6](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic6.png)
+![Pic 7](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic7.png)
 
 ## Implementation
 
