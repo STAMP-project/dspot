@@ -14,9 +14,13 @@
     "mongodb": "^3.3.0-beta2",
     "morgan": "~1.9.1",
     "pug": "2.0.0-beta11",
-    "stompit": "^0.26.0"
+    "stompit": "latest",
+    "express": "latest",
+    "path": "latest",
+    "body-parser": "latest",
+    "assert": "latest"
   },
   "devDependencies": {
-    "nodemon": "^1.19.1"
+      "nodemon": "^1.19.1"
   }
 }

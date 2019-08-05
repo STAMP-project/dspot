@@ -93,16 +93,16 @@ $scope.addDonutGraph = function(elemId, donutdata, label, colors) {
 
 /*Helpers*/
 $scope.dateDiff = function(givenDate) {
-    var newDate = Math.floor((new Date() - new Date(givenDate.replace(/-/g, '/'))) / 1000);
-    if (newDate < 60) {
-        return newDate.toString() + " seconds ago";
-    } else if (Math.floor(newDate / 60) < 60) {
-        return Math.floor(newDate / 60).toString() + " minutes ago";
-    } else if (Math.floor(newDate / 3600) < 24) {
-        return Math.floor(newDate / 3600).toString() + " hrs ago";
-    } else {
-        return Math.floor(newDate / 86400).toString() + " days ago";
-    };
+  var newDate = Math.floor((new Date() - new Date(givenDate))/1000);
+  if (newDate < 60) {
+    return  newDate.toString() + " seconds ago";
+  } else if (Math.floor(newDate/60) < 60) {
+    return Math.floor(newDate/60).toString() + " minutes ago";
+  } else if (Math.floor(newDate/3600) < 24) {
+    return Math.floor(newDate/3600).toString() + " hrs ago";
+  } else {
+    return Math.floor(newDate/86400).toString() + " days ago";
+  };
 }
 
 

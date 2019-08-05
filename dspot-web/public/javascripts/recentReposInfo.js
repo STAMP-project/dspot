@@ -75,7 +75,7 @@ recentRepos.controller("recentReposCtr", function($scope, $http) {
         });
     };
     $scope.dateDiff = function(givenDate) {
-        var newDate = Math.floor((new Date() - new Date(givenDate.replace(/-/g,'/')))/1000);
+        var newDate = Math.floor((new Date() - new Date(givenDate))/1000);
         if (newDate < 60) {
           return  newDate.toString() + " seconds ago";
         } else if (Math.floor(newDate/60) < 60) {

@@ -5,6 +5,7 @@ const colName = "AmpRecords" || process.env.MONGODB_COLNAME;
 const MongoClient = require('mongodb').MongoClient;
 // ActiveMQ 
 const stompit = require('stompit');
+const activemq_queuename = process.env.ACTIVEMQ_QUEUENAME || "Dpipeline";;
 var connectOptions = {
     'host': process.env.ACTIVEMQ_HOSTNAME || 'localhost',
     'port': process.env.ACTIVEMQ_PORT || 61613,
@@ -51,6 +52,7 @@ function fetchData(colName, query, limit, res) {
                 if (err) {
                     res.json(err);
                 } else {
+                    console.log(result)
                     res.json(result);
                 }
             });
@@ -75,7 +77,7 @@ function fetchData(colName, query, limit, res) {
  */
 function sendMessageToActiveMQ(message) {
     stompit.connect(connectOptions, (err, client) => {
-        var queueName = process.env.ACTIVEMQ_QUEUENAME || "Dpipeline"
+        var queueName = activemq_queuename;
         const frame = client.send({ destination: queueName});
         frame.write(message);
         frame.end();
@@ -165,7 +167,7 @@ exports.post_submitRepo = function(req, res, next) {
                 if (result == null) {
                     console.log("Proceed initializing a pending document");
 
-                    var datetime = new Date().toUTCString();
+                    var datetime = new Date().toISOString().split('.')[0]+"Z";
 
                     query["Date"] = datetime;
                     await db.collection(colName).insertOne(query, function(err, res) {
