@@ -52,7 +52,7 @@ function fetchData(colName, query, limit, res) {
                 if (err) {
                     res.json(err);
                 } else {
-                    console.log(result)
+                    /*console.log(result)*/
                     res.json(result);
                 }
             });
@@ -62,7 +62,7 @@ function fetchData(colName, query, limit, res) {
                     console.log(err);
                     res.json(err);
                 } else {
-                    console.log(result);
+                    /*console.log(result);*/
                     res.json(result);
                 }
             });
@@ -141,7 +141,8 @@ exports.post_submitRepo = function(req, res, next) {
     const url = require('url');
 
     let repoSlug = url.parse(req.body.repo.url).pathname.substring(1);
-    let repoBranch = req.body.repo.branch;
+    /*let repoBranch = req.body.repo.branch;*/
+    let repoBranch = "master" /*Always master - will be removed in the future*/
     let selector = req.body.dspot.selector;
     /*Constructing query*/
     var query = {};
@@ -177,7 +178,7 @@ exports.post_submitRepo = function(req, res, next) {
                     sendMessageToActiveMQ(repoSlug + "," + repoBranch + "," + selector)
                     res.status(200).send("Successfully submit repo");
                 } else {
-                    console.log(result);
+                    /*console.log(result);*/
                     res.status(400).send("Already existed a similar pending request");
                 }
                 client.close();
