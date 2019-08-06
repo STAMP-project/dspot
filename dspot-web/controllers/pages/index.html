@@ -84,10 +84,10 @@
         <div class="container">
             <h1 class="display-4 lead">Amplify your JUnit tests</h1>
             <blockquote class="blockquote text-black-50" style="padding: 5% 0 0 0;">
-                DSpot is a tool that generates missing assertions in JUnit tests. DSpot takes as input a Java project with an existing test suite. DSpot generates new test cases from existing ones and write them on disk. 
-                DSpot supports Java projects built with Maven and Gradle 
-                <footer class="blockquote-footer">for more details check out our 
-                        <a href="https://github.com/STAMP-project/dspot">Github repository</a></footer>
+                DSpot is a tool that generates missing assertions in JUnit tests. DSpot takes as input a Java project with an existing test suite. DSpot generates new test cases from existing ones and write them on disk.
+                DSpot supports Java projects built with Maven and Gradle
+                <footer class="blockquote-footer">for more details check out our
+                    <a href="https://github.com/STAMP-project/dspot">Github repository</a></footer>
             </blockquote>
         </div>
     </div>
@@ -125,16 +125,35 @@
                                     </div>
                                     <div class="form-check-inline ">
                                         <label class="form-check-label">
-                                            <input type="radio" class=".d-noneform-check-input" ng-model="user.dspot.selector" value="JacocoCoverageSelector" >JacocoCoverage
+                                            <input type="radio" class="d-none form-check-input" ng-model="user.dspot.selector" value="JacocoCoverageSelector">JacocoCoverage
                                         </label>
                                     </div>
                                 </div>
                                 <button type="submit" class="btn btn-primary" value="Submit" ng-click="submit()">Submit</button>
-                                <div class="alert alert-success" style="margin-top:3%;margin-bottom:0%;" ng-cloak ng-show="successAlert">
-                                    <strong>{{response}}</strong>
-                                </div>
                                 <div class="alert alert-danger" style="margin-top:3%;margin-bottom:0%;" ng-cloak ng-show="failedAlert">
-                                    <strong>{{response}}</strong>
+                                    <strong>Already existed</strong>
+                                </div>
+                                <button type="button" class="d-none btn btn-primary" data-toggle="modal" data-target="#myModal" id="modal-button">
+                                    Open modal
+                                </button>
+                                <div class="modal fade" id="myModal">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                              <h3 class="modal-title">Submission result</h3>
+                                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            </div>
+                                            <!-- Modal body -->
+                                            <div class="modal-body">
+                                               <p class="text-success tada"><strong>Success!!</strong></p>
+                                               <p>We'll comeback to you over email.</p>
+                                               <p>(you can now safely close this window)</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <strong><em>The Dspot team</em></strong>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -143,8 +162,8 @@
                 <div class="col-sm-4">
                     <h2>Important!</h2>
                     <div class="entry-content">
-                        <p>&#9642; A config file 'dspot.properties' at maven project root is highly recommended (check out our Git repo for more details)</p>
-                        <p>&#9642; If no config file, auto-config is provided only for default non-multimodule maven project structure </p>
+                        <p>&#9642; If a config file 'dspot.properties' is present at the repository root, it is taken into account <a href="TODO">Documentation</a></p>
+                        <p>&#9642; Auto-config is provided only for single module maven project structure (non-multimodule)</p>
                     </div>
                 </div>
             </div>

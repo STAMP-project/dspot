@@ -20,23 +20,17 @@ npm run-script start
 
 ### Front page
 ![Pic 1](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic1.png)
-![Pic 2](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic2.png)
 ### All amplified repos page
-![Pic 3](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic3.png)
+![Pic 3](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic2.png)
 ### Demo submission
 
 A repo has been submitted
 
-![Pic 4](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic4.png)
-
-Display pending status on repos page
-
-![Pic 5](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic5.png)
+![Pic 4](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic3.png)
 
 When done, specific repo page display details
 
-![Pic 6](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic6.png)
-![Pic 7](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic7.png)
+![Pic 6](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic4.png)
 
 ## Implementation
 

@@ -24,6 +24,7 @@ formApp.controller("formCtr", function($scope, $http) {
             $scope.response = res.data;
             $scope.successAlert = true;
             $scope.reset();
+            document.getElementById("modal-button").click();
         }, function myError(res) {
             $scope.response = res.data;
             $scope.failedAlert = true;

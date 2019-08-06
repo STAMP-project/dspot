@@ -1,20 +1,11 @@
 // Mongodb
-const MONGODB_HOST = "mongodb://localhost:27017" || process.env.MONGODB_HOST;
+const MONGODB_HOST = "mongodb://mongo:27017" || process.env.MONGODB_HOST;
 const dbName = "Dspot" || process.env.MONGODB_NAME;
 const colName = "AmpRecords" || process.env.MONGODB_COLNAME;
 const MongoClient = require('mongodb').MongoClient;
 // ActiveMQ 
 const stompit = require('stompit');
 const activemq_queuename = process.env.ACTIVEMQ_QUEUENAME || "Dpipeline";;
-var connectOptions = {
-    'host': process.env.ACTIVEMQ_HOSTNAME || 'localhost',
-    'port': process.env.ACTIVEMQ_PORT || 61613,
-    'connectHeaders': {
-        'host': '/',
-        'heart-beat': '5000,5000'
-    },
-    'alwaysConnected': true
-};
 
 // Others
 const assert = require('assert');
@@ -76,14 +67,15 @@ function fetchData(colName, query, limit, res) {
  * @param message is a string
  */
 function sendMessageToActiveMQ(message) {
-    stompit.connect(connectOptions, (err, client) => {
+    return Promise.resolve(stompit.connect({ host: process.env.ACTIVEMQ_HOSTNAME || 'activemq', port: 61613}, 
+        (err, client) => {
         var queueName = activemq_queuename;
         const frame = client.send({ destination: queueName});
         frame.write(message);
         frame.end();
         console.log("Message sended to " + queueName)
         client.disconnect();
-    });
+    }));
 }
 
 /**
@@ -176,7 +168,7 @@ exports.post_submitRepo = function(req, res, next) {
                         console.log("1 document inserted");
                     });
                     sendMessageToActiveMQ(repoSlug + "," + repoBranch + "," + selector)
-                    res.status(200).send("Successfully submit repo");
+                    res.status(200).send("Success!\n We'll comeback to you over email. The Dspot team. \n\n (you can now safely close this window)");
                 } else {
                     /*console.log(result);*/
                     res.status(400).send("Already existed a similar pending request");
