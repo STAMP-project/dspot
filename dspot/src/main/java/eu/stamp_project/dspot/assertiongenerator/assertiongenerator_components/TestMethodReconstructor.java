@@ -76,12 +76,12 @@ public class TestMethodReconstructor {
             e.printStackTrace();
             return Collections.emptyList();
         }
-        LOGGER.info("Generating assertions...");
         return buildEachTest(testCases,observations);
     }
 
     // add assertions to each test with values retrieved from logs
     private List<CtMethod<?>> buildEachTest(List<CtMethod<?>> testCases,Map<String, Observation> observations) {
+        LOGGER.info("Generating assertions...");
         return testCases.stream()
                 .map(ctMethod -> this.buildTestWithAssert(ctMethod, observations))
                 .collect(Collectors.toList());

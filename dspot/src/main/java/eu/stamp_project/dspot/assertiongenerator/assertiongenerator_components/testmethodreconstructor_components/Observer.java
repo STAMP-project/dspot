@@ -99,15 +99,14 @@ public class Observer {
                         .collect(Collectors.toList())
         ));
         ObjectLog.reset();
-        LOGGER.info("Run instrumented tests. ({})", testsToRun.size());
-        TestFramework.get().generateAfterClassToSaveObservations(clone, testsToRun);
         return testsToRun;
     }
 
     // compile and run tests with logs
     private Map<String, Observation> compileRunTests(CtType clone, final List<CtMethod<?>> testsToRun) throws AmplificationException{
-        final TestResult result = TestCompiler.compileAndRun(
-                clone,
+        LOGGER.info("Run instrumented tests. ({})", testsToRun.size());
+        TestFramework.get().generateAfterClassToSaveObservations(clone, testsToRun);
+        final TestResult result = TestCompiler.compileAndRun(clone,
                 this.compiler,
                 testsToRun,
                 this.configuration
