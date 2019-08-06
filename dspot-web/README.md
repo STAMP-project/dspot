@@ -34,6 +34,7 @@ Display pending status on repos page
 ![Pic 5](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic5.png)
 
 When done, specific repo page display details
+
 ![Pic 6](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic6.png)
 ![Pic 7](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic7.png)
 
