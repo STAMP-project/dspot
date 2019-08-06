@@ -1,9 +1,10 @@
-package eu.stamp_project.dspot.assertiongenerator;
+package eu.stamp_project.dspot.assertiongenerator.performancetest;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.amplifier.NumberLiteralAmplifier;
+import eu.stamp_project.dspot.assertiongenerator.performancetest.performancetest_components.AssertionGeneratorWithTime;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.junit.Ignore;
 import org.junit.Test;

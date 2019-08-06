@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.assertiongenerator;
+package eu.stamp_project.dspot.assertiongenerator.performancetest.performancetest_components;
 
 import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.compare.Observation;
