@@ -1,6 +1,7 @@
 package eu.stamp_project.utils;
 
 import eu.stamp_project.Main;
+import eu.stamp_project.mongodb.MongodbManager;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.error.Error;
@@ -117,6 +118,7 @@ public class DSpotUtils {
                     .forEach(type::addMethod);
         }
         printCtTypeToGivenDirectory(type, directory, true);
+
         // compile
         try {
             final boolean compile = DSpotCompiler.compile(InputConfiguration.get(), //FIXME: analyse for optimisation (36% total execution time)
@@ -134,6 +136,9 @@ public class DSpotUtils {
                 LOGGER.warn("DSpot outputs it using full qualified names.");
                 LOGGER.warn("These problems can come from the fact your project use generated codes, such as Lombok annotations.");
                 printCtTypeToGivenDirectory(type, directory, false); //FIXME: analyse for optimisation (13% total execution time)
+            } else {
+                /*If test was able to compile, report to mongo*/
+                MongodbManager.getInstance().reportAmpTestPath(pathname);
             }
         } catch (Exception ignored) {
             LOGGER.warn("Couldn't compile the final amplified test class.");
