@@ -1,5 +1,7 @@
 # Introduction
 
+Link to prototype [link](35.246.191.225:3000)
+
 This is a prototype web interface of Dspot, inspired from [CommitGuru](http://commit.guru/).
 
 Author: Henry Luong
