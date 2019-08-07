@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous" />
     <!-- jQuery library -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <title>Document</title>
+    <title>STAMP-DSpot Demo</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
@@ -131,7 +131,7 @@
                                 </div>
                                 <button type="submit" class="btn btn-primary" value="Submit" ng-click="submit()">Submit</button>
                                 <div class="alert alert-danger" style="margin-top:3%;margin-bottom:0%;" ng-cloak ng-show="failedAlert">
-                                    <strong>Already existed</strong>
+                                    <strong>{{response}}</strong>
                                 </div>
                                 <button type="button" class="d-none btn btn-primary" data-toggle="modal" data-target="#myModal" id="modal-button">
                                     Open modal
@@ -162,7 +162,7 @@
                 <div class="col-sm-4">
                     <h2>Important!</h2>
                     <div class="entry-content">
-                        <p>&#9642; If a config file 'dspot.properties' is present at the repository root, it is taken into account <a href="TODO">Documentation</a></p>
+                        <p>&#9642; If a config file 'dspot.properties' is present at the repository root, it is taken into account <a class="d-none" href="TODO">Documentation</a></p>
                         <p>&#9642; Auto-config is provided only for single module maven project structure (non-multimodule)</p>
                     </div>
                 </div>

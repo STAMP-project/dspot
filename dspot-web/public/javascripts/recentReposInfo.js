@@ -15,7 +15,7 @@ formApp.controller("formCtr", function($scope, $http) {
         var dataToSubmit = angular.copy($scope.user);
         /*Default branch name as master - removed in later version*/
         dataToSubmit.repo.branch = "master";
-        console.log(dataToSubmit);
+        /*console.log(dataToSubmit);*/
         $http({
             method: "POST",
             url: "/reposubmit",

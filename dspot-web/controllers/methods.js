@@ -1,5 +1,5 @@
 // Mongodb
-const MONGODB_HOST = "mongodb://mongo:27017" || process.env.MONGODB_HOST;
+const MONGODB_HOST = process.env.MONGODB_HOST || "mongodb://mongo:27017";
 const dbName = "Dspot" || process.env.MONGODB_NAME;
 const colName = "AmpRecords" || process.env.MONGODB_COLNAME;
 const MongoClient = require('mongodb').MongoClient;
@@ -129,8 +129,12 @@ exports.get_reposInfoData = function(req, res, next) {
  * document in the database. If not it will submit a 
  * new doc with pending state with the submitted information
  */
-exports.post_submitRepo = function(req, res, next) {
+function post_submitRepo(req, res, next) {
     const url = require('url');
+
+    if (!validateEmail(req.body.email)) {
+        return Promise.resolve(res.status(400).send("Invalid email"));
+    }  
 
     let repoSlug = url.parse(req.body.repo.url).pathname.substring(1);
     /*let repoBranch = req.body.repo.branch;*/
@@ -142,6 +146,7 @@ exports.post_submitRepo = function(req, res, next) {
     query["RepoBranch"] = repoBranch;
     query["State"] = "pending";
     query["Email"] = req.body.email;
+
 
     var ampOptions = {};
     ampOptions['test-criterion'] = selector;
@@ -179,6 +184,11 @@ exports.post_submitRepo = function(req, res, next) {
     });
 }
 
+function validateEmail(email) {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+}
 
 
 exports.get_page = get_page;
+exports.post_submitRepo = post_submitRepo;
