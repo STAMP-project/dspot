@@ -7,19 +7,15 @@ import com.martiansoftware.jsap.JSAPResult;
 
 public class MongodbManager implements DspotInformationCollector {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MongodbManager.class);
-	private static MongodbManager mongodbManager;
 
-	public static MongodbManager getInstance(){
-		if (mongodbManager == null) {
-			mongodbManager = new MongodbManager();
-		}
-		return mongodbManager;
-	}
+	public MongodbManager(){}
 
-	public static void initMongodbManager () {}
+	public void initMongodbManager () {}
 
 	@Override
-	public void reportInitInformation(JSAPResult jsapConfig){}
+	public void reportInitInformation(JSAPResult jsapConfig){
+		this.initMongodbManager();
+	}
 	@Override
 	public void reportJacocotInformation(String testName, String initialCoverage,String ampCoverage,String totalCoverage){}
 	@Override

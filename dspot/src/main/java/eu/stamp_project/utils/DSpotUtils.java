@@ -1,7 +1,7 @@
 package eu.stamp_project.utils;
 
 import eu.stamp_project.Main;
-import eu.stamp_project.mongodb.MongodbManager;
+import eu.stamp_project.utils.options.Configuration;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.error.Error;
@@ -138,7 +138,7 @@ public class DSpotUtils {
                 printCtTypeToGivenDirectory(type, directory, false); //FIXME: analyse for optimisation (13% total execution time)
             } else {
                 /*If test was able to compile, report to mongo*/
-                MongodbManager.getInstance().reportAmpTestPath(pathname);
+                Configuration.getInformationCollector().reportAmpTestPath(pathname);
             }
         } catch (Exception ignored) {
             LOGGER.warn("Couldn't compile the final amplified test class.");

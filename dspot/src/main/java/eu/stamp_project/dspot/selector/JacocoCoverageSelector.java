@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.mongodb.MongodbManager;
+import eu.stamp_project.utils.options.Configuration;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
 import eu.stamp_project.utils.report.output.selector.coverage.json.TestCaseJSON;
@@ -225,7 +225,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
             lastReport = new TestSelectorElementReportImpl(report.toString(), jsonReport(coverageResults));
 
             // Report to mongodb
-            MongodbManager.getInstance().reportJacocotInformation(this.currentClassTestToBeAmplified.getQualifiedName(),
+            Configuration.getInformationCollector().reportJacocotInformation(this.currentClassTestToBeAmplified.getQualifiedName(),
                 "" + this.initialCoverage.getInstructionsCovered(),"" + coverageResults.getInstructionsCovered(),
                 "" + coverageResults.getInstructionsTotal());
 

@@ -7,7 +7,7 @@ import com.martiansoftware.jsap.JSAPException;
 import com.martiansoftware.jsap.JSAPResult;
 import com.martiansoftware.jsap.Parameter;
 import com.martiansoftware.jsap.Switch;
-import eu.stamp_project.mongodb.MongodbManager;
+import eu.stamp_project.mongodb.DspotInformationCollector;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -116,9 +116,8 @@ public class JSAPOptions {
                 testCases,
                 fullClasspath
         );
-
-        MongodbManager.initMongodbManager();
-        MongodbManager.getInstance().reportInitInformation(jsapConfig);
+        DspotInformationCollector mongodbManager = Configuration.getInformationCollector();
+        mongodbManager.reportInitInformation(jsapConfig);
     }
 
     private static String helpForEnums(Class<?> enumClass) {
