@@ -36,9 +36,11 @@ public class DSpotMojo extends AbstractMojo {
      *	[optional] specify the list of amplifiers to use. By default, DSpot does not use any amplifiers (None) and applies only assertion amplification.
      *	Possible values are:
      *			 - MethodAdd
+     *			 - MethodDuplicationAmplifier
      *			 - MethodRemove
+     *			 - FastLiteralAmplifier
      *			 - TestDataMutator
-     *			 - MethodGeneratorAmplifier
+     *			 - MethodAdderOnExistingObjectsAmplifier
      *			 - ReturnValueAmplifier
      *			 - StringLiteralAmplifier
      *			 - NumberLiteralAmplifier

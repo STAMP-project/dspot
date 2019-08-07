@@ -179,22 +179,25 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         properties) of the target project (e.g. ./foo.properties).
 
   [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ]
-        [optional] specify the list of amplifiers to use. By default, DSpot does
-        not use any amplifiers (None) and applies only assertion amplification.
-        Possible values are: 
-        		 - MethodAdd
-        		 - MethodRemove
-        		 - TestDataMutator
-        		 - MethodGeneratorAmplifier
-        		 - ReturnValueAmplifier
-        		 - StringLiteralAmplifier
-        		 - NumberLiteralAmplifier
-        		 - BooleanLiteralAmplifier
-        		 - CharLiteralAmplifier
-        		 - AllLiteralAmplifiers
-        		 - NullifierAmplifier
-        		 - None
-        (default: None)
+          [optional] specify the list of amplifiers to use. By default, DSpot does
+          not use any amplifiers (None) and applies only assertion amplification.
+          Possible values are: 
+          		 - MethodAdd
+          		 - MethodDuplicationAmplifier
+          		 - MethodRemove
+          		 - FastLiteralAmplifier
+          		 - TestDataMutator
+          		 - MethodGeneratorAmplifier
+          		 - MethodAdderOnExistingObjectsAmplifier
+          		 - ReturnValueAmplifier
+          		 - StringLiteralAmplifier
+          		 - NumberLiteralAmplifier
+          		 - BooleanLiteralAmplifier
+          		 - CharLiteralAmplifier
+          		 - AllLiteralAmplifiers
+          		 - NullifierAmplifier
+          		 - None
+          (default: None)
 
   [(-i|--iteration) <iteration>]
         [optional] specify the number of amplification iterations. A larger
@@ -394,7 +397,7 @@ However, **DSpot** provide different kind of `Amplifier`:
    * `MethodRemove`: removes an existing method call
    * `StatementAdd`: adds a method call, and generate required parameter
    * `ReplacementAmplifier`: replaces a local variable by a generated one
-   * `TestDataMutator`: old amplifier of literals (all types, deprecated)
+   * `FastLiteralAmplifier`: a faster amplifier for the literals
 
 All amplifiers are just instanciable without any parameters, _e.g._ new StringLiteralAmplifier.
 

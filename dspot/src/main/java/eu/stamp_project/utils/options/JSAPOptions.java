@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  */
 public class JSAPOptions {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JSAPOptions.class);
+    static final Logger LOGGER = LoggerFactory.getLogger(JSAPOptions.class);
 
     private static final String SEPARATOR = AmplificationHelper.LINE_SEPARATOR + "\t\t - ";
 
