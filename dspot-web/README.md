@@ -1,14 +1,10 @@
 # Introduction
 
-Link to prototype [link](http://35.246.191.225:3000)
-
 This is a prototype web interface of Dspot, inspired from [CommitGuru](http://commit.guru/).
 
+Prototype demo link: <http://35.246.191.225:3000>
+
 Author: Henry Luong
-
-## Screenshots
-
-TODO add screenshots and explanation.
 
 ## Running
 
@@ -21,16 +17,24 @@ npm run-script start
 ## Screenshots
 
 ### Front page
+
+The front page enables to submit a new repo.
+
 ![Pic 1](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic1.png)
+
 ### All amplified repos page
+
+One can browse the list of successfully amplified projects.
+
 ![Pic 3](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic2.png)
+
 ### Demo submission
 
 A repo has been submitted
 
 ![Pic 4](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic3.png)
 
-When done, specific repo page display details
+When done, there is one page per repo to display details
 
 ![Pic 6](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic4.png)
 
