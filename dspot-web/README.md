@@ -24,7 +24,7 @@ The front page enables to submit a new repo.
 
 ### All amplified repos page
 
-One can browser the list of successfully amplified projects.
+One can browse the list of successfully amplified projects.
 
 ![Pic 3](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic2.png)
 
