@@ -2,6 +2,7 @@ package eu.stamp_project.utils.report.output.selector.mutant.json;
 
 import java.util.ArrayList;
 import java.util.List;
+import eu.stamp_project.utils.options.Configuration;
 
 /**
  * Created by Benjamin DANGLOT
@@ -13,13 +14,20 @@ public class TestClassJSON implements eu.stamp_project.utils.report.output.selec
     public final int nbMutantKilledOriginally;
     private final String name;
     private final long nbOriginalTestCases;
+    private long nbNewMutantKilled;
     private List<TestCaseJSON> testCases;
 
-    public TestClassJSON(int nbMutantKilledOriginally, String name, long nbOriginalTestCases) {
+    public TestClassJSON(int nbMutantKilledOriginally,String name, long nbOriginalTestCases) {
         this.nbMutantKilledOriginally = nbMutantKilledOriginally;
         this.name = name;
         this.nbOriginalTestCases = nbOriginalTestCases;
         this.testCases = new ArrayList<>();
+        this.nbNewMutantKilled = 0;
+    }
+
+    public TestClassJSON(int nbMutantKilledOriginally,long nbNewMutantKilled,String name, long nbOriginalTestCases) {
+        this(nbMutantKilledOriginally,name,nbOriginalTestCases);
+        this.nbNewMutantKilled = nbNewMutantKilled;
     }
 
     public boolean addTestCase(TestCaseJSON testCaseJSON) {
@@ -29,4 +37,8 @@ public class TestClassJSON implements eu.stamp_project.utils.report.output.selec
         return this.testCases.add(testCaseJSON);
     }
 
+    public void reportTestSelectionInformation(){
+        String report = "testName=" + name + "||originalKilledMutants:" +  this.nbMutantKilledOriginally + "|NewMutantKilled:" + this.nbNewMutantKilled;
+        Configuration.getInformationCollector().reportSelectorInformation(report);
+    }
 }

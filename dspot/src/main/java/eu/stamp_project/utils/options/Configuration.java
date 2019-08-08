@@ -7,6 +7,7 @@ import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.mongodb.MongodbManager;
+import eu.stamp_project.mongodb.NullCollector;
 import eu.stamp_project.mongodb.DspotInformationCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,7 @@ import java.util.Properties;
 public class Configuration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
-    private static final DspotInformationCollector mongodbManager = new MongodbManager();
+    private static DspotInformationCollector collector = new NullCollector();
 
     static void configureExample() {
         try {
@@ -42,7 +43,13 @@ public class Configuration {
     }
 
     public static DspotInformationCollector getInformationCollector() {
-        return mongodbManager;
+        return collector;
+    }
+
+    public static void useMongoCollector(boolean useMongo){
+        if (useMongo) {
+            collector = new MongodbManager();
+        }
     }
 
     public static void configure(final String pathToPropertiesFile,

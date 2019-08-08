@@ -2,7 +2,6 @@ package eu.stamp_project.utils.report.output.selector.change.json;
 
 import java.util.ArrayList;
 import java.util.List;
-
 /**
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -28,4 +27,6 @@ public class TestClassJSON implements eu.stamp_project.utils.report.output.selec
         this.nbTestAmplified = nbTestAmplified;
         this.testCases = testCases;
     }
+
+    public void reportTestSelectionInformation(){}
 }

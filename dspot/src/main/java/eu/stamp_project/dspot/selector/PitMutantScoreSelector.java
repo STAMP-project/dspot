@@ -3,7 +3,6 @@ package eu.stamp_project.dspot.selector;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.Main;
-import eu.stamp_project.utils.options.Configuration;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.utils.pit.*;
 import eu.stamp_project.test_framework.TestFramework;
@@ -227,9 +226,6 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         }
         final String reportStdout = reportStdout();
         final TestClassJSON testClassJSON = reportJSONMutants();
-        // Also report to Mongodb
-        Configuration.getInformationCollector().reportMutantInformation(this.currentClassTestToBeAmplified.getQualifiedName(),
-            "" + this.originalKilledMutants.size(),"" + this.getNbTotalNewMutantKilled());
 
         //clean up for the next class
         this.currentClassTestToBeAmplified = null;
@@ -282,6 +278,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
             }
         } else {
             testClassJSON = new TestClassJSON(getNbMutantKilledOriginally(this.currentClassTestToBeAmplified.getQualifiedName()),
+                    this.getNbTotalNewMutantKilled(),
                     this.currentClassTestToBeAmplified.getQualifiedName(),
                     this.currentClassTestToBeAmplified.getMethods()
                             .stream()
@@ -314,6 +311,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                     }
                 }
         );
+        testClassJSON.reportTestSelectionInformation();
         return testClassJSON;
     }
 

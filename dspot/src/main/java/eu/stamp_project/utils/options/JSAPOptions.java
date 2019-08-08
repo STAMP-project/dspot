@@ -116,8 +116,9 @@ public class JSAPOptions {
                 testCases,
                 fullClasspath
         );
-        DspotInformationCollector mongodbManager = Configuration.getInformationCollector();
-        mongodbManager.reportInitInformation(jsapConfig);
+        Configuration.useMongoCollector(true); // Will be a JSAP option later
+        DspotInformationCollector collector = Configuration.getInformationCollector();
+        collector.reportInitInformation(jsapConfig);
     }
 
     private static String helpForEnums(Class<?> enumClass) {

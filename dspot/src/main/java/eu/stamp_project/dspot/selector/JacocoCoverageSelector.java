@@ -2,7 +2,6 @@ package eu.stamp_project.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.utils.options.Configuration;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
 import eu.stamp_project.utils.report.output.selector.coverage.json.TestCaseJSON;
@@ -224,11 +223,6 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                     .append(AmplificationHelper.LINE_SEPARATOR);
             lastReport = new TestSelectorElementReportImpl(report.toString(), jsonReport(coverageResults));
 
-            // Report to mongodb
-            Configuration.getInformationCollector().reportJacocotInformation(this.currentClassTestToBeAmplified.getQualifiedName(),
-                "" + this.initialCoverage.getInstructionsCovered(),"" + coverageResults.getInstructionsCovered(),
-                "" + coverageResults.getInstructionsTotal());
-
             return lastReport;
         } catch (TimeoutException e) {
             throw new RuntimeException(e);
@@ -264,6 +258,8 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                         this.selectedToBeAmplifiedCoverageResultsMap.get(ctMethod.getSimpleName()).getInstructionsTotal()
                 )
         );
+
+        testClassJSON.reportTestSelectionInformation();
         return testClassJSON;
     }
 }

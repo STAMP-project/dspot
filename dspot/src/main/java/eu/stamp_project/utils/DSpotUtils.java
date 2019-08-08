@@ -137,7 +137,6 @@ public class DSpotUtils {
                 LOGGER.warn("These problems can come from the fact your project use generated codes, such as Lombok annotations.");
                 printCtTypeToGivenDirectory(type, directory, false); //FIXME: analyse for optimisation (13% total execution time)
             } else {
-                /*If test was able to compile, report to mongo*/
                 Configuration.getInformationCollector().reportAmpTestPath(pathname);
             }
         } catch (Exception ignored) {

@@ -2,6 +2,7 @@ package eu.stamp_project.utils.report.output.selector.coverage.json;
 
 import java.util.ArrayList;
 import java.util.List;
+import eu.stamp_project.utils.options.Configuration;
 
 /**
  * Created by Benjamin DANGLOT
@@ -39,5 +40,10 @@ public class TestClassJSON implements eu.stamp_project.utils.report.output.selec
 			this.testCases = new ArrayList<>();
 		}
 		return this.testCases.add(testCaseJSON);
+	}
+
+	public void reportTestSelectionInformation(){
+		String report = "testName=" + name + "||initialCoverage:" +  this.initialInstructionCovered + "|ampCoverage:" + this.amplifiedInstructionTotal + "|totalCoverage:" + this.amplifiedInstructionTotal;
+		Configuration.getInformationCollector().reportSelectorInformation(report);
 	}
 }
