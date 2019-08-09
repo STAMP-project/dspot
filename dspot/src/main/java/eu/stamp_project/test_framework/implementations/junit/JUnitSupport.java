@@ -62,10 +62,8 @@ public abstract class JUnitSupport extends AbstractTestFramework {
         if (isIgnored(candidate)) {
             return false;
         }
-        // if the test method is not visible, or has no body, or has parameters, is not a test
+        // if the test method has no body, or has parameters, is not a test
         if (candidate.isImplicit()
-                || candidate.getVisibility() == null
-                || !candidate.getVisibility().equals(ModifierKind.PUBLIC)
                 || candidate.getBody() == null
                 || candidate.getBody().getStatements().size() == 0
                 || !candidate.getParameters().isEmpty()) {

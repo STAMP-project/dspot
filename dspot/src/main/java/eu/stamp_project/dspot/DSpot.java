@@ -215,8 +215,8 @@ public class DSpot {
     public List<CtType<?>> amplifyTestClassesTestMethods(List<String> testClassesToBeAmplified, List<String> testMethods) {
         final Map<String, List<CtType<?>>> collect = testClassesToBeAmplified.stream()
                 .collect(Collectors.toMap(
-                        Function.identity(),
-                        testClassName -> this.findTestClasses(testClassName).collect(Collectors.toList())
+                            Function.identity(),
+                            testClassName -> this.findTestClasses(testClassName).collect(Collectors.toList())
                         )
                 );
         final List<String> keys = collect.keySet()
