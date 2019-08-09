@@ -14,6 +14,9 @@ npm install --no-optional
 npm run-script start
 ```
 
+Then page can be accessed at localhost:3000.
+
+
 ## Screenshots
 
 ### Front page
