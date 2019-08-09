@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous" />
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>STAMP-DSpot Demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <style>
+        /*Navs css*/
+        .nav-item {
+            font-size: 100%;
+        }
+
+        .navbar {
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        .navbar-light .navbar-brand {
+            color: #ffffff;
+        }
+
+        .nav-link:hover {
+            background-color: #0366cf;
+            opacity: 1;
+        }
+
+        .active {
+            background-color: #0366cf;
+        }
+
+        .box {
+            width: 48px;
+            height: 11px;
+            border: 1px solid;
+            padding-bottom: 5px;
+        }
+        /*Legend Box css*/
+        #box-1 {
+            background-color: #007bff;
+        }
+
+        #box-2 {
+            background-color: #28a745;
+        }
+
+        #box-3 {
+            background-color: #6c757d;
+        }
+
+        #box-4 {
+            background-color: #c3e6cb;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-sm bg-primary navbar-dark align-items-left">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Dspot</a>
+            <!-- Links -->
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/"><i class="fa fa-home"></i> Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/repos"><i class="fas fa-archive"></i> Repos</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <!-- Header -->
+    <div class="jumbotron" style="margin-bottom:0;">
+        <div class="container">
+            <h1 class="display-4 lead">Amplify your JUnit tests</h1>
+            <blockquote class="blockquote text-black-50" style="padding: 5% 0 0 0;">
+                DSpot is a tool that generates missing assertions in JUnit tests. DSpot takes as input a Java project with an existing test suite. DSpot generates new test cases from existing ones and write them on disk.
+                DSpot supports Java projects built with Maven and Gradle
+                <footer class="blockquote-footer">for more details check out our
+                    <a href="https://github.com/STAMP-project/dspot">Github repository</a></footer>
+            </blockquote>
+        </div>
+    </div>
+    </div>
+    <div style="background-color: #dfe3e6 ; padding-top:3%;">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-sm-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Analyze a Repository</h2>
+                        </div>
+                        <div class="card-body">
+                            <form id="App1" ng-app="formApp" ng-controller="formCtr" name="submitForm">
+                                <div class="form-group">
+                                    <label for="gitRepoUrl">Git Repository Url*</label>
+                                    <input type="text" ng-model="user.repo.url" class="form-control" placeholder="https://github.com/STAMP-project/dspot/">
+                                </div>
+                                <div class="form-group">
+                                    <label for="exampleInputEmail1">Email address</label>
+                                    <input type="email" ng-model="user.email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+                                </div>
+                                <!-- Hidden remove d-none if want to show -->
+                                <div class="form-group d-none">
+                                    <label for="gitBranch">Git Branch</label>
+                                    <input type="text" ng-model="user.repo.branch" class="form-control" id="gitBranch" placeholder="Enter branch name" value="master">
+                                </div>
+                                <!-- Hidden remove d-none if want to show -->
+                                <div class="form-group d-none" ng-init="user.dspot.selector='PitMutantScoreSelector'">
+                                    <label>Test criterion</label><br />
+                                    <div class="form-check-inline">
+                                        <label class="form-check-label">
+                                            <input type="radio" class="form-check-input" ng-model="user.dspot.selector" value="PitMutantScoreSelector">PitMutantScore
+                                        </label>
+                                    </div>
+                                    <div class="form-check-inline ">
+                                        <label class="form-check-label">
+                                            <input type="radio" class="d-none form-check-input" ng-model="user.dspot.selector" value="JacocoCoverageSelector">JacocoCoverage
+                                        </label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" value="Submit" ng-click="submit()">Submit</button>
+                                <div class="alert alert-danger" style="margin-top:3%;margin-bottom:0%;" ng-cloak ng-show="failedAlert">
+                                    <strong>{{response}}</strong>
+                                </div>
+                                <button type="button" class="d-none btn btn-primary" data-toggle="modal" data-target="#myModal" id="modal-button">
+                                    Open modal
+                                </button>
+                                <div class="modal fade" id="myModal">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                              <h3 class="modal-title">Submission result</h3>
+                                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            </div>
+                                            <!-- Modal body -->
+                                            <div class="modal-body">
+                                               <p class="text-success tada"><strong>Success!!</strong></p>
+                                               <p>We'll comeback to you over email.</p>
+                                               <p>(you can now safely close this window)</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <strong><em>The Dspot team</em></strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <h2>Important!</h2>
+                    <div class="entry-content">
+                        <p>&#9642; If a config file 'dspot.properties' is present at the repository root, it is taken into account <a class="d-none" href="TODO">Documentation</a></p>
+                        <p>&#9642; Auto-config is provided only for single module maven project structure (non-multimodule)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container text-center" style="padding-top:5%;padding-bottom:10%">
+            <div class="row justify-content-center">
+                <div class="col-md-10 ">
+                    <h3>Recent Repositories </h3>
+                    <div id="App2" class="list-group" ng-app="recentReposApp" ng-controller="recentReposCtr">
+                        <div class="row justify-content-around">
+                            <div style="margin-left: 8%;">
+                                PitMutantScore
+                            </div>
+                            <div style="margin-right: 2%;">
+                                JacocoCoverage
+                            </div>
+                        </div>
+                        <div class="row justify-content-center mb-1">
+                            <div class="m-2 d-flex box" id="box-1"></div>
+                            <div class="box-text text-black-50"><small>TotalOriginalMutantKills</small></div>
+                            <div class="m-2 d-flex box" id="box-2"></div>
+                            <div class="box-text text-black-50"><small>TotalNewMutantKills</small></div>
+                            <div class="m-2 d-flex box" id="box-3"></div>
+                            <div class="box-text text-black-50"><small>TotalInitialCoverage</small></div>
+                            <div class="m-2 d-flex box" id="box-4"></div>
+                            <div class="box-text text-black-50"><small>TotalAmpCoverage</small></div>
+                        </div>
+                        <a class="list-group-item list-group-item-action" ng-repeat="x in recentReposData" href="{{'/repo/' + x.RepoSlug + '/' + x.RepoBranch}}">
+                            <div class="d-flex flex-row justify-content-between" ng-if="x.AmpOptions['test-criterion'] == 'PitMutantScoreSelector'">
+                                <div class="d-flex col-md-4 text-left">
+                                    {{x.RepoSlug | cut:true:20:' ...'}}<br />
+                                    ({{dateDiff(x.Date)}})
+                                </div>
+                                <div class="d-flex col-md-2 text-left">
+                                    {{x.RepoBranch | cut:true:10:' ...'}}<br />
+                                    (branch)
+                                </div>
+                                <div class="d-flex col-md-3 text-left ">
+                                    {{x.AmpOptions['test-criterion'].substring(0,14)}}<br />
+                                    (amp. criterion)
+                                </div>
+                                <div class="d-flex col-md-2 text-left">
+                                    {{x.State}}<br />
+                                    (state)
+                                </div>
+                                <div class="d-flex" style="position:relative;height:40px; width:80px;">
+                                    <canvas class="d-none d-sm-none d-md-block" id="{{x.RepoSlug + '(' + x.RepoBranch + ')'}}"></canvas>
+                                    <add-donut-graph-for-pit-mutant></add-donut-graph-for-pit-mutant>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-row justify-content-between" ng-if="x.AmpOptions['test-criterion'] == 'JacocoCoverageSelector'">
+                                <div class="d-flex text-left col-sm-4 ">
+                                    {{x.RepoSlug | cut:true:20:' ...'}}<br />
+                                    ({{dateDiff(x.Date)}})
+                                </div>
+                                <div class="d-flex col-md-2 text-left">
+                                    {{x.RepoBranch | cut:true:10:' ...'}}<br />
+                                    (branch)
+                                </div>
+                                <div class="d-flex col-sm-3 text-left">
+                                    {{x.AmpOptions['test-criterion'].substring(0,14)}}<br />
+                                    (amp. criterion)
+                                </div>
+                                <div class="d-flex col-md-2 text-left">
+                                    {{x.State}}<br />
+                                    (state)
+                                </div>
+                                <div class="d-flex" style="position:relative;height:40px; width:80px;">
+                                    <canvas class="d-none d-sm-none d-md-block" id="{{x.RepoSlug + '(' + x.RepoBranch + ')'}}"></canvas>
+                                    <add-donut-graph-for-jacoco-cov></add-donut-graph-for-jacoco-cov>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/public/javascripts/recentReposInfo.js"></script>
+</body>
+
+</html>
