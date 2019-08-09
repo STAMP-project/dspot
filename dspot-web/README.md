@@ -2,7 +2,7 @@
 
 This is a prototype web interface of Dspot, inspired from [CommitGuru](http://commit.guru/).
 
-Prototype demo link: <http://35.246.191.225:3000>
+Prototype demo link: <http://dspot.kth-assert.net/>
 
 Author: Henry Luong
 
