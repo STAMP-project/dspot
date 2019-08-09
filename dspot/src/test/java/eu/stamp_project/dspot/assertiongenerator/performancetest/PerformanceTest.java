@@ -64,9 +64,9 @@ public class PerformanceTest extends AbstractTest {
             LOGGER.info("timeRemoveAssertionMethod: {} ms", assertGeneratorWithTime.assertionRemover.timeRemoveAssertionMethod);
             LOGGER.info("timeRemoveAssertionInvocation: {} ms", assertGeneratorWithTime.assertionRemover.timeRemoveAssertionInvocation);
             LOGGER.info("MethodAssertGenerator:");
-            LOGGER.info("timeInstrumentation: {} ms", assertGeneratorWithTime.testMethodReconstructorWithTime.timeInstrumentation);
-            LOGGER.info("timeRunningInstrumentation: {} ms", assertGeneratorWithTime.testMethodReconstructorWithTime.timeRunningInstrumentation);
-            LOGGER.info("timeGeneration: {} ms", assertGeneratorWithTime.testMethodReconstructorWithTime.timeGeneration);
+            LOGGER.info("timeInstrumentation: {} ms", assertGeneratorWithTime.methodsAssertGenerator.timeInstrumentation);
+            LOGGER.info("timeRunningInstrumentation: {} ms", assertGeneratorWithTime.methodsAssertGenerator.timeRunningInstrumentation);
+            LOGGER.info("timeGeneration: {} ms", assertGeneratorWithTime.methodsAssertGenerator.timeGeneration);
             assertGeneratorWithTime.reset();
             LOGGER.info("A-Ampl ({}) {}", i, allTest.size());
         }

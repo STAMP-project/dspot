@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,9 +40,9 @@ public class ObserverWithTime {
     public long timeRunningInstrumentation;
 
     public ObserverWithTime(CtType originalClass,
-                    InputConfiguration configuration,
-                    DSpotCompiler compiler,
-                    Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted) {
+                            InputConfiguration configuration,
+                            DSpotCompiler compiler,
+                            Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted) {
         this.originalClass = originalClass;
         this.configuration = configuration;
         this.compiler = compiler;
