@@ -48,7 +48,7 @@ public class TestWithLogGeneratorTest extends AbstractTest {
                         "    eu.stamp_project.compare.ObjectLog.log(o_test2__5, \"o_test2__5\", \"test2__5___end\");" + AmplificationHelper.LINE_SEPARATOR +
                         "    eu.stamp_project.compare.ObjectLog.log(o_test2__7, \"o_test2__7\", \"test2__7___end\");" + AmplificationHelper.LINE_SEPARATOR +
                         "}",
-                eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.testmethodreconstructor_components.observer_components.TestWithLogGenerator.createTestWithLog(
+                eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.TestWithLogGenerator.createTestWithLog(
                         new AssertionRemover().removeAssertion(Utils.findMethod("fr.inria.sample.TestClassWithLoop", "test2")),
                         "fr.inria.sample",
                         Collections.emptyList()).toString()
@@ -77,7 +77,7 @@ public class TestWithLogGeneratorTest extends AbstractTest {
         assertEquals(4, amplifiedMethods.size());
 
         final List<CtMethod<?>> instrumentedAmplifiedTests = amplifiedMethods.stream()
-                .map(method -> eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.testmethodreconstructor_components.observer_components.TestWithLogGenerator.createTestWithLog(method, "fr.inria.statementaddarray", Collections.emptyList()))
+                .map(method -> eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.TestWithLogGenerator.createTestWithLog(method, "fr.inria.statementaddarray", Collections.emptyList()))
                 .collect(Collectors.toList());
 
         assertEquals(4, instrumentedAmplifiedTests.size());
@@ -100,7 +100,7 @@ public class TestWithLogGeneratorTest extends AbstractTest {
     public void testMultipleObservationsPoints() throws Exception {
         final CtMethod<?> test1 = Utils.findMethod("fr.inria.multipleobservations.TestClassToBeTest", "test");
         final CtMethod<?> testWithLog =
-                eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.testmethodreconstructor_components.observer_components.TestWithLogGenerator.createTestWithLog(test1, "fr.inria.multipleobservations", Collections.emptyList());
+                eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.TestWithLogGenerator.createTestWithLog(test1, "fr.inria.multipleobservations", Collections.emptyList());
         final String expectedMethodWithLogs = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
                 "    final fr.inria.multipleobservations.ClassToBeTest classToBeTest = new fr.inria.multipleobservations.ClassToBeTest();" + AmplificationHelper.LINE_SEPARATOR +
@@ -115,7 +115,7 @@ public class TestWithLogGeneratorTest extends AbstractTest {
     public void testCreateTestWithLogClassTargetAmplify() throws Exception {
         final CtMethod<?> test1 = Utils.findMethod("fr.inria.statementaddarray.TestClassTargetAmplify", "test");
         final CtMethod<?> testWithLog =
-                eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.testmethodreconstructor_components.observer_components.TestWithLogGenerator.createTestWithLog(test1, "fr.inria.statementaddarray", Collections.emptyList());
+                eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.TestWithLogGenerator.createTestWithLog(test1, "fr.inria.statementaddarray", Collections.emptyList());
         final String expectedMethod = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
                 "    fr.inria.statementaddarray.ClassTargetAmplify clazz = new fr.inria.statementaddarray.ClassTargetAmplify();" + AmplificationHelper.LINE_SEPARATOR +
@@ -136,7 +136,7 @@ public class TestWithLogGeneratorTest extends AbstractTest {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         final CtMethod<?> test1 = (CtMethod<?>) testClass.getMethodsByName("test1").get(0);
         final CtMethod<?> testWithLog =
-                eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.testmethodreconstructor_components.observer_components.TestWithLogGenerator.createTestWithLog(test1, "fr.inria.sample", Collections.emptyList());
+                eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.TestWithLogGenerator.createTestWithLog(test1, "fr.inria.sample", Collections.emptyList());
 
         final String expectedMethod = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test1_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
@@ -155,7 +155,7 @@ public class TestWithLogGeneratorTest extends AbstractTest {
     public void testCreateTestWithLogWithoutChainSameObservations() throws Exception {
         CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithSpecificCaseToBeAsserted", "test1");
         final CtMethod<?> testWithLog =
-                eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.testmethodreconstructor_components.observer_components.TestWithLogGenerator.createTestWithLog(test1, "fr.inria.sample", Collections.emptyList());
+                eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.TestWithLogGenerator.createTestWithLog(test1, "fr.inria.sample", Collections.emptyList());
 
         final String expectedMethodWithLog = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test1_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
@@ -180,7 +180,7 @@ public class TestWithLogGeneratorTest extends AbstractTest {
         CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         final CtMethod<?> test2 = (CtMethod<?>) testClass.getMethodsByName("test2").get(0);
         final CtMethod<?> testWithLog =
-                eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.testmethodreconstructor_components.observer_components.TestWithLogGenerator.createTestWithLog(test2, "fr.inria.sample", Collections.emptyList());
+                eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.TestWithLogGenerator.createTestWithLog(test2, "fr.inria.sample", Collections.emptyList());
 
         final String expectedMethod = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test2_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +

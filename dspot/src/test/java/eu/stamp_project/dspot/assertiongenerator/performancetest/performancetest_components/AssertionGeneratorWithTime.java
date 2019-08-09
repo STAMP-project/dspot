@@ -30,7 +30,7 @@ public class AssertionGeneratorWithTime extends AssertionGenerator {
 
     public TryCatchFailGenerator tryCatchFailGenerator;
 
-    public TestMethodReconstructorWithTime methodsAssertGenerator;
+    public MethodReconstructorWithTime methodsAssertGenerator;
 
     public AssertionGeneratorWithTime(InputConfiguration configuration, DSpotCompiler compiler) {
         super(configuration, compiler);
@@ -64,7 +64,7 @@ public class AssertionGeneratorWithTime extends AssertionGenerator {
                 .map(this.assertionRemover::removeAssertion)
                 .collect(Collectors.toList());
         testsWithoutAssertions.forEach(cloneClass::addMethod);
-        this.methodsAssertGenerator = new TestMethodReconstructorWithTime(
+        this.methodsAssertGenerator = new MethodReconstructorWithTime(
                 testClass,
                 this.configuration,
                 compiler,

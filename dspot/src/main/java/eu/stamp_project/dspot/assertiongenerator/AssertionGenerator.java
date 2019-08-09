@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.assertiongenerator;
 
 import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.AssertionRemover;
-import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.TestMethodReconstructor;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.MethodReconstructor;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.TryCatchFailGenerator;
 import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.CloneHelper;
@@ -38,7 +38,7 @@ public class AssertionGenerator {
 
     private TryCatchFailGenerator tryCatchFailGenerator;
 
-    private TestMethodReconstructor testMethodReconstructor;
+    private MethodReconstructor methodReconstructor;
 
     public AssertionGenerator(InputConfiguration configuration, DSpotCompiler compiler) {
         this.configuration = configuration;
@@ -64,8 +64,8 @@ public class AssertionGenerator {
         cloneClass.setParent(testClass.getParent());
         List<CtMethod<?>> testsWithoutAssertions = removeAssertions(tests,cloneClass);
 
-        // set up testMethodReconstructor for use in assertPassingAndFailingTests
-        this.testMethodReconstructor = new TestMethodReconstructor(
+        // set up methodReconstructor for use in assertPassingAndFailingTests
+        this.methodReconstructor = new MethodReconstructor(
                 testClass,
                 this.configuration,
                 compiler,
@@ -104,7 +104,7 @@ public class AssertionGenerator {
      * <li>Generation of new assertions in place of observation points.
      * Generation of catch blocks if a test raises an exception.</li>
      * </ol>
-     * The details of the first two points are in {@link TestMethodReconstructor#addAssertions(CtType, List)}.
+     * The details of the first two points are in {@link MethodReconstructor#addAssertions(CtType, List)}.
      *
      * @param testClass Test class
      * @param tests     Test methods
@@ -143,7 +143,7 @@ public class AssertionGenerator {
                             passingTestsName.stream()
                                     .anyMatch(passingTestName -> checkMethodName(ctMethod.getSimpleName(), passingTestName))
                     ).collect(Collectors.toList());
-            List<CtMethod<?>> passingTests = this.testMethodReconstructor.addAssertions(testClass,
+            List<CtMethod<?>> passingTests = this.methodReconstructor.addAssertions(testClass,
                     passingTestMethods)
                     .stream()
                     .filter(Objects::nonNull)

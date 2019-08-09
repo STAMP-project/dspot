@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.testmethodreconstructor_components.observer_components.testwithloggenerator_components;
+package eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components;
 
 import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.dspot.assertiongenerator.utils.AssertionGeneratorUtils;
@@ -9,7 +9,7 @@ import spoon.reflect.reference.CtExecutableReference;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class LogBuilder {
+public class LogSyntaxBuilder {
 
     private static final Predicate<CtStatement> shouldAddLogEndStatement = shouldAddLogEndStatement();
 
