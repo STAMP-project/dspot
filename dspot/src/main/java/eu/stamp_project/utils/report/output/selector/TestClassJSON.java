@@ -6,5 +6,5 @@ package eu.stamp_project.utils.report.output.selector;
  * on 09/04/19
  */
 public interface TestClassJSON {
-	void reportTestSelectionInformation();
+	String toString();
 }

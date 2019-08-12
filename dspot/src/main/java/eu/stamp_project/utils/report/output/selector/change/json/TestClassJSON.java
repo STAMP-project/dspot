@@ -28,5 +28,8 @@ public class TestClassJSON implements eu.stamp_project.utils.report.output.selec
         this.testCases = testCases;
     }
 
-    public void reportTestSelectionInformation(){}
+    //Not used
+    public String toString(){
+        return "";
+    }
 }

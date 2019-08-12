@@ -2,8 +2,7 @@ package eu.stamp_project.utils.report.output.selector.mutant.json;
 
 import java.util.ArrayList;
 import java.util.List;
-import eu.stamp_project.utils.options.Configuration;
-
+import org.json.JSONObject;
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -37,8 +36,12 @@ public class TestClassJSON implements eu.stamp_project.utils.report.output.selec
         return this.testCases.add(testCaseJSON);
     }
 
-    public void reportTestSelectionInformation(){
-        String report = "testName=" + name + "||originalKilledMutants:" +  this.nbMutantKilledOriginally + "|NewMutantKilled:" + this.nbNewMutantKilled;
-        Configuration.getInformationCollector().reportSelectorInformation(report);
+    public String toString(){
+        String jsonString = new JSONObject()
+                  .put("testName", name)
+                  .put("originalKilledMutants", this.nbMutantKilledOriginally)
+                  .put("NewMutantKilled", this.nbNewMutantKilled).toString();
+        return jsonString;
     }
+
 }
