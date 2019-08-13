@@ -7,10 +7,12 @@ import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.DSpotCache;
+import eu.stamp_project.utils.options.AmplifierEnum;
 import eu.stamp_project.utils.options.BudgetizerEnum;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.options.Configuration;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +20,6 @@ import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,20 +44,6 @@ public class InputConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InputConfiguration.class);
 
-    public static Properties loadProperties(String pathToPropertiesFile) {
-        try {
-            Properties properties = new Properties();
-            if (pathToPropertiesFile == null || "".equals(pathToPropertiesFile)) {
-                LOGGER.warn("You did not specify any path for the properties file. Using only default values.");
-            } else {
-                properties.load(new FileInputStream(pathToPropertiesFile));
-            }
-            return properties;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static InputConfiguration get() {
         return InputConfiguration.instance;
     }
@@ -73,7 +59,7 @@ public class InputConfiguration {
      * @return the new instance of the InputConfiguration
      */
     public static InputConfiguration initialize(String pathToPropertiesFile) {
-        InputConfiguration.initialize(loadProperties(pathToPropertiesFile));
+        InputConfiguration.initialize(Configuration.loadProperties(pathToPropertiesFile));
         InputConfiguration.instance.configPath = pathToPropertiesFile;
         return InputConfiguration.instance;
     }
@@ -89,11 +75,12 @@ public class InputConfiguration {
      * @param builderName          the name of the builder. Can be either Maven or Gradle (not case sensitive).
      * @return the new instance of the InputConfiguration
      */
-    public static InputConfiguration initialize(String pathToPropertiesFile, String builderName) {
-        InputConfiguration.initialize(loadProperties(pathToPropertiesFile), builderName);
-        InputConfiguration.instance.configPath = pathToPropertiesFile;
-        return InputConfiguration.instance;
-    }
+// FIXME This method is not invoked from DSpot code and makes difficult to setup parallel execution classpath, so I commented it out
+//    public static InputConfiguration initialize(String pathToPropertiesFile, String builderName) {
+//        InputConfiguration.initialize(Configuration.loadProperties(pathToPropertiesFile), builderName);
+//        InputConfiguration.instance.configPath = pathToPropertiesFile;
+//        return InputConfiguration.instance;
+//    }
 
     /**
      * This method initialize the instance of the Singleton {@link InputConfiguration}.
@@ -150,16 +137,21 @@ public class InputConfiguration {
      *
      * @param properties  the properties. See {@link ConstantsProperties}
      * @param builderName the name of the builder. Can be either Maven or Gradle (not case sensitive).
+     * @param executeTestsInParallel tell whether or not Dspot execute the test in parallel
+     * @param fullClasspath classpath of the project, if null or empty, Dspot will use the AutomaticBuilder
      * @return the new instance of the InputConfiguration
      */
-    public static InputConfiguration initialize(Properties properties, String builderName) {
+    public static InputConfiguration initialize(Properties properties,
+                                                String builderName,
+                                                boolean executeTestsInParallel,
+                                                String fullClasspath) {
         if (InputConfiguration.instance != null) {
             reset();
         }
         InputConfiguration.instance = new InputConfiguration(properties);
         InputConfiguration.instance.configPath = "";
         final String builderNameProperties = ConstantsProperties.AUTOMATIC_BUILDER_NAME.get(properties);
-        if (builderName.isEmpty() && builderNameProperties.isEmpty()) {
+        if (builderName == null || (builderName.isEmpty() && builderNameProperties.isEmpty())) {
             LOGGER.warn("No builder has been specified.");
             LOGGER.warn("Using Maven as a default builder.");
             LOGGER.warn("You can use the command-line option --automatic-builder");
@@ -176,7 +168,8 @@ public class InputConfiguration {
             LOGGER.warn("Using the value gave on the command-line {}", builderName);
             InputConfiguration.instance.setBuilderName(builderName);
         }
-        InputConfiguration.instance.initializeBuilder(properties);
+        InputConfiguration.instance.setExecuteTestsInParallel(executeTestsInParallel);
+        InputConfiguration.instance.initializeBuilder(properties, fullClasspath);
         return InputConfiguration.instance;
     }
 
@@ -222,9 +215,19 @@ public class InputConfiguration {
     }
 
     private void initializeBuilder(Properties properties) {
+        this.initializeBuilder(properties, "");
+    }
+
+    private void initializeBuilder(Properties properties, String classpath) {
         this.setMavenHome(ConstantsProperties.MAVEN_HOME.get(properties));
         this.builder = AutomaticBuilderFactory.getAutomaticBuilder(this.getBuilderName());
-        this.dependencies = this.builder.compileAndBuildClasspath();
+
+
+        if (classpath != null && !classpath.isEmpty()) {
+            this.dependencies = classpath;
+        } else {
+            this.dependencies = this.builder.compileAndBuildClasspath();
+        }
 
         // TODO checks this. Since we support different Test Support, we may not need to add artificially junit in the classpath
         if (!this.dependencies.contains("junit" + File.separator + "junit" + File.separator + "4")) {
@@ -305,6 +308,44 @@ public class InputConfiguration {
         // then it will take the command line value (default: false)
     }
 
+    /**
+
+     */
+    public static void setUp(List<String> amplifiers, String budgetizer,
+                             TestSelector testCriterion, List<String> testClasses,
+                             List<String> testCases, int iteration,
+                             long seed, int timeOut,
+                             int maxTestAmplified, boolean clean,
+                             boolean verbose, boolean workingDirectory,
+                             boolean comment, boolean generateNewTestClass,
+                             boolean keepOriginalTestMethods, boolean gregor,
+                             boolean descartes, boolean useMavenToExecuteTest,
+                             boolean targetOneTestClass, boolean allowPathInAssertion,
+                             boolean executeTestsInParallel, int numberParallelExecutionProcessors) {
+        InputConfiguration.get()
+                .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(amplifiers))
+                .setNbIteration(iteration)
+                .setTestClasses(testClasses)
+                .setSelector(testCriterion)
+                .setTestCases(testCases)
+                .setSeed(seed)
+                .setTimeOutInMs(timeOut)
+                .setMaxTestAmplified(maxTestAmplified)
+                .setBudgetizer(BudgetizerEnum.valueOf(budgetizer))
+                .setClean(clean)
+                .setVerbose(verbose)
+                .setUseWorkingDirectory(workingDirectory)
+                .setWithComment(comment)
+                .setGenerateAmplifiedTestClass(generateNewTestClass)
+                .setKeepOriginalTestMethods(keepOriginalTestMethods)
+                .setDescartesMode(descartes && !gregor)
+                .setUseMavenToExecuteTest(useMavenToExecuteTest)
+                .setTargetOneTestClass(targetOneTestClass)
+                .setAllowPathInAssertion(allowPathInAssertion)
+                .setExecuteTestsInParallel(executeTestsInParallel)
+                .setNumberParallelExecutionProcessors(numberParallelExecutionProcessors);
+    }
+
     /*
         Paths project properties
      */
@@ -353,10 +394,7 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setPathToSourceCode(String pathToSourceCode) {
-        if (new File(pathToSourceCode).isAbsolute()) {
-            pathToSourceCode = pathToSourceCode.substring(this.absolutePathToProjectRoot.length());
-        }
-        this.pathToSourceCode = DSpotUtils.shouldAddSeparator.apply(pathToSourceCode);
+        this.pathToSourceCode = DSpotUtils.removeProjectRootIfAbsoluteAndAddSeparator(this.absolutePathToProjectRoot, pathToSourceCode);
         return this;
     }
 
@@ -367,10 +405,7 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setPathToTestSourceCode(String pathToTestSourceCode) {
-        if (new File(pathToTestSourceCode).isAbsolute()) {
-            pathToTestSourceCode = pathToTestSourceCode.substring(this.absolutePathToProjectRoot.length());
-        }
-        this.pathToTestSourceCode = DSpotUtils.shouldAddSeparator.apply(pathToTestSourceCode);
+        this.pathToTestSourceCode = DSpotUtils.removeProjectRootIfAbsoluteAndAddSeparator(this.absolutePathToProjectRoot, pathToTestSourceCode);
         return this;
     }
 
@@ -389,10 +424,7 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setPathToClasses(String pathToClasses) {
-        if (new File(pathToClasses).isAbsolute()) {
-            pathToClasses = pathToClasses.substring(this.absolutePathToProjectRoot.length());
-        }
-        this.pathToClasses = DSpotUtils.shouldAddSeparator.apply(pathToClasses);
+        this.pathToClasses = DSpotUtils.removeProjectRootIfAbsoluteAndAddSeparator(this.absolutePathToProjectRoot, pathToClasses);
         return this;
     }
 
@@ -411,10 +443,7 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setPathToTestClasses(String pathToTestClasses) {
-        if (new File(pathToTestClasses).isAbsolute()) {
-            pathToTestClasses = pathToTestClasses.substring(this.absolutePathToProjectRoot.length());
-        }
-        this.pathToTestClasses = DSpotUtils.shouldAddSeparator.apply(pathToTestClasses);
+        this.pathToTestClasses = DSpotUtils.removeProjectRootIfAbsoluteAndAddSeparator(this.absolutePathToProjectRoot, pathToTestClasses);
         return this;
     }
 
@@ -956,6 +985,41 @@ public class InputConfiguration {
 
     public InputConfiguration setTargetOneTestClass(boolean targetOneTestClass) {
         this.targetOneTestClass = targetOneTestClass;
+        return this;
+    }
+
+    private boolean allowPathInAssertion = false;
+
+    public boolean shouldAllowPathInAssertion() {
+        return this.allowPathInAssertion;
+    }
+
+    public InputConfiguration setAllowPathInAssertion(boolean allowPathInAssertion) {
+        this.allowPathInAssertion = allowPathInAssertion;
+        return this;
+    }
+
+    /**
+    * This boolean say if we must use execute the test in parallel. If not, the tests will be executed sequentially
+    */
+    private boolean executeTestsInParallel = false;
+    private int numberParallelExecutionProcessors = Runtime.getRuntime().availableProcessors();
+
+    public boolean shouldExecuteTestsInParallel() {
+        return executeTestsInParallel;
+    }
+
+    public InputConfiguration setExecuteTestsInParallel(boolean executeTestsInParallel) {
+        this.executeTestsInParallel = executeTestsInParallel;
+        return this;
+    }
+
+    public int getNumberParallelExecutionProcessors() {
+        return numberParallelExecutionProcessors;
+    }
+
+    public InputConfiguration setNumberParallelExecutionProcessors(int numberParallelExecutionProcessors) {
+        this.numberParallelExecutionProcessors = numberParallelExecutionProcessors;
         return this;
     }
 

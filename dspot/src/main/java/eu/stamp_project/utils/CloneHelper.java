@@ -1,11 +1,16 @@
 package eu.stamp_project.utils;
 
 import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.utils.program.InputConfiguration;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.factory.Factory;
 
+import java.lang.annotation.Annotation;
 import java.util.List;
+
+import com.googlecode.junittoolbox.ParallelRunner;
 
 /**
  * Created by Benjamin DANGLOT
@@ -15,10 +20,71 @@ import java.util.List;
 public class CloneHelper {
 
     private static int cloneNumber = 1;
+    final static Factory factory = InputConfiguration.get().getFactory();
 
     public static void reset() {
         cloneNumber = 1;
     }
+
+    public static void addParallelExecutionAnnotation(CtType clone, List<CtMethod<?>> tests) {
+        if (InputConfiguration.get().shouldExecuteTestsInParallel()) {
+            if (TestFramework.isJUnit5(tests.get(0))) {
+                addJUnit5ParallelExecutionAnnotation(clone);
+            } else {
+                addJUnit4ParallelExecutionAnnotation(clone);
+            }
+        }
+    }
+
+    public static void removeParallelExecutionAnnotation(CtType clone, List<CtMethod<?>> tests) {
+        if (TestFramework.isJUnit5(tests.get(0))) {
+            removeJUnit5ParallelExecutionAnnotation(clone);
+        } else {
+            removeJUnit4ParallelExecutionAnnotation(clone);
+        }
+    }
+
+    private static void removeJUnit4ParallelExecutionAnnotation(CtType clone) {
+        removeAnnotation(clone, "RunWith");
+    }
+
+    private static void removeJUnit5ParallelExecutionAnnotation(CtType clone) {
+        removeAnnotation(clone, "Execution");
+    }
+
+    private static void removeAnnotation(CtType clone, String label) {
+        CtAnnotation existing_annotation = clone.getAnnotations().stream()
+                .filter(annotation -> annotation.toString().contains(label))
+                .findFirst().orElse(null);
+        if (existing_annotation != null) {
+            clone.removeAnnotation(existing_annotation);
+        }
+    }
+
+    private static void addJUnit4ParallelExecutionAnnotation(CtType clone) {
+        CtAnnotation existing_annotation = clone.getAnnotations().stream()
+                .filter(annotation -> annotation.toString().contains("RunWith"))
+                .findFirst().orElse(null);
+        if (existing_annotation == null) {
+            CtAnnotation<Annotation> annotation =
+                    factory.Code().createAnnotation(factory.Code().createCtTypeReference(org.junit.runner.RunWith.class));
+            annotation.addValue("value", ParallelRunner.class);
+            clone.addAnnotation(annotation);
+        }
+    }
+
+    private static void addJUnit5ParallelExecutionAnnotation(CtType clone) {
+        CtAnnotation existing_annotation = clone.getAnnotations().stream()
+                .filter(annotation -> annotation.toString().contains("Execution"))
+                .findFirst().orElse(null);
+        if (existing_annotation == null) {
+            CtAnnotation<Annotation> annotation =
+                    factory.Code().createAnnotation(factory.Code().createCtTypeReference(org.junit.jupiter.api.parallel.Execution.class));
+            annotation.addValue("value", org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT);
+            clone.addAnnotation(annotation);
+        }
+    }
+
 
     /**
      * Clones the test class and adds the test methods.

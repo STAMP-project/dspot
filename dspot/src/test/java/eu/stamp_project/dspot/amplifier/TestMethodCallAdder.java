@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 12/7/16
  */
-public class TestMethodCallAdderTest extends AbstractTest {
+public class TestMethodCallAdder extends AbstractTest {
 
     @Test
     public void testMethodCallAddOnInvocationWithCast() {
@@ -30,7 +30,7 @@ public class TestMethodCallAdderTest extends AbstractTest {
 
         CtClass<Object> testClass = Utils.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
 
-        TestMethodCallAdder methodCallAdder = new TestMethodCallAdder();
+        MethodDuplicationAmplifier methodCallAdder = new MethodDuplicationAmplifier();
         methodCallAdder.reset(testClass);
 
         final CtMethod<?> originalMethod = testClass.getMethods().stream().filter(m -> "testWithCast".equals(m.getSimpleName())).findFirst().get();
@@ -48,7 +48,7 @@ public class TestMethodCallAdderTest extends AbstractTest {
 
         CtClass<Object> testClass = Utils.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
 
-        TestMethodCallAdder methodCallAdder = new TestMethodCallAdder();
+        MethodDuplicationAmplifier methodCallAdder = new MethodDuplicationAmplifier();
         methodCallAdder.reset(testClass);
 
         final CtMethod<?> originalMethod = testClass.getMethods().stream().filter(m -> "testAddCall".equals(m.getSimpleName())).findFirst().get();
@@ -70,7 +70,7 @@ public class TestMethodCallAdderTest extends AbstractTest {
     @Test
     public void testAddInIf() throws Exception {
         CtClass<Object> testClass = Utils.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
-        TestMethodCallAdder methodCallAdder = new TestMethodCallAdder();
+        MethodDuplicationAmplifier methodCallAdder = new MethodDuplicationAmplifier();
         methodCallAdder.reset(testClass);
         final CtMethod<?> originalMethod = Utils.findMethod(testClass, "testWithIf");
         final Stream<CtMethod<?>> amplify = methodCallAdder.amplify(originalMethod, 0);

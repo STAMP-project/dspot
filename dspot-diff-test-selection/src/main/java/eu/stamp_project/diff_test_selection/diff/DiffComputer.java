@@ -4,7 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.concurrent.*;
 
 /**
@@ -24,7 +26,7 @@ public class DiffComputer {
      * @param command                the command to launch
      * @param pathToWorkingDirectory the directory from where the command must be launch
      */
-    private void executeCommand(String command, File pathToWorkingDirectory) {
+    private String executeCommand(String command, File pathToWorkingDirectory) {
         LOGGER.info(String.format("Executing: %s from %s", command,
                 pathToWorkingDirectory != null ?
                         pathToWorkingDirectory.getAbsolutePath() :
@@ -44,10 +46,32 @@ public class DiffComputer {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            ;
         });
         try {
             submit.get(5, TimeUnit.SECONDS);
+            if (process != null) {
+                InputStreamReader inputStreamReader = new InputStreamReader(process.getInputStream());
+                int current;
+                StringBuilder output = new StringBuilder();
+                while (true) {
+                    try {
+                        if ((current = inputStreamReader.read()) == -1) {
+                            break;
+                        }
+                        output.append((char) current);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                try (FileWriter writer = new FileWriter(pathToWorkingDirectory + DIFF_FILE_NAME, false)) {
+                    writer.write(output.toString());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                return output.toString();
+            } else {
+                return "";
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
@@ -59,7 +83,8 @@ public class DiffComputer {
         }
     }
 
-    public void computeDiffWithDiffCommand(File directoryVersionOne, File directoryVersionTwo) {
+    public String computeDiffWithDiffCommand(File directoryVersionOne,
+                                           File directoryVersionTwo) {
         LOGGER.info("Computing the diff with diff commnd line");
         LOGGER.info("The diff will be computed between:");
         LOGGER.info(directoryVersionOne.getAbsolutePath() + " and ");
@@ -68,11 +93,9 @@ public class DiffComputer {
                 "diff",
                 "-ru",
                 directoryVersionOne.getAbsolutePath(),
-                directoryVersionTwo.getAbsolutePath(),
-                ">",
-                DIFF_FILE_NAME
+                directoryVersionTwo.getAbsolutePath()
         });
-        this.executeCommand(command, directoryVersionOne);
+        return this.executeCommand(command, directoryVersionOne);
     }
 
 }

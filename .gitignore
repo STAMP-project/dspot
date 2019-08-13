@@ -38,6 +38,9 @@ dspot-maven/src/test/resources/test-projects/.dspot__junit5_pom.xml
 
 dspot-out/
 
+**/*.dspot_junit5_pom.xml
+**/*.dspot_pom.xml
+
 *.properties
 
 target/

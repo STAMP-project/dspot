@@ -154,4 +154,9 @@ public class ClassWithBoolean {
         Random r = new Random(23L);
         return r.nextBoolean();
     }
+
+    @Override
+    public String toString() {
+        return "ClassWithBoolean{}";
+    }
 }

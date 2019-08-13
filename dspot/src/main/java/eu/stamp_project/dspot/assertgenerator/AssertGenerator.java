@@ -2,6 +2,7 @@ package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.testrunner.listener.TestResult;
+import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -108,6 +109,8 @@ public class AssertGenerator {
         LOGGER.info("Run tests. ({})", tests.size());
         final TestResult testResult;
         try {
+            //Add parallel test execution support (JUnit4, JUnit5) for execution method (CMD, Maven)
+            CloneHelper.addParallelExecutionAnnotation(testClass, tests);
             testResult = TestCompiler.compileAndRun(testClass,
                     this.compiler,
                     tests,

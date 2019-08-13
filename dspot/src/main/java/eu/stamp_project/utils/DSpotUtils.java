@@ -90,7 +90,7 @@ public class DSpotUtils {
                 DSpotUtils.shouldAddSeparator.apply(directoryPathname) + type.getSimpleName() + JAVA_EXTENSION)
         ) {
             fileWriter.write(type.toString());
-        } catch (IOException e) {
+        } catch (Exception e) {
             Main.GLOBAL_REPORT.addError(new Error(ErrorEnum.ERROR_PRINT_USING_TO_STRING, e));
         }
     }
@@ -199,6 +199,17 @@ public class DSpotUtils {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    public static String removeProjectRootIfAbsoluteAndAddSeparator(final String prefix, String path) {
+        if (new File(path).isAbsolute()) {
+            path = path.substring(prefix.length());
+            return DSpotUtils.shouldAddSeparator.apply(
+                    path.startsWith("/") ? path.substring(1) : path
+            );
+        } else {
+            return DSpotUtils.shouldAddSeparator.apply(path);
+        }
     }
 
     public static final Function<String, String> shouldAddSeparator = string ->

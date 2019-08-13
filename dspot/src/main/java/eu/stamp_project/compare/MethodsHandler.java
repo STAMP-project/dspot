@@ -91,7 +91,8 @@ public class MethodsHandler {
         final Class<?> declaringClass = method.getDeclaringClass();
         if ("hashCode".equals(method.getName())) {
             return isDefaultClass(declaringClass.getName()) ||
-                    declaringClass.getName().equals("java.net.URL");
+                    declaringClass.getName().equals("java.net.URL") ||
+                    declaringClass.getName().equals("java.net.URI");
         } else {
             return "toString".equals(method.getName()) &&
                     isDefaultClass(declaringClass.getName());

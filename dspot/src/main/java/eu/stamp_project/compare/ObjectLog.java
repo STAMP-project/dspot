@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -47,11 +48,11 @@ public class ObjectLog {
         return singleton;
     }
 
-    public static void reset() {
+    public static synchronized void reset() {
         singleton = new ObjectLog();
     }
 
-    public static void log(Object objectToObserve, String objectObservedAsString, String id) {
+    public static synchronized void log(Object objectToObserve, String objectObservedAsString, String id) {
         getSingleton()._log(
                 objectToObserve,
                 objectToObserve,
@@ -63,7 +64,7 @@ public class ObjectLog {
         );
     }
 
-    private void _log(Object startingObject,
+    private synchronized void _log(Object startingObject,
                       Object objectToObserve,
                       Class<?> currentObservedClass,
                       String observedObjectAsString,
@@ -84,14 +85,26 @@ public class ObjectLog {
             } else if (Utils.isMap(objectToObserve)) {
                 addObservation(id, observedObjectAsString + ".isEmpty()", ((Map) objectToObserve).isEmpty());
             } else if (!objectToObserve.getClass().getName().toLowerCase().contains("mock")) {
-                observeNotNullObject(
-                        startingObject,
-                        currentObservedClass == null ? objectToObserve.getClass() : currentObservedClass,
-                        observedObjectAsString,
-                        id,
-                        deep,
-                        methodsToReachCurrentObject
-                );
+                if(objectToObserve.getClass().isArray()) {
+                    ArrayList<Integer> dimensions = createDimensionList(startingObject);
+                    goThroughArray(startingObject,
+                            observedObjectAsString,
+                            id,
+                            deep,
+                            methodsToReachCurrentObject,
+                            0,
+                            dimensions);
+                } else {
+                    observeNotNullObject(
+                            startingObject,
+                            currentObservedClass == null ? objectToObserve.getClass() : currentObservedClass,
+                            observedObjectAsString,
+                            id,
+                            deep,
+                            methodsToReachCurrentObject,
+                            false,
+                            new ArrayList<>());
+                }
             }
         }
     }
@@ -105,7 +118,7 @@ public class ObjectLog {
         }
     }
 
-    private void addObservation(String id, String observedObjectAsString, Object actualValue) {
+    private synchronized void addObservation(String id, String observedObjectAsString, Object actualValue) {
         if (isSerializable(actualValue)) {
             if (actualValue instanceof String &&
                     // we forbid absolute paths
@@ -122,7 +135,7 @@ public class ObjectLog {
         }
     }
 
-    private Object chainInvocationOfMethods(List<Method> methodsToInvoke, Object startingObject) throws FailToObserveException {
+    private synchronized Object chainInvocationOfMethods(List<Method> methodsToInvoke, Object startingObject) throws FailToObserveException {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         FutureTask task = null;
         Object currentObject = null;
@@ -154,38 +167,99 @@ public class ObjectLog {
         return currentObject;
     }
 
+    private ArrayList<Integer> createDimensionList(Object startingObject) {
+        ArrayList<Integer> dimensionList = new ArrayList<>();
+        int dimensions = 1 + startingObject.getClass().getName().lastIndexOf('[');
+        for (int i = 0; i < dimensions; i++) {
+            dimensionList.add(0);
+        }
+        return dimensionList;
+    }
+
+    private void goThroughArray(Object object,
+                                String stringObject,
+                                String id,
+                                int deep,
+                                List<Method> methodsToReachCurrentObject,
+                                int depth,
+                                ArrayList<Integer> dimensions) {
+        int size = Array.getLength(object);
+        for (int i = 0; i < size; i++) {
+            dimensions.set(depth,i);
+            Object value = Array.get(object, i);
+            if(value == null){
+                String observedArrayAsString = buildArrayType(null,stringObject,dimensions,false);
+                addObservation(id, observedArrayAsString, null);
+            } else if (value.getClass().isArray()) {
+                goThroughArray(value,
+                        stringObject,
+                        id,
+                        deep,
+                        methodsToReachCurrentObject,
+                        (depth+1),
+                        dimensions);
+            } else {
+                observeNotNullObject(value,
+                        value.getClass(),
+                        stringObject,
+                        id,
+                        deep,
+                        methodsToReachCurrentObject,
+                        true,
+                        dimensions);
+            }
+        }
+    }
+
+    private String buildArrayType(Class currentObservedClass,
+                                  String stringObject,
+                                  ArrayList<Integer> dimensions,
+                                  boolean shouldCast){
+        StringBuilder sb1 = new StringBuilder();
+        StringBuilder sb2 = new StringBuilder();
+        for(int j = 0; j<dimensions.size();j++){
+            sb1.append("[" + dimensions.get(j) + "]");
+            sb2.append("[]");
+        }
+        String observedArrayAsString;
+        if(shouldCast){
+            String nameOfVisibleClass = getVisibleClass(currentObservedClass);
+            nameOfVisibleClass = nameOfVisibleClass.substring(0, (nameOfVisibleClass.length() - 1)) + sb2.toString() + ")";
+            observedArrayAsString = "(" + nameOfVisibleClass + stringObject + ")" + sb1.toString();
+        } else {
+            observedArrayAsString = "(" + stringObject + ")" + sb1.toString();
+        }
+        return observedArrayAsString;
+    }
+
     private void observeNotNullObject(Object startingObject,
                                       Class<?> currentObservedClass,
                                       String stringObject,
                                       String id,
                                       int deep,
-                                      List<Method> methodsToReachCurrentObject) {
+                                      List<Method> methodsToReachCurrentObject,
+                                      boolean isArrayComponent,
+                                      ArrayList<Integer> dimensions) {
         try {
             for (Method method : methodsHandler.getAllMethods(currentObservedClass)) {
                 try {
                     final ArrayList<Method> tmpListOfMethodsToReachCurrentObject = new ArrayList<>(methodsToReachCurrentObject);
                     tmpListOfMethodsToReachCurrentObject.add(method);
                     final Object result = chainInvocationOfMethods(tmpListOfMethodsToReachCurrentObject, startingObject);
-                    if (startingObject.getClass().isAnonymousClass()) {
-                        _log(startingObject,
-                                result,
-                                method.getReturnType(),
-                                "(" + stringObject + ")." + method.getName() + "()",
-                                id,
-                                deep + 1,
-                                tmpListOfMethodsToReachCurrentObject
-                        );
-                    } else {
-                        String nameOfVisibleClass = getVisibleClass(currentObservedClass);
-                        _log(startingObject,
-                                result,
-                                method.getReturnType(),
-                                "(" + nameOfVisibleClass + stringObject + ")." + method.getName() + "()",
-                                id,
-                                deep + 1,
-                                tmpListOfMethodsToReachCurrentObject
-                        );
-                    }
+                    String observedObjectAsString = getObservedObjectAsString(startingObject,
+                            currentObservedClass,
+                            stringObject,
+                            method,
+                            isArrayComponent,
+                            dimensions);
+                    _log(startingObject,
+                            result,
+                            method.getReturnType(),
+                            observedObjectAsString ,
+                            id,
+                            deep + 1,
+                            tmpListOfMethodsToReachCurrentObject
+                    );
                     tmpListOfMethodsToReachCurrentObject.remove(method);
                 } catch (FailToObserveException ignored) {
                     // ignored, we just do nothing...
@@ -196,7 +270,31 @@ public class ObjectLog {
         }
     }
 
-    private String getVisibleClass(Class<?> currentObservedClass) {
+    private String getObservedObjectAsString(Object startingObject,
+                                             Class<?> currentObservedClass,
+                                             String stringObject,
+                                             Method method,
+                                             boolean isArrayComponent,
+                                             ArrayList<Integer> dimensions){
+        String observedObjectAsString;
+        if(isArrayComponent){
+            String observedArrayAsString = buildArrayType(currentObservedClass,
+                    stringObject,
+                    dimensions,
+                    !currentObservedClass.isAnonymousClass());
+            observedObjectAsString = observedArrayAsString + "." + method.getName() + "()";
+        } else {
+            if (startingObject.getClass().isAnonymousClass()) {
+                observedObjectAsString = "(" + stringObject + ")." + method.getName() + "()";
+            } else {
+                String nameOfVisibleClass = getVisibleClass(currentObservedClass);
+                observedObjectAsString = "(" + nameOfVisibleClass + stringObject + ")." + method.getName() + "()";
+            }
+        }
+        return observedObjectAsString;
+    }
+
+    private synchronized String getVisibleClass(Class<?> currentObservedClass) {
         if (currentObservedClass == null || currentObservedClass == Object.class) {
             return "";
         } else if (Modifier.isPrivate(currentObservedClass.getModifiers()) ||
@@ -207,7 +305,7 @@ public class ObjectLog {
         }
     }
 
-    public static Map<String, Observation> getObservations() {
+    public synchronized static Map<String, Observation> getObservations() {
         if (getSingleton().observations.isEmpty()) {
             return load();
         } else {
@@ -217,14 +315,15 @@ public class ObjectLog {
 
     private static final String OBSERVATIONS_PATH_FILE_NAME = "target/dspot/observations.ser";
 
-    public static void save() {
+    public synchronized static void save() {
+        final File file = new File(OBSERVATIONS_PATH_FILE_NAME);
         getSingleton().observations.values().forEach(Observation::purify);
         try (FileOutputStream fout = new FileOutputStream(OBSERVATIONS_PATH_FILE_NAME)) {
             try (ObjectOutputStream oos = new ObjectOutputStream(fout)) {
                 oos.writeObject(getSingleton().observations);
                 System.out.println(
                         String.format("File saved to the following path: %s",
-                                new File(OBSERVATIONS_PATH_FILE_NAME).getAbsolutePath())
+                                file.getAbsolutePath())
                 );
             } catch (Exception e) {
                 e.printStackTrace();
@@ -236,7 +335,7 @@ public class ObjectLog {
         }
     }
 
-    public static Map<String, Observation> load() {
+    public synchronized static Map<String, Observation> load() {
         try (FileInputStream fi = new FileInputStream(new File(
                 (EntryPoint.workingDirectory != null ? // in case we modified the working directory
                         EntryPoint.workingDirectory.getAbsolutePath() + "/" : "") +

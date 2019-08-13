@@ -63,7 +63,7 @@ public class DSpotMojoTest {
 
         mojoUnderTest.setTestMethods(Collections.singletonList("test2"));
         mojoUnderTest.setTestClassesNames(Collections.singletonList("example.TestSuiteExample"));
-        mojoUnderTest.setAmplifiers(Collections.singletonList("TestDataMutator"));
+        mojoUnderTest.setAmplifiers(Collections.singletonList("FastLiteralAmplifier"));
         mojoUnderTest.setTestCriterion("JacocoCoverageSelector");
         mojoUnderTest.setIteration(1);
         mojoUnderTest.setOutputPath("target/dspot-output");
@@ -84,7 +84,7 @@ public class DSpotMojoTest {
          */
 
         mojoUnderTest.setPathToTestListCsv("src/test/resources/test-projects/test-selection.csv");
-        mojoUnderTest.setAmplifiers(Collections.singletonList("TestDataMutator"));
+        mojoUnderTest.setAmplifiers(Collections.singletonList("FastLiteralAmplifier"));
         mojoUnderTest.setTestCriterion("JacocoCoverageSelector");
         mojoUnderTest.setIteration(1);
         mojoUnderTest.setOutputPath("target/dspot-output");

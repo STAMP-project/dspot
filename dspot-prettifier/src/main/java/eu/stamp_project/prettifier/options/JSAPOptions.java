@@ -20,9 +20,8 @@ public class JSAPOptions extends eu.stamp_project.utils.options.JSAPOptions {
      * parse the command line argument
      * This method will initialize both {@link eu.stamp_project.prettifier.options.InputConfiguration} and {@link eu.stamp_project.utils.program.InputConfiguration}
      * @param args command line arguments. Refer to the README on the github page or use --help command line option to display all the accepted arguments.
-     * @return always true
      */
-    public static boolean parse(String[] args) {
+    public static void parse(String[] args) {
         SplittedCommandLineOptions splittedOptions = new SplittedCommandLineOptions(args);
         System.out.println(splittedOptions);
         eu.stamp_project.utils.options.JSAPOptions.parse(splittedOptions.getDSpotOptions());
@@ -44,8 +43,6 @@ public class JSAPOptions extends eu.stamp_project.utils.options.JSAPOptions {
                 .setRelativePathToModelForCode2Vec(jsapConfig.getString("path-to-code2vec-model"));
 
         System.out.println(InputConfiguration.get());
-
-        return true;
     }
 
     public static void showUsage() {

@@ -1,15 +1,10 @@
 package eu.stamp_project;
 
-import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.options.AmplifierEnum;
-import eu.stamp_project.utils.options.BudgetizerEnum;
-import eu.stamp_project.utils.options.JSAPOptions;
-import eu.stamp_project.utils.options.SelectorEnum;
+import eu.stamp_project.utils.options.*;
 import eu.stamp_project.utils.program.ConstantsProperties;
 import eu.stamp_project.utils.program.InputConfiguration;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.model.Build;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -20,7 +15,6 @@ import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -29,42 +23,61 @@ import java.util.stream.Collectors;
 @Mojo(name = "amplify-unit-tests", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.TEST)
 public class DSpotMojo extends AbstractMojo {
 
+    // >>>>>> BEGIN GENERATED >>>>>>
+    // The following codes, i.e. maven parameters, are generated using the main function in eu.stamp_project.utils.options.JSAPOptions
+
     /**
-     * [optional] specify the path to the configuration file (format Java properties) of the target project (e.g. ./foo.properties).
+     *	[mandatory] specify the path to the configuration file (format Java properties) of the target project (e.g. ./foo.properties).
      */
-    @Parameter(property = "path-to-properties", defaultValue = "")
+    @Parameter(property = "path-to-properties")
     private String pathToProperties;
 
     /**
-     * [optional] specify the list of amplifiers to use. Default with all available amplifiers.
-     * - StringLiteralAmplifier
-     * - NumberLiteralAmplifier
-     * - CharLiteralAmplifier
-     * - BooleanLiteralAmplifier
-     * - AllLiteralAmplifiers
-     * - MethodAdd
-     * - MethodRemove
-     * - TestDataMutator (deprecated)
-     * - MethodGeneratorAmplifier
-     * - ReturnValueAmplifier
-     * - ReplacementAmplifier
-     * - NullifierAmplifier
-     * - None
+     *	[optional] specify the list of amplifiers to use. By default, DSpot does not use any amplifiers (None) and applies only assertion amplification.
+     *	Possible values are:
+     *			 - MethodAdd
+     *			 - MethodDuplicationAmplifier
+     *			 - MethodRemove
+     *			 - FastLiteralAmplifier
+     *			 - TestDataMutator
+     *			 - MethodAdderOnExistingObjectsAmplifier
+     *			 - ReturnValueAmplifier
+     *			 - StringLiteralAmplifier
+     *			 - NumberLiteralAmplifier
+     *			 - BooleanLiteralAmplifier
+     *			 - CharLiteralAmplifier
+     *			 - AllLiteralAmplifiers
+     *			 - NullifierAmplifier
+     *			 - None
      */
     @Parameter(defaultValue = "None", property = "amplifiers")
     private List<String> amplifiers;
 
     /**
-     * [optional] specify the number of amplification iterations. A larger number may help to improve the test criterion (e.g. a larger number of iterations may help to kill more mutants). This has an impact on the execution time: the more iterations, the longer DSpot runs.
+     *	[optional] specify the number of amplification iterations. A larger number may help to improve the test criterion (e.g. a larger number of iterations may help to kill more mutants). This has an impact on the execution time: the more iterations, the longer DSpot runs.
      */
     @Parameter(defaultValue = "3", property = "iteration")
     private Integer iteration;
 
     /**
-     * [optional] specify the test adequacy criterion to be maximized with amplification
+     *	[optional] specify the test adequacy criterion to be maximized with amplification.
+     *	Possible values are:
+     *			 - PitMutantScoreSelector
+     *			 - JacocoCoverageSelector
+     *			 - TakeAllSelector
+     *			 - ChangeDetectorSelector
      */
     @Parameter(defaultValue = "PitMutantScoreSelector", property = "test-criterion")
     private String testCriterion;
+
+    /**
+     *	[optional] specify the Pit output format.
+     *	Possible values are:
+     *			 - XML
+     *			 - CSV
+     */
+    @Parameter(defaultValue = "XML", property = "pit-output-format")
+    private String pitOutputFormat;
 
     /**
      *	[optional] specify a Bugdetizer.
@@ -77,133 +90,152 @@ public class DSpotMojo extends AbstractMojo {
     private String budgetizer;
 
     /**
-     * [optional] specify the maximum number of amplified tests that dspot keeps (before generating assertion)
+     *	[optional] specify the maximum number of amplified tests that dspot keeps (before generating assertion)
      */
     @Parameter(defaultValue = "200", property = "max-test-amplified")
     private Integer maxTestAmplified;
 
     /**
-     * [optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite. You can also use regex to describe a set of test classes. By default, DSpot selects all the tests (value all).
+     *	[optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite. You can also use regex to describe a set of test classes. By default, DSpot selects all the tests (value all).
      */
     @Parameter(defaultValue = "all", property = "test")
     private List<String> test;
 
     /**
-     * specify the test cases to amplify
+     *	specify the test cases to amplify
      */
-    @Parameter(property = "cases")
-    private List<String> cases;
+    @Parameter(property = "test-cases")
+    private List<String> testCases;
 
     /**
-     * [optional] specify the output folder
+     *	[optional] specify the output folder
      */
     @Parameter(defaultValue = "target/dspot/output", property = "output-path")
     private String outputPath;
 
     /**
-     * [optional] if enabled, DSpot will remove the out directory if exists, else it will append the results to the exist files. (default: off)
+     *	[optional] if enabled, DSpot will remove the out directory if exists, else it will append the results to the exist files.
      */
     @Parameter(defaultValue = "false", property = "clean")
     private Boolean clean;
 
     /**
-     * [optional, expert mode] specify the path to the .csv of the original result of Pit Test. If you use this option the selector will be forced to PitMutantScoreSelector
+     *	[optional, expert mode] specify the path to the .xml or .csv of the original result of Pit Test. If you use this option the selector will be forced to PitMutantScoreSelector
      */
     @Parameter(property = "path-pit-result")
     private String pathPitResult;
 
     /**
-     * [optional, expert] enable this option will make DSpot computing the mutation score of only one test class (the first pass through --test command line option)
+     *	[optional, expert] enable this option will make DSpot computing the mutation score of only one test class (the first pass through --test command line option)
      */
-    @Parameter(defaultValue = "false", property = "targetOneTestClass")
+    @Parameter(defaultValue = "false", property = "target-one-test-class")
     private Boolean targetOneTestClass;
 
     /**
-     * Enable the descartes engine for Pit Mutant Score Selector.
+     *	Enable the descartes engine for Pit Mutant Score Selector.
      */
     @Parameter(defaultValue = "true", property = "descartes")
     private Boolean descartes;
 
     /**
-     * [optional] specify the automatic builder to build the project
+     *	Enable the gregor engine for Pit Mutant Score Selector.
      */
-    @Parameter(defaultValue = "MavenBuilder", property = "automatic-builder")
+    @Parameter(defaultValue = "false", property = "gregor")
+    private Boolean gregor;
+
+    /**
+     *	[optional] specify the automatic builder to build the project
+     */
+    @Parameter(defaultValue = "", property = "automatic-builder")
     private String automaticBuilder;
 
     /**
-     * specify the path to the maven home
+     *	specify the path to the maven home
      */
     @Parameter(property = "maven-home")
     private String mavenHome;
 
     /**
-     * specify a seed for the random object (used for all randomized operation)
+     *	specify a seed for the random object (used for all randomized operation)
      */
-    @Parameter(defaultValue = "23", property = "randomSeed")
+    @Parameter(defaultValue = "23", property = "random-seed")
     private Long randomSeed;
 
     /**
-     * specify the timeout value of the degenerated tests in millisecond
+     *	specify the timeout value of the degenerated tests in millisecond
      */
-    @Parameter(defaultValue = "10000", property = "timeOut")
+    @Parameter(defaultValue = "10000", property = "time-out")
     private Integer timeOut;
 
     /**
-     * Enable verbose mode of DSpot.
+     *	Enable verbose mode of DSpot.
      */
     @Parameter(defaultValue = "false", property = "verbose")
     private Boolean verbose;
 
     /**
-     * Enable comment on amplified test: details steps of the Amplification.
+     *	Enable comment on amplified test: details steps of the Amplification.
      */
     @Parameter(defaultValue = "false", property = "with-comment")
     private Boolean withComment;
 
     /**
-     * Disable the minimization of amplified tests.
+     *	Disable the minimization of amplified tests.
      */
     @Parameter(defaultValue = "false", property = "no-minimize")
     private Boolean noMinimize;
 
     /**
-     * Enable this option to change working directory with the root of the project.
+     *	Enable this option to change working directory with the root of the project.
      */
     @Parameter(defaultValue = "false", property = "working-directory")
     private Boolean workingDirectory;
 
     /**
-     * Enable the creation of a new test class.
+     *	Enable the creation of a new test class.
      */
     @Parameter(defaultValue = "false", property = "generate-new-test-class")
     private Boolean generateNewTestClass;
 
     /**
-     * If enabled, DSpot keeps original test methods of the amplified test class.
+     *	If enabled, DSpot keeps original test methods of the amplified test class.
      */
     @Parameter(defaultValue = "false", property = "keep-original-test-methods")
     private Boolean keepOriginalTestMethods;
 
     /**
-     * If enabled, DSpot will use maven to execute the tests.
+     *	If enabled, DSpot will use maven to execute the tests.
      */
     @Parameter(defaultValue = "false", property = "use-maven-to-exe-test")
-    private Boolean useMavenToExeTest = false;
-
+    private Boolean useMavenToExeTest;
 
     /**
-     * run the example of DSpot and leave
+     *	If enabled, DSpot will generate assertions for values that seems like to be paths.
+     */
+    @Parameter(defaultValue = "false", property = "allow-path-in-assertions")
+    private Boolean allowPathInAssertions;
+
+    /**
+     *	[optional] If enabled, DSpot will execute the tests in parallel. For JUnit5 tests it will use the number of given processors (specify 0 to take the number of available core processors). For JUnit4 tests, it will use the number of available CPU processors (given number of processors is ignored).
+     */
+    @Parameter(defaultValue = "-1", property = "execute-test-parallel-with-number-processors")
+    private Integer executeTestParallelWithNumberProcessors;
+
+    /**
+     *	run the example of DSpot and leave
      */
     @Parameter(defaultValue = "false", property = "example")
     private Boolean example;
 
     /**
-     * show this help
+     *	show this help
      */
     @Parameter(defaultValue = "false", property = "help")
     private Boolean help;
 
-    private final String AUTOMATIC_BUILDER_NAME = "MAVEN";
+    // <<<<<< END GENERATED <<<<<<
+
+    private final String builder = "MAVEN";
 
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
     private MavenProject project;
@@ -226,6 +258,26 @@ public class DSpotMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "", property = "path-to-second-version")
     private String pathToSecondVersion = "";
+    
+    /**
+     * [optional] If enabled, DSpot will execute the tests in parallel. 
+     * For JUnit5 tests it will use the number of given processors (specify 0 to take the number of available core processors). 
+     * For JUnit4 tests, it will use the number of available CPU processors (given number of processors is ignored)
+     */
+    @Parameter(defaultValue = "-1", property = "execute-test-parallel-with-number-processors")
+    private Integer numberParallelExecutionProcessors;
+
+    /**
+     * Enable the parallel execution of test during amplification process
+     */
+    @Parameter(defaultValue = "false", property = "path-to-second-version")
+    private boolean executeTestsInParallel = false;
+
+    /**
+     * Enable to execute DSpot on all modules. This parameter do not take into account the value of targetModule.
+     */
+    @Parameter(defaultValue = "false", property = "run-on-all-modules")
+    private boolean runOnAllModules = false;
 
     @Override
     public void execute() {
@@ -233,58 +285,62 @@ public class DSpotMojo extends AbstractMojo {
             JSAPOptions.showUsage();
         }
         Properties properties = initializeProperties();
-        if (properties.getProperty(ConstantsProperties.MODULE.getName()) != null) {
-            final String absolutePath = new File(DSpotUtils.shouldAddSeparator.apply(ConstantsProperties.PROJECT_ROOT_PATH.get(properties))
-                    + ConstantsProperties.MODULE.get(properties)).getAbsolutePath();
-            if (!FilenameUtils.normalize(absolutePath).equals(
-                    this.project.getBasedir().getAbsolutePath())) {
+        if (this.runOnAllModules ||
+                (properties.getProperty(ConstantsProperties.MODULE.getName()) != null ||
+                !properties.getProperty(ConstantsProperties.MODULE.getName()).isEmpty())) {
+            if (!this.project.getBasedir().getAbsolutePath().endsWith(ConstantsProperties.MODULE.get(properties))) {
                 return;
+            } else {
+                properties.put(ConstantsProperties.PROJECT_ROOT_PATH.getName(),
+                        ConstantsProperties.PROJECT_ROOT_PATH.get(properties).substring(0,
+                                ConstantsProperties.PROJECT_ROOT_PATH.get(properties).length() - ConstantsProperties.MODULE.get(properties).length()
+                        )
+                );
             }
         }
+
         if (this.amplifiers.size() == 1 &&
                 this.amplifiers.get(0).contains(AmplificationHelper.PATH_SEPARATOR)) {
             this.amplifiers = Arrays.stream(this.amplifiers.get(0).split(AmplificationHelper.PATH_SEPARATOR))
                     .collect(Collectors.toList());
         }
+
+        boolean executeTestsInParallel = executeTestParallelWithNumberProcessors > 0;
+        if (executeTestParallelWithNumberProcessors == 0) {
+            this.executeTestParallelWithNumberProcessors = Runtime.getRuntime().availableProcessors();
+        }
+
         try {
-            InputConfiguration.initialize(properties)
-                    .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(new ArrayList<>(this.amplifiers)))
-                    .setNbIteration(this.iteration)
-                    .setTestClasses(this.test)
-                    .setBudgetizer(BudgetizerEnum.valueOf(this.budgetizer))
-                    .setTestCases(this.cases)
-                    .setSeed(this.randomSeed)
-                    .setTimeOutInMs(this.timeOut)
-                    .setBuilderName(this.automaticBuilder)
-                    .setMaxTestAmplified(this.maxTestAmplified)
-                    .setClean(this.clean)
-                    .setMinimize(this.noMinimize)
-                    .setVerbose(this.verbose)
-                    .setUseWorkingDirectory(this.workingDirectory)
-                    .setWithComment(this.withComment)
-                    .setDescartesMode(this.descartes)
-                    .setGenerateAmplifiedTestClass(this.generateNewTestClass)
-                    .setKeepOriginalTestMethods(this.keepOriginalTestMethods)
-                    .setUseMavenToExecuteTest(this.useMavenToExeTest)
-                    .setTargetOneTestClass(this.targetOneTestClass);
-
-            InputConfiguration.get().setOutputDirectory(
-                    ConstantsProperties.OUTPUT_DIRECTORY.get(properties).isEmpty() ?
-                            this.outputPath : ConstantsProperties.OUTPUT_DIRECTORY.get(properties));
-
-            if (this.pathPitResult != null && !this.pathPitResult.isEmpty()) {
-                InputConfiguration.get().setSelector(new PitMutantScoreSelector(this.pathPitResult,
-                        this.pathPitResult.endsWith(".xml") ?
-                                PitMutantScoreSelector.OutputFormat.XML : PitMutantScoreSelector.OutputFormat.CSV,
-                        PitMutantScoreSelector.OutputFormat.XML)
-                );
-            } else {
-                InputConfiguration.get().setSelector(SelectorEnum.valueOf(this.testCriterion).buildSelector());
-            }
-
-            if (!this.pathToSecondVersion.isEmpty()) {
-                InputConfiguration.get().setAbsolutePathToSecondVersionProjectRoot(this.pathToSecondVersion);
-            }
+            Configuration.configure(
+                    properties,
+                    amplifiers,
+                    testCriterion,
+                    budgetizer,
+                    pitOutputFormat,
+                    pathPitResult,
+                    builder,
+                    outputPath,
+                    iteration,
+                    randomSeed,
+                    timeOut,
+                    maxTestAmplified,
+                    clean,
+                    verbose,
+                    workingDirectory,
+                    withComment,
+                    generateNewTestClass,
+                    keepOriginalTestMethods,
+                    gregor,
+                    descartes,
+                    useMavenToExeTest,
+                    targetOneTestClass,
+                    allowPathInAssertions,
+                    executeTestsInParallel,
+                    executeTestParallelWithNumberProcessors,
+                    test,
+                    testCases,
+                    null
+            );
 
             if (!this.pathToTestListCsv.isEmpty()) {
                 // clear both list of test classes and test cases
@@ -304,37 +360,42 @@ public class DSpotMojo extends AbstractMojo {
             }
             Main.run();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
-        // global report handling
-        Main.GLOBAL_REPORT.output();
-        Main.GLOBAL_REPORT.reset();
     }
 
     // visible for testing...
     @NotNull
     Properties initializeProperties() {
         Properties properties = new Properties();
+        final String absolutePathProjectRoot = project.getBasedir().getAbsolutePath();
+        properties.setProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName(), absolutePathProjectRoot);
+        final Build build = project.getBuild();
+        properties.setProperty(ConstantsProperties.SRC_CODE.getName(),
+                DSpotUtils.removeProjectRootIfAbsoluteAndAddSeparator(absolutePathProjectRoot, build.getSourceDirectory())
+        );
+        properties.setProperty(ConstantsProperties.TEST_SRC_CODE.getName(),
+                DSpotUtils.removeProjectRootIfAbsoluteAndAddSeparator(absolutePathProjectRoot, build.getTestSourceDirectory())
+        );
+        properties.setProperty(ConstantsProperties.SRC_CLASSES.getName(),
+                DSpotUtils.removeProjectRootIfAbsoluteAndAddSeparator(absolutePathProjectRoot, build.getOutputDirectory())
+        );
+        properties.setProperty(ConstantsProperties.TEST_CLASSES.getName(),
+                DSpotUtils.removeProjectRootIfAbsoluteAndAddSeparator(absolutePathProjectRoot, build.getTestOutputDirectory())
+        );
+        // TODO checks that we can use an empty module for multi module project
+        // TODO the guess here is that the user will launch the plugin from the root of the targeted module
+        // TODO and thus, we do not need to compute the relative path from its parents
+        // TODO however, it may lacks some dependencies and the user should run a resolve dependency goal
+        // TODO before using the dspot plugin
+        // TODO we must maybe need to use a correct lifecycle
+        properties.setProperty(ConstantsProperties.MODULE.getName(), "");
         if (this.pathToProperties != null && !this.pathToProperties.isEmpty()) {
             try {
                 properties.load(new FileInputStream(this.pathToProperties));
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } else {
-            properties.setProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName(), project.getBasedir().getAbsolutePath());
-            final Build build = project.getBuild();
-            properties.setProperty(ConstantsProperties.SRC_CODE.getName(), build.getSourceDirectory());
-            properties.setProperty(ConstantsProperties.TEST_SRC_CODE.getName(), build.getTestSourceDirectory());
-            properties.setProperty(ConstantsProperties.SRC_CLASSES.getName(), build.getOutputDirectory());
-            properties.setProperty(ConstantsProperties.TEST_CLASSES.getName(), build.getTestOutputDirectory());
-            // TODO checks that we can use an empty module for multi module project
-            // TODO the guess here is that the user will launch the plugin from the root of the targeted module
-            // TODO and thus, we do not need to compute the relative path from its parents
-            // TODO however, it may lacks some dependencies and the user should run a resolve dependency goal
-            // TODO before using the dspot plugin
-            // TODO we must maybe need to use a correct lifecycle
-            properties.setProperty(ConstantsProperties.MODULE.getName(), "");
         }
         return properties;
     }
@@ -363,7 +424,7 @@ public class DSpotMojo extends AbstractMojo {
     }
 
     void setTestMethods(List<String> cases) {
-        this.cases = cases;
+        this.testCases = cases;
     }
 
     void setVerbose(Boolean verbose) {

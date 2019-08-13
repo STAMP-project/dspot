@@ -5,6 +5,7 @@ import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
+import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
@@ -68,4 +69,8 @@ public class GoogleTruthTestFramework extends AbstractTestFrameworkDecorator {
     public static final String ASSERT_EQUALS = "isEqualTo";
     public static final String ASSERT_NOT_EQUALS = "isNotEqualTo";
 
+    @Override
+    public boolean isIgnored(CtElement candidate) {
+        return false;
+    }
 }

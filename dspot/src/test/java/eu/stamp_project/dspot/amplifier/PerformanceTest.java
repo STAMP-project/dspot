@@ -36,7 +36,7 @@ public class PerformanceTest extends AbstractTest {
         List<CtMethod> amplifiedTestMethod1 = Collections.singletonList(originalTest);
         List<CtMethod> amplifiedTestMethod2 = Collections.singletonList(originalTest);
 
-        Amplifier testDataMutator = new TestDataMutator();
+        Amplifier testDataMutator = new FastLiteralAmplifier();
         testDataMutator.reset(testClass);
 
         Amplifier allLiteralAmplifiers = new AllLiteralAmplifiers();

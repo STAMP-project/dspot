@@ -1,7 +1,7 @@
 package eu.stamp_project;
 
-import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -21,7 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-/**
+/**  
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
  * on 2/14/17
@@ -83,7 +83,7 @@ public class MainTest {
                 "--path-to-properties", "src/test/resources/sample/sample.properties",
                 "--test-criterion", "TakeAllSelector",
                 "--test", "fr.inria.sample.TestClassWithoutAssert:fr.inria.sample.TestClassWithAssert",
-                "--cases", "test1:test:anOldTest",
+                "--test-cases", "test1:test:anOldTest",
                 "--no-minimize"
         });
         // an amplification happened, w/e it is
@@ -196,11 +196,11 @@ public class MainTest {
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
                 "--iteration", "1",
-                "--amplifiers", "TestDataMutator",
+                "--amplifiers", "FastLiteralAmplifier",
                 "--test", "example.ParametrizedTestSuiteExample",
                 "--budgetizer", "TextualDistanceBudgetizer",
                 "--no-minimize",
-                "--cases", "test2"
+                "--test-cases", "test2"
         });
         final CtClass<?> amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("example.ParametrizedTestSuiteExample");
         assertNotNull(amplifiedTestClass);
@@ -266,11 +266,23 @@ public class MainTest {
             "    }";
 
     private static final String expectedReportExample = 
-            "Initial instruction coverage: 30 / 34" + AmplificationHelper.LINE_SEPARATOR +
-            "88" + AmplificationHelper.DECIMAL_SEPARATOR + "24%" + AmplificationHelper.LINE_SEPARATOR +
-            "Amplification results with 5 amplified tests." + AmplificationHelper.LINE_SEPARATOR +
-            "Amplified instruction coverage: 34 / 34" + AmplificationHelper.LINE_SEPARATOR +
-            "100" + AmplificationHelper.DECIMAL_SEPARATOR + "00%" + AmplificationHelper.LINE_SEPARATOR;
+            "Initial instruction coverage: 30 / 34\n" +
+                    "88.24%\n" +
+                    "Amplification results with 57 amplified tests.\n" +
+                    "Amplified instruction coverage: 34 / 34\n" +
+                    "100.00%\n" +
+                    "\n" +
+                    "Initial instruction coverage: 30 / 34\n" +
+                    "88.24%\n" +
+                    "Amplification results with 5 amplified tests.\n" +
+                    "Amplified instruction coverage: 34 / 34\n" +
+                    "100.00%\n" +
+                    "\n" +
+                    "Initial instruction coverage: 30 / 34\n" +
+                    "88.24%\n" +
+                    "Amplification results with 0 amplified tests.\n" +
+                    "Amplified instruction coverage: 30 / 34\n" +
+                    "88.24%\n";
 
     @Test
     public void testOverrideExistingResults() throws Exception {
@@ -287,11 +299,11 @@ public class MainTest {
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + AmplificationHelper.PATH_SEPARATOR + "TestDataMutator" + AmplificationHelper.PATH_SEPARATOR + "MethodGeneratorAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
+                "--amplifiers", "MethodAdd" + AmplificationHelper.PATH_SEPARATOR + "FastLiteralAmplifier" + AmplificationHelper.PATH_SEPARATOR + "MethodAdderOnExistingObjectsAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
                 "--iteration", "1",
-                "--randomSeed", "72",
+                "--random-seed", "72",
                 "--test", "example.TestSuiteExample",
-                "--cases", "test2",
+                "--test-cases", "test2",
                 "--output-path", "target/trash",
                 "--max-test-amplified", "200",
                 "--keep-original-test-methods"
@@ -307,11 +319,11 @@ public class MainTest {
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + AmplificationHelper.PATH_SEPARATOR + "TestDataMutator",
+                "--amplifiers", "MethodAdd" + AmplificationHelper.PATH_SEPARATOR + "FastLiteralAmplifier",
                 "--iteration", "1",
-                "--randomSeed", "72",
+                "--random-seed", "72",
                 "--test", "example.TestSuiteExample",
-                "--cases", "test2",
+                "--test-cases", "test2",
                 "--output-path", "target/trash",
                 "--max-test-amplified", "200",
                 "--keep-original-test-methods",
@@ -331,11 +343,11 @@ public class MainTest {
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodGeneratorAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
+                "--amplifiers", "MethodAdderOnExistingObjectsAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
                 "--iteration", "1",
-                "--randomSeed", "72",
+                "--random-seed", "72",
                 "--test", "example.TestSuiteExample",
-                "--cases", "test2",
+                "--test-cases", "test2",
                 "--output-path", "target/trash",
                 "--max-test-amplified", "200",
                 "--keep-original-test-methods"
@@ -351,11 +363,11 @@ public class MainTest {
         Main.main(new String[]{
                 "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodGeneratorAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
+                "--amplifiers", "MethodAdderOnExistingObjectsAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
                 "--iteration", "1",
-                "--randomSeed", "72",
+                "--random-seed", "72",
                 "--test", "example.TestSuiteExample",
-                "--cases", "test2",
+                "--test-cases", "test2",
                 "--output-path", "target/trash",
                 "--max-test-amplified", "200",
                 "--keep-original-test-methods",

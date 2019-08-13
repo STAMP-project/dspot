@@ -67,6 +67,20 @@ public class TestFramework implements TestFrameworkSupport {
         return TestFramework.get().getTestFramework(ctMethod) instanceof JUnit5Support;
     }
 
+    /**
+     * This method detects whether or not the given test suite has been annotated to be ignored (JUnit4) or disabled (JUnit5)
+     * @param ctType the test suite to check
+     * @return true if the given test suite has been ignored/disabled
+     */
+    public boolean isIgnored (CtElement candidate) {
+        for (TestFrameworkSupport testFrameworkSupport : this.testFrameworkSupportList) {
+            if (testFrameworkSupport.isIgnored(candidate)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean isAssert(CtInvocation<?> invocation) {
         for (TestFrameworkSupport testFrameworkSupport : this.testFrameworkSupportList) {

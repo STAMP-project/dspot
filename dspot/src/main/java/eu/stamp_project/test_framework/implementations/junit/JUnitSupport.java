@@ -32,7 +32,7 @@ public abstract class JUnitSupport extends AbstractTestFramework {
 
     protected abstract String getFullQualifiedNameOfAnnotationAfterClass();
 
-    protected boolean isIgnored(CtMethod<?> candidate) {
+    public boolean isIgnored(CtElement candidate) {
         return this.hasAnnotation(getFullQualifiedNameOfAnnotationIgnore(), candidate);
     }
 
@@ -125,6 +125,7 @@ public abstract class JUnitSupport extends AbstractTestFramework {
     public static final String ASSERT_FALSE = "assertFalse";
     public static final String ASSERT_EQUALS = "assertEquals";
     public static final String ASSERT_NOT_EQUALS = "assertNotEquals";
+    public static final String ASSERT_ARRAY_EQUALS = "assertArrayEquals";
 
     @Override
     public CtMethod<?> generateExpectedExceptionsBlock(CtMethod<?> test, Failure failure, int numberOfFail) {
@@ -166,8 +167,7 @@ public abstract class JUnitSupport extends AbstractTestFramework {
                 factory.createVariableRead(parameter.getReference(), false),
                 factory.Class().get(java.lang.Throwable.class).getMethodsByName("getMessage").get(0).getReference()
         );
-        if (!AssertGeneratorHelper.containsObjectReferences(failure.messageOfFailure)
-                && !AssertGeneratorHelper.containsAPath(failure.messageOfFailure)) {
+        if (AssertGeneratorHelper.canGenerateAnAssertionFor(failure.messageOfFailure)) {
             ctCatch.getBody().addStatement(
                     this.buildInvocationToAssertion(
                             testMethod,

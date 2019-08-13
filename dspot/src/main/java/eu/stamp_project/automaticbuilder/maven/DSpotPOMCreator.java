@@ -1,6 +1,5 @@
 package eu.stamp_project.automaticbuilder.maven;
 
-import eu.stamp_project.automaticbuilder.AutomaticBuilderHelper;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
@@ -80,11 +79,167 @@ public class DSpotPOMCreator {
 
     private static final String DSPOT_POM_FILE = ".dspot_";
 
-    private static final String SUFFIX_JUNIT5 = "_junit5_";
+    private static final String SUFFIX_JUNIT5 = "junit5_";
+
+    private static final String DSPOT_PARALLEL_POM_FILE = ".dspot_parallel_";
 
     public static void createNewPom() {
         new DSpotPOMCreator(true)._innerCreatePom();
         new DSpotPOMCreator(false)._innerCreatePom();
+    }
+
+    public static String createNewPomForComputingClassPathWithParallelExecution() {
+        return new DSpotPOMCreator(InputConfiguration.get().isJUnit5())._createNewPomForComputingClassPathWithParallelExecution();
+    }
+
+    public String _createNewPomForComputingClassPathWithParallelExecution() {
+        try {
+            //Duplicate target pom
+
+            final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            final DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+            final Document document = docBuilder.parse(InputConfiguration.get().getAbsolutePathToProjectRoot() + POM_FILE);
+
+            final Node root = findSpecificNodeFromGivenRoot(document.getFirstChild(), PROJECT);
+
+            //Add JUnit4/5 dependencies
+            addJUnitDependencies(document, root);
+
+            // write the content into xml file
+            final TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            final Transformer transformer = transformerFactory.newTransformer();
+            final DOMSource source = new DOMSource(document);
+            String newPomFilename = InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.getParallelPOMName();
+            final StreamResult result = new StreamResult(new File(newPomFilename));
+            transformer.transform(source, result);
+
+            return newPomFilename;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+            }
+        }
+
+    private void addSurefirePluginConfiguration(Document document, Node root) {
+        final Node build = findOrCreateGivenNode(document, root, BUILD);
+        final Node plugins = findOrCreateGivenNode(document, build, PLUGINS);
+        final Node surefirePlugin = findPluginByArtifactId(document, plugins, ARTIFACT_SUREFIRE_PLUGIN);
+        final Node configuration = findOrCreateGivenNode(document, surefirePlugin, CONFIGURATION);
+
+        final Element version = document.createElement("version");
+        version.setTextContent("2.22.0");
+        surefirePlugin.appendChild(version);
+        if (InputConfiguration.get().isJUnit5()) {
+            final Node dependencies = findOrCreateGivenNode(document, surefirePlugin, DEPENDENCIES);
+            Element dependency;
+            if (!hasDependencyByArtifactId(dependencies, "junit-platform-surefire-provider")) {
+                dependency = createDependency(document,
+                        "org.junit.platform",
+                        "junit-platform-surefire-provider",
+                        "1.3.2"
+                );
+                dependencies.appendChild(dependency);
+            }
+            if (!hasDependencyByArtifactId(dependencies, "junit-jupiter-engine")) {
+                dependency = createDependency(document,
+                        "org.junit.jupiter",
+                        "junit-jupiter-engine",
+                        "5.3.2"
+                );
+                dependencies.appendChild(dependency);
+            }
+        }else {
+            final Element parallel = document.createElement("parallel");
+            final Element useUnlimitedThreads = document.createElement("useUnlimitedThreads");
+            parallel.setTextContent("methods");
+            useUnlimitedThreads.setTextContent("true");
+            configuration.appendChild(parallel);
+            configuration.appendChild(useUnlimitedThreads);
+        }
+    }
+
+    private void addJUnitDependencies(Document document, Node root) {
+        final Node dependencies = findOrCreateGivenNode(document, root, DEPENDENCIES);
+        Element dependency;
+        if (!hasDependencyByArtifactId(dependencies, "junit-jupiter-api")) {
+            dependency = createDependency(document,
+                    "org.junit.jupiter",
+                    "junit-jupiter-api",
+                    "5.3.2"
+            );
+            dependencies.appendChild(dependency);
+        }
+        if (!hasDependencyByArtifactId(dependencies, "junit-jupiter-engine")) {
+            dependency = createDependency(document,
+                    "org.junit.jupiter",
+                    "junit-jupiter-engine",
+                    "5.3.2"
+            );
+            dependencies.appendChild(dependency);
+        }
+        if (!hasDependencyByArtifactId(dependencies, "junit-platform-engine")) {
+            dependency = createDependency(document,
+                    "org.junit.platform",
+                    "junit-platform-engine",
+                    "1.3.2"
+            );
+            dependencies.appendChild(dependency);
+        }
+        if (!hasDependencyByArtifactId(dependencies, "junit-platform-launcher")) {
+            dependency = createDependency(document,
+                    "org.junit.platform",
+                    "junit-platform-launcher",
+                    "1.3.2"
+            );
+            dependencies.appendChild(dependency);
+        }
+        if (!hasDependencyByArtifactId(dependencies, "junit-vintage-engine")) {
+            dependency = createDependency(document,
+                    "org.junit.vintage",
+                    "junit-vintage-engine",
+                    "5.3.2"
+            );
+            dependencies.appendChild(dependency);
+        }
+        if (!hasDependencyByArtifactId(dependencies, "junit-toolbox")) {
+            dependency = createDependency(document,
+                    "com.googlecode.junit-toolbox",
+                    "junit-toolbox",
+                    "2.4"
+            );
+            dependencies.appendChild(dependency);
+        }
+    }
+
+    private Node findPluginByArtifactId(Document document, Node pluginsNode, String artifactId) {
+        Node plugin = pluginsNode.getFirstChild();
+        while (plugin != null && !hasArtifactId (plugin, artifactId)) {
+            plugin = plugin.getNextSibling();
+        }
+        return plugin;
+    }
+
+    private boolean hasArtifactId(Node node, String artifactId) {
+        Node currentChild = node.getFirstChild();
+        while (currentChild != null && !"artifactId".equals(currentChild.getNodeName())) {
+            currentChild = currentChild.getNextSibling();
+        }
+        return currentChild == null? false: currentChild.getTextContent().equals(artifactId);
+    }
+
+    public static String getParallelPOMName() {
+        return DSPOT_PARALLEL_POM_FILE + (InputConfiguration.get().isJUnit5() ? SUFFIX_JUNIT5 : "") + POM_FILE;
+    }
+
+    private Node findChildByArtifactId(Node node, String artifactId) {
+        Node child = node.getFirstChild();
+        while (child != null && !hasArtifactId (child, artifactId)) {
+            child = child.getNextSibling();
+        }
+        return child;
+    }
+
+    private boolean hasDependencyByArtifactId(Node dependencies, String artifactId) {
+        return findChildByArtifactId(dependencies, artifactId) != null;
     }
 
     public static String getPOMName() {
@@ -118,6 +273,13 @@ public class DSpotPOMCreator {
 
             // CONFIGURATION TO RUN INSTRUMENTED TEST
             configureForInstrumentedTests(document, root);
+
+            if (InputConfiguration.get().shouldExecuteTestsInParallel() && InputConfiguration.get().shouldUseMavenToExecuteTest()) {
+                //Add JUnit4/5 dependencies for parallel execution
+                //Add Surefire plugin configuration for parallel execution
+                addJUnitDependencies(document, root);
+                addSurefirePluginConfiguration (document, root);
+            }
 
             final Element profile = createProfile(document);
 
@@ -385,9 +547,12 @@ public class DSpotPOMCreator {
         appendValuesToGivenNode(document, outputFormats, DSpotPOMCreator.outputFormats);
         configuration.appendChild(outputFormats);
 
-        final Element targetClasses = document.createElement(TARGET_CLASSES);
-        targetClasses.setTextContent(AutomaticBuilderHelper.getFilter());
-        configuration.appendChild(targetClasses);
+        if (InputConfiguration.get().getFilter() != null &&
+                !InputConfiguration.get().getFilter().isEmpty()) {
+            final Element targetClasses = document.createElement(TARGET_CLASSES);
+            targetClasses.setTextContent(InputConfiguration.get().getFilter());
+            configuration.appendChild(targetClasses);
+        }
 
         final Element reportsDirectory = document.createElement(REPORT_DIRECTORY);
         reportsDirectory.setTextContent(REPORT_DIRECTORY_VALUE);

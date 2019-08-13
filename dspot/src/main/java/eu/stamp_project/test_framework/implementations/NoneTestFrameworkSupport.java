@@ -58,4 +58,9 @@ public class NoneTestFrameworkSupport implements TestFrameworkSupport {
     public void generateAfterClassToSaveObservations(CtType<?> testClass, List<CtMethod<?>> testsToRun) {
 
     }
+
+    @Override
+    public boolean isIgnored(CtElement candidate) {
+        return false;
+    }
 }

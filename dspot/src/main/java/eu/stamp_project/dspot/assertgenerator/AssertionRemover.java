@@ -3,17 +3,13 @@ package eu.stamp_project.dspot.assertgenerator;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.CloneHelper;
 import spoon.reflect.code.*;
-import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.reference.CtVariableReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -90,12 +86,29 @@ public class AssertionRemover {
                     clone = ((CtUnaryOperator) clone).getOperand();
                 }
                 if (clone instanceof CtLambda) {
-                    invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter,
-                            factory.createStatementList(((CtLambda) clone).getBody())
-                    );
+                    CtLambda lambda = ((CtLambda) clone);
+                    if (lambda.getBody() != null) {
+                        invocation.getParent(CtStatementList.class).insertBefore(
+                                statementTypeFilter,
+                                factory.createStatementList(lambda.getBody())
+                        );
+                    } else {
+                        // in case of we have something like () -> "string"
+                        if (lambda.getExpression() instanceof CtLiteral) {
+                            continue;
+                        }
+                        // TODO check that we support all cases by casting into CtInvocation
+                        final CtBlock block = factory.createBlock();
+                        block.setStatements(Collections.singletonList((CtInvocation)lambda.getExpression().clone()));
+                        invocation.getParent(CtStatementList.class).insertBefore(
+                                statementTypeFilter, factory.createStatementList(block)
+                        );
+                    }
                 } else if (clone instanceof CtStatement) {
                     invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, (CtStatement) clone);
+                    clone.putMetadata(AssertGeneratorHelper.METADATA_WAS_IN_ASSERTION, true);
                 } else if (!(clone instanceof CtLiteral || clone instanceof CtVariableRead)) {
+                    // TODO EXPLAIN
                     CtTypeReference<?> typeOfParameter = clone.getType();
                     if (clone.getType()  == null || factory.Type().NULL_TYPE.equals(clone.getType())) {
                         typeOfParameter = factory.Type().createReference(Object.class);
@@ -106,6 +119,7 @@ public class AssertionRemover {
                             clone
                     );
                     invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, localVariable);
+                    localVariable.putMetadata(AssertGeneratorHelper.METADATA_WAS_IN_ASSERTION, true);
                 } else if (clone instanceof CtVariableRead && !(clone instanceof CtFieldRead)) {
                     final CtVariableReference variable = ((CtVariableRead) clone).getVariable();
                     final List<CtLocalVariable> assertedVariables = invocation.getParent(CtBlock.class).getElements(
@@ -127,11 +141,8 @@ public class AssertionRemover {
         }
         // must find the first statement list to remove the invocation from it, e.g. the block that contains the assertions
         // the assertion can be inside other stuff, than directly in the block
-        CtElement topStatement = invocation;
-        while (!(topStatement.getParent() instanceof CtStatementList)) {
-            topStatement = topStatement.getParent();
-        }
-        ((CtStatementList) topStatement.getParent()).removeStatement((CtStatement) topStatement);
+        CtStatement topStatement = AssertGeneratorHelper.getTopStatement(invocation);
+        ((CtStatementList) topStatement.getParent()).removeStatement(topStatement);
         return variableReadsAsserted;
     }
 

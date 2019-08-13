@@ -23,7 +23,7 @@ public interface TestSelector {
      * This method selects test method to be amplified among the provided test list.
      * Contract: the provided test list should contain only already compiled test methods and all the test methods should pass.
      *
-     * @param classTest
+     * @param classTest test class under amplification
      * @param testsToBeAmplified the list among which the selection is done.
      * @return selected test methods to be amplified
      */

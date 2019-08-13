@@ -2,17 +2,18 @@ package eu.stamp_project.utils.options;
 
 import eu.stamp_project.dspot.amplifier.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public enum AmplifierEnum {
 
-    MethodAdd(new TestMethodCallAdder()),
+    MethodAdd(new MethodDuplicationAmplifier()),
+    MethodDuplicationAmplifier(new MethodDuplicationAmplifier()),
     MethodRemove(new TestMethodCallRemover()),
-    TestDataMutator(new TestDataMutator()),
-    MethodGeneratorAmplifier(new MethodGeneratorAmplifier()),
+    FastLiteralAmplifier(new FastLiteralAmplifier()),
+    TestDataMutator(new FastLiteralAmplifier()),
+    MethodGeneratorAmplifier(new MethodAdderOnExistingObjectsAmplifier()),
+    MethodAdderOnExistingObjectsAmplifier(new MethodAdderOnExistingObjectsAmplifier()),
     ReturnValueAmplifier(new ReturnValueAmplifier()),
     StringLiteralAmplifier(new StringLiteralAmplifier()),
     NumberLiteralAmplifier(new NumberLiteralAmplifier()),
@@ -25,12 +26,25 @@ public enum AmplifierEnum {
 
     public final Amplifier amplifier;
 
+    private static final Map<String,String> deprecatedValuesToNewNames = new HashMap<>();
+
+    static {
+        deprecatedValuesToNewNames.put("MethodAdd", "MethodDuplicationAmplifier");
+        deprecatedValuesToNewNames.put("TestDataMutator", "FastLiteralAmplifier");
+        deprecatedValuesToNewNames.put("MethodGeneratorAmplifier", "MethodAdderOnExistingObjectsAmplifier");
+    }
+
     private AmplifierEnum(Amplifier amplifier) {
         this.amplifier = amplifier;
     }
 
     private static Amplifier stringToAmplifier(String amplifier) {
         try {
+            if (deprecatedValuesToNewNames.containsKey(amplifier)) {
+                JSAPOptions.LOGGER.warn("You are using an old name: " + amplifier + ".");
+                JSAPOptions.LOGGER.warn("You should use the new name: FastLiteralAmplifier.");
+                JSAPOptions.LOGGER.warn("The entry TestDataMutator will be deleted very soon.");
+            }
             return AmplifierEnum.valueOf(amplifier).amplifier;
         } catch (IllegalArgumentException e) {
             // should not happen since we checked values with Checker.checkEnumAndRemoveIfIncorrect

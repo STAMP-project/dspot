@@ -172,29 +172,32 @@ mvn dspot:amplify-unit-tests
 
 ```
 Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
-                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [--pit-output-format <XML | CSV>] [--budgetizer <NoBudgetizer | SimpleBudgetizer>] [--max-test-amplified <integer>] [(-t|--test) my.package.MyClassTest | all1:my.package.MyClassTest | all2:...:my.package.MyClassTest | allN ] [(-c|--cases) testCases1:testCases2:...:testCasesN ] [(-o|--output-path) <output>] [--clean] [(-m|--path-pit-result) <./path/to/mutations.csv>] [--targetOneTestClass] [--descartes] [--gregor] [--automatic-builder <MavenBuilder | GradleBuilder>] [--maven-home <path to maven home>] [--randomSeed <long integer>] [--timeOut <long integer>] [--verbose] [--with-comment] [--no-minimize] [--working-directory] [--generate-new-test-class] [--keep-original-test-methods] [--use-maven-to-exe-test] [-e|--example] [-h|--help]
+                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [--pit-output-format <XML | CSV>] [--budgetizer <RandomBudgetizer | TextualDistanceBudgetizer | SimpleBudgetizer>] [--max-test-amplified <integer>] [(-t|--test) my.package.MyClassTest | all1:my.package.MyClassTest | all2:...:my.package.MyClassTest | allN ] [(-c|--test-cases) test-cases1:test-cases2:...:test-casesN ] [(-o|--output-path) <output-path>] [--clean] [(-m|--path-pit-result) <./path/to/mutations.csv>] [--target-one-test-class] [--descartes] [--gregor] [--automatic-builder <MavenBuilder | GradleBuilder>] [--maven-home <path to maven home>] [--random-seed <long integer>] [--time-out <long integer>] [--verbose] [--with-comment] [--no-minimize] [--working-directory] [--generate-new-test-class] [--keep-original-test-methods] [--use-maven-to-exe-test] [--allow-path-in-assertions] [--execute-test-parallel-with-number-processors <execute-test-parallel-with-number-processors>] [-e|--example] [-h|--help]
 
   [(-p|--path-to-properties) <./path/to/myproject.properties>]
         [mandatory] specify the path to the configuration file (format Java
         properties) of the target project (e.g. ./foo.properties).
 
   [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ]
-        [optional] specify the list of amplifiers to use. By default, DSpot does
-        not use any amplifiers (None) and applies only assertion amplification.
-        Possible values are: 
-        		 - MethodAdd
-        		 - MethodRemove
-        		 - TestDataMutator
-        		 - MethodGeneratorAmplifier
-        		 - ReturnValueAmplifier
-        		 - StringLiteralAmplifier
-        		 - NumberLiteralAmplifier
-        		 - BooleanLiteralAmplifier
-        		 - CharLiteralAmplifier
-        		 - AllLiteralAmplifiers
-        		 - NullifierAmplifier
-        		 - None
-        (default: None)
+          [optional] specify the list of amplifiers to use. By default, DSpot does
+          not use any amplifiers (None) and applies only assertion amplification.
+          Possible values are: 
+          		 - MethodAdd
+          		 - MethodDuplicationAmplifier
+          		 - MethodRemove
+          		 - FastLiteralAmplifier
+          		 - TestDataMutator
+          		 - MethodGeneratorAmplifier
+          		 - MethodAdderOnExistingObjectsAmplifier
+          		 - ReturnValueAmplifier
+          		 - StringLiteralAmplifier
+          		 - NumberLiteralAmplifier
+          		 - BooleanLiteralAmplifier
+          		 - CharLiteralAmplifier
+          		 - AllLiteralAmplifiers
+          		 - NullifierAmplifier
+          		 - None
+          (default: None)
 
   [(-i|--iteration) <iteration>]
         [optional] specify the number of amplification iterations. A larger
@@ -219,7 +222,7 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         		 - CSV
         (default: XML)
 
- [--budgetizer <RandomBudgetizer | TextualDistanceBudgetizer | SimpleBudgetizer>]
+  [--budgetizer <RandomBudgetizer | TextualDistanceBudgetizer | SimpleBudgetizer>]
         [optional] specify a Bugdetizer.
         Possible values are: 
         		 - RandomBudgetizer
@@ -237,10 +240,10 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         regex to describe a set of test classes. By default, DSpot selects all
         the tests (value all). (default: all)
 
-  [(-c|--cases) testCases1:testCases2:...:testCasesN ]
+  [(-c|--test-cases) test-cases1:test-cases2:...:test-casesN ]
         specify the test cases to amplify
 
-  [(-o|--output-path) <output>]
+  [(-o|--output-path) <output-path>]
         [optional] specify the output folder (default: target/dspot/output)
 
   [--clean]
@@ -252,7 +255,7 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         original result of Pit Test. If you use this option the selector will be
         forced to PitMutantScoreSelector
 
-  [--targetOneTestClass]
+  [--target-one-test-class]
         [optional, expert] enable this option will make DSpot computing the
         mutation score of only one test class (the first pass through --test
         command line option)
@@ -270,11 +273,11 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
   [--maven-home <path to maven home>]
         specify the path to the maven home
 
-  [--randomSeed <long integer>]
+  [--random-seed <long integer>]
         specify a seed for the random object (used for all randomized operation)
         (default: 23)
 
-  [--timeOut <long integer>]
+  [--time-out <long integer>]
         specify the timeout value of the degenerated tests in millisecond
         (default: 10000)
 
@@ -300,6 +303,24 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
 
   [--use-maven-to-exe-test]
         If enabled, DSpot will use maven to execute the tests.
+
+  [--allow-path-in-assertions]
+        If enabled, DSpot will generate assertions for values that seems like to
+        be paths.
+
+  [--execute-test-parallel-with-number-processors <execute-test-parallel-with-number-processors>]
+        [optional] If enabled, DSpot will execute the tests in parallel. For
+        JUnit5 tests it will use the number of given processors (specify 0 to
+        take the number of available core processors). For JUnit4 tests, it will
+        use the number of available CPU processors (given number of processors
+        is ignored). (default: 0)
+
+  [--full-classpath <full-classpath>]
+        [optional] specify the classpath of the project. If this option is used,
+        DSpot won't use an AutomaticBuilder (e.g. Maven) to clean, compile and
+        get the classpath of the project. Please ensure that your project is in
+        a good shape, i.e. clean and correctly compiled, sources and test
+        sources.        
 
   [-e|--example]
         run the example of DSpot and leave
@@ -356,7 +377,7 @@ Here is the list of configuration properties of DSpot:
 	* `automaticBuilderName`: specify the type of automatic builder. This properties is redundant with the command line option `--automatic-builder`. It should have also the same value: (MavenBuilder | GradleBuilder). This property has the priority over the command line.
 	* `pitVersion`: specify the version of PIT to use.(default: 1.4.0)
 	* `jvmArgs`: specify JVM args to use when executing the test, PIT or other java process. This arguments should be a list, separated by a comma ',', _e.g._ jvmArgs=Xmx2048m,-Xms1024m',-Dis.admin.user=admin,-Dis.admin.passwd=$2pRSid#
-	* `pitFilterClassesToKeep`: specify the filter of classes to keep used by PIT. If you use PitMutantScoreSelector, we recommend you to set this property to your top-most package. This value will allow PIT to mutant all your code. However, if you want to restrict the scope of the mutation, you can specify a custom regex. If you do not specify any value, DSpot will compute a filter of classes to keep on the fly, trying to match the most of your classes, _i.e._ your top-most package.
+	* `pitFilterClassesToKeep`: specify the filter of classes to keep used by PIT. This allow you restrict the scope of the mutation done by PIT.
 	* `descartesVersion`: specify the version of pit-descartes to use.(default: 1.2.4)
 	* `descartesMutators`: specify the list of descartes mutators to be used separated by comma. Please refer to the descartes documentation for more details: https://github.com/STAMP-project/pitest-descartes
 You can find an example of properties file [here](https://github.com/STAMP-project/dspot/blob/master/dspot/src/test/resources/sample/sample.properties)).
@@ -376,7 +397,7 @@ However, **DSpot** provide different kind of `Amplifier`:
    * `MethodRemove`: removes an existing method call
    * `StatementAdd`: adds a method call, and generate required parameter
    * `ReplacementAmplifier`: replaces a local variable by a generated one
-   * `TestDataMutator`: old amplifier of literals (all types, deprecated)
+   * `FastLiteralAmplifier`: a faster amplifier for the literals
 
 All amplifiers are just instanciable without any parameters, _e.g._ new StringLiteralAmplifier.
 
@@ -429,6 +450,10 @@ If you have such test class, please amplify the different test framework separat
 ## Contributing
 
 DSpot is licensed under LGPLv3. Contributors and pull requests are welcome :-).
+Tell us what you think and what you expect in the next release using the [STAMP feedback form](https://www.stamp-project.eu/view/main/betatestingsurvey/).
+As a recognition for your useful feedback, you might receive a limited edition “STAMP Software Test Pilot” gift and be added as a STAMP contributor.
+This offer is limited to the beta testers interacting with the STAMP project team, by 31 September 2019. 
+You will be contacted individually for a customized gift and for contribution opportunities.
 
 For more information on development, see the dedicated [README-developers.md](https://github.com/STAMP-project/dspot/blob/master/README-developers.md)
 

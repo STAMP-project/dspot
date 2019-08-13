@@ -1,6 +1,7 @@
 package fr.inria.sample;
 
 import org.junit.Test;
+
 import java.io.FileInputStream;
 import java.io.File;
 
@@ -14,6 +15,11 @@ import static org.junit.Assert.assertTrue;
  * Time: 10:58
  */
 public class TestClassWithAssert extends TestClassWithAssertOld {
+
+    @Test
+    public void testWithNewSomethingWithoutLocalVariables() {
+        assertEquals("", new ClassWithBoolean().toString());
+    }
 
     @Test
     public void testWithAMethodCallThatContainsAssertionsAndItsReturnedValueIsUsed() {
@@ -40,6 +46,13 @@ public class TestClassWithAssert extends TestClassWithAssertOld {
                     ClassThrowException cl = new ClassThrowException();
                     cl.throwException();
                 });
+    }
+
+    @Test
+    public void testWithALambdaWithNullBody() {
+        org.junit.jupiter.api.Assertions.assertThrows(Exception.class,
+                () -> new ClassThrowException().throwException()
+        );
     }
 
     @Test

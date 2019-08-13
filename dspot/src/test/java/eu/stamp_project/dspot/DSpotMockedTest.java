@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot;
 
 import eu.stamp_project.AbstractTest;
-import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
+import eu.stamp_project.dspot.amplifier.MethodAdderOnExistingObjectsAmplifier;
 import eu.stamp_project.dspot.amplifier.ReturnValueAmplifier;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
@@ -42,7 +42,7 @@ public class DSpotMockedTest extends AbstractTest {
         ValueCreator.count = 0;
         RandomHelper.setSeedRandom(23L);
         final InputConfiguration configuration = InputConfiguration.get();
-        configuration.setAmplifiers(Arrays.asList(new MethodGeneratorAmplifier(), new ReturnValueAmplifier()));
+        configuration.setAmplifiers(Arrays.asList(new MethodAdderOnExistingObjectsAmplifier(), new ReturnValueAmplifier()));
         DSpot dspot = new DSpot( 1, configuration.getAmplifiers(), new JacocoCoverageSelector());
         try {
             FileUtils.cleanDirectory(new File(configuration.getOutputDirectory()));
@@ -66,7 +66,7 @@ public class DSpotMockedTest extends AbstractTest {
 
         final List<CtMethod<?>> amplifiedTestMethods = TestFramework.getAllTest(amplifiedTest);
         assertEquals(6, amplifiedTestMethods.size());
-        assertEquals(70, amplifiedTestMethods.stream().mapToLong(
+        assertEquals(89, amplifiedTestMethods.stream().mapToLong(
                 ctMethod -> ctMethod.getElements(new TypeFilter<CtInvocation<?>>(CtInvocation.class) {
                     @Override
                     public boolean matches(CtInvocation<?> element) {

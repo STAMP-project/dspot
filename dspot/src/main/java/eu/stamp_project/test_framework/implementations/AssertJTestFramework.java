@@ -5,6 +5,7 @@ import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.testrunner.runner.Failure;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
+import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -44,5 +45,10 @@ public class AssertJTestFramework extends AbstractTestFramework {
     @Override
     public void generateAfterClassToSaveObservations(CtType<?> testClass, List<CtMethod<?>> testsToRun) {
         // TODO
+    }
+
+    @Override
+    public boolean isIgnored(CtElement candidate) {
+        return false;
     }
 }

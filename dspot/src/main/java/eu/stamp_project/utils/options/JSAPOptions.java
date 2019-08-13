@@ -8,9 +8,7 @@ import com.martiansoftware.jsap.JSAPResult;
 import com.martiansoftware.jsap.Parameter;
 import com.martiansoftware.jsap.Switch;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
-import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.options.check.Checker;
-import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +23,7 @@ import java.util.stream.Collectors;
  */
 public class JSAPOptions {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JSAPOptions.class);
+    static final Logger LOGGER = LoggerFactory.getLogger(JSAPOptions.class);
 
     private static final String SEPARATOR = AmplificationHelper.LINE_SEPARATOR + "\t\t - ";
 
@@ -35,10 +33,9 @@ public class JSAPOptions {
      * parse the command line argument
      *
      * @param args command line arguments. Refer to the README on the github page or use --help command line option to display all the accepted arguments.
-     * @return true if --example is pass through the command line. It will run DSpot with a small example to make a demonstration of the usage of DSpot.
-     * Otherwise, it returns false and DSpot will run normally, using the properties and the command line options.
+     *             Otherwise, it returns false and DSpot will run normally, using the properties and the command line options.
      */
-    public static boolean parse(String[] args) {
+    public static void parse(String[] args) {
         JSAPResult jsapConfig = options.parse(args);
         if (!jsapConfig.success() || jsapConfig.getBoolean("help")) {
             System.err.println();
@@ -47,103 +44,77 @@ public class JSAPOptions {
             }
             showUsage();
         } else if (jsapConfig.getBoolean("example")) {
-            return true;
+            Configuration.configureExample();
+            return;
         }
 
-        // checking path to properties
-        Checker.checkPathToPropertiesValue(jsapConfig);
-
-        // checking enum values
+        // getting first all the values of the command line.
+        final String pathToProperties = jsapConfig.getString("path-to-properties");
         final List<String> amplifiers = new ArrayList<>(Arrays.asList(jsapConfig.getStringArray("amplifiers")));
-        final String selector = jsapConfig.getString("test-criterion");
+        final String testCriterion = jsapConfig.getString("test-criterion");
         final String budgetizer = jsapConfig.getString("budgetizer");
-        Checker.checkEnum(AmplifierEnum.class, amplifiers, "amplifiers");
-        Checker.checkEnum(SelectorEnum.class, selector, "test-criterion");
-        Checker.checkEnum(BudgetizerEnum.class, budgetizer, "budgetizer");
-
-        // pit output format
-        PitMutantScoreSelector.OutputFormat consecutiveFormat;
-        if (jsapConfig.getString("pit-output-format").toLowerCase().equals("xml")) {
-            consecutiveFormat = PitMutantScoreSelector.OutputFormat.XML;
-        } else if (jsapConfig.getString("pit-output-format").toLowerCase().equals("csv")) {
-            consecutiveFormat = PitMutantScoreSelector.OutputFormat.CSV;
-        } else {
-            LOGGER.warn("You specified an invalid format. Forcing the Pit output format to XML.");
-            consecutiveFormat = PitMutantScoreSelector.OutputFormat.XML;
-        }
-
-        // expert test selector mode
-        TestSelector testCriterion;
-        if (jsapConfig.getString("mutant") != null) {
-            if (!"PitMutantScoreSelector".equals(jsapConfig.getString("test-criterion"))) {
-                LOGGER.warn("You specified a path to a mutations file but you did not specify the right test-criterion");
-                LOGGER.warn("Forcing the Selector to PitMutantScoreSelector");
-            }
-            String pathToOriginalResultOfPit = jsapConfig.getString("mutant");
-            PitMutantScoreSelector.OutputFormat originalFormat;
-            if (pathToOriginalResultOfPit.toLowerCase().endsWith(".xml")) {
-                originalFormat = PitMutantScoreSelector.OutputFormat.XML;
-            } else if (pathToOriginalResultOfPit.toLowerCase().endsWith(".csv")) {
-                originalFormat = PitMutantScoreSelector.OutputFormat.CSV;
-            } else {
-                LOGGER.warn("You specified the wrong Pit format. Skipping expert mode.");
-                originalFormat = PitMutantScoreSelector.OutputFormat.XML;
-            }
-            testCriterion = new PitMutantScoreSelector(jsapConfig.getString("mutant"), originalFormat, consecutiveFormat);
-
-            // default test selector mode
-        } else {
-            if (!(jsapConfig.getString("output-format") == null)) {
-                if (!"PitMutantScoreSelector".equals(jsapConfig.getString("test-criterion"))) {
-                    LOGGER.warn("You specified an output format but you did not specify the right test-criterion");
-                    LOGGER.warn("Forcing the Selector to PitMutantScoreSelector");
-                }
-                testCriterion = new PitMutantScoreSelector(consecutiveFormat);
-            } else {
-                testCriterion = SelectorEnum.valueOf(jsapConfig.getString("test-criterion")).buildSelector();
-            }
-        }
+        final String pitOutputFormat = jsapConfig.getString("pit-output-format");
+        final String pathPitResult = jsapConfig.getString("path-pit-result");
+        final String automaticBuilder = jsapConfig.getString("automatic-builder");
+        final String outputPath = jsapConfig.getString("output-path");
+        final int iteration = jsapConfig.getInt("iteration");
+        final long randomSeed = jsapConfig.getLong("random-seed");
+        final int timeOut = jsapConfig.getInt("time-out");
+        final int maxTestAmplified = jsapConfig.getInt("max-test-amplified");
+        final boolean clean = jsapConfig.getBoolean("clean");
+        final boolean verbose = jsapConfig.getBoolean("verbose");
+        final boolean workingDirectory = jsapConfig.getBoolean("working-directory");
+        final boolean withComment = jsapConfig.getBoolean("with-comment");
+        final boolean generateNewTestClass = jsapConfig.getBoolean("generate-new-test-class");
+        final boolean keepOriginalTestMethods = jsapConfig.getBoolean("keep-original-test-methods");
+        final boolean gregor = jsapConfig.getBoolean("gregor");
+        final boolean descartes = jsapConfig.getBoolean("descartes");
+        final boolean useMavenToExeTest = jsapConfig.getBoolean("use-maven-to-exe-test");
+        final boolean targetOneTestClass = jsapConfig.getBoolean("target-one-test-class");
+        final boolean allowPathInAssertions = jsapConfig.getBoolean("allow-path-in-assertions");
+        final int executeTestParallelWithNumberProcessors =
+                jsapConfig.getInt("execute-test-parallel-with-number-processors") != 0 ?
+                        jsapConfig.getInt("execute-test-parallel-with-number-processors") : Runtime.getRuntime().availableProcessors();
+        final boolean executeTestsInParallel = jsapConfig.userSpecified("execute-test-parallel-with-number-processors");
+        final String fullClasspath = jsapConfig.getString("full-classpath");
 
         // these values need to be checked when the factory is available
         // We check them in DSpot class since we have the codes that allow to check them easily
         // and thus, the Factory will be created.
         // Anyway, the verification in DSpot is not yet too late nor deep in the amplification's process.
-        final List<String> testClasses = Arrays.asList(jsapConfig.getStringArray("test"));
-        final List<String> testCases = Arrays.asList(jsapConfig.getStringArray("testCases"));
+        final List<String> test = Arrays.asList(jsapConfig.getStringArray("test"));
+        final List<String> testCases = Arrays.asList(jsapConfig.getStringArray("test-cases"));
 
-        // we check the properties before initializing the InputConfiguration.
-        final Properties properties = InputConfiguration.loadProperties(jsapConfig.getString("path-to-properties"));
-        Checker.checkProperties(properties);
-
-        InputConfiguration.initialize(properties, jsapConfig.getString("builder"));
-        if (InputConfiguration.get().getOutputDirectory().isEmpty()) {
-            InputConfiguration.get().setOutputDirectory(jsapConfig.getString("output"));
-        }
-
-        // we check now the binaries folders after the compilation
-        Checker.checkBinariesFolders(properties);
-
-        InputConfiguration.get()
-                .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(amplifiers))
-                .setNbIteration(jsapConfig.getInt("iteration"))
-                .setTestClasses(testClasses)
-                .setSelector(testCriterion)
-                .setTestCases(testCases)
-                .setSeed(jsapConfig.getLong("seed"))
-                .setTimeOutInMs(jsapConfig.getInt("timeOut"))
-                .setMaxTestAmplified(jsapConfig.getInt("maxTestAmplified"))
-                .setBudgetizer(BudgetizerEnum.valueOf(budgetizer))
-                .setClean(jsapConfig.getBoolean("clean"))
-                .setMinimize(!jsapConfig.getBoolean("no-minimize"))
-                .setVerbose(jsapConfig.getBoolean("verbose"))
-                .setUseWorkingDirectory(jsapConfig.getBoolean("working-directory"))
-                .setWithComment(jsapConfig.getBoolean("comment"))
-                .setGenerateAmplifiedTestClass(jsapConfig.getBoolean("generate-new-test-class"))
-                .setKeepOriginalTestMethods(jsapConfig.getBoolean("keep-original-test-methods"))
-                .setDescartesMode(jsapConfig.getBoolean("descartes") && !jsapConfig.getBoolean("gregor"))
-                .setUseMavenToExecuteTest(jsapConfig.getBoolean("use-maven-to-exe-test"))
-                .setTargetOneTestClass(jsapConfig.getBoolean("targetOneTestClass"));
-        return false;
+        Configuration.configure(
+                pathToProperties,
+                amplifiers,
+                testCriterion,
+                budgetizer,
+                pitOutputFormat,
+                pathPitResult,
+                automaticBuilder,
+                outputPath,
+                iteration,
+                randomSeed,
+                timeOut,
+                maxTestAmplified,
+                clean,
+                verbose,
+                workingDirectory,
+                withComment,
+                generateNewTestClass,
+                keepOriginalTestMethods,
+                gregor,
+                descartes,
+                useMavenToExeTest,
+                targetOneTestClass,
+                allowPathInAssertions,
+                executeTestsInParallel,
+                executeTestParallelWithNumberProcessors,
+                test,
+                testCases,
+                fullClasspath
+        );
     }
 
     private static String helpForEnums(Class<?> enumClass) {
@@ -228,7 +199,7 @@ public class JSAPOptions {
         specificTestClass.setUsageName("my.package.MyClassTest | all");
         specificTestClass.setHelp("[optional] fully qualified names of test classes to be amplified. If the value is all, DSpot will amplify the whole test suite. You can also use regex to describe a set of test classes. By default, DSpot selects all the tests (value all).");
 
-        FlaggedOption output = new FlaggedOption("output");
+        FlaggedOption output = new FlaggedOption("output-path");
         output.setStringParser(JSAP.STRING_PARSER);
         output.setAllowMultipleDeclarations(false);
         output.setShortFlag('o');
@@ -241,7 +212,7 @@ public class JSAPOptions {
         cleanOutput.setDefault("false");
         cleanOutput.setHelp("[optional] if enabled, DSpot will remove the out directory if exists, else it will append the results to the exist files.");
 
-        FlaggedOption mutantScore = new FlaggedOption("mutant");
+        FlaggedOption mutantScore = new FlaggedOption("path-pit-result");
         mutantScore.setStringParser(JSAP.STRING_PARSER);
         mutantScore.setAllowMultipleDeclarations(false);
         mutantScore.setShortFlag('m');
@@ -249,42 +220,42 @@ public class JSAPOptions {
         mutantScore.setUsageName("./path/to/mutations.csv");
         mutantScore.setHelp("[optional, expert mode] specify the path to the .xml or .csv of the original result of Pit Test. If you use this option the selector will be forced to PitMutantScoreSelector");
 
-        Switch targetOneTestClass = new Switch("targetOneTestClass");
-        targetOneTestClass.setLongFlag("targetOneTestClass");
+        Switch targetOneTestClass = new Switch("target-one-test-class");
+        targetOneTestClass.setLongFlag("target-one-test-class");
         targetOneTestClass.setHelp("[optional, expert] enable this option will make DSpot computing the mutation score of only one test class (the first pass through --test command line option)");
         targetOneTestClass.setDefault("false");
 
 
-        FlaggedOption testCases = new FlaggedOption("testCases");
+        FlaggedOption testCases = new FlaggedOption("test-cases");
         testCases.setList(true);
         testCases.setAllowMultipleDeclarations(false);
-        testCases.setLongFlag("cases");
+        testCases.setLongFlag("test-cases");
         testCases.setShortFlag('c');
         testCases.setStringParser(JSAP.STRING_PARSER);
         testCases.setHelp("specify the test cases to amplify");
 
-        FlaggedOption seed = new FlaggedOption("seed");
+        FlaggedOption seed = new FlaggedOption("random-seed");
         seed.setStringParser(JSAP.LONG_PARSER);
-        seed.setLongFlag("randomSeed");
+        seed.setLongFlag("random-seed");
         seed.setUsageName("long integer");
         seed.setHelp("specify a seed for the random object (used for all randomized operation)");
         seed.setDefault("23");
 
-        FlaggedOption timeOut = new FlaggedOption("timeOut");
+        FlaggedOption timeOut = new FlaggedOption("time-out");
         timeOut.setStringParser(JSAP.INTEGER_PARSER);
-        timeOut.setLongFlag("timeOut");
+        timeOut.setLongFlag("time-out");
         timeOut.setUsageName("long integer");
         timeOut.setHelp("specify the timeout value of the degenerated tests in millisecond");
         timeOut.setDefault("10000");
 
-        FlaggedOption automaticBuilder = new FlaggedOption("builder");
+        FlaggedOption automaticBuilder = new FlaggedOption("automatic-builder");
         automaticBuilder.setStringParser(JSAP.STRING_PARSER);
         automaticBuilder.setLongFlag("automatic-builder");
         automaticBuilder.setUsageName("MavenBuilder | GradleBuilder");
         automaticBuilder.setHelp("[optional] specify the automatic builder to build the project");
         automaticBuilder.setDefault("");
 
-        FlaggedOption mavenHome = new FlaggedOption("mavenHome");
+        FlaggedOption mavenHome = new FlaggedOption("maven-home");
         mavenHome.setStringParser(JSAP.STRING_PARSER);
         mavenHome.setLongFlag("maven-home");
         mavenHome.setUsageName("path to maven home");
@@ -295,7 +266,7 @@ public class JSAPOptions {
         verbose.setDefault("false");
         verbose.setHelp("Enable verbose mode of DSpot.");
 
-        FlaggedOption maxTestAmplified = new FlaggedOption("maxTestAmplified");
+        FlaggedOption maxTestAmplified = new FlaggedOption("max-test-amplified");
         maxTestAmplified.setStringParser(JSAP.INTEGER_PARSER);
         maxTestAmplified.setLongFlag("max-test-amplified");
         maxTestAmplified.setUsageName("integer");
@@ -309,7 +280,7 @@ public class JSAPOptions {
         budgetizer.setHelp("[optional] specify a Bugdetizer." + JSAPOptions.helpForEnums(BudgetizerEnum.class));
         budgetizer.setDefault("RandomBudgetizer");
 
-        Switch withComment = new Switch("comment");
+        Switch withComment = new Switch("with-comment");
         withComment.setLongFlag("with-comment");
         withComment.setDefault("false");
         withComment.setHelp("Enable comment on amplified test: details steps of the Amplification.");
@@ -349,6 +320,29 @@ public class JSAPOptions {
         useMavenToExecuteTests.setDefault("false");
         useMavenToExecuteTests.setHelp("If enabled, DSpot will use maven to execute the tests.");
 
+        FlaggedOption executeTestParallel = new FlaggedOption("execute-test-parallel-with-number-processors");
+        executeTestParallel.setLongFlag("execute-test-parallel-with-number-processors");
+        executeTestParallel.setDefault("0");
+        executeTestParallel.setStringParser(JSAP.INTEGER_PARSER);
+        executeTestParallel.setAllowMultipleDeclarations(false);
+        executeTestParallel.setHelp("[optional] If enabled, DSpot will execute the tests in parallel. For JUnit5 tests it will use the number of given processors (specify 0 to take the number of available core processors). For JUnit4 tests, it will use the number of available CPU processors (given number of processors is ignored).");
+
+        /*
+            This switch allows DSpot to generate assertion on string values that look like paths.
+        */
+        Switch allowPathInAssertions = new Switch("allow-path-in-assertions");
+        allowPathInAssertions.setLongFlag("allow-path-in-assertions");
+        allowPathInAssertions.setDefault("false");
+        allowPathInAssertions.setHelp("If enabled, DSpot will generate assertions for values that seems like to be paths.");
+
+        FlaggedOption fullClasspath = new FlaggedOption("full-classpath");
+        fullClasspath.setLongFlag("full-classpath");
+        fullClasspath.setRequired(false);
+        fullClasspath.setAllowMultipleDeclarations(false);
+        fullClasspath.setStringParser(JSAP.STRING_PARSER);
+        fullClasspath.setHelp("[optional] specify the classpath of the project. If this option is used, DSpot won't use an AutomaticBuilder (e.g. Maven) to clean, compile and get the classpath of the project. " +
+                "Please ensure that your project is in a good shape, i.e. clean and correctly compiled, sources and test sources.");
+
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
@@ -376,6 +370,9 @@ public class JSAPOptions {
             jsap.registerParameter(generateNewTestClass);
             jsap.registerParameter(keepOriginalTestMethods);
             jsap.registerParameter(useMavenToExecuteTests);
+            jsap.registerParameter(allowPathInAssertions);
+            jsap.registerParameter(executeTestParallel);
+            jsap.registerParameter(fullClasspath);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {

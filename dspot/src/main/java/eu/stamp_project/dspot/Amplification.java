@@ -55,8 +55,8 @@ public class Amplification {
 
     /**
      * Amplification of every method of a test class.
-     * <p>
-     * <p>See {@link #amplification(CtType, CtMethod, int)} for the details of amplification.
+     *
+     * See {@link #amplification(CtType, CtMethod, int)} for the details of amplification.
      *
      * @param classTest    Test class
      * @param maxIteration Number of amplification iterations
@@ -67,8 +67,8 @@ public class Amplification {
 
     /**
      * Amplification of multiple methods.
-     * <p>
-     * <p>See {@link #amplification(CtType, CtMethod, int)} for the details of amplification.
+     *
+     * See {@link #amplification(CtType, CtMethod, int)} for the details of amplification.
      *
      * @param classTest    Test class
      * @param tests        Methods to amplify
@@ -142,8 +142,8 @@ public class Amplification {
 
     /**
      * Amplification of a single test.
-     * <p>
-     * <p>DSpot combines the different kinds of I-Amplification iteratively: at each iteration all kinds of
+     *
+     * DSpot combines the different kinds of I-Amplification iteratively: at each iteration all kinds of
      * I-Amplification are applied, resulting in new tests. From one iteration to another, DSpot reuses the
      * previously amplified tests, and further applies I-Amplification.
      *
