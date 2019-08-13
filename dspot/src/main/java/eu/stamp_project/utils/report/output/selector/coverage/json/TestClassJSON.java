@@ -41,12 +41,13 @@ public class TestClassJSON implements eu.stamp_project.utils.report.output.selec
 		return this.testCases.add(testCaseJSON);
 	}
 
-	public String toString(){
-		String jsonString = new JSONObject()
-                  .put("testName", this.name)
+	public String toString() {
+		JSONObject subJson = new JSONObject()
                   .put("initialCoverage", this.initialInstructionCovered)
                   .put("ampCoverage", this.amplifiedInstructionTotal)
-                  .put("totalCoverage",this.amplifiedInstructionTotal).toString();
+                  .put("totalCoverage",this.amplifiedInstructionTotal);
+
+        String jsonString = new JSONObject().put(this.name,subJson).toString();
         return jsonString;
 	}
 }

@@ -37,10 +37,11 @@ public class TestClassJSON implements eu.stamp_project.utils.report.output.selec
     }
 
     public String toString(){
-        String jsonString = new JSONObject()
-                  .put("testName", name)
+        JSONObject subJson = new JSONObject()
                   .put("originalKilledMutants", this.nbMutantKilledOriginally)
-                  .put("NewMutantKilled", this.nbNewMutantKilled).toString();
+                  .put("NewMutantKilled", this.nbNewMutantKilled);
+        String jsonString = new JSONObject().put(name,subJson).toString();
+
         return jsonString;
     }
 
