@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.compare.MethodsHandler;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.objectlog_components.MethodsHandler;
 import eu.stamp_project.dspot.amplifier.value.ValueCreatorHelper;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Counter;

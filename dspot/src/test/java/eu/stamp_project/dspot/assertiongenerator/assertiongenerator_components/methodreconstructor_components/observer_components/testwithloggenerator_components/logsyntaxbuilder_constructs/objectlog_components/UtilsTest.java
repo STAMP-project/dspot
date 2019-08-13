@@ -1,6 +1,5 @@
-package eu.stamp_project.compare;
+package eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.objectlog_components;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.*;

@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.assertiongenerator.performancetest.performancetest_components;
+package eu.stamp_project.dspot.assertiongenerator.performance.performancetest_components;
 
 import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.dspot.assertiongenerator.AssertionGenerator;

@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components;
 
-import eu.stamp_project.compare.ObjectLog;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.ObjectLog;
 import eu.stamp_project.dspot.assertiongenerator.utils.AssertionGeneratorUtils;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;

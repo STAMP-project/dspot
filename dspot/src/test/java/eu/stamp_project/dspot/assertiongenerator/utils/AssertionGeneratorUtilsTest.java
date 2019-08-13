@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.assertiongenerator;
+package eu.stamp_project.dspot.assertiongenerator.utils;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;

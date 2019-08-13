@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.assertiongenerator;
+package eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
@@ -30,11 +30,11 @@ public class TestWithLogGeneratorTest extends AbstractTest {
                         "public void test2_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
                         "    java.util.List<fr.inria.sample.TestClassWithLoop.MyClass> list = new java.util.ArrayList<>();" + AmplificationHelper.LINE_SEPARATOR +
                         "    boolean o_test2__3 = list.add(new fr.inria.sample.TestClassWithLoop.MyClass());" + AmplificationHelper.LINE_SEPARATOR +
-                        "    eu.stamp_project.compare.ObjectLog.log(o_test2__3, \"o_test2__3\", \"test2__3\");" + AmplificationHelper.LINE_SEPARATOR +
+                        "    eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.ObjectLog.log(o_test2__3, \"o_test2__3\", \"test2__3\");" + AmplificationHelper.LINE_SEPARATOR +
                         "    boolean o_test2__5 = list.add(new fr.inria.sample.TestClassWithLoop.MyClass());" + AmplificationHelper.LINE_SEPARATOR +
-                        "    eu.stamp_project.compare.ObjectLog.log(o_test2__5, \"o_test2__5\", \"test2__5\");" + AmplificationHelper.LINE_SEPARATOR +
+                        "    eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.ObjectLog.log(o_test2__5, \"o_test2__5\", \"test2__5\");" + AmplificationHelper.LINE_SEPARATOR +
                         "    boolean o_test2__7 = list.add(new fr.inria.sample.TestClassWithLoop.MyClass());" + AmplificationHelper.LINE_SEPARATOR +
-                        "    eu.stamp_project.compare.ObjectLog.log(o_test2__7, \"o_test2__7\", \"test2__7\");" + AmplificationHelper.LINE_SEPARATOR +
+                        "    eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.ObjectLog.log(o_test2__7, \"o_test2__7\", \"test2__7\");" + AmplificationHelper.LINE_SEPARATOR +
                         "    for (fr.inria.sample.TestClassWithLoop.MyClass myClass : list) {" + AmplificationHelper.LINE_SEPARATOR +
                         "        myClass.getInteger();" + AmplificationHelper.LINE_SEPARATOR +
                         "    }" + AmplificationHelper.LINE_SEPARATOR +
@@ -44,9 +44,9 @@ public class TestWithLogGeneratorTest extends AbstractTest {
                         "    for (fr.inria.sample.TestClassWithLoop.MyClass myClass : list) {" + AmplificationHelper.LINE_SEPARATOR +
                         "        myClass.getInteger();" + AmplificationHelper.LINE_SEPARATOR +
                         "    }" + AmplificationHelper.LINE_SEPARATOR +
-                        "    eu.stamp_project.compare.ObjectLog.log(o_test2__3, \"o_test2__3\", \"test2__3___end\");" + AmplificationHelper.LINE_SEPARATOR +
-                        "    eu.stamp_project.compare.ObjectLog.log(o_test2__5, \"o_test2__5\", \"test2__5___end\");" + AmplificationHelper.LINE_SEPARATOR +
-                        "    eu.stamp_project.compare.ObjectLog.log(o_test2__7, \"o_test2__7\", \"test2__7___end\");" + AmplificationHelper.LINE_SEPARATOR +
+                        "    eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.ObjectLog.log(o_test2__3, \"o_test2__3\", \"test2__3___end\");" + AmplificationHelper.LINE_SEPARATOR +
+                        "    eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.ObjectLog.log(o_test2__5, \"o_test2__5\", \"test2__5___end\");" + AmplificationHelper.LINE_SEPARATOR +
+                        "    eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.ObjectLog.log(o_test2__7, \"o_test2__7\", \"test2__7___end\");" + AmplificationHelper.LINE_SEPARATOR +
                         "}",
                 eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.TestWithLogGenerator.createTestWithLog(
                         new AssertionRemover().removeAssertion(Utils.findMethod("fr.inria.sample.TestClassWithLoop", "test2")),
@@ -88,7 +88,7 @@ public class TestWithLogGeneratorTest extends AbstractTest {
                                 instrumentedAmplifiedTest.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
                                     @Override
                                     public boolean matches(CtInvocation element) {
-                                        return "eu.stamp_project.compare.ObjectLog".equals(element.getTarget().toString()) &&
+                                        return "eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.ObjectLog".equals(element.getTarget().toString()) &&
                                                 "log".equals(element.getExecutable().getSimpleName());
                                     }
                                 }).size()
@@ -104,9 +104,9 @@ public class TestWithLogGeneratorTest extends AbstractTest {
         final String expectedMethodWithLogs = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
                 "    final fr.inria.multipleobservations.ClassToBeTest classToBeTest = new fr.inria.multipleobservations.ClassToBeTest();" + AmplificationHelper.LINE_SEPARATOR +
-                "    eu.stamp_project.compare.ObjectLog.log(classToBeTest, \"classToBeTest\", \"test__1\");" + AmplificationHelper.LINE_SEPARATOR +
+                "    eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.ObjectLog.log(classToBeTest, \"classToBeTest\", \"test__1\");" + AmplificationHelper.LINE_SEPARATOR +
                 "    classToBeTest.method();" + AmplificationHelper.LINE_SEPARATOR +
-                "    eu.stamp_project.compare.ObjectLog.log(classToBeTest, \"classToBeTest\", \"test__1___end\");" + AmplificationHelper.LINE_SEPARATOR +
+                "    eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.ObjectLog.log(classToBeTest, \"classToBeTest\", \"test__1___end\");" + AmplificationHelper.LINE_SEPARATOR +
                 "}";
         assertEquals(expectedMethodWithLogs, testWithLog.toString());
     }
@@ -119,10 +119,10 @@ public class TestWithLogGeneratorTest extends AbstractTest {
         final String expectedMethod = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
                 "    fr.inria.statementaddarray.ClassTargetAmplify clazz = new fr.inria.statementaddarray.ClassTargetAmplify();" + AmplificationHelper.LINE_SEPARATOR +
-                "    eu.stamp_project.compare.ObjectLog.log(clazz, \"clazz\", \"test__1\");" + AmplificationHelper.LINE_SEPARATOR +
+                "    eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.ObjectLog.log(clazz, \"clazz\", \"test__1\");" + AmplificationHelper.LINE_SEPARATOR +
                 "    fr.inria.statementaddarray.ClassParameterAmplify o_test__3 = clazz.methodWithReturn();" + AmplificationHelper.LINE_SEPARATOR +
-                "    eu.stamp_project.compare.ObjectLog.log(o_test__3, \"o_test__3\", \"test__3\");" + AmplificationHelper.LINE_SEPARATOR +
-                "    eu.stamp_project.compare.ObjectLog.log(clazz, \"clazz\", \"test__1___end\");" + AmplificationHelper.LINE_SEPARATOR +
+                "    eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.ObjectLog.log(o_test__3, \"o_test__3\", \"test__3\");" + AmplificationHelper.LINE_SEPARATOR +
+                "    eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.ObjectLog.log(clazz, \"clazz\", \"test__1___end\");" + AmplificationHelper.LINE_SEPARATOR +
                 "}";
         assertEquals(expectedMethod, testWithLog.toString());
     }
@@ -141,12 +141,12 @@ public class TestWithLogGeneratorTest extends AbstractTest {
         final String expectedMethod = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test1_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
                 "    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + AmplificationHelper.LINE_SEPARATOR +
-                "    eu.stamp_project.compare.ObjectLog.log(cl, \"cl\", \"test1__1\");" + AmplificationHelper.LINE_SEPARATOR +
+                "    eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.ObjectLog.log(cl, \"cl\", \"test1__1\");" + AmplificationHelper.LINE_SEPARATOR +
                 "    cl.getFalse();" + AmplificationHelper.LINE_SEPARATOR +
                 "    cl.getBoolean();" + AmplificationHelper.LINE_SEPARATOR +
                 "    java.io.File file = new java.io.File(\"\");" + AmplificationHelper.LINE_SEPARATOR +
                 "    boolean var = cl.getTrue();" + AmplificationHelper.LINE_SEPARATOR +
-                "    eu.stamp_project.compare.ObjectLog.log(cl, \"cl\", \"test1__1___end\");" + AmplificationHelper.LINE_SEPARATOR +
+                "    eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.ObjectLog.log(cl, \"cl\", \"test1__1___end\");" + AmplificationHelper.LINE_SEPARATOR +
                 "}";
         assertEquals(expectedMethod, testWithLog.toString());
     }
@@ -167,7 +167,7 @@ public class TestWithLogGeneratorTest extends AbstractTest {
                 "            return integer - t1;" + AmplificationHelper.LINE_SEPARATOR +
                 "        }" + AmplificationHelper.LINE_SEPARATOR +
                 "    }.compare(a, b);" + AmplificationHelper.LINE_SEPARATOR +
-                "    eu.stamp_project.compare.ObjectLog.log(o_test1__3, \"o_test1__3\", \"test1__3\");" + AmplificationHelper.LINE_SEPARATOR +
+                "    eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.ObjectLog.log(o_test1__3, \"o_test1__3\", \"test1__3\");" + AmplificationHelper.LINE_SEPARATOR +
                 "}";
         assertEquals(expectedMethodWithLog, testWithLog.toString());
     }
@@ -185,11 +185,11 @@ public class TestWithLogGeneratorTest extends AbstractTest {
         final String expectedMethod = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test2_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
                 "    fr.inria.sample.ClassWithBoolean cl = new fr.inria.sample.ClassWithBoolean();" + AmplificationHelper.LINE_SEPARATOR +
-                "    eu.stamp_project.compare.ObjectLog.log(cl, \"cl\", \"test2__1\");" + AmplificationHelper.LINE_SEPARATOR +
+                "    eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.ObjectLog.log(cl, \"cl\", \"test2__1\");" + AmplificationHelper.LINE_SEPARATOR +
                 "    cl.getFalse();" + AmplificationHelper.LINE_SEPARATOR +
                 "    cl.getFalse();" + AmplificationHelper.LINE_SEPARATOR +
                 "    cl.getFalse();" + AmplificationHelper.LINE_SEPARATOR +
-                "    eu.stamp_project.compare.ObjectLog.log(cl, \"cl\", \"test2__1___end\");" + AmplificationHelper.LINE_SEPARATOR +
+                "    eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.ObjectLog.log(cl, \"cl\", \"test2__1___end\");" + AmplificationHelper.LINE_SEPARATOR +
                 "}";
         assertEquals(expectedMethod, testWithLog.toString());
     }

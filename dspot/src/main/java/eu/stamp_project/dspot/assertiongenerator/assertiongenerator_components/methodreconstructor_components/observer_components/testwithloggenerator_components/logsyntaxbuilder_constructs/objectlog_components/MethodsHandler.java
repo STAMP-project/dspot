@@ -1,4 +1,4 @@
-package eu.stamp_project.compare;
+package eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.objectlog_components;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -84,7 +84,7 @@ public class MethodsHandler {
     }
 
     @Deprecated // since we forbid the class Object
-    boolean isDefaulttoStringOrHashCode(Method method) {
+    public boolean isDefaulttoStringOrHashCode(Method method) {
         if (method.getDeclaringClass() == null) {
             return false;
         }

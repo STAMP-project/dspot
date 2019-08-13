@@ -162,9 +162,13 @@ public class DSpotUtils {
 
     private static final String PACKAGE_NAME = "compare";
 
-    private static final String PACKAGE_PATH = "eu/stamp_project/" + PACKAGE_NAME + "/";
+    private static final String PACKAGE_PATH = "eu/stamp_project/" +
+            "dspot/assertiongenerator/assertiongenerator_components/methodreconstructor_components/observer_components/testwithloggenerator_components/logsyntaxbuilder_constructs" + "/";
 
-    private static final String[] DSPOT_CLASSES = new String[]{"MethodsHandler", "ObjectLog", "Observation", "Utils", "FailToObserveException"};
+    private static final String COMPONENTS_FOLDER = "objectlog_components/";
+
+    private static final String[] DSPOT_CLASSES = new String[]{COMPONENTS_FOLDER +"MethodsHandler", "ObjectLog",
+            COMPONENTS_FOLDER +"Observation", COMPONENTS_FOLDER +"Utils", COMPONENTS_FOLDER +"FailToObserveException"};
 
     public static String getAbsolutePathToDSpotDependencies() {
         return InputConfiguration.get().getAbsolutePathToProjectRoot() + PATH_TO_DSPOT_DEPENDENCIES;
@@ -174,7 +178,7 @@ public class DSpotUtils {
 
         final String pathToTestClassesDirectory = DSpotUtils.getAbsolutePathToDSpotDependencies() + PACKAGE_PATH;
         try {
-            FileUtils.forceMkdir(new File(pathToTestClassesDirectory));
+            FileUtils.forceMkdir(new File(pathToTestClassesDirectory + COMPONENTS_FOLDER));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
