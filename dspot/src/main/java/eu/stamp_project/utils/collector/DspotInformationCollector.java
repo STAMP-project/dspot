@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.mongodb;
+package eu.stamp_project.utils.collector;
 
 import com.martiansoftware.jsap.JSAPResult;
 

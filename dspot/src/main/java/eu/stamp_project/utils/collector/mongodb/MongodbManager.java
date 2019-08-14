@@ -1,8 +1,9 @@
-package eu.stamp_project.dspot.mongodb;
+package eu.stamp_project.utils.collector.mongodb;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.json.JSONObject;
+import eu.stamp_project.utils.collector.DspotInformationCollector;
 
 import com.martiansoftware.jsap.JSAPResult;
 
