@@ -267,22 +267,22 @@ public class MainTest {
 
     private static final String expectedReportExample = 
             "Initial instruction coverage: 30 / 34\n" +
-                    "88.24%\n" +
+                    "88" + AmplificationHelper.DECIMAL_SEPARATOR + "24%\n" +
                     "Amplification results with 57 amplified tests.\n" +
                     "Amplified instruction coverage: 34 / 34\n" +
-                    "100.00%\n" +
+                    "100" + AmplificationHelper.DECIMAL_SEPARATOR + "00%\n" +
                     "\n" +
                     "Initial instruction coverage: 30 / 34\n" +
-                    "88.24%\n" +
+                    "88" + AmplificationHelper.DECIMAL_SEPARATOR + "24%\n" +
                     "Amplification results with 5 amplified tests.\n" +
                     "Amplified instruction coverage: 34 / 34\n" +
-                    "100.00%\n" +
+                    "100" + AmplificationHelper.DECIMAL_SEPARATOR + "00%\n" +
                     "\n" +
                     "Initial instruction coverage: 30 / 34\n" +
-                    "88.24%\n" +
+                    "88" + AmplificationHelper.DECIMAL_SEPARATOR + "24%\n" +
                     "Amplification results with 0 amplified tests.\n" +
                     "Amplified instruction coverage: 30 / 34\n" +
-                    "88.24%\n";
+                    "88" + AmplificationHelper.DECIMAL_SEPARATOR + "24%\n";
 
     @Test
     public void testOverrideExistingResults() throws Exception {

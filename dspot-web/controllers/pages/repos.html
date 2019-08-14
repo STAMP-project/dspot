@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous" />
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script src="/public/javascripts/allReposInfo.js"></script>
+    <style>
+        /*Navs css*/
+        .nav-item {
+            font-size: 100%;
+        }
+
+        .navbar {
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        .navbar-light .navbar-brand {
+            color: #ffffff;
+        }
+
+        .nav-link:hover {
+            background-color: #0366cf;
+            opacity: 1;
+        }
+
+        .active {
+            background-color: #0366cf;
+        }
+        /*Legend Box css*/
+        .box {
+            width: 48px;
+            height: 11px;
+            border: 1px solid;
+            padding-bottom: 5px;
+        }
+
+        #box-1 {
+            background-color: #007bff;
+        }
+
+        #box-2 {
+            background-color: #28a745;
+        }
+
+        #box-3 {
+            background-color: #6c757d;
+        }
+
+        #box-4 {
+            background-color: #c3e6cb;
+        }
+
+        /*Card */
+        .card {
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-sm bg-primary navbar-dark align-items-left">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Dspot</a>
+            <!-- Links -->
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/"><i class="fa fa-home"></i> Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/repos"><i class="fas fa-archive"></i> Repos</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    </div>
+    <!-- Header -->
+    <div class="jumbotron" style="margin-bottom:0;">
+        <h1 class="display-4"><i class="fas fa-archive"></i> Repositories</h1>
+    </div>
+    <div style="background-color: #dfe3e6 ;">
+        <div class="container" style="padding-top:5%;padding-bottom:10%; height: 1000px;">
+            <div class="d-flex justify-content-center" id="App2" ng-app="allReposApp" ng-controller="allReposCtr">
+                <div class="col-sm-10 col-md-offset-1">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex flex-row justify-content-center">
+                                <div class="d-flex col-sm-2 align-items-center">
+                                    Only show:
+                                </div>
+                                <div class="d-flex col-sm-2 align-items-center">
+                                    <div class="form-check">
+                                        <label class="form-check-label">
+                                            <input type="checkbox" class="form-check-input" ng-click="switchRecentState()" checked="checked" autocomplete="off">Recent
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="d-flex col-sm-2 align-items-center">
+                                    <div class="form-check">
+                                        <label class="form-check-label">
+                                            <input type="checkbox" class="form-check-input" ng-click="switchPendingState()" checked="checked" autocomplete="off">Pending
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="d-flex col-sm-4 align-items-center" style="position: relative;">
+                                    Search:
+                                    <input type="text" name="InputSlug" ng-model="InputSlug" placeholder="Enter a repo slug">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="row justify-content-center mb-1">
+                            <div class="m-2 d-flex box" id="box-1"></div>
+                            <div class="box-text text-black-50"><small>TotalOriginalMutantKills</small></div>
+                            <div class="m-2 d-flex box" id="box-2"></div>
+                            <div class="box-text text-black-50"><small>TotalNewMutantKills</small></div>
+                            <div class="m-2 d-flex box" id="box-3"></div>
+                            <div class="box-text text-black-50"><small>TotalInitialCoverage</small></div>
+                            <div class="m-2 d-flex box" id="box-4"></div>
+                            <div class="box-text text-black-50"><small>TotalAmpCoverage</small></div>
+                        </div>
+                        <a id="startOfList" class="list-group-item list-group-item-action" ng-repeat="x in slicedData" href="{{'/repo/' + x.RepoSlug + '/' + x.RepoBranch}}">
+                            <div class="d-flex flex-row justify-content-between" ng-if="x.AmpOptions['test-criterion'] == 'PitMutantScoreSelector' && x.State != 'pending'">
+                                <div class="d-flex col-md-4 text-left">
+                                    {{x.RepoSlug | cut:true:20:' ...'}}<br />
+                                    ({{dateDiff(x.Date)}})
+                                </div>
+                                <div class="d-flex col-md-2 text-left">
+                                    {{x.RepoBranch | cut:true:10:' ...'}}<br />
+                                    (branch)
+                                </div>
+                                <div class="d-flex col-md-3 text-left">
+                                    {{x.AmpOptions['test-criterion'].substring(0,14)}}<br />
+                                    (amp. criterion)
+                                </div>
+                                <div class="d-flex col-md-2 text-left">
+                                    {{x.State}}<br />
+                                    (state)
+                                </div>
+                                <div class="d-flex" style="position:relative;height:40px; width:80px;">
+                                    <canvas class="d-none d-sm-none d-md-block" id="{{x.RepoSlug + x.RepoBranch + 'PitMutantScore' + dateDiff(x.Date)}}"></canvas>
+                                    <add-donut-graph-for-pit-mutant></add-donut-graph-for-pit-mutant>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-row justify-content-between" ng-if="x.AmpOptions['test-criterion'] == 'JacocoCoverageSelector' && x.State != 'pending'">
+                                <div class="d-flex col-sm-4 align-items-center">
+                                    {{x.RepoSlug | cut:true:20:' ...'}}<br />
+                                    ({{dateDiff(x.Date)}})
+                                </div>
+                                <div class="d-flex col-md-2 align-items-center">
+                                    {{x.RepoBranch | cut:true:10:' ...'}}<br />
+                                    (branch)
+                                </div>
+                                <div class="d-flex col-sm-3 align-items-center">
+                                    {{x.AmpOptions['test-criterion'].substring(0,14)}}<br />
+                                    (amp. criterion)
+                                </div>
+                                <div class="d-flex col-md-2 text-left">
+                                    {{x.State}}<br />
+                                    (state)
+                                </div>
+                                <div class="d-flex" style="position:relative;height:40px; width:80px;">
+                                    <canvas class="d-none d-sm-none d-md-block" id="{{x.RepoSlug + x.RepoBranch + 'JacocoCov' + dateDiff(x.Date)}}"></canvas>
+                                    <add-donut-graph-for-jacoco-cov></add-donut-graph-for-jacoco-cov>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-row justify-content-between" ng-if="x.State == 'pending'">
+                                <div class="d-flex col-sm-4 align-items-center">
+                                    {{x.RepoSlug | cut:true:20:' ...'}}<br />
+                                    ({{dateDiff(x.Date)}})
+                                </div>
+                                <div class="d-flex col-md-2 align-items-center">
+                                    {{x.RepoBranch | cut:true:10:' ...'}}<br />
+                                    (branch)
+                                </div>
+                                <div class="d-flex col-sm-3 align-items-center">
+                                    {{x.AmpOptions['test-criterion'].substring(0,14)}}<br />
+                                    (amp. criterion)
+                                </div>
+                                <div class="d-flex col-md-2 text-left">
+                                    {{x.State}}<br />
+                                    (state)
+                                </div>
+                                <div class="d-flex">
+                                    Waiting for data
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="row justify-content-center mt-4">
+                        <ul class="pagination">
+                            <li class="page-item"><button class="btn page-link" ng-click="curPage=curPage-1" ng-disabled="curPage < 1">Previous</button></li>
+                            <div ng-repeat="n in [] | range:numOfPages()">
+                                <li class="page-item"><button class="btn page-link" ng-click="$parent.curPage=n" ng-show=" n < $parent.curPage + 3 && n > $parent.curPage - 3" ng-disabled="$parent.curPage==n">{{n}}</button></li>
+                            </div>
+                            <li class="page-item"><button class="btn page-link" ng-click="curPage=curPage+1" ng-disabled="curPage > numOfPages()-2">Next</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</body>
+
+</html>

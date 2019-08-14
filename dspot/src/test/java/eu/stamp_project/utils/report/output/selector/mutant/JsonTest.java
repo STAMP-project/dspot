@@ -29,7 +29,6 @@ public class JsonTest {
         classJSON.addTestCase(new TestCaseJSON("myTestCase", 1, 1,
                 Collections.singletonList(new MutantJSON("IdMutant", 1, "method"))));
         String actualJson = gson.toJson(classJSON);
-
         assertEquals(expectedJson, actualJson);
 
         try (FileWriter writer = new FileWriter("target/test.json")) {
@@ -51,6 +50,7 @@ public class JsonTest {
             "  \"nbMutantKilledOriginally\": 23," + "" + AmplificationHelper.LINE_SEPARATOR  +
             "  \"name\": \"MyTestClass\"," + "" + AmplificationHelper.LINE_SEPARATOR  +
             "  \"nbOriginalTestCases\": 1," + "" + AmplificationHelper.LINE_SEPARATOR +
+            "  \"nbNewMutantKilled\": 0," + "" + AmplificationHelper.LINE_SEPARATOR +
             "  \"testCases\": [" + "" + AmplificationHelper.LINE_SEPARATOR  +
             "    {" + "" + AmplificationHelper.LINE_SEPARATOR  +
             "      \"name\": \"myTestCase\"," + "" + AmplificationHelper.LINE_SEPARATOR  +
