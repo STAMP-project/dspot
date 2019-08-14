@@ -6,9 +6,9 @@ import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.mongodb.MongodbManager;
-import eu.stamp_project.mongodb.NullCollector;
-import eu.stamp_project.mongodb.DspotInformationCollector;
+import eu.stamp_project.dspot.mongodb.MongodbManager;
+import eu.stamp_project.dspot.mongodb.NullCollector;
+import eu.stamp_project.dspot.mongodb.DspotInformationCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
