@@ -84,7 +84,7 @@ public class MethodsHandler {
     }
 
     @Deprecated // since we forbid the class Object
-    public boolean isDefaulttoStringOrHashCode(Method method) {
+    boolean isDefaulttoStringOrHashCode(Method method) {
         if (method.getDeclaringClass() == null) {
             return false;
         }
