@@ -6,6 +6,9 @@ import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.collector.mongodb.MongodbManager;
+import eu.stamp_project.utils.collector.NullCollector;
+import eu.stamp_project.utils.collector.DspotInformationCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +26,7 @@ import java.util.Properties;
 public class Configuration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
+    private static DspotInformationCollector collector = new NullCollector();
 
     static void configureExample() {
         try {
@@ -35,6 +39,16 @@ public class Configuration {
             InputConfiguration.get().setTestClasses(Collections.emptyList());
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static DspotInformationCollector getInformationCollector() {
+        return collector;
+    }
+
+    public static void useMongoCollector(boolean useMongo){
+        if (useMongo) {
+            collector = new MongodbManager();
         }
     }
 

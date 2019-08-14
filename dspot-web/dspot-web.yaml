@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dspot-web
+  labels:
+    app: dspot-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dspot-web
+  template:
+    metadata:
+      labels:
+        app: dspot-web
+    spec:
+      containers:
+      - name: dspot-web
+        image: tailp/dspot-web
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 3000
+        env:
+        - name: MONGODB_HOST
+          value: mongodb://mongo:27017 # default if service of Mongodb deployed on K8s is called mongo with port 27017.
+        - name: ACTIVEMQ_HOSTNAME
+          value: activemq
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dspot-web
+spec:
+  ports:
+  - port: 3000
+    targetPort: 3000
+  selector:
+    app: dspot-web
+  type: LoadBalancer
