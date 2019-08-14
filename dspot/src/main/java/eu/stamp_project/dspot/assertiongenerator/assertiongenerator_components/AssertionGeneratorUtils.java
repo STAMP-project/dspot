@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.assertiongenerator.utils;
+package eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components;
 
 import eu.stamp_project.utils.program.InputConfiguration;
 import spoon.reflect.code.*;

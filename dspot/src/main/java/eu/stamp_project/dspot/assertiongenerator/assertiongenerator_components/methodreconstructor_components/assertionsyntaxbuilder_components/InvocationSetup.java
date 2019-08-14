@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.assertionsyntaxbuilder_components;
 
-import eu.stamp_project.dspot.assertiongenerator.utils.AssertionGeneratorUtils;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.AssertionGeneratorUtils;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
 import spoon.reflect.code.CtExpression;

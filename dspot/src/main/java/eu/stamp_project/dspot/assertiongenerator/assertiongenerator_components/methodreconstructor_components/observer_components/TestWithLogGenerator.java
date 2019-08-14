@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.
 
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.objectlog_components.MethodsHandler;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.LogSyntaxBuilder;
-import eu.stamp_project.dspot.assertiongenerator.utils.AssertionGeneratorUtils;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.AssertionGeneratorUtils;
 import eu.stamp_project.utils.CloneHelper;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;

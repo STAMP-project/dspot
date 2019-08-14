@@ -4,7 +4,7 @@ import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.m
 import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.MethodReconstructor;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.AssertionSyntaxBuilder;
-import eu.stamp_project.dspot.assertiongenerator.utils.AssertionGeneratorUtils;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.AssertionGeneratorUtils;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
