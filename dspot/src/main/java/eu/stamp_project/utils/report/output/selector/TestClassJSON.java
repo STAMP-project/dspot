@@ -5,5 +5,4 @@ package eu.stamp_project.utils.report.output.selector;
  * benjamin.danglot@inria.fr
  * on 09/04/19
  */
-public interface TestClassJSON {
-}
+public interface TestClassJSON {}
