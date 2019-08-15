@@ -18,6 +18,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import com.martiansoftware.jsap.JSAPResult;
+
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -40,6 +42,11 @@ public class Configuration {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    // Given options information for each collector type
+    public static void initCollectors(JSAPResult jsapConfig) {
+        MongodbManager.initMongodb(jsapConfig);
     }
 
     public static DspotInformationCollector getInformationCollector() {

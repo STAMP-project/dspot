@@ -34,11 +34,11 @@ public class MongodbManager implements DspotInformationCollector {
 	private static boolean dbConnectable;
 
 	/* Will be assigned by JSAP options later*/
-	private static final String mongoUrl = "mongodb://localhost:27017";
 	private static final String dbName = "Dspot";
 	private static final String colName = "AmpTestRecords";
 	private static final String repoSlug = "USER/Testing";
 	private static final String repoBranch = "master";
+	private static String mongoUrl;
 
 	/* Mongodb objects*/
 	private static MongoClient mongoClient;
@@ -67,6 +67,10 @@ public class MongodbManager implements DspotInformationCollector {
 			mongodbManager = new MongodbManager();
 		}
 		return mongodbManager;
+	}
+
+	public static void initMongodb(JSAPResult jsapConfig) {
+		mongoUrl = jsapConfig.getString("mongo-url");
 	}
 
 	/*Connection related*/
@@ -122,6 +126,7 @@ public class MongodbManager implements DspotInformationCollector {
         final int executeTestParallelWithNumberProcessors =
                 jsapConfig.getInt("execute-test-parallel-with-number-processors") != 0 ?
                         jsapConfig.getInt("execute-test-parallel-with-number-processors") : Runtime.getRuntime().availableProcessors();
+
 
         /* Append to doc for mongo later*/
         argsDoc.append("amplifiers",Arrays.toString(jsapConfig.getStringArray("amplifiers")));

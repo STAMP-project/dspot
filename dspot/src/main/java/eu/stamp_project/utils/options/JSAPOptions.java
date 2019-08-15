@@ -7,6 +7,7 @@ import com.martiansoftware.jsap.JSAPException;
 import com.martiansoftware.jsap.JSAPResult;
 import com.martiansoftware.jsap.Parameter;
 import com.martiansoftware.jsap.Switch;
+import eu.stamp_project.utils.collector.mongodb.MongodbManager;
 import eu.stamp_project.utils.collector.DspotInformationCollector;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.utils.options.check.Checker;
@@ -116,6 +117,8 @@ public class JSAPOptions {
                 testCases,
                 fullClasspath
         );
+
+        Configuration.initCollectors(jsapConfig);
         DspotInformationCollector collector = Configuration.getInformationCollector();
         collector.reportInitInformation(jsapConfig);
     }
@@ -346,6 +349,14 @@ public class JSAPOptions {
         fullClasspath.setHelp("[optional] specify the classpath of the project. If this option is used, DSpot won't use an AutomaticBuilder (e.g. Maven) to clean, compile and get the classpath of the project. " +
                 "Please ensure that your project is in a good shape, i.e. clean and correctly compiled, sources and test sources.");
 
+        FlaggedOption mongoUrl = new FlaggedOption("mongo-url");
+        mongoUrl.setLongFlag("mongo-url");
+        mongoUrl.setDefault("mongodb://IPORHOSTNAME:PORT");
+        mongoUrl.setRequired(false);
+        mongoUrl.setStringParser(JSAP.STRING_PARSER);
+        mongoUrl.setAllowMultipleDeclarations(false);
+        mongoUrl.setHelp("[optional] If valid url, DSpot will submit to Mongodb database. For default use mongodb://localhost:27017");
+
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
@@ -376,6 +387,7 @@ public class JSAPOptions {
             jsap.registerParameter(allowPathInAssertions);
             jsap.registerParameter(executeTestParallel);
             jsap.registerParameter(fullClasspath);
+            jsap.registerParameter(mongoUrl);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {

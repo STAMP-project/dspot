@@ -25,12 +25,13 @@ public class MongodbManagerTest {
 	@Test
 	public void testInfoSubmissionToMongodbPitMutantScoreSelector() {
 		Main.main(new String[]{
-                "--path-to-properties", "src/test/resources/sample/sample.properties",
-                "--test-criterion", "PitMutantScoreSelector",
-                "--test", "fr.inria.sample.TestClassWithoutAssert",
-                "--path-pit-result", "src/test/resources/sample/mutations.csv",
-                "--gregor",
-                "--output-path", "target/trash"
+                        "--path-to-properties", "src/test/resources/sample/sample.properties",
+                        "--test-criterion", "PitMutantScoreSelector",
+                        "--test", "fr.inria.sample.TestClassWithoutAssert",
+                        "--path-pit-result", "src/test/resources/sample/mutations.csv",
+                        "--gregor",
+                        "--output-path", "target/trash",
+                        "--mongo-url","mongodb://localhost:27017"
                 });
 
         	/*Fetch submitted document*/
@@ -55,7 +56,8 @@ public class MongodbManagerTest {
                 Main.main(new String[]{
                         "--path-to-properties", "src/test/resources/project-with-resources/project-with-resources.properties",
                         "--test-criterion", "JacocoCoverageSelector",
-                        "--iteration", "1"
+                        "--iteration", "1",
+                        "--mongo-url","mongodb://localhost:27017"
                 });
                 MongoClient mongoClient = MongodbManager.connectToMongo("mongodb://localhost:27017");
         	MongoCollection<Document> coll = MongodbManager.getCollection("AmpTestRecords",MongodbManager.getDatabase("Dspot",mongoClient));
