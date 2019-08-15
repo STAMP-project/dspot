@@ -43,9 +43,9 @@ public class TestClassJSON implements eu.stamp_project.utils.report.output.selec
 
 	public String toString() {
 		JSONObject subJson = new JSONObject()
-                  .put("initialCoverage", this.initialInstructionCovered)
-                  .put("ampCoverage", this.amplifiedInstructionTotal)
-                  .put("totalCoverage",this.amplifiedInstructionTotal);
+                  .put("InitialCoverage", (int) this.initialInstructionCovered)
+                  .put("AmpCoverage", (int) this.amplifiedInstructionCovered)
+                  .put("totalCoverage", (int) this.amplifiedInstructionTotal);
 
         String jsonString = new JSONObject().put(this.name,subJson).toString();
         return jsonString;

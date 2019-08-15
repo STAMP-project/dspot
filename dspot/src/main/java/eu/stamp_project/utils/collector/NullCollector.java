@@ -10,4 +10,6 @@ public class NullCollector implements DspotInformationCollector {
 	public void reportSelectorInformation(String str) {}
 	@Override
 	public void reportAmpTestPath(String pathName) {}
+	@Override
+	public void sendInfo(){}
 }

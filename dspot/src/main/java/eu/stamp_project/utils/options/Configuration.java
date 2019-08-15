@@ -43,13 +43,10 @@ public class Configuration {
     }
 
     public static DspotInformationCollector getInformationCollector() {
-        return collector;
-    }
-
-    public static void useMongoCollector(boolean useMongo){
-        if (useMongo) {
-            collector = new MongodbManager();
+        if (MongodbManager.ConnectableToMongodb()) {
+            collector = MongodbManager.getInstance();
         }
+        return collector;
     }
 
     public static void configure(final String pathToPropertiesFile,

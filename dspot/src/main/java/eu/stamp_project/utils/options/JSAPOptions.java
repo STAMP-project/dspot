@@ -116,7 +116,6 @@ public class JSAPOptions {
                 testCases,
                 fullClasspath
         );
-        Configuration.useMongoCollector(true); // Will be a JSAP option later
         DspotInformationCollector collector = Configuration.getInformationCollector();
         collector.reportInitInformation(jsapConfig);
     }

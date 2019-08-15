@@ -10,4 +10,6 @@ public interface DspotInformationCollector {
 	void reportSelectorInformation(String info);
 	// collect each test's path
 	void reportAmpTestPath(String pathName);
+	// send info over to some other instance
+	void sendInfo();
 }
