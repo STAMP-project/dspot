@@ -149,7 +149,7 @@ public class MongodbManager implements DspotInformationCollector {
             System.out.println( "key: " + key + " value: " + innerDoc.get( key ) );
            	String totalKeyName = "total" + key;
 
-           	// To avoid totaltotalCoverage name.
+           	/*To avoid totaltotalCoverage name.*/
            	if (key.equals("totalCoverage")) {
            		totalKeyName = "totalCovAcrossAllTests";
            	}

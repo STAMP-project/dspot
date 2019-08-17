@@ -44,7 +44,7 @@ public class Configuration {
         }
     }
 
-    // Given options information for each collector type
+    /*Given options information for each collector type*/
     public static void initCollectors(JSAPResult jsapConfig) {
         MongodbManager.initMongodb(jsapConfig);
     }
