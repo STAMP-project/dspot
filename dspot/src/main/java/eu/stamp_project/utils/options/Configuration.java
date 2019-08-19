@@ -234,7 +234,7 @@ public class Configuration {
                                  final String fullClasspath,
                                  final String collector,
                                  final String mongoUrl) {
-        
+
         Checker.checkPathToPropertiesValue(pathToPropertiesFile);
         final Properties properties = loadProperties(pathToPropertiesFile);
         configure(properties,

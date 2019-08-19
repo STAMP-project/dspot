@@ -361,7 +361,7 @@ public class InputConfiguration {
                              boolean targetOneTestClass, boolean allowPathInAssertion,
                              boolean executeTestsInParallel, int numberParallelExecutionProcessors,
                              String collector) {
-        setUp(amplifiers, budgetizer, 
+        setUp(amplifiers, budgetizer,
             testCriterion, testClasses,
             testCases, iteration,
             seed, timeOut,
