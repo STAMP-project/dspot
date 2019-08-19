@@ -15,6 +15,7 @@ import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.options.Configuration;
 import eu.stamp_project.utils.collector.DspotInformationCollector;
+import eu.stamp_project.utils.collector.NullCollector;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -313,7 +314,7 @@ public class InputConfiguration {
     /**
 
      */
-    public static void setUp(List<String> amplifiers, String budgetizer,String mongoUrl,
+    public static void setUp(List<String> amplifiers, String budgetizer,
                              TestSelector testCriterion, List<String> testClasses,
                              List<String> testCases, int iteration,
                              long seed, int timeOut,
@@ -323,13 +324,11 @@ public class InputConfiguration {
                              boolean keepOriginalTestMethods, boolean gregor,
                              boolean descartes, boolean useMavenToExecuteTest,
                              boolean targetOneTestClass, boolean allowPathInAssertion,
-                             boolean executeTestsInParallel, int numberParallelExecutionProcessors,
-                             String collector) {
+                             boolean executeTestsInParallel, int numberParallelExecutionProcessors) {
         InputConfiguration.get()
                 .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(amplifiers))
                 .setNbIteration(iteration)
                 .setTestClasses(testClasses)
-                .setMongoUrl(mongoUrl)
                 .setSelector(testCriterion)
                 .setTestCases(testCases)
                 .setSeed(seed)
@@ -347,13 +346,42 @@ public class InputConfiguration {
                 .setTargetOneTestClass(targetOneTestClass)
                 .setAllowPathInAssertion(allowPathInAssertion)
                 .setExecuteTestsInParallel(executeTestsInParallel)
-                .setNumberParallelExecutionProcessors(numberParallelExecutionProcessors)
-                .setInformationCollector(CollectorEnum.valueOf(collector).getCollector());
+                .setNumberParallelExecutionProcessors(numberParallelExecutionProcessors);
     }
 
-    /* DspotInformation collector related */
-    private static DspotInformationCollector collector;
+    public static void setUp(List<String> amplifiers, String budgetizer,String mongoUrl,
+                             TestSelector testCriterion, List<String> testClasses,
+                             List<String> testCases, int iteration,
+                             long seed, int timeOut,
+                             int maxTestAmplified, boolean clean,
+                             boolean verbose, boolean workingDirectory,
+                             boolean comment, boolean generateNewTestClass,
+                             boolean keepOriginalTestMethods, boolean gregor,
+                             boolean descartes, boolean useMavenToExecuteTest,
+                             boolean targetOneTestClass, boolean allowPathInAssertion,
+                             boolean executeTestsInParallel, int numberParallelExecutionProcessors,
+                             String collector) {
+        setUp(amplifiers, budgetizer, 
+            testCriterion, testClasses,
+            testCases, iteration,
+            seed, timeOut,
+            maxTestAmplified, clean,
+            verbose, workingDirectory,
+            comment, generateNewTestClass,
+            keepOriginalTestMethods, gregor,
+            descartes, useMavenToExecuteTest,
+            targetOneTestClass, allowPathInAssertion,
+            executeTestsInParallel, numberParallelExecutionProcessors);
+        collectorInit(mongoUrl,collector);
+    }
 
+
+    /* DspotInformation collector related */
+    private static DspotInformationCollector collector = new NullCollector();
+
+    public static void collectorInit(String mongoUrl, String collector) {
+        InputConfiguration.get().setMongoUrl(mongoUrl).setInformationCollector(CollectorEnum.valueOf(collector).getCollector());
+    }
     public InputConfiguration setInformationCollector(DspotInformationCollector collector) {
         this.collector = collector;
         return this;

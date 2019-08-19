@@ -65,9 +65,7 @@ public class Configuration {
                                  final int numberParallelExecutionProcessors,
                                  final List<String> testClasses,
                                  final List<String> testCases,
-                                 final String fullClasspath,
-                                 final String collector,
-                                 final String mongoUrl) {
+                                 final String fullClasspath) {
 
         Checker.checkPathToPropertiesValue(pathToPropertiesFile);
         final Properties properties = loadProperties(pathToPropertiesFile);
@@ -99,9 +97,7 @@ public class Configuration {
                 numberParallelExecutionProcessors,
                 testClasses,
                 testCases,
-                fullClasspath,
-                collector,
-                mongoUrl
+                fullClasspath
         );
     }
 
@@ -132,9 +128,7 @@ public class Configuration {
                                  final int numberParallelExecutionProcessors,
                                  final List<String> testClasses,
                                  final List<String> testCases,
-                                 final String fullClasspath,
-                                 final String collector,
-                                 final String mongoUrl) {
+                                 final String fullClasspath) {
         // pit output format
         PitMutantScoreSelector.OutputFormat consecutiveFormat;
         if (pitOutputFormat.toLowerCase().equals("xml")) {
@@ -187,7 +181,6 @@ public class Configuration {
         InputConfiguration.setUp(
                 amplifiers,
                 budgetizer,
-                mongoUrl,
                 testCriterion,
                 testClasses,
                 testCases,
@@ -207,9 +200,73 @@ public class Configuration {
                 targetOneTestClass,
                 allowPathInAssertion,
                 executeTestsInParallel,
-                numberParallelExecutionProcessors,
-                collector
+                numberParallelExecutionProcessors
         );
+    }
+
+    public static void configure(final String pathToPropertiesFile,
+                                 final List<String> amplifiers,
+                                 final String selector,
+                                 final String budgetizer,
+                                 final String pitOutputFormat,
+                                 final String pathPitResult,
+                                 final String automaticBuilder,
+                                 final String output,
+                                 final int iteration,
+                                 final long randomSeed,
+                                 final int timeOut,
+                                 final int maxTestAmplified,
+                                 final boolean clean,
+                                 final boolean verbose,
+                                 final boolean workingDirectory,
+                                 final boolean comment,
+                                 final boolean generateNewTestClass,
+                                 final boolean keepOriginalTestMethods,
+                                 final boolean gregor,
+                                 final boolean descartes,
+                                 final boolean useMavenToExecuteTest,
+                                 final boolean targetOneTestClass,
+                                 final boolean allowPathInAssertion,
+                                 final boolean executeTestsInParallel,
+                                 final int numberParallelExecutionProcessors,
+                                 final List<String> testClasses,
+                                 final List<String> testCases,
+                                 final String fullClasspath,
+                                 final String collector,
+                                 final String mongoUrl) {
+        
+        Checker.checkPathToPropertiesValue(pathToPropertiesFile);
+        final Properties properties = loadProperties(pathToPropertiesFile);
+        configure(properties,
+                    amplifiers,
+                    selector,
+                    budgetizer,
+                    pitOutputFormat,
+                    pathPitResult,
+                    automaticBuilder,
+                    output,
+                    iteration,
+                    randomSeed,
+                    timeOut,
+                    maxTestAmplified,
+                    clean,
+                    verbose,
+                    workingDirectory,
+                    comment,
+                    generateNewTestClass,
+                    keepOriginalTestMethods,
+                    gregor,
+                    descartes,
+                    useMavenToExecuteTest,
+                    targetOneTestClass,
+                    allowPathInAssertion,
+                    executeTestsInParallel,
+                    numberParallelExecutionProcessors,
+                    testClasses,
+                    testCases,
+                    fullClasspath);
+
+        InputConfiguration.collectorInit(mongoUrl,collector);
     }
 
     public static Properties loadProperties(String pathToPropertiesFile) {
