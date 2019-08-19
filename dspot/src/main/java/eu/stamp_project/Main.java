@@ -1,7 +1,6 @@
 package eu.stamp_project;
 
 import eu.stamp_project.dspot.DSpot;
-import eu.stamp_project.utils.options.Configuration;
 import eu.stamp_project.utils.options.JSAPOptions;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.RandomHelper;
@@ -61,7 +60,7 @@ public class Main {
 		Main.GLOBAL_REPORT.output();
 		Main.GLOBAL_REPORT.reset();
 		// Send info collected.
-		Configuration.getInformationCollector().sendInfo();
+		InputConfiguration.getInformationCollector().sendInfo();
 	}
 
 	public static void createOutputDirectories() {

@@ -6,9 +6,6 @@ import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.utils.collector.mongodb.MongodbManager;
-import eu.stamp_project.utils.collector.NullCollector;
-import eu.stamp_project.utils.collector.DspotInformationCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +15,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import com.martiansoftware.jsap.JSAPResult;
-
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -28,7 +23,6 @@ import com.martiansoftware.jsap.JSAPResult;
 public class Configuration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
-    private static DspotInformationCollector collector = new NullCollector();
 
     static void configureExample() {
         try {
@@ -42,18 +36,6 @@ public class Configuration {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    /*Given options information for each collector type*/
-    public static void initCollectors(JSAPResult jsapConfig) {
-        MongodbManager.initMongodb(jsapConfig);
-    }
-
-    public static DspotInformationCollector getInformationCollector() {
-        if (MongodbManager.ConnectableToMongodb()) {
-            collector = MongodbManager.getInstance();
-        }
-        return collector;
     }
 
     public static void configure(final String pathToPropertiesFile,
@@ -83,7 +65,9 @@ public class Configuration {
                                  final int numberParallelExecutionProcessors,
                                  final List<String> testClasses,
                                  final List<String> testCases,
-                                 final String fullClasspath) {
+                                 final String fullClasspath,
+                                 final String collector,
+                                 final String mongoUrl) {
 
         Checker.checkPathToPropertiesValue(pathToPropertiesFile);
         final Properties properties = loadProperties(pathToPropertiesFile);
@@ -115,7 +99,9 @@ public class Configuration {
                 numberParallelExecutionProcessors,
                 testClasses,
                 testCases,
-                fullClasspath
+                fullClasspath,
+                collector,
+                mongoUrl
         );
     }
 
@@ -146,7 +132,9 @@ public class Configuration {
                                  final int numberParallelExecutionProcessors,
                                  final List<String> testClasses,
                                  final List<String> testCases,
-                                 final String fullClasspath) {
+                                 final String fullClasspath,
+                                 final String collector,
+                                 final String mongoUrl) {
         // pit output format
         PitMutantScoreSelector.OutputFormat consecutiveFormat;
         if (pitOutputFormat.toLowerCase().equals("xml")) {
@@ -199,6 +187,7 @@ public class Configuration {
         InputConfiguration.setUp(
                 amplifiers,
                 budgetizer,
+                mongoUrl,
                 testCriterion,
                 testClasses,
                 testCases,
@@ -218,7 +207,8 @@ public class Configuration {
                 targetOneTestClass,
                 allowPathInAssertion,
                 executeTestsInParallel,
-                numberParallelExecutionProcessors
+                numberParallelExecutionProcessors,
+                collector
         );
     }
 

@@ -2,7 +2,9 @@ package eu.stamp_project.utils.collector.mongodb;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import eu.stamp_project.utils.collector.DspotInformationCollector;
+import eu.stamp_project.utils.program.InputConfiguration;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -26,9 +28,8 @@ import java.util.Arrays;
 import com.martiansoftware.jsap.JSAPResult;
 
 // Receive data from selectors, JSAPOptions and amp testfiles paths to put to mongodb.
-public class MongodbManager implements DspotInformationCollector {
-	private static final Logger LOGGER = LoggerFactory.getLogger(MongodbManager.class);
-	private static MongodbManager mongodbManager;
+public class MongodbCollector implements DspotInformationCollector {
+	private static final Logger LOGGER = LoggerFactory.getLogger(MongodbCollector.class);
 
 	/* Config objects */
 	private static boolean dbConnectable;
@@ -55,22 +56,12 @@ public class MongodbManager implements DspotInformationCollector {
 	private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
 	/* Initiation*/
-	private MongodbManager () {
+	public MongodbCollector () {
 		this.selectorDocs = new ArrayList<Document>();
 		this.javaPathList = new ArrayList<String>();
 		this.argsDoc = new Document();
 		this.totalResultDoc = new Document();
-	}
-
-	public static MongodbManager getInstance() {
-		if (mongodbManager == null) {
-			mongodbManager = new MongodbManager();
-		}
-		return mongodbManager;
-	}
-
-	public static void initMongodb(JSAPResult jsapConfig) {
-		mongoUrl = jsapConfig.getString("mongo-url");
+		this.mongoUrl = InputConfiguration.get().getMongoUrl();
 	}
 
 	/*Connection related*/
@@ -146,8 +137,7 @@ public class MongodbManager implements DspotInformationCollector {
 		String testName = doc.keySet().iterator().next();
 		Document innerDoc = (Document) doc.get(testName);
 		for ( String key : innerDoc.keySet() ) {
-            System.out.println( "key: " + key + " value: " + innerDoc.get( key ) );
-           	String totalKeyName = "total" + key;
+           	String totalKeyName = "total" + this.toUpperCaseFirstLetter(key);
 
            	/*To avoid totaltotalCoverage name.*/
            	if (key.equals("totalCoverage")) {
@@ -172,6 +162,13 @@ public class MongodbManager implements DspotInformationCollector {
 	private String getCurrentDate() {
 		Date date = new Date();
 		return this.dateFormat.format(date);
+	}
+
+	private String toUpperCaseFirstLetter(String input) {
+		if (input.length() < 1) {
+			return input;
+		}
+		return input.substring(0, 1).toUpperCase() + input.substring(1);
 	}
 
 	/* Methods used for testing Mongo*/

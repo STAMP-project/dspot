@@ -1,7 +1,6 @@
 package eu.stamp_project.utils;
 
 import eu.stamp_project.Main;
-import eu.stamp_project.utils.options.Configuration;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.error.Error;
@@ -137,7 +136,7 @@ public class DSpotUtils {
                 LOGGER.warn("These problems can come from the fact your project use generated codes, such as Lombok annotations.");
                 printCtTypeToGivenDirectory(type, directory, false); //FIXME: analyse for optimisation (13% total execution time)
             } else {
-                Configuration.getInformationCollector().reportAmpTestPath(pathname);
+                InputConfiguration.getInformationCollector().reportAmpTestPath(pathname);
             }
         } catch (Exception ignored) {
             LOGGER.warn("Couldn't compile the final amplified test class.");
