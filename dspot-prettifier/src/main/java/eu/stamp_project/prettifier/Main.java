@@ -43,13 +43,6 @@ public class Main {
 
     public static ReportJSON report = new ReportJSON();
 
-    /*
-        Apply the following algorithm:
-            1) Minimize amplified test methods.
-            2) rename test methods
-            3) Rename local variables
-     */
-
     public static void main(String[] args) {
         JSAPOptions.parse(args);
         final CtType<?> amplifiedTestClass = loadAmplifiedTestClass();
@@ -69,14 +62,14 @@ public class Main {
     public static List<CtMethod<?>> run(CtType<?> amplifiedTestClass) {
         final List<CtMethod<?>> testMethods = TestFramework.getAllTest(amplifiedTestClass);
         Main.report.nbTestMethods = testMethods.size();
-        // 1
+        // 1 minimize amplified test methods
         final List<CtMethod<?>> minimizedAmplifiedTestMethods = applyMinimization(
                 testMethods,
                 amplifiedTestClass
         );
-        // 2
+        // 2 rename test methods
         applyCode2Vec(minimizedAmplifiedTestMethods);
-        // 3 TODO 1 train one better model 2 sync model 3 MultiProcess
+        // 3 Rename local variables TODO train one better model
         return applyContext2Name(minimizedAmplifiedTestMethods);
     }
 
@@ -139,19 +132,22 @@ public class Main {
     public static List<CtMethod<?>> applyContext2Name(List<CtMethod<?>> amplifiedTestMethods) {
         Context2Name context2name = new Context2Name();
         CtClass tmpClass = Launcher.parseClass("class Tmp {}");
-
-        Set<CtMethod<?>> tmpMethods = new HashSet<>();
+        // remember the order
+        List<String> methodNameList = new ArrayList<>();
         for (CtMethod<?> amplifiedTestMethod : amplifiedTestMethods) {
-            tmpClass.setMethods(new HashSet<>(Collections.singletonList(amplifiedTestMethod)));
-            String strTmpClass = tmpClass.toString();
-            String strProcessedClass = context2name.process(strTmpClass);
-            CtClass processedClass = Launcher.parseClass(strProcessedClass);
-            Set<CtMethod> processedMethods = processedClass.getMethods();
-            for(CtMethod processedMethod: processedMethods) {
-                tmpMethods.add(processedMethod);
-            }
+            methodNameList.add(amplifiedTestMethod.getSimpleName());
         }
-        return new ArrayList<>(tmpMethods);
+        // apply Context2Name
+        tmpClass.setMethods(new HashSet<>(amplifiedTestMethods));
+        String strTmpClass = tmpClass.toString();
+        String strProcessedClass = context2name.process(strTmpClass);
+        CtClass processedClass = Launcher.parseClass(strProcessedClass);
+        // restore the order
+        List<CtMethod<?>> prettifiedMethodList = new ArrayList<>();
+        methodNameList.forEach(methodName -> {
+            prettifiedMethodList.addAll(processedClass.getMethodsByName(methodName));
+        });
+        return prettifiedMethodList;
     }
 
     public static <T extends Number & Comparable<T>> Double getMedian(List<T> list) {
