@@ -1,4 +1,4 @@
-dist: trusty
+dist: xenial # Python3.4 for trusty Python3.5 for xenial
 
 group: edge
 
@@ -27,7 +27,7 @@ cache:
 
 before_install:
 - sudo apt-get update
-- sudo apt-get install python3.6
+- sudo apt-get install python3
 - sudo apt-get install python3-pip
 
 install:
