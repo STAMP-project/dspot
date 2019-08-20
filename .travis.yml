@@ -33,7 +33,7 @@ before_install:
 install:
 - export DSPOT_VERSION=`grep '<version>' dspot/pom.xml | head -n 1 | sed -e 's/<version>//' -e 's/<\\/version>//' -e 's/ *//g'`
 - export MAVEN_HOME=`mvn --version | grep 'Maven home' | sed -e 's/Maven h.* //'`
-- mvn compile
+- mvn compile --quiet
 - cd dspot && ./src/main/bash/update-classes-in-resources.sh
 - cd ..
 - mvn install -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip=true
