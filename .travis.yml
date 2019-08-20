@@ -28,6 +28,7 @@ cache:
 before_install:
 - sudo apt-get update
 - sudo apt-get install python3
+- sudo apt-get install python3-pip
 
 install:
 - export DSPOT_VERSION=`grep '<version>' dspot/pom.xml | head -n 1 | sed -e 's/<version>//' -e 's/<\\/version>//' -e 's/ *//g'`
