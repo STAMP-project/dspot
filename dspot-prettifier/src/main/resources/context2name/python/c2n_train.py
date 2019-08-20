@@ -42,7 +42,7 @@ class Config:
 
 
 def easy_path(file_path):
-    return f"/content/gdrive/My Drive/C2N/model/{file_path}"
+    return '/content/gdrive/My Drive/C2N/model/' + file_path
 
 
 def easy_open(file_path, mode):

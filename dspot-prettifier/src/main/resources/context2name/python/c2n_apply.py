@@ -37,7 +37,7 @@ class Config:
 
 
 def easy_path(file_path):
-    return f"../model/{file_path}"
+    return '../model/' + file_path
 
 
 def easy_open(file_path, mode):
@@ -46,13 +46,13 @@ def easy_open(file_path, mode):
 
 def cat_files(file_name):
     prefix, postfix = 'sub_', '_'
-    command = f'cd ../model;cat {prefix + file_name + postfix}* > {file_name}'
+    command = 'cd ../model;cat ' + prefix + file_name + postfix + '* > ' + file_name
     subprocess.call(command, shell=True)
 
 
 def split_files(file_name):
     prefix, postfix = 'sub_', '_'
-    command = f'cd ../model;split -b 90m {file_name} "{prefix + file_name + postfix}"'
+    command = 'cd ../model;split -b 90m ' + file_name + ' ' + prefix + file_name + postfix
     subprocess.call(command, shell=True)
 
 
