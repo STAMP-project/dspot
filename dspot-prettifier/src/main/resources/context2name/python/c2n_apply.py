@@ -1,6 +1,7 @@
 import argparse
 import json
 import pickle
+import subprocess
 import bottleneck
 import numpy as np
 
@@ -41,6 +42,18 @@ def easy_path(file_path):
 
 def easy_open(file_path, mode):
     return open(easy_path(file_path), mode)
+
+
+def cat_files(file_name):
+    prefix, postfix = 'sub_', '_'
+    command = f'cd ../model;cat {prefix + file_name + postfix}* > {file_name}'
+    subprocess.call(command, shell=True)
+
+
+def split_files(file_name):
+    prefix, postfix = 'sub_', '_'
+    command = f'cd ../model;split -b 90m {file_name} "{prefix + file_name + postfix}"'
+    subprocess.call(command, shell=True)
 
 
 class Handler:
@@ -139,8 +152,10 @@ if __name__ == "__main__":
                         dest='data',
                         help='Data')
 
-    args = parser.parse_args()
+    cat_files(lstm_default)
+    # split_files(lstm_default)
 
+    args = parser.parse_args()
     imap = pickle.load(easy_open(args.iload, 'rb'))
     omap = pickle.load(easy_open(args.oload, 'rb'))
     encoder = load_model(easy_path(args.encoder))
