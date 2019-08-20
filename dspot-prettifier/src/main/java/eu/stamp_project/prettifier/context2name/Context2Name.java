@@ -309,6 +309,10 @@ public class Context2Name {
             System.out.println(command);
 
             Process context2nameProcess = Runtime.getRuntime().exec(new String[]{"/bin/sh", "-c", command});
+
+            BufferedReader errReader = new BufferedReader(new InputStreamReader(context2nameProcess.getErrorStream()));
+            errReader.lines().forEach(System.out::println);
+
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(context2nameProcess.getInputStream()));
 
             StringBuilder stringBuilder = new StringBuilder();
