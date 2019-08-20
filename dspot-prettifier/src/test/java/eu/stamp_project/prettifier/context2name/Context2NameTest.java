@@ -1,6 +1,7 @@
 package eu.stamp_project.prettifier.context2name;
 
 import eu.stamp_project.prettifier.Main;
+import org.junit.Ignore;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
