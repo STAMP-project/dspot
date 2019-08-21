@@ -4,6 +4,7 @@ import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
+import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
@@ -22,6 +23,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class GoogleTruthTest extends AbstractTest {
 
+    @Ignore
     @Test
     public void test() {
 

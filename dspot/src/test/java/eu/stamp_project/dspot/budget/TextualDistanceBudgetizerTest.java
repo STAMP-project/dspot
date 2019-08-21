@@ -3,6 +3,7 @@ package eu.stamp_project.dspot.budget;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtMethod;
@@ -25,6 +26,7 @@ public class TextualDistanceBudgetizerTest extends AbstractTest {
         Utils.getInputConfiguration().setMaxTestAmplified(200);
     }
 
+    @Ignore
     @Test
     public void testReduction() throws Exception {
 
