@@ -44,6 +44,11 @@ def easy_open(file_path, mode):
     return open(easy_path(file_path), mode)
 
 
+def load_file_from_web(url):
+    command = 'cd ../model;wget -q -nc ' + url
+    subprocess.call(command, shell=True)
+
+
 def cat_files(file_name):
     prefix, postfix = 'sub_', '_'
     command = 'cd ../model;cat ' + prefix + file_name + postfix + '* > ' + file_name
@@ -152,7 +157,8 @@ if __name__ == "__main__":
                         dest='data',
                         help='Data')
 
-    cat_files(lstm_default)
+    load_file_from_web("https://github.com/STAMP-project/data/releases/download/v0.1.0/lstm_350_60000.model.h5")
+    # cat_files(lstm_default)
     # split_files(lstm_default)
 
     args = parser.parse_args()
