@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.stamp_project.utils.collector.DspotInformationCollector;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.collector.CollectorConfig;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -61,7 +61,7 @@ public class MongodbCollector implements DspotInformationCollector {
 		this.javaPathList = new ArrayList<String>();
 		this.argsDoc = new Document();
 		this.totalResultDoc = new Document();
-		this.mongoUrl = InputConfiguration.get().getMongoUrl();
+		this.mongoUrl = CollectorConfig.getInstance().getMongoUrl();
 	}
 
 	/*Connection related*/

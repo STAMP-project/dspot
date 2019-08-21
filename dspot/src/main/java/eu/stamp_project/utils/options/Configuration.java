@@ -6,6 +6,7 @@ import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.collector.CollectorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -266,7 +267,10 @@ public class Configuration {
                     testCases,
                     fullClasspath);
 
-        InputConfiguration.collectorInit(mongoUrl,collector);
+        CollectorConfig collectorConfig = CollectorConfig.getInstance();
+
+        collectorConfig.setMongoUrl(mongoUrl);
+        collectorConfig.setInformationCollector(collector);
     }
 
     public static Properties loadProperties(String pathToPropertiesFile) {

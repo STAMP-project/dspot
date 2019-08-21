@@ -9,13 +9,10 @@ import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.DSpotCache;
 import eu.stamp_project.utils.options.AmplifierEnum;
 import eu.stamp_project.utils.options.BudgetizerEnum;
-import eu.stamp_project.utils.options.CollectorEnum;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.options.Configuration;
-import eu.stamp_project.utils.collector.DspotInformationCollector;
-import eu.stamp_project.utils.collector.NullCollector;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -347,60 +344,6 @@ public class InputConfiguration {
                 .setAllowPathInAssertion(allowPathInAssertion)
                 .setExecuteTestsInParallel(executeTestsInParallel)
                 .setNumberParallelExecutionProcessors(numberParallelExecutionProcessors);
-    }
-
-    public static void setUp(List<String> amplifiers, String budgetizer,String mongoUrl,
-                             TestSelector testCriterion, List<String> testClasses,
-                             List<String> testCases, int iteration,
-                             long seed, int timeOut,
-                             int maxTestAmplified, boolean clean,
-                             boolean verbose, boolean workingDirectory,
-                             boolean comment, boolean generateNewTestClass,
-                             boolean keepOriginalTestMethods, boolean gregor,
-                             boolean descartes, boolean useMavenToExecuteTest,
-                             boolean targetOneTestClass, boolean allowPathInAssertion,
-                             boolean executeTestsInParallel, int numberParallelExecutionProcessors,
-                             String collector) {
-        setUp(amplifiers, budgetizer,
-            testCriterion, testClasses,
-            testCases, iteration,
-            seed, timeOut,
-            maxTestAmplified, clean,
-            verbose, workingDirectory,
-            comment, generateNewTestClass,
-            keepOriginalTestMethods, gregor,
-            descartes, useMavenToExecuteTest,
-            targetOneTestClass, allowPathInAssertion,
-            executeTestsInParallel, numberParallelExecutionProcessors);
-        collectorInit(mongoUrl,collector);
-    }
-
-
-    /* DspotInformation collector related */
-    private static DspotInformationCollector collector = new NullCollector();
-
-    public static void collectorInit(String mongoUrl, String collector) {
-        InputConfiguration.get().setMongoUrl(mongoUrl).setInformationCollector(CollectorEnum.valueOf(collector).getCollector());
-    }
-    public InputConfiguration setInformationCollector(DspotInformationCollector collector) {
-        this.collector = collector;
-        return this;
-    }
-
-    public static DspotInformationCollector getInformationCollector() {
-        return collector;
-    }
-
-    /* MongodbCollector related */
-    private static String mongoUrl;
-
-    public InputConfiguration setMongoUrl(String mongoUrl) {
-        this.mongoUrl = mongoUrl;
-        return this;
-    }
-
-    public String getMongoUrl() {
-        return this.mongoUrl;
     }
 
     /**
