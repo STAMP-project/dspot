@@ -26,6 +26,7 @@ public class TextualDistanceBudgetizerTest extends AbstractTest {
         Utils.getInputConfiguration().setMaxTestAmplified(200);
     }
 
+    // TODO
     @Ignore
     @Test
     public void testReduction() throws Exception {
