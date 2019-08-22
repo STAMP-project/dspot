@@ -18,6 +18,7 @@ import eu.stamp_project.utils.report.output.selector.mutant.json.TestCaseJSON;
 import eu.stamp_project.utils.report.output.selector.mutant.json.TestClassJSON;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.collector.CollectorConfig;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -226,6 +227,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         }
         final String reportStdout = reportStdout();
         final TestClassJSON testClassJSON = reportJSONMutants();
+
         //clean up for the next class
         this.currentClassTestToBeAmplified = null;
         this.testThatKilledMutants.clear();
@@ -277,6 +279,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
             }
         } else {
             testClassJSON = new TestClassJSON(getNbMutantKilledOriginally(this.currentClassTestToBeAmplified.getQualifiedName()),
+                    this.getNbTotalNewMutantKilled(),
                     this.currentClassTestToBeAmplified.getQualifiedName(),
                     this.currentClassTestToBeAmplified.getMethods()
                             .stream()
@@ -309,6 +312,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                     }
                 }
         );
+        CollectorConfig.getInstance().getInformationCollector().reportSelectorInformation(testClassJSON.toString());
         return testClassJSON;
     }
 

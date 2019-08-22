@@ -1,5 +1,6 @@
 package eu.stamp_project;
 
+import eu.stamp_project.utils.collector.CollectorConfig;
 import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.utils.options.JSAPOptions;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -59,6 +60,8 @@ public class Main {
 		// global report handling
 		Main.GLOBAL_REPORT.output();
 		Main.GLOBAL_REPORT.reset();
+		// Send info collected.
+		CollectorConfig.getInstance().getInformationCollector().sendInfo();
 	}
 
 	public static void createOutputDirectories() {

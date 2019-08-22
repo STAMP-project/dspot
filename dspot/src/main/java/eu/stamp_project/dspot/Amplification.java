@@ -75,6 +75,12 @@ public class Amplification {
      * @param maxIteration Number of amplification iterations
      */
     public void amplification(CtType<?> classTest, List<CtMethod<?>> tests, int maxIteration) {
+
+        if(tests.isEmpty()) {
+            LOGGER.warn("No test provided for amplification in class {}", classTest.getQualifiedName());
+            return;
+        }
+
         LOGGER.info("Amplification of {} ({} test(s))", classTest.getQualifiedName(), tests.size());
         LOGGER.info("Assertion amplification of {} ({} test(s))", classTest.getQualifiedName(), tests.size());
 
@@ -174,7 +180,6 @@ public class Amplification {
             );
             final List<CtMethod<?>> inputAmplifiedTests;
             try {
-
                 // amplify tests and shrink amplified set with budgetizer
                 inputAmplifiedTests = this.budgetizer.inputAmplify(selectedToBeAmplified, i);
             } catch (Exception | java.lang.Error e) {

@@ -30,6 +30,9 @@ before_install:
 - sudo apt-get install python3
 - sudo apt-get install python3-pip
 - sudo apt-get install python3-setuptools
+# Pull Mongodb image to test
+- docker pull mongo:latest
+- docker run -d --net=host mongo:latest
 
 install:
 - export DSPOT_VERSION=`grep '<version>' dspot/pom.xml | head -n 1 | sed -e 's/<version>//' -e 's/<\\/version>//' -e 's/ *//g'`

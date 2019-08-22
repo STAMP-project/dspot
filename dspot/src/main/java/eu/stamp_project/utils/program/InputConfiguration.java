@@ -346,8 +346,8 @@ public class InputConfiguration {
                 .setNumberParallelExecutionProcessors(numberParallelExecutionProcessors);
     }
 
-    /*
-        Paths project properties
+    /**
+     *  Paths project properties
      */
 
     private String absolutePathToProjectRoot;
