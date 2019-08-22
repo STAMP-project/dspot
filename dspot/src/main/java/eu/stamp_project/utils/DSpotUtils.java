@@ -1,11 +1,11 @@
 package eu.stamp_project.utils;
 
 import eu.stamp_project.Main;
-import eu.stamp_project.utils.options.Configuration;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.error.Error;
 import eu.stamp_project.utils.report.error.ErrorEnum;
+import eu.stamp_project.utils.collector.CollectorConfig;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,7 +137,7 @@ public class DSpotUtils {
                 LOGGER.warn("These problems can come from the fact your project use generated codes, such as Lombok annotations.");
                 printCtTypeToGivenDirectory(type, directory, false); //FIXME: analyse for optimisation (13% total execution time)
             } else {
-                Configuration.getInformationCollector().reportAmpTestPath(pathname);
+                CollectorConfig.getInstance().getInformationCollector().reportAmpTestPath(pathname);
             }
         } catch (Exception ignored) {
             LOGGER.warn("Couldn't compile the final amplified test class.");

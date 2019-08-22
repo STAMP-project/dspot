@@ -7,7 +7,7 @@ import com.martiansoftware.jsap.JSAPException;
 import com.martiansoftware.jsap.JSAPResult;
 import com.martiansoftware.jsap.Parameter;
 import com.martiansoftware.jsap.Switch;
-import eu.stamp_project.utils.collector.DspotInformationCollector;
+import eu.stamp_project.utils.collector.CollectorConfig;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -78,7 +78,8 @@ public class JSAPOptions {
                         jsapConfig.getInt("execute-test-parallel-with-number-processors") : Runtime.getRuntime().availableProcessors();
         final boolean executeTestsInParallel = jsapConfig.userSpecified("execute-test-parallel-with-number-processors");
         final String fullClasspath = jsapConfig.getString("full-classpath");
-
+        final String collector = jsapConfig.getString("collector");
+        final String mongoUrl = jsapConfig.getString("mongo-url");
         // these values need to be checked when the factory is available
         // We check them in DSpot class since we have the codes that allow to check them easily
         // and thus, the Factory will be created.
@@ -114,11 +115,12 @@ public class JSAPOptions {
                 executeTestParallelWithNumberProcessors,
                 test,
                 testCases,
-                fullClasspath
+                fullClasspath,
+                collector,
+                mongoUrl
         );
-        Configuration.useMongoCollector(true); // Will be a JSAP option later
-        DspotInformationCollector collector = Configuration.getInformationCollector();
-        collector.reportInitInformation(jsapConfig);
+
+        CollectorConfig.getInformationCollector().reportInitInformation(jsapConfig);
     }
 
     private static String helpForEnums(Class<?> enumClass) {
@@ -347,6 +349,21 @@ public class JSAPOptions {
         fullClasspath.setHelp("[optional] specify the classpath of the project. If this option is used, DSpot won't use an AutomaticBuilder (e.g. Maven) to clean, compile and get the classpath of the project. " +
                 "Please ensure that your project is in a good shape, i.e. clean and correctly compiled, sources and test sources.");
 
+        FlaggedOption collector = new FlaggedOption("collector");
+        collector.setStringParser(JSAP.STRING_PARSER);
+        collector.setLongFlag("collector");
+        collector.setUsageName("NullCollector | MongodbCollector");
+        collector.setHelp("[optional] set a collector: MongodbCollector to send info to Mongodb at end process, NullCollector which does nothing.");
+        collector.setDefault("NullCollector");
+
+        FlaggedOption mongoUrl = new FlaggedOption("mongo-url");
+        mongoUrl.setLongFlag("mongo-url");
+        mongoUrl.setDefault("mongodb://localhost:27017");
+        mongoUrl.setRequired(false);
+        mongoUrl.setStringParser(JSAP.STRING_PARSER);
+        mongoUrl.setAllowMultipleDeclarations(false);
+        mongoUrl.setHelp("[optional] If valid url, DSpot will submit to Mongodb database. For default use mongodb://localhost:27017");
+
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
@@ -377,6 +394,8 @@ public class JSAPOptions {
             jsap.registerParameter(allowPathInAssertions);
             jsap.registerParameter(executeTestParallel);
             jsap.registerParameter(fullClasspath);
+            jsap.registerParameter(collector);
+            jsap.registerParameter(mongoUrl);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {

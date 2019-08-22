@@ -180,7 +180,6 @@ public class Amplification {
             );
             final List<CtMethod<?>> inputAmplifiedTests;
             try {
-
                 // amplify tests and shrink amplified set with budgetizer
                 inputAmplifiedTests = this.budgetizer.inputAmplify(selectedToBeAmplified, i);
             } catch (Exception | java.lang.Error e) {
