@@ -2,19 +2,20 @@ package eu.stamp_project.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.utils.options.Configuration;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
 import eu.stamp_project.utils.report.output.selector.coverage.json.TestCaseJSON;
 import eu.stamp_project.utils.report.output.selector.coverage.json.TestClassJSON;
 import eu.stamp_project.testrunner.listener.Coverage;
 import eu.stamp_project.testrunner.listener.CoveragePerTestMethod;
+import eu.stamp_project.utils.collector.CollectorConfig;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
+
 import org.apache.commons.io.FileUtils;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
@@ -260,7 +261,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                 )
         );
 
-        Configuration.getInformationCollector().reportSelectorInformation(testClassJSON.toString());
+        CollectorConfig.getInstance().getInformationCollector().reportSelectorInformation(testClassJSON.toString());
         return testClassJSON;
     }
 }

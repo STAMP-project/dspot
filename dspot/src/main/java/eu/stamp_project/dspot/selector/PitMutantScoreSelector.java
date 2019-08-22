@@ -3,7 +3,6 @@ package eu.stamp_project.dspot.selector;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.Main;
-import eu.stamp_project.utils.options.Configuration;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.utils.pit.*;
 import eu.stamp_project.test_framework.TestFramework;
@@ -19,6 +18,7 @@ import eu.stamp_project.utils.report.output.selector.mutant.json.TestCaseJSON;
 import eu.stamp_project.utils.report.output.selector.mutant.json.TestClassJSON;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.collector.CollectorConfig;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -312,7 +312,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                     }
                 }
         );
-        Configuration.getInformationCollector().reportSelectorInformation(testClassJSON.toString());
+        CollectorConfig.getInstance().getInformationCollector().reportSelectorInformation(testClassJSON.toString());
         return testClassJSON;
     }
 
