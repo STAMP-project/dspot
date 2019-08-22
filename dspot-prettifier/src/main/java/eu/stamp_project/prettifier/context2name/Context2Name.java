@@ -462,9 +462,9 @@ public class Context2Name {
         process("demo.txt", true);
     }
 
-//    public static void main(String[] args) {
-//        Context2Name context2Name = new Context2Name();
+    public static void main(String[] args) {
+        Context2Name context2Name = new Context2Name();
 //        context2Name.fnCorpus();
-//        context2Name.fnDemo();
-//    }
+        context2Name.fnDemo();
+    }
 }
