@@ -74,7 +74,7 @@ public class AssertionRemoverTest extends AbstractTest {
         assertEquals("@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void testWithNewSomethingWithoutLocalVariables_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
                 "    java.lang.String o_testWithNewSomethingWithoutLocalVariables__1 = new fr.inria.sample.ClassWithBoolean().toString();" + AmplificationHelper.LINE_SEPARATOR +
-                "    eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.ObjectLog.log(o_testWithNewSomethingWithoutLocalVariables__1, \"o_testWithNewSomethingWithoutLocalVariables__1\", \"testWithNewSomethingWithoutLocalVariables__1\");" + AmplificationHelper.LINE_SEPARATOR +
+                "    eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.objectlogsyntaxbuilder_constructs.ObjectLog.log(o_testWithNewSomethingWithoutLocalVariables__1, \"o_testWithNewSomethingWithoutLocalVariables__1\", \"testWithNewSomethingWithoutLocalVariables__1\");" + AmplificationHelper.LINE_SEPARATOR +
                 "}", testWithLog.toString());
     }
 

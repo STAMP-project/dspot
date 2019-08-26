@@ -1,6 +1,6 @@
 package eu.stamp_project.test_framework;
 
-import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.ObjectLog;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.objectlogsyntaxbuilder_constructs.ObjectLog;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.test_framework.assertions.IsAssertInvocationFilter;
 import eu.stamp_project.testrunner.runner.Failure;

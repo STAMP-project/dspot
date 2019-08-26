@@ -167,7 +167,7 @@ public class DSpotUtils {
     private static final String PACKAGE_NAME = "compare";
 
     private static final String PACKAGE_PATH = "eu/stamp_project/" +
-            "dspot/assertiongenerator/assertiongenerator_components/methodreconstructor_components/observer_components/testwithloggenerator_components/logsyntaxbuilder_constructs" + "/";
+            "dspot/assertiongenerator/assertiongenerator_components/methodreconstructor_components/observer_components/testwithloggenerator_components/objectlogsyntaxbuilder_constructs" + "/";
 
     private static final String COMPONENTS_FOLDER = "objectlog_components/";
 

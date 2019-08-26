@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components;
 
-import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.objectlog_components.MethodsHandler;
-import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.LogSyntaxBuilder;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.objectlogsyntaxbuilder_constructs.objectlog_components.MethodsHandler;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.ObjectLogSyntaxBuilder;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.AssertionGeneratorUtils;
 import eu.stamp_project.utils.CloneHelper;
 import spoon.reflect.code.*;
@@ -18,7 +18,7 @@ public class TestWithLogGenerator {
 
     /**
      * Instruments tests with logs. First there is a decision about what kinds of statements should be logged.
-     * Then the actual log construction is done. Details of log construction in {@link LogSyntaxBuilder#addLogStmt(CtStatement, String)}.
+     * Then the actual log construction is done. Details of log construction in {@link ObjectLogSyntaxBuilder#addLogStmt(CtStatement, String)}.
      *
      * @param test Test to be instrumented
      * @param filter Filter
@@ -36,7 +36,7 @@ public class TestWithLogGenerator {
                                 ctVariableReads.contains(statement)) &&
                                 isNotFromPreviousAmplification(allStatement, statement, test)
                 ).forEach(statement ->
-                LogSyntaxBuilder.addLogStmt(statement,
+                ObjectLogSyntaxBuilder.addLogStmt(statement,
                         test.getSimpleName() + "__" + indexOfByRef(allStatement, statement))
         );
         return clone;

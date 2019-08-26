@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.objectlog_components;
+package eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.objectlogsyntaxbuilder_constructs.objectlog_components;
 
 import java.util.*;
 
