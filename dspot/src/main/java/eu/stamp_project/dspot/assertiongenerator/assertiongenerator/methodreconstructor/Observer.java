@@ -1,12 +1,12 @@
-package eu.stamp_project.dspot.assertiongenerator.performance.performancetest_components;
+package eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor;
 
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.testwithloggenerator.objectlogsyntaxbuilder_constructs.ObjectLog;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.testwithloggenerator.objectlogsyntaxbuilder_constructs.objectlog.Observation;
 import eu.stamp_project.dspot.AmplificationException;
-import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.Observer;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.TestWithLogGenerator;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.listener.TestResult;
+import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,7 @@ import java.util.stream.IntStream;
  * abwogi@kth.se
  * on 26/08/19
  */
-public class ObserverWithTime {
+public class Observer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Observer.class);
 
@@ -40,14 +39,10 @@ public class ObserverWithTime {
 
     private Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted;
 
-    public long timeInstrumentation;
-
-    public long timeRunningInstrumentation;
-
-    public ObserverWithTime(CtType originalClass,
-                            InputConfiguration configuration,
-                            DSpotCompiler compiler,
-                            Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted) {
+    public Observer(CtType originalClass,
+                         InputConfiguration configuration,
+                         DSpotCompiler compiler,
+                         Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted) {
         this.originalClass = originalClass;
         this.configuration = configuration;
         this.compiler = compiler;
@@ -69,20 +64,15 @@ public class ObserverWithTime {
         testClass.getPackage().addType(clone);
         LOGGER.info("Add observations points in passing tests.");
         LOGGER.info("Instrumentation...");
-        long start = System.currentTimeMillis();
         final List<CtMethod<?>> testCasesWithLogs;
         testCasesWithLogs = addLogs(testCases);
         final List<CtMethod<?>> testsToRun = setupTests(testCasesWithLogs,clone);
-        timeInstrumentation = System.currentTimeMillis() - start;
-        start = System.currentTimeMillis();
-        Map<String, Observation> observations = compileRunTests(clone,testsToRun);
-        timeRunningInstrumentation = System.currentTimeMillis() - start;
-        return observations;
+        return compileRunTests(clone,testsToRun);
     }
 
     // add logs in tests to observe state of tested program
-    private List<CtMethod<?>> addLogs(List<CtMethod<?>> testCases) {
-        final List<CtMethod<?>> testCasesWithLogs = testCases.stream()
+    private List<CtMethod<?>> addLogs(List<CtMethod<?>> testCases) throws AmplificationException{
+        List<CtMethod<?>> testCasesWithLogs = testCases.stream()
                 .map(ctMethod -> {
                             DSpotUtils.printProgress(testCases.indexOf(ctMethod), testCases.size());
                             return TestWithLogGenerator.createTestWithLog(
@@ -91,24 +81,26 @@ public class ObserverWithTime {
                                     this.variableReadsAsserted.get(ctMethod)
                             );
                         }
-                ).collect(Collectors.toList());
+                ).filter(ctMethod -> !ctMethod.getBody().getStatements().isEmpty())
+                .collect(Collectors.toList());
+        if (testCasesWithLogs.isEmpty()) {
+            LOGGER.warn("Could not continue the assertion amplification since all the instrumented test have an empty body.");
+            throw new AmplificationException("All instrumented tests have an empty body.");
+        }
         return testCasesWithLogs;
     }
 
     // clone and set up tests with logs
     private List<CtMethod<?>> setupTests(List<CtMethod<?>> testCasesWithLogs, CtType clone){
         final List<CtMethod<?>> testsToRun = new ArrayList<>();
-        IntStream.range(0, 1).forEach(i -> testsToRun.addAll(
+        IntStream.range(0, 3).forEach(i -> testsToRun.addAll(
                 testCasesWithLogs.stream()
-                        .map(CtMethod::clone)
-                        .map(ctMethod -> {
-                            ctMethod.setSimpleName(ctMethod.getSimpleName() + i);
-                            return ctMethod;
-                        })
-                        .map(ctMethod -> {
-                            clone.addMethod(ctMethod);
-                            return ctMethod;
-                        })
+
+                        //Optimization: Tracking cloned test methods using AmplificationHelper as candidates
+                        //for caching their associated Test Framework
+                        .map(CloneHelper::cloneMethod)
+                        .peek(ctMethod -> ctMethod.setSimpleName(ctMethod.getSimpleName() + i))
+                        .peek(clone::addMethod)
                         .collect(Collectors.toList())
         ));
         ObjectLog.reset();
@@ -128,10 +120,5 @@ public class ObserverWithTime {
             LOGGER.warn("Some instrumented test failed!");
         }
         return ObjectLog.getObservations();
-    }
-
-    public void reset() {
-        this.timeInstrumentation = 0;
-        this.timeRunningInstrumentation = 0;
     }
 }

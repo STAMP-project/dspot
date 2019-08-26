@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.assertiongenerator.performance.performancetest_components;
 
-import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.AssertionRemover;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionRemover;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.declaration.CtMethod;

@@ -167,9 +167,9 @@ public class DSpotUtils {
     private static final String PACKAGE_NAME = "compare";
 
     private static final String PACKAGE_PATH = "eu/stamp_project/" +
-            "dspot/assertiongenerator/assertiongenerator_components/methodreconstructor_components/observer_components/testwithloggenerator_components/objectlogsyntaxbuilder_constructs" + "/";
+            "dspot/assertiongenerator/assertiongenerator/methodreconstructor/observer/testwithloggenerator/objectlogsyntaxbuilder_constructs" + "/";
 
-    private static final String COMPONENTS_FOLDER = "objectlog_components/";
+    private static final String COMPONENTS_FOLDER = "objectlog/";
 
     private static final String[] DSPOT_CLASSES = new String[]{COMPONENTS_FOLDER +"MethodsHandler", "ObjectLog",
             COMPONENTS_FOLDER +"Observation", COMPONENTS_FOLDER +"ObjectLogUtils", COMPONENTS_FOLDER +"FailToObserveException"};

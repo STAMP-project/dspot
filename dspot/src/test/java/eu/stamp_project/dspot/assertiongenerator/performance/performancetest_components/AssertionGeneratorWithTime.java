@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.assertiongenerator.performance.performancetest_co
 
 import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.dspot.assertiongenerator.AssertionGenerator;
-import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.TryCatchFailGenerator;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.TryCatchFailGenerator;
 import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.compilation.DSpotCompiler;

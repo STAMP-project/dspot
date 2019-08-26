@@ -1,16 +1,15 @@
-package eu.stamp_project.dspot.assertiongenerator.performance.performancetest_components;
+package eu.stamp_project.dspot.assertiongenerator.assertiongenerator;
 
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.testwithloggenerator.objectlogsyntaxbuilder_constructs.objectlog.Observation;
 import eu.stamp_project.dspot.AmplificationException;
-import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.MethodReconstructor;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.AssertionSyntaxBuilder;
-import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGeneratorUtils;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.Observer;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtBlock;
@@ -26,14 +25,15 @@ import spoon.reflect.visitor.filter.TypeFilter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
- * on 18/07/18
+ * on 3/3/17
  */
-public class MethodReconstructorWithTime extends MethodReconstructor {
+public class MethodReconstructor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodReconstructor.class);
 
@@ -41,23 +41,25 @@ public class MethodReconstructorWithTime extends MethodReconstructor {
 
     private InputConfiguration configuration;
 
-    private ObserverWithTime observerWithTime;
+    private Observer observer;
 
-    public MethodReconstructorWithTime(CtType originalClass, InputConfiguration configuration, DSpotCompiler compiler, Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted) {
-        super(originalClass, configuration, compiler, variableReadsAsserted);
+    public MethodReconstructor(CtType originalClass,
+                               InputConfiguration configuration,
+                               DSpotCompiler compiler,
+                               Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted) {
         this.configuration = configuration;
         this.factory = configuration.getFactory();
-        this.observerWithTime = new ObserverWithTime(originalClass,
+        this.observer = new Observer(originalClass,
                 configuration,
                 compiler,
                 variableReadsAsserted);
     }
 
     /**
-     * Adds new assertions in multiple tests.
+     * Adds new assertions in multiple passing tests.
      * <p>
      * <p>Instruments the tests to have observation points.
-     * Details in {@link ObserverWithTime#getObservations(CtType, List)}.
+     * Details in {@link Observer#getObservations(CtType, List)}.
      * <p>
      * <p>Details of the assertion generation in {@link #buildTestWithAssert(CtMethod, Map)}.
      *
@@ -68,26 +70,12 @@ public class MethodReconstructorWithTime extends MethodReconstructor {
     public List<CtMethod<?>> addAssertions(CtType<?> testClass, List<CtMethod<?>> testCases) {
         Map<String, Observation> observations;
         try {
-            observations = observerWithTime.getObservations(testClass, testCases);
+            observations = observer.getObservations(testClass, testCases);
         } catch (AmplificationException e) {
             e.printStackTrace();
             return Collections.emptyList();
         }
-        this.timeInstrumentation = observerWithTime.timeInstrumentation;
-        this.timeRunningInstrumentation = observerWithTime.timeRunningInstrumentation;
-        final long start = System.currentTimeMillis();
-        final List<CtMethod<?>> generation = buildEachTest(testCases,observations);
-        this.timeGeneration = System.currentTimeMillis() - start;
-        return generation;
-    }
-
-    public long timeInstrumentation;
-    public long timeRunningInstrumentation;
-    public long timeGeneration;
-
-    public void reset() {
-        this.observerWithTime.reset();
-        this.timeGeneration = 0;
+        return buildEachTest(testCases,observations);
     }
 
     // add assertions to each test with values retrieved from logs
@@ -100,7 +88,8 @@ public class MethodReconstructorWithTime extends MethodReconstructor {
 
     /**
      * Adds new assertions to a test from observation points.
-     *
+     * <p>
+     * <p>Details of constructing the syntax for the assertions in {@link AssertionSyntaxBuilder#buildAssert(CtMethod, Set, Map, Double)}.
      * @param test         Test method
      * @param observations Observation points of the test suite
      * @return Test with new assertions
@@ -138,7 +127,7 @@ public class MethodReconstructorWithTime extends MethodReconstructor {
     }
 
     private void goThroughAssertionStatements(List<CtStatement> assertStatements,String id,
-                                              List<CtStatement> statements,Integer numberOfAddedAssertion){
+                                               List<CtStatement> statements,Integer numberOfAddedAssertion){
         int line = Integer.parseInt(id.split("__")[1]);
         CtStatement lastStmt = null;
         for (CtStatement assertStatement : assertStatements) {
@@ -163,7 +152,7 @@ public class MethodReconstructorWithTime extends MethodReconstructor {
     }
 
     private void decideInvocationReplacement(CtStatement statementToBeAsserted,String id,CtStatement assertStatement,
-                                             List<CtStatement> statements,int line,CtStatement lastStmt){
+                                   List<CtStatement> statements,int line,CtStatement lastStmt){
 
         /* if the statement to be asserted is a method or constructor call, replace that invocation in the
         assertion with an equivalent local variable */
@@ -184,7 +173,7 @@ public class MethodReconstructorWithTime extends MethodReconstructor {
         // create a new local variable and assign the invocation to it
         CtInvocation invocationToBeReplaced = (CtInvocation) statementToBeAsserted.clone();
         final CtLocalVariable localVariable = factory.createLocalVariable(
-                invocationToBeReplaced.getType(),
+                AssertionGeneratorUtils.getCorrectTypeOfInvocation(invocationToBeReplaced),
                 "o_" + id.split("___")[0],
                 invocationToBeReplaced
         );

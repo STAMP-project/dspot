@@ -1,7 +1,7 @@
 package eu.stamp_project.test_framework.implementations.junit;
 
-import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.objectlogsyntaxbuilder_constructs.ObjectLog;
-import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.AssertionGeneratorUtils;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.testwithloggenerator.objectlogsyntaxbuilder_constructs.ObjectLog;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGeneratorUtils;
 import eu.stamp_project.test_framework.AbstractTestFramework;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.testrunner.runner.Failure;

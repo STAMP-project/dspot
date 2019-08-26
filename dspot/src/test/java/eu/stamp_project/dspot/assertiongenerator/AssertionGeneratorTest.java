@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.assertiongenerator;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.AssertionRemover;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionRemover;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
