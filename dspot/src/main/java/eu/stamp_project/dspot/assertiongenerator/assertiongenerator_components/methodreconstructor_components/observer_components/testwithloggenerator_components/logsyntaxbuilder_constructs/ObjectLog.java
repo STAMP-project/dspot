@@ -4,7 +4,7 @@ package eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.objectlog_components.FailToObserveException;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.objectlog_components.MethodsHandler;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.objectlog_components.Observation;
-import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.objectlog_components.Utils;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator_components.methodreconstructor_components.observer_components.testwithloggenerator_components.logsyntaxbuilder_constructs.objectlog_components.ObjectLogUtils;
 import eu.stamp_project.testrunner.EntryPoint;
 
 import java.io.ByteArrayOutputStream;
@@ -76,17 +76,17 @@ public class ObjectLog {
                       int deep,
                       List<Method> methodsToReachCurrentObject) {
         if (deep <= maxDeep) {
-            final boolean primitive = Utils.isPrimitive(objectToObserve);
-            final boolean primitiveArray = Utils.isPrimitiveArray(objectToObserve);
-            final boolean primitiveCollectionOrMap = Utils.isNonEmptyPrimitiveCollectionOrMap(objectToObserve);
+            final boolean primitive = ObjectLogUtils.isPrimitive(objectToObserve);
+            final boolean primitiveArray = ObjectLogUtils.isPrimitiveArray(objectToObserve);
+            final boolean primitiveCollectionOrMap = ObjectLogUtils.isNonEmptyPrimitiveCollectionOrMap(objectToObserve);
             if (objectToObserve == null) {
                 addObservation(id, observedObjectAsString, null);
             } else if (isSerializable(objectToObserve) &&
                     (primitive || primitiveArray || primitiveCollectionOrMap)) {
                 addObservation(id, observedObjectAsString, objectToObserve);
-            } else if (Utils.isCollection(objectToObserve)) { // the object is empty here
+            } else if (ObjectLogUtils.isCollection(objectToObserve)) { // the object is empty here
                 addObservation(id, observedObjectAsString + ".isEmpty()", ((Collection) objectToObserve).isEmpty());
-            } else if (Utils.isMap(objectToObserve)) {
+            } else if (ObjectLogUtils.isMap(objectToObserve)) {
                 addObservation(id, observedObjectAsString + ".isEmpty()", ((Map) objectToObserve).isEmpty());
             } else if (!objectToObserve.getClass().getName().toLowerCase().contains("mock")) {
                 if(objectToObserve.getClass().isArray()) {

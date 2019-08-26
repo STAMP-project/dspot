@@ -172,7 +172,7 @@ public class DSpotUtils {
     private static final String COMPONENTS_FOLDER = "objectlog_components/";
 
     private static final String[] DSPOT_CLASSES = new String[]{COMPONENTS_FOLDER +"MethodsHandler", "ObjectLog",
-            COMPONENTS_FOLDER +"Observation", COMPONENTS_FOLDER +"Utils", COMPONENTS_FOLDER +"FailToObserveException"};
+            COMPONENTS_FOLDER +"Observation", COMPONENTS_FOLDER +"ObjectLogUtils", COMPONENTS_FOLDER +"FailToObserveException"};
 
     public static String getAbsolutePathToDSpotDependencies() {
         return InputConfiguration.get().getAbsolutePathToProjectRoot() + PATH_TO_DSPOT_DEPENDENCIES;

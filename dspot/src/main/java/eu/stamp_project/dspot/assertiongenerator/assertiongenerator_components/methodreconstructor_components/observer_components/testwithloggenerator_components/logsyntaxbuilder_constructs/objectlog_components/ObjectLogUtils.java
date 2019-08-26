@@ -7,7 +7,7 @@ import java.util.*;
  * Date: 23/03/16
  * Time: 15:48
  */
-public class Utils {
+public class ObjectLogUtils {
 
     protected static Set<Class<?>> WRAPPER_TYPES = getWrapperTypes();
 
