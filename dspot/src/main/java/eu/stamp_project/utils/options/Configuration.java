@@ -234,7 +234,12 @@ public class Configuration {
                                  final List<String> testCases,
                                  final String fullClasspath,
                                  final String collector,
-                                 final String mongoUrl) {
+                                 final String mongoUrl,
+                                 final String mongoDbname,
+                                 final String mongoColname,
+                                 final String repoSlug,
+                                 final String repoBranch,
+                                 final boolean restful) {
 
         Checker.checkPathToPropertiesValue(pathToPropertiesFile);
         final Properties properties = loadProperties(pathToPropertiesFile);
@@ -270,6 +275,11 @@ public class Configuration {
         CollectorConfig collectorConfig = CollectorConfig.getInstance();
 
         collectorConfig.setMongoUrl(mongoUrl);
+        collectorConfig.setMongoDbname(mongoDbname);
+        collectorConfig.setMongoColname(mongoColname);
+        collectorConfig.setRepoSlug(repoSlug);
+        collectorConfig.setRepoBranch(repoBranch);
+        collectorConfig.setRestful(restful);
         collectorConfig.setInformationCollector(collector);
     }
 

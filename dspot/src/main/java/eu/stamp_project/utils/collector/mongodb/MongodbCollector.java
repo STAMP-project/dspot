@@ -30,16 +30,17 @@ import com.martiansoftware.jsap.JSAPResult;
 // Receive data from selectors, JSAPOptions and amp testfiles paths to put to mongodb.
 public class MongodbCollector implements DspotInformationCollector {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MongodbCollector.class);
+	private static final CollectorConfig collectorConfig = CollectorConfig.getInstance();
 
 	/* Config objects */
-	private static boolean dbConnectable;
-
-	/* Will be assigned by JSAP options later*/
-	private static final String dbName = "Dspot";
-	private static final String colName = "AmpTestRecords";
-	private static final String repoSlug = "USER/Testing";
-	private static final String repoBranch = "master";
+	private static String dbName;
+	private static String colName;
+	private static String repoSlug;
+	private static String repoBranch;
 	private static String mongoUrl;
+	private static String email;
+	private static boolean restful;
+	private static boolean dbConnectable;
 
 	/* Mongodb objects*/
 	private static MongoClient mongoClient;
@@ -61,9 +62,23 @@ public class MongodbCollector implements DspotInformationCollector {
 		this.javaPathList = new ArrayList<String>();
 		this.argsDoc = new Document();
 		this.totalResultDoc = new Document();
-		this.mongoUrl = CollectorConfig.getInstance().getMongoUrl();
+
+		this.mongoUrl = this.collectorConfig.getMongoUrl();
+		this.dbName = this.collectorConfig.getMongoDbname();
+		this.colName = this.collectorConfig.getMongoColname();
+		this.repoSlug = this.collectorConfig.getRepoSlug();
+		this.repoBranch = this.collectorConfig.getRepoBranch();
+		this.restful = this.collectorConfig.getRestful();
 	}
 
+	/* Initialize a completely new document - when not restful mode*/
+	public Document mainDocInit() {
+		Document mainDoc = new Document("RepoSlug", this.collectorConfig.getRepoSlug())
+				.append("RepoBranch", this.collectorConfig.getRepoBranch())
+				.append("Date",this.getCurrentDate());
+    	mainDoc.append("AmpOptions",argsDoc);
+        return mainDoc;
+	}
 	/*Connection related*/
 	public static boolean ConnectableToMongodb() {
 		try {
@@ -84,21 +99,30 @@ public class MongodbCollector implements DspotInformationCollector {
 		    mongoClient = new MongoClient(new MongoClientURI(mongoUrl));
 			database = mongoClient.getDatabase(dbName);
 			coll = database.getCollection(colName);;
-
-			/* Insert repo specific and run specific information*/
-			Document mainDoc = new Document("RepoSlug", this.repoSlug)
-				.append("RepoBranch",this.repoBranch)
-				.append("Date",this.getCurrentDate());
-        	mainDoc.append("AmpOptions",argsDoc);
-
-        	/* Insert Amplified result statistic for each testcase*/
+			/* Insert Amplified result statistic for each testcase*/
     		Document mergedDoc = new Document();
     		for (Document doc : selectorDocs) {
     			mergedDoc.putAll(doc);
     		}
     		mergedDoc.append("TotalResult",totalResultDoc);
-    		mainDoc.append("AmpResult",mergedDoc);
-			coll.insertOne(mainDoc);
+
+			/* Insert repo specific and run specific information*/
+			Document mainDoc;
+			if (!restful) {
+				mainDoc = this.mainDocInit();
+				mainDoc.append("AmpResult",mergedDoc);
+				coll.insertOne(mainDoc);
+			} else {
+				/* if restful find a pending doc and fetch the email attached to it*/
+				mainDoc = coll.find(and(eq("RepoSlug",this.repoSlug),eq("RepoBranch",this.repoBranch),eq("State","pending"))).projection(fields(excludeId())).first();
+				this.email = mainDoc.get("Email").toString();
+				mainDoc.append("State","recent");
+				mainDoc.append("AmpOptions",argsDoc);
+				mainDoc.append("AmpResult",mergedDoc);
+				/* Also set the previous recent repo as old, update the pending doc with output amp results and state as recent */
+        		coll.updateOne(and(eq("RepoSlug",this.repoSlug),eq("RepoBranch",this.repoBranch),eq("State","recent")),new Document("$set",new Document("State","old")));
+        		coll.updateOne(and(eq("RepoSlug",this.repoSlug),eq("RepoBranch",this.repoBranch),eq("State","pending")),new Document("$set",mainDoc));
+			}
 			mongoClient.close();
 		}catch (Exception e) {
 			LOGGER.warn("failed to connect to mongodb");
@@ -184,4 +208,3 @@ public class MongodbCollector implements DspotInformationCollector {
 		return database.getCollection(colName);
 	}
 }
-

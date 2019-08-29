@@ -80,6 +80,11 @@ public class JSAPOptions {
         final String fullClasspath = jsapConfig.getString("full-classpath");
         final String collector = jsapConfig.getString("collector");
         final String mongoUrl = jsapConfig.getString("mongo-url");
+        final String mongoDbname = jsapConfig.getString("mongo-dbname");
+        final String mongoColname = jsapConfig.getString("mongo-colname");
+        final String repoSlug = jsapConfig.getString("repo-slug");
+        final String repoBranch = jsapConfig.getString("repo-branch");
+        final boolean restful = jsapConfig.getBoolean("restful");
         // these values need to be checked when the factory is available
         // We check them in DSpot class since we have the codes that allow to check them easily
         // and thus, the Factory will be created.
@@ -117,7 +122,12 @@ public class JSAPOptions {
                 testCases,
                 fullClasspath,
                 collector,
-                mongoUrl
+                mongoUrl,
+                mongoDbname,
+                mongoColname,
+                repoSlug,
+                repoBranch,
+                restful
         );
 
         CollectorConfig.getInformationCollector().reportInitInformation(jsapConfig);
@@ -364,6 +374,43 @@ public class JSAPOptions {
         mongoUrl.setAllowMultipleDeclarations(false);
         mongoUrl.setHelp("[optional] If valid url, DSpot will submit to Mongodb database. For default use mongodb://localhost:27017");
 
+        FlaggedOption mongoDbname = new FlaggedOption("mongo-dbname");
+        mongoDbname.setLongFlag("mongo-dbname");
+        mongoDbname.setDefault("Dspot");
+        mongoDbname.setRequired(false);
+        mongoDbname.setStringParser(JSAP.STRING_PARSER);
+        mongoDbname.setAllowMultipleDeclarations(false);
+        mongoDbname.setHelp("[optional] If valid mongo-url provided, DSpot will submit to the provided database name.");
+
+        FlaggedOption mongoColname = new FlaggedOption("mongo-colname");
+        mongoColname.setLongFlag("mongo-colname");
+        mongoColname.setDefault("AmpRecords");
+        mongoColname.setRequired(false);
+        mongoColname.setStringParser(JSAP.STRING_PARSER);
+        mongoColname.setAllowMultipleDeclarations(false);
+        mongoColname.setHelp("[optional] If valid mongo-url and mongo-dbname provided, DSpot will submit to the provided collection name.");
+
+        FlaggedOption repoSlug = new FlaggedOption("repo-slug");
+        repoSlug.setLongFlag("repo-slug");
+        repoSlug.setDefault("UnknownSlug");
+        repoSlug.setRequired(false);
+        repoSlug.setStringParser(JSAP.STRING_PARSER);
+        repoSlug.setAllowMultipleDeclarations(false);
+        repoSlug.setHelp("[optional] slug of the repo for instance Stamp/Dspot,this is used by mongodb as a identifier for analyzed repo's submitted data ");
+
+        FlaggedOption repoBranch = new FlaggedOption("repo-branch");
+        repoBranch.setLongFlag("repo-branch");
+        repoBranch.setDefault("UnknownBranch");
+        repoBranch.setRequired(false);
+        repoBranch.setStringParser(JSAP.STRING_PARSER);
+        repoBranch.setAllowMultipleDeclarations(false);
+        repoBranch.setHelp("[optional] branch name of the submitted repo,this is used by mongodb as a identifier for analyzed repo's submitted data");
+
+        Switch restful = new Switch("restful");
+        restful.setLongFlag("restful");
+        restful.setDefault("false");
+        restful.setHelp("If 1 or true will enable restful mode for web Interface. It will look for a pending document in Mongodb with the corresponding slug and branch provided instead of creating a completely new one.");
+
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
@@ -396,6 +443,11 @@ public class JSAPOptions {
             jsap.registerParameter(fullClasspath);
             jsap.registerParameter(collector);
             jsap.registerParameter(mongoUrl);
+            jsap.registerParameter(mongoDbname);
+            jsap.registerParameter(mongoColname);
+            jsap.registerParameter(repoSlug);
+            jsap.registerParameter(repoBranch);
+            jsap.registerParameter(restful);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {
