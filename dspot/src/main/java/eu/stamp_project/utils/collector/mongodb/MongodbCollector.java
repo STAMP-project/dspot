@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import eu.stamp_project.utils.collector.DspotInformationCollector;
 import eu.stamp_project.utils.collector.CollectorConfig;
+import eu.stamp_project.utils.smtp.EmailSender;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -24,6 +25,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+
+import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
+import java.nio.file.Paths;
+import java.io.IOException;
 
 import com.martiansoftware.jsap.JSAPResult;
 
@@ -53,6 +60,9 @@ public class MongodbCollector implements DspotInformationCollector {
 	private static Document argsDoc;
 	private static Document totalResultDoc;
 
+	/* Smtp object */
+	private static EmailSender emailSender;
+
 	/* Helper variables*/
 	private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
@@ -62,13 +72,13 @@ public class MongodbCollector implements DspotInformationCollector {
 		this.javaPathList = new ArrayList<String>();
 		this.argsDoc = new Document();
 		this.totalResultDoc = new Document();
-
 		this.mongoUrl = this.collectorConfig.getMongoUrl();
 		this.dbName = this.collectorConfig.getMongoDbname();
 		this.colName = this.collectorConfig.getMongoColname();
 		this.repoSlug = this.collectorConfig.getRepoSlug();
 		this.repoBranch = this.collectorConfig.getRepoBranch();
 		this.restful = this.collectorConfig.getRestful();
+		this.emailSender = new EmailSender(this.collectorConfig.getGmailUserName(),this.collectorConfig.getGmailPassword());
 	}
 
 	/* Initialize a completely new document - when not restful mode*/
@@ -122,6 +132,10 @@ public class MongodbCollector implements DspotInformationCollector {
 				/* Also set the previous recent repo as old, update the pending doc with output amp results and state as recent */
         		coll.updateOne(and(eq("RepoSlug",this.repoSlug),eq("RepoBranch",this.repoBranch),eq("State","recent")),new Document("$set",new Document("State","old")));
         		coll.updateOne(and(eq("RepoSlug",this.repoSlug),eq("RepoBranch",this.repoBranch),eq("State","pending")),new Document("$set",mainDoc));
+
+        		// Send output files through emails
+        		EmailSender emailSender = new EmailSender(collectorConfig.getGmailUserName(),collectorConfig.getGmailPassword());
+    			emailSender.sendEmail(this.constructMessageWithFileContents(javaPathList),"Amplification succeeded","stampdspotresult@gmail.com",email);
 			}
 			mongoClient.close();
 		}catch (Exception e) {
@@ -193,6 +207,35 @@ public class MongodbCollector implements DspotInformationCollector {
 			return input;
 		}
 		return input.substring(0, 1).toUpperCase() + input.substring(1);
+	}
+
+	// Read file according to a certain encoding
+	private static String readFile(String path, Charset encoding) {
+		try {
+			byte[] encoded = Files.readAllBytes(Paths.get(path));
+			return new String(encoded, encoding);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private String constructMessageWithFileContents(List<String> files) {
+		StringBuilder messageText = new StringBuilder();
+		if (javaPathList.size() > 0 ) {
+			messageText.append("Here are your amplified tests \n\n");
+	        for (String file : javaPathList) {
+	            String[] strList = file.split("/");
+	            String fileName = strList[strList.length - 1];
+	            String content = this.readFile(file,StandardCharsets.US_ASCII);
+
+	            messageText.append(fileName + ":\n --CONTENT--START-- \n");
+	            messageText.append(content + "\n --CONTENT--END--\n");
+	        }
+        } else {
+        	messageText.append("Amplication succeeded but no amplified tests have been found \n");
+        }
+        messageText.append("\n --STAMP/Dspot");
+        return messageText.toString();
 	}
 
 	/* Methods used for testing Mongo*/

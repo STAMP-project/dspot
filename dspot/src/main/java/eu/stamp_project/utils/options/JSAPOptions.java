@@ -85,6 +85,9 @@ public class JSAPOptions {
         final String repoSlug = jsapConfig.getString("repo-slug");
         final String repoBranch = jsapConfig.getString("repo-branch");
         final boolean restful = jsapConfig.getBoolean("restful");
+        final String gmailUsername = jsapConfig.getString("gmail-username");
+        final String gmailPassword = jsapConfig.getString("gmail-password");
+
         // these values need to be checked when the factory is available
         // We check them in DSpot class since we have the codes that allow to check them easily
         // and thus, the Factory will be created.
@@ -127,7 +130,9 @@ public class JSAPOptions {
                 mongoColname,
                 repoSlug,
                 repoBranch,
-                restful
+                restful,
+                gmailUsername,
+                gmailPassword
         );
 
         CollectorConfig.getInformationCollector().reportInitInformation(jsapConfig);
@@ -411,6 +416,22 @@ public class JSAPOptions {
         restful.setDefault("false");
         restful.setHelp("If 1 or true will enable restful mode for web Interface. It will look for a pending document in Mongodb with the corresponding slug and branch provided instead of creating a completely new one.");
 
+        FlaggedOption gmailUsername = new FlaggedOption("gmail-username");
+        gmailUsername.setLongFlag("gmail-username");
+        gmailUsername.setDefault("Unknown");
+        gmailUsername.setRequired(false);
+        gmailUsername.setStringParser(JSAP.STRING_PARSER);
+        gmailUsername.setAllowMultipleDeclarations(false);
+        gmailUsername.setHelp("Username for Gmail, used for submit email at end-process");
+
+        FlaggedOption gmailPassword = new FlaggedOption("gmail-password");
+        gmailPassword.setLongFlag("gmail-password");
+        gmailPassword.setDefault("Unknown");
+        gmailPassword.setRequired(false);
+        gmailPassword.setStringParser(JSAP.STRING_PARSER);
+        gmailPassword.setAllowMultipleDeclarations(false);
+        gmailPassword.setHelp("password for Gmail, used for submit email at end-process");
+
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
@@ -448,6 +469,8 @@ public class JSAPOptions {
             jsap.registerParameter(repoSlug);
             jsap.registerParameter(repoBranch);
             jsap.registerParameter(restful);
+            jsap.registerParameter(gmailUsername);
+            jsap.registerParameter(gmailPassword);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {

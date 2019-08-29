@@ -22,7 +22,6 @@ import java.util.Properties;
  * on 28/05/19
  */
 public class Configuration {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
 
     static void configureExample() {
@@ -239,7 +238,9 @@ public class Configuration {
                                  final String mongoColname,
                                  final String repoSlug,
                                  final String repoBranch,
-                                 final boolean restful) {
+                                 final boolean restful,
+                                 final String gmailUserName,
+                                 final String gmailPassword) {
 
         Checker.checkPathToPropertiesValue(pathToPropertiesFile);
         final Properties properties = loadProperties(pathToPropertiesFile);
@@ -281,6 +282,8 @@ public class Configuration {
         collectorConfig.setRepoBranch(repoBranch);
         collectorConfig.setRestful(restful);
         collectorConfig.setInformationCollector(collector);
+        collectorConfig.setGmailUserName(gmailUserName);
+        collectorConfig.setGmailPassword(gmailPassword);
     }
 
     public static Properties loadProperties(String pathToPropertiesFile) {
