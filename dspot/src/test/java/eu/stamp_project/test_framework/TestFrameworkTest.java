@@ -54,7 +54,7 @@ public class TestFrameworkTest extends AbstractTest {
         final String expectedToString = "public static junit.framework.Test suite() {" + AmplificationHelper.LINE_SEPARATOR +
                 "    return new junit.extensions.TestSetup(new junit.framework.TestSuite(fr.inria.helper.SecondClassJUnit3.class)) {" + AmplificationHelper.LINE_SEPARATOR +
                 "        protected void tearDown() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
-                "            eu.stamp_project.compare.ObjectLog.save();" + AmplificationHelper.LINE_SEPARATOR +
+                "            eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.testwithloggenerator.objectlogsyntaxbuilder_constructs.ObjectLog.save();" + AmplificationHelper.LINE_SEPARATOR +
                 "        }" + AmplificationHelper.LINE_SEPARATOR +
                 "    };" + AmplificationHelper.LINE_SEPARATOR +
                 "}";
@@ -93,7 +93,7 @@ public class TestFrameworkTest extends AbstractTest {
     }
 
     private final static String JUnit3WithExceptionThrown = "public void testExpectingAnException_failAssert0() {" + AmplificationHelper.LINE_SEPARATOR +
-            "    // AssertGenerator generate try/catch block with fail statement" + AmplificationHelper.LINE_SEPARATOR +
+            "    // AssertionGenerator generate try/catch block with fail statement" + AmplificationHelper.LINE_SEPARATOR +
             "    try {" + AmplificationHelper.LINE_SEPARATOR +
             "        junit.framework.TestCase.assertTrue(true);" + AmplificationHelper.LINE_SEPARATOR +
             "        throw new java.lang.RuntimeException();" + AmplificationHelper.LINE_SEPARATOR +
@@ -105,7 +105,7 @@ public class TestFrameworkTest extends AbstractTest {
 
     private final static String JUnit4WithExceptionThrown = "@org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
             "public void testThrownException_failAssert0() {" + AmplificationHelper.LINE_SEPARATOR +
-            "    // AssertGenerator generate try/catch block with fail statement" + AmplificationHelper.LINE_SEPARATOR +
+            "    // AssertionGenerator generate try/catch block with fail statement" + AmplificationHelper.LINE_SEPARATOR +
             "    try {" + AmplificationHelper.LINE_SEPARATOR +
             "        throw new java.lang.RuntimeException();" + AmplificationHelper.LINE_SEPARATOR +
             "        org.junit.Assert.fail(\"testThrownException should have thrown RuntimeException\");" + AmplificationHelper.LINE_SEPARATOR +

@@ -1,7 +1,7 @@
 package eu.stamp_project.test_framework.implementations.junit;
 
-import eu.stamp_project.compare.ObjectLog;
-import eu.stamp_project.dspot.assertgenerator.AssertGeneratorHelper;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.testwithloggenerator.objectlogsyntaxbuilder_constructs.ObjectLog;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGeneratorUtils;
 import eu.stamp_project.test_framework.AbstractTestFramework;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.testrunner.runner.Failure;
@@ -136,7 +136,7 @@ public abstract class JUnitSupport extends AbstractTestFramework {
         tryBlock.setBody(test.getBody());
         String snippet = this.qualifiedNameOfAssertClass + ".fail(\"" + test.getSimpleName() + " should have thrown " + simpleNameOfException + "\")";
         tryBlock.getBody().addStatement(factory.Code().createCodeSnippetStatement(snippet));
-        DSpotUtils.addComment(tryBlock, "AssertGenerator generate try/catch block with fail statement", CtComment.CommentType.INLINE);
+        DSpotUtils.addComment(tryBlock, "AssertionGenerator generate try/catch block with fail statement", CtComment.CommentType.INLINE);
 
         CtCatch ctCatch = factory.Core().createCatch();
         CtTypeReference exceptionType = factory.Type().createReference(failure.fullQualifiedNameOfException);
@@ -165,7 +165,7 @@ public abstract class JUnitSupport extends AbstractTestFramework {
                 factory.createVariableRead(parameter.getReference(), false),
                 factory.Class().get(java.lang.Throwable.class).getMethodsByName("getMessage").get(0).getReference()
         );
-        if (AssertGeneratorHelper.canGenerateAnAssertionFor(failure.messageOfFailure)) {
+        if (AssertionGeneratorUtils.canGenerateAnAssertionFor(failure.messageOfFailure)) {
             ctCatch.getBody().addStatement(
                     this.buildInvocationToAssertion(
                             testMethod,

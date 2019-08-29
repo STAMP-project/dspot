@@ -259,9 +259,9 @@ public class MainTest {
             "    @Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
             "    public void test2_literalMutationString2() {" + AmplificationHelper.LINE_SEPARATOR +
             "        Example ex = new Example();" + AmplificationHelper.LINE_SEPARATOR +
-            "        // AssertGenerator create local variable with return value of invocation" + AmplificationHelper.LINE_SEPARATOR +
+            "        // AssertionGenerator create local variable with return value of invocation" + AmplificationHelper.LINE_SEPARATOR +
             "        char o_test2_literalMutationString2__3 = ex.charAt(\"acd\", 3);" + AmplificationHelper.LINE_SEPARATOR +
-            "        // AssertGenerator add assertion" + AmplificationHelper.LINE_SEPARATOR +
+            "        // AssertionGenerator add assertion" + AmplificationHelper.LINE_SEPARATOR +
             "        Assert.assertEquals('d', ((char) (o_test2_literalMutationString2__3)));" + AmplificationHelper.LINE_SEPARATOR +
             "    }";
 
