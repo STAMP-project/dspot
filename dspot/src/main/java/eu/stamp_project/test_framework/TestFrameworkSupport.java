@@ -1,6 +1,6 @@
 package eu.stamp_project.test_framework;
 
-import eu.stamp_project.compare.ObjectLog;
+import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.testwithloggenerator.objectlogsyntaxbuilder_constructs.ObjectLog;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.test_framework.assertions.IsAssertInvocationFilter;
 import eu.stamp_project.testrunner.runner.Failure;
