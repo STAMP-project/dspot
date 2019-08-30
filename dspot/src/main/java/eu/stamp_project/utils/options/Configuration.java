@@ -7,6 +7,7 @@ import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.collector.CollectorConfig;
+import eu.stamp_project.utils.smtp.SmtpConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -239,8 +240,12 @@ public class Configuration {
                                  final String repoSlug,
                                  final String repoBranch,
                                  final boolean restful,
-                                 final String gmailUserName,
-                                 final String gmailPassword) {
+                                 final String smtpUserName,
+                                 final String smtpPassword,
+                                 final String smtpHost,
+                                 final String smtpPort,
+                                 final boolean smtpAuth,
+                                 final boolean smtpTls) {
 
         Checker.checkPathToPropertiesValue(pathToPropertiesFile);
         final Properties properties = loadProperties(pathToPropertiesFile);
@@ -282,8 +287,15 @@ public class Configuration {
         collectorConfig.setRepoBranch(repoBranch);
         collectorConfig.setRestful(restful);
         collectorConfig.setInformationCollector(collector);
-        collectorConfig.setGmailUserName(gmailUserName);
-        collectorConfig.setGmailPassword(gmailPassword);
+
+        SmtpConfig smtpConfig = SmtpConfig.getInstance();
+
+        smtpConfig.setSmtpUserName(smtpUserName);
+        smtpConfig.setSmtpPassword(smtpPassword);
+        smtpConfig.setSmtpHost(smtpHost);
+        smtpConfig.setSmtpPort(smtpPort);
+        smtpConfig.setSmtpAuth("" + smtpAuth);
+        smtpConfig.setSmtpTls("" + smtpTls);
     }
 
     public static Properties loadProperties(String pathToPropertiesFile) {

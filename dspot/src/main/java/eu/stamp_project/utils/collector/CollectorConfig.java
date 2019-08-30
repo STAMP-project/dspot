@@ -56,8 +56,6 @@ public class CollectorConfig {
     private static String repoBranch;
     private static boolean restful;
 
-
-
     public void setMongoUrl(String mongoUrl) {
         this.mongoUrl = mongoUrl;
     }

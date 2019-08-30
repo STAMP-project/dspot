@@ -15,19 +15,32 @@ import javax.mail.internet.MimeMessage;
 
 public class EmailSender implements Sender {
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailSender.class);
-	private String username;
-	private String password;
-	public EmailSender (String username, String password){
-		this.username = username;
-		this.password = password;
+    private static final SmtpConfig smtpConfig = SmtpConfig.getInstance();
+
+	private String smtpUsername;
+	private String smtpPassword;
+    private String smtpHost;
+    private String smtpPort;
+    private String smtpAuth;
+    private String smtpTls;
+
+	public EmailSender (){
+		this.smtpUsername = this.smtpConfig.getSmtpUserName();
+		this.smtpPassword = this.smtpConfig.getSmtpPassword();
+        this.smtpHost = this.smtpConfig.getSmtpHost();
+        this.smtpPort = this.smtpConfig.getSmtpPort();
+        this.smtpAuth = this.smtpConfig.getSmtpAuth();
+        this.smtpTls = this.smtpConfig.getSmtpTls();
 	}
 
     public void sendEmail(String messageText,String subject,String fromUser,String toUsers) {
-        final String username = this.username;
-        final String password = this.password;
+        final String username = this.smtpUsername;
+        final String password = this.smtpPassword;
+
+        LOGGER.warn("SENDING EMAIL " + this.smtpPassword + " " + this.smtpUsername + " " + this.smtpHost + " " + this.smtpAuth);
         Properties prop = new Properties();
-		prop.put("mail.smtp.host", "smtp.gmail.com");
-        prop.put("mail.smtp.port", "587");
+		prop.put("mail.smtp.host", this.smtpHost);
+        prop.put("mail.smtp.port", this.smtpPort);
         prop.put("mail.smtp.auth", "true");
         prop.put("mail.smtp.starttls.enable", "true"); //TLS
 

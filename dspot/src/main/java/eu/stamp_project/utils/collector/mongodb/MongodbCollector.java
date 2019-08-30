@@ -37,7 +37,7 @@ import com.martiansoftware.jsap.JSAPResult;
 // Receive data from selectors, JSAPOptions and amp testfiles paths to put to mongodb.
 public class MongodbCollector implements DspotInformationCollector {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MongodbCollector.class);
-	private static final CollectorConfig collectorConfig = CollectorConfig.getInstance();
+	private static CollectorConfig collectorConfig = CollectorConfig.getInstance();
 
 	/* Config objects */
 	private static String dbName;
@@ -60,9 +60,6 @@ public class MongodbCollector implements DspotInformationCollector {
 	private static Document argsDoc;
 	private static Document totalResultDoc;
 
-	/* Smtp object */
-	private static EmailSender emailSender;
-
 	/* Helper variables*/
 	private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
@@ -78,7 +75,6 @@ public class MongodbCollector implements DspotInformationCollector {
 		this.repoSlug = this.collectorConfig.getRepoSlug();
 		this.repoBranch = this.collectorConfig.getRepoBranch();
 		this.restful = this.collectorConfig.getRestful();
-		this.emailSender = new EmailSender(this.collectorConfig.getGmailUserName(),this.collectorConfig.getGmailPassword());
 	}
 
 	/* Initialize a completely new document - when not restful mode*/
@@ -129,13 +125,16 @@ public class MongodbCollector implements DspotInformationCollector {
 				mainDoc.append("State","recent");
 				mainDoc.append("AmpOptions",argsDoc);
 				mainDoc.append("AmpResult",mergedDoc);
+				LOGGER.warn("FAiled right here ? 1");
 				/* Also set the previous recent repo as old, update the pending doc with output amp results and state as recent */
         		coll.updateOne(and(eq("RepoSlug",this.repoSlug),eq("RepoBranch",this.repoBranch),eq("State","recent")),new Document("$set",new Document("State","old")));
         		coll.updateOne(and(eq("RepoSlug",this.repoSlug),eq("RepoBranch",this.repoBranch),eq("State","pending")),new Document("$set",mainDoc));
-
+        		LOGGER.warn("FAiled right here ? 2");
         		// Send output files through emails
-        		EmailSender emailSender = new EmailSender(collectorConfig.getGmailUserName(),collectorConfig.getGmailPassword());
+				
+				EmailSender emailSender = new EmailSender();
     			emailSender.sendEmail(this.constructMessageWithFileContents(javaPathList),"Amplification succeeded","stampdspotresult@gmail.com",email);
+    			LOGGER.warn("FAiled right here ? 3");
 			}
 			mongoClient.close();
 		}catch (Exception e) {
