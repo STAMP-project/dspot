@@ -21,8 +21,6 @@ public class CollectorConfig {
 
     /* Variables and getters/setters */
     private static DspotInformationCollector collector = new NullCollector();
-    private static String gmailUserName;
-    private static String gmailPassword;
 
     public void setInformationCollector(String collector) {
         this.collector = CollectorEnum.valueOf(collector).getCollector();
@@ -30,22 +28,6 @@ public class CollectorConfig {
 
     public static DspotInformationCollector getInformationCollector() {
         return collector;
-    }
-
-    public void setGmailUserName(String gmailUserName) {
-        this.gmailUserName = gmailUserName;
-    }
-
-    public String getGmailUserName() {
-        return this.gmailUserName;
-    }
-
-    public void setGmailPassword(String gmailPassword) {
-        this.gmailPassword = gmailPassword;
-    }
-
-    public String getGmailPassword() {
-        return this.gmailPassword;
     }
 
     /* MongodbCollector related */
