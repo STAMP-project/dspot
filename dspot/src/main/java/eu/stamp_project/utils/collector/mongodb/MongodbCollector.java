@@ -128,10 +128,9 @@ public class MongodbCollector implements DspotInformationCollector {
 				/* Also set the previous recent repo as old, update the pending doc with output amp results and state as recent */
         		coll.updateOne(and(eq("RepoSlug",this.repoSlug),eq("RepoBranch",this.repoBranch),eq("State","recent")),new Document("$set",new Document("State","old")));
         		coll.updateOne(and(eq("RepoSlug",this.repoSlug),eq("RepoBranch",this.repoBranch),eq("State","pending")),new Document("$set",mainDoc));
-        		// Send output files through emails
 
-				EmailSender emailSender = new EmailSender();
-    			emailSender.sendEmail(this.constructMessageWithFileContents(javaPathList),"Amplification succeeded","stampdspotresult@gmail.com",email);
+        		// Send output files through emails
+    			EmailSender.getInstance().sendEmail(this.constructMessageWithFileContents(javaPathList),"Amplification succeeded","stampdspotresult@gmail.com",email);
 			}
 			mongoClient.close();
 		}catch (Exception e) {

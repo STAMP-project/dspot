@@ -16,6 +16,8 @@ import javax.mail.internet.MimeMessage;
 public class EmailSender implements Sender {
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailSender.class);
     private static final SmtpConfig smtpConfig = SmtpConfig.getInstance();
+    private static EmailSender emailSender;
+    private static boolean emailSendedWithoutException = true; // use for testing later.
 
 	private String smtpUsername;
 	private String smtpPassword;
@@ -24,25 +26,22 @@ public class EmailSender implements Sender {
     private String smtpAuth;
     private String smtpTls;
 
-	public EmailSender (){
-		this.smtpUsername = this.smtpConfig.getSmtpUserName();
-		this.smtpPassword = this.smtpConfig.getSmtpPassword();
-        this.smtpHost = this.smtpConfig.getSmtpHost();
-        this.smtpPort = this.smtpConfig.getSmtpPort();
-        this.smtpAuth = this.smtpConfig.getSmtpAuth();
-        this.smtpTls = this.smtpConfig.getSmtpTls();
-	}
+    public static EmailSender getInstance() {
+        if (emailSender == null) {
+            emailSender = new EmailSender();
+        }
+        return emailSender;
+    }
 
     public void sendEmail(String messageText,String subject,String fromUser,String toUsers) {
-        final String username = this.smtpUsername;
-        final String password = this.smtpPassword;
+        final String username = this.smtpConfig.getSmtpUserName();
+        final String password = this.smtpConfig.getSmtpPassword();
 
-        LOGGER.warn("SENDING EMAIL " + this.smtpPassword + " " + this.smtpUsername + " " + this.smtpHost + " " + this.smtpAuth);
         Properties prop = new Properties();
-		prop.put("mail.smtp.host", this.smtpHost);
-        prop.put("mail.smtp.port", this.smtpPort);
-        prop.put("mail.smtp.auth", "true");
-        prop.put("mail.smtp.starttls.enable", "true"); //TLS
+		prop.put("mail.smtp.host", this.smtpConfig.getSmtpHost());
+        prop.put("mail.smtp.port", this.smtpConfig.getSmtpPort());
+        prop.put("mail.smtp.auth", this.smtpConfig.getSmtpAuth());
+        prop.put("mail.smtp.starttls.enable", this.smtpConfig.getSmtpTls()); //TLS
 
         Session session = Session.getInstance(prop,
                 new javax.mail.Authenticator() {
@@ -70,9 +69,16 @@ public class EmailSender implements Sender {
 
             LOGGER.warn("Done sending files");
 
+            this.emailSendedWithoutException = true;
         } catch (MessagingException e) {
             e.printStackTrace();
+            this.emailSendedWithoutException = false;
         }
+    }
+
+    /* Use for testing */
+    public boolean checkIfEmailSendedWithoutException() {
+        return this.emailSendedWithoutException;
     }
 
     public void send(){}
