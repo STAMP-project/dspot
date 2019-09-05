@@ -109,6 +109,8 @@ public class MongodbCollectorTest {
                         "--mongo-dbname","Dspot",
                         "--repo-slug","USER/Testing",
                         "--repo-branch","master",
+                        "--smtp-host","mail.smtpbucket.com",
+                        "--smtp-port","8025",
                         "--restful"
                 });
 
@@ -121,6 +123,6 @@ public class MongodbCollectorTest {
                 String expectedDocStr = "Document{{RepoSlug=USER/Testing, RepoBranch=master, State=recent, Email=abc@mail.com, AmpOptions=Document{{amplifiers=[None], test-criterion=PitMutantScoreSelector, iteration=3, gregor=true, descartes=true}}, AmpResult=Document{{fr/D/inria/D/sample/D/TestClassWithoutAssert=Document{{originalKilledMutants=0, NewMutantKilled=67}}, TotalResult=Document{{totalOriginalKilledMutants=0, totalNewMutantKilled=67}}}}}}";
                 assertEquals(foundDoc.toString(),expectedDocStr);
 
-                assertFalse(EmailSender.getInstance().checkIfEmailSendedWithoutException()); // We should have failed sending the email since we did not provide a working username and password.
+                assertTrue(EmailSender.getInstance().checkIfEmailSendedWithoutException()); // We should have failed sending the email since we did not provide a working username and password.
         }
 }

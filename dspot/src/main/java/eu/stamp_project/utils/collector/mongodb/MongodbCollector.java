@@ -130,7 +130,7 @@ public class MongodbCollector implements DspotInformationCollector {
         		coll.updateOne(and(eq("RepoSlug",this.repoSlug),eq("RepoBranch",this.repoBranch),eq("State","pending")),new Document("$set",mainDoc));
 
         		// Send output files through emails
-    			EmailSender.getInstance().sendEmail(this.constructMessageWithFileContents(javaPathList),"Amplification succeeded","stampdspotresult@gmail.com",email);
+    			EmailSender.getInstance().sendEmail(this.constructMessageWithFileContents(javaPathList),"Amplification succeeded",email);
 			}
 			mongoClient.close();
 		}catch (Exception e) {
@@ -165,7 +165,6 @@ public class MongodbCollector implements DspotInformationCollector {
 	public void reportSelectorInformation(String str) {
 		/* dot is not allowed in Mongodb */
 		str = str.replace(".","/D/");
-		LOGGER.warn(str);
 		Document doc = Document.parse(str);
 		String testName = doc.keySet().iterator().next();
 		Document innerDoc = (Document) doc.get(testName);

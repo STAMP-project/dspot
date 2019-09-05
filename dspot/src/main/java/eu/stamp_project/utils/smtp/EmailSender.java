@@ -33,9 +33,10 @@ public class EmailSender implements Sender {
         return emailSender;
     }
 
-    public void sendEmail(String messageText,String subject,String fromUser,String toUsers) {
+    public void sendEmail(String messageText,String subject,String toUsers) {
         final String username = this.smtpConfig.getSmtpUserName();
         final String password = this.smtpConfig.getSmtpPassword();
+        final String fromUser = username;
 
         Properties prop = new Properties();
 		prop.put("mail.smtp.host", this.smtpConfig.getSmtpHost());

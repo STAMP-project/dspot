@@ -458,12 +458,12 @@ public class JSAPOptions {
 
         Switch smtpAuth = new Switch("smtp-auth");
         smtpAuth.setLongFlag("smtp-auth");
-        smtpAuth.setDefault("true");
+        smtpAuth.setDefault("false");
         smtpAuth.setHelp("true , if the smtp host server require auth, which is usually the case");
 
         Switch smtpTls = new Switch("smtp-tls");
         smtpTls.setLongFlag("smtp-tls");
-        smtpTls.setDefault("true");
+        smtpTls.setDefault("false");
         smtpTls.setHelp("true , if need secure tls transport.");
 
         try {
