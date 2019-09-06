@@ -26,7 +26,6 @@ import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import javax.mail.MessagingException;
-import javax.mail.Message;
 
 public class MongodbCollectorTest {
         private GreenMail greenMail;
@@ -45,7 +44,7 @@ public class MongodbCollectorTest {
                 this.greenMail.stop();
         }
 
-        /*@Test
+        @Test
         public void testInfoSubmissionToMongodbPitMutantScoreSelector() {
                 Main.main(new String[]{
                         "--path-to-properties", "src/test/resources/sample/sample.properties",
@@ -102,7 +101,7 @@ public class MongodbCollectorTest {
                 String expectedDocStr = "Document{{RepoSlug=USER/Testing, RepoBranch=master, AmpOptions=Document{{amplifiers=[None], test-criterion=JacocoCoverageSelector, iteration=1, gregor=false, descartes=true}}, AmpResult=Document{{resolver/D/ClasspathResolverTest=Document{{totalCoverage=130, initialCoverage=123, ampCoverage=123}}, textresources/D/in/D/sources/D/TestResourcesInSources=Document{{totalCoverage=130, initialCoverage=4, ampCoverage=4}}, TotalResult=Document{{totalCovAcrossAllTests=260, totalInitialCoverage=127, totalAmpCoverage=127}}}}}}";
 
                 assertEquals(foundDoc.toString(),expectedDocStr);
-        }*/
+        }
 
         @Test 
         /* Should update an existing document then have tried sending an email at the end*/
