@@ -152,6 +152,6 @@ public class MongodbCollectorTest {
                         sendedMailSubject = greenMail.getReceivedMessages()[0].getSubject();
                 } catch(MessagingException e) {}
 
-                assertEquals("Amplification succeeded",sendedMailSubject); // We should have failed sending the email since we did not provide a working username and password.
+                assertEquals("Amplification succeeded",sendedMailSubject);
         }
 }
