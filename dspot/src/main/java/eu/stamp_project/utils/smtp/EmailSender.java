@@ -17,7 +17,6 @@ public class EmailSender implements Sender {
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailSender.class);
     private static final SmtpConfig smtpConfig = SmtpConfig.getInstance();
     private static EmailSender emailSender;
-    private static boolean emailSendedWithoutException = true; // use for testing later.
 
 	private String smtpUsername;
 	private String smtpPassword;
@@ -70,16 +69,9 @@ public class EmailSender implements Sender {
 
             LOGGER.warn("Done sending files");
 
-            this.emailSendedWithoutException = true;
         } catch (MessagingException e) {
             e.printStackTrace();
-            this.emailSendedWithoutException = false;
         }
-    }
-
-    /* Use for testing */
-    public boolean checkIfEmailSendedWithoutException() {
-        return this.emailSendedWithoutException;
     }
 
     public void send(){}
