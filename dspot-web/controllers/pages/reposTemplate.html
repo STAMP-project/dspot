@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous" />
     <!-- jQuery library -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <title>Document</title>
+    <title>STAMP-DSpot Demo</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
@@ -37,10 +37,12 @@
 
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-sm bg-primary navbar-dark align-items-left">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">Dspot</a>
-            <!-- Links -->
+    <nav class="navbar navbar-expand-md bg-primary navbar-dark align-items-left">
+        <a class="navbar-brand" href="/">Dspot</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="/"><i class="fa fa-home"></i> Home</a>
@@ -54,7 +56,7 @@
     <div class="bg-white">
         <div class="container" style="padding-top:5%;padding-bottom:10%">
             <div class="row" ng-app="repoInfoApp" ng-controller="repoInfoCtr">
-                <div class="col-md-12">
+                <div class="col-md-12" ng-cloak>
                     <h2>Data over a period</h2>
                     <ul class="nav nav-tabs">
                       <li class="nav-item" >
@@ -66,23 +68,24 @@
                     </ul>
                     <div class="align-items-left" ng-cloak ng-show="showPitMutant">
                         <canvas id="pitMutantLineGraph"></canvas>
-                        {{addLineGraph("pitMutantLineGraph",pitmutantLineData,datePitMutant,'totalNewMutantkilled / totalOrignalKilledMutants (%)',"#007bff")}}
+                        {{addLineGraphForPitMutant("pitMutantLineGraph",pitmutantLineData,lineNameLabels,lineColors,datePitMutant)}}
                     </div>
                     <div class="align-items-left" ng-cloak ng-show="!showPitMutant">
                         <canvas id="jacocoCovLineGraph"></canvas>
-                        {{addLineGraph("jacocoCovLineGraph",jacocoLineData,dateJacoco,'(totalAmpCoverage - totalInitialCoverage) / totalInitialCoverage (%)',"#007bff")}}
+                        {{addLineGraphForJacoco("jacocoCovLineGraph",jacocoLineData,dateJacoco,'(totalAmpCoverage - totalInitialCoverage) / totalInitialCoverage (%)',"#007bff")}}
                     </div>
                 </div>
                 <h2>Most recent amplication details</h2>
-                <div class="row">
+                <div class="row" ng-cloak>
                     <div class="col-md-6 justify-content-center">
                         <h4>Overall details</h4><br />
                         <canvas id="repoPieGraph" ng-cloak></canvas>
-                        {{addDonutGraph("repoPieGraph",mostRecentData,mostRecentSelector,donutLabel)}}
+                        {{addDonutGraph("repoPieGraph",mostRecentData,mostRecentSelector,donutLabel,donutLabelColor)}}
+                        {{ngGridFIx()}}
                     </div>
                     <div class="col-md-6 justify-content-center">
                         <h4>Data over all tests in </h4><br/>
-                        <canvas id="repoBarGraph" ng-cloak ></canvas>
+                        <canvas id="repoBarGraph" ng-cloak></canvas>
                         {{addBarGraph("repoBarGraph",datasets,barLabels)}}
                     </div>
                 </div>

@@ -2,26 +2,17 @@
 
 This is a prototype web interface of Dspot, inspired from [CommitGuru](http://commit.guru/).
 
-Prototype demo link: <http://dspot.kth-assert.net/>
+Prototype demo link: <http://35.246.191.225:3000>
 
 Author: Henry Luong
 
 ## Running
-For only the interface
 
 ```
 cd dspot-web
 npm install --no-optional
 npm run-script start
 ```
-
-Then page can be accessed at localhost:3000.
-
-For a full set up, 3 more things are needed. Mongodb, ActiveMQ and dspot-pipeline
-
-docker run -d --net=host mongo:4.0.11-xenial
-docker run -d --net=host webcenter/activemq:5.14.3
-docker run  --net=host tailp/dspot-pipeline
 
 ## Screenshots
 

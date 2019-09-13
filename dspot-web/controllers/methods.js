@@ -1,5 +1,5 @@
 // Mongodb
-const MONGODB_HOST = process.env.MONGODB_HOST || "mongodb://mongo:27017";
+const MONGODB_HOST = process.env.MONGODB_HOST || "mongodb://localhost:27017";
 const dbName = "Dspot" || process.env.MONGODB_NAME;
 const colName = "AmpRecords" || process.env.MONGODB_COLNAME;
 const MongoClient = require('mongodb').MongoClient;
@@ -67,7 +67,7 @@ function fetchData(colName, query, limit, res) {
  * @param message is a string
  */
 function sendMessageToActiveMQ(message) {
-    return Promise.resolve(stompit.connect({ host: process.env.ACTIVEMQ_HOSTNAME || 'activemq', port: 61613}, 
+    return Promise.resolve(stompit.connect({ host: process.env.ACTIVEMQ_HOSTNAME || 'localhost', port: 61613}, 
         (err, client) => {
         var queueName = activemq_queuename;
         const frame = client.send({ destination: queueName});
@@ -95,8 +95,9 @@ exports.get_repoInfoData = function(req, res, next) {
     var query = {};
     query["RepoSlug"] = req.params.user + "/" + req.params.reponame;
     query["RepoBranch"] = req.params.branchname;
-
-    fetchData('AmpRecords', query, undefined, res);
+    extra = {$or:[{"State":{$eq:"old"}},{"State":{$eq:"recent"}}]};
+    finalQ = {$and:[query,extra]};
+    fetchData('AmpRecords', finalQ, undefined, res);
 }
 
 /**
@@ -112,14 +113,6 @@ exports.get_ReposData = function(req, res, next) {
     } else if (req.params.state == "All") { /*Only take recent and pending state*/
         fetchData('AmpRecords',{$or:[{"State":{$eq:"recent"}},{"State":{$eq:"pending"}}]},undefined,res);
     }
-}
-
-/**
- * THis should be removed later. UniqueRecords is removed.
- */
-exports.get_reposInfoData = function(req, res, next) {
-    console.log("getting all unique data");
-    fetchData('uniqueRecords', {}, undefined, res);
 }
 
 /**
