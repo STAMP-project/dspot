@@ -85,4 +85,5 @@ public class CollectorConfig {
     public boolean getRestful() {
         return this.restful;
     }
+
 }

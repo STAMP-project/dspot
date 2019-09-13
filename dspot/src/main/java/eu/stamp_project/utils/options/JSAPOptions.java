@@ -85,6 +85,13 @@ public class JSAPOptions {
         final String repoSlug = jsapConfig.getString("repo-slug");
         final String repoBranch = jsapConfig.getString("repo-branch");
         final boolean restful = jsapConfig.getBoolean("restful");
+        final String smtpUsername = jsapConfig.getString("smtp-username");
+        final String smtpPassword = jsapConfig.getString("smtp-password");
+        final String smtpHost = jsapConfig.getString("smtp-host");
+        final String smtpPort = jsapConfig.getString("smtp-port");
+        final boolean smtpAuth = jsapConfig.getBoolean("smtp-auth");
+        final boolean smtpTls = jsapConfig.getBoolean("smtp-tls");
+
         // these values need to be checked when the factory is available
         // We check them in DSpot class since we have the codes that allow to check them easily
         // and thus, the Factory will be created.
@@ -127,7 +134,13 @@ public class JSAPOptions {
                 mongoColname,
                 repoSlug,
                 repoBranch,
-                restful
+                restful,
+                smtpUsername,
+                smtpPassword,
+                smtpHost,
+                smtpPort,
+                smtpAuth,
+                smtpTls
         );
 
         CollectorConfig.getInformationCollector().reportInitInformation(jsapConfig);
@@ -411,6 +424,48 @@ public class JSAPOptions {
         restful.setDefault("false");
         restful.setHelp("If 1 or true will enable restful mode for web Interface. It will look for a pending document in Mongodb with the corresponding slug and branch provided instead of creating a completely new one.");
 
+        FlaggedOption smtpUsername = new FlaggedOption("smtp-username");
+        smtpUsername.setLongFlag("smtp-username");
+        smtpUsername.setDefault("Unknown@gmail.com");
+        smtpUsername.setRequired(false);
+        smtpUsername.setStringParser(JSAP.STRING_PARSER);
+        smtpUsername.setAllowMultipleDeclarations(false);
+        smtpUsername.setHelp("Username for Gmail, used for submit email at end-process");
+
+        FlaggedOption smtpPassword = new FlaggedOption("smtp-password");
+        smtpPassword.setLongFlag("smtp-password");
+        smtpPassword.setDefault("Unknown");
+        smtpPassword.setRequired(false);
+        smtpPassword.setStringParser(JSAP.STRING_PARSER);
+        smtpPassword.setAllowMultipleDeclarations(false);
+        smtpPassword.setHelp("password for Gmail, used for submit email at end-process");
+
+        FlaggedOption smtpHost = new FlaggedOption("smtp-host");
+        smtpHost.setLongFlag("smtp-host");
+        smtpHost.setDefault("smtp.gmail.com");
+        smtpHost.setRequired(false);
+        smtpHost.setStringParser(JSAP.STRING_PARSER);
+        smtpHost.setAllowMultipleDeclarations(false);
+        smtpHost.setHelp("host server name , default: smtp.gmail.com");
+
+        FlaggedOption smtpPort = new FlaggedOption("smtp-port");
+        smtpPort.setLongFlag("smtp-port");
+        smtpPort.setDefault("587");
+        smtpPort.setRequired(false);
+        smtpPort.setStringParser(JSAP.STRING_PARSER);
+        smtpPort.setAllowMultipleDeclarations(false);
+        smtpPort.setHelp("host server port , default : 587");
+
+        Switch smtpAuth = new Switch("smtp-auth");
+        smtpAuth.setLongFlag("smtp-auth");
+        smtpAuth.setDefault("false");
+        smtpAuth.setHelp("true , if the smtp host server require auth, which is usually the case");
+
+        Switch smtpTls = new Switch("smtp-tls");
+        smtpTls.setLongFlag("smtp-tls");
+        smtpTls.setDefault("false");
+        smtpTls.setHelp("true , if need secure tls transport.");
+
         try {
             jsap.registerParameter(pathToConfigFile);
             jsap.registerParameter(amplifiers);
@@ -448,6 +503,12 @@ public class JSAPOptions {
             jsap.registerParameter(repoSlug);
             jsap.registerParameter(repoBranch);
             jsap.registerParameter(restful);
+            jsap.registerParameter(smtpUsername);
+            jsap.registerParameter(smtpPassword);
+            jsap.registerParameter(smtpHost);
+            jsap.registerParameter(smtpPort);
+            jsap.registerParameter(smtpAuth);
+            jsap.registerParameter(smtpTls);
             jsap.registerParameter(example);
             jsap.registerParameter(help);
         } catch (JSAPException e) {

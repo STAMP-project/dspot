@@ -1,7 +1,8 @@
 package eu.stamp_project.utils.collector.mongodb;
 
 import org.junit.Test;
-
+import org.junit.Before;
+import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -9,6 +10,7 @@ import static org.junit.Assert.assertTrue;
 
 import eu.stamp_project.Main;
 import eu.stamp_project.utils.collector.mongodb.MongodbCollector;
+import eu.stamp_project.utils.smtp.EmailSender;
 
 import com.mongodb.*;
 import com.mongodb.MongoClient;
@@ -20,7 +22,27 @@ import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Updates.*;
 import org.bson.Document;
 
+import com.icegreen.greenmail.util.GreenMail;
+import com.icegreen.greenmail.util.GreenMailUtil;
+import com.icegreen.greenmail.util.ServerSetupTest;
+import javax.mail.MessagingException;
+
 public class MongodbCollectorTest {
+        private GreenMail greenMail;
+
+        @Before
+        public void startMailServer() {
+                this.greenMail = new GreenMail(ServerSetupTest.SMTP);
+                this.greenMail.start();
+        }
+
+        public void createReceiver() {
+
+        }
+        @After
+        public void stopMailServer() {
+                this.greenMail.stop();
+        }
 
         @Test
         public void testInfoSubmissionToMongodbPitMutantScoreSelector() {
@@ -81,7 +103,8 @@ public class MongodbCollectorTest {
                 assertEquals(foundDoc.toString(),expectedDocStr);
         }
 
-        @Test
+        @Test 
+        /* Should update an existing document then have tried sending an email at the end*/
         public void testRestful() {
                 Document initDoc = new Document("RepoSlug", "USER/Testing")
                                 .append("RepoBranch", "master")
@@ -108,8 +131,11 @@ public class MongodbCollectorTest {
                         "--mongo-dbname","Dspot",
                         "--repo-slug","USER/Testing",
                         "--repo-branch","master",
+                        "--smtp-host","localhost",
+                        "--smtp-port","3025",
                         "--restful"
                 });
+
 
                 Document foundDoc = coll.find(eq("State","recent")).projection(fields(excludeId(),exclude("Date"),exclude("executeTestParallelWithNumberProcessors"))).first();
                 coll.deleteOne(foundDoc);
@@ -119,5 +145,13 @@ public class MongodbCollectorTest {
 
                 String expectedDocStr = "Document{{RepoSlug=USER/Testing, RepoBranch=master, State=recent, Email=abc@mail.com, AmpOptions=Document{{amplifiers=[None], test-criterion=PitMutantScoreSelector, iteration=3, gregor=true, descartes=true}}, AmpResult=Document{{fr/D/inria/D/sample/D/TestClassWithoutAssert=Document{{originalKilledMutants=0, NewMutantKilled=67}}, TotalResult=Document{{totalOriginalKilledMutants=0, totalNewMutantKilled=67}}}}}}";
                 assertEquals(foundDoc.toString(),expectedDocStr);
+
+                /* Smtp integration test*/
+                String sendedMailSubject = "";
+                try {
+                        sendedMailSubject = greenMail.getReceivedMessages()[0].getSubject();
+                } catch(MessagingException e) {}
+
+                assertEquals("Amplification succeeded",sendedMailSubject);
         }
 }
