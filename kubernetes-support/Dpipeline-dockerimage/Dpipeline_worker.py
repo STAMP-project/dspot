@@ -159,7 +159,7 @@ def run_Dspot_preconfig(POM_FILE,reposlug,timecap):
                 "file_name": file_name, "contents": text}
             col.insert(text_file_doc)
     else:
-        logging.waring("Nothing will be submit since mongodb is not connected")
+        logging.warning("Nothing will be submit since mongodb is not connected")
     exec_get_output('cp -rf ' + outputdir + ' clonedrepo',True)
     exec_get_output('rm -rf NUL target/ clonedrepo/target', True)
     return True # Dspot was preconfigured
@@ -298,7 +298,7 @@ def run_Dspot_autoconfig(reposlug,timecap):
                     "file_name": file_name, "contents": text}
                 col.insert(text_file_doc)
     else:
-        logging.waring("Nothing will be submit since mongodb is not connected")
+        logging.warning("Nothing will be submit since mongodb is not connected")
 
 
 class BuildIdListener(object):

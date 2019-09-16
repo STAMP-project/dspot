@@ -31,4 +31,4 @@ if __name__ == '__main__':
 	for msg in args:
 		conn.send(dest, msg, persistent='true') 
 
-  	conn.disconnect() # Disconnect from server.
+	conn.disconnect() # Disconnect from server.
