@@ -32,7 +32,6 @@ public class JSAPOptions {
 
     /**
      * parse the command line argument
-     *
      * @param args command line arguments. Refer to the README on the github page or use --help command line option to display all the accepted arguments.
      *             Otherwise, it returns false and DSpot will run normally, using the properties and the command line options.
      */
@@ -583,6 +582,7 @@ public class JSAPOptions {
 
     /**
      * Main to be used to generate the DSpotMojo properties from the JSAPOptions.
+     * @param args not used
      */
     public static void main(String[] args) {
         final Iterator iterator = options.getIDMap().idIterator();

@@ -25,7 +25,7 @@ public class CloverReader {
     /**
      * read the database initialize by {@link CloverExecutor}.
      *
-     * @param directory
+     * @param directory path to the directory of Clover's result
      * @return a map, that associate test method names and the map of executed line in each classes
      */
     public Map<String, Map<String, Map<String, List<Integer>>>> read(String directory) {

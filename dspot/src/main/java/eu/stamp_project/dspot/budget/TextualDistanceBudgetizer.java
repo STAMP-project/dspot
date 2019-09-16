@@ -38,6 +38,7 @@ public class TextualDistanceBudgetizer extends AbstractBugetizer {
      * Input amplification for a single test.
      *
      * @param test Test method
+     * @param i current iteration
      * @return New generated tests
      */
     protected Stream<CtMethod<?>> inputAmplifyTest(CtMethod<?> test, int i) {
@@ -49,6 +50,7 @@ public class TextualDistanceBudgetizer extends AbstractBugetizer {
      * Input amplification of multiple tests.
      *
      * @param testMethods Test methods
+     * @param i current iteration
      * @return New generated tests
      */
     @Override
@@ -66,11 +68,11 @@ public class TextualDistanceBudgetizer extends AbstractBugetizer {
 
     /**
      * Reduces the number of amplified tests to a practical threshold (see {@link InputConfiguration#getMaxTestAmplified()}).
-     * <p>
-     * <p>The reduction aims at keeping a maximum of diversity. Because all the amplified tests come from the same
+     *
+     * The reduction aims at keeping a maximum of diversity. Because all the amplified tests come from the same
      * original test, they have a <em>lot</em> in common.
-     * <p>
-     * <p>Diversity is measured with the textual representation of amplified tests. We use the sum of the bytes returned
+     *
+     * Diversity is measured with the textual representation of amplified tests. We use the sum of the bytes returned
      * by the {@link String#getBytes()} method and keep the amplified tests with the most distant values.
      *
      * @param tests List of tests to be reduced

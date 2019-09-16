@@ -198,6 +198,7 @@ public class Options {
 
     /**
      * Main to be used to generate the DSpotMojo properties from the JSAPOptions.
+     * @param args unused
      */
     public static void main(String[] args) {
         final Iterator iterator = options.getIDMap().idIterator();

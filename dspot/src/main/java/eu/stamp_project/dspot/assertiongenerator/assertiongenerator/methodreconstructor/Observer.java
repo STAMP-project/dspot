@@ -51,13 +51,13 @@ public class Observer {
 
     /**
      * Instruments logs to tests and then compiles and runs tests to gather observation point values.
-     * <p>
-     * <p>Details for test instrumentation with logs in {@link TestWithLogGenerator#createTestWithLog(CtMethod, String, List)}.
+     *
+     * Details for test instrumentation with logs in {@link TestWithLogGenerator#createTestWithLog(CtMethod, String, List)}.
      *
      * @param testClass Test class
      * @param testCases Passing test methods
      * @return Observation point values
-     * @throws AmplificationException
+     * @throws AmplificationException when something wrong happens
      */
     public Map<String, Observation>  getObservations(CtType<?> testClass, List<CtMethod<?>> testCases) throws AmplificationException {
         CtType clone = testClass.clone();

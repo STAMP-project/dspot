@@ -35,6 +35,7 @@ public class RandomBudgetizer extends AbstractBugetizer {
      * Input amplification for a single test.
      *
      * @param test Test method
+     * @param i current iteration
      * @return New generated tests
      */
     protected Stream<CtMethod<?>> inputAmplifyTest(CtMethod<?> test, int i) {
@@ -46,6 +47,7 @@ public class RandomBudgetizer extends AbstractBugetizer {
      * Input amplification of multiple tests.
      *
      * @param testMethods Test methods
+     * @param i current iteration
      * @return New generated tests
      */
     @Override
@@ -63,9 +65,7 @@ public class RandomBudgetizer extends AbstractBugetizer {
 
     /**
      * Reduces the number of amplified tests to a practical threshold (see {@link InputConfiguration#getMaxTestAmplified()}).
-     * <p>
-     * <p>This method randomly selects the tests to keep
-     * <p>
+     * This method randomly selects the tests to keep
      * @param tests List of tests to be reduced
      * @return A subset of the input tests
      */

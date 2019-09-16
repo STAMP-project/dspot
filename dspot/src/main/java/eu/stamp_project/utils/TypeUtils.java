@@ -103,7 +103,7 @@ public class TypeUtils {
 
 	/**
 	 * Returns the full Java qualified name of a method
-	 * @param method
+	 * @param method spoon node of which the qualified name must be build
 	 * @return qualified name
 	 */
 	public static String getQualifiedName (CtMethod method) {

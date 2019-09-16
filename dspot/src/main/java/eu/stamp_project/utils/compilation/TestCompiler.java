@@ -83,7 +83,7 @@ public class TestCompiler {
      * @param testClass     the test class to be compiled
      * @param compiler      the compiler
      * @param testsToRun    the test methods to be run, should be in testClass
-     * @param configuration
+     * @param configuration the configuration of the project
      * @return an instance of {@link eu.stamp_project.testrunner.listener.TestResult}
      * that contains the result of the execution of test methods if everything went fine, null otherwise.
      * @throws AmplificationException in case the compilation failed or a timeout has been thrown.
@@ -143,9 +143,9 @@ public class TestCompiler {
      * This method chain compilation until it succeed.
      * If a compilation fails, this method removes uncompilable methods from the given class and retry to compile.
      *
-     * @param compiler
-     * @param testClassToBeCompiled
-     * @param dependencies
+     * @param compiler  the compiler
+     * @param testClassToBeCompiled  the test class to be compiled
+     * @param dependencies the dependencies path, must be separated by the system path separator
      * @return a list that contains uncompilable methods in <code>testClassToBeCompiled</code>
      * @throws AmplificationException in case the compilation thrown an exception.
      *                                This Exception is not thrown when the compilation fails but rather when the arguments are wrong.
