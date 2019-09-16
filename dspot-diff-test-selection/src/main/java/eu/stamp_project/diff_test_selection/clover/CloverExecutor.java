@@ -28,6 +28,7 @@ public class CloverExecutor {
 
     /**
      * This class will execute, though maven goals, the instrumentation of Clover and the test of the project
+     * @param pathToRootOfProject the path to the root folder of the project
      */
     public void instrumentAndRunTest(String pathToRootOfProject) {
         setMavenHome();

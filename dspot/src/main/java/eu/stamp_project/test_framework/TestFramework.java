@@ -69,7 +69,7 @@ public class TestFramework implements TestFrameworkSupport {
 
     /**
      * This method detects whether or not the given test suite has been annotated to be ignored (JUnit4) or disabled (JUnit5)
-     * @param ctType the test suite to check
+     * @param candidate the test suite to check
      * @return true if the given test suite has been ignored/disabled
      */
     public boolean isIgnored (CtElement candidate) {

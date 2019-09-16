@@ -44,7 +44,7 @@ public class Translator {
      *  - simple variable read
      *  - chained invocation: ((cast)((cast) o).getX())).getY()
      *  - invocation of isEmpty from Collection: ((cast) o).getX().isEmpty()
-     * @param stringToBeTranslated
+     * @param stringToBeTranslated the code, as a string, to be translated
      * @return a spoon represented by the given String. This node is either a CtInvocation, either a VariableRead.
      */
     public CtExpression<?> translate(String stringToBeTranslated) {

@@ -67,6 +67,7 @@ public class AssertionRemover {
      * Replaces an invocation with its arguments.
      *
      * @param invocation Invocation
+     * @return the list of local variables extracted from assertions
      */
     public List<CtLocalVariable<?>> removeAssertion(CtInvocation<?> invocation) {
         List<CtLocalVariable<?>> variableReadsAsserted = new ArrayList<>();

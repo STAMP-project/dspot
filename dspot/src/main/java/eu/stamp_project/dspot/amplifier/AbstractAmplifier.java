@@ -25,8 +25,8 @@ public abstract class AbstractAmplifier<T extends CtElement> implements Amplifie
     /**
      * Checks if the given element has already been amplified
      *
-     * @param element
-     * @return
+     * @param element to be tested
+     * @return true if the given element has been already amplified, false otherwise
      */
     protected boolean hasBeenAmplified(CtElement element) {
         return (element.getMetadata(METADATA_KEY) != null &&

@@ -49,8 +49,7 @@ public class AssertionGenerator {
 
     /**
      * Removes old assertions and adds new assertions and fail statements in multiple tests.
-     * <p>
-     * <p>Details of the assertions generation in {@link #assertPassingAndFailingTests(CtType, List)}.
+     * Details of the assertions generation in {@link #assertPassingAndFailingTests(CtType, List)}.
      *
      * @param testClass Test class
      * @param tests     Test methods to amplify
@@ -96,8 +95,8 @@ public class AssertionGenerator {
 
     /**
      * Generates assertions and try/catch/fail blocks for multiple tests.
-     * <p>
-     * <p>Assertion Amplification process.
+     *
+     * Assertion Amplification process.
      * <ol>
      * <li>Instrumentation to collect the state of the program after execution (but before assertions).</li>
      * <li>Collection of actual values by running the tests.</li>

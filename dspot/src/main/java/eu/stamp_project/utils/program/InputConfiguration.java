@@ -308,9 +308,6 @@ public class InputConfiguration {
         // then it will take the command line value (default: false)
     }
 
-    /**
-
-     */
     public static void setUp(List<String> amplifiers, String budgetizer,
                              TestSelector testCriterion, List<String> testClasses,
                              List<String> testCases, int iteration,
@@ -362,11 +359,6 @@ public class InputConfiguration {
         return absolutePathToProjectRoot;
     }
 
-    /**
-     * set the absolute path to the root of the project, and add a / at the end if needed
-     *
-     * @param absolutePathToProjectRoot
-     */
     public InputConfiguration setAbsolutePathToProjectRoot(String absolutePathToProjectRoot) {
         this.absolutePathToProjectRoot = DSpotUtils.shouldAddSeparator.apply(absolutePathToProjectRoot);
         return this;
@@ -548,9 +540,6 @@ public class InputConfiguration {
 
     private Factory factory;
 
-    /**
-     * Spoon factory to process all AST elements
-     */
     public Factory getFactory() {
         return factory;
     }
@@ -909,7 +898,7 @@ public class InputConfiguration {
     private boolean generateAmplifiedTestClass;
 
     /**
-     * If this is true, then DSpot will creates new test class with only amplified test methods.
+     * @return If this is true, then DSpot will creates new test class with only amplified test methods.
      * This new test class will be named with "Ampl" as suffix or prefix depending of the name of the original test class:
      * <i>e.g.</i> MyClassTest will be AmplMyClassTest and TestMyClass will be TestMyClassAmpl
      */

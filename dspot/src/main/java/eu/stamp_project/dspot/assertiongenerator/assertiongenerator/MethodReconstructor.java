@@ -57,11 +57,11 @@ public class MethodReconstructor {
 
     /**
      * Adds new assertions in multiple passing tests.
-     * <p>
-     * <p>Instruments the tests to have observation points.
+     *
+     * Instruments the tests to have observation points.
      * Details in {@link Observer#getObservations(CtType, List)}.
-     * <p>
-     * <p>Details of the assertion generation in {@link #buildTestWithAssert(CtMethod, Map)}.
+     *
+     * Details of the assertion generation in {@link #buildTestWithAssert(CtMethod, Map)}.
      *
      * @param testClass Test class
      * @param testCases Passing test methods
@@ -88,8 +88,8 @@ public class MethodReconstructor {
 
     /**
      * Adds new assertions to a test from observation points.
-     * <p>
-     * <p>Details of constructing the syntax for the assertions in {@link AssertionSyntaxBuilder#buildAssert(CtMethod, Set, Map, Double)}.
+     *
+     * Details of constructing the syntax for the assertions in {@link AssertionSyntaxBuilder#buildAssert(CtMethod, Set, Map, Double)}.
      * @param test         Test method
      * @param observations Observation points of the test suite
      * @return Test with new assertions

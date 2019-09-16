@@ -139,7 +139,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
 	/**
 	 * this method call {@link #compile(String)} and return the potential problems of the compilation.
-	 * @param pathToAdditionalDependencies
+	 * @param pathToAdditionalDependencies additional dependencies such as external jars. Paths mut be separated by the path separator, e.g. : on Linux
 	 * @return a list that contains compilation problems
 	 */
 	public List<CategorizedProblem> compileAndReturnProblems(String pathToAdditionalDependencies) {
