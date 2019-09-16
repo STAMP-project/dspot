@@ -3,6 +3,12 @@
 
 # dependencies to pip install
 # travispy , gitPython, stomp, pymongo
+from travispy import TravisPy
+from pymongo import MongoClient
+from xml.etree import ElementTree
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
 import time
 import os
 import tempfile
@@ -16,51 +22,139 @@ import git
 import datetime
 import requests
 import StringIO
-from travispy import TravisPy
-from pymongo import MongoClient
-from xml.etree import ElementTree
+import smtplib
+import time
 
-# login into mongodb
-client = MongoClient(os.getenv('MONGODB_HOST') or 'mongodb://localhost:27017/',5)
+RUN_OPTIONS_JAR = os.getenv("RUN_OPTIONS_JAR") or ''
+SLUG_MODE = True
+RESTFUL = True
+SMTP_AUTH = True
+SMTP_TLS = True
+if os.getenv("RESTFUL") != "1":
+    RESTFUL = False
+
+if os.getenv("SLUG_MODE") != "1":
+    SLUG_MODE = False
+
+if os.getenv("SMTP_AUTH") != "1":
+    SMTP_AUTH = False
+
+if os.getenv("SMTP_TLS") != "1":
+    SMTP_TLS = False
+
+RUN_TIMEOUT = os.getenv("RUN_TIMEOUT") or 10  # minutes
+RECONNECT_TIME = os.getenv("RECONNECT_TIME") or 24 # hours, default 24 hours then reconnect again.
+RECONNECT_TIME = int(RECONNECT_TIME)*3600 # Make it to hours.
+
+# Preset will be removed later
+if SLUG_MODE:
+    logging.warn("RUNNING IN SLUG_MODE FOR DSPOT-WEB")
+
+# Connect to Mongodb, Check if connection is up
+MONGO_URL = os.getenv('MONGO_URL') or 'mongodb://localhost:27017/'
+MONGO_DBNAME = os.getenv('MONGO_DBNAME') or 'Dspot'
+MONGO_COLNAME = os.getenv('MONGO_COLNAME') or 'AmpRecords'
+client = MongoClient(MONGO_URL,15)
+db = client[MONGO_DBNAME]
+coll = db[MONGO_COLNAME]
+
+# Gmail smtp
+SMTP_ADDRESS= os.getenv('SMTP_ADDRESS') or "foo@gmail.com"
+SMTP_PASSWORD= os.getenv('SMTP_PASSWORD') or "unknown"
+SMTP_HOST = os.getenv('SMTP_HOST') or "smtp.gmail.com"
+SMTP_PORT = os.getenv('SMTP_PORT') or "587"
+
+RUN_OPTIONS_JAR = RUN_OPTIONS_JAR + " --collector MongodbCollector " + " --mongo-url " + MONGO_URL + " --mongo-dbname " + MONGO_DBNAME + " --mongo-colname " + MONGO_COLNAME + " --smtp-username " + SMTP_ADDRESS + " --smtp-password " + SMTP_PASSWORD
+RUN_OPTIONS_JAR = RUN_OPTIONS_JAR + " --smtp-host " + SMTP_HOST + " --smtp-port " + SMTP_PORT
+
+if RESTFUL:
+    RUN_OPTIONS_JAR = RUN_OPTIONS_JAR + " --restful "
+if SMTP_AUTH:
+    RUN_OPTIONS_JAR = RUN_OPTIONS_JAR + " --smtp-auth "
+if SMTP_TLS:
+    RUN_OPTIONS_JAR = RUN_OPTIONS_JAR + " --smtp-tls "
+
+logging.warn(RUN_OPTIONS_JAR)
+# Check connection
 mongo_connected = True
 try:
     client.server_info()
 except:
     mongo_connected = False
-    logging.warning("Failed to connect to mongodb")
+    logging.warn("Python: Failed to connect to mongodb")
+
 # Start ActiveMQ listener
-host = os.getenv("ACTIVEMQ_HOST") or "activemq"
+host = os.getenv("ACTIVEMQ_HOST") or "localhost"
 port = 61613
 # Uncomment next line if you do not have Kube-DNS working.
 # host = os.getenv("REDIS_SERVICE_HOST")
 QUEUE_NAME = os.getenv("ACTIVEMQ_QUEUE") or '/queue/Dpipeline'
-LISTENER_NAME = 'BuildIdListener'
+LISTENER_NAME =  "Listener"
 TIMEOUT = 360  # timeout for executing submissions
 
+# Send result files over to the user email.
+def email_result (message,subject,to_email,files=[]): 
+    # Construct basic mail content
+    msg = MIMEMultipart()
+    msg['From'] = os.getenv("GMAIL_ADDRESS") or "stampdspotresult@gmail.com"
+    msg['To'] = to_email
+    msg['Subject'] = subject
+    msg.attach(MIMEText(message, 'plain'))
 
+    # Attaching files
+    if files != []:
+        for file_name in files:
+            file_attach = MIMEText(file(file_name).read())
+            file_attach.add_header('Content-Disposition', 'attachment', filename=file_name)
+            msg.attach(file_attach)
+
+    # Connect to Gmail server and send the mail
+    server = smtplib.SMTP('smtp.gmail.com: 587')
+    server.starttls()
+    # Login Credentials for sending the mail
+    server.login(msg['From'], os.getenv("GMAIL_PASSWORD") or "abcde12345@")
+    # send the message via the server.
+    server.sendmail(msg['From'], msg['To'], msg.as_string())
+    server.quit()
+    logging.warn("successfully sent email to : " + (msg['To']))
+
+# If we can still find a pending document for this repo then we know that  
+# it has been errors during runs. 
+def error_during_run (query):
+    if coll.find_one(query) == None:
+        logging.warn("Everything went smoothly")
+        return False       
+    return True
 
 # Subprocess running returning the output as a string
-def exec_get_output(cmd, val=False, wait=True):
-    out = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                           shell=val, close_fds=True)
-    stdout, stderr = out.communicate()
-    if wait:
-        out.wait()
-    return stdout
+def exec_get_output(cmd, val=False, wait=True,workdir="./"):
+    p = subprocess.Popen("timeout " + str(RUN_TIMEOUT*60) + " " + cmd, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=val,cwd=workdir)
+    out = ""
+    start = time.time()
+    end = time.time()
+    killed = False
+    while p.poll() == None:
+      line = p.stdout.readline().rstrip().replace("WARNING:root:","")
+      out = out + line + "\n"
+      logging.warn(line)
+      end = time.time()
+      if (end - start)/60 > RUN_TIMEOUT and not killed:
+        logging.warn("TIMEOUT , RUN EXCEEDED " + str(RUN_TIMEOUT) + " minutes")
+        killed = True
+        p.kill()
+        out = out + "TIMEOUT , RUN EXCEEDED " + str(RUN_TIMEOUT) + " minutes \n"
+    return [out,killed]
 
 
 # Check if enough information is provided to push to Git. 
 # configure git if that's the case
 def check_endprocess_gitcommit(repo):
     if (os.getenv("GITHUB_USEREMAIL")=='' or os.getenv("GITHUB_USERNAME")=='' or os.getenv("PUSH_URL")==''):
-        print('Not enough Git information provided, no git commit will occur at end process')
-        print('Please double check GITHUB_USEREMAIL , GITHUB_USERNAME and PUSH_URL')
+        logging.warn('Not enough Git information provided, no git commit will occur at end process')
+        logging.warn('Please double check GITHUB_USEREMAIL , GITHUB_USERNAME and PUSH_URL')
         return False   
     else:
-        #exec_get_output('git config --global user.email ' +
-        #                os.getenv("GITHUB_USEREMAIL"), True)
-        #exec_get_output('git config --global user.name ' +
-        #                os.getenv("GITHUB_USERNAME"), True)
+
         repo.config_writer().set_value("user","name",os.getenv("GITHUB_USERNAME")).release()
         repo.config_writer().set_value("user","email",os.getenv("GITHUB_USEREMAIL")).release()
         return True
@@ -88,80 +182,87 @@ def find_JAVA_VERSION(POM_FILE):
     properties = root.find(namespace + 'properties')
 
     JAVA_VERSION_FOUND = False
-    str_to_find = [namespace + 'maven.compiler.source',namespace + 'maven.compiler.release',namespace + 'java.version']
-    JAVA_VERSION = ''
-    # Look for version in properties first
-    for find_string in str_to_find:
-        property = properties.find(find_string)
-        if property is not None:
-            JAVA_VERSION = property.text
-            JAVA_VERSION_FOUND = True
-            break
+    if (properties != None):
+        str_to_find = [namespace + 'maven.compiler.source',namespace + 'maven.compiler.release',namespace + 'java.version']
+        JAVA_VERSION = ''
+        # Look for version in properties first
 
-    # If not found then look for it in plugins
-    if not JAVA_VERSION_FOUND:
-        # here means that Java version might not be stored in properties but in plugins instead
-        for plugin in root.iter(namespace + 'plugin'):
-            text = plugin.find(namespace + 'artifactId').text
-            # Check if it's the correct plugin
-            if text == ('maven-compiler-plugin'):
-                configuration = plugin.find(namespace + 'configuration')
-                str_to_find = [namespace + 'source',namespace + 'release']
-                for find_string in str_to_find:
-                    config_object = configuration.find(find_string)
-                    if config_object is not None:
-                        JAVA_VERSION = config_object.text
-                        JAVA_VERSION_FOUND = True
-                        break
-            if JAVA_VERSION_FOUND :
+        for find_string in str_to_find:
+            property = properties.find(find_string)
+            if property is not None:
+                JAVA_VERSION = property.text
+                JAVA_VERSION_FOUND = True
                 break
 
+        # If not found then look for it in plugins
+        if not JAVA_VERSION_FOUND:
+            # here means that Java version might not be stored in properties but in plugins instead
+            for plugin in root.iter(namespace + 'plugin'):
+                text = plugin.find(namespace + 'artifactId').text
+                # Check if it's the correct plugin
+                if text == ('maven-compiler-plugin'):
+                    configuration = plugin.find(namespace + 'configuration')
+                    str_to_find = [namespace + 'source',namespace + 'release']
+                    for find_string in str_to_find:
+                        config_object = configuration.find(find_string)
+                        if config_object is not None:
+                            JAVA_VERSION = config_object.text
+                            JAVA_VERSION_FOUND = True
+                            break
+                if JAVA_VERSION_FOUND :
+                    break
+
     if not JAVA_VERSION_FOUND:
-        print("No java version found, malconfigured pom ?")
-        return ''
+        logging.warn("No java version found, malconfigured pom ?, assume default as Java 1.8 ")
+        return '1.8'
     else:
         return JAVA_VERSION
 
+def report_error(reason,error_output_string,reposlug,repobranch):
+    # Construct mongodb query for finding in database later
+    query = {}
+    query["RepoSlug"] = reposlug
+    query["RepoBranch"] = repobranch
+    query["State"] = "pending"
+    if error_during_run(query):
+        email = coll.find_one(query)["Email"]
 
+        #Set state as error.
+        coll.update_one(query, {"$set": {"State":"error"}})
+        logging.warn("Error during amplifications, set document state as error") 
+
+        #Send error via mail in a file
+        files = []
+        if error_output_string != "":
+            text_file = open("ErrorOutput.txt", "w");
+            text_file.write(error_output_string)
+            files.append("ErrorOutput.txt")
+        subject = "Amplification failed !!"
+        email_result(reason,subject,email,files)
+        exec_get_output("rm -rf ErrorOutput.txt",True)
+        return True;
+    return False;
 
 # Run Dspot preconfigured, the project support Dspot
 # and has configured in the pom file
-def run_Dspot_preconfig(POM_FILE,reposlug,timecap):
-    # This is fixed if running maven Dspot plugin
-    outputdir = "target/dspot/output"
-    # If no pomfile found in the project root or no dspot plugin then it does
+# NOTE CURRENTLY THIS IS NOT SUPPORTED YET SINCE MONGODB FEATURE IS NOT MERGED YET.
+def run_Dspot_preconfig(reposlug,repobranch,selector):
+    # If no dspot.properties found in the project root or no dspot plugin then it does
     # not support Dspot
-    if not (os.path.isfile(POM_FILE) and check_Dspot_supported(POM_FILE)):
+    basic_opts = "--repo-slug " + reposlug + " --repo-branch " + repobranch + " -s " + selector
+    if not (os.path.isfile("clonedrepo/dspot.properties")):
         return False
-    logging.warning("PROJECT DOES SUPPORT DSPOT")
-    logging.warning(exec_get_output(['mvn','-f','clonedrepo', 'dspot:amplify-unit-tests',
-                                     '-Dtest-criterion=TakeAllSelector', '-Diteration=1', '-Ddescartes', '-Dgregor']))
+    logging.warn("PROJECT DOES SUPPORT DSPOT")
+    res = exec_get_output('java -jar ../dspot-2.1.2-jar-with-dependencies.jar -p dspot.properties ' + basic_opts + RUN_OPTIONS_JAR ,True,False,"./clonedrepo/")
+    error_message = ""
+    if res[1] == True: 
+        error_message = "Process was TIMEOUT, RUN EXCEEDED " + str(RUN_TIMEOUT) + " minutes, currently we don't support heavy projects \n \n --STAMP/Dspot"
+    else :
+        error_message = "Hi, your amplification has failed. Check the attached output files for more details.\n \n --STAMP/Dspot"
 
-    # move files and cleanup after running
-    exec_get_output('mv -t ' + outputdir +
-                                ' project.properties debug.log  2>/dev/null', True)
-    
-    # push to Mongodb when done
-    # get database
-    if mongo_connected:
-        db = client['Dspot']
-        colname = reposlug.split('/')[1] + 'RootProject' + '-' + timecap
-        col = db[colname]
-        # get all output files but the binaries .class files
-        files = exec_get_output(
-                'find ' + outputdir + ' -type f | grep -v .class', True).rstrip().split('\n')
-        for file in files:
-            f = open(file)  # open a file
-            text = f.read()    # read the entire contents, should be UTF-8 text
-            file_name = file.split('/')[-1]
-            logging.warning('File to Mongodb: ' + file_name)
-            text_file_doc = {
-                "file_name": file_name, "contents": text}
-            col.insert(text_file_doc)
-    else:
-        logging.warning("Nothing will be submit since mongodb is not connected")
-    exec_get_output('cp -rf ' + outputdir + ' clonedrepo',True)
-    exec_get_output('rm -rf NUL target/ clonedrepo/target', True)
+    if report_error(error_message,res[0],reposlug,repobranch):
+        logging.warn("Amplification failed, error reported")
+    # exec_get_output('rm -rf clonedrepo', True)
     return True # Dspot was preconfigured
 
 
@@ -180,23 +281,26 @@ def configure(module_name, module_path, root_name, project_path, outputdir,java_
     config.set('SPECS','testSrc','src/test/java')
     config.set('SPECS','javaVersion',java_version)
     config.set('SPECS', 'outputDirectory', outputdir)
-    print('start saving file')
+    logging.warn('start saving file')
     with open('project.properties', 'w') as configfile:
         config.write(configfile)
 
 
 # This will try to autoconfigure Dspot and provide some basic amplifications
 # for projects which do not support dspot
-def run_Dspot_autoconfig(reposlug,timecap):
+def run_Dspot_autoconfig(reposlug,repobranch,selector):
+    basic_opts = "--repo-slug " + reposlug + " --repo-branch " + repobranch + " " + " -s " + selector
+
     # Find project roots
     # Normal project with only one root
+    # Currently only aim for normal one with super pom at top most directory
     roots = exec_get_output(
-        'find clonedrepo/ -maxdepth 2 -mindepth 0 -type f -name "pom.xml"', True).rstrip().split('\n')
+        'find clonedrepo/ -maxdepth 1 -mindepth 0 -type f -name "pom.xml"', True)[0].rstrip().split('\n')
     # Project with multiroots like repairnator
     if isinstance(roots, str):
         roots = [roots]
     if roots == '':
-        logging.warning('Unsupported project structure')
+        logging.warn('Unsupported project structure')
         exit(1)
 
     # find modules related to root.
@@ -205,103 +309,76 @@ def run_Dspot_autoconfig(reposlug,timecap):
     paths = []
     for root in roots:
         # This need to be executed as shell=True otherwise it will not work
-        paths.append(sorted(exec_get_output('mvn -q -f ' + root +
-                                            ' --also-make exec:exec -Dexec.executable="pwd"', True).rstrip().split('\n')))
-    # Goal is to auto config dspot.config
-    # dspot.properties is the standard form for dspot.
-    # We use this to configure new config files.
-    for listln in paths:
-        root_path = listln[0]
-        root_name = root_path.split('/')[-1]
-        project_path = exec_get_output(
-            'realpath --relative-to=. ' + root_path, True).strip()
-        # default values of module if there are no modules(a.k.a not a
-        # multimodules project)
-        module_path = '.'
-        module_name = ''
-        logging.warning("rootname: " + root_name + " rootpath: " + root_path)
-        # ignore the first index 0 since it's the root path
-        # this check if it's a multimodules projectx
-        if len(listln) > 1:
-            logging.warning("MULTI PROJECTS FOUND")
-            for i in range(1, len(listln)):
-                # Check if the module has tests otherwise move on to the next
-                # module (nothing to amplify)
-                module_name = (listln[i]).split('/')[-1]
-                module_path = exec_get_output(
-                    'realpath --relative-to=' + root_path + ' ' + listln[i], True)
-                logging.warning("Running Dspot on rootname: " +
-                                root_name + " rootpath: " + module_name)
-                if os.path.exists(listln[i] + '/src/test/java'):
-                    outputdir = 'dspot-out/' + root_name + '_' + module_name + '/'
-                    print('project_path: ' + project_path)
-                    print('module_path: ' + module_path)
-                    JAVA_VERSION = find_JAVA_VERSION(project_path + '/pom.xml')
-                    configure(module_name, module_path,
-                              root_name, project_path, outputdir,JAVA_VERSION)
-                    logging.warning('Running Dspot')
-                    logging.warning(exec_get_output(['java', '-jar', 'dspot-2.1.0-jar-with-dependencies.jar', '--path-to-properties',
-                                                     'project.properties', '--test-criterion', 'TakeAllSelector', '--iteration', '1', '--descartes', '--gregor']))
-                    # move properties file to outputdir when done .
-                    exec_get_output(
-                        'mv -t ' + outputdir + ' project.properties debug.log  2>/dev/null', True)
-                    # also clean up after each run
-                    exec_get_output('rm -rf NUL target/', True)
-                else:
-                    logging.warning(root_name + " module: " + module_name +
-                                    " ignored since no tests were found")
-        else:
-            # Check if the module has tests otherwise move on to the next module
-            # (nothing to amplify)
-            if os.path.exists(root_path + '/src/test/java'):
-                logging.warning("Running Dpot on rootname: " + root_name)
-                outputdir = 'clonedrepo/dspot-out/RootProject'
-                JAVA_VERSION = find_JAVA_VERSION(project_path + '/pom.xml')
-                configure(module_name, module_path,
-                          root_name, project_path, outputdir,JAVA_VERSION)
-                logging.warning('Running Dspot')
-                logging.warning(exec_get_output(['java', '-jar', 'dspot-2.1.0-jar-with-dependencies.jar', '--path-to-properties',
-                                                 'project.properties', '--test-criterion', 'TakeAllSelector', '--iteration', '1', '--descartes', '--gregor']))
-                # move properties file to outputdir when done .
-                exec_get_output('mv -t ' + outputdir +
-                                ' project.properties debug.log  2>/dev/null', True)
-                # also clean up after each run
-                exec_get_output('rm -rf NUL target/', True)
-            else:
-                logging.warning(root_name + " ignored due to no tests found")
-    # Save files in mongodb
-    # get database
-    if mongo_connected:
-        db = client['Dspot']
-        # insert all docs in a directory into database
-        # List all directories in clonedrepo/dspot-out/ folder
-        dirs = exec_get_output(
-            'find clonedrepo/dspot-out/ -maxdepth 1 -mindepth 1 -type d', True).rstrip().split('\n')
-        if isinstance(dirs, str):
-            dirs = [dirs]
+        paths  = (sorted(exec_get_output('mvn -q -f ' + root +
+                                            ' --also-make exec:exec -Dexec.executable="pwd"', True)[0].rstrip().split('\n')))
+    # the first one is always the root at relative path '.'
+    del paths[0]
+    root_path = "clonedrepo"
+    root_name = ""
+    project_path = 'clonedrepo'
+    # default values of module if there are no modules(a.k.a not a multimodules project)
+    module_path = '.'
+    module_name = ''
+    # ignore the first index 0 since it's the root path
+    # this check if it's a multimodules project by looking at the path returned
+    # If it's just a simple project then it should only
+    # contain the rootpath in the list otherwise we also get the
+    # module path , which make the list longer than length 1.
+    if len(paths) > 1:
+        logging.warn("MULTI PROJECTS FOUND")
+        logging.warn("CURRENTLY WE DON't SUPPORT THAT, NEED DSPOT MAVEN PLUGIN AND PRECONFIGURE IT")
+        query = {}
+        query["RepoSlug"] = reposlug
+        query["RepoBranch"] = repobranch
+        # query["State"] = "pending"
+        # email = coll.find_one(query)["Email"]
 
-        for dir in dirs:
-            # extract directory name and use it as the colectioname for
-            dirname = dir.split('/')[-1]
-            colname = reposlug.split('/')[1] + dirname + '-' + timecap
-            logging.warning(dir)
-            col = db[colname]
-            # get all files path in dir, but not the binaries .class files
-            files = exec_get_output(
-                'find ' + dir + ' -type f | grep -v .class', True).rstrip().split('\n')
-            for file in files:
-                f = open(file)  # open a file
-                text = f.read()    # read the entire contents, should be UTF-8 text
-                file_name = file.split('/')[-1]
-                logging.warning('File to Mongodb: ' + file_name)
-                text_file_doc = {
-                    "file_name": file_name, "contents": text}
-                col.insert(text_file_doc)
+        report_error("Hi, your project does not support Dspot, please add a dspot.properties file at root.\n \n --STAMP/Dspot","",reposlug,repobranch)
+        # email_result(message,subject,email)
+
     else:
-        logging.warning("Nothing will be submit since mongodb is not connected")
+        # Check if the module has tests otherwise move on to the next module
+        logging.warn(root_path + '/src/test/java')
+        if os.path.exists(root_path + '/src/test/java'):
+            logging.warn("SIMPLE PROJECT found ")
+            outputdir = 'clonedrepo/dspot-out/RootProject'
+            JAVA_VERSION = find_JAVA_VERSION(project_path + '/pom.xml')
 
+            # Configure a .properties file give the module, root and output dir information
+            configure(module_name, module_path,
+                      root_name, project_path, outputdir,JAVA_VERSION)
+            logging.warn('Running Dspot')
+            res = exec_get_output('java -jar dspot-2.1.2-jar-with-dependencies.jar -p project.properties ' + basic_opts + RUN_OPTIONS_JAR,True)
 
-class BuildIdListener(object):
+            error_message = ""
+            if res[1] == True:
+                error_message = "Process was TIMEOUT, RUN EXCEEDED " + str(RUN_TIMEOUT) + " minutes, currently we don't support heavy projects \n \n --STAMP/Dspot"
+            else: 
+                error_message = "Hi, your amplification has failed. Check the attached output files for more details.\n \n --STAMP/Dspot"
+            
+            report_error(error_message,res[0],reposlug,repobranch)
+
+            # move properties file to outputdir when done .
+            exec_get_output('mv -t ' + outputdir +
+                            ' project.properties debug.log  2>/dev/null', True)
+            # also clean up after each run
+            exec_get_output('rm -rf NUL target/', True)
+        else:
+            logging.warn(root_name + " ignored due to no tests found")
+            report_error("Hi, your amplification has failed. Ignored due to no tests found, creating your own dspot.properties file is adviced.\n \n --STAMP/Dspot","",reposlug,repobranch)
+
+def connect_and_subscribe(conn):
+    conn.start()
+    conn.connect('guest', 'guest', wait=True)
+    conn.subscribe(QUEUE_NAME,ack='auto', headers={'activemq.prefetchSize': 1},id=1)
+    logging.warn("Listener connected")
+    # This is for Kubernetes bug, require to periodically reconnection to pods 
+    # in another namespace.
+    time.sleep(RECONNECT_TIME) 
+    logging.warn("Disconnecting and renew connection")
+    conn.disconnect()
+
+class Listener(object):
 
     def __init__(self, conn):
         self.conn = conn
@@ -310,69 +387,70 @@ class BuildIdListener(object):
 
     def print_output(self, type, data):
         for line in data:
-            logging.warning(line)
+            logging.warn(line)
+
+    def on_disconnected(self):
+        logging.warn("DISCONNECTED")
+        # Reconnecting
+        connect_and_subscribe(self.conn)
+        logging.warn("RECONNECTED")
 
     def on_message(self, headers, message):
-        logging.warning("New build id arrived: %s" % message)
+        logging.warn("New build id arrived: %s" % message)
         # Remove output file after each run to avoid filling up the container.
         self.conn.ack(headers.get('message-id'), headers.get('subscription'))
         os.system("rm -rf clonedrepo")
         # Fetch slug and branch name from travis given buildid.
-        t = TravisPy()
-        build = t.build(message)
-        repoid = build['repository_id']
-        repobranch = build.commit.branch
-        repo = t.repo(repoid)
-        reposlug = repo.slug
+        reposlug = ""
+        repobranch = ""
+        selector = ""
+        if not SLUG_MODE:
+            t = TravisPy()
+            build = t.build(message)
+            repoid = build['repository_id']
+            repobranch = build.commit.branch
+            repo = t.repo(repoid)
+            reposlug = repo.slug
+
+        else:
+            # Expect message format 'selector,branchname,selector'
+            strList = message.split(",");
+            logging.warn(message)
+            logging.warn(strList)
+            reposlug = strList[0]
+            repobranch = strList[1]
+            selector = strList[2]
+
         # Clone the repo branch
         token = os.getenv('GITHUB_OAUTH') or ''
-        url = 'https://github.com/' + reposlug + '.git'
+        url = 'https://:@github.com/' + reposlug + '.git'
         repo = None
         branch_exist = True
-        logging.warning('Cloning url ' + url)
+        logging.warn('Cloning url ' + url)
 
         try:
             repo = git.Repo.clone_from(url, 'clonedrepo', branch=repobranch)
         except:
-            logging.warning("Branch " + str(repobranch) + " or the repo " +
+            logging.warn("Branch " + str(repobranch) + " or the repo " +
                             str(reposlug) + " itself does not exist anymore")
             branch_exist = False
+            report_error("Invalid repo or branch, double check if the input repo url is correct \n \n --STAMP/Dspot","",reposlug,repobranch)
+
 
         # Check if project support dspot otherwise try autoconfiguring 
         # assuming that dspot configurations is in the top most directory of
         # the project
-        POM_FILE = "clonedrepo/pom.xml"
-        timecap = '-{date:%Y-%m-%d-%H-%M-%S}'.format(
-            date=datetime.datetime.now())
-
+        timecap = '-{date:%Y-%m-%d-%H-%M-%S}'.format(date=datetime.datetime.now())
         if branch_exist:
-            if not run_Dspot_preconfig(POM_FILE,reposlug,timecap):
-                logging.warning("PROJECT DOES NOT SUPPORT DSPOT")
-                run_Dspot_autoconfig(reposlug,timecap)
+            if not run_Dspot_preconfig(reposlug,repobranch,selector):
+                logging.warn("PROJECT DOES NOT SUPPORT DSPOT, COMMENCING AUTOCONFIGURING")
+                run_Dspot_autoconfig(reposlug,repobranch,selector)
 
-            # Commit build to github
-            if check_endprocess_gitcommit(repo):
-                templist = os.getenv("PUSH_URL").split('//')
-                pushurl = templist[0] + '//' + token + '@' + templist[1] 
-                branch_name = reposlug.replace('/', "-") + timecap
-
-                logging.warning('Commit to git as new branch with name ' + branch_name)
-
-                current = repo.git.checkout('-b', branch_name)
-                # current.checkout()
-                time.sleep(10)
-                repo.git.add(A=True)
-                repo.git.commit(m='update from dspot')
-                repo.git.push(pushurl, branch_name)
-                logging.warning("GITHUB NAME: " + os.getenv("GITHUB_USERNAME"))
-            logging.warning("PIPELINE MESSAGE: DONE , AWAITING FOR NEW BUILD ID")
+            logging.warn("PIPELINE MESSAGE: DONE , AWAITING FOR NEW BUILD ID")
 
 conn = stomp.Connection10([(host, port)])
-conn.set_listener(LISTENER_NAME, BuildIdListener(conn))
-conn.start()
-conn.connect()
-logging.warning("Listener connected")
-conn.subscribe(QUEUE_NAME, ack='client', headers={'activemq.prefetchSize': 1})
+conn.set_listener(LISTENER_NAME, Listener(conn))
+connect_and_subscribe(conn);
+
 while True:
     time.sleep(3)
-conn.disconnect()
