@@ -64,13 +64,15 @@
 </head>
 
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-sm bg-primary navbar-dark align-items-left">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">Dspot</a>
-            <!-- Links -->
+    <!-- Destop nav -->
+    <nav class="navbar navbar-expand-md bg-primary navbar-dark align-items-left">
+        <a class="navbar-brand" href="/">Dspot</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
+                <li class="nav-item active">
                     <a class="nav-link active" href="/"><i class="fa fa-home"></i> Home</a>
                 </li>
                 <li class="nav-item">
@@ -125,7 +127,7 @@
                                     </div>
                                     <div class="form-check-inline ">
                                         <label class="form-check-label">
-                                            <input type="radio" class="d-none form-check-input" ng-model="user.dspot.selector" value="JacocoCoverageSelector">JacocoCoverage
+                                            <input type="radio" class="form-check-input" ng-model="user.dspot.selector" value="JacocoCoverageSelector">JacocoCoverage
                                         </label>
                                     </div>
                                 </div>
@@ -140,14 +142,14 @@
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                              <h3 class="modal-title">Submission result</h3>
-                                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                <h3 class="modal-title">Submission result</h3>
+                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
                                             </div>
                                             <!-- Modal body -->
                                             <div class="modal-body">
-                                               <p class="text-success tada"><strong>Success!!</strong></p>
-                                               <p>We'll comeback to you over email.</p>
-                                               <p>(you can now safely close this window)</p>
+                                                <p class="text-success tada"><strong>Success!!</strong></p>
+                                                <p>We'll comeback to you over email.</p>
+                                                <p>(you can now safely close this window)</p>
                                             </div>
                                             <div class="modal-footer">
                                                 <strong><em>The Dspot team</em></strong>
@@ -173,26 +175,28 @@
                 <div class="col-md-10 ">
                     <h3>Recent Repositories </h3>
                     <div id="App2" class="list-group" ng-app="recentReposApp" ng-controller="recentReposCtr">
-                        <div class="row justify-content-around">
-                            <div style="margin-left: 8%;">
-                                PitMutantScore
+                        <div class="container-fluid d-none d-sm-none d-md-none d-lg-inline" style="padding:0;margin:0;">
+                            <div class="row justify-content-around ">
+                                <div style="margin-left: 8%;">
+                                    PitMutantScore
+                                </div>
+                                <div style="margin-right: 2%;">
+                                    JacocoCoverage
+                                </div>
                             </div>
-                            <div style="margin-right: 2%;">
-                                JacocoCoverage
+                            <div class="row justify-content-center mb-1">
+                                <div class="m-2 d-flex box" id="box-1"></div>
+                                <div class="box-text text-black-50"><small>TotalOriginalMutantKills</small></div>
+                                <div class="m-2 d-flex box" id="box-2"></div>
+                                <div class="box-text text-black-50"><small>TotalNewMutantKills</small></div>
+                                <div class="m-2 d-flex box" id="box-3"></div>
+                                <div class="box-text text-black-50"><small>TotalInitialCoverage</small></div>
+                                <div class="m-2 d-flex box" id="box-4"></div>
+                                <div class="box-text text-black-50"><small>TotalAmpCoverage</small></div>
                             </div>
                         </div>
-                        <div class="row justify-content-center mb-1">
-                            <div class="m-2 d-flex box" id="box-1"></div>
-                            <div class="box-text text-black-50"><small>TotalOriginalMutantKills</small></div>
-                            <div class="m-2 d-flex box" id="box-2"></div>
-                            <div class="box-text text-black-50"><small>TotalNewMutantKills</small></div>
-                            <div class="m-2 d-flex box" id="box-3"></div>
-                            <div class="box-text text-black-50"><small>TotalInitialCoverage</small></div>
-                            <div class="m-2 d-flex box" id="box-4"></div>
-                            <div class="box-text text-black-50"><small>TotalAmpCoverage</small></div>
-                        </div>
-                        <a class="list-group-item list-group-item-action" ng-repeat="x in recentReposData" href="{{'/repo/' + x.RepoSlug + '/' + x.RepoBranch}}">
-                            <div class="d-flex flex-row justify-content-between" ng-if="x.AmpOptions['test-criterion'] == 'PitMutantScoreSelector'">
+                        <a ng-cloak class="list-group-item list-group-item-action d-none d-sm-inline" ng-repeat="x in recentReposData" href="{{'/repo/' + x.RepoSlug + '/' + x.RepoBranch}}">
+                            <div class="d-flex flex-row justify-content-between">
                                 <div class="d-flex col-md-4 text-left">
                                     {{x.RepoSlug | cut:true:20:' ...'}}<br />
                                     ({{dateDiff(x.Date)}})
@@ -201,39 +205,36 @@
                                     {{x.RepoBranch | cut:true:10:' ...'}}<br />
                                     (branch)
                                 </div>
-                                <div class="d-flex col-md-3 text-left ">
-                                    {{x.AmpOptions['test-criterion'].substring(0,14)}}<br />
-                                    (amp. criterion)
+                                <div class="d-flex col-md-3 text-left d-none d-sm-inline">
+                                    <span class="d-none d-sm-inline">{{x.AmpOptions['test-criterion'].substring(0,14)}}<br />
+                                        (amp. criterion)</span>
                                 </div>
-                                <div class="d-flex col-md-2 text-left">
-                                    {{x.State}}<br />
-                                    (state)
+                                <div class="d-flex col-md-1 text-left d-sm-none d-md-inline">
+                                    <span class="d-none  d-sm-none d-md-inline"> {{x.State}}<br /> (state) </span>
                                 </div>
-                                <div class="d-flex" style="position:relative;height:40px; width:80px;">
-                                    <canvas class="d-none d-sm-none d-md-block" id="{{x.RepoSlug + '(' + x.RepoBranch + ')'}}"></canvas>
+                                <div class="d-flex col-md-2 align-content-right" style="position:relative;" ng-if="x.AmpOptions['test-criterion'] == 'PitMutantScoreSelector'">
+                                    <canvas class="d-none d-sm-none d-md-none d-lg-inline" id="{{x.RepoSlug + '(' + x.RepoBranch + ')'}}"></canvas>
                                     <add-donut-graph-for-pit-mutant></add-donut-graph-for-pit-mutant>
                                 </div>
-                            </div>
-                            <div class="d-flex flex-row justify-content-between" ng-if="x.AmpOptions['test-criterion'] == 'JacocoCoverageSelector'">
-                                <div class="d-flex text-left col-sm-4 ">
-                                    {{x.RepoSlug | cut:true:20:' ...'}}<br />
-                                    ({{dateDiff(x.Date)}})
-                                </div>
-                                <div class="d-flex col-md-2 text-left">
-                                    {{x.RepoBranch | cut:true:10:' ...'}}<br />
-                                    (branch)
-                                </div>
-                                <div class="d-flex col-sm-3 text-left">
-                                    {{x.AmpOptions['test-criterion'].substring(0,14)}}<br />
-                                    (amp. criterion)
-                                </div>
-                                <div class="d-flex col-md-2 text-left">
-                                    {{x.State}}<br />
-                                    (state)
-                                </div>
-                                <div class="d-flex" style="position:relative;height:40px; width:80px;">
-                                    <canvas class="d-none d-sm-none d-md-block" id="{{x.RepoSlug + '(' + x.RepoBranch + ')'}}"></canvas>
+                                <div class="d-flex col-md-2" style="position:relative;" ng-if="x.AmpOptions['test-criterion'] == 'JacocoCoverageSelector'">
+                                    <canvas class="d-none d-sm-none d-md-none d-lg-inline" id="{{x.RepoSlug + '(' + x.RepoBranch + ')'}}"></canvas>
                                     <add-donut-graph-for-jacoco-cov></add-donut-graph-for-jacoco-cov>
+                                </div>
+                            </div>
+                        </a>
+                        <a ng-cloak class="list-group-item list-group-item-action d-inline d-sm-none" ng-repeat="x in recentReposData" href="{{'/repo/' + x.RepoSlug + '/' + x.RepoBranch}}">
+                            <div class="d-flex flex-row justify-content-between">
+                                <div class="col-md-11">
+                                    <span>
+                                        {{x.RepoSlug | cut:true:20:' ...'}}<br/>
+                                        ({{dateDiff(x.Date)}})
+                                    </span>
+                                </div>
+                                <div class=" col-md-1">
+                                    <span class="text-right">
+                                        {{x.RepoBranch | cut:true:10:' ...'}}<br/>
+                                        (branch)
+                                    </span>
                                 </div>
                             </div>
                         </a>

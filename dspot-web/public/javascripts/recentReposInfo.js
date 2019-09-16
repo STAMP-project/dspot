@@ -37,7 +37,7 @@ var recentRepos = angular.module("recentReposApp", []);
 /*Directives*/
 recentRepos.directive("addDonutGraphForPitMutant", function() {
   return {
-    template : "{{addDonutGraph(x.RepoSlug + '(' + x.RepoBranch + ')',[x.AmpResult.TotalResult.totalOrignalKilledMutants,x.AmpResult.TotalResult.totalNewMutantkilled],['OriginalKills', 'NewKills'],['#007bff', '#28a745'])}}"
+    template : "{{addDonutGraph(x.RepoSlug + '(' + x.RepoBranch + ')',[x.AmpResult.TotalResult.totalOriginalKilledMutants,x.AmpResult.TotalResult.totalNewMutantKilled],['OriginalKills', 'NewKills'],['#007bff', '#28a745'])}}"
   };
 });
 
@@ -51,6 +51,7 @@ recentRepos.directive("addDonutGraphForJacocoCov", function() {
 recentRepos.controller("recentReposCtr", function($scope, $http) {
     $http.get("/data/recent").then(function(res) {
         $scope.recentReposData = res.data;
+        console.log(res.data[0].AmpResult.TotalResult.totalOriginalKilledMutants);
     });
     $scope.addDonutGraph = function(elemId, donutdata,label,colors) {
         new Chart(document.getElementById(elemId), {
@@ -65,7 +66,7 @@ recentRepos.controller("recentReposCtr", function($scope, $http) {
                 labels: label
             },
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
             options: {
                 legend: {
                     display: false

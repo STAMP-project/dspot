@@ -3,7 +3,7 @@ var allReposApp = angular.module("allReposApp", []);
 /*Directives*/
 allReposApp.directive("addDonutGraphForPitMutant", function() {
     return {
-        template: "{{addDonutGraph(x.RepoSlug + x.RepoBranch + 'PitMutantScore' + dateDiff(x.Date),[x.AmpResult.TotalResult.totalOrignalKilledMutants,x.AmpResult.TotalResult.totalNewMutantkilled],['OriginalKills', 'NewKills'],['#007bff', '#28a745'])}}"
+        template: "{{addDonutGraph(x.RepoSlug + x.RepoBranch + 'PitMutantScore' + dateDiff(x.Date),[x.AmpResult.TotalResult.totalOriginalKilledMutants,x.AmpResult.TotalResult.totalNewMutantKilled],['OriginalKills', 'NewKills'],['#007bff', '#28a745'])}}"
     };
 });
 
@@ -13,11 +13,10 @@ allReposApp.directive("addDonutGraphForJacocoCov", function() {
     };
 });
 
-
 /*Controller*/
 allReposApp.controller("allReposCtr", function($scope, $http) {
     /*variables */
-    var statesToInclude = ['recent', 'pending']; 
+    var statesToInclude = ['recent', 'pending'];
     /*Http requests*/
     $http.get("/data/All").then(function(res) {
         $scope.allReposData = res.data;
@@ -29,132 +28,131 @@ allReposApp.controller("allReposCtr", function($scope, $http) {
         var pendingReposDataVar = [];
         /*Separate data - put this into some kind of function later*/
         for (index in res.data) {
-          if (res.data[index].State == "recent") {
-            recentReposDataVar.push(res.data[index]);
-          } else {
-            pendingReposDataVar.push(res.data[index]);
-          }
+            if (res.data[index].State == "recent") {
+                recentReposDataVar.push(res.data[index]);
+            } else {
+                pendingReposDataVar.push(res.data[index]);
+            }
         }
         $scope.recentReposData = recentReposDataVar;
         $scope.pendingReposData = pendingReposDataVar;
 
-        $scope.$watchGroup(["InputSlug","dataToShow"], function() {
-          var filteredData = [];
-          for ( index in $scope.dataToShow) {
-            if($scope.dataToShow[index].RepoSlug.includes($scope.InputSlug)) {
-              filteredData.push($scope.dataToShow[index]);
+        $scope.$watchGroup(["InputSlug", "dataToShow"], function() {
+            var filteredData = [];
+            for (index in $scope.dataToShow) {
+                if ($scope.dataToShow[index].RepoSlug.includes($scope.InputSlug)) {
+                    filteredData.push($scope.dataToShow[index]);
+                }
             }
-          }
-          $scope.filteredDataToShow = filteredData;
+            $scope.filteredDataToShow = filteredData;
         });
     }).then(function() {
-      /*Pagination*/
-      $scope.curPage = 0;
-      $scope.itemsPerPage = 10;
-      $scope.maxSize = 5;
-      $scope.numOfPages = function() {
-        return Math.ceil($scope.filteredDataToShow.length / $scope.itemsPerPage);
-      };
+        /*Pagination*/
+        $scope.curPage = 0;
+        $scope.itemsPerPage = 10;
+        $scope.maxSize = 5;
+        $scope.numOfPages = function() {
+            return Math.ceil($scope.filteredDataToShow.length / $scope.itemsPerPage);
+        };
 
-      $scope.$watchGroup(['curPage + numPerPage','filteredDataToShow'], function() {
-          var begin = $scope.curPage * $scope.itemsPerPage,
-              end = begin + $scope.itemsPerPage;
-          $scope.slicedData = $scope.filteredDataToShow.slice(begin, end);
-      });
+        $scope.$watchGroup(['curPage + numPerPage', 'filteredDataToShow'], function() {
+            var begin = $scope.curPage * $scope.itemsPerPage,
+                end = begin + $scope.itemsPerPage;
+            $scope.slicedData = $scope.filteredDataToShow.slice(begin, end);
+        });
     })
 
-$scope.addDonutGraph = function(elemId, donutdata, label, colors) {
-    new Chart(document.getElementById(elemId), {
-        type: "doughnut",
-        data: {
-            datasets: [{
-                data: donutdata,
-                backgroundColor: colors
-            }],
+    $scope.addDonutGraph = function(elemId, donutdata, label, colors) {
+        new Chart(document.getElementById(elemId), {
+            type: "doughnut",
+            data: {
+                datasets: [{
+                    data: donutdata,
+                    backgroundColor: colors
+                }],
 
-            // These labels appear in the legend and in the tooltips when hovering different arcs
-            labels: label
-        },
-        responsive: true,
-        maintainAspectRatio: true,
-        options: {
-            legend: {
-                display: false
+                // These labels appear in the legend and in the tooltips when hovering different arcs
+                labels: label
             },
-            tooltips: {
-                enabled: false,
-                displayColors: false,
-                borderWidth: 10
+            responsive: true,
+            maintainAspectRatio: true,
+            options: {
+                legend: {
+                    display: false
+                },
+                tooltips: {
+                    enabled: false,
+                    displayColors: false
+                }
+            }
+        });
+    };
+
+
+    /*Helpers*/
+    $scope.dateDiff = function(givenDate) {
+        var newDate = Math.floor((new Date() - new Date(givenDate)) / 1000);
+        if (newDate < 60) {
+            return newDate.toString() + " seconds ago";
+        } else if (Math.floor(newDate / 60) < 60) {
+            return Math.floor(newDate / 60).toString() + " minutes ago";
+        } else if (Math.floor(newDate / 3600) < 24) {
+            return Math.floor(newDate / 3600).toString() + " hrs ago";
+        } else {
+            return Math.floor(newDate / 86400).toString() + " days ago";
+        };
+    }
+
+
+    $scope.switchRecentState = function() {
+        var index = $.inArray("recent", statesToInclude);
+        if (index > -1) {
+            statesToInclude.splice(index, 1);
+            /*Recent state is with the view array, switch to only pending if pending is with include states*/
+            if ($.inArray("pending", statesToInclude) > -1) {
+                $scope.dataToShow = $scope.pendingReposData;
+            } else {
+                $scope.dataToShow = [];
+            }
+        } else {
+            /*If it's empty then only include recent data*/
+            statesToInclude.push("recent");
+            if ($.inArray("pending", statesToInclude) > -1) {
+                /*If pending should also be included*/
+                $scope.dataToShow = $scope.allReposData;
+            } else {
+                /*Otherwise only show recent*/
+                $scope.dataToShow = $scope.recentReposData;
             }
         }
-    });
-};
-
-
-/*Helpers*/
-$scope.dateDiff = function(givenDate) {
-  var newDate = Math.floor((new Date() - new Date(givenDate))/1000);
-  if (newDate < 60) {
-    return  newDate.toString() + " seconds ago";
-  } else if (Math.floor(newDate/60) < 60) {
-    return Math.floor(newDate/60).toString() + " minutes ago";
-  } else if (Math.floor(newDate/3600) < 24) {
-    return Math.floor(newDate/3600).toString() + " hrs ago";
-  } else {
-    return Math.floor(newDate/86400).toString() + " days ago";
-  };
-}
-
-
-$scope.switchRecentState = function() {
-  var index = $.inArray("recent", statesToInclude);
-  if (index > -1) {
-    statesToInclude.splice(index, 1);
-    /*Recent state is with the view array, switch to only pending if pending is with include states*/
-    if ($.inArray("pending", statesToInclude) > -1) {
-      $scope.dataToShow = $scope.pendingReposData;
-    } else {
-      $scope.dataToShow = [];
     }
-  } else {
-    /*If it's empty then only include recent data*/
-    statesToInclude.push("recent");
-    if ($.inArray("pending", statesToInclude) > -1) {
-      /*If pending should also be included*/
-      $scope.dataToShow = $scope.allReposData;
-    } else {
-      /*Otherwise only show recent*/
-      $scope.dataToShow = $scope.recentReposData;
-    }
-  }
-}
 
-$scope.switchPendingState = function() {
-  var index = $.inArray("pending", statesToInclude);
-  if (index > -1) {
-    /*Pending state is with the view array, after switching only show recent*/
-    statesToInclude.splice(index, 1);
-    if ($.inArray("recent", statesToInclude) > -1) {
-      $scope.dataToShow = $scope.recentReposData;
-    } else {
-      $scope.dataToShow = [];
+    $scope.switchPendingState = function() {
+        var index = $.inArray("pending", statesToInclude);
+        if (index > -1) {
+            /*Pending state is with the view array, after switching only show recent*/
+            statesToInclude.splice(index, 1);
+            if ($.inArray("recent", statesToInclude) > -1) {
+                $scope.dataToShow = $scope.recentReposData;
+            } else {
+                $scope.dataToShow = [];
+            }
+        } else {
+            /*If it's empty then only include pending data*/
+            statesToInclude.push("pending");
+            if ($.inArray("recent", statesToInclude) > -1) {
+                /*If recent should also be included*/
+                $scope.dataToShow = $scope.allReposData;
+            } else {
+                /*Otherwise only show pending*/
+                $scope.dataToShow = $scope.pendingReposData;
+            }
+        }
     }
-  } else {
-    /*If it's empty then only include pending data*/
-    statesToInclude.push("pending");
-    if ($.inArray("recent", statesToInclude) > -1) {
-      /*If recent should also be included*/
-      $scope.dataToShow = $scope.allReposData;
-    } else {
-      /*Otherwise only show pending*/
-      $scope.dataToShow = $scope.pendingReposData;
-    }
-  }
-}
 
-$scope.resetFilter = function() {
-  firstFilteredData = [];
-}
+    $scope.resetFilter = function() {
+        firstFilteredData = [];
+    }
 
 });
 
@@ -184,17 +182,17 @@ allReposApp.filter('cut', function() {
 });
 
 allReposApp.filter('range', function() {
-  return function(input, total) {
-    if(total > 0) {
-      total = parseInt(total);
+    return function(input, total) {
+        if (total > 0) {
+            total = parseInt(total);
 
-      for (var i=0; i<total; i++) {
-        input.push(i);
-      }
+            for (var i = 0; i < total; i++) {
+                input.push(i);
+            }
 
-      return input;
-    } else {
-      return [];
-    }
-  };
+            return input;
+        } else {
+            return [];
+        }
+    };
 });
