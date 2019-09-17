@@ -2,6 +2,7 @@ package eu.stamp_project.prettifier.context2name;
 
 import eu.stamp_project.prettifier.Main;
 import eu.stamp_project.utils.AmplificationHelper;
+import org.junit.Ignore;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
@@ -15,6 +16,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class Context2NameTest {
+
+    @Ignore
     @Test
     public void testContext2Name() {
         String codeStr = "import spoon.Launcher;" + AmplificationHelper.LINE_SEPARATOR +
