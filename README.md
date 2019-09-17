@@ -128,45 +128,7 @@ java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --path-to-properties d
 
 ### Maven plugin usage
 
-You can execute DSpot using the maven plugin. You can use this plugin on the command line as the jar:
-
-```bash
-# this amplifies the Junit tests to kill more mutants
-mvn eu.stamp-project:dspot-maven:amplify-unit-tests
-
-# this amplifies the Junit tests to improve coverage
-mvn eu.stamp-project:dspot-maven:amplify-unit-tests -Dtest-criterion=JacocoCoverageSelector
-
-```  
-
-All the option can be pass through command line by prefixing the option with `-D`.
-For example: 
-
-```bash
-mvn eu.stamp-project:dspot-maven:amplify-unit-tests -Dpath-to-properties=dspot.properties -Dtest=my.package.TestClass -Dcases=testMethod
-```
-
-or, you can add the following to your `pom.xml`, in the plugins section of the build:
-
-```xml
-<plugin>
-    <groupId>eu.stamp-project</groupId>
-    <artifactId>dspot-maven</artifactId>
-    <version>LATEST</version>
-    <configuration>
-        <!-- your configuration --> 
-    </configuration>
-</plugin>
-```
-Replace `LATEST` with the latest DSpot version number available at Maven central: `2.0.0`
-
-In case your project is a multi-module, we advise you to configure DSpot in the highest `pom.xml` and use the dedicated property `targetModule` to name the module you want to amplify
-
-After setting up your `pom.xml` and add your configuration with different options,run:
-
-```bash
-mvn dspot:amplify-unit-tests
-``` 
+You can execute DSpot using the maven plugin. For more details, see the dedicated [README](https://github.com/STAMP-project/dspot/blob/master/dspot-maven/README.md).
 
 ### Command line options
 
