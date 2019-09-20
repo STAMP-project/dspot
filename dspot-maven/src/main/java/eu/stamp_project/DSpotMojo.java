@@ -15,9 +15,12 @@ import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Mojo(name = "amplify-unit-tests", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.TEST)
@@ -285,17 +288,20 @@ public class DSpotMojo extends AbstractMojo {
             JSAPOptions.showUsage();
         }
         Properties properties = initializeProperties();
-        if (this.runOnAllModules ||
-                (properties.getProperty(ConstantsProperties.MODULE.getName()) != null ||
+
+        if (this.runOnAllModules &&
+                !properties.getProperty(ConstantsProperties.MODULE.getName()).isEmpty()) {
+            properties.put(ConstantsProperties.MODULE.getName(),
+                    DSpotUtils.shouldAddSeparator.apply(
+                        DSpotUtils.shouldAddSeparator.apply(this.project.getBasedir().getAbsolutePath())
+                            .substring(ConstantsProperties.PROJECT_ROOT_PATH.get(properties).length())
+                    )
+            );
+        } else if ((properties.getProperty(ConstantsProperties.MODULE.getName()) != null ||
                 !properties.getProperty(ConstantsProperties.MODULE.getName()).isEmpty())) {
-            if (!this.project.getBasedir().getAbsolutePath().endsWith(ConstantsProperties.MODULE.get(properties))) {
+            if (!DSpotUtils.shouldAddSeparator.apply(
+                    this.project.getBasedir().getAbsolutePath()).endsWith(ConstantsProperties.MODULE.get(properties))) {
                 return;
-            } else {
-                properties.put(ConstantsProperties.PROJECT_ROOT_PATH.getName(),
-                        ConstantsProperties.PROJECT_ROOT_PATH.get(properties).substring(0,
-                                ConstantsProperties.PROJECT_ROOT_PATH.get(properties).length() - ConstantsProperties.MODULE.get(properties).length()
-                        )
-                );
             }
         }
 
@@ -397,8 +403,21 @@ public class DSpotMojo extends AbstractMojo {
                 e.printStackTrace();
             }
         }
+
+        properties.put(ConstantsProperties.PROJECT_ROOT_PATH.getName(),
+                formatPath.apply(ConstantsProperties.PROJECT_ROOT_PATH.get(properties))
+        );
+
         return properties;
     }
+
+    private static final Function<String, String> formatPath = path ->
+        DSpotUtils.shouldAddSeparator.apply(
+                Paths.get(new File(path).getAbsolutePath())
+                        .normalize()
+                        .toString()
+        );
+
 
     /*
         Setters are used for testing
