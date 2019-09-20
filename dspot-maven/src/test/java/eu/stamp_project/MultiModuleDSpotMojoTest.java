@@ -1,5 +1,6 @@
 package eu.stamp_project;
 
+import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.program.ConstantsProperties;
 import org.apache.maven.plugin.testing.MojoRule;
 import org.junit.Rule;
@@ -33,7 +34,7 @@ public class MultiModuleDSpotMojoTest {
         mojoUnderTest = (DSpotMojo) mojoRule.lookupConfiguredMojo(testPom, "amplify-unit-tests");
         final Properties properties = mojoUnderTest.initializeProperties();
         assertNotNull(properties.get(ConstantsProperties.PROJECT_ROOT_PATH.getName()));
-        assertEquals(testPom.getAbsolutePath(), properties.get(ConstantsProperties.PROJECT_ROOT_PATH.getName()));
+        assertEquals(DSpotUtils.shouldAddSeparator.apply(testPom.getAbsolutePath()), properties.get(ConstantsProperties.PROJECT_ROOT_PATH.getName()));
         assertNotNull(properties.get(ConstantsProperties.SRC_CODE.getName()));
         assertEquals("src/main/java/", properties.get(ConstantsProperties.SRC_CODE.getName()));
         assertNotNull(properties.get(ConstantsProperties.TEST_SRC_CODE.getName()));
