@@ -39,9 +39,8 @@ public class DSpotCompilerTest {
     // TODO update with configuration
     @Test
     public void testDSpotCompiler() throws Exception {
-
-        final InputConfiguration configuration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
-        final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(configuration, "");
+        InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
+        final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler("");
         final CtClass<?> aClass = getClass(compiler.getLauncher().getFactory());
         final List<CtMethod<?>> method = aClass.getMethodsByName("method");
         final List<CtMethod<?>> compile = TestCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, "", method);

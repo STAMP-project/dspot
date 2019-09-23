@@ -73,7 +73,7 @@ public class Utils {
 			Utils.getInputConfiguration().setMinimize(false);
 			Utils.getInputConfiguration().setVerbose(true);
 			builder = inputConfiguration.getBuilder();
-			compiler = DSpotCompiler.createDSpotCompiler(inputConfiguration, inputConfiguration.getDependencies());
+			compiler = DSpotCompiler.createDSpotCompiler(inputConfiguration.getDependencies());
 			inputConfiguration.setFactory(compiler.getLauncher().getFactory());
 			inputConfiguration.setBudgetizer(InputAmplDistributorEnum.RandomInputAmplDistributor);
 			currentInputConfigurationLoaded = pathToConfFile;

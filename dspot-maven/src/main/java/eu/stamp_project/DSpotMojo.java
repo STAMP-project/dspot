@@ -3,7 +3,6 @@ package eu.stamp_project;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.options.*;
-import eu.stamp_project.utils.program.ConstantsProperties;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.maven.model.Build;
 import org.apache.maven.plugin.AbstractMojo;
@@ -15,7 +14,6 @@ import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;

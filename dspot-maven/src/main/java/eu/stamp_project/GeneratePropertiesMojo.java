@@ -1,7 +1,6 @@
 package eu.stamp_project;
 
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.program.ConstantsProperties;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;

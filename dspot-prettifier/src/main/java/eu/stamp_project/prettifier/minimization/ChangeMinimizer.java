@@ -30,8 +30,6 @@ public class ChangeMinimizer extends GeneralMinimizer {
 
     private CtType<?> testClass;
 
-    private InputConfiguration configuration;
-
     private String pathToFirstVersionOfProgram;
 
     private String pathToSecondVersionOfProgram;
@@ -39,13 +37,11 @@ public class ChangeMinimizer extends GeneralMinimizer {
     private Map<CtMethod<?>, Failure> failurePerAmplifiedTest;
 
     public ChangeMinimizer(CtType<?> testClass,
-                           InputConfiguration configuration,
                            Map<CtMethod<?>, Failure> failurePerAmplifiedTest) {
         this.testClass = testClass;
-        this.configuration = configuration;
         this.failurePerAmplifiedTest = failurePerAmplifiedTest;
         this.pathToFirstVersionOfProgram = InputConfiguration.get().getAbsolutePathToProjectRoot();
-        this.pathToSecondVersionOfProgram = configuration.getAbsolutePathToSecondVersionProjectRoot();
+        this.pathToSecondVersionOfProgram = InputConfiguration.get().getAbsolutePathToSecondVersionProjectRoot();
     }
 
     @Override
@@ -80,13 +76,13 @@ public class ChangeMinimizer extends GeneralMinimizer {
     private void updateStackTrace(CtMethod<?> amplifiedTestToBeMinimized, CtMethod<?> changeMinimize) {
         CtType<?> clone = this.testClass.clone();
         // must compile
-        if (!printAndCompile(this.configuration, clone, changeMinimize)) {
+        if (!printAndCompile(clone, changeMinimize)) {
             throw new RuntimeException("The minimizer created an uncompilable test method.");
         }
         // must have (the same?) failure
         try {
             final TestResult result = EntryPoint.runTests(
-                    this.configuration.getFullClassPathWithExtraDependencies(),
+                    InputConfiguration.get().getFullClassPathWithExtraDependencies(),
                     clone.getQualifiedName(),
                     changeMinimize.getSimpleName());
             final Failure failure = result.getFailingTests().get(0);
@@ -120,7 +116,7 @@ public class ChangeMinimizer extends GeneralMinimizer {
     private boolean checkIfMinimizationIsOk(CtMethod<?> amplifiedTestToBeMinimized, Failure failure) {
         CtType<?> clone = this.testClass.clone();
         // must compile
-        if (!printAndCompile(this.configuration, clone, amplifiedTestToBeMinimized)) {
+        if (!printAndCompile(clone, amplifiedTestToBeMinimized)) {
             return false;
         }
         try {
@@ -137,15 +133,15 @@ public class ChangeMinimizer extends GeneralMinimizer {
     }
 
     // TODO this is maybe redundant with TestCompiler and TestRunner
-    private boolean printAndCompile(InputConfiguration configuration, CtType<?> clone, CtMethod<?> amplifiedTestToBeMinimized) {
+    private boolean printAndCompile(CtType<?> clone, CtMethod<?> amplifiedTestToBeMinimized) {
         clone.setParent(this.testClass.getParent());
         this.testClass.getMethods().stream()
                 .filter(TestFramework.get()::isTest)
                 .forEach(clone::removeMethod);
         clone.addMethod(amplifiedTestToBeMinimized);
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));
-        return DSpotCompiler.compile(configuration, DSpotCompiler.getPathToAmplifiedTestSrc(),
-                this.configuration.getFullClassPathWithExtraDependencies(),
-                new File(this.configuration.getAbsolutePathToTestClasses()));
+        return DSpotCompiler.compile(DSpotCompiler.getPathToAmplifiedTestSrc(),
+                InputConfiguration.get().getFullClassPathWithExtraDependencies(),
+                new File(InputConfiguration.get().getAbsolutePathToTestClasses()));
     }
 }

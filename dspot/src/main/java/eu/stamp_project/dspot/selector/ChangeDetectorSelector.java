@@ -86,7 +86,6 @@ public class ChangeDetectorSelector implements TestSelector {
 
         InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
         DSpotCompiler.compile(
-                InputConfiguration.get(),
                 pathToAmplifiedTestSrc,
                 InputConfiguration.get().getFullClassPathWithExtraDependencies(),
                 new File(this.pathToSecondVersionOfProgram + InputConfiguration.get().getPathToTestClasses())

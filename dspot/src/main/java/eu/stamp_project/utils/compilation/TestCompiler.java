@@ -44,7 +44,7 @@ public class TestCompiler {
 
     /**
      * Create a clone of the test class, using {@link CloneHelper#cloneTestClassAndAddGivenTest(CtType, List)}.
-     * Then, compile and run the test using {@link eu.stamp_project.utils.compilation.TestCompiler#compileAndRun(CtType, DSpotCompiler, List, InputConfiguration)}
+     * Then, compile and run the test using {@link eu.stamp_project.utils.compilation.TestCompiler#compileAndRun(CtType, DSpotCompiler, List)}
      * Finally, discard all failing test methods
      *
      * @param classTest       Test class
@@ -53,19 +53,17 @@ public class TestCompiler {
      */
     public static List<CtMethod<?>> compileRunAndDiscardUncompilableAndFailingTestMethods(CtType classTest,
                                                                                     List<CtMethod<?>> currentTestList,
-                                                                                    DSpotCompiler compiler,
-                                                                                    InputConfiguration configuration) {
+                                                                                    DSpotCompiler compiler) {
         CtType amplifiedTestClass = CloneHelper.cloneTestClassAndAddGivenTest(classTest, currentTestList);
         try {
             final TestResult result = TestCompiler.compileAndRun(
                     amplifiedTestClass,
                     compiler,
-                    currentTestList,
-                    configuration
+                    currentTestList
             );
             return AmplificationHelper.getPassingTests(currentTestList, result);
         } catch (AmplificationException e) {
-            if (configuration.isVerbose()) {
+            if (InputConfiguration.get().isVerbose()) {
                 e.printStackTrace();
             }
             return Collections.emptyList();
@@ -83,19 +81,17 @@ public class TestCompiler {
      * @param testClass     the test class to be compiled
      * @param compiler      the compiler
      * @param testsToRun    the test methods to be run, should be in testClass
-     * @param configuration the configuration of the project
      * @return an instance of {@link eu.stamp_project.testrunner.listener.TestResult}
      * that contains the result of the execution of test methods if everything went fine, null otherwise.
      * @throws AmplificationException in case the compilation failed or a timeout has been thrown.
      */
     public static TestResult compileAndRun(CtType<?> testClass,
                                              DSpotCompiler compiler,
-                                             List<CtMethod<?>> testsToRun,
-                                             InputConfiguration configuration) throws AmplificationException {
-        final String dependencies = configuration.getClasspathClassesProject()
+                                             List<CtMethod<?>> testsToRun) throws AmplificationException {
+        final String dependencies = InputConfiguration.get().getClasspathClassesProject()
                 + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies();
         DSpotUtils.copyPackageFromResources();
-        final String classPath = AmplificationHelper.getClassPath(compiler, configuration);
+        final String classPath = AmplificationHelper.getClassPath(compiler);
         //Add parallel test execution support (JUnit4, JUnit5) for execution method (CMD, Maven)
         if (InputConfiguration.get().shouldExecuteTestsInParallel()) {
             CloneHelper.addParallelExecutionAnnotation (testClass, testsToRun);
@@ -129,7 +125,7 @@ public class TestCompiler {
         }
 
         testsToRun = TestCompiler.compileAndDiscardUncompilableMethods(compiler, testClass, dependencies, testsToRun);
-        EntryPoint.timeoutInMs = 1000 + (configuration.getTimeOutInMs() * testsToRun.size());
+        EntryPoint.timeoutInMs = 1000 + (InputConfiguration.get().getTimeOutInMs() * testsToRun.size());
         if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) { // if the test class is abstract, we use one of its implementation
             return TestRunner.runSubClassesForAbstractTestClass(testClass, testsToRun, classPath);
         } else {

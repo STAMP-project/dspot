@@ -48,7 +48,8 @@ public class Amplification {
                          InputAmplDistributor inputAmplDistributor,
                          int numberOfIteration) {
         this.compiler = compiler;
-        this.assertionGenerator = new AssertionGenerator(InputConfiguration.get(), this.compiler);
+        this.assertionGenerator = new AssertionGenerator(this.compiler);
+        this.globalNumberOfSelectedAmplification = 0;
         this.testSelector = testSelector;
         this.inputAmplDistributor = inputAmplDistributor;
         this.globalNumberOfSelectedAmplification = 0;
@@ -80,8 +81,7 @@ public class Amplification {
                     TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
                             testClassToBeAmplified,
                             testMethodsToBeAmplified,
-                            this.compiler,
-                            InputConfiguration.get()
+                            this.compiler
                     );
         } catch (Exception | java.lang.Error e) {
             Main.GLOBAL_REPORT.addError(new Error(ERROR_EXEC_TEST_BEFORE_AMPLIFICATION, e));
@@ -213,8 +213,7 @@ public class Amplification {
                 TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
                         classTest,
                         testsWithAssertions,
-                        this.compiler,
-                        InputConfiguration.get()
+                        this.compiler
                 );
         LOGGER.info("Assertion amplification: {} test method(s) has been successfully amplified.", amplifiedPassingTests.size());
         return amplifiedPassingTests;

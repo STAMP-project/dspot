@@ -1,8 +1,6 @@
 package eu.stamp_project.utils.report.error;
 
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.program.ConstantsProperties;
-import eu.stamp_project.utils.program.InputConfigurationProperty;
 
 /**
  * created by Benjamin DANGLOT

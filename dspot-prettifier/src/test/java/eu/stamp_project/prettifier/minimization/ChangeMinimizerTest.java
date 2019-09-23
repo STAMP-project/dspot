@@ -39,7 +39,7 @@ public class ChangeMinimizerTest extends AbstractTest {
          */
         final CtClass testClass = Utils.findClass("example.TestSuiteExample");
         final String configurationPath = Utils.getInputConfiguration().getConfigPath();
-        InputConfiguration inputConfiguration = InputConfiguration.initialize(configurationPath);
+        InputConfiguration.initialize(configurationPath);
         final HashMap<CtMethod<?>, Failure> failurePerAmplifiedTest = new HashMap<>();
         final CtMethod<?> test2 = Utils.findMethod(testClass, "test2");
         failurePerAmplifiedTest.put(test2,
@@ -48,7 +48,6 @@ public class ChangeMinimizerTest extends AbstractTest {
 
         final ChangeMinimizer changeMinimizer = new ChangeMinimizer(
                 testClass,
-                inputConfiguration,
                 failurePerAmplifiedTest
         );
         final CtInvocation assertion = test2.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {

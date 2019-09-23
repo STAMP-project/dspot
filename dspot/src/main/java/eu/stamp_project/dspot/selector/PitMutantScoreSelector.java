@@ -163,7 +163,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 + AmplificationHelper.PATH_SEPARATOR +
                 InputConfiguration.get().getClasspathClassesProject()
                 + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies();
-        DSpotCompiler.compile(InputConfiguration.get(), DSpotCompiler.getPathToAmplifiedTestSrc(), classpath,
+        DSpotCompiler.compile(DSpotCompiler.getPathToAmplifiedTestSrc(), classpath,
                 new File(InputConfiguration.get().getAbsolutePathToTestClasses()));
 
         InputConfiguration.get().getBuilder().runPit(clone);

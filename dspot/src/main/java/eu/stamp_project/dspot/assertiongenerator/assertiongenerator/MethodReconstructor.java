@@ -39,18 +39,13 @@ public class MethodReconstructor {
 
     private Factory factory;
 
-    private InputConfiguration configuration;
-
     private Observer observer;
 
     public MethodReconstructor(CtType originalClass,
-                               InputConfiguration configuration,
                                DSpotCompiler compiler,
                                Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted) {
-        this.configuration = configuration;
-        this.factory = configuration.getFactory();
+        this.factory = InputConfiguration.get().getFactory();
         this.observer = new Observer(originalClass,
-                configuration,
                 compiler,
                 variableReadsAsserted);
     }
@@ -109,7 +104,7 @@ public class MethodReconstructor {
                     test,
                     observations.get(id).getNotDeterministValues(),
                     observations.get(id).getObservationValues(),
-                    Double.parseDouble(configuration.getDelta())
+                    Double.parseDouble(InputConfiguration.get().getDelta())
             );
 
             /* skip the current observation if it leads to

@@ -6,7 +6,6 @@ import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.options.AmplifierEnum;
 import eu.stamp_project.utils.options.InputAmplDistributorEnum;
 import eu.stamp_project.utils.options.SelectorEnum;
-import eu.stamp_project.utils.program.ConstantsProperties;
 import eu.stamp_project.utils.report.error.Error;
 import eu.stamp_project.utils.report.error.ErrorEnum;
 import org.jetbrains.annotations.NotNull;

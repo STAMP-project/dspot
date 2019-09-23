@@ -188,7 +188,7 @@ public class PitMutantMinimizer implements Minimizer {
                 + AmplificationHelper.PATH_SEPARATOR +
                 InputConfiguration.get().getClasspathClassesProject()
                 + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies();
-        DSpotCompiler.compile(InputConfiguration.get(),
+        DSpotCompiler.compile(
                 DSpotCompiler.getPathToAmplifiedTestSrc(),
                 classpath,
                 new File(InputConfiguration.get().getAbsolutePathToTestClasses())

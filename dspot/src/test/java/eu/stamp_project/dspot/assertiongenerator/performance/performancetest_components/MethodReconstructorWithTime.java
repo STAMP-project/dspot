@@ -39,16 +39,12 @@ public class MethodReconstructorWithTime extends MethodReconstructor {
 
     private Factory factory;
 
-    private InputConfiguration configuration;
-
     private ObserverWithTime observerWithTime;
 
-    public MethodReconstructorWithTime(CtType originalClass, InputConfiguration configuration, DSpotCompiler compiler, Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted) {
-        super(originalClass, configuration, compiler, variableReadsAsserted);
-        this.configuration = configuration;
-        this.factory = configuration.getFactory();
+    public MethodReconstructorWithTime(CtType originalClass, DSpotCompiler compiler, Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted) {
+        super(originalClass, compiler, variableReadsAsserted);
+        this.factory = InputConfiguration.get().getFactory();
         this.observerWithTime = new ObserverWithTime(originalClass,
-                configuration,
                 compiler,
                 variableReadsAsserted);
     }
@@ -120,7 +116,7 @@ public class MethodReconstructorWithTime extends MethodReconstructor {
                     test,
                     observations.get(id).getNotDeterministValues(),
                     observations.get(id).getObservationValues(),
-                    Double.parseDouble(configuration.getDelta())
+                    Double.parseDouble(InputConfiguration.get().getDelta())
             );
 
             /* skip the current observation if it leads to

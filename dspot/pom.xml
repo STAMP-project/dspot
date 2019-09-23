@@ -182,6 +182,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>4.0.4</version>
+        </dependency>
+
     </dependencies>
 
     <build>

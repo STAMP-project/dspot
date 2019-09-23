@@ -22,8 +22,6 @@ public class AssertionGeneratorWithTime extends AssertionGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AssertionGenerator.class);
 
-    private InputConfiguration configuration;
-
     private DSpotCompiler compiler;
 
     public AssertionRemoverWithTime assertionRemover;
@@ -32,9 +30,8 @@ public class AssertionGeneratorWithTime extends AssertionGenerator {
 
     public MethodReconstructorWithTime methodsAssertGenerator;
 
-    public AssertionGeneratorWithTime(InputConfiguration configuration, DSpotCompiler compiler) {
-        super(configuration, compiler);
-        this.configuration = configuration;
+    public AssertionGeneratorWithTime(DSpotCompiler compiler) {
+        super(compiler);
         this.compiler = compiler;
         this.assertionRemover = new AssertionRemoverWithTime();
         this.tryCatchFailGenerator = new TryCatchFailGenerator();
@@ -66,7 +63,6 @@ public class AssertionGeneratorWithTime extends AssertionGenerator {
         testsWithoutAssertions.forEach(cloneClass::addMethod);
         this.methodsAssertGenerator = new MethodReconstructorWithTime(
                 testClass,
-                this.configuration,
                 compiler,
                 this.assertionRemover.getVariableAssertedPerTestMethod()
         );
@@ -101,8 +97,7 @@ public class AssertionGeneratorWithTime extends AssertionGenerator {
         try {
             testResult = TestCompiler.compileAndRun(testClass,
                     this.compiler,
-                    tests,
-                    this.configuration
+                    tests
             );
         } catch (AmplificationException e) {
             LOGGER.warn("Error when executing tests before Assertion Amplification:");

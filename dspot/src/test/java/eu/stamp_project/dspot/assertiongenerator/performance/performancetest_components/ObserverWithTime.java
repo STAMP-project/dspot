@@ -34,8 +34,6 @@ public class ObserverWithTime {
 
     private CtType originalClass;
 
-    private InputConfiguration configuration;
-
     private DSpotCompiler compiler;
 
     private Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted;
@@ -45,11 +43,9 @@ public class ObserverWithTime {
     public long timeRunningInstrumentation;
 
     public ObserverWithTime(CtType originalClass,
-                            InputConfiguration configuration,
                             DSpotCompiler compiler,
                             Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted) {
         this.originalClass = originalClass;
-        this.configuration = configuration;
         this.compiler = compiler;
         this.variableReadsAsserted = variableReadsAsserted;
     }
@@ -121,8 +117,7 @@ public class ObserverWithTime {
         TestFramework.get().generateAfterClassToSaveObservations(clone, testsToRun);
         final TestResult result = TestCompiler.compileAndRun(clone,
                 this.compiler,
-                testsToRun,
-                this.configuration
+                testsToRun
         );
         if (!result.getFailingTests().isEmpty()) {
             LOGGER.warn("Some instrumented test failed!");

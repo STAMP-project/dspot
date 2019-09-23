@@ -40,7 +40,7 @@ public class AssertionGeneratorTest extends AbstractTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        this.assertionGenerator = new AssertionGenerator(Utils.getInputConfiguration(), Utils.getCompiler());
+        this.assertionGenerator = new AssertionGenerator(Utils.getCompiler());
     }
 
     @After

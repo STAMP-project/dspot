@@ -91,7 +91,7 @@ public class RecoveryDSpotTest extends AbstractTest {
 
     public class AssertionGeneratorThatThrowsError extends AssertionGenerator {
         public AssertionGeneratorThatThrowsError(DSpotCompiler compiler) {
-            super(InputConfiguration.get(), compiler);
+            super(compiler);
         }
 
         @Override

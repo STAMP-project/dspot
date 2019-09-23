@@ -30,8 +30,6 @@ public class AssertionGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AssertionGenerator.class);
 
-    private InputConfiguration configuration;
-
     private DSpotCompiler compiler;
 
     private AssertionRemover assertionRemover;
@@ -40,8 +38,7 @@ public class AssertionGenerator {
 
     private MethodReconstructor methodReconstructor;
 
-    public AssertionGenerator(InputConfiguration configuration, DSpotCompiler compiler) {
-        this.configuration = configuration;
+    public AssertionGenerator(DSpotCompiler compiler) {
         this.compiler = compiler;
         this.assertionRemover = new AssertionRemover();
         this.tryCatchFailGenerator = new TryCatchFailGenerator();
@@ -66,7 +63,6 @@ public class AssertionGenerator {
         // set up methodReconstructor for use in assertPassingAndFailingTests
         this.methodReconstructor = new MethodReconstructor(
                 testClass,
-                this.configuration,
                 compiler,
                 this.assertionRemover.getVariableAssertedPerTestMethod()
         );
@@ -118,8 +114,7 @@ public class AssertionGenerator {
             CloneHelper.addParallelExecutionAnnotation(testClass, tests);
             testResult = TestCompiler.compileAndRun(testClass,
                     this.compiler,
-                    tests,
-                    this.configuration
+                    tests
             );
         } catch (AmplificationException e) {
             LOGGER.warn("Error when executing tests before Assertion Amplification:");

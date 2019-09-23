@@ -49,7 +49,7 @@ public class PerformanceTest extends AbstractTest {
             clone.setSimpleName(originalGetA.getSimpleName() + i);
             workload.addMethod(clone);
         }
-        AssertionGeneratorWithTime assertGeneratorWithTime = new AssertionGeneratorWithTime(InputConfiguration.get(), Utils.getCompiler());
+        AssertionGeneratorWithTime assertGeneratorWithTime = new AssertionGeneratorWithTime(Utils.getCompiler());
         final CtMethod<?> test = Utils.findMethod(testClass, "test");
         List<CtMethod<?>> allTest = Collections.singletonList(test);
         Amplifier amplifier = new NumberLiteralAmplifier();

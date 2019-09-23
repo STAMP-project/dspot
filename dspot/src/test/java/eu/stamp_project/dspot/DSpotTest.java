@@ -60,8 +60,7 @@ public class DSpotTest extends AbstractTest {
         assertTrue("should be empty", TestCompiler.compileAndRun(
                 amplifyTest,
                 Utils.getCompiler(),
-                Collections.singletonList(Utils.findMethod("fr.inria.preparation.MustBeRenamedFromStart", "test")),
-                InputConfiguration.get()
+                Collections.singletonList(Utils.findMethod("fr.inria.preparation.MustBeRenamedFromStart", "test"))
         ).getFailingTests().isEmpty());
     }
 

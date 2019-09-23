@@ -1,14 +1,11 @@
 package eu.stamp_project;
 
-import eu.stamp_project.utils.program.ConstantsProperties;
 import org.apache.maven.plugin.testing.MojoRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileReader;
-import java.util.Properties;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.codehaus.plexus.PlexusTestCase.getBasedir;

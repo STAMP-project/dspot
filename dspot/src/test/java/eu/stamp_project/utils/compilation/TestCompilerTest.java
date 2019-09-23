@@ -27,8 +27,7 @@ public class TestCompilerTest extends AbstractTest {
                         Utils.findMethod(testClass, "testAssertionError"),
                         Utils.findMethod(testClass, "testFailingWithException")
                 ),
-                Utils.getCompiler(),
-                InputConfiguration.get()
+                Utils.getCompiler()
         ).isEmpty());
 
         testClass = Utils.findClass("fr.inria.filter.passing.PassingTest");
@@ -40,8 +39,7 @@ public class TestCompilerTest extends AbstractTest {
                                 Utils.findMethod(testClass, "testNPEExpected"),
                                 Utils.findMethod(testClass, "failingTestCase")
                         ),
-                        Utils.getCompiler(),
-                        InputConfiguration.get()
+                        Utils.getCompiler()
                 ).size()
         );
     }

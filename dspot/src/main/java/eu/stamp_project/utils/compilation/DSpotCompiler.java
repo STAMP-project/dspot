@@ -34,19 +34,19 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DSpotCompiler.class);
 
-	public static DSpotCompiler createDSpotCompiler(InputConfiguration configuration, String pathToDependencies) {
-		String pathToSources = configuration.getAbsolutePathToSourceCode()
+	public static DSpotCompiler createDSpotCompiler(String pathToDependencies) {
+		String pathToSources = InputConfiguration.get().getAbsolutePathToSourceCode()
 				+ PATH_SEPARATOR +
-				configuration.getAbsolutePathToTestSourceCode();
+				InputConfiguration.get().getAbsolutePathToTestSourceCode();
 		Launcher launcher = getSpoonModelOf(pathToSources, pathToDependencies);
-		return new DSpotCompiler(launcher, configuration, pathToDependencies);
+		return new DSpotCompiler(launcher, pathToDependencies);
 	}
 
-	private DSpotCompiler(Launcher launcher, InputConfiguration configuration, String pathToDependencies) {
+	private DSpotCompiler(Launcher launcher, String pathToDependencies) {
 		super(launcher.getFactory());
 		this.dependencies = pathToDependencies;
 		this.launcher = launcher;
-		this.binaryOutputDirectory = new File(configuration.getAbsolutePathToTestClasses());
+		this.binaryOutputDirectory = new File(InputConfiguration.get().getAbsolutePathToTestClasses());
 		this.sourceOutputDirectory = new File(getPathToAmplifiedTestSrc());
 		if (!this.sourceOutputDirectory.exists()) {
 			this.sourceOutputDirectory.mkdir();
@@ -117,9 +117,9 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		return launcher;
 	}
 
-	public static boolean compile(InputConfiguration configuration, String pathToSources, String dependencies, File binaryOutputDirectory) {
+	public static boolean compile(String pathToSources, String dependencies, File binaryOutputDirectory) {
 		Launcher launcher = new Launcher();
-		if (configuration.isVerbose()) {
+		if (InputConfiguration.get().isVerbose()) {
 			launcher.getEnvironment().setLevel("INFO");
 		}
 		launcher.getEnvironment().setNoClasspath(true);
