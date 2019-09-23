@@ -37,7 +37,7 @@ In case your project is a multi-module, we advise you to configure DSpot in the 
 After setting up your `pom.xml` and add your configuration with different options,run:
 
 ```bash
-mvn dspot:amplify-unit-tests
+mvn dspot-maven:amplify-unit-tests
 ``` 
 
 # Advantages
