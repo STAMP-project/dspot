@@ -44,8 +44,4 @@ mvn dspot:amplify-unit-tests
 
 The advantages of using the maven plugin is that maven will automatically the latest version deployed on maven central, even the SNAPSHOT built at each commits on the master!
 
-Second, is that the properties is optional and the maven-plugin to automatically infer from the pom.xml some required information such as the path of the project root directory.
-
-**!! WARNING !!** Since DSpot can be executed on one module at the time, we advise you to the same with the maven plugin by using the dedicated command line option `-DtargetModule=<module>`.
-
-The best way is to execute dspot-maven on the parent project and specifying the targeted module using the options mentioned above. In this way, DSpot will be able to collect all the dependencies.
+Second, is that the properties are optional and the maven-plugin automatically infers from the pom.xml some required information such as the path of the project root directory.
