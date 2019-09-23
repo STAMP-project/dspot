@@ -30,7 +30,7 @@ or, you can add the following to your `pom.xml`, in the plugins section of the b
     </configuration>
 </plugin>
 ```
-Replace `LATEST` with the latest DSpot version number available at Maven central: `2.0.0`
+Replace `LATEST` with the latest DSpot version number available at Maven central: `2.2.0`
 
 In case your project is a multi-module, we advise you to configure DSpot in the highest `pom.xml` and use the dedicated property `targetModule` to name the module you want to amplify
 
