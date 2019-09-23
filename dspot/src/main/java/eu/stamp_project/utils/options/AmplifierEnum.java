@@ -41,9 +41,9 @@ public enum AmplifierEnum {
     private static Amplifier stringToAmplifier(String amplifier) {
         try {
             if (deprecatedValuesToNewNames.containsKey(amplifier)) {
-                JSAPOptions.LOGGER.warn("You are using an old name: " + amplifier + ".");
-                JSAPOptions.LOGGER.warn("You should use the new name: " + deprecatedValuesToNewNames.get(amplifier) + ".");
-                JSAPOptions.LOGGER.warn("The entry " + amplifier + " will be deleted very soon.");
+                /*JSAPOptions.LOGGER.warn("You are using an old name: " + amplifier + ".");
+                JSAPOptions.LOGGER.warn("You should use the new name: FastLiteralAmplifier.");
+                JSAPOptions.LOGGER.warn("The entry TestDataMutator will be deleted very soon.");*/
             }
             return AmplifierEnum.valueOf(amplifier).amplifier;
         } catch (IllegalArgumentException e) {

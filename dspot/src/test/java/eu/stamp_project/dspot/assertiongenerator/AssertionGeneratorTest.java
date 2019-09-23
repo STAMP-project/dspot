@@ -6,7 +6,7 @@ import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionRem
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.options.InputConfiguration;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.junit.After;
 import org.junit.Before;

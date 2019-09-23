@@ -1,11 +1,7 @@
 package eu.stamp_project.utils;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.utils.report.error.Error;
-import eu.stamp_project.utils.report.error.ErrorEnum;
-import eu.stamp_project.utils.collector.CollectorConfig;
+import eu.stamp_project.utils.options.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,14 +81,14 @@ public class DSpotUtils {
         try {
             FileUtils.forceMkdir(new File(directoryPathname));
         } catch (IOException e) {
-            Main.GLOBAL_REPORT.addError(new Error(ErrorEnum.ERROR_PRINT_USING_TO_STRING, e));
+//            Main.GLOBAL_REPORT.addError(new Error(ErrorEnum.ERROR_PRINT_USING_TO_STRING, e));
         }
         try (FileWriter fileWriter = new FileWriter(
                 DSpotUtils.shouldAddSeparator.apply(directoryPathname) + type.getSimpleName() + JAVA_EXTENSION)
         ) {
             fileWriter.write(type.toString());
         } catch (Exception e) {
-            Main.GLOBAL_REPORT.addError(new Error(ErrorEnum.ERROR_PRINT_USING_TO_STRING, e));
+//            Main.GLOBAL_REPORT.addError(new Error(ErrorEnum.ERROR_PRINT_USING_TO_STRING, e));
         }
     }
 
@@ -137,7 +133,8 @@ public class DSpotUtils {
                 LOGGER.warn("These problems can come from the fact your project use generated codes, such as Lombok annotations.");
                 printCtTypeToGivenDirectory(type, directory, false); //FIXME: analyse for optimisation (13% total execution time)
             } else {
-                CollectorConfig.getInstance().getInformationCollector().reportAmpTestPath(pathname);
+                // TODO
+//                CollectorConfig.getInstance().getInformationCollector().reportAmpTestPath(pathname);
             }
         } catch (Exception ignored) {
             LOGGER.warn("Couldn't compile the final amplified test class.");

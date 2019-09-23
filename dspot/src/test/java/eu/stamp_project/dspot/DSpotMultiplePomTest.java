@@ -2,7 +2,6 @@ package eu.stamp_project.dspot;
 
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
-import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.report.output.Output;
 import eu.stamp_project.utils.test_finder.TestFinder;

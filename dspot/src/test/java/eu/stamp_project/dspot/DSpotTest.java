@@ -3,7 +3,7 @@ package eu.stamp_project.dspot;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.selector.TakeAllSelector;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.options.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.compilation.TestCompiler;
 import eu.stamp_project.utils.report.output.Output;

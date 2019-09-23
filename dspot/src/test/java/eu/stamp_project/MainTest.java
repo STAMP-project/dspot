@@ -1,7 +1,7 @@
 package eu.stamp_project;
 
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.options.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;

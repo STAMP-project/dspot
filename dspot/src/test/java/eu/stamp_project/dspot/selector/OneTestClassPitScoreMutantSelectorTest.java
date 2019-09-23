@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.selector;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.utils.pit.AbstractPitResult;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.options.InputConfiguration;
 import org.junit.After;
 import org.junit.Test;
 

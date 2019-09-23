@@ -1,5 +1,6 @@
 package eu.stamp_project.utils;
 
+import eu.stamp_project.utils.options.InputConfiguration;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
@@ -15,8 +16,7 @@ public class DSpotCache {
 	static {
 		cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
 				.withCache("frameworkCache", CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class,
-						TestFrameworkSupport.class, ResourcePoolsBuilder.heap(
-								Long.parseLong(ConstantsProperties.CACHE_SIZE.getDefaultValue()))).build())
+						TestFrameworkSupport.class, ResourcePoolsBuilder.heap(InputConfiguration.get().getCacheSize())).build())
 				.build(true);
 
 		frameworkCache = cacheManager.getCache("frameworkCache", String.class, TestFrameworkSupport.class);

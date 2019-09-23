@@ -5,7 +5,7 @@ import eu.stamp_project.Utils;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.testrunner.runner.Failure;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.options.InputConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;

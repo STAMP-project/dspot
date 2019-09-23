@@ -56,7 +56,7 @@ public class Checker {
 
     public static void checkBinariesFolders(Properties properties) {
 
-        String currentPath = DSpotUtils.shouldAddSeparator.apply(properties.getProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName()));
+       /* String currentPath = DSpotUtils.shouldAddSeparator.apply(properties.getProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName()));
         final String targetModulePropertyValue = DSpotUtils.shouldAddSeparator.apply(properties.getProperty(ConstantsProperties.MODULE.getName()));
         currentPath += targetModulePropertyValue != null ? targetModulePropertyValue : "";
 
@@ -72,12 +72,12 @@ public class Checker {
                 ErrorEnum.ERROR_PATH_TO_TEST_CLASSES_PROPERTY,
                 ConstantsProperties.TEST_CLASSES.getNaturalLanguageDesignation(),
                 currentPath
-        );
+        );*/
     }
 
     public static void checkProperties(Properties properties) {
         // project root is mandatory
-        String currentPath = DSpotUtils.shouldAddSeparator.apply(properties.getProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName()));
+       /* String currentPath = DSpotUtils.shouldAddSeparator.apply(properties.getProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName()));
         Checker.checkPathnameNotNullAndFileExist(
                 currentPath,
                 ErrorEnum.ERROR_PATH_TO_PROJECT_ROOT_PROPERTY,
@@ -124,7 +124,7 @@ public class Checker {
         }
         // TODO check JVM args and System args
         checkJVMArgs(ConstantsProperties.JVM_ARGS.get(properties)); // no checks since it is a soft checks
-        checkSystemProperties(ConstantsProperties.SYSTEM_PROPERTIES.get(properties));
+        checkSystemProperties(ConstantsProperties.SYSTEM_PROPERTIES.get(properties));*/
     }
 
     // TODO must be enhanced.
@@ -163,20 +163,20 @@ public class Checker {
     }
 
     public static void checkIsACorrectVersion(final String proposedVersion) {
-        if (!Pattern.compile("(\\p{Digit})+(\\.(\\p{Digit})+)*(-SNAPSHOT)?").matcher(proposedVersion).matches()) {
+       /* if (!Pattern.compile("(\\p{Digit})+(\\.(\\p{Digit})+)*(-SNAPSHOT)?").matcher(proposedVersion).matches()) {
             Main.GLOBAL_REPORT.addInputError(new Error(
                             ErrorEnum.ERROR_INVALID_VERSION, "Version " + proposedVersion + " is not a valid version"
                     )
             );
             throw new InputErrorException();
-        }
+        }*/
     }
 
     private static void checkPathPropertyValue(final String propertyValue,
                                                        final ErrorEnum errorEnumInCaseOfError,
                                                        final String naturalLanguageDesignation,
                                                        final String rootPathProject) {
-        if (propertyValue != null) {
+      /*  if (propertyValue != null) {
             final String additionalMessage = "The provided path to the " + naturalLanguageDesignation + " of your project is incorrect, the folder does not exist."
                     + AmplificationHelper.LINE_SEPARATOR + " This path should be either relative to the path pointed by "
                     + ConstantsProperties.PROJECT_ROOT_PATH.getName() + " property "
@@ -186,31 +186,31 @@ public class Checker {
             } else {
                 Checker.checkFileExists(rootPathProject + "/" + propertyValue, errorEnumInCaseOfError, additionalMessage);
             }
-        }
+        }*/
     }
 
     private static void checkRelativePathPropertyValue(final String propertyValue,
                                                        final ErrorEnum errorEnumInCaseOfError,
                                                        final String naturalLanguageDesignation,
                                                        final String rootPathProject) {
-        if (propertyValue != null) {
+        /*if (propertyValue != null) {
             final String additionalMessage = "The provided path to the " + naturalLanguageDesignation + " of your project is incorrect, the folder does not exist."
                     + AmplificationHelper.LINE_SEPARATOR + " This path should be relative to the path pointed by "
                     + ConstantsProperties.PROJECT_ROOT_PATH.getName() + " property.";
             Checker.checkFileExists(rootPathProject + "/" + propertyValue, errorEnumInCaseOfError, additionalMessage);
-        }
+        }*/
     }
 
     /*
         PROPERTIES PATH FILE CHECK
      */
     public static void checkPathToPropertiesValue(String pathToPropertiesFile) {
-        Checker.checkPathnameNotNullAndFileExist(
+       /* Checker.checkPathnameNotNullAndFileExist(
                 pathToPropertiesFile,
                 ErrorEnum.ERROR_PATH_TO_PROPERTIES,
                 "You did not provide the path to your properties file, which is mandatory.",
                 "The provided path to the properties file is incorrect, the properties file does not exist."
-        );
+        );*/
     }
 
     private static void checkPathnameNotNullAndFileExist(final String pathname,
@@ -263,7 +263,7 @@ public class Checker {
 
     private static boolean checkEnumAndRemoveIfIncorrect(Class<?> enumClass, List<String> values) {
         boolean atLeastOneOptionIsOk = false;
-        final List<String> possibleValues = getPossibleValues(enumClass);
+       /* final List<String> possibleValues = getPossibleValues(enumClass);
         final ArrayList<String> copyValues = new ArrayList<>(values);
         for (String value : copyValues) {
             if (!possibleValues.contains(value)) {
@@ -275,7 +275,7 @@ public class Checker {
             } else {
                 atLeastOneOptionIsOk = true;
             }
-        }
+        }*/
         return atLeastOneOptionIsOk;
     }
 

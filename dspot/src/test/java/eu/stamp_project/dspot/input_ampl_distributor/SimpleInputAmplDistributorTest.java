@@ -7,7 +7,7 @@ import eu.stamp_project.dspot.amplifier.MethodAdderOnExistingObjectsAmplifier;
 import eu.stamp_project.dspot.amplifier.NumberLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.ReturnValueAmplifier;
 import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.options.InputConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

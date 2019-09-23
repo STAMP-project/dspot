@@ -7,7 +7,8 @@ import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.options.JSAPOptions;
 import eu.stamp_project.utils.report.output.Output;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.dspot.DSpot;
+import eu.stamp_project.utils.options.InputConfiguration;
 import eu.stamp_project.utils.RandomHelper;
 import eu.stamp_project.utils.report.GlobalReport;
 import eu.stamp_project.utils.report.error.ErrorReportImpl;
@@ -41,11 +42,17 @@ public class Main {
 		} catch (Exception ignored) {
 
 		}
-		JSAPOptions.parse(args);
+//		JSAPOptions.parse(args);
 		run();
 	}
 
 	public static void run() {
+		DSpot dspot = new DSpot(
+				InputConfiguration.get().getNbIteration(),
+				InputConfiguration.get().getAmplifiers(),
+				InputConfiguration.get().getSelector(),
+				InputConfiguration.get().getBudgetizerEnum()
+		);
 		RandomHelper.setSeedRandom(InputConfiguration.get().getSeed());
 		createOutputDirectories();
 		final long startTime = System.currentTimeMillis();
@@ -83,7 +90,7 @@ public class Main {
 		Main.GLOBAL_REPORT.reset();
 		DSpotPOMCreator.delete();
 		// Send info collected.
-		CollectorConfig.getInstance().getInformationCollector().sendInfo();
+		InputConfiguration.get().getCollector().sendInfo();
 	}
 
 	public static void createOutputDirectories() {

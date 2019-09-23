@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.options.InputConfiguration;
 import spoon.reflect.declaration.CtMethod;
 
 /**

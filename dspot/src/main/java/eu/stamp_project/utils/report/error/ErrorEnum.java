@@ -13,12 +13,12 @@ public enum ErrorEnum {
         ERRORS INPUT
      */
     ERROR_NO_ENUM_VALUE_CORRESPOND_TO_GIVEN_INPUT("The given value does not match with any value of the corresponding options."),
-    ERROR_PATH_TO_PROPERTIES("There is a problem with the provided path to the properties file."),
+    ERROR_PATH_TO_PROPERTIES("There is a problem with the provided path to the properties file.");
 
 
-    /*
+    /**//*
         ERRORS PROPERTIES
-     */
+     *//*
     ERROR_PATH_TO_PROJECT_ROOT_PROPERTY(ConstantsProperties.PROJECT_ROOT_PATH),
     ERROR_PATH_TO_TARGET_MODULE_PROPERTY(ConstantsProperties.MODULE),
     ERROR_PATH_TO_SRC_PROPERTY(ConstantsProperties.SRC_CODE),
@@ -29,29 +29,29 @@ public enum ErrorEnum {
     ERROR_PATH_TO_MAVEN_HOME(ConstantsProperties.MAVEN_HOME),
     ERROR_INVALID_VERSION("Invalid version"),
 
-    /*
+    *//*
         ERRORS BEFORE AMPLIFICATION PROCESS
-     */
+     *//*
     ERROR_NO_TEST_COULD_BE_FOUND_MATCHING_REGEX("Could not find any test class that match the given regular expression."),
     ERROR_NO_TEST_COULD_BE_FOUND("Could not find any test class that match at least one of the given regular expression."),
 
-    /*
+    *//*
         ERRORS DURING AMPLIFICATION PROCESS
-     */
+     *//*
     ERROR_EXEC_TEST_BEFORE_AMPLIFICATION("Something bad happened when DSpot tried to execute the tests before starting the amplification."),
     ERROR_PRE_SELECTION("Something bad happened during selection before amplification."),
     ERROR_INPUT_AMPLIFICATION("Something bad happened during input amplification."),
     ERROR_ASSERT_AMPLIFICATION("Something bad happened during assertion amplification"),
     ERROR_SELECTION("Something bad happened during selection to keep amplified tests (post-amplification)."),
 
-     /*
+     *//*
         ERRORS DUE TO I/O
-     */
+     *//*
      ERROR_PRINT_USING_TO_STRING("Something bad happened when DSpot tried to print a test class using the toString()"),
 
-    /*
+    *//*
         ERRORS LINKED TO A SPECIFIC IMPLEMENTATION
-     */
+     *//*
 
     //  PitMutantScoreSelector
     ERROR_ORIGINAL_MUTATION_SCORE("Something bad happened when DSpot tried to computed the original mutation score."
@@ -69,6 +69,8 @@ public enum ErrorEnum {
             " to exclude respectively specific test classes ans test cases."
     );
 
+    */
+
     private String message;
 
     public String getMessage() {
@@ -79,9 +81,9 @@ public enum ErrorEnum {
         this.message = message;
     }
 
-    ErrorEnum(InputConfigurationProperty property) {
-        this.message =
-                "There is a problem with the provided path to the "
-                        + property.getNaturalLanguageDesignation() + "(" + property.getName() + " property)";
-    }
+//    ErrorEnum(InputConfigurationProperty property) {
+//        this.message =
+//                "There is a problem with the provided path to the "
+//                        + property.getNaturalLanguageDesignation() + "(" + property.getName() + " property)";
+//    }
 }

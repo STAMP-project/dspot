@@ -1,6 +1,5 @@
 package eu.stamp_project.utils.collector;
 
-import eu.stamp_project.utils.options.CollectorEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,17 +16,6 @@ public class CollectorConfig {
             collectorConfig = new CollectorConfig();
         }
         return collectorConfig;
-    }
-
-    /* Variables and getters/setters */
-    private static DspotInformationCollector collector = new NullCollector();
-
-    public void setInformationCollector(String collector) {
-        this.collector = CollectorEnum.valueOf(collector).getCollector();
-    }
-
-    public static DspotInformationCollector getInformationCollector() {
-        return collector;
     }
 
     /* MongodbCollector related */

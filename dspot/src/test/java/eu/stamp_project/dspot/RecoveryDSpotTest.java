@@ -9,7 +9,7 @@ import eu.stamp_project.dspot.input_ampl_distributor.TextualDistanceInputAmplDis
 import eu.stamp_project.utils.report.error.ErrorEnum;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TakeAllSelector;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.options.InputConfiguration;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.test_finder.TestFinder;
 import org.junit.After;

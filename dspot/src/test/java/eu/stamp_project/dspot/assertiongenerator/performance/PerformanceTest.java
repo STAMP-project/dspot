@@ -5,7 +5,7 @@ import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.amplifier.NumberLiteralAmplifier;
 import eu.stamp_project.dspot.assertiongenerator.performance.performancetest_components.AssertionGeneratorWithTime;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.options.InputConfiguration;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;

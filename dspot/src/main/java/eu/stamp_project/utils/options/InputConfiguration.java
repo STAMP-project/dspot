@@ -1,4 +1,4 @@
-package eu.stamp_project.utils.program;
+package eu.stamp_project.utils.options;
 
 import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
@@ -8,9 +8,12 @@ import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.DSpotCache;
 import eu.stamp_project.utils.options.AmplifierEnum;
 import eu.stamp_project.utils.options.InputAmplDistributorEnum;
+import eu.stamp_project.utils.collector.CollectorConfig;
+import eu.stamp_project.utils.collector.DspotInformationCollector;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.smtp.SmtpConfig;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +24,7 @@ import spoon.reflect.factory.Factory;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -68,8 +72,25 @@ public class InputConfiguration {
         this.automaticBuilder = this.automaticBuilderEnum.toAutomaticBuilder();
         this.amplifiers = this.amplifiersEnum.stream().map(amplifierEnum -> amplifierEnum.amplifier).collect(Collectors.toList());
         this.budgetizer = this.budgetizerEnum.getBudgetizer(this.amplifiers);
-        this.selector = this.selectorEnum.buildSelector();
-        // todo support pre-computed pit result
+        if (this.pathPitResult != null) {
+            if (this.selectorEnum != SelectorEnum.PitMutantScoreSelector) {
+                LOGGER.warn("You specified a path to a mutations file but you did not specify the right test-criterion");
+                LOGGER.warn("Forcing the Selector to PitMutantScoreSelector");
+            }
+            PitMutantScoreSelector.OutputFormat originalFormat;
+            if (this.pathPitResult.toLowerCase().endsWith(".xml")) {
+                originalFormat = PitMutantScoreSelector.OutputFormat.XML;
+            } else if (this.pathPitResult.toLowerCase().endsWith(".csv")) {
+                originalFormat = PitMutantScoreSelector.OutputFormat.CSV;
+            } else {
+                LOGGER.warn("You specified the wrong Pit format. Skipping expert mode.");
+                originalFormat = PitMutantScoreSelector.OutputFormat.XML;
+            }
+            this.selector = new PitMutantScoreSelector(this.pathPitResult, originalFormat, this.pitOutputFormat);
+        } else {
+            this.selector  = this.selectorEnum.buildSelector();
+        }
+        this.collector = this.collectorEnum.getCollector();
 
         if (this.dependencies.isEmpty()) {
             this.dependencies = this.automaticBuilder.compileAndBuildClasspath();
@@ -94,6 +115,22 @@ public class InputConfiguration {
         if (this.numberParallelExecutionProcessors == 0) {
             this.numberParallelExecutionProcessors = Runtime.getRuntime().availableProcessors();
         }
+
+        CollectorConfig collectorConfig = CollectorConfig.getInstance();
+        collectorConfig.setMongoUrl(this.mongoUrl);
+        collectorConfig.setMongoDbname(this.mongoDbName);
+        collectorConfig.setMongoColname(this.mongoColName);
+        collectorConfig.setRepoSlug(this.repoSlug);
+        collectorConfig.setRepoBranch(this.repoBranch);
+        collectorConfig.setRestful(this.restFul);
+
+        SmtpConfig smtpConfig = SmtpConfig.getInstance();
+        smtpConfig.setSmtpUserName(this.smtpUsername);
+        smtpConfig.setSmtpPassword(this.smtpPassword);
+        smtpConfig.setSmtpHost(this.smtpHost);
+        smtpConfig.setSmtpPort(this.smtpPort);
+        smtpConfig.setSmtpAuth("" + this.smtpAuth);
+        smtpConfig.setSmtpTls("" + this.smtpTls);
     }
 
     @CommandLine.Option(
@@ -496,6 +533,108 @@ public class InputConfiguration {
     )
     private String pathPitResult;
 
+    /* DSpot-web related command line options. */
+
+    @CommandLine.Option(
+            names = {"--collector"},
+            defaultValue =  "NullCollector",
+            description = "Set a collector: MongodbCollector to send info to Mongodb at end process, NullCollector which does nothing." +
+                    "Valid values: ${COMPLETION-CANDIDATES}"
+    )
+    private CollectorEnum collectorEnum;
+
+    private DspotInformationCollector collector;
+
+    @CommandLine.Option(
+            names = {"--mongo-url"},
+            defaultValue =  "mongodb://localhost:27017",
+            description = "If valid url, DSpot will submit to Mongodb database."
+    )
+    private String mongoUrl;
+
+    @CommandLine.Option(
+            names = {"--mongo-dbname"},
+            defaultValue =  "Dspot",
+            description = "If a valid mongo-url is provided, DSpot will submit result to the database indicated by this name."
+    )
+    private String mongoDbName;
+
+    @CommandLine.Option(
+            names = {"--mongo-colname"},
+            defaultValue =  "AmpRecords",
+            description = "If valid mongo-url and a mongo-dbname are provided, " +
+                    "DSpot will submit result to the provided collection name.."
+    )
+    private String mongoColName;
+
+    @CommandLine.Option(
+            names = {"--repo-slug"},
+            defaultValue =  "UnknownSlug",
+            description = "Slug of the repo for instance Stamp/Dspot. " +
+                    "This is used by mongodb as a identifier for analyzed repo's submitted data."
+    )
+    private String repoSlug;
+
+    @CommandLine.Option(
+            names = {"--repo-branch"},
+            defaultValue =  "UnknownBranch",
+            description = "Branch name of the submitted repo, " +
+                    "This is used by mongodb as a identifier for analyzed repo's submitted data."
+    )
+    private String repoBranch;
+
+    @CommandLine.Option(
+            names = {"--restful"},
+            defaultValue =  "false",
+            description = "If true, DSpot will enable restful mode for web Interface. " +
+                    "It will look for a pending document in Mongodb with the corresponding slug and branch provided instead of creating a completely new one."
+    )
+    private boolean restFul;
+
+    @CommandLine.Option(
+            names = {"--smtp-username"},
+            defaultValue =  "Unknown@gmail.com",
+            description = "Username for Gmail, used for submit email at end-process."
+    )
+    private String smtpUsername;
+
+    @CommandLine.Option(
+            names = {"--smtp-password"},
+            defaultValue =  "Unknown",
+            description = "Password for Gmail, used for submit email at end-process."
+    )
+    private String smtpPassword;
+
+    @CommandLine.Option(
+            names = {"--smtp-host"},
+            defaultValue =  "smtp.gmail.com",
+            description = "Host server name."
+    )
+    private String smtpHost;
+
+    @CommandLine.Option(
+            names = {"--smtp-port"},
+            defaultValue =  "587",
+            description = "Host server port."
+    )
+    private String smtpPort;
+
+    @CommandLine.Option(
+            names = {"--smtp-auth"},
+            defaultValue =  "false",
+            description = "Enable this if the smtp host server require auth."
+    )
+    private boolean smtpAuth;
+
+    @CommandLine.Option(
+            names = {"--smtp-tls"},
+            defaultValue =  "false",
+            description = "Enable this if the smtp host server require secure tls transport."
+    )
+    private String smtpTls;
+
+    /* META command line options */
+
     @CommandLine.Option(
             names = {"--version"},
             versionHelp = true,
@@ -801,8 +940,14 @@ public class InputConfiguration {
         return amplifiers;
     }
 
+    @Deprecated
     public InputConfiguration setAmplifiers(List<Amplifier> amplifiers) {
         this.amplifiers = amplifiers;
+        return this;
+    }
+
+    public InputConfiguration setAmplifiersEnum(List<AmplifierEnum> amplifiersEnum) {
+        this.amplifiersEnum = amplifiersEnum;
         return this;
     }
 
@@ -833,10 +978,17 @@ public class InputConfiguration {
         return selector;
     }
 
+    @Deprecated
     public InputConfiguration setSelector(TestSelector selector) {
         this.selector = selector;
         return this;
     }
+
+    public InputConfiguration setSelectorEnum(SelectorEnum selectorEnum) {
+        this.selectorEnum = selectorEnum;
+        return this;
+    }
+
 
     public List<String> getTestCases() {
         return testCases;
@@ -1000,12 +1152,36 @@ public class InputConfiguration {
         return this;
     }
 
+    public Long getCacheSize() {
+        return this.cacheSize;
+    }
+
+    public DspotInformationCollector getCollector() {
+        return this.collector;
+    }
+
+    static void configureExample() {
+        try {
+            InputConfiguration.get().setAbsolutePathToProjectRoot("src/test/resources/test-projects/");
+            InputConfiguration.get().setNbIteration(1);
+            InputConfiguration.get().setAmplifiersEnum(Collections.singletonList(AmplifierEnum.FastLiteralAmplifier));
+            InputConfiguration.get().setSelectorEnum(SelectorEnum.JacocoCoverageSelector);
+            InputConfiguration.get().setBudgetizerEnum(BudgetizerEnum.RandomBudgetizer);
+            InputConfiguration.get().setTestClasses(Collections.singletonList("example.TestSuiteExample"));
+            InputConfiguration.get().setTestClasses(Collections.emptyList());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void main(String[] args) {
         final InputConfiguration configuration = new InputConfiguration();
         final CommandLine commandLine = new CommandLine(configuration);
-        commandLine.parseArgs(
-                "--absolute-path-to-project-root", "/home/bdanglot/workspace/dspot/dspot/src/test/resources/test-projects/"
-        );
+        final String[] strings = {
+                "--absolute-path-to-project-root", "/home/bdanglot/workspace/dspot/dspot/src/test/resources/test-projects/",
+                "-I", "23"
+        };
+        commandLine.parseArgs(strings);
         if (commandLine.isUsageHelpRequested()) {
             commandLine.usage(System.out);
         }

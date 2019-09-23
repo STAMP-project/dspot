@@ -8,8 +8,7 @@ import eu.stamp_project.utils.report.output.selector.coverage.json.TestCaseJSON;
 import eu.stamp_project.utils.report.output.selector.coverage.json.TestClassJSON;
 import eu.stamp_project.testrunner.listener.Coverage;
 import eu.stamp_project.testrunner.listener.CoveragePerTestMethod;
-import eu.stamp_project.utils.collector.CollectorConfig;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.options.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Counter;
@@ -260,8 +259,8 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                         this.selectedToBeAmplifiedCoverageResultsMap.get(ctMethod.getSimpleName()).getInstructionsTotal()
                 )
         );
-
-        CollectorConfig.getInstance().getInformationCollector().reportSelectorInformation(testClassJSON.toString());
+        // TODO
+//        CollectorConfig.getInstance().getInformationCollector().reportSelectorInformation(testClassJSON.toString());
         return testClassJSON;
     }
 }

@@ -1,7 +1,7 @@
 package eu.stamp_project.automaticbuilder.maven;
 
-import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
+import eu.stamp_project.utils.options.InputConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

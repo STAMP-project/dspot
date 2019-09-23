@@ -2,15 +2,12 @@ package eu.stamp_project.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.utils.pit.*;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.CloneHelper;
-import eu.stamp_project.utils.report.error.Error;
-import eu.stamp_project.utils.report.error.ErrorEnum;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
 import eu.stamp_project.utils.report.output.selector.mutant.json.MutantJSON;
@@ -18,8 +15,7 @@ import eu.stamp_project.utils.report.output.selector.mutant.json.TestCaseJSON;
 import eu.stamp_project.utils.report.output.selector.mutant.json.TestClassJSON;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.collector.CollectorConfig;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.options.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
@@ -96,8 +92,8 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 try {
                     automaticBuilder.runPit();
                 } catch (Throwable e) {
-                    LOGGER.error(ErrorEnum.ERROR_ORIGINAL_MUTATION_SCORE.getMessage());
-                    Main.GLOBAL_REPORT.addError(new Error(ErrorEnum.ERROR_ORIGINAL_MUTATION_SCORE, e));
+//                    LOGGER.error(ErrorEnum.ERROR_ORIGINAL_MUTATION_SCORE.getMessage());
+//                    Main.GLOBAL_REPORT.addError(new Error(ErrorEnum.ERROR_ORIGINAL_MUTATION_SCORE, e));
                     return false;
                 }
             }
@@ -312,7 +308,8 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                     }
                 }
         );
-        CollectorConfig.getInstance().getInformationCollector().reportSelectorInformation(testClassJSON.toString());
+        // TODO
+//        CollectorConfig.getInstance().getInformationCollector().reportSelectorInformation(testClassJSON.toString());
         return testClassJSON;
     }
 

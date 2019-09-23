@@ -3,7 +3,7 @@ package eu.stamp_project.utils;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.options.InputConfiguration;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;

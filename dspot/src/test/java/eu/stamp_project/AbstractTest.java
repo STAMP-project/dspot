@@ -1,7 +1,7 @@
 package eu.stamp_project;
 
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.options.InputConfiguration;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Before;
 

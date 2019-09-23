@@ -2,7 +2,7 @@ package eu.stamp_project.automaticbuilder;
 
 import eu.stamp_project.automaticbuilder.gradle.GradleAutomaticBuilder;
 import eu.stamp_project.automaticbuilder.maven.MavenAutomaticBuilder;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.options.InputConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
