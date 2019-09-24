@@ -148,7 +148,7 @@ public abstract class JUnitSupport extends AbstractTestFramework {
                     fail.getReference()
             ).addArgument(
                     factory.createLiteral(
-                            "\"" + test.getSimpleName() + " should have thrown " + simpleNameOfException + "\")"
+                            test.getSimpleName() + " should have thrown " + simpleNameOfException
                     )
             );
         }

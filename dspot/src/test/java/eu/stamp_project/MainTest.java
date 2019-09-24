@@ -260,7 +260,7 @@ public class MainTest {
             "            Example ex = new Example();" + AmplificationHelper.LINE_SEPARATOR +
             "            String s = \"\";" + AmplificationHelper.LINE_SEPARATOR +
             "            ex.charAt(s, ((s.length()) - 1));" + AmplificationHelper.LINE_SEPARATOR +
-            "            Assert.fail(\"\\\"test3_literalMutationString44 should have thrown StringIndexOutOfBoundsException\\\")\");" + AmplificationHelper.LINE_SEPARATOR +
+            "            Assert.fail(\"test3_literalMutationString44 should have thrown StringIndexOutOfBoundsException\");" + AmplificationHelper.LINE_SEPARATOR +
             "        } catch (StringIndexOutOfBoundsException expected) {" + AmplificationHelper.LINE_SEPARATOR +
             "            Assert.assertEquals(\"String index out of range: 0\", expected.getMessage());" + AmplificationHelper.LINE_SEPARATOR +
             "        }" + AmplificationHelper.LINE_SEPARATOR +
