@@ -18,6 +18,8 @@ import eu.stamp_project.utils.test_finder.TestFinder;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import picocli.CommandLine;
+import spoon.SpoonModelBuilder;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
@@ -37,22 +39,31 @@ public class Main {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
 	public static void main(String[] args) {
+		final CommandLine commandLine = new CommandLine(InputConfiguration.get());
 		try {
-			FileUtils.forceDelete(new File("target/dspot/"));
-		} catch (Exception ignored) {
-
+			commandLine.parseArgs(args);
+		} catch (Exception e) {
+			e.printStackTrace();
+			commandLine.usage(System.err);
+			return;
 		}
-//		JSAPOptions.parse(args);
+		if (commandLine.isUsageHelpRequested()) {
+			commandLine.usage(System.out);
+			return;
+		}
+		if (commandLine.isVersionHelpRequested()) {
+			commandLine.printVersionHelp(System.out);
+			return;
+		}
+		if (InputConfiguration.get().shouldRunExample()) {
+			InputConfiguration.configureExample();
+		}
+		InputConfiguration.get().initialize();
 		run();
 	}
 
 	public static void run() {
-		DSpot dspot = new DSpot(
-				InputConfiguration.get().getNbIteration(),
-				InputConfiguration.get().getAmplifiers(),
-				InputConfiguration.get().getSelector(),
-				InputConfiguration.get().getBudgetizerEnum()
-		);
+		DSpot dspot = new DSpot();
 		RandomHelper.setSeedRandom(InputConfiguration.get().getSeed());
 		createOutputDirectories();
 		final long startTime = System.currentTimeMillis();

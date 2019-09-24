@@ -20,9 +20,9 @@ public enum AmplifierEnum {
     BooleanLiteralAmplifier(new BooleanLiteralAmplifier()),
     CharLiteralAmplifier(new CharLiteralAmplifier()),
     AllLiteralAmplifiers(new AllLiteralAmplifiers()),
-    //ReplacementAmplifier(new ReplacementAmplifier()),
+    ReplacementAmplifier(new ReplacementAmplifier()),
     NullifierAmplifier(new NullifierAmplifier()),
-    None(new NoneAmplifier());
+    NoneAmplifier(new NoneAmplifier());
 
     public final Amplifier amplifier;
 

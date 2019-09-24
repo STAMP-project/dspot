@@ -48,8 +48,6 @@ public class AmplificationHelper {
 
     public static final char DECIMAL_SEPARATOR = (((DecimalFormat) DecimalFormat.getInstance()).getDecimalFormatSymbols().getDecimalSeparator());
 
-    public static int timeOutInMs = 10000;
-
     /**
      * Link between an amplified test and its parent (i.e. the original test).
      */
@@ -236,7 +234,7 @@ public class AmplificationHelper {
         return Arrays.stream(new String[]{
                         InputConfiguration.get().getAbsolutePathToClasses(),
                         compiler.getBinaryOutputDirectory().getAbsolutePath(),
-                        compiler.getDependencies(),
+                        InputConfiguration.get().getDependencies(),
                 }
         ).collect(Collectors.joining(PATH_SEPARATOR));
     }

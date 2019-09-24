@@ -1,10 +1,7 @@
 package eu.stamp_project.dspot;
 
-<<<<<<< HEAD
 import eu.stamp_project.Main;
-=======
 import eu.stamp_project.dspot.amplifier.Amplifier;
->>>>>>> refactor: put everything in InputConfiguration and move it to program subpackage
 import eu.stamp_project.dspot.assertiongenerator.AssertionGenerator;
 import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
 import eu.stamp_project.dspot.selector.TestSelector;

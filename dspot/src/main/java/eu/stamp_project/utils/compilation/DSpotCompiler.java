@@ -34,17 +34,16 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DSpotCompiler.class);
 
-	public static DSpotCompiler createDSpotCompiler(String pathToDependencies) {
+	public static DSpotCompiler createDSpotCompiler() {
 		String pathToSources = InputConfiguration.get().getAbsolutePathToSourceCode()
 				+ PATH_SEPARATOR +
 				InputConfiguration.get().getAbsolutePathToTestSourceCode();
-		Launcher launcher = getSpoonModelOf(pathToSources, pathToDependencies);
-		return new DSpotCompiler(launcher, pathToDependencies);
+		Launcher launcher = getSpoonModelOf(pathToSources);
+		return new DSpotCompiler(launcher);
 	}
 
-	private DSpotCompiler(Launcher launcher, String pathToDependencies) {
+	private DSpotCompiler(Launcher launcher) {
 		super(launcher.getFactory());
-		this.dependencies = pathToDependencies;
 		this.launcher = launcher;
 		this.binaryOutputDirectory = new File(InputConfiguration.get().getAbsolutePathToTestClasses());
 		this.sourceOutputDirectory = new File(getPathToAmplifiedTestSrc());
@@ -71,7 +70,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		this.reportProblems(this.factory.getEnvironment());
 
 		String[] sourcesArray = this.sourceOutputDirectory.getAbsolutePath().split(PATH_SEPARATOR);
-		String[] classpath = (this.dependencies + PATH_SEPARATOR + pathToAdditionalDependencies).split(PATH_SEPARATOR);
+		String[] classpath = (InputConfiguration.get().getDependencies() + PATH_SEPARATOR + pathToAdditionalDependencies).split(PATH_SEPARATOR);
 		String[] finalClasspath = new String[sourcesArray.length + classpath.length];
 		System.arraycopy(sourcesArray, 0, finalClasspath, 0, sourcesArray.length);
 		System.arraycopy(classpath, 0, finalClasspath, sourcesArray.length, classpath.length);
@@ -101,7 +100,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		return compiler.globalErrorsCount == 0;
 	}
 
-	public static Launcher getSpoonModelOf(String pathToSources, String pathToDependencies) {
+	public static Launcher getSpoonModelOf(String pathToSources) {
 		Launcher launcher = new Launcher();
 		launcher.getEnvironment().setNoClasspath(true);
 		launcher.getEnvironment().setCommentEnabled(true);
@@ -109,8 +108,8 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		DSpotUtils.copyPackageFromResources();
 		String[] sourcesArray = (pathToSources + PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies()).split(PATH_SEPARATOR);
 		Arrays.stream(sourcesArray).forEach(launcher::addInputResource);
-		if (!pathToDependencies.isEmpty()) {
-			String[] dependenciesArray = pathToDependencies.split(PATH_SEPARATOR);
+		if (!InputConfiguration.get().getDependencies().isEmpty()) {
+			String[] dependenciesArray = InputConfiguration.get().getDependencies().split(PATH_SEPARATOR);
 			launcher.getModelBuilder().setSourceClasspath(dependenciesArray);
 		}
 		launcher.buildModel();
@@ -163,8 +162,6 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
 	private File binaryOutputDirectory;
 
-	private String dependencies;
-
 	private File sourceOutputDirectory;
 
 	public File getBinaryOutputDirectory() {
@@ -173,10 +170,6 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
 	public File getSourceOutputDirectory() {
 		return sourceOutputDirectory;
-	}
-
-	public String getDependencies() {
-		return dependencies;
 	}
 
 	public Launcher getLauncher() {

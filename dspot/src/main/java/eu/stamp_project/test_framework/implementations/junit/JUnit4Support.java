@@ -1,6 +1,5 @@
 package eu.stamp_project.test_framework.implementations.junit;
 
-import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.options.InputConfiguration;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtLiteral;
@@ -59,7 +58,7 @@ public class JUnit4Support extends JUnitSupport {
             if (originalTimeout == null ||
                     originalTimeout instanceof CtLiteral &&
                             (((CtLiteral) originalTimeout).getValue().equals(0L))) {
-                values.put("timeout", factory.createLiteral(AmplificationHelper.timeOutInMs));
+                values.put("timeout", factory.createLiteral(InputConfiguration.get().getTimeOutInMs()));
             } else {
                 int valueOriginalTimeout;
                 if (originalTimeout.toString().endsWith("L")) {
@@ -68,8 +67,8 @@ public class JUnit4Support extends JUnitSupport {
                 } else {
                     valueOriginalTimeout = parseInt(originalTimeout.toString());
                 }
-                if (valueOriginalTimeout < AmplificationHelper.timeOutInMs) {
-                    CtLiteral newTimeout = factory.createLiteral(AmplificationHelper.timeOutInMs);
+                if (valueOriginalTimeout < InputConfiguration.get().getTimeOutInMs()) {
+                    CtLiteral newTimeout = factory.createLiteral(InputConfiguration.get().getTimeOutInMs());
                     values.put("timeout", newTimeout);
                 }
             }
@@ -84,7 +83,7 @@ public class JUnit4Support extends JUnitSupport {
             ref.setPackage(refPackage);
             newTestAnnotation.setAnnotationType(ref);
             Map<String, Object> elementValue = new HashMap<>();
-            elementValue.put("timeout", AmplificationHelper.timeOutInMs);
+            elementValue.put("timeout", InputConfiguration.get().getTimeOutInMs());
             newTestAnnotation.setElementValues(elementValue);
             clone.addAnnotation(newTestAnnotation);
         }

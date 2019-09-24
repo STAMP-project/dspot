@@ -13,8 +13,7 @@ import java.util.stream.IntStream;
  */
 public class RandomHelper {
 
-    private static Random random = new Random(23L);
-
+    private static Random random;
 
     public static void setSeedRandom(long seed) {
         random = new Random(seed);

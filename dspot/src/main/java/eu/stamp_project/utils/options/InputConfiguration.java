@@ -13,13 +13,16 @@ import eu.stamp_project.utils.collector.DspotInformationCollector;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.smtp.SmtpConfig;
+import jdk.internal.util.xml.impl.Input;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
+import spoon.testing.utils.Check;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -46,11 +49,15 @@ public class InputConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(InputConfiguration.class);
 
     public static InputConfiguration get() {
+        if (instance == null) {
+            instance = new InputConfiguration();
+        }
         return InputConfiguration.instance;
     }
 
-    private static void reset() {
+    public static void reset() {
         LOGGER.warn("Erasing old instance of InputConfiguration");
+        instance = null;
         DSpotCache.reset();
         Main.GLOBAL_REPORT.reset();
         AmplificationHelper.reset();
@@ -61,6 +68,7 @@ public class InputConfiguration {
     }
 
     public void initialize() {
+        Checker.preChecking();
         if (!this.systemProperties.isEmpty()) {
             Arrays.stream(this.systemProperties.split(","))
                     .forEach(systemProperty -> {
@@ -131,11 +139,12 @@ public class InputConfiguration {
         smtpConfig.setSmtpPort(this.smtpPort);
         smtpConfig.setSmtpAuth("" + this.smtpAuth);
         smtpConfig.setSmtpTls("" + this.smtpTls);
+
+        Checker.postChecking();
     }
 
     @CommandLine.Option(
             names = "--absolute-path-to-project-root",
-            required = true,
             description = "Specify the path to the root of the project. " +
                     "This path must be absolute." +
                     "We consider as root of the project folder that contain the top-most parent in a multi-module project."
@@ -400,7 +409,7 @@ public class InputConfiguration {
 
     @CommandLine.Option(
             names = {"-a", "--amplifiers"},
-            defaultValue =  "None",
+            defaultValue =  "NoneAmplifier",
             description = "Specify the list of amplifiers to use. " +
                     "By default, DSpot does not use any amplifiers (None) and applies only assertion amplification. " +
                     "Valid values: ${COMPLETION-CANDIDATES}"
@@ -656,7 +665,9 @@ public class InputConfiguration {
     }
 
     public InputConfiguration setAbsolutePathToProjectRoot(String absolutePathToProjectRoot) {
-        this.absolutePathToProjectRoot = DSpotUtils.shouldAddSeparator.apply(absolutePathToProjectRoot);
+        this.absolutePathToProjectRoot = DSpotUtils.shouldAddSeparator.apply(
+                new File(absolutePathToProjectRoot).getAbsolutePath()
+        );
         return this;
     }
 
@@ -667,6 +678,11 @@ public class InputConfiguration {
     public InputConfiguration setTargetModule(String targetModule) {
         this.targetModule = DSpotUtils.shouldAddSeparator.apply(targetModule);
         return this;
+    }
+
+    // TODO
+    public String getPathToFolderToBeAmplified() {
+        return this.absolutePathToProjectRoot + this.targetModule;
     }
 
     public String getPathToSourceCode() {
@@ -891,6 +907,10 @@ public class InputConfiguration {
         return this;
     }
 
+    public String getSystemProperties() {
+        return this.systemProperties;
+    }
+
     public String getDescartesMutators() {
         return descartesMutators;
     }
@@ -1024,7 +1044,6 @@ public class InputConfiguration {
 
     public InputConfiguration setTimeOutInMs(int timeOutInMs) {
         this.timeOutInMs = timeOutInMs;
-        AmplificationHelper.timeOutInMs = timeOutInMs; // TODO should not be redundant
         return this;
     }
 
@@ -1160,7 +1179,11 @@ public class InputConfiguration {
         return this.collector;
     }
 
-    static void configureExample() {
+    public boolean shouldRunExample() {
+        return this.example;
+    }
+
+    public static void configureExample() {
         try {
             InputConfiguration.get().setAbsolutePathToProjectRoot("src/test/resources/test-projects/");
             InputConfiguration.get().setNbIteration(1);
@@ -1169,23 +1192,10 @@ public class InputConfiguration {
             InputConfiguration.get().setBudgetizerEnum(BudgetizerEnum.RandomBudgetizer);
             InputConfiguration.get().setTestClasses(Collections.singletonList("example.TestSuiteExample"));
             InputConfiguration.get().setTestClasses(Collections.emptyList());
+            InputConfiguration.get().setVerbose(true);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static void main(String[] args) {
-        final InputConfiguration configuration = new InputConfiguration();
-        final CommandLine commandLine = new CommandLine(configuration);
-        final String[] strings = {
-                "--absolute-path-to-project-root", "/home/bdanglot/workspace/dspot/dspot/src/test/resources/test-projects/",
-                "-I", "23"
-        };
-        commandLine.parseArgs(strings);
-        if (commandLine.isUsageHelpRequested()) {
-            commandLine.usage(System.out);
-        }
-        System.out.println("BP");
     }
 
 }
