@@ -239,8 +239,7 @@ public class MainTest {
         try (BufferedReader reader = new BufferedReader(new FileReader(amplifiedTestClass))) {
             String content = reader.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
             System.out.println(content);
-            System.out.println(content.startsWith(expectedAmplifiedTestClass));
-//            assertTrue(content.startsWith(expectedAmplifiedTestClass));
+            assertTrue(content.startsWith(expectedAmplifiedTestClass));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -248,41 +247,31 @@ public class MainTest {
 
     //we  don't test the whole file, but only the begin of it. It is sufficient to detect the auto import.
     private static final String expectedAmplifiedTestClass = "package example;" + AmplificationHelper.LINE_SEPARATOR +
-            "" + AmplificationHelper.LINE_SEPARATOR +
-            "" + AmplificationHelper.LINE_SEPARATOR +
+            AmplificationHelper.LINE_SEPARATOR +
+            AmplificationHelper.LINE_SEPARATOR +
             "import org.junit.Assert;" + AmplificationHelper.LINE_SEPARATOR +
             "import org.junit.Test;" + AmplificationHelper.LINE_SEPARATOR +
-            "" + AmplificationHelper.LINE_SEPARATOR +
-            "" + AmplificationHelper.LINE_SEPARATOR +
-            "public class TestSuiteExampleAmpl {" + AmplificationHelper.LINE_SEPARATOR +
-            "    /* amplification of example.TestSuiteExample#test2 */" + AmplificationHelper.LINE_SEPARATOR +
+            AmplificationHelper.LINE_SEPARATOR +
+            AmplificationHelper.LINE_SEPARATOR +
+            "public class TestSuiteExample {" + AmplificationHelper.LINE_SEPARATOR +
             "    @Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
-            "    public void test2_literalMutationString2() {" + AmplificationHelper.LINE_SEPARATOR +
-            "        Example ex = new Example();" + AmplificationHelper.LINE_SEPARATOR +
-            "        // AssertionGenerator create local variable with return value of invocation" + AmplificationHelper.LINE_SEPARATOR +
-            "        char o_test2_literalMutationString2__3 = ex.charAt(\"acd\", 3);" + AmplificationHelper.LINE_SEPARATOR +
-            "        // AssertionGenerator add assertion" + AmplificationHelper.LINE_SEPARATOR +
-            "        Assert.assertEquals('d', ((char) (o_test2_literalMutationString2__3)));" + AmplificationHelper.LINE_SEPARATOR +
-            "    }";
+            "    public void test3_literalMutationString44_failAssert0() throws Exception {" + AmplificationHelper.LINE_SEPARATOR +
+            "        try {" + AmplificationHelper.LINE_SEPARATOR +
+            "            Example ex = new Example();" + AmplificationHelper.LINE_SEPARATOR +
+            "            String s = \"\";" + AmplificationHelper.LINE_SEPARATOR +
+            "            ex.charAt(s, ((s.length()) - 1));" + AmplificationHelper.LINE_SEPARATOR +
+            "            Assert.fail(\"\\\"test3_literalMutationString44 should have thrown StringIndexOutOfBoundsException\\\")\");" + AmplificationHelper.LINE_SEPARATOR +
+            "        } catch (StringIndexOutOfBoundsException expected) {" + AmplificationHelper.LINE_SEPARATOR +
+            "            Assert.assertEquals(\"String index out of range: 0\", expected.getMessage());" + AmplificationHelper.LINE_SEPARATOR +
+            "        }" + AmplificationHelper.LINE_SEPARATOR +
+            "    }" + AmplificationHelper.LINE_SEPARATOR;
 
-    private static final String expectedReportExample = 
-            "Initial instruction coverage: 30 / 34\n" +
-                    "88" + AmplificationHelper.DECIMAL_SEPARATOR + "24%\n" +
-                    "Amplification results with 57 amplified tests.\n" +
-                    "Amplified instruction coverage: 34 / 34\n" +
-                    "100" + AmplificationHelper.DECIMAL_SEPARATOR + "00%\n" +
-                    "\n" +
-                    "Initial instruction coverage: 30 / 34\n" +
-                    "88" + AmplificationHelper.DECIMAL_SEPARATOR + "24%\n" +
-                    "Amplification results with 5 amplified tests.\n" +
-                    "Amplified instruction coverage: 34 / 34\n" +
-                    "100" + AmplificationHelper.DECIMAL_SEPARATOR + "00%\n" +
-                    "\n" +
-                    "Initial instruction coverage: 30 / 34\n" +
-                    "88" + AmplificationHelper.DECIMAL_SEPARATOR + "24%\n" +
-                    "Amplification results with 0 amplified tests.\n" +
-                    "Amplified instruction coverage: 30 / 34\n" +
-                    "88" + AmplificationHelper.DECIMAL_SEPARATOR + "24%\n";
+    private static final String expectedReportExample =
+                    "Initial instruction coverage: 30 / 34" + AmplificationHelper.LINE_SEPARATOR +
+                    "88" + AmplificationHelper.DECIMAL_SEPARATOR + "24%" + AmplificationHelper.LINE_SEPARATOR +
+                    "Amplification results with 5 amplified tests." + AmplificationHelper.LINE_SEPARATOR +
+                    "Amplified instruction coverage: 34 / 34" + AmplificationHelper.LINE_SEPARATOR +
+                    "100" + AmplificationHelper.DECIMAL_SEPARATOR + "00%" + AmplificationHelper.LINE_SEPARATOR;
 
     @Test
     public void testOverrideExistingResults() throws Exception {
