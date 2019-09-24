@@ -134,8 +134,25 @@ public abstract class JUnitSupport extends AbstractTestFramework {
 
         CtTry tryBlock = factory.Core().createTry();
         tryBlock.setBody(test.getBody());
-        String snippet = this.qualifiedNameOfAssertClass + ".fail(\"" + test.getSimpleName() + " should have thrown " + simpleNameOfException + "\")";
-        tryBlock.getBody().addStatement(factory.Code().createCodeSnippetStatement(snippet));
+
+        CtType<?> assertClass = factory.createReference(this.qualifiedNameOfAssertClass).getTypeDeclaration();
+        CtStatement failStatement;
+        if (assertClass.getMethod("fail") == null) {
+            String snippet = this.qualifiedNameOfAssertClass + ".fail(\"" + test.getSimpleName() + " should have thrown " + simpleNameOfException + "\")";
+            failStatement = factory.Code().createCodeSnippetStatement(snippet);
+        } else {
+            final CtMethod<?> fail = assertClass.getMethod("fail");
+            final CtTypeAccess<?> assertTypeAccess = factory.createTypeAccess(assertClass.getReference());
+            failStatement = factory.createInvocation(
+                    assertTypeAccess,
+                    fail.getReference()
+            ).addArgument(
+                    factory.createLiteral(
+                            "\"" + test.getSimpleName() + " should have thrown " + simpleNameOfException + "\")"
+                    )
+            );
+        }
+        tryBlock.getBody().addStatement(failStatement);
         DSpotUtils.addComment(tryBlock, "AssertionGenerator generate try/catch block with fail statement", CtComment.CommentType.INLINE);
 
         CtCatch ctCatch = factory.Core().createCatch();

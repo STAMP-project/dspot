@@ -33,7 +33,7 @@ public class Configuration {
             InputConfiguration.get().setSelector(new JacocoCoverageSelector());
             InputConfiguration.get().setBudgetizer(BudgetizerEnum.RandomBudgetizer);
             InputConfiguration.get().setTestClasses(Collections.singletonList("example.TestSuiteExample"));
-            InputConfiguration.get().setTestClasses(Collections.emptyList());
+            InputConfiguration.get().setTestCases(Collections.emptyList());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
