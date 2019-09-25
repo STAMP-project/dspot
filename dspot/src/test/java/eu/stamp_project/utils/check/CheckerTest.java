@@ -108,7 +108,7 @@ public class CheckerTest {
         try {
             Main.main(new String[] {
                     "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
-                    "--budgetizer", "NotABudgetizer"
+                    "--input-ampl-distributor", "NotABudgetizer"
             });
             fail();
         } catch (InputErrorException e) {

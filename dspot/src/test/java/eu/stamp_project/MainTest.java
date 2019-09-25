@@ -198,7 +198,7 @@ public class MainTest {
                 "--iteration", "1",
                 "--amplifiers", "FastLiteralAmplifier",
                 "--test", "example.ParametrizedTestSuiteExample",
-                "--budgetizer", "TextualDistanceInputAmplDistributor",
+                "--input-ampl-distributor", "TextualDistanceInputAmplDistributor",
                 "--no-minimize",
                 "--test-cases", "test2"
         });
