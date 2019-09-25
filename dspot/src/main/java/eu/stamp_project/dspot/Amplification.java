@@ -44,37 +44,27 @@ public class Amplification {
 
     private InputAmplDistributor inputAmplDistributor;
 
-    public Amplification(DSpotCompiler compiler, List<Amplifier> amplifiers, TestSelector testSelector, InputAmplDistributor inputAmplDistributor) {
+    private int numberOfIteration;
+
+    public Amplification(DSpotCompiler compiler, List<Amplifier> amplifiers, TestSelector testSelector, InputAmplDistributor inputAmplDistributor, int numberOfIteration) {
         this.compiler = compiler;
         this.assertionGenerator = new AssertionGenerator(InputConfiguration.get(), this.compiler);
         this.globalNumberOfSelectedAmplification = 0;
         this.amplifiers = amplifiers;
         this.testSelector = testSelector;
+        this.numberOfIteration = numberOfIteration;
         this.inputAmplDistributor = inputAmplDistributor;
-    }
-
-    /**
-     * Amplification of every method of a test class.
-     *
-     * See {@link #amplification(CtType, CtMethod, int)} for the details of amplification.
-     *
-     * @param classTest    Test class
-     * @param maxIteration Number of amplification iterations
-     */
-    public void amplification(CtType<?> classTest, int maxIteration) {
-        amplification(classTest, TestFramework.getAllTest(classTest), maxIteration);
     }
 
     /**
      * Amplification of multiple methods.
      *
-     * See {@link #amplification(CtType, CtMethod, int)} for the details of amplification.
+     * See {@link #amplification(CtType, CtMethod)} for the details of amplification.
      *
      * @param classTest    Test class
      * @param tests        Methods to amplify
-     * @param maxIteration Number of amplification iterations
      */
-    public void amplification(CtType<?> classTest, List<CtMethod<?>> tests, int maxIteration) {
+    public void amplification(CtType<?> classTest, List<CtMethod<?>> tests) {
 
         if(tests.isEmpty()) {
             LOGGER.warn("No test provided for amplification in class {}", classTest.getQualifiedName());
@@ -134,7 +124,7 @@ public class Amplification {
         for (int i = 0; i < tests.size(); i++) {
             CtMethod test = tests.get(i);
             LOGGER.info("Amplification of {}, ({}/{})", test.getSimpleName(), i + 1, tests.size());
-            final List<CtMethod<?>> amplifiedTestMethods = amplification(classTest, test, maxIteration);
+            final List<CtMethod<?>> amplifiedTestMethods = amplification(classTest, test);
             this.globalNumberOfSelectedAmplification += amplifiedTestMethods.size();
             LOGGER.info("{} amplified test methods has been selected to be kept. (global: {})", amplifiedTestMethodsToKeep.size(), this.globalNumberOfSelectedAmplification);
         }
@@ -149,18 +139,17 @@ public class Amplification {
      *
      * @param classTest    Test class
      * @param test         Method to amplify
-     * @param maxIteration Number of amplification iterations
      * @return Valid amplified tests
      */
-    protected List<CtMethod<?>> amplification(CtType<?> classTest, CtMethod test, int maxIteration) {
+    protected List<CtMethod<?>> amplification(CtType<?> classTest, CtMethod test) {
         // tmp list for current test methods to be amplified
         // this list must be a implementation that support remove / clear methods
         List<CtMethod<?>> currentTestList = new ArrayList<>();
         currentTestList.add(test);
         // output
         final List<CtMethod<?>> amplifiedTests = new ArrayList<>();
-        for (int i = 0; i < maxIteration; i++) {
-            LOGGER.info("iteration {} / {}", i, maxIteration);
+        for (int i = 0; i < this.numberOfIteration ; i++) {
+            LOGGER.info("iteration {} / {}", i, this.numberOfIteration);
             final List<CtMethod<?>> selectedToBeAmplified;
             try {
 

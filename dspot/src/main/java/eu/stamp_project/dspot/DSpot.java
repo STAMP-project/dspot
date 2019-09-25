@@ -36,63 +36,12 @@ public class DSpot {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DSpot.class);
 
-    private List<Amplifier> amplifiers;
-
-    private int numberOfIterations;
-
     private TestSelector testSelector;
-
-    private InputAmplDistributor inputAmplDistributor;
-
-    private DSpotCompiler compiler;
 
     private ProjectTimeJSON projectTimeJSON;
 
-    private TestFinder testFinder;
-
-    public DSpot() {
-        this(3, Collections.emptyList(), new PitMutantScoreSelector(), InputAmplDistributorEnum.RandomInputAmplDistributor);
-    }
-
-    public DSpot(int numberOfIterations) {
-        this(numberOfIterations, Collections.emptyList(), new PitMutantScoreSelector(), InputAmplDistributorEnum.RandomInputAmplDistributor);
-    }
-
     public DSpot(TestSelector testSelector) {
-        this(3, Collections.emptyList(), testSelector, InputAmplDistributorEnum.RandomInputAmplDistributor);
-    }
-
-    public DSpot(int iteration, TestSelector testSelector) throws Exception {
-        this(iteration, Collections.emptyList(), testSelector, InputAmplDistributorEnum.RandomInputAmplDistributor);
-    }
-
-    public DSpot(List<Amplifier> amplifiers) {
-        this(3, amplifiers, new PitMutantScoreSelector(), InputAmplDistributorEnum.RandomInputAmplDistributor);
-    }
-
-    public DSpot(int numberOfIterations, List<Amplifier> amplifiers) {
-        this(numberOfIterations, amplifiers, new PitMutantScoreSelector(), InputAmplDistributorEnum.RandomInputAmplDistributor);
-    }
-
-    public DSpot(int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws Exception {
-        this(numberOfIterations, amplifiers, testSelector, InputAmplDistributorEnum.RandomInputAmplDistributor);
-    }
-
-    public DSpot(int numberOfIterations,
-                 List<Amplifier> amplifiers,
-                 TestSelector testSelector,
-                 InputAmplDistributorEnum inputAmplDistributor) {
-        this.testFinder = new TestFinder(
-                Arrays.stream(InputConfiguration.get().getExcludedClasses().split(",")).collect(Collectors.toList()),
-                Arrays.stream(InputConfiguration.get().getExcludedTestCases().split(",")).collect(Collectors.toList())
-        );
-        String dependencies = InputConfiguration.get().getDependencies();
-        this.compiler = DSpotCompiler.createDSpotCompiler(InputConfiguration.get(), dependencies);
-        InputConfiguration.get().setFactory(this.compiler.getLauncher().getFactory());
-        this.amplifiers = new ArrayList<>(amplifiers);
-        this.numberOfIterations = numberOfIterations;
         this.testSelector = testSelector;
-
         String splitter = File.separator.equals("/") ? "/" : "\\\\";
         final String[] splittedPath = InputConfiguration.get().getAbsolutePathToProjectRoot().split(splitter);
         final File projectJsonFile = new File(InputConfiguration.get().getOutputDirectory() +
@@ -107,119 +56,22 @@ public class DSpot {
         } else {
             this.projectTimeJSON = new ProjectTimeJSON(splittedPath[splittedPath.length - 1]);
         }
-        this.inputAmplDistributor = inputAmplDistributor.getInputAmplDistributor(this.amplifiers);
     }
 
-    /**
-     * Amplify all the test methods of all the test classes that DSpot can find.
-     * A class is considered as a test class if it contains at least one test method.
-     * A method is considred as test method if it matches {@link eu.stamp_project.test_framework.TestFrameworkSupport#isTest(CtMethod)}
-     *
-     * @return a list of amplified test classes with amplified test methods.
-     */
-    public List<CtType<?>> amplifyAllTests() {
-        return this._amplifyTestClasses(
-                TestFramework.getAllTestClasses().stream()
-                .filter(this.testFinder.isNotExcluded)
-                .collect(Collectors.toList())
-        );
-    }
-
-    /**
-     * Amplify the given test methods of the given test classes.
-     *
-     * @param testClassToBeAmplified the test class to be amplified. It can be a java regex.
-     * @return a list of amplified test classes with amplified test methods.
-     */
-    public List<CtType<?>> amplifyTestClass(String testClassToBeAmplified) {
-        return this.amplifyTestClassesTestMethods(Collections.singletonList(testClassToBeAmplified), Collections.emptyList());
-    }
-
-    /**
-     * Amplify the given test methods of the given test classes.
-     *
-     * @param testClassToBeAmplified the test class to be amplified. It can be a java regex.
-     * @param testMethod             the test method to be amplified. It can be a java regex.
-     * @return a list of amplified test classes with amplified test methods.
-     */
-    public List<CtType<?>> amplifyTestClassTestMethod(String testClassToBeAmplified, String testMethod) {
-        return this.amplifyTestClassesTestMethods(Collections.singletonList(testClassToBeAmplified), Collections.singletonList(testMethod));
-    }
-
-    /**
-     * Amplify the given test methods of the given test classes.
-     *
-     * @param testClassToBeAmplified the test class to be amplified. It can be a java regex.
-     * @param testMethods            the list of test methods to be amplified. This list can be a list of java regex.
-     * @return a list of amplified test classes with amplified test methods.
-     */
-    public List<CtType<?>> amplifyTestClassTestMethods(String testClassToBeAmplified, List<String> testMethods) {
-        return this.amplifyTestClassesTestMethods(Collections.singletonList(testClassToBeAmplified), testMethods);
-    }
-
-    /**
-     * Amplify the given test methods of the given test classes.
-     *
-     * @param testClassesToBeAmplified the list of test classes to be amplified. This list can be a list of java regex.
-     * @return a list of amplified test classes with amplified test methods.
-     */
-    public List<CtType<?>> amplifyTestClasses(List<String> testClassesToBeAmplified) {
-        return this.amplifyTestClassesTestMethods(testClassesToBeAmplified, Collections.emptyList());
-    }
-
-    /**
-     * Amplify the given test methods of the given test classes.
-     *
-     * @param testClassesToBeAmplified the list of test classes to be amplified. This list can be a list of java regex.
-     * @param testMethod               the test method to be amplified. This can be a java regex.
-     * @return a list of amplified test classes with amplified test methods.
-     */
-    @Deprecated
-    public List<CtType<?>> amplifyTestClassesTestMethod(List<String> testClassesToBeAmplified, String testMethod) {
-        return this.amplifyTestClassesTestMethods(testClassesToBeAmplified, Collections.singletonList(testMethod));
-    }
-
-    /**
-     * Amplify the given test methods of the given test classes.
-     *
-     * @param testClassesToBeAmplified the list of test classes to be amplified. This list can be a list of java regex.
-     * @param testMethods              the list of test methods to be amplified. This list can be a list of java regex.
-     * @return a list of amplified test classes with amplified test methods.
-     */
-    public List<CtType<?>> amplifyTestClassesTestMethods(List<String> testClassesToBeAmplified, List<String> testMethods) {
-        final List<CtType<?>> testClasses = this.testFinder.findTestClasses(testClassesToBeAmplified);
-        return testClasses.stream()
-                .map(ctType ->
-                    this._amplify(ctType, this.testFinder.findTestMethods(ctType, testMethods))
-                ).collect(Collectors.toList());
-    }
-
-    private List<CtType<?>> _amplifyTestClasses(List<CtType<?>> testClassesToBeAmplified) {
-        return testClassesToBeAmplified.stream()
-                .map(this::_amplifyTestClass)
-                .collect(Collectors.toList());
-    }
-
-    private CtType<?> _amplifyTestClass(CtType<?> test) {
-        return this._amplify(test, TestFramework.getAllTest(test));
-    }
-
-    protected CtType<?> _amplify(CtType<?> test, List<CtMethod<?>> methods) {
+    public CtType<?> amplify(Amplification testAmplification, CtType<?> testClassToBeAmplified, List<CtMethod<?>> testMethodsToBeAmplified) {
         Counter.reset();
         if (InputConfiguration.get().shouldGenerateAmplifiedTestClass()) {
-            test = AmplificationHelper.renameTestClassUnderAmplification(test);
+            testClassToBeAmplified = AmplificationHelper.renameTestClassUnderAmplification(testClassToBeAmplified);
         }
-        Amplification testAmplification = new Amplification(this.compiler, this.amplifiers, this.testSelector, this.inputAmplDistributor);
         long time = System.currentTimeMillis();
-        testAmplification.amplification(test, methods, numberOfIterations);
+        testAmplification.amplification(testClassToBeAmplified, testMethodsToBeAmplified);
         final long elapsedTime = System.currentTimeMillis() - time;
         LOGGER.info("elapsedTime {}", elapsedTime);
-        this.projectTimeJSON.add(new ClassTimeJSON(test.getQualifiedName(), elapsedTime));
-        final CtType clone = test.clone();
-        test.getPackage().addType(clone);
+        this.projectTimeJSON.add(new ClassTimeJSON(testClassToBeAmplified.getQualifiedName(), elapsedTime));
+        final CtType clone = testClassToBeAmplified.clone();
+        testClassToBeAmplified.getPackage().addType(clone);
         final CtType<?> amplification = AmplificationHelper.createAmplifiedTest(testSelector.getAmplifiedTestCases(), clone);
         final File outputDirectory = new File(InputConfiguration.get().getOutputDirectory());
-
         //Optimization: this object is not required anymore
         //and holds a dictionary with large number of cloned CtMethods.
         testAmplification = null;
@@ -245,26 +97,11 @@ public class DSpot {
         //TODO if something bad happened, the call to TestSelector#report() might throw an exception.
         //For now, I wrap it in a try/catch, but we might think of a better way to handle this.
         try {
-            Main.GLOBAL_REPORT.addTestSelectorReportForTestClass(test, testSelector.report());
+            Main.GLOBAL_REPORT.addTestSelectorReportForTestClass(testClassToBeAmplified, testSelector.report());
         } catch (Exception e) {
             e.printStackTrace();
             LOGGER.error("Something bad happened during the report fot test-criterion.");
             LOGGER.error("Dspot might not have output correctly!");
-        }
-        /* Cleaning modified source directory by DSpot */
-        try {
-            FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            LOGGER.warn("Something went wrong when trying to cleaning temporary sources directory: {}", compiler.getSourceOutputDirectory());
-        }
-        /* Cleaning binary generated by Dspot */
-        try {
-            String pathToDotClass = compiler.getBinaryOutputDirectory().getAbsolutePath() + "/" +
-                    test.getQualifiedName().replaceAll("\\.", "/") + ".class";
-            FileUtils.forceDelete(new File(pathToDotClass));
-        } catch (IOException ignored) {
-            //ignored
         }
         writeTimeJson();
         InputConfiguration.get().getBuilder().reset();
