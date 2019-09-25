@@ -16,7 +16,6 @@ import eu.stamp_project.utils.options.Configuration;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 
 import java.io.File;
@@ -25,9 +24,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
@@ -619,16 +615,6 @@ public class InputConfiguration {
         this.excludedClasses = excludedClasses;
         return this;
     }
-
-    /**
-     * Predicate that returns either the given ctType should be excluded or not.
-     */
-    public static final Predicate<CtType> isNotExcluded = ctType ->
-            InputConfiguration.get().getExcludedClasses().isEmpty() ||
-                    Arrays.stream(InputConfiguration.get().getExcludedClasses().split(","))
-                            .map(Pattern::compile)
-                            .map(pattern -> pattern.matcher(ctType.getQualifiedName()))
-                            .noneMatch(Matcher::matches);
 
     private String excludedTestCases;
 
