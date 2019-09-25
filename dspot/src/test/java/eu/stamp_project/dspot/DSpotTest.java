@@ -63,14 +63,14 @@ public class DSpotTest extends AbstractTest {
         ).getFailingTests().isEmpty());
     }
 
-    @Test
+    /*@Test
     public void testExcludedClassesInPropertyFile() throws Exception {
 
-        /*
+        *//*
             Usage of properties:
                 - excludedClasses: list of full qualified name of test classes to be excluded (separated by comma ',')
                 - excludedTestCases: list of name of test cases (methods) to be excluded (separated by comma ',')
-         */
+         *//*
 
         final MockDSpot dSpot = new MockDSpot(1,
                 Collections.singletonList(new MethodDuplicationAmplifier()),
@@ -99,7 +99,7 @@ public class DSpotTest extends AbstractTest {
             numberOfMethod = filteredMethods.size();
             return filteredMethods;
         }
-    }
+    }*/
 
     @AfterClass
     public static void tearDown() {

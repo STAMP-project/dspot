@@ -48,6 +48,9 @@ public class TestFinder {
                             .noneMatch(Matcher::matches);
 
     public List<CtType<?>> findTestClasses(List<String> testClassNames) {
+        if (testClassNames.isEmpty()) {
+            return TestFramework.getAllTestClasses();
+        }
         final Map<String, List<CtType<?>>> namesMatchedToTypes =
                 testClassNames.stream().collect(Collectors.toMap(
                             Function.identity(),
@@ -84,8 +87,8 @@ public class TestFinder {
                     .flatMap(pattern ->
                         testClass.getMethods().stream()
                                .filter(ctMethod -> Pattern.compile(pattern).matcher(ctMethod.getSimpleName()).matches())
-                                .collect(Collectors.toList()).stream()
-                    .filter(testMethod -> this.excludedTestCases.contains(testMethod.getSimpleName()))
+                               .collect(Collectors.toList()).stream()
+                    .filter(testMethod -> !this.excludedTestCases.contains(testMethod.getSimpleName()))
             ).collect(Collectors.toList());
         }
     }
