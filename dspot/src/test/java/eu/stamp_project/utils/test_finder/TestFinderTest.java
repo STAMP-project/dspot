@@ -4,7 +4,6 @@ import eu.stamp_project.Main;
 import eu.stamp_project.Utils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.program.InputConfiguration;
-import jdk.internal.util.xml.impl.Input;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
