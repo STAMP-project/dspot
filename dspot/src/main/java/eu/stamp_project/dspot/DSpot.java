@@ -16,8 +16,7 @@ import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.json.ClassTimeJSON;
 import eu.stamp_project.utils.json.ProjectTimeJSON;
-import eu.stamp_project.utils.report.error.Error;
-import eu.stamp_project.utils.report.error.ErrorEnum;
+import eu.stamp_project.utils.test_finder.TestFinder;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,10 +25,7 @@ import spoon.reflect.declaration.CtType;
 
 import java.io.*;
 import java.util.*;
-import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * User: Simon
@@ -51,6 +47,8 @@ public class DSpot {
     private DSpotCompiler compiler;
 
     private ProjectTimeJSON projectTimeJSON;
+
+    private TestFinder testFinder;
 
     public DSpot() {
         this(3, Collections.emptyList(), new PitMutantScoreSelector(), BudgetizerEnum.RandomBudgetizer);
@@ -84,6 +82,10 @@ public class DSpot {
                  List<Amplifier> amplifiers,
                  TestSelector testSelector,
                  BudgetizerEnum budgetizer) {
+        this.testFinder = new TestFinder(
+                Arrays.stream(InputConfiguration.get().getExcludedClasses().split(",")).collect(Collectors.toList()),
+                Arrays.stream(InputConfiguration.get().getExcludedTestCases().split(",")).collect(Collectors.toList())
+        );
         String dependencies = InputConfiguration.get().getDependencies();
         this.compiler = DSpotCompiler.createDSpotCompiler(InputConfiguration.get(), dependencies);
         InputConfiguration.get().setFactory(this.compiler.getLauncher().getFactory());
@@ -108,34 +110,6 @@ public class DSpot {
         this.budgetizer = budgetizer.getBudgetizer(this.amplifiers);
     }
 
-    private Stream<CtType<?>> findTestClasses(String targetTestClasses) {
-        if (!targetTestClasses.contains("\\")) {
-            // here, we make more usable, but maybe less reliable, dspot.
-            // we replace every * with .*, since in java.util.regex Pattern class
-            // the star (*) is just a quantifier (0, or infini) and the dot (.) is a wildcard
-            targetTestClasses = targetTestClasses.replaceAll("\\.", "\\\\\\.").replaceAll("\\*", ".*");
-        }
-        Pattern pattern = Pattern.compile(targetTestClasses);
-        return TestFramework.getAllTestClassesAsStream()
-                .filter(ctType -> pattern.matcher(ctType.getQualifiedName()).matches())
-                .filter(InputConfiguration.isNotExcluded);
-    }
-
-    private List<CtMethod<?>> buildListOfTestMethodsToBeAmplified(CtType<?> testClass, List<String> targetTestMethods) {
-        if (targetTestMethods.isEmpty()) {
-            return testClass.getMethods()
-                    .stream()
-                    .filter(TestFramework.get()::isTest)
-                    .collect(Collectors.toList());
-        } else {
-            return targetTestMethods.stream().flatMap(pattern ->
-                    testClass.getMethods().stream()
-                            .filter(ctMethod -> Pattern.compile(pattern).matcher(ctMethod.getSimpleName()).matches())
-                            .collect(Collectors.toList()).stream()
-            ).collect(Collectors.toList());
-        }
-    }
-
     /**
      * Amplify all the test methods of all the test classes that DSpot can find.
      * A class is considered as a test class if it contains at least one test method.
@@ -146,7 +120,7 @@ public class DSpot {
     public List<CtType<?>> amplifyAllTests() {
         return this._amplifyTestClasses(
                 TestFramework.getAllTestClasses().stream()
-                .filter(InputConfiguration.isNotExcluded)
+                .filter(this.testFinder.isNotExcluded)
                 .collect(Collectors.toList())
         );
     }
@@ -213,58 +187,10 @@ public class DSpot {
      * @return a list of amplified test classes with amplified test methods.
      */
     public List<CtType<?>> amplifyTestClassesTestMethods(List<String> testClassesToBeAmplified, List<String> testMethods) {
-        final Map<String, List<CtType<?>>> collect = testClassesToBeAmplified.stream()
-                .collect(Collectors.toMap(
-                            Function.identity(),
-                            testClassName -> this.findTestClasses(testClassName).collect(Collectors.toList())
-                        )
-                );
-        final List<String> keys = collect.keySet()
-                .stream()
-                .filter(testClassName -> {
-                    if (collect.get(testClassName).isEmpty()) {
-                        Main.GLOBAL_REPORT.addError(
-                                new Error(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND_MATCHING_REGEX,
-                                        String.format("Your input:%n\t%s", testClassName)
-                                )
-                        );
-                        return false;
-                    } else {
-                        return true;
-                    }
-                }).collect(Collectors.toList());
-        if (keys.isEmpty()) {
-            LOGGER.error("Could not find any test classes to be amplified.");
-            LOGGER.error("No one of the provided target test classes could find candidate:");
-            final String testClassToBeAmplifiedJoined = String.join(AmplificationHelper.LINE_SEPARATOR, testClassesToBeAmplified);
-            LOGGER.error("\t{}", testClassToBeAmplifiedJoined);
-            LOGGER.error("DSpot will stop here, please checkEnum your inputs.");
-            LOGGER.error("In particular, you should look at the values of following options:");
-            LOGGER.error("\t (-t | --test) should be followed by correct Java regular expression.");
-            LOGGER.error("\t Please, refer to the Java documentation of java.util.regex.Pattern.");
-            LOGGER.error("\t (-c | --cases) should be followed by correct method name,");
-            LOGGER.error("\t that are contained in the test classes that match the previous option, i.e. (-t | --test).");
-            Main.GLOBAL_REPORT.addError(
-                    new Error(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND,
-                            String.format("Your input:%n\t%s", testClassToBeAmplifiedJoined)
-                    )
-            );
-            return Collections.emptyList();
-        }
-        final List<CtType<?>> testClassesToBeAmplifiedModel = testClassesToBeAmplified.stream()
-                .flatMap(this::findTestClasses)
-                .collect(Collectors.toList());
-        //Filtering out testClasses tagged as ignored (JUnit4) or disable (JUnit 5)
-        return testClassesToBeAmplifiedModel.stream()
-                .filter(ctType-> {
-                    boolean isIgnored = TestFramework.get().isIgnored(ctType);
-                    if (isIgnored) {
-                        LOGGER.info("Skiping test suite {} since it is annotated as ignored/disabled", ctType.getSimpleName());
-                    }
-                    return !isIgnored;
-                }
-                ).map(ctType ->
-                    this._amplify(ctType, this.buildListOfTestMethodsToBeAmplified(ctType, testMethods))
+        final List<CtType<?>> testClasses = this.testFinder.findTestClasses(testClassesToBeAmplified);
+        return testClasses.stream()
+                .map(ctType ->
+                    this._amplify(ctType, this.testFinder.findTestMethods(ctType, testMethods))
                 ).collect(Collectors.toList());
     }
 
@@ -281,9 +207,8 @@ public class DSpot {
     protected CtType<?> _amplify(CtType<?> test, List<CtMethod<?>> methods) {
         Counter.reset();
         Amplification testAmplification = new Amplification(this.compiler, this.amplifiers, this.testSelector, this.budgetizer);
-        final List<CtMethod<?>> filteredTestCases = this.filterTestCases(methods);
         long time = System.currentTimeMillis();
-        testAmplification.amplification(test, filteredTestCases, numberOfIterations);
+        testAmplification.amplification(test, methods, numberOfIterations);
         final long elapsedTime = System.currentTimeMillis() - time;
         LOGGER.info("elapsedTime {}", elapsedTime);
         this.projectTimeJSON.add(new ClassTimeJSON(test.getQualifiedName(), elapsedTime));
@@ -341,21 +266,6 @@ public class DSpot {
         writeTimeJson();
         InputConfiguration.get().getBuilder().reset();
         return amplification;
-    }
-
-    protected List<CtMethod<?>> filterTestCases(List<CtMethod<?>> testMethods) {
-        if (InputConfiguration.get().getExcludedTestCases().isEmpty()) {
-            return testMethods;
-        } else {
-            final List<String> excludedTestCases = Arrays.stream(
-                    InputConfiguration.get().getExcludedTestCases().split(",")
-            ).collect(Collectors.toList());
-            return testMethods.stream()
-                    .filter(ctMethod ->
-                            excludedTestCases.isEmpty() ||
-                                    !excludedTestCases.contains(ctMethod.getSimpleName())
-                    ).collect(Collectors.toList());
-        }
     }
 
     private void writeTimeJson() {

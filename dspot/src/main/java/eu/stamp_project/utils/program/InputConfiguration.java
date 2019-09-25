@@ -620,16 +620,6 @@ public class InputConfiguration {
         return this;
     }
 
-    /**
-     * Predicate that returns either the given ctType should be excluded or not.
-     */
-    public static final Predicate<CtType> isNotExcluded = ctType ->
-            InputConfiguration.get().getExcludedClasses().isEmpty() ||
-                    Arrays.stream(InputConfiguration.get().getExcludedClasses().split(","))
-                            .map(Pattern::compile)
-                            .map(pattern -> pattern.matcher(ctType.getQualifiedName()))
-                            .noneMatch(Matcher::matches);
-
     private String excludedTestCases;
 
     public String getExcludedTestCases() {
