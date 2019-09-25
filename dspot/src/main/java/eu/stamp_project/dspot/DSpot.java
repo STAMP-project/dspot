@@ -4,11 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.Main;
 import eu.stamp_project.dspot.amplifier.Amplifier;
-import eu.stamp_project.dspot.budget.Budgetizer;
+import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.options.BudgetizerEnum;
+import eu.stamp_project.utils.options.InputAmplDistributorEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Counter;
@@ -42,7 +42,7 @@ public class DSpot {
 
     private TestSelector testSelector;
 
-    private Budgetizer budgetizer;
+    private InputAmplDistributor inputAmplDistributor;
 
     private DSpotCompiler compiler;
 
@@ -51,37 +51,37 @@ public class DSpot {
     private TestFinder testFinder;
 
     public DSpot() {
-        this(3, Collections.emptyList(), new PitMutantScoreSelector(), BudgetizerEnum.RandomBudgetizer);
+        this(3, Collections.emptyList(), new PitMutantScoreSelector(), InputAmplDistributorEnum.RandomInputAmplDistributor);
     }
 
     public DSpot(int numberOfIterations) {
-        this(numberOfIterations, Collections.emptyList(), new PitMutantScoreSelector(), BudgetizerEnum.RandomBudgetizer);
+        this(numberOfIterations, Collections.emptyList(), new PitMutantScoreSelector(), InputAmplDistributorEnum.RandomInputAmplDistributor);
     }
 
     public DSpot(TestSelector testSelector) {
-        this(3, Collections.emptyList(), testSelector, BudgetizerEnum.RandomBudgetizer);
+        this(3, Collections.emptyList(), testSelector, InputAmplDistributorEnum.RandomInputAmplDistributor);
     }
 
     public DSpot(int iteration, TestSelector testSelector) throws Exception {
-        this(iteration, Collections.emptyList(), testSelector, BudgetizerEnum.RandomBudgetizer);
+        this(iteration, Collections.emptyList(), testSelector, InputAmplDistributorEnum.RandomInputAmplDistributor);
     }
 
     public DSpot(List<Amplifier> amplifiers) {
-        this(3, amplifiers, new PitMutantScoreSelector(), BudgetizerEnum.RandomBudgetizer);
+        this(3, amplifiers, new PitMutantScoreSelector(), InputAmplDistributorEnum.RandomInputAmplDistributor);
     }
 
     public DSpot(int numberOfIterations, List<Amplifier> amplifiers) {
-        this(numberOfIterations, amplifiers, new PitMutantScoreSelector(), BudgetizerEnum.RandomBudgetizer);
+        this(numberOfIterations, amplifiers, new PitMutantScoreSelector(), InputAmplDistributorEnum.RandomInputAmplDistributor);
     }
 
     public DSpot(int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws Exception {
-        this(numberOfIterations, amplifiers, testSelector, BudgetizerEnum.RandomBudgetizer);
+        this(numberOfIterations, amplifiers, testSelector, InputAmplDistributorEnum.RandomInputAmplDistributor);
     }
 
     public DSpot(int numberOfIterations,
                  List<Amplifier> amplifiers,
                  TestSelector testSelector,
-                 BudgetizerEnum budgetizer) {
+                 InputAmplDistributorEnum inputAmplDistributor) {
         this.testFinder = new TestFinder(
                 Arrays.stream(InputConfiguration.get().getExcludedClasses().split(",")).collect(Collectors.toList()),
                 Arrays.stream(InputConfiguration.get().getExcludedTestCases().split(",")).collect(Collectors.toList())
@@ -107,7 +107,7 @@ public class DSpot {
         } else {
             this.projectTimeJSON = new ProjectTimeJSON(splittedPath[splittedPath.length - 1]);
         }
-        this.budgetizer = budgetizer.getBudgetizer(this.amplifiers);
+        this.inputAmplDistributor = inputAmplDistributor.getInputAmplDistributor(this.amplifiers);
     }
 
     /**
@@ -206,7 +206,7 @@ public class DSpot {
 
     protected CtType<?> _amplify(CtType<?> test, List<CtMethod<?>> methods) {
         Counter.reset();
-        Amplification testAmplification = new Amplification(this.compiler, this.amplifiers, this.testSelector, this.budgetizer);
+        Amplification testAmplification = new Amplification(this.compiler, this.amplifiers, this.testSelector, this.inputAmplDistributor);
         long time = System.currentTimeMillis();
         testAmplification.amplification(test, methods, numberOfIterations);
         final long elapsedTime = System.currentTimeMillis() - time;
@@ -237,7 +237,7 @@ public class DSpot {
             DSpotUtils.printAndCompileToCheck(amplification, outputDirectory);
         } else {
             LOGGER.warn("DSpot could not obtain any amplified test method.");
-            LOGGER.warn("You can customize the following options: --amplifiers, --test-criterion, --iteration, --budgetizer etc, and retry with a new configuration.");
+            LOGGER.warn("You can customize the following options: --amplifiers, --test-criterion, --iteration, --inputAmplDistributor etc, and retry with a new configuration.");
         }
         //TODO if something bad happened, the call to TestSelector#report() might throw an exception.
         //For now, I wrap it in a try/catch, but we might think of a better way to handle this.

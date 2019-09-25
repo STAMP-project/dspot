@@ -8,7 +8,7 @@ import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.DSpotCache;
 import eu.stamp_project.utils.options.AmplifierEnum;
-import eu.stamp_project.utils.options.BudgetizerEnum;
+import eu.stamp_project.utils.options.InputAmplDistributorEnum;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
@@ -324,7 +324,7 @@ public class InputConfiguration {
                 .setSeed(seed)
                 .setTimeOutInMs(timeOut)
                 .setMaxTestAmplified(maxTestAmplified)
-                .setBudgetizer(BudgetizerEnum.valueOf(budgetizer))
+                .setBudgetizer(InputAmplDistributorEnum.valueOf(budgetizer))
                 .setClean(clean)
                 .setVerbose(verbose)
                 .setUseWorkingDirectory(workingDirectory)
@@ -870,13 +870,13 @@ public class InputConfiguration {
         return this;
     }
 
-    private BudgetizerEnum budgetizer;
+    private InputAmplDistributorEnum budgetizer;
 
-    public BudgetizerEnum getBudgetizer() {
+    public InputAmplDistributorEnum getBudgetizer() {
         return budgetizer;
     }
 
-    public InputConfiguration setBudgetizer(BudgetizerEnum budgetizer) {
+    public InputConfiguration setBudgetizer(InputAmplDistributorEnum budgetizer) {
         this.budgetizer = budgetizer;
         return this;
     }

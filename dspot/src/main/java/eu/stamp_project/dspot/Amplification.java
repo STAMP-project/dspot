@@ -3,7 +3,7 @@ package eu.stamp_project.dspot;
 import eu.stamp_project.Main;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.assertiongenerator.AssertionGenerator;
-import eu.stamp_project.dspot.budget.Budgetizer;
+import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.EntryPoint;
@@ -42,15 +42,15 @@ public class Amplification {
 
     private int globalNumberOfSelectedAmplification;
 
-    private Budgetizer budgetizer;
+    private InputAmplDistributor inputAmplDistributor;
 
-    public Amplification(DSpotCompiler compiler, List<Amplifier> amplifiers, TestSelector testSelector, Budgetizer budgetizer) {
+    public Amplification(DSpotCompiler compiler, List<Amplifier> amplifiers, TestSelector testSelector, InputAmplDistributor inputAmplDistributor) {
         this.compiler = compiler;
         this.assertionGenerator = new AssertionGenerator(InputConfiguration.get(), this.compiler);
         this.globalNumberOfSelectedAmplification = 0;
         this.amplifiers = amplifiers;
         this.testSelector = testSelector;
-        this.budgetizer = budgetizer;
+        this.inputAmplDistributor = inputAmplDistributor;
     }
 
     /**
@@ -180,8 +180,8 @@ public class Amplification {
             );
             final List<CtMethod<?>> inputAmplifiedTests;
             try {
-                // amplify tests and shrink amplified set with budgetizer
-                inputAmplifiedTests = this.budgetizer.inputAmplify(selectedToBeAmplified, i);
+                // amplify tests and shrink amplified set with inputAmplDistributor
+                inputAmplifiedTests = this.inputAmplDistributor.inputAmplify(selectedToBeAmplified, i);
             } catch (Exception | java.lang.Error e) {
                 Main.GLOBAL_REPORT.addError(new Error(ERROR_INPUT_AMPLIFICATION, e));
                 return Collections.emptyList();

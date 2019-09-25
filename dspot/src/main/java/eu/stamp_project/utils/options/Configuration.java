@@ -31,7 +31,7 @@ public class Configuration {
             InputConfiguration.get().setNbIteration(1);
             InputConfiguration.get().setAmplifiers(Collections.singletonList(new FastLiteralAmplifier()));
             InputConfiguration.get().setSelector(new JacocoCoverageSelector());
-            InputConfiguration.get().setBudgetizer(BudgetizerEnum.RandomBudgetizer);
+            InputConfiguration.get().setBudgetizer(InputAmplDistributorEnum.RandomInputAmplDistributor);
             InputConfiguration.get().setTestClasses(Collections.singletonList("example.TestSuiteExample"));
             InputConfiguration.get().setTestCases(Collections.emptyList());
         } catch (Exception e) {
@@ -42,7 +42,7 @@ public class Configuration {
     public static void configure(final String pathToPropertiesFile,
                                  final List<String> amplifiers,
                                  final String selector,
-                                 final String budgetizer,
+                                 final String inputAmplDistributor,
                                  final String pitOutputFormat,
                                  final String pathPitResult,
                                  final String automaticBuilder,
@@ -74,7 +74,7 @@ public class Configuration {
                 properties,
                 amplifiers,
                 selector,
-                budgetizer,
+                inputAmplDistributor,
                 pitOutputFormat,
                 pathPitResult,
                 automaticBuilder,
@@ -105,7 +105,7 @@ public class Configuration {
     public static void configure(Properties properties,
                                  final List<String> amplifiers,
                                  final String selector,
-                                 final String budgetizer,
+                                 final String inputAmplDistributor,
                                  final String pitOutputFormat,
                                  final String pathPitResult,
                                  final String automaticBuilder,
@@ -144,7 +144,7 @@ public class Configuration {
         Checker.preChecking(
                 amplifiers,
                 selector,
-                budgetizer,
+                inputAmplDistributor,
                 properties
         );
 
@@ -181,7 +181,7 @@ public class Configuration {
 
         InputConfiguration.setUp(
                 amplifiers,
-                budgetizer,
+                inputAmplDistributor,
                 testCriterion,
                 testClasses,
                 testCases,
@@ -208,7 +208,7 @@ public class Configuration {
     public static void configure(final String pathToPropertiesFile,
                                  final List<String> amplifiers,
                                  final String selector,
-                                 final String budgetizer,
+                                 final String inputAmplDistributor,
                                  final String pitOutputFormat,
                                  final String pathPitResult,
                                  final String automaticBuilder,
@@ -252,7 +252,7 @@ public class Configuration {
         configure(properties,
                     amplifiers,
                     selector,
-                    budgetizer,
+                    inputAmplDistributor,
                     pitOutputFormat,
                     pathPitResult,
                     automaticBuilder,

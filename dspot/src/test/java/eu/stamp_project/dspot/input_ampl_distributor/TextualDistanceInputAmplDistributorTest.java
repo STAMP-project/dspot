@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.budget;
+package eu.stamp_project.dspot.input_ampl_distributor;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 09/08/18
  */
-public class TextualDistanceBudgetizerTest extends AbstractTest {
+public class TextualDistanceInputAmplDistributorTest extends AbstractTest {
 
     @After
     public void tearDown() throws Exception {
@@ -59,7 +59,7 @@ public class TextualDistanceBudgetizerTest extends AbstractTest {
         methods.add(clone);
         methods.add(methodInteger);
 
-        final List<CtMethod<?>> reduce = new TextualDistanceBudgetizer().reduce(methods);
+        final List<CtMethod<?>> reduce = new TextualDistanceInputAmplDistributor().reduce(methods);
         assertEquals(2, reduce.size());
 
     }
