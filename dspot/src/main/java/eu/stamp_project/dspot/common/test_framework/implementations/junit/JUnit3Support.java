@@ -3,6 +3,7 @@ package eu.stamp_project.dspot.common.test_framework.implementations.junit;
 import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import spoon.reflect.code.CtNewClass;
 import spoon.reflect.code.CtReturn;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtElement;
@@ -84,18 +85,14 @@ public class JUnit3Support extends JUnitSupport {
                 factory.createCtTypeReference(Test.class)
         );
         final CtClass<?> testSetupClass = factory.Class().create("junit.extensions.TestSetup");
-        final CtReturn<?> returnStatement = factory.createReturn();
-        returnStatement.setReturnedExpression(
-                factory.Code().createNewClass(
-                        factory.createCtTypeReference(TestSetup.class),
-                        testSetupClass,
-                        factory.Code().
-                                createConstructorCall(
-                                        factory.createCtTypeReference(TestSuite.class),
-                                        factory.createCodeSnippetExpression(testClass.getQualifiedName() + ".class")
-                                )
-                )
-        );
+        final CtReturn returnStatement = factory.createReturn();
+
+        final CtNewClass testSetupNewClass = factory.Code()
+                .createNewClass(testSetupClass,
+                        factory.createCodeSnippetExpression(testClass.getQualifiedName() + ".class")
+                );
+        returnStatement.setReturnedExpression(testSetupNewClass);
+        
         suiteMethod.setBody(returnStatement);
         final CtMethod tearDown = factory.createMethod();
         tearDown.setModifiers(
