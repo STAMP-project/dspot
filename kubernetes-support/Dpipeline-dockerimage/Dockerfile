@@ -1,15 +1,12 @@
 FROM maven:3.6.1-jdk-8
 
 # Download the jar file from dspot releases
-#ADD https://github.com/STAMP-project/dspot/releases/download/dspot-2.2.0/dspot-2.2.0-jar-with-dependencies.jar /root/ # Uncomment when 2.2.0 is released
+ADD https://github.com/STAMP-project/dspot/releases/download/dspot-2.2.0/dspot-2.2.0-jar-with-dependencies.jar /root/dspot.jar 
 
 # Add customisable Maven settings file.
 # It can be used, for instance, to pass corporate proxy settings,
 # otherwise download dependencies from Maven repositories will fail
 COPY settings.xml /root/.m2/
-
-#Remove when 2.2.0 is released
-COPY dspot-2.1.2-jar-with-dependencies.jar /root/  
 
 COPY Dpipeline_worker.py /root/
 
