@@ -4,7 +4,7 @@ import eu.stamp_project.Main;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.options.AmplifierEnum;
-import eu.stamp_project.utils.options.BudgetizerEnum;
+import eu.stamp_project.utils.options.InputAmplDistributorEnum;
 import eu.stamp_project.utils.options.SelectorEnum;
 import eu.stamp_project.utils.program.ConstantsProperties;
 import eu.stamp_project.utils.report.error.Error;
@@ -41,7 +41,7 @@ public class Checker {
                                    Properties properties) {
         Checker.checkEnum(AmplifierEnum.class, amplifiers, "amplifiers");
         Checker.checkEnum(SelectorEnum.class, selector, "test-criterion");
-        Checker.checkEnum(BudgetizerEnum.class, budgetizer, "budgetizer");
+        Checker.checkEnum(InputAmplDistributorEnum.class, budgetizer, "budgetizer");
         Checker.checkProperties(properties);
     }
 

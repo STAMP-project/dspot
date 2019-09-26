@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.budget;
+package eu.stamp_project.dspot.input_ampl_distributor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,15 +19,15 @@ import spoon.reflect.declaration.CtMethod;
  * benjamin.danglot@inria.fr, jesus.gorroñogoitia@atos.net
  * on 24/04/19
  */
-public class RandomBudgetizer extends AbstractBugetizer {
+public class RandomInputAmplDistributor extends AbstractInputAmplDistributor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RandomBudgetizer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RandomInputAmplDistributor.class);
 
-    public RandomBudgetizer() {
+    public RandomInputAmplDistributor() {
         super();
     }
 
-    public RandomBudgetizer(List<Amplifier> amplifiers) {
+    public RandomInputAmplDistributor(List<Amplifier> amplifiers) {
         super(amplifiers);
     }
 

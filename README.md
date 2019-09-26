@@ -134,32 +134,32 @@ You can execute DSpot using the maven plugin. For more details, see the dedicate
 
 ```
 Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
-                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [--pit-output-format <XML | CSV>] [--budgetizer <RandomBudgetizer | TextualDistanceBudgetizer | SimpleBudgetizer>] [--max-test-amplified <integer>] [(-t|--test) my.package.MyClassTest | all1:my.package.MyClassTest | all2:...:my.package.MyClassTest | allN ] [(-c|--test-cases) test-cases1:test-cases2:...:test-casesN ] [(-o|--output-path) <output-path>] [--clean] [(-m|--path-pit-result) <./path/to/mutations.csv>] [--target-one-test-class] [--descartes] [--gregor] [--automatic-builder <MavenBuilder | GradleBuilder>] [--maven-home <path to maven home>] [--random-seed <long integer>] [--time-out <long integer>] [--verbose] [--with-comment] [--no-minimize] [--working-directory] [--generate-new-test-class] [--keep-original-test-methods] [--use-maven-to-exe-test] [--allow-path-in-assertions] [--execute-test-parallel-with-number-processors <execute-test-parallel-with-number-processors>] [-e|--example] [-h|--help]
+                          [(-p|--path-to-properties) <./path/to/myproject.properties>] [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ] [(-i|--iteration) <iteration>] [(-s|--test-criterion) <PitMutantScoreSelector | JacocoCoverageSelector | TakeAllSelector | ChangeDetectorSelector>] [--pit-output-format <XML | CSV>] [--input-ampl-distributor <RandomInputAmplDistributor | TextualDistanceInputAmplDistributor | SimpleInputAmplDistributor>] [--max-test-amplified <integer>] [(-t|--test) my.package.MyClassTest | all1:my.package.MyClassTest | all2:...:my.package.MyClassTest | allN ] [(-c|--test-cases) test-cases1:test-cases2:...:test-casesN ] [(-o|--output-path) <output-path>] [--clean] [(-m|--path-pit-result) <./path/to/mutations.csv>] [--target-one-test-class] [--descartes] [--gregor] [--automatic-builder <MavenBuilder | GradleBuilder>] [--maven-home <path to maven home>] [--random-seed <long integer>] [--time-out <long integer>] [--verbose] [--with-comment] [--no-minimize] [--working-directory] [--generate-new-test-class] [--keep-original-test-methods] [--use-maven-to-exe-test] [--allow-path-in-assertions] [--execute-test-parallel-with-number-processors <execute-test-parallel-with-number-processors>] [--full-classpath <full-classpath>] [--collector <NullCollector | MongodbCollector>] [--mongo-url <mongo-url>] [--mongo-dbname <mongo-dbname>] [--mongo-colname <mongo-colname>] [--repo-slug <repo-slug>] [--repo-branch <repo-branch>] [--restful] [--smtp-username <smtp-username>] [--smtp-password <smtp-password>] [--smtp-host <smtp-host>] [--smtp-port <smtp-port>] [--smtp-auth] [--smtp-tls] [-e|--example] [-h|--help]
 
   [(-p|--path-to-properties) <./path/to/myproject.properties>]
         [mandatory] specify the path to the configuration file (format Java
         properties) of the target project (e.g. ./foo.properties).
 
   [(-a|--amplifiers) Amplifier1:Amplifier2:...:AmplifierN ]
-          [optional] specify the list of amplifiers to use. By default, DSpot does
-          not use any amplifiers (None) and applies only assertion amplification.
-          Possible values are: 
-          		 - MethodAdd
-          		 - MethodDuplicationAmplifier
-          		 - MethodRemove
-          		 - FastLiteralAmplifier
-          		 - TestDataMutator
-          		 - MethodGeneratorAmplifier
-          		 - MethodAdderOnExistingObjectsAmplifier
-          		 - ReturnValueAmplifier
-          		 - StringLiteralAmplifier
-          		 - NumberLiteralAmplifier
-          		 - BooleanLiteralAmplifier
-          		 - CharLiteralAmplifier
-          		 - AllLiteralAmplifiers
-          		 - NullifierAmplifier
-          		 - None
-          (default: None)
+        [optional] specify the list of amplifiers to use. By default, DSpot does
+        not use any amplifiers (None) and applies only assertion amplification.
+        Possible values are: 
+        		 - MethodAdd
+        		 - MethodDuplicationAmplifier
+        		 - MethodRemove
+        		 - FastLiteralAmplifier
+        		 - TestDataMutator
+        		 - MethodGeneratorAmplifier
+        		 - MethodAdderOnExistingObjectsAmplifier
+        		 - ReturnValueAmplifier
+        		 - StringLiteralAmplifier
+        		 - NumberLiteralAmplifier
+        		 - BooleanLiteralAmplifier
+        		 - CharLiteralAmplifier
+        		 - AllLiteralAmplifiers
+        		 - NullifierAmplifier
+        		 - None
+        (default: None)
 
   [(-i|--iteration) <iteration>]
         [optional] specify the number of amplification iterations. A larger
@@ -184,13 +184,13 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         		 - CSV
         (default: XML)
 
-  [--budgetizer <RandomBudgetizer | TextualDistanceBudgetizer | SimpleBudgetizer>]
-        [optional] specify a Bugdetizer.
+  [--input-ampl-distributor <RandomInputAmplDistributor | TextualDistanceInputAmplDistributor | SimpleInputAmplDistributor>]
+        [optional] specify a Input Amplification Distributor.
         Possible values are: 
-        		 - RandomBudgetizer
-        		 - TextualDistanceBudgetizer
-        		 - SimpleBudgetizer
-        (default: RandomBudgetizer)
+        		 - RandomInputAmplDistributor
+        		 - TextualDistanceInputAmplDistributor
+        		 - SimpleInputAmplDistributor
+        (default: RandomInputAmplDistributor)
 
   [--max-test-amplified <integer>]
         [optional] specify the maximum number of amplified tests that dspot
@@ -282,7 +282,58 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         DSpot won't use an AutomaticBuilder (e.g. Maven) to clean, compile and
         get the classpath of the project. Please ensure that your project is in
         a good shape, i.e. clean and correctly compiled, sources and test
-        sources.        
+        sources.
+
+  [--collector <NullCollector | MongodbCollector>]
+        [optional] set a collector: MongodbCollector to send info to Mongodb at
+        end process, NullCollector which does nothing. (default: NullCollector)
+
+  [--mongo-url <mongo-url>]
+        [optional] If valid url, DSpot will submit to Mongodb database. For
+        default use mongodb://localhost:27017 (default:
+        mongodb://localhost:27017)
+
+  [--mongo-dbname <mongo-dbname>]
+        [optional] If valid mongo-url provided, DSpot will submit to the
+        provided database name. (default: Dspot)
+
+  [--mongo-colname <mongo-colname>]
+        [optional] If valid mongo-url and mongo-dbname provided, DSpot will
+        submit to the provided collection name. (default: AmpRecords)
+
+  [--repo-slug <repo-slug>]
+        [optional] slug of the repo for instance Stamp/Dspot,this is used by
+        mongodb as a identifier for analyzed repo's submitted data  (default:
+        UnknownSlug)
+
+  [--repo-branch <repo-branch>]
+        [optional] branch name of the submitted repo,this is used by mongodb as
+        a identifier for analyzed repo's submitted data (default: UnknownBranch)
+
+  [--restful]
+        If 1 or true will enable restful mode for web Interface. It will look
+        for a pending document in Mongodb with the corresponding slug and branch
+        provided instead of creating a completely new one.
+
+  [--smtp-username <smtp-username>]
+        Username for Gmail, used for submit email at end-process (default:
+        Unknown@gmail.com)
+
+  [--smtp-password <smtp-password>]
+        password for Gmail, used for submit email at end-process (default:
+        Unknown)
+
+  [--smtp-host <smtp-host>]
+        host server name , default: smtp.gmail.com (default: smtp.gmail.com)
+
+  [--smtp-port <smtp-port>]
+        host server port , default : 587 (default: 587)
+
+  [--smtp-auth]
+        true , if the smtp host server require auth, which is usually the case
+
+  [--smtp-tls]
+        true , if need secure tls transport.
 
   [-e|--example]
         run the example of DSpot and leave

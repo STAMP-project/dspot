@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.budget;
+package eu.stamp_project.dspot.input_ampl_distributor;
 
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -20,14 +20,14 @@ import java.util.stream.Collectors;
  * benjamin.danglot@inria.fr
  * on 19/07/18
  */
-public class SimpleBudgetizer extends AbstractBugetizer {
+public class SimpleInputAmplDistributor extends AbstractInputAmplDistributor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleBudgetizer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleInputAmplDistributor.class);
 
-    public SimpleBudgetizer() {
+    public SimpleInputAmplDistributor() {
     }
 
-    public SimpleBudgetizer(List<Amplifier> amplifiers) {
+    public SimpleInputAmplDistributor(List<Amplifier> amplifiers) {
         super(amplifiers);
     }
 

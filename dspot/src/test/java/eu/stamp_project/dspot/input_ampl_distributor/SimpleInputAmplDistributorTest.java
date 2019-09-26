@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.budget;
+package eu.stamp_project.dspot.input_ampl_distributor;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
@@ -25,7 +25,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 19/07/18
  */
-public class SimpleBudgetizerTest extends AbstractTest {
+public class SimpleInputAmplDistributorTest extends AbstractTest {
 
     @Override
     @Before
@@ -51,13 +51,13 @@ public class SimpleBudgetizerTest extends AbstractTest {
     public void test() throws Exception {
 
         /*
-            Test the simple budget with different amplifier.
+            Test the simple input_ampl_distributor with different amplifier.
             The SimpleBudget should always provide a specific number of test Methods
          */
 
         final CtClass<?> testClass = Utils.findClass("fr.inria.statementadd.TestClassTargetAmplify");
         List<CtMethod<?>> ctMethods = TestFramework.getAllTest(testClass);
-        final SimpleBudgetizer simpleBudgetizer = new SimpleBudgetizer();
+        final SimpleInputAmplDistributor simpleBudgetizer = new SimpleInputAmplDistributor();
         for (int i = 0 ; i < 3 ; i++) {
             ctMethods = simpleBudgetizer.inputAmplify(ctMethods, i); // !
         }

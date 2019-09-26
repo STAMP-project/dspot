@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.budget;
+package eu.stamp_project.dspot.input_ampl_distributor;
 
 import spoon.reflect.declaration.CtMethod;
 
@@ -9,7 +9,7 @@ import java.util.List;
  * benjamin.danglot@inria.fr
  * on 19/07/18
  */
-public interface Budgetizer {
+public interface InputAmplDistributor {
 
     List<CtMethod<?>> inputAmplify(List<CtMethod<?>> testMethods, int iteration);
 

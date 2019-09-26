@@ -1,4 +1,4 @@
-package eu.stamp_project.dspot.budget;
+package eu.stamp_project.dspot.input_ampl_distributor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,15 +22,15 @@ import spoon.reflect.declaration.CtMethod;
  * benjamin.danglot@inria.fr
  * on 19/07/18
  */
-public class TextualDistanceBudgetizer extends AbstractBugetizer {
+public class TextualDistanceInputAmplDistributor extends AbstractInputAmplDistributor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TextualDistanceBudgetizer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TextualDistanceInputAmplDistributor.class);
 
-    public TextualDistanceBudgetizer() {
+    public TextualDistanceInputAmplDistributor() {
         super();
     }
 
-    public TextualDistanceBudgetizer(List<Amplifier> amplifiers) {
+    public TextualDistanceInputAmplDistributor(List<Amplifier> amplifiers) {
         super(amplifiers);
     }
 

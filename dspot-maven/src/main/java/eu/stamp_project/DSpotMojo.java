@@ -85,11 +85,11 @@ public class DSpotMojo extends AbstractMojo {
     /**
      *	[optional] specify a Bugdetizer.
      *	Possible values are:
-     *			 - RandomBudgetizer
-     *			 - TextualDistanceBudgetizer
-     *			 - SimpleBudgetizer
+     *			 - RandomInputAmplDistributor
+     *			 - TextualDistanceInputAmplDistributor
+     *			 - SimpleInputAmplDistributor
      */
-    @Parameter(defaultValue = "RandomBudgetizer", property = "budgetizer")
+    @Parameter(defaultValue = "RandomInputAmplDistributor", property = "budgetizer")
     private String budgetizer;
 
     /**

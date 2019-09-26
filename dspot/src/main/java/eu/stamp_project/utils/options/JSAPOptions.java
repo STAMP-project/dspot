@@ -52,7 +52,7 @@ public class JSAPOptions {
         final String pathToProperties = jsapConfig.getString("path-to-properties");
         final List<String> amplifiers = new ArrayList<>(Arrays.asList(jsapConfig.getStringArray("amplifiers")));
         final String testCriterion = jsapConfig.getString("test-criterion");
-        final String budgetizer = jsapConfig.getString("budgetizer");
+        final String inputAmplDistributor = jsapConfig.getString("input-ampl-distributor");
         final String pitOutputFormat = jsapConfig.getString("pit-output-format");
         final String pathPitResult = jsapConfig.getString("path-pit-result");
         final String automaticBuilder = jsapConfig.getString("automatic-builder");
@@ -102,7 +102,7 @@ public class JSAPOptions {
                 pathToProperties,
                 amplifiers,
                 testCriterion,
-                budgetizer,
+                inputAmplDistributor,
                 pitOutputFormat,
                 pathPitResult,
                 automaticBuilder,
@@ -301,12 +301,12 @@ public class JSAPOptions {
         maxTestAmplified.setHelp("[optional] specify the maximum number of amplified tests that dspot keeps (before generating assertion)");
         maxTestAmplified.setDefault("200");
 
-        FlaggedOption budgetizer = new FlaggedOption("budgetizer");
-        budgetizer.setStringParser(JSAP.STRING_PARSER);
-        budgetizer.setLongFlag("budgetizer");
-        budgetizer.setUsageName("RandomBudgetizer | TextualDistanceBudgetizer | SimpleBudgetizer");
-        budgetizer.setHelp("[optional] specify a Bugdetizer." + JSAPOptions.helpForEnums(BudgetizerEnum.class));
-        budgetizer.setDefault("RandomBudgetizer");
+        FlaggedOption inputAmplDistributor = new FlaggedOption("input-ampl-distributor");
+        inputAmplDistributor .setStringParser(JSAP.STRING_PARSER);
+        inputAmplDistributor .setLongFlag("input-ampl-distributor");
+        inputAmplDistributor .setUsageName("RandomInputAmplDistributor | TextualDistanceInputAmplDistributor | SimpleInputAmplDistributor");
+        inputAmplDistributor .setHelp("[optional] specify a Input Amplification Distributor." + JSAPOptions.helpForEnums(InputAmplDistributorEnum.class));
+        inputAmplDistributor .setDefault("RandomInputAmplDistributor");
 
         Switch withComment = new Switch("with-comment");
         withComment.setLongFlag("with-comment");
@@ -471,7 +471,7 @@ public class JSAPOptions {
             jsap.registerParameter(iteration);
             jsap.registerParameter(selector);
             jsap.registerParameter(pitOutputFormat);
-            jsap.registerParameter(budgetizer);
+            jsap.registerParameter(inputAmplDistributor);
             jsap.registerParameter(maxTestAmplified);
             jsap.registerParameter(specificTestClass);
             jsap.registerParameter(testCases);

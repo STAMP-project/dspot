@@ -2,23 +2,16 @@ package eu.stamp_project.dspot;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.dspot.amplifier.Amplifier;
-import eu.stamp_project.dspot.amplifier.MethodDuplicationAmplifier;
-import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.dspot.selector.TakeAllSelector;
-import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.utils.options.BudgetizerEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.compilation.TestCompiler;
 import org.junit.AfterClass;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -90,7 +83,7 @@ public class DSpotTest extends AbstractTest {
         public int numberOfMethod = 0;
 
         public MockDSpot(int numberOfIterations, List<Amplifier> amplifiers, TestSelector testSelector) throws Exception {
-            super(numberOfIterations, amplifiers, testSelector, BudgetizerEnum.RandomBudgetizer);
+            super(numberOfIterations, amplifiers, testSelector, InputAmplDistributorEnum.RandomInputAmplDistributor);
         }
 
         @Override
