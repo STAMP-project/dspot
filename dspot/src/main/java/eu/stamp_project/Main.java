@@ -2,6 +2,7 @@ package eu.stamp_project;
 
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.Amplification;
+import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
 import eu.stamp_project.utils.collector.CollectorConfig;
 import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
@@ -50,32 +51,31 @@ public class Main {
 		RandomHelper.setSeedRandom(InputConfiguration.get().getSeed());
 		createOutputDirectories();
 		final long startTime = System.currentTimeMillis();
-
-		TestFinder testFinder = new TestFinder(
+		final TestFinder testFinder = new TestFinder(
 				Arrays.stream(InputConfiguration.get().getExcludedClasses().split(",")).collect(Collectors.toList()),
 				Arrays.stream(InputConfiguration.get().getExcludedTestCases().split(",")).collect(Collectors.toList())
 		);
 		final List<CtType<?>> amplifiedTestClasses = new ArrayList<>();
 		final List<CtType<?>> testClassesToBeAmplified = testFinder.findTestClasses(InputConfiguration.get().getTestClasses());
-
-		DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(
+		final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(
 				InputConfiguration.get(),
 				InputConfiguration.get().getDependencies()
 		);
 		InputConfiguration.get().setFactory(compiler.getLauncher().getFactory());
-		DSpot dspot = new DSpot(InputConfiguration.get().getSelector());
+		final DSpot dspot = new DSpot(InputConfiguration.get().getSelector(), compiler, InputConfiguration.get().getNbIteration());
+		final InputAmplDistributor inputAmplDistributor = InputConfiguration.get().getBudgetizer().getInputAmplDistributor();
 
 		for (CtType<?> testClassToBeAmplified : testClassesToBeAmplified) {
+			inputAmplDistributor.resetAmplifiers(testClassToBeAmplified);
 			Amplification testAmplification = new Amplification(
 					compiler,
-					InputConfiguration.get().getAmplifiers(),
 					InputConfiguration.get().getSelector(),
-					InputConfiguration.get().getBudgetizer().getInputAmplDistributor(),
-					InputConfiguration.get().getNbIteration()
+					inputAmplDistributor
 			);
 			final List<CtMethod<?>> testMethodsToBeAmplified =
 					testFinder.findTestMethods(testClassToBeAmplified, InputConfiguration.get().getTestCases());
-			amplifiedTestClasses.add(dspot.amplify(testAmplification, testClassToBeAmplified, testMethodsToBeAmplified));
+			final CtType<?> amplifiedTestClass = dspot.amplify(testAmplification, testClassToBeAmplified, testMethodsToBeAmplified);
+			amplifiedTestClasses.add(amplifiedTestClass);
 			cleanAfterAmplificationOfOneTestClass(compiler, testClassToBeAmplified);
 		}
 
