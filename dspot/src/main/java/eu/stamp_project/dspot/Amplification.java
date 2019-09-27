@@ -136,7 +136,16 @@ public class Amplification {
         for (int i = 0; i < this.numberOfIteration ; i++) {
             LOGGER.info("iteration {} / {}", i, this.numberOfIteration);
             currentTestList = this.amplification(testClassToBeAmplified, currentTestList, i);
-            amplifiedTests.addAll(this.testSelector.getAmplifiedTestCases());
+            final List<CtMethod<?>> amplifiedTestMethodsToKeep;
+            try {
+                // keep tests that improve the test suite
+                amplifiedTestMethodsToKeep = this.testSelector.selectToKeep(currentTestList);
+            } catch (Exception | java.lang.Error e) {
+                Main.GLOBAL_REPORT.addError(new Error(ERROR_SELECTION, e));
+                return Collections.emptyList();
+            }
+            LOGGER.info("{} amplified test methods has been selected to be kept.", amplifiedTestMethodsToKeep.size());
+            amplifiedTests.addAll(amplifiedTestMethodsToKeep);
         }
         return amplifiedTests;
     }
@@ -179,19 +188,9 @@ public class Amplification {
             Main.GLOBAL_REPORT.addError(new Error(ERROR_INPUT_AMPLIFICATION, e));
             return Collections.emptyList();
         }
-        // add assertions to input modified tests
-        final List<CtMethod<?>> testsWithAssertions = this.assertionsAmplification(testClassToBeAmplified, inputAmplifiedTests);
-        final List<CtMethod<?>> amplifiedTestMethodsToKeep;
-        try {
-            // keep tests that improve the test suite
-            amplifiedTestMethodsToKeep = this.testSelector.selectToKeep(testsWithAssertions);
-        } catch (Exception | java.lang.Error e) {
-            Main.GLOBAL_REPORT.addError(new Error(ERROR_SELECTION, e));
-            return Collections.emptyList();
-        }
-        LOGGER.info("{} amplified test methods has been selected to be kept.", amplifiedTestMethodsToKeep.size());
+        // add assertions to input modified tests and return them
         // new amplified tests will be the basis for further amplification
-        return amplifiedTestMethodsToKeep;
+        return this.assertionsAmplification(testClassToBeAmplified, inputAmplifiedTests);
     }
 
     public List<CtMethod<?>> assertionsAmplification(CtType<?> classTest, List<CtMethod<?>> testMethods) {

@@ -171,7 +171,7 @@ public class ChangeDetectorSelector implements TestSelector {
                     TestFramework.getAllTest(this.currentClassTestToBeAmplified).size()
             );
         }
-        this.getAmplifiedTestCases().stream()
+        this.failurePerAmplifiedTest.keySet().stream()
                 .map(ctMethod ->
                         new TestCaseJSON(ctMethod.getSimpleName(), Counter.getInputOfSinceOrigin(ctMethod), Counter.getAssertionOfSinceOrigin(ctMethod))
                 ).forEach(testClassJSON.testCases::add);
