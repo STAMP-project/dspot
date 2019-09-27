@@ -304,7 +304,7 @@ public class InputConfiguration {
         // then it will take the command line value (default: false)
     }
 
-    public static void setUp(List<String> amplifiers, String budgetizer,
+    public static void setUp(List<String> amplifiers, String inputAmplDistributor,
                              TestSelector testCriterion, List<String> testClasses,
                              List<String> testCases, int iteration,
                              long seed, int timeOut,
@@ -324,7 +324,7 @@ public class InputConfiguration {
                 .setSeed(seed)
                 .setTimeOutInMs(timeOut)
                 .setMaxTestAmplified(maxTestAmplified)
-                .setBudgetizer(InputAmplDistributorEnum.valueOf(budgetizer))
+                .setBudgetizer(InputAmplDistributorEnum.valueOf(inputAmplDistributor))
                 .setClean(clean)
                 .setVerbose(verbose)
                 .setUseWorkingDirectory(workingDirectory)
@@ -870,14 +870,16 @@ public class InputConfiguration {
         return this;
     }
 
-    private InputAmplDistributorEnum budgetizer;
+    private InputAmplDistributorEnum inputAmplDistributor;
 
+    // TODO update after merging #888
     public InputAmplDistributorEnum getBudgetizer() {
-        return budgetizer;
+        return this.inputAmplDistributor;
     }
 
-    public InputConfiguration setBudgetizer(InputAmplDistributorEnum budgetizer) {
-        this.budgetizer = budgetizer;
+    // TODO update after merging #888
+    public InputConfiguration setBudgetizer(InputAmplDistributorEnum inputAmplDistributor) {
+        this.inputAmplDistributor = inputAmplDistributor;
         return this;
     }
 
