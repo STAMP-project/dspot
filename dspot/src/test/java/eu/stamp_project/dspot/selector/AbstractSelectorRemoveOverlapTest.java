@@ -1,19 +1,16 @@
 package eu.stamp_project.dspot.selector;
 
 import eu.stamp_project.Utils;
-import eu.stamp_project.dspot.Amplification;
+
 import eu.stamp_project.dspot.DSpot;
-import eu.stamp_project.dspot.amplifier.StringLiteralAmplifier;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.output.Output;
 import eu.stamp_project.utils.test_finder.TestFinder;
-import jdk.internal.util.xml.impl.Input;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;

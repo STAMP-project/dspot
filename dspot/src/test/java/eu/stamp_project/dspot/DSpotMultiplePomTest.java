@@ -6,7 +6,6 @@ import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.report.output.Output;
 import eu.stamp_project.utils.test_finder.TestFinder;
-import jdk.internal.util.xml.impl.Input;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -18,7 +17,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by Benjamin DANGLOT
