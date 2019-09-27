@@ -40,11 +40,106 @@ public class Amplification {
 
     private InputAmplDistributor inputAmplDistributor;
 
-    public Amplification(DSpotCompiler compiler, TestSelector testSelector, InputAmplDistributor inputAmplDistributor) {
+    private int globalNumberOfSelectedAmplification;
+
+    private int numberOfIteration;
+
+    public Amplification(DSpotCompiler compiler,
+                         TestSelector testSelector,
+                         InputAmplDistributor inputAmplDistributor,
+                         int numberOfIteration) {
         this.compiler = compiler;
         this.assertionGenerator = new AssertionGenerator(InputConfiguration.get(), this.compiler);
         this.testSelector = testSelector;
         this.inputAmplDistributor = inputAmplDistributor;
+        this.globalNumberOfSelectedAmplification = 0;
+        this.numberOfIteration = numberOfIteration;
+    }
+
+
+    public List<CtMethod<?>>  amplification(CtType<?> testClassToBeAmplified, List<CtMethod<?>> testMethodsToBeAmplified) {
+        if(testMethodsToBeAmplified.isEmpty()) {
+            LOGGER.warn("No test provided for amplification in class {}", testClassToBeAmplified.getQualifiedName());
+            return Collections.emptyList();
+        }
+
+        LOGGER.info("Amplification of {} ({} test(s))", testClassToBeAmplified.getQualifiedName(), testMethodsToBeAmplified.size());
+        LOGGER.info("Assertion amplification of {} ({} test(s))", testClassToBeAmplified.getQualifiedName(), testMethodsToBeAmplified.size());
+
+        // here, we base the execution mode to the first test method given.
+        // the user should provide whether JUnit3/4 OR JUnit5 but not both at the same time.
+        // TODO DSpot could be able to switch from one to another version of JUnit, but I believe that the ROI is not worth it.
+        final boolean jUnit5 = TestFramework.isJUnit5(testMethodsToBeAmplified.get(0));
+        EntryPoint.jUnit5Mode = jUnit5;
+        InputConfiguration.get().setJUnit5(jUnit5);
+        if (!this.testSelector.init()) {
+            return Collections.emptyList();
+        }
+        final List<CtMethod<?>> passingTests;
+        try {
+            passingTests =
+                    TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
+                            testClassToBeAmplified,
+                            testMethodsToBeAmplified,
+                            this.compiler,
+                            InputConfiguration.get()
+                    );
+        } catch (Exception | java.lang.Error e) {
+            Main.GLOBAL_REPORT.addError(new Error(ERROR_EXEC_TEST_BEFORE_AMPLIFICATION, e));
+            return Collections.emptyList();
+        }
+        final List<CtMethod<?>> selectedToBeAmplified;
+        try {
+            // set up the selector with tests to amplify
+            selectedToBeAmplified = this.testSelector.selectToAmplify(testClassToBeAmplified, passingTests);
+        } catch (Exception | java.lang.Error e) {
+            Main.GLOBAL_REPORT.addError(new Error(ERROR_PRE_SELECTION, e));
+            return Collections.emptyList();
+        }
+
+        // generate tests with additional assertions
+        final List<CtMethod<?>> assertionAmplifiedTestMethods = this.assertionsAmplification(testClassToBeAmplified, selectedToBeAmplified);
+        final List<CtMethod<?>> amplifiedTestMethodsToKeep;
+        try {
+            // keep tests that improve the test suite
+            amplifiedTestMethodsToKeep = this.testSelector.selectToKeep(assertionAmplifiedTestMethods);
+        } catch (Exception | java.lang.Error e) {
+            Main.GLOBAL_REPORT.addError(new Error(ERROR_SELECTION, e));
+            return Collections.emptyList();
+        }
+        this.globalNumberOfSelectedAmplification += amplifiedTestMethodsToKeep.size();
+        LOGGER.info("{} amplified test methods has been selected to be kept. (global: {})", amplifiedTestMethodsToKeep.size(), this.globalNumberOfSelectedAmplification);
+        // in case there is no amplifier, we can leave
+//        if (this.amplifiers.isEmpty()) {
+//            return;
+//        }
+
+        // generate tests with input modification and associated new assertions
+        LOGGER.info("Applying Input-amplification and Assertion-amplification test by test.");
+        final List<CtMethod<?>> amplifiedTests = new ArrayList<>();
+        for (int i = 0; i < testMethodsToBeAmplified.size(); i++) {
+            CtMethod test = testMethodsToBeAmplified.get(i);
+            LOGGER.info("Amplification of {}, ({}/{})", test.getSimpleName(), i + 1, testMethodsToBeAmplified.size());
+            amplifiedTests.addAll(amplificationIteration(testClassToBeAmplified, test));
+            this.globalNumberOfSelectedAmplification += amplifiedTests.size();
+            LOGGER.info("{} amplified test methods has been selected to be kept. (global: {})", amplifiedTests.size(), this.globalNumberOfSelectedAmplification);
+        }
+        return amplifiedTests;
+    }
+
+    private List<CtMethod<?>>  amplificationIteration(CtType<?> testClassToBeAmplified, CtMethod test) {
+        // tmp list for current test methods to be amplified
+        // this list must be a implementation that support remove / clear methods
+        List<CtMethod<?>> currentTestList = new ArrayList<>();
+        currentTestList.add(test);
+        // output
+        final List<CtMethod<?>> amplifiedTests = new ArrayList<>();
+        for (int i = 0; i < this.numberOfIteration ; i++) {
+            LOGGER.info("iteration {} / {}", i, this.numberOfIteration);
+            currentTestList = this.amplification(testClassToBeAmplified, currentTestList, i);
+            amplifiedTests.addAll(this.testSelector.getAmplifiedTestCases());
+        }
+        return amplifiedTests;
     }
 
     /**
@@ -60,7 +155,7 @@ public class Amplification {
      */
     public List<CtMethod<?>> amplification(CtType<?> testClassToBeAmplified,
                                            List<CtMethod<?>> currentTestListToBeAmplified,
-                                           int i) {
+                                           int currentIteration) {
         final List<CtMethod<?>> selectedToBeAmplified;
         try {
             // set up the selector with tests to amplify
@@ -80,7 +175,7 @@ public class Amplification {
         final List<CtMethod<?>> inputAmplifiedTests;
         try {
             // amplify tests and shrink amplified set with inputAmplDistributor
-            inputAmplifiedTests = this.inputAmplDistributor.inputAmplify(selectedToBeAmplified, i);
+            inputAmplifiedTests = this.inputAmplDistributor.inputAmplify(selectedToBeAmplified, currentIteration);
         } catch (Exception | java.lang.Error e) {
             Main.GLOBAL_REPORT.addError(new Error(ERROR_INPUT_AMPLIFICATION, e));
             return Collections.emptyList();

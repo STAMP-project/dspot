@@ -43,6 +43,10 @@ public interface TestSelector {
      */
     TestSelectorElementReport report();
 
+    // TODO need to refactor selectToKeep in two methods: selectToKeep and selectForNextIteration
+    // TODO because amplified test methods are not necessarily meant to be kept(selectToKeep might return an empty list),
+    //  but we need something to amplify (selectForNextIteration will never return an empty list, unless Dspot is not able to amplify)
+    @Deprecated
     List<CtMethod<?>> getAmplifiedTestCases();
 
 }

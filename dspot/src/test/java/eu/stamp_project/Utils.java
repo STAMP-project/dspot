@@ -84,6 +84,11 @@ public class Utils {
 		return getInputConfiguration().getFactory().Class().get(fullQualifiedName);
 	}
 
+	public static CtType<?> findType(String fullQualifiedName) {
+		return getInputConfiguration().getFactory().Type().get(fullQualifiedName);
+	}
+
+
 	public static CtMethod<?> findMethod(CtClass<?> ctClass, String methodName) {
 		Set<CtMethod<?>> mths = ctClass.getMethods();
 		return mths.stream()

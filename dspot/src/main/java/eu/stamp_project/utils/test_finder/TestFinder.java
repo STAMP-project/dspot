@@ -144,5 +144,14 @@ public class TestFinder {
                 .filter(this.isNotExcluded);
     }
 
+    public static TestFinder get() {
+        return new TestFinder(Collections.emptyList(), Collections.emptyList());
+    }
 
+    public static TestFinder get(InputConfiguration configuration) {
+        return new TestFinder(
+                Arrays.stream(configuration.getExcludedClasses().split(",")).collect(Collectors.toList()),
+                Arrays.stream(configuration.getExcludedTestCases().split(",")).collect(Collectors.toList())
+        );
+    }
 }

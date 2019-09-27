@@ -1,6 +1,7 @@
 package eu.stamp_project.dspot;
 
 import eu.stamp_project.AbstractTest;
+import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.amplifier.MethodAdderOnExistingObjectsAmplifier;
 import eu.stamp_project.dspot.amplifier.ReturnValueAmplifier;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
@@ -9,6 +10,8 @@ import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.RandomHelper;
+import eu.stamp_project.utils.report.output.Output;
+import eu.stamp_project.utils.test_finder.TestFinder;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
@@ -19,6 +22,7 @@ import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -43,7 +47,15 @@ public class DSpotMockedTest extends AbstractTest {
         RandomHelper.setSeedRandom(23L);
         final InputConfiguration configuration = InputConfiguration.get();
         configuration.setAmplifiers(Arrays.asList(new MethodAdderOnExistingObjectsAmplifier(), new ReturnValueAmplifier()));
-        DSpot dspot = new DSpot( 1, configuration.getAmplifiers(), new JacocoCoverageSelector());
+        final JacocoCoverageSelector jacocoCoverageSelector = new JacocoCoverageSelector();
+        DSpot dspot = new DSpot(
+                TestFinder.get(),
+                Utils.getCompiler(),
+                jacocoCoverageSelector,
+                InputConfiguration.get().getBudgetizer().getInputAmplDistributor(),
+                Output.get(InputConfiguration.get()),
+                1
+        );
         try {
             FileUtils.cleanDirectory(new File(configuration.getOutputDirectory()));
         } catch (Exception ignored) {
@@ -62,7 +74,11 @@ public class DSpotMockedTest extends AbstractTest {
 
         EntryPoint.verbose = true;
 
-        CtType<?> amplifiedTest = dspot.amplifyTestClassTestMethod("info.sanaulla.dal.BookDALTest", "testGetBook").get(0);
+
+        CtType<?> amplifiedTest = dspot.amplify(
+                Utils.findType("info.sanaulla.dal.BookDALTest"),
+                "testGetBook"
+        );
 
         final List<CtMethod<?>> amplifiedTestMethods = TestFramework.getAllTest(amplifiedTest);
         assertEquals(6, amplifiedTestMethods.size());
