@@ -1,6 +1,6 @@
 # Introduction
 
-This is a prototype web interface of Dspot, inspired from [CommitGuru](http://commit.guru/).
+This is a prototype web interface of DSpot, inspired from [CommitGuru](http://commit.guru/).
 
 Prototype demo link: <http://dspot.kth-assert.net/>
 
