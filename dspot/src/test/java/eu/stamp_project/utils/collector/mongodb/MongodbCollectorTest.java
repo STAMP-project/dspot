@@ -28,6 +28,7 @@ import com.icegreen.greenmail.util.ServerSetupTest;
 import javax.mail.MessagingException;
 
 public class MongodbCollectorTest {
+
         private GreenMail greenMail;
 
         @Before
@@ -73,7 +74,7 @@ public class MongodbCollectorTest {
 
                 String expectedDocStr = "Document{{RepoSlug=USER/Testing, RepoBranch=master, AmpOptions=Document{{amplifiers=[None], test-criterion=PitMutantScoreSelector, iteration=3, gregor=true, descartes=true}}, AmpResult=Document{{fr/D/inria/D/sample/D/TestClassWithoutAssert=Document{{originalKilledMutants=0, NewMutantKilled=67}}, TotalResult=Document{{totalOriginalKilledMutants=0, totalNewMutantKilled=67}}}}}}";
 
-                assertEquals(foundDoc.toString(),expectedDocStr);
+                assertEquals(foundDoc.toString(), expectedDocStr);
         }
 
         @Test

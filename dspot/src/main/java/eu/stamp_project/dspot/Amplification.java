@@ -182,11 +182,6 @@ public class Amplification {
         }
         // add assertions to input modified tests
         final List<CtMethod<?>> testsWithAssertions = this.assertionsAmplification(testClassToBeAmplified, inputAmplifiedTests);
-
-        // in case no test with assertions could be generated, we go for the next iteration.
-        if (testsWithAssertions.isEmpty()) {
-            return inputAmplifiedTests;
-        }
         final List<CtMethod<?>> amplifiedTestMethodsToKeep;
         try {
             // keep tests that improve the test suite

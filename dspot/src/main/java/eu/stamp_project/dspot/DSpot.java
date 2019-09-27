@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot;
 
+import eu.stamp_project.Main;
 import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.report.output.Output;
@@ -116,6 +117,14 @@ public class DSpot {
         System.gc(); //Optimization: cleaning up heap before printing the amplified class
 
         InputConfiguration.get().getBuilder().reset();
+        try {
+            Main.GLOBAL_REPORT.addTestSelectorReportForTestClass(testClassToBeAmplified, this.testSelector.report());
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error("Something bad happened during the report fot test-criterion.");
+            LOGGER.error("Dspot might not have output correctly!");
+        }
+
         return this.output.output(testClassToBeAmplified, amplifiedTestMethods);
     }
 
