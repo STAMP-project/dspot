@@ -2,6 +2,7 @@ package eu.stamp_project.dspot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.amplifier.FastLiteralAmplifier;
 import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
@@ -28,10 +29,11 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 12/06/17
  */
-public class ProjectJSONTest {
+public class ProjectJSONTest extends AbstractTest {
 
     @Before
     public void setUp() throws Exception {
+        super.setUp();
         try {
             FileUtils.forceDelete(new File("target/dspot/"));
         } catch (Exception ignored) {
@@ -46,8 +48,6 @@ public class ProjectJSONTest {
         if (file.exists()) {
             file.delete();
         }
-        InputConfiguration.initialize("src/test/resources/sample/sample.properties");
-
         final JacocoCoverageSelector jacocoCoverageSelector = new JacocoCoverageSelector();
         final InputAmplDistributor inputAmplDistributor = InputConfiguration.get().getBudgetizer().getInputAmplDistributor();
         DSpot dspot = new DSpot(

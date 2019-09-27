@@ -3,6 +3,7 @@ package eu.stamp_project.dspot.selector;
 import eu.stamp_project.Utils;
 
 import eu.stamp_project.dspot.DSpot;
+import eu.stamp_project.dspot.amplifier.StringLiteralAmplifier;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.output.Output;
@@ -50,8 +51,8 @@ public abstract class AbstractSelectorRemoveOverlapTest {
         DSpot dspot = new DSpot(
                 new TestFinder(Collections.emptyList(), Collections.emptyList()),
                 Utils.getCompiler(),
-                testSelectorUnderTest,
-                InputConfiguration.get().getBudgetizer().getInputAmplDistributor(),
+                this.testSelectorUnderTest,
+                InputConfiguration.get().getBudgetizer().getInputAmplDistributor(new StringLiteralAmplifier()),
                 new Output(InputConfiguration.get().getAbsolutePathToProjectRoot(), InputConfiguration.get().getOutputDirectory()),
                 1
         );
