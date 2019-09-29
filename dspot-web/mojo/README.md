@@ -1,4 +1,6 @@
 
+# DSpot Web UI
+
 ## About
 
 This directory contains everything needed to run a demonstration web server for DSpot.
@@ -6,7 +8,7 @@ This directory contains everything needed to run a demonstration web server for 
 
 ## Installation
 
-This application uses the [Mojolicious web framework](https://mojolicious.org/) and relies on a Postgres DB to store the task management system and the results.
+This application uses the [Mojolicious web framework](https://mojolicious.org/) and relies on a Postgres DB to store the task management system. Results are stored on disk.
 
 You will need to install Perl and Mojolicious, plus a few other plugins. It is good practice to use [perlbrew](https://perlbrew.pl/) to manage one's perl installation, although it is not required. Then requirements can be installed with:
 
@@ -30,7 +32,7 @@ CREATE DATABASE
 ## Run the application
 
 ```
-$ hypnotoad script/dspot_web_ui
+$ hypnotoad script/dspot_web
 ```
 
 The application is served on http://localhost:3000.
