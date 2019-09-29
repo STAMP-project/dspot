@@ -4,7 +4,7 @@ use Mojo::Log;
 use Minion;
 use POSIX;
 use Data::Dumper;
-
+use File::Spec;
 
 
 # This method will run once at server start
@@ -14,12 +14,8 @@ sub startup {
   # Load configuration from hash returned by config file
   my $config = $self->plugin('Config');
 
-  # Log to specific dspot file.
-  my $dlog = Mojo::Log->new(path => 'log/dspot.log');
-
+  # Create timestamp to log starting time.
   my $ltime = strftime "%Y-%m-%d %H:%M:%S", localtime time;
-  $dlog->info("Application started at $ltime.");
-  $self->config({'dlog' => \$dlog});
   
   # Set layout for pages.
   $self->defaults(layout => 'default');
@@ -38,6 +34,34 @@ sub startup {
   my $cmd = $config->{'mvn_cmd'};
   print "* Using CMD [$cmd].\n";
   
+  # Log to specific dspot file.
+  my $dlog = Mojo::Log->new(path => 'log/dspot.log');
+  $dlog->info("# Application started at $ltime.");
+
+
+  # Create a bunch of useful helpers.
+  
+  # Create a helper to call dlog from anywhere.
+  $self->helper( dlog => sub {
+    my $c = shift;
+    my $msg = shift || "Default message log";
+    $dlog->info($msg);
+		 });
+
+  # Create a help to get the path to wdir + project
+  $self->helper( pdir => sub {
+    my $c = shift;
+    my $url = shift;
+
+    my @p = File::Spec->splitdir( $url );
+    my ($repo, $org) = @p[-2..-1];
+    my $id = "${repo}_${org}";
+    my $pdir = catdir($wdir, $id);
+
+    return $pdir;
+		 });
+
+
   # Use Minion for job queuing.
   $self->plugin(
       'Minion' => {
@@ -54,24 +78,60 @@ sub startup {
       );
   
   # Add tasks
-  $self->minion->add_task(run_dspot => sub {
-      my ($job, $url, $params) = @_;
 
-      chdir($wdir);
-      
-      
-      # Create a git clone
-#      my @ret_git = `git clone $url $dir`;
-      
-      # Check that we can actually run dspot
-      
-      # Run dspot
-      print Dumper( `pwd` );
-      #my @ret = `$cmd`;
-      
-      say 'This is a background worker process.';
-		    });
+  # Task to clone or pull the git repository.
+  $self->minion->add_task( run_git => sub {
+    my ($job, $url, $params) = @_;
 
+    my @p = File::Spec->splitdir( $url );
+    my ($repo, $org) = @p[-2..-1];
+    my $id = "${repo}_${org}";
+    my $pdir = catdir($wdir, $id);
+    my $pdir_out = catdir($pdir, 'output');
+    my $pdir_src = catdir($pdir, 'src');
+    
+    
+    # If there is a directory already, then use it and pull.
+    # Otherwise clone the repo.
+    if ( -d $pdir ) {
+
+      # Go to project directory
+      chdir($pdir_src);
+
+      # Just make a pull.
+      my @ret_git = `echo git pull`; 
+
+    } else {
+
+      # Create dir hierarchy
+      mkdir($pdir, $pdir_out);
+      	
+      # Clone the repo.
+      my @ret_git = `echo git clone $url src`; 
+
+    }
+      			   });
+  
+  $self->minion->add_task( run_dspot => sub {
+    my ($job, $url, $params) = @_;
+      
+    my @p = File::Spec->splitdir( $url );
+    my ($repo, $org) = @p[-2..-1];
+    my $id = "${repo}_${org}";
+    my $pdir = catdir($wdir, $id);
+    my $pdir_src = catdir($pdir, 'src');
+
+    chdir($pdir_src);
+      
+    # Check that we can actually run dspot
+    
+    # Run dspot
+    print Dumper( `pwd` );
+    #my @ret = `$cmd`;
+    
+    say 'This is a background worker process dspot.';
+			   });
+  
 
   # Router
   my $r = $self->routes;
@@ -81,6 +141,7 @@ sub startup {
 
   # Route to list of repositories
   $r->get('/repos/')->to( 'dspot#repos' );
+  $r->get('/repo/#repo')->to( 'dspot#repo' );
   
   $r->get('/admin/new/')->to( 'dspot#create' );
 }

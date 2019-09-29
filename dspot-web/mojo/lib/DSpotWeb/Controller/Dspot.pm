@@ -1,6 +1,12 @@
 package DSpotWeb::Controller::Dspot;
 use Mojo::Base 'Mojolicious::Controller';
 
+use File::Spec;
+use Data::Dumper;
+use File::Basename;
+use Mojo::JSON qw/decode_json/;
+
+
 # Default welcome page
 sub welcome {
   my $self = shift;
@@ -12,9 +18,15 @@ sub welcome {
 # Create a new project
 sub create {
   my $self = shift;
-  my $url = "testurl"; #$self->stash('url');
   
-  my $job = $self->minion->enqueue(run_dspot => [$url] => {delay => 0});
+  my $url = "https://github.com/STAMP-project/dspot.git"; #$self->stash('url');
+  print "Enqueue run_git.\n";
+
+  #File::Spec->splitdir( $path );
+  print "splitdir " . Dumper( File::Spec->splitdir( $url ) );
+
+  
+  my $job = $self->minion->enqueue(run_git => [$url] => {delay => 0});
 
   
   # Render template "dspot/welcome.html.ep"
@@ -26,13 +38,35 @@ sub create {
 sub repos {
   my $self = shift;
 
+  print "DBG \n";
+  my $msg;
+  
   # Load configuration from application config
   my $wdir = $self->app->config('work_dir');
   print "work dir is $wdir.\n";
 
-  $self->app->dlog->info('this is dspot log test.');
+  $self->app->dlog('message log from controller.');
   
-  my @repos = grep { -d } glob( "$wdir/*" ); 
+#  my @repos_ = grep { -d } glob( "$wdir/*" );
+#  File::Spec->splitdir( $url )
+
+  my $projects = File::Spec->catfile( $wdir, 'projects.json');
+  
+  print "DBG before josn \n";
+  # Read projects information.
+  my $contents = do {
+      open my $fh, '<:encoding(UTF-8)', $projects or $msg = "Could not find [$projects]." ;
+      local $/;
+      <$fh>;
+  };
+  print "DBG " . Dumper($contents);
+  my $conf = decode_json( $contents );
+
+  print "DBG \n";
+
+  
+  my @repos = map { basename($_) } sort keys %{$conf};
+
   $self->stash('repos' => \@repos);
 
   # Render template "dspot/repos.html.ep"
@@ -43,16 +77,25 @@ sub repos {
 sub repo {
   my $self = shift;
 
+  my $msg;
   my $repo = $self->stash('repo');
 	       
   # Load configuration from application config
   my $wdir = $self->app->config('work_dir');
   print "work dir is $wdir.\n";
+  my $pinfo = File::Spec->catfile( $wdir, $repo, 'project_info.json');
+  
+  # Read projects information.
+  my $contents = do {
+      open my $fh, '<:encoding(UTF-8)', $pinfo or $msg = "Could not find [$pinfo]." ;
+      local $/;
+      <$fh>;
+  };
+  my $conf = decode_json( $contents );
 
-  my @repos = grep { -d } glob( "$wdir/*" ); 
-  $self->stash('repos' => \@repos);
-
-  # Render template "dspot/repos.html.ep"
+  $self->stash('conf' => $conf);
+  
+  # Render template "dspot/repo.html.ep"
   $self->render();
 }
 
