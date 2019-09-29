@@ -1,0 +1,38 @@
+% layout 'default';
+% title 'Repository';
+
+% my $id = $conf->{'id'} || 'Unknown';
+
+<br />
+
+<a href="/repos">&lt; Back to Repositories</a>
+
+<br />
+<br />
+
+<h2>Repository <%= $id %></h2>
+
+% my $msg = flash( 'msg' );
+% if ( defined($msg) ) {
+<div class="row">
+  <div class="col-md-12">
+    <div class="alert alert-warning alert-dismissible" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <%== $msg %>
+    </div>
+  </div>
+</div>
+% }
+
+<br />
+
+<dl class="row">
+  <dt class="col-sm-3"><b>Repository ID</b></dt>
+  <dd class="col-sm-9"><mark><%= $id %></mark></dd>
+  <dt class="col-sm-3"><b>Git URL</b></dt>
+  <dd class="col-sm-9"><mark><%= $conf->{'git'} || 'Unknown' %></mark></dd>
+</dl>
+
+<p></p>
+
+
