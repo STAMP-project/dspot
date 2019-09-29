@@ -2,15 +2,19 @@
 % title 'Welcome';
 % my $msg = "test";
 
-      <!-- Main jumbotron for a primary marketing message or call to action -->
-      <div class="jumbotron">
-        <div class="container">
-          <h1 class="display-3">Welcome to DSpot!</h1>
-          <p>This is where you can easily amplify your Maven build tests.</p>
-          <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more &raquo;</a></p>
-        </div>
-      </div>
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="jumbotron">
+  <div class="container">
+    <h1 class="display-4">Welcome to DSpot Web!</h1>
+    <p>This is where you can easily amplify your Maven build tests.</p>
+  </div>
+</div>
 
+<p><a class="btn btn-primary btn-lg" href="https://github.com/STAMP-project/dspot" role="button">STAMP / DSpot &raquo;</a></p>
+
+<p><a class="btn btn-primary btn-lg" href="/new" role="button">Add your project &raquo;</a></p>
+
+      
 <h2>About DSpot</h2>
 
 <p>DSpot is a tool that generates missing assertions in JUnit tests. </p>
@@ -19,7 +23,17 @@
 
 <h2>Contributing</h2>
 
+<p>DSpot is licensed under LGPLv3. Contributors and pull requests are welcome :-).
+Tell us what you think and what you expect in the next release using the <a href="https://www.stamp-project.eu/view/main/betatestingsurvey/" rel="nofollow">STAMP feedback form</a>.
+As a recognition for your useful feedback, you might receive a limited edition “STAMP Software Test Pilot” gift and be added as a STAMP contributor.
+This offer is limited to the beta testers interacting with the STAMP project team, by 31 September 2019.
+You will be contacted individually for a customized gift and for contribution opportunities.</p>
+<p>For more information on development, see the dedicated <a href="https://github.com/STAMP-project/dspot/blob/master/README-developers.md">README-developers.md</a></p>
 
+<h2>Acknowledgement</h2>
+
+<p>DSpot is funded by <a href="https://www.stamp-project.eu/" rel="nofollow">EU H2020 research project STAMP</a>.</p>
 <p></p>
-<p></p>
+
+
 <p></p>
