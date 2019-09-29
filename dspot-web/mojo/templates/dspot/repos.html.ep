@@ -1,20 +1,35 @@
 % layout 'default';
 % title 'List of repositories';
-% my $msg = "test";
+
+<br />
+<br />
+
+<h2>Repositories</h2>
+
+<br />
+
+<p>This is the list of all repositories analysed by our services. </p>
+<p>Simply click on a line to get more information about the selected repository.</p>
+
+<br />
+
+<table class="table table-striped table-hover ">
+  <thead>
+    <tr>
+      <th>Organisation</th>
+      <th>Project</th>
+    </tr>
+  </thead>
+  <tbody>
+% foreach my $repo ( @$repos ) {
+%   my ($o, $p) = split('_', $repo);
+    <tr><td><a href="/repo/<%= $o %>_<%= $p %>"><%= $o %></a></td><td><a href="/repo/<%= $o %>_<%= $p %>"><%= $p %></a></td></tr>
+% }
+  </tbody>
+</table> 
+
+<p></p>
+<p></p>
+<p></p>
 
 
-
-<h2><%= $msg %></h2>
-
-
-
-<p>
-  This page was generated from the template "templates/example/welcome.html.ep"
-  and the layout "templates/layouts/default.html.ep",
-  <%= link_to 'click here' => url_for %> to reload the page or
-  <%= link_to 'here' => '/index.html' %> to move forward to a static page.
-  % if (config 'perldoc') {
-    To learn more, you can also browse through the documentation
-    <%= link_to 'here' => '/perldoc' %>.
-  % }
-</p>
