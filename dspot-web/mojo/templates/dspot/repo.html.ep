@@ -10,7 +10,7 @@
 <br />
 <br />
 
-<h2>Repository <%= $id %></h2>
+<h1>Repository <%= $id %></h1>
 
 % my $msg = flash( 'msg' );
 % if ( defined($msg) ) {
