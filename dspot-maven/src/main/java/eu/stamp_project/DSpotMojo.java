@@ -43,6 +43,7 @@ public class DSpotMojo extends AbstractMojo {
      *			 - MethodRemove
      *			 - FastLiteralAmplifier
      *			 - TestDataMutator
+     *			 - MethodGeneratorAmplifier
      *			 - MethodAdderOnExistingObjectsAmplifier
      *			 - ReturnValueAmplifier
      *			 - StringLiteralAmplifier
@@ -83,14 +84,14 @@ public class DSpotMojo extends AbstractMojo {
     private String pitOutputFormat;
 
     /**
-     *	[optional] specify a Bugdetizer.
+     *	[optional] specify a Input Amplification Distributor.
      *	Possible values are:
      *			 - RandomInputAmplDistributor
      *			 - TextualDistanceInputAmplDistributor
      *			 - SimpleInputAmplDistributor
      */
-    @Parameter(defaultValue = "RandomInputAmplDistributor", property = "budgetizer")
-    private String budgetizer;
+    @Parameter(defaultValue = "RandomInputAmplDistributor", property = "input-ampl-distributor")
+    private String inputAmplDistributor;
 
     /**
      *	[optional] specify the maximum number of amplified tests that dspot keeps (before generating assertion)
@@ -221,8 +222,92 @@ public class DSpotMojo extends AbstractMojo {
     /**
      *	[optional] If enabled, DSpot will execute the tests in parallel. For JUnit5 tests it will use the number of given processors (specify 0 to take the number of available core processors). For JUnit4 tests, it will use the number of available CPU processors (given number of processors is ignored).
      */
-    @Parameter(defaultValue = "-1", property = "execute-test-parallel-with-number-processors")
+    @Parameter(defaultValue = "0", property = "execute-test-parallel-with-number-processors")
     private Integer executeTestParallelWithNumberProcessors;
+
+    /**
+     *	[optional] specify the classpath of the project. If this option is used, DSpot won't use an AutomaticBuilder (e.g. Maven) to clean, compile and get the classpath of the project. Please ensure that your project is in a good shape, i.e. clean and correctly compiled, sources and test sources.
+     */
+    @Parameter(property = "full-classpath")
+    private String fullClasspath;
+
+    /**
+     *	[optional] set a collector: MongodbCollector to send info to Mongodb at end process, NullCollector which does nothing.
+     */
+    @Parameter(defaultValue = "NullCollector", property = "collector")
+    private String collector;
+
+    /**
+     *	[optional] If valid url, DSpot will submit to Mongodb database. For default use mongodb://localhost:27017
+     */
+    @Parameter(defaultValue = "mongodb://localhost:27017", property = "mongo-url")
+    private String mongoUrl;
+
+    /**
+     *	[optional] If valid mongo-url provided, DSpot will submit to the provided database name.
+     */
+    @Parameter(defaultValue = "Dspot", property = "mongo-dbname")
+    private String mongoDbname;
+
+    /**
+     *	[optional] If valid mongo-url and mongo-dbname provided, DSpot will submit to the provided collection name.
+     */
+    @Parameter(defaultValue = "AmpRecords", property = "mongo-colname")
+    private String mongoColname;
+
+    /**
+     *	[optional] slug of the repo for instance Stamp/Dspot,this is used by mongodb as a identifier for analyzed repo's submitted data
+     */
+    @Parameter(defaultValue = "UnknownSlug", property = "repo-slug")
+    private String repoSlug;
+
+    /**
+     *	[optional] branch name of the submitted repo,this is used by mongodb as a identifier for analyzed repo's submitted data
+     */
+    @Parameter(defaultValue = "UnknownBranch", property = "repo-branch")
+    private String repoBranch;
+
+    /**
+     *	If 1 or true will enable restful mode for web Interface. It will look for a pending document in Mongodb with the corresponding slug and branch provided instead of creating a completely new one.
+     */
+    @Parameter(defaultValue = "false", property = "restful")
+    private Boolean restful;
+
+    /**
+     *	Username for Gmail, used for submit email at end-process
+     */
+    @Parameter(defaultValue = "Unknown@gmail.com", property = "smtp-username")
+    private String smtpUsername;
+
+    /**
+     *	password for Gmail, used for submit email at end-process
+     */
+    @Parameter(defaultValue = "Unknown", property = "smtp-password")
+    private String smtpPassword;
+
+    /**
+     *	host server name , default: smtp.gmail.com
+     */
+    @Parameter(defaultValue = "smtp.gmail.com", property = "smtp-host")
+    private String smtpHost;
+
+    /**
+     *	host server port , default : 587
+     */
+    @Parameter(defaultValue = "587", property = "smtp-port")
+    private String smtpPort;
+
+    /**
+     *	true , if the smtp host server require auth, which is usually the case
+     */
+    @Parameter(defaultValue = "false", property = "smtp-auth")
+    private Boolean smtpAuth;
+
+    /**
+     *	true , if need secure tls transport.
+     */
+    @Parameter(defaultValue = "false", property = "smtp-tls")
+    private Boolean smtpTls;
 
     /**
      *	run the example of DSpot and leave
@@ -321,7 +406,7 @@ public class DSpotMojo extends AbstractMojo {
                     properties,
                     amplifiers,
                     testCriterion,
-                    budgetizer,
+                    inputAmplDistributor,
                     pitOutputFormat,
                     pathPitResult,
                     builder,
