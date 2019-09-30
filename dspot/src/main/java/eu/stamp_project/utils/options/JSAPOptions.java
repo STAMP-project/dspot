@@ -302,11 +302,11 @@ public class JSAPOptions {
         maxTestAmplified.setDefault("200");
 
         FlaggedOption inputAmplDistributor = new FlaggedOption("input-ampl-distributor");
-        inputAmplDistributor .setStringParser(JSAP.STRING_PARSER);
-        inputAmplDistributor .setLongFlag("input-ampl-distributor");
-        inputAmplDistributor .setUsageName("RandomInputAmplDistributor | TextualDistanceInputAmplDistributor | SimpleInputAmplDistributor");
-        inputAmplDistributor .setHelp("[optional] specify a Input Amplification Distributor." + JSAPOptions.helpForEnums(InputAmplDistributorEnum.class));
-        inputAmplDistributor .setDefault("RandomInputAmplDistributor");
+        inputAmplDistributor.setStringParser(JSAP.STRING_PARSER);
+        inputAmplDistributor.setLongFlag("input-ampl-distributor");
+        inputAmplDistributor.setUsageName("RandomInputAmplDistributor | TextualDistanceInputAmplDistributor | SimpleInputAmplDistributor");
+        inputAmplDistributor.setHelp("[optional] specify a Input Amplification Distributor." + JSAPOptions.helpForEnums(InputAmplDistributorEnum.class));
+        inputAmplDistributor.setDefault("RandomInputAmplDistributor");
 
         Switch withComment = new Switch("with-comment");
         withComment.setLongFlag("with-comment");
