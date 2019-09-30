@@ -1,6 +1,6 @@
 package DSpotWeb;
 use Mojo::Base 'Mojolicious';
-use Mojo::Log;
+#use Mojo::Log;
 use Minion;
 use POSIX;
 use Data::Dumper;
@@ -27,7 +27,7 @@ sub startup {
       print "* Using working directory from conf [$wdir].\n";
   } else {
       $self->config({'work_dir' => $wdir});
-      print "* Using default workding directory [$wdir].\n";
+      print "* Using default working directory [$wdir].\n";
   }
   
   # Get mvn command to use for execution
@@ -35,18 +35,18 @@ sub startup {
   print "* Using CMD [$cmd].\n";
   
   # Log to specific dspot file.
-  my $dlog = Mojo::Log->new(path => 'log/dspot.log');
-  $dlog->info("# Application started at $ltime.");
+#  my $dlog = Mojo::Log->new(path => 'log/dspot.log');
+#  $dlog->info("# Application started at $ltime.");
 
 
   # Create a bunch of useful helpers.
   
   # Create a helper to call dlog from anywhere.
-  $self->helper( dlog => sub {
-    my $c = shift;
-    my $msg = shift || "Default message log";
-    $dlog->info($msg);
-		 });
+#  $self->helper( dlog => sub {
+#    my $c = shift;
+#    my $msg = shift || "Default message log";
+#    $dlog->info($msg);
+#		 });
 
   # Create a help to get the path to wdir + project
   $self->helper( pdir => sub {
@@ -143,7 +143,9 @@ sub startup {
   $r->get('/repos/')->to( 'dspot#repos' );
   $r->get('/repo/#repo')->to( 'dspot#repo' );
   
-  $r->get('/admin/new/')->to( 'dspot#create' );
+  $r->get('/about')->to( 'dspot#about' );
+
+  $r->get('/new/')->to( 'dspot#create' );
 }
 
 1;

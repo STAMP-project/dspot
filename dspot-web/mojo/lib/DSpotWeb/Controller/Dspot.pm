@@ -7,7 +7,7 @@ use File::Basename;
 use Mojo::JSON qw/decode_json/;
 
 
-# Default welcome page
+# Welcome page
 sub welcome {
   my $self = shift;
 
@@ -15,8 +15,24 @@ sub welcome {
   $self->render(msg => 'Welcome to the Mojolicious real-time web framework!');
 }
 
-# Create a new project
+# About page
+sub about {
+  my $self = shift;
+
+  # Render template "dspot/about.html.ep"
+  $self->render();
+}
+
+# Create a new project -- GET
 sub create {
+  my $self = shift;
+  
+  # Render template "dspot/create.html.ep"
+  $self->render();
+}
+
+# Create a new project -- POST
+sub create_post {
   my $self = shift;
   
   my $url = "https://github.com/STAMP-project/dspot.git"; #$self->stash('url');
@@ -27,11 +43,10 @@ sub create {
 
   
   my $job = $self->minion->enqueue(run_git => [$url] => {delay => 0});
-
+  print "DBG JOB " . Dumper($job);
   
-  # Render template "dspot/welcome.html.ep"
-  $self->render(template => 'dspot/welcome',
-		msg => 'Welcome to the Mojolicious real-time web framework!');
+  # Render template "dspot/create_post.html.ep"
+  $self->redirect_to('/');
 }
 
 # List of repositories
@@ -45,7 +60,7 @@ sub repos {
   my $wdir = $self->app->config('work_dir');
   print "work dir is $wdir.\n";
 
-  $self->app->dlog('message log from controller.');
+#  $self->app->dlog('message log from controller.');
   
 #  my @repos_ = grep { -d } glob( "$wdir/*" );
 #  File::Spec->splitdir( $url )

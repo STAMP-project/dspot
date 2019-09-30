@@ -1,0 +1,60 @@
+% layout 'default';
+% title 'About';
+
+<br />
+
+<a href="/">&lt; Back Home</a>
+
+<br />
+<br />
+
+<h1>Add your repository</h1>
+
+<p>Please note that the following prerequisites apply:</p>
+<ul>
+  <li>The project uses Maven as a build system. The version of Maven used here is 3.6.0.</li>
+  <li>The project can be built (and tested) against Open JDK 8. `1.8.0_201` more precisely.</li>
+  <li>The test suite can be run seamlessly. If not, don't ask for new tests. <code>;-p</code></li>
+  <!-- li></li -->
+</ul>
+
+
+
+<form action="/new" method="POST" class="form-horizontal" role="form">
+  
+  <div class="form-group">
+    <label for="name" class="control-label col-xs-2">Git URL:</label>
+    <div class="col-xs-10">
+      <input type="text" class="form-control" name="name" id="name" />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="hash_label" class="control-label col-xs-2">Commit hash:</label>
+    <div class="col-xs-10">
+      <input type="text" class="form-control" name="hash" id="hash" />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="extended" class="control-label col-xs-2">Extend generation?</label>
+    <div class="col-xs-10">
+      <input type="checkbox" name="extended" />
+    </div>
+  </div>
+  
+  <br />
+  <div class="form-group">
+    <div class="col-xs-offset-2 col-xs-10">
+      <input class="btn btn-primary" type="submit" value="Submit" />
+    </div>
+  </div>
+  
+</form>
+
+
+<br />
+<br />
+
+
+<p></p>
