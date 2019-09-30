@@ -119,14 +119,14 @@ public class RecoveryDSpotTest extends AbstractTest {
         final TestFinder testFinder = new TestFinder(Collections.emptyList(), Collections.emptyList());
         final CtClass<?> testClassToBeAmplified = Utils.findClass("fr.inria.amp.OneLiteralTest");
         final List<CtMethod<?>> testListToBeAmplified = testFinder.findTestMethods(testClassToBeAmplified, Collections.emptyList());
-        amplification.amplification(testClassToBeAmplified, testListToBeAmplified, 1);
+        amplification.amplification(testClassToBeAmplified, testListToBeAmplified, Collections.emptyList(), 1);
         assertEquals(1, Main.GLOBAL_REPORT.getErrors().size());
         assertSame(ErrorEnum.ERROR_PRE_SELECTION, Main.GLOBAL_REPORT.getErrors().get(0).type);
         Main.GLOBAL_REPORT.reset();
 
         selector.setThrowsToAmplify(false);
         selector.setThrowsToKeep(true);
-        amplification.amplification(testClassToBeAmplified, testListToBeAmplified,1);
+        amplification.amplification(testClassToBeAmplified, testListToBeAmplified, Collections.emptyList(), 1);
         assertEquals(1, Main.GLOBAL_REPORT.getErrors().size());
         assertSame(ErrorEnum.ERROR_SELECTION, Main.GLOBAL_REPORT.getErrors().get(0).type);
         Main.GLOBAL_REPORT.reset();
@@ -138,7 +138,7 @@ public class RecoveryDSpotTest extends AbstractTest {
                 new TextualDistanceInputAmplDistributor(amplifiers),
                 1
         );
-        amplification.amplification(testClassToBeAmplified, testListToBeAmplified,1);
+        amplification.amplification(testClassToBeAmplified, testListToBeAmplified, Collections.emptyList(), 1);
         assertEquals(1, Main.GLOBAL_REPORT.getErrors().size());
         assertSame(ErrorEnum.ERROR_INPUT_AMPLIFICATION, Main.GLOBAL_REPORT.getErrors().get(0).type);
         Main.GLOBAL_REPORT.reset();
@@ -152,7 +152,7 @@ public class RecoveryDSpotTest extends AbstractTest {
         final Field assertGenerator = amplification.getClass().getDeclaredField("assertionGenerator");
         assertGenerator.setAccessible(true);
         assertGenerator.set(amplification, new AssertionGeneratorThatThrowsError(Utils.getCompiler()));
-        amplification.amplification(testClassToBeAmplified, testListToBeAmplified,1);
+        amplification.amplification(testClassToBeAmplified, testListToBeAmplified, Collections.emptyList(), 1);
         assertEquals(1, Main.GLOBAL_REPORT.getErrors().size());
         assertSame(ErrorEnum.ERROR_ASSERT_AMPLIFICATION, Main.GLOBAL_REPORT.getErrors().get(0).type);
         Main.GLOBAL_REPORT.reset();

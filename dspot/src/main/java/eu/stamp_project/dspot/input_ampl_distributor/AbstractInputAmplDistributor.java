@@ -27,4 +27,8 @@ public abstract class AbstractInputAmplDistributor implements InputAmplDistribut
         this.amplifiers.forEach(amplifier -> amplifier.reset(parentClass));
     }
 
+    @Override
+    public boolean shouldBeRun() {
+        return !this.amplifiers.isEmpty();
+    }
 }

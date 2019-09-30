@@ -16,4 +16,5 @@ public interface InputAmplDistributor {
 
     void resetAmplifiers(CtType parentClass);
 
+    boolean shouldBeRun();
 }

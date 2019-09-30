@@ -53,7 +53,8 @@ public class DSpotTest extends AbstractTest {
                 testSelector,
                 InputConfiguration.get().getBudgetizer().getInputAmplDistributor(),
                 Output.get(InputConfiguration.get()),
-                1);
+                1
+        );
         final CtType<?> amplifyTest =
                 dspot.amplify(testClass, Collections.emptyList());
         assertTrue("should be empty", TestCompiler.compileAndRun(
