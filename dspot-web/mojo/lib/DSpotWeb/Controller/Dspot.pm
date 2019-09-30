@@ -35,15 +35,17 @@ sub create {
 sub create_post {
   my $self = shift;
   
-  my $url = "https://github.com/STAMP-project/dspot.git"; #$self->stash('url');
-  print "Enqueue run_git.\n";
+  my $url = $self->param('url');
+  my $hash = $self->param('hash');
+  my $extended = $self->param('extended');
 
-  #File::Spec->splitdir( $path );
-  print "splitdir " . Dumper( File::Spec->splitdir( $url ) );
-
+#  my $url = "https://github.com/STAMP-project/dspot.git"; #$self->stash('url');
+  print "Enqueue run_git $url $hash $extended.\n";
   
-  my $job = $self->minion->enqueue(run_git => [$url] => {delay => 0});
-  print "DBG JOB " . Dumper($job);
+  my $job = $self->minion->enqueue(run_git => [$url, $hash] => {delay => 0});
+  print "DBG JOB GIT " . Dumper($job);
+  $job = $self->minion->enqueue(run_dspot => [$url, $hash, $extended] => {delay => 0});
+  print "DBG JOB DSPOT " . Dumper($job);
   
   # Render template "dspot/create_post.html.ep"
   $self->redirect_to('/');

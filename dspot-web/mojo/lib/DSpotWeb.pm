@@ -85,6 +85,8 @@ sub startup {
 
     my @p = File::Spec->splitdir( $url );
     my ($repo, $org) = @p[-2..-1];
+    $repo = defined($repo) ? $repo : 'Unknown Repo'; 
+    $org = defined($org) ? $org : 'Unknown Org'; 
     my $id = "${repo}_${org}";
     my $pdir = catdir($wdir, $id);
     my $pdir_out = catdir($pdir, 'output');
@@ -113,11 +115,14 @@ sub startup {
       			   });
   
   $self->minion->add_task( run_dspot => sub {
-    my ($job, $url, $params) = @_;
-      
+    my ($job, $url, $hash, $extended) = @_;
+
     my @p = File::Spec->splitdir( $url );
     my ($repo, $org) = @p[-2..-1];
+    $repo = defined($repo) ? $repo : 'Unknown Repo'; 
+    $org = defined($org) ? $org : 'Unknown Org'; 
     my $id = "${repo}_${org}";
+    print "In task dspot: $id, $url.\n";
     my $pdir = catdir($wdir, $id);
     my $pdir_src = catdir($pdir, 'src');
 
@@ -146,6 +151,7 @@ sub startup {
   $r->get('/about')->to( 'dspot#about' );
 
   $r->get('/new/')->to( 'dspot#create' );
+  $r->post('/new/')->to( 'dspot#create_post' );
 }
 
 1;
