@@ -142,6 +142,9 @@ public class Checker {
         boolean isOkayGlobal = true;
         for (int i = 0; i < jvmArgsArrays.length; i++) {
             final String currentArgs = jvmArgsArrays[i];
+            if (currentArgs.isEmpty()) {
+                continue;
+            }
             boolean isOkay = memoryPattern.matcher(currentArgs).matches();
             isOkay |= currentArgs.startsWith("-D") && currentArgs.contains("=");
             if (!isOkay) {

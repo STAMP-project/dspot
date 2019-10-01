@@ -221,7 +221,7 @@ public class DSpotUtils {
     }
 
     public static final Function<String, String> shouldAddSeparator = string ->
-            string != null ? string + (string.endsWith(File.separator) ? "" : File.separator) : null;
+            string != null && !string.isEmpty() ? string + (string.endsWith(File.separator) ? "" : File.separator) : string;
 
     public static String ctTypeToFullQualifiedName(CtType<?> testClass) {
         if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) {

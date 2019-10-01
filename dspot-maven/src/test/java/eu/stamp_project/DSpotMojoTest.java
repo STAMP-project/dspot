@@ -31,6 +31,7 @@ public class DSpotMojoTest {
     public void setUp() throws Exception {
         File testPom = new File(getBasedir(), "src/test/resources/test-projects/");
         mojoUnderTest = (DSpotMojo) mojoRule.lookupConfiguredMojo(testPom , "amplify-unit-tests");
+        mojoUnderTest.reset();
         mojoUnderTest.setVerbose(true);
     }
 

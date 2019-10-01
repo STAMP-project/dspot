@@ -40,6 +40,27 @@ After setting up your `pom.xml` and add your configuration with different option
 mvn dspot:amplify-unit-tests
 ``` 
 
+# Additional Command line Options
+
+```
+-Dpath-to-test-list-csv=<path-to-csv-file>
+    Allow to specify a subset of test classes and test methods to be amplified in the following format:
+    fullQualifiedNameTestClass;testMethodsName1;testMethodsName2;...;testMethodsNameN
+    This file can be built by the module dspot-diff-test-selection
+
+-Dpath-to-test-list-csv=<absolute-path-to-second-version>
+    To be used conjointly with the -Dtest-criterion=ChangeDetectorSelector to 
+    specify the path to the second version of the project.
+    
+-DrunOnAllModules=<boolean>
+    If enable, DSpot will be executed on all modules and sub-modules with sources and test sources.
+
+-Dtarget-module<relative-path-to-module-to-amplified>
+    Specify a module to be amplified. This MUST be a relative path from where you run dspot-maven.
+    This must be a path and not a module name.
+
+```
+
 # Advantages
 
 The advantages of using the maven plugin is that maven will automatically the latest version deployed on maven central, even the SNAPSHOT built at each commits on the master!

@@ -367,25 +367,39 @@ public class DSpotMojo extends AbstractMojo {
     @Parameter(defaultValue = "false", property = "run-on-all-modules")
     private boolean runOnAllModules = false;
 
+    @Parameter(defaultValue = "", property = "target-module")
+    private String targetModule = "";
+
+    // must be initialized at the first call of execute()
+    private static Properties properties;
+
+    void reset() {
+        properties = null;
+    }
+
     @Override
     public void execute() {
         if (this.help) {
             JSAPOptions.showUsage();
         }
+
         Properties properties = initializeProperties();
 
+        final String currentPath = DSpotUtils.shouldAddSeparator.apply(
+                this.project.getBasedir().getAbsolutePath());
         if (this.runOnAllModules &&
                 !properties.getProperty(ConstantsProperties.MODULE.getName()).isEmpty()) {
             properties.put(ConstantsProperties.MODULE.getName(),
                     DSpotUtils.shouldAddSeparator.apply(
-                        DSpotUtils.shouldAddSeparator.apply(this.project.getBasedir().getAbsolutePath())
+                        currentPath
                             .substring(ConstantsProperties.PROJECT_ROOT_PATH.get(properties).length())
                     )
             );
         } else if ((properties.getProperty(ConstantsProperties.MODULE.getName()) != null ||
                 !properties.getProperty(ConstantsProperties.MODULE.getName()).isEmpty())) {
-            if (!DSpotUtils.shouldAddSeparator.apply(
-                    this.project.getBasedir().getAbsolutePath()).endsWith(ConstantsProperties.MODULE.get(properties))) {
+            final String target = DSpotUtils.shouldAddSeparator.apply(ConstantsProperties.PROJECT_ROOT_PATH.get(properties))
+                    + ConstantsProperties.MODULE.get(properties);
+            if (!currentPath.equals(target)) {
                 return;
             }
         }
@@ -458,7 +472,10 @@ public class DSpotMojo extends AbstractMojo {
     // visible for testing...
     @NotNull
     Properties initializeProperties() {
-        Properties properties = new Properties();
+        if (properties != null) {
+            return properties;
+        }
+        properties = new Properties();
         final String absolutePathProjectRoot = project.getBasedir().getAbsolutePath();
         properties.setProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName(), absolutePathProjectRoot);
         final Build build = project.getBuild();
@@ -480,7 +497,9 @@ public class DSpotMojo extends AbstractMojo {
         // TODO however, it may lacks some dependencies and the user should run a resolve dependency goal
         // TODO before using the dspot plugin
         // TODO we must maybe need to use a correct lifecycle
-        properties.setProperty(ConstantsProperties.MODULE.getName(), "");
+        properties.setProperty(ConstantsProperties.MODULE.getName(),
+                DSpotUtils.shouldAddSeparator.apply(this.targetModule)
+        );
         if (this.pathToProperties != null && !this.pathToProperties.isEmpty()) {
             try {
                 properties.load(new FileInputStream(this.pathToProperties));
