@@ -18,7 +18,7 @@ import java.util.*;
  * abwogi@kth.se
  * on 12/09/19
  */
-public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
+public class ArrayLiteralAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
 
     @Override
     protected String getSuffix() {

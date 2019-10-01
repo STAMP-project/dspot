@@ -21,9 +21,9 @@ import static org.junit.Assert.assertTrue;
  * abwogi@kth.se
  * on 12/09/19
  */
-public class ArrayAmplifierTest extends AbstractTest {
+public class ArrayLiteralAmplifierTest extends AbstractTest {
 
-    ArrayAmplifier amplifier;
+    ArrayLiteralAmplifier amplifier;
 
     CtClass<Object> literalMutationClass;
 
@@ -32,7 +32,7 @@ public class ArrayAmplifierTest extends AbstractTest {
         super.setUp();
         literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.ArrayMutation");
         RandomHelper.setSeedRandom(42L);
-        amplifier = new ArrayAmplifier();
+        amplifier = new ArrayLiteralAmplifier();
         amplifier.reset(literalMutationClass);
     }
 
