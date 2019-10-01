@@ -22,6 +22,7 @@ public enum AmplifierEnum {
     AllLiteralAmplifiers(new AllLiteralAmplifiers()),
     //ReplacementAmplifier(new ReplacementAmplifier()),
     NullifierAmplifier(new NullifierAmplifier()),
+    ArrayAmplifier(new ArrayLiteralAmplifier()),
     None(null);
 
     public final Amplifier amplifier;
