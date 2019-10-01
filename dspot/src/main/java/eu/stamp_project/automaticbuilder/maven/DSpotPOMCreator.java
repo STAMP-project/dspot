@@ -71,6 +71,8 @@ public class DSpotPOMCreator {
         GENERAL
      */
 
+    private static final String DIRECTORY_FOR_GENERATED_POM = "target/dspot/";
+
     public static final String POM_FILE = "pom.xml";
 
     private static final String PROJECT = "project";
@@ -227,7 +229,7 @@ public class DSpotPOMCreator {
     }
 
     public static String getParallelPOMName() {
-        return DSPOT_PARALLEL_POM_FILE + (InputConfiguration.get().isJUnit5() ? SUFFIX_JUNIT5 : "") + POM_FILE;
+        return DIRECTORY_FOR_GENERATED_POM + DSPOT_PARALLEL_POM_FILE + (InputConfiguration.get().isJUnit5() ? SUFFIX_JUNIT5 : "") + POM_FILE;
     }
 
     private Node findChildByArtifactId(Node node, String artifactId) {
@@ -243,11 +245,11 @@ public class DSpotPOMCreator {
     }
 
     public static String getPOMName() {
-        return DSPOT_POM_FILE + (InputConfiguration.get().isJUnit5() ? SUFFIX_JUNIT5 : "") + POM_FILE;
+        return DIRECTORY_FOR_GENERATED_POM + DSPOT_POM_FILE + (InputConfiguration.get().isJUnit5() ? SUFFIX_JUNIT5 : "") + POM_FILE;
     }
 
     public String getPOMName(boolean isJUnit5) {
-        return DSPOT_POM_FILE + (isJUnit5 ? SUFFIX_JUNIT5 : "") + POM_FILE;
+        return DIRECTORY_FOR_GENERATED_POM + DSPOT_POM_FILE + (isJUnit5 ? SUFFIX_JUNIT5 : "") + POM_FILE;
     }
 
     /*
