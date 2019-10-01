@@ -32,6 +32,7 @@ public class MultiModuleDSpotMojoTest {
     public void testOnMultiModuleParent() throws Exception {
         File testPom = new File(getBasedir(), "src/test/resources/multi-module/");
         mojoUnderTest = (DSpotMojo) mojoRule.lookupConfiguredMojo(testPom, "amplify-unit-tests");
+        mojoUnderTest.reset();
         final Properties properties = mojoUnderTest.initializeProperties();
         assertNotNull(properties.get(ConstantsProperties.PROJECT_ROOT_PATH.getName()));
         assertEquals(DSpotUtils.shouldAddSeparator.apply(testPom.getAbsolutePath()), properties.get(ConstantsProperties.PROJECT_ROOT_PATH.getName()));

@@ -373,6 +373,10 @@ public class DSpotMojo extends AbstractMojo {
     // must be initialized at the first call of execute()
     private static Properties properties;
 
+    void reset() {
+        properties = null;
+    }
+
     @Override
     public void execute() {
         if (this.help) {
