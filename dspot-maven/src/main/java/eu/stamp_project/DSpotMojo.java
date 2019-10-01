@@ -395,10 +395,6 @@ public class DSpotMojo extends AbstractMojo {
                 !properties.getProperty(ConstantsProperties.MODULE.getName()).isEmpty())) {
             final String target = DSpotUtils.shouldAddSeparator.apply(ConstantsProperties.PROJECT_ROOT_PATH.get(properties))
                     + ConstantsProperties.MODULE.get(properties);
-            getLog().error(currentPath);
-            getLog().error(DSpotUtils.shouldAddSeparator.apply(ConstantsProperties.PROJECT_ROOT_PATH.get(properties)));
-            getLog().error(ConstantsProperties.MODULE.get(properties));
-            getLog().error(target);
             if (!currentPath.equals(target)) {
                 return;
             }
