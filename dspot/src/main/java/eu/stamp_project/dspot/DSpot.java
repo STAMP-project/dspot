@@ -206,6 +206,9 @@ public class DSpot {
 
     protected CtType<?> _amplify(CtType<?> test, List<CtMethod<?>> methods) {
         Counter.reset();
+        if (InputConfiguration.get().shouldGenerateAmplifiedTestClass()) {
+            test = AmplificationHelper.renameTestClassUnderAmplification(test);
+        }
         Amplification testAmplification = new Amplification(this.compiler, this.amplifiers, this.testSelector, this.inputAmplDistributor);
         long time = System.currentTimeMillis();
         testAmplification.amplification(test, methods, numberOfIterations);
