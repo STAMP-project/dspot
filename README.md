@@ -156,6 +156,7 @@ Usage: java -jar target/dspot-<version>-jar-with-dependencies.jar
         		 - NumberLiteralAmplifier
         		 - BooleanLiteralAmplifier
         		 - CharLiteralAmplifier
+        		 - ArrayLiteralAmplifier
         		 - AllLiteralAmplifiers
         		 - NullifierAmplifier
         		 - None
@@ -404,8 +405,9 @@ However, **DSpot** provide different kind of `Amplifier`:
    * `StringLiteralAmplifier`: modifies string literals: remove, add and replace one random char, generate random string and empty string
    * `NumberLiteralAmplifier`: modifies number literals: replace by boundaries (_e.g._ Integer_MAX_VALUE for int), increment and decrement values
    * `CharLiteralAmplifier`: modifies char literals: replace by special chars (_e.g._ '\0')
-   * `BooleanLiteralAmplifier`: modifies boolean literals: nagate the value
-   * `AllLiteralAmplifiers`: combines all literals amplifiers, _i.e._ StringLiteralAmplifier, NumberLiteralAmplifier, CharLiteralAmplifier and BooleanLiteralAmplifier
+   * `BooleanLiteralAmplifier`: modifies boolean literals: negate the value
+   * `ArrayLiteralAmplifier`: modifies array literals: remove and add element in literal, replace literal with empty literal and null
+   * `AllLiteralAmplifiers`: combines all literals amplifiers, _i.e._ StringLiteralAmplifier, NumberLiteralAmplifier, CharLiteralAmplifier, BooleanLiteralAmplifier and ArrayLiteralAmplifier
    * `MethodAdd`: duplicates an existing method call
    * `MethodRemove`: removes an existing method call
    * `StatementAdd`: adds a method call, and generate required parameter
