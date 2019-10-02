@@ -54,8 +54,8 @@ public abstract class AbstractSelectorRemoveOverlapTest {
                 this.testSelectorUnderTest,
                 InputConfiguration.get().getBudgetizer().getInputAmplDistributor(new StringLiteralAmplifier()),
                 new Output(InputConfiguration.get().getAbsolutePathToProjectRoot(), InputConfiguration.get().getOutputDirectory()),
-                1
-        );
+                1,
+                InputConfiguration.get().shouldGenerateAmplifiedTestClass());
         dspot.amplify(Utils.findClass("example.TestSuiteOverlapExample"), Collections.emptyList());
         final File directory = new File(DSpotUtils.shouldAddSeparator.apply(InputConfiguration.get().getOutputDirectory()));
         if (!directory.exists()) {

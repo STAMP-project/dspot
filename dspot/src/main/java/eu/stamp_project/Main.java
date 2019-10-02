@@ -70,7 +70,8 @@ public class Main {
 				InputConfiguration.get().getSelector(),
 				inputAmplDistributor,
 				output,
-				InputConfiguration.get().getNbIteration()
+				InputConfiguration.get().getNbIteration(),
+				InputConfiguration.get().shouldGenerateAmplifiedTestClass()
 		);
 
 		final List<CtType<?>> amplifiedTestClasses = dspot.amplify(testClassesToBeAmplified, testMethodsToBeAmplifiedNames);

@@ -54,7 +54,7 @@ public class DSpotMultiplePomTest {
                 testSelector,
                 InputConfiguration.get().getBudgetizer().getInputAmplDistributor(),
                 Output.get(InputConfiguration.get()),
-                3);
+                3, InputConfiguration.get().shouldGenerateAmplifiedTestClass());
         final List<CtType<?>> ctTypes = dspot.amplify(testClasses);
         assertFalse(ctTypes.isEmpty());
 

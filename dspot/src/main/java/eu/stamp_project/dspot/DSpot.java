@@ -3,6 +3,7 @@ package eu.stamp_project.dspot;
 import eu.stamp_project.Main;
 import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
 import eu.stamp_project.dspot.selector.TestSelector;
+import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.report.output.Output;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.Counter;
@@ -38,18 +39,22 @@ public class DSpot {
 
     private int numberOfIterations;
 
+    private boolean shouldGenerateAmplifiedTestClass;
+
     public DSpot(TestFinder testFinder,
                  DSpotCompiler compiler,
                  TestSelector testSelector,
                  InputAmplDistributor inputAmplDistributor,
                  Output output,
-                 int numberOfIterations) {
+                 int numberOfIterations,
+                 boolean shouldGenerateAmplifiedTestClass) {
         this.testSelector = testSelector;
         this.inputAmplDistributor = inputAmplDistributor;
         this.numberOfIterations = numberOfIterations;
         this.testFinder = testFinder;
         this.compiler = compiler;
         this.output = output;
+        this.shouldGenerateAmplifiedTestClass = shouldGenerateAmplifiedTestClass;
     }
 
     public CtType<?> amplify(CtType<?> testClassToBeAmplified) {
@@ -96,7 +101,7 @@ public class DSpot {
                               CtType<?> testClassToBeAmplified,
                               List<CtMethod<?>> testMethodsToBeAmplified) {
         Counter.reset();
-        if (InputConfiguration.get().shouldGenerateAmplifiedTestClass()) {
+        if (this.shouldGenerateAmplifiedTestClass) {
             testClassToBeAmplified = AmplificationHelper.renameTestClassUnderAmplification(testClassToBeAmplified);
         }
         long time = System.currentTimeMillis();

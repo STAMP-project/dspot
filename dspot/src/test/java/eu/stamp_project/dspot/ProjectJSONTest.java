@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.dspot.amplifier.FastLiteralAmplifier;
 import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -56,8 +55,8 @@ public class ProjectJSONTest extends AbstractTest {
                 jacocoCoverageSelector,
                 inputAmplDistributor,
                 Output.get(InputConfiguration.get()),
-                1
-        );
+                1,
+                InputConfiguration.get().shouldGenerateAmplifiedTestClass());
         final CtClass<?> clone = InputConfiguration.get().getFactory().Class().get("fr.inria.amp.TestJavaPoet").clone();
 
         dspot.amplify(Utils.findClass("fr.inria.amp.TestJavaPoet"), Collections.emptyList());

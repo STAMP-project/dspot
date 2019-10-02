@@ -22,7 +22,6 @@ import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -54,8 +53,8 @@ public class DSpotMockedTest extends AbstractTest {
                 jacocoCoverageSelector,
                 InputConfiguration.get().getBudgetizer().getInputAmplDistributor(),
                 Output.get(InputConfiguration.get()),
-                1
-        );
+                1,
+                InputConfiguration.get().shouldGenerateAmplifiedTestClass());
         try {
             FileUtils.cleanDirectory(new File(configuration.getOutputDirectory()));
         } catch (Exception ignored) {
