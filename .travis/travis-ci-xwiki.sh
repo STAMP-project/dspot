@@ -11,7 +11,7 @@ mvn eu.stamp-project:dspot-maven:${DSPOT_VERSION}:amplify-unit-tests -Dgenerate-
 if [not -f target/dspot/output/org/xwiki/component/AmplProviderTest.java ]; then
     echo "Something went wrong during amplification"
     exit 1
-else
+fi
 cp target/dspot/output/org/xwiki/component/AmplProviderTest.java xwiki-commons-core/xwiki-commons-component/xwiki-commons-component-default/src/test/java/org/xwiki/component/
 cd xwiki-commons-core/xwiki-commons-component/xwiki-commons-component-default
 mvn clean test
