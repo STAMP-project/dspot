@@ -1,6 +1,7 @@
 package eu.stamp_project.automaticbuilder.maven;
 
 import eu.stamp_project.utils.program.InputConfiguration;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -13,6 +14,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -90,6 +92,19 @@ public class DSpotPOMCreator {
 
     public static String createNewPomForComputingClassPathWithParallelExecution() {
         return new DSpotPOMCreator(InputConfiguration.get().isJUnit5())._createNewPomForComputingClassPathWithParallelExecution();
+    }
+
+    public static void delete() {
+        new DSpotPOMCreator(true)._delete();
+        new DSpotPOMCreator(false)._delete();
+    }
+
+    private void _delete() {
+        try {
+            FileUtils.forceDelete(new File(this._getPOMName()));
+        } catch (IOException ignored) {
+            //ignored
+        }
     }
 
     public String _createNewPomForComputingClassPathWithParallelExecution() {
@@ -246,8 +261,8 @@ public class DSpotPOMCreator {
         return DSPOT_POM_FILE + (InputConfiguration.get().isJUnit5() ? SUFFIX_JUNIT5 : "") + POM_FILE;
     }
 
-    public String getPOMName(boolean isJUnit5) {
-        return DSPOT_POM_FILE + (isJUnit5 ? SUFFIX_JUNIT5 : "") + POM_FILE;
+    private String _getPOMName() {
+        return DSPOT_POM_FILE + (this.isJUnit5 ? SUFFIX_JUNIT5 : "") + POM_FILE;
     }
 
     /*
@@ -290,7 +305,7 @@ public class DSpotPOMCreator {
             final TransformerFactory transformerFactory = TransformerFactory.newInstance();
             final Transformer transformer = transformerFactory.newTransformer();
             final DOMSource source = new DOMSource(document);
-            final StreamResult result = new StreamResult(new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + this.getPOMName(this.isJUnit5)));
+            final StreamResult result = new StreamResult(new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + this._getPOMName()));
             transformer.transform(source, result);
         } catch (Exception e) {
             throw new RuntimeException(e);
