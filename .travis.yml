@@ -16,7 +16,7 @@ env:
   - SCRIPT=travis-dspot-maven.sh
   - SCRIPT=travis-checkstyle.sh
   - SCRIPT=travis-dhell.sh
-#  - SCRIPT=travis-ci-xwiki.sh TODO FIX ME
+  - SCRIPT=travis-ci-xwiki.sh
   - SCRIPT=travis-diff-test-selection.sh
   - SCRIPT=travis-prettifier.sh
 #  - SCRIPT=travis-dspot-maven-cmd-line.sh TODO FIX ME
