@@ -50,9 +50,7 @@
                 <version>2.19.1</version>
                 <configuration>
                     <additionalClasspathElements>
-                        <additionalClasspathElement>
-                            ${project.basedir}/src/test/resources/templates.jar
-                        </additionalClasspathElement>
+                        <additionalClasspathElement>${project.basedir}/src/test/resources/templates.jar</additionalClasspathElement>
                     </additionalClasspathElements>
                 </configuration>
             </plugin>

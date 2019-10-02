@@ -6,6 +6,7 @@ import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodrecons
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.testwithloggenerator.objectlogsyntaxbuilder_constructs.objectlog.Observation;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.testwithloggenerator.objectlogsyntaxbuilder_constructs.objectlog.ObjectLogUtils;
 import eu.stamp_project.testrunner.EntryPoint;
+import eu.stamp_project.utils.program.InputConfiguration;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -317,12 +318,17 @@ public class ObjectLog {
         }
     }
 
-    private static final String OBSERVATIONS_PATH_FILE_NAME = "target/dspot/observations.ser";
+    private static final String OBSERVATIONS_PATH_NAME = "observations.ser";
+
+    private static final String OBSERVATIONS_PATH_FILE = "target/dspot/" + OBSERVATIONS_PATH_NAME;
 
     public synchronized static void save() {
-        final File file = new File(OBSERVATIONS_PATH_FILE_NAME);
+        File file = new File(OBSERVATIONS_PATH_FILE);
+        if (!file.exists()) {
+            file = new File(OBSERVATIONS_PATH_NAME);
+        }
         getSingleton().observations.values().forEach(Observation::purify);
-        try (FileOutputStream fout = new FileOutputStream(OBSERVATIONS_PATH_FILE_NAME)) {
+        try (FileOutputStream fout = new FileOutputStream(file)) {
             try (ObjectOutputStream oos = new ObjectOutputStream(fout)) {
                 oos.writeObject(getSingleton().observations);
                 System.out.println(
@@ -340,10 +346,10 @@ public class ObjectLog {
     }
 
     public synchronized static Map<String, Observation> load() {
-        try (FileInputStream fi = new FileInputStream(new File(
+        final File observationsFile = new File(
                 (EntryPoint.workingDirectory != null ? // in case we modified the working directory
-                        EntryPoint.workingDirectory.getAbsolutePath() + "/" : "") +
-                        OBSERVATIONS_PATH_FILE_NAME))) {
+                        EntryPoint.workingDirectory.getAbsolutePath() + "/" : "") + OBSERVATIONS_PATH_FILE);
+        try (FileInputStream fi = new FileInputStream(observationsFile)) {
             try (ObjectInputStream oi = new ObjectInputStream(fi)) {
                 return (Map) oi.readObject();
             } catch (Exception e) {

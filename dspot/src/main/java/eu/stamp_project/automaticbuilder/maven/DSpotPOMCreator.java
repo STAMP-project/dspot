@@ -1,6 +1,8 @@
 package eu.stamp_project.automaticbuilder.maven;
 
+import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.program.InputConfiguration;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -13,7 +15,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * created by Benjamin DANGLOT
@@ -296,6 +300,9 @@ public class DSpotPOMCreator {
             final Transformer transformer = transformerFactory.newTransformer();
             final DOMSource source = new DOMSource(document);
             final StreamResult result = new StreamResult(new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + this.getPOMName(this.isJUnit5)));
+            if (!new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + DIRECTORY_FOR_GENERATED_POM).exists()) {
+                FileUtils.forceMkdir(new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + DIRECTORY_FOR_GENERATED_POM));
+            }
             transformer.transform(source, result);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -319,19 +326,59 @@ public class DSpotPOMCreator {
 
         plugins.appendChild(pluginTestCompile);
 
-        // Second, we add an additionnal classpath element: the folder that contains
+        // Second, we add an additional classpath element: the folder that contains
         // instrumentation classes, i.e. eu.stamp_project.compare package
-        final Element surefirePlugin =
-                createPlugin(document, ORG_MAVEN_PLUGINS_GROUP_ID, ARTIFACT_SUREFIRE_PLUGIN, "");
-        final Element configuration = document.createElement(CONFIGURATION);
-        final Element additionalClasspathElements = document.createElement("additionalClasspathElements");
+        final Node surefirePlugin = findPluginByArtifactId(document, plugins, ARTIFACT_SUREFIRE_PLUGIN);
+        final Node configuration = findOrCreateGivenNode(document, surefirePlugin, CONFIGURATION);
+        final Node additionalClasspathElements = findOrCreateGivenNode(document, configuration, ADDITIONAL_CLASSPATH_ELEMENTS);
+
+        // updating existing paths...
+        final List<Node> listAdditionalClasspathElement =
+                findSpecificNodesFromGivenRoot(additionalClasspathElements, ADDITIONAL_CLASSPATH_ELEMENT);
+        for (Node node : listAdditionalClasspathElement) {
+            updateTextContentOfNodeWithRelativePath(node);
+        }
+
         final Element additionalClasspathElement = document.createElement("additionalClasspathElement");
-        additionalClasspathElement.setTextContent("target/dspot/dependencies/");
+        final Element reportsDirectory = document.createElement("reportsDirectory");
+        reportsDirectory.setTextContent(RELATIVE_PATH_FROM_POM_TO_ROOT_PROJECT + "target/surefire-reports/");
+        configuration.appendChild(reportsDirectory);
+
+        additionalClasspathElement.setTextContent(RELATIVE_PATH_FROM_POM_TO_ROOT_PROJECT + "target/dspot/dependencies/");
         additionalClasspathElements.appendChild(additionalClasspathElement);
         configuration.appendChild(additionalClasspathElements);
         surefirePlugin.appendChild(configuration);
 
         plugins.appendChild(surefirePlugin);
+    }
+
+    private String getPattern(Node node) {
+        final String[] patterns = {"${project.basedir}", "${project.build.testSourceDirectory}", "${project.build.sourceDirectory}"};
+        for (String pattern : patterns) {
+            if (node.getTextContent().startsWith(pattern)){
+                return pattern;
+            }
+        }
+        return null;
+    }
+
+    private void updateTextContentOfNodeWithRelativePath(Node node) {
+        String textContent = node.getTextContent();
+        final String pattern = "${project.basedir}";
+        if (textContent.startsWith(pattern)) {
+            textContent = DSpotUtils.shouldAddSeparator.apply(textContent.substring(0, pattern.length())) +
+                    RELATIVE_PATH_FROM_POM_TO_ROOT_PROJECT +
+                    textContent.substring(pattern.length());
+        } else if (textContent.startsWith( "${project.build.testSourceDirectory}")) {
+            textContent = DSpotUtils.shouldAddSeparator.apply("${project.basedir}") +
+                    RELATIVE_PATH_FROM_POM_TO_ROOT_PROJECT +
+                    DEFAULT_SOURCE_DIRECTORY;
+        } else if (textContent.startsWith("${project.build.sourceDirectory}")) {
+            textContent = DSpotUtils.shouldAddSeparator.apply("${project.basedir}") +
+                    RELATIVE_PATH_FROM_POM_TO_ROOT_PROJECT +
+                    DEFAULT_TEST_SOURCE_DIRECTORY;
+        }
+        node.setTextContent(textContent);
     }
 
     /*
@@ -347,6 +394,18 @@ public class DSpotPOMCreator {
             root.appendChild(node);
             return node;
         }
+    }
+
+    private List<Node> findSpecificNodesFromGivenRoot(Node startingPoint, String nodeName) {
+        Node currentChild = startingPoint.getFirstChild();
+        final List<Node> nodes = new ArrayList<>();
+        while (currentChild != null) {
+            if (nodeName.equals(currentChild.getNodeName())) {
+                nodes.add(currentChild);
+            }
+            currentChild = currentChild.getNextSibling();
+        }
+        return nodes;
     }
 
     private Node findSpecificNodeFromGivenRoot(Node startingPoint, String nodeName) {
@@ -490,9 +549,7 @@ public class DSpotPOMCreator {
         final Node directoryInSubNodeToFind = findOrCreateGivenNode(document, subNodeToFind, DIRECTORY);
         if (directoryInSubNodeToFind.getTextContent() != null &&
                 !directoryInSubNodeToFind.getTextContent().isEmpty()) {
-            directoryInSubNodeToFind.setTextContent(
-                    RELATIVE_PATH_FROM_POM_TO_ROOT_PROJECT + directoryInSubNodeToFind.getTextContent()
-            );
+            updateTextContentOfNodeWithRelativePath(directoryInSubNodeToFind);
         } else {
             directoryInSubNodeToFind.setTextContent(
                     RELATIVE_PATH_FROM_POM_TO_ROOT_PROJECT + defaultValue
@@ -505,8 +562,8 @@ public class DSpotPOMCreator {
                                                            String nodeToUpdate,
                                                            String defaultValue) {
         Node node = findSpecificNodeFromGivenRoot(build.getFirstChild(), nodeToUpdate);
-        if (node != null) {
-            node.setTextContent(RELATIVE_PATH_FROM_POM_TO_ROOT_PROJECT + node.getTextContent());
+       if (node != null) {
+            updateTextContentOfNodeWithRelativePath(node);
         } else {
             node = document.createElement(nodeToUpdate);
             node.setTextContent(RELATIVE_PATH_FROM_POM_TO_ROOT_PROJECT + defaultValue);
@@ -616,6 +673,8 @@ public class DSpotPOMCreator {
     private static final String TIME_OUT = "timeoutConstant";
 
     private static final String ADDITIONAL_CLASSPATH_ELEMENTS = "additionalClasspathElements";
+
+    private static final String ADDITIONAL_CLASSPATH_ELEMENT = "additionalClasspathElement";
 
     private Element createConfiguration(Document document) {
         final Element configuration = document.createElement(CONFIGURATION);
