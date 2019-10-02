@@ -47,7 +47,7 @@ public class DSpotPOMCreator {
 
     private static final String MUTATION_ENGINE_DESCARTES = "descartes";
 
-    private static final String[] outputFormats = new String[]{"CSV","XML"};
+    private static final String[] outputFormats = new String[]{"CSV", "XML"};
 
     /*
         MAVEN
@@ -118,8 +118,8 @@ public class DSpotPOMCreator {
             return newPomFilename;
         } catch (Exception e) {
             throw new RuntimeException(e);
-            }
         }
+    }
 
     private void addSurefirePluginConfiguration(Document document, Node root) {
         final Node build = findOrCreateGivenNode(document, root, BUILD);
@@ -149,7 +149,7 @@ public class DSpotPOMCreator {
                 );
                 dependencies.appendChild(dependency);
             }
-        }else {
+        } else {
             final Element parallel = document.createElement("parallel");
             final Element useUnlimitedThreads = document.createElement("useUnlimitedThreads");
             parallel.setTextContent("methods");
@@ -214,7 +214,7 @@ public class DSpotPOMCreator {
 
     private Node findPluginByArtifactId(Document document, Node pluginsNode, String artifactId) {
         Node plugin = pluginsNode.getFirstChild();
-        while (plugin != null && !hasArtifactId (plugin, artifactId)) {
+        while (plugin != null && !hasArtifactId(plugin, artifactId)) {
             plugin = plugin.getNextSibling();
         }
         return plugin;
@@ -225,7 +225,7 @@ public class DSpotPOMCreator {
         while (currentChild != null && !"artifactId".equals(currentChild.getNodeName())) {
             currentChild = currentChild.getNextSibling();
         }
-        return currentChild == null? false: currentChild.getTextContent().equals(artifactId);
+        return currentChild == null ? false : currentChild.getTextContent().equals(artifactId);
     }
 
     public static String getParallelPOMName() {
@@ -234,7 +234,7 @@ public class DSpotPOMCreator {
 
     private Node findChildByArtifactId(Node node, String artifactId) {
         Node child = node.getFirstChild();
-        while (child != null && !hasArtifactId (child, artifactId)) {
+        while (child != null && !hasArtifactId(child, artifactId)) {
             child = child.getNextSibling();
         }
         return child;
@@ -276,11 +276,14 @@ public class DSpotPOMCreator {
             // CONFIGURATION TO RUN INSTRUMENTED TEST
             configureForInstrumentedTests(document, root);
 
+            // CONFIGURATION OF PATHS FOR SOURCES, TEST SOURCES AND RESOURCES
+            addPathsDirectory(document, root);
+
             if (InputConfiguration.get().shouldExecuteTestsInParallel() && InputConfiguration.get().shouldUseMavenToExecuteTest()) {
                 //Add JUnit4/5 dependencies for parallel execution
                 //Add Surefire plugin configuration for parallel execution
                 addJUnitDependencies(document, root);
-                addSurefirePluginConfiguration (document, root);
+                addSurefirePluginConfiguration(document, root);
             }
 
             final Element profile = createProfile(document);
@@ -336,13 +339,13 @@ public class DSpotPOMCreator {
      */
 
     private Node findOrCreateGivenNode(Document document, Node root, String nodeToFind) {
-        final Node existingProfiles = findSpecificNodeFromGivenRoot(root.getFirstChild(), nodeToFind);
-        if (existingProfiles != null) {
-            return existingProfiles;
+        final Node existingNode = findSpecificNodeFromGivenRoot(root.getFirstChild(), nodeToFind);
+        if (existingNode != null) {
+            return existingNode;
         } else {
-            final Element profiles = document.createElement(nodeToFind);
-            root.appendChild(profiles);
-            return profiles;
+            final Element node = document.createElement(nodeToFind);
+            root.appendChild(node);
+            return node;
         }
     }
 
@@ -433,6 +436,82 @@ public class DSpotPOMCreator {
         }
 
         return plugin;
+    }
+
+    private static final String RELATIVE_PATH_FROM_POM_TO_ROOT_PROJECT = "../../";
+
+    private static final String SOURCE_DIRECTORY = "sourceDirectory";
+
+    private static final String DEFAULT_SOURCE_DIRECTORY = "src/main/java/";
+
+    private static final String TEST_SOURCE_DIRECTORY = "testSourceDirectory";
+
+    private static final String DEFAULT_TEST_SOURCE_DIRECTORY = "src/test/java/";
+
+    private static final String DIRECTORY = "directory";
+
+    private static final String RESOURCES_DIRECTORY = "resources";
+
+    private static final String RESOURCE_DIRECTORY = "resource";
+
+    private static final String DEFAULT_RESOURCES_DIRECTORY = "src/main/resources/";
+
+    private static final String TEST_RESOURCES_DIRECTORY = "testResources";
+
+    private static final String TEST_RESOURCE_DIRECTORY = "testResource";
+
+    private static final String DEFAULT_TEST_RESOURCES_DIRECTORY = "src/test/resources/";
+
+    private static final String OUTPUT_CLASSES_DIRECTORY = "outputDirectory";
+
+    private static final String DEFAULT_OUTPUT_CLASSES_DIRECTORY = "target/classes/";
+
+    private static final String OUTPUT_TEST_CLASSES_DIRECTORY = "testOutputDirectory";
+
+    private static final String DEFAULT_OUTPUT_TEST_CLASSES_DIRECTORY = "target/test-classes/";
+
+    private void addPathsDirectory(Document document, Node root) {
+        final Node build = findOrCreateGivenNode(document, root, BUILD);
+        updateSourcesPathElementInBuildOrCreateIt(document, build, SOURCE_DIRECTORY, DEFAULT_SOURCE_DIRECTORY);
+        updateSourcesPathElementInBuildOrCreateIt(document, build, TEST_SOURCE_DIRECTORY, DEFAULT_TEST_SOURCE_DIRECTORY);
+        updateSourcesPathElementInBuildOrCreateIt(document, build, OUTPUT_CLASSES_DIRECTORY, DEFAULT_OUTPUT_CLASSES_DIRECTORY);
+        updateSourcesPathElementInBuildOrCreateIt(document, build, OUTPUT_TEST_CLASSES_DIRECTORY, DEFAULT_OUTPUT_TEST_CLASSES_DIRECTORY);
+        updateGivenResourcePathInBuildOrCreateIt(document, build, RESOURCES_DIRECTORY, RESOURCE_DIRECTORY, DEFAULT_RESOURCES_DIRECTORY);
+        updateGivenResourcePathInBuildOrCreateIt(document, build, TEST_RESOURCES_DIRECTORY, TEST_RESOURCE_DIRECTORY, DEFAULT_TEST_RESOURCES_DIRECTORY);
+    }
+
+    private void updateGivenResourcePathInBuildOrCreateIt(Document document,
+                                                          Node build,
+                                                          String nodeNameToFind,
+                                                          String subNodeNameToFind,
+                                                          String defaultValue) {
+        final Node nodeToFind = findOrCreateGivenNode(document, build, nodeNameToFind);
+        final Node subNodeToFind = findOrCreateGivenNode(document, nodeToFind, subNodeNameToFind);
+        final Node directoryInSubNodeToFind = findOrCreateGivenNode(document, subNodeToFind, DIRECTORY);
+        if (directoryInSubNodeToFind.getTextContent() != null &&
+                !directoryInSubNodeToFind.getTextContent().isEmpty()) {
+            directoryInSubNodeToFind.setTextContent(
+                    RELATIVE_PATH_FROM_POM_TO_ROOT_PROJECT + directoryInSubNodeToFind.getTextContent()
+            );
+        } else {
+            directoryInSubNodeToFind.setTextContent(
+                    RELATIVE_PATH_FROM_POM_TO_ROOT_PROJECT + defaultValue
+            );
+        }
+    }
+
+    private void updateSourcesPathElementInBuildOrCreateIt(Document document,
+                                                           Node build,
+                                                           String nodeToUpdate,
+                                                           String defaultValue) {
+        Node node = findSpecificNodeFromGivenRoot(build.getFirstChild(), nodeToUpdate);
+        if (node != null) {
+            node.setTextContent(RELATIVE_PATH_FROM_POM_TO_ROOT_PROJECT + node.getTextContent());
+        } else {
+            node = document.createElement(nodeToUpdate);
+            node.setTextContent(RELATIVE_PATH_FROM_POM_TO_ROOT_PROJECT + defaultValue);
+        }
+        build.appendChild(node);
     }
 
     private static final String EXECUTIONS = "executions";
@@ -532,7 +611,7 @@ public class DSpotPOMCreator {
 
     private static final String REPORT_DIRECTORY = "reportsDirectory";
 
-    public static final String REPORT_DIRECTORY_VALUE = "target/pit-reports";
+    public static final String REPORT_DIRECTORY_VALUE = "target/pit-reports/";
 
     private static final String TIME_OUT = "timeoutConstant";
 
@@ -557,7 +636,7 @@ public class DSpotPOMCreator {
         }
 
         final Element reportsDirectory = document.createElement(REPORT_DIRECTORY);
-        reportsDirectory.setTextContent(REPORT_DIRECTORY_VALUE);
+        reportsDirectory.setTextContent(RELATIVE_PATH_FROM_POM_TO_ROOT_PROJECT + REPORT_DIRECTORY_VALUE);
         configuration.appendChild(reportsDirectory);
 
         final Element timeOut = document.createElement(TIME_OUT);
