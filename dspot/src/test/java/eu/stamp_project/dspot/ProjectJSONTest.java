@@ -2,11 +2,15 @@ package eu.stamp_project.dspot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.dspot.amplifier.FastLiteralAmplifier;
+import eu.stamp_project.AbstractTest;
+import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.json.ProjectTimeJSON;
 import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.report.output.Output;
+import eu.stamp_project.utils.test_finder.TestFinder;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,10 +28,11 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 12/06/17
  */
-public class ProjectJSONTest {
+public class ProjectJSONTest extends AbstractTest {
 
     @Before
     public void setUp() throws Exception {
+        super.setUp();
         try {
             FileUtils.forceDelete(new File("target/dspot/"));
         } catch (Exception ignored) {
@@ -42,15 +47,19 @@ public class ProjectJSONTest {
         if (file.exists()) {
             file.delete();
         }
-        InputConfiguration.initialize("src/test/resources/sample/sample.properties");
-        DSpot dspot = new DSpot(1,
-                Collections.singletonList(new FastLiteralAmplifier()),
-                new JacocoCoverageSelector()
-        );
-
+        final JacocoCoverageSelector jacocoCoverageSelector = new JacocoCoverageSelector();
+        final InputAmplDistributor inputAmplDistributor = InputConfiguration.get().getBudgetizer().getInputAmplDistributor();
+        DSpot dspot = new DSpot(
+                TestFinder.get(),
+                Utils.getCompiler(),
+                jacocoCoverageSelector,
+                inputAmplDistributor,
+                Output.get(InputConfiguration.get()),
+                1,
+                InputConfiguration.get().shouldGenerateAmplifiedTestClass());
         final CtClass<?> clone = InputConfiguration.get().getFactory().Class().get("fr.inria.amp.TestJavaPoet").clone();
 
-        dspot.amplifyTestClass("fr.inria.amp.TestJavaPoet");
+        dspot.amplify(Utils.findClass("fr.inria.amp.TestJavaPoet"), Collections.emptyList());
         ProjectTimeJSON projectJson = getProjectJson(file);
         assertTrue(projectJson.classTimes.
                 stream()
@@ -61,7 +70,7 @@ public class ProjectJSONTest {
         assertEquals(1, projectJson.classTimes.size());
         assertEquals("sample", projectJson.projectName);
 
-        dspot.amplifyTestClass("fr.inria.mutation.ClassUnderTestTest");
+        dspot.amplify(Utils.findClass("fr.inria.mutation.ClassUnderTestTest"), Collections.emptyList());
         projectJson = getProjectJson(file);
         assertTrue(projectJson.classTimes.stream().anyMatch(classTimeJSON -> classTimeJSON.fullQualifiedName.equals("fr.inria.amp.TestJavaPoet")));
         assertTrue(projectJson.classTimes.stream().anyMatch(classTimeJSON -> classTimeJSON.fullQualifiedName.equals("fr.inria.mutation.ClassUnderTestTest")));
@@ -75,7 +84,7 @@ public class ProjectJSONTest {
         aPackage.removeType(amplifiedClassToBeRemoved);
         aPackage.addType(clone);
 
-        dspot.amplifyTestClass("fr.inria.amp.TestJavaPoet");
+        dspot.amplify(Utils.findClass("fr.inria.amp.TestJavaPoet"), Collections.emptyList());
         projectJson = getProjectJson(file);
         assertTrue(projectJson.classTimes.stream().anyMatch(classTimeJSON -> classTimeJSON.fullQualifiedName.equals("fr.inria.amp.TestJavaPoet")));
         assertTrue(projectJson.classTimes.stream().anyMatch(classTimeJSON -> classTimeJSON.fullQualifiedName.equals("fr.inria.mutation.ClassUnderTestTest")));

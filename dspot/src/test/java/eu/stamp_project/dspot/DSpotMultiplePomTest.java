@@ -4,6 +4,8 @@ import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
+import eu.stamp_project.utils.report.output.Output;
+import eu.stamp_project.utils.test_finder.TestFinder;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -11,6 +13,7 @@ import org.junit.Test;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
@@ -42,8 +45,17 @@ public class DSpotMultiplePomTest {
             Contract: DSpot is able to amplify a multi-module project
          */
 
-        final DSpot dspot = new DSpot(new JacocoCoverageSelector());
-        final List<CtType<?>> ctTypes = dspot.amplifyAllTests();
+        final JacocoCoverageSelector testSelector = new JacocoCoverageSelector();
+        final TestFinder testFinder = new TestFinder(Collections.emptyList(), Collections.emptyList());
+        final List<CtType<?>> testClasses = testFinder.findTestClasses(Collections.singletonList("all"));
+        final DSpot dspot = new DSpot(
+                testFinder,
+                Utils.getCompiler(),
+                testSelector,
+                InputConfiguration.get().getBudgetizer().getInputAmplDistributor(),
+                Output.get(InputConfiguration.get()),
+                3, InputConfiguration.get().shouldGenerateAmplifiedTestClass());
+        final List<CtType<?>> ctTypes = dspot.amplify(testClasses);
         assertFalse(ctTypes.isEmpty());
 
         Utils.getInputConfiguration().setVerbose(false);

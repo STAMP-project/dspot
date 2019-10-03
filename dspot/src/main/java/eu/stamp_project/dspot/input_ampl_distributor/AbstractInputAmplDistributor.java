@@ -2,6 +2,7 @@ package eu.stamp_project.dspot.input_ampl_distributor;
 
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.utils.program.InputConfiguration;
+import spoon.reflect.declaration.CtType;
 
 import java.util.List;
 
@@ -22,4 +23,12 @@ public abstract class AbstractInputAmplDistributor implements InputAmplDistribut
         this.amplifiers = amplifiers;
     }
 
+    public void resetAmplifiers(CtType parentClass) {
+        this.amplifiers.forEach(amplifier -> amplifier.reset(parentClass));
+    }
+
+    @Override
+    public boolean shouldBeRun() {
+        return !this.amplifiers.isEmpty();
+    }
 }
