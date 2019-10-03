@@ -2,6 +2,7 @@ package eu.stamp_project.dspot.input_ampl_distributor;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
+import eu.stamp_project.utils.options.InputConfiguration;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -23,7 +24,7 @@ public class TextualDistanceInputAmplDistributorTest extends AbstractTest {
 
     @After
     public void tearDown() throws Exception {
-        Utils.getInputConfiguration().setMaxTestAmplified(200);
+        InputConfiguration.get().setMaxTestAmplified(200);
     }
 
     // TODO
@@ -36,7 +37,7 @@ public class TextualDistanceInputAmplDistributorTest extends AbstractTest {
             The method should return a list with different test
          */
 
-        Utils.getInputConfiguration().setMaxTestAmplified(2);
+        InputConfiguration.get().setMaxTestAmplified(2);
 
         final CtMethod methodString = Utils.findMethod("fr.inria.amp.LiteralMutation", "methodString");
         // very different

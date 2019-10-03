@@ -2,12 +2,9 @@ package eu.stamp_project;
 
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
-import eu.stamp_project.utils.collector.CollectorConfig;
 import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.options.JSAPOptions;
 import eu.stamp_project.utils.report.output.Output;
-import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.utils.options.InputConfiguration;
 import eu.stamp_project.utils.RandomHelper;
 import eu.stamp_project.utils.report.GlobalReport;
@@ -19,7 +16,6 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
-import spoon.SpoonModelBuilder;
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;
@@ -63,7 +59,6 @@ public class Main {
 	}
 
 	public static void run() {
-		DSpot dspot = new DSpot();
 		RandomHelper.setSeedRandom(InputConfiguration.get().getSeed());
 		createOutputDirectories();
 		final long startTime = System.currentTimeMillis();
@@ -72,15 +67,12 @@ public class Main {
 				Arrays.stream(InputConfiguration.get().getExcludedClasses().split(",")).collect(Collectors.toList()),
 				Arrays.stream(InputConfiguration.get().getExcludedTestCases().split(",")).collect(Collectors.toList())
 		);
-		final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(
-				InputConfiguration.get(),
-				InputConfiguration.get().getDependencies()
-		);
+		final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler();
 		InputConfiguration.get().setFactory(compiler.getLauncher().getFactory());
 
 		final List<CtType<?>> testClassesToBeAmplified = testFinder.findTestClasses(InputConfiguration.get().getTestClasses());
 		final List<String> testMethodsToBeAmplifiedNames = InputConfiguration.get().getTestCases();
-		final InputAmplDistributor inputAmplDistributor = InputConfiguration.get().getBudgetizer().getInputAmplDistributor();
+		final InputAmplDistributor inputAmplDistributor = InputConfiguration.get().getInputAmplDistributorEnum().getInputAmplDistributor();
 		Output output = new Output(InputConfiguration.get().getAbsolutePathToProjectRoot(), InputConfiguration.get().getOutputDirectory());
 		final DSpot dspot = new DSpot(
 				testFinder,

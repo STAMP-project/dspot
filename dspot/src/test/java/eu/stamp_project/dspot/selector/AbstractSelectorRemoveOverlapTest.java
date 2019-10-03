@@ -52,7 +52,7 @@ public abstract class AbstractSelectorRemoveOverlapTest {
                 new TestFinder(Collections.emptyList(), Collections.emptyList()),
                 Utils.getCompiler(),
                 this.testSelectorUnderTest,
-                InputConfiguration.get().getBudgetizer().getInputAmplDistributor(new StringLiteralAmplifier()),
+                InputConfiguration.get().getInputAmplDistributorEnum().getInputAmplDistributor(new StringLiteralAmplifier()),
                 new Output(InputConfiguration.get().getAbsolutePathToProjectRoot(), InputConfiguration.get().getOutputDirectory()),
                 1,
                 InputConfiguration.get().shouldGenerateAmplifiedTestClass());

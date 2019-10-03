@@ -28,7 +28,7 @@ public class DSpotAndResourcesTest extends AbstractTest {
 			 such as getResourceAsStream()
 		 */
 		final CtClass<?> classUsingResources = Utils.findClass("fr.inria.testresources.TestResources");
-		final InputConfiguration configuration = Utils.getInputConfiguration();
+		final InputConfiguration configuration = InputConfiguration.get();
 		final String classpath = configuration.getClasspathClassesProject()
 				+ AmplificationHelper.PATH_SEPARATOR +
 				configuration.getDependencies();

@@ -23,11 +23,6 @@ public class OneTestClassPitScoreMutantSelectorTest extends AbstractTest {
     private String FULL_QUALIFIED_NAME_TEST_CLASS = "example.TestSuiteExample";
 
     @Override
-    public String getPathToPropertiesFile() {
-        return "src/test/resources/test-projects/test-projects.properties";
-    }
-
-    @Override
     public void setUp() throws Exception {
         super.setUp();
         InputConfiguration.get().getBuilder().reset();

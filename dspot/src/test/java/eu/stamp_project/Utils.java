@@ -1,6 +1,5 @@
 package eu.stamp_project;
 
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.options.InputAmplDistributorEnum;
 import eu.stamp_project.utils.options.InputConfiguration;
@@ -30,33 +29,22 @@ public class Utils {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
 
-	private static AutomaticBuilder builder;
-
-	private static InputConfiguration inputConfiguration;
-
 	private static DSpotCompiler compiler;
-
-	private static String currentInputConfigurationLoaded = null;
 
 	public static DSpotCompiler getCompiler() {
 		return compiler;
 	}
 
-	public static InputConfiguration getInputConfiguration() {
-		return inputConfiguration;
-	}
-
-	public static AutomaticBuilder getBuilder() {
-		return builder;
-	}
+	private static boolean hasACleanInstanceOfInputConfiguration = false;
 
 	public static void reset() {
-		currentInputConfigurationLoaded = null;
+		InputConfiguration.reset();
+		hasACleanInstanceOfInputConfiguration = true;
 	}
 
 	public static void init(String pathToConfFile) {
 		try {
-			FileUtils.forceDelete(new File(inputConfiguration.getOutputDirectory()));
+			FileUtils.forceDelete(new File(InputConfiguration.get().getOutputDirectory()));
 		} catch (Exception ignored) {
 
 		}
@@ -65,29 +53,26 @@ public class Utils {
 		} catch (Exception ignored) {
 
 		}
-		if (pathToConfFile.equals(currentInputConfigurationLoaded)) {
+		if (hasACleanInstanceOfInputConfiguration) {
 			return;
 		}
 		try {
-			inputConfiguration = InputConfiguration.initialize(pathToConfFile);
-			Utils.getInputConfiguration().setMinimize(false);
-			Utils.getInputConfiguration().setVerbose(true);
-			builder = inputConfiguration.getBuilder();
-			compiler = DSpotCompiler.createDSpotCompiler(inputConfiguration.getDependencies());
+			InputConfiguration inputConfiguration = InputConfiguration.get();
+			inputConfiguration.setVerbose(true);
+			compiler = DSpotCompiler.createDSpotCompiler();
 			inputConfiguration.setFactory(compiler.getLauncher().getFactory());
-			inputConfiguration.setBudgetizer(InputAmplDistributorEnum.RandomInputAmplDistributor);
-			currentInputConfigurationLoaded = pathToConfFile;
+			inputConfiguration.setInputAmplDistributorEnum(InputAmplDistributorEnum.RandomInputAmplDistributor);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	public static CtClass<?> findClass(String fullQualifiedName) {
-		return getInputConfiguration().getFactory().Class().get(fullQualifiedName);
+		return InputConfiguration.get().getFactory().Class().get(fullQualifiedName);
 	}
 
 	public static CtType<?> findType(String fullQualifiedName) {
-		return getInputConfiguration().getFactory().Type().get(fullQualifiedName);
+		return InputConfiguration.get().getFactory().Type().get(fullQualifiedName);
 	}
 
 
@@ -127,7 +112,7 @@ public class Utils {
 	}
 
 	public static Factory getFactory() {
-		return getInputConfiguration().getFactory();
+		return InputConfiguration.get().getFactory();
 	}
 
 	public static final class FILTER_LITERAL_OF_GIVEN_TYPE extends TypeFilter<CtLiteral> {

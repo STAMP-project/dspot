@@ -3,7 +3,7 @@ package eu.stamp_project.utils.test_finder;
 import eu.stamp_project.Main;
 import eu.stamp_project.Utils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.options.InputConfiguration;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
@@ -27,12 +27,7 @@ public class TestFinderTest {
     @BeforeClass
     public static void setUpClass() throws Exception {
         Utils.reset();
-        InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
-        InputConfiguration.get().setFactory(
-            DSpotCompiler.createDSpotCompiler(
-                    InputConfiguration.get(),
-                    InputConfiguration.get().getDependencies()).getFactory()
-        );
+        InputConfiguration.get().setFactory(DSpotCompiler.createDSpotCompiler().getFactory());
         Main.createOutputDirectories();
         testFinder =  new TestFinder(
                 Arrays.stream(InputConfiguration.get().getExcludedClasses().split(",")).collect(Collectors.toList()),

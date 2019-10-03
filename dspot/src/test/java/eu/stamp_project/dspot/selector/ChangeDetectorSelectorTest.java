@@ -4,6 +4,7 @@ import eu.stamp_project.Utils;
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.options.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,7 +80,7 @@ public class ChangeDetectorSelectorTest extends AbstractSelectorTest {
     @Test
     public void testOnMultiModuleProject() throws Exception {
 
-        Utils.getInputConfiguration().setVerbose(true);
+        InputConfiguration.get().setVerbose(true);
         EntryPoint.verbose = true;
         DSpotPOMCreator.createNewPom();
 
@@ -103,7 +104,7 @@ public class ChangeDetectorSelectorTest extends AbstractSelectorTest {
                 Utils.findClass("fr.inria.multiple.pom.HelloWorldTest"), Utils.getAllTestMethodsFrom("fr.inria.multiple.pom.HelloWorldTest"))
         ).isEmpty());
 
-        Utils.getInputConfiguration().setVerbose(false);
+        InputConfiguration.get().setVerbose(false);
     }
 
 

@@ -3,6 +3,7 @@ package eu.stamp_project.automaticbuilder.gradle;
 import eu.stamp_project.Utils;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
+import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.pit.AbstractPitResult;
 import eu.stamp_project.utils.pit.PitXMLResultParser;
 import eu.stamp_project.utils.options.InputConfiguration;
@@ -36,12 +37,12 @@ public class GradleAutomaticBuilderWithDescartesTest {
         Utils.init("src/test/resources/test-projects/test-projects.properties");
 
         Utils.LOGGER.debug("Test Set-up - Reading input parameters...");
-        InputConfiguration inputConfiguration = Utils.getInputConfiguration();
-        inputConfiguration.setBuilderName("GradleBuilder");
+        InputConfiguration inputConfiguration = InputConfiguration.get();
+        inputConfiguration.setBuilderEnum(AutomaticBuilderEnum.Gradle);
         inputConfiguration.setDescartesMutators("1");
 
         Utils.LOGGER.debug("Test Set-up - instantiating Automatic Builder (SUT)...");
-        sut = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration.getBuilderName());
+        sut = inputConfiguration.getBuilderEnum().toAutomaticBuilder();
         Utils.LOGGER.debug("Test Set-up complete.");
         parser = new PitXMLResultParser();
     }
@@ -59,7 +60,7 @@ public class GradleAutomaticBuilderWithDescartesTest {
     @Test
     public void runPit_whenAllDescartesMutatorsAreSpecified() throws Exception {
         Utils.LOGGER.info("Starting Gradle Automatic Builder runPit() test when a test class is specified...");
-        CtClass<Object> testClass = Utils.getInputConfiguration().getFactory().Class().get("example.TestSuiteExample");
+        CtClass<Object> testClass = InputConfiguration.get().getFactory().Class().get("example.TestSuiteExample");
         InputConfiguration.get().setDescartesMode(true);
         sut.runPit( testClass);
         List<? extends AbstractPitResult> pitResults = parser.parseAndDelete("src/test/resources/test-projects/" + sut.getOutputDirectoryPit());

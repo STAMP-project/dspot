@@ -3,6 +3,7 @@ package eu.stamp_project.dspot;
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.testrunner.EntryPoint;
+import eu.stamp_project.utils.options.InputConfiguration;
 import eu.stamp_project.utils.report.output.Output;
 import eu.stamp_project.utils.test_finder.TestFinder;
 import org.apache.commons.io.FileUtils;
@@ -33,7 +34,7 @@ public class DSpotMultiplePomTest {
             //ignored
         }
         Utils.init("src/test/resources/multiple-pom/deep-pom-modules.properties");
-        Utils.getInputConfiguration().setVerbose(true);
+        InputConfiguration.get().setVerbose(true);
         EntryPoint.verbose = true;
     }
 
@@ -51,13 +52,13 @@ public class DSpotMultiplePomTest {
                 testFinder,
                 Utils.getCompiler(),
                 testSelector,
-                InputConfiguration.get().getBudgetizer().getInputAmplDistributor(),
+                InputConfiguration.get().getInputAmplDistributorEnum().getInputAmplDistributor(),
                 Output.get(InputConfiguration.get()),
                 3, InputConfiguration.get().shouldGenerateAmplifiedTestClass());
         final List<CtType<?>> ctTypes = dspot.amplify(testClasses);
         assertFalse(ctTypes.isEmpty());
 
-        Utils.getInputConfiguration().setVerbose(false);
+        InputConfiguration.get().setVerbose(false);
     }
 
     @After

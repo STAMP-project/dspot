@@ -51,7 +51,7 @@ public class DSpotMockedTest extends AbstractTest {
                 TestFinder.get(),
                 Utils.getCompiler(),
                 jacocoCoverageSelector,
-                InputConfiguration.get().getBudgetizer().getInputAmplDistributor(),
+                InputConfiguration.get().getInputAmplDistributorEnum().getInputAmplDistributor(),
                 Output.get(InputConfiguration.get()),
                 1,
                 InputConfiguration.get().shouldGenerateAmplifiedTestClass());
@@ -91,8 +91,4 @@ public class DSpotMockedTest extends AbstractTest {
                 }).size()).sum());
     }
 
-    @Override
-    public String getPathToPropertiesFile() {
-        return "src/test/resources/mockito/mockito.properties";
-    }
 }

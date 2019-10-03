@@ -2,6 +2,7 @@ package eu.stamp_project.automaticbuilder;
 
 import eu.stamp_project.automaticbuilder.gradle.GradleAutomaticBuilder;
 import eu.stamp_project.automaticbuilder.maven.MavenAutomaticBuilder;
+import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.options.InputConfiguration;
 import org.junit.After;
 import org.junit.Before;
@@ -32,12 +33,13 @@ public class AutomaticBuilderFactoryTest {
     @Test
     public void getAutomaticBuilder_whenMaven() throws Exception {
 
-        InputConfiguration inputConfiguration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
-        inputConfiguration.setBuilderName("MAVEN");
+//        InputConfiguration inputConfiguration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
+        final InputConfiguration inputConfiguration = InputConfiguration.get();
+        inputConfiguration.setBuilderEnum(AutomaticBuilderEnum.Maven);
 
-        assertTrue(inputConfiguration.getBuilderName().toUpperCase().contains("MAVEN"));
+        assertTrue(inputConfiguration.getBuilderEnum().name().toUpperCase().contains("MAVEN"));
 
-        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration.getBuilderName());
+        AutomaticBuilder builder = inputConfiguration.getBuilderEnum().toAutomaticBuilder();
 
         assertNotNull(builder);
         assertTrue(builder.getClass().equals(MavenAutomaticBuilder.class));
@@ -46,43 +48,16 @@ public class AutomaticBuilderFactoryTest {
     @Test
     public void getAutomaticBuilder_whenGradle() throws Exception {
 
-        InputConfiguration inputConfiguration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
-        inputConfiguration.setBuilderName("GRADLE");
+//        InputConfiguration inputConfiguration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
+        final InputConfiguration inputConfiguration = InputConfiguration.get();
+        inputConfiguration.setBuilderEnum(AutomaticBuilderEnum.Gradle);
 
-        assertTrue(inputConfiguration.getBuilderName().toUpperCase().contains("GRADLE"));
+        assertTrue(inputConfiguration.getBuilderEnum().name().toUpperCase().contains("GRADLE"));
 
-        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration.getBuilderName());
+        AutomaticBuilder builder = inputConfiguration.getBuilderEnum().toAutomaticBuilder();
 
         assertNotNull(builder);
         assertTrue(builder.getClass().equals(GradleAutomaticBuilder.class));
     }
 
-    @Test
-    public void getAutomaticBuilder_whenUnknown() throws Exception {
-
-        InputConfiguration inputConfiguration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
-        inputConfiguration.setBuilderName("UNKNOWNBuilder");
-
-        assertFalse(inputConfiguration.getBuilderName() == null);
-        assertFalse(inputConfiguration.getBuilderName().toUpperCase().contains("MAVEN"));
-        assertFalse(inputConfiguration.getBuilderName().toUpperCase().contains("GRADLE"));
-
-        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration.getBuilderName());
-
-        assertNotNull(builder);
-        assertTrue(builder.getClass().equals(MavenAutomaticBuilder.class));
-    }
-
-    @Test
-    public void getAutomaticBuilder_whenConfDoesntContainBuilder() throws Exception {
-
-        InputConfiguration inputConfiguration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
-
-        assertTrue(inputConfiguration.getBuilderName().isEmpty());
-
-        AutomaticBuilder builder = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration.getBuilderName());
-
-        assertNotNull(builder);
-        assertTrue(builder.getClass().equals(MavenAutomaticBuilder.class));
-    }
 }

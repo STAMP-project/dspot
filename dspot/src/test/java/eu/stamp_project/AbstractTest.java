@@ -12,17 +12,16 @@ import org.junit.Before;
  */
 public abstract class AbstractTest {
 
-    public String getPathToPropertiesFile() {
-        return "src/test/resources/sample/sample.properties";
+    public String getPathToRootProject() {
+        return "src/test/resources/sample/";
     }
 
     @Before
     public void setUp() throws Exception {
-        Utils.init(getPathToPropertiesFile());
+        Utils.init(getPathToRootProject());
         RandomHelper.setSeedRandom(72L);
         ValueCreator.count = 0;
-        Utils.getInputConfiguration().setVerbose(true);
-        Utils.getInputConfiguration().setMinimize(false);
+        InputConfiguration.get().setVerbose(true);
         InputConfiguration.get().setGenerateAmplifiedTestClass(false);
         InputConfiguration.get().setKeepOriginalTestMethods(false);
         InputConfiguration.get().setAllowPathInAssertion(false);

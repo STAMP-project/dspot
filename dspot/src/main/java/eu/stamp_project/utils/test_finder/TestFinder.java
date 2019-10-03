@@ -3,7 +3,7 @@ package eu.stamp_project.utils.test_finder;
 import eu.stamp_project.Main;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.options.InputConfiguration;
 import eu.stamp_project.utils.report.error.Error;
 import eu.stamp_project.utils.report.error.ErrorEnum;
 import org.slf4j.Logger;

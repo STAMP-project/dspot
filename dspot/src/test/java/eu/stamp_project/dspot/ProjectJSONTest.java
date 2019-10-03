@@ -48,7 +48,7 @@ public class ProjectJSONTest extends AbstractTest {
             file.delete();
         }
         final JacocoCoverageSelector jacocoCoverageSelector = new JacocoCoverageSelector();
-        final InputAmplDistributor inputAmplDistributor = InputConfiguration.get().getBudgetizer().getInputAmplDistributor();
+        final InputAmplDistributor inputAmplDistributor = InputConfiguration.get().getInputAmplDistributorEnum().getInputAmplDistributor();
         DSpot dspot = new DSpot(
                 TestFinder.get(),
                 Utils.getCompiler(),

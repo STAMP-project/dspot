@@ -36,7 +36,6 @@ public class DSpotPOMCreatorTest {
             Test the copy and injection of the profile to run different foals in the origial pom.xml
          */
 
-        InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
         DSpotPOMCreator.createNewPom();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.getPOMName()))) {
@@ -63,7 +62,6 @@ public class DSpotPOMCreatorTest {
             Test the copy and the injection of the profile on a pom with an existing profiles tag
          */
 
-        InputConfiguration.initialize("src/test/resources/sample/sample.properties");
         DSpotPOMCreator.createNewPom();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.getPOMName()))) {

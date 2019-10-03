@@ -3,6 +3,7 @@ package eu.stamp_project.utils.options;
 import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.amplifier.Amplifier;
+import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.DSpotCache;
@@ -79,7 +80,7 @@ public class InputConfiguration {
 
         this.automaticBuilder = this.automaticBuilderEnum.toAutomaticBuilder();
         this.amplifiers = this.amplifiersEnum.stream().map(amplifierEnum -> amplifierEnum.amplifier).collect(Collectors.toList());
-        this.budgetizer = this.budgetizerEnum.getBudgetizer(this.amplifiers);
+        this.inputAmplDistributor = this.inputAmplDistributorEnum.getInputAmplDistributor(this.amplifiers);
         if (this.pathPitResult != null) {
             if (this.selectorEnum != SelectorEnum.PitMutantScoreSelector) {
                 LOGGER.warn("You specified a path to a mutations file but you did not specify the right test-criterion");
@@ -511,14 +512,14 @@ public class InputConfiguration {
     private String dependencies;
 
     @CommandLine.Option(
-            names = {"--budgetizer"},
-            defaultValue =  "RandomBudgetizer",
-            description = "Specify a Bugdetizer." +
+            names = {"--input-ampl-distributor"},
+            defaultValue =  "RandomInputAmplDistributor",
+            description = "Specify an input amplification distributor." +
                     "Valid values: ${COMPLETION-CANDIDATES}"
     )
-    private BudgetizerEnum budgetizerEnum;
+    private InputAmplDistributorEnum inputAmplDistributorEnum;
 
-    private Budgetizer budgetizer;
+    private InputAmplDistributor inputAmplDistributor;
 
     @CommandLine.Option(
             names = {"--example"},
@@ -795,6 +796,15 @@ public class InputConfiguration {
 
     public String getMavenHome() {
         return mavenHome;
+    }
+
+    public AutomaticBuilderEnum getBuilderEnum() {
+        return this.automaticBuilderEnum;
+    }
+
+    public InputConfiguration setBuilderEnum(AutomaticBuilderEnum automaticBuilderEnum) {
+        this.automaticBuilderEnum = automaticBuilderEnum;
+        return  this;
     }
 
     public AutomaticBuilder getBuilder() {
@@ -1074,21 +1084,19 @@ public class InputConfiguration {
         return this;
     }
 
-    private InputAmplDistributorEnum inputAmplDistributor;
-
     // TODO update after merging #888
-    public InputAmplDistributorEnum getBudgetizerEnum() {
-        return this.inputAmplDistributor;
+    public InputAmplDistributorEnum getInputAmplDistributorEnum() {
+        return this.inputAmplDistributorEnum;
     }
 
     // TODO update after merging #888
-    public InputConfiguration setBudgetizerEnum(InputAmplDistributorEnum inputAmplDistributor) {
-        this.inputAmplDistributor = inputAmplDistributor;
+    public InputConfiguration setInputAmplDistributorEnum(InputAmplDistributorEnum inputAmplDistributorEnum) {
+        this.inputAmplDistributorEnum = inputAmplDistributorEnum;
         return this;
     }
 
-    public Budgetizer getBudgetizer() {
-        return this.budgetizer;
+    public InputAmplDistributor getInputAmplDistributor() {
+        return this.inputAmplDistributor;
     }
 
     public boolean shouldGenerateAmplifiedTestClass() {
@@ -1189,7 +1197,7 @@ public class InputConfiguration {
             InputConfiguration.get().setNbIteration(1);
             InputConfiguration.get().setAmplifiersEnum(Collections.singletonList(AmplifierEnum.FastLiteralAmplifier));
             InputConfiguration.get().setSelectorEnum(SelectorEnum.JacocoCoverageSelector);
-            InputConfiguration.get().setBudgetizerEnum(BudgetizerEnum.RandomBudgetizer);
+            InputConfiguration.get().setInputAmplDistributorEnum(InputAmplDistributorEnum.RandomInputAmplDistributor);
             InputConfiguration.get().setTestClasses(Collections.singletonList("example.TestSuiteExample"));
             InputConfiguration.get().setTestClasses(Collections.emptyList());
             InputConfiguration.get().setVerbose(true);

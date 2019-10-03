@@ -51,7 +51,7 @@ public class DSpotTest extends AbstractTest {
                 TestFinder.get(),
                 Utils.getCompiler(),
                 testSelector,
-                InputConfiguration.get().getBudgetizer().getInputAmplDistributor(),
+                InputConfiguration.get().getInputAmplDistributorEnum().getInputAmplDistributor(),
                 Output.get(InputConfiguration.get()),
                 1,
                 InputConfiguration.get().shouldGenerateAmplifiedTestClass());

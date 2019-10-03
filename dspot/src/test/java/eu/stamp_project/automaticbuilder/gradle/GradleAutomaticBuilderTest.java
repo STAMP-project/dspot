@@ -3,6 +3,7 @@ package eu.stamp_project.automaticbuilder.gradle;
 import eu.stamp_project.Utils;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
+import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.pit.AbstractPitResult;
 import eu.stamp_project.utils.pit.PitXMLResultParser;
 import eu.stamp_project.utils.options.InputConfiguration;
@@ -46,10 +47,10 @@ public class GradleAutomaticBuilderTest {
         cleanTestEnv();
         Utils.init(pathToConfFile);
         Utils.LOGGER.debug("Test Set-up - Reading input parameters...");
-        InputConfiguration inputConfiguration = Utils.getInputConfiguration();
-        inputConfiguration.setBuilderName("GradleBuilder");
+        InputConfiguration inputConfiguration = InputConfiguration.get();
+        inputConfiguration.setBuilderEnum(AutomaticBuilderEnum.Gradle);
         Utils.LOGGER.debug("Test Set-up - instantiating Automatic Builder (SUT)...");
-        sut = AutomaticBuilderFactory.getAutomaticBuilder(inputConfiguration.getBuilderName());
+        sut = InputConfiguration.get().getBuilderEnum().toAutomaticBuilder();
         sut.compile();
         Utils.LOGGER.debug("Test Set-up complete.");
         parser = new PitXMLResultParser();
@@ -105,7 +106,7 @@ public class GradleAutomaticBuilderTest {
 
         InputConfiguration.get().setDescartesMode(false);
 
-        CtClass<Object> testClass = Utils.getInputConfiguration().getFactory().Class().get("example.TestSuiteExample");
+        CtClass<Object> testClass = InputConfiguration.get().getFactory().Class().get("example.TestSuiteExample");
 
         sut.runPit(testClass);
         List<? extends AbstractPitResult> pitResults = parser.parseAndDelete("src/test/resources/test-projects/"+ sut.getOutputDirectoryPit());

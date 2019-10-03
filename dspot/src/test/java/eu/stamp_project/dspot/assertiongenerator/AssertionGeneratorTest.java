@@ -45,8 +45,8 @@ public class AssertionGeneratorTest extends AbstractTest {
 
     @After
     public void tearDown() throws Exception {
-        Utils.getInputConfiguration().setWithComment(false);
-        Utils.getInputConfiguration().setTimeOutInMs(10000);
+        InputConfiguration.get().setWithComment(false);
+        InputConfiguration.get().setTimeOutInMs(10000);
     }
 
     @Test
@@ -76,7 +76,7 @@ public class AssertionGeneratorTest extends AbstractTest {
 
     @Test
     public void testOnInfiniteLoop() throws Exception {
-        Utils.getInputConfiguration().setTimeOutInMs(1000);
+        InputConfiguration.get().setTimeOutInMs(1000);
         final CtClass testClass = Utils.findClass("fr.inria.infinite.LoopTest");
         CtMethod test = Utils.findMethod("fr.inria.infinite.LoopTest", "testLoop");
         List<CtMethod<?>> test_buildNewAssert = assertionGenerator.assertionAmplification(testClass, Collections.singletonList(test));
