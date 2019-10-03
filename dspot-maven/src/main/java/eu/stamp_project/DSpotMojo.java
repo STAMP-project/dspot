@@ -2,8 +2,7 @@ package eu.stamp_project;
 
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.options.*;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.options.InputConfiguration;
 import org.apache.maven.model.Build;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
