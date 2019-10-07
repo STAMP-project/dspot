@@ -11,6 +11,7 @@ import picocli.CommandLine;
 import spoon.reflect.factory.Factory;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -311,7 +312,8 @@ public class InputConfiguration {
 
     @CommandLine.Option(
             names = {"-a", "--amplifiers"},
-            defaultValue = "NoneAmplifier",
+            defaultValue = "None",
+            split = ",",
             description = "Specify the list of amplifiers to use. " +
                     "By default, DSpot does not use any amplifiers (None) and applies only assertion amplification. " +
                     "Valid values: ${COMPLETION-CANDIDATES}"
@@ -320,6 +322,7 @@ public class InputConfiguration {
 
     @CommandLine.Option(
             names = {"-t", "--test"},
+            split = ",",
             defaultValue = "all",
             description = "Fully qualified names of test classes to be amplified. " +
                     "If the value is all, DSpot will amplify the whole test suite. " +
@@ -336,13 +339,12 @@ public class InputConfiguration {
     )
     private SelectorEnum selector;
 
-//    private TestSelector selector;
-
     @CommandLine.Option(
             names = {"-c", "--cases", "--test-methods", "--test-cases"},
+            split = ",",
             description = "Specify the test cases to amplify."
     )
-    private List<String> testCases;
+    private List<String> testCases = new ArrayList<>();
 
     @CommandLine.Option(
             names = {"--random-seed"},
@@ -1123,7 +1125,7 @@ public class InputConfiguration {
             this.setSelector(SelectorEnum.JacocoCoverageSelector);
             this.setInputAmplDistributor(InputAmplDistributorEnum.RandomInputAmplDistributor);
             this.setTestClasses(Collections.singletonList("example.TestSuiteExample"));
-            this.setTestClasses(Collections.emptyList());
+            this.setTestCases(Collections.emptyList());
             this.setVerbose(true);
         } catch (Exception e) {
             throw new RuntimeException(e);

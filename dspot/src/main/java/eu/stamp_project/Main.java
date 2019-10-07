@@ -16,6 +16,7 @@ import eu.stamp_project.utils.compilation.TestCompiler;
 import eu.stamp_project.utils.execution.TestRunner;
 import eu.stamp_project.utils.options.AmplifierEnum;
 import eu.stamp_project.utils.options.check.Checker;
+import eu.stamp_project.utils.options.check.InputErrorException;
 import eu.stamp_project.utils.report.output.Output;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.GlobalReport;
@@ -37,6 +38,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
@@ -74,12 +76,18 @@ public class Main {
         if (inputConfiguration.shouldRunExample()) {
             inputConfiguration.configureExample();
         }
+        try {
+            Checker.preChecking(inputConfiguration);
+        } catch (InputErrorException e) {
+            e.printStackTrace();
+            commandLine.usage(System.err);
+            return;
+        }
         Main.verbose = inputConfiguration.isVerbose();
         run(inputConfiguration);
     }
 
     public static void run(InputConfiguration inputConfiguration) {
-        Checker.preChecking(inputConfiguration);
         final long startTime = System.currentTimeMillis();
         final TestFinder testFinder = new TestFinder(
                 Arrays.stream(inputConfiguration.getExcludedClasses().split(",")).collect(Collectors.toList()),
@@ -100,6 +108,7 @@ public class Main {
                 .getAmplifiers()
                 .stream()
                 .map(AmplifierEnum::getAmplifier)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         final InputAmplDistributor inputAmplDistributor = inputConfiguration
                 .getInputAmplDistributor()
@@ -130,6 +139,7 @@ public class Main {
                 inputConfiguration.shouldGenerateAmplifiedTestClass(),
                 automaticBuilder
         );
+
         Checker.postChecking(inputConfiguration);
 
         // starting amplification

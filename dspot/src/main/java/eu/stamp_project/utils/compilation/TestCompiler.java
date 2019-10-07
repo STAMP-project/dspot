@@ -62,7 +62,7 @@ public class TestCompiler {
         this.timeoutInMs = timeoutInMs;
         this.classpathToCompile = DSpotUtils.createPath(
                 classpathClassesProject,
-                absolutePathToProjectRoot + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.PATH_TO_DSPOT_DEPENDENCIES
+                absolutePathToProjectRoot + "/" + DSpotUtils.PATH_TO_DSPOT_DEPENDENCIES
         );
     }
 

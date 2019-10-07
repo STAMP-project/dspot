@@ -157,7 +157,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     }
 
     private int runGoals(boolean specificPom, String... goals) {
-        final String pomPathname = DSpotPOMCreator.getPOMName();
+        final String pomPathname = this.absolutePathToProjectRoot + "/" + DSpotPOMCreator.getPOMName();
         LOGGER.info("Using {} to run maven.", pomPathname);
         return _runGoals(specificPom, pomPathname, goals);
     }

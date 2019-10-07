@@ -24,7 +24,7 @@ public class AssertionGeneratorUtils {
     }
 
     public static void init(boolean shouldAllowPathInAssertion){
-        _instance.shouldAllowPathInAssertion = shouldAllowPathInAssertion;
+        _instance = new AssertionGeneratorUtils(shouldAllowPathInAssertion);
     }
 
     public static boolean canGenerateAnAssertionFor(String candidate) {

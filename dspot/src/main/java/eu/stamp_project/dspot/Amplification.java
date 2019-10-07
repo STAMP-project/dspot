@@ -109,15 +109,15 @@ public class Amplification {
 
         // generate tests with input modification and associated new assertions
         LOGGER.info("Applying Input-amplification and Assertion-amplification test by test.");
-        final List<CtMethod<?>> amplifiedTests = new ArrayList<>();
         for (int i = 0; i < testMethodsToBeAmplified.size(); i++) {
             CtMethod test = testMethodsToBeAmplified.get(i);
             LOGGER.info("Amplification of {}, ({}/{})", test.getSimpleName(), i + 1, testMethodsToBeAmplified.size());
-            amplifiedTests.addAll(amplificationIteration(testClassToBeAmplified, test));
-            this.globalNumberOfSelectedAmplification += amplifiedTests.size();
-            LOGGER.info("{} amplified test methods has been selected to be kept. (global: {})", amplifiedTests.size(), this.globalNumberOfSelectedAmplification);
+            final List<CtMethod<?>> amplifiedTestMethodsFromCurrentIteration = amplificationIteration(testClassToBeAmplified, test);
+            amplifiedTestMethodsToKeep.addAll(amplifiedTestMethodsFromCurrentIteration);
+            this.globalNumberOfSelectedAmplification += amplifiedTestMethodsToKeep.size();
+            LOGGER.info("{} amplified test methods has been selected to be kept. (global: {})", amplifiedTestMethodsFromCurrentIteration.size(), this.globalNumberOfSelectedAmplification);
         }
-        return amplifiedTests;
+        return amplifiedTestMethodsToKeep;
     }
 
     private List<CtMethod<?>>  amplificationIteration(CtType<?> testClassToBeAmplified, CtMethod test) {

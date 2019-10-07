@@ -29,12 +29,12 @@ public class TestSelectorReportImpl implements TestSelectorReport {
 
     @Override
     public void output(String outputDirectory) {
-        final String allReports = this.testSelectorElementReportPerTestClass.keySet().stream()
-                .filter(this.testSelectorElementReportPerTestClass::containsKey)
+        final String allReports = this.testSelectorElementReportPerTestClass.keySet()
+                .stream()
+                .filter(testClass -> this.testSelectorElementReportPerTestClass.get(testClass) != null)
                 .map(testClass -> this.testSelectorElementReportPerTestClass.get(testClass).output(
-                        testClass, outputDirectory
-                ))
-                .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
+                        testClass, outputDirectory)
+                ).collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
         LOGGER.info("{}{}", AmplificationHelper.LINE_SEPARATOR, allReports);
         final String reportPathName = DSpotUtils.shouldAddSeparator
                 .apply(outputDirectory) +

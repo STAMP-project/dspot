@@ -2,6 +2,7 @@ package eu.stamp_project.dspot;
 
 import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.test_framework.TestFramework;
@@ -108,6 +109,7 @@ public class DSpot {
             final boolean jUnit5 = TestFramework.isJUnit5(testMethodsToBeAmplified.get(0));
             EntryPoint.jUnit5Mode = jUnit5;
             InputConfiguration.get().setJUnit5(jUnit5);
+            DSpotPOMCreator.isCurrentlyJUnit5 = jUnit5;
 
             final CtType<?> amplifiedTestClass = this.amplify(testAmplification, testClassToBeAmplified, testMethodsToBeAmplified);
             amplifiedTestClasses.add(amplifiedTestClass);
