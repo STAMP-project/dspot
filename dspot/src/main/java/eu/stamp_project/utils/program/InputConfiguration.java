@@ -1,29 +1,19 @@
 package eu.stamp_project.utils.program;
 
-import eu.stamp_project.Main;
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.automaticbuilder.AutomaticBuilderFactory;
-import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
-import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.utils.DSpotCache;
-import eu.stamp_project.utils.options.AmplifierEnum;
-import eu.stamp_project.utils.options.InputAmplDistributorEnum;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.options.Configuration;
-import org.junit.Test;
+import eu.stamp_project.utils.options.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import picocli.CommandLine;
 import spoon.reflect.factory.Factory;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import java.util.stream.Collectors;
 
 import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
@@ -40,339 +30,557 @@ public class InputConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InputConfiguration.class);
 
+    @Deprecated
     public static InputConfiguration get() {
-        return InputConfiguration.instance;
-    }
-
-    /**
-     * This method initialize the instance of the Singleton {@link InputConfiguration}.
-     * You can retrieve this instance using {@link InputConfiguration#get()}
-     * Build an InputConfiguration from a properties file, given as path.
-     * This method will call the default constructor {@link InputConfiguration#InputConfiguration(String, String, String, String, String, String)}
-     * Then, uses the properties to initialize other values.
-     *
-     * @param pathToPropertiesFile the path to the properties file. It is recommended to use an absolute path.
-     * @return the new instance of the InputConfiguration
-     */
-    public static InputConfiguration initialize(String pathToPropertiesFile) {
-        InputConfiguration.initialize(Configuration.loadProperties(pathToPropertiesFile));
-        InputConfiguration.instance.configPath = pathToPropertiesFile;
-        InputConfiguration.get().setBudgetizer(InputAmplDistributorEnum.RandomInputAmplDistributor);
-        return InputConfiguration.instance;
-    }
-
-    /**
-     * This method initialize the instance of the Singleton {@link InputConfiguration}.
-     * You can retrieve this instance using {@link InputConfiguration#get()}
-     * Build an InputConfiguration from a properties file, given as path.
-     * This method will call the default constructor {@link InputConfiguration#InputConfiguration(String, String, String, String, String, String)}
-     * Then, uses the properties to initialize other values.
-     *
-     * @param pathToPropertiesFile the path to the properties file. It is recommended to use an absolute path.
-     * @param builderName          the name of the builder. Can be either Maven or Gradle (not case sensitive).
-     * @return the new instance of the InputConfiguration
-     */
-// FIXME This method is not invoked from DSpot code and makes difficult to setup parallel execution classpath, so I commented it out
-//    public static InputConfiguration initialize(String pathToPropertiesFile, String builderName) {
-//        InputConfiguration.initialize(Configuration.loadProperties(pathToPropertiesFile), builderName);
-//        InputConfiguration.instance.configPath = pathToPropertiesFile;
-//        return InputConfiguration.instance;
-//    }
-
-    /**
-     * This method initialize the instance of the Singleton {@link InputConfiguration}.
-     * You can retrieve this instance using {@link InputConfiguration#get()}
-     * Build an InputConfiguration from a properties file, given as path.
-     * This method will call the default constructor {@link InputConfiguration#InputConfiguration(String, String, String, String, String, String)}
-     * Then, uses the properties to initialize other values.
-     * The given properties should have least values for :
-     * <ul>
-     * <li>{@link ConstantsProperties#PROJECT_ROOT_PATH}</li>
-     * <li>{@link ConstantsProperties#SRC_CODE}</li>
-     * <li>{@link ConstantsProperties#TEST_SRC_CODE}</li>
-     * <li>{@link ConstantsProperties#SRC_CLASSES}</li>
-     * <li>{@link ConstantsProperties#TEST_CLASSES}</li>
-     * <li>{@link ConstantsProperties#MODULE}, in case of multi module project</li>
-     * </ul>
-     *
-     * @param properties the properties. See {@link ConstantsProperties}
-     * @return the new instance of the InputConfiguration
-     */
-    public static InputConfiguration initialize(Properties properties) {
-        if (InputConfiguration.instance != null) {
-            reset();
+        if (instance == null) {
+            instance = new InputConfiguration();
         }
-        InputConfiguration.instance = new InputConfiguration(properties);
-        InputConfiguration.instance.configPath = "";
-        InputConfiguration.instance.setBuilderName(ConstantsProperties.AUTOMATIC_BUILDER_NAME.get(properties));
-        InputConfiguration.instance.initializeBuilder(properties);
         return InputConfiguration.instance;
     }
 
-    private static void reset() {
+    public static void reset() {
         LOGGER.warn("Erasing old instance of InputConfiguration");
-        DSpotCache.reset();
-        Main.GLOBAL_REPORT.reset();
-        AmplificationHelper.reset();
+        instance = null;
     }
 
-    /**
-     * This method initialize the instance of the Singleton {@link InputConfiguration}.
-     * You can retrieve this instance using {@link InputConfiguration#get()}
-     * Build an InputConfiguration from a properties file, given as path.
-     * This method will call the default constructor {@link InputConfiguration#InputConfiguration(String, String, String, String, String, String)}
-     * Then, uses the properties to initialize other values.
-     * The given properties should have least values for :
-     * <ul>
-     * <li>{@link ConstantsProperties#PROJECT_ROOT_PATH}</li>
-     * <li>{@link ConstantsProperties#SRC_CODE}</li>
-     * <li>{@link ConstantsProperties#TEST_SRC_CODE}</li>
-     * <li>{@link ConstantsProperties#SRC_CLASSES}</li>
-     * <li>{@link ConstantsProperties#TEST_CLASSES}</li>
-     * <li>{@link ConstantsProperties#MODULE}, in case of multi module project</li>
-     * </ul>
-     *
-     * @param properties  the properties. See {@link ConstantsProperties}
-     * @param builderName the name of the builder. Can be either Maven or Gradle (not case sensitive).
-     * @param executeTestsInParallel tell whether or not Dspot execute the test in parallel
-     * @param fullClasspath classpath of the project, if null or empty, Dspot will use the AutomaticBuilder
-     * @return the new instance of the InputConfiguration
-     */
-    public static InputConfiguration initialize(Properties properties,
-                                                String builderName,
-                                                boolean executeTestsInParallel,
-                                                String fullClasspath) {
-        if (InputConfiguration.instance != null) {
-            reset();
-        }
-        InputConfiguration.instance = new InputConfiguration(properties);
-        InputConfiguration.instance.configPath = "";
-        final String builderNameProperties = ConstantsProperties.AUTOMATIC_BUILDER_NAME.get(properties);
-        if (builderName == null || (builderName.isEmpty() && builderNameProperties.isEmpty())) {
-            LOGGER.warn("No builder has been specified.");
-            LOGGER.warn("Using Maven as a default builder.");
-            LOGGER.warn("You can use the command-line option --automatic-builder");
-            LOGGER.warn("or the properties " + ConstantsProperties.AUTOMATIC_BUILDER_NAME.getName() + " to configure it.");
-            InputConfiguration.instance.setBuilderName("MAVEN");
-        } else if (builderName.isEmpty()) {
-            InputConfiguration.instance.setBuilderName(builderNameProperties);
-        } else if (builderNameProperties.isEmpty()) {
-            InputConfiguration.instance.setBuilderName(builderName);
-        } else {
-            LOGGER.warn("Conflicting values for automatic builder.");
-            LOGGER.warn("{} from command-line", builderName);
-            LOGGER.warn("{} from properties", builderNameProperties);
-            LOGGER.warn("Using the value gave on the command-line {}", builderName);
-            InputConfiguration.instance.setBuilderName(builderName);
-        }
-        InputConfiguration.instance.setExecuteTestsInParallel(executeTestsInParallel);
-        InputConfiguration.instance.initializeBuilder(properties, fullClasspath);
-        return InputConfiguration.instance;
+    public InputConfiguration() {
+
     }
 
-    private InputConfiguration(Properties properties) {
-        // mandatory properties are used in the first constructor, except targetModule, which can be empty
-        this(
-                ConstantsProperties.PROJECT_ROOT_PATH.get(properties),
-                ConstantsProperties.SRC_CODE.get(properties),
-                ConstantsProperties.TEST_SRC_CODE.get(properties),
-                ConstantsProperties.SRC_CLASSES.get(properties),
-                ConstantsProperties.TEST_CLASSES.get(properties),
-                ConstantsProperties.MODULE.get(properties)
-        );
-
-        this.setAbsolutePathToSecondVersionProjectRoot(new File(
-                        DSpotUtils.shouldAddSeparator.apply(
-                                ConstantsProperties.PATH_TO_SECOND_VERSION.get(properties)
-                        ) + targetModule
-                ).getAbsolutePath()
-        )
-                .setBuilderName(ConstantsProperties.AUTOMATIC_BUILDER_NAME.get(properties));
-
-        final String systemProperties = ConstantsProperties.SYSTEM_PROPERTIES.get(properties);
-        if (!systemProperties.isEmpty()) {
-            Arrays.stream(systemProperties.split(","))
-                    .forEach(systemProperty -> {
-                        String[] keyValueInArray = systemProperty.split("=");
-                        System.getProperties().put(keyValueInArray[0], keyValueInArray[1]);
-                    });
-        }
-
-        this.setOutputDirectory(ConstantsProperties.OUTPUT_DIRECTORY.get(properties))
-                .setDelta(ConstantsProperties.DELTA_ASSERTS_FLOAT.get(properties))
-                .setFilter(ConstantsProperties.PIT_FILTER_CLASSES_TO_KEEP.get(properties))
-                .setDescartesVersion(ConstantsProperties.DESCARTES_VERSION.get(properties))
-                .setExcludedClasses(ConstantsProperties.EXCLUDED_CLASSES.get(properties))
-                .setPreGoalsTestExecution(ConstantsProperties.MAVEN_PRE_GOALS.get(properties))
-                //.setTimeoutPit(ConstantsProperties.TIMEOUT_PIT.get(properties))
-                .setJVMArgs(ConstantsProperties.JVM_ARGS.get(properties))
-                .setDescartesMutators(ConstantsProperties.DESCARTES_MUTATORS.get(properties))
-                .setPitVersion(ConstantsProperties.PIT_VERSION.get(properties))
-                .setExcludedTestCases(ConstantsProperties.EXCLUDED_TEST_CASES.get(properties));
-    }
-
-    private void initializeBuilder(Properties properties) {
-        this.initializeBuilder(properties, "");
-    }
-
-    private void initializeBuilder(Properties properties, String classpath) {
-        this.setMavenHome(ConstantsProperties.MAVEN_HOME.get(properties));
-        this.builder = AutomaticBuilderFactory.getAutomaticBuilder(this.getBuilderName());
-
-
-        if (classpath != null && !classpath.isEmpty()) {
-            this.dependencies = classpath;
-        } else {
-            this.dependencies = this.builder.compileAndBuildClasspath();
-        }
-
-        // TODO checks this. Since we support different Test Support, we may not need to add artificially junit in the classpath
-        if (!this.dependencies.contains("junit" + File.separator + "junit" + File.separator + "4")) {
-            this.dependencies = Test.class
-                    .getProtectionDomain()
-                    .getCodeSource()
-                    .getLocation()
-                    .getFile() +
-                    AmplificationHelper.PATH_SEPARATOR + this.dependencies;
-        }
-
-        final String additionalClasspathElements = ConstantsProperties.ADDITIONAL_CP_ELEMENTS.get(properties);
-        if (!additionalClasspathElements.isEmpty()) {
-            String pathToAdditionalClasspathElements = additionalClasspathElements;
-            if (!Paths.get(additionalClasspathElements).isAbsolute()) {
-                pathToAdditionalClasspathElements =
-                        DSpotUtils.shouldAddSeparator.apply(this.absolutePathToProjectRoot +
-                                additionalClasspathElements
-                        );
-            }
-            this.dependencies += PATH_SEPARATOR + pathToAdditionalClasspathElements;
-        }
-        this.setAdditionalClasspathElements(ConstantsProperties.ADDITIONAL_CP_ELEMENTS.get(properties));
-    }
-
-    /**
-     * This constructor is a proxy for {@link InputConfiguration#InputConfiguration(String, String, String, String, String, String)} with
-     * an empty target module
-     *
-     * @param pathToProjectRoot absolute or relative path to the root of the project.
-     * @param pathToSource      relative path from {@code pathToProjectRoot} to the folder that contains the program sources (.java).
-     * @param pathToTestSource  relative path from {@code pathToProjectRoot} to the folder that contains the test sources (.java).
-     * @param pathToClasses     relative path from {@code pathToProjectRoot} to the folder that contains the program binaries (.class).
-     * @param pathToTestClasses relative path from {@code pathToProjectRoot} to the folder that contains the test binaries (.class).
-     */
-    private InputConfiguration(String pathToProjectRoot,
-                               String pathToSource,
-                               String pathToTestSource,
-                               String pathToClasses,
-                               String pathToTestClasses) {
-        this(pathToProjectRoot,
-                pathToSource,
-                pathToTestSource,
-                pathToClasses,
-                pathToTestClasses,
-                ""
-        );
-    }
-
-    /**
-     * Default Constructor. This constructor takes as input the minimal parameters to run DSpot.
-     *
-     * @param pathToProjectRoot absolute or relative path to the root of the project.
-     * @param pathToSource      relative path from {@code pathToProjectRoot} to the folder that contains the program sources (.java).
-     * @param pathToTestSource  relative path from {@code pathToProjectRoot} to the folder that contains the test sources (.java).
-     * @param pathToClasses     relative path from {@code pathToProjectRoot} to the folder that contains the program binaries (.class).
-     * @param pathToTestClasses relative path from {@code pathToProjectRoot} to the folder that contains the test binaries (.class).
-     * @param targetModule      relative path from {@code pathToProjectRoot} to the targeted sub-module. This argument can be empty ("") in case of single module project.
-     */
-    private InputConfiguration(String pathToProjectRoot,
-                               String pathToSource,
-                               String pathToTestSource,
-                               String pathToClasses,
-                               String pathToTestClasses,
-                               String targetModule) {
-        this.setAbsolutePathToProjectRoot(new File(
-                        DSpotUtils.shouldAddSeparator.apply(
-                                pathToProjectRoot
-                        ) + targetModule
-                ).getAbsolutePath()
-        ).setPathToSourceCode(pathToSource)
-                .setPathToTestSourceCode(pathToTestSource)
-                .setPathToClasses(pathToClasses)
-                .setPathToTestClasses(pathToTestClasses)
-                .setTargetModule(targetModule)
-                .setVerbose(true);
-        // force here verbose mode, to have debug during the construction of the InputConfiguration
-        // then it will take the command line value (default: false)
-    }
-
-    public static void setUp(List<String> amplifiers, String inputAmplDistributor,
-                             TestSelector testCriterion, List<String> testClasses,
-                             List<String> testCases, int iteration,
-                             long seed, int timeOut,
-                             int maxTestAmplified, boolean clean,
-                             boolean verbose, boolean workingDirectory,
-                             boolean comment, boolean generateNewTestClass,
-                             boolean keepOriginalTestMethods, boolean gregor,
-                             boolean descartes, boolean useMavenToExecuteTest,
-                             boolean targetOneTestClass, boolean allowPathInAssertion,
-                             boolean executeTestsInParallel, int numberParallelExecutionProcessors) {
-        InputConfiguration.get()
-                .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(amplifiers))
-                .setNbIteration(iteration)
-                .setTestClasses(testClasses)
-                .setSelector(testCriterion)
-                .setTestCases(testCases)
-                .setSeed(seed)
-                .setTimeOutInMs(timeOut)
-                .setMaxTestAmplified(maxTestAmplified)
-                .setBudgetizer(InputAmplDistributorEnum.valueOf(inputAmplDistributor))
-                .setClean(clean)
-                .setVerbose(verbose)
-                .setUseWorkingDirectory(workingDirectory)
-                .setWithComment(comment)
-                .setGenerateAmplifiedTestClass(generateNewTestClass)
-                .setKeepOriginalTestMethods(keepOriginalTestMethods)
-                .setDescartesMode(descartes && !gregor)
-                .setUseMavenToExecuteTest(useMavenToExecuteTest)
-                .setTargetOneTestClass(targetOneTestClass)
-                .setAllowPathInAssertion(allowPathInAssertion)
-                .setExecuteTestsInParallel(executeTestsInParallel)
-                .setNumberParallelExecutionProcessors(numberParallelExecutionProcessors);
-    }
-
-    /**
-     *  Paths project properties
-     */
-
+    @CommandLine.Option(
+            names = "--absolute-path-to-project-root",
+            description = "Specify the path to the root of the project. " +
+                    "This path must be absolute." +
+                    "We consider as root of the project folder that contain the top-most parent in a multi-module project."
+    )
     private String absolutePathToProjectRoot;
 
-    /**
-     * This method return the absolute path to the project.
-     * If the project is multi-modules, the returned path is the path to the specified targetModule properties
-     *
-     * @return absolute path to the project root
-     */
+
+    @CommandLine.Option(
+            names = "--target-module",
+            defaultValue = "",
+            description = "Specify the module to be amplified. " +
+                    "This value must be a relative path from value specified by --absolute-path-to-project-root command-line option. " +
+                    "If your project is multi-module, you must use this property because DSpot works at module level."
+    )
+    private String targetModule;
+
+    @CommandLine.Option(
+            names = "--relative-path-to-source-code",
+            defaultValue = "src/main/java/",
+            description = "Specify the relative path from --absolute-path-to-project-root/--target-module command-line options " +
+                    "that points to the folder that contains sources (.java)."
+    )
+    private String pathToSourceCode;
+
+    @CommandLine.Option(
+            names = "--relative-path-to-test-code",
+            defaultValue = "src/test/java/",
+            description = "Specify the relative path from --absolute-path-to-project-root/--target-module command-line options " +
+                    "that points to the folder that contains test sources (.java)."
+    )
+    private String pathToTestSourceCode;
+
+    @CommandLine.Option(
+            names = "--relative-path-to-classes",
+            defaultValue = "target/classes/",
+            description = "Specify the relative path from --absolute-path-to-project-root/--target-module command-line options " +
+                    "that points to the folder that contains binaries of the source (.class)."
+    )
+    private String pathToClasses;
+
+    @CommandLine.Option(
+            names = "--relative-path-to-test-classes",
+            defaultValue = "target/test-classes/",
+            description = "Specify the relative path from --absolute-path-to-project-root/--target-module command-line options " +
+                    "that points to the folder that contains binaries of the test source (.class)."
+    )
+    private String pathToTestClasses;
+
+    @CommandLine.Option(
+            names = "--path-to-additional-classpath-elements",
+            defaultValue = "",
+            description = "Specify additional classpath elements (e.g. a jar files). " +
+                    "Elements of this list must be separated by a comma \',\'."
+    )
+    private String additionalClasspathElements = "";
+
+    @CommandLine.Option(
+            names = "--automatic-builder",
+            defaultValue = "Maven",
+            description = "Specify the automatic builder to be used. " +
+                    "Valid values: ${COMPLETION-CANDIDATES}"
+    )
+    private AutomaticBuilderEnum automaticBuilder;
+
+    @CommandLine.Option(
+            names = {"--system-properties"},
+            defaultValue = "",
+            description = "Specify system properties. " +
+                    "This value should be a list of couple property=value, separated by a comma \',\'. " +
+                    "For example, systemProperties=admin=toto,passwd=tata. " +
+                    "This defines two system properties."
+    )
+    private String systemProperties;
+
+    @CommandLine.Option(
+            names = "--absolute-path-to-second-version",
+            defaultValue = "",
+            description = "When using the ChangeDetectorSelector, you must specify this option. " +
+                    "It should have for value the path to the root of the second version of the project. " +
+                    "It is recommended to give an absolute path"
+    )
+    private String absolutePathToSecondVersionProjectRoot;
+
+    @CommandLine.Option(
+            names = {"--output-path", "--output-directory"},
+            defaultValue = "target/dspot/output/",
+            description = "specify a path folder for the output."
+    )
+    private String outputDirectory;
+
+    @CommandLine.Option(
+            names = "--maven-home",
+            defaultValue = "",
+            description = "Specify the maven home directory. " +
+                    "If it is not specified DSpot will first look in both MAVEN_HOME and M2_HOME environment variables. " +
+                    "If these variables are not set, DSpot will look for a maven home at default locations " +
+                    "/usr/share/maven/, /usr/local/maven-3.3.9/ and /usr/share/maven3/."
+    )
+    @Deprecated
+    private String mavenHome;
+
+    @CommandLine.Option(
+            names = "--maven-pre-goals-test-execution",
+            defaultValue = "",
+            description = "Specify pre goals to run before executing test with maven." +
+                    "It will be used as follow: the elements, separated by a comma," +
+                    "must be valid maven goals and they will be placed just before the \"test\" goal, e.g." +
+                    "--maven-pre-goals-test-execution preGoal1,preGoal2 will give \"mvn preGoal1 preGoal2 test\""
+    )
+    private String preGoalsTestExecution;
+
+    @CommandLine.Option(
+            names = "--delta",
+            defaultValue = "0.1",
+            description = "Specify the delta value for the assertions of floating-point numbers. " +
+                    "If DSpot generates assertions for float, it uses Assert.assertEquals(expected, actual, delta). " +
+                    "It specifies the delta value."
+    )
+    private double delta;
+
+    @CommandLine.Option(
+            names = "--pit-filter-classes-to-keep",
+            description = "Specify the filter of classes to keep used by PIT. " +
+                    "This allow you restrict the scope of the mutation done by PIT. " +
+                    "If this is not specified, DSpot will try to build on the " +
+                    "fly a filter that takes into account the largest number of classes, e.g. the topest package. "
+    )
+    private String filter;
+
+    @CommandLine.Option(
+            names = "--pit-version",
+            defaultValue = "1.4.0",
+            description = "Specify the version of PIT to use."
+    )
+    private String pitVersion;
+
+    @CommandLine.Option(
+            names = "--descartes-version",
+            defaultValue = "1.2.4",
+            description = "Specify the version of pit-descartes to use."
+    )
+    private String descartesVersion;
+
+    @CommandLine.Option(
+            names = "--excluded-classes",
+            defaultValue = "",
+            description = "Specify the full qualified name of excluded test classes. " +
+                    "Each qualified name must be separated by a comma \',\'. " +
+                    "These classes won't be amplified, nor executed during the mutation analysis, " +
+                    "if the PitMutantScoreSelector is used." +
+                    "This option can be valued by a regex."
+    )
+    private String excludedClasses = "";
+
+    @CommandLine.Option(
+            names = "--excluded-test-cases",
+            defaultValue = "",
+            description = "Specify the list of test cases to be excluded. " +
+                    "Each is the name of a test case, separated by a comma \',\'."
+    )
+    private String excludedTestCases;
+
+    @CommandLine.Option(
+            names = "--jvm-args",
+            defaultValue = "",
+            description = "Specify JVM args to use when executing the test, PIT or other java process. " +
+                    "This arguments should be a list, separated by a comma \',\', " +
+                    "e.g. jvmArgs=Xmx2048m,-Xms1024m',-Dis.admin.user=admin,-Dis.admin.passwd=$2pRSid#"
+    )
+    private String JVMArgs = "";
+
+    @CommandLine.Option(
+            names = "--descartes-mutators",
+            defaultValue = "",
+            description = "Specify the list of descartes mutators to be used separated by comma. " +
+                    "Please refer to the descartes documentation for more details: " +
+                    "https://github.com/STAMP-project/pitest-descartes"
+    )
+    private String descartesMutators = "";
+
+    @CommandLine.Option(
+            names = "--cache-size",
+            defaultValue = "10000",
+            description = "Specify the size of the memory cache in terms of the number of store entries"
+    )
+    private Long cacheSize;
+
+    @CommandLine.Option(
+            names = "--descartes-mode",
+            defaultValue = "true",
+            description = "Enable the descartes engine for Pit Mutant Score Selector."
+    )
+    @Deprecated
+    private boolean descartesMode;
+
+    @CommandLine.Option(
+            names = "--gregor-mode",
+            defaultValue = "false",
+            description = "Enable the gregor engine for Pit Mutant Score Selector."
+    )
+    @Deprecated
+    private boolean gregorMode;
+
+    @CommandLine.Option(
+            names = "--use-working-directory",
+            defaultValue = "false",
+            description = "Enable this option to change working directory with the root of the project."
+    )
+    private boolean useWorkingDirectory;
+
+    @CommandLine.Option(
+            names = "--generate-new-test-class",
+            defaultValue = "false",
+            description = "Enable the creation of a new test class."
+    )
+    private boolean generateAmplifiedTestClass;
+
+    @CommandLine.Option(
+            names = "--keep-original-test-methods",
+            defaultValue = "false",
+            description = "If enabled, DSpot keeps original test methods of the amplified test class."
+    )
+    private boolean keepOriginalTestMethods;
+
+    @CommandLine.Option(
+            names = "--use-maven-to-exe-test",
+            defaultValue = "false",
+            description = "If enabled, DSpot will use maven to execute the tests."
+    )
+    private boolean useMavenToExecuteTest;
+
+    @CommandLine.Option(
+            names = "--execute-test-parallel",
+            defaultValue = "false",
+            description = "If enabled, DSpot will execute the tests in parallel. " +
+                    "For JUnit5 tests it will use the number of given processors " +
+                    "(specify 0 to take the number of available core processors). " +
+                    "For JUnit4 tests, it will use the number of available CPU processors " +
+                    "(given number of processors is ignored)."
+    )
+    private boolean executeTestsInParallel;
+
+    @CommandLine.Option(
+            names = "--nb-parallel-exe-processors",
+            defaultValue = "0",
+            description = "Specify the number of processor to use for the parallel execution." +
+                    "0 will make DSpot use all processors available."
+    )
+    private int numberParallelExecutionProcessors;
+
+    @CommandLine.Option(
+            names = {"-i", "--iteration"},
+            defaultValue = "1",
+            description = "Specify the number of amplification iterations. " +
+                    "A larger number may help to improve the test criterion " +
+                    "(e.g. a larger number of iterations may help to kill more mutants). " +
+                    "This has an impact on the execution time: the more iterations, the longer DSpot runs."
+    )
+    private int nbIteration;
+
+    @CommandLine.Option(
+            names = {"-a", "--amplifiers"},
+            defaultValue = "NoneAmplifier",
+            description = "Specify the list of amplifiers to use. " +
+                    "By default, DSpot does not use any amplifiers (None) and applies only assertion amplification. " +
+                    "Valid values: ${COMPLETION-CANDIDATES}"
+    )
+    private List<AmplifierEnum> amplifiers;
+
+    @CommandLine.Option(
+            names = {"-t", "--test"},
+            defaultValue = "all",
+            description = "Fully qualified names of test classes to be amplified. " +
+                    "If the value is all, DSpot will amplify the whole test suite. " +
+                    "You can also use regex to describe a set of test classes. " +
+                    "By default, DSpot selects all the tests."
+    )
+    private List<String> testClasses;
+
+    @CommandLine.Option(
+            names = {"-s", "--test-criterion", "--test-selector"},
+            defaultValue = "PitMutantScoreSelector",
+            description = "Specify the test adequacy criterion to be maximized with amplification. " +
+                    "Valid values: ${COMPLETION-CANDIDATES}"
+    )
+    private SelectorEnum selector;
+
+//    private TestSelector selector;
+
+    @CommandLine.Option(
+            names = {"-c", "--cases", "--test-methods", "--test-cases"},
+            description = "Specify the test cases to amplify."
+    )
+    private List<String> testCases;
+
+    @CommandLine.Option(
+            names = {"--random-seed"},
+            defaultValue = "23",
+            description = "Specify a seed for the random object (used for all randomized operation)."
+    )
+    private long seed;
+
+    @CommandLine.Option(
+            names = {"--time-out"},
+            defaultValue = "10000",
+            description = "Specify the timeout value of the degenerated tests in millisecond."
+    )
+    private int timeOutInMs;
+
+    @CommandLine.Option(
+            names = {"--max-test-amplified"},
+            defaultValue = "200",
+            description = "Specify the maximum number of amplified tests that dspot keeps (before generating assertion)."
+    )
+    private Integer maxTestAmplified;
+
+    @CommandLine.Option(
+            names = {"--clean"},
+            defaultValue = "false",
+            description = "If enabled, DSpot will remove the out directory if exists, else it will append the results to the exist files."
+    )
+    private boolean clean;
+
+    @CommandLine.Option(
+            names = {"-v", "--verbose"},
+            defaultValue = "false",
+            description = "Enable verbose mode of DSpot."
+    )
+    private boolean verbose;
+
+    @CommandLine.Option(
+            names = {"--with-comment"},
+            defaultValue = "false",
+            description = "Enable comment on amplified test: details steps of the Amplification."
+    )
+    private boolean withComment;
+
+    @CommandLine.Option(
+            names = {"--allow-path-in-assertions"},
+            defaultValue = "false",
+            description = "If enabled, DSpot will generate assertions for values that seems like to be paths."
+    )
+    private boolean allowPathInAssertion;
+
+    @CommandLine.Option(
+            names = {"--target-one-test-class"},
+            defaultValue = "false",
+            description = "Enable this option will make DSpot computing the mutation score of only one test class (the first pass through --test command line option)."
+    )
+    private boolean targetOneTestClass;
+
+
+    @CommandLine.Option(
+            names = {"--full-classpath"},
+            defaultValue = "",
+            description = "Specify the classpath of the project. " +
+                    "If this option is used, DSpot won't use an AutomaticBuilder (e.g. Maven) to clean, compile and get the classpath of the project. " +
+                    "Please ensure that your project is in a good shape, i.e. clean and correctly compiled, sources and test sources."
+    )
+    private String dependencies;
+
+    @CommandLine.Option(
+            names = {"--input-ampl-distributor"},
+            defaultValue = "RandomInputAmplDistributor",
+            description = "Specify an input amplification distributor." +
+                    "Valid values: ${COMPLETION-CANDIDATES}"
+    )
+    private InputAmplDistributorEnum inputAmplDistributor;
+
+    @CommandLine.Option(
+            names = {"--example"},
+            defaultValue = "false",
+            description = "Run the example of DSpot and leave."
+    )
+    boolean example;
+
+    @CommandLine.Option(
+            names = {"--pit-output-format"},
+            defaultValue = "XML",
+            description = "Specify the Pit output format." +
+                    "Valid values: ${COMPLETION-CANDIDATES}"
+    )
+    private PitMutantScoreSelector.OutputFormat pitOutputFormat;
+
+    @CommandLine.Option(
+            names = {"--path-pit-result"},
+            description = "Specify the path to the .xml or .csv of the original result of Pit Test. " +
+                    "If you use this option the selector will be forced to PitMutantScoreSelector."
+    )
+    private String pathPitResult;
+
+    /* DSpot-web related command line options. */
+
+    @CommandLine.Option(
+            names = {"--collector"},
+            defaultValue = "NullCollector",
+            description = "Set a collector: MongodbCollector to send info to Mongodb at end process, NullCollector which does nothing." +
+                    "Valid values: ${COMPLETION-CANDIDATES}"
+    )
+    private CollectorEnum collector;
+
+    @CommandLine.Option(
+            names = {"--mongo-url"},
+            defaultValue = "mongodb://localhost:27017",
+            description = "If valid url, DSpot will submit to Mongodb database."
+    )
+    private String mongoUrl;
+
+    @CommandLine.Option(
+            names = {"--mongo-dbname"},
+            defaultValue = "Dspot",
+            description = "If a valid mongo-url is provided, DSpot will submit result to the database indicated by this name."
+    )
+    private String mongoDbName;
+
+    @CommandLine.Option(
+            names = {"--mongo-colname"},
+            defaultValue = "AmpRecords",
+            description = "If valid mongo-url and a mongo-dbname are provided, " +
+                    "DSpot will submit result to the provided collection name.."
+    )
+    private String mongoColName;
+
+    @CommandLine.Option(
+            names = {"--repo-slug"},
+            defaultValue = "UnknownSlug",
+            description = "Slug of the repo for instance Stamp/Dspot. " +
+                    "This is used by mongodb as a identifier for analyzed repo's submitted data."
+    )
+    private String repoSlug;
+
+    @CommandLine.Option(
+            names = {"--repo-branch"},
+            defaultValue = "UnknownBranch",
+            description = "Branch name of the submitted repo, " +
+                    "This is used by mongodb as a identifier for analyzed repo's submitted data."
+    )
+    private String repoBranch;
+
+    @CommandLine.Option(
+            names = {"--restful"},
+            defaultValue = "false",
+            description = "If true, DSpot will enable restful mode for web Interface. " +
+                    "It will look for a pending document in Mongodb with the corresponding slug and branch provided instead of creating a completely new one."
+    )
+    private boolean restFul;
+
+    @CommandLine.Option(
+            names = {"--smtp-username"},
+            defaultValue = "Unknown@gmail.com",
+            description = "Username for Gmail, used for submit email at end-process."
+    )
+    private String smtpUsername;
+
+    @CommandLine.Option(
+            names = {"--smtp-password"},
+            defaultValue = "Unknown",
+            description = "Password for Gmail, used for submit email at end-process."
+    )
+    private String smtpPassword;
+
+    @CommandLine.Option(
+            names = {"--smtp-host"},
+            defaultValue = "smtp.gmail.com",
+            description = "Host server name."
+    )
+    private String smtpHost;
+
+    @CommandLine.Option(
+            names = {"--smtp-port"},
+            defaultValue = "587",
+            description = "Host server port."
+    )
+    private String smtpPort;
+
+    @CommandLine.Option(
+            names = {"--smtp-auth"},
+            defaultValue = "false",
+            description = "Enable this if the smtp host server require auth."
+    )
+    private boolean smtpAuth;
+
+    @CommandLine.Option(
+            names = {"--smtp-tls"},
+            defaultValue = "false",
+            description = "Enable this if the smtp host server require secure tls transport."
+    )
+    private String smtpTls;
+
+    /* META command line options */
+
+    @CommandLine.Option(
+            names = {"--version"},
+            versionHelp = true,
+            description = "Display version info."
+    )
+    boolean versionInfoRequested;
+
+    @CommandLine.Option(
+            names = {"-h", "--help"},
+            usageHelp = true,
+            description = "Display this help message."
+    )
+    boolean usageHelpRequested;
+
+    @Deprecated
+    private boolean isJUnit5;
+
     public String getAbsolutePathToProjectRoot() {
         return absolutePathToProjectRoot;
     }
 
     public InputConfiguration setAbsolutePathToProjectRoot(String absolutePathToProjectRoot) {
-        this.absolutePathToProjectRoot = DSpotUtils.shouldAddSeparator.apply(absolutePathToProjectRoot);
+        this.absolutePathToProjectRoot = DSpotUtils.shouldAddSeparator.apply(
+                new File(absolutePathToProjectRoot).getAbsolutePath()
+        );
         return this;
     }
-
-    private String targetModule;
 
     public String getTargetModule() {
         return targetModule;
     }
 
     public InputConfiguration setTargetModule(String targetModule) {
-        this.targetModule = targetModule;
+        this.targetModule = DSpotUtils.shouldAddSeparator.apply(targetModule);
         return this;
     }
 
-    private String pathToSourceCode;
+    // TODO
+    public String getPathToFolderToBeAmplified() {
+        return this.absolutePathToProjectRoot + this.targetModule;
+    }
 
     public String getPathToSourceCode() {
         return pathToSourceCode;
@@ -387,8 +595,6 @@ public class InputConfiguration {
         return this;
     }
 
-    private String pathToTestSourceCode;
-
     public String getPathToTestSourceCode() {
         return pathToTestSourceCode;
     }
@@ -401,12 +607,6 @@ public class InputConfiguration {
     public String getAbsolutePathToTestSourceCode() {
         return this.absolutePathToProjectRoot + this.getPathToTestSourceCode();
     }
-
-    /*
-        Compilation and dependencies properties
-     */
-
-    private String pathToClasses;
 
     public String getPathToClasses() {
         return pathToClasses;
@@ -421,7 +621,6 @@ public class InputConfiguration {
         return this.absolutePathToProjectRoot + this.getPathToClasses();
     }
 
-    private String pathToTestClasses;
 
     public String getPathToTestClasses() {
         return pathToTestClasses;
@@ -444,8 +643,6 @@ public class InputConfiguration {
         return this.getAbsolutePathToClasses() + AmplificationHelper.PATH_SEPARATOR + this.getAbsolutePathToTestClasses();
     }
 
-    private String dependencies;
-
     /**
      * This method compute the path to all dependencies of the project, separated by the path separator of the System.
      * The dependencies is compute by an implementation of a {@link eu.stamp_project.automaticbuilder.AutomaticBuilder}
@@ -464,9 +661,6 @@ public class InputConfiguration {
                 this.getDependencies() + AmplificationHelper.PATH_SEPARATOR +
                 DSpotUtils.getAbsolutePathToDSpotDependencies();
     }
-
-    private String additionalClasspathElements = "";
-
 
     public String getAdditionalClasspathElements() {
         return additionalClasspathElements;
@@ -491,49 +685,23 @@ public class InputConfiguration {
         return this;
     }
 
-    /*
-        Builder properties
-     */
-
-    private String builderName;
-
-    public String getBuilderName() {
-        return builderName;
-    }
-
-    public InputConfiguration setBuilderName(String builderName) {
-        this.builderName = builderName;
-        return this;
-    }
-
-    @Deprecated
-    private String mavenHome;
-
-    @Deprecated
     public InputConfiguration setMavenHome(String mavenHome) {
         this.mavenHome = mavenHome;
         return this;
     }
 
-    @Deprecated
     public String getMavenHome() {
         return mavenHome;
     }
 
-    private AutomaticBuilder builder;
-
-    public AutomaticBuilder getBuilder() {
-        return this.builder;
+    public AutomaticBuilderEnum getBuilderEnum() {
+        return this.automaticBuilder;
     }
 
-    public InputConfiguration setBuilder(AutomaticBuilder builder) {
-        this.builder = builder;
+    public InputConfiguration setBuilderEnum(AutomaticBuilderEnum automaticBuilderEnum) {
+        this.automaticBuilder = automaticBuilderEnum;
         return this;
     }
-
-    /*
-        General properties
-     */
 
     private Factory factory;
 
@@ -546,8 +714,6 @@ public class InputConfiguration {
         return this;
     }
 
-    private String outputDirectory;
-
     public InputConfiguration setOutputDirectory(String outputDirectory) {
         this.outputDirectory = outputDirectory;
         return this;
@@ -557,40 +723,14 @@ public class InputConfiguration {
         return this.outputDirectory;
     }
 
-    @Deprecated
-    private String configPath;
-
-    @Deprecated
-    public String getConfigPath() {
-        return configPath;
-    }
-
-    @Deprecated
-    public InputConfiguration setConfigPath(String configPath) {
-        this.configPath = configPath;
-        return this;
-    }
-
-    /*
-        Assertions properties
-     */
-
-    private String delta;
-
-    public String getDelta() {
+    public double getDelta() {
         return delta;
     }
 
-    public InputConfiguration setDelta(String delta) {
+    public InputConfiguration setDelta(double delta) {
         this.delta = delta;
         return this;
     }
-
-    /*
-        ChangeDetector properties
-     */
-
-    private String absolutePathToSecondVersionProjectRoot;
 
     public String getAbsolutePathToSecondVersionProjectRoot() {
         return absolutePathToSecondVersionProjectRoot;
@@ -602,12 +742,6 @@ public class InputConfiguration {
         return this;
     }
 
-    /*
-        Amplification and Pit properties
-     */
-
-    private String excludedClasses = "";
-
     public String getExcludedClasses() {
         return excludedClasses;
     }
@@ -616,8 +750,6 @@ public class InputConfiguration {
         this.excludedClasses = excludedClasses;
         return this;
     }
-
-    private String excludedTestCases;
 
     public String getExcludedTestCases() {
         return excludedTestCases;
@@ -628,12 +760,6 @@ public class InputConfiguration {
         return this;
     }
 
-    /*
-        Pit properties
-     */
-
-    private String filter;
-
     public String getFilter() {
         return filter;
     }
@@ -642,8 +768,6 @@ public class InputConfiguration {
         this.filter = filter;
         return this;
     }
-
-    private String pitVersion;
 
     public String getPitVersion() {
         return pitVersion;
@@ -654,8 +778,6 @@ public class InputConfiguration {
         return this;
     }
 
-    private String descartesVersion;
-
     public String getDescartesVersion() {
         return descartesVersion;
     }
@@ -664,8 +786,6 @@ public class InputConfiguration {
         this.descartesVersion = descartesVersion;
         return this;
     }
-
-    private String JVMArgs = "";
 
     public String getJVMArgs() {
         return JVMArgs;
@@ -677,7 +797,9 @@ public class InputConfiguration {
         return this;
     }
 
-    private String descartesMutators = "";
+    public String getSystemProperties() {
+        return this.systemProperties;
+    }
 
     public String getDescartesMutators() {
         return descartesMutators;
@@ -687,8 +809,6 @@ public class InputConfiguration {
         this.descartesMutators = descartesMutators;
         return this;
     }
-
-    private boolean descartesMode = true;
 
     public boolean isDescartesMode() {
         return descartesMode;
@@ -704,34 +824,10 @@ public class InputConfiguration {
         return this;
     }
 
-    /*
-        Inherited from old Configuration (from command line)
-     */
-
-    private List<Amplifier> amplifiers = Collections.emptyList();
-    private int nbIteration = 3;
-    private List<String> testClasses = Collections.singletonList("all");
-    private TestSelector selector = new PitMutantScoreSelector();
-    private List<String> testCases = Collections.emptyList();
-    private long seed = 23L;
-    private int timeOutInMs = 10000;
-    private Integer maxTestAmplified = 200;
-    private boolean clean = false;
-    private boolean minimize = false;
-    private boolean verbose = false;
-    private boolean useWorkingDirectory = false;
-    private boolean withComment = false;
-
     public boolean shouldUseWorkingDirectory() {
         return useWorkingDirectory;
     }
 
-    /**
-     * Side effect: assign the same value to {@link eu.stamp_project.testrunner.EntryPoint#workingDirectory}
-     *
-     * @param useWorkingDirectory of the verbose mode.
-     * @return an instance of this InputConfiguration
-     */
     public InputConfiguration setUseWorkingDirectory(boolean useWorkingDirectory) {
         this.useWorkingDirectory = useWorkingDirectory;
         if (this.shouldUseWorkingDirectory()) {
@@ -744,23 +840,17 @@ public class InputConfiguration {
         return verbose;
     }
 
-    /**
-     * Side effect: assign the same value to {@link eu.stamp_project.testrunner.EntryPoint#verbose}
-     *
-     * @param verbose value of the verbose mode.
-     * @return an instance of this InputConfiguration
-     */
     public InputConfiguration setVerbose(boolean verbose) {
         this.verbose = verbose;
         EntryPoint.verbose = this.isVerbose();
         return this;
     }
 
-    public List<Amplifier> getAmplifiers() {
-        return amplifiers;
+    public List<AmplifierEnum> getAmplifiers() {
+        return this.amplifiers;
     }
 
-    public InputConfiguration setAmplifiers(List<Amplifier> amplifiers) {
+    public InputConfiguration setAmplifiers(List<AmplifierEnum> amplifiers) {
         this.amplifiers = amplifiers;
         return this;
     }
@@ -788,13 +878,21 @@ public class InputConfiguration {
         return this;
     }
 
-    public TestSelector getSelector() {
-        return selector;
-    }
-
-    public InputConfiguration setSelector(TestSelector selector) {
+    public InputConfiguration setSelector(SelectorEnum selector) {
         this.selector = selector;
         return this;
+    }
+
+    public String getPathPitResult() {
+        return this.pathPitResult;
+    }
+
+    public PitMutantScoreSelector.OutputFormat getPitOutputFormat() {
+        return this.pitOutputFormat;
+    }
+
+    public SelectorEnum getSelector() {
+        return this.selector;
     }
 
     public List<String> getTestCases() {
@@ -831,7 +929,6 @@ public class InputConfiguration {
 
     public InputConfiguration setTimeOutInMs(int timeOutInMs) {
         this.timeOutInMs = timeOutInMs;
-        AmplificationHelper.timeOutInMs = timeOutInMs; // TODO should not be redundant
         return this;
     }
 
@@ -853,15 +950,6 @@ public class InputConfiguration {
         return this;
     }
 
-    public boolean shouldMinimize() {
-        return minimize;
-    }
-
-    public InputConfiguration setMinimize(boolean minimize) {
-        this.minimize = minimize;
-        return this;
-    }
-
     public boolean withComment() {
         return withComment;
     }
@@ -871,26 +959,15 @@ public class InputConfiguration {
         return this;
     }
 
-    private InputAmplDistributorEnum inputAmplDistributor;
-
-    // TODO update after merging #888
-    public InputAmplDistributorEnum getBudgetizer() {
+    public InputAmplDistributorEnum getInputAmplDistributor() {
         return this.inputAmplDistributor;
     }
 
-    // TODO update after merging #888
-    public InputConfiguration setBudgetizer(InputAmplDistributorEnum inputAmplDistributor) {
+    public InputConfiguration setInputAmplDistributor(InputAmplDistributorEnum inputAmplDistributor) {
         this.inputAmplDistributor = inputAmplDistributor;
         return this;
     }
 
-    private boolean generateAmplifiedTestClass;
-
-    /**
-     * @return If this is true, then DSpot will creates new test class with only amplified test methods.
-     * This new test class will be named with "Ampl" as suffix or prefix depending of the name of the original test class:
-     * <i>e.g.</i> MyClassTest will be AmplMyClassTest and TestMyClass will be TestMyClassAmpl
-     */
     public boolean shouldGenerateAmplifiedTestClass() {
         return generateAmplifiedTestClass;
     }
@@ -899,11 +976,6 @@ public class InputConfiguration {
         this.generateAmplifiedTestClass = generateAmplifiedTestClass;
         return this;
     }
-
-    /**
-     * This boolean say if we must use maven to execute the test. If not, the tests will be executed with a java command line
-     */
-    private boolean useMavenToExecuteTest = false;
 
     public boolean shouldUseMavenToExecuteTest() {
         return useMavenToExecuteTest;
@@ -914,11 +986,6 @@ public class InputConfiguration {
         return this;
     }
 
-    /**
-     * pre goals to run in case tests' execution done by maven
-     */
-    private String preGoalsTestExecution = "";
-
     public String getPreGoalsTestExecution() {
         return this.preGoalsTestExecution;
     }
@@ -927,11 +994,6 @@ public class InputConfiguration {
         this.preGoalsTestExecution = preGoalsTestExecution;
         return this;
     }
-
-    /**
-     * This boolean say if the outputs test class should also contain original test methods.
-     */
-    private boolean keepOriginalTestMethods = false;
 
     public boolean shouldKeepOriginalTestMethods() {
         return this.keepOriginalTestMethods;
@@ -942,20 +1004,15 @@ public class InputConfiguration {
         return this;
     }
 
-    private boolean isJUnit5;
-
-    /**
-     * This boolean says if the current amplification is in JUnit5 or not.
-     */
+    @Deprecated
     public boolean isJUnit5() {
         return this.isJUnit5;
     }
 
+    @Deprecated
     public void setJUnit5(boolean JUnit5) {
         isJUnit5 = JUnit5;
     }
-
-    private boolean targetOneTestClass = false;
 
     public boolean shouldTargetOneTestClass() {
         return this.targetOneTestClass;
@@ -966,8 +1023,6 @@ public class InputConfiguration {
         return this;
     }
 
-    private boolean allowPathInAssertion = false;
-
     public boolean shouldAllowPathInAssertion() {
         return this.allowPathInAssertion;
     }
@@ -976,12 +1031,6 @@ public class InputConfiguration {
         this.allowPathInAssertion = allowPathInAssertion;
         return this;
     }
-
-    /**
-    * This boolean say if we must use execute the test in parallel. If not, the tests will be executed sequentially
-    */
-    private boolean executeTestsInParallel = false;
-    private int numberParallelExecutionProcessors = Runtime.getRuntime().availableProcessors();
 
     public boolean shouldExecuteTestsInParallel() {
         return executeTestsInParallel;
@@ -993,6 +1042,9 @@ public class InputConfiguration {
     }
 
     public int getNumberParallelExecutionProcessors() {
+        if (this.numberParallelExecutionProcessors == 0) {
+            this.numberParallelExecutionProcessors = Runtime.getRuntime().availableProcessors();
+        }
         return numberParallelExecutionProcessors;
     }
 
@@ -1001,4 +1053,81 @@ public class InputConfiguration {
         return this;
     }
 
+    public Long getCacheSize() {
+        return this.cacheSize;
+    }
+
+    public CollectorEnum getCollector() {
+        return this.collector;
+    }
+
+    public boolean shouldRunExample() {
+        return this.example;
+    }
+
+    public String getMongoUrl() {
+        return mongoUrl;
+    }
+
+    public String getMongoDbName() {
+        return mongoDbName;
+    }
+
+    public String getMongoColName() {
+        return mongoColName;
+    }
+
+    public String getRepoSlug() {
+        return repoSlug;
+    }
+
+    public String getRepoBranch() {
+        return repoBranch;
+    }
+
+    public boolean isRestFul() {
+        return restFul;
+    }
+
+    public String getSmtpUsername() {
+        return smtpUsername;
+    }
+
+    public String getSmtpPassword() {
+        return smtpPassword;
+    }
+
+    public String getSmtpHost() {
+        return smtpHost;
+    }
+
+    public String getSmtpPort() {
+        return smtpPort;
+    }
+
+    public boolean isSmtpAuth() {
+        return smtpAuth;
+    }
+
+    public String getSmtpTls() {
+        return smtpTls;
+    }
+
+
+
+    public void configureExample() {
+        try {
+            this.setAbsolutePathToProjectRoot("src/test/resources/test-projects/");
+            this.setNbIteration(1);
+            this.setAmplifiers(Collections.singletonList(AmplifierEnum.FastLiteralAmplifier));
+            this.setSelector(SelectorEnum.JacocoCoverageSelector);
+            this.setInputAmplDistributor(InputAmplDistributorEnum.RandomInputAmplDistributor);
+            this.setTestClasses(Collections.singletonList("example.TestSuiteExample"));
+            this.setTestClasses(Collections.emptyList());
+            this.setVerbose(true);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
+

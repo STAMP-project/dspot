@@ -43,12 +43,13 @@ public class Amplification {
 
     private int numberOfIteration;
 
-    public Amplification(DSpotCompiler compiler,
+    public Amplification(double delta,
+                         DSpotCompiler compiler,
                          TestSelector testSelector,
                          InputAmplDistributor inputAmplDistributor,
                          int numberOfIteration) {
         this.compiler = compiler;
-        this.assertionGenerator = new AssertionGenerator(InputConfiguration.get(), this.compiler);
+        this.assertionGenerator = new AssertionGenerator(delta, this.compiler);
         this.testSelector = testSelector;
         this.inputAmplDistributor = inputAmplDistributor;
         this.globalNumberOfSelectedAmplification = 0;
@@ -65,12 +66,6 @@ public class Amplification {
         LOGGER.info("Amplification of {} ({} test(s))", testClassToBeAmplified.getQualifiedName(), testMethodsToBeAmplified.size());
         LOGGER.info("Assertion amplification of {} ({} test(s))", testClassToBeAmplified.getQualifiedName(), testMethodsToBeAmplified.size());
 
-        // here, we base the execution mode to the first test method given.
-        // the user should provide whether JUnit3/4 OR JUnit5 but not both at the same time.
-        // TODO DSpot could be able to switch from one to another version of JUnit, but I believe that the ROI is not worth it.
-        final boolean jUnit5 = TestFramework.isJUnit5(testMethodsToBeAmplified.get(0));
-        EntryPoint.jUnit5Mode = jUnit5;
-        InputConfiguration.get().setJUnit5(jUnit5);
         if (!this.testSelector.init()) {
             return Collections.emptyList();
         }
@@ -80,8 +75,7 @@ public class Amplification {
                     TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
                             testClassToBeAmplified,
                             testMethodsToBeAmplified,
-                            this.compiler,
-                            InputConfiguration.get()
+                            this.compiler
                     );
         } catch (Exception | java.lang.Error e) {
             Main.GLOBAL_REPORT.addError(new Error(ERROR_EXEC_TEST_BEFORE_AMPLIFICATION, e));
@@ -213,8 +207,7 @@ public class Amplification {
                 TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
                         classTest,
                         testsWithAssertions,
-                        this.compiler,
-                        InputConfiguration.get()
+                        this.compiler
                 );
         LOGGER.info("Assertion amplification: {} test method(s) has been successfully amplified.", amplifiedPassingTests.size());
         return amplifiedPassingTests;

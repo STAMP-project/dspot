@@ -16,6 +16,9 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * created by Benjamin DANGLOT
@@ -85,18 +88,38 @@ public class DSpotPOMCreator {
 
     private static final String DSPOT_PARALLEL_POM_FILE = ".dspot_parallel_";
 
-    public static void createNewPom() {
-        new DSpotPOMCreator(true)._innerCreatePom();
-        new DSpotPOMCreator(false)._innerCreatePom();
+    public static boolean isCurrentlyJUnit5;
+
+    /*
+      This boolean is redundant with InputConfiguration.isJUnit5(), but it allows to create two pom directly.
+      We build two DSpotPOMCreator with true and false, and generate two different pom.
+      In this, way, we reuse the same code to generate.
+      We do that because at the moment we generate the pom, we do not if we  amplify JUnit5 tests or JUnit4.
+      Then, we use InputConfiguration.isJUnit5() to know which pom must be used.
+   */
+    private boolean isJUnit5;
+
+    private InputConfiguration configuration;
+
+    private DSpotPOMCreator(InputConfiguration configuration, boolean isJUnit5) {
+        this.isJUnit5 = isJUnit5;
+        this.configuration = configuration;
     }
 
-    public static String createNewPomForComputingClassPathWithParallelExecution() {
-        return new DSpotPOMCreator(InputConfiguration.get().isJUnit5())._createNewPomForComputingClassPathWithParallelExecution();
+    public static void createNewPom(InputConfiguration configuration) {
+        new DSpotPOMCreator(configuration, true)._innerCreatePom();
+        new DSpotPOMCreator(configuration, false)._innerCreatePom();
+    }
+
+    // TODO
+    public static String createNewPomForComputingClassPathWithParallelExecution(boolean isJUnit5, InputConfiguration configuration) {
+        return new DSpotPOMCreator(configuration, isJUnit5).
+                    _createNewPomForComputingClassPathWithParallelExecution();
     }
 
     public static void delete() {
-        new DSpotPOMCreator(true)._delete();
-        new DSpotPOMCreator(false)._delete();
+        new DSpotPOMCreator(null, true)._delete();
+        new DSpotPOMCreator(null, false)._delete();
     }
 
     private void _delete() {
@@ -113,7 +136,7 @@ public class DSpotPOMCreator {
 
             final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            final Document document = docBuilder.parse(InputConfiguration.get().getAbsolutePathToProjectRoot() + POM_FILE);
+            final Document document = docBuilder.parse(this.configuration.getAbsolutePathToProjectRoot() + POM_FILE);
 
             final Node root = findSpecificNodeFromGivenRoot(document.getFirstChild(), PROJECT);
 
@@ -124,7 +147,7 @@ public class DSpotPOMCreator {
             final TransformerFactory transformerFactory = TransformerFactory.newInstance();
             final Transformer transformer = transformerFactory.newTransformer();
             final DOMSource source = new DOMSource(document);
-            String newPomFilename = InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.getParallelPOMName();
+            String newPomFilename = this.configuration.getAbsolutePathToProjectRoot() + DSpotPOMCreator.getParallelPOMName();
             final StreamResult result = new StreamResult(new File(newPomFilename));
             transformer.transform(source, result);
 
@@ -143,7 +166,7 @@ public class DSpotPOMCreator {
         final Element version = document.createElement("version");
         version.setTextContent("2.22.0");
         surefirePlugin.appendChild(version);
-        if (InputConfiguration.get().isJUnit5()) {
+        if (this.isJUnit5) {
             final Node dependencies = findOrCreateGivenNode(document, surefirePlugin, DEPENDENCIES);
             Element dependency;
             if (!hasDependencyByArtifactId(dependencies, "junit-platform-surefire-provider")) {
@@ -238,11 +261,11 @@ public class DSpotPOMCreator {
         while (currentChild != null && !"artifactId".equals(currentChild.getNodeName())) {
             currentChild = currentChild.getNextSibling();
         }
-        return currentChild == null? false: currentChild.getTextContent().equals(artifactId);
+        return currentChild != null && currentChild.getTextContent().equals(artifactId);
     }
 
     public static String getParallelPOMName() {
-        return DSPOT_PARALLEL_POM_FILE + (InputConfiguration.get().isJUnit5() ? SUFFIX_JUNIT5 : "") + POM_FILE;
+        return DSPOT_PARALLEL_POM_FILE + (isCurrentlyJUnit5 ? SUFFIX_JUNIT5 : "") + POM_FILE;
     }
 
     private Node findChildByArtifactId(Node node, String artifactId) {
@@ -258,38 +281,26 @@ public class DSpotPOMCreator {
     }
 
     public static String getPOMName() {
-        return DSPOT_POM_FILE + (InputConfiguration.get().isJUnit5() ? SUFFIX_JUNIT5 : "") + POM_FILE;
+        return DSPOT_POM_FILE + (isCurrentlyJUnit5 ? SUFFIX_JUNIT5 : "") + POM_FILE;
     }
 
     private String _getPOMName() {
         return DSPOT_POM_FILE + (this.isJUnit5 ? SUFFIX_JUNIT5 : "") + POM_FILE;
     }
 
-    /*
-        This boolean is redundant with InputConfiguration.isJUnit5(), but it allows to create two pom directly.
-        We build two DSpotPOMCreator with true and false, and generate two different pom.
-        In this, way, we reuse the same code to generate.
-        We do that because at the moment we generate the pom, we do not if we  amplify JUnit5 tests or JUnit4.
-        Then, we use InputConfiguration.isJUnit5() to know which pom must be used.
-     */
-    private boolean isJUnit5;
-
-    private DSpotPOMCreator(boolean isJUnit5) {
-        this.isJUnit5 = isJUnit5;
-    }
 
     private void _innerCreatePom() {
         try {
             final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            final Document document = docBuilder.parse(InputConfiguration.get().getAbsolutePathToProjectRoot() + POM_FILE);
+            final Document document = docBuilder.parse(this.configuration.getAbsolutePathToProjectRoot() + POM_FILE);
 
             final Node root = findSpecificNodeFromGivenRoot(document.getFirstChild(), PROJECT);
 
             // CONFIGURATION TO RUN INSTRUMENTED TEST
             configureForInstrumentedTests(document, root);
 
-            if (InputConfiguration.get().shouldExecuteTestsInParallel() && InputConfiguration.get().shouldUseMavenToExecuteTest()) {
+            if (this.configuration.shouldExecuteTestsInParallel() && this.configuration.shouldUseMavenToExecuteTest()) {
                 //Add JUnit4/5 dependencies for parallel execution
                 //Add Surefire plugin configuration for parallel execution
                 addJUnitDependencies(document, root);
@@ -305,7 +316,7 @@ public class DSpotPOMCreator {
             final TransformerFactory transformerFactory = TransformerFactory.newInstance();
             final Transformer transformer = transformerFactory.newTransformer();
             final DOMSource source = new DOMSource(document);
-            final StreamResult result = new StreamResult(new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + this._getPOMName()));
+            final StreamResult result = new StreamResult(new File(this.configuration.getAbsolutePathToProjectRoot() + this._getPOMName()));
             transformer.transform(source, result);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -406,7 +417,7 @@ public class DSpotPOMCreator {
         final Element configuration = createConfiguration(document);
         pluginPit.appendChild(configuration);
 
-        if (InputConfiguration.get().isDescartesMode() || this.isJUnit5) {
+        if (this.configuration.isDescartesMode() || this.isJUnit5) {
             final Element dependencies = createDependencies(document);
             pluginPit.appendChild(dependencies);
         }
@@ -441,7 +452,7 @@ public class DSpotPOMCreator {
 
         if (!versionValue.isEmpty()) {
             final Element version = document.createElement(versionValue);
-            version.setTextContent(InputConfiguration.get().getPitVersion());
+            version.setTextContent(this.configuration.getPitVersion());
             plugin.appendChild(version);
         }
 
@@ -484,11 +495,11 @@ public class DSpotPOMCreator {
     private Element createDependencies(Document document) {
         final Element dependencies = document.createElement(DEPENDENCIES);
 
-        if (InputConfiguration.get().isDescartesMode()) {
+        if (this.configuration.isDescartesMode()) {
             final Element dependency = createDependency(document,
                     GROUP_ID_DESCARTES,
                     ARTIFACT_ID_DESCARTES,
-                    InputConfiguration.get().getDescartesVersion()
+                    this.configuration.getDescartesVersion()
             );
             dependencies.appendChild(dependency);
         }
@@ -555,17 +566,17 @@ public class DSpotPOMCreator {
         final Element configuration = document.createElement(CONFIGURATION);
 
         final Element mutationEngine = document.createElement(MUTATION_ENGINE);
-        mutationEngine.setTextContent(InputConfiguration.get().isDescartesMode() ? MUTATION_ENGINE_DESCARTES : MUTATION_ENGINE_GREGOR);
+        mutationEngine.setTextContent(this.configuration.isDescartesMode() ? MUTATION_ENGINE_DESCARTES : MUTATION_ENGINE_GREGOR);
         configuration.appendChild(mutationEngine);
 
         final Element outputFormats = document.createElement(OUTPUT_FORMATS);
         appendValuesToGivenNode(document, outputFormats, DSpotPOMCreator.outputFormats);
         configuration.appendChild(outputFormats);
 
-        if (InputConfiguration.get().getFilter() != null &&
-                !InputConfiguration.get().getFilter().isEmpty()) {
+        if (this.configuration.getFilter() != null &&
+                !this.configuration.getFilter().isEmpty()) {
             final Element targetClasses = document.createElement(TARGET_CLASSES);
-            targetClasses.setTextContent(InputConfiguration.get().getFilter());
+            targetClasses.setTextContent(this.configuration.getFilter());
             configuration.appendChild(targetClasses);
         }
 
@@ -574,31 +585,31 @@ public class DSpotPOMCreator {
         configuration.appendChild(reportsDirectory);
 
         final Element timeOut = document.createElement(TIME_OUT);
-        timeOut.setTextContent(String.valueOf(InputConfiguration.get().getTimeOutInMs()));
+        timeOut.setTextContent(String.valueOf(this.configuration.getTimeOutInMs()));
         configuration.appendChild(timeOut);
 
-        if (!InputConfiguration.get().getAdditionalClasspathElements().isEmpty()) {
+        if (!this.configuration.getAdditionalClasspathElements().isEmpty()) {
             final Element additionalClasspathElements = document.createElement(ADDITIONAL_CLASSPATH_ELEMENTS);
-            appendValuesToGivenNode(document, additionalClasspathElements, InputConfiguration.get().getAdditionalClasspathElements().split(","));
+            appendValuesToGivenNode(document, additionalClasspathElements, this.configuration.getAdditionalClasspathElements().split(","));
             configuration.appendChild(additionalClasspathElements);
         }
 
-        if (!InputConfiguration.get().getJVMArgs().isEmpty()) {
+        if (!this.configuration.getJVMArgs().isEmpty()) {
             final Element jvmArgs = document.createElement(JVM_ARGS);
-            appendValuesToGivenNode(document, jvmArgs, InputConfiguration.get().getJVMArgs().split(","));
+            appendValuesToGivenNode(document, jvmArgs, this.configuration.getJVMArgs().split(","));
             configuration.appendChild(jvmArgs);
         }
 
-        if (!InputConfiguration.get().getExcludedClasses().isEmpty()) {
+        if (!this.configuration.getExcludedClasses().isEmpty()) {
             final Element excludedTestClasses = document.createElement(EXCLUDED_TEST_CLASSES);
-            appendValuesToGivenNode(document, excludedTestClasses, InputConfiguration.get().getExcludedClasses().split(","));
+            appendValuesToGivenNode(document, excludedTestClasses, this.configuration.getExcludedClasses().split(","));
             configuration.appendChild(excludedTestClasses);
         }
 
-        if (!InputConfiguration.get().getDescartesMutators().isEmpty() || !InputConfiguration.get().isDescartesMode()) {
+        if (!this.configuration.getDescartesMutators().isEmpty() || !this.configuration.isDescartesMode()) {
             final Element mutators = document.createElement(MUTATORS);
-            if (!InputConfiguration.get().getDescartesMutators().isEmpty() && InputConfiguration.get().isDescartesMode()) {
-                appendValuesToGivenNode(document, mutators, InputConfiguration.get().getDescartesMutators().split(","));
+            if (!this.configuration.getDescartesMutators().isEmpty() && this.configuration.isDescartesMode()) {
+                appendValuesToGivenNode(document, mutators, this.configuration.getDescartesMutators().split(","));
             } else {
                 appendValuesToGivenNode(document, mutators, GREGOR_MUTATORS);
             }

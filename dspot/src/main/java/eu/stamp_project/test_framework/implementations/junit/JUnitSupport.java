@@ -6,7 +6,6 @@ import eu.stamp_project.test_framework.AbstractTestFramework;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.testrunner.runner.Failure;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.program.InputConfiguration;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
@@ -90,7 +89,7 @@ public abstract class JUnitSupport extends AbstractTestFramework {
      */
     @Override
     public CtInvocation<?> buildInvocationToAssertion(CtMethod<?> testMethod, AssertEnum assertion, List<CtExpression> arguments) {
-        final Factory factory = InputConfiguration.get().getFactory();
+        final Factory factory = testMethod.getFactory();
         final CtInvocation invocation = factory.createInvocation();
         final CtExecutableReference<?> executableReference = factory.Core().createExecutableReference();
         executableReference.setStatic(true);
@@ -108,8 +107,7 @@ public abstract class JUnitSupport extends AbstractTestFramework {
     public CtMethod<?> prepareTestMethod(CtMethod<?> testMethod) {
         if (testMethod.getThrownTypes().isEmpty()) {
             testMethod.addThrownType(
-                    InputConfiguration.get()
-                            .getFactory()
+                    testMethod.getFactory()
                             .Type()
                             .createReference(Exception.class)
             );
@@ -127,7 +125,7 @@ public abstract class JUnitSupport extends AbstractTestFramework {
 
     @Override
     public CtMethod<?> generateExpectedExceptionsBlock(CtMethod<?> test, Failure failure, int numberOfFail) {
-        final Factory factory = InputConfiguration.get().getFactory();
+        final Factory factory = test.getFactory();
 
         final String[] split = failure.fullQualifiedNameOfException.split("\\.");
         final String simpleNameOfException = split[split.length - 1];

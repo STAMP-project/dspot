@@ -15,11 +15,10 @@ public abstract class AbstractInputAmplDistributor implements InputAmplDistribut
 
     protected List<Amplifier> amplifiers;
 
-    public AbstractInputAmplDistributor() {
-        this.amplifiers = InputConfiguration.get().getAmplifiers();
-    }
+    protected int maxNumTests;
 
-    public AbstractInputAmplDistributor(List<Amplifier> amplifiers) {
+    public AbstractInputAmplDistributor(int maxNumTests, List<Amplifier> amplifiers) {
+        this.maxNumTests = maxNumTests;
         this.amplifiers = amplifiers;
     }
 

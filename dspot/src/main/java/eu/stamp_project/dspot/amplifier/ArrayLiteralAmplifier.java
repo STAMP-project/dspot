@@ -10,6 +10,7 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.reflect.code.CtNewArrayImpl;
+
 import java.lang.reflect.Array;
 import java.util.*;
 
@@ -18,7 +19,7 @@ import java.util.*;
  * abwogi@kth.se
  * on 12/09/19
  */
-public class ArrayLiteralAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
+public class ArrayLiteralAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl> {
 
     @Override
     protected String getSuffix() {
@@ -41,15 +42,15 @@ public class ArrayLiteralAmplifier extends AbstractLiteralAmplifier<CtNewArrayIm
         public boolean matches(CtExpression<CtNewArrayImpl> candidate) {
 
             // keep only literals and array literals
-            if (! (candidate instanceof CtLiteral || candidate instanceof CtNewArrayImpl)) {
+            if (!(candidate instanceof CtLiteral || candidate instanceof CtNewArrayImpl)) {
                 return false;
             }
 
             // don't keep elements of arrays
-            if(candidate.getParent() instanceof CtNewArrayImpl){
+            if (candidate.getParent() instanceof CtNewArrayImpl) {
                 return false;
             }
-            if(candidate instanceof CtLiteral) {
+            if (candidate instanceof CtLiteral) {
                 CtLiteral literal = (CtLiteral) candidate;
                 try {
 
@@ -63,7 +64,6 @@ public class ArrayLiteralAmplifier extends AbstractLiteralAmplifier<CtNewArrayIm
                         return getNullClass(literal).isArray();
                     }
                 } catch (Exception e) {
-
                     // todo: maybe need a warning ?
                     return false;
                 }
@@ -85,19 +85,19 @@ public class ArrayLiteralAmplifier extends AbstractLiteralAmplifier<CtNewArrayIm
 
     @Override
     protected Set<CtExpression<CtNewArrayImpl>> amplify(CtExpression<CtNewArrayImpl> original, CtMethod<?> testMethod) {
-        final Factory factory = InputConfiguration.get().getFactory();
+        final Factory factory = testMethod.getFactory();
         Set<CtExpression<CtNewArrayImpl>> values = new HashSet<>();
 
         // amplify an array set to null
-        if(original instanceof CtLiteral && ((CtLiteral)original).getValue() == null) {
-            String typeName = getNullClass((CtLiteral)original).getTypeName();
+        if (original instanceof CtLiteral && ((CtLiteral) original).getValue() == null) {
+            String typeName = getNullClass((CtLiteral) original).getTypeName();
             String additionalElement = constructAdditionalElement(cropTypeName(typeName));
-            String array = constructArray(typeName,additionalElement,false);
+            String array = constructArray(typeName, additionalElement, false);
             CtExpression finalExpression = factory.createCodeSnippetExpression(array).compile();
 
             // create an array with one element and an empty array
             values.add(finalExpression);
-            array = constructArray(typeName,"",true);
+            array = constructArray(typeName, "", true);
             finalExpression = factory.createCodeSnippetExpression(array).compile();
             values.add(finalExpression);
             return values;
@@ -106,9 +106,9 @@ public class ArrayLiteralAmplifier extends AbstractLiteralAmplifier<CtNewArrayIm
         List<CtExpression> list = castedOriginal.getElements();
 
         // amplify an empty array
-        if(list.isEmpty()) {
+        if (list.isEmpty()) {
             String additionalElement = constructAdditionalElement(cropTypeName(original.getType().getSimpleName()));
-            String array = constructArray(original.getType().toString(),additionalElement,false);
+            String array = constructArray(original.getType().toString(), additionalElement, false);
             CtExpression finalExpression = factory.createCodeSnippetExpression(array).compile();
 
             // create an array with one element and a null literal
@@ -127,7 +127,7 @@ public class ArrayLiteralAmplifier extends AbstractLiteralAmplifier<CtNewArrayIm
             // create array expressions that are modifications of the original array expression and a null literal
             values.add(cloneAdd);
             values.add(cloneSub);
-            if(list.size()>1){
+            if (list.size() > 1) {
                 CtNewArray cloneEmpty = SerializationUtils.clone(castedOriginal);
                 cloneEmpty.setElements(Collections.EMPTY_LIST);
                 values.add(cloneEmpty);
@@ -137,27 +137,27 @@ public class ArrayLiteralAmplifier extends AbstractLiteralAmplifier<CtNewArrayIm
         return values;
     }
 
-    private String cropTypeName(String name){
+    private String cropTypeName(String name) {
         int index = name.indexOf("[");
-        name = name.substring(0,index);
+        name = name.substring(0, index);
         return name;
     }
 
     private String constructAdditionalElement(String type) {
         type = type.toLowerCase();
-        if(type.equals("int") || type.equals("integer") || type.equals("short") || type.equals("byte")){
+        if (type.equals("int") || type.equals("integer") || type.equals("short") || type.equals("byte")) {
             return "1";
-        } else if(type.equals("long")){
+        } else if (type.equals("long")) {
             return "1L";
-        } else if(type.equals("float")){
+        } else if (type.equals("float")) {
             return "1.1F";
-        } else if(type.equals("double")){
+        } else if (type.equals("double")) {
             return "1.1";
-        } else if(type.equals("boolean")){
+        } else if (type.equals("boolean")) {
             return "true";
-        } else if(type.equals("char") || type.equals("character")){
+        } else if (type.equals("char") || type.equals("character")) {
             return "'a'";
-        } else if(type.equals("string")){
+        } else if (type.equals("string")) {
             return "\"a\"";
         } else {
             return "null";
@@ -166,18 +166,18 @@ public class ArrayLiteralAmplifier extends AbstractLiteralAmplifier<CtNewArrayIm
 
     private String constructArray(String type, String additionalElement, boolean isEmpty) {
         long dimensions;
-        if(isEmpty){
+        if (isEmpty) {
             dimensions = 1;
         } else {
             dimensions = type.chars().filter(num -> num == '[').count();
         }
         StringBuilder sb = new StringBuilder();
         sb.append("new " + type);
-        for(int i = 0;i<dimensions;i++){
+        for (int i = 0; i < dimensions; i++) {
             sb.append("{");
         }
         sb.append(additionalElement);
-        for(int i = 0;i<dimensions;i++){
+        for (int i = 0; i < dimensions; i++) {
             sb.append("}");
         }
         return sb.toString();

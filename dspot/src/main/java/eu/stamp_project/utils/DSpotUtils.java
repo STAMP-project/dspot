@@ -1,11 +1,11 @@
 package eu.stamp_project.utils;
 
 import eu.stamp_project.Main;
+import eu.stamp_project.utils.collector.Collector;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.error.Error;
 import eu.stamp_project.utils.report.error.ErrorEnum;
-import eu.stamp_project.utils.collector.CollectorConfig;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +28,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
+
 /**
  * User: Simon Date: 18/05/16 Time: 16:10
  */
@@ -38,6 +40,24 @@ public class DSpotUtils {
     private static final String JAVA_EXTENSION = ".java";
 
     private static StringBuilder progress = new StringBuilder(60);
+
+    private static boolean withComment;
+
+    private static String outputDirectory;
+
+    private static String fullClassPathWithExtraDependencies;
+
+    private static String absolutePathToProjectRoot;
+
+    public static void init(boolean withComment,
+                            String outputDirectory,
+                            String fullClassPathWithExtraDependencies,
+                            String absolutePathToProjectRoot) {
+        DSpotUtils.withComment = withComment;
+        DSpotUtils.outputDirectory = outputDirectory;
+        DSpotUtils.fullClassPathWithExtraDependencies = fullClassPathWithExtraDependencies;
+        DSpotUtils.absolutePathToProjectRoot = absolutePathToProjectRoot;
+    }
 
     public static void printProgress(int done, int total) {
         char[] workchars = {'|', '/', '-', '\\'};
@@ -65,7 +85,7 @@ public class DSpotUtils {
             Environment env = factory.getEnvironment();
             env.setAutoImports(autoImports);
             env.setNoClasspath(true);
-            env.setCommentEnabled(InputConfiguration.get().withComment());
+            env.setCommentEnabled(DSpotUtils.withComment);
             JavaOutputProcessor processor = new JavaOutputProcessor(new DefaultJavaPrettyPrinter(env));
             processor.setFactory(factory);
             processor.getEnvironment().setSourceOutputDirectory(directory);
@@ -80,8 +100,8 @@ public class DSpotUtils {
         LOGGER.warn("Something bad happened when trying to output {} in {}", type.getQualifiedName(), directory.getAbsolutePath());
         LOGGER.warn("DSpot will now print the toString() in the given file instead of using Spoon...");
         String directoryPathname = DSpotUtils.shouldAddSeparator.apply(directory.getAbsolutePath()) +
-                type.getQualifiedName().substring(0, type.getQualifiedName().length() - type.getSimpleName().length()
-                ).replaceAll("\\.", "/");
+                type.getQualifiedName().substring(0, type.getQualifiedName().length() - type.getSimpleName().length())
+                        .replaceAll("\\.", "/");
         try {
             FileUtils.forceMkdir(new File(directoryPathname));
         } catch (IOException e) {
@@ -101,7 +121,7 @@ public class DSpotUtils {
         We compile it.
         If the compilation fails, we re-print it without imports, i.e. using full qualified names.
      */
-    public static void printAndCompileToCheck(CtType<?> type, File directory) {
+    public static void printAndCompileToCheck(CtType<?> type, File directory, Collector collector) {
 
         // get the existing amplified test class, if so
         final String regex = File.separator.equals("/") ? "/" : "\\\\";
@@ -121,14 +141,14 @@ public class DSpotUtils {
 
         // compile
         try {
-            final boolean compile = DSpotCompiler.compile(InputConfiguration.get(), //FIXME: analyse for optimisation (36% total execution time)
+            final boolean compile = DSpotCompiler.compile(//FIXME: analyse for optimisation (36% total execution time)
                     pathname,
-                    InputConfiguration.get().getFullClassPathWithExtraDependencies(),
-                    new File(InputConfiguration.get().getOutputDirectory() + "/binaries/")
+                    DSpotUtils.fullClassPathWithExtraDependencies,
+                    new File(DSpotUtils.outputDirectory + "/binaries/")
             );
             if (!compile) {
                 try {
-                    FileUtils.forceDelete(new File(InputConfiguration.get().getOutputDirectory() + "/binaries/"));
+                    FileUtils.forceDelete(new File(DSpotUtils.outputDirectory + "/binaries/"));
                 } catch (Exception ignored) {
 
                 }
@@ -137,7 +157,8 @@ public class DSpotUtils {
                 LOGGER.warn("These problems can come from the fact your project use generated codes, such as Lombok annotations.");
                 printCtTypeToGivenDirectory(type, directory, false); //FIXME: analyse for optimisation (13% total execution time)
             } else {
-                CollectorConfig.getInstance().getInformationCollector().reportAmpTestPath(pathname);
+                // FIXME should not be here, this method should just print the amplified test class
+                collector.reportAmpTestPath(pathname);
             }
         } catch (Exception ignored) {
             LOGGER.warn("Couldn't compile the final amplified test class.");
@@ -162,7 +183,7 @@ public class DSpotUtils {
         }
     }
 
-    private static final String PATH_TO_DSPOT_DEPENDENCIES = "target/dspot/dependencies/";
+    public static final String PATH_TO_DSPOT_DEPENDENCIES = "target/dspot/dependencies/";
 
     private static final String PACKAGE_NAME = "compare";
 
@@ -175,7 +196,7 @@ public class DSpotUtils {
             COMPONENTS_FOLDER +"Observation", COMPONENTS_FOLDER +"ObjectLogUtils", COMPONENTS_FOLDER +"FailToObserveException"};
 
     public static String getAbsolutePathToDSpotDependencies() {
-        return InputConfiguration.get().getAbsolutePathToProjectRoot() + PATH_TO_DSPOT_DEPENDENCIES;
+        return DSpotUtils.absolutePathToProjectRoot + PATH_TO_DSPOT_DEPENDENCIES;
     }
 
     public static void copyPackageFromResources() {
@@ -232,6 +253,10 @@ public class DSpotUtils {
         } else {
             return testClass.getQualifiedName();
         }
+    }
+
+    public static String createPath(String... paths) {
+        return String.join(PATH_SEPARATOR, paths);
     }
 
 }

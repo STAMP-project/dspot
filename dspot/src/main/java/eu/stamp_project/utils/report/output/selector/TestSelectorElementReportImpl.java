@@ -28,10 +28,10 @@ public class TestSelectorElementReportImpl implements TestSelectorElementReport 
     }
 
     @Override
-    public String output(CtType<?> testClass) {
+    public String output(CtType<?> testClass, String outputDirectory) {
         // 1 output the specific JSON file for the test class
         final File outputJsonFile = new File(
-                DSpotUtils.shouldAddSeparator.apply(InputConfiguration.get().getOutputDirectory()) +
+                DSpotUtils.shouldAddSeparator.apply(outputDirectory) +
                         testClass.getQualifiedName() + SUFFIX_PATH_TO_JSON_FILE
         );
         try (FileWriter writer = new FileWriter(outputJsonFile, false)) {

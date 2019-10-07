@@ -3,7 +3,7 @@ package eu.stamp_project.utils.collector;
 import com.martiansoftware.jsap.JSAPResult;
 
 // Used to collect output information from selector class.
-public interface DspotInformationCollector {
+public interface Collector {
 	/*save the parsed java options*/
 	void reportInitInformation(JSAPResult jsapConfig);
 	/*string reports, containing values from selectors.*/

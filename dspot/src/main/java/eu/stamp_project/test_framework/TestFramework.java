@@ -20,7 +20,9 @@ import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.filter.TypeFilter;
+import sun.security.smartcardio.SunPCSC;
 
 import java.util.*;
 import java.util.function.Function;
@@ -37,7 +39,11 @@ public class TestFramework implements TestFrameworkSupport {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestFramework.class);
 
-    private static final TestFramework _instance = new TestFramework();
+    private static TestFramework _instance;
+
+    public static void init(Factory factory) {
+        _instance = new TestFramework(factory);
+    }
 
     private List<TestFrameworkSupport> testFrameworkSupportList;
 
@@ -45,7 +51,10 @@ public class TestFramework implements TestFrameworkSupport {
         return _instance;
     }
 
-    private TestFramework() {
+    private Factory factory;
+
+    private TestFramework(Factory factory) {
+        this.factory = factory;
         this.testFrameworkSupportList = new ArrayList<>();
         this.testFrameworkSupportList.add(new JUnit3Support());
         this.testFrameworkSupportList.add(new JUnit4Support());
@@ -198,9 +207,7 @@ public class TestFramework implements TestFrameworkSupport {
      * We consider a class as test class if at least one of its method match {@link TestFramework#isTest(CtMethod)}
      */
     public static Stream<CtType<?>> getAllTestClassesAsStream() {
-        return InputConfiguration.get()
-                .getFactory()
-                .Type()
+        return _instance.factory.Type()
                 .getAll()
                 .stream()
                 .filter(ctType ->

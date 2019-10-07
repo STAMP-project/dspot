@@ -1,6 +1,5 @@
 package eu.stamp_project.dspot.assertiongenerator.assertiongenerator;
 
-import eu.stamp_project.utils.program.InputConfiguration;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.reference.CtTypeReference;
@@ -16,9 +15,21 @@ import java.util.regex.Pattern;
  */
 public class AssertionGeneratorUtils {
 
+    private static AssertionGeneratorUtils _instance;
+
+    private boolean shouldAllowPathInAssertion;
+
+    private AssertionGeneratorUtils(boolean shouldAllowPathInAssertions) {
+        this.shouldAllowPathInAssertion = shouldAllowPathInAssertions;
+    }
+
+    public static void init(boolean shouldAllowPathInAssertion){
+        _instance.shouldAllowPathInAssertion = shouldAllowPathInAssertion;
+    }
+
     public static boolean canGenerateAnAssertionFor(String candidate) {
         return !containsObjectReferences(candidate) &&
-                (InputConfiguration.get().shouldAllowPathInAssertion() || !containsAPath(candidate));
+                (_instance.shouldAllowPathInAssertion || !containsAPath(candidate));
     }
 
     public static boolean isVoidReturn(CtInvocation invocation) {

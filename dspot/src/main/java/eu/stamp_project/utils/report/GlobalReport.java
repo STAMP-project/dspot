@@ -31,10 +31,10 @@ public class GlobalReport implements Report, ErrorReport, OutputReport, TestSele
     /* REPORT METHODS */
 
     @Override
-    public void output() {
-        this.testSelectorReport.output();
-        this.errorReport.output();
-        this.outputReport.output();
+    public void output(String outputDirectory) {
+        this.testSelectorReport.output(outputDirectory);
+        this.errorReport.output(outputDirectory);
+        this.outputReport.output(outputDirectory);
     }
 
     @Override

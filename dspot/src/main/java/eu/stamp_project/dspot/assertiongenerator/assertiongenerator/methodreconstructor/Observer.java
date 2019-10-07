@@ -10,7 +10,6 @@ import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtLocalVariable;
@@ -33,18 +32,14 @@ public class Observer {
 
     private CtType originalClass;
 
-    private InputConfiguration configuration;
-
     private DSpotCompiler compiler;
 
     private Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted;
 
     public Observer(CtType originalClass,
-                         InputConfiguration configuration,
                          DSpotCompiler compiler,
                          Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted) {
         this.originalClass = originalClass;
-        this.configuration = configuration;
         this.compiler = compiler;
         this.variableReadsAsserted = variableReadsAsserted;
     }
@@ -113,8 +108,7 @@ public class Observer {
         TestFramework.get().generateAfterClassToSaveObservations(clone, testsToRun);
         final TestResult result = TestCompiler.compileAndRun(clone,
                 this.compiler,
-                testsToRun,
-                this.configuration
+                testsToRun
         );
         if (!result.getFailingTests().isEmpty()) {
             LOGGER.warn("Some instrumented test failed!");

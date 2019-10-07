@@ -3,8 +3,7 @@ package eu.stamp_project.utils.collector.mongodb;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.stamp_project.utils.collector.DspotInformationCollector;
-import eu.stamp_project.utils.collector.CollectorConfig;
+import eu.stamp_project.utils.collector.Collector;
 import eu.stamp_project.utils.smtp.EmailSender;
 
 import com.mongodb.MongoClient;
@@ -14,7 +13,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
-import static com.mongodb.client.model.Updates.*;
+
 import org.bson.Document;
 
 /*Parsing date*/
@@ -35,58 +34,65 @@ import java.io.IOException;
 import com.martiansoftware.jsap.JSAPResult;
 
 // Receive data from selectors, JSAPOptions and amp testfiles paths to put to mongodb.
-public class MongodbCollector implements DspotInformationCollector {
+public class MongodbCollector implements Collector {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MongodbCollector.class);
-	private static CollectorConfig collectorConfig = CollectorConfig.getInstance();
 
 	/* Config objects */
-	private static String dbName;
-	private static String colName;
-	private static String repoSlug;
-	private static String repoBranch;
-	private static String mongoUrl;
-	private static String email;
-	private static boolean restful;
-	private static boolean dbConnectable;
+	private String dbName;
+	private String colName;
+	private String repoSlug;
+	private String repoBranch;
+	private String mongoUrl;
+	private String email;
+	private boolean restful;
+	private boolean dbConnectable;
 
 	/* Mongodb objects*/
-	private static MongoClient mongoClient;
-	private static MongoDatabase database;
-	private static MongoCollection<Document> coll;
+	private MongoClient mongoClient;
+	private MongoDatabase database;
+	private MongoCollection<Document> coll;
 
 	/*Docs to be submitted to Mongodb*/
-	private static List<Document> selectorDocs;
-	private static List<String> javaPathList;
-	private static Document argsDoc;
-	private static Document totalResultDoc;
+	private List<Document> selectorDocs;
+	private List<String> javaPathList;
+	private Document argsDoc;
+	private Document totalResultDoc;
 
 	/* Helper variables*/
 	private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+	private EmailSender emailSender;
 
 	/* Initiation*/
-	public MongodbCollector () {
+	public MongodbCollector (String mongoUrl,
+							 String dbName,
+							 String colName,
+							 String repoSlug,
+							 String repoBranch,
+							 boolean restful,
+							 EmailSender emailSender) {
 		this.selectorDocs = new ArrayList<Document>();
 		this.javaPathList = new ArrayList<String>();
 		this.argsDoc = new Document();
 		this.totalResultDoc = new Document();
-		this.mongoUrl = this.collectorConfig.getMongoUrl();
-		this.dbName = this.collectorConfig.getMongoDbname();
-		this.colName = this.collectorConfig.getMongoColname();
-		this.repoSlug = this.collectorConfig.getRepoSlug();
-		this.repoBranch = this.collectorConfig.getRepoBranch();
-		this.restful = this.collectorConfig.getRestful();
+		this.mongoUrl = mongoUrl;
+		this.dbName = dbName;
+		this.colName = colName;
+		this.repoSlug = repoSlug;
+		this.repoBranch = repoBranch;
+		this.restful = restful;
+		this.emailSender = emailSender;
 	}
 
 	/* Initialize a completely new document - when not restful mode*/
 	public Document mainDocInit() {
-		Document mainDoc = new Document("RepoSlug", this.collectorConfig.getRepoSlug())
-				.append("RepoBranch", this.collectorConfig.getRepoBranch())
+		Document mainDoc = new Document("RepoSlug", this.repoSlug)
+				.append("RepoBranch", this.repoBranch)
 				.append("Date",this.getCurrentDate());
     	mainDoc.append("AmpOptions",argsDoc);
         return mainDoc;
 	}
 	/*Connection related*/
-	public static boolean ConnectableToMongodb() {
+	public boolean ConnectableToMongodb() {
 		try {
 			mongoClient = new MongoClient(new MongoClientURI(mongoUrl));
 			mongoClient.close();
@@ -130,7 +136,7 @@ public class MongodbCollector implements DspotInformationCollector {
         		coll.updateOne(and(eq("RepoSlug",this.repoSlug),eq("RepoBranch",this.repoBranch),eq("State","pending")),new Document("$set",mainDoc));
 
         		// Send output files through emails
-    			EmailSender.getInstance().sendEmail(this.constructMessageWithFileContents(javaPathList),"Amplification succeeded",email);
+    			this.emailSender.sendEmail(this.constructMessageWithFileContents(javaPathList),"Amplification succeeded",email);
 			}
 			mongoClient.close();
 		}catch (Exception e) {
@@ -233,15 +239,15 @@ public class MongodbCollector implements DspotInformationCollector {
 	}
 
 	/* Methods used for testing Mongo*/
-	public static MongoClient connectToMongo (String mongoUrl) {
+	public static MongoClient connectToMongo(String mongoUrl) {
 		return new MongoClient(new MongoClientURI(mongoUrl));
 	}
 
-	public static MongoDatabase getDatabase (String dbName , MongoClient mongoClient) {
+	public static MongoDatabase getDatabase(String dbName , MongoClient mongoClient) {
 		return mongoClient.getDatabase(dbName);
 	}
 
-	public static MongoCollection<Document> getCollection (String colName,MongoDatabase database) {
+	public static MongoCollection<Document> getCollection(String colName,MongoDatabase database) {
 		return database.getCollection(colName);
 	}
 }

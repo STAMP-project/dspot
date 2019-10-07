@@ -3,10 +3,7 @@ package eu.stamp_project.utils.options.check;
 import eu.stamp_project.Main;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.options.AmplifierEnum;
-import eu.stamp_project.utils.options.InputAmplDistributorEnum;
-import eu.stamp_project.utils.options.SelectorEnum;
-import eu.stamp_project.utils.program.ConstantsProperties;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.error.Error;
 import eu.stamp_project.utils.report.error.ErrorEnum;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +15,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -35,50 +31,9 @@ public class Checker {
         Checking algo
      */
 
-    public static void preChecking(List<String> amplifiers,
-                                   String selector,
-                                   String budgetizer,
-                                   Properties properties) {
-        Checker.checkEnum(AmplifierEnum.class, amplifiers, "amplifiers");
-        Checker.checkEnum(SelectorEnum.class, selector, "test-criterion");
-        Checker.checkEnum(InputAmplDistributorEnum.class, budgetizer, "budgetizer");
-        Checker.checkProperties(properties);
-    }
-
-    public static void postChecking(Properties properties) {
-        // we check now the binaries folders after the compilation
-        Checker.checkBinariesFolders(properties);
-    }
-
-
-    /*
-        PROPERTIES CHECK
-     */
-
-    public static void checkBinariesFolders(Properties properties) {
-
-        String currentPath = DSpotUtils.shouldAddSeparator.apply(properties.getProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName()));
-        final String targetModulePropertyValue = DSpotUtils.shouldAddSeparator.apply(properties.getProperty(ConstantsProperties.MODULE.getName()));
-        currentPath += targetModulePropertyValue != null ? targetModulePropertyValue : "";
-
-        // binary folders: classes and test-classes
-        Checker.checkPathPropertyValue(
-                properties.getProperty(ConstantsProperties.SRC_CLASSES.getName()),
-                ErrorEnum.ERROR_PATH_TO_SRC_CLASSES_PROPERTY,
-                ConstantsProperties.SRC_CLASSES.getNaturalLanguageDesignation(),
-                currentPath
-        );
-        Checker.checkPathPropertyValue(
-                properties.getProperty(ConstantsProperties.TEST_CLASSES.getName()),
-                ErrorEnum.ERROR_PATH_TO_TEST_CLASSES_PROPERTY,
-                ConstantsProperties.TEST_CLASSES.getNaturalLanguageDesignation(),
-                currentPath
-        );
-    }
-
-    public static void checkProperties(Properties properties) {
+    public static void preChecking(InputConfiguration configuration) {
         // project root is mandatory
-        String currentPath = DSpotUtils.shouldAddSeparator.apply(properties.getProperty(ConstantsProperties.PROJECT_ROOT_PATH.getName()));
+        String currentPath = DSpotUtils.shouldAddSeparator.apply(configuration.getAbsolutePathToProjectRoot());
         Checker.checkPathnameNotNullAndFileExist(
                 currentPath,
                 ErrorEnum.ERROR_PATH_TO_PROJECT_ROOT_PROPERTY,
@@ -86,46 +41,64 @@ public class Checker {
                 "The provided path to the root folder of your project is incorrect, the folder does not exist."
         );
         // target module
-        final String targetModulePropertyValue = DSpotUtils.shouldAddSeparator.apply(properties.getProperty(ConstantsProperties.MODULE.getName()));
+        final String targetModulePropertyValue = DSpotUtils.shouldAddSeparator.apply(configuration.getTargetModule());
         Checker.checkPathPropertyValue(
                 targetModulePropertyValue,
                 ErrorEnum.ERROR_PATH_TO_TARGET_MODULE_PROPERTY,
-                ConstantsProperties.MODULE.getNaturalLanguageDesignation(),
+                "targeted module",
                 currentPath
         );
         currentPath += targetModulePropertyValue != null ? targetModulePropertyValue : "";
 
         // source folders: src and testSrc
         Checker.checkPathPropertyValue(
-                properties.getProperty(ConstantsProperties.SRC_CODE.getName()),
+                configuration.getPathToSourceCode(),
                 ErrorEnum.ERROR_PATH_TO_SRC_PROPERTY,
-                ConstantsProperties.SRC_CODE.getNaturalLanguageDesignation(),
+                "source folder",
                 currentPath
         );
         Checker.checkPathPropertyValue(
-                properties.getProperty(ConstantsProperties.TEST_SRC_CODE.getName()),
+                configuration.getPathToTestSourceCode(),
                 ErrorEnum.ERROR_PATH_TO_TEST_SRC_PROPERTY,
-                ConstantsProperties.TEST_SRC_CODE.getNaturalLanguageDesignation(),
+                "test source folder",
                 currentPath
         );
 
         // path to maven home
         Checker.checkPathPropertyValue(
-                properties.getProperty(ConstantsProperties.MAVEN_HOME.getName()),
+                configuration.getMavenHome(),
                 ErrorEnum.ERROR_PATH_TO_MAVEN_HOME,
-                ConstantsProperties.MAVEN_HOME.getNaturalLanguageDesignation(),
+                "maven installation",
                 currentPath
         );
 
-        if (properties.getProperty(ConstantsProperties.DESCARTES_VERSION.getName()) != null) {
-            checkIsACorrectVersion(properties.getProperty(ConstantsProperties.DESCARTES_VERSION.getName()));
-        }
-        if (properties.getProperty(ConstantsProperties.PIT_VERSION.getName()) != null) {
-            checkIsACorrectVersion(properties.getProperty(ConstantsProperties.PIT_VERSION.getName()));
-        }
+
+        checkIsACorrectVersion(configuration.getPitVersion());
+        checkIsACorrectVersion(configuration.getDescartesVersion());
         // TODO check JVM args and System args
-        checkJVMArgs(ConstantsProperties.JVM_ARGS.get(properties)); // no checks since it is a soft checks
-        checkSystemProperties(ConstantsProperties.SYSTEM_PROPERTIES.get(properties));
+        checkJVMArgs(configuration.getJVMArgs()); // no checks since it is a soft checks
+        checkSystemProperties(configuration.getSystemProperties());
+    }
+
+    public static void postChecking(InputConfiguration configuration) {
+        // we check now the binaries folders after the compilation
+        String currentPath = DSpotUtils.shouldAddSeparator.apply(configuration.getAbsolutePathToProjectRoot());
+        final String targetModulePropertyValue = DSpotUtils.shouldAddSeparator.apply(configuration.getTargetModule());
+        currentPath += targetModulePropertyValue != null ? targetModulePropertyValue : "";
+
+        // binary folders: classes and test-classes
+        Checker.checkPathPropertyValue(
+                configuration.getPathToClasses(),
+                ErrorEnum.ERROR_PATH_TO_SRC_CLASSES_PROPERTY,
+                "binaries folder",
+                currentPath
+        );
+        Checker.checkPathPropertyValue(
+                configuration.getPathToClasses(),
+                ErrorEnum.ERROR_PATH_TO_TEST_CLASSES_PROPERTY,
+                "test binaries folder",
+                currentPath
+        );
     }
 
     // TODO must be enhanced.
@@ -180,7 +153,7 @@ public class Checker {
         if (propertyValue != null) {
             final String additionalMessage = "The provided path to the " + naturalLanguageDesignation + " of your project is incorrect, the folder does not exist."
                     + AmplificationHelper.LINE_SEPARATOR + " This path should be either relative to the path pointed by "
-                    + ConstantsProperties.PROJECT_ROOT_PATH.getName() + " property "
+                    + " --absolute-path-to-project-root command line option"
                     + AmplificationHelper.LINE_SEPARATOR + "or an absolute path";
             if (new File(propertyValue).isAbsolute()) {
                 Checker.checkFileExists(propertyValue, errorEnumInCaseOfError, additionalMessage);
@@ -197,7 +170,7 @@ public class Checker {
         if (propertyValue != null) {
             final String additionalMessage = "The provided path to the " + naturalLanguageDesignation + " of your project is incorrect, the folder does not exist."
                     + AmplificationHelper.LINE_SEPARATOR + " This path should be relative to the path pointed by "
-                    + ConstantsProperties.PROJECT_ROOT_PATH.getName() + " property.";
+                    + " --absolute-path-to-project-root command line option.";
             Checker.checkFileExists(rootPathProject + "/" + propertyValue, errorEnumInCaseOfError, additionalMessage);
         }
     }

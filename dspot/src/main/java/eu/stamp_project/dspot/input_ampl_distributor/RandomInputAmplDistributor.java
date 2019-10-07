@@ -23,12 +23,8 @@ public class RandomInputAmplDistributor extends AbstractInputAmplDistributor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RandomInputAmplDistributor.class);
 
-    public RandomInputAmplDistributor() {
-        super();
-    }
-
-    public RandomInputAmplDistributor(List<Amplifier> amplifiers) {
-        super(amplifiers);
+    public RandomInputAmplDistributor(int maxNumTests, List<Amplifier> amplifiers) {
+        super(maxNumTests, amplifiers);
     }
 
     /**
@@ -72,7 +68,7 @@ public class RandomInputAmplDistributor extends AbstractInputAmplDistributor {
 
     public List<CtMethod<?>> reduce(List<CtMethod<?>> tests) {
         final List<CtMethod<?>> reducedTests = new ArrayList<>();
-        final int maxNumTests = InputConfiguration.get().getMaxTestAmplified();
+
         final int testsSize = tests.size();
         if (testsSize > maxNumTests) {
             Random random = new Random();

@@ -1,5 +1,6 @@
 package eu.stamp_project.utils.compilation;
 
+import eu.stamp_project.Main;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
@@ -34,7 +35,10 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DSpotCompiler.class);
 
+	private static String absolutePathToProjectRoot;
+
 	public static DSpotCompiler createDSpotCompiler(InputConfiguration configuration, String pathToDependencies) {
+		absolutePathToProjectRoot = configuration.getAbsolutePathToProjectRoot();
 		String pathToSources = configuration.getAbsolutePathToSourceCode()
 				+ PATH_SEPARATOR +
 				configuration.getAbsolutePathToTestSourceCode();
@@ -117,9 +121,9 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		return launcher;
 	}
 
-	public static boolean compile(InputConfiguration configuration, String pathToSources, String dependencies, File binaryOutputDirectory) {
+	public static boolean compile(String pathToSources, String dependencies, File binaryOutputDirectory) {
 		Launcher launcher = new Launcher();
-		if (configuration.isVerbose()) {
+		if (Main.verbose) {
 			launcher.getEnvironment().setLevel("INFO");
 		}
 		launcher.getEnvironment().setNoClasspath(true);
@@ -156,7 +160,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 	private static final String PATH_TO_AMPLIFIED_TEST_SRC = "target/dspot/tmp_test_sources";
 
 	public static String getPathToAmplifiedTestSrc() {
-		return InputConfiguration.get().getAbsolutePathToProjectRoot() + PATH_TO_AMPLIFIED_TEST_SRC;
+		return absolutePathToProjectRoot + PATH_TO_AMPLIFIED_TEST_SRC;
 	}
 
 	private Launcher launcher;

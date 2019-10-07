@@ -26,7 +26,7 @@ public class GoogleTruthTestFramework extends AbstractTestFrameworkDecorator {
 
     @Override
     public CtInvocation<?> buildInvocationToAssertion(CtMethod<?> testMethod, AssertEnum assertion, List<CtExpression> arguments) {
-        final Factory factory = InputConfiguration.get().getFactory();
+        final Factory factory = testMethod.getFactory();
         //assertThat(actual)
         final CtInvocation<?> assertThat = createAssertThat(arguments.get(arguments.size() - 1));
         //isXXX(expected)
@@ -46,7 +46,7 @@ public class GoogleTruthTestFramework extends AbstractTestFrameworkDecorator {
 
     @SuppressWarnings("unchecked")
     private CtInvocation<?> createAssertThat(CtExpression<?> actual) {
-        final Factory factory = InputConfiguration.get().getFactory();
+        final Factory factory = actual.getFactory();
         final CtInvocation invocation = factory.createInvocation();
         final CtExecutableReference executableReference = factory.Core().createExecutableReference();
         executableReference.setStatic(true);

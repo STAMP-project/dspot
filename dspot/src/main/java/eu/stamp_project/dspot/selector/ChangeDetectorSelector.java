@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
+import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
 import eu.stamp_project.utils.report.output.selector.change.json.TestCaseJSON;
@@ -30,7 +30,7 @@ import java.util.Map;
  * benjamin.danglot@inria.fr
  * on 09/08/17
  */
-public class ChangeDetectorSelector implements TestSelector {
+public class ChangeDetectorSelector extends AbstractTestSelector {
 
     private String pathToFirstVersionOfProgram;
 
@@ -40,8 +40,11 @@ public class ChangeDetectorSelector implements TestSelector {
 
     private CtType<?> currentClassTestToBeAmplified;
 
-    public ChangeDetectorSelector() {
+    public ChangeDetectorSelector(AutomaticBuilder automaticBuilder, InputConfiguration configuration) {
+        super(automaticBuilder, configuration);
         this.failurePerAmplifiedTest = new HashMap<>();
+        this.pathToFirstVersionOfProgram = configuration.getAbsolutePathToProjectRoot();
+        this.pathToSecondVersionOfProgram = configuration.getAbsolutePathToSecondVersionProjectRoot();
     }
 
     @Override
@@ -50,8 +53,8 @@ public class ChangeDetectorSelector implements TestSelector {
             this.pathToFirstVersionOfProgram = InputConfiguration.get().getAbsolutePathToProjectRoot();
             this.pathToSecondVersionOfProgram = InputConfiguration.get().getAbsolutePathToSecondVersionProjectRoot();
             InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
-            DSpotPOMCreator.createNewPom();
-            InputConfiguration.get().getBuilder().compile();
+            //DSpotPOMCreator.createNewPom(); TODO
+            this.automaticBuilder.compile();
             InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToFirstVersionOfProgram);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -86,17 +89,16 @@ public class ChangeDetectorSelector implements TestSelector {
 
         InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
         DSpotCompiler.compile(
-                InputConfiguration.get(),
                 pathToAmplifiedTestSrc,
-                InputConfiguration.get().getFullClassPathWithExtraDependencies(),
-                new File(this.pathToSecondVersionOfProgram + InputConfiguration.get().getPathToTestClasses())
+                this.classpath,
+                new File(this.pathToSecondVersionOfProgram + this.pathToTestClasses)
         );
 
         final TestResult results;
         try {
             InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
             results = TestRunner.run(
-                    InputConfiguration.get().getFullClassPathWithExtraDependencies(),
+                    this.classpath,
                     this.pathToSecondVersionOfProgram,
                     clone.getQualifiedName(),
                     amplifiedTestToBeKept.stream()

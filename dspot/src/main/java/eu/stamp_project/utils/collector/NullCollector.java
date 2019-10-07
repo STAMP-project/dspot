@@ -2,7 +2,7 @@ package eu.stamp_project.utils.collector;
 
 import com.martiansoftware.jsap.JSAPResult;
 
-public class NullCollector implements DspotInformationCollector {
+public class NullCollector implements Collector {
 	public NullCollector(){}
 	public void reportInitInformation(JSAPResult jsapConfig){};
 	@Override

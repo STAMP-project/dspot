@@ -41,7 +41,7 @@ public class TestFinder {
      * Predicate that returns either the given ctType should be excluded or not.
      */
     public final Predicate<CtType> isNotExcluded = ctType ->
-            InputConfiguration.get().getExcludedClasses().isEmpty() ||
+            this.excludedTestClasses.isEmpty() ||
                     this.excludedTestClasses.stream()
                             .map(Pattern::compile)
                             .map(pattern -> pattern.matcher(ctType.getQualifiedName()))

@@ -1,8 +1,6 @@
 package eu.stamp_project.utils.report.error;
 
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.program.ConstantsProperties;
-import eu.stamp_project.utils.program.InputConfigurationProperty;
 
 /**
  * created by Benjamin DANGLOT
@@ -21,14 +19,14 @@ public enum ErrorEnum {
     /*
         ERRORS PROPERTIES
      */
-    ERROR_PATH_TO_PROJECT_ROOT_PROPERTY(ConstantsProperties.PROJECT_ROOT_PATH),
-    ERROR_PATH_TO_TARGET_MODULE_PROPERTY(ConstantsProperties.MODULE),
-    ERROR_PATH_TO_SRC_PROPERTY(ConstantsProperties.SRC_CODE),
-    ERROR_PATH_TO_TEST_SRC_PROPERTY(ConstantsProperties.TEST_SRC_CODE),
-    ERROR_PATH_TO_SRC_CLASSES_PROPERTY(ConstantsProperties.SRC_CLASSES),
-    ERROR_PATH_TO_TEST_CLASSES_PROPERTY(ConstantsProperties.TEST_CLASSES),
-    ERROR_PATH_TO_SECOND_VERSION(ConstantsProperties.PATH_TO_SECOND_VERSION),
-    ERROR_PATH_TO_MAVEN_HOME(ConstantsProperties.MAVEN_HOME),
+    ERROR_PATH_TO_PROJECT_ROOT_PROPERTY("project root", "--absolute-path-to-project-root"),
+    ERROR_PATH_TO_TARGET_MODULE_PROPERTY("targeted module",  "--target-module"),
+    ERROR_PATH_TO_SRC_PROPERTY("source folder", "--relative-path-to-source-code"),
+    ERROR_PATH_TO_TEST_SRC_PROPERTY("test source folder", "--relative-path-to-test-code"),
+    ERROR_PATH_TO_SRC_CLASSES_PROPERTY("binaries folder", "--relative-path-to-classes"),
+    ERROR_PATH_TO_TEST_CLASSES_PROPERTY("test binaries folder", "--relative-path-to-test-classes"),
+    ERROR_PATH_TO_SECOND_VERSION("path to second version", "--absolute-path-to-second-version"),
+    ERROR_PATH_TO_MAVEN_HOME("maven installation", "--maven-home"),
     ERROR_INVALID_VERSION("Invalid version"),
 
     /*
@@ -58,15 +56,18 @@ public enum ErrorEnum {
     //  PitMutantScoreSelector
     ERROR_ORIGINAL_MUTATION_SCORE("Something bad happened when DSpot tried to computed the original mutation score."
             + AmplificationHelper.LINE_SEPARATOR +
-            "This is usually due to the value of the property " + ConstantsProperties.PIT_FILTER_CLASSES_TO_KEEP.getName() + "."
+            "This is usually due to the value of the command line option --pit-filter-classes-to-keep."
             + AmplificationHelper.LINE_SEPARATOR +
-            ConstantsProperties.PIT_FILTER_CLASSES_TO_KEEP.getDescription()
+            "Specify the filter of classes to keep used by PIT. " +
+            "This allow you restrict the scope of the mutation done by PIT. " +
+            "If this is not specified, DSpot will try to build on the " +
+            "fly a filter that takes into account the largest number of classes, e.g. the topest package. "
             + AmplificationHelper.LINE_SEPARATOR +
             "This is can be also due to a specific configuration of your test suite. If any test fails,"
             + AmplificationHelper.LINE_SEPARATOR +
             "PIT (and so DSpot) won't be able to be executed. Please, check your environment variables,"
             + AmplificationHelper.LINE_SEPARATOR +
-            "external files, etc. You can use " + ConstantsProperties.EXCLUDED_CLASSES + " and " + ConstantsProperties.EXCLUDED_TEST_CASES
+            "external files, etc. You can use --excluded-classes and --excluded-test-cases"
             + AmplificationHelper.LINE_SEPARATOR +
             " to exclude respectively specific test classes ans test cases."
     );
@@ -81,9 +82,8 @@ public enum ErrorEnum {
         this.message = message;
     }
 
-    ErrorEnum(InputConfigurationProperty property) {
-        this.message =
-                "There is a problem with the provided path to the "
-                        + property.getNaturalLanguageDesignation() + "(" + property.getName() + " property)";
+    ErrorEnum(String naturalDesignation, String name) {
+        this.message =" There is a problem with the provided path to the "
+                + naturalDesignation + "(" + name + " command-line)";
     }
 }

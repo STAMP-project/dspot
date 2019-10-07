@@ -1,5 +1,6 @@
 package eu.stamp_project.automaticbuilder.gradle;
 
+import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.gradle.tooling.BuildLauncher;
@@ -31,10 +32,19 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
 
     private GradleInjector gradleInjector;
 
-    public GradleAutomaticBuilder() {
+    private String absolutePathToProjectRoot;
+
+    public GradleAutomaticBuilder(InputConfiguration configuration) {
+        this.absolutePathToProjectRoot = configuration.getAbsolutePathToProjectRoot();
         this.gradleInjector = new GradleInjector(
-                InputConfiguration.get().getAbsolutePathToProjectRoot()
-                        + File.separator + GradleInjector.GRADLE_BUILD_FILE
+                this.absolutePathToProjectRoot + File.separator + GradleInjector.GRADLE_BUILD_FILE,
+                configuration.isDescartesMode(),
+                configuration.getFilter(),
+                configuration.getPitVersion(),
+                configuration.getTimeOutInMs(),
+                configuration.getJVMArgs(),
+                configuration.getExcludedClasses(),
+                configuration.getAdditionalClasspathElements()
         );
     }
 
@@ -52,15 +62,15 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
     @Override
     public String buildClasspath() {
         try {
-            final File classpathFile = new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + File.separator + "build/classpath.txt");
+            final File classpathFile = new File(this.absolutePathToProjectRoot + File.separator + "build/classpath.txt");
             if (!classpathFile.exists()) {
                 LOGGER.info("Classpath file for Gradle project doesn't exist, starting to build it...");
                 LOGGER.info("Injecting  Gradle task to print project classpath on stdout...");
-                this.gradleInjector.injectPrintClasspathTask(InputConfiguration.get().getAbsolutePathToProjectRoot());
+                this.gradleInjector.injectPrintClasspathTask(this.absolutePathToProjectRoot);
                 LOGGER.info("Retrieving project classpath...");
                 this.runTasks(false, GradleInjector.WRITE_CLASSPATH_TASK);
                 LOGGER.info("Writing project classpath on file " + JAVA_PROJECT_CLASSPATH + "...");
-                this.gradleInjector.resetOriginalGradleBuildFile(InputConfiguration.get().getAbsolutePathToProjectRoot());
+                this.gradleInjector.resetOriginalGradleBuildFile(this.absolutePathToProjectRoot);
             }
             try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
                 final String collect = buffer
@@ -89,18 +99,18 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
     public void runPit(CtType<?>... testClasses) {
         try {
             LOGGER.info("Injecting  Gradle task to run Pit...");
-            this.gradleInjector.injectPitTask(InputConfiguration.get().getAbsolutePathToProjectRoot(), testClasses);
+            this.gradleInjector.injectPitTask(this.absolutePathToProjectRoot, testClasses);
             LOGGER.info("Running Pit...");
             runTasks(true, CMD_PIT_MUTATION_COVERAGE);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            this.gradleInjector.resetOriginalGradleBuildFile(InputConfiguration.get().getAbsolutePathToProjectRoot());
+            this.gradleInjector.resetOriginalGradleBuildFile(this.absolutePathToProjectRoot);
         }
     }
 
     protected void runTasks(boolean skipTest, String... tasks) {
-        ProjectConnection connection = GradleConnector.newConnector().forProjectDirectory(new File(InputConfiguration.get().getAbsolutePathToProjectRoot())).connect();
+        ProjectConnection connection = GradleConnector.newConnector().forProjectDirectory(new File(this.absolutePathToProjectRoot)).connect();
         LOGGER.info("Run gradle tasks: {}", String.join(" ", tasks));
         try {
             final BuildLauncher buildLauncher = connection.newBuild()
@@ -108,7 +118,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
             if (skipTest) {
                 buildLauncher.withArguments(ARGUMENTS_SKIP_COMPILE_TEST);
             }
-            if (InputConfiguration.get().isVerbose()) {
+            if (Main.verbose) {
                 buildLauncher.setStandardError(System.err);
                 buildLauncher.setStandardOutput(System.out);
             }

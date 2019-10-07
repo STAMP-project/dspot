@@ -1,8 +1,11 @@
 package eu.stamp_project.dspot;
 
 import eu.stamp_project.Main;
+import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
 import eu.stamp_project.dspot.selector.TestSelector;
+import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.report.output.Output;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -41,13 +44,20 @@ public class DSpot {
 
     private boolean shouldGenerateAmplifiedTestClass;
 
-    public DSpot(TestFinder testFinder,
+    private AutomaticBuilder automaticBuilder;
+
+    private double delta;
+
+    public DSpot(double delta,
+                 TestFinder testFinder,
                  DSpotCompiler compiler,
                  TestSelector testSelector,
                  InputAmplDistributor inputAmplDistributor,
                  Output output,
                  int numberOfIterations,
-                 boolean shouldGenerateAmplifiedTestClass) {
+                 boolean shouldGenerateAmplifiedTestClass,
+                 AutomaticBuilder automaticBuilder) {
+        this.delta = delta;
         this.testSelector = testSelector;
         this.inputAmplDistributor = inputAmplDistributor;
         this.numberOfIterations = numberOfIterations;
@@ -55,6 +65,7 @@ public class DSpot {
         this.compiler = compiler;
         this.output = output;
         this.shouldGenerateAmplifiedTestClass = shouldGenerateAmplifiedTestClass;
+        this.automaticBuilder = automaticBuilder;
     }
 
     public CtType<?> amplify(CtType<?> testClassToBeAmplified) {
@@ -82,6 +93,7 @@ public class DSpot {
         for (CtType<?> testClassToBeAmplified : testClassesToBeAmplified) {
             inputAmplDistributor.resetAmplifiers(testClassToBeAmplified);
             Amplification testAmplification = new Amplification(
+                    this.delta,
                     this.compiler,
                     this.testSelector,
                     this.inputAmplDistributor,
@@ -89,6 +101,14 @@ public class DSpot {
             );
             final List<CtMethod<?>> testMethodsToBeAmplified =
                     testFinder.findTestMethods(testClassToBeAmplified, testMethodsToBeAmplifiedAsString);
+
+            // here, we base the execution mode to the first test method given.
+            // the user should provide whether JUnit3/4 OR JUnit5 but not both at the same time.
+            // TODO DSpot could be able to switch from one to another version of JUnit, but I believe that the ROI is not worth it.
+            final boolean jUnit5 = TestFramework.isJUnit5(testMethodsToBeAmplified.get(0));
+            EntryPoint.jUnit5Mode = jUnit5;
+            InputConfiguration.get().setJUnit5(jUnit5);
+
             final CtType<?> amplifiedTestClass = this.amplify(testAmplification, testClassToBeAmplified, testMethodsToBeAmplified);
             amplifiedTestClasses.add(amplifiedTestClass);
             cleanAfterAmplificationOfOneTestClass(compiler, testClassToBeAmplified);
@@ -121,7 +141,7 @@ public class DSpot {
         LOGGER.debug("OPTIMIZATION: GC invoked");
         System.gc(); //Optimization: cleaning up heap before printing the amplified class
 
-        InputConfiguration.get().getBuilder().reset();
+        this.automaticBuilder.reset();
         try {
             Main.GLOBAL_REPORT.addTestSelectorReportForTestClass(testClassToBeAmplified, this.testSelector.report());
         } catch (Exception e) {

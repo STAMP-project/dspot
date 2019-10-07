@@ -18,10 +18,10 @@ import eu.stamp_project.utils.report.output.selector.mutant.json.TestCaseJSON;
 import eu.stamp_project.utils.report.output.selector.mutant.json.TestClassJSON;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.collector.CollectorConfig;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -54,24 +54,29 @@ public class PitMutantScoreSelector extends TakeAllSelector {
 
     private TestSelectorElementReport lastReport;
 
-    public PitMutantScoreSelector() {
-        this(OutputFormat.XML);
-    }
+    private CtClass<?> testClassTargetOne;
 
-    public PitMutantScoreSelector(OutputFormat format) {
-        this.testThatKilledMutants = new HashMap<>();
-        switch (format) {
-            case XML:
-                parser = new PitXMLResultParser();
-                break;
-            case CSV:
-                parser = new PitCSVResultParser();
-                break;
+    private boolean shouldTargetOneTestClass;
+
+    private String absolutePathToProjectRoot;
+
+    public PitMutantScoreSelector(AutomaticBuilder automaticBuilder,
+                                  InputConfiguration configuration) {
+        super(automaticBuilder, configuration);
+        this.absolutePathToProjectRoot = configuration.getAbsolutePathToProjectRoot();
+        this.shouldTargetOneTestClass = configuration.shouldTargetOneTestClass();
+        this.testClassTargetOne = configuration.getFactory().Class().get(configuration.getTestClasses().get(0));
+        PitMutantScoreSelector.OutputFormat originalFormat;
+        final String pathPitResult = configuration.getPathPitResult();
+        if (pathPitResult.toLowerCase().endsWith(".xml")) {
+            originalFormat = PitMutantScoreSelector.OutputFormat.XML;
+        } else if (pathPitResult.toLowerCase().endsWith(".csv")) {
+            originalFormat = PitMutantScoreSelector.OutputFormat.CSV;
+        } else {
+            LOGGER.warn("You specified the wrong Pit format. Skipping expert mode.");
+            originalFormat = PitMutantScoreSelector.OutputFormat.XML;
         }
-    }
-
-    public PitMutantScoreSelector(String pathToOriginalResultOfPit, OutputFormat originalFormat, OutputFormat consecutiveFormat) {
-        this(consecutiveFormat);
+        this.testThatKilledMutants = new HashMap<>();
         AbstractParser originalResultParser;
         switch (originalFormat) {
             case CSV:
@@ -81,27 +86,24 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 parser = originalResultParser = new PitXMLResultParser();
                 break;
         }
-        initOriginalPitResult(originalResultParser.parse(new File(pathToOriginalResultOfPit)));
+        initOriginalPitResult(originalResultParser.parse(new File(pathPitResult)));
     }
 
     @Override
     public boolean init() {
         if (this.originalKilledMutants == null) {
-            final AutomaticBuilder automaticBuilder = InputConfiguration.get().getBuilder();
-            if (InputConfiguration.get().shouldTargetOneTestClass()) {
-                automaticBuilder.runPit(
-                        InputConfiguration.get().getFactory().Class().get(InputConfiguration.get().getTestClasses().get(0))
-                );
+            if (shouldTargetOneTestClass) {
+                this.automaticBuilder.runPit(testClassTargetOne);
             } else {
                 try {
-                    automaticBuilder.runPit();
+                    this.automaticBuilder.runPit();
                 } catch (Throwable e) {
                     LOGGER.error(ErrorEnum.ERROR_ORIGINAL_MUTATION_SCORE.getMessage());
                     Main.GLOBAL_REPORT.addError(new Error(ErrorEnum.ERROR_ORIGINAL_MUTATION_SCORE, e));
                     return false;
                 }
             }
-            initOriginalPitResult(parser.parseAndDelete(InputConfiguration.get().getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit()));
+            initOriginalPitResult(parser.parseAndDelete( this.absolutePathToProjectRoot + automaticBuilder.getOutputDirectoryPit()));
         } else {
             baselineKilledMutants = new ArrayList<>();
             for(AbstractPitResult r : originalKilledMutants) {
@@ -157,17 +159,18 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         //PIT cannot be executed on test classes containing parallel execution annotations
         CloneHelper.removeParallelExecutionAnnotation(clone, amplifiedTestToBeKept);
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));
-        final AutomaticBuilder automaticBuilder = InputConfiguration.get().getBuilder();
-        final String classpath = InputConfiguration.get().getBuilder()
+        final String classpath = this.automaticBuilder
                 .buildClasspath()
                 + AmplificationHelper.PATH_SEPARATOR +
-                InputConfiguration.get().getClasspathClassesProject()
+                this.targetClasses
                 + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies();
-        DSpotCompiler.compile(InputConfiguration.get(), DSpotCompiler.getPathToAmplifiedTestSrc(), classpath,
-                new File(InputConfiguration.get().getAbsolutePathToTestClasses()));
+        DSpotCompiler.compile(
+                DSpotCompiler.getPathToAmplifiedTestSrc(), classpath,
+                new File(this.pathToTestClasses)
+        );
 
-        InputConfiguration.get().getBuilder().runPit(clone);
-        final List<AbstractPitResult> results = parser.parseAndDelete(InputConfiguration.get().getAbsolutePathToProjectRoot() + automaticBuilder.getOutputDirectoryPit());
+        this.automaticBuilder.runPit(clone);
+        final List<AbstractPitResult> results = parser.parseAndDelete(this.absolutePathToProjectRoot + automaticBuilder.getOutputDirectoryPit());
         Set<CtMethod<?>> selectedTests = new HashSet<>();
         if (results != null) {
             LOGGER.info("{} mutants has been generated ({})", results.size(), this.numberOfMutant);
@@ -269,7 +272,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         }
         TestClassJSON testClassJSON;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        final File file = new File(InputConfiguration.get().getOutputDirectory() + "/" +
+        final File file = new File(InputConfiguration.get().getOutputDirectory() + "/" + // TODO move to ouput
                 this.currentClassTestToBeAmplified.getQualifiedName() + "report.json");
         if (file.exists()) {
             try {
@@ -312,7 +315,8 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                     }
                 }
         );
-        CollectorConfig.getInstance().getInformationCollector().reportSelectorInformation(testClassJSON.toString());
+        // TODO
+//        CollectorConfig.getInstance().getInformationCollector().reportSelectorInformation(testClassJSON.toString());
         return testClassJSON;
     }
 
