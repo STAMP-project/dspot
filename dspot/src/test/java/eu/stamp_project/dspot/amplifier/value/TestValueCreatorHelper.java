@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.amplifier.value;
 
-import eu.stamp_project.dspot.amplifier.AbstractAmplifierTest;
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import org.junit.Test;
 import spoon.reflect.factory.Factory;
 
@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 10/10/17
  */
-public class TestValueCreatorHelper extends AbstractAmplifierTest {
+public class TestValueCreatorHelper extends AbstractTestOnSample {
 
     @Test
     public void testCanGenerateValueForObjectThatAreChained() {

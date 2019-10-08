@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
@@ -14,7 +15,7 @@ import java.util.stream.Stream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class StringLiteralAmplifierTest extends AbstractAmplifierTest {
+public class StringLiteralAmplifierTest extends AbstractTestOnSample {
 
     @Test
     public void testOneLitExisting() throws Exception {

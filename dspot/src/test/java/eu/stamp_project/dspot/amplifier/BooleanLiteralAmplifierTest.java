@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 
-public class BooleanLiteralAmplifierTest extends AbstractAmplifierTest {
+public class BooleanLiteralAmplifierTest extends AbstractTestOnSample {
 
     BooleanLiteralAmplifier amplifier;
 

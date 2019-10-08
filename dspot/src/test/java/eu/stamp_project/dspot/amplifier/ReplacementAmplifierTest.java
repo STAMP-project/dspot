@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Test;
@@ -11,7 +12,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
-public class ReplacementAmplifierTest extends AbstractAmplifierTest {
+public class ReplacementAmplifierTest extends AbstractTestOnSample {
 
     @Test
     public void testReplacementOfArrayList() throws Exception {

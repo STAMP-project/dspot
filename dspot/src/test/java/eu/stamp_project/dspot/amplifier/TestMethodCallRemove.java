@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -15,7 +16,7 @@ import static org.junit.Assert.assertNotEquals;
  * benjamin.danglot@inria.fr
  * on 12/7/16
  */
-public class TestMethodCallRemove extends AbstractAmplifierTest {
+public class TestMethodCallRemove extends AbstractTestOnSample {
 
     @Test
     public void testMethodCallRemoveAll() throws Exception {

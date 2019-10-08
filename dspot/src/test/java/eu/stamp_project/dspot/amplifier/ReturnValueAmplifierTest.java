@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
@@ -19,7 +20,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 19/07/18
  */
-public class ReturnValueAmplifierTest extends AbstractAmplifierTest {
+public class ReturnValueAmplifierTest extends AbstractTestOnSample {
 
     @Test
     public void testStatementAddOnArrayObjects() throws Exception {

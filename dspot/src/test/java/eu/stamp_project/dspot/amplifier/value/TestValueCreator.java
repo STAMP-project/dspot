@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.amplifier.value;
 
-import eu.stamp_project.dspot.amplifier.AbstractAmplifierTest;
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 12/8/16
  */
-public class TestValueCreator extends AbstractAmplifierTest {
+public class TestValueCreator extends AbstractTestOnSample {
 
 	@Test
 	public void testCreateRandomLocalVarOfArrayListString() throws Exception {

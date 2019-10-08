@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
@@ -18,7 +19,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 12/7/16
  */
-public class TestMethodCallAdder extends AbstractAmplifierTest {
+public class TestMethodCallAdder extends AbstractTestOnSample {
 
     @Test
     public void testMethodCallAddOnInvocationWithCast() {

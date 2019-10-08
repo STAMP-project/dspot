@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.amplifier.value;
 
-import eu.stamp_project.dspot.amplifier.AbstractAmplifierTest;
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import org.junit.Test;
 import spoon.reflect.declaration.CtParameter;
 import spoon.reflect.reference.CtTypeReference;
@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 10/10/17
  */
-public class TestCollectionCreator extends AbstractAmplifierTest {
+public class TestCollectionCreator extends AbstractTestOnSample {
 
     @Test
     public void testCreateCollection() throws Exception {

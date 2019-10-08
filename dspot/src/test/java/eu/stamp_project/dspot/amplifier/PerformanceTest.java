@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
@@ -16,7 +17,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 16/07/18
  */
-public class PerformanceTest extends AbstractAmplifierTest {
+public class PerformanceTest extends AbstractTestOnSample {
 
     @Ignore
     @Test

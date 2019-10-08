@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
@@ -20,7 +21,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 11/23/16
  */
-public class TestDataMutatorTest extends AbstractAmplifierTest {
+public class TestDataMutatorTest extends AbstractTestOnSample {
 
     private static final String SUFFIX_MUTATION = "_literalMutation";
 

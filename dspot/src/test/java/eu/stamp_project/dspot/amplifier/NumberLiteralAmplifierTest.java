@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-public class NumberLiteralAmplifierTest extends AbstractAmplifierTest {
+public class NumberLiteralAmplifierTest extends AbstractTestOnSample {
 
     NumberLiteralAmplifier amplifier;
 

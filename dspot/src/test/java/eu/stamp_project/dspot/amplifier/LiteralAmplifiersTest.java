@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Ignore;
@@ -22,7 +23,7 @@ import static org.junit.Assert.assertFalse;
  * benjamin.danglot@inria.fr
  * on 13/07/18
  */
-public class LiteralAmplifiersTest extends AbstractAmplifierTest {
+public class LiteralAmplifiersTest extends AbstractTestOnSample {
 
     @Ignore
     @Test
