@@ -1,7 +1,5 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.Utils;
-import eu.stamp_project.AbstractTest;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -17,7 +15,7 @@ import static org.junit.Assert.assertNotEquals;
  * benjamin.danglot@inria.fr
  * on 12/7/16
  */
-public class TestMethodCallRemove extends AbstractTest {
+public class TestMethodCallRemove extends AbstractAmplifierTest {
 
     @Test
     public void testMethodCallRemoveAll() throws Exception {
@@ -27,7 +25,7 @@ public class TestMethodCallRemove extends AbstractTest {
                 3 method are called in the original test, we produce 3 test methods.
          */
 
-        CtClass<Object> testClass = Utils.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
+        CtClass<Object> testClass = launcher.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
 
         TestMethodCallRemover methodCallRemove = new TestMethodCallRemover();
         methodCallRemove.reset(null);

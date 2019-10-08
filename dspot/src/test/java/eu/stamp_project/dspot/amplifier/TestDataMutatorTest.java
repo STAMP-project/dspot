@@ -1,7 +1,5 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.Utils;
-import eu.stamp_project.AbstractTest;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
@@ -22,7 +20,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 11/23/16
  */
-public class TestDataMutatorTest extends AbstractTest {
+public class TestDataMutatorTest extends AbstractAmplifierTest {
 
     private static final String SUFFIX_MUTATION = "_literalMutation";
 
@@ -38,7 +36,7 @@ public class TestDataMutatorTest extends AbstractTest {
 
         final String nameMethod = "methodInteger";
         final int originalValue = 23;
-        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        CtClass<Object> literalMutationClass = launcher.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         RandomHelper.setSeedRandom(42L);
         FastLiteralAmplifier amplifier = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
@@ -66,7 +64,7 @@ public class TestDataMutatorTest extends AbstractTest {
          */
         final String nameMethod = "methodDouble";
         final double originalValue = 23.0D;
-        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        CtClass<Object> literalMutationClass = launcher.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         RandomHelper.setSeedRandom(42L);
         FastLiteralAmplifier amplifier = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
@@ -96,7 +94,7 @@ public class TestDataMutatorTest extends AbstractTest {
 
         final String nameMethod = "methodString";
         final String originalValue = "MyStringLiteral";
-        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        CtClass<Object> literalMutationClass = launcher.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         RandomHelper.setSeedRandom(42L);
         FastLiteralAmplifier amplifier = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
@@ -140,13 +138,13 @@ public class TestDataMutatorTest extends AbstractTest {
             }
         }
 
-        List<String> existingStringLiterals = Utils.getFactory().Class().getAll()
+        List<String> existingStringLiterals = launcher.getFactory().Class().getAll()
                 .stream()
                 .flatMap(ctType ->
                         ctType.getElements(new TypeFilter<CtLiteral>(CtLiteral.class) {
                             @Override
                             public boolean matches(CtLiteral literal) {
-                                return Utils.getFactory().Type().STRING.equals(literal.getType()) && super.matches(literal);
+                                return launcher.getFactory().Type().STRING.equals(literal.getType()) && super.matches(literal);
                             }
                         }).stream().map(ctLiteral -> (String) ctLiteral.getValue())
                 ).collect(Collectors.toList());
@@ -167,7 +165,7 @@ public class TestDataMutatorTest extends AbstractTest {
 
         final String nameMethod = "methodBoolean";
         final boolean originalValue = true;
-        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        CtClass<Object> literalMutationClass = launcher.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         RandomHelper.setSeedRandom(42L);
         FastLiteralAmplifier mutator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
@@ -188,7 +186,7 @@ public class TestDataMutatorTest extends AbstractTest {
 
         final String nameMethod = "methodCharacter";
         final char originalValue = 'z';
-        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        CtClass<Object> literalMutationClass = launcher.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         RandomHelper.setSeedRandom(42L);
         FastLiteralAmplifier mutator = getTestDataMutator(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);

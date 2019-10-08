@@ -1,7 +1,5 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
@@ -21,16 +19,16 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 19/07/18
  */
-public class ReturnValueAmplifierTest extends AbstractTest {
+public class ReturnValueAmplifierTest extends AbstractAmplifierTest {
 
     @Test
     public void testStatementAddOnArrayObjects() throws Exception {
         final String packageName = "fr.inria.statementaddarray";
-        final Factory factory = Utils.getFactory();
+        final Factory factory = launcher.getFactory();
         RandomHelper.setSeedRandom(32L);
         ReturnValueAmplifier amplifier = new ReturnValueAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".ClassTargetAmplify"));
-        CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
+        CtMethod<?> ctMethod = findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
         List<CtMethod> amplifiedMethods = amplifier.amplify(ctMethod, 0).collect(Collectors.toList());
         assertEquals(1, amplifiedMethods.size());
         List<String> expectedCalledMethod = Collections.singletonList("method1");
@@ -54,11 +52,11 @@ public class ReturnValueAmplifierTest extends AbstractTest {
          */
 
         final String packageName = "fr.inria.statementadd";
-        final Factory factory = Utils.getFactory();
+        final Factory factory = launcher.getFactory();
         RandomHelper.setSeedRandom(42L);
         ReturnValueAmplifier amplifier = new ReturnValueAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".TestClassTargetAmplify"));
-        CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
+        CtMethod<?> ctMethod = findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
         List<CtMethod> amplifiedMethods = amplifier.amplify(ctMethod, 0).collect(Collectors.toList());
         System.out.println(amplifiedMethods);
         assertEquals(1, amplifiedMethods.size());

@@ -1,9 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
 import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -25,7 +22,7 @@ import static org.junit.Assert.assertFalse;
  * benjamin.danglot@inria.fr
  * on 13/07/18
  */
-public class LiteralAmplifiersTest extends AbstractTest {
+public class LiteralAmplifiersTest extends AbstractAmplifierTest {
 
     @Ignore
     @Test
@@ -35,7 +32,7 @@ public class LiteralAmplifiersTest extends AbstractTest {
             The amplifiers must keep doing the amplification in case of all the combination of amplification has been explored.
          */
 
-        final CtClass testClass = Utils.findClass("fr.inria.workload.WorkloadTest");
+        final CtClass testClass = launcher.getFactory().Class().get("fr.inria.workload.WorkloadTest");
 
         List<CtMethod<?>> allTest = TestFramework.getAllTest(testClass);
         Amplifier amplifier = new NumberLiteralAmplifier();
@@ -59,13 +56,13 @@ public class LiteralAmplifiersTest extends AbstractTest {
          */
 
         final String nameMethod = "testInt";
-        CtClass<?> literalMutationClass = Utils.getFactory().Class().get("fr.inria.ampl.ToBeAmplifiedLiteralTest");
+        CtClass<?> literalMutationClass = launcher.getFactory().Class().get("fr.inria.ampl.ToBeAmplifiedLiteralTest");
         RandomHelper.setSeedRandom(42L);
         Amplifier stringLiteralAmplifier = new StringLiteralAmplifier();
         stringLiteralAmplifier.reset(literalMutationClass);
         Amplifier numberLiteralAmplifier= new NumberLiteralAmplifier();
         numberLiteralAmplifier.reset(literalMutationClass);
-        final CtMethod method = Utils.findMethod(literalMutationClass, nameMethod);
+        final CtMethod method = literalMutationClass.getMethodsByName(nameMethod).get(0);
 
         // 1rst application of both amplifiers
         List<CtMethod<?>> amplifiedStringMethods = stringLiteralAmplifier.amplify(method, 0).collect(Collectors.toList());
@@ -94,12 +91,12 @@ public class LiteralAmplifiersTest extends AbstractTest {
             This test implements the example cases showed in https://github.com/STAMP-project/dspot/issues/454
          */
 
-        CtClass<?> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        CtClass<?> literalMutationClass = launcher.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         final String nameMethod = "methodString";
-        final CtMethod method = Utils.findMethod(literalMutationClass, nameMethod);
+        final CtMethod method = literalMutationClass.getMethodsByName(nameMethod).get(0);
         final CtMethod clone = method.clone();
         clone.setSimpleName("temporaryMethod");
-        clone.setBody(Utils.getFactory().createCodeSnippetStatement("int x = 1 + 1").compile());
+        clone.setBody(launcher.getFactory().createCodeSnippetStatement("int x = 1 + 1").compile());
         Amplifier zeroAmplifier = new AbstractLiteralAmplifier<Integer>() {
             @Override
             protected Set<CtExpression<Integer>> amplify(CtExpression<Integer> original, CtMethod<?> testMethod) {

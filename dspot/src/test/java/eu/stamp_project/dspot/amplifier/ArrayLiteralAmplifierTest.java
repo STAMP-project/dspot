@@ -1,7 +1,5 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,16 +19,17 @@ import static org.junit.Assert.assertTrue;
  * abwogi@kth.se
  * on 12/09/19
  */
-public class ArrayLiteralAmplifierTest extends AbstractTest {
+public class ArrayLiteralAmplifierTest extends AbstractAmplifierTest {
 
     ArrayLiteralAmplifier amplifier;
 
     CtClass<Object> literalMutationClass;
 
     @Before
-    public void setup() throws Exception {
+    @Override
+    public void setUp() {
         super.setUp();
-        literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.ArrayMutation");
+        literalMutationClass = launcher.getFactory().Class().get("fr.inria.amp.ArrayMutation");
         RandomHelper.setSeedRandom(42L);
         amplifier = new ArrayLiteralAmplifier();
     }
@@ -105,7 +104,7 @@ public class ArrayLiteralAmplifierTest extends AbstractTest {
         } else if(type.equals("float")){
             return "1.1F";
         } else if(type.equals("double")){
-            return "1.1";
+            return "1.1literalMutationClass";
         } else if(type.equals("byte")){
             return "1";
         } else if(type.equals("boolean")){

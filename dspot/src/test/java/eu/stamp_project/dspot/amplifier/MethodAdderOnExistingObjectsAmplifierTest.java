@@ -1,7 +1,5 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtBlock;
@@ -24,7 +22,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 19/07/18
  */
-public class MethodAdderOnExistingObjectsAmplifierTest extends AbstractTest {
+public class MethodAdderOnExistingObjectsAmplifierTest extends AbstractAmplifierTest {
 
     @Test
     public void testInLoop() throws Exception {
@@ -34,12 +32,12 @@ public class MethodAdderOnExistingObjectsAmplifierTest extends AbstractTest {
          */
 
         final String packageName = "fr.inria.statementadd";
-        final Factory factory = Utils.getFactory();
+        final Factory factory = launcher.getFactory();
         RandomHelper.setSeedRandom(32L);
         MethodAdderOnExistingObjectsAmplifier amplifier = new MethodAdderOnExistingObjectsAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".ClassTarget"));
 
-        CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTarget"), "testWithLoop");
+        CtMethod<?> ctMethod = factory.Class().get(packageName + ".TestClassTarget").getMethodsByName("testWithLoop").get(0);
         // the original body of the loop has one statement
         assertEquals(1,
                 ((CtBlock<?>) ctMethod
@@ -65,12 +63,12 @@ public class MethodAdderOnExistingObjectsAmplifierTest extends AbstractTest {
          */
 
         final String packageName = "fr.inria.statementadd";
-        final Factory factory = Utils.getFactory();
+        final Factory factory = launcher.getFactory();
         RandomHelper.setSeedRandom(32L);
         MethodAdderOnExistingObjectsAmplifier amplifier = new MethodAdderOnExistingObjectsAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".ClassTarget"));
 
-        CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTarget"), "test");
+        CtMethod<?> ctMethod = factory.Class().get(packageName + ".TestClassTarget").getMethodsByName("test").get(0);
         List<CtMethod> amplifiedMethods = amplifier.amplify(ctMethod, 0).collect(Collectors.toList());
 
         assertEquals(7, amplifiedMethods.size());
@@ -95,12 +93,12 @@ public class MethodAdderOnExistingObjectsAmplifierTest extends AbstractTest {
     @Test
     public void testStatementAddOnArrayObjects() throws Exception {
         final String packageName = "fr.inria.statementaddarray";
-        final Factory factory = Utils.getFactory();
+        final Factory factory = launcher.getFactory();
         RandomHelper.setSeedRandom(32L);
         MethodAdderOnExistingObjectsAmplifier amplifier = new MethodAdderOnExistingObjectsAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".ClassTargetAmplify"));
 
-        CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
+        CtMethod<?> ctMethod = factory.Class().get(packageName + ".TestClassTargetAmplify").getMethodsByName("test").get(0);
         List<CtMethod> amplifiedMethods = amplifier.amplify(ctMethod, 0).collect(Collectors.toList());
 
         assertEquals(4, amplifiedMethods.size());
@@ -124,14 +122,14 @@ public class MethodAdderOnExistingObjectsAmplifierTest extends AbstractTest {
 
     @Test
     public void testStatementAddOnUnderTest() throws Exception {
-        Factory factory = Utils.getFactory();
+        Factory factory = launcher.getFactory();
         CtClass<Object> ctClass = factory.Class().get("fr.inria.mutation.ClassUnderTestTest");
         RandomHelper.setSeedRandom(23L);
 
         MethodAdderOnExistingObjectsAmplifier amplifier = new MethodAdderOnExistingObjectsAmplifier();
         amplifier.reset(ctClass);
 
-        CtMethod originalMethod = Utils.findMethod(ctClass, "testLit");
+        CtMethod originalMethod = ctClass.getMethodsByName("testLit").get(0);
 
         List<CtMethod> amplifiedMethods = amplifier.amplify(originalMethod, 0).collect(Collectors.toList());
 
@@ -164,12 +162,12 @@ public class MethodAdderOnExistingObjectsAmplifierTest extends AbstractTest {
          */
 
         final String packageName = "fr.inria.statementadd";
-        final Factory factory = Utils.getFactory();
+        final Factory factory = launcher.getFactory();
         RandomHelper.setSeedRandom(42L);
         MethodAdderOnExistingObjectsAmplifier amplifier = new MethodAdderOnExistingObjectsAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".TestClassTargetAmplify"));
 
-        CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
+        CtMethod<?> ctMethod = factory.Class().get(packageName + ".TestClassTargetAmplify").getMethodsByName("test").get(0);
         List<CtMethod> amplifiedMethods = amplifier.amplify(ctMethod, 0).collect(Collectors.toList());
 
         System.out.println(amplifiedMethods);

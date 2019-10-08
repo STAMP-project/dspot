@@ -1,7 +1,6 @@
 package eu.stamp_project.dspot.amplifier.value;
 
-import eu.stamp_project.Utils;
-import eu.stamp_project.AbstractTest;
+import eu.stamp_project.dspot.amplifier.AbstractAmplifierTest;
 import org.junit.Test;
 import spoon.reflect.factory.Factory;
 
@@ -17,7 +16,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 10/10/17
  */
-public class TestValueCreatorHelper extends AbstractTest {
+public class TestValueCreatorHelper extends AbstractAmplifierTest {
 
     @Test
     public void testCanGenerateValueForObjectThatAreChained() {
@@ -26,14 +25,14 @@ public class TestValueCreatorHelper extends AbstractTest {
             test that we can check that we can generate a value for an object A that need am Object B, while be need an Object A
          */
 
-        final Factory factory = Utils.getFactory();
+        final Factory factory = launcher.getFactory();
         assertTrue(ValueCreatorHelper.canGenerateAValueForType(factory.Class().get("fr.inria.linkedobjects.ObjectA").getReference()));
         assertTrue(ValueCreatorHelper.canGenerateAValueForType(factory.Class().get("fr.inria.linkedobjects.ObjectB").getReference()));
     }
 
     @Test
     public void testCanGenerateValueFor() throws Exception {
-        final Factory factory = Utils.getFactory();
+        final Factory factory = launcher.getFactory();
         assertTrue(ValueCreatorHelper.canGenerateAValueForType(factory.Class().get(Integer.class).getReference()));
         assertTrue(ValueCreatorHelper.canGenerateAValueForType(factory.Type().createReference(List.class)));
         assertTrue(ValueCreatorHelper.canGenerateAValueForType(factory.Class().get("fr.inria.inheritance.InheritanceSource").getReference()));

@@ -1,7 +1,6 @@
 package eu.stamp_project.dspot.amplifier.value;
 
-import eu.stamp_project.Utils;
-import eu.stamp_project.AbstractTest;
+import eu.stamp_project.dspot.amplifier.AbstractAmplifierTest;
 import org.junit.Test;
 import spoon.reflect.declaration.CtParameter;
 import spoon.reflect.reference.CtTypeReference;
@@ -16,11 +15,11 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 10/10/17
  */
-public class TestCollectionCreator extends AbstractTest {
+public class TestCollectionCreator extends AbstractAmplifierTest {
 
     @Test
     public void testCreateCollection() throws Exception {
-        final CtTypeReference typeList = Utils.findMethod("fr.inria.statementadd.ClassTarget", "getList").getType();
+        final CtTypeReference typeList = findMethod("fr.inria.statementadd.ClassTarget", "getList").getType();
         assertEquals("java.util.Collections.<fr.inria.statementadd.ClassParameterAmplify>emptyList()" ,
                 CollectionCreator.generateCollection(
                         typeList,
@@ -38,13 +37,13 @@ public class TestCollectionCreator extends AbstractTest {
 
         assertEquals("java.util.Collections.<java.lang.Object>emptyList()" ,
                 CollectionCreator.generateCollection(
-                        Utils.getFactory().Type().get(Object.class).getReference(),
+                        launcher.getFactory().Type().get(Object.class).getReference(),
                         "List",
                         List.class)
                         .toString()
         );
 
-        final CtTypeReference typeSet = ((CtParameter) Utils.findMethod(
+        final CtTypeReference typeSet = ((CtParameter) findMethod(
                 "fr.inria.statementadd.ClassTarget",
                 "getSizeOfTypedCollection")
                 .getParameters()

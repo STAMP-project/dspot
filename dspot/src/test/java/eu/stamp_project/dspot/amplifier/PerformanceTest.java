@@ -1,7 +1,5 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
 import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
@@ -18,7 +16,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 16/07/18
  */
-public class PerformanceTest extends AbstractTest {
+public class PerformanceTest extends AbstractAmplifierTest {
 
     @Ignore
     @Test
@@ -31,8 +29,8 @@ public class PerformanceTest extends AbstractTest {
 
         final int numberOfIteration = 3;
 
-        final CtClass testClass = Utils.findClass("fr.inria.ampl.ToBeAmplifiedLiteralTest");
-        final CtMethod originalTest = Utils.findMethod(testClass, "testInt");
+        final CtClass testClass = findClass("fr.inria.ampl.ToBeAmplifiedLiteralTest");
+        final CtMethod originalTest = findMethod(testClass, "testInt");
         List<CtMethod> amplifiedTestMethod1 = Collections.singletonList(originalTest);
         List<CtMethod> amplifiedTestMethod2 = Collections.singletonList(originalTest);
 

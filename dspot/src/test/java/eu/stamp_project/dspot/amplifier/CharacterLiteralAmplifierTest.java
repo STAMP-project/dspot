@@ -1,7 +1,5 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.Utils;
-import eu.stamp_project.AbstractTest;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,16 +9,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 
-public class CharacterLiteralAmplifierTest extends AbstractTest {
+public class CharacterLiteralAmplifierTest extends AbstractAmplifierTest {
 
     CharLiteralAmplifier amplifier;
 
-    CtClass<Object> literalMutationClass;
+    CtClass<?> literalMutationClass;
 
     @Before
     public void setup() throws Exception {
         super.setUp();
-        literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        literalMutationClass = findClass("fr.inria.amp.LiteralMutation");
         RandomHelper.setSeedRandom(42L);
         amplifier = new CharLiteralAmplifier();
     }
@@ -29,6 +27,10 @@ public class CharacterLiteralAmplifierTest extends AbstractTest {
     public void testAmplify() {
         final String nameMethod = "methodCharacter";
         amplifier.reset(literalMutationClass);
+        CtClass<Object> literalMutationClass = launcher.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        RandomHelper.setSeedRandom(42L);
+        Amplifier mutator = new CharLiteralAmplifier();
+        mutator.reset(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<CtMethod> mutantMethods = amplifier.amplify(method, 0).collect(Collectors.toList());
         assertEquals(6, mutantMethods.size());
