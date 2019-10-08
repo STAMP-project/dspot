@@ -280,4 +280,8 @@ public class TestCompiler {
             LOGGER.warn("An exception has been thrown when trying to delete old .class file {}, continue...", pathToDotClass);
         }
     }
+
+    public static void setTimeoutInMs(int timeoutInMs) {
+        _instance.timeoutInMs = timeoutInMs;
+    }
 }
