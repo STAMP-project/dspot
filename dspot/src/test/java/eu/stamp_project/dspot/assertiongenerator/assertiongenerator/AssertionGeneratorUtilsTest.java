@@ -1,9 +1,7 @@
 package eu.stamp_project.dspot.assertiongenerator.assertiongenerator;
 
-import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.program.InputConfiguration;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
@@ -23,14 +21,14 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 12/06/17
  */
-public class AssertionGeneratorUtilsTest extends AbstractTest {
+public class AssertionGeneratorUtilsTest extends AbstractTestOnSample {
 
     @Test
     public void testCanGenerateAssertionFor() {
         assertFalse(AssertionGeneratorUtils.canGenerateAnAssertionFor("yes/no"));
 
-        assertFalse(AssertionGeneratorUtils.canGenerateAnAssertionFor(InputConfiguration.get().getAbsolutePathToProjectRoot()));
-        assertFalse(AssertionGeneratorUtils.canGenerateAnAssertionFor(InputConfiguration.get().getAbsolutePathToProjectRoot() + " is a directory"));
+        assertFalse(AssertionGeneratorUtils.canGenerateAnAssertionFor(getPathToProjectRoot()));
+        assertFalse(AssertionGeneratorUtils.canGenerateAnAssertionFor(getPathToProjectRoot() + " is a directory"));
         assertTrue(AssertionGeneratorUtils.canGenerateAnAssertionFor("This is not a path"));
 
         assertTrue(AssertionGeneratorUtils.canGenerateAnAssertionFor("thaliana"));
@@ -44,7 +42,7 @@ public class AssertionGeneratorUtilsTest extends AbstractTest {
         assertFalse(AssertionGeneratorUtils.canGenerateAnAssertionFor("Expected message : " + new Object().toString()));
         assertFalse(AssertionGeneratorUtils.canGenerateAnAssertionFor(new Object().toString() + "not found"));
 
-        InputConfiguration.get().setAllowPathInAssertion(true);
+        AssertionGeneratorUtils.init(true);
         assertTrue(AssertionGeneratorUtils.canGenerateAnAssertionFor("yes/no"));
     }
 
@@ -55,9 +53,9 @@ public class AssertionGeneratorUtilsTest extends AbstractTest {
             Test the method to check if a string contains a path
          */
 
-        assertTrue(AssertionGeneratorUtils.containsAPath(InputConfiguration.get().getAbsolutePathToProjectRoot()));
+        assertTrue(AssertionGeneratorUtils.containsAPath(getPathToProjectRoot()));
         assertTrue(AssertionGeneratorUtils.containsAPath("yes/no"));
-        assertTrue(AssertionGeneratorUtils.containsAPath(InputConfiguration.get().getAbsolutePathToProjectRoot() + " is a directory"));
+        assertTrue(AssertionGeneratorUtils.containsAPath(getPathToProjectRoot() + " is a directory"));
         assertFalse(AssertionGeneratorUtils.containsAPath("This is not a path"));
     }
 
@@ -70,7 +68,7 @@ public class AssertionGeneratorUtilsTest extends AbstractTest {
             TODO: I don't understand why Spoon change the <T> by <java.lang.Object> and makes the test failing...
          */
 
-        final Factory factory = InputConfiguration.get().getFactory();
+        final Factory factory = launcher.getFactory();
         final CtClass<?> myClassWithSpecificReturnType = factory.Class().get("fr.inria.ClassWithSpecificReturnType");
         final CtMethod<?> tryGetters = myClassWithSpecificReturnType.getMethodsByName("tryGetters").get(0);
         final List<CtInvocation> invocations = tryGetters.getElements(new TypeFilter<>(CtInvocation.class));
@@ -114,7 +112,7 @@ public class AssertionGeneratorUtilsTest extends AbstractTest {
                 2 - it adds at the end of the existing method an invocation to save() of ObjectLog
          */
 
-        final CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithLoop");
+        final CtClass<?> testClass = findClass("fr.inria.sample.TestClassWithLoop");
         assertFalse(testClass.getMethods()
                 .stream()
                 .anyMatch(method ->
@@ -125,7 +123,7 @@ public class AssertionGeneratorUtilsTest extends AbstractTest {
                                 )
                 ));
 
-        TestFramework.get().generateAfterClassToSaveObservations(testClass, Collections.singletonList(Utils.findMethod(testClass, "test")));
+        TestFramework.get().generateAfterClassToSaveObservations(testClass, Collections.singletonList(findMethod(testClass, "test")));
         final CtMethod<?> afterClassMethod = testClass.getMethods()
                 .stream()
                 .filter(method ->
@@ -145,7 +143,7 @@ public class AssertionGeneratorUtilsTest extends AbstractTest {
                         statement.toString().endsWith("ObjectLog.save()")
                 )
         );
-        TestFramework.get().generateAfterClassToSaveObservations(testClass, Collections.singletonList(Utils.findMethod(testClass, "test")));
+        TestFramework.get().generateAfterClassToSaveObservations(testClass, Collections.singletonList(findMethod(testClass, "test")));
         assertTrue(afterClassMethod.getBody()
                 .getStatements()
                 .stream()
