@@ -28,12 +28,11 @@ public class ArrayLiteralAmplifierTest extends AbstractTest {
     CtClass<Object> literalMutationClass;
 
     @Before
-    public void setUp() throws Exception {
+    public void setup() throws Exception {
         super.setUp();
         literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.ArrayMutation");
         RandomHelper.setSeedRandom(42L);
         amplifier = new ArrayLiteralAmplifier();
-        amplifier.reset(literalMutationClass);
     }
 
     /*
