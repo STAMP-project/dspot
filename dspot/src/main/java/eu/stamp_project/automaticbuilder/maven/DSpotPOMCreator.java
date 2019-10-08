@@ -132,7 +132,7 @@ public class DSpotPOMCreator {
             this.isDescartesMode = configuration.isDescartesMode();
             this.pitVersion = configuration.getPitVersion();
             this.descartesVersion = configuration.getDescartesVersion();
-            this.additionalClasspathElements = configuration.getProcessedAddtionalClasspathElements();
+            this.additionalClasspathElements = configuration.getAdditionalClasspathElements();
             this.JVMArgs = configuration.getJVMArgs();
             this.excludedClasses = configuration.getExcludedClasses();
             this.descartesMutators = configuration.getDescartesMutators();
@@ -591,7 +591,7 @@ public class DSpotPOMCreator {
 
     private static final String REPORT_DIRECTORY = "reportsDirectory";
 
-    public static final String REPORT_DIRECTORY_VALUE = "target/pit-reports";
+    public static final String REPORT_DIRECTORY_VALUE = "target/pit-reports/";
 
     private static final String TIME_OUT = "timeoutConstant";
 

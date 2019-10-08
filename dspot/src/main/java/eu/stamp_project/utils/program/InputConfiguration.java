@@ -31,10 +31,6 @@ public class InputConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InputConfiguration.class);
 
-    public InputConfiguration() {
-
-    }
-
     @CommandLine.Option(
             names = "--absolute-path-to-project-root",
             description = "Specify the path to the root of the project. " +
@@ -229,16 +225,14 @@ public class InputConfiguration {
             defaultValue = "true",
             description = "Enable the descartes engine for Pit Mutant Score Selector."
     )
-    @Deprecated
-    private boolean descartesMode;
+    private boolean descartesMode = true;
 
     @CommandLine.Option(
             names = "--gregor-mode",
             defaultValue = "false",
             description = "Enable the gregor engine for Pit Mutant Score Selector."
     )
-    @Deprecated
-    private boolean gregorMode;
+    private boolean gregorMode = false;
 
     @CommandLine.Option(
             names = "--use-working-directory",
@@ -782,6 +776,10 @@ public class InputConfiguration {
         this.JVMArgs = JVMArgs;
         EntryPoint.JVMArgs = String.join(" ", JVMArgs.split(","));
         return this;
+    }
+
+    public void setSystemProperties(String systemProperties) {
+        this.systemProperties = systemProperties;
     }
 
     public String getSystemProperties() {

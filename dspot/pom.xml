@@ -121,7 +121,7 @@
     		<groupId>org.apache.cxf</groupId>
     		<artifactId>cxf-common-utilities</artifactId>
     		<version>2.4.1</version>
-	</dependency>
+	    </dependency>
 
         <!-- JUnit4 parallel execution -->
         <dependency>
@@ -180,6 +180,12 @@
             <artifactId>greenmail</artifactId>
             <version>1.5.10</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>4.0.4</version>
         </dependency>
 
     </dependencies>
