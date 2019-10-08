@@ -5,6 +5,7 @@ use Minion;
 use POSIX;
 use Data::Dumper;
 use File::Spec;
+use File::Path 'make_path';
 
 
 # This method will run once at server start
@@ -82,59 +83,72 @@ sub startup {
   # Task to clone or pull the git repository.
   $self->minion->add_task( run_git => sub {
     my ($job, $url, $params) = @_;
+    my $ret = {};
 
     my @p = File::Spec->splitdir( $url );
     my ($repo, $org) = @p[-2..-1];
     $repo = defined($repo) ? $repo : 'Unknown Repo'; 
     $org = defined($org) ? $org : 'Unknown Org'; 
     my $id = "${repo}_${org}";
-    my $pdir = catdir($wdir, $id);
-    my $pdir_out = catdir($pdir, 'output');
-    my $pdir_src = catdir($pdir, 'src');
+    print "Executing git for url [$url].\n";
+    print "  ID is [$id].\n";
     
+    my $pdir = File::Spec->catdir( ($wdir, $id) );
+    my $pdir_out = File::Spec->catdir( ($pdir, 'output') );
+    my $pdir_src = File::Spec->catdir( ($pdir, 'src') );
+    print "  Working dir is [$pdir].\n";
     
     # If there is a directory already, then use it and pull.
     # Otherwise clone the repo.
     if ( -d $pdir ) {
-
-      # Go to project directory
-      chdir($pdir_src);
-
-      # Just make a pull.
-      my @ret_git = `echo git pull`; 
-
+	# Just make a pull.
+	my @ret_git = `cd ${pdir_src}; git pull`;
+	$ret->{'git_log'} = join("\n", @ret_git);
+	print Dumper(@ret_git);
     } else {
-
-      # Create dir hierarchy
-      mkdir($pdir, $pdir_out);
-      	
-      # Clone the repo.
-      my @ret_git = `echo git clone $url src`; 
-
+	# Create dir hierarchy
+#	mkdir $pdir;
+	make_path($pdir_out, { chmod => "0755" });
+     	
+	# Clone the repo.
+	my @ret_git = `cd $pdir; git clone $url src/`; 
+	print Dumper(@ret_git);
     }
+    $job->finish($ret);
+
+    print "END of task git_run.\n";
       			   });
   
   $self->minion->add_task( run_dspot => sub {
     my ($job, $url, $hash, $extended) = @_;
-
+    my $ret = {};
+    
     my @p = File::Spec->splitdir( $url );
     my ($repo, $org) = @p[-2..-1];
     $repo = defined($repo) ? $repo : 'Unknown Repo'; 
     $org = defined($org) ? $org : 'Unknown Org'; 
     my $id = "${repo}_${org}";
-    print "In task dspot: $id, $url.\n";
-    my $pdir = catdir($wdir, $id);
-    my $pdir_src = catdir($pdir, 'src');
+    print "Executing dspot for repo [$repo].\n";
+    print "  ID is [$id].\n";
 
+    my $pdir = File::Spec->catdir( ($wdir, $id) );
+    my $pdir_src = File::Spec->catdir( ($pdir, 'src') );
+    print "In task dspot 2 : $pdir, $pdir_src.\n";
+    $ENV{"MAVEN_HOME"} = "/home/boris/Applis/apache-maven-3.6.0/";
+    print Dumper( `echo "test \$MAVEN_HOME."` );
     chdir($pdir_src);
+    print "In task dspot 3 after chdir.\n";
       
     # Check that we can actually run dspot
     
     # Run dspot
-    print Dumper( `pwd` );
+    print Dumper( `cd /data/git_repos/dspot/javapoet; mvn clean test -DskipTests` );
+    print "In task dspot 4 after pwd.\n";
     #my @ret = `$cmd`;
     
-    say 'This is a background worker process dspot.';
+    say 'Add this job to the list of repositories in projects.json.';
+    
+    $job->finish($ret);
 			   });
   
 
@@ -152,6 +166,9 @@ sub startup {
 
   $r->get('/new/')->to( 'dspot#create' );
   $r->post('/new/')->to( 'dspot#create_post' );
+
+  $r->get('/jobs')->to( 'dspot#jobs' );
+
 }
 
 1;
