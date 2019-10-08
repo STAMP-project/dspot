@@ -65,9 +65,16 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         super(automaticBuilder, configuration);
         this.absolutePathToProjectRoot = configuration.getAbsolutePathToProjectRoot();
         this.shouldTargetOneTestClass = configuration.shouldTargetOneTestClass();
-        this.testClassTargetOne = configuration.getFactory().Class().get(configuration.getTestClasses().get(0));
-        PitMutantScoreSelector.OutputFormat originalFormat;
+        this.testClassTargetOne =
+                configuration.getTestClasses() == null || configuration.getTestClasses().isEmpty() ? null :
+                configuration.getFactory().Class().get(configuration.getTestClasses().get(0));
+        this.testThatKilledMutants = new HashMap<>();
+        this.parser = new PitXMLResultParser();
         final String pathPitResult = configuration.getPathPitResult();
+        if (pathPitResult == null || pathPitResult.isEmpty()) {
+            return;
+        }
+        PitMutantScoreSelector.OutputFormat originalFormat;
         if (pathPitResult.toLowerCase().endsWith(".xml")) {
             originalFormat = PitMutantScoreSelector.OutputFormat.XML;
         } else if (pathPitResult.toLowerCase().endsWith(".csv")) {
@@ -76,7 +83,6 @@ public class PitMutantScoreSelector extends TakeAllSelector {
             LOGGER.warn("You specified the wrong Pit format. Skipping expert mode.");
             originalFormat = PitMutantScoreSelector.OutputFormat.XML;
         }
-        this.testThatKilledMutants = new HashMap<>();
         AbstractParser originalResultParser;
         switch (originalFormat) {
             case CSV:
@@ -103,7 +109,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                     return false;
                 }
             }
-            initOriginalPitResult(parser.parseAndDelete( this.absolutePathToProjectRoot + automaticBuilder.getOutputDirectoryPit()));
+            initOriginalPitResult(parser.parseAndDelete( this.absolutePathToProjectRoot + this.automaticBuilder.getOutputDirectoryPit()));
         } else {
             baselineKilledMutants = new ArrayList<>();
             for(AbstractPitResult r : originalKilledMutants) {
@@ -124,9 +130,9 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 .filter(result -> result.getStateOfMutant() == AbstractPitResult.State.KILLED)
                 .collect(Collectors.toList());
         LOGGER.info("The original test suite kill {} / {}", this.originalKilledMutants.size(), results.size());
-        baselineKilledMutants = new ArrayList<>();
-        for(AbstractPitResult r : originalKilledMutants) {
-            baselineKilledMutants.add(r.clone());
+        this.baselineKilledMutants = new ArrayList<>();
+        for(AbstractPitResult r : this.originalKilledMutants) {
+            this.baselineKilledMutants.add(r.clone());
         }
     }
 
@@ -165,10 +171,10 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 this.targetClasses
                 + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies();
         DSpotCompiler.compile(
-                DSpotCompiler.getPathToAmplifiedTestSrc(), classpath,
-                new File(this.pathToTestClasses)
+                DSpotCompiler.getPathToAmplifiedTestSrc(),
+                classpath,
+                new File(this.absolutePathToProjectRoot + "/" + this.pathToTestClasses)
         );
-
         this.automaticBuilder.runPit(clone);
         final List<AbstractPitResult> results = parser.parseAndDelete(this.absolutePathToProjectRoot + automaticBuilder.getOutputDirectoryPit());
         Set<CtMethod<?>> selectedTests = new HashSet<>();

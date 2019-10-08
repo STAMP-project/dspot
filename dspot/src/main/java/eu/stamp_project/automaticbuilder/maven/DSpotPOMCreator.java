@@ -448,7 +448,7 @@ public class DSpotPOMCreator {
         final Element plugins = document.createElement(PLUGINS);
 
         // PIT PLUGIN
-        final Element pluginPit = createPlugin(document, GROUP_ID_PIT, ARTIFACT_ID_PIT, VERSION);
+        final Element pluginPit = createPlugin(document, GROUP_ID_PIT, ARTIFACT_ID_PIT, this.pitVersion);
         final Element configuration = createConfiguration(document);
         pluginPit.appendChild(configuration);
 
@@ -486,8 +486,8 @@ public class DSpotPOMCreator {
         plugin.appendChild(artifactId);
 
         if (!versionValue.isEmpty()) {
-            final Element version = document.createElement(versionValue);
-            version.setTextContent(this.pitVersion);
+            final Element version = document.createElement(VERSION);
+            version.setTextContent(versionValue);
             plugin.appendChild(version);
         }
 

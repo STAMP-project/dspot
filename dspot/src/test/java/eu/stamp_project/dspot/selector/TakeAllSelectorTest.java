@@ -1,6 +1,5 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.Utils;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
 
@@ -17,7 +16,7 @@ public class TakeAllSelectorTest extends AbstractSelectorTest {
 
 	@Override
 	protected TestSelector getTestSelector() {
-		return new TakeAllSelector();
+		return new TakeAllSelector(this.builder, this.configuration);
 	}
 
 	@Override

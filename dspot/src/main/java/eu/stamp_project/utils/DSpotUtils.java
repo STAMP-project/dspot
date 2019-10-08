@@ -57,6 +57,7 @@ public class DSpotUtils {
         DSpotUtils.outputDirectory = outputDirectory;
         DSpotUtils.fullClassPathWithExtraDependencies = fullClassPathWithExtraDependencies;
         DSpotUtils.absolutePathToProjectRoot = absolutePathToProjectRoot;
+        DSpotUtils.copyPackageFromResources();
     }
 
     public static void printProgress(int done, int total) {
@@ -196,7 +197,7 @@ public class DSpotUtils {
             COMPONENTS_FOLDER +"Observation", COMPONENTS_FOLDER +"ObjectLogUtils", COMPONENTS_FOLDER +"FailToObserveException"};
 
     public static String getAbsolutePathToDSpotDependencies() {
-        return DSpotUtils.absolutePathToProjectRoot + PATH_TO_DSPOT_DEPENDENCIES;
+        return DSpotUtils.shouldAddSeparator.apply(DSpotUtils.shouldAddSeparator.apply(DSpotUtils.absolutePathToProjectRoot) + PATH_TO_DSPOT_DEPENDENCIES);
     }
 
     public static void copyPackageFromResources() {

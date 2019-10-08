@@ -161,7 +161,8 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     }
 
     private int runGoals(boolean specificPom, String... goals) {
-        final String pomPathname = this.absolutePathToProjectRoot + "/" + DSpotPOMCreator.getPOMName();
+        final String pomPathname = this.absolutePathToProjectRoot + "/" + (
+                specificPom ? DSpotPOMCreator.getPOMName() : DSpotPOMCreator.POM_FILE);
         LOGGER.info("Using {} to run maven.", pomPathname);
         return _runGoals(specificPom, pomPathname, goals);
     }
@@ -211,8 +212,8 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     private String buildMavenHome(InputConfiguration configuration) {
         String mavenHome = null;
-        if (configuration != null) {
-            if (!configuration.getMavenHome().isEmpty()) {
+        if (configuration != null ) {
+            if (configuration.getMavenHome() != null && !configuration.getMavenHome().isEmpty()) {
                 mavenHome = configuration.getMavenHome();
             } else {
                 mavenHome = getMavenHome(envVariable -> System.getenv().get(envVariable) != null,

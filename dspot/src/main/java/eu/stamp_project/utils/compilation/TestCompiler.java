@@ -120,7 +120,6 @@ public class TestCompiler {
     public static TestResult compileAndRun(CtType<?> testClass,
                                              DSpotCompiler compiler,
                                              List<CtMethod<?>> testsToRun) throws AmplificationException {
-        DSpotUtils.copyPackageFromResources();
         final String classPath =  DSpotUtils.createPath(
                         _instance.classpathClassesProject,
                         compiler.getBinaryOutputDirectory().getAbsolutePath(),

@@ -17,6 +17,8 @@ import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.execution.TestRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -33,6 +35,8 @@ import java.util.Map;
  */
 public class ChangeDetectorSelector extends AbstractTestSelector {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChangeDetectorSelector.class);
+
     private String pathToFirstVersionOfProgram;
 
     private String pathToSecondVersionOfProgram;
@@ -40,6 +44,8 @@ public class ChangeDetectorSelector extends AbstractTestSelector {
     private Map<CtMethod<?>, Failure> failurePerAmplifiedTest;
 
     private CtType<?> currentClassTestToBeAmplified;
+
+    private String secondVersionTargetClasses;
 
     public ChangeDetectorSelector(AutomaticBuilder automaticBuilder, InputConfiguration configuration) {
         super(automaticBuilder, configuration);
@@ -49,6 +55,7 @@ public class ChangeDetectorSelector extends AbstractTestSelector {
         try {
             this.automaticBuilder.setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
             configuration.setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
+            this.secondVersionTargetClasses = configuration.getClasspathClassesProject();
             DSpotPOMCreator.createNewPom(configuration);
             this.automaticBuilder.compile();
         } catch (Exception e) {
@@ -83,7 +90,7 @@ public class ChangeDetectorSelector extends AbstractTestSelector {
         CtType clone = this.currentClassTestToBeAmplified.clone();
         clone.setParent(this.currentClassTestToBeAmplified.getParent());
         this.currentClassTestToBeAmplified.getMethods().stream()
-                .filter(TestFramework.get()::isTest)
+                 .filter(TestFramework.get()::isTest)
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
@@ -91,15 +98,18 @@ public class ChangeDetectorSelector extends AbstractTestSelector {
         final String pathToAmplifiedTestSrc = DSpotCompiler.getPathToAmplifiedTestSrc();
 
         this.automaticBuilder.setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
-        DSpotCompiler.compile(
+        if (!DSpotCompiler.compile(
                 pathToAmplifiedTestSrc,
-                this.classpath,
+                this.classpath + AmplificationHelper.PATH_SEPARATOR + this.secondVersionTargetClasses,
                 new File(this.pathToSecondVersionOfProgram + this.pathToTestClasses)
-        );
+        )) {
+            LOGGER.warn("Something went bad during the compilation of the amplified test methods using the second version.");
+            // add an error in the Main Global error report
+        }
         final TestResult results;
         try {
             results = TestRunner.run(
-                    this.classpath,
+                    this.classpath + AmplificationHelper.PATH_SEPARATOR + this.secondVersionTargetClasses,
                     this.pathToSecondVersionOfProgram,
                     clone.getQualifiedName(),
                     amplifiedTestToBeKept.stream()

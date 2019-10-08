@@ -200,13 +200,14 @@ public class Main {
         }
     }
 
-    private static String completeDependencies(InputConfiguration configuration,
+    public static String completeDependencies(InputConfiguration configuration,
                                                AutomaticBuilder automaticBuilder) {
         String dependencies = configuration.getDependencies();
         final String additionalClasspathElements = configuration.getAdditionalClasspathElements();
         final String absolutePathToProjectRoot = configuration.getAbsolutePathToProjectRoot();
         if (dependencies.isEmpty()) {
             dependencies = automaticBuilder.compileAndBuildClasspath();
+            configuration.setDependencies(dependencies);
         }
 //      TODO checks this. Since we support different Test Support, we may not need to add artificially junit in the classpath
         if (!dependencies.contains("junit" + File.separator + "junit" + File.separator + "4")) {

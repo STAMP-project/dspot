@@ -75,7 +75,7 @@ public class InputConfiguration {
             description = "Specify the relative path from --absolute-path-to-project-root/--target-module command-line options " +
                     "that points to the folder that contains binaries of the source (.class)."
     )
-    private String pathToClasses;
+    private String pathToClasses = "target/classes/";
 
     @CommandLine.Option(
             names = "--relative-path-to-test-classes",
@@ -83,7 +83,7 @@ public class InputConfiguration {
             description = "Specify the relative path from --absolute-path-to-project-root/--target-module command-line options " +
                     "that points to the folder that contains binaries of the test source (.class)."
     )
-    private String pathToTestClasses;
+    private String pathToTestClasses = "target/test-classes/";
 
     @CommandLine.Option(
             names = "--path-to-additional-classpath-elements",
@@ -125,7 +125,7 @@ public class InputConfiguration {
             defaultValue = "target/dspot/output/",
             description = "specify a path folder for the output."
     )
-    private String outputDirectory;
+    private String outputDirectory = "target/dspot/output/";
 
     @CommandLine.Option(
             names = "--maven-home",
@@ -171,14 +171,14 @@ public class InputConfiguration {
             defaultValue = "1.4.0",
             description = "Specify the version of PIT to use."
     )
-    private String pitVersion;
+    private String pitVersion = "1.4.0";
 
     @CommandLine.Option(
             names = "--descartes-version",
             defaultValue = "1.2.4",
             description = "Specify the version of pit-descartes to use."
     )
-    private String descartesVersion;
+    private String descartesVersion = "1.2.4";
 
     @CommandLine.Option(
             names = "--excluded-classes",
@@ -345,7 +345,7 @@ public class InputConfiguration {
             defaultValue = "10000",
             description = "Specify the timeout value of the degenerated tests in millisecond."
     )
-    private int timeOutInMs;
+    private int timeOutInMs = 10000;
 
     @CommandLine.Option(
             names = {"--max-test-amplified"},
@@ -397,7 +397,7 @@ public class InputConfiguration {
                     "If this option is used, DSpot won't use an AutomaticBuilder (e.g. Maven) to clean, compile and get the classpath of the project. " +
                     "Please ensure that your project is in a good shape, i.e. clean and correctly compiled, sources and test sources."
     )
-    private String dependencies;
+    private String dependencies = "";
 
     @CommandLine.Option(
             names = {"--input-ampl-distributor"},
@@ -424,10 +424,11 @@ public class InputConfiguration {
 
     @CommandLine.Option(
             names = {"--path-pit-result"},
+            defaultValue = "",
             description = "Specify the path to the .xml or .csv of the original result of Pit Test. " +
                     "If you use this option the selector will be forced to PitMutantScoreSelector."
     )
-    private String pathPitResult;
+    private String pathPitResult = "";
 
     /* DSpot-web related command line options. */
 
@@ -645,7 +646,7 @@ public class InputConfiguration {
     public String getFullClassPathWithExtraDependencies() {
         return this.getClasspathClassesProject() + AmplificationHelper.PATH_SEPARATOR +
                 this.getDependencies() + AmplificationHelper.PATH_SEPARATOR +
-                DSpotUtils.getAbsolutePathToDSpotDependencies();
+                this.getAbsolutePathToProjectRoot() + DSpotUtils.PATH_TO_DSPOT_DEPENDENCIES;
     }
 
     public String getAdditionalClasspathElements() {
@@ -1102,6 +1103,10 @@ public class InputConfiguration {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void setDependencies(String dependencies) {
+        this.dependencies =dependencies;
     }
 }
 
