@@ -108,7 +108,6 @@ public class DSpot {
             // TODO DSpot could be able to switch from one to another version of JUnit, but I believe that the ROI is not worth it.
             final boolean jUnit5 = TestFramework.isJUnit5(testMethodsToBeAmplified.get(0));
             EntryPoint.jUnit5Mode = jUnit5;
-            InputConfiguration.get().setJUnit5(jUnit5);
             DSpotPOMCreator.isCurrentlyJUnit5 = jUnit5;
 
             final CtType<?> amplifiedTestClass = this.amplify(testAmplification, testClassToBeAmplified, testMethodsToBeAmplified);

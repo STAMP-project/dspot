@@ -224,7 +224,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
     private TestClassJSON jsonReport(Coverage coverageResults) {
         TestClassJSON testClassJSON;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        final File file = new File(InputConfiguration.get().getOutputDirectory() + "/" + // TODO EXPORT THE OUTPUT IN OUTPUT OBJECTS
+        final File file = new File(this.outputDirectory + "/" +
                 this.currentClassTestToBeAmplified.getQualifiedName() + "report.json");
         if (file.exists()) {
             try {

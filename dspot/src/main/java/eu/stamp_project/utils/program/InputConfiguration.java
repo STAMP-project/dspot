@@ -31,19 +31,6 @@ public class InputConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InputConfiguration.class);
 
-    @Deprecated
-    public static InputConfiguration get() {
-        if (instance == null) {
-            instance = new InputConfiguration();
-        }
-        return InputConfiguration.instance;
-    }
-
-    public static void reset() {
-        LOGGER.warn("Erasing old instance of InputConfiguration");
-        instance = null;
-    }
-
     public InputConfiguration() {
 
     }
@@ -556,9 +543,6 @@ public class InputConfiguration {
     )
     boolean usageHelpRequested;
 
-    @Deprecated
-    private boolean isJUnit5;
-
     public String getAbsolutePathToProjectRoot() {
         return absolutePathToProjectRoot;
     }
@@ -1006,16 +990,6 @@ public class InputConfiguration {
         return this;
     }
 
-    @Deprecated
-    public boolean isJUnit5() {
-        return this.isJUnit5;
-    }
-
-    @Deprecated
-    public void setJUnit5(boolean JUnit5) {
-        isJUnit5 = JUnit5;
-    }
-
     public boolean shouldTargetOneTestClass() {
         return this.targetOneTestClass;
     }
@@ -1114,8 +1088,6 @@ public class InputConfiguration {
     public String getSmtpTls() {
         return smtpTls;
     }
-
-
 
     public void configureExample() {
         try {

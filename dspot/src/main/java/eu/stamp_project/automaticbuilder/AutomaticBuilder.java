@@ -9,6 +9,8 @@ import spoon.reflect.declaration.CtType;
  */
 public interface AutomaticBuilder {
 
+    void setAbsolutePathToProjectRoot(String absolutePathToProjectRoot);
+
     String compileAndBuildClasspath();
 
     void compile();

@@ -3,6 +3,7 @@ package eu.stamp_project.dspot.selector;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
 import eu.stamp_project.utils.report.output.selector.change.json.TestCaseJSON;
@@ -45,20 +46,22 @@ public class ChangeDetectorSelector extends AbstractTestSelector {
         this.failurePerAmplifiedTest = new HashMap<>();
         this.pathToFirstVersionOfProgram = configuration.getAbsolutePathToProjectRoot();
         this.pathToSecondVersionOfProgram = configuration.getAbsolutePathToSecondVersionProjectRoot();
+        try {
+            this.automaticBuilder.setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
+            configuration.setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
+            DSpotPOMCreator.createNewPom(configuration);
+            this.automaticBuilder.compile();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            this.automaticBuilder.setAbsolutePathToProjectRoot(this.pathToFirstVersionOfProgram);
+            configuration.setAbsolutePathToProjectRoot(this.pathToFirstVersionOfProgram);
+        }
     }
 
     @Override
     public boolean init() {
-        try {
-            this.pathToFirstVersionOfProgram = InputConfiguration.get().getAbsolutePathToProjectRoot();
-            this.pathToSecondVersionOfProgram = InputConfiguration.get().getAbsolutePathToSecondVersionProjectRoot();
-            InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
-            //DSpotPOMCreator.createNewPom(); TODO
-            this.automaticBuilder.compile();
-            InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToFirstVersionOfProgram);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+
         return true;
     }
 
@@ -87,16 +90,14 @@ public class ChangeDetectorSelector extends AbstractTestSelector {
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));
         final String pathToAmplifiedTestSrc = DSpotCompiler.getPathToAmplifiedTestSrc();
 
-        InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
+        this.automaticBuilder.setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
         DSpotCompiler.compile(
                 pathToAmplifiedTestSrc,
                 this.classpath,
                 new File(this.pathToSecondVersionOfProgram + this.pathToTestClasses)
         );
-
         final TestResult results;
         try {
-            InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
             results = TestRunner.run(
                     this.classpath,
                     this.pathToSecondVersionOfProgram,
@@ -107,7 +108,7 @@ public class ChangeDetectorSelector extends AbstractTestSelector {
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToFirstVersionOfProgram);
+            this.automaticBuilder.setAbsolutePathToProjectRoot(this.pathToFirstVersionOfProgram);
         }
         final List<CtMethod<?>> amplifiedThatWillBeKept = new ArrayList<>();
         if (!results.getFailingTests().isEmpty()) {
@@ -159,8 +160,7 @@ public class ChangeDetectorSelector extends AbstractTestSelector {
         }
         TestClassJSON testClassJSON;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        final File file = new File(InputConfiguration.get().getOutputDirectory() + "/" +
-                this.currentClassTestToBeAmplified.getQualifiedName() + "report.json");
+        final File file = new File(this.outputDirectory + "/" + this.currentClassTestToBeAmplified.getQualifiedName() + "report.json");
         if (file.exists()) {
             try {
                 testClassJSON = gson.fromJson(new FileReader(file), TestClassJSON.class);

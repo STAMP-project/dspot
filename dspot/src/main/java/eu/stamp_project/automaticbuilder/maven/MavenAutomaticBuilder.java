@@ -48,6 +48,10 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     private boolean shouldExecuteTestsInParallel;
 
+    public void setAbsolutePathToProjectRoot(String absolutePathToProjectRoot) {
+        this.absolutePathToProjectRoot = absolutePathToProjectRoot;
+    }
+
     public MavenAutomaticBuilder(InputConfiguration configuration) {
         this.shouldExecuteTestsInParallel = configuration.shouldExecuteTestsInParallel();
         DSpotPOMCreator.createNewPom(configuration);

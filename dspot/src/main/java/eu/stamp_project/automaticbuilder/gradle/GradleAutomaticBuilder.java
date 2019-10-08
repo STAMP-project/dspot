@@ -26,6 +26,11 @@ import static eu.stamp_project.automaticbuilder.gradle.GradlePitTaskAndOptions.C
  */
 public class GradleAutomaticBuilder implements AutomaticBuilder {
 
+    @Override
+    public void setAbsolutePathToProjectRoot(String absolutePathToProjectRoot) {
+        this.absolutePathToProjectRoot = absolutePathToProjectRoot;
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GradleAutomaticBuilder.class);
 
     private static final String JAVA_PROJECT_CLASSPATH = "gjp_cp"; // Gradle Java Project classpath file

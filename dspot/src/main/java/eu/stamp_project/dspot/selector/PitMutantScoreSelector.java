@@ -272,7 +272,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         }
         TestClassJSON testClassJSON;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        final File file = new File(InputConfiguration.get().getOutputDirectory() + "/" + // TODO move to ouput
+        final File file = new File(this.outputDirectory + "/" +
                 this.currentClassTestToBeAmplified.getQualifiedName() + "report.json");
         if (file.exists()) {
             try {

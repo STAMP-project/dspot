@@ -20,8 +20,11 @@ public abstract class AbstractTestSelector implements TestSelector {
 
     protected String pathToTestClasses;
 
+    protected String outputDirectory;
+
     public AbstractTestSelector(AutomaticBuilder automaticBuilder,
                                 InputConfiguration configuration) {
+        this.outputDirectory = configuration.getOutputDirectory();
         this.automaticBuilder = automaticBuilder;
         String classpath = automaticBuilder.buildClasspath();
         if (!configuration.getAdditionalClasspathElements().isEmpty()) {
