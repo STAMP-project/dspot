@@ -23,9 +23,9 @@
 <form action="/new" method="POST" class="form-horizontal" role="form">
   
   <div class="form-group">
-    <label for="name" class="control-label col-xs-2">Git URL:</label>
+    <label for="url" class="control-label col-xs-2">Git URL:</label>
     <div class="col-xs-10">
-      <input type="text" class="form-control" name="name" id="name" />
+      <input type="text" class="form-control" name="gurl" id="gurl" />
     </div>
   </div>
 

@@ -4,6 +4,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use File::Spec;
 use Data::Dumper;
 use File::Basename;
+use File::Spec;
 use Mojo::JSON qw/decode_json/;
 
 
@@ -35,20 +36,21 @@ sub create {
 sub create_post {
   my $self = shift;
   
-  my $url = $self->param('url');
+  my $url = $self->param('gurl');
   my $hash = $self->param('hash');
   my $extended = $self->param('extended');
 
 #  my $url = "https://github.com/STAMP-project/dspot.git"; #$self->stash('url');
   print "Enqueue run_git $url $hash $extended.\n";
   
-  my $job = $self->minion->enqueue(run_git => [$url, $hash] => {delay => 0});
-  print "DBG JOB GIT " . Dumper($job);
-  $job = $self->minion->enqueue(run_dspot => [$url, $hash, $extended] => {delay => 0});
-  print "DBG JOB DSPOT " . Dumper($job);
+  my $job_git = $self->minion->enqueue(run_git => [$url, $hash] => {delay => 0});
+  print "DBG JOB GIT " . Dumper($job_git);
+  my $job_dspot = $self->minion->enqueue(
+      run_dspot => [$url, $hash, $extended] => {parents => [$job_git]});
+  print "DBG JOB DSPOT " . Dumper($job_dspot);
   
   # Render template "dspot/create_post.html.ep"
-  $self->redirect_to('/');
+  $self->redirect_to('/jobs');
 }
 
 # List of repositories
@@ -115,5 +117,19 @@ sub repo {
   # Render template "dspot/repo.html.ep"
   $self->render();
 }
+
+# Display the list of jobs
+sub jobs {
+  my $self = shift;
+
+  my $msg;
+
+  
+  # Render template "dspot/jobs.html.ep"
+  $self->render();
+}
+
+
+
 
 1;
