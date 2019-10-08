@@ -1,0 +1,56 @@
+% layout 'default';
+% title 'List of repositories';
+
+<br />
+
+<a href="/">&lt; Back Home</a>
+
+<br />
+<br />
+
+<h1>Jobs</h1>
+
+<br />
+
+<p>This is the list of all jobs executed by our services. </p>
+<p>Simply click on a line to get more information about the selected repository.</p>
+
+<br />
+
+% my $stats = app->minion->stats;
+<table class="table table-striped table-hover ">
+  <thead>
+    <tr><th>ID</th><th>Task</th><th>Status</th><th>Created/Finished</th><th>Args</th><th>Actions</th></tr>
+  </thead>
+  <tbody>
+% foreach my $job (@{app->minion->backend->list_jobs->{'jobs'}}) {
+%   my $icon = "fa-question"; my $results = "";
+%   if ($job->{'state'} =~ m!^active!) { $icon = "fa-spinner fa-spin"; }
+%   elsif ($job->{'state'} =~ m!^inactive!) { $icon = "fa-hourglass-o"; }
+%   elsif ($job->{'state'} =~ m!^failed!) { $icon = "fa-frown-o"; }
+%   elsif ($job->{'state'} =~ m!^finished!) { $icon = "fa-smile-o"; }
+    <tr>
+      <td><%= $job->{'id'} %></td>
+      <td><%= $job->{'task'} %></td>
+      <td><i class="fa fa-lg <%= $icon %>"></i> &nbsp; <%= $job->{'state'} %></td>
+      <td><%= localtime( $job->{'created'} ) %><br />
+	<%= defined($job->{'finished'}) ? "" . localtime( $job->{'finished'} ) : "" %></td>
+      <td><%== join( '<br />', map {$_ || ''} @{$job->{'args'}} ) %></td>
+      <td>
+	<a href="/admin/jobs/<%= $job->{'id'} %>"><i class="fa fa-fw fa-info-circle"></i></a> &nbsp;
+%   if ($job->{'state'} !~ m!^active!) {
+	<a href="/admin/jobs/<%= $job->{'id'} %>/run"><i class="fa fa-fw fa-refresh"></i></a> &nbsp;
+%   }
+%   if ($job->{'state'} !~ m!^active!) {
+	<a href="/admin/jobs/<%= $job->{'id'} %>/del"><i class="fa fa-fw fa-ban"></i></a> &nbsp;
+%   }
+      </td>
+    </tr>
+% }
+  </tbody>
+</table> 
+
+<p></p>
+<p></p>
+
+            
