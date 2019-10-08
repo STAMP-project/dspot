@@ -2,22 +2,13 @@ package eu.stamp_project.dspot.selector;
 
 import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
-import eu.stamp_project.dspot.amplifier.value.ValueCreator;
-import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.RandomHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.execution.TestRunner;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.pit.AbstractPitResult;
 import eu.stamp_project.utils.program.InputConfiguration;
-import jdk.internal.util.xml.impl.Input;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.pitest.reloc.xstream.core.util.Pool;
 import spoon.Launcher;
-import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 
 import java.lang.reflect.Field;
