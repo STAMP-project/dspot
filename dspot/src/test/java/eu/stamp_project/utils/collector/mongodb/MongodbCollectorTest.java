@@ -48,11 +48,11 @@ public class MongodbCollectorTest {
         @Test
         public void testInfoSubmissionToMongodbPitMutantScoreSelector() {
                 Main.main(new String[]{
-                        "--path-to-properties", "src/test/resources/sample/sample.properties",
+                        "--absolute-path-to-project-root", "src/test/resources/sample/",
                         "--test-criterion", "PitMutantScoreSelector",
                         "--test", "fr.inria.sample.TestClassWithoutAssert",
                         "--path-pit-result", "src/test/resources/sample/mutations.csv",
-                        "--gregor",
+                        "--gregor-mode",
                         "--output-path", "target/trash",
                         "--collector","MongodbCollector",
                         "--mongo-url","mongodb://localhost:27017",
@@ -80,7 +80,7 @@ public class MongodbCollectorTest {
         @Test
         public void testInfoSubmissionToMongodbJacocoCoverageSelector() {
                 Main.main(new String[]{
-                        "--path-to-properties", "src/test/resources/project-with-resources/project-with-resources.properties",
+                        "--absolute-path-to-project-root", "src/test/resources/project-with-resources/",
                         "--test-criterion", "JacocoCoverageSelector",
                         "--iteration", "1",
                         "--collector","MongodbCollector",
@@ -120,11 +120,11 @@ public class MongodbCollectorTest {
                 coll.insertOne(initDoc);
 
                 Main.main(new String[]{
-                        "--path-to-properties", "src/test/resources/sample/sample.properties",
+                        "--absolute-path-to-project-root", "src/test/resources/sample/",
                         "--test-criterion", "PitMutantScoreSelector",
                         "--test", "fr.inria.sample.TestClassWithoutAssert",
                         "--path-pit-result", "src/test/resources/sample/mutations.csv",
-                        "--gregor",
+                        "--gregor-mode",
                         "--output-path", "target/trash",
                         "--collector","MongodbCollector",
                         "--mongo-url","mongodb://localhost:27017",

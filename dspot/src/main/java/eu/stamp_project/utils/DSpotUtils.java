@@ -173,7 +173,12 @@ public class DSpotUtils {
         launcher.getEnvironment().setNoClasspath(true);
         launcher.addInputResource(pathname);
         launcher.buildModel();
-        return launcher.getFactory().Class().get(type.getQualifiedName());
+        CtClass<Object> objectCtClass = launcher.getFactory().Class().get(type.getQualifiedName());
+        if (objectCtClass == null) {
+            objectCtClass = launcher.getFactory().Class().get(type.getSimpleName());
+            type.getPackage().addType(objectCtClass.clone());
+        }
+        return objectCtClass;
 
     }
 
