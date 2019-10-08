@@ -83,34 +83,6 @@ public class ArrayLiteralAmplifier extends AbstractLiteralAmplifier<CtNewArrayIm
         }
     };
 
-    private Class getNullClass(CtLiteral original) {
-
-        // getting the class of the expected parameter
-        if (original.getParent() instanceof CtInvocation<?>) {
-            final CtInvocation<?> parent = (CtInvocation<?>) original.getParent();
-            return parent.getExecutable()
-                    .getDeclaration()
-                    .getParameters()
-                    .get(parent.getArguments().indexOf(original))
-                    .getType()
-                    .getActualClass();
-
-            // getting the class of the assignee
-        } else if (original.getParent() instanceof CtAssignment) {
-            return ((CtAssignment) original.getParent())
-                    .getAssigned()
-                    .getType()
-                    .getActualClass();
-
-            // getting the class of the local variable
-        } else if (original.getParent() instanceof CtLocalVariable) {
-            return ((CtLocalVariable) original.getParent())
-                    .getType()
-                    .getActualClass();
-        }
-        return null;
-    }
-
     @Override
     protected Set<CtExpression<CtNewArrayImpl>> amplify(CtExpression<CtNewArrayImpl> original, CtMethod<?> testMethod) {
         final Factory factory = InputConfiguration.get().getFactory();
