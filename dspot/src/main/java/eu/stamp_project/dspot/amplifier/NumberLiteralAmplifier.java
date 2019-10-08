@@ -9,7 +9,6 @@ import spoon.reflect.declaration.CtField;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtFieldReference;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,8 +33,7 @@ public class NumberLiteralAmplifier extends AbstractLiteralAmplifier<Number> {
         // get class and numeric value of the literal and create new values from them
         if(valueIsNull) {
             classOfLiteral = getNullClass(literal);
-        }
-        else if (! literal.getTypeCasts().isEmpty()){
+        } else if (! literal.getTypeCasts().isEmpty()){
             classOfLiteral = literal.getTypeCasts().get(0).getActualClass();
             value = (((CtLiteral<Number>)literal).getValue()).doubleValue();
         } else {
