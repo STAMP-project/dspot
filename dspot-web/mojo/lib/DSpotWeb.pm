@@ -8,6 +8,9 @@ use File::Spec;
 use File::Path 'make_path';
 
 
+use Mojo::JSON qw/decode_json encode_json/;
+
+
 # This method will run once at server start
 sub startup {
   my $self = shift;
@@ -107,16 +110,17 @@ sub startup {
 	print Dumper(@ret_git);
     } else {
 	# Create dir hierarchy
-#	mkdir $pdir;
-	make_path($pdir_out, { chmod => "0755" });
-     	
+	make_path($pdir_out);
+     	chmod 0755, $pdir_out;
+	
 	# Clone the repo.
 	my @ret_git = `cd $pdir; git clone $url src/`; 
 	print Dumper(@ret_git);
     }
-    $job->finish($ret);
 
     print "END of task git_run.\n";
+    
+    $job->finish($ret);
       			   });
   
   $self->minion->add_task( run_dspot => sub {
@@ -147,7 +151,34 @@ sub startup {
     #my @ret = `$cmd`;
     
     say 'Add this job to the list of repositories in projects.json.';
-    
+
+    # Read projects information.
+    my $projects = File::Spec->catfile( $wdir, 'projects.json');
+    my $data;
+    {
+	open my $fh, '<', $projects or die;
+	$/ = undef;
+	$data = <$fh>;
+	close $fh;
+    }
+    print "DBG raw " . Dumper($data);
+    my $conf = decode_json( $data );
+    print "DBG json-decoded " . Dumper($conf);
+
+    # Add project if it doesn't exist already.
+    if (not exists($conf->{$id})) {
+	$conf->{$id}{'git'} = $url;
+	
+	# Write projects information to file.
+	my $conf_json = encode_json( $conf );
+	open my $fh, '>:encoding(UTF-8)', $projects or return { "Could not find [$projects]." };
+	print $fh $conf_json;
+	close $fh;
+    } else {
+	print "Project already in conf, not modifying anything..\n";
+    }
+
+    # Mark the job as finished.
     $job->finish($ret);
 			   });
   
