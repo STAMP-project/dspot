@@ -1,8 +1,6 @@
 % layout 'default';
 % title 'Repository';
 
-% my $id = $conf->{'id'} || 'Unknown';
-
 <br />
 
 <a href="/repos">&lt; Back to Repositories</a>
@@ -10,7 +8,7 @@
 <br />
 <br />
 
-<h1>Repository <%= $id %></h1>
+<h1>Repository <%= $repo %></h1>
 
 % my $msg = flash( 'msg' );
 % if ( defined($msg) ) {
@@ -28,11 +26,57 @@
 
 <dl class="row">
   <dt class="col-sm-3"><b>Repository ID</b></dt>
-  <dd class="col-sm-9"><mark><%= $id %></mark></dd>
+  <dd class="col-sm-9"><mark><%= $repo %></mark></dd>
   <dt class="col-sm-3"><b>Git URL</b></dt>
   <dd class="col-sm-9"><mark><%= $conf->{'git'} || 'Unknown' %></mark></dd>
 </dl>
 
+% my $f = "$wdir/$repo/output/git_pull.log";
+% if ( -f $f ) {
+%   my $contents = do {
+%     open my $fh, '<:encoding(UTF-8)', $f or print "ERROR Could not find [$f].\n" ;
+%     local $/;
+%     <$fh>;
+%   };
+
+<h2>Git execution</h2>
+
+<pre>					
+<%= dumper($contents) %>
+</pre>
+
+% }
 <p></p>
 
+% $f = "$wdir/$repo/output/mvn_test.log";
+% if ( -f $f ) {
+%   my $contents = do {
+%     open my $fh, '<:encoding(UTF-8)', $f or print "ERROR Could not find [$f].\n" ;
+%     local $/;
+%     <$fh>;
+%   };
+
+<h2>Maven execution</h2>
+
+<pre>
+<%= $contents =%>
+</pre>
+
+% }
+
+% $f = "$wdir/$repo/output/dspot.log";
+% if ( -f $f ) {
+%   my @lines;
+%   open my $fh, '<:encoding(UTF-8)', $f or print "ERROR Could not find [$f].\n" ;
+%   chomp(@lines = <$fh>);
+%   close fh;
+%#   };
+
+<h2>DSpot execution</h2>
+
+<pre>
+<%= "$_\n" for @lines %>
+</pre>
+
+% }
 

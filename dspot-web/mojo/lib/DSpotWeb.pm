@@ -85,14 +85,9 @@ sub startup {
 
   # Task to clone or pull the git repository.
   $self->minion->add_task( run_git => sub {
-    my ($job, $url, $params) = @_;
+    my ($job, $id, $url, $params) = @_;
     my $ret = {};
 
-    my @p = File::Spec->splitdir( $url );
-    my ($repo, $org) = @p[-2..-1];
-    $repo = defined($repo) ? $repo : 'Unknown Repo'; 
-    $org = defined($org) ? $org : 'Unknown Org'; 
-    my $id = "${repo}_${org}";
     print "Executing git for url [$url].\n";
     print "  ID is [$id].\n";
     
@@ -105,7 +100,7 @@ sub startup {
     # Otherwise clone the repo.
     if ( -d $pdir ) {
 	# Just make a pull.
-	my @ret_git = `cd ${pdir_src}; git pull`;
+	my @ret_git = `cd ${pdir_src}; git pull | tee ../output/git_pull.log`;
 	$ret->{'git_log'} = join("\n", @ret_git);
 	print Dumper(@ret_git);
     } else {
@@ -114,7 +109,7 @@ sub startup {
      	chmod 0755, $pdir_out;
 	
 	# Clone the repo.
-	my @ret_git = `cd $pdir; git clone $url src/`; 
+	my @ret_git = `cd $pdir; git clone $url src/ | tee ../output/git_clone.log`; 
 	print Dumper(@ret_git);
     }
 
@@ -123,17 +118,36 @@ sub startup {
     $job->finish($ret);
       			   });
   
-  $self->minion->add_task( run_dspot => sub {
-    my ($job, $url, $hash, $extended) = @_;
+  $self->minion->add_task( run_mvn => sub {
+    my ($job, $id, $url, $hash, $extended) = @_;
     my $ret = {};
     
-    my @p = File::Spec->splitdir( $url );
-    my ($repo, $org) = @p[-2..-1];
-    $repo = defined($repo) ? $repo : 'Unknown Repo'; 
-    $org = defined($org) ? $org : 'Unknown Org'; 
-    my $id = "${repo}_${org}";
-    print "Executing dspot for repo [$repo].\n";
-    print "  ID is [$id].\n";
+    print "Executing mvn for repo [$id].\n";
+
+    my $pdir = File::Spec->catdir( ($wdir, $id) );
+    my $pdir_src = File::Spec->catdir( ($pdir, 'src') );
+    print "In task mvn 2 : $pdir, $pdir_src.\n";
+    $ENV{"MAVEN_HOME"} = "/home/boris/Applis/apache-maven-3.6.0/";
+    print Dumper( `echo "test \$MAVEN_HOME."` );
+    chdir($pdir_src);
+    print "In task mvn 3 after chdir.\n";
+      
+    # Run mvn
+    my @mvn_ret = `cd ${pdir_src}; mvn clean test -DskipTests | tee ../output/mvn_test.log`;
+    #print Dumper( @ );
+    $ret->{'log'} = join( "\n", @mvn_ret);
+    print "In task mvn 4 after pwd.\n";
+    #my @ret = `$cmd`;
+    
+    # Mark the job as finished.
+    $job->finish($ret);
+			   });
+  
+  $self->minion->add_task( run_dspot => sub {
+    my ($job, $id, $url, $hash, $extended) = @_;
+    my $ret = {};
+    
+    print "Executing dspot for repo [$id].\n";
 
     my $pdir = File::Spec->catdir( ($wdir, $id) );
     my $pdir_src = File::Spec->catdir( ($pdir, 'src') );
@@ -146,9 +160,24 @@ sub startup {
     # Check that we can actually run dspot
     
     # Run dspot
-    print Dumper( `cd /data/git_repos/dspot/javapoet; mvn clean test -DskipTests` );
-    print "In task dspot 4 after pwd.\n";
-    #my @ret = `$cmd`;
+    my $cmd = $config->{'mvn_cmd'};
+    print "  Executing DSpot command: [$cmd].\n";
+    print "    MVN_HOME: [" . $ENV{'MVN_HOME'} . "].\n";
+    print "    JAVA_HOME: [" . $ENV{'JAVA_HOME'} . "].\n";
+
+    my @ret_mvn = `cd ${pdir_src}; mvn --version`;
+    my @o = grep { $_ =~ m!Apache Maven! } @ret_mvn;
+    print "    " . $o[0] . "\n";
+    @o = grep { $_ =~ m!Maven home! } @ret_mvn;
+    print "    " . $o[0] . "\n";
+    @o = grep { $_ =~ m!Java version! } @ret_mvn;
+    print "    " . $o[0] . "\n";
+    @o = grep { $_ =~ m!Java home! } @ret_mvn;
+    print "    " . $o[0] . "\n";
+
+    my @ret_dspot = `cd ${pdir_src}; $cmd | tee ../output/dspot.log`;
+    print Dumper( @ret_dspot );
+    $ret->{'log'} = join( "\n", @ret_dspot);
     
     say 'Add this job to the list of repositories in projects.json.';
 
@@ -174,8 +203,10 @@ sub startup {
 	open my $fh, '>:encoding(UTF-8)', $projects or return { "Could not find [$projects]." };
 	print $fh $conf_json;
 	close $fh;
+
+	print "Project added to conf.\n";
     } else {
-	print "Project already in conf, not modifying anything..\n";
+	print "Project already in conf, not modifying anything.\n";
     }
 
     # Mark the job as finished.

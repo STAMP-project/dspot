@@ -41,12 +41,21 @@ sub create_post {
   my $extended = $self->param('extended');
 
 #  my $url = "https://github.com/STAMP-project/dspot.git"; #$self->stash('url');
-  print "Enqueue run_git $url $hash $extended.\n";
-  
-  my $job_git = $self->minion->enqueue(run_git => [$url, $hash] => {delay => 0});
+  my @p = File::Spec->splitdir( $url );
+  my ($repo, $org) = @p[-2..-1];
+  $repo = defined($repo) ? $repo : 'Unknown Repo'; 
+  $org = defined($org) ? $org : 'Unknown Org'; 
+  my $id = "${repo}_${org}";
+  print "Enqueue run_git $id $url $hash $extended.\n";  
+
+  my $job_git = $self->minion->enqueue(
+      run_git => [$id, $url, $hash] => {delay => 0});
   print "DBG JOB GIT " . Dumper($job_git);
+  my $job_mvn = $self->minion->enqueue(
+      run_mvn => [$id, $url, $hash, $extended] => {parents => [$job_git]});
+  print "DBG JOB MVN " . Dumper($job_mvn);
   my $job_dspot = $self->minion->enqueue(
-      run_dspot => [$url, $hash, $extended] => {parents => [$job_git]});
+      run_dspot => [$id, $url, $hash, $extended] => {parents => [$job_mvn]});
   print "DBG JOB DSPOT " . Dumper($job_dspot);
   
   # Render template "dspot/create_post.html.ep"
@@ -71,14 +80,12 @@ sub repos {
 
   my $projects = File::Spec->catfile( $wdir, 'projects.json');
   
-  print "DBG before josn \n";
   # Read projects information.
   my $contents = do {
       open my $fh, '<:encoding(UTF-8)', $projects or $msg = "Could not find [$projects]." ;
       local $/;
       <$fh>;
   };
-  print "DBG " . Dumper($contents);
   my $conf = decode_json( $contents );
 
   print "DBG \n";
@@ -102,17 +109,23 @@ sub repo {
   # Load configuration from application config
   my $wdir = $self->app->config('work_dir');
   print "work dir is $wdir.\n";
-  my $pinfo = File::Spec->catfile( $wdir, $repo, 'project_info.json');
+  # Should we keep it?
+  #my $pinfo = File::Spec->catfile( $wdir, $repo, 'project_info.json');
   
   # Read projects information.
+  my $projects = File::Spec->catfile( $wdir, 'projects.json');
+  print "Projects file is $projects.\n";
   my $contents = do {
-      open my $fh, '<:encoding(UTF-8)', $pinfo or $msg = "Could not find [$pinfo]." ;
+      open my $fh, '<:encoding(UTF-8)', $projects or print "ERROR Could not find [$projects].\n" ;
       local $/;
       <$fh>;
   };
+  print "JSON raw " . Dumper($contents);
   my $conf = decode_json( $contents );
 
-  $self->stash('conf' => $conf);
+  $self->stash('conf' => $conf->{$repo});
+  $self->stash('repo' => $repo);
+  $self->stash('wdir' => $wdir);
   
   # Render template "dspot/repo.html.ep"
   $self->render();
