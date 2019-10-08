@@ -1,6 +1,6 @@
-# DSpot-Maven
+# DSpot Maven Plugin
 
-You can use this plugin on the command line as the jar:
+This plugin let you integrate unit test amplification in your Maven build process. You can use this plugin on the command line as the jar:
 
 ```bash
 # this amplifies the Junit tests to kill more mutants

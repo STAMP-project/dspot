@@ -57,6 +57,7 @@ public class InputConfiguration {
     public static InputConfiguration initialize(String pathToPropertiesFile) {
         InputConfiguration.initialize(Configuration.loadProperties(pathToPropertiesFile));
         InputConfiguration.instance.configPath = pathToPropertiesFile;
+        InputConfiguration.get().setBudgetizer(InputAmplDistributorEnum.RandomInputAmplDistributor);
         return InputConfiguration.instance;
     }
 

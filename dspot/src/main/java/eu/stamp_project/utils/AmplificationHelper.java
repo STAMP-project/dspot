@@ -75,6 +75,7 @@ public class AmplificationHelper {
         final Stream<CtMethod<?>> methodToAdd;
         methodToAdd = ampTest.stream();
         final CtType<?> currentTestClass = classTest.clone();
+        classTest.getPackage().addType(currentTestClass);
         methodToAdd.forEach(currentTestClass::addMethod);
         // keep original test methods
         if (!InputConfiguration.get().shouldKeepOriginalTestMethods()) {
@@ -83,6 +84,11 @@ public class AmplificationHelper {
                     //.filter(AmplificationChecker::isTest)
                     .forEach(currentTestClass::removeMethod);
         }
+        return currentTestClass;
+    }
+
+    public static CtType<?> renameTestClassUnderAmplification(CtType<?> classTest) {
+        final CtType<?> currentTestClass = classTest.clone();
         // generate a new test class
         if (InputConfiguration.get().shouldGenerateAmplifiedTestClass()) {
             final String amplifiedName = getAmplifiedName(classTest);

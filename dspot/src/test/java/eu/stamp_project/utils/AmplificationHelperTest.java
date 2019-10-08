@@ -5,6 +5,7 @@ import eu.stamp_project.Utils;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtTypeAccess;
@@ -44,13 +45,7 @@ public class AmplificationHelperTest extends AbstractTest {
 
         InputConfiguration.get().setGenerateAmplifiedTestClass(true);
         final CtClass<?> testClass = Utils.findClass("fr.inria.amplified.AmplifiedTestClassWithReferenceToName");
-        final List<CtMethod<?>> fakeAmplification =
-                testClass.getMethods()
-                        .stream()
-                        .map(CtMethod::clone)
-                        .peek(method -> method.setSimpleName("ampl" + method.getSimpleName()))
-                .collect(Collectors.toList());
-        final CtType amplifiedTest = AmplificationHelper.createAmplifiedTest(fakeAmplification, testClass);
+        final CtType amplifiedTest = AmplificationHelper.renameTestClassUnderAmplification(testClass);
         assertEquals("AmplAmplifiedTestClassWithReferenceToName", amplifiedTest.getElements(new TypeFilter<>(CtLiteral.class)).get(0).getValue()); // must be updated if the resource change
         assertEquals("AmplAmplifiedTestClassWithReferenceToName",
                 amplifiedTest.getElements(new TypeFilter<>(CtTypeAccess.class))
@@ -80,7 +75,7 @@ public class AmplificationHelperTest extends AbstractTest {
                 .map(CtMethod::clone)
                 .peek(ctMethod -> ctMethod.setSimpleName("ampl" + ctMethod.getSimpleName()))
                 .collect(Collectors.toList());
-        CtType<?> amplifiedTest = AmplificationHelper.createAmplifiedTest(fakeAmplifiedMethod, classTest);
+        CtType<?> amplifiedTest = AmplificationHelper.renameTestClassUnderAmplification(AmplificationHelper.createAmplifiedTest(fakeAmplifiedMethod, classTest));
 
         assertTrue(amplifiedTest.getSimpleName().contains("Ampl")); // (1)
 

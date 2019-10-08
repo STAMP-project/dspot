@@ -6,6 +6,8 @@ import eu.stamp_project.dspot.selector.TakeAllSelector;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.compilation.TestCompiler;
+import eu.stamp_project.utils.report.output.Output;
+import eu.stamp_project.utils.test_finder.TestFinder;
 import org.junit.AfterClass;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
@@ -44,10 +46,17 @@ public class DSpotTest extends AbstractTest {
          */
 
         final CtClass<?> testClass = Utils.findClass("fr.inria.preparation.MustBeRenamedFromStart");
-        final DSpot dSpot = new DSpot(
-                new TakeAllSelector()
-        );
-        final CtType amplifyTest = dSpot.amplifyTestClass("fr.inria.preparation.MustBeRenamedFromStart").get(0);
+        final TakeAllSelector testSelector = new TakeAllSelector();
+        DSpot dspot = new DSpot(
+                TestFinder.get(),
+                Utils.getCompiler(),
+                testSelector,
+                InputConfiguration.get().getBudgetizer().getInputAmplDistributor(),
+                Output.get(InputConfiguration.get()),
+                1,
+                InputConfiguration.get().shouldGenerateAmplifiedTestClass());
+        final CtType<?> amplifyTest =
+                dspot.amplify(testClass, Collections.emptyList());
         assertTrue("should be empty", TestCompiler.compileAndRun(
                 amplifyTest,
                 Utils.getCompiler(),

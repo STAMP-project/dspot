@@ -11,9 +11,11 @@ import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TakeAllSelector;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
+import eu.stamp_project.utils.test_finder.TestFinder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -110,18 +112,21 @@ public class RecoveryDSpotTest extends AbstractTest {
         selector.setThrowsToAmplify(true);
         Amplification amplification = new Amplification(
                 Utils.getCompiler(),
-                InputConfiguration.get().getAmplifiers(),
                 selector,
-                new TextualDistanceInputAmplDistributor()
+                new TextualDistanceInputAmplDistributor(),
+                1
         );
-        amplification.amplification(Utils.findClass("fr.inria.amp.OneLiteralTest"), 1);
+        final TestFinder testFinder = new TestFinder(Collections.emptyList(), Collections.emptyList());
+        final CtClass<?> testClassToBeAmplified = Utils.findClass("fr.inria.amp.OneLiteralTest");
+        final List<CtMethod<?>> testListToBeAmplified = testFinder.findTestMethods(testClassToBeAmplified, Collections.emptyList());
+        amplification.amplification(testClassToBeAmplified, testListToBeAmplified, Collections.emptyList(), 1);
         assertEquals(1, Main.GLOBAL_REPORT.getErrors().size());
         assertSame(ErrorEnum.ERROR_PRE_SELECTION, Main.GLOBAL_REPORT.getErrors().get(0).type);
         Main.GLOBAL_REPORT.reset();
 
         selector.setThrowsToAmplify(false);
         selector.setThrowsToKeep(true);
-        amplification.amplification(Utils.findClass("fr.inria.amp.OneLiteralTest"), 1);
+        amplification.amplification(testClassToBeAmplified, testListToBeAmplified, Collections.emptyList(), 1);
         assertEquals(1, Main.GLOBAL_REPORT.getErrors().size());
         assertSame(ErrorEnum.ERROR_SELECTION, Main.GLOBAL_REPORT.getErrors().get(0).type);
         Main.GLOBAL_REPORT.reset();
@@ -129,25 +134,25 @@ public class RecoveryDSpotTest extends AbstractTest {
         final List<Amplifier> amplifiers = Collections.singletonList(new AmplifierThatThrowsError());
         amplification = new Amplification(
                 Utils.getCompiler(),
-                amplifiers,
                 new TakeAllSelector(),
-                new TextualDistanceInputAmplDistributor(amplifiers)
+                new TextualDistanceInputAmplDistributor(amplifiers),
+                1
         );
-        amplification.amplification(Utils.findClass("fr.inria.amp.OneLiteralTest"), 1);
+        amplification.amplification(testClassToBeAmplified, testListToBeAmplified, Collections.emptyList(), 1);
         assertEquals(1, Main.GLOBAL_REPORT.getErrors().size());
         assertSame(ErrorEnum.ERROR_INPUT_AMPLIFICATION, Main.GLOBAL_REPORT.getErrors().get(0).type);
         Main.GLOBAL_REPORT.reset();
 
         amplification = new Amplification(
                 Utils.getCompiler(),
-                Collections.emptyList(),
                 new TakeAllSelector(),
-                new TextualDistanceInputAmplDistributor()
+                new TextualDistanceInputAmplDistributor(Collections.emptyList()),
+                1
         );
         final Field assertGenerator = amplification.getClass().getDeclaredField("assertionGenerator");
         assertGenerator.setAccessible(true);
         assertGenerator.set(amplification, new AssertionGeneratorThatThrowsError(Utils.getCompiler()));
-        amplification.amplification(Utils.findClass("fr.inria.amp.OneLiteralTest"), 1);
+        amplification.amplification(testClassToBeAmplified, testListToBeAmplified, Collections.emptyList(), 1);
         assertEquals(1, Main.GLOBAL_REPORT.getErrors().size());
         assertSame(ErrorEnum.ERROR_ASSERT_AMPLIFICATION, Main.GLOBAL_REPORT.getErrors().get(0).type);
         Main.GLOBAL_REPORT.reset();
@@ -155,8 +160,8 @@ public class RecoveryDSpotTest extends AbstractTest {
 
     @Test
     public void testNoMatchingTestClasses() {
-        final DSpot dSpot = new DSpot(new TakeAllSelector());
-        dSpot.amplifyTestClass("this.is.not.a.correct.package");
+        final TestFinder testFinder = new TestFinder(Collections.emptyList(), Collections.emptyList());
+        testFinder.findTestClasses(Collections.singletonList("this.is.not.a.correct.package"));
         assertEquals(2, Main.GLOBAL_REPORT.getErrors().size());
         assertSame(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND_MATCHING_REGEX, Main.GLOBAL_REPORT.getErrors().get(0).type);
         assertSame(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND, Main.GLOBAL_REPORT.getErrors().get(1).type);

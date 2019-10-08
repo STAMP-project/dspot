@@ -5,14 +5,13 @@ DPSOT_VERSION=${1}
 cd dspot
 git clone https://github.com/xwiki/xwiki-commons.git
 cd xwiki-commons
-git reset --hard fad7990ee27aa6de039412587fc9546b90845e34
+git reset --hard af3f542acc23e4d70cf61b4f6ac9d261a2a75bbf
 mvn clean install -DskipTests --quiet
-cd ..
-
-java -jar target/dspot-${DSPOT_VERSION}-jar-with-dependencies.jar --path-to-properties src/test/resources/xwiki.properties --descartes --verbose --generate-new-test-class --test org.xwiki.xml.internal.html.DefaultHTMLCleanerTest
-
-if [ -f dspot-out/xwiki-commons/org/xwiki/xml/internal/html/AmplDefaultHTMLCleanerTest.java ]; then
-    exit 0
-else
+mvn eu.stamp-project:dspot-maven:${DSPOT_VERSION}:amplify-unit-tests -Dgenerate-new-test-class=true -Dtest=org.xwiki.component.ProviderTest -Dtarget-module=xwiki-commons-core/xwiki-commons-component/xwiki-commons-component-default
+if [not -f target/dspot/output/org/xwiki/component/AmplProviderTest.java ]; then
+    echo "Something went wrong during amplification"
     exit 1
 fi
+cp target/dspot/output/org/xwiki/component/AmplProviderTest.java xwiki-commons-core/xwiki-commons-component/xwiki-commons-component-default/src/test/java/org/xwiki/component/
+cd xwiki-commons-core/xwiki-commons-component/xwiki-commons-component-default
+mvn clean test

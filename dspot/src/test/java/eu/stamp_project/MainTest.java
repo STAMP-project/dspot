@@ -255,12 +255,12 @@ public class MainTest {
             AmplificationHelper.LINE_SEPARATOR +
             "public class TestSuiteExample {" + AmplificationHelper.LINE_SEPARATOR +
             "    @Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
-            "    public void test3_literalMutationString44_failAssert0() throws Exception {" + AmplificationHelper.LINE_SEPARATOR +
+            "    public void test3_literalMutationString50_failAssert0() throws Exception {" + AmplificationHelper.LINE_SEPARATOR +
             "        try {" + AmplificationHelper.LINE_SEPARATOR +
             "            Example ex = new Example();" + AmplificationHelper.LINE_SEPARATOR +
             "            String s = \"\";" + AmplificationHelper.LINE_SEPARATOR +
             "            ex.charAt(s, ((s.length()) - 1));" + AmplificationHelper.LINE_SEPARATOR +
-            "            Assert.fail(\"test3_literalMutationString44 should have thrown StringIndexOutOfBoundsException\");" + AmplificationHelper.LINE_SEPARATOR +
+            "            Assert.fail(\"test3_literalMutationString50 should have thrown StringIndexOutOfBoundsException\");" + AmplificationHelper.LINE_SEPARATOR +
             "        } catch (StringIndexOutOfBoundsException expected) {" + AmplificationHelper.LINE_SEPARATOR +
             "            Assert.assertEquals(\"String index out of range: 0\", expected.getMessage());" + AmplificationHelper.LINE_SEPARATOR +
             "        }" + AmplificationHelper.LINE_SEPARATOR +

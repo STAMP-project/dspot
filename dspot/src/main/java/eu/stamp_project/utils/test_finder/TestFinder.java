@@ -48,7 +48,7 @@ public class TestFinder {
                             .noneMatch(Matcher::matches);
 
     public List<CtType<?>> findTestClasses(List<String> testClassNames) {
-        if (testClassNames.isEmpty()) {
+        if (testClassNames.isEmpty() || "all".equals(testClassNames.get(0))) {
             return TestFramework.getAllTestClasses();
         }
         final Map<String, List<CtType<?>>> namesMatchedToTypes =
@@ -144,5 +144,14 @@ public class TestFinder {
                 .filter(this.isNotExcluded);
     }
 
+    public static TestFinder get() {
+        return new TestFinder(Collections.emptyList(), Collections.emptyList());
+    }
 
+    public static TestFinder get(InputConfiguration configuration) {
+        return new TestFinder(
+                Arrays.stream(configuration.getExcludedClasses().split(",")).collect(Collectors.toList()),
+                Arrays.stream(configuration.getExcludedTestCases().split(",")).collect(Collectors.toList())
+        );
+    }
 }

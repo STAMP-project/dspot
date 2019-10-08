@@ -1,15 +1,19 @@
 package eu.stamp_project.dspot.selector;
 
 import eu.stamp_project.Utils;
+
 import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.dspot.amplifier.StringLiteralAmplifier;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.utils.report.output.Output;
+import eu.stamp_project.utils.test_finder.TestFinder;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import java.io.File;
-import java.util.Arrays;
+import java.util.Collections;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -44,8 +48,15 @@ public abstract class AbstractSelectorRemoveOverlapTest {
     @Test
     public void testRemoveOverlappingTests() throws Exception {
         this.testSelectorUnderTest.init();
-        DSpot dspot = new DSpot(1, Arrays.asList(new StringLiteralAmplifier()), testSelectorUnderTest);
-        dspot.amplifyTestClass("example.TestSuiteOverlapExample");
+        DSpot dspot = new DSpot(
+                new TestFinder(Collections.emptyList(), Collections.emptyList()),
+                Utils.getCompiler(),
+                this.testSelectorUnderTest,
+                InputConfiguration.get().getBudgetizer().getInputAmplDistributor(new StringLiteralAmplifier()),
+                new Output(InputConfiguration.get().getAbsolutePathToProjectRoot(), InputConfiguration.get().getOutputDirectory()),
+                1,
+                InputConfiguration.get().shouldGenerateAmplifiedTestClass());
+        dspot.amplify(Utils.findClass("example.TestSuiteOverlapExample"), Collections.emptyList());
         final File directory = new File(DSpotUtils.shouldAddSeparator.apply(InputConfiguration.get().getOutputDirectory()));
         if (!directory.exists()) {
             directory.mkdir();
