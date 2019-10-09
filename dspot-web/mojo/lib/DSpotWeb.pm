@@ -6,7 +6,7 @@ use POSIX;
 use Data::Dumper;
 use File::Spec;
 use File::Path 'make_path';
-
+use Archive::Zip qw( :ERROR_CODES :CONSTANTS );
 
 use Mojo::JSON qw/decode_json encode_json/;
 
@@ -15,9 +15,12 @@ use Mojo::JSON qw/decode_json encode_json/;
 sub startup {
   my $self = shift;
 
-  # Load configuration from hash returned by config file
+  # Load configuration from hash returned by config file.
   my $config = $self->plugin('Config');
 
+  # Mojolicious plugin RenderFile to serve static files.
+  #$self->plugin('RenderFile');
+  
   # Create timestamp to log starting time.
   my $ltime = strftime "%Y-%m-%d %H:%M:%S", localtime time;
   
@@ -25,18 +28,44 @@ sub startup {
   $self->defaults(layout => 'default');
 
   # Get working directory for projects.
-  my $wdir = "projects/";
-  if ( exists($config->{'work_dir'}) && -d $config->{'work_dir'} ) {
-      $wdir = $config->{'work_dir'};
-      print "* Using working directory from conf [$wdir].\n";
+  my $workspace = './';
+  my $ldir = 'projects/';
+  my $wdir;
+  if ( exists($config->{'workspace'}) ) {
+      print "* Using workspace from conf [" . $config->{'workspace'} . "].\n";
+      $workspace = $config->{'workspace'};
   } else {
-      $self->config({'work_dir' => $wdir});
-      print "* Using default working directory [$wdir].\n";
+      print "* Using default workspace [$workspace].\n";
   }
   
+  $wdir = File::Spec->catdir( ($workspace, $ldir) );
+  if ( -d $wdir ) {
+      print "* Work dir [$wdir] exists.\n";
+  } else {
+      # Create dir hierarchy
+      make_path($wdir);
+      chmod 0755, $wdir;
+
+      print "* Work dir [$wdir] created.\n";
+  }
+  
+  $self->config({'work_dir' => $wdir});
+  $self->config({'workspace' => $workspace});
+
+  # Add another "public" directory
+  my $static = Mojolicious::Static->new;
+  my $paths = $static->paths;
+  push @{$static->paths}, $wdir;
+  
   # Get mvn command to use for execution
-  my $cmd = $config->{'mvn_cmd'};
-  print "* Using CMD [$cmd].\n";
+  my $mvn_home = $config->{'mvn_home'} or die "ERROR Cannot find mvn_home.\n";
+  print "* Using mvn home [$mvn_home].\n";
+  my $mvn_cmd = $config->{'mvn_cmd'} or die "ERROR Cannot find mvn_cmd.\n";
+  print "* Using mvn command [$mvn_cmd].\n";
+  my $dspot_cmd = $config->{'dspot_cmd'} or die "ERROR Cannot find dspot_cmd.\n";
+  print "* Using dspot cmd [$dspot_cmd].\n";
+  my $dspot_cmd_ext = $config->{'dspot_cmd_ext'} or die "ERROR Cannot find dspot_cmd_ext.\n";
+  print "* Using dspot cmd ext [$dspot_cmd_ext].\n";
   
   # Log to specific dspot file.
 #  my $dlog = Mojo::Log->new(path => 'log/dspot.log');
@@ -60,7 +89,7 @@ sub startup {
     my @p = File::Spec->splitdir( $url );
     my ($repo, $org) = @p[-2..-1];
     my $id = "${repo}_${org}";
-    my $pdir = catdir($wdir, $id);
+    my $pdir = File::Spec->catdir( ($wdir, $id) );
 
     return $pdir;
 		 });
@@ -101,16 +130,15 @@ sub startup {
     if ( -d $pdir ) {
 	# Just make a pull.
 	my @ret_git = `cd ${pdir_src}; git pull | tee ../output/git_pull.log`;
-	$ret->{'git_log'} = join("\n", @ret_git);
-	print Dumper(@ret_git);
+	$ret->{'log'} = join("\n", @ret_git);
     } else {
 	# Create dir hierarchy
 	make_path($pdir_out);
      	chmod 0755, $pdir_out;
 	
 	# Clone the repo.
-	my @ret_git = `cd $pdir; git clone $url src/ | tee ../output/git_clone.log`; 
-	print Dumper(@ret_git);
+	my @ret_git = `cd $pdir; git clone $url src/ | tee output/git_clone.log`;
+	$ret->{'log'} = join( "\n", @ret_git );
     }
 
     print "END of task git_run.\n";
@@ -124,20 +152,11 @@ sub startup {
     
     print "Executing mvn for repo [$id].\n";
 
-    my $pdir = File::Spec->catdir( ($wdir, $id) );
-    my $pdir_src = File::Spec->catdir( ($pdir, 'src') );
-    print "In task mvn 2 : $pdir, $pdir_src.\n";
-    $ENV{"MAVEN_HOME"} = "/home/boris/Applis/apache-maven-3.6.0/";
-    print Dumper( `echo "test \$MAVEN_HOME."` );
-    chdir($pdir_src);
-    print "In task mvn 3 after chdir.\n";
+    my $pdir_src = File::Spec->catdir( ($wdir, $id, 'src') );
       
     # Run mvn
-    my @mvn_ret = `cd ${pdir_src}; mvn clean test -DskipTests | tee ../output/mvn_test.log`;
-    #print Dumper( @ );
+    my @mvn_ret = `cd ${pdir_src}; ${mvn_cmd} | tee ../output/mvn_test.log`;
     $ret->{'log'} = join( "\n", @mvn_ret);
-    print "In task mvn 4 after pwd.\n";
-    #my @ret = `$cmd`;
     
     # Mark the job as finished.
     $job->finish($ret);
@@ -151,36 +170,43 @@ sub startup {
 
     my $pdir = File::Spec->catdir( ($wdir, $id) );
     my $pdir_src = File::Spec->catdir( ($pdir, 'src') );
-    print "In task dspot 2 : $pdir, $pdir_src.\n";
-    $ENV{"MAVEN_HOME"} = "/home/boris/Applis/apache-maven-3.6.0/";
-    print Dumper( `echo "test \$MAVEN_HOME."` );
-    chdir($pdir_src);
-    print "In task dspot 3 after chdir.\n";
-      
+    my $pdir_out = File::Spec->catdir( ($pdir, 'output') );
+    my $pdir_out_dspot = File::Spec->catdir( ($pdir, 'output', 'dspot') );
+
+    # Create dir hierarchy
+    make_path($pdir_out_dspot);
+    chmod 0755, $pdir_out_dspot;
+
     # Check that we can actually run dspot
     
     # Run dspot
-    my $cmd = $config->{'mvn_cmd'};
+    my $cmd = $config->{'dspot_cmd'};
     print "  Executing DSpot command: [$cmd].\n";
-    print "    MVN_HOME: [" . $ENV{'MVN_HOME'} . "].\n";
-    print "    JAVA_HOME: [" . $ENV{'JAVA_HOME'} . "].\n";
+    print "    MVN_HOME: [" . ( $ENV{'MVN_HOME'} || '' ) . "].\n";
+    print "    JAVA_HOME: [" . ( $ENV{'JAVA_HOME'} || '' ). "].\n";
 
     my @ret_mvn = `cd ${pdir_src}; mvn --version`;
     my @o = grep { $_ =~ m!Apache Maven! } @ret_mvn;
-    print "    " . $o[0] . "\n";
+    print "    " . chomp($o[0]) . "\n";
     @o = grep { $_ =~ m!Maven home! } @ret_mvn;
-    print "    " . $o[0] . "\n";
+    print "    " . chomp($o[0]) . "\n";
     @o = grep { $_ =~ m!Java version! } @ret_mvn;
-    print "    " . $o[0] . "\n";
+    print "    " . chomp($o[0]) . "\n";
     @o = grep { $_ =~ m!Java home! } @ret_mvn;
-    print "    " . $o[0] . "\n";
+    print "    " . chomp($o[0]) . "\n";
 
     my @ret_dspot = `cd ${pdir_src}; $cmd | tee ../output/dspot.log`;
-    print Dumper( @ret_dspot );
     $ret->{'log'} = join( "\n", @ret_dspot);
     
-    say 'Add this job to the list of repositories in projects.json.';
-
+    my $zip = Archive::Zip->new();
+    # Add a directory
+    my $dir_member = $zip->addDirectory( "$pdir_out", 'output/' );
+    # Save the Zip file
+    my $zip_file = File::Spec->catdir( ($wdir, 'results.zip') );
+    unless ( $zip->writeToFileNamed( $zip_file ) == AZ_OK ) {
+      die "ERROR zip write [$zip_file].";
+    }
+    
     # Read projects information.
     my $projects = File::Spec->catfile( $wdir, 'projects.json');
     my $data;
@@ -190,9 +216,7 @@ sub startup {
 	$data = <$fh>;
 	close $fh;
     }
-    print "DBG raw " . Dumper($data);
     my $conf = decode_json( $data );
-    print "DBG json-decoded " . Dumper($conf);
 
     # Add project if it doesn't exist already.
     if (not exists($conf->{$id})) {
