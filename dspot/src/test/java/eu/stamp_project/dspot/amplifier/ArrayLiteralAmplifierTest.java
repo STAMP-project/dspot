@@ -63,9 +63,12 @@ public class ArrayLiteralAmplifierTest extends AbstractTestOnSample {
             if(type.equals("String") || type.equals("Object")){
                 type = "java.lang." + type;
             }
-            List<String> expectedValues = Arrays.asList("new " + type + "[][]{ new " + type +"[]{ " +
-                    constructAdditionalElement(type) + " } }","null");
-            callAssertions(methodName,expectedValues);
+            List<String> expectedValues =
+                    Arrays.asList(
+                            "new " + type + "[][]{ new " + type +"[]{ " + constructAdditionalElement(type) + " } }",
+                            "null"
+                    );
+            callAssertions(methodName, expectedValues);
         }
     }
 
@@ -105,7 +108,7 @@ public class ArrayLiteralAmplifierTest extends AbstractTestOnSample {
         } else if(type.equals("float")){
             return "1.1F";
         } else if(type.equals("double")){
-            return "1.1literalMutationClass";
+            return "1.1";
         } else if(type.equals("byte")){
             return "1";
         } else if(type.equals("boolean")){
