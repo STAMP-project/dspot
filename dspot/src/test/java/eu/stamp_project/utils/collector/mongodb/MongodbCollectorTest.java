@@ -1,5 +1,6 @@
 package eu.stamp_project.utils.collector.mongodb;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.Before;
 import org.junit.After;
@@ -45,6 +46,7 @@ public class MongodbCollectorTest {
                 this.greenMail.stop();
         }
 
+        @Ignore
         @Test
         public void testInfoSubmissionToMongodbPitMutantScoreSelector() {
                 Main.main(new String[]{
@@ -77,6 +79,7 @@ public class MongodbCollectorTest {
                 assertEquals(foundDoc.toString(), expectedDocStr);
         }
 
+        @Ignore
         @Test
         public void testInfoSubmissionToMongodbJacocoCoverageSelector() {
                 Main.main(new String[]{
@@ -104,7 +107,8 @@ public class MongodbCollectorTest {
                 assertEquals(foundDoc.toString(),expectedDocStr);
         }
 
-        @Test 
+        @Ignore
+        @Test
         /* Should update an existing document then have tried sending an email at the end*/
         public void testRestful() {
                 Document initDoc = new Document("RepoSlug", "USER/Testing")
