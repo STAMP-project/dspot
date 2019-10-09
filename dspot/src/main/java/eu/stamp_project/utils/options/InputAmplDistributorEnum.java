@@ -5,7 +5,6 @@ import eu.stamp_project.dspot.input_ampl_distributor.*;
 import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
 import eu.stamp_project.dspot.input_ampl_distributor.RandomInputAmplDistributor;
 
-import java.util.Collections;
 import java.util.List;
 
 /**

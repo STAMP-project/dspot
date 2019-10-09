@@ -9,7 +9,6 @@ import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.report.output.Output;
-import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.test_finder.TestFinder;

@@ -2,7 +2,6 @@ package eu.stamp_project.utils;
 
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.listener.TestResult;
-import eu.stamp_project.utils.program.InputConfiguration;
 
 import org.apache.cxf.common.util.WeakIdentityHashMap;
 import org.jetbrains.annotations.NotNull;

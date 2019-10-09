@@ -4,7 +4,6 @@ import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.testrunner.listener.TestResult;
-import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;

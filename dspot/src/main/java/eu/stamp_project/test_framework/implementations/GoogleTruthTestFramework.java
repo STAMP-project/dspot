@@ -2,7 +2,7 @@ package eu.stamp_project.test_framework.implementations;
 
 import eu.stamp_project.test_framework.AbstractTestFrameworkDecorator;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
-import eu.stamp_project.utils.program.InputConfiguration;
+
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtElement;

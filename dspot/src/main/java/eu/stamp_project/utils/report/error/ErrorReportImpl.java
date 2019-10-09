@@ -1,7 +1,7 @@
 package eu.stamp_project.utils.report.error;
 
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.program.InputConfiguration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

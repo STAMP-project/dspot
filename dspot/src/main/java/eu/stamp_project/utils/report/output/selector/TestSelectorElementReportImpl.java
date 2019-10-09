@@ -2,7 +2,7 @@ package eu.stamp_project.utils.report.output.selector;
 
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.program.InputConfiguration;
+
 import spoon.reflect.declaration.CtType;
 
 import java.io.File;

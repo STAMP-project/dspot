@@ -3,7 +3,6 @@ package eu.stamp_project.utils;
 import eu.stamp_project.Main;
 import eu.stamp_project.utils.collector.Collector;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.error.Error;
 import eu.stamp_project.utils.report.error.ErrorEnum;
 import org.apache.commons.io.FileUtils;

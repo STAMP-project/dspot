@@ -1,7 +1,6 @@
 package eu.stamp_project.dspot.input_ampl_distributor;
 
 import eu.stamp_project.dspot.amplifier.Amplifier;
-import eu.stamp_project.utils.program.InputConfiguration;
 import spoon.reflect.declaration.CtType;
 
 import java.util.List;

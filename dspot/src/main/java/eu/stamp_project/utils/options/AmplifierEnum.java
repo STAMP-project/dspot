@@ -2,9 +2,6 @@ package eu.stamp_project.utils.options;
 
 import eu.stamp_project.dspot.amplifier.*;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 public enum AmplifierEnum {
 
     MethodDuplicationAmplifier(new MethodDuplicationAmplifier()),

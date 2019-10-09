@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.program.InputConfiguration;
+
 import org.apache.commons.lang3.SerializationUtils;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtAnnotation;

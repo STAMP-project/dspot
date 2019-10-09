@@ -16,9 +16,6 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * created by Benjamin DANGLOT
