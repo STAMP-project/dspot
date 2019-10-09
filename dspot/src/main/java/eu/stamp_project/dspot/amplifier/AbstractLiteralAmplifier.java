@@ -42,30 +42,7 @@ public abstract class AbstractLiteralAmplifier<T> extends AbstractAmplifier<CtEx
                         || literal.getParent(CtAnnotation.class) != null) {
                     return false;
                 } else if (literal.getValue() == null) {
-
-                    // getting the class of the expected parameter
-                    if (literal.getParent() instanceof CtInvocation<?>) {
-                        final CtInvocation<?> parent = (CtInvocation<?>) literal.getParent();
-                        clazzOfLiteral = parent.getExecutable()
-                                .getDeclaration()
-                                .getParameters()
-                                .get(parent.getArguments().indexOf(literal))
-                                .getType()
-                                .getActualClass();
-
-                        // getting the class of the assignee
-                    } else if (literal.getParent() instanceof CtAssignment) {
-                        clazzOfLiteral = ((CtAssignment) literal.getParent())
-                                .getAssigned()
-                                .getType()
-                                .getActualClass();
-
-                        // getting the class of the local variable
-                    } else if (literal.getParent() instanceof CtLocalVariable) {
-                        clazzOfLiteral = ((CtLocalVariable) literal.getParent())
-                                .getType()
-                                .getActualClass();
-                    }
+                    clazzOfLiteral = getNullClass(literal);
                 } else {
                     clazzOfLiteral = literal.getValue().getClass();
                 }
@@ -86,6 +63,34 @@ public abstract class AbstractLiteralAmplifier<T> extends AbstractAmplifier<CtEx
                     TestFramework.get().isAssert((CtInvocation) literal.getParent());
         }
     };
+
+    protected Class getNullClass(CtExpression<T> literal){
+
+        // getting the class of the expected parameter
+        if (literal.getParent() instanceof CtInvocation<?>) {
+            final CtInvocation<?> parent = (CtInvocation<?>) literal.getParent();
+            return parent.getExecutable()
+                    .getDeclaration()
+                    .getParameters()
+                    .get(parent.getArguments().indexOf(literal))
+                    .getType()
+                    .getActualClass();
+
+            // getting the class of the assignee
+        } else if (literal.getParent() instanceof CtAssignment) {
+            return ((CtAssignment) literal.getParent())
+                    .getAssigned()
+                    .getType()
+                    .getActualClass();
+
+            // getting the class of the local variable
+        } else if (literal.getParent() instanceof CtLocalVariable) {
+            return ((CtLocalVariable) literal.getParent())
+                    .getType()
+                    .getActualClass();
+        }
+        return null;
+    }
 
     @Override
     protected List<CtExpression<T>> getOriginals(CtMethod<?> testMethod) {
