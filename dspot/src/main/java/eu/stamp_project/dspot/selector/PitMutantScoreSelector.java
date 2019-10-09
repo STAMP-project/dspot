@@ -321,8 +321,6 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                     }
                 }
         );
-        // TODO
-//        CollectorConfig.getInstance().getInformationCollector().reportSelectorInformation(testClassJSON.toString());
         return testClassJSON;
     }
 

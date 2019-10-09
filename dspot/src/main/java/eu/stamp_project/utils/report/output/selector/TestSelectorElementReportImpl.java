@@ -28,6 +28,11 @@ public class TestSelectorElementReportImpl implements TestSelectorElementReport 
     }
 
     @Override
+    public String getReportForCollector() {
+        return this.testClassJSON.toString();
+    }
+
+    @Override
     public String output(CtType<?> testClass, String outputDirectory) {
         // 1 output the specific JSON file for the test class
         final File outputJsonFile = new File(

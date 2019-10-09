@@ -95,6 +95,10 @@ public class Output {
         this.projectTimeJSON.add(new ClassTimeJSON(qualifiedName, elapsedTime));
     }
 
+    public void reportSelectorInformation(String report) {
+        this.collector.reportSelectorInformation(report);
+    }
+
     public static Output get(InputConfiguration configuration, Collector collector) {
         return new Output(configuration.getAbsolutePathToProjectRoot(), configuration.getOutputDirectory(), collector);
     }

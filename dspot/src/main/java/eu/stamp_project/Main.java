@@ -101,6 +101,23 @@ public class Main {
         );
         initHelpers(inputConfiguration, compiler.getLauncher().getFactory());
         inputConfiguration.setFactory(compiler.getLauncher().getFactory());
+        final EmailSender emailSender = new EmailSender(
+                inputConfiguration.getSmtpUsername(),
+                inputConfiguration.getSmtpPassword(),
+                inputConfiguration.getSmtpHost(),
+                inputConfiguration.getSmtpPort(),
+                inputConfiguration.isSmtpAuth(),
+                inputConfiguration.getSmtpTls()
+        );
+        final Collector collector = CollectorFactory.build(inputConfiguration, emailSender);
+        collector.reportInitInformation(
+                inputConfiguration.getAmplifiers(),
+                inputConfiguration.getSelector(),
+                inputConfiguration.getNbIteration(),
+                !inputConfiguration.isDescartesMode(),
+                inputConfiguration.isDescartesMode(),
+                inputConfiguration.getNumberParallelExecutionProcessors()
+        );
         final List<CtType<?>> testClassesToBeAmplified = testFinder.findTestClasses(inputConfiguration.getTestClasses());
         final List<String> testMethodsToBeAmplifiedNames = inputConfiguration.getTestCases();
         final TestSelector testSelector = inputConfiguration.getSelector().buildSelector(automaticBuilder, inputConfiguration);
@@ -113,15 +130,6 @@ public class Main {
         final InputAmplDistributor inputAmplDistributor = inputConfiguration
                 .getInputAmplDistributor()
                 .getInputAmplDistributor(inputConfiguration.getMaxTestAmplified(), amplifiers);
-        final EmailSender emailSender = new EmailSender(
-                inputConfiguration.getSmtpUsername(),
-                inputConfiguration.getSmtpPassword(),
-                inputConfiguration.getSmtpHost(),
-                inputConfiguration.getSmtpPort(),
-                inputConfiguration.isSmtpAuth(),
-                inputConfiguration.getSmtpTls()
-        );
-        final Collector collector = CollectorFactory.build(inputConfiguration, emailSender);
         final Output output = new Output(
                 inputConfiguration.getAbsolutePathToProjectRoot(),
                 inputConfiguration.getOutputDirectory(),

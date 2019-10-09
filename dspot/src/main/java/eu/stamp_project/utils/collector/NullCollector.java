@@ -1,10 +1,20 @@
 package eu.stamp_project.utils.collector;
 
-import com.martiansoftware.jsap.JSAPResult;
+import eu.stamp_project.utils.options.AmplifierEnum;
+import eu.stamp_project.utils.options.SelectorEnum;
+
+import java.util.List;
 
 public class NullCollector implements Collector {
 	public NullCollector(){}
-	public void reportInitInformation(JSAPResult jsapConfig){};
+
+	@Override
+	public void reportInitInformation(List<AmplifierEnum> amplifiers,
+									  SelectorEnum testCriterion,
+									  int iteration,
+									  boolean gregor,
+									  boolean descartes,
+									  int executeTestParallelWithNumberProcessors) { }
 	@Override
 	public void reportSelectorInformation(String str) {}
 	@Override

@@ -11,6 +11,7 @@ import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.report.output.Output;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
+import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
 import eu.stamp_project.utils.test_finder.TestFinder;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -143,7 +144,9 @@ public class DSpot {
 
         this.automaticBuilder.reset();
         try {
-            Main.GLOBAL_REPORT.addTestSelectorReportForTestClass(testClassToBeAmplified, this.testSelector.report());
+            final TestSelectorElementReport report = this.testSelector.report();
+            this.output.reportSelectorInformation(report.getReportForCollector());
+            Main.GLOBAL_REPORT.addTestSelectorReportForTestClass(testClassToBeAmplified, report);
         } catch (Exception e) {
             e.printStackTrace();
             LOGGER.error("Something bad happened during the report fot test-criterion.");

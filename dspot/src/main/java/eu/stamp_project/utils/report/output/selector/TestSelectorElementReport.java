@@ -11,4 +11,6 @@ public interface TestSelectorElementReport {
 
     public String output(CtType<?> testClass, String outputDirectory);
 
+    public String getReportForCollector();
+
 }
