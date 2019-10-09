@@ -38,7 +38,7 @@ sub create_post {
   
   my $url = $self->param('gurl');
   my $hash = $self->param('hash');
-  my $extended = $self->param('extended');
+  my $extended = $self->param('extended') || 'off';
 
 #  my $url = "https://github.com/STAMP-project/dspot.git"; #$self->stash('url');
   my @p = File::Spec->splitdir( $url );
@@ -144,5 +144,21 @@ sub jobs {
 
 
 
+# Download specific files from wdir.
+sub dl {
+  my $self = shift;
+
+  my $lfile = $self->stash('file');
+
+  my $wdir = $self->app->config('work_dir');
+  my $file = File::Spec->catdir( ($wdir, $lfile) );
+  print "  Serving static file [$file].\n";
+  if ( -f $file ) {
+      # Render static file from work_dir.
+      $self->reply->file($file);
+  } else {
+      $self->reply->not_found;
+  }
+}
 
 1;

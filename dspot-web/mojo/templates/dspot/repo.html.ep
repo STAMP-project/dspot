@@ -31,6 +31,44 @@
   <dd class="col-sm-9"><mark><%= $conf->{'git'} || 'Unknown' %></mark></dd>
 </dl>
 
+<br />
+
+% my $d = "$wdir/$repo/output/dspot/";
+% if ( -d $d ) {
+%   use Mojo::JSON qw(decode_json);
+%   my @files = <$d/*.json>;
+%   my $results = [];
+%   foreach my $f (@files) {
+%     my $data;
+%     {
+%       open my $fh, '<', $f or die "Cannot find file $f.";
+%       $/ = undef;
+%       $data = <$fh>;
+%       close $fh;
+%     }
+%     my $conf = decode_json( $data );
+%     push( @$results, $conf );
+%   }
+<h2>Results</h2>
+
+<table class="table table-striped table-hover ">
+  <thead>
+    <tr><th>Name</th><th>OriginalTestCases</th><th>MutantKilledOriginally</th><th>NewMutantKilled</th></tr>
+  </thead>
+  <tbody>
+% foreach my $f (@{$results}) {
+    <tr>
+      <td><%= $f->{'name'} %></td>
+      <td><%= $f->{'nbOriginalTestCases'} %></td>
+      <td><%= $f->{'nbMutantKilledOriginally'} %></td>
+      <td><%= $f->{'nbNewMutantKilled'} %></td>
+    </tr>
+% }
+  </tbody>
+</table> 
+
+% }
+
 % my $f = "$wdir/$repo/output/git_pull.log";
 % if ( -f $f ) {
 %   my $contents = do {
@@ -38,10 +76,9 @@
 %     local $/;
 %     <$fh>;
 %   };
-
 <h2>Git execution</h2>
 
-<pre>					
+<pre class="pre-scrollable">
 <%= dumper($contents) %>
 </pre>
 
@@ -55,10 +92,9 @@
 %     local $/;
 %     <$fh>;
 %   };
-
 <h2>Maven execution</h2>
 
-<pre>
+<pre class="pre-scrollable">
 <%= $contents =%>
 </pre>
 
@@ -69,12 +105,12 @@
 %   my @lines;
 %   open my $fh, '<:encoding(UTF-8)', $f or print "ERROR Could not find [$f].\n" ;
 %   chomp(@lines = <$fh>);
-%   close fh;
-%#   };
-
+%   close $fh;
 <h2>DSpot execution</h2>
 
-<pre>
+<!-- p><a href="">Download</a></p -->
+
+<pre class="pre-scrollable">
 <%= "$_\n" for @lines %>
 </pre>
 
