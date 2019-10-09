@@ -31,10 +31,6 @@ public class MongodbCollectorTest {
         this.greenMail.start();
     }
 
-    public void createReceiver() {
-
-    }
-
     @After
     public void stopMailServer() {
         this.greenMail.stop();
@@ -54,7 +50,7 @@ public class MongodbCollectorTest {
                 "--mongo-colname", "AmpTestRecords",
                 "--mongo-dbname", "Dspot",
                 "--repo-slug", "USER/Testing",
-                "--repo-branch", "master"
+                "--repo-branch", "master",
         });
 
         MongoClient mongoClient = MongodbCollector.connectToMongo("mongodb://localhost:27017");
@@ -67,9 +63,9 @@ public class MongodbCollectorTest {
         unwanted.remove("executeTestParallelWithNumberProcessors");
         foundDoc.append("AmpOptions", unwanted);
 
-        String expectedDocStr = "Document{{RepoSlug=USER/Testing, RepoBranch=master, AmpOptions=Document{{amplifiers=[None], test-criterion=PitMutantScoreSelector, iteration=3, gregor=true, descartes=true}}, AmpResult=Document{{fr/D/inria/D/sample/D/TestClassWithoutAssert=Document{{originalKilledMutants=0, NewMutantKilled=67}}, TotalResult=Document{{totalOriginalKilledMutants=0, totalNewMutantKilled=67}}}}}}";
+        String expectedDocStr = "Document{{RepoSlug=USER/Testing, RepoBranch=master, AmpOptions=Document{{amplifiers=[None], test-criterion=PitMutantScoreSelector, iteration=1, gregor=true, descartes=false}}, AmpResult=Document{{fr/D/inria/D/sample/D/TestClassWithoutAssert=Document{{originalKilledMutants=0, NewMutantKilled=67}}, TotalResult=Document{{totalOriginalKilledMutants=0, totalNewMutantKilled=67}}}}}}";
 
-        assertEquals(foundDoc.toString(), expectedDocStr);
+        assertEquals(expectedDocStr, foundDoc.toString());
     }
 
     @Test
@@ -96,7 +92,7 @@ public class MongodbCollectorTest {
 
         String expectedDocStr = "Document{{RepoSlug=USER/Testing, RepoBranch=master, AmpOptions=Document{{amplifiers=[None], test-criterion=JacocoCoverageSelector, iteration=1, gregor=false, descartes=true}}, AmpResult=Document{{resolver/D/ClasspathResolverTest=Document{{totalCoverage=130, initialCoverage=123, ampCoverage=123}}, textresources/D/in/D/sources/D/TestResourcesInSources=Document{{totalCoverage=130, initialCoverage=4, ampCoverage=4}}, TotalResult=Document{{totalCovAcrossAllTests=260, totalInitialCoverage=127, totalAmpCoverage=127}}}}}}";
 
-        assertEquals(foundDoc.toString(), expectedDocStr);
+        assertEquals(expectedDocStr, foundDoc.toString());
     }
 
     @Test
@@ -139,8 +135,8 @@ public class MongodbCollectorTest {
         unwanted.remove("executeTestParallelWithNumberProcessors");
         foundDoc.append("AmpOptions", unwanted);
 
-        String expectedDocStr = "Document{{RepoSlug=USER/Testing, RepoBranch=master, State=recent, Email=abc@mail.com, AmpOptions=Document{{amplifiers=[None], test-criterion=PitMutantScoreSelector, iteration=3, gregor=true, descartes=true}}, AmpResult=Document{{fr/D/inria/D/sample/D/TestClassWithoutAssert=Document{{originalKilledMutants=0, NewMutantKilled=67}}, TotalResult=Document{{totalOriginalKilledMutants=0, totalNewMutantKilled=67}}}}}}";
-        assertEquals(foundDoc.toString(), expectedDocStr);
+        String expectedDocStr = "Document{{RepoSlug=USER/Testing, RepoBranch=master, State=recent, Email=abc@mail.com, AmpOptions=Document{{amplifiers=[None], test-criterion=PitMutantScoreSelector, iteration=1, gregor=true, descartes=false}}, AmpResult=Document{{fr/D/inria/D/sample/D/TestClassWithoutAssert=Document{{originalKilledMutants=0, NewMutantKilled=67}}, TotalResult=Document{{totalOriginalKilledMutants=0, totalNewMutantKilled=67}}}}}}";
+        assertEquals(expectedDocStr, foundDoc.toString());
 
         /* Smtp integration test*/
         String sendedMailSubject = "";

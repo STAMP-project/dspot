@@ -50,7 +50,7 @@ public class GradleAutomaticBuilderTest {
         LOGGER.debug("Test Set-up - instantiating Automatic Builder (SUT)...");
         final InputConfiguration configuration = new InputConfiguration();
         configuration.setAbsolutePathToProjectRoot(this.pathToProjectRoot);
-        configuration.setDescartesMode(false);
+        configuration.setGregorMode(true);
         configuration.setFilter("example.*");
         launcher = new Launcher();
         launcher.addInputResource(pathToProjectRoot + "src/");

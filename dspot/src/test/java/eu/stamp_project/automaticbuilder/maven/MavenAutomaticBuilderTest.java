@@ -38,7 +38,7 @@ public class MavenAutomaticBuilderTest {
         this.parser = new PitXMLResultParser();
         this.configuration = new InputConfiguration();
         this.configuration.setAbsolutePathToProjectRoot(new File(path).getAbsolutePath());
-        this.configuration.setDescartesMode(isDescartesMode);
+        this.configuration.setGregorMode(!isDescartesMode);
         this.configuration.setFilter(filter);
         this.configuration.setAdditionalClasspathElements(additionalClasspathElements);
         this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(this.configuration);

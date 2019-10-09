@@ -43,7 +43,7 @@ public class GradleInjectorTest {
 
         final GradleInjector gradleInjector = new GradleInjector(
                 "src/test/resources/build.gradle",
-                configuration.isDescartesMode(),
+                !configuration.isGregorMode(),
                 configuration.getFilter(),
                 configuration.getPitVersion(),
                 configuration.getTimeOutInMs(),
@@ -80,7 +80,7 @@ public class GradleInjectorTest {
 
         final GradleInjector gradleInjector = new GradleInjector(
                 "src/test/resources/no_repository_build.gradle",
-                configuration.isDescartesMode(),
+                !configuration.isGregorMode(),
                 configuration.getFilter(),
                 configuration.getPitVersion(),
                 configuration.getTimeOutInMs(),
@@ -108,7 +108,7 @@ public class GradleInjectorTest {
 
         final GradleInjector gradleInjector = new GradleInjector(
                 "src/test/resources/no_buildscript_build.gradle",
-                configuration.isDescartesMode(),
+                !configuration.isGregorMode(),
                 configuration.getFilter(),
                 configuration.getPitVersion(),
                 configuration.getTimeOutInMs(),
@@ -150,7 +150,7 @@ public class GradleInjectorTest {
 
         final GradleInjector gradleInjector = new GradleInjector(
                 "src/test/resources/no_repositories_build.gradle",
-                configuration.isDescartesMode(),
+                !configuration.isGregorMode(),
                 configuration.getFilter(),
                 configuration.getPitVersion(),
                 configuration.getTimeOutInMs(),
