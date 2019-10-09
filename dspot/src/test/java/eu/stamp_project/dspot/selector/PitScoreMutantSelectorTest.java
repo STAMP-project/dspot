@@ -32,9 +32,9 @@ public class PitScoreMutantSelectorTest {
         @Override
         protected String getContentReportFile() {
             return "Test class that has been amplified: example.TestSuiteOverlapExample" + AmplificationHelper.LINE_SEPARATOR +
-                    "The original test suite kills 5 mutants" + AmplificationHelper.LINE_SEPARATOR +
-                    "The amplification results with 3 new tests" + AmplificationHelper.LINE_SEPARATOR +
-                    "it kills 7 more mutants" + AmplificationHelper.LINE_SEPARATOR;
+                    "The original test suite kills 2 mutants" + AmplificationHelper.LINE_SEPARATOR +
+                    "The amplification results with 1 new tests" + AmplificationHelper.LINE_SEPARATOR +
+                    "it kills 3 more mutants" + AmplificationHelper.LINE_SEPARATOR;
         }
     }
 

@@ -71,6 +71,7 @@ public abstract class AbstractSelectorTest {
         this.configuration = new InputConfiguration();
         this.configuration.setAbsolutePathToProjectRoot(getPathToAbsoluteProjectRoot());
         this.configuration.setOutputDirectory(outputDirectory);
+        this.configuration.setDescartesMode(false);
         this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
         String dependencies = Main.completeDependencies(configuration, this.builder);
         DSpotUtils.init(false, outputDirectory,
