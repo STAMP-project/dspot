@@ -1,7 +1,6 @@
 package eu.stamp_project.dspot.input_ampl_distributor;
 
 import eu.stamp_project.dspot.amplifier.Amplifier;
-import eu.stamp_project.utils.program.InputConfiguration;
 import spoon.reflect.declaration.CtType;
 
 import java.util.List;
@@ -15,11 +14,10 @@ public abstract class AbstractInputAmplDistributor implements InputAmplDistribut
 
     protected List<Amplifier> amplifiers;
 
-    public AbstractInputAmplDistributor() {
-        this.amplifiers = InputConfiguration.get().getAmplifiers();
-    }
+    protected int maxNumTests;
 
-    public AbstractInputAmplDistributor(List<Amplifier> amplifiers) {
+    public AbstractInputAmplDistributor(int maxNumTests, List<Amplifier> amplifiers) {
+        this.maxNumTests = maxNumTests;
         this.amplifiers = amplifiers;
     }
 

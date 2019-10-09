@@ -7,7 +7,7 @@ package eu.stamp_project.utils.report;
  */
 public interface Report {
 
-    public void output();
+    public void output(String outputDirectory);
 
     public void reset();
 

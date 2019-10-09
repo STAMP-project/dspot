@@ -4,9 +4,6 @@ import eu.stamp_project.Main;
 import eu.stamp_project.dspot.assertiongenerator.AssertionGenerator;
 import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
 import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.testrunner.EntryPoint;
-import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
 import eu.stamp_project.utils.report.error.Error;
@@ -43,12 +40,13 @@ public class Amplification {
 
     private int numberOfIteration;
 
-    public Amplification(DSpotCompiler compiler,
+    public Amplification(double delta,
+                         DSpotCompiler compiler,
                          TestSelector testSelector,
                          InputAmplDistributor inputAmplDistributor,
                          int numberOfIteration) {
         this.compiler = compiler;
-        this.assertionGenerator = new AssertionGenerator(InputConfiguration.get(), this.compiler);
+        this.assertionGenerator = new AssertionGenerator(delta, this.compiler);
         this.testSelector = testSelector;
         this.inputAmplDistributor = inputAmplDistributor;
         this.globalNumberOfSelectedAmplification = 0;
@@ -65,12 +63,6 @@ public class Amplification {
         LOGGER.info("Amplification of {} ({} test(s))", testClassToBeAmplified.getQualifiedName(), testMethodsToBeAmplified.size());
         LOGGER.info("Assertion amplification of {} ({} test(s))", testClassToBeAmplified.getQualifiedName(), testMethodsToBeAmplified.size());
 
-        // here, we base the execution mode to the first test method given.
-        // the user should provide whether JUnit3/4 OR JUnit5 but not both at the same time.
-        // TODO DSpot could be able to switch from one to another version of JUnit, but I believe that the ROI is not worth it.
-        final boolean jUnit5 = TestFramework.isJUnit5(testMethodsToBeAmplified.get(0));
-        EntryPoint.jUnit5Mode = jUnit5;
-        InputConfiguration.get().setJUnit5(jUnit5);
         if (!this.testSelector.init()) {
             return Collections.emptyList();
         }
@@ -80,8 +72,7 @@ public class Amplification {
                     TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
                             testClassToBeAmplified,
                             testMethodsToBeAmplified,
-                            this.compiler,
-                            InputConfiguration.get()
+                            this.compiler
                     );
         } catch (Exception | java.lang.Error e) {
             Main.GLOBAL_REPORT.addError(new Error(ERROR_EXEC_TEST_BEFORE_AMPLIFICATION, e));
@@ -115,15 +106,15 @@ public class Amplification {
 
         // generate tests with input modification and associated new assertions
         LOGGER.info("Applying Input-amplification and Assertion-amplification test by test.");
-        final List<CtMethod<?>> amplifiedTests = new ArrayList<>();
         for (int i = 0; i < testMethodsToBeAmplified.size(); i++) {
             CtMethod test = testMethodsToBeAmplified.get(i);
             LOGGER.info("Amplification of {}, ({}/{})", test.getSimpleName(), i + 1, testMethodsToBeAmplified.size());
-            amplifiedTests.addAll(amplificationIteration(testClassToBeAmplified, test));
-            this.globalNumberOfSelectedAmplification += amplifiedTests.size();
-            LOGGER.info("{} amplified test methods has been selected to be kept. (global: {})", amplifiedTests.size(), this.globalNumberOfSelectedAmplification);
+            final List<CtMethod<?>> amplifiedTestMethodsFromCurrentIteration = amplificationIteration(testClassToBeAmplified, test);
+            amplifiedTestMethodsToKeep.addAll(amplifiedTestMethodsFromCurrentIteration);
+            this.globalNumberOfSelectedAmplification += amplifiedTestMethodsToKeep.size();
+            LOGGER.info("{} amplified test methods has been selected to be kept. (global: {})", amplifiedTestMethodsFromCurrentIteration.size(), this.globalNumberOfSelectedAmplification);
         }
-        return amplifiedTests;
+        return amplifiedTestMethodsToKeep;
     }
 
     private List<CtMethod<?>>  amplificationIteration(CtType<?> testClassToBeAmplified, CtMethod test) {
@@ -213,8 +204,7 @@ public class Amplification {
                 TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
                         classTest,
                         testsWithAssertions,
-                        this.compiler,
-                        InputConfiguration.get()
+                        this.compiler
                 );
         LOGGER.info("Assertion amplification: {} test method(s) has been successfully amplified.", amplifiedPassingTests.size());
         return amplifiedPassingTests;

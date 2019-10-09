@@ -1,5 +1,6 @@
 package eu.stamp_project.automaticbuilder.maven;
 
+import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.DSpotUtils;
@@ -16,7 +17,6 @@ import spoon.reflect.declaration.CtType;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -40,10 +40,21 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     private String classpath = null;
 
-    private boolean hasGeneratePom = false;
+    private String absolutePathToProjectRoot;
 
-    public MavenAutomaticBuilder() {
-        delete(false);
+    private String mavenHome;
+
+    private boolean shouldExecuteTestsInParallel;
+
+    public void setAbsolutePathToProjectRoot(String absolutePathToProjectRoot) {
+        this.absolutePathToProjectRoot = absolutePathToProjectRoot;
+    }
+
+    public MavenAutomaticBuilder(InputConfiguration configuration) {
+        this.shouldExecuteTestsInParallel = configuration.shouldExecuteTestsInParallel();
+        DSpotPOMCreator.createNewPom(configuration);
+        this.absolutePathToProjectRoot = configuration.getAbsolutePathToProjectRoot();
+        this.mavenHome = buildMavenHome(configuration);
     }
 
     @Override
@@ -56,7 +67,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
                     "dependency:build-classpath",
                     "-Dmdep.outputFile=" + "target/dspot/classpath"
             );
-            final File classpathFile = new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/target/dspot/classpath");
+            final File classpathFile = new File(this.absolutePathToProjectRoot + "/target/dspot/classpath");
             try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
                 this.classpath = buffer.lines().collect(Collectors.joining());
             } catch (Exception e) {
@@ -68,15 +79,15 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     private int computeClasspath(String... goals) {
         final String pomPathname;
-        if (InputConfiguration.get().shouldExecuteTestsInParallel()) {
-            DSpotPOMCreator.createNewPomForComputingClassPathWithParallelExecution();
-            pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot()
+        if (shouldExecuteTestsInParallel) {
+            // TODO
+            DSpotPOMCreator.createNewPomForComputingClassPathWithParallelExecution(false, null);
+            pomPathname = this.absolutePathToProjectRoot
                     + DSpotPOMCreator.getParallelPOMName();
-            this.hasGeneratePom = true;
             LOGGER.info("Using {} to run maven.", pomPathname);
             return _runGoals(true, pomPathname, goals);
         } else {
-            pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.POM_FILE;
+            pomPathname = this.absolutePathToProjectRoot + DSpotPOMCreator.POM_FILE;
             LOGGER.info("Using {} to run maven.", pomPathname);
             return _runGoals(false, pomPathname, goals);
         }
@@ -96,7 +107,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     public String buildClasspath() {
         if (this.classpath == null) {
             try {
-                final File classpathFile = new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/target/dspot/classpath");
+                final File classpathFile = new File(this.absolutePathToProjectRoot + "/target/dspot/classpath");
                 if (!classpathFile.exists()) {
                     this.runGoals(false,
                             "dependency:build-classpath",
@@ -113,46 +124,15 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         return this.classpath;
     }
 
-    private boolean shouldDeleteGeneratedPom() {
-        return hasGeneratePom ||
-                new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + DSpotPOMCreator.getPOMName()).exists();
-    }
-
-    private void delete(boolean displayError) {
-        if (this.shouldDeleteGeneratedPom()) {
-            this.hasGeneratePom = false;
-            try {
-                if (InputConfiguration.get().shouldExecuteTestsInParallel()) {
-                    if (new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + DSpotPOMCreator.getParallelPOMName()).exists()) {
-                        FileUtils.forceDelete(
-                                new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + DSpotPOMCreator.getParallelPOMName()));
-                    }
-                }
-                if (InputConfiguration.get().shouldUseMavenToExecuteTest()){
-                    if (new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + DSpotPOMCreator.getPOMName()).exists()) {
-                        FileUtils.forceDelete(
-                                new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/" + DSpotPOMCreator.getPOMName()));
-                    }
-                }
-            } catch (IOException e) {
-                if (displayError) {
-                    LOGGER.warn("Something bad happened when trying to delete {}.", DSpotPOMCreator.getPOMName());
-                    e.printStackTrace();
-                    LOGGER.warn("Ignoring, moving forward...");
-                }
-            }
-        }
-    }
-
     @Override
     public void reset() {
-        delete(true);
+        // empty
     }
 
     @Override
     public void runPit(CtType<?>... testClasses) {
         try {
-            FileUtils.deleteDirectory(new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/target/pit-reports"));
+            FileUtils.deleteDirectory(new File(this.absolutePathToProjectRoot + "/target/pit-reports"));
         } catch (Exception ignored) {
 
         }
@@ -179,15 +159,11 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
     }
 
     private int runGoals(boolean specificPom, String... goals) {
-        if (specificPom && !new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.getPOMName()).exists()) {
-            DSpotPOMCreator.createNewPom();
-            this.hasGeneratePom = true;
-        }
-        final String pomPathname = InputConfiguration.get().getAbsolutePathToProjectRoot()
-                + (specificPom ? DSpotPOMCreator.getPOMName() : DSpotPOMCreator.POM_FILE);
+        final String pomPathname = this.absolutePathToProjectRoot + "/" + (
+                specificPom ? DSpotPOMCreator.getPOMName() : DSpotPOMCreator.POM_FILE);
         LOGGER.info("Using {} to run maven.", pomPathname);
         return _runGoals(specificPom, pomPathname, goals);
-        }
+    }
 
     private int _runGoals(boolean specificPom, final String pomPathname, String... goals) {
         InvocationRequest request = new DefaultInvocationRequest();
@@ -210,11 +186,10 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         request.setProperties(properties);
 
         Invoker invoker = new DefaultInvoker();
-        final String mavenHome = this.buildMavenHome();
         LOGGER.info("Using {} for maven home", mavenHome);
         invoker.setMavenHome(new File(mavenHome));
         LOGGER.info(String.format("run maven: %s/bin/mvn %s", mavenHome, String.join(" ", goals)));
-        if (InputConfiguration.get().isVerbose()) {
+        if (Main.verbose) {
             invoker.setOutputHandler(System.out::println);
             invoker.setErrorHandler(System.err::println);
         } else {
@@ -233,11 +208,10 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         return DSpotPOMCreator.REPORT_DIRECTORY_VALUE;
     }
 
-    private String buildMavenHome() {
-        InputConfiguration configuration = InputConfiguration.get();
+    private String buildMavenHome(InputConfiguration configuration) {
         String mavenHome = null;
-        if (configuration != null) {
-            if (!configuration.getMavenHome().isEmpty()) {
+        if (configuration != null ) {
+            if (configuration.getMavenHome() != null && !configuration.getMavenHome().isEmpty()) {
                 mavenHome = configuration.getMavenHome();
             } else {
                 mavenHome = getMavenHome(envVariable -> System.getenv().get(envVariable) != null,

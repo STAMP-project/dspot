@@ -1,7 +1,6 @@
 package eu.stamp_project.dspot.assertiongenerator.assertiongenerator;
 
-import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.testrunner.runner.Failure;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
@@ -13,7 +12,7 @@ import static org.junit.Assert.assertNull;
  * benjamin.danglot@inria.fr
  * on 13/05/18
  */
-public class TryCatchFailGeneratorTest extends AbstractTest {
+public class TryCatchFailGeneratorTest extends AbstractTestOnSample {
 
 
     @Test
@@ -30,7 +29,7 @@ public class TryCatchFailGeneratorTest extends AbstractTest {
         final TryCatchFailGenerator tryCatchFailGenerator = new TryCatchFailGenerator();
 
 
-        CtMethod testAssertionError = Utils.findMethod(testClassName, testName);
+        CtMethod testAssertionError = findMethod(testClassName, testName);
         CtMethod<?> ctMethod = tryCatchFailGenerator
                 .surroundWithTryCatchFail(testAssertionError,
                         new Failure(testName, testClassName, new AssertionError())
@@ -38,7 +37,7 @@ public class TryCatchFailGeneratorTest extends AbstractTest {
         assertNull(ctMethod);
 
         testName = "testStackOverFlowError";
-        testAssertionError = Utils.findMethod(testClassName, testName);
+        testAssertionError = findMethod(testClassName, testName);
         ctMethod = tryCatchFailGenerator
                 .surroundWithTryCatchFail(testAssertionError,
                         new Failure(testName, testClassName, new AssertionError())
@@ -58,7 +57,7 @@ public class TryCatchFailGeneratorTest extends AbstractTest {
 
         final String testName = "testAssertionError";
         final String testClassName = "fr.inria.filter.failing.FailingTest";
-        final CtMethod testAssertionError = Utils.findMethod(testClassName, testName);
+        final CtMethod testAssertionError = findMethod(testClassName, testName);
         final TryCatchFailGenerator tryCatchFailGenerator = new TryCatchFailGenerator();
         final CtMethod<?> ctMethod = tryCatchFailGenerator
                 .surroundWithTryCatchFail(testAssertionError,
@@ -72,7 +71,7 @@ public class TryCatchFailGeneratorTest extends AbstractTest {
 
         final String testName = "testFailingWithException";
         final String testClassName = "fr.inria.filter.failing.FailingTest";
-        final CtMethod testAssertionError = Utils.findMethod(testClassName, testName);
+        final CtMethod testAssertionError = findMethod(testClassName, testName);
         final TryCatchFailGenerator tryCatchFailGenerator = new TryCatchFailGenerator();
         CtMethod<?> ctMethod = tryCatchFailGenerator
                 .surroundWithTryCatchFail(testAssertionError,

@@ -9,7 +9,7 @@ import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.program.InputConfiguration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtBlock;
@@ -39,18 +39,18 @@ public class MethodReconstructor {
 
     private Factory factory;
 
-    private InputConfiguration configuration;
-
     private Observer observer;
 
-    public MethodReconstructor(CtType originalClass,
-                               InputConfiguration configuration,
+    private double delta;
+
+    public MethodReconstructor(double delta,
+                                CtType originalClass,
                                DSpotCompiler compiler,
                                Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted) {
-        this.configuration = configuration;
-        this.factory = configuration.getFactory();
-        this.observer = new Observer(originalClass,
-                configuration,
+        this.delta = delta;
+        this.factory = compiler.getFactory();
+        this.observer = new Observer(
+                originalClass,
                 compiler,
                 variableReadsAsserted);
     }
@@ -109,7 +109,7 @@ public class MethodReconstructor {
                     test,
                     observations.get(id).getNotDeterministValues(),
                     observations.get(id).getObservationValues(),
-                    Double.parseDouble(configuration.getDelta())
+                    this.delta
             );
 
             /* skip the current observation if it leads to

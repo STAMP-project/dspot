@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import eu.stamp_project.Main;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.collector.Collector;
+import eu.stamp_project.utils.collector.NullCollector;
 import eu.stamp_project.utils.json.ClassTimeJSON;
 import eu.stamp_project.utils.json.ProjectTimeJSON;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -29,7 +31,9 @@ public class Output {
 
     private String outputPathDirectory;
 
-    public Output(String absolutePathToProjectRoot, String outputDirectoryPath) {
+    private Collector collector;
+
+    public Output(String absolutePathToProjectRoot, String outputDirectoryPath, Collector collector) {
         this.outputPathDirectory = outputDirectoryPath;
         String splitter = File.separator.equals("/") ? "/" : "\\\\";
         final String[] splittedPath = absolutePathToProjectRoot.split(splitter);
@@ -44,6 +48,7 @@ public class Output {
         } else {
             this.projectTimeJSON = new ProjectTimeJSON(splittedPath[splittedPath.length - 1]);
         }
+        this.collector = collector;
     }
 
     public CtType<?> output(CtType<?> testClassToBeAmplified, List<CtMethod<?>> amplifiedTestMethods) {
@@ -62,7 +67,7 @@ public class Output {
             );
             // we try to compile the newly generated amplified test class (.java)
             // if this fail, we re-print the java test class without imports
-            DSpotUtils.printAndCompileToCheck(amplification, outputDirectory);
+            DSpotUtils.printAndCompileToCheck(amplification, outputDirectory, collector);
         } else {
             LOGGER.warn("DSpot could not obtain any amplified test method.");
             LOGGER.warn("You can customize the following options: --amplifiers, --test-criterion, --iteration, --inputAmplDistributor etc, and retry with a new configuration.");
@@ -90,7 +95,15 @@ public class Output {
         this.projectTimeJSON.add(new ClassTimeJSON(qualifiedName, elapsedTime));
     }
 
+    public void reportSelectorInformation(String report) {
+        this.collector.reportSelectorInformation(report);
+    }
+
+    public static Output get(InputConfiguration configuration, Collector collector) {
+        return new Output(configuration.getAbsolutePathToProjectRoot(), configuration.getOutputDirectory(), collector);
+    }
+
     public static Output get(InputConfiguration configuration) {
-        return new Output(configuration.getAbsolutePathToProjectRoot(), configuration.getOutputDirectory());
+        return new Output(configuration.getAbsolutePathToProjectRoot(), configuration.getOutputDirectory(), new NullCollector());
     }
 }

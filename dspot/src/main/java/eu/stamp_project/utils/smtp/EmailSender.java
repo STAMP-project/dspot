@@ -14,39 +14,41 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 public class EmailSender implements Sender {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailSender.class);
-    private static final SmtpConfig smtpConfig = SmtpConfig.getInstance();
-    private static EmailSender emailSender;
 
 	private String smtpUsername;
 	private String smtpPassword;
     private String smtpHost;
     private String smtpPort;
-    private String smtpAuth;
+    private boolean smtpAuth;
     private String smtpTls;
 
-    public static EmailSender getInstance() {
-        if (emailSender == null) {
-            emailSender = new EmailSender();
-        }
-        return emailSender;
+    public EmailSender(String smtpUsername,
+                       String smtpPassword,
+                       String smtpHost,
+                       String smtpPort,
+                       boolean smtpAuth,
+                       String smtpTls) {
+        this.smtpUsername = smtpUsername;
+        this.smtpPassword = smtpPassword;
+        this.smtpHost = smtpHost;
+        this.smtpPort = smtpPort;
+        this.smtpAuth = smtpAuth;
+        this.smtpTls = smtpTls;
     }
 
-    public void sendEmail(String messageText,String subject,String toUsers) {
-        final String username = this.smtpConfig.getSmtpUserName();
-        final String password = this.smtpConfig.getSmtpPassword();
-        final String fromUser = username;
-
+    public void sendEmail(String messageText, String subject, String toUsers) {
         Properties prop = new Properties();
-		prop.put("mail.smtp.host", this.smtpConfig.getSmtpHost());
-        prop.put("mail.smtp.port", this.smtpConfig.getSmtpPort());
-        prop.put("mail.smtp.auth", this.smtpConfig.getSmtpAuth());
-        prop.put("mail.smtp.starttls.enable", this.smtpConfig.getSmtpTls()); //TLS
+		prop.put("mail.smtp.host", this.smtpHost);
+        prop.put("mail.smtp.port", this.smtpPort);
+        prop.put("mail.smtp.auth", this.smtpAuth);
+        prop.put("mail.smtp.starttls.enable", this.smtpTls); //TLS
 
         Session session = Session.getInstance(prop,
                 new javax.mail.Authenticator() {
                     protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(username,password);
+                        return new PasswordAuthentication(smtpUsername,smtpPassword);
                     }
                 });
 
@@ -55,7 +57,7 @@ public class EmailSender implements Sender {
             Message message = new MimeMessage(session);
 
             // Set From: header field of the header.
-            message.setFrom(new InternetAddress(fromUser));
+            message.setFrom(new InternetAddress(smtpUsername));
 
             // Set To: header field of the header.
             message.setRecipients(Message.RecipientType.TO,InternetAddress.parse(toUsers));

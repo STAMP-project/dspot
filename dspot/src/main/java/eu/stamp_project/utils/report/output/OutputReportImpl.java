@@ -35,7 +35,7 @@ public class OutputReportImpl implements OutputReport {
     }
 
     @Override
-    public void output() {
+    public void output(String outputDirectory) {
         LOGGER.info("The amplification ends up with {} amplified test methods over {} test classes.",
                 this.totalNumberOfAmplifiedTestMethods,
                 this.linesOfOutputtingAmplifiedTestClasses.size()

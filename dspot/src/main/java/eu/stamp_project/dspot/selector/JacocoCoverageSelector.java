@@ -2,13 +2,13 @@ package eu.stamp_project.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
 import eu.stamp_project.utils.report.output.selector.coverage.json.TestCaseJSON;
 import eu.stamp_project.utils.report.output.selector.coverage.json.TestClassJSON;
 import eu.stamp_project.testrunner.listener.Coverage;
 import eu.stamp_project.testrunner.listener.CoveragePerTestMethod;
-import eu.stamp_project.utils.collector.CollectorConfig;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -32,8 +32,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
-
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -49,6 +47,11 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 
     private TestSelectorElementReport lastReport;
 
+    public JacocoCoverageSelector(AutomaticBuilder automaticBuilder,
+                                  InputConfiguration configuration) {
+        super(automaticBuilder, configuration);
+    }
+
     @Override
     public boolean init() {
         super.init();
@@ -60,15 +63,10 @@ public class JacocoCoverageSelector extends TakeAllSelector {
     public List<CtMethod<?>> selectToAmplify(CtType<?> classTest, List<CtMethod<?>> testsToBeAmplified) {
         if (this.currentClassTestToBeAmplified == null) {
             this.currentClassTestToBeAmplified = classTest;
-            String classpath = InputConfiguration.get().getBuilder().buildClasspath();
-            if (!InputConfiguration.get().getAdditionalClasspathElements().isEmpty()) {
-                classpath += PATH_SEPARATOR + InputConfiguration.get().getProcessedAddtionalClasspathElements();
-            }
-            final String targetClasses = InputConfiguration.get().getClasspathClassesProject();
             try {
                 this.initialCoverage = EntryPoint.runCoverage(
                         classpath + AmplificationHelper.PATH_SEPARATOR + targetClasses,
-                        targetClasses,
+                        this.targetClasses,
                         this.currentClassTestToBeAmplified.getQualifiedName()
                 );
             } catch (TimeoutException e) {
@@ -106,15 +104,10 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 
     private CoveragePerTestMethod computeCoverageForGivenTestMethods(List<CtMethod<?>> testsToBeAmplified) {
         final String[] methodNames = testsToBeAmplified.stream().map(CtNamedElement::getSimpleName).toArray(String[]::new);
-        String classpath = InputConfiguration.get().getBuilder().buildClasspath();
-        if (!InputConfiguration.get().getAdditionalClasspathElements().isEmpty()) {
-            classpath += PATH_SEPARATOR + InputConfiguration.get().getProcessedAddtionalClasspathElements();
-        }
-        final String targetClasses = InputConfiguration.get().getClasspathClassesProject();
         try {
             return EntryPoint.runCoveragePerTestMethods(
-                    classpath + AmplificationHelper.PATH_SEPARATOR + targetClasses,
-                    targetClasses,
+                    this.classpath + AmplificationHelper.PATH_SEPARATOR + this.targetClasses,
+                    this.targetClasses,
                     this.currentClassTestToBeAmplified.getQualifiedName(),
                     methodNames
             );
@@ -198,20 +191,14 @@ public class JacocoCoverageSelector extends TakeAllSelector {
             //ignored
         }
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));
-
-        String classpath = InputConfiguration.get().getFullClassPathWithExtraDependencies();
-        if (!InputConfiguration.get().getAdditionalClasspathElements().isEmpty()) {
-            classpath += PATH_SEPARATOR + InputConfiguration.get().getProcessedAddtionalClasspathElements();
-        }
-
-        DSpotCompiler.compile(InputConfiguration.get(), DSpotCompiler.getPathToAmplifiedTestSrc(), classpath,
-                new File(InputConfiguration.get().getAbsolutePathToTestClasses()));
-
-        final String targetClasses = InputConfiguration.get().getClasspathClassesProject();
+        DSpotCompiler.compile(DSpotCompiler.getPathToAmplifiedTestSrc(),
+                this.classpath,
+                new File(this.pathToTestClasses)
+        );
         try {
             final Coverage coverageResults = EntryPoint.runCoverage(
-                    classpath,
-                    targetClasses,
+                    this.classpath,
+                    this.targetClasses,
                     this.currentClassTestToBeAmplified.getQualifiedName()
             );
             report.append("Amplified instruction coverage: ")
@@ -237,7 +224,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
     private TestClassJSON jsonReport(Coverage coverageResults) {
         TestClassJSON testClassJSON;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        final File file = new File(InputConfiguration.get().getOutputDirectory() + "/" +
+        final File file = new File(this.outputDirectory + "/" +
                 this.currentClassTestToBeAmplified.getQualifiedName() + "report.json");
         if (file.exists()) {
             try {
@@ -260,8 +247,8 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                         this.selectedToBeAmplifiedCoverageResultsMap.get(ctMethod.getSimpleName()).getInstructionsTotal()
                 )
         );
-
-        CollectorConfig.getInstance().getInformationCollector().reportSelectorInformation(testClassJSON.toString());
+//      TODO
+//        CollectorConfig.getInstance().getInformationCollector().reportSelectorInformation(testClassJSON.toString());
         return testClassJSON;
     }
 }

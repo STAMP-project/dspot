@@ -1,12 +1,9 @@
 package eu.stamp_project.test_framework;
 
-import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.testrunner.runner.Failure;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.program.InputConfiguration;
-import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
@@ -25,18 +22,10 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 09/11/18
  */
-public class TestFrameworkTest extends AbstractTest {
-
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        Utils.reset();
-        super.setUp();
-        InputConfiguration.get().setWithComment(true);
-    }
+public class TestFrameworkTest extends AbstractTestOnSample {
 
     private CtMethod findAndRegister(String ctClass, String methodName) {
-        final CtMethod testExpectingAnException = Utils.findMethod(ctClass, methodName);
+        final CtMethod testExpectingAnException = findMethod(ctClass, methodName);
         AmplificationHelper.addTestBindingToOriginal(testExpectingAnException, testExpectingAnException);
         return testExpectingAnException;
     }
@@ -49,7 +38,7 @@ public class TestFrameworkTest extends AbstractTest {
          */
 
         final CtMethod<?> testJUnit3 = this.findAndRegister("fr.inria.helper.SecondClassJUnit3", "testExpectingAnException");
-        final CtType type = InputConfiguration.get().getFactory().Type().get("fr.inria.helper.SecondClassJUnit3");
+        final CtType type = this.launcher.getFactory().Type().get("fr.inria.helper.SecondClassJUnit3");
         TestFramework.get().generateAfterClassToSaveObservations(type, Collections.singletonList(testJUnit3));
         final String expectedToString = "public static junit.framework.Test suite() {" + AmplificationHelper.LINE_SEPARATOR +
                 "    return new junit.extensions.TestSetup(new junit.framework.TestSuite(fr.inria.helper.SecondClassJUnit3.class)) {" + AmplificationHelper.LINE_SEPARATOR +
@@ -182,33 +171,33 @@ public class TestFrameworkTest extends AbstractTest {
     }
 
     private void checksBuildInvocationForGivenJUnitVersion(String fullQualifiedName, String test, String nameOfExpectedAssertClass) {
-        final CtClass<?> testClass = Utils.findClass(fullQualifiedName);
+        final CtClass<?> testClass = findClass(fullQualifiedName);
         final CtMethod testMethod = this.findAndRegister(fullQualifiedName, test);
         CtInvocation<?> ctInvocation = TestFramework.get().buildInvocationToAssertion(
                 testMethod,
                 AssertEnum.ASSERT_TRUE,
-                Collections.singletonList(InputConfiguration.get().getFactory().createLiteral(true))
+                Collections.singletonList(this.launcher.getFactory().createLiteral(true))
         );
         assertEquals(ctInvocation.toString(), nameOfExpectedAssertClass + "assertTrue(true)", ctInvocation.toString());
 
         ctInvocation = TestFramework.get().buildInvocationToAssertion(
                 testMethod,
                 AssertEnum.ASSERT_FALSE,
-                Collections.singletonList(InputConfiguration.get().getFactory().createLiteral(false))
+                Collections.singletonList(this.launcher.getFactory().createLiteral(false))
         );
         assertEquals(ctInvocation.toString(), nameOfExpectedAssertClass + "assertFalse(false)", ctInvocation.toString());
 
         ctInvocation = TestFramework.get().buildInvocationToAssertion(
                 testMethod,
                 AssertEnum.ASSERT_NULL,
-                Collections.singletonList(InputConfiguration.get().getFactory().createLiteral(null))
+                Collections.singletonList(this.launcher.getFactory().createLiteral(null))
         );
         assertEquals(ctInvocation.toString(), nameOfExpectedAssertClass + "assertNull(null)", ctInvocation.toString());
 
         ctInvocation = TestFramework.get().buildInvocationToAssertion(
                 testMethod,
                 AssertEnum.ASSERT_NOT_NULL,
-                Collections.singletonList(InputConfiguration.get().getFactory().createThisAccess(testClass.getReference()))
+                Collections.singletonList(this.launcher.getFactory().createThisAccess(testClass.getReference()))
         );
         assertEquals(ctInvocation.toString(), nameOfExpectedAssertClass + "assertNotNull(this)", ctInvocation.toString());
 
@@ -216,8 +205,8 @@ public class TestFrameworkTest extends AbstractTest {
                 testMethod,
                 AssertEnum.ASSERT_EQUALS,
                 Arrays.asList(
-                        InputConfiguration.get().getFactory().createThisAccess(testClass.getReference()),
-                        InputConfiguration.get().getFactory().createThisAccess(testClass.getReference())
+                        this.launcher.getFactory().createThisAccess(testClass.getReference()),
+                        this.launcher.getFactory().createThisAccess(testClass.getReference())
                 )
         );
         assertEquals(ctInvocation.toString(), nameOfExpectedAssertClass + "assertEquals(this, this)", ctInvocation.toString());

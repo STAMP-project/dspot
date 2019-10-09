@@ -1,9 +1,9 @@
 package eu.stamp_project.utils.execution;
 
+import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.testrunner.listener.TestResult;
-import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
@@ -29,6 +29,19 @@ import java.util.stream.Collectors;
 public class TestRunner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestRunner.class);
+
+    private static String absolutePathToProjectRoot;
+
+    private static String preGoals;
+
+    private static boolean shouldUseMavenToExecuteTest;
+
+    public static void init(String absolutePathToProjectRoot, String preGoals, boolean shouldUseMavenToExecuteTest) {
+        TestRunner.absolutePathToProjectRoot = absolutePathToProjectRoot;
+        TestRunner.preGoals = preGoals;
+        TestRunner.shouldUseMavenToExecuteTest = shouldUseMavenToExecuteTest;
+        EntryPoint.verbose = Main.verbose;
+    }
 
     public static TestResult runSubClassesForAbstractTestClass(CtType<?> testClass, List<CtMethod<?>> testsToRun, String classPath) throws AmplificationException {
         try {
@@ -64,7 +77,7 @@ public class TestRunner {
     public static TestResult runGivenTestMethods(CtType<?> testClass, List<CtMethod<?>> testsToRun, String classPath) throws AmplificationException {
         try {
             return TestRunner.run(classPath + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies(),
-                    InputConfiguration.get().getAbsolutePathToProjectRoot(),
+                    absolutePathToProjectRoot,
                     testClass.getQualifiedName(),
                     testsToRun.stream()
                             .map(CtMethod::getSimpleName)
@@ -82,12 +95,13 @@ public class TestRunner {
     }
 
     public static TestResult run(String classpath, String rootPath, String fullQualifiedName, String... testToRun) throws TimeoutException {
-        if (InputConfiguration.get().shouldUseMavenToExecuteTest()) {
+        if (shouldUseMavenToExecuteTest) {
             EntryPoint.workingDirectory = new File(rootPath);
-            if (! (new File(rootPath + DSpotPOMCreator.getPOMName()).exists())) {
-                DSpotPOMCreator.createNewPom();
-            }
-            eu.stamp_project.testrunner.maven.EntryPoint.preGoals = InputConfiguration.get().getPreGoalsTestExecution();
+            // TODO FIXME
+//            if (! (new File(rootPath + DSpotPOMCreator.getPOMName()).exists())) {
+//                DSpotPOMCreator.createNewPom();
+//            }
+            eu.stamp_project.testrunner.maven.EntryPoint.preGoals = preGoals;
             return eu.stamp_project.testrunner.maven.EntryPoint.runTestsSpecificPom(
                     rootPath,
                     fullQualifiedName,

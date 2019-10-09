@@ -1,11 +1,7 @@
 package eu.stamp_project.utils;
 
-import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.program.InputConfiguration;
-import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtTypeAccess;
@@ -27,13 +23,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 1/30/17
  */
-public class AmplificationHelperTest extends AbstractTest {
-
-    @After
-    public void tearDown() throws Exception {
-        InputConfiguration.get().setGenerateAmplifiedTestClass(false);
-        InputConfiguration.get().setKeepOriginalTestMethods(false);
-    }
+public class AmplificationHelperTest extends AbstractTestOnSample {
 
     @Test
     public void testCreateAmplifiedTestWithReferenceInString() throws Exception {
@@ -42,9 +32,8 @@ public class AmplificationHelperTest extends AbstractTest {
             test that literals are also replaced if they contain the original test class name when
                 using --generate-new-test-class command line option
          */
-
-        InputConfiguration.get().setGenerateAmplifiedTestClass(true);
-        final CtClass<?> testClass = Utils.findClass("fr.inria.amplified.AmplifiedTestClassWithReferenceToName");
+        AmplificationHelper.init(10000, true, false);
+        final CtClass<?> testClass = findClass("fr.inria.amplified.AmplifiedTestClassWithReferenceToName");
         final CtType amplifiedTest = AmplificationHelper.renameTestClassUnderAmplification(testClass);
         assertEquals("AmplAmplifiedTestClassWithReferenceToName", amplifiedTest.getElements(new TypeFilter<>(CtLiteral.class)).get(0).getValue()); // must be updated if the resource change
         assertEquals("AmplAmplifiedTestClassWithReferenceToName",
@@ -66,9 +55,8 @@ public class AmplificationHelperTest extends AbstractTest {
                  (3) all the references are replaced with the new one (i.e. the one with Ampl)
          */
 
-        InputConfiguration.get().setGenerateAmplifiedTestClass(true);
-        InputConfiguration.get().setKeepOriginalTestMethods(false);
-        CtClass<?> classTest = Utils.getFactory().Class().get("fr.inria.helper.ClassWithInnerClass");
+        AmplificationHelper.init(10000, true, false);
+        CtClass<?> classTest = findClass("fr.inria.helper.ClassWithInnerClass");
         List<CtMethod<?>> fakeAmplifiedMethod = classTest.getMethods()
                 .stream()
                 .filter(TestFramework.get()::isTest)
@@ -110,9 +98,8 @@ public class AmplificationHelperTest extends AbstractTest {
                     4 amplified and 4 original
                  (3) all the references are the same than original
          */
-        InputConfiguration.get().setGenerateAmplifiedTestClass(false);
-        InputConfiguration.get().setKeepOriginalTestMethods(true);
-        CtClass<?> classTest = Utils.getFactory().Class().get("fr.inria.helper.ClassWithInnerClass");
+        AmplificationHelper.init(10000, false, true);
+        CtClass<?> classTest = findClass("fr.inria.helper.ClassWithInnerClass");
         List<CtMethod<?>> fakeAmplifiedMethod = classTest.getMethods()
                 .stream()
                 .filter(TestFramework.get()::isTest)

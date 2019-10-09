@@ -1,7 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
@@ -18,15 +17,15 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 16/07/18
  */
-public class NullifierAmplifierTest extends AbstractTest {
+public class NullifierAmplifierTest extends AbstractTestOnSample {
 
     @Test
     public void testOnArrayType() throws Exception {
         final String nameMethod = "methodThatClassmethodWithCharArray";
-        CtClass<?> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        CtClass<?> literalMutationClass = launcher.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         RandomHelper.setSeedRandom(42L);
         Amplifier amplifier = new NullifierAmplifier();
-        final CtMethod method = Utils.findMethod(literalMutationClass, nameMethod);
+        final CtMethod<?> method = findMethod(literalMutationClass, nameMethod);
         List<CtMethod<?>> amplification = amplifier.amplify(method, 0).collect(Collectors.toList());
         assertTrue(amplification.isEmpty());
     }
@@ -37,10 +36,10 @@ public class NullifierAmplifierTest extends AbstractTest {
         // test the result of the NullifierAmplifier
 
         final String nameMethod = "methodString";
-        CtClass<?> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        CtClass<?> literalMutationClass = launcher.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         RandomHelper.setSeedRandom(42L);
         Amplifier amplifier = new NullifierAmplifier();
-        final CtMethod method = Utils.findMethod(literalMutationClass, nameMethod);
+        final CtMethod method = findMethod(literalMutationClass, nameMethod);
         List<CtMethod<?>> amplification = amplifier.amplify(method, 0).collect(Collectors.toList());
         assertEquals(2, amplification.size());
         amplification = amplification.stream().flatMap(testMethod -> amplifier.amplify(testMethod, 0)).collect(Collectors.toList());
@@ -53,10 +52,10 @@ public class NullifierAmplifierTest extends AbstractTest {
         // test the result of the NullifierAmplifier
 
         final String nameMethod = "methodInteger";
-        CtClass<?> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        CtClass<?> literalMutationClass = launcher.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         RandomHelper.setSeedRandom(42L);
         Amplifier amplifier = new NullifierAmplifier();
-        final CtMethod method = Utils.findMethod(literalMutationClass, nameMethod);
+        final CtMethod method = findMethod(literalMutationClass, nameMethod);
         List<CtMethod<?>> amplification = amplifier.amplify(method, 0).collect(Collectors.toList());
         assertEquals(0, amplification.size());
     }
@@ -69,10 +68,10 @@ public class NullifierAmplifierTest extends AbstractTest {
          */
 
         final String nameMethod = "methodCall";
-        CtClass<?> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.ClassWithMethodCall");
+        CtClass<?> literalMutationClass = launcher.getFactory().Class().get("fr.inria.amp.ClassWithMethodCall");
         RandomHelper.setSeedRandom(42L);
         Amplifier amplifier = new NullifierAmplifier();
-        final CtMethod method = Utils.findMethod(literalMutationClass, nameMethod);
+        final CtMethod method = findMethod(literalMutationClass, nameMethod);
         List<CtMethod<?>> amplification = amplifier.amplify(method, 0).collect(Collectors.toList());
         assertEquals(2, amplification.size());
         amplification = amplification.stream().flatMap(testMethod -> amplifier.amplify(testMethod, 0)).collect(Collectors.toList());

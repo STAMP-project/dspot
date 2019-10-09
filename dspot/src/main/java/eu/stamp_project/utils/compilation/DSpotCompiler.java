@@ -1,5 +1,6 @@
 package eu.stamp_project.utils.compilation;
 
+import eu.stamp_project.Main;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
@@ -34,7 +35,10 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DSpotCompiler.class);
 
+	private static String absolutePathToProjectRoot;
+
 	public static DSpotCompiler createDSpotCompiler(InputConfiguration configuration, String pathToDependencies) {
+		DSpotCompiler.absolutePathToProjectRoot = configuration.getAbsolutePathToProjectRoot();
 		String pathToSources = configuration.getAbsolutePathToSourceCode()
 				+ PATH_SEPARATOR +
 				configuration.getAbsolutePathToTestSourceCode();
@@ -106,7 +110,6 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		launcher.getEnvironment().setNoClasspath(true);
 		launcher.getEnvironment().setCommentEnabled(true);
 		launcher.getEnvironment().setOutputType(OutputType.CLASSES);
-		DSpotUtils.copyPackageFromResources();
 		String[] sourcesArray = (pathToSources + PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies()).split(PATH_SEPARATOR);
 		Arrays.stream(sourcesArray).forEach(launcher::addInputResource);
 		if (!pathToDependencies.isEmpty()) {
@@ -117,15 +120,14 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		return launcher;
 	}
 
-	public static boolean compile(InputConfiguration configuration, String pathToSources, String dependencies, File binaryOutputDirectory) {
+	public static boolean compile(String pathToSources, String dependencies, File binaryOutputDirectory) {
 		Launcher launcher = new Launcher();
-		if (configuration.isVerbose()) {
+		if (Main.verbose) {
 			launcher.getEnvironment().setLevel("INFO");
 		}
 		launcher.getEnvironment().setNoClasspath(true);
 		launcher.getEnvironment().setCommentEnabled(true);
 		launcher.getEnvironment().setOutputType(OutputType.CLASSES);
-		DSpotUtils.copyPackageFromResources(); // sources of problem. TODO check if we need to copy the resources each time we compile
 		String[] sourcesArray = (pathToSources + PATH_SEPARATOR).split(PATH_SEPARATOR);
 		Arrays.stream(sourcesArray).forEach(launcher::addInputResource);
 		String[] dependenciesArray = dependencies.split(PATH_SEPARATOR);
@@ -156,7 +158,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 	private static final String PATH_TO_AMPLIFIED_TEST_SRC = "target/dspot/tmp_test_sources";
 
 	public static String getPathToAmplifiedTestSrc() {
-		return InputConfiguration.get().getAbsolutePathToProjectRoot() + PATH_TO_AMPLIFIED_TEST_SRC;
+		return absolutePathToProjectRoot + PATH_TO_AMPLIFIED_TEST_SRC;
 	}
 
 	private Launcher launcher;

@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.program.InputConfiguration;
 import spoon.reflect.declaration.CtMethod;
 
 /**
@@ -26,12 +25,8 @@ public class TextualDistanceInputAmplDistributor extends AbstractInputAmplDistri
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TextualDistanceInputAmplDistributor.class);
 
-    public TextualDistanceInputAmplDistributor() {
-        super();
-    }
-
-    public TextualDistanceInputAmplDistributor(List<Amplifier> amplifiers) {
-        super(amplifiers);
+    public TextualDistanceInputAmplDistributor(int maxNumTests, List<Amplifier> amplifiers) {
+        super(maxNumTests, amplifiers);
     }
 
     /**
@@ -67,7 +62,7 @@ public class TextualDistanceInputAmplDistributor extends AbstractInputAmplDistri
     }
 
     /**
-     * Reduces the number of amplified tests to a practical threshold (see {@link InputConfiguration#getMaxTestAmplified()}).
+     * Reduces the number of amplified tests to a practical threshold.
      *
      * The reduction aims at keeping a maximum of diversity. Because all the amplified tests come from the same
      * original test, they have a <em>lot</em> in common.
@@ -80,7 +75,7 @@ public class TextualDistanceInputAmplDistributor extends AbstractInputAmplDistri
      */
     public List<CtMethod<?>> reduce(List<CtMethod<?>> tests) {
         final List<CtMethod<?>> reducedTests = new ArrayList<>();
-        if (tests.size() > InputConfiguration.get().getMaxTestAmplified()) {
+        if (tests.size() > this.maxNumTests) {
             LOGGER.warn("Too many tests have been generated: {}", tests.size());
             final Map<Long, List<CtMethod<?>>> valuesToMethod = new HashMap<>();
             for (CtMethod<?> test : tests) {
@@ -91,7 +86,7 @@ public class TextualDistanceInputAmplDistributor extends AbstractInputAmplDistri
                 valuesToMethod.get(value).add(test);
             }
             final Long average = average(valuesToMethod.keySet());
-            while (reducedTests.size() < InputConfiguration.get().getMaxTestAmplified()) {
+            while (reducedTests.size() < this.maxNumTests) {
                 final Long furthest = furthest(valuesToMethod.keySet(), average);
                 reducedTests.add(valuesToMethod.get(furthest).get(0));
                 if (valuesToMethod.get(furthest).isEmpty()) {

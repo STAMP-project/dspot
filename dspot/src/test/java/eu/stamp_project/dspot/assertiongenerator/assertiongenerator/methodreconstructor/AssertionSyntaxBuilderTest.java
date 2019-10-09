@@ -1,7 +1,6 @@
 package eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor;
 
-import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import org.junit.Test;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtMethod;
@@ -13,7 +12,7 @@ import static junit.framework.TestCase.assertEquals;
  * abwogi@kth.se
  * on 26/08/19
  */
-public class AssertionSyntaxBuilderTest extends AbstractTest {
+public class AssertionSyntaxBuilderTest extends AbstractTestOnSample {
 
     @Test
     public void testAssertArrays() {
@@ -25,7 +24,7 @@ public class AssertionSyntaxBuilderTest extends AbstractTest {
 
         Map map = new HashMap<>();
         Set empty = new HashSet<>();
-        CtMethod ignore = Utils.findMethod("fr.inria.sample.TestClassWithAssert", "test1");
+        CtMethod ignore = findMethod("fr.inria.sample.TestClassWithAssert", "test1");
 
         int[][] intArray = {{1,1,1},{2,2,2}};
         map.put("test", intArray);

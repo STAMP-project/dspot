@@ -80,20 +80,13 @@ public class MainTest {
         Main.main(new String[]{
                 "--clean",
                 "--verbose",
-                "--path-to-properties", "src/test/resources/sample/sample.properties",
+                "--absolute-path-to-project-root", new File("src/test/resources/sample/").getAbsolutePath() + "/",
                 "--test-criterion", "TakeAllSelector",
-                "--test", "fr.inria.sample.TestClassWithoutAssert:fr.inria.sample.TestClassWithAssert",
-                "--test-cases", "test1:test:anOldTest",
-                "--no-minimize"
+                "--test", "fr.inria.sample.TestClassWithoutAssert,fr.inria.sample.TestClassWithAssert",
+                "--test-cases", "test1,test,anOldTest"
         });
         // an amplification happened, w/e it is
-        CtClass<?> amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("fr.inria.sample.TestClassWithAssert");
-        assertNotNull(amplifiedTestClass);
-        assertFalse(amplifiedTestClass.getMethods().isEmpty());
-//        assertTrue(amplifiedTestClass.getMethods().stream().anyMatch(ctMethod -> ctMethod.getSimpleName().contains("anOldTest"))); // this test come from the super class
-        amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("fr.inria.sample.TestClassWithoutAssert");
-        assertNotNull(amplifiedTestClass);
-        assertFalse(amplifiedTestClass.getMethods().isEmpty());
+        assertTrue(new File("target/dspot/output/fr/inria/sample/TestClassWithAssert.java").exists());
     }
 
     @Test
@@ -108,11 +101,11 @@ public class MainTest {
 
         Main.main(new String[]{
                 "--verbose",
-                "--path-to-properties", "src/test/resources/sample/sample.properties",
+                "--absolute-path-to-project-root", new File("src/test/resources/sample/").getAbsolutePath() + "/",
                 "--test-criterion", "PitMutantScoreSelector",
-                "--test", "fr.inria.sample.TestClassWithoutAssert:fr.inria.filter.failing.FailingTest",
+                "--test", "fr.inria.sample.TestClassWithoutAssert,fr.inria.filter.failing.FailingTest",
                 "--path-pit-result", "src/test/resources/sample/mutations.csv",
-                "--gregor",
+                "--gregor-mode",
                 "--output-path", "target/trash",
         });
 
@@ -131,11 +124,11 @@ public class MainTest {
 
         Main.main(new String[]{
                 "--verbose",
-                "--path-to-properties", "src/test/resources/sample/sample.properties",
+                "--absolute-path-to-project-root", new File("src/test/resources/sample/").getAbsolutePath() + "/",
                 "--test-criterion", "PitMutantScoreSelector",
-                "--test", "fr.inria.sample.TestClassWithoutAssert:fr.inria.filter.failing.FailingTest",
+                "--test", "fr.inria.sample.TestClassWithoutAssert,fr.inria.filter.failing.FailingTest",
                 "--path-pit-result", "src/test/resources/sample/mutations.csv",
-                "--gregor",
+                "--gregor-mode",
                 "--output-path", "target/trash",
                 "--use-maven-to-exe-test"
         });
@@ -154,11 +147,11 @@ public class MainTest {
 
         Main.main(new String[]{
                 "--verbose",
-                "--path-to-properties", "src/test/resources/sample/sample.properties",
+                "--absolute-path-to-project-root", new File("src/test/resources/sample/").getAbsolutePath() + "/",
                 "--test-criterion", "PitMutantScoreSelector",
                 "--test", "fr.inria.sample.TestClassWithoutAssertJUnit5",
                 "--path-pit-result", "src/test/resources/sample/mutations.csv",
-                "--gregor",
+                "--gregor-mode",
                 "--output-path", "target/trash",
         });
 
@@ -172,14 +165,11 @@ public class MainTest {
         Main.main(new String[]{
                 "--clean",
                 "--verbose",
-                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
+                "--absolute-path-to-project-root", new File("src/test/resources/test-projects/").getAbsolutePath() + "/",
                 "--test-criterion", "TakeAllSelector",
-                "--test", "example.TestSuiteExample",
-                "--no-minimize"
+                "--test", "example.TestSuiteExample"
         });
-        final CtClass<?> amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("example.TestSuiteExample");
-        assertNotNull(amplifiedTestClass);
-        assertFalse(amplifiedTestClass.getMethods().isEmpty());
+        assertTrue(new File("target/dspot/output/example/TestSuiteExample.java").exists());
     }
 
     @Test
@@ -193,24 +183,22 @@ public class MainTest {
         Main.main(new String[]{
                 "--clean",
                 "--verbose",
-                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
+                "--absolute-path-to-project-root", new File("src/test/resources/test-projects/").getAbsolutePath() + "/",
                 "--test-criterion", "JacocoCoverageSelector",
                 "--iteration", "1",
                 "--amplifiers", "FastLiteralAmplifier",
                 "--test", "example.ParametrizedTestSuiteExample",
                 "--input-ampl-distributor", "TextualDistanceInputAmplDistributor",
-                "--no-minimize",
                 "--test-cases", "test2"
         });
-        final CtClass<?> amplifiedTestClass = InputConfiguration.get().getFactory().Class().get("example.ParametrizedTestSuiteExample");
-        assertNotNull(amplifiedTestClass);
+        assertTrue(new File("target/dspot/output/example/ParametrizedTestSuiteExample.java").exists());
     }
 
     @Test
     public void testOnProjectWithResources() throws Exception {
         Main.main(new String[]{
                 "--verbose",
-                "--path-to-properties", "src/test/resources/project-with-resources/project-with-resources.properties",
+                "--absolute-path-to-project-root", new File("src/test/resources/project-with-resources/").getAbsolutePath() + "/",
                 "--test-criterion", "JacocoCoverageSelector",
                 "--iteration", "1"
         });
@@ -225,10 +213,10 @@ public class MainTest {
          */
 
         Main.main(new String[]{"--verbose", "--example"});
-        final File reportFile = new File("target/trash/report.txt");
-        final File amplifiedTestClass = new File("target/trash/example/TestSuiteExample.java");
+        final File reportFile = new File("target/dspot/output/report.txt");
+        final File amplifiedTestClass = new File("target/dspot/output/example/TestSuiteExample.java");
         assertTrue(reportFile.exists());
-        assertTrue(new File("target/trash/example.TestSuiteExample_report.json").exists());
+        assertTrue(new File("target/dspot/output/example.TestSuiteExample_report.json").exists());
         assertTrue(amplifiedTestClass.exists());
         try (BufferedReader reader = new BufferedReader(new FileReader(reportFile))) {
             String content = reader.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)) + AmplificationHelper.LINE_SEPARATOR;
@@ -286,9 +274,9 @@ public class MainTest {
 
         // run 1: lot of amplifiers
         Main.main(new String[]{
-                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
+                "--absolute-path-to-project-root", new File("src/test/resources/test-projects/").getAbsolutePath() + "/",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + AmplificationHelper.PATH_SEPARATOR + "FastLiteralAmplifier" + AmplificationHelper.PATH_SEPARATOR + "MethodAdderOnExistingObjectsAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
+                "--amplifiers", "MethodDuplicationAmplifier,FastLiteralAmplifier,MethodAdderOnExistingObjectsAmplifier,ReturnValueAmplifier",
                 "--iteration", "1",
                 "--random-seed", "72",
                 "--test", "example.TestSuiteExample",
@@ -306,9 +294,9 @@ public class MainTest {
 
         // run 2: some amplifiers
         Main.main(new String[]{
-                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
+                "--absolute-path-to-project-root", new File("src/test/resources/test-projects/").getAbsolutePath() + "/",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdd" + AmplificationHelper.PATH_SEPARATOR + "FastLiteralAmplifier",
+                "--amplifiers", "MethodDuplicationAmplifier,FastLiteralAmplifier",
                 "--iteration", "1",
                 "--random-seed", "72",
                 "--test", "example.TestSuiteExample",
@@ -330,9 +318,9 @@ public class MainTest {
         // run 3: some amplifiers
         // run 2 + 3 = run 1
         Main.main(new String[]{
-                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
+                "--absolute-path-to-project-root", new File("src/test/resources/test-projects/").getAbsolutePath() + "/",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdderOnExistingObjectsAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
+                "--amplifiers", "MethodAdderOnExistingObjectsAmplifier,ReturnValueAmplifier",
                 "--iteration", "1",
                 "--random-seed", "72",
                 "--test", "example.TestSuiteExample",
@@ -350,9 +338,9 @@ public class MainTest {
 
         //run 4: equals to run 1 minus run 2 = run 3
         Main.main(new String[]{
-                "--path-to-properties", "src/test/resources/test-projects/test-projects.properties",
+                "--absolute-path-to-project-root", new File("src/test/resources/test-projects/").getAbsolutePath() + "/",
                 "--test-criterion", "JacocoCoverageSelector",
-                "--amplifiers", "MethodAdderOnExistingObjectsAmplifier" + AmplificationHelper.PATH_SEPARATOR + "ReturnValueAmplifier",
+                "--amplifiers", "MethodDuplicationAmplifier,ReturnValueAmplifier",
                 "--iteration", "1",
                 "--random-seed", "72",
                 "--test", "example.TestSuiteExample",

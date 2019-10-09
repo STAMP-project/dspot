@@ -1,9 +1,7 @@
 package eu.stamp_project.test_framework;
 
-import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
-import eu.stamp_project.utils.program.InputConfiguration;
 import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
@@ -21,8 +19,8 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 12/11/18
  */
-public class GoogleTruthTest extends AbstractTest {
-    // TODO
+public class GoogleTruthTest extends AbstractTestOnSample {
+
     @Ignore
     @Test
     public void test() {
@@ -35,13 +33,13 @@ public class GoogleTruthTest extends AbstractTest {
         final String fullQualifiedName = "fr.inria.helper.GoogleTruthTestClass";
         final String nameOfExpectedAssertClass = "com.google.common.truth.Truth.";
         final String test = "test";
-        final CtClass<?> testClass = Utils.findClass(fullQualifiedName);
-        final CtMethod testMethod = Utils.findMethod(fullQualifiedName, test);
+        final CtClass<?> testClass = findClass(fullQualifiedName);
+        final CtMethod testMethod = findMethod(fullQualifiedName, test);
 
         CtInvocation<?> ctInvocation = TestFramework.get().buildInvocationToAssertion(
                 testMethod,
                 AssertEnum.ASSERT_TRUE,
-                Collections.singletonList(InputConfiguration.get().getFactory().createLiteral(true))
+                Collections.singletonList(this.launcher.getFactory().createLiteral(true))
         );
 
         assertEquals(ctInvocation.toString(), nameOfExpectedAssertClass + "assertThat(true).isTrue()", ctInvocation.toString());
@@ -49,21 +47,21 @@ public class GoogleTruthTest extends AbstractTest {
         ctInvocation = TestFramework.get().buildInvocationToAssertion(
                 testMethod,
                 AssertEnum.ASSERT_FALSE,
-                Collections.singletonList(InputConfiguration.get().getFactory().createLiteral(false))
+                Collections.singletonList(this.launcher.getFactory().createLiteral(false))
         );
         assertEquals(ctInvocation.toString(), nameOfExpectedAssertClass + "assertThat(false).isFalse()", ctInvocation.toString());
 
         ctInvocation = TestFramework.get().buildInvocationToAssertion(
                 testMethod,
                 AssertEnum.ASSERT_NULL,
-                Collections.singletonList(InputConfiguration.get().getFactory().createLiteral(null))
+                Collections.singletonList(this.launcher.getFactory().createLiteral(null))
         );
         assertEquals(ctInvocation.toString(), nameOfExpectedAssertClass + "assertThat(null).isNull()", ctInvocation.toString());
 
         ctInvocation = TestFramework.get().buildInvocationToAssertion(
                 testMethod,
                 AssertEnum.ASSERT_NOT_NULL,
-                Collections.singletonList(InputConfiguration.get().getFactory().createThisAccess(testClass.getReference()))
+                Collections.singletonList(this.launcher.getFactory().createThisAccess(testClass.getReference()))
         );
         assertEquals(ctInvocation.toString(), nameOfExpectedAssertClass + "assertThat(this).isNotNull()", ctInvocation.toString());
 
@@ -71,8 +69,8 @@ public class GoogleTruthTest extends AbstractTest {
                 testMethod,
                 AssertEnum.ASSERT_EQUALS,
                 Arrays.asList(
-                        InputConfiguration.get().getFactory().createThisAccess(testClass.getReference()),
-                        InputConfiguration.get().getFactory().createThisAccess(testClass.getReference())
+                        this.launcher.getFactory().createThisAccess(testClass.getReference()),
+                        this.launcher.getFactory().createThisAccess(testClass.getReference())
                 )
         );
         assertEquals(ctInvocation.toString(), nameOfExpectedAssertClass + "assertThat(this).isEqualTo(this)", ctInvocation.toString());

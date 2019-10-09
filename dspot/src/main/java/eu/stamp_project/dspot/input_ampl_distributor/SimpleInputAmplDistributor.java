@@ -1,7 +1,6 @@
 package eu.stamp_project.dspot.input_ampl_distributor;
 
 import eu.stamp_project.dspot.amplifier.Amplifier;
-import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.RandomHelper;
 import org.slf4j.Logger;
@@ -24,11 +23,8 @@ public class SimpleInputAmplDistributor extends AbstractInputAmplDistributor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleInputAmplDistributor.class);
 
-    public SimpleInputAmplDistributor() {
-    }
-
-    public SimpleInputAmplDistributor(List<Amplifier> amplifiers) {
-        super(amplifiers);
+    public SimpleInputAmplDistributor(int maxNumTests, List<Amplifier> amplifiers) {
+        super(maxNumTests, amplifiers);
     }
 
     /**
@@ -40,8 +36,8 @@ public class SimpleInputAmplDistributor extends AbstractInputAmplDistributor {
     @Override
     public List<CtMethod<?>> inputAmplify(List<CtMethod<?>> testMethods, int iteration) {
         LOGGER.info("Amplification of inputs...");
-        final int budget = InputConfiguration.get().getMaxTestAmplified();
-        int totalBudget = InputConfiguration.get().getMaxTestAmplified();
+        final int budget = this.maxNumTests;
+        int totalBudget = this.maxNumTests;
         // copy the amplifiers, we will remove amplifier that does not generate more test
         final List<Amplifier> amplifiers = new ArrayList<>(this.amplifiers);
         // copy the test methods to be amplified

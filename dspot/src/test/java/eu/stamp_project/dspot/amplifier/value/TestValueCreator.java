@@ -1,7 +1,6 @@
 package eu.stamp_project.dspot.amplifier.value;
 
-import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
@@ -19,14 +18,14 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 12/8/16
  */
-public class TestValueCreator extends AbstractTest {
+public class TestValueCreator extends AbstractTestOnSample {
 
 	@Test
 	public void testCreateRandomLocalVarOfArrayListString() throws Exception {
 
 		RandomHelper.setSeedRandom(72L);
 		ValueCreator.count = 0;
-		Factory factory = Utils.getFactory();
+		Factory factory = launcher.getFactory();
 
 		final CtTypeReference<?> reference = factory.Class().get(new ArrayList<String>().getClass()).getReference();
 		reference.addActualTypeArgument(factory.Type().createReference(String.class));
@@ -47,7 +46,7 @@ public class TestValueCreator extends AbstractTest {
 
 		RandomHelper.setSeedRandom(23L);
 		ValueCreator.count = 0;
-		Factory factory = Utils.getFactory();
+		Factory factory = launcher.getFactory();
 
 		int count = 0;
 
@@ -89,7 +88,7 @@ public class TestValueCreator extends AbstractTest {
 
 		RandomHelper.setSeedRandom(23L);
 		ValueCreator.count = 0;
-		Factory factory = Utils.getFactory();
+		Factory factory = launcher.getFactory();
 
 		int count = 0;
 

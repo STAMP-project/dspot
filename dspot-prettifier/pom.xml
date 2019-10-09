@@ -73,7 +73,7 @@
         <dependency>
             <groupId>eu.stamp-project</groupId>
             <artifactId>dspot</artifactId>
-            <version>${project.version}</version>
+            <version>2.2.1</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->

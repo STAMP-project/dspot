@@ -1,18 +1,16 @@
 package eu.stamp_project.utils.test_finder;
 
-import eu.stamp_project.Main;
-import eu.stamp_project.Utils;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.program.InputConfiguration;
-import org.junit.BeforeClass;
+import eu.stamp_project.dspot.AbstractTestOnSample;
+import eu.stamp_project.test_framework.TestFramework;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -22,25 +20,21 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 25/09/19
  */
-public class TestFinderTest {
+public class TestFinderTest extends AbstractTestOnSample {
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        Utils.reset();
-        InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
-        InputConfiguration.get().setFactory(
-            DSpotCompiler.createDSpotCompiler(
-                    InputConfiguration.get(),
-                    InputConfiguration.get().getDependencies()).getFactory()
-        );
-        Main.createOutputDirectories();
-        testFinder =  new TestFinder(
-                Arrays.stream(InputConfiguration.get().getExcludedClasses().split(",")).collect(Collectors.toList()),
-                Arrays.stream(InputConfiguration.get().getExcludedTestCases().split(",")).collect(Collectors.toList())
-        );
+    @Override
+    public String getPathToProjectRoot() {
+        return new File("src/test/resources/test-projects/").getAbsolutePath() + "/";
     }
 
-    private static TestFinder testFinder;
+    @Before
+    @Override
+    public void setUp() {
+        super.setUp();
+        testFinder =  new TestFinder(Collections.emptyList(), Collections.emptyList());
+    }
+
+    private TestFinder testFinder;
 
     @Test
     public void testFindClasses2Classes() {

@@ -8,7 +8,7 @@ import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.program.InputConfiguration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
@@ -30,8 +30,6 @@ public class AssertionGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AssertionGenerator.class);
 
-    private InputConfiguration configuration;
-
     private DSpotCompiler compiler;
 
     private AssertionRemover assertionRemover;
@@ -40,8 +38,10 @@ public class AssertionGenerator {
 
     private MethodReconstructor methodReconstructor;
 
-    public AssertionGenerator(InputConfiguration configuration, DSpotCompiler compiler) {
-        this.configuration = configuration;
+    private double delta;
+
+    public AssertionGenerator(double delta, DSpotCompiler compiler) {
+        this.delta = delta;
         this.compiler = compiler;
         this.assertionRemover = new AssertionRemover();
         this.tryCatchFailGenerator = new TryCatchFailGenerator();
@@ -65,8 +65,8 @@ public class AssertionGenerator {
 
         // set up methodReconstructor for use in assertPassingAndFailingTests
         this.methodReconstructor = new MethodReconstructor(
+                delta,
                 testClass,
-                this.configuration,
                 compiler,
                 this.assertionRemover.getVariableAssertedPerTestMethod()
         );
@@ -118,8 +118,7 @@ public class AssertionGenerator {
             CloneHelper.addParallelExecutionAnnotation(testClass, tests);
             testResult = TestCompiler.compileAndRun(testClass,
                     this.compiler,
-                    tests,
-                    this.configuration
+                    tests
             );
         } catch (AmplificationException e) {
             LOGGER.warn("Error when executing tests before Assertion Amplification:");

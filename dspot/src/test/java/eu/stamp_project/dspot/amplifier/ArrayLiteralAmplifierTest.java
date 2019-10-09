@@ -1,7 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,16 +20,17 @@ import static org.junit.Assert.assertTrue;
  * abwogi@kth.se
  * on 12/09/19
  */
-public class ArrayLiteralAmplifierTest extends AbstractTest {
+public class ArrayLiteralAmplifierTest extends AbstractTestOnSample {
 
     ArrayLiteralAmplifier amplifier;
 
     CtClass<Object> literalMutationClass;
 
     @Before
-    public void setup() throws Exception {
+    @Override
+    public void setUp() {
         super.setUp();
-        literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.ArrayMutation");
+        literalMutationClass = launcher.getFactory().Class().get("fr.inria.amp.ArrayMutation");
         RandomHelper.setSeedRandom(42L);
         amplifier = new ArrayLiteralAmplifier();
     }
@@ -63,9 +63,12 @@ public class ArrayLiteralAmplifierTest extends AbstractTest {
             if(type.equals("String") || type.equals("Object")){
                 type = "java.lang." + type;
             }
-            List<String> expectedValues = Arrays.asList("new " + type + "[][]{ new " + type +"[]{ " +
-                    constructAdditionalElement(type) + " } }","null");
-            callAssertions(methodName,expectedValues);
+            List<String> expectedValues =
+                    Arrays.asList(
+                            "new " + type + "[][]{ new " + type +"[]{ " + constructAdditionalElement(type) + " } }",
+                            "null"
+                    );
+            callAssertions(methodName, expectedValues);
         }
     }
 

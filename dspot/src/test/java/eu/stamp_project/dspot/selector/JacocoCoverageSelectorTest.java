@@ -15,7 +15,7 @@ public class JacocoCoverageSelectorTest extends AbstractSelectorRemoveOverlapTes
 
 	@Override
 	protected TestSelector getTestSelector() {
-		return new JacocoCoverageSelector();
+		return new JacocoCoverageSelector(this.builder, this.configuration);
 	}
 
 	@Override
