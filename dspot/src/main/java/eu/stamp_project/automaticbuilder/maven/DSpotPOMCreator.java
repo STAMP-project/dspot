@@ -126,7 +126,7 @@ public class DSpotPOMCreator {
             this.absolutePathToProjectRoot = configuration.getAbsolutePathToProjectRoot();
             this.shouldUseMavenToExecuteTest = configuration.shouldUseMavenToExecuteTest();
             this.shouldExecuteTestsInParallel = configuration.shouldExecuteTestsInParallel();
-            this.isDescartesMode = configuration.isDescartesMode();
+            this.isDescartesMode = !configuration.isGregorMode();
             this.pitVersion = configuration.getPitVersion();
             this.descartesVersion = configuration.getDescartesVersion();
             this.additionalClasspathElements = configuration.getAdditionalClasspathElements();

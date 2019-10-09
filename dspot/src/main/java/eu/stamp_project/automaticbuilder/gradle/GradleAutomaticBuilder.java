@@ -43,7 +43,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
         this.absolutePathToProjectRoot = configuration.getAbsolutePathToProjectRoot();
         this.gradleInjector = new GradleInjector(
                 this.absolutePathToProjectRoot + File.separator + GradleInjector.GRADLE_BUILD_FILE,
-                configuration.isDescartesMode(),
+                !configuration.isGregorMode(),
                 configuration.getFilter(),
                 configuration.getPitVersion(),
                 configuration.getTimeOutInMs(),

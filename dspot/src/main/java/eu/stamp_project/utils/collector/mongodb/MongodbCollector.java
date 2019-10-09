@@ -20,6 +20,7 @@ import static com.mongodb.client.model.Projections.*;
 import org.bson.Document;
 
 /*Parsing date*/
+import java.util.Arrays;
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -32,7 +33,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.io.IOException;
-import java.util.stream.Collectors;
 
 // Receive data from selectors, JSAPOptions and amp testfiles paths to put to mongodb.
 public class MongodbCollector implements Collector {
@@ -143,6 +143,7 @@ public class MongodbCollector implements Collector {
             }
             mongoClient.close();
         } catch (Exception e) {
+            e.printStackTrace();
             LOGGER.warn("failed to connect to mongodb");
         }
     }
@@ -154,8 +155,8 @@ public class MongodbCollector implements Collector {
                                       boolean gregor,
                                       boolean descartes,
                                       int executeTestParallelWithNumberProcessors) {
-        argsDoc.append("amplifiers", amplifiers.stream().map(AmplifierEnum::toString).collect(Collectors.joining(",")));
-        argsDoc.append("test-criterion", testCriterion);
+        argsDoc.append("amplifiers", Arrays.toString(amplifiers.stream().map(AmplifierEnum::toString).toArray()));
+        argsDoc.append("test-criterion", testCriterion.toString());
         argsDoc.append("iteration", Integer.toString(iteration));
         argsDoc.append("gregor", "" + gregor);
         argsDoc.append("descartes", "" + descartes);

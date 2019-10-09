@@ -114,8 +114,8 @@ public class Main {
                 inputConfiguration.getAmplifiers(),
                 inputConfiguration.getSelector(),
                 inputConfiguration.getNbIteration(),
-                !inputConfiguration.isDescartesMode(),
-                inputConfiguration.isDescartesMode(),
+                inputConfiguration.isGregorMode(),
+                !inputConfiguration.isGregorMode(),
                 inputConfiguration.getNumberParallelExecutionProcessors()
         );
         final List<CtType<?>> testClassesToBeAmplified = testFinder.findTestClasses(inputConfiguration.getTestClasses());

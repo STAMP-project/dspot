@@ -221,13 +221,6 @@ public class InputConfiguration {
     private Long cacheSize;
 
     @CommandLine.Option(
-            names = "--descartes-mode",
-            defaultValue = "true",
-            description = "Enable the descartes engine for Pit Mutant Score Selector."
-    )
-    private boolean descartesMode = true;
-
-    @CommandLine.Option(
             names = "--gregor-mode",
             defaultValue = "false",
             description = "Enable the gregor engine for Pit Mutant Score Selector."
@@ -795,18 +788,12 @@ public class InputConfiguration {
         return this;
     }
 
-    public boolean isDescartesMode() {
-        return descartesMode;
+    public boolean isGregorMode() {
+        return gregorMode;
     }
 
-    public InputConfiguration setDescartesMode(boolean descartesMode) {
-        this.descartesMode = descartesMode;
-        if (this.descartesMode) {
-            this.setPitVersion("1.4.0"); // forcing pit version 1.4.0 to work with descartes
-        } else if (this.getPitVersion() == null) {
-            this.setPitVersion("1.4.0");
-        }
-        return this;
+    public void setGregorMode(boolean gregorMode) {
+        this.gregorMode = gregorMode;
     }
 
     public boolean shouldUseWorkingDirectory() {
