@@ -25,8 +25,12 @@ import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
  * Created by marcel on 8/06/14.
  * This version of the InputConfiguration has been largely modified, and customized to be use in DSpot.
  */
-@CommandLine.Command(mixinStandardHelpOptions = true, version = "auto help demo - picocli 3.0")
+@CommandLine.Command(name = "eu.stamp_project.Main", mixinStandardHelpOptions = true)
 public class InputConfiguration {
+
+    /*
+        Project descriptions paths
+     */
 
     @CommandLine.Option(
             names = "--absolute-path-to-project-root",
@@ -35,7 +39,6 @@ public class InputConfiguration {
                     "We consider as root of the project folder that contain the top-most parent in a multi-module project."
     )
     private String absolutePathToProjectRoot;
-
 
     @CommandLine.Option(
             names = "--target-module",
@@ -50,7 +53,8 @@ public class InputConfiguration {
             names = "--relative-path-to-source-code",
             defaultValue = "src/main/java/",
             description = "Specify the relative path from --absolute-path-to-project-root/--target-module command-line options " +
-                    "that points to the folder that contains sources (.java)."
+                    "that points to the folder that contains sources (.java)." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private String pathToSourceCode;
 
@@ -58,7 +62,8 @@ public class InputConfiguration {
             names = "--relative-path-to-test-code",
             defaultValue = "src/test/java/",
             description = "Specify the relative path from --absolute-path-to-project-root/--target-module command-line options " +
-                    "that points to the folder that contains test sources (.java)."
+                    "that points to the folder that contains test sources (.java)." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private String pathToTestSourceCode;
 
@@ -66,7 +71,8 @@ public class InputConfiguration {
             names = "--relative-path-to-classes",
             defaultValue = "target/classes/",
             description = "Specify the relative path from --absolute-path-to-project-root/--target-module command-line options " +
-                    "that points to the folder that contains binaries of the source (.class)."
+                    "that points to the folder that contains binaries of the source (.class)." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private String pathToClasses = "target/classes/";
 
@@ -74,9 +80,86 @@ public class InputConfiguration {
             names = "--relative-path-to-test-classes",
             defaultValue = "target/test-classes/",
             description = "Specify the relative path from --absolute-path-to-project-root/--target-module command-line options " +
-                    "that points to the folder that contains binaries of the test source (.class)."
+                    "that points to the folder that contains binaries of the test source (.class)." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private String pathToTestClasses = "target/test-classes/";
+
+    /*
+        Amplification process configuration
+     */
+
+    @CommandLine.Option(
+            names = {"-i", "--iteration"},
+            defaultValue = "1",
+            description = "Specify the number of amplification iterations. " +
+                    "A larger number may help to improve the test criterion " +
+                    "(e.g. a larger number of iterations may help to kill more mutants). " +
+                    "This has an impact on the execution time: the more iterations, the longer DSpot runs." +
+                    " Default value: ${DEFAULT-VALUE}"
+    )
+    private int nbIteration;
+
+    @CommandLine.Option(
+            names = {"-a", "--amplifiers"},
+            defaultValue = "None",
+            split = ",",
+            description = "Specify the list of amplifiers to use. " +
+                    "By default, DSpot does not use any amplifiers (None) and applies only assertion amplification. " +
+                    "Valid values: ${COMPLETION-CANDIDATES}" +
+                    " Default value: ${DEFAULT-VALUE}"
+    )
+    private List<AmplifierEnum> amplifiers;
+
+    @CommandLine.Option(
+            names = {"-t", "--test"},
+            split = ",",
+            defaultValue = "all",
+            description = "Fully qualified names of test classes to be amplified. " +
+                    "If the value is all, DSpot will amplify the whole test suite. " +
+                    "You can also use regex to describe a set of test classes. " +
+                    "By default, DSpot selects all the tests."
+    )
+    private List<String> testClasses;
+
+    @CommandLine.Option(
+            names = {"-s", "--test-criterion", "--test-selector"},
+            defaultValue = "PitMutantScoreSelector",
+            description = "Specify the test adequacy criterion to be maximized with amplification. " +
+                    "Valid values: ${COMPLETION-CANDIDATES}" +
+                    " Default value: ${DEFAULT-VALUE}"
+    )
+    private SelectorEnum selector;
+
+    @CommandLine.Option(
+            names = {"-c", "--cases", "--test-methods", "--test-cases"},
+            split = ",",
+            description = "Specify the test cases to amplify."
+    )
+    private List<String> testCases = new ArrayList<>();
+
+    @CommandLine.Option(
+            names = {"--output-path", "--output-directory"},
+            defaultValue = "target/dspot/output/",
+            description = "specify a path folder for the output." +
+                    " Default value: ${DEFAULT-VALUE}"
+    )
+    private String outputDirectory = "target/dspot/output/";
+
+    /*
+        advanced amplification process configuration
+     */
+
+    @CommandLine.Option(
+            names = {"--path-to-test-list-csv"},
+            defaultValue = "",
+            description = "Enable the selection of the test to be amplified from a csv file. " +
+                    "This parameter is a path that must point to a csv file that list test classes and their test methods in the following format: " +
+                    "test-class-name;test-method-1;test-method-2;test-method-3;... " +
+                    "If this parameter is used, DSpot will ignore the value used in the parameter test and cases " +
+                    "It is recommended to use an absolute path."
+    )
+    private String pathToTestListCSV = "";
 
     @CommandLine.Option(
             names = "--path-to-additional-classpath-elements",
@@ -90,7 +173,8 @@ public class InputConfiguration {
             names = "--automatic-builder",
             defaultValue = "Maven",
             description = "Specify the automatic builder to be used. " +
-                    "Valid values: ${COMPLETION-CANDIDATES}"
+                    "Valid values: ${COMPLETION-CANDIDATES}" +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private AutomaticBuilderEnum automaticBuilder;
 
@@ -113,12 +197,6 @@ public class InputConfiguration {
     )
     private String absolutePathToSecondVersionProjectRoot;
 
-    @CommandLine.Option(
-            names = {"--output-path", "--output-directory"},
-            defaultValue = "target/dspot/output/",
-            description = "specify a path folder for the output."
-    )
-    private String outputDirectory = "target/dspot/output/";
 
     @CommandLine.Option(
             names = "--maven-home",
@@ -146,7 +224,8 @@ public class InputConfiguration {
             defaultValue = "0.1",
             description = "Specify the delta value for the assertions of floating-point numbers. " +
                     "If DSpot generates assertions for float, it uses Assert.assertEquals(expected, actual, delta). " +
-                    "It specifies the delta value."
+                    "It specifies the delta value." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private double delta;
 
@@ -162,14 +241,16 @@ public class InputConfiguration {
     @CommandLine.Option(
             names = "--pit-version",
             defaultValue = "1.4.0",
-            description = "Specify the version of PIT to use."
+            description = "Specify the version of PIT to use." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private String pitVersion = "1.4.0";
 
     @CommandLine.Option(
             names = "--descartes-version",
             defaultValue = "1.2.4",
-            description = "Specify the version of pit-descartes to use."
+            description = "Specify the version of pit-descartes to use." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private String descartesVersion = "1.2.4";
 
@@ -210,45 +291,52 @@ public class InputConfiguration {
     )
     private String descartesMutators = "";
 
-    @CommandLine.Option(
-            names = "--cache-size",
-            defaultValue = "10000",
-            description = "Specify the size of the memory cache in terms of the number of store entries"
-    )
-    private Long cacheSize;
 
     @CommandLine.Option(
             names = "--gregor-mode",
             defaultValue = "false",
-            description = "Enable the gregor engine for Pit Mutant Score Selector."
+            description = "Enable the gregor engine for Pit Mutant Score Selector." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private boolean gregorMode = false;
 
     @CommandLine.Option(
+            names = "--cache-size",
+            defaultValue = "10000",
+            description = "Specify the size of the memory cache in terms of the number of store entries" +
+                    " Default value: ${DEFAULT-VALUE}"
+    )
+    private Long cacheSize;
+
+    @CommandLine.Option(
             names = "--use-working-directory",
             defaultValue = "false",
-            description = "Enable this option to change working directory with the root of the project."
+            description = "Enable this option to change working directory with the root of the project." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private boolean useWorkingDirectory;
 
     @CommandLine.Option(
             names = "--generate-new-test-class",
             defaultValue = "false",
-            description = "Enable the creation of a new test class."
+            description = "Enable the creation of a new test class." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private boolean generateAmplifiedTestClass;
 
     @CommandLine.Option(
             names = "--keep-original-test-methods",
             defaultValue = "false",
-            description = "If enabled, DSpot keeps original test methods of the amplified test class."
+            description = "If enabled, DSpot keeps original test methods of the amplified test class." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private boolean keepOriginalTestMethods;
 
     @CommandLine.Option(
             names = "--use-maven-to-exe-test",
             defaultValue = "false",
-            description = "If enabled, DSpot will use maven to execute the tests."
+            description = "If enabled, DSpot will use maven to execute the tests." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private boolean useMavenToExecuteTest;
 
@@ -259,7 +347,8 @@ public class InputConfiguration {
                     "For JUnit5 tests it will use the number of given processors " +
                     "(specify 0 to take the number of available core processors). " +
                     "For JUnit4 tests, it will use the number of available CPU processors " +
-                    "(given number of processors is ignored)."
+                    "(given number of processors is ignored)." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private boolean executeTestsInParallel;
 
@@ -267,120 +356,72 @@ public class InputConfiguration {
             names = "--nb-parallel-exe-processors",
             defaultValue = "0",
             description = "Specify the number of processor to use for the parallel execution." +
-                    "0 will make DSpot use all processors available."
+                    "0 will make DSpot use all processors available." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private int numberParallelExecutionProcessors;
 
     @CommandLine.Option(
-            names = {"-i", "--iteration"},
-            defaultValue = "1",
-            description = "Specify the number of amplification iterations. " +
-                    "A larger number may help to improve the test criterion " +
-                    "(e.g. a larger number of iterations may help to kill more mutants). " +
-                    "This has an impact on the execution time: the more iterations, the longer DSpot runs."
-    )
-    private int nbIteration;
-
-    @CommandLine.Option(
-            names = {"-a", "--amplifiers"},
-            defaultValue = "None",
-            split = ",",
-            description = "Specify the list of amplifiers to use. " +
-                    "By default, DSpot does not use any amplifiers (None) and applies only assertion amplification. " +
-                    "Valid values: ${COMPLETION-CANDIDATES}"
-    )
-    private List<AmplifierEnum> amplifiers;
-
-    @CommandLine.Option(
-            names = {"-t", "--test"},
-            split = ",",
-            defaultValue = "all",
-            description = "Fully qualified names of test classes to be amplified. " +
-                    "If the value is all, DSpot will amplify the whole test suite. " +
-                    "You can also use regex to describe a set of test classes. " +
-                    "By default, DSpot selects all the tests."
-    )
-    private List<String> testClasses;
-
-    @CommandLine.Option(
-            names = {"--path-to-test-list-csv"},
-            defaultValue = "",
-            description = "Enable the selection of the test to be amplified from a csv file. " +
-                    "This parameter is a path that must point to a csv file that list test classes and their test methods in the following format: " +
-                    "test-class-name;test-method-1;test-method-2;test-method-3;... " +
-                    "If this parameter is used, DSpot will ignore the value used in the parameter test and cases " +
-                    "It is recommended to use an absolute path."
-    )
-    private String pathToTestListCSV = "";
-
-    @CommandLine.Option(
-            names = {"-s", "--test-criterion", "--test-selector"},
-            defaultValue = "PitMutantScoreSelector",
-            description = "Specify the test adequacy criterion to be maximized with amplification. " +
-                    "Valid values: ${COMPLETION-CANDIDATES}"
-    )
-    private SelectorEnum selector;
-
-    @CommandLine.Option(
-            names = {"-c", "--cases", "--test-methods", "--test-cases"},
-            split = ",",
-            description = "Specify the test cases to amplify."
-    )
-    private List<String> testCases = new ArrayList<>();
-
-    @CommandLine.Option(
             names = {"--random-seed"},
             defaultValue = "23",
-            description = "Specify a seed for the random object (used for all randomized operation)."
+            description = "Specify a seed for the random object (used for all randomized operation)." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private long seed;
 
     @CommandLine.Option(
             names = {"--time-out"},
             defaultValue = "10000",
-            description = "Specify the timeout value of the degenerated tests in millisecond."
+            description = "Specify the timeout value of the degenerated tests in millisecond." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private int timeOutInMs = 10000;
 
     @CommandLine.Option(
             names = {"--max-test-amplified"},
             defaultValue = "200",
-            description = "Specify the maximum number of amplified tests that dspot keeps (before generating assertion)."
+            description = "Specify the maximum number of amplified tests that dspot keeps (before generating assertion)." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private Integer maxTestAmplified;
 
     @CommandLine.Option(
             names = {"--clean"},
             defaultValue = "false",
-            description = "If enabled, DSpot will remove the out directory if exists, else it will append the results to the exist files."
+            description = "If enabled, DSpot will remove the out directory if exists, else it will append the results to the exist files." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private boolean clean;
 
     @CommandLine.Option(
             names = {"-v", "--verbose"},
             defaultValue = "false",
-            description = "Enable verbose mode of DSpot."
+            description = "Enable verbose mode of DSpot." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private boolean verbose;
 
     @CommandLine.Option(
             names = {"--with-comment"},
             defaultValue = "false",
-            description = "Enable comment on amplified test: details steps of the Amplification."
+            description = "Enable comment on amplified test: details steps of the Amplification." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private boolean withComment;
 
     @CommandLine.Option(
             names = {"--allow-path-in-assertions"},
             defaultValue = "false",
-            description = "If enabled, DSpot will generate assertions for values that seems like to be paths."
+            description = "If enabled, DSpot will generate assertions for values that seems like to be paths." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private boolean allowPathInAssertion;
 
     @CommandLine.Option(
             names = {"--target-one-test-class"},
             defaultValue = "false",
-            description = "Enable this option will make DSpot computing the mutation score of only one test class (the first pass through --test command line option)."
+            description = "Enable this option will make DSpot computing the mutation score of only one test class (the first pass through --test command line option)." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private boolean targetOneTestClass;
 
@@ -398,7 +439,8 @@ public class InputConfiguration {
             names = {"--input-ampl-distributor"},
             defaultValue = "RandomInputAmplDistributor",
             description = "Specify an input amplification distributor." +
-                    "Valid values: ${COMPLETION-CANDIDATES}"
+                    "Valid values: ${COMPLETION-CANDIDATES}" +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private InputAmplDistributorEnum inputAmplDistributor;
 
@@ -413,7 +455,8 @@ public class InputConfiguration {
             names = {"--pit-output-format"},
             defaultValue = "XML",
             description = "Specify the Pit output format." +
-                    "Valid values: ${COMPLETION-CANDIDATES}"
+                    "Valid values: ${COMPLETION-CANDIDATES}" +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private PitMutantScoreSelector.OutputFormat pitOutputFormat;
 
@@ -431,21 +474,24 @@ public class InputConfiguration {
             names = {"--collector"},
             defaultValue = "NullCollector",
             description = "Set a collector: MongodbCollector to send info to Mongodb at end process, NullCollector which does nothing." +
-                    "Valid values: ${COMPLETION-CANDIDATES}"
+                    "Valid values: ${COMPLETION-CANDIDATES}" +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private CollectorEnum collector;
 
     @CommandLine.Option(
             names = {"--mongo-url"},
             defaultValue = "mongodb://localhost:27017",
-            description = "If valid url, DSpot will submit to Mongodb database."
+            description = "If valid url, DSpot will submit to Mongodb database." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private String mongoUrl;
 
     @CommandLine.Option(
             names = {"--mongo-dbname"},
             defaultValue = "Dspot",
-            description = "If a valid mongo-url is provided, DSpot will submit result to the database indicated by this name."
+            description = "If a valid mongo-url is provided, DSpot will submit result to the database indicated by this name." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private String mongoDbName;
 
@@ -453,7 +499,8 @@ public class InputConfiguration {
             names = {"--mongo-colname"},
             defaultValue = "AmpRecords",
             description = "If valid mongo-url and a mongo-dbname are provided, " +
-                    "DSpot will submit result to the provided collection name.."
+                    "DSpot will submit result to the provided collection name.." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private String mongoColName;
 
@@ -461,7 +508,8 @@ public class InputConfiguration {
             names = {"--repo-slug"},
             defaultValue = "UnknownSlug",
             description = "Slug of the repo for instance Stamp/Dspot. " +
-                    "This is used by mongodb as a identifier for analyzed repo's submitted data."
+                    "This is used by mongodb as a identifier for analyzed repo's submitted data." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private String repoSlug;
 
@@ -469,7 +517,8 @@ public class InputConfiguration {
             names = {"--repo-branch"},
             defaultValue = "UnknownBranch",
             description = "Branch name of the submitted repo, " +
-                    "This is used by mongodb as a identifier for analyzed repo's submitted data."
+                    "This is used by mongodb as a identifier for analyzed repo's submitted data." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private String repoBranch;
 
@@ -477,49 +526,56 @@ public class InputConfiguration {
             names = {"--restful"},
             defaultValue = "false",
             description = "If true, DSpot will enable restful mode for web Interface. " +
-                    "It will look for a pending document in Mongodb with the corresponding slug and branch provided instead of creating a completely new one."
+                    "It will look for a pending document in Mongodb with the corresponding slug and branch provided instead of creating a completely new one." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private boolean restFul;
 
     @CommandLine.Option(
             names = {"--smtp-username"},
             defaultValue = "Unknown@gmail.com",
-            description = "Username for Gmail, used for submit email at end-process."
+            description = "Username for Gmail, used for submit email at end-process." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private String smtpUsername;
 
     @CommandLine.Option(
             names = {"--smtp-password"},
             defaultValue = "Unknown",
-            description = "Password for Gmail, used for submit email at end-process."
+            description = "Password for Gmail, used for submit email at end-process." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private String smtpPassword;
 
     @CommandLine.Option(
             names = {"--smtp-host"},
             defaultValue = "smtp.gmail.com",
-            description = "Host server name."
+            description = "Host server name." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private String smtpHost;
 
     @CommandLine.Option(
             names = {"--smtp-port"},
             defaultValue = "587",
-            description = "Host server port."
+            description = "Host server port." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private String smtpPort;
 
     @CommandLine.Option(
             names = {"--smtp-auth"},
             defaultValue = "false",
-            description = "Enable this if the smtp host server require auth."
+            description = "Enable this if the smtp host server require auth." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private boolean smtpAuth;
 
     @CommandLine.Option(
             names = {"--smtp-tls"},
             defaultValue = "false",
-            description = "Enable this if the smtp host server require secure tls transport."
+            description = "Enable this if the smtp host server require secure tls transport." +
+                    " Default value: ${DEFAULT-VALUE}"
     )
     private String smtpTls;
 

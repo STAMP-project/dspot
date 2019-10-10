@@ -58,7 +58,7 @@ public class Main {
     public static void main(String[] args) {
         InputConfiguration inputConfiguration = new InputConfiguration();
         final CommandLine commandLine = new CommandLine(inputConfiguration);
-        commandLine.setUsageHelpWidth(80);
+        commandLine.setUsageHelpWidth(120);
         try {
             commandLine.parseArgs(args);
         } catch (Exception e) {
