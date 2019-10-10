@@ -5,12 +5,12 @@ import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.options.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import spoon.reflect.factory.Factory;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,11 +25,8 @@ import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
  * Created by marcel on 8/06/14.
  * This version of the InputConfiguration has been largely modified, and customized to be use in DSpot.
  */
+@CommandLine.Command(mixinStandardHelpOptions = true, version = "auto help demo - picocli 3.0")
 public class InputConfiguration {
-
-    private static InputConfiguration instance;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(InputConfiguration.class);
 
     @CommandLine.Option(
             names = "--absolute-path-to-project-root",
@@ -306,6 +303,17 @@ public class InputConfiguration {
     private List<String> testClasses;
 
     @CommandLine.Option(
+            names = {"--path-to-test-list-csv"},
+            defaultValue = "",
+            description = "Enable the selection of the test to be amplified from a csv file. " +
+                    "This parameter is a path that must point to a csv file that list test classes and their test methods in the following format: " +
+                    "test-class-name;test-method-1;test-method-2;test-method-3;... " +
+                    "If this parameter is used, DSpot will ignore the value used in the parameter test and cases " +
+                    "It is recommended to use an absolute path."
+    )
+    private String pathToTestListCSV = "";
+
+    @CommandLine.Option(
             names = {"-s", "--test-criterion", "--test-selector"},
             defaultValue = "PitMutantScoreSelector",
             description = "Specify the test adequacy criterion to be maximized with amplification. " +
@@ -515,22 +523,6 @@ public class InputConfiguration {
     )
     private String smtpTls;
 
-    /* META command line options */
-
-    @CommandLine.Option(
-            names = {"--version"},
-            versionHelp = true,
-            description = "Display version info."
-    )
-    boolean versionInfoRequested;
-
-    @CommandLine.Option(
-            names = {"-h", "--help"},
-            usageHelp = true,
-            description = "Display this help message."
-    )
-    boolean usageHelpRequested;
-
     public String getAbsolutePathToProjectRoot() {
         return absolutePathToProjectRoot;
     }
@@ -586,11 +578,6 @@ public class InputConfiguration {
         return pathToClasses;
     }
 
-    public InputConfiguration setPathToClasses(String pathToClasses) {
-        this.pathToClasses = DSpotUtils.removeProjectRootIfAbsoluteAndAddSeparator(this.absolutePathToProjectRoot, pathToClasses);
-        return this;
-    }
-
     public String getAbsolutePathToClasses() {
         return this.absolutePathToProjectRoot + this.getPathToClasses();
     }
@@ -603,12 +590,6 @@ public class InputConfiguration {
     public String getAbsolutePathToTestClasses() {
         return this.absolutePathToProjectRoot + this.getPathToTestClasses();
     }
-
-    public InputConfiguration setPathToTestClasses(String pathToTestClasses) {
-        this.pathToTestClasses = DSpotUtils.removeProjectRootIfAbsoluteAndAddSeparator(this.absolutePathToProjectRoot, pathToTestClasses);
-        return this;
-    }
-
     /**
      * @return path to folders that contain both compiled classes and test classes as a classpath, <i>i.e.</i> separated by
      * the path separator of the system.
@@ -747,18 +728,8 @@ public class InputConfiguration {
         return pitVersion;
     }
 
-    public InputConfiguration setPitVersion(String pitVersion) {
-        this.pitVersion = pitVersion;
-        return this;
-    }
-
     public String getDescartesVersion() {
         return descartesVersion;
-    }
-
-    public InputConfiguration setDescartesVersion(String descartesVersion) {
-        this.descartesVersion = descartesVersion;
-        return this;
     }
 
     public String getJVMArgs() {
@@ -783,29 +754,12 @@ public class InputConfiguration {
         return descartesMutators;
     }
 
-    public InputConfiguration setDescartesMutators(String descartesMutators) {
-        this.descartesMutators = descartesMutators;
-        return this;
-    }
-
     public boolean isGregorMode() {
         return gregorMode;
     }
 
     public void setGregorMode(boolean gregorMode) {
         this.gregorMode = gregorMode;
-    }
-
-    public boolean shouldUseWorkingDirectory() {
-        return useWorkingDirectory;
-    }
-
-    public InputConfiguration setUseWorkingDirectory(boolean useWorkingDirectory) {
-        this.useWorkingDirectory = useWorkingDirectory;
-        if (this.shouldUseWorkingDirectory()) {
-            EntryPoint.workingDirectory = new File(this.getAbsolutePathToProjectRoot());
-        }
-        return this;
     }
 
     public boolean isVerbose() {
@@ -845,11 +799,6 @@ public class InputConfiguration {
         return this;
     }
 
-    public InputConfiguration addTestClasses(String testClass) {
-        this.testClasses.add(testClass);
-        return this;
-    }
-
     public InputConfiguration setSelector(SelectorEnum selector) {
         this.selector = selector;
         return this;
@@ -876,41 +825,16 @@ public class InputConfiguration {
         return this;
     }
 
-    public InputConfiguration addTestCases(List<String> testCases) {
-        this.testCases.addAll(testCases);
-        return this;
-    }
-
-    public InputConfiguration addTestCase(String testCase) {
-        this.testCases.add(testCase);
-        return this;
-    }
-
     public long getSeed() {
         return seed;
-    }
-
-    public InputConfiguration setSeed(long seed) {
-        this.seed = seed;
-        return this;
     }
 
     public int getTimeOutInMs() {
         return timeOutInMs;
     }
 
-    public InputConfiguration setTimeOutInMs(int timeOutInMs) {
-        this.timeOutInMs = timeOutInMs;
-        return this;
-    }
-
     public Integer getMaxTestAmplified() {
         return maxTestAmplified;
-    }
-
-    public InputConfiguration setMaxTestAmplified(Integer maxTestAmplified) {
-        this.maxTestAmplified = maxTestAmplified;
-        return this;
     }
 
     public boolean shouldClean() {
@@ -926,11 +850,6 @@ public class InputConfiguration {
         return withComment;
     }
 
-    public InputConfiguration setWithComment(boolean withComment) {
-        this.withComment = withComment;
-        return this;
-    }
-
     public InputAmplDistributorEnum getInputAmplDistributor() {
         return this.inputAmplDistributor;
     }
@@ -944,36 +863,16 @@ public class InputConfiguration {
         return generateAmplifiedTestClass;
     }
 
-    public InputConfiguration setGenerateAmplifiedTestClass(boolean generateAmplifiedTestClass) {
-        this.generateAmplifiedTestClass = generateAmplifiedTestClass;
-        return this;
-    }
-
     public boolean shouldUseMavenToExecuteTest() {
         return useMavenToExecuteTest;
-    }
-
-    public InputConfiguration setUseMavenToExecuteTest(boolean useMavenToExecuteTest) {
-        this.useMavenToExecuteTest = useMavenToExecuteTest;
-        return this;
     }
 
     public String getPreGoalsTestExecution() {
         return this.preGoalsTestExecution;
     }
 
-    public InputConfiguration setPreGoalsTestExecution(String preGoalsTestExecution) {
-        this.preGoalsTestExecution = preGoalsTestExecution;
-        return this;
-    }
-
     public boolean shouldKeepOriginalTestMethods() {
         return this.keepOriginalTestMethods;
-    }
-
-    public InputConfiguration setKeepOriginalTestMethods(boolean keepOriginalTestMethods) {
-        this.keepOriginalTestMethods = keepOriginalTestMethods;
-        return this;
     }
 
     public boolean shouldTargetOneTestClass() {
@@ -989,18 +888,8 @@ public class InputConfiguration {
         return this.allowPathInAssertion;
     }
 
-    public InputConfiguration setAllowPathInAssertion(boolean allowPathInAssertion) {
-        this.allowPathInAssertion = allowPathInAssertion;
-        return this;
-    }
-
     public boolean shouldExecuteTestsInParallel() {
         return executeTestsInParallel;
-    }
-
-    public InputConfiguration setExecuteTestsInParallel(boolean executeTestsInParallel) {
-        this.executeTestsInParallel = executeTestsInParallel;
-        return this;
     }
 
     public int getNumberParallelExecutionProcessors() {
@@ -1008,11 +897,6 @@ public class InputConfiguration {
             this.numberParallelExecutionProcessors = Runtime.getRuntime().availableProcessors();
         }
         return numberParallelExecutionProcessors;
-    }
-
-    public InputConfiguration setNumberParallelExecutionProcessors(int numberParallelExecutionProcessors) {
-        this.numberParallelExecutionProcessors = numberParallelExecutionProcessors;
-        return this;
     }
 
     public Long getCacheSize() {
@@ -1075,6 +959,10 @@ public class InputConfiguration {
         return smtpTls;
     }
 
+    public String getPathToTestListCSV() {
+        return pathToTestListCSV;
+    }
+
     public void configureExample() {
         try {
             this.setAbsolutePathToProjectRoot("src/test/resources/test-projects/");
@@ -1092,6 +980,25 @@ public class InputConfiguration {
 
     public void setDependencies(String dependencies) {
         this.dependencies =dependencies;
+    }
+
+    public void initTestsToBeAmplified() {
+        // clear both list of test classes and test cases
+        this.getTestClasses().clear();
+        this.getTestCases().clear();
+        // add all test classes and test cases from the csv file
+        try (BufferedReader buffer = new BufferedReader(new FileReader(this.pathToTestListCSV))) {
+            buffer.lines().forEach(line -> {
+                        final String[] splittedLine = line.split(";");
+                        this.getTestClasses().add(splittedLine[0]);
+                        for (int i = 1; i < splittedLine.length; i++) {
+                            this.getTestCases().add(splittedLine[i]);
+                        }
+                    }
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
 
