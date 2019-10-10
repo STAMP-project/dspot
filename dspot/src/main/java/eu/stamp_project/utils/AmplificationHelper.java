@@ -4,7 +4,6 @@ import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.listener.TestResult;
 
 import org.apache.cxf.common.util.WeakIdentityHashMap;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtComment;
@@ -125,7 +124,6 @@ public class AmplificationHelper {
         return currentTestClass;
     }
 
-    @NotNull
     private static String getAmplifiedName(CtType<?> classTest) {
         return classTest.getSimpleName().startsWith("Test") ?
                 classTest.getSimpleName() + "Ampl" :

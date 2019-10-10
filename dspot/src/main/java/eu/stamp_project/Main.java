@@ -58,6 +58,7 @@ public class Main {
     public static void main(String[] args) {
         InputConfiguration inputConfiguration = new InputConfiguration();
         final CommandLine commandLine = new CommandLine(inputConfiguration);
+        commandLine.setUsageHelpWidth(120);
         try {
             commandLine.parseArgs(args);
         } catch (Exception e) {
@@ -93,6 +94,9 @@ public class Main {
                 Arrays.stream(inputConfiguration.getExcludedClasses().split(",")).collect(Collectors.toList()),
                 Arrays.stream(inputConfiguration.getExcludedTestCases().split(",")).collect(Collectors.toList())
         );
+        if (!inputConfiguration.getPathToTestListCSV().isEmpty()) {
+            inputConfiguration.initTestsToBeAmplified();
+        }
         final AutomaticBuilder automaticBuilder = inputConfiguration.getBuilderEnum().getAutomaticBuilder(inputConfiguration);
         final String dependencies = completeDependencies(inputConfiguration, automaticBuilder);
         final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(

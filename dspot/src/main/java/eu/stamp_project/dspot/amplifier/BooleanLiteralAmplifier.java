@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
-import com.google.common.collect.Sets;
+import org.apache.commons.compress.utils.Sets;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtMethod;
@@ -14,8 +14,10 @@ public class BooleanLiteralAmplifier extends AbstractLiteralAmplifier<Boolean> {
     protected Set<CtExpression<Boolean>> amplify(CtExpression<Boolean> original, CtMethod<?> testMethod) {
         final Factory factory = testMethod.getFactory();
         if (((CtLiteral<Boolean>)original).getValue() == null){
-            return Sets.newHashSet(factory.createLiteral(true),
-                    factory.createLiteral(false));
+            return Sets.newHashSet(
+                    factory.createLiteral(true),
+                    factory.createLiteral(false)
+            );
         }
         return Collections.singleton(factory.createLiteral(!((CtLiteral<Boolean>)original).getValue()));
     }
