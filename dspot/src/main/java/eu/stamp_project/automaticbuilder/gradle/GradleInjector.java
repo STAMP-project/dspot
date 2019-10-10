@@ -2,7 +2,6 @@ package eu.stamp_project.automaticbuilder.gradle;
 
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtType;
@@ -213,12 +212,10 @@ public class GradleInjector {
                 "}" + AmplificationHelper.LINE_SEPARATOR;
     }
 
-    @NotNull
     private String getApplyPluginPit() {
         return "apply plugin: 'info.solidsoft.pitest'" + AmplificationHelper.LINE_SEPARATOR;
     }
 
-    @NotNull
     private String getBuildScriptContent() {
         return getRepositoriesConfiguration() + AmplificationHelper.LINE_SEPARATOR +
                 AmplificationHelper.LINE_SEPARATOR +
@@ -227,32 +224,27 @@ public class GradleInjector {
                 getDependenciesForBuildscript();
     }
 
-    @NotNull
     private String getDependenciesForBuildscript() {
         return "    dependencies {" + AmplificationHelper.LINE_SEPARATOR +
                 getDependenciesToPITAndOrDescartes() +
                 "    }" + AmplificationHelper.LINE_SEPARATOR;
     }
 
-    @NotNull
     private String getDependenciesToPITAndOrDescartes() {
         return "       classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.3.0'" + AmplificationHelper.LINE_SEPARATOR +
                 (this.isDescartesMode ? "       pitest 'eu.stamp-project:descartes:1.2.4'" : "") + AmplificationHelper.LINE_SEPARATOR;
     }
 
-    @NotNull
     private String getMaybeCreateConfiguration() {
         return "    configurations.maybeCreate('pitest')" + AmplificationHelper.LINE_SEPARATOR;
     }
 
-    @NotNull
     private String getRepositoriesConfiguration() {
         return "    repositories {" + AmplificationHelper.LINE_SEPARATOR +
                 getRepositoriesContent() + AmplificationHelper.LINE_SEPARATOR +
                 "    }";
     }
 
-    @NotNull
     private String getRepositoriesContent() {
         return "        maven {" + AmplificationHelper.LINE_SEPARATOR + " " +
                 "            url \"https://plugins.gradle.org/m2/\"" + AmplificationHelper.LINE_SEPARATOR +

@@ -6,7 +6,6 @@ import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.error.Error;
 import eu.stamp_project.utils.report.error.ErrorEnum;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -257,7 +256,6 @@ public class Checker {
         return enumClass.getName() + " does not have corresponding value to " + wrongValue;
     }
 
-    @NotNull
     public static List<String> getPossibleValues(Class<?> enumClass) {
         return Arrays.stream(enumClass.getFields())
                 .filter(field -> enumClass.equals(field.getType()))
