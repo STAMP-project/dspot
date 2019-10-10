@@ -6,6 +6,7 @@ use Data::Dumper;
 use File::Basename;
 use File::Spec;
 use Mojo::JSON qw/decode_json/;
+use Archive::Zip qw( :ERROR_CODES :CONSTANTS );
 
 
 # Welcome page
@@ -66,7 +67,6 @@ sub create_post {
 sub repos {
   my $self = shift;
 
-  print "DBG \n";
   my $msg;
   
   # Load configuration from application config
@@ -87,9 +87,6 @@ sub repos {
       <$fh>;
   };
   my $conf = decode_json( $contents );
-
-  print "DBG \n";
-
   
   my @repos = map { basename($_) } sort keys %{$conf};
 
@@ -120,9 +117,9 @@ sub repo {
       local $/;
       <$fh>;
   };
-  print "JSON raw " . Dumper($contents);
+#  print "JSON raw " . Dumper($contents);
   my $conf = decode_json( $contents );
-
+    
   $self->stash('conf' => $conf->{$repo});
   $self->stash('repo' => $repo);
   $self->stash('wdir' => $wdir);

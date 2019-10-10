@@ -55,7 +55,7 @@ sub startup {
   # Add another "public" directory
   my $static = Mojolicious::Static->new;
   my $paths = $static->paths;
-  push @{$static->paths}, $wdir;
+  push @{$static->paths}, $workspace;
   
   # Get mvn command to use for execution
   my $mvn_home = $config->{'mvn_home'} or die "ERROR Cannot find mvn_home.\n";
@@ -65,7 +65,7 @@ sub startup {
   my $dspot_cmd = $config->{'dspot_cmd'} or die "ERROR Cannot find dspot_cmd.\n";
   print "* Using dspot cmd [$dspot_cmd].\n";
   my $dspot_cmd_ext = $config->{'dspot_cmd_ext'} or die "ERROR Cannot find dspot_cmd_ext.\n";
-  print "* Using dspot cmd ext [$dspot_cmd_ext].\n";
+  print "* Using dspot cmd ext [$dspot_cmd_ext].\n\n";
   
   # Log to specific dspot file.
 #  my $dlog = Mojo::Log->new(path => 'log/dspot.log');
@@ -117,8 +117,8 @@ sub startup {
     my ($job, $id, $url, $params) = @_;
     my $ret = {};
 
-    print "Executing git for url [$url].\n";
-    print "  ID is [$id].\n";
+    print "# Executing git for [$id].\n";
+    print "  URL is [$url].\n";
     
     my $pdir = File::Spec->catdir( ($wdir, $id) );
     my $pdir_out = File::Spec->catdir( ($pdir, 'output') );
@@ -141,16 +141,18 @@ sub startup {
 	$ret->{'log'} = join( "\n", @ret_git );
     }
 
-    print "END of task git_run.\n";
+    print "  END of task git_run.\n";
     
     $job->finish($ret);
       			   });
   
+  # Task to execute Maven on project.
   $self->minion->add_task( run_mvn => sub {
     my ($job, $id, $url, $hash, $extended) = @_;
     my $ret = {};
     
-    print "Executing mvn for repo [$id].\n";
+    print "# Executing mvn for repo [$id].\n";
+    print "  Command is [$mvn_cmd].\n";
 
     my $pdir_src = File::Spec->catdir( ($wdir, $id, 'src') );
       
@@ -161,12 +163,17 @@ sub startup {
     # Mark the job as finished.
     $job->finish($ret);
 			   });
-  
+
+  # Task to run dspot on project.
   $self->minion->add_task( run_dspot => sub {
     my ($job, $id, $url, $hash, $extended) = @_;
     my $ret = {};
-    
-    print "Executing dspot for repo [$id].\n";
+
+    # Get command from config file.
+    my $cmd = $config->{'dspot_cmd'};
+
+    print "# Executing dspot for repo [$id].\n";
+    print "  Command is [$dspot_cmd].\n";
 
     my $pdir = File::Spec->catdir( ($wdir, $id) );
     my $pdir_src = File::Spec->catdir( ($pdir, 'src') );
@@ -180,29 +187,33 @@ sub startup {
     # Check that we can actually run dspot
     
     # Run dspot
-    my $cmd = $config->{'dspot_cmd'};
     print "  Executing DSpot command: [$cmd].\n";
     print "    MVN_HOME: [" . ( $ENV{'MVN_HOME'} || '' ) . "].\n";
     print "    JAVA_HOME: [" . ( $ENV{'JAVA_HOME'} || '' ). "].\n";
 
     my @ret_mvn = `cd ${pdir_src}; mvn --version`;
     my @o = grep { $_ =~ m!Apache Maven! } @ret_mvn;
-    print "    " . chomp($o[0]) . "\n";
+    chomp @o;
+    print "    " . $o[0] . "\n";
     @o = grep { $_ =~ m!Maven home! } @ret_mvn;
-    print "    " . chomp($o[0]) . "\n";
+    chomp @o;
+    print "    " . $o[0] . "\n";
     @o = grep { $_ =~ m!Java version! } @ret_mvn;
-    print "    " . chomp($o[0]) . "\n";
+    chomp @o;
+    print "    " . $o[0] . "\n";
     @o = grep { $_ =~ m!Java home! } @ret_mvn;
-    print "    " . chomp($o[0]) . "\n";
+    chomp @o;
+    print "    " . $o[0] . "\n";
 
     my @ret_dspot = `cd ${pdir_src}; $cmd | tee ../output/dspot.log`;
     $ret->{'log'} = join( "\n", @ret_dspot);
-    
+
+    print "  Zipping directory $pdir_out.\n";
     my $zip = Archive::Zip->new();
     # Add a directory
-    my $dir_member = $zip->addDirectory( "$pdir_out", 'output/' );
+    my $dir_member = $zip->addTree( $pdir_out_dspot, 'output' );
     # Save the Zip file
-    my $zip_file = File::Spec->catdir( ($wdir, 'results.zip') );
+    my $zip_file = File::Spec->catdir( ($pdir, 'results.zip') );
     unless ( $zip->writeToFileNamed( $zip_file ) == AZ_OK ) {
       die "ERROR zip write [$zip_file].";
     }
@@ -228,9 +239,9 @@ sub startup {
 	print $fh $conf_json;
 	close $fh;
 
-	print "Project added to conf.\n";
+	print "  Project added to conf.\n";
     } else {
-	print "Project already in conf, not modifying anything.\n";
+	print "  Project already in conf, not modifying anything.\n";
     }
 
     # Mark the job as finished.

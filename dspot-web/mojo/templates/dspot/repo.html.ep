@@ -51,12 +51,19 @@
 %   }
 <h2>Results</h2>
 
+% my $f = "$wdir/$repo/results.zip";
+% if ( -f $f ) {
+
+<p><a href="/projects/<%= $repo %>/results.zip">Download</a></p>
+
+% }
+
 <table class="table table-striped table-hover ">
   <thead>
     <tr><th>Name</th><th>OriginalTestCases</th><th>MutantKilledOriginally</th><th>NewMutantKilled</th></tr>
   </thead>
   <tbody>
-% foreach my $f (@{$results}) {
+% foreach $f (@{$results}) {
     <tr>
       <td><%= $f->{'name'} %></td>
       <td><%= $f->{'nbOriginalTestCases'} %></td>
@@ -66,7 +73,6 @@
 % }
   </tbody>
 </table> 
-
 % }
 
 % my $f = "$wdir/$repo/output/git_pull.log";
@@ -107,8 +113,6 @@
 %   chomp(@lines = <$fh>);
 %   close $fh;
 <h2>DSpot execution</h2>
-
-<!-- p><a href="">Download</a></p -->
 
 <pre class="pre-scrollable">
 <%= "$_\n" for @lines %>
