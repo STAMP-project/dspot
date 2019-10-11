@@ -57,6 +57,28 @@
                     </filesets>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>fr.inria.gforge.spoon</groupId>
+                <artifactId>spoon-maven-plugin</artifactId>
+                <version>3.2</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <processors>
+                        <processor>
+                            eu.stamp_project.utils.DSpotMojoGenerator
+                        </processor>
+                    </processors>
+                    <withImports>true</withImports>
+                    <enableComments>true</enableComments>
+                </configuration>
+            </plugin>
         </plugins>
 
     </build>
@@ -66,7 +88,7 @@
         <dependency>
             <groupId>eu.stamp-project</groupId>
             <artifactId>dspot</artifactId>
-            <version>2.2.1</version>
+            <version>2.2.2-SNAPSHOT</version>
         </dependency>
 
         <dependency>

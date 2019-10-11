@@ -32,6 +32,7 @@ public class Checker {
 
     public static void preChecking(InputConfiguration configuration) {
         // project root is mandatory
+        configuration.setAbsolutePathToProjectRoot(configuration.getAbsolutePathToProjectRoot());
         String currentPath = DSpotUtils.shouldAddSeparator.apply(configuration.getAbsolutePathToProjectRoot());
         Checker.checkPathnameNotNullAndFileExist(
                 currentPath,
