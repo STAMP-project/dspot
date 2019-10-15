@@ -17,7 +17,6 @@ import static org.junit.Assert.assertThat;
 
 public class Context2NameTest {
 
-    @Ignore
     @Test
     public void testContext2Name() {
         String codeStr = "import spoon.Launcher;" + AmplificationHelper.LINE_SEPARATOR +
