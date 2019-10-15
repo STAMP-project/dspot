@@ -40,6 +40,8 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     private String classpath = null;
 
+    private String absolutePathToTopProjectRoot;
+
     private String absolutePathToProjectRoot;
 
     private String mavenHome;
@@ -54,6 +56,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         this.shouldExecuteTestsInParallel = configuration.shouldExecuteTestsInParallel();
         DSpotPOMCreator.createNewPom(configuration);
         this.absolutePathToProjectRoot = configuration.getAbsolutePathToProjectRoot();
+        this.absolutePathToTopProjectRoot = configuration.getAbsolutePathToTopProjectRoot();
         this.mavenHome = buildMavenHome(configuration);
     }
 
@@ -82,12 +85,12 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         if (shouldExecuteTestsInParallel) {
             // TODO
             DSpotPOMCreator.createNewPomForComputingClassPathWithParallelExecution(false, null);
-            pomPathname = this.absolutePathToProjectRoot
+            pomPathname = this.absolutePathToTopProjectRoot
                     + DSpotPOMCreator.getParallelPOMName();
             LOGGER.info("Using {} to run maven.", pomPathname);
             return _runGoals(true, pomPathname, goals);
         } else {
-            pomPathname = this.absolutePathToProjectRoot + DSpotPOMCreator.POM_FILE;
+            pomPathname = this.absolutePathToTopProjectRoot + DSpotPOMCreator.POM_FILE;
             LOGGER.info("Using {} to run maven.", pomPathname);
             return _runGoals(false, pomPathname, goals);
         }

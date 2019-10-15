@@ -47,7 +47,7 @@ public class InputConfiguration {
                     "This value must be a relative path from value specified by --absolute-path-to-project-root command-line option. " +
                     "If your project is multi-module, you must use this property because DSpot works at module level."
     )
-    private String targetModule;
+    private String targetModule = "";
 
     @CommandLine.Option(
             names = "--relative-path-to-source-code",
@@ -579,8 +579,13 @@ public class InputConfiguration {
     )
     private String smtpTls;
 
-    public String getAbsolutePathToProjectRoot() {
+    public String getAbsolutePathToTopProjectRoot() {
         return absolutePathToProjectRoot;
+    }
+
+    public String getAbsolutePathToProjectRoot() {
+        return absolutePathToProjectRoot + (getTargetModule() != null && getTargetModule().isEmpty() ?
+                "" : DSpotUtils.shouldAddSeparator.apply(getTargetModule()));
     }
 
     public InputConfiguration setAbsolutePathToProjectRoot(String absolutePathToProjectRoot) {
@@ -599,35 +604,21 @@ public class InputConfiguration {
         return this;
     }
 
-    // TODO
-    public String getPathToFolderToBeAmplified() {
-        return this.absolutePathToProjectRoot + this.targetModule;
-    }
-
     public String getPathToSourceCode() {
         return pathToSourceCode;
     }
 
     public String getAbsolutePathToSourceCode() {
-        return this.absolutePathToProjectRoot + this.getPathToSourceCode();
-    }
-
-    public InputConfiguration setPathToSourceCode(String pathToSourceCode) {
-        this.pathToSourceCode = DSpotUtils.removeProjectRootIfAbsoluteAndAddSeparator(this.absolutePathToProjectRoot, pathToSourceCode);
-        return this;
+        return this.getAbsolutePathToProjectRoot() + this.getPathToSourceCode();
     }
 
     public String getPathToTestSourceCode() {
         return pathToTestSourceCode;
     }
 
-    public InputConfiguration setPathToTestSourceCode(String pathToTestSourceCode) {
-        this.pathToTestSourceCode = DSpotUtils.removeProjectRootIfAbsoluteAndAddSeparator(this.absolutePathToProjectRoot, pathToTestSourceCode);
-        return this;
-    }
 
     public String getAbsolutePathToTestSourceCode() {
-        return this.absolutePathToProjectRoot + this.getPathToTestSourceCode();
+        return this.getAbsolutePathToProjectRoot() + this.getPathToTestSourceCode();
     }
 
     public String getPathToClasses() {
@@ -635,7 +626,7 @@ public class InputConfiguration {
     }
 
     public String getAbsolutePathToClasses() {
-        return this.absolutePathToProjectRoot + this.getPathToClasses();
+        return this.getAbsolutePathToProjectRoot() + this.getPathToClasses();
     }
 
 
@@ -644,7 +635,7 @@ public class InputConfiguration {
     }
 
     public String getAbsolutePathToTestClasses() {
-        return this.absolutePathToProjectRoot + this.getPathToTestClasses();
+        return this.getAbsolutePathToProjectRoot() + this.getPathToTestClasses();
     }
     /**
      * @return path to folders that contain both compiled classes and test classes as a classpath, <i>i.e.</i> separated by
