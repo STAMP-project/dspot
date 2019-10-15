@@ -5,11 +5,9 @@ import eu.stamp_project.utils.program.InputConfiguration;
 import spoon.Launcher;
 import spoon.processing.AbstractProcessor;
 import spoon.reflect.code.*;
-import spoon.reflect.declaration.CtAnnotation;
-import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtField;
-import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
+import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.util.EmptyClearableList;
 
 import java.util.Collections;
@@ -28,7 +26,7 @@ public class DSpotMojoGenerator extends AbstractProcessor<CtClass<?>> {
     private static Map<String, String> commandLineMatchingMavenProperties = new HashMap<>();
 
     static {
-        commandLineMatchingMavenProperties.put("absolute-path-to-project-root", "mavenProject.getBasedir().getAbsolutePath()");
+        commandLineMatchingMavenProperties.put("absolute-path-to-project-root", "this.absolutePathToProjectRoot");
         commandLineMatchingMavenProperties.put("relative-path-to-source-code", "mavenProject.getBuild().getSourceDirectory().substring(mavenProject.getBasedir().getAbsolutePath().length() + 1)");
         commandLineMatchingMavenProperties.put("relative-path-to-test-code", "mavenProject.getBuild().getTestSourceDirectory().substring(mavenProject.getBasedir().getAbsolutePath().length() + 1)");
         commandLineMatchingMavenProperties.put("relative-path-to-classes", "mavenProject.getBuild().getOutputDirectory().substring(mavenProject.getBasedir().getAbsolutePath().length() + 1)");
@@ -60,11 +58,18 @@ public class DSpotMojoGenerator extends AbstractProcessor<CtClass<?>> {
     public void process(CtClass<?> ctClass) {
         if (DSPOT_MOJO_QUALIFIED_NAME.equals(ctClass.getQualifiedName())) {
             final CtField<?> mavenProject = ctClass.getField("mavenProject").clone();
+            final CtField<?> absolutePathToProjectRoot = ctClass.getField("absolutePathToProjectRoot").clone();
             ctClass.setFields(EmptyClearableList.instance());
             ctClass.addField(mavenProject);
+            ctClass.addField(absolutePathToProjectRoot);
             final CtMethod<?> executeMethod = ctClass.getMethodsByName("execute").get(0);
-            final CtInvocation invokationToMainDotMain = (CtInvocation) ((CtLocalVariable) executeMethod.getBody().getStatement(0)).getAssignment();
-            ((CtInvocation) invokationToMainDotMain).setArguments(EmptyClearableList.instance());
+            final CtInvocation<?> invokationToRemoveBlank = executeMethod.getBody().getElements(new TypeFilter<CtInvocation>(CtInvocation.class){
+                @Override
+                public boolean matches(CtInvocation candidate) {
+                    return "removeBlank".equals(candidate.getExecutable().getSimpleName());
+                }
+            }).get(0);
+            invokationToRemoveBlank.setArguments(EmptyClearableList.instance());
             final Launcher launcher = getLauncher();
             final CtClass<?> configurationCtClass = launcher.getFactory().Class().get(InputConfiguration.class);
             final CtNewArray<String> newArray = getFactory().createNewArray();
@@ -82,12 +87,12 @@ public class DSpotMojoGenerator extends AbstractProcessor<CtClass<?>> {
                                     )
                             );
                         } else {
-                        // adding the command option
-                        newArray.addElement(getFactory().createCodeSnippetExpression(
-                                "!" + arguments.field.getSimpleName() + ".isEmpty() ? "
-                                        + "\"--" + arguments.commandLine + "\" : \"\""
-                                )
-                        );
+                            // adding the command option
+                            newArray.addElement(getFactory().createCodeSnippetExpression(
+                                    "!" + arguments.field.getSimpleName() + ".isEmpty() ? "
+                                            + "\"--" + arguments.commandLine + "\" : \"\""
+                                    )
+                            );
                             // adding the command value
                             newArray.addElement(getFactory().createCodeSnippetExpression(
                                     "!" + arguments.field.getSimpleName() + ".isEmpty() ? "
@@ -99,7 +104,7 @@ public class DSpotMojoGenerator extends AbstractProcessor<CtClass<?>> {
                     }
                 }
             }
-            ((CtInvocation) invokationToMainDotMain).addArgument(newArray);
+            ((CtInvocation) invokationToRemoveBlank).addArgument(newArray);
         }
     }
 

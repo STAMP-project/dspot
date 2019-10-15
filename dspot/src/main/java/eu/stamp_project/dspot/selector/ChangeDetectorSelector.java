@@ -50,8 +50,8 @@ public class ChangeDetectorSelector extends AbstractTestSelector {
     public ChangeDetectorSelector(AutomaticBuilder automaticBuilder, InputConfiguration configuration) {
         super(automaticBuilder, configuration);
         this.failurePerAmplifiedTest = new HashMap<>();
-        this.pathToFirstVersionOfProgram = configuration.getAbsolutePathToProjectRoot();
-        this.pathToSecondVersionOfProgram = configuration.getAbsolutePathToSecondVersionProjectRoot();
+        this.pathToFirstVersionOfProgram = DSpotUtils.shouldAddSeparator.apply(configuration.getAbsolutePathToProjectRoot());
+        this.pathToSecondVersionOfProgram = DSpotUtils.shouldAddSeparator.apply(configuration.getAbsolutePathToSecondVersionProjectRoot());
         try {
             this.automaticBuilder.setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
             configuration.setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);

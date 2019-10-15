@@ -16,12 +16,26 @@ import org.apache.maven.project.MavenProject;
 public class DSpotMojo extends AbstractMojo {
     @Override
     public void execute() {
-        final String[] args = DSpotMojo.removeBlank(new String[]{  });
+        if (!targetModule.isEmpty()) {
+            if (this.mavenProject.getBasedir().getAbsolutePath().endsWith(targetModule)) {
+                this.absolutePathToProjectRoot =
+                        this.mavenProject.getBasedir().getAbsolutePath().substring(0,
+                                this.mavenProject.getBasedir().getAbsolutePath().length() - this.targetModule.length()
+                        );
+            } else {
+                return;
+            }
+        } else {
+            this.absolutePathToProjectRoot = this.mavenProject.getBasedir().getAbsolutePath();
+        }
+        final String[] args = DSpotMojo.removeBlank(new String[]{});
         Main.main(args);
     }
 
+    private String absolutePathToProjectRoot;
+
     private static String[] removeBlank(String[] args) {
-        return ((String[]) (Arrays.stream(args).filter(( arg) -> !(arg.isEmpty())).toArray(String[]::new)));
+        return Arrays.stream(args).filter(( arg) -> !(arg.isEmpty())).toArray(String[]::new);
     }
 
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
