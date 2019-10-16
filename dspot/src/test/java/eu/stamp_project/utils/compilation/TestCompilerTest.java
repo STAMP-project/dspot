@@ -37,7 +37,7 @@ public class TestCompilerTest extends AbstractTestOnSample {
         DSpotUtils.init(false, "target/dspot/",
                 configuration.getFullClassPathWithExtraDependencies(), getPathToProjectRoot()
         );
-        TestCompiler.init(
+        TestCompiler testCompiler = new TestCompiler(
                 0,
                 false,
                 getPathToProjectRoot(),
@@ -46,7 +46,7 @@ public class TestCompilerTest extends AbstractTestOnSample {
                 "",
                 false
         );
-        assertTrue(TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
+        assertTrue(testCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
                 testClass,
                 methods,
                 compiler
@@ -58,7 +58,7 @@ public class TestCompilerTest extends AbstractTestOnSample {
         methods.add(findMethod(testClass, "testNPEExpected"));
         methods.add(findMethod(testClass, "failingTestCase"));
         assertEquals(2,
-                TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
+                testCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
                         testClass,
                         methods,
                         compiler

@@ -67,6 +67,8 @@ public abstract class AbstractSelectorTest {
 
     protected TestRunner testRunner;
 
+    protected TestCompiler testCompiler;
+
     @Before
     public void setUp() throws Exception {
         Main.verbose = true;
@@ -92,7 +94,7 @@ public abstract class AbstractSelectorTest {
         this.factory = launcher.getFactory();
         TestFramework.init(this.factory);
         this.testRunner = new TestRunner(this.getPathToAbsoluteProjectRoot(), "", false);
-        TestCompiler.init(0,
+        this.testCompiler = new TestCompiler(0,
                 false,
                 this.getPathToAbsoluteProjectRoot(),
                 this.configuration.getClasspathClassesProject(),

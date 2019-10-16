@@ -51,6 +51,8 @@ public class AssertionGeneratorTest extends AbstractTestOnSample {
 
     private String  classpathClassesProject;
 
+    protected TestCompiler testCompiler;
+
     private static InputConfiguration configuration;
 
     private static String dependencies;
@@ -59,14 +61,7 @@ public class AssertionGeneratorTest extends AbstractTestOnSample {
     public static void setUpClass() {
         configuration = new InputConfiguration();
         configuration.setAbsolutePathToProjectRoot(new File("src/test/resources/sample/").getAbsolutePath());
-        TestCompiler.init(0,
-                false,
-                configuration.getAbsolutePathToProjectRoot(),
-                configuration.getClasspathClassesProject(),
-                10000,
-                "",
-                false
-        );
+
         AutomaticBuilder builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
         dependencies = Main.completeDependencies(configuration, builder);
         DSpotUtils.init(false, "target/dspot/",
@@ -86,7 +81,15 @@ public class AssertionGeneratorTest extends AbstractTestOnSample {
         );
         RandomHelper.setSeedRandom(72L);
         ValueCreator.count = 0;
-        this.assertionGenerator = new AssertionGenerator(0.1D, compiler);
+        testCompiler =   new TestCompiler(0,
+                false,
+                configuration.getAbsolutePathToProjectRoot(),
+                configuration.getClasspathClassesProject(),
+                10000,
+                "",
+                false
+        );
+        this.assertionGenerator = new AssertionGenerator(0.1D, compiler, testCompiler);
         super.setUp();
     }
 

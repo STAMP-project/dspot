@@ -43,7 +43,7 @@ public class DSpotCompilerTest {
         final InputConfiguration configuration = new InputConfiguration();
         configuration.setAbsolutePathToProjectRoot("src/test/resources/test-projects/");
         final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(configuration, "");
-        TestCompiler.init(0,
+        TestCompiler testCompiler = new TestCompiler(0,
                 false,
                 configuration.getAbsolutePathToProjectRoot(),
                 configuration.getClasspathClassesProject(),
@@ -53,7 +53,7 @@ public class DSpotCompilerTest {
         );
         final CtClass<?> aClass = getClass(compiler.getLauncher().getFactory());
         final List<CtMethod<?>> method = aClass.getMethodsByName("method");
-        final List<CtMethod<?>> compile = TestCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, method);
+        final List<CtMethod<?>> compile = testCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, method);
         assertEquals(1, compile.size());
         assertEquals(1, aClass.getMethods().size());
 
@@ -66,7 +66,7 @@ public class DSpotCompilerTest {
                 .findFirst()
                 .get();
 
-        final List<CtMethod<?>> results = TestCompiler.compileAndDiscardUncompilableMethods(
+        final List<CtMethod<?>> results = testCompiler.compileAndDiscardUncompilableMethods(
                 compiler, aClass, new ArrayList(aClass.getMethods())
         );
         assertEquals(2, results.size());

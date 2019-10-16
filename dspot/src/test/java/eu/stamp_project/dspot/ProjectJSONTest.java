@@ -57,6 +57,8 @@ public class ProjectJSONTest extends AbstractTestOnSample {
 
     private TestSelector testSelector;
 
+    private TestCompiler testCompiler;
+
     @Before
     public void setUp() {
         super.setUp();
@@ -80,7 +82,7 @@ public class ProjectJSONTest extends AbstractTestOnSample {
         launcher.buildModel();
         this.factory = launcher.getFactory();
         TestFramework.init(this.factory);
-        TestCompiler.init(0,
+        testCompiler = new TestCompiler(0,
                 false,
                 this.getPathToProjectRoot(),
                 this.configuration.getClasspathClassesProject(),
@@ -118,7 +120,8 @@ public class ProjectJSONTest extends AbstractTestOnSample {
                 Output.get(configuration),
                 1,
                 false,
-                builder
+                builder,
+                testCompiler
         );
         final CtClass<?> clone = findClass("fr.inria.amp.TestJavaPoet").clone();
 

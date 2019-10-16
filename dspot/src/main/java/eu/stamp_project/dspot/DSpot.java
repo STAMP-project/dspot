@@ -8,6 +8,7 @@ import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.compilation.TestCompiler;
 import eu.stamp_project.utils.report.output.Output;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
@@ -49,6 +50,8 @@ public class DSpot {
 
     private double delta;
 
+    private TestCompiler testCompiler;
+
     public DSpot(double delta,
                  TestFinder testFinder,
                  DSpotCompiler compiler,
@@ -57,7 +60,8 @@ public class DSpot {
                  Output output,
                  int numberOfIterations,
                  boolean shouldGenerateAmplifiedTestClass,
-                 AutomaticBuilder automaticBuilder) {
+                 AutomaticBuilder automaticBuilder,
+                 TestCompiler testCompiler) {
         this.delta = delta;
         this.testSelector = testSelector;
         this.inputAmplDistributor = inputAmplDistributor;
@@ -67,6 +71,7 @@ public class DSpot {
         this.output = output;
         this.shouldGenerateAmplifiedTestClass = shouldGenerateAmplifiedTestClass;
         this.automaticBuilder = automaticBuilder;
+        this.testCompiler = testCompiler;
     }
 
     public CtType<?> amplify(CtType<?> testClassToBeAmplified) {
@@ -98,7 +103,8 @@ public class DSpot {
                     this.compiler,
                     this.testSelector,
                     this.inputAmplDistributor,
-                    this.numberOfIterations
+                    this.numberOfIterations,
+                    this.testCompiler
             );
             final List<CtMethod<?>> testMethodsToBeAmplified =
                     testFinder.findTestMethods(testClassToBeAmplified, testMethodsToBeAmplifiedAsString);

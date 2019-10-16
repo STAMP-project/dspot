@@ -40,13 +40,17 @@ public class Amplification {
 
     private int numberOfIteration;
 
+    private TestCompiler testCompiler;
+
     public Amplification(double delta,
                          DSpotCompiler compiler,
                          TestSelector testSelector,
                          InputAmplDistributor inputAmplDistributor,
-                         int numberOfIteration) {
+                         int numberOfIteration,
+                         TestCompiler testCompiler) {
         this.compiler = compiler;
-        this.assertionGenerator = new AssertionGenerator(delta, this.compiler);
+        this.testCompiler = testCompiler;
+        this.assertionGenerator = new AssertionGenerator(delta, this.compiler, this.testCompiler);
         this.testSelector = testSelector;
         this.inputAmplDistributor = inputAmplDistributor;
         this.globalNumberOfSelectedAmplification = 0;
@@ -69,7 +73,7 @@ public class Amplification {
         final List<CtMethod<?>> passingTests;
         try {
             passingTests =
-                    TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
+                    this.testCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
                             testClassToBeAmplified,
                             testMethodsToBeAmplified,
                             this.compiler
@@ -201,7 +205,7 @@ public class Amplification {
         // final check on A-amplified test, see if they all pass.
         // If they don't, we just discard them.
         final List<CtMethod<?>> amplifiedPassingTests =
-                TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
+                this.testCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
                         classTest,
                         testsWithAssertions,
                         this.compiler

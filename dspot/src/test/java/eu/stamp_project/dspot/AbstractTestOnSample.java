@@ -5,6 +5,7 @@ import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.DSpotCache;
 import eu.stamp_project.utils.RandomHelper;
+import eu.stamp_project.utils.compilation.TestCompiler;
 import eu.stamp_project.utils.execution.TestRunner;
 import org.junit.Before;
 import spoon.Launcher;
@@ -46,6 +47,7 @@ public class AbstractTestOnSample {
         DSpotCache.init(10000);
         RandomHelper.setSeedRandom(72L);
         this.testRunner = new TestRunner(getPathToProjectRoot(), "", false);
+
     }
 
     public String getPathToProjectRoot() {
