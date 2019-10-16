@@ -38,6 +38,7 @@ sub startup {
       print "* Using default workspace [$workspace].\n";
   }
   
+  # Verification du répertoire de travail
   $wdir = File::Spec->catdir( ($workspace, $ldir) );
   if ( -d $wdir ) {
       print "* Work dir [$wdir] exists.\n";
@@ -45,8 +46,23 @@ sub startup {
       # Create dir hierarchy
       make_path($wdir);
       chmod 0755, $wdir;
-
       print "* Work dir [$wdir] created.\n";
+  }
+
+  # Verification du fichier $wdir/projects.json
+  my $wdirp = File::Spec->catfile( $wdir, 'projects.json' );
+  if ( -e $wdirp ) {
+      print "* JSON projects file [$wdirp] exists.\n";
+  } else {
+      my $d = {};
+      my $json = encode_json($d);
+      
+      # Write projects information to file.
+      open my $fh, '>:encoding(UTF-8)', $wdirp or return { "Could not find [$wdirp]." };
+      print $fh $json;
+      close $fh;
+      
+      print "* JSON projects file [$wdirp] created.\n";
   }
   
   $self->config({'work_dir' => $wdir});
@@ -73,7 +89,9 @@ sub startup {
 
   # Just check we have what we need..
   my $mvn_test = File::Spec->catfile( $mvn_bin, 'mvn' );
-  my @mvn_tst = `${mvn_test} --version`;
+  my @mvn_test = `${mvn_test} --version`;
+  print @mvn_test;
+
   
   # Log to specific dspot file.
 #  my $dlog = Mojo::Log->new(path => 'log/dspot.log');
