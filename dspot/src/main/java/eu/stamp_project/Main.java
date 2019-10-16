@@ -13,7 +13,6 @@ import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.utils.collector.CollectorFactory;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.execution.TestRunner;
 import eu.stamp_project.utils.options.AmplifierEnum;
 import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.options.check.InputErrorException;
@@ -31,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.factory.Factory;
 
 import java.io.File;
 import java.io.IOException;
