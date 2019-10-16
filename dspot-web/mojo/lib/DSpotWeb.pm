@@ -59,16 +59,21 @@ sub startup {
   
   # Get mvn command to use for execution
   my $mvn_home = $config->{'mvn_home'} or die "ERROR Cannot find mvn_home.\n";
+  my $mvn_bin = File::Spec->catdir( ($mvn_home, 'bin') );
   print "* Using mvn home [$mvn_home].\n";
   my $mvn_cmd = $config->{'mvn_cmd'} or die "ERROR Cannot find mvn_cmd.\n";
-  $mvn_cmd = File::Spec->catdir( ($mvn_home, $mvn_cmd) );
+  $mvn_cmd = File::Spec->catdir( ($mvn_bin, $mvn_cmd) );
   print "* Using mvn command [$mvn_cmd].\n";
   my $dspot_cmd = $config->{'dspot_cmd'} or die "ERROR Cannot find dspot_cmd.\n";
-  $dspot_cmd = File::Spec->catdir( ($mvn_home, $dspot_cmd) );
+  $dspot_cmd = File::Spec->catdir( ($mvn_bin, $dspot_cmd) );
   print "* Using dspot cmd [$dspot_cmd].\n";
   my $dspot_cmd_ext = $config->{'dspot_cmd_ext'} or die "ERROR Cannot find dspot_cmd_ext.\n";
-  $dspot_cmd_ext = File::Spec->catdir( ($mvn_home, $dspot_cmd_ext) );
+  $dspot_cmd_ext = File::Spec->catdir( ($mvn_bin, $dspot_cmd_ext) );
   print "* Using dspot cmd ext [$dspot_cmd_ext].\n\n";
+
+  # Just check we have what we need..
+  my $mvn_test = File::Spec->catfile( $mvn_bin, 'mvn' );
+  my @mvn_tst = `${mvn_test} --version`;
   
   # Log to specific dspot file.
 #  my $dlog = Mojo::Log->new(path => 'log/dspot.log');
