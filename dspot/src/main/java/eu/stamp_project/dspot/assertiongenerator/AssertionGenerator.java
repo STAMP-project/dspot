@@ -40,11 +40,14 @@ public class AssertionGenerator {
 
     private double delta;
 
-    public AssertionGenerator(double delta, DSpotCompiler compiler) {
+    private TestCompiler testCompiler;
+
+    public AssertionGenerator(double delta, DSpotCompiler compiler, TestCompiler testCompiler) {
         this.delta = delta;
         this.compiler = compiler;
         this.assertionRemover = new AssertionRemover();
         this.tryCatchFailGenerator = new TryCatchFailGenerator();
+        this.testCompiler = testCompiler;
     }
 
     /**
@@ -68,7 +71,8 @@ public class AssertionGenerator {
                 delta,
                 testClass,
                 compiler,
-                this.assertionRemover.getVariableAssertedPerTestMethod()
+                this.assertionRemover.getVariableAssertedPerTestMethod(),
+                this.testCompiler
         );
         final List<CtMethod<?>> amplifiedTestsWithAssertions =
                 this.assertPassingAndFailingTests(cloneClass, testsWithoutAssertions);
@@ -116,7 +120,7 @@ public class AssertionGenerator {
 
             //Add parallel test execution support (JUnit4, JUnit5) for execution method (CMD, Maven)
             CloneHelper.addParallelExecutionAnnotation(testClass, tests);
-            testResult = TestCompiler.compileAndRun(testClass,
+            testResult = this.testCompiler.compileAndRun(testClass,
                     this.compiler,
                     tests
             );

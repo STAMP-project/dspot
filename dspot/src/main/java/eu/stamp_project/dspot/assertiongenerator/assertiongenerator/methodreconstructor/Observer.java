@@ -36,12 +36,16 @@ public class Observer {
 
     private Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted;
 
+    private TestCompiler testCompiler;
+
     public Observer(CtType originalClass,
-                         DSpotCompiler compiler,
-                         Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted) {
+                    DSpotCompiler compiler,
+                    Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted,
+                    TestCompiler testCompiler) {
         this.originalClass = originalClass;
         this.compiler = compiler;
         this.variableReadsAsserted = variableReadsAsserted;
+        this.testCompiler = testCompiler;
     }
 
     /**
@@ -106,7 +110,7 @@ public class Observer {
     private Map<String, Observation> compileRunTests(CtType clone, final List<CtMethod<?>> testsToRun) throws AmplificationException{
         LOGGER.info("Run instrumented tests. ({})", testsToRun.size());
         TestFramework.get().generateAfterClassToSaveObservations(clone, testsToRun);
-        final TestResult result = TestCompiler.compileAndRun(clone,
+        final TestResult result = this.testCompiler.compileAndRun(clone,
                 this.compiler,
                 testsToRun
         );

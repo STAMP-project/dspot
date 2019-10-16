@@ -68,6 +68,8 @@ public abstract class AbstractSelectorRemoveOverlapTest {
 
     protected TestRunner testRunner;
 
+    protected TestCompiler testCompiler;
+
     @Before
     public void setUp() {
         Main.verbose = true;
@@ -91,7 +93,7 @@ public abstract class AbstractSelectorRemoveOverlapTest {
         launcher.buildModel();
         this.factory = launcher.getFactory();
         TestFramework.init(this.factory);
-        TestCompiler.init(
+        this.testCompiler = new TestCompiler(
                 0, false,
                 this.getPathToAbsoluteProjectRoot(),
                 this.configuration.getClasspathClassesProject(),
@@ -118,7 +120,9 @@ public abstract class AbstractSelectorRemoveOverlapTest {
                 new Output(getPathToAbsoluteProjectRoot(), configuration.getOutputDirectory(), null),
                 1,
                 false,
-                this.builder);
+                this.builder,
+                this.testCompiler
+        );
         dspot.amplify(getTestClass(), Collections.emptyList());
         final File directory = new File(DSpotUtils.shouldAddSeparator.apply(this.configuration.getOutputDirectory()));
         if (!directory.exists()) {

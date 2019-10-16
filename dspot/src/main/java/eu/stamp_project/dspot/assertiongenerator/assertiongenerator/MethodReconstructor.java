@@ -10,6 +10,7 @@ import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 
+import eu.stamp_project.utils.compilation.TestCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtBlock;
@@ -44,15 +45,18 @@ public class MethodReconstructor {
     private double delta;
 
     public MethodReconstructor(double delta,
-                                CtType originalClass,
+                               CtType originalClass,
                                DSpotCompiler compiler,
-                               Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted) {
+                               Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted,
+                               TestCompiler testCompiler) {
         this.delta = delta;
         this.factory = compiler.getFactory();
         this.observer = new Observer(
                 originalClass,
                 compiler,
-                variableReadsAsserted);
+                variableReadsAsserted,
+                testCompiler
+        );
     }
 
     /**

@@ -5,6 +5,7 @@ import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.amplifier.Amplifier;
 import eu.stamp_project.dspot.assertiongenerator.AssertionGenerator;
 import eu.stamp_project.dspot.input_ampl_distributor.TextualDistanceInputAmplDistributor;
+import eu.stamp_project.utils.compilation.TestCompiler;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.report.error.ErrorEnum;
 import eu.stamp_project.dspot.selector.TakeAllSelector;
@@ -36,6 +37,8 @@ public class RecoveryDSpotTest extends AbstractTestOnSample {
 
     private InputConfiguration configuration;
 
+    private TestCompiler testCompiler;
+
     @Override
     @Before
     public void setUp() {
@@ -44,6 +47,15 @@ public class RecoveryDSpotTest extends AbstractTestOnSample {
         configuration = new InputConfiguration();
         configuration.setAbsolutePathToProjectRoot(this.getPathToProjectRoot());
         this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
+        this.testCompiler = new TestCompiler(
+                0,
+                false,
+                configuration.getAbsolutePathToProjectRoot(),
+                configuration.getClasspathClassesProject(),
+                10000,
+                "",
+                false
+        );
     }
 
     @After
@@ -100,7 +112,7 @@ public class RecoveryDSpotTest extends AbstractTestOnSample {
 
     public class AssertionGeneratorThatThrowsError extends AssertionGenerator {
         public AssertionGeneratorThatThrowsError(DSpotCompiler compiler) {
-            super(0.1F, compiler);
+            super(0.1F, compiler, testCompiler);
         }
 
         @Override
@@ -124,7 +136,8 @@ public class RecoveryDSpotTest extends AbstractTestOnSample {
                 compiler,
                 selector,
                 new TextualDistanceInputAmplDistributor(200, Collections.emptyList()),
-                1
+                1,
+                testCompiler
         );
         final TestFinder testFinder = new TestFinder(Collections.emptyList(), Collections.emptyList());
         final CtClass<?> testClassToBeAmplified = findClass("fr.inria.amp.OneLiteralTest");
@@ -147,7 +160,8 @@ public class RecoveryDSpotTest extends AbstractTestOnSample {
                 compiler,
                 new TakeAllSelector(this.builder, this.configuration),
                 new TextualDistanceInputAmplDistributor(200, amplifiers),
-                1
+                1,
+                testCompiler
         );
         amplification.amplification(testClassToBeAmplified, testListToBeAmplified, Collections.emptyList(), 1);
         assertEquals(1, Main.GLOBAL_REPORT.getErrors().size());
@@ -159,7 +173,8 @@ public class RecoveryDSpotTest extends AbstractTestOnSample {
                 compiler,
                 new TakeAllSelector(this.builder, this.configuration),
                 new TextualDistanceInputAmplDistributor(200, Collections.emptyList()),
-                1
+                1,
+                testCompiler
         );
         final Field assertGenerator = amplification.getClass().getDeclaredField("assertionGenerator");
         assertGenerator.setAccessible(true);

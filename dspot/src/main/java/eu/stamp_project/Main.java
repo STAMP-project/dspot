@@ -103,6 +103,15 @@ public class Main {
         );
         inputConfiguration.setFactory(compiler.getLauncher().getFactory());
         initHelpers(inputConfiguration);
+        final TestCompiler testCompiler = new TestCompiler(
+                inputConfiguration.getNumberParallelExecutionProcessors(),
+                inputConfiguration.shouldExecuteTestsInParallel(),
+                inputConfiguration.getAbsolutePathToProjectRoot(),
+                inputConfiguration.getClasspathClassesProject(),
+                inputConfiguration.getTimeOutInMs(),
+                inputConfiguration.getPreGoalsTestExecution(),
+                inputConfiguration.shouldUseMavenToExecuteTest()
+        );
         final EmailSender emailSender = new EmailSender(
                 inputConfiguration.getSmtpUsername(),
                 inputConfiguration.getSmtpPassword(),
@@ -148,7 +157,8 @@ public class Main {
                 output,
                 inputConfiguration.getNbIteration(),
                 inputConfiguration.shouldGenerateAmplifiedTestClass(),
-                automaticBuilder
+                automaticBuilder,
+                testCompiler
         );
 
         Checker.postChecking(inputConfiguration);
@@ -178,15 +188,6 @@ public class Main {
         RandomHelper.setSeedRandom(configuration.getSeed());
         createOutputDirectories(configuration);
         DSpotCache.init(configuration.getCacheSize());
-        TestCompiler.init(
-                configuration.getNumberParallelExecutionProcessors(),
-                configuration.shouldExecuteTestsInParallel(),
-                configuration.getAbsolutePathToProjectRoot(),
-                configuration.getClasspathClassesProject(),
-                configuration.getTimeOutInMs(),
-                configuration.getPreGoalsTestExecution(),
-                configuration.shouldUseMavenToExecuteTest()
-        );
         DSpotUtils.init(
                 configuration.withComment(),
                 configuration.getOutputDirectory(),
