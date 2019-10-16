@@ -69,9 +69,9 @@ sub startup {
   $self->config({'workspace' => $workspace});
 
   # Add another "public" directory
-  my $static = Mojolicious::Static->new;
-  my $paths = $static->paths;
-  push @{$static->paths}, $workspace;
+  push @{$self->app->static->paths}, $workspace;
+
+  print "PATHS " . Dumper(@{$self->app->static->paths});
   
   # Get mvn command to use for execution
   my $mvn_home = $config->{'mvn_home'} or die "ERROR Cannot find mvn_home.\n";
@@ -214,8 +214,8 @@ sub startup {
     
     # Run dspot
     print "  Executing DSpot command: [$cmd].\n";
-    print "    MVN_HOME: [" . ( $ENV{'MVN_HOME'} || '' ) . "].\n";
-    print "    JAVA_HOME: [" . ( $ENV{'JAVA_HOME'} || '' ). "].\n";
+#    print "    MAVEN_HOME: [" . ( $ENV{'MAVEN_HOME'} || '' ) . "].\n";
+#    print "    JAVA_HOME: [" . ( $ENV{'JAVA_HOME'} || '' ). "].\n";
 
     my @ret_mvn = `cd ${pdir_src}; mvn --version`;
     my @o = grep { $_ =~ m!Apache Maven! } @ret_mvn;

@@ -54,9 +54,11 @@
 % my $f = "$wdir/$repo/results.zip";
 % if ( -f $f ) {
 
-<p><a href="/projects/<%= $repo %>/results.zip">Download</a></p>
+<p>You can download <a href="/projects/<%= $repo %>/results.zip">results as a ZIP file</a>.</p>
 
 % }
+
+<p>Here is the list of test classes that have been investigated, and the number of newly generated test cases.</p>
 
 <table class="table table-striped table-hover ">
   <thead>
@@ -64,6 +66,7 @@
   </thead>
   <tbody>
 % foreach $f (@{$results}) {
+%   next if (not exists($f->{'name'}));
     <tr>
       <td><%= $f->{'name'} %></td>
       <td><%= $f->{'nbOriginalTestCases'} %></td>
