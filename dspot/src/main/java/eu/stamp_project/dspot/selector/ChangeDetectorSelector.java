@@ -16,7 +16,6 @@ import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.execution.TestRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
@@ -47,7 +46,8 @@ public class ChangeDetectorSelector extends AbstractTestSelector {
 
     private String secondVersionTargetClasses;
 
-    public ChangeDetectorSelector(AutomaticBuilder automaticBuilder, InputConfiguration configuration) {
+    public ChangeDetectorSelector(AutomaticBuilder automaticBuilder,
+                                  InputConfiguration configuration) {
         super(automaticBuilder, configuration);
         this.failurePerAmplifiedTest = new HashMap<>();
         this.pathToFirstVersionOfProgram = DSpotUtils.shouldAddSeparator.apply(configuration.getAbsolutePathToProjectRoot());
@@ -108,7 +108,7 @@ public class ChangeDetectorSelector extends AbstractTestSelector {
         }
         final TestResult results;
         try {
-            results = TestRunner.run(
+            results = this.testRunner.run(
                     this.classpath + AmplificationHelper.PATH_SEPARATOR + this.secondVersionTargetClasses,
                     this.pathToSecondVersionOfProgram,
                     clone.getQualifiedName(),

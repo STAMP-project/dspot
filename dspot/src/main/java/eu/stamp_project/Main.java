@@ -13,7 +13,6 @@ import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.utils.collector.CollectorFactory;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.execution.TestRunner;
 import eu.stamp_project.utils.options.AmplifierEnum;
 import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.options.check.InputErrorException;
@@ -31,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.factory.Factory;
 
 import java.io.File;
 import java.io.IOException;
@@ -103,8 +101,8 @@ public class Main {
                 inputConfiguration,
                 dependencies
         );
-        initHelpers(inputConfiguration, compiler.getLauncher().getFactory());
         inputConfiguration.setFactory(compiler.getLauncher().getFactory());
+        initHelpers(inputConfiguration);
         final EmailSender emailSender = new EmailSender(
                 inputConfiguration.getSmtpUsername(),
                 inputConfiguration.getSmtpPassword(),
@@ -124,7 +122,8 @@ public class Main {
         );
         final List<CtType<?>> testClassesToBeAmplified = testFinder.findTestClasses(inputConfiguration.getTestClasses());
         final List<String> testMethodsToBeAmplifiedNames = inputConfiguration.getTestCases();
-        final TestSelector testSelector = inputConfiguration.getSelector().buildSelector(automaticBuilder, inputConfiguration);
+        final TestSelector testSelector =
+                inputConfiguration.getSelector().buildSelector(automaticBuilder, inputConfiguration);
         final List<Amplifier> amplifiers = inputConfiguration
                 .getAmplifiers()
                 .stream()
@@ -169,8 +168,8 @@ public class Main {
         collector.sendInfo();
     }
 
-    private static void initHelpers(InputConfiguration configuration, Factory factory){
-        TestFramework.init(factory);
+    private static void initHelpers(InputConfiguration configuration){
+        TestFramework.init(configuration.getFactory());
         AmplificationHelper.init(
                 configuration.getTimeOutInMs(),
                 configuration.shouldGenerateAmplifiedTestClass(),
@@ -184,7 +183,9 @@ public class Main {
                 configuration.shouldExecuteTestsInParallel(),
                 configuration.getAbsolutePathToProjectRoot(),
                 configuration.getClasspathClassesProject(),
-                configuration.getTimeOutInMs()
+                configuration.getTimeOutInMs(),
+                configuration.getPreGoalsTestExecution(),
+                configuration.shouldUseMavenToExecuteTest()
         );
         DSpotUtils.init(
                 configuration.withComment(),
@@ -195,11 +196,6 @@ public class Main {
         initSystemProperties(configuration.getSystemProperties());
         AssertionGeneratorUtils.init(configuration.shouldAllowPathInAssertion());
         CloneHelper.init(configuration.shouldExecuteTestsInParallel());
-        TestRunner.init(
-                configuration.getAbsolutePathToProjectRoot(),
-                configuration.getPreGoalsTestExecution(),
-                configuration.shouldUseMavenToExecuteTest()
-        );
     }
 
     private static void initSystemProperties(String systemProperties) {

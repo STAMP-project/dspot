@@ -50,11 +50,15 @@ public class TestCompiler {
 
     private int numberProcessors;
 
+    private TestRunner testRunner;
+
     private TestCompiler(int numberProcessors,
                          boolean shouldExecuteTestsInParallel,
                          String absolutePathToProjectRoot,
                          String classpathClassesProject,
-                         int timeoutInMs) {
+                         int timeoutInMs,
+                         String preGoals,
+                         boolean shouldUseMavenToExecuteTest) {
         this.numberProcessors = numberProcessors;
         this.shouldExecuteTestsInParallel = shouldExecuteTestsInParallel;
         this.absolutePathToProjectRoot = absolutePathToProjectRoot;
@@ -64,6 +68,7 @@ public class TestCompiler {
                 classpathClassesProject,
                 absolutePathToProjectRoot + "/" + DSpotUtils.PATH_TO_DSPOT_DEPENDENCIES
         );
+        this.testRunner = new TestRunner(this.absolutePathToProjectRoot, preGoals, shouldUseMavenToExecuteTest);
     }
 
     private static TestCompiler _instance;
@@ -72,8 +77,18 @@ public class TestCompiler {
                             boolean shouldExecuteTestsInParallel,
                             String absolutePathToProjectRoot,
                             String classpathClassesProject,
-                            int timeoutInMs) {
-        _instance = new TestCompiler(numberProcessors, shouldExecuteTestsInParallel, absolutePathToProjectRoot, classpathClassesProject, timeoutInMs);
+                            int timeoutInMs,
+                            String preGoals,
+                            boolean shouldUseMavenToExecuteTest) {
+        _instance = new TestCompiler(
+                numberProcessors,
+                shouldExecuteTestsInParallel,
+                absolutePathToProjectRoot,
+                classpathClassesProject,
+                timeoutInMs,
+                preGoals,
+                shouldUseMavenToExecuteTest
+        );
     }
 
     /**
@@ -159,9 +174,9 @@ public class TestCompiler {
         testsToRun = TestCompiler.compileAndDiscardUncompilableMethods(compiler, testClass, testsToRun);
         EntryPoint.timeoutInMs = 1000 + (_instance.timeoutInMs * testsToRun.size());
         if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) { // if the test class is abstract, we use one of its implementation
-            return TestRunner.runSubClassesForAbstractTestClass(testClass, testsToRun, classPath);
+            return _instance.testRunner.runSubClassesForAbstractTestClass(testClass, testsToRun, classPath);
         } else {
-            return TestRunner.runGivenTestMethods(testClass, testsToRun, classPath);
+            return _instance.testRunner.runGivenTestMethods(testClass, testsToRun, classPath);
         }
     }
 

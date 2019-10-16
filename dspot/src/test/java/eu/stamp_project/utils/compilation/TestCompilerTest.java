@@ -37,7 +37,15 @@ public class TestCompilerTest extends AbstractTestOnSample {
         DSpotUtils.init(false, "target/dspot/",
                 configuration.getFullClassPathWithExtraDependencies(), getPathToProjectRoot()
         );
-        TestCompiler.init(0, false, getPathToProjectRoot(), configuration.getClasspathClassesProject(), 10000);
+        TestCompiler.init(
+                0,
+                false,
+                getPathToProjectRoot(),
+                configuration.getClasspathClassesProject(),
+                10000,
+                "",
+                false
+        );
         assertTrue(TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
                 testClass,
                 methods,

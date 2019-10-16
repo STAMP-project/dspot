@@ -263,8 +263,14 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
 
         InputConfiguration configuration = new InputConfiguration();
         configuration.setAbsolutePathToProjectRoot(new File(getPathToProjectRoot()).getAbsolutePath());
-        TestCompiler.init(0, false,
-                configuration.getAbsolutePathToProjectRoot(), configuration.getClasspathClassesProject(), 10000
+        TestCompiler.init(0,
+                false,
+                configuration.getAbsolutePathToProjectRoot(),
+                configuration.getClasspathClassesProject(),
+                10000,
+                "",
+                false
+
         );
         AutomaticBuilder builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
         String dependencies = Main.completeDependencies(configuration, builder);

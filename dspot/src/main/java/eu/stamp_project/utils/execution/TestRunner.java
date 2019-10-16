@@ -30,20 +30,20 @@ public class TestRunner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestRunner.class);
 
-    private static String absolutePathToProjectRoot;
+    private String absolutePathToProjectRoot;
 
-    private static String preGoals;
+    private String preGoals;
 
-    private static boolean shouldUseMavenToExecuteTest;
+    private boolean shouldUseMavenToExecuteTest;
 
-    public static void init(String absolutePathToProjectRoot, String preGoals, boolean shouldUseMavenToExecuteTest) {
-        TestRunner.absolutePathToProjectRoot = absolutePathToProjectRoot;
-        TestRunner.preGoals = preGoals;
-        TestRunner.shouldUseMavenToExecuteTest = shouldUseMavenToExecuteTest;
+    public TestRunner(String absolutePathToProjectRoot, String preGoals, boolean shouldUseMavenToExecuteTest) {
+        this.absolutePathToProjectRoot = absolutePathToProjectRoot;
+        this.preGoals = preGoals;
+        this.shouldUseMavenToExecuteTest = shouldUseMavenToExecuteTest;
         EntryPoint.verbose = Main.verbose;
     }
 
-    public static TestResult runSubClassesForAbstractTestClass(CtType<?> testClass, List<CtMethod<?>> testsToRun, String classPath) throws AmplificationException {
+    public TestResult runSubClassesForAbstractTestClass(CtType<?> testClass, List<CtMethod<?>> testsToRun, String classPath) throws AmplificationException {
         try {
             return testClass.getFactory().Type()
                     .getAll()
@@ -74,9 +74,9 @@ public class TestRunner {
         }
     }
 
-    public static TestResult runGivenTestMethods(CtType<?> testClass, List<CtMethod<?>> testsToRun, String classPath) throws AmplificationException {
+    public TestResult runGivenTestMethods(CtType<?> testClass, List<CtMethod<?>> testsToRun, String classPath) throws AmplificationException {
         try {
-            return TestRunner.run(classPath + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies(),
+            return this.run(classPath + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies(),
                     absolutePathToProjectRoot,
                     testClass.getQualifiedName(),
                     testsToRun.stream()
@@ -94,13 +94,9 @@ public class TestRunner {
         }
     }
 
-    public static TestResult run(String classpath, String rootPath, String fullQualifiedName, String... testToRun) throws TimeoutException {
+    public TestResult run(String classpath, String rootPath, String fullQualifiedName, String... testToRun) throws TimeoutException {
         if (shouldUseMavenToExecuteTest) {
             EntryPoint.workingDirectory = new File(rootPath);
-            // TODO FIXME
-//            if (! (new File(rootPath + DSpotPOMCreator.getPOMName()).exists())) {
-//                DSpotPOMCreator.createNewPom();
-//            }
             eu.stamp_project.testrunner.maven.EntryPoint.preGoals = preGoals;
             return eu.stamp_project.testrunner.maven.EntryPoint.runTestsSpecificPom(
                     rootPath,

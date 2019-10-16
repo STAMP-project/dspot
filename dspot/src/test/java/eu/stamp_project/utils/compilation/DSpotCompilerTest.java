@@ -43,9 +43,14 @@ public class DSpotCompilerTest {
         final InputConfiguration configuration = new InputConfiguration();
         configuration.setAbsolutePathToProjectRoot("src/test/resources/test-projects/");
         final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(configuration, "");
-        TestCompiler.init(0, false,
-                configuration.getAbsolutePathToProjectRoot(), configuration.getClasspathClassesProject(),
-                10000);
+        TestCompiler.init(0,
+                false,
+                configuration.getAbsolutePathToProjectRoot(),
+                configuration.getClasspathClassesProject(),
+                10000,
+                "",
+                false
+        );
         final CtClass<?> aClass = getClass(compiler.getLauncher().getFactory());
         final List<CtMethod<?>> method = aClass.getMethodsByName("method");
         final List<CtMethod<?>> compile = TestCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, method);

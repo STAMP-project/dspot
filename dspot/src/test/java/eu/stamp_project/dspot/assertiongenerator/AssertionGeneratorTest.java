@@ -11,6 +11,7 @@ import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.RandomHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
+import eu.stamp_project.utils.execution.TestRunner;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -58,8 +59,13 @@ public class AssertionGeneratorTest extends AbstractTestOnSample {
     public static void setUpClass() {
         configuration = new InputConfiguration();
         configuration.setAbsolutePathToProjectRoot(new File("src/test/resources/sample/").getAbsolutePath());
-        TestCompiler.init(0, false,
-                configuration.getAbsolutePathToProjectRoot(), configuration.getClasspathClassesProject(), 10000
+        TestCompiler.init(0,
+                false,
+                configuration.getAbsolutePathToProjectRoot(),
+                configuration.getClasspathClassesProject(),
+                10000,
+                "",
+                false
         );
         AutomaticBuilder builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
         dependencies = Main.completeDependencies(configuration, builder);

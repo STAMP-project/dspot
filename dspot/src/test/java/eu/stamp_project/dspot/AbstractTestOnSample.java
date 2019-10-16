@@ -5,6 +5,7 @@ import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.DSpotCache;
 import eu.stamp_project.utils.RandomHelper;
+import eu.stamp_project.utils.execution.TestRunner;
 import org.junit.Before;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
@@ -18,6 +19,8 @@ import spoon.reflect.declaration.CtMethod;
 public class AbstractTestOnSample {
 
     protected Launcher launcher;
+
+    protected TestRunner testRunner;
 
     protected CtMethod<?> findMethod(CtClass<?> ctClass, String methodName) {
         return ctClass.getMethodsByName(methodName).get(0);
@@ -42,6 +45,7 @@ public class AbstractTestOnSample {
         TestFramework.init(launcher.getFactory());
         DSpotCache.init(10000);
         RandomHelper.setSeedRandom(72L);
+        this.testRunner = new TestRunner(getPathToProjectRoot(), "", false);
     }
 
     public String getPathToProjectRoot() {
