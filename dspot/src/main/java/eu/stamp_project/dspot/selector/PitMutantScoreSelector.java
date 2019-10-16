@@ -62,9 +62,8 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     private String absolutePathToProjectRoot;
 
     public PitMutantScoreSelector(AutomaticBuilder automaticBuilder,
-                                  InputConfiguration configuration,
-                                  TestRunner testRunner) {
-        super(automaticBuilder, configuration, testRunner);
+                                  InputConfiguration configuration) {
+        super(automaticBuilder, configuration);
         this.absolutePathToProjectRoot = configuration.getAbsolutePathToProjectRoot();
         this.shouldTargetOneTestClass = configuration.shouldTargetOneTestClass();
         this.testClassTargetOne =

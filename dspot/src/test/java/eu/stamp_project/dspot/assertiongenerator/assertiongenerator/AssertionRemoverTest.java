@@ -268,7 +268,8 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
                 configuration.getAbsolutePathToProjectRoot(),
                 configuration.getClasspathClassesProject(),
                 10000,
-                this.testRunner
+                "",
+                false
 
         );
         AutomaticBuilder builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);

@@ -59,13 +59,13 @@ public class AssertionGeneratorTest extends AbstractTestOnSample {
     public static void setUpClass() {
         configuration = new InputConfiguration();
         configuration.setAbsolutePathToProjectRoot(new File("src/test/resources/sample/").getAbsolutePath());
-        TestRunner testRunner = new TestRunner(configuration.getAbsolutePathToProjectRoot(), "", false);
         TestCompiler.init(0,
                 false,
                 configuration.getAbsolutePathToProjectRoot(),
                 configuration.getClasspathClassesProject(),
                 10000,
-                testRunner
+                "",
+                false
         );
         AutomaticBuilder builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
         dependencies = Main.completeDependencies(configuration, builder);

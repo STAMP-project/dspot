@@ -48,7 +48,8 @@ public class DSpotCompilerTest {
                 configuration.getAbsolutePathToProjectRoot(),
                 configuration.getClasspathClassesProject(),
                 10000,
-                null
+                "",
+                false
         );
         final CtClass<?> aClass = getClass(compiler.getLauncher().getFactory());
         final List<CtMethod<?>> method = aClass.getMethodsByName("method");

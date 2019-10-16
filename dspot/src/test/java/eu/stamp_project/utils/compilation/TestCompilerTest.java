@@ -43,7 +43,8 @@ public class TestCompilerTest extends AbstractTestOnSample {
                 getPathToProjectRoot(),
                 configuration.getClasspathClassesProject(),
                 10000,
-                this.testRunner
+                "",
+                false
         );
         assertTrue(TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
                 testClass,

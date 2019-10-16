@@ -91,13 +91,13 @@ public abstract class AbstractSelectorRemoveOverlapTest {
         launcher.buildModel();
         this.factory = launcher.getFactory();
         TestFramework.init(this.factory);
-        testRunner = new TestRunner(this.getPathToAbsoluteProjectRoot(), "", false);
         TestCompiler.init(
                 0, false,
                 this.getPathToAbsoluteProjectRoot(),
                 this.configuration.getClasspathClassesProject(),
                 10000,
-                testRunner
+                "",
+                false
         );
         AssertionGeneratorUtils.init(false);
         DSpotPOMCreator.createNewPom(configuration);

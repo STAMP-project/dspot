@@ -6,35 +6,34 @@ import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.dspot.selector.TakeAllSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.utils.execution.TestRunner;
 import eu.stamp_project.utils.program.InputConfiguration;
 
 public enum SelectorEnum {
     PitMutantScoreSelector {
         @Override
-        public TestSelector buildSelector(AutomaticBuilder builder, InputConfiguration configuration, TestRunner testRunner) {
-            return new PitMutantScoreSelector(builder, configuration, testRunner);
+        public TestSelector buildSelector(AutomaticBuilder builder, InputConfiguration configuration) {
+            return new PitMutantScoreSelector(builder, configuration);
         }
     },
     JacocoCoverageSelector {
         @Override
-        public TestSelector buildSelector(AutomaticBuilder builder, InputConfiguration configuration, TestRunner testRunner) {
-            return new JacocoCoverageSelector(builder, configuration, testRunner);
+        public TestSelector buildSelector(AutomaticBuilder builder, InputConfiguration configuration) {
+            return new JacocoCoverageSelector(builder, configuration);
         }
     },
     TakeAllSelector {
         @Override
-        public TestSelector buildSelector(AutomaticBuilder builder, InputConfiguration configuration, TestRunner testRunner) {
-            return new TakeAllSelector(builder, configuration, testRunner);
+        public TestSelector buildSelector(AutomaticBuilder builder, InputConfiguration configuration) {
+            return new TakeAllSelector(builder, configuration);
         }
     },
     ChangeDetectorSelector {
         @Override
-        public TestSelector buildSelector(AutomaticBuilder builder, InputConfiguration configuration, TestRunner testRunner) {
-            return new ChangeDetectorSelector(builder, configuration, testRunner);
+        public TestSelector buildSelector(AutomaticBuilder builder, InputConfiguration configuration) {
+            return new ChangeDetectorSelector(builder, configuration);
         }
     };
 
-    public abstract TestSelector buildSelector(AutomaticBuilder builder, InputConfiguration configuration, TestRunner testRunner);
+    public abstract TestSelector buildSelector(AutomaticBuilder builder, InputConfiguration configuration);
 
 }

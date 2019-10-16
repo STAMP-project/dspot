@@ -97,7 +97,8 @@ public abstract class AbstractSelectorTest {
                 this.getPathToAbsoluteProjectRoot(),
                 this.configuration.getClasspathClassesProject(),
                 10000,
-                testRunner
+                "",
+                false
         );
         AssertionGeneratorUtils.init(false);
         DSpotPOMCreator.createNewPom(configuration);

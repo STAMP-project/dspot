@@ -49,9 +49,8 @@ public class JacocoCoverageSelector extends TakeAllSelector {
     private TestSelectorElementReport lastReport;
 
     public JacocoCoverageSelector(AutomaticBuilder automaticBuilder,
-                                  InputConfiguration configuration,
-                                  TestRunner testRunner) {
-        super(automaticBuilder, configuration, testRunner);
+                                  InputConfiguration configuration) {
+        super(automaticBuilder, configuration);
     }
 
     @Override

@@ -26,10 +26,9 @@ public abstract class AbstractTestSelector implements TestSelector {
     protected String outputDirectory;
 
     public AbstractTestSelector(AutomaticBuilder automaticBuilder,
-                                InputConfiguration configuration,
-                                TestRunner testRunner) {
+                                InputConfiguration configuration) {
         this.outputDirectory = configuration.getOutputDirectory();
-        this.testRunner = testRunner;
+        this.testRunner = new TestRunner(configuration.getAbsolutePathToProjectRoot(), configuration.getPreGoalsTestExecution(), configuration.shouldUseMavenToExecuteTest());
         this.automaticBuilder = automaticBuilder;
         String classpath = automaticBuilder.buildClasspath();
         if (!configuration.getAdditionalClasspathElements().isEmpty()) {

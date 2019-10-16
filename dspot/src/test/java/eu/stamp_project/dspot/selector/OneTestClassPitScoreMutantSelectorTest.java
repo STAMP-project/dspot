@@ -56,7 +56,7 @@ public class OneTestClassPitScoreMutantSelectorTest {
 
     @Test
     public void test() throws NoSuchFieldException, IllegalAccessException {
-        final PitMutantScoreSelector pitMutantScoreSelector = new PitMutantScoreSelector(this.builder, this.configuration, this.testRunner);
+        final PitMutantScoreSelector pitMutantScoreSelector = new PitMutantScoreSelector(this.builder, this.configuration);
         pitMutantScoreSelector.init();
         final Field field = pitMutantScoreSelector.getClass().getDeclaredField("originalKilledMutants");
         field.setAccessible(true);

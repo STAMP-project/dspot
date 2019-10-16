@@ -22,8 +22,8 @@ public class TakeAllSelector extends AbstractTestSelector {
 
 	protected CtType<?> currentClassTestToBeAmplified;
 
-	public TakeAllSelector(AutomaticBuilder automaticBuilder, InputConfiguration configuration, TestRunner testRunner) {
-		super(automaticBuilder, configuration, testRunner);
+	public TakeAllSelector(AutomaticBuilder automaticBuilder, InputConfiguration configuration) {
+		super(automaticBuilder, configuration);
 		this.selectedAmplifiedTest = new ArrayList<>();
 	}
 

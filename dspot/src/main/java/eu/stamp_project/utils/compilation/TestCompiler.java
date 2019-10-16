@@ -57,7 +57,8 @@ public class TestCompiler {
                          String absolutePathToProjectRoot,
                          String classpathClassesProject,
                          int timeoutInMs,
-                         TestRunner testRunner) {
+                         String preGoals,
+                         boolean shouldUseMavenToExecuteTest) {
         this.numberProcessors = numberProcessors;
         this.shouldExecuteTestsInParallel = shouldExecuteTestsInParallel;
         this.absolutePathToProjectRoot = absolutePathToProjectRoot;
@@ -67,7 +68,7 @@ public class TestCompiler {
                 classpathClassesProject,
                 absolutePathToProjectRoot + "/" + DSpotUtils.PATH_TO_DSPOT_DEPENDENCIES
         );
-        this.testRunner = testRunner;
+        this.testRunner = new TestRunner(this.absolutePathToProjectRoot, preGoals, shouldUseMavenToExecuteTest);
     }
 
     private static TestCompiler _instance;
@@ -77,8 +78,17 @@ public class TestCompiler {
                             String absolutePathToProjectRoot,
                             String classpathClassesProject,
                             int timeoutInMs,
-                            TestRunner testRunner) {
-        _instance = new TestCompiler(numberProcessors, shouldExecuteTestsInParallel, absolutePathToProjectRoot, classpathClassesProject, timeoutInMs, testRunner);
+                            String preGoals,
+                            boolean shouldUseMavenToExecuteTest) {
+        _instance = new TestCompiler(
+                numberProcessors,
+                shouldExecuteTestsInParallel,
+                absolutePathToProjectRoot,
+                classpathClassesProject,
+                timeoutInMs,
+                preGoals,
+                shouldUseMavenToExecuteTest
+        );
     }
 
     /**
