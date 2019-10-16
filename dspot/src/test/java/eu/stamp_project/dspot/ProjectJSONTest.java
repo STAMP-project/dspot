@@ -80,13 +80,19 @@ public class ProjectJSONTest extends AbstractTestOnSample {
         launcher.buildModel();
         this.factory = launcher.getFactory();
         TestFramework.init(this.factory);
-        TestCompiler.init(0, false, this.getPathToProjectRoot(), this.configuration.getClasspathClassesProject(), 10000);
-        TestRunner.init(this.getPathToProjectRoot(), "", false);
+        final TestRunner testRunner = new TestRunner(this.getPathToProjectRoot(), "", false);
+        TestCompiler.init(0,
+                false,
+                this.getPathToProjectRoot(),
+                this.configuration.getClasspathClassesProject(),
+                10000,
+                testRunner
+        );
         AssertionGeneratorUtils.init(false);
         DSpotPOMCreator.createNewPom(configuration);
         RandomHelper.setSeedRandom(72L);
         ValueCreator.count = 0;
-        this.testSelector = new JacocoCoverageSelector(builder, configuration);
+        this.testSelector = new JacocoCoverageSelector(builder, configuration, testRunner);
         try {
             FileUtils.forceDelete(new File(outputDirectory));
         } catch (Exception ignored) {

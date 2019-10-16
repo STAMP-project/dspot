@@ -16,7 +16,7 @@ public class TakeAllSelectorTest extends AbstractSelectorTest {
 
 	@Override
 	protected TestSelector getTestSelector() {
-		return new TakeAllSelector(this.builder, this.configuration);
+		return new TakeAllSelector(this.builder, this.configuration, this.testRunner);
 	}
 
 	@Override

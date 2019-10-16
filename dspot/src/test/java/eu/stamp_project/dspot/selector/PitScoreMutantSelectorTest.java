@@ -26,7 +26,7 @@ public class PitScoreMutantSelectorTest {
 
         @Override
         protected TestSelector getTestSelector() {
-            return new PitMutantScoreSelector(this.builder, this.configuration);
+            return new PitMutantScoreSelector(this.builder, this.configuration, this.testRunner);
         }
 
         @Override
@@ -42,7 +42,7 @@ public class PitScoreMutantSelectorTest {
 
         @Override
         protected TestSelector getTestSelector() {
-            return new PitMutantScoreSelector(this.builder, this.configuration);
+            return new PitMutantScoreSelector(this.builder, this.configuration, this.testRunner);
         }
 
         @Override

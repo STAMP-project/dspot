@@ -58,7 +58,7 @@ public class RecoveryDSpotTest extends AbstractTestOnSample {
         private boolean throwsToKeep;
 
         public SelectorThatThrowsError(AutomaticBuilder automaticBuilder, InputConfiguration configuration) {
-            super(automaticBuilder, configuration);
+            super(automaticBuilder, configuration, RecoveryDSpotTest.this.testRunner);
         }
 
         public void setThrowsToAmplify(boolean throwsToAmplify) {
@@ -145,7 +145,7 @@ public class RecoveryDSpotTest extends AbstractTestOnSample {
         amplification = new Amplification(
                 0.1f,
                 compiler,
-                new TakeAllSelector(this.builder, this.configuration),
+                new TakeAllSelector(this.builder, this.configuration, this.testRunner),
                 new TextualDistanceInputAmplDistributor(200, amplifiers),
                 1
         );
@@ -157,7 +157,7 @@ public class RecoveryDSpotTest extends AbstractTestOnSample {
         amplification = new Amplification(
                 0.1f,
                 compiler,
-                new TakeAllSelector(this.builder, this.configuration),
+                new TakeAllSelector(this.builder, this.configuration, this.testRunner),
                 new TextualDistanceInputAmplDistributor(200, Collections.emptyList()),
                 1
         );

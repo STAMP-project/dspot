@@ -103,7 +103,12 @@ public class Main {
                 inputConfiguration,
                 dependencies
         );
-        initHelpers(inputConfiguration, compiler.getLauncher().getFactory());
+        final TestRunner testRunner = new TestRunner(
+                inputConfiguration.getAbsolutePathToProjectRoot(),
+                inputConfiguration.getPreGoalsTestExecution(),
+                inputConfiguration.shouldUseMavenToExecuteTest()
+        );
+        initHelpers(inputConfiguration, compiler.getLauncher().getFactory(), testRunner);
         inputConfiguration.setFactory(compiler.getLauncher().getFactory());
         final EmailSender emailSender = new EmailSender(
                 inputConfiguration.getSmtpUsername(),
@@ -124,7 +129,8 @@ public class Main {
         );
         final List<CtType<?>> testClassesToBeAmplified = testFinder.findTestClasses(inputConfiguration.getTestClasses());
         final List<String> testMethodsToBeAmplifiedNames = inputConfiguration.getTestCases();
-        final TestSelector testSelector = inputConfiguration.getSelector().buildSelector(automaticBuilder, inputConfiguration);
+        final TestSelector testSelector =
+                inputConfiguration.getSelector().buildSelector(automaticBuilder, inputConfiguration, testRunner);
         final List<Amplifier> amplifiers = inputConfiguration
                 .getAmplifiers()
                 .stream()
@@ -169,7 +175,9 @@ public class Main {
         collector.sendInfo();
     }
 
-    private static void initHelpers(InputConfiguration configuration, Factory factory){
+    private static void initHelpers(InputConfiguration configuration,
+                                    Factory factory,
+                                    TestRunner testRunner){
         TestFramework.init(factory);
         AmplificationHelper.init(
                 configuration.getTimeOutInMs(),
@@ -184,7 +192,8 @@ public class Main {
                 configuration.shouldExecuteTestsInParallel(),
                 configuration.getAbsolutePathToProjectRoot(),
                 configuration.getClasspathClassesProject(),
-                configuration.getTimeOutInMs()
+                configuration.getTimeOutInMs(),
+                testRunner
         );
         DSpotUtils.init(
                 configuration.withComment(),
@@ -195,11 +204,6 @@ public class Main {
         initSystemProperties(configuration.getSystemProperties());
         AssertionGeneratorUtils.init(configuration.shouldAllowPathInAssertion());
         CloneHelper.init(configuration.shouldExecuteTestsInParallel());
-        TestRunner.init(
-                configuration.getAbsolutePathToProjectRoot(),
-                configuration.getPreGoalsTestExecution(),
-                configuration.shouldUseMavenToExecuteTest()
-        );
     }
 
     private static void initSystemProperties(String systemProperties) {

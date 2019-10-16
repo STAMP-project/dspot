@@ -17,7 +17,7 @@ public class ChangeDetectorSelectorTest extends AbstractSelectorTest {
     @Override
     protected TestSelector getTestSelector() {
         this.configuration.setAbsolutePathToSecondVersionProjectRoot(new File("src/test/resources/regression/test-projects_1/").getAbsolutePath() + "/");
-        return new ChangeDetectorSelector(this.builder, this.configuration);
+        return new ChangeDetectorSelector(this.builder, this.configuration, this.testRunner);
     }
 
     @Override

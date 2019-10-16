@@ -1,6 +1,7 @@
 package eu.stamp_project.dspot.selector;
 
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.utils.execution.TestRunner;
 import eu.stamp_project.utils.program.InputConfiguration;
 
 import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
@@ -14,6 +15,8 @@ public abstract class AbstractTestSelector implements TestSelector {
 
     protected AutomaticBuilder automaticBuilder;
 
+    protected TestRunner testRunner;
+
     protected String targetClasses;
 
     protected String classpath;
@@ -23,8 +26,10 @@ public abstract class AbstractTestSelector implements TestSelector {
     protected String outputDirectory;
 
     public AbstractTestSelector(AutomaticBuilder automaticBuilder,
-                                InputConfiguration configuration) {
+                                InputConfiguration configuration,
+                                TestRunner testRunner) {
         this.outputDirectory = configuration.getOutputDirectory();
+        this.testRunner = testRunner;
         this.automaticBuilder = automaticBuilder;
         String classpath = automaticBuilder.buildClasspath();
         if (!configuration.getAdditionalClasspathElements().isEmpty()) {
