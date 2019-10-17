@@ -79,15 +79,15 @@ sub startup {
   print "* Using mvn home [$mvn_home].\n";
 
   my $mvn_cmd = $config->{'mvn_cmd'} or die "ERROR Cannot find mvn_cmd.\n";
-  $mvn_cmd = File::Spec->catdir( ($mvn_bin, $mvn_cmd) );
+  $mvn_cmd = "MAVEN_HOME=${mvn_home} " . File::Spec->catdir( ($mvn_bin, $mvn_cmd) );
   print "* Using mvn command [$mvn_cmd].\n";
 
   my $dspot_cmd = $config->{'dspot_cmd'} or die "ERROR Cannot find dspot_cmd.\n";
-  $dspot_cmd = File::Spec->catdir( ($mvn_bin, $dspot_cmd) );
+  $dspot_cmd = "MAVEN_HOME=${mvn_home} " . File::Spec->catdir( ($mvn_bin, $dspot_cmd) );
   print "* Using dspot cmd [$dspot_cmd].\n";
 
   my $dspot_cmd_ext = $config->{'dspot_cmd_ext'} or die "ERROR Cannot find dspot_cmd_ext.\n";
-  $dspot_cmd_ext = File::Spec->catdir( ($mvn_bin, $dspot_cmd_ext) );
+  $dspot_cmd_ext = "MAVEN_HOME=${mvn_home} " . File::Spec->catdir( ($mvn_bin, $dspot_cmd_ext) );
   print "* Using dspot cmd ext [$dspot_cmd_ext].\n\n";
 
   # Just check we have what we need..
@@ -218,16 +218,16 @@ sub startup {
     my @ret_mvn = `$mvn_test --version`; print "DBG " . Dumper(@ret_mvn);
     my @o = grep { $_ =~ m!Apache Maven! } @ret_mvn;
     chomp @o;
-    print "    " . $o[0] . "\n";
+    print "    " . ($o[0] || 'Not found') . "\n";
     @o = grep { $_ =~ m!Maven home! } @ret_mvn;
     chomp @o;
-    print "    " . $o[0] . "\n";
+    print "    " . ($o[0] || 'Not found') . "\n";
     @o = grep { $_ =~ m!Java version! } @ret_mvn;
     chomp @o;
-    print "    " . $o[0] . "\n";
+    print "    " . ($o[0] || 'Not found') . "\n";
     @o = grep { $_ =~ m!Java home! } @ret_mvn;
-    chomp @o;
-    print "    " . $o[0] . "\n";
+    if (scalar(@o) != 0) { chomp @o };
+    print "    " . ($o[0] || 'Not found') . "\n";
 
     my @ret_dspot = `cd ${pdir_src}; $dspot_cmd | tee ../output/dspot.log`;
     $ret->{'log'} = join( "\n", @ret_dspot);
