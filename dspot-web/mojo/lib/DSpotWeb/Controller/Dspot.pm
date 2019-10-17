@@ -82,7 +82,7 @@ sub repos {
   
   # Read projects information.
   my $contents = do {
-      open my $fh, '<:encoding(UTF-8)', $projects or $msg = "Could not find [$projects]." ;
+      open my $fh, '<:encoding(UTF-8)', $projects or return "Could not find [$projects]." ;
       local $/;
       <$fh>;
   };

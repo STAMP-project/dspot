@@ -71,18 +71,21 @@ sub startup {
   # Add another "public" directory
   push @{$self->app->static->paths}, $workspace;
 
-  print "PATHS " . Dumper(@{$self->app->static->paths});
+#  print "PATHS " . Dumper(@{$self->app->static->paths});
   
   # Get mvn command to use for execution
   my $mvn_home = $config->{'mvn_home'} or die "ERROR Cannot find mvn_home.\n";
   my $mvn_bin = File::Spec->catdir( ($mvn_home, 'bin') );
   print "* Using mvn home [$mvn_home].\n";
+
   my $mvn_cmd = $config->{'mvn_cmd'} or die "ERROR Cannot find mvn_cmd.\n";
   $mvn_cmd = File::Spec->catdir( ($mvn_bin, $mvn_cmd) );
   print "* Using mvn command [$mvn_cmd].\n";
+
   my $dspot_cmd = $config->{'dspot_cmd'} or die "ERROR Cannot find dspot_cmd.\n";
   $dspot_cmd = File::Spec->catdir( ($mvn_bin, $dspot_cmd) );
   print "* Using dspot cmd [$dspot_cmd].\n";
+
   my $dspot_cmd_ext = $config->{'dspot_cmd_ext'} or die "ERROR Cannot find dspot_cmd_ext.\n";
   $dspot_cmd_ext = File::Spec->catdir( ($mvn_bin, $dspot_cmd_ext) );
   print "* Using dspot cmd ext [$dspot_cmd_ext].\n\n";
@@ -195,9 +198,6 @@ sub startup {
     my ($job, $id, $url, $hash, $extended) = @_;
     my $ret = {};
 
-    # Get command from config file.
-    my $cmd = $config->{'dspot_cmd'};
-
     print "# Executing dspot for repo [$id].\n";
     print "  Command is [$dspot_cmd].\n";
 
@@ -213,11 +213,9 @@ sub startup {
     # Check that we can actually run dspot
     
     # Run dspot
-    print "  Executing DSpot command: [$cmd].\n";
-#    print "    MAVEN_HOME: [" . ( $ENV{'MAVEN_HOME'} || '' ) . "].\n";
-#    print "    JAVA_HOME: [" . ( $ENV{'JAVA_HOME'} || '' ). "].\n";
-
-    my @ret_mvn = `cd ${pdir_src}; mvn --version`;
+    print "  Executing DSpot command: [$dspot_cmd].\n";
+    print "  Executing DSpot command: [$mvn_test --version].\n";
+    my @ret_mvn = `$mvn_test --version`; print "DBG " . Dumper(@ret_mvn);
     my @o = grep { $_ =~ m!Apache Maven! } @ret_mvn;
     chomp @o;
     print "    " . $o[0] . "\n";
@@ -231,7 +229,7 @@ sub startup {
     chomp @o;
     print "    " . $o[0] . "\n";
 
-    my @ret_dspot = `cd ${pdir_src}; $cmd | tee ../output/dspot.log`;
+    my @ret_dspot = `cd ${pdir_src}; $dspot_cmd | tee ../output/dspot.log`;
     $ret->{'log'} = join( "\n", @ret_dspot);
 
     print "  Zipping directory $pdir_out.\n";
