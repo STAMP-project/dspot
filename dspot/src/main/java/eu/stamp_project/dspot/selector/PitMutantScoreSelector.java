@@ -60,14 +60,17 @@ public class PitMutantScoreSelector extends TakeAllSelector {
 
     private String absolutePathToProjectRoot;
 
+    private List<String> mutationsScoreResults;
+
     public PitMutantScoreSelector(AutomaticBuilder automaticBuilder,
                                   InputConfiguration configuration) {
         super(automaticBuilder, configuration);
+        this.mutationsScoreResults = new ArrayList<>();
         this.absolutePathToProjectRoot = configuration.getAbsolutePathToProjectRoot();
         this.shouldTargetOneTestClass = configuration.shouldTargetOneTestClass();
         this.testClassTargetOne =
                 configuration.getTestClasses() == null || configuration.getTestClasses().isEmpty() ? null :
-                configuration.getFactory().Class().get(configuration.getTestClasses().get(0));
+                        configuration.getFactory().Class().get(configuration.getTestClasses().get(0));
         this.testThatKilledMutants = new HashMap<>();
         this.parser = new PitXMLResultParser();
         final String pathPitResult = configuration.getPathPitResult();
@@ -92,6 +95,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 parser = originalResultParser = new PitXMLResultParser();
                 break;
         }
+        this.mutationsScoreResults.add(this.readFileContentAsString(pathPitResult));
         initOriginalPitResult(originalResultParser.parse(new File(pathPitResult)));
     }
 
@@ -109,11 +113,16 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                     return false;
                 }
             }
-            initOriginalPitResult(parser.parseAndDelete( this.absolutePathToProjectRoot + this.automaticBuilder.getOutputDirectoryPit()));
+            this.mutationsScoreResults.add(
+                    this.readFileContentAsString(
+                            this.parser.getPathOfMutationsFile(this.absolutePathToProjectRoot + this.automaticBuilder.getOutputDirectoryPit()).getAbsolutePath()
+                    )
+            );
+            initOriginalPitResult(parser.parseAndDelete(this.absolutePathToProjectRoot + this.automaticBuilder.getOutputDirectoryPit()));
         } else {
-            baselineKilledMutants = new ArrayList<>();
-            for(AbstractPitResult r : originalKilledMutants) {
-                baselineKilledMutants.add(r.clone());
+            this.baselineKilledMutants = new ArrayList<>();
+            for (AbstractPitResult r : this.originalKilledMutants) {
+                this.baselineKilledMutants.add(r.clone());
             }
         }
         return true;
@@ -131,7 +140,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 .collect(Collectors.toList());
         LOGGER.info("The original test suite kill {} / {}", this.originalKilledMutants.size(), results.size());
         this.baselineKilledMutants = new ArrayList<>();
-        for(AbstractPitResult r : this.originalKilledMutants) {
+        for (AbstractPitResult r : this.originalKilledMutants) {
             this.baselineKilledMutants.add(r.clone());
         }
     }
@@ -176,6 +185,9 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                 new File(this.absolutePathToProjectRoot + "/" + this.pathToTestClasses)
         );
         this.automaticBuilder.runPit(clone);
+        this.mutationsScoreResults.add(this.readFileContentAsString(
+                parser.getPathOfMutationsFile(this.absolutePathToProjectRoot + automaticBuilder.getOutputDirectoryPit()).getAbsolutePath())
+        );
         final List<AbstractPitResult> results = parser.parseAndDelete(this.absolutePathToProjectRoot + automaticBuilder.getOutputDirectoryPit());
         Set<CtMethod<?>> selectedTests = new HashSet<>();
         if (results != null) {
@@ -219,6 +231,14 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         return new ArrayList<>(selectedTests);
     }
 
+    private String readFileContentAsString(final String pathname) {
+        try (BufferedReader buffer = new BufferedReader(new FileReader(pathname))) {
+            return buffer.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private boolean killsNewMutant(AbstractPitResult result) {
         if (baselineKilledMutants.contains(result)) {
             return false;
@@ -231,7 +251,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
 
     @Override
     public TestSelectorElementReport report() {
-        if(currentClassTestToBeAmplified == null) {
+        if (currentClassTestToBeAmplified == null) {
             return lastReport;
         }
         final String reportStdout = reportStdout();
@@ -241,7 +261,13 @@ public class PitMutantScoreSelector extends TakeAllSelector {
         this.currentClassTestToBeAmplified = null;
         this.testThatKilledMutants.clear();
         this.selectedAmplifiedTest.clear();
-        lastReport = new TestSelectorElementReportImpl(reportStdout, testClassJSON);
+
+        this.lastReport = new TestSelectorElementReportImpl(
+                reportStdout,
+                testClassJSON,
+                this.mutationsScoreResults,
+                this.parser instanceof PitXMLResultParser ? ".xml" : ".csv"
+        );
         return lastReport;
     }
 
