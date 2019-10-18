@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
@@ -210,7 +211,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                             (double) coverageResults.getInstructionsTotal())))
                     .append("%")
                     .append(AmplificationHelper.LINE_SEPARATOR);
-            lastReport = new TestSelectorElementReportImpl(report.toString(), jsonReport(coverageResults));
+            lastReport = new TestSelectorElementReportImpl(report.toString(), jsonReport(coverageResults), Collections.emptyList(), "");
 
             return lastReport;
         } catch (TimeoutException e) {

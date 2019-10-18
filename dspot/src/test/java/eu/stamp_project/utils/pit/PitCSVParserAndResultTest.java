@@ -34,31 +34,4 @@ public class PitCSVParserAndResultTest {
         assertEquals(1014, pitCSVResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitCSVResult.State.NO_COVERAGE).count(), nbErrors);
     }
 
-    @Test
-    public void testOnPitResultCSV() throws IOException {
-
-
-        /*
-                reading, output and re-read should give the save as the first read
-                In this test, we use the toString() method of PitCSVResult to transform the
-                 List<PitCSVResult> into List<String>
-                Then we create a TestSelectorElementReportImpl (we do not care of the textual report and the test class JSON)
-                Then the file read (raw) and the string built must be equals
-        */
-
-        final PitCSVResultParser parser = new PitCSVResultParser();
-        final String FILE_PATH_NAME = "src/test/resources/catalog.csv";
-        final List<PitCSVResult> parse = parser.parse(new File(FILE_PATH_NAME));
-        // transform the PitCSVResult into String using overridden toString() method
-        final String resultAsString = parse.stream().map(Object::toString).collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
-        try (BufferedReader buffer = new BufferedReader(new FileReader(FILE_PATH_NAME))) {
-            assertEquals(
-                    buffer.lines()
-                            .collect(
-                                    Collectors.joining(AmplificationHelper.LINE_SEPARATOR)
-                            ), resultAsString
-            );
-        }
-    }
-
 }

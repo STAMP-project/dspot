@@ -32,37 +32,4 @@ public class PitXMLParserAndResultTest {
         assertEquals(15, pitXMLResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.KILLED).count(), nbErrors);
         assertEquals(4, pitXMLResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == AbstractPitResult.State.NO_COVERAGE).count(), nbErrors);
     }
-
-    @Test
-    public void testOnPitResultCSV() throws IOException {
-
-
-        /*
-                reading, output and re-read should give the save as the first read
-                In this test, we use the toString() method of PitCSVResult to transform the
-                 List<PitCSVResult> into List<String>
-                Then we create a TestSelectorElementReportImpl (we do not care of the textual report and the test class JSON)
-                Then the file read (raw) and the string built must be equals
-        */
-
-        final PitXMLResultParser parser = new PitXMLResultParser();
-        final String FILE_PATH_NAME = "src/test/resources/mutations_test-projects.xml";
-        final List<PitXMLResult> parse = parser.parse(new File(FILE_PATH_NAME));
-        // transform the PitCSVResult into String using overridden toString() method
-        final String resultAsString = parse.stream().map(Object::toString).collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
-        try (BufferedReader buffer = new BufferedReader(new FileReader(FILE_PATH_NAME))) {
-            final String header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + AmplificationHelper.LINE_SEPARATOR +
-                    "<mutations>" + AmplificationHelper.LINE_SEPARATOR;
-            final String footer = "</mutations>";
-            assertEquals(
-                    buffer.lines()
-                            .collect(
-                                    Collectors.joining(AmplificationHelper.LINE_SEPARATOR)
-                            ),
-                    header +
-                    resultAsString + AmplificationHelper.LINE_SEPARATOR +
-                            footer
-            );
-        }
-    }
 }

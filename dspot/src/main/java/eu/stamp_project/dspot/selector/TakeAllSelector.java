@@ -8,6 +8,7 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -50,7 +51,7 @@ public class TakeAllSelector extends AbstractTestSelector {
 	public TestSelectorElementReport report() {
 		final String report = "Amplification results with " + this.selectedAmplifiedTest.size() + " new tests.";
 		reset();
-		return new TestSelectorElementReportImpl(report, null);
+		return new TestSelectorElementReportImpl(report, null, Collections.emptyList(), "");
 	}
 
 	@Override
