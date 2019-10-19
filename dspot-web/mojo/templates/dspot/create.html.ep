@@ -30,12 +30,12 @@
   <div class="form-group">
     <label for="hash_label" class="control-label col-xs-2">Commit hash:</label>
     <div class="col-xs-10">
-      <input type="text" class="form-control" name="hash" id="hash" />
+      <input type="text" class="form-control" name="hash" id="hash" value="HEAD" />
     </div>
   </div>
 
   <div class="form-group">
-    <label for="extended" class="control-label col-xs-2">Extend generation?</label>
+    <label for="extended" class="control-label col-xs-2" >Extend generation? <a href="#" data-toggle="tooltip" title="When this option is set, dspot-maven will be invoked with a more complete set of amplifiers for the generation. Be warned that it may take longer to compute."><i class="fa fa-lg fa-question-circle"></i></a></label>
     <div class="col-xs-10">
       <input type="checkbox" name="extended" />
     </div>
