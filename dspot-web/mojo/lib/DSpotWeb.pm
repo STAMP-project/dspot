@@ -229,9 +229,14 @@ sub startup {
     if (scalar(@o) != 0) { chomp @o };
     print "    " . ($o[0] || 'Not found') . "\n";
 
-    my @ret_dspot = `cd ${pdir_src}; $dspot_cmd | tee ../output/dspot.log`;
-    $ret->{'log'} = join( "\n", @ret_dspot);
-
+    my @ret_dspot;
+    if ( $extended =~ m!^on$! ) {
+	@ret_dspot = `cd ${pdir_src}; $dspot_cmd | tee ../output/dspot.log`;
+    } else {
+	@ret_dspot = `cd ${pdir_src}; $dspot_cmd_ext | tee ../output/dspot.log`;
+    }
+	$ret->{'log'} = join( "\n", @ret_dspot);
+    
     my $d = "$wdir/$id/output/dspot/";
     my $results = [];
     if ( -d $d ) {
