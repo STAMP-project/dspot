@@ -10,29 +10,55 @@
   </div>
 </div>
 
-<p><a class="btn btn-primary btn-lg" href="https://github.com/STAMP-project/dspot" role="button">STAMP / DSpot &raquo;</a></p>
-
 <p><a class="btn btn-primary btn-lg" href="/new" role="button">Add your project &raquo;</a></p>
 
+<br />
       
-<h2>About DSpot</h2>
+<h2>About <a href="https://github.com/STAMP-project/dspot">DSpot</a></h2>
 
 <p>DSpot is a tool that generates missing assertions in JUnit tests. </p>
 <p>DSpot takes as input a Java Maven project with an existing test suite and generates new test cases that improve the efficiency of the test suite.</p>
 
+<br />
 
-<h2>Contributing</h2>
+<h1>Repositories</h1>
 
-<p>DSpot is licensed under LGPLv3. Contributors and pull requests are welcome :-).
-Tell us what you think and what you expect in the next release using the <a href="https://www.stamp-project.eu/view/main/betatestingsurvey/" rel="nofollow">STAMP feedback form</a>.
-As a recognition for your useful feedback, you might receive a limited edition “STAMP Software Test Pilot” gift and be added as a STAMP contributor.
-This offer is limited to the beta testers interacting with the STAMP project team, by 31 September 2019.
-You will be contacted individually for a customized gift and for contribution opportunities.</p>
-<p>For more information on development, see the dedicated <a href="https://github.com/STAMP-project/dspot/blob/master/README-developers.md">README-developers.md</a></p>
+<br />
+
+<p>This is the list of all repositories analysed by our services. Simply click on a line to get more information about the selected repository.</p>
+
+<br />
+
+<table class="table table-striped table-hover ">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Number of jobs</th>
+      <th>Total number of newly killed mutants</th>
+      <th>Last Execution</th>
+    </tr>
+  </thead>
+  <tbody>
+% my $c = 0;
+% use POSIX qw( strftime );
+% my @jobs = @{app->minion->backend->list_jobs->{'jobs'}};
+% foreach my $repo ( @$repos ) {
+%   if ($c > 10) { last } else { $c++ }
+%   my @job = grep { $_->{'args'}[0] =~ m!$repo! } @jobs;
+%   my $start = strftime('%Y-%m-%d %H:%M:%S', gmtime($job[0]->{'created'}));
+    <tr><td><a href="/repo/<%= $repo %>"><%= $repo %></a></td>
+    <td><a href="/jobs"><%= scalar(@job) %></a></td>
+    <td><a href="/jobs"><%= $job[0]->{'result'}{'totalNewMutantsKilled'} %></a></td>
+    <td><%= $start %></td></tr>
+% }
+  </tbody>
+</table> 
+
+<p></p>
 
 <h2>Acknowledgement</h2>
 
-<p>DSpot is funded by <a href="https://www.stamp-project.eu/" rel="nofollow">EU H2020 research project STAMP</a>.</p>
+<p>DSpot is funded by the <a href="https://www.stamp-project.eu/" rel="nofollow">EU H2020 research project STAMP</a>.</p>
 <p></p>
 
 
