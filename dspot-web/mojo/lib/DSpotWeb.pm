@@ -190,6 +190,8 @@ sub startup {
     my @mvn_ret = `cd ${pdir_src}; ${mvn_cmd} | tee ../output/mvn_test.log`;
     $ret->{'log'} = join( "\n", @mvn_ret);
     
+    print "  END of task run_mvn.\n";
+    
     # Mark the job as finished.
     $job->finish($ret);
 			   });
@@ -231,11 +233,11 @@ sub startup {
 
     my @ret_dspot;
     if ( $extended =~ m!^on$! ) {
-	@ret_dspot = `cd ${pdir_src}; $dspot_cmd | tee ../output/dspot.log`;
-    } else {
 	@ret_dspot = `cd ${pdir_src}; $dspot_cmd_ext | tee ../output/dspot.log`;
+    } else {
+	@ret_dspot = `cd ${pdir_src}; $dspot_cmd | tee ../output/dspot.log`;
     }
-	$ret->{'log'} = join( "\n", @ret_dspot);
+    $ret->{'log'} = join( "\n", @ret_dspot);
     
     my $d = "$wdir/$id/output/dspot/";
     my $results = [];
@@ -294,6 +296,8 @@ sub startup {
 	print "  Project already in conf, not modifying anything.\n";
     }
 
+    print "  END of task run_dspot.\n";
+    
     # Mark the job as finished.
     $job->finish($ret);
 			   });

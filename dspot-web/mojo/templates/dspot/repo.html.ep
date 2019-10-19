@@ -86,7 +86,7 @@
 
 % }
 
-% my $f = "$wdir/$repo/output/git_pull.log";
+% $f = "$wdir/$repo/output/git_pull.log";
 %# my $fc = "$wdir/$repo/output/git_clone.log";
 % if ( -f $f ) {
 %   my $contents = do {

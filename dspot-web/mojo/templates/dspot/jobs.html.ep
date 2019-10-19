@@ -32,11 +32,12 @@
 %   use DateTime;
 %   my $start_time = strftime('%Y-%m-%d %H:%M:%S', gmtime($job->{'created'}));
 %   my $start_time_ = DateTime->from_epoch( epoch => defined($job->{'started'}) ? $job->{'started'} : 0 ); 
-%   my $stop_time = DateTime->from_epoch( epoch => defined($job->{'finished'}) ? $job->{'finished'} : 0 ); 
-%   my $duration = $stop_time->subtract_datetime($start_time_);
+%   my $stop_time = DateTime->from_epoch( epoch => defined($job->{'finished'}) ? $job->{'finished'} : 0 );
+%   my $now_time = DateTime->now;
+%   my $duration = defined($job->{'finished'}) ? $stop_time->subtract_datetime($start_time_) : $stop_time->subtract_datetime($now_time);
     <tr>
       <td><%= $job->{'id'} %></td>
-      <td><%= $job->{'args'}[0] %></td>
+      <td><a href="/repo/<%== $a[0] || '' %>"><%= $job->{'args'}[0] %></a></td>
       <td><%= $job->{'task'} %></td>
       <td><i class="fa fa-lg <%= $icon %>" style="color:forestgreen"></i> &nbsp; <%= $job->{'state'} %></td>
       <td><%= $start_time %><br />

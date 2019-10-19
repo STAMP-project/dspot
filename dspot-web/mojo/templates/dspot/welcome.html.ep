@@ -50,7 +50,7 @@
     <td><a href="/repo/<%= $repo %>"><%= $repo %></a></td>
     <td><a href="/jobs"><%= scalar(@job) %></a></td>
     <td>
-      <a href="/repo/<%= $repo %>"><%= $job[0]->{'result'}{'totalNewMutantsKilled'} %></a>
+      <a href="/repo/<%= $repo %>"><%= $job[0]->{'result'}{'totalNewMutantsKilled'} || '' %></a>
     </td>
     <td><%= $start %></td></tr>
 % }
