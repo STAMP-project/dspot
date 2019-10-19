@@ -13,9 +13,7 @@
 <p>Please note that the following prerequisites apply:</p>
 <ul>
   <li>The project uses Maven as a build system. The version of Maven used here is 3.6.0.</li>
-  <li>The project can be built (and tested) against Open JDK 8. `1.8.0_201` more precisely.</li>
-  <li>The test suite can be run seamlessly. If not, don't ask for new tests. <code>;-p</code></li>
-  <!-- li></li -->
+  <li>The project can be built and tested against Open JDK 8 (`1.8.0_201`).</li>
 </ul>
 
 
