@@ -28,11 +28,14 @@
   <dt class="col-sm-3"><b>Repository ID</b></dt>
   <dd class="col-sm-9"><mark><%= $repo %></mark></dd>
   <dt class="col-sm-3"><b>Git URL</b></dt>
-  <dd class="col-sm-9"><mark><%= $conf->{'git'} || 'Unknown' %></mark></dd>
+  <dd class="col-sm-9"><mark><%= $conf->{'git'} || 'Unknown' %></mark>
+    <a href="<%= $conf->{'git'} || '' %>"><i class="fa fa-lg fa-external-link"></i></a> 
+  </dd>
 </dl>
 
 <br />
 
+% #"
 % my $d = "$wdir/$repo/output/dspot/";
 % if ( -d $d ) {
 %   use Mojo::JSON qw(decode_json);
@@ -63,8 +66,13 @@
     <tr>
       <td><%= $f->{'name'} %></td>
       <td><%= $f->{'nbOriginalTestCases'} %></td>
-      <td><%= $f->{'nbMutantKilledOriginally'} %></td>
-      <td><%= $f->{'nbNewMutantKilled'} %></td>
+      <td>
+	<%= $f->{'nbMutantKilledOriginally'} %>
+      </td>
+      <td>
+	<%= $f->{'nbNewMutantKilled'} %> &nbsp; 
+	<%== $f->{'nbNewMutantKilled'} > 0 ? '&nbsp; &nbsp; <i class="fa fa-lg fa-thumbs-up" style="color:forestgreen"></i>' : ''  %>
+      </td>
     </tr>
 % }
   </tbody>
@@ -88,7 +96,7 @@
 %   };
 <h2>Git execution</h2>
 
-<pre class="pre-scrollable">
+<pre class="pre-scrollable" style="max-height: 25vh">
 <%= dumper($contents) %>
 </pre>
 
@@ -104,7 +112,7 @@
 %   };
 <h2>Maven execution</h2>
 
-<pre class="pre-scrollable">
+<pre class="pre-scrollable" style="max-height: 25vh">
 <%= $contents =%>
 </pre>
 
@@ -118,7 +126,7 @@
 %   close $fh;
 <h2>DSpot execution</h2>
 
-<pre class="pre-scrollable">
+<pre class="pre-scrollable" style="max-height: 25vh">
 <%= "$_\n" for @lines %>
 </pre>
 

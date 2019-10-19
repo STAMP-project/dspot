@@ -43,12 +43,15 @@
 % use POSIX qw( strftime );
 % my @jobs = @{app->minion->backend->list_jobs->{'jobs'}};
 % foreach my $repo ( @$repos ) {
-%   if ($c > 10) { last } else { $c++ }
+%   # if ($c > 10) { last } else { $c++ }
 %   my @job = grep { $_->{'args'}[0] =~ m!$repo! } @jobs;
 %   my $start = strftime('%Y-%m-%d %H:%M:%S', gmtime($job[0]->{'created'}));
-    <tr><td><a href="/repo/<%= $repo %>"><%= $repo %></a></td>
+  <tr>
+    <td><a href="/repo/<%= $repo %>"><%= $repo %></a></td>
     <td><a href="/jobs"><%= scalar(@job) %></a></td>
-    <td><a href="/repo/<%= $repo %>"><%= $job[0]->{'result'}{'totalNewMutantsKilled'} %></a></td>
+    <td>
+      <a href="/repo/<%= $repo %>"><%= $job[0]->{'result'}{'totalNewMutantsKilled'} %></a>
+    </td>
     <td><%= $start %></td></tr>
 % }
   </tbody>
