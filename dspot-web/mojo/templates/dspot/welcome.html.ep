@@ -48,7 +48,7 @@
 %   my $start = strftime('%Y-%m-%d %H:%M:%S', gmtime($job[0]->{'created'}));
     <tr><td><a href="/repo/<%= $repo %>"><%= $repo %></a></td>
     <td><a href="/jobs"><%= scalar(@job) %></a></td>
-    <td><a href="/jobs"><%= $job[0]->{'result'}{'totalNewMutantsKilled'} %></a></td>
+    <td><a href="/repo/<%= $repo %>"><%= $job[0]->{'result'}{'totalNewMutantsKilled'} %></a></td>
     <td><%= $start %></td></tr>
 % }
   </tbody>
