@@ -92,7 +92,8 @@ sub startup {
 
   # Just check we have what we need..
   my $mvn_test = File::Spec->catfile( $mvn_bin, 'mvn' );
-  my @mvn_test = `${mvn_test} --version`;
+  $mvn_test .= ' --version';
+  my @mvn_test = `${mvn_test}`;
   print @mvn_test;
 
   
@@ -214,8 +215,7 @@ sub startup {
     
     # Run dspot
     print "  Executing DSpot command: [$dspot_cmd].\n";
-    print "  Executing DSpot command: [$mvn_test --version].\n";
-    my @ret_mvn = `$mvn_test --version`; print "DBG " . Dumper(@ret_mvn);
+    my @ret_mvn = `$mvn_test`;
     my @o = grep { $_ =~ m!Apache Maven! } @ret_mvn;
     chomp @o;
     print "    " . ($o[0] || 'Not found') . "\n";
@@ -231,6 +231,27 @@ sub startup {
 
     my @ret_dspot = `cd ${pdir_src}; $dspot_cmd | tee ../output/dspot.log`;
     $ret->{'log'} = join( "\n", @ret_dspot);
+
+    my $d = "$wdir/$id/output/dspot/";
+    my $results = [];
+    if ( -d $d ) {
+	my @files = <$d/*_report.json>;
+	foreach my $f (@files) {
+	    my $data;
+	    {
+		open my $fh, '<', $f or die "Cannot find file $f.";
+		$/ = undef;
+		$data = <$fh>;
+		close $fh;
+	    }
+	    my $conf = decode_json( $data );
+	    push( @$results, $conf );
+	}
+    }
+
+    my $nm = 0;
+    map { $nm += $_->{'nbNewMutantKilled'} } @$results;
+    $ret->{'totalNewMutantsKilled'} = $nm;
 
     print "  Zipping directory $pdir_out.\n";
     my $zip = Archive::Zip->new();
