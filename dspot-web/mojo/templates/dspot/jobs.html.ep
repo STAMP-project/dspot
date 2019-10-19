@@ -17,7 +17,6 @@
 
 <br />
 
-% my $stats = app->minion->stats;
 <table class="table table-striped table-hover ">
   <thead>
     <tr><th>ID</th><th>Repository</th><th>Task</th><th>Status</th><th>Created/Finished</th><th>Args</th></tr>
@@ -29,14 +28,22 @@
 %   elsif ($job->{'state'} =~ m!^inactive!) { $icon = "fa-hourglass-o"; }
 %   elsif ($job->{'state'} =~ m!^failed!) { $icon = "fa-frown-o"; }
 %   elsif ($job->{'state'} =~ m!^finished!) { $icon = "fa-smile-o"; }
+%   my @a = @{$job->{'args'}};
+%   use POSIX qw( strftime );
+%   my $start = strftime('%Y-%m-%d %H:%M:%S', gmtime($job->{'created'}));
     <tr>
       <td><%= $job->{'id'} %></td>
       <td><%= $job->{'args'}[0] %></td>
       <td><%= $job->{'task'} %></td>
-      <td><i class="fa fa-lg <%= $icon %>"></i> &nbsp; <%= $job->{'state'} %></td>
-      <td><%= localtime( $job->{'created'} ) %><br />
+      <td><i class="fa fa-lg <%= $icon %>" style="color:forestgreen"></i> &nbsp; <%= $job->{'state'} %></td>
+      <td><%= $start %><br />
 	<%= defined($job->{'finished'}) ? "" . localtime( $job->{'finished'} ) : "" %></td>
-      <td><%== join( '<br />', map {$_ || ''} @{$job->{'args'}} ) %></td>
+      <td>
+	ID: <a href="/repo/<%== $a[0] || '' %>"><%== $a[0] || '' %></a><br />
+	Git URL: <a href="<%== $a[1] || '' %>"><%== $a[1] || '' %></a><br />
+	Hash: <%== $a[2] || '' %><br />
+	Extended: <%== $a[3] || '' %><br />
+      </td>
     </tr>
 % }
   </tbody>

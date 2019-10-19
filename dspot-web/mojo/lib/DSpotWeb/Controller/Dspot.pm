@@ -13,6 +13,22 @@ use Archive::Zip qw( :ERROR_CODES :CONSTANTS );
 sub welcome {
   my $self = shift;
 
+  # Load configuration from application config
+  my $wdir = $self->app->config('work_dir');
+  my $projects = File::Spec->catfile( $wdir, 'projects.json');
+  
+  # Read projects information.
+  my $contents = do {
+      open my $fh, '<:encoding(UTF-8)', $projects or return "Could not find [$projects]." ;
+      local $/;
+      <$fh>;
+  };
+  my $conf = decode_json( $contents );
+  
+  my @repos = map { basename($_) } sort keys %{$conf};
+
+  $self->stash('repos' => \@repos);
+
   # Render template "dspot/welcome.html.ep"
   $self->render(msg => 'Welcome to the Mojolicious real-time web framework!');
 }
