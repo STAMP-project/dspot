@@ -144,7 +144,7 @@ sub startup {
 
   # Task to clone or pull the git repository.
   $self->minion->add_task( run_git => sub {
-    my ($job, $id, $url, $params) = @_;
+    my ($job, $id, $url, $hash) = @_;
     my $ret = {};
 
     print "# Executing git for [$id].\n";
@@ -167,8 +167,13 @@ sub startup {
      	chmod 0755, $pdir_out;
 	
 	# Clone the repo.
-	my @ret_git = `cd $pdir; git clone $url src/ | tee output/git_clone.log`;
-	$ret->{'log'} = join( "\n", @ret_git );
+	my @ret_git = `cd $pdir; git clone $url src/`;
+    }
+
+    # Set the current commit to the specified tag/hash.
+    if (defined($hash)) {
+	# Checkout hash/tag.
+	`cd ${pdir_src}; git checkout $hash | tee ../output/git_checkout.log`;
     }
 
     print "  END of task git_run.\n";
@@ -178,7 +183,7 @@ sub startup {
   
   # Task to execute Maven on project.
   $self->minion->add_task( run_mvn => sub {
-    my ($job, $id, $url, $hash, $extended) = @_;
+    my ($job, $id, $url, $hash) = @_;
     my $ret = {};
     
     print "# Executing mvn for repo [$id].\n";
@@ -220,23 +225,23 @@ sub startup {
     my @ret_mvn = `$mvn_test`;
     my @o = grep { $_ =~ m!Apache Maven! } @ret_mvn;
     chomp @o;
-    print "    " . ($o[0] || 'Not found') . "\n";
+    print "    " . ($o[0] || 'Apache maven version not found') . "\n";
     @o = grep { $_ =~ m!Maven home! } @ret_mvn;
     chomp @o;
-    print "    " . ($o[0] || 'Not found') . "\n";
+    print "    " . ($o[0] || 'Maven home not found') . "\n";
     @o = grep { $_ =~ m!Java version! } @ret_mvn;
     chomp @o;
-    print "    " . ($o[0] || 'Not found') . "\n";
+    print "    " . ($o[0] || 'Java version not found') . "\n";
     @o = grep { $_ =~ m!Java home! } @ret_mvn;
     if (scalar(@o) != 0) { chomp @o };
-    print "    " . ($o[0] || 'Not found') . "\n";
+    print "    " . ($o[0] || 'Java home not found') . "\n";
 
     my @ret_dspot;
     if ( $extended =~ m!^on$! ) {
-	@ret_dspot = `cd ${pdir_src}; $dspot_cmd_ext | tee ../output/dspot.log`;
-    } else {
-	@ret_dspot = `cd ${pdir_src}; $dspot_cmd | tee ../output/dspot.log`;
+	$dspot_cmd = $dspot_cmd_ext;
     }
+    print "  Executing [cd ${pdir_src}; $dspot_cmd | tee ../output/dspot.log]\n";
+    @ret_dspot = `cd ${pdir_src}; $dspot_cmd | tee ../output/dspot.log`;
     $ret->{'log'} = join( "\n", @ret_dspot);
     
     my $d = "$wdir/$id/output/dspot/";
@@ -246,7 +251,7 @@ sub startup {
 	foreach my $f (@files) {
 	    my $data;
 	    {
-		open my $fh, '<', $f or die "Cannot find file $f.";
+		open my $fh, '<', $f or (print "Cannot find file $f." && next);
 		$/ = undef;
 		$data = <$fh>;
 		close $fh;
@@ -282,19 +287,21 @@ sub startup {
     my $conf = decode_json( $data );
 
     # Add project if it doesn't exist already.
-    if (not exists($conf->{$id})) {
+#    if ( (not exists($conf->{$id})) or (not exists($conf->{$id}{'cmd'})) ) {
 	$conf->{$id}{'git'} = $url;
-	
+	$conf->{$id}{'hash'} = $hash;
+	$conf->{$id}{'cmd'} = $dspot_cmd;
+ 	
 	# Write projects information to file.
 	my $conf_json = encode_json( $conf );
 	open my $fh, '>:encoding(UTF-8)', $projects or return { "Could not find [$projects]." };
 	print $fh $conf_json;
 	close $fh;
 
-	print "  Project added to conf.\n";
-    } else {
-	print "  Project already in conf, not modifying anything.\n";
-    }
+	print "  Project added/updated in conf.\n";
+#    } else {
+#	print "  Project already in conf, not modifying anything.\n";
+#    }
 
     print "  END of task run_dspot.\n";
     
@@ -310,11 +317,8 @@ sub startup {
   $r->get('/')->to( 'dspot#welcome' );
 
   # Route to list of repositories
-  $r->get('/repos/')->to( 'dspot#repos' );
   $r->get('/repo/#repo')->to( 'dspot#repo' );
   
-  $r->get('/about')->to( 'dspot#about' );
-
   $r->get('/new/')->to( 'dspot#create' );
   $r->post('/new/')->to( 'dspot#create_post' );
 
