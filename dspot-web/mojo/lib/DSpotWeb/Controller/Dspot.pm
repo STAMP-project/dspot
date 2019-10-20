@@ -88,21 +88,18 @@ sub repo {
 	       
   # Load configuration from application config
   my $wdir = $self->app->config('work_dir');
-  print "work dir is $wdir.\n";
-  # Should we keep it?
-  #my $pinfo = File::Spec->catfile( $wdir, $repo, 'project_info.json');
   
   # Read projects information.
   my $projects = File::Spec->catfile( $wdir, 'projects.json');
-  print "Projects file is $projects.\n";
   my $contents = do {
       open my $fh, '<:encoding(UTF-8)', $projects or print "ERROR Could not find [$projects].\n" ;
       local $/;
       <$fh>;
   };
-#  print "JSON raw " . Dumper($contents);
+
   my $conf = decode_json( $contents );
-    
+
+  # Prepare data to be sent to template.
   $self->stash('conf' => $conf->{$repo});
   $self->stash('repo' => $repo);
   $self->stash('wdir' => $wdir);
