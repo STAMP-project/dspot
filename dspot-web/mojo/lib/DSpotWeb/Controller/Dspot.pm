@@ -67,49 +67,16 @@ sub create_post {
 
   my $job_git = $self->minion->enqueue(
       run_git => [$id, $url, $hash] => {delay => 0});
-  print "DBG JOB GIT " . Dumper($job_git);
+#  print "DBG JOB GIT " . Dumper($job_git);
   my $job_mvn = $self->minion->enqueue(
-      run_mvn => [$id, $url, $hash, $extended] => {parents => [$job_git]});
-  print "DBG JOB MVN " . Dumper($job_mvn);
+      run_mvn => [$id, $url, $hash] => {parents => [$job_git]});
+#  print "DBG JOB MVN " . Dumper($job_mvn);
   my $job_dspot = $self->minion->enqueue(
       run_dspot => [$id, $url, $hash, $extended] => {parents => [$job_mvn]});
-  print "DBG JOB DSPOT " . Dumper($job_dspot);
+#  print "DBG JOB DSPOT " . Dumper($job_dspot);
   
   # Render template "dspot/create_post.html.ep"
   $self->redirect_to('/jobs');
-}
-
-# List of repositories
-sub repos {
-  my $self = shift;
-
-  my $msg;
-  
-  # Load configuration from application config
-  my $wdir = $self->app->config('work_dir');
-  print "work dir is $wdir.\n";
-
-#  $self->app->dlog('message log from controller.');
-  
-#  my @repos_ = grep { -d } glob( "$wdir/*" );
-#  File::Spec->splitdir( $url )
-
-  my $projects = File::Spec->catfile( $wdir, 'projects.json');
-  
-  # Read projects information.
-  my $contents = do {
-      open my $fh, '<:encoding(UTF-8)', $projects or return "Could not find [$projects]." ;
-      local $/;
-      <$fh>;
-  };
-  my $conf = decode_json( $contents );
-  
-  my @repos = map { basename($_) } sort keys %{$conf};
-
-  $self->stash('repos' => \@repos);
-
-  # Render template "dspot/repos.html.ep"
-  $self->render();
 }
 
 # Display a specific repository
