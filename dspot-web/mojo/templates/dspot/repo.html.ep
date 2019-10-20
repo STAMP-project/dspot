@@ -1,6 +1,10 @@
 % layout 'default';
 % title 'Repository';
 
+% my $url = $conf->{'git'} || '';
+% my $hash = $conf->{'hash'} || '';
+% my $cmd = $conf->{'cmd'} || '';
+
 <br />
 
 <a href="/">&lt; Back Home</a>
@@ -29,13 +33,18 @@
   <dd class="col-sm-9"><mark><%= $repo %></mark></dd>
   <dt class="col-sm-3"><b>Git URL</b></dt>
   <dd class="col-sm-9"><mark><%= $conf->{'git'} || 'Unknown' %></mark>
-    <a href="<%= $conf->{'git'} || '' %>"><i class="fa fa-lg fa-external-link"></i></a> 
+    <a href="<%= $url %>"><i class="fa fa-lg fa-external-link"></i></a> 
+  </dd>
+  <dt class="col-sm-3"><b>Git Hash</b></dt>
+  <dd class="col-sm-9"><mark><%= $hash %></mark></dd>
+  <dt class="col-sm-3"><b>Analysis type / command used</b></dt>
+  <dd class="col-sm-9">
+    <mark><%= $cmd %></mark>
   </dd>
 </dl>
 
 <br />
 
-% #"
 % my $d = "$wdir/$repo/output/dspot/";
 % if ( -d $d ) {
 %   use Mojo::JSON qw(decode_json);

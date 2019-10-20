@@ -22,31 +22,37 @@
   </thead>
   <tbody>
 % foreach my $job (@{app->minion->backend->list_jobs->{'jobs'}}) {
-%   my $icon = "fa-question"; my $results = "";
+%   my $icon = "fa-question"; my $results = ""; my $green = '';
 %   if ($job->{'state'} =~ m!^active!) { $icon = "fa-spinner fa-spin"; }
 %   elsif ($job->{'state'} =~ m!^inactive!) { $icon = "fa-hourglass-o"; }
 %   elsif ($job->{'state'} =~ m!^failed!) { $icon = "fa-frown-o"; }
-%   elsif ($job->{'state'} =~ m!^finished!) { $icon = "fa-smile-o"; }
+%   elsif ($job->{'state'} =~ m!^finished!) {
+%     $icon = "fa-smile-o"; $green = ' style="color:forestgreen"';
+%   }
 %   my @a = @{$job->{'args'}};
 %   use POSIX qw( strftime ); use Data::Dumper;
 %   use DateTime;
-%   my $start_time = strftime('%Y-%m-%d %H:%M:%S', gmtime($job->{'created'}));
-%   my $start_time_ = DateTime->from_epoch( epoch => defined($job->{'started'}) ? $job->{'started'} : 0 ); 
+%   my $create_time = strftime('%Y-%m-%d %H:%M:%S', gmtime($job->{'created'}));
+%   my $start_time = DateTime->from_epoch( epoch => defined($job->{'started'}) ? $job->{'started'} : 0 ); 
 %   my $stop_time = DateTime->from_epoch( epoch => defined($job->{'finished'}) ? $job->{'finished'} : 0 );
 %   my $now_time = DateTime->now;
-%   my $duration = defined($job->{'finished'}) ? $stop_time->subtract_datetime($start_time_) : $stop_time->subtract_datetime($now_time);
+%   my $duration = defined($job->{'finished'}) ? $stop_time->subtract_datetime($start_time) : $now_time->subtract_datetime($start_time);
     <tr>
       <td><%= $job->{'id'} %></td>
       <td><a href="/repo/<%== $a[0] || '' %>"><%= $job->{'args'}[0] %></a></td>
       <td><%= $job->{'task'} %></td>
-      <td><i class="fa fa-lg <%= $icon %>" style="color:forestgreen"></i> &nbsp; <%= $job->{'state'} %></td>
-      <td><%= $start_time %><br />
+      <td<%== $green %>><i class="fa fa-lg <%= $icon %>"></i> &nbsp; <%= $job->{'state'} %></td>
+      <td><%= $create_time %><br />
+% if (defined($job->{'started'})) {
 	<%= $duration->hours %>h <%= $duration->minutes %>m <%= $duration->seconds %>s</td>
+% }
       <td>
 	ID: <a href="/repo/<%== $a[0] || '' %>"><%== $a[0] || '' %></a><br />
 	Git URL: <a href="<%== $a[1] || '' %>"><%== $a[1] || '' %></a><br />
 	Hash: <%== $a[2] || '' %><br />
+% if ($job->{'task'} =~ m!run_dspot!) {
 	Extended: <%== $a[3] || '' %><br />
+% }
       </td>
     </tr>
 % }
