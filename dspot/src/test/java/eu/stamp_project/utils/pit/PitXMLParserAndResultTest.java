@@ -1,8 +1,15 @@
 package eu.stamp_project.utils.pit;
 
+import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.Test;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -11,6 +18,7 @@ import static org.junit.Assert.assertEquals;
  * on 14/11/18
  */
 public class PitXMLParserAndResultTest {
+
     @Test
     public void test() throws Exception {
         final List<? extends AbstractPitResult> pitXMLResults = (new PitXMLResultParser()).parse(new File("src/test/resources/mutations_test-projects.xml"));

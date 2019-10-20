@@ -22,10 +22,7 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Benjamin DANGLOT
@@ -161,7 +158,7 @@ public class ChangeDetectorSelector extends AbstractTestSelector {
                 );
         final TestClassJSON testClassJSON = this.reportJson();
         this.reset();
-        return new TestSelectorElementReportImpl(output.toString(), testClassJSON);
+        return new TestSelectorElementReportImpl(output.toString(), testClassJSON, Collections.emptyList(), "");
     }
 
     private TestClassJSON reportJson() {

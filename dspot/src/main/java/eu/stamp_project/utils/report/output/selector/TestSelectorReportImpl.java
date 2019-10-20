@@ -8,8 +8,7 @@ import spoon.reflect.declaration.CtType;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -21,7 +20,7 @@ public class TestSelectorReportImpl implements TestSelectorReport {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestSelectorReport.class);
 
-    private Map<CtType<?>, TestSelectorElementReportImpl> testSelectorElementReportPerTestClass;
+    private Map<CtType<?>, TestSelectorElementReport> testSelectorElementReportPerTestClass;
 
     public TestSelectorReportImpl() {
         this.testSelectorElementReportPerTestClass = new HashMap<>();

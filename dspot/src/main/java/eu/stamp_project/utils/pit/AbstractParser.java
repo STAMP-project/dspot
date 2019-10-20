@@ -14,7 +14,7 @@ abstract public class AbstractParser<T extends  AbstractPitResult> {
         this.PATH_TO_MUTATIONS_RESULT = PATH_TO_MUTATIONS_RESULT;
     }
 
-    protected File getPathOfMutationsFile(String pathToDirectoryResults) {
+    public File getPathOfMutationsFile(String pathToDirectoryResults) {
         if (!new File(pathToDirectoryResults).exists()) {
             return null;
         }
