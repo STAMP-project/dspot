@@ -4,8 +4,11 @@ use Mojo::Base 'Mojolicious';
 use Minion;
 use POSIX;
 use Data::Dumper;
+
 use File::Spec;
 use File::Path 'make_path';
+use File::Copy::Recursive qw(dircopy);
+
 use Archive::Zip qw( :ERROR_CODES :CONSTANTS );
 
 use Mojo::JSON qw/decode_json encode_json/;
@@ -37,7 +40,6 @@ sub startup {
   # Get working directory for projects.
   my $workspace = './';
   my $ldir = 'projects/';
-  my $wdir;
   if ( exists($config->{'workspace'}) ) {
       print "* Using workspace from conf [" . $config->{'workspace'} . "].\n";
       $workspace = $config->{'workspace'};
@@ -46,7 +48,7 @@ sub startup {
   }
   
   # Verification du répertoire de travail
-  $wdir = File::Spec->catdir( ($workspace, $ldir) );
+  my $wdir = File::Spec->catdir( ($workspace, $ldir) );
   if ( -d $wdir ) {
       print "* Work dir [$wdir] exists.\n";
   } else {
@@ -56,6 +58,17 @@ sub startup {
       print "* Work dir [$wdir] created.\n";
   }
 
+  # Verification du répertoire des jobs
+  my $jobsdir = File::Spec->catdir( ($workspace, 'jobs') );
+  if ( -d $jobsdir ) {
+      print "* Jobs dir [$jobsdir] exists.\n";
+  } else {
+      # Create dir hierarchy
+      make_path($jobsdir);
+      chmod 0755, $jobsdir;
+      print "* Jobs dir [$jobsdir] created.\n";
+  }
+  
   # Verification du fichier $wdir/projects.json
   my $wdirp = File::Spec->catfile( $wdir, 'projects.json' );
   if ( -e $wdirp ) {
@@ -235,10 +248,10 @@ sub startup {
     @ret_dspot = `cd ${pdir_src}; $dspot_cmd | tee ../output/dspot.log`;
     $ret->{'log'} = join( "\n", @ret_dspot);
     
-    my $d = "$wdir/$id/output/dspot/";
+    my $d_out_dspot = File::Spec->catdir( ($wdir, $id, 'output', 'dspot') );
     my $results = [];
-    if ( -d $d ) {
-	my @files = <$d/*_report.json>;
+    if ( -d $d_out_dspot ) {
+	my @files = <$d_out_dspot/*_report.json>;
 	foreach my $f (@files) {
 	    my $data;
 	    {
@@ -256,6 +269,11 @@ sub startup {
     map { $nm += $_->{'nbNewMutantKilled'} } @$results;
     $ret->{'totalNewMutantsKilled'} = $nm;
 
+    # Copy files to workspace/jobs
+    my $jobid = $job->{'id'};
+    my $d_out_jobs = File::Spec->catdir( ($jobsdir, $jobid) );
+    dircopy($d_out_dspot, $d_out_jobs);
+    
     # Create a zip file including all results.
     print "  Zipping directory $pdir_out.\n";
     my $zip = Archive::Zip->new();
@@ -298,13 +316,12 @@ sub startup {
     # Sending email.
     my $dspot_url = "ci4.castalia.camp:3000";
     my $maildata = "
-Hi, \n
+<p>Hi,</p>
 
-Thank you for submitting your project to dspot-web. The job has been processed and the results can be found at [1].\n
+<p>Thank you for submitting your project to dspot-web. The job has been processed and the results can be found at [1].<br />
+[1] http://$dspot_url/repo/$id</p>
 
-[1] http://$dspot_url/repo/$id \n
-
-Have a wonderful day!\n
+<p>Have a wonderful day!</p>
 
 --
 the dspot-web bot

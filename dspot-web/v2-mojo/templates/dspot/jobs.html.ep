@@ -1,5 +1,6 @@
 % layout 'default';
 % title 'List of repositories';
+% my $all = $self->param('all');
 
 <br />
 
@@ -12,7 +13,7 @@
 
 <br />
 
-<p>This is the list of all jobs executed by our services. A single repository analysis is composed of 3 jobs run in sequence: <code>run_git</code> clones or pulls the git repository, <code>run_mvn</code> executes a maven build on the project to compute analysis, and <code>run_dspot</code> executes dspot. Only jobs pertaining to dspot are displayed in the table.</p>
+<p>This is the list of all jobs executed by our services. A single repository analysis is composed of 3 jobs run in sequence: <code>run_git</code> clones or pulls the git repository, <code>run_mvn</code> executes a maven build on the project to compute analysis, and <code>run_dspot</code> executes dspot. Only jobs pertaining to dspot are displayed in the table, see the <a href="/jobs?all">full list of jobs here</a>.</p>
 
 <br />
 
@@ -28,7 +29,10 @@
     </tr>
   </thead>
   <tbody>
-% foreach my $job (grep {$_->{'task'} =~ m!^run_dspot$!} @{app->minion->backend->list_jobs->{'jobs'}}) {
+% print "DBG ALL is $all.\n";
+% my @jobs = @{app->minion->backend->list_jobs->{'jobs'}};
+% if ( not defined($all) ) { @jobs = grep { $_->{'task'} =~ m!^run_dspot$! } @jobs };
+% foreach my $job (@jobs) {
 %   my $icon = "fa-question"; my $results = ""; my $green = '';
 %   if ($job->{'state'} =~ m!^active!) { $icon = "fa-spinner fa-spin"; }
 %   elsif ($job->{'state'} =~ m!^inactive!) { $icon = "fa-hourglass-o"; }
