@@ -20,7 +20,15 @@ sub startup {
 
   # Mojolicious plugin RenderFile to serve static files.
   #$self->plugin('RenderFile');
-  
+  my $conf_mail = {
+    from     => 'dspot-web@castalia.solutions',
+#    encoding => 'base64',
+    type     => 'text/html',
+#    how      => 'sendmail',
+#    howargs  => ['/usr/sbin/sendmail -t'],
+  };
+  $self->plugin('mail' => $conf_mail);
+
   # Create timestamp to log starting time.
   my $ltime = strftime "%Y-%m-%d %H:%M:%S", localtime time;
   
@@ -203,7 +211,7 @@ sub startup {
 
   # Task to run dspot on project.
   $self->minion->add_task( run_dspot => sub {
-    my ($job, $id, $url, $hash, $extended) = @_;
+    my ($job, $id, $url, $hash, $email, $extended) = @_;
     my $ret = {};
 
     print "# Executing dspot for repo [$id].\n";
@@ -302,6 +310,26 @@ sub startup {
 #    } else {
 #	print "  Project already in conf, not modifying anything.\n";
 #    }
+
+    # Sending email.
+    my $dspot_url = "ci4.castalia.camp:3000";
+    my $maildata = "
+Hi, 
+
+Thank you for submitting your project to dspot-web. The job has been processed and the results can be found at [1].
+
+[1] http://$url/repo/$id
+
+Thank you, have a wonderful day!
+
+--
+the dspot-web bot
+
+";
+    my $t = $self->mail(
+	mail => {To => $email, Format => 'mail', Data => $maildata}
+	);
+print 'T ' . Dumper($t);
 
     print "  END of task run_dspot.\n";
     

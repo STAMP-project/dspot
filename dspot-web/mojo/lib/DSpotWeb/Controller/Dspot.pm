@@ -55,6 +55,7 @@ sub create_post {
   
   my $url = $self->param('gurl');
   my $hash = $self->param('hash');
+  my $email = $self->param('email');
   my $extended = $self->param('extended') || 'off';
 
 #  my $url = "https://github.com/STAMP-project/dspot.git"; #$self->stash('url');
@@ -72,7 +73,7 @@ sub create_post {
       run_mvn => [$id, $url, $hash] => {parents => [$job_git]});
 #  print "DBG JOB MVN " . Dumper($job_mvn);
   my $job_dspot = $self->minion->enqueue(
-      run_dspot => [$id, $url, $hash, $extended] => {parents => [$job_mvn]});
+      run_dspot => [$id, $url, $hash, $email, $extended] => {parents => [$job_mvn]});
 #  print "DBG JOB DSPOT " . Dumper($job_dspot);
   
   # Render template "dspot/create_post.html.ep"

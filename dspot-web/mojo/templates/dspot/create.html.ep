@@ -41,6 +41,13 @@
     </div>
   </div>
   
+  <div class="form-group">
+    <label for="email_label" class="control-label col-xs-2">Email address to send results to:</label>
+    <div class="col-xs-10">
+      <input type="text" class="form-control" name="email" id="email"/>
+    </div>
+  </div>
+
   <br />
   <div class="form-group">
     <div class="col-xs-offset-2 col-xs-10">
