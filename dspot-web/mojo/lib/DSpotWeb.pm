@@ -1,6 +1,6 @@
 package DSpotWeb;
 use Mojo::Base 'Mojolicious';
-#use Mojo::Log;
+
 use Minion;
 use POSIX;
 use Data::Dumper;
@@ -19,7 +19,6 @@ sub startup {
   my $config = $self->plugin('Config');
 
   # Mojolicious plugin RenderFile to serve static files.
-  #$self->plugin('RenderFile');
   my $conf_mail = {
     from     => 'dspot-web@castalia.solutions',
 #    encoding => 'base64',
@@ -79,8 +78,6 @@ sub startup {
   # Add another "public" directory
   push @{$self->app->static->paths}, $workspace;
 
-#  print "PATHS " . Dumper(@{$self->app->static->paths});
-  
   # Get mvn command to use for execution
   my $mvn_home = $config->{'mvn_home'} or die "ERROR Cannot find mvn_home.\n";
   my $mvn_bin = File::Spec->catdir( ($mvn_home, 'bin') );
@@ -104,20 +101,6 @@ sub startup {
   my @mvn_test = `${mvn_test}`;
   print @mvn_test;
 
-  
-  # Log to specific dspot file.
-#  my $dlog = Mojo::Log->new(path => 'log/dspot.log');
-#  $dlog->info("# Application started at $ltime.");
-
-
-  # Create a bunch of useful helpers.
-  
-  # Create a helper to call dlog from anywhere.
-#  $self->helper( dlog => sub {
-#    my $c = shift;
-#    my $msg = shift || "Default message log";
-#    $dlog->info($msg);
-#		 });
 
   # Create a help to get the path to wdir + project
   $self->helper( pdir => sub {
@@ -314,9 +297,9 @@ sub startup {
     # Sending email.
     my $dspot_url = "ci4.castalia.camp:3000";
     my $maildata = "
-Hi, 
+Hi, \n
 
-Thank you for submitting your project to dspot-web. The job has been processed and the results can be found at [1].
+<p>Thank you for submitting your project to dspot-web. The job has been processed and the results can be found at [1].</p>
 
 [1] http://$url/repo/$id
 
@@ -327,9 +310,12 @@ the dspot-web bot
 
 ";
     my $t = $self->mail(
-	mail => {To => $email, Format => 'mail', Data => $maildata}
+	mail => {
+          To => $email, 
+          Format => 'mail',
+          Subject => 'Your DSpot results are ready',
+          Data => $maildata}
 	);
-print 'T ' . Dumper($t);
 
     print "  END of task run_dspot.\n";
     
