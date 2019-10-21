@@ -1,7 +1,7 @@
 package eu.stamp_project.automaticbuilder.gradle;
 
-import eu.stamp_project.AbstractTest;
 import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 25/10/18
  */
-public class GradleInjectorTest extends AbstractTest {
+public class GradleInjectorTest {
 
     private static final String expectedEnd = "apply plugin: 'info.solidsoft.pitest'" + AmplificationHelper.LINE_SEPARATOR +
             "" + AmplificationHelper.LINE_SEPARATOR +
@@ -22,7 +22,7 @@ public class GradleInjectorTest extends AbstractTest {
             "    outputFormats = ['CSV','HTML','XML']" + AmplificationHelper.LINE_SEPARATOR +
             "    pitestVersion = '1.4.0'" + AmplificationHelper.LINE_SEPARATOR +
             "    timeoutConstInMillis = 10000" + AmplificationHelper.LINE_SEPARATOR +
-            "    jvmArgs = ['-Xmx2048m','-Xms1024m','-Dis.admin.user=admin','-Dis.admin.passwd=$2pRSid#']" + AmplificationHelper.LINE_SEPARATOR +
+            "    jvmArgs = ['-Xmx2048m','-Xms1024m']" + AmplificationHelper.LINE_SEPARATOR +
             "    targetTests = ['']" + AmplificationHelper.LINE_SEPARATOR +
             "    mutationEngine = 'descartes'" + AmplificationHelper.LINE_SEPARATOR +
             "    excludedClasses = ['fr.inria.filter.failing.*']" + AmplificationHelper.LINE_SEPARATOR +
@@ -35,7 +35,22 @@ public class GradleInjectorTest extends AbstractTest {
             test the injection of what we need in the build.gradle
          */
 
-        final GradleInjector gradleInjector = new GradleInjector("src/test/resources/build.gradle");
+        InputConfiguration configuration = new InputConfiguration();
+        configuration.setAbsolutePathToProjectRoot("src/test/resources/");
+        configuration.setExcludedClasses("fr.inria.filter.failing.*");
+        configuration.setJVMArgs("-Xmx2048m,-Xms1024m");
+        configuration.setFilter("fr.inria.sample.*");
+
+        final GradleInjector gradleInjector = new GradleInjector(
+                "src/test/resources/build.gradle",
+                !configuration.isGregorMode(),
+                configuration.getFilter(),
+                configuration.getPitVersion(),
+                configuration.getTimeOutInMs(),
+                configuration.getJVMArgs(),
+                configuration.getExcludedClasses(),
+                configuration.getAdditionalClasspathElements()
+        );
         final String pitTask = gradleInjector.getPitTask();
         assertTrue(pitTask, pitTask.startsWith(expectedStarts));
         assertTrue(pitTask, pitTask.endsWith(expectedEnd));
@@ -57,7 +72,22 @@ public class GradleInjectorTest extends AbstractTest {
                     url "https://plugins.gradle.org/m2/"
                 }
          */
-        final GradleInjector gradleInjector = new GradleInjector("src/test/resources/no_repository_build.gradle");
+        InputConfiguration configuration = new InputConfiguration();
+        configuration.setAbsolutePathToProjectRoot("src/test/");
+        configuration.setExcludedClasses("fr.inria.filter.failing.*");
+        configuration.setJVMArgs("-Xmx2048m,-Xms1024m");
+        configuration.setFilter("fr.inria.sample.*");
+
+        final GradleInjector gradleInjector = new GradleInjector(
+                "src/test/resources/no_repository_build.gradle",
+                !configuration.isGregorMode(),
+                configuration.getFilter(),
+                configuration.getPitVersion(),
+                configuration.getTimeOutInMs(),
+                configuration.getJVMArgs(),
+                configuration.getExcludedClasses(),
+                configuration.getAdditionalClasspathElements()
+        );
         final String pitTask = gradleInjector.getPitTask();
         assertTrue(pitTask, pitTask.startsWith(expectedStarts));
         assertTrue(pitTask, pitTask.endsWith(expectedEnd));
@@ -71,7 +101,21 @@ public class GradleInjectorTest extends AbstractTest {
                     ...
                 }
          */
-        final GradleInjector gradleInjector = new GradleInjector("src/test/resources/no_buildscript_build.gradle");
+        InputConfiguration configuration = new InputConfiguration();
+        configuration.setExcludedClasses("fr.inria.filter.failing.*");
+        configuration.setJVMArgs("-Xmx2048m,-Xms1024m");
+        configuration.setFilter("fr.inria.sample.*");
+
+        final GradleInjector gradleInjector = new GradleInjector(
+                "src/test/resources/no_buildscript_build.gradle",
+                !configuration.isGregorMode(),
+                configuration.getFilter(),
+                configuration.getPitVersion(),
+                configuration.getTimeOutInMs(),
+                configuration.getJVMArgs(),
+                configuration.getExcludedClasses(),
+                configuration.getAdditionalClasspathElements()
+        );
         final String pitTask = gradleInjector.getPitTask();
         assertTrue(pitTask, pitTask.endsWith(expectedEnd));
     }
@@ -99,7 +143,21 @@ public class GradleInjectorTest extends AbstractTest {
                     ...
                 }
          */
-        final GradleInjector gradleInjector = new GradleInjector("src/test/resources/no_repositories_build.gradle");
+        InputConfiguration configuration = new InputConfiguration();
+        configuration.setExcludedClasses("fr.inria.filter.failing.*");
+        configuration.setJVMArgs("-Xmx2048m,-Xms1024m");
+        configuration.setFilter("fr.inria.sample.*");
+
+        final GradleInjector gradleInjector = new GradleInjector(
+                "src/test/resources/no_repositories_build.gradle",
+                !configuration.isGregorMode(),
+                configuration.getFilter(),
+                configuration.getPitVersion(),
+                configuration.getTimeOutInMs(),
+                configuration.getJVMArgs(),
+                configuration.getExcludedClasses(),
+                configuration.getAdditionalClasspathElements()
+        );
         final String pitTask = gradleInjector.getPitTask();
         assertTrue(pitTask, pitTask.startsWith(expectedStarts));
         assertTrue(pitTask, pitTask.endsWith(expectedEnd));

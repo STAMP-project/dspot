@@ -2,7 +2,6 @@ package eu.stamp_project.utils;
 
 import org.junit.Test;
 import spoon.Launcher;
-import spoon.reflect.CtModelImpl;
 import spoon.reflect.factory.Factory;
 
 import java.util.ArrayList;

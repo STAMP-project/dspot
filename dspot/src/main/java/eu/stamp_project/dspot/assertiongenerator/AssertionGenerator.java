@@ -8,7 +8,7 @@ import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.program.InputConfiguration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
@@ -30,8 +30,6 @@ public class AssertionGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AssertionGenerator.class);
 
-    private InputConfiguration configuration;
-
     private DSpotCompiler compiler;
 
     private AssertionRemover assertionRemover;
@@ -40,11 +38,16 @@ public class AssertionGenerator {
 
     private MethodReconstructor methodReconstructor;
 
-    public AssertionGenerator(InputConfiguration configuration, DSpotCompiler compiler) {
-        this.configuration = configuration;
+    private double delta;
+
+    private TestCompiler testCompiler;
+
+    public AssertionGenerator(double delta, DSpotCompiler compiler, TestCompiler testCompiler) {
+        this.delta = delta;
         this.compiler = compiler;
         this.assertionRemover = new AssertionRemover();
         this.tryCatchFailGenerator = new TryCatchFailGenerator();
+        this.testCompiler = testCompiler;
     }
 
     /**
@@ -65,10 +68,11 @@ public class AssertionGenerator {
 
         // set up methodReconstructor for use in assertPassingAndFailingTests
         this.methodReconstructor = new MethodReconstructor(
+                delta,
                 testClass,
-                this.configuration,
                 compiler,
-                this.assertionRemover.getVariableAssertedPerTestMethod()
+                this.assertionRemover.getVariableAssertedPerTestMethod(),
+                this.testCompiler
         );
         final List<CtMethod<?>> amplifiedTestsWithAssertions =
                 this.assertPassingAndFailingTests(cloneClass, testsWithoutAssertions);
@@ -116,10 +120,9 @@ public class AssertionGenerator {
 
             //Add parallel test execution support (JUnit4, JUnit5) for execution method (CMD, Maven)
             CloneHelper.addParallelExecutionAnnotation(testClass, tests);
-            testResult = TestCompiler.compileAndRun(testClass,
+            testResult = this.testCompiler.compileAndRun(testClass,
                     this.compiler,
-                    tests,
-                    this.configuration
+                    tests
             );
         } catch (AmplificationException e) {
             LOGGER.warn("Error when executing tests before Assertion Amplification:");

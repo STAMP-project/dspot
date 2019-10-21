@@ -10,24 +10,46 @@ public class LiteralMutation {
         byte literalByte = (byte)23;
     }
 
+    public void methodNullByte() {
+        Byte literalByte = null;
+    }
+
     public void methodShort() {
         short literalShort = (short)23;
     }
 
+    public void methodNullShort() { Short literalShort = null; }
+
     public void methodInteger() {
         int literalInt = 23;
+    }
+
+    public void methodNullInteger() {
+        Integer literalInt = null;
     }
 
     public void methodLong() {
         long literalLong = 23L;
     }
 
+    public void methodNullLong() {
+        Long literalLong = null;
+    }
+
     public void methodFloat() {
         float literalFloat = 23F;
     }
 
+    public void methodNullFloat() {
+        Float literalFloat = null;
+    }
+
     public void methodDouble() {
         double literalDouble = 23D;
+    }
+
+    public void methodNullDouble() {
+        Double literalDouble = null;
     }
 
     public void methodString() {
@@ -46,8 +68,16 @@ public class LiteralMutation {
         boolean literalBoolean = true;
     }
 
+    public void methodNullBoolean() {
+        Boolean literalBoolean = null;
+    }
+
     public void methodCharacter() {
         char character = 'z';
+    }
+
+    public void methodNullCharacter() {
+        Character character = null;
     }
 
     public void methodWithCharArray(char... array) {

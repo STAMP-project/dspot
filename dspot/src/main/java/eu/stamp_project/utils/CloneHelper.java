@@ -1,7 +1,6 @@
 package eu.stamp_project.utils;
 
 import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.program.InputConfiguration;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -20,14 +19,19 @@ import com.googlecode.junittoolbox.ParallelRunner;
 public class CloneHelper {
 
     private static int cloneNumber = 1;
-    final static Factory factory = InputConfiguration.get().getFactory();
 
     public static void reset() {
         cloneNumber = 1;
     }
 
+    private static boolean shouldExecuteTestsInParallel;
+
+    public static void init(boolean shouldExecuteTestsInParallel) {
+        CloneHelper.shouldExecuteTestsInParallel = shouldExecuteTestsInParallel;
+    }
+
     public static void addParallelExecutionAnnotation(CtType clone, List<CtMethod<?>> tests) {
-        if (InputConfiguration.get().shouldExecuteTestsInParallel()) {
+        if (shouldExecuteTestsInParallel) {
             if (TestFramework.isJUnit5(tests.get(0))) {
                 addJUnit5ParallelExecutionAnnotation(clone);
             } else {
@@ -66,6 +70,7 @@ public class CloneHelper {
                 .filter(annotation -> annotation.toString().contains("RunWith"))
                 .findFirst().orElse(null);
         if (existing_annotation == null) {
+            final Factory factory = clone.getFactory();
             CtAnnotation<Annotation> annotation =
                     factory.Code().createAnnotation(factory.Code().createCtTypeReference(org.junit.runner.RunWith.class));
             annotation.addValue("value", ParallelRunner.class);
@@ -78,6 +83,7 @@ public class CloneHelper {
                 .filter(annotation -> annotation.toString().contains("Execution"))
                 .findFirst().orElse(null);
         if (existing_annotation == null) {
+            final Factory factory = clone.getFactory();
             CtAnnotation<Annotation> annotation =
                     factory.Code().createAnnotation(factory.Code().createCtTypeReference(org.junit.jupiter.api.parallel.Execution.class));
             annotation.addValue("value", org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT);

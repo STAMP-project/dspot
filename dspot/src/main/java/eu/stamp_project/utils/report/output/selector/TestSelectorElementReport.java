@@ -9,6 +9,8 @@ import spoon.reflect.declaration.CtType;
  */
 public interface TestSelectorElementReport {
 
-    public String output(CtType<?> testClass);
+    public String output(CtType<?> testClass, String outputDirectory);
+
+    public String getReportForCollector();
 
 }

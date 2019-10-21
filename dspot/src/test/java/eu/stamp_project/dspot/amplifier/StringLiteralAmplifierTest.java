@@ -1,7 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
@@ -16,22 +15,22 @@ import java.util.stream.Stream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class StringLiteralAmplifierTest extends AbstractTest {
+public class StringLiteralAmplifierTest extends AbstractTestOnSample {
 
     @Test
     public void testOneLitExisting() throws Exception {
-        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.OneLiteralTest");
+        CtClass<Object> literalMutationClass = launcher.getFactory().Class().get("fr.inria.amp.OneLiteralTest");
         Amplifier amplifier = new StringLiteralAmplifier();
         amplifier.reset(literalMutationClass);
-        final Stream<CtMethod<?>> test = amplifier.amplify(Utils.findMethod(literalMutationClass, "test"), 0);
+        final Stream<CtMethod<?>> test = amplifier.amplify(findMethod(literalMutationClass, "test"), 0);
         System.out.println(test.collect(Collectors.toList()));
     }
 
 
     @Test
     public void testFlatString() throws Exception {
-        final CtClass testClass = Utils.findClass("fr.inria.ampl.ToBeAmplifiedLiteralTest");
-        CtMethod<?> method = Utils.findMethod(testClass, "testInt");
+        final CtClass testClass = findClass("fr.inria.ampl.ToBeAmplifiedLiteralTest");
+        CtMethod<?> method = findMethod(testClass, "testInt");
 
         StringLiteralAmplifier.flatStringLiterals(method);
         System.out.println(method);
@@ -50,7 +49,7 @@ public class StringLiteralAmplifierTest extends AbstractTest {
          */
 
         final String nameMethod = "methodString";
-        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        CtClass<Object> literalMutationClass = launcher.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         RandomHelper.setSeedRandom(42L);
         Amplifier amplifier = new StringLiteralAmplifier();
         amplifier.reset(literalMutationClass);
@@ -62,7 +61,7 @@ public class StringLiteralAmplifierTest extends AbstractTest {
     @Test
     public void testDoesNotAmplifyChar() throws Exception {
         final String nameMethod = "methodCharacter";
-        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.LiteralMutation");
+        CtClass<Object> literalMutationClass = launcher.getFactory().Class().get("fr.inria.amp.LiteralMutation");
         RandomHelper.setSeedRandom(42L);
         Amplifier mutator = new StringLiteralAmplifier();
         mutator.reset(literalMutationClass);
@@ -79,8 +78,8 @@ public class StringLiteralAmplifierTest extends AbstractTest {
             After the method call, all the (concatenated) string literals has been merged into one.
 
          */
-        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.JavaPoet");
-        final CtMethod<?> withConcat = Utils.findMethod(literalMutationClass, "method");
+        CtClass<Object> literalMutationClass = launcher.getFactory().Class().get("fr.inria.amp.JavaPoet");
+        final CtMethod<?> withConcat = findMethod(literalMutationClass, "method");
         // there is a lot of literal string
         assertEquals(20,
                 withConcat.getElements(new TypeFilter<CtLiteral>(CtLiteral.class) {

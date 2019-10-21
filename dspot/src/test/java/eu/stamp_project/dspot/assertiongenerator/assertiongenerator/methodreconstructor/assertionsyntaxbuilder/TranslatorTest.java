@@ -1,8 +1,6 @@
 package eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.assertionsyntaxbuilder;
 
-import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
-import org.jetbrains.annotations.NotNull;
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.code.CtExpression;
@@ -18,26 +16,24 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 17/07/18
  */
-public class TranslatorTest extends AbstractTest {
+public class TranslatorTest extends AbstractTestOnSample {
 
     @Override
     @Before
-    public void setUp() throws Exception {
+    public void setUp()  {
         super.setUp();
         // shared instance, the Translator does not have state between execution
-        this.translatorUnderTest = new Translator(Utils.getFactory());
+        this.translatorUnderTest = new Translator(this.launcher.getFactory());
     }
 
     private Translator translatorUnderTest;
 
-    @NotNull
     private CtInvocation<?> translateInvocation(String statementToBeTranslated) {
         final CtExpression<?> translate = this.translatorUnderTest.translate(statementToBeTranslated);
         assertTrue(translate instanceof CtInvocation<?>);
         return (CtInvocation<?>) translate;
     }
 
-    @NotNull
     private CtVariableRead<?> translateVariableRead(String statementToBeTranslated) {
         final CtExpression<?> translate = this.translatorUnderTest.translate(statementToBeTranslated);
         assertTrue(translate instanceof CtVariableRead<?>);

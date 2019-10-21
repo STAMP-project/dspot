@@ -1,7 +1,6 @@
 package eu.stamp_project.test_framework.implementations.junit;
 
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.program.InputConfiguration;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtAnnotation;
@@ -46,7 +45,7 @@ public class JUnit4Support extends JUnitSupport {
     @Override
     public CtMethod<?> prepareTestMethod(CtMethod<?> testMethod) {
         final CtMethod<?> clone = super.prepareTestMethod(testMethod);
-        final Factory factory = InputConfiguration.get().getFactory();
+        final Factory factory = testMethod.getFactory();
         CtAnnotation testAnnotation = clone
                 .getAnnotations()
                 .stream()

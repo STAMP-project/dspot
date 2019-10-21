@@ -2,11 +2,8 @@ package eu.stamp_project.utils;
 
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.listener.TestResult;
-import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
 
 import org.apache.cxf.common.util.WeakIdentityHashMap;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtComment;
@@ -22,7 +19,6 @@ import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,6 +46,18 @@ public class AmplificationHelper {
 
     public static int timeOutInMs = 10000;
 
+    private static boolean shouldKeepOriginalTestMethods;
+
+    private static boolean shouldGenerateAmplifiedTestClass;
+
+    public static void init(int timeOutInMs,
+            boolean shouldGenerateAmplifiedTestClass,
+            boolean shouldKeepOriginalTestMethods) {
+        AmplificationHelper.timeOutInMs = timeOutInMs;
+        AmplificationHelper.shouldKeepOriginalTestMethods = shouldKeepOriginalTestMethods;
+        AmplificationHelper.shouldGenerateAmplifiedTestClass = shouldGenerateAmplifiedTestClass;
+    }
+
     /**
      * Link between an amplified test and its parent (i.e. the original test).
      */
@@ -73,26 +81,24 @@ public class AmplificationHelper {
     @SuppressWarnings("unchecked")
     public static CtType<?> createAmplifiedTest(List<CtMethod<?>> ampTest, CtType<?> classTest) {
         final Stream<CtMethod<?>> methodToAdd;
-        // TODO the minimization is not stable for now.
-        // TODO I disabled it
-        /*if (InputConfiguration.get().shouldMinimize()) {
-            final Minimizer minimizer = InputConfiguration.get().getSelector().getMinimizer();
-            methodToAdd = ampTest.stream().map(minimizer::minimize);
-        } else {
-            methodToAdd = ampTest.stream();
-        }*/
         methodToAdd = ampTest.stream();
         final CtType<?> currentTestClass = classTest.clone();
+        classTest.getPackage().addType(currentTestClass);
         methodToAdd.forEach(currentTestClass::addMethod);
         // keep original test methods
-        if (!InputConfiguration.get().shouldKeepOriginalTestMethods()) {
+        if (!shouldKeepOriginalTestMethods) {
             classTest.getMethods().stream()
                     .filter(TestFramework.get()::isTest)
                     //.filter(AmplificationChecker::isTest)
                     .forEach(currentTestClass::removeMethod);
         }
+        return currentTestClass;
+    }
+
+    public static CtType<?> renameTestClassUnderAmplification(CtType<?> classTest) {
+        final CtType<?> currentTestClass = classTest.clone();
         // generate a new test class
-        if (InputConfiguration.get().shouldGenerateAmplifiedTestClass()) {
+        if (shouldGenerateAmplifiedTestClass) {
             final String amplifiedName = getAmplifiedName(classTest);
             currentTestClass.setSimpleName(amplifiedName);
             final CtTypeReference classTestReference = classTest.getReference();
@@ -118,7 +124,6 @@ public class AmplificationHelper {
         return currentTestClass;
     }
 
-    @NotNull
     private static String getAmplifiedName(CtType<?> classTest) {
         return classTest.getSimpleName().startsWith("Test") ?
                 classTest.getSimpleName() + "Ampl" :
@@ -231,15 +236,5 @@ public class AmplificationHelper {
             currentTest = topParent;
         }
         return currentTest;
-    }
-
-    @Deprecated
-    public static String getClassPath(DSpotCompiler compiler, InputConfiguration configuration) {
-        return Arrays.stream(new String[]{
-                        configuration.getAbsolutePathToClasses(),
-                        compiler.getBinaryOutputDirectory().getAbsolutePath(),
-                        compiler.getDependencies(),
-                }
-        ).collect(Collectors.joining(PATH_SEPARATOR));
     }
 }

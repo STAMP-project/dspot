@@ -10,8 +10,6 @@ import eu.stamp_project.testrunner.runner.Failure;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotCache;
 import eu.stamp_project.utils.TypeUtils;
-import eu.stamp_project.utils.program.InputConfiguration;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtExpression;
@@ -20,6 +18,7 @@ import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.*;
@@ -37,7 +36,11 @@ public class TestFramework implements TestFrameworkSupport {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestFramework.class);
 
-    private static final TestFramework _instance = new TestFramework();
+    private static TestFramework _instance;
+
+    public static void init(Factory factory) {
+        _instance = new TestFramework(factory);
+    }
 
     private List<TestFrameworkSupport> testFrameworkSupportList;
 
@@ -45,7 +48,10 @@ public class TestFramework implements TestFrameworkSupport {
         return _instance;
     }
 
-    private TestFramework() {
+    private Factory factory;
+
+    private TestFramework(Factory factory) {
+        this.factory = factory;
         this.testFrameworkSupportList = new ArrayList<>();
         this.testFrameworkSupportList.add(new JUnit3Support());
         this.testFrameworkSupportList.add(new JUnit4Support());
@@ -178,7 +184,6 @@ public class TestFramework implements TestFrameworkSupport {
         return selectedTestFramework;
     }
 
-    @Nullable
     private TestFrameworkSupport getTestFrameworkSupportFromIsTest(CtMethod<?> testMethod) {
         for (TestFrameworkSupport testFrameworkSupport : testFrameworkSupportList) {
             if (testFrameworkSupport.isTest(testMethod)) {
@@ -198,9 +203,7 @@ public class TestFramework implements TestFrameworkSupport {
      * We consider a class as test class if at least one of its method match {@link TestFramework#isTest(CtMethod)}
      */
     public static Stream<CtType<?>> getAllTestClassesAsStream() {
-        return InputConfiguration.get()
-                .getFactory()
-                .Type()
+        return _instance.factory.Type()
                 .getAll()
                 .stream()
                 .filter(ctType ->

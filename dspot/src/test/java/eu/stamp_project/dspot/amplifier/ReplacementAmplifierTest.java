@@ -1,7 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.RandomHelper;
 import org.junit.Test;
@@ -13,7 +12,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
-public class ReplacementAmplifierTest extends AbstractTest {
+public class ReplacementAmplifierTest extends AbstractTestOnSample {
 
     @Test
     public void testReplacementOfArrayList() throws Exception {
@@ -24,12 +23,12 @@ public class ReplacementAmplifierTest extends AbstractTest {
 
 
         final String packageName = "fr.inria.statementadd";
-        final Factory factory = Utils.getFactory();
+        final Factory factory = launcher.getFactory();
         RandomHelper.setSeedRandom(32L);
         ReplacementAmplifier amplifier = new ReplacementAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".ClassTarget"));
 
-        CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTarget"), "testWithLoop");
+        CtMethod<?> ctMethod = findMethod(factory.Class().get(packageName + ".TestClassTarget"), "testWithLoop");
         List<CtMethod> amplifiedMethods = amplifier.amplify(ctMethod, 0).collect(Collectors.toList());
 
         assertEquals(1, amplifiedMethods.size());
@@ -50,12 +49,12 @@ public class ReplacementAmplifierTest extends AbstractTest {
          */
 
         final String packageName = "fr.inria.statementadd";
-        final Factory factory = Utils.getFactory();
+        final Factory factory = launcher.getFactory();
         RandomHelper.setSeedRandom(32L);
         ReplacementAmplifier amplifier = new ReplacementAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".ClassTarget"));
 
-        CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTarget"), "testWithLoop");
+        CtMethod<?> ctMethod = findMethod(factory.Class().get(packageName + ".TestClassTarget"), "testWithLoop");
         List<CtMethod> amplifiedMethods = amplifier.amplify(ctMethod, 0).collect(Collectors.toList());
 
         assertEquals(1, amplifiedMethods.size());
@@ -69,7 +68,7 @@ public class ReplacementAmplifierTest extends AbstractTest {
          */
 
         final ReplacementAmplifier replacementAmplifier = new ReplacementAmplifier();
-        final CtMethod originalTest = Utils.findMethod("fr.inria.factory.FactoryTest", "test");
+        final CtMethod originalTest = findMethod("fr.inria.factory.FactoryTest", "test");
         final List<CtMethod> test = replacementAmplifier.amplify(originalTest, 0).collect(Collectors.toList());
         final String expectedMethod = "{" + AmplificationHelper.LINE_SEPARATOR +
                 "    final fr.inria.factory.FactoryTest.aClass aClass = fr.inria.factory.FactoryTest.build(-1183186497);" + AmplificationHelper.LINE_SEPARATOR +

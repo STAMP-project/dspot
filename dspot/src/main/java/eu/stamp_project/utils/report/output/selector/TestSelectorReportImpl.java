@@ -2,15 +2,13 @@ package eu.stamp_project.utils.report.output.selector;
 
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.program.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtType;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -22,21 +20,23 @@ public class TestSelectorReportImpl implements TestSelectorReport {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestSelectorReport.class);
 
-    private Map<CtType<?>, TestSelectorElementReportImpl> testSelectorElementReportPerTestClass;
+    private Map<CtType<?>, TestSelectorElementReport> testSelectorElementReportPerTestClass;
 
     public TestSelectorReportImpl() {
         this.testSelectorElementReportPerTestClass = new HashMap<>();
     }
 
     @Override
-    public void output() {
-        final String allReports = this.testSelectorElementReportPerTestClass.keySet().stream()
-                .filter(this.testSelectorElementReportPerTestClass::containsKey)
-                .map(testClass -> this.testSelectorElementReportPerTestClass.get(testClass).output(testClass))
-                .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
+    public void output(String outputDirectory) {
+        final String allReports = this.testSelectorElementReportPerTestClass.keySet()
+                .stream()
+                .filter(testClass -> this.testSelectorElementReportPerTestClass.get(testClass) != null)
+                .map(testClass -> this.testSelectorElementReportPerTestClass.get(testClass).output(
+                        testClass, outputDirectory)
+                ).collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
         LOGGER.info("{}{}", AmplificationHelper.LINE_SEPARATOR, allReports);
         final String reportPathName = DSpotUtils.shouldAddSeparator
-                .apply(InputConfiguration.get().getOutputDirectory()) +
+                .apply(outputDirectory) +
                 "report.txt";
         try (FileWriter writer = new FileWriter(reportPathName, false)) {
             writer.write(allReports);

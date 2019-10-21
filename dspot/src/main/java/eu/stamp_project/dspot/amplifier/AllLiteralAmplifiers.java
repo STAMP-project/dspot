@@ -21,8 +21,8 @@ public class AllLiteralAmplifiers implements Amplifier {
                 new StringLiteralAmplifier(),
                 new NumberLiteralAmplifier(),
                 new BooleanLiteralAmplifier(),
-                new CharLiteralAmplifier()
-        );
+                new CharLiteralAmplifier(),
+                new ArrayLiteralAmplifier());
     }
 
     @Override

@@ -2,7 +2,6 @@ package eu.stamp_project.dspot.amplifier.value;
 
 import eu.stamp_project.utils.AmplificationChecker;
 import eu.stamp_project.utils.RandomHelper;
-import org.jetbrains.annotations.Nullable;
 import spoon.SpoonException;
 import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtExpression;
@@ -143,7 +142,6 @@ public class ConstructorCreator {
         }
     }
 
-    @Nullable
     private static CtExpression buildConstructorWithFactory(CtTypeReference type, CtExpression<?>[] expressionsToAvoid) {
         final List<CtExpression<?>> constructorWithFactoryMethod = generateConstructorUsingFactory(type);
         if (!constructorWithFactoryMethod.isEmpty()) {

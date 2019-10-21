@@ -2,6 +2,7 @@ package eu.stamp_project.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
@@ -15,22 +16,22 @@ import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.execution.TestRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
  * on 09/08/17
  */
-public class ChangeDetectorSelector implements TestSelector {
+public class ChangeDetectorSelector extends AbstractTestSelector {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChangeDetectorSelector.class);
 
     private String pathToFirstVersionOfProgram;
 
@@ -40,22 +41,31 @@ public class ChangeDetectorSelector implements TestSelector {
 
     private CtType<?> currentClassTestToBeAmplified;
 
-    public ChangeDetectorSelector() {
+    private String secondVersionTargetClasses;
+
+    public ChangeDetectorSelector(AutomaticBuilder automaticBuilder,
+                                  InputConfiguration configuration) {
+        super(automaticBuilder, configuration);
         this.failurePerAmplifiedTest = new HashMap<>();
+        this.pathToFirstVersionOfProgram = DSpotUtils.shouldAddSeparator.apply(configuration.getAbsolutePathToProjectRoot());
+        this.pathToSecondVersionOfProgram = DSpotUtils.shouldAddSeparator.apply(configuration.getAbsolutePathToSecondVersionProjectRoot());
+        try {
+            this.automaticBuilder.setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
+            configuration.setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
+            this.secondVersionTargetClasses = configuration.getClasspathClassesProject();
+            DSpotPOMCreator.createNewPom(configuration);
+            this.automaticBuilder.compile();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            this.automaticBuilder.setAbsolutePathToProjectRoot(this.pathToFirstVersionOfProgram);
+            configuration.setAbsolutePathToProjectRoot(this.pathToFirstVersionOfProgram);
+        }
     }
 
     @Override
     public boolean init() {
-        try {
-            this.pathToFirstVersionOfProgram = InputConfiguration.get().getAbsolutePathToProjectRoot();
-            this.pathToSecondVersionOfProgram = InputConfiguration.get().getAbsolutePathToSecondVersionProjectRoot();
-            InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
-            DSpotPOMCreator.createNewPom();
-            InputConfiguration.get().getBuilder().compile();
-            InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToFirstVersionOfProgram);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+
         return true;
     }
 
@@ -77,26 +87,26 @@ public class ChangeDetectorSelector implements TestSelector {
         CtType clone = this.currentClassTestToBeAmplified.clone();
         clone.setParent(this.currentClassTestToBeAmplified.getParent());
         this.currentClassTestToBeAmplified.getMethods().stream()
-                .filter(TestFramework.get()::isTest)
+                 .filter(TestFramework.get()::isTest)
                 .forEach(clone::removeMethod);
         amplifiedTestToBeKept.forEach(clone::addMethod);
 
         DSpotUtils.printCtTypeToGivenDirectory(clone, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));
         final String pathToAmplifiedTestSrc = DSpotCompiler.getPathToAmplifiedTestSrc();
 
-        InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
-        DSpotCompiler.compile(
-                InputConfiguration.get(),
+        this.automaticBuilder.setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
+        if (!DSpotCompiler.compile(
                 pathToAmplifiedTestSrc,
-                InputConfiguration.get().getFullClassPathWithExtraDependencies(),
-                new File(this.pathToSecondVersionOfProgram + InputConfiguration.get().getPathToTestClasses())
-        );
-
+                this.classpath + AmplificationHelper.PATH_SEPARATOR + this.secondVersionTargetClasses,
+                new File(this.pathToSecondVersionOfProgram + this.pathToTestClasses)
+        )) {
+            LOGGER.warn("Something went bad during the compilation of the amplified test methods using the second version.");
+            // add an error in the Main Global error report
+        }
         final TestResult results;
         try {
-            InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
-            results = TestRunner.run(
-                    InputConfiguration.get().getFullClassPathWithExtraDependencies(),
+            results = this.testRunner.run(
+                    this.classpath + AmplificationHelper.PATH_SEPARATOR + this.secondVersionTargetClasses,
                     this.pathToSecondVersionOfProgram,
                     clone.getQualifiedName(),
                     amplifiedTestToBeKept.stream()
@@ -105,7 +115,7 @@ public class ChangeDetectorSelector implements TestSelector {
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            InputConfiguration.get().setAbsolutePathToProjectRoot(this.pathToFirstVersionOfProgram);
+            this.automaticBuilder.setAbsolutePathToProjectRoot(this.pathToFirstVersionOfProgram);
         }
         final List<CtMethod<?>> amplifiedThatWillBeKept = new ArrayList<>();
         if (!results.getFailingTests().isEmpty()) {
@@ -148,7 +158,7 @@ public class ChangeDetectorSelector implements TestSelector {
                 );
         final TestClassJSON testClassJSON = this.reportJson();
         this.reset();
-        return new TestSelectorElementReportImpl(output.toString(), testClassJSON);
+        return new TestSelectorElementReportImpl(output.toString(), testClassJSON, Collections.emptyList(), "");
     }
 
     private TestClassJSON reportJson() {
@@ -157,8 +167,7 @@ public class ChangeDetectorSelector implements TestSelector {
         }
         TestClassJSON testClassJSON;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        final File file = new File(InputConfiguration.get().getOutputDirectory() + "/" +
-                this.currentClassTestToBeAmplified.getQualifiedName() + "report.json");
+        final File file = new File(this.outputDirectory + "/" + this.currentClassTestToBeAmplified.getQualifiedName() + "report.json");
         if (file.exists()) {
             try {
                 testClassJSON = gson.fromJson(new FileReader(file), TestClassJSON.class);
@@ -171,7 +180,7 @@ public class ChangeDetectorSelector implements TestSelector {
                     TestFramework.getAllTest(this.currentClassTestToBeAmplified).size()
             );
         }
-        this.getAmplifiedTestCases().stream()
+        this.failurePerAmplifiedTest.keySet().stream()
                 .map(ctMethod ->
                         new TestCaseJSON(ctMethod.getSimpleName(), Counter.getInputOfSinceOrigin(ctMethod), Counter.getAssertionOfSinceOrigin(ctMethod))
                 ).forEach(testClassJSON.testCases::add);

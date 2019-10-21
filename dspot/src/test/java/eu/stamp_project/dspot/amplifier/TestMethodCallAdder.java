@@ -1,7 +1,6 @@
 package eu.stamp_project.dspot.amplifier;
 
-import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
@@ -20,7 +19,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 12/7/16
  */
-public class TestMethodCallAdder extends AbstractTest {
+public class TestMethodCallAdder extends AbstractTestOnSample {
 
     @Test
     public void testMethodCallAddOnInvocationWithCast() {
@@ -28,7 +27,7 @@ public class TestMethodCallAdder extends AbstractTest {
             In case of the invocation has type cast(s), we need to remove them.
          */
 
-        CtClass<Object> testClass = Utils.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
+        CtClass<Object> testClass = launcher.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
 
         MethodDuplicationAmplifier methodCallAdder = new MethodDuplicationAmplifier();
         methodCallAdder.reset(testClass);
@@ -46,7 +45,7 @@ public class TestMethodCallAdder extends AbstractTest {
                 3 method are called in the original test, we produce 3 test methods.
          */
 
-        CtClass<Object> testClass = Utils.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
+        CtClass<Object> testClass = launcher.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
 
         MethodDuplicationAmplifier methodCallAdder = new MethodDuplicationAmplifier();
         methodCallAdder.reset(testClass);
@@ -69,10 +68,10 @@ public class TestMethodCallAdder extends AbstractTest {
 
     @Test
     public void testAddInIf() throws Exception {
-        CtClass<Object> testClass = Utils.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
+        CtClass<Object> testClass = launcher.getFactory().Class().get("fr.inria.mutation.ClassUnderTestTest");
         MethodDuplicationAmplifier methodCallAdder = new MethodDuplicationAmplifier();
         methodCallAdder.reset(testClass);
-        final CtMethod<?> originalMethod = Utils.findMethod(testClass, "testWithIf");
+        final CtMethod<?> originalMethod = findMethod(testClass, "testWithIf");
         final Stream<CtMethod<?>> amplify = methodCallAdder.amplify(originalMethod, 0);
         assertEquals(3, amplify.findFirst()
                 .get()

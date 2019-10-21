@@ -1,9 +1,15 @@
 package eu.stamp_project.utils.pit;
 
+import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
 import org.junit.Test;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -27,4 +33,5 @@ public class PitCSVParserAndResultTest {
         assertEquals(3343, pitCSVResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitCSVResult.State.KILLED).count(), nbErrors);
         assertEquals(1014, pitCSVResults.stream().filter(pitResult -> pitResult.getStateOfMutant() == PitCSVResult.State.NO_COVERAGE).count(), nbErrors);
     }
+
 }

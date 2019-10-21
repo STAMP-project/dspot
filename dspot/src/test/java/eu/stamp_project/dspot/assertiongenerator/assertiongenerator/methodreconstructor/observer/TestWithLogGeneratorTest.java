@@ -1,7 +1,6 @@
 package eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer;
 
-import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionRemover;
 import eu.stamp_project.dspot.amplifier.MethodAdderOnExistingObjectsAmplifier;
 import eu.stamp_project.utils.AmplificationHelper;
@@ -16,7 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 
-public class TestWithLogGeneratorTest extends AbstractTest {
+public class TestWithLogGeneratorTest extends AbstractTestOnSample {
 
     @Test
     public void testOnLoops() throws Exception {
@@ -49,7 +48,7 @@ public class TestWithLogGeneratorTest extends AbstractTest {
                         "    eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.testwithloggenerator.objectlogsyntaxbuilder_constructs.ObjectLog.log(o_test2__7, \"o_test2__7\", \"test2__7___end\");" + AmplificationHelper.LINE_SEPARATOR +
                         "}",
                 eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.TestWithLogGenerator.createTestWithLog(
-                        new AssertionRemover().removeAssertion(Utils.findMethod("fr.inria.sample.TestClassWithLoop", "test2")),
+                        new AssertionRemover().removeAssertion(findMethod("fr.inria.sample.TestClassWithLoop", "test2")),
                         "fr.inria.sample",
                         Collections.emptyList()).toString()
         );
@@ -67,11 +66,11 @@ public class TestWithLogGeneratorTest extends AbstractTest {
          */
 
         final String packageName = "fr.inria.statementaddarray";
-        final Factory factory = Utils.getFactory();
+        final Factory factory = this.launcher.getFactory();
         MethodAdderOnExistingObjectsAmplifier amplifier = new MethodAdderOnExistingObjectsAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".ClassTargetAmplify"));
 
-        CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
+        CtMethod<?> ctMethod = findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
         List<CtMethod> amplifiedMethods = amplifier.amplify(ctMethod, 0).collect(Collectors.toList());
 
         assertEquals(4, amplifiedMethods.size());
@@ -98,7 +97,7 @@ public class TestWithLogGeneratorTest extends AbstractTest {
 
     @Test
     public void testMultipleObservationsPoints() throws Exception {
-        final CtMethod<?> test1 = Utils.findMethod("fr.inria.multipleobservations.TestClassToBeTest", "test");
+        final CtMethod<?> test1 = findMethod("fr.inria.multipleobservations.TestClassToBeTest", "test");
         final CtMethod<?> testWithLog =
                 eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.TestWithLogGenerator.createTestWithLog(test1, "fr.inria.multipleobservations", Collections.emptyList());
         final String expectedMethodWithLogs = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
@@ -113,7 +112,7 @@ public class TestWithLogGeneratorTest extends AbstractTest {
 
     @Test
     public void testCreateTestWithLogClassTargetAmplify() throws Exception {
-        final CtMethod<?> test1 = Utils.findMethod("fr.inria.statementaddarray.TestClassTargetAmplify", "test");
+        final CtMethod<?> test1 = findMethod("fr.inria.statementaddarray.TestClassTargetAmplify", "test");
         final CtMethod<?> testWithLog =
                 eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.TestWithLogGenerator.createTestWithLog(test1, "fr.inria.statementaddarray", Collections.emptyList());
         final String expectedMethod = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
@@ -133,7 +132,7 @@ public class TestWithLogGeneratorTest extends AbstractTest {
             test the creation of test with log
          */
 
-        CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
+        CtClass testClass = findClass("fr.inria.sample.TestClassWithoutAssert");
         final CtMethod<?> test1 = (CtMethod<?>) testClass.getMethodsByName("test1").get(0);
         final CtMethod<?> testWithLog =
                 eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.TestWithLogGenerator.createTestWithLog(test1, "fr.inria.sample", Collections.emptyList());
@@ -153,7 +152,7 @@ public class TestWithLogGeneratorTest extends AbstractTest {
 
     @Test
     public void testCreateTestWithLogWithoutChainSameObservations() throws Exception {
-        CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithSpecificCaseToBeAsserted", "test1");
+        CtMethod test1 = findMethod("fr.inria.sample.TestClassWithSpecificCaseToBeAsserted", "test1");
         final CtMethod<?> testWithLog =
                 eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.TestWithLogGenerator.createTestWithLog(test1, "fr.inria.sample", Collections.emptyList());
 
@@ -177,7 +176,7 @@ public class TestWithLogGeneratorTest extends AbstractTest {
         /*
             test the creation of log with duplicates statement
 		 */
-        CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
+        CtClass testClass = findClass("fr.inria.sample.TestClassWithoutAssert");
         final CtMethod<?> test2 = (CtMethod<?>) testClass.getMethodsByName("test2").get(0);
         final CtMethod<?> testWithLog =
                 eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.TestWithLogGenerator.createTestWithLog(test2, "fr.inria.sample", Collections.emptyList());

@@ -1,7 +1,6 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.Utils;
-import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
+import eu.stamp_project.UtilsModifier;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
@@ -27,7 +26,7 @@ public class PitScoreMutantSelectorTest {
 
         @Override
         protected TestSelector getTestSelector() {
-            return new PitMutantScoreSelector();
+            return new PitMutantScoreSelector(this.builder, this.configuration);
         }
 
         @Override
@@ -42,22 +41,14 @@ public class PitScoreMutantSelectorTest {
     private class AmplificationDelegator extends AbstractSelectorTest {
 
         @Override
-        public void setUp() throws Exception {
-            Utils.reset(); // TODO somewhere, there is some states that is why we need to reset here.
-            super.setUp();
-            Utils.getInputConfiguration().setDescartesMode(false);
-            DSpotPOMCreator.createNewPom();
-        }
-
-        @Override
         protected TestSelector getTestSelector() {
-            return new PitMutantScoreSelector();
+            return new PitMutantScoreSelector(this.builder, this.configuration);
         }
 
         @Override
         protected CtMethod<?> getAmplifiedTest() {
             final CtMethod<?> clone = getTest().clone();
-            Utils.replaceGivenLiteralByNewValue(clone, 4);
+            UtilsModifier.replaceGivenLiteralByNewValue(this.factory, clone, 4);
             return clone;
         }
 

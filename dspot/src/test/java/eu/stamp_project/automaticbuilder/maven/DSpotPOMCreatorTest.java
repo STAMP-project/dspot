@@ -2,12 +2,9 @@ package eu.stamp_project.automaticbuilder.maven;
 
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Test;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.util.stream.Collectors;
 
@@ -20,15 +17,6 @@ import static org.junit.Assert.assertTrue;
  */
 public class DSpotPOMCreatorTest {
 
-    @After
-    public void tearDown() throws Exception {
-        try {
-            FileUtils.forceDelete(new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.getPOMName()));
-        } catch (Exception ignored) {
-            // ignored
-        }
-    }
-
     @Test
     public void test() throws Exception {
 
@@ -36,10 +24,13 @@ public class DSpotPOMCreatorTest {
             Test the copy and injection of the profile to run different foals in the origial pom.xml
          */
 
-        InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
-        DSpotPOMCreator.createNewPom();
+        InputConfiguration configuration = new InputConfiguration();
+        configuration.setFilter("example.*");
+        configuration.setAbsolutePathToProjectRoot("src/test/resources/test-projects/");
+        configuration.setJVMArgs("-Xmx2048m,-Xms1024m");
+        DSpotPOMCreator.createNewPom(configuration);
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.getPOMName()))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(configuration.getAbsolutePathToProjectRoot() + DSpotPOMCreator.getPOMName()))) {
             final String content = reader.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
             assertTrue(content + AmplificationHelper.LINE_SEPARATOR +
                             "must contain " + AmplificationHelper.LINE_SEPARATOR +
@@ -54,7 +45,7 @@ public class DSpotPOMCreatorTest {
 
     private static final String MUST_CONTAIN = "<plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-compiler-plugin</artifactId><executions><execution><id>default-testCompile</id><phase>none</phase></execution></executions></plugin><plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-surefire-plugin</artifactId><configuration><additionalClasspathElements><additionalClasspathElement>target/dspot/dependencies/</additionalClasspathElement></additionalClasspathElements></configuration></plugin></plugins>";
 
-    private static final String ENDS_WITH = "<profiles><profile><id>id-descartes-for-dspot</id><build><plugins><plugin><groupId>org.pitest</groupId><artifactId>pitest-maven</artifactId><version>1.4.0</version><configuration><mutationEngine>descartes</mutationEngine><outputFormats><value>CSV</value><value>XML</value></outputFormats><targetClasses>example.*</targetClasses><reportsDirectory>target/pit-reports</reportsDirectory><timeoutConstant>10000</timeoutConstant><jvmArgs><value>-Xmx2048m</value><value>-Xms1024m</value></jvmArgs></configuration><dependencies><dependency><groupId>eu.stamp-project</groupId><artifactId>descartes</artifactId><version>1.2.4</version></dependency></dependencies></plugin></plugins></build></profile></profiles></project>";
+    private static final String ENDS_WITH = "<profiles><profile><id>id-descartes-for-dspot</id><build><plugins><plugin><groupId>org.pitest</groupId><artifactId>pitest-maven</artifactId><version>1.4.0</version><configuration><mutationEngine>descartes</mutationEngine><outputFormats><value>CSV</value><value>XML</value></outputFormats><targetClasses>example.*</targetClasses><reportsDirectory>target/pit-reports/</reportsDirectory><timeoutConstant>10000</timeoutConstant><jvmArgs><value>-Xmx2048m</value><value>-Xms1024m</value></jvmArgs></configuration><dependencies><dependency><groupId>eu.stamp-project</groupId><artifactId>descartes</artifactId><version>1.2.4</version></dependency></dependencies></plugin></plugins></build></profile></profiles></project>";
 
     @Test
     public void testOnPOMWithProfiles() throws Exception {
@@ -63,23 +54,29 @@ public class DSpotPOMCreatorTest {
             Test the copy and the injection of the profile on a pom with an existing profiles tag
          */
 
-        InputConfiguration.initialize("src/test/resources/sample/sample.properties");
-        DSpotPOMCreator.createNewPom();
+        // TODO system properties are not used in DSpotPOMCreator
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(InputConfiguration.get().getAbsolutePathToProjectRoot() + DSpotPOMCreator.getPOMName()))) {
+        InputConfiguration configuration = new InputConfiguration();
+        configuration.setFilter("fr.inria.sample.*");
+        configuration.setAbsolutePathToProjectRoot("src/test/resources/sample/");
+        configuration.setJVMArgs("-Xmx2048m,-Xms1024m");
+        configuration.setSystemProperties("-Dis.admin.user=admin,-Dis.admin.passwd=$2pRSid#");
+        configuration.setExcludedClasses("fr.inria.filter.failing.*");
+        DSpotPOMCreator.createNewPom(configuration);
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(configuration.getAbsolutePathToProjectRoot() + DSpotPOMCreator.getPOMName()))) {
             final String content = reader.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
             assertTrue(content + AmplificationHelper.LINE_SEPARATOR +
                             "should be ends with " + AmplificationHelper.LINE_SEPARATOR +
                             PROFILE_ENDS_WITH,
-                    content.endsWith(PROFILE_ENDS_WITH));
+                    content.replaceAll(" ", "").endsWith(PROFILE_ENDS_WITH.replaceAll(" ", "")));
         }
     }
 
-    private static final String PROFILE_ENDS_WITH = "<profiles>" + AmplificationHelper.LINE_SEPARATOR +
-            "        <profile>" + AmplificationHelper.LINE_SEPARATOR +
+    private static final String PROFILE_ENDS_WITH =
             "            <id>test-resources</id>" + AmplificationHelper.LINE_SEPARATOR +
             "        </profile>" + AmplificationHelper.LINE_SEPARATOR +
-            "    <profile><id>id-descartes-for-dspot</id><build><plugins><plugin><groupId>org.pitest</groupId><artifactId>pitest-maven</artifactId><version>1.4.0</version><configuration><mutationEngine>descartes</mutationEngine><outputFormats><value>CSV</value><value>XML</value></outputFormats><targetClasses>fr.inria.sample.*</targetClasses><reportsDirectory>target/pit-reports</reportsDirectory><timeoutConstant>10000</timeoutConstant><jvmArgs><value>-Xmx2048m</value><value>-Xms1024m</value><value>-Dis.admin.user=admin</value><value>-Dis.admin.passwd=$2pRSid#</value></jvmArgs><excludedTestClasses><value>fr.inria.filter.failing.*</value></excludedTestClasses></configuration><dependencies><dependency><groupId>eu.stamp-project</groupId><artifactId>descartes</artifactId><version>1.2.4</version></dependency></dependencies></plugin></plugins></build></profile></profiles>" + AmplificationHelper.LINE_SEPARATOR +
+            "    <profile><id>id-descartes-for-dspot</id><build><plugins><plugin><groupId>org.pitest</groupId><artifactId>pitest-maven</artifactId><version>1.4.0</version><configuration><mutationEngine>descartes</mutationEngine><outputFormats><value>CSV</value><value>XML</value></outputFormats><targetClasses>fr.inria.sample.*</targetClasses><reportsDirectory>target/pit-reports/</reportsDirectory><timeoutConstant>10000</timeoutConstant><jvmArgs><value>-Xmx2048m</value><value>-Xms1024m</value></jvmArgs><excludedTestClasses><value>fr.inria.filter.failing.*</value></excludedTestClasses></configuration><dependencies><dependency><groupId>eu.stamp-project</groupId><artifactId>descartes</artifactId><version>1.2.4</version></dependency></dependencies></plugin></plugins></build></profile></profiles>" + AmplificationHelper.LINE_SEPARATOR +
             "" + AmplificationHelper.LINE_SEPARATOR +
             "</project>";
 

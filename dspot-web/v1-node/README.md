@@ -1,6 +1,6 @@
 # Introduction
 
-This is a prototype web interface of Dspot, inspired from [CommitGuru](http://commit.guru/).
+This is a prototype web interface of DSpot, inspired from [CommitGuru](http://commit.guru/).
 
 Prototype demo link: <http://dspot.kth-assert.net/>
 
@@ -29,23 +29,23 @@ docker run  --net=host tailp/dspot-pipeline
 
 The front page enables to submit a new repo.
 
-![Pic 1](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic1.png)
+![Pic 1](screenshots/pic1.png)
 
 ### All amplified repos page
 
 One can browse the list of successfully amplified projects.
 
-![Pic 3](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic2.png)
+![Pic 3](screenshots/pic2.png)
 
 ### Demo submission
 
 A repo has been submitted
 
-![Pic 4](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic3.png)
+![Pic 4](screenshots/pic3.png)
 
 When done, there is one page per repo to display details
 
-![Pic 6](https://github.com/Tailp/dspot/blob/web/dspot-web/screenshots/pic4.png)
+![Pic 6](screenshots/pic4.png)
 
 ## Implementation
 

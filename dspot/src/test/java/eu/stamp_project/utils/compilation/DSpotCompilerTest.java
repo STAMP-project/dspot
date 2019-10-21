@@ -40,11 +40,20 @@ public class DSpotCompilerTest {
     @Test
     public void testDSpotCompiler() throws Exception {
 
-        final InputConfiguration configuration = InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
+        final InputConfiguration configuration = new InputConfiguration();
+        configuration.setAbsolutePathToProjectRoot("src/test/resources/test-projects/");
         final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(configuration, "");
+        TestCompiler testCompiler = new TestCompiler(0,
+                false,
+                configuration.getAbsolutePathToProjectRoot(),
+                configuration.getClasspathClassesProject(),
+                10000,
+                "",
+                false
+        );
         final CtClass<?> aClass = getClass(compiler.getLauncher().getFactory());
         final List<CtMethod<?>> method = aClass.getMethodsByName("method");
-        final List<CtMethod<?>> compile = TestCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, "", method);
+        final List<CtMethod<?>> compile = testCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, method);
         assertEquals(1, compile.size());
         assertEquals(1, aClass.getMethods().size());
 
@@ -57,8 +66,9 @@ public class DSpotCompilerTest {
                 .findFirst()
                 .get();
 
-        final List<CtMethod<?>> results = TestCompiler.compileAndDiscardUncompilableMethods(compiler, aClass, "",
-                new ArrayList(aClass.getMethods()));
+        final List<CtMethod<?>> results = testCompiler.compileAndDiscardUncompilableMethods(
+                compiler, aClass, new ArrayList(aClass.getMethods())
+        );
         assertEquals(2, results.size());
         assertEquals("compilableTest", results.get(0).getSimpleName());
         assertEquals(uncompilableTest, results.get(0));

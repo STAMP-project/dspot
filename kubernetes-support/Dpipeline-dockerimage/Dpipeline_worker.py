@@ -96,7 +96,7 @@ TIMEOUT = 360  # timeout for executing submissions
 def email_result (message,subject,to_email,files=[]): 
     # Construct basic mail content
     msg = MIMEMultipart()
-    msg['From'] = os.getenv("GMAIL_ADDRESS") or "stampdspotresult@gmail.com"
+    msg['From'] = os.getenv("GMAIL_ADDRESS") or "foo@gmail.com"
     msg['To'] = to_email
     msg['Subject'] = subject
     msg.attach(MIMEText(message, 'plain'))
@@ -112,7 +112,7 @@ def email_result (message,subject,to_email,files=[]):
     server = smtplib.SMTP('smtp.gmail.com: 587')
     server.starttls()
     # Login Credentials for sending the mail
-    server.login(msg['From'], os.getenv("GMAIL_PASSWORD") or "abcde12345@")
+    server.login(msg['From'], os.getenv("GMAIL_PASSWORD") or "unknown")
     # send the message via the server.
     server.sendmail(msg['From'], msg['To'], msg.as_string())
     server.quit()
@@ -253,7 +253,7 @@ def run_Dspot_preconfig(reposlug,repobranch,selector):
     if not (os.path.isfile("clonedrepo/dspot.properties")):
         return False
     logging.warn("PROJECT DOES SUPPORT DSPOT")
-    res = exec_get_output('java -jar ../dspot-2.1.2-jar-with-dependencies.jar -p dspot.properties ' + basic_opts + RUN_OPTIONS_JAR ,True,False,"./clonedrepo/")
+    res = exec_get_output('java -jar ../dspot.jar -p dspot.properties ' + basic_opts + RUN_OPTIONS_JAR ,True,False,"./clonedrepo/")
     error_message = ""
     if res[1] == True: 
         error_message = "Process was TIMEOUT, RUN EXCEEDED " + str(RUN_TIMEOUT) + " minutes, currently we don't support heavy projects \n \n --STAMP/Dspot"
@@ -348,7 +348,7 @@ def run_Dspot_autoconfig(reposlug,repobranch,selector):
             configure(module_name, module_path,
                       root_name, project_path, outputdir,JAVA_VERSION)
             logging.warn('Running Dspot')
-            res = exec_get_output('java -jar dspot-2.1.2-jar-with-dependencies.jar -p project.properties ' + basic_opts + RUN_OPTIONS_JAR,True)
+            res = exec_get_output('java -jar dspot.jar -p project.properties ' + basic_opts + RUN_OPTIONS_JAR,True)
 
             error_message = ""
             if res[1] == True:

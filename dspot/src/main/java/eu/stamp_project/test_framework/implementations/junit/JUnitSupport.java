@@ -6,7 +6,6 @@ import eu.stamp_project.test_framework.AbstractTestFramework;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.testrunner.runner.Failure;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.program.InputConfiguration;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
@@ -90,7 +89,7 @@ public abstract class JUnitSupport extends AbstractTestFramework {
      */
     @Override
     public CtInvocation<?> buildInvocationToAssertion(CtMethod<?> testMethod, AssertEnum assertion, List<CtExpression> arguments) {
-        final Factory factory = InputConfiguration.get().getFactory();
+        final Factory factory = testMethod.getFactory();
         final CtInvocation invocation = factory.createInvocation();
         final CtExecutableReference<?> executableReference = factory.Core().createExecutableReference();
         executableReference.setStatic(true);
@@ -108,8 +107,7 @@ public abstract class JUnitSupport extends AbstractTestFramework {
     public CtMethod<?> prepareTestMethod(CtMethod<?> testMethod) {
         if (testMethod.getThrownTypes().isEmpty()) {
             testMethod.addThrownType(
-                    InputConfiguration.get()
-                            .getFactory()
+                    testMethod.getFactory()
                             .Type()
                             .createReference(Exception.class)
             );
@@ -127,15 +125,32 @@ public abstract class JUnitSupport extends AbstractTestFramework {
 
     @Override
     public CtMethod<?> generateExpectedExceptionsBlock(CtMethod<?> test, Failure failure, int numberOfFail) {
-        final Factory factory = InputConfiguration.get().getFactory();
+        final Factory factory = test.getFactory();
 
         final String[] split = failure.fullQualifiedNameOfException.split("\\.");
         final String simpleNameOfException = split[split.length - 1];
 
         CtTry tryBlock = factory.Core().createTry();
         tryBlock.setBody(test.getBody());
-        String snippet = this.qualifiedNameOfAssertClass + ".fail(\"" + test.getSimpleName() + " should have thrown " + simpleNameOfException + "\")";
-        tryBlock.getBody().addStatement(factory.Code().createCodeSnippetStatement(snippet));
+
+        CtType<?> assertClass = factory.createReference(this.qualifiedNameOfAssertClass).getTypeDeclaration();
+        CtStatement failStatement;
+        if (assertClass.getMethod("fail") == null) {
+            String snippet = this.qualifiedNameOfAssertClass + ".fail(\"" + test.getSimpleName() + " should have thrown " + simpleNameOfException + "\")";
+            failStatement = factory.Code().createCodeSnippetStatement(snippet);
+        } else {
+            final CtMethod<?> fail = assertClass.getMethod("fail");
+            final CtTypeAccess<?> assertTypeAccess = factory.createTypeAccess(assertClass.getReference());
+            failStatement = factory.createInvocation(
+                    assertTypeAccess,
+                    fail.getReference()
+            ).addArgument(
+                    factory.createLiteral(
+                            test.getSimpleName() + " should have thrown " + simpleNameOfException
+                    )
+            );
+        }
+        tryBlock.getBody().addStatement(failStatement);
         DSpotUtils.addComment(tryBlock, "AssertionGenerator generate try/catch block with fail statement", CtComment.CommentType.INLINE);
 
         CtCatch ctCatch = factory.Core().createCatch();

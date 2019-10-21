@@ -1,11 +1,14 @@
 package eu.stamp_project.dspot.selector;
 
+import eu.stamp_project.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
 import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -13,13 +16,14 @@ import java.util.List;
  * benjamin.danglot@inria.fr
  * on 08/08/17
  */
-public class TakeAllSelector implements TestSelector {
+public class TakeAllSelector extends AbstractTestSelector {
 
 	protected List<CtMethod<?>> selectedAmplifiedTest;
 
 	protected CtType<?> currentClassTestToBeAmplified;
 
-	public TakeAllSelector() {
+	public TakeAllSelector(AutomaticBuilder automaticBuilder, InputConfiguration configuration) {
+		super(automaticBuilder, configuration);
 		this.selectedAmplifiedTest = new ArrayList<>();
 	}
 
@@ -47,7 +51,7 @@ public class TakeAllSelector implements TestSelector {
 	public TestSelectorElementReport report() {
 		final String report = "Amplification results with " + this.selectedAmplifiedTest.size() + " new tests.";
 		reset();
-		return new TestSelectorElementReportImpl(report, null);
+		return new TestSelectorElementReportImpl(report, null, Collections.emptyList(), "");
 	}
 
 	@Override

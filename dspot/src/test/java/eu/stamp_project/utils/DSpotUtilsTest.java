@@ -1,7 +1,7 @@
 package eu.stamp_project.utils;
 
-import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.AbstractTestOnSample;
+import eu.stamp_project.utils.collector.NullCollector;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import spoon.Launcher;
@@ -23,20 +23,20 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 2/20/17
  */
-public class DSpotUtilsTest extends AbstractTest {
+public class DSpotUtilsTest extends AbstractTestOnSample {
 
     private final static File outputDirectory = new File("target/trash/");
 
     @Test
     public void testOutputUsingToString() throws Exception {
         DSpotUtils.printCtTypUsingToStringToGivenDirectory(
-                Utils.findClass("fr.inria.lombok.LombokClassThatUseBuilderTest"),
+                launcher.getFactory().Class().get("fr.inria.lombok.LombokClassThatUseBuilderTest"),
                 outputDirectory
         );
         try (final BufferedReader reader =
-                                          new BufferedReader(new FileReader(outputDirectory + "/fr/inria/lombok/LombokClassThatUseBuilderTest.java"))) {
+                     new BufferedReader(new FileReader(outputDirectory + "/fr/inria/lombok/LombokClassThatUseBuilderTest.java"))) {
             assertTrue(reader.lines()
-                            .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)).endsWith(
+                    .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)).endsWith(
                             "public class LombokClassThatUseBuilderTest {" + AmplificationHelper.LINE_SEPARATOR +
                                     "    @org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
                                     "    public void test() {" + AmplificationHelper.LINE_SEPARATOR +
@@ -51,8 +51,9 @@ public class DSpotUtilsTest extends AbstractTest {
     @Test
     public void testWithLombokAnnotation() throws Exception {
         DSpotUtils.printAndCompileToCheck(
-                Utils.findClass("fr.inria.lombok.LombokClassThatUseBuilderTest"),
-                outputDirectory
+                findClass("fr.inria.lombok.LombokClassThatUseBuilderTest"),
+                outputDirectory,
+                new NullCollector()
         );
         try (final BufferedReader reader =
                      new BufferedReader(new FileReader(outputDirectory + "/fr/inria/lombok/LombokClassThatUseBuilderTest.java"))) {
@@ -60,10 +61,13 @@ public class DSpotUtilsTest extends AbstractTest {
                     "package fr.inria.lombok;" + AmplificationHelper.LINE_SEPARATOR +
                             "" + AmplificationHelper.LINE_SEPARATOR +
                             "" + AmplificationHelper.LINE_SEPARATOR +
+                            "import org.junit.Test;" + AmplificationHelper.LINE_SEPARATOR +
+                            "" + AmplificationHelper.LINE_SEPARATOR +
+                            "" + AmplificationHelper.LINE_SEPARATOR +
                             "public class LombokClassThatUseBuilderTest {" + AmplificationHelper.LINE_SEPARATOR +
-                            "    @org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
+                            "    @Test" + AmplificationHelper.LINE_SEPARATOR +
                             "    public void test() {" + AmplificationHelper.LINE_SEPARATOR +
-                            "        fr.inria.lombok.LombokClassThatUseBuilder.builder().build();" + AmplificationHelper.LINE_SEPARATOR +
+                            "        builder().build();" + AmplificationHelper.LINE_SEPARATOR +
                             "    }" + AmplificationHelper.LINE_SEPARATOR +
                             "}" + AmplificationHelper.LINE_SEPARATOR,
                     reader.lines()
@@ -102,7 +106,7 @@ public class DSpotUtilsTest extends AbstractTest {
         final CtType<?> type = launcher.getFactory().Type().get("example.TestSuiteExample");
 
         assertFalse(javaFile.exists());
-        DSpotUtils.printAndCompileToCheck(type, outputDirectory);
+        DSpotUtils.printAndCompileToCheck(type, outputDirectory, new NullCollector());
         assertTrue(javaFile.exists());
 
         final CtMethod<?> clone = type.getMethods().stream()
@@ -112,7 +116,7 @@ public class DSpotUtilsTest extends AbstractTest {
         clone.setSimpleName("MyNewMethod");
         type.addMethod(clone);
 
-        DSpotUtils.printAndCompileToCheck(type, outputDirectory);
+        DSpotUtils.printAndCompileToCheck(type, outputDirectory, new NullCollector());
         launcher = new Launcher();
         launcher.addInputResource(outputDirectory.getAbsolutePath() + "/" + "example.TestSuiteExample".replaceAll("\\.", "\\/") + ".java");
         launcher.getEnvironment().setNoClasspath(true);
@@ -124,7 +128,7 @@ public class DSpotUtilsTest extends AbstractTest {
         clone.setSimpleName("MyNewMethod2");
         type.addMethod(clone);
 
-        DSpotUtils.printAndCompileToCheck(type, outputDirectory);
+        DSpotUtils.printAndCompileToCheck(type, outputDirectory, new NullCollector());
         launcher = new Launcher();
         launcher.addInputResource(outputDirectory.getAbsolutePath() + "/" + "example.TestSuiteExample".replaceAll("\\.", "\\/") + ".java");
         launcher.getEnvironment().setNoClasspath(true);

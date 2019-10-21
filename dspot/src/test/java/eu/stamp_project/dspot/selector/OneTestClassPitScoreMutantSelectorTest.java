@@ -1,16 +1,21 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.AbstractTest;
+import eu.stamp_project.Main;
+import eu.stamp_project.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.utils.compilation.DSpotCompiler;
+import eu.stamp_project.utils.execution.TestRunner;
+import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.pit.AbstractPitResult;
 import eu.stamp_project.utils.program.InputConfiguration;
-import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import spoon.Launcher;
+import spoon.reflect.factory.Factory;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -18,32 +23,40 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 29/01/19
  */
-public class OneTestClassPitScoreMutantSelectorTest extends AbstractTest {
+public class OneTestClassPitScoreMutantSelectorTest {
 
     private String FULL_QUALIFIED_NAME_TEST_CLASS = "example.TestSuiteExample";
 
-    @Override
-    public String getPathToPropertiesFile() {
-        return "src/test/resources/test-projects/test-projects.properties";
-    }
+    private AutomaticBuilder builder;
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        InputConfiguration.get().getBuilder().reset();
-        InputConfiguration.get().setTestClasses(Collections.singletonList(FULL_QUALIFIED_NAME_TEST_CLASS));
-        InputConfiguration.get().setTargetOneTestClass(true);
-    }
+    private InputConfiguration configuration;
 
-    @After
-    public void tearDown() throws Exception {
-        InputConfiguration.get().setTargetOneTestClass(false);
-        InputConfiguration.get().setTestClasses(Collections.emptyList());
+    private TestRunner testRunner;
+
+    @Before
+    public void setUp() {
+        Main.verbose = true;
+        this.configuration = new InputConfiguration();
+        this.configuration.setAbsolutePathToProjectRoot("src/test/resources/test-projects/");
+        this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
+        DSpotCompiler.createDSpotCompiler(
+                configuration,
+                Main.completeDependencies(configuration, this.builder)
+        );
+        Launcher launcher = new Launcher();
+        launcher.getEnvironment().setNoClasspath(true);
+        launcher.addInputResource("src/test/resources/test-projects/");
+        launcher.buildModel();
+        Factory factory = launcher.getFactory();
+        this.configuration.setFactory(factory);
+        this.configuration.setTestClasses(Collections.singletonList(FULL_QUALIFIED_NAME_TEST_CLASS));
+        this.configuration.setTargetOneTestClass(true);
+        this.testRunner = new TestRunner(this.configuration.getAbsolutePathToProjectRoot(), "", false);
     }
 
     @Test
     public void test() throws NoSuchFieldException, IllegalAccessException {
-        final PitMutantScoreSelector pitMutantScoreSelector = new PitMutantScoreSelector();
+        final PitMutantScoreSelector pitMutantScoreSelector = new PitMutantScoreSelector(this.builder, this.configuration);
         pitMutantScoreSelector.init();
         final Field field = pitMutantScoreSelector.getClass().getDeclaredField("originalKilledMutants");
         field.setAccessible(true);
