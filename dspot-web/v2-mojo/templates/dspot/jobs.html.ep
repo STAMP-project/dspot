@@ -12,16 +12,23 @@
 
 <br />
 
-<p>This is the list of all jobs executed by our services. A single repository analysis is composed of 3 jobs run in sequence: <code>run_git</code> clones or pulls the git repository, <code>run_mvn</code> executes a maven build on the project to compute analysis, and <code>run_dspot</code> executes dspot.</p>
+<p>This is the list of all jobs executed by our services. A single repository analysis is composed of 3 jobs run in sequence: <code>run_git</code> clones or pulls the git repository, <code>run_mvn</code> executes a maven build on the project to compute analysis, and <code>run_dspot</code> executes dspot. Only jobs pertaining to dspot are displayed in the table.</p>
 
 <br />
 
 <table class="table table-striped table-hover ">
   <thead>
-    <tr><th>ID</th><th>Repository</th><th>Task</th><th>Status</th><th>Created / Duration</th><th>Args</th></tr>
+    <tr>
+      <th>ID</th>
+      <th>Repository</th>
+      <th>Status</th>
+      <th>Created / Duration</th>
+      <th>Args</th>
+      <th>Results</th>
+    </tr>
   </thead>
   <tbody>
-% foreach my $job (@{app->minion->backend->list_jobs->{'jobs'}}) {
+% foreach my $job (grep {$_->{'task'} =~ m!^run_dspot$!} @{app->minion->backend->list_jobs->{'jobs'}}) {
 %   my $icon = "fa-question"; my $results = ""; my $green = '';
 %   if ($job->{'state'} =~ m!^active!) { $icon = "fa-spinner fa-spin"; }
 %   elsif ($job->{'state'} =~ m!^inactive!) { $icon = "fa-hourglass-o"; }
@@ -40,7 +47,6 @@
     <tr>
       <td><%= $job->{'id'} %></td>
       <td><a href="/repo/<%== $a[0] || '' %>"><%= $job->{'args'}[0] %></a></td>
-      <td><%= $job->{'task'} %></td>
       <td<%== $green %>><i class="fa fa-lg <%= $icon %>"></i> &nbsp; <%= $job->{'state'} %></td>
       <td><%= $create_time %><br />
 % if (defined($job->{'started'})) {
@@ -54,6 +60,7 @@
 	Extended: <%== $a[3] || '' %><br />
 % }
       </td>
+      <td>TODO XXX Results</td>
     </tr>
 % }
   </tbody>
