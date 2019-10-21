@@ -131,10 +131,9 @@
 %   close $fh;
 <h2>DSpot execution</h2>
 
-  <p>Analysis type / command used</b>: 
-    <mark><%= $cmd %></mark>
-  </p>
-
+<p>Analysis type / command used</b>:
+<code><%= $cmd %></code>
+</p>
 
 <pre class="pre-scrollable" style="max-height: 25vh">
 <%= "$_\n" for @lines %>

@@ -256,6 +256,7 @@ sub startup {
     map { $nm += $_->{'nbNewMutantKilled'} } @$results;
     $ret->{'totalNewMutantsKilled'} = $nm;
 
+    # Create a zip file including all results.
     print "  Zipping directory $pdir_out.\n";
     my $zip = Archive::Zip->new();
     # Add a directory
@@ -299,11 +300,11 @@ sub startup {
     my $maildata = "
 Hi, \n
 
-<p>Thank you for submitting your project to dspot-web. The job has been processed and the results can be found at [1].</p>
+Thank you for submitting your project to dspot-web. The job has been processed and the results can be found at [1].\n
 
-[1] http://$url/repo/$id
+[1] http://$dspot_url/repo/$id \n
 
-Thank you, have a wonderful day!
+Have a wonderful day!\n
 
 --
 the dspot-web bot
