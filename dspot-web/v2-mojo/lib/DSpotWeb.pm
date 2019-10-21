@@ -20,7 +20,7 @@ sub startup {
 
   # Mojolicious plugin RenderFile to serve static files.
   my $conf_mail = {
-    from     => 'dspot-web@castalia.solutions',
+    from     => 'STAMP team <stamp-demo@inria.fr>',
 #    encoding => 'base64',
     type     => 'text/html',
 #    how      => 'sendmail',
