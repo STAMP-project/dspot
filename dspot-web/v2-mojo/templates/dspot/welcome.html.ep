@@ -6,20 +6,21 @@
 <div class="jumbotron">
   <div class="container">
     <h1 class="display-4">Welcome to DSpot Web!</h1>
-    <p>This is where you can easily amplify your Maven build tests.</p>
   </div>
 </div>
 
-<p><a class="btn btn-primary btn-lg" href="/new" role="button">Add your project &raquo;</a></p>
 
 <br />
       
-<h2>About <a href="https://github.com/STAMP-project/dspot">DSpot</a></h2>
-
-<p>DSpot is a tool that generates missing assertions in JUnit tests. </p>
+<p><a href="https://github.com/STAMP-project/dspot">DSpot</a> is a tool that generates missing assertions in JUnit tests. </p>
 <p>DSpot takes as input a Java Maven project with an existing test suite and generates new test cases that improve the efficiency of the test suite.</p>
 
 <br />
+
+<p><a class="btn btn-primary btn-lg" href="/new" role="button">Amplify your project &raquo;</a></p>
+
+<br />
+
 
 <h1>Repositories</h1>
 

@@ -37,10 +37,6 @@
   </dd>
   <dt class="col-sm-3"><b>Git Hash</b></dt>
   <dd class="col-sm-9"><mark><%= $hash %></mark></dd>
-  <dt class="col-sm-3"><b>Analysis type / command used</b></dt>
-  <dd class="col-sm-9">
-    <mark><%= $cmd %></mark>
-  </dd>
 </dl>
 
 <br />
@@ -134,6 +130,11 @@
 %   chomp(@lines = <$fh>);
 %   close $fh;
 <h2>DSpot execution</h2>
+
+  <p>Analysis type / command used</b>: 
+    <mark><%= $cmd %></mark>
+  </p>
+
 
 <pre class="pre-scrollable" style="max-height: 25vh">
 <%= "$_\n" for @lines %>
