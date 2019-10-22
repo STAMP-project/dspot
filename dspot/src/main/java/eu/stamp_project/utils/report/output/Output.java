@@ -3,6 +3,7 @@ package eu.stamp_project.utils.report.output;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.Main;
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.collector.Collector;
@@ -72,9 +73,33 @@ public class Output {
             LOGGER.warn("DSpot could not obtain any amplified test method.");
             LOGGER.warn("You can customize the following options: --amplifiers, --test-criterion, --iteration, --inputAmplDistributor etc, and retry with a new configuration.");
         }
-
         this.writeProjectTimeJSON();
+        // output the original test class with original test methods
+        outputSeedTestClassWithSuccessTestMethods(testClassToBeAmplified, amplifiedTestMethods);
         return amplification;
+    }
+
+    private void outputSeedTestClassWithSuccessTestMethods(CtType<?> testClassToBeAmplified,
+                                                           List<CtMethod<?>> amplifiedTestMethods) {
+        final CtType<?> clone = testClassToBeAmplified.clone();
+        testClassToBeAmplified.getPackage().addType(clone);
+        clone.getMethods().stream()
+                .filter(TestFramework.get()::isTest)
+                .forEach(clone::removeMethod);
+        amplifiedTestMethods.stream()
+                .map(AmplificationHelper::getOriginalTestMethod)
+                .distinct()
+                .forEach(clone::addMethod);
+        final File outputDirectory = new File(this.outputPathDirectory + "/original/");
+        Main.GLOBAL_REPORT.addNumberAmplifiedTestMethodsToTotal(amplifiedTestMethods.size());
+        Main.GLOBAL_REPORT.addPrintedTestClasses(
+                String.format("Print %s with %d amplified test cases in %s",
+                        clone.getQualifiedName() + ".java",
+                        amplifiedTestMethods.size(),
+                        this.outputPathDirectory + "/original/"
+                )
+        );
+        DSpotUtils.printCtTypeToGivenDirectory(clone, outputDirectory, true);
     }
 
     private void writeProjectTimeJSON() {
