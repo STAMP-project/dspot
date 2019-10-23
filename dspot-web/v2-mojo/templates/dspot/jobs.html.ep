@@ -20,25 +20,24 @@
 <table class="table table-striped table-hover ">
   <thead>
     <tr>
-      <th>ID</th>
+      <!-- th>ID</th -->
       <th>Repository</th>
       <th>Status</th>
       <th>Created / Duration</th>
       <th>Args</th>
-      <th>Results</th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
-% print "DBG ALL is $all.\n";
 % my @jobs = @{app->minion->backend->list_jobs->{'jobs'}};
 % if ( not defined($all) ) { @jobs = grep { $_->{'task'} =~ m!^run_dspot$! } @jobs };
 % foreach my $job (@jobs) {
-%   my $icon = "fa-question"; my $results = ""; my $green = '';
+%   my $icon = "fa-question"; my $results = ""; 
 %   if ($job->{'state'} =~ m!^active!) { $icon = "fa-spinner fa-spin"; }
 %   elsif ($job->{'state'} =~ m!^inactive!) { $icon = "fa-hourglass-o"; }
 %   elsif ($job->{'state'} =~ m!^failed!) { $icon = "fa-frown-o"; }
 %   elsif ($job->{'state'} =~ m!^finished!) {
-%     $icon = "fa-smile-o"; $green = ' style="color:forestgreen"';
+%     $icon = "fa-smile-o"; 
 %   }
 %   my @a = @{$job->{'args'}};
 %   use POSIX qw( strftime ); use Data::Dumper;
@@ -49,9 +48,19 @@
 %   my $now_time = DateTime->now;
 %   my $duration = defined($job->{'finished'}) ? $stop_time->subtract_datetime($start_time) : $now_time->subtract_datetime($start_time);
     <tr>
-      <td><%= $job->{'id'} %></td>
+      <!-- td><%= $job->{'id'} %></td -->
       <td><a href="/repo/<%== $a[0] || '' %>"><%= $job->{'args'}[0] %></a></td>
-      <td<%== $green %>><i class="fa fa-lg <%= $icon %>"></i> &nbsp; <%= $job->{'state'} %></td>
+      <td>
+% if (defined($job->{'started'})) {
+        <span style="color:forestgreen">
+        <i class="fa fa-lg <%= $icon %>"></i>
+        &nbsp; <%= $job->{'state'} %>
+        </span>
+% } else {
+        <i class="fa fa-lg <%= $icon %>"></i>
+        &nbsp; <%= $job->{'state'} %>
+% }
+      </td>
       <td><%= $create_time %><br />
 % if (defined($job->{'started'})) {
 	<%= $duration->hours %>h <%= $duration->minutes %>m <%= $duration->seconds %>s</td>
@@ -61,10 +70,15 @@
 	Git URL: <a href="<%== $a[1] || '' %>"><%== $a[1] || '' %></a><br />
 	Hash: <%== $a[2] || '' %><br />
 % if ($job->{'task'} =~ m!run_dspot!) {
-	Extended: <%== $a[3] || '' %><br />
+	Extended: <%== $a[4] || '' %><br />
 % }
       </td>
-      <td>TODO XXX Results</td>
+      <td>
+% if (defined($job->{'finished'})) {
+        <br />
+        <a href="/job/<%= $job->{'id'} %>"><i class="fa fa-lg fa-external-link-square"></i></a>
+% }
+      </td>
     </tr>
 % }
   </tbody>
