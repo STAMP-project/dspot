@@ -24,10 +24,7 @@ sub startup {
   # Mojolicious plugin RenderFile to serve static files.
   my $conf_mail = {
     from     => 'STAMP team <stamp-demo@inria.fr>',
-#    encoding => 'base64',
     type     => 'text/html',
-#    how      => 'sendmail',
-#    howargs  => ['/usr/sbin/sendmail -t'],
   };
   $self->plugin('mail' => $conf_mail);
 
@@ -86,33 +83,34 @@ sub startup {
   }
   
   $self->config({'work_dir' => $wdir});
+  $self->config({'jobs_dir' => $jobsdir});
   $self->config({'workspace' => $workspace});
 
   # Add another "public" directory
   push @{$self->app->static->paths}, $workspace;
-
+  
   # Get mvn command to use for execution
   my $mvn_home = $config->{'mvn_home'} or die "ERROR Cannot find mvn_home.\n";
   my $mvn_bin = File::Spec->catdir( ($mvn_home, 'bin') );
-  print "* Using mvn home [$mvn_home].\n";
+  print "* Checking config..\n";
+  print "  - Using mvn home [$mvn_home].\n";
 
   my $mvn_cmd = $config->{'mvn_cmd'} or die "ERROR Cannot find mvn_cmd.\n";
   $mvn_cmd = "MAVEN_HOME=${mvn_home} " . File::Spec->catdir( ($mvn_bin, $mvn_cmd) );
-  print "* Using mvn command [$mvn_cmd].\n";
+  print "  - Using mvn command [$mvn_cmd].\n";
 
   my $dspot_cmd = $config->{'dspot_cmd'} or die "ERROR Cannot find dspot_cmd.\n";
   $dspot_cmd = "MAVEN_HOME=${mvn_home} " . File::Spec->catdir( ($mvn_bin, $dspot_cmd) );
-  print "* Using dspot cmd [$dspot_cmd].\n";
+  print "  - Using dspot cmd [$dspot_cmd].\n";
 
   my $dspot_cmd_ext = $config->{'dspot_cmd_ext'} or die "ERROR Cannot find dspot_cmd_ext.\n";
   $dspot_cmd_ext = "MAVEN_HOME=${mvn_home} " . File::Spec->catdir( ($mvn_bin, $dspot_cmd_ext) );
-  print "* Using dspot cmd ext [$dspot_cmd_ext].\n\n";
+  print "  - Using dspot cmd ext [$dspot_cmd_ext].\n\n";
 
   # Just check we have what we need..
   my $mvn_test = File::Spec->catfile( $mvn_bin, 'mvn' );
   $mvn_test .= ' --version';
   my @mvn_test = `${mvn_test}`;
-  print @mvn_test;
 
 
   # Create a help to get the path to wdir + project
@@ -355,6 +353,7 @@ the dspot-web bot
   $r->post('/new/')->to( 'dspot#create_post' );
 
   $r->get('/jobs')->to( 'dspot#jobs' );
+  $r->get('/job/#job')->to( 'dspot#job' );
 
 }
 

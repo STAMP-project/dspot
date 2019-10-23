@@ -1,0 +1,97 @@
+% layout 'default';
+% title 'Job';
+% use Data::Dumper; 
+% my $job_id = $myjob->{'id'} || '';
+
+<br />
+
+<a href="/">&lt; Back Home</a>
+
+<br />
+<br />
+
+<h1>Job <%= $job_id %></h1>
+ 
+<br />
+
+<dl class="row">
+  <dt class="col-sm-3"><b>Repository ID</b></dt>
+  <dd class="col-sm-9"><mark><%= $myjob->{'args'}[0] %></mark></dd>
+  <dt class="col-sm-3"><b>Git URL</b></dt>
+  <dd class="col-sm-9"><mark><%= $myjob->{'args'}[1] %></mark>
+    <a href="<%= $myjob->{'args'}[1] %>"><i class="fa fa-lg fa-external-link"></i></a> 
+  </dd>
+  <dt class="col-sm-3"><b>Git Hash</b></dt>
+  <dd class="col-sm-9"><mark><%= $myjob->{'args'}[2] %></mark></dd>
+</dl>
+
+<br />
+
+% if ( -d $jdir ) {
+%   use Mojo::JSON qw(decode_json);
+%   my @files = <$jdir/*_report.json>;
+%   my $results = [];
+%   foreach my $f (@files) {
+%     my $data;
+%     {
+%       open my $fh, '<', $f or die "Cannot find file $f.";
+%       $/ = undef;
+%       $data = <$fh>;
+%       close $fh;
+%     }
+%     my $conf = decode_json( $data );
+%     push( @$results, $conf );
+%   }
+<h2>Results</h2>
+
+<p>Here is the list of test classes that have been investigated, and the number of newly generated test cases.</p>
+
+<table class="table table-striped table-hover ">
+  <thead>
+    <tr><th>Name</th><th>OriginalTestCases</th><th>MutantKilledOriginally</th><th>NewMutantKilled</th></tr>
+  </thead>
+  <tbody>
+% foreach my $f (@{$results}) {
+%   next if (not exists($f->{'name'}));
+    <tr>
+      <td><%= $f->{'name'} %></td>
+      <td><%= $f->{'nbOriginalTestCases'} %></td>
+      <td>
+	<%= $f->{'nbMutantKilledOriginally'} %>
+      </td>
+      <td>
+	<%= $f->{'nbNewMutantKilled'} %> &nbsp; 
+	<%== $f->{'nbNewMutantKilled'} > 0 ? '&nbsp; &nbsp; <i class="fa fa-lg fa-thumbs-up" style="color:forestgreen"></i>' : ''  %>
+      </td>
+    </tr>
+% }
+  </tbody>
+</table> 
+
+<br />
+
+<h2>Tests</h2>
+
+% foreach my $f (@$tests) {
+%   my $content;
+%   {
+%     open my $fh, '<', $f or die "Cannot find file $f.";
+%     $/ = undef;
+%     $content = <$fh>;
+%     $content =~ s/\\n\s*/ \\ /g;
+%     close $fh;
+%   }
+%#   $content =~ s/\n+\s*/\n/g; 
+
+<p>File <code><%= $f %></code></p>
+
+<pre class="pre-scrollable" style="max-height: 25vh">
+<%= $content %>
+</pre>
+
+<br />
+
+%   }
+
+% }
+

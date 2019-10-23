@@ -2,9 +2,9 @@ package DSpotWeb::Controller::Dspot;
 use Mojo::Base 'Mojolicious::Controller';
 
 use File::Spec;
+use File::Find;
 use Data::Dumper;
 use File::Basename;
-use File::Spec;
 use Mojo::JSON qw/decode_json/;
 use Archive::Zip qw( :ERROR_CODES :CONSTANTS );
 
@@ -120,6 +120,32 @@ sub jobs {
   $self->render();
 }
 
+
+# Display a specific job
+sub job {
+  my $self = shift;
+
+  my $msg;
+  my $id = $self->stash('job');
+	       
+  # Load configuration from application config
+  my $jobs_dir = $self->app->config('jobs_dir');
+  my $jdir = File::Spec->catdir( ($jobs_dir, $id) );
+  
+  my %jobs = %{$self->app->minion->backend->list_jobs(0, 1, { ids => [$id] })};
+  my $myjob = $jobs{'jobs'}[0];
+
+  my @tests;
+  find( sub { $_ =~ m/.*\.java/ && push(@tests, $File::Find::name) }, $jdir );
+  
+  # Prepare data to be sent to template.
+  $self->stash('jdir' => $jdir);
+  $self->stash('myjob' => $myjob);
+  $self->stash('tests' => \@tests);
+  
+  # Render template "dspot/job.html.ep"
+  $self->render();
+}
 
 
 # Download specific files from wdir.
