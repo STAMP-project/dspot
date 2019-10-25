@@ -135,8 +135,10 @@ sub job {
   my %jobs = %{$self->app->minion->backend->list_jobs(0, 1, { ids => [$id] })};
   my $myjob = $jobs{'jobs'}[0];
 
-  my @tests;
-  find( sub { $_ =~ m/.*\.java/ && push(@tests, $File::Find::name) }, $jdir );
+  my @tests = ();
+  if (-d $jdir) {
+      find( sub { $_ =~ m/.*\.java/ && push(@tests, $File::Find::name) }, $jdir );
+  }
   
   # Prepare data to be sent to template.
   $self->stash('jdir' => $jdir);
