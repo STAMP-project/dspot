@@ -315,8 +315,9 @@ sub startup {
     my $maildata = "
 <p>Hi,</p>
 
-<p>Thank you for submitting your project to dspot-web. The job has been processed and the results can be found at [1].<br />
-[1] http://$dspot_url/repo/$id</p>
+<p>Thank you for submitting your project to dspot-web. The job has been processed and the results can be found at [1].</p>
+
+<p>[1] http://$dspot_url/job/$jobid</p>
 
 <p>Have a wonderful day!</p>
 
