@@ -23,6 +23,8 @@
   </dd>
   <dt class="col-sm-3"><b>Git Hash</b></dt>
   <dd class="col-sm-9"><mark><%= $myjob->{'args'}[2] %></mark></dd>
+  <dt class="col-sm-3"><b>Command</b></dt>
+  <dd class="col-sm-9"><mark><%= $conf->{'cmd'} %></mark></dd>
 </dl>
 
 <br />

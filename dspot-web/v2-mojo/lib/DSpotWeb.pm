@@ -103,10 +103,6 @@ sub startup {
   $dspot_cmd = "MAVEN_HOME=${mvn_home} " . File::Spec->catdir( ($mvn_bin, $dspot_cmd) );
   print "  - Using dspot cmd [$dspot_cmd].\n";
 
-  my $dspot_cmd_ext = $config->{'dspot_cmd_ext'} or die "ERROR Cannot find dspot_cmd_ext.\n";
-  $dspot_cmd_ext = "MAVEN_HOME=${mvn_home} " . File::Spec->catdir( ($mvn_bin, $dspot_cmd_ext) );
-  print "  - Using dspot cmd ext [$dspot_cmd_ext].\n\n";
-
   # Just check we have what we need..
   my $mvn_test = File::Spec->catfile( $mvn_bin, 'mvn' );
   $mvn_test .= ' --version';
@@ -237,11 +233,14 @@ sub startup {
     @o = grep { $_ =~ m!Java home! } @ret_mvn;
     if (scalar(@o) != 0) { chomp @o };
     print "    " . ($o[0] || 'Java home not found') . "\n";
-
+    print "EXT $extended.\n";
     my @ret_dspot;
-    if ( $extended =~ m!^on$! ) {
-	$dspot_cmd = $dspot_cmd_ext;
+    if ( $extended =~ m!^bconfig$! ) {
+      $dspot_cmd = $dspot_cmd . ' -Diteration=1 -Damplifiers=FastLiteralAmplifier,MethodAdd,MethodRemove,MethodGeneratorAmplifier';
+    } elsif ( $extended =~ m!^zconfig$! ) {
+      $dspot_cmd = $dspot_cmd . ' -Diteration=1 -Damplifiers=MethodAdder,MethodRemove,FastAmpl,StringAmpl,ReturnValue,Nullifier';
     }
+
     print "  Executing [cd ${pdir_src}; $dspot_cmd | tee ../output/dspot.log]\n";
     @ret_dspot = `cd ${pdir_src}; $dspot_cmd | tee ../output/dspot.log`;
     $ret->{'log'} = join( "\n", @ret_dspot);

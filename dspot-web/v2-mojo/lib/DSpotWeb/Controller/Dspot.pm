@@ -148,6 +148,16 @@ sub job {
   # Load configuration from application config
   my $jobs_dir = $self->app->config('jobs_dir');
   my $jdir = File::Spec->catdir( ($jobs_dir, $id) );
+  my $wdir = $self->app->config('work_dir');
+  
+  # Read projects information.
+  my $projects = File::Spec->catfile( $wdir, 'projects.json');
+  my $contents = do {
+      open my $fh, '<:encoding(UTF-8)', $projects or print "ERROR Could not find [$projects].\n" ;
+      local $/;
+      <$fh>;
+  };
+  my $conf = decode_json( $contents );
   
   my %jobs = %{$self->app->minion->backend->list_jobs(0, 1, { ids => [$id] })};
   my $myjob = $jobs{'jobs'}[0];
@@ -156,8 +166,9 @@ sub job {
   if (-d $jdir) {
       find( sub { $_ =~ m/.*\.java/ && push(@tests, $File::Find::name) }, $jdir );
   }
-  
+
   # Prepare data to be sent to template.
+  $self->stash('conf' => $conf->{$myjob->{'args'}[0]});
   $self->stash('jdir' => $jdir);
   $self->stash('myjob' => $myjob);
   $self->stash('tests' => \@tests);
