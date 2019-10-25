@@ -228,6 +228,7 @@ public class MainTest {
             String content = reader.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
             System.out.println(content);
             assertTrue(content.startsWith(expectedAmplifiedTestClass));
+            assertTrue(new File("target/dspot/output/original/example/TestSuiteExample.java").exists());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
