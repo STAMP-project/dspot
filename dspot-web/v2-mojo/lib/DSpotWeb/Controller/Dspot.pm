@@ -49,6 +49,7 @@ sub create {
   $self->render();
 }
 
+
 # Create a new project -- POST
 sub create_post {
   my $self = shift;
@@ -56,29 +57,45 @@ sub create_post {
   my $url = $self->param('gurl');
   my $hash = $self->param('hash');
   my $email = $self->param('email');
-  my $extended = $self->param('extended') || 'off';
+  my $extended = $self->param('optionsRadios');
 
-#  my $url = "https://github.com/STAMP-project/dspot.git"; #$self->stash('url');
   my @p = File::Spec->splitdir( $url );
   my ($repo, $org) = @p[-2..-1];
-  $repo = defined($repo) ? $repo : 'Unknown Repo'; 
-  $org = defined($org) ? $org : 'Unknown Org'; 
-  my $id = "${repo}_${org}";
-  print "Enqueue run_git $id $url $hash $extended.\n";  
+  my $msg;
 
+  # Validation
+
+  # Git URL check.
+  if ( (not defined($repo)) || (not defined($org)) ) {
+    # Render template "dspot/create_post.html.ep"
+    $self->flash(msg_nok => "Cannot recognise Git URL. Please try again.");
+    $self->redirect_to('/new');
+    return;
+  }
+
+  # Email check.
+  if ($email !~ m!^.*\@.*$!) {
+    $self->flash(msg_nok => "We need a valid email address to notify you when results are available.");
+    $self->redirect_to('/new');
+    return;
+  }
+
+  my $id = "${repo}_${org}";  
+  print "# Start tasks for project $id.\n";  
   my $job_git = $self->minion->enqueue(
       run_git => [$id, $url, $hash] => {delay => 0});
-#  print "DBG JOB GIT " . Dumper($job_git);
+  #  print "DBG JOB GIT " . Dumper($job_git);
   my $job_mvn = $self->minion->enqueue(
       run_mvn => [$id, $url, $hash] => {parents => [$job_git]});
-#  print "DBG JOB MVN " . Dumper($job_mvn);
+  #  print "DBG JOB MVN " . Dumper($job_mvn);
   my $job_dspot = $self->minion->enqueue(
       run_dspot => [$id, $url, $hash, $email, $extended] => {parents => [$job_mvn]});
-#  print "DBG JOB DSPOT " . Dumper($job_dspot);
+  #  print "DBG JOB DSPOT " . Dumper($job_dspot);
   
-  # Render template "dspot/create_post.html.ep"
-  $self->redirect_to('/jobs');
+  $self->flash(msg_ok => "Jobs have been created.");
+  $self->redirect_to('/jobs'); 
 }
+
 
 # Display a specific repository
 sub repo {
@@ -150,21 +167,21 @@ sub job {
 }
 
 
-# Download specific files from wdir.
-sub dl {
-  my $self = shift;
+# # Download specific files from wdir.
+# sub dl {
+#   my $self = shift;
 
-  my $lfile = $self->stash('file');
+#   my $lfile = $self->stash('file');
 
-  my $wdir = $self->app->config('work_dir');
-  my $file = File::Spec->catdir( ($wdir, $lfile) );
-  print "  Serving static file [$file].\n";
-  if ( -f $file ) {
-      # Render static file from work_dir.
-      $self->reply->file($file);
-  } else {
-      $self->reply->not_found;
-  }
-}
+#   my $wdir = $self->app->config('work_dir');
+#   my $file = File::Spec->catdir( ($wdir, $lfile) );
+#   print "  Serving static file [$file].\n";
+#   if ( -f $file ) {
+#       # Render static file from work_dir.
+#       $self->reply->file($file);
+#   } else {
+#       $self->reply->not_found;
+#   }
+# }
 
 1;

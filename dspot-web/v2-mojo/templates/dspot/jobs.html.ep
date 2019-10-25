@@ -7,6 +7,20 @@
 <a href="/">&lt; Back Home</a>
 
 <br />
+
+% my $msg_ok = flash( 'msg_ok' );
+% if ( defined($msg_ok) ) {
+<br />
+<div class="row">
+  <div class="col-md-12">
+    <div class="alert alert-success alert-dismissible" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <%== $msg_ok %>
+    </div>
+  </div>
+</div>
+% }
+
 <br />
 
 <h1>Jobs</h1>

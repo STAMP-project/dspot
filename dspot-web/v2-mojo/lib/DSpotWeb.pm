@@ -161,7 +161,7 @@ sub startup {
     # Otherwise clone the repo.
     if ( -d $pdir ) {
 	# Just make a pull.
-	my @ret_git = `cd ${pdir_src}; git pull | tee ../output/git_pull.log`;
+	my @ret_git = `cd ${pdir_src}; git pull origin master | tee ../output/git_pull.log`;
 	$ret->{'log'} = join("\n", @ret_git);
     } else {
 	# Create dir hierarchy
@@ -325,13 +325,20 @@ sub startup {
 the dspot-web bot
 
 ";
-    my $t = $self->mail(
+    eval {
+      my $t = $self->mail(
 	mail => {
           To => $email, 
           Format => 'mail',
           Subject => 'Your DSpot results are ready',
-          Data => $maildata}
-	);
+          Data => $maildata
+        }
+      );
+    };
+    if ($@) {
+      print "WARNING: Could not send email to $email.";
+      print $@;
+    }
 
     print "  END of task run_dspot.\n";
     

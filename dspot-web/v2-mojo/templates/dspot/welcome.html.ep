@@ -46,12 +46,13 @@
 % foreach my $repo ( @$repos ) {
 %   # if ($c > 10) { last } else { $c++ }
 %   my @job = grep { $_->{'args'}[0] =~ m!$repo! && $_->{'task'} =~ m!run_dspot! } @jobs;
-%   my $start = strftime('%Y-%m-%d %H:%M:%S', gmtime($job[0]->{'created'}));
+%   my $start = defined($job[0]->{'created'}) ? strftime('%Y-%m-%d %H:%M:%S', gmtime($job[0]->{'created'})) : '';
+%   my $mutants = ref($job[0]->{'result'}) =~ m!HASH!? $job[0]->{'result'}{'totalNewMutantsKilled'} : 'Unknown';
   <tr>
     <td><a href="/repo/<%= $repo %>"><%= $repo %></a></td>
     <td><a href="/jobs"><%= scalar(@job) %></a></td>
     <td>
-      <a href="/repo/<%= $repo %>"><%= $job[0]->{'result'}{'totalNewMutantsKilled'} || '' %></a>
+      <a href="/repo/<%= $repo %>"><%= $mutants %></a>
     </td>
     <td><%= $start %></td></tr>
 % }
