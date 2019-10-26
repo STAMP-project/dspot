@@ -164,7 +164,7 @@ sub job {
 
   my @tests = ();
   if (-d $jdir) {
-      find( sub { $_ =~ m/.*\.java/ && push(@tests, $File::Find::name) }, $jdir );
+      find( sub { $_ =~ m/.*\.java$/ && push(@tests, $File::Find::name) }, $jdir );
   }
 
   # Prepare data to be sent to template.
