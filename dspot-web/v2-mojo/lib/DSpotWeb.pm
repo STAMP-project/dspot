@@ -6,7 +6,7 @@ use POSIX;
 use Data::Dumper;
 
 use File::Spec;
-use File::Path 'make_path';
+use File::Path qw(make_path rmtree);
 use File::Copy::Recursive qw(dircopy);
 
 use Archive::Zip qw( :ERROR_CODES :CONSTANTS );
@@ -209,13 +209,18 @@ sub startup {
 
     my $pdir = File::Spec->catdir( ($wdir, $id) );
     my $pdir_src = File::Spec->catdir( ($pdir, 'src') );
-    my $pdir_out = File::Spec->catdir( ($pdir, 'output') );
     my $pdir_out_dspot = File::Spec->catdir( ($pdir, 'output', 'dspot') );
 
+    if (-d $pdir_out_dspot) {
+      # Clean dir
+	rmtree($pdir_out_dspot);
+    }      
+    
     # Create dir hierarchy
     make_path($pdir_out_dspot);
     chmod 0755, $pdir_out_dspot;
-
+    
+    
     # Check that we can actually run dspot
     
     # Run dspot
@@ -233,7 +238,7 @@ sub startup {
     @o = grep { $_ =~ m!Java home! } @ret_mvn;
     if (scalar(@o) != 0) { chomp @o };
     print "    " . ($o[0] || 'Java home not found') . "\n";
-    print "EXT $extended.\n";
+
     my @ret_dspot;
     if ( $extended =~ m!^bconfig$! ) {
       $dspot_cmd = $dspot_cmd . ' -Diteration=1 -Damplifiers=FastLiteralAmplifier,MethodAdd,MethodRemove,MethodGeneratorAmplifier';
@@ -272,7 +277,7 @@ sub startup {
     dircopy($d_out_dspot, $d_out_jobs);
     
     # Create a zip file including all results.
-    print "  Zipping directory $pdir_out.\n";
+    print "  Zipping directory $pdir_out_dspot.\n";
     my $zip = Archive::Zip->new();
     # Add a directory
     my $dir_member = $zip->addTree( $pdir_out_dspot, 'output' );
