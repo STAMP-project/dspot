@@ -72,7 +72,17 @@ sub create_post {
     $self->redirect_to('/new');
     return;
   }
+  # If data is ok, set $id.
+  my $id = "${repo}_${org}";  
 
+  # Check that we don't already have a running job for this id.
+  my %jobs = %{$self->app->minion->backend->list_jobs(0, 100, { states => ['active', 'inactive'] })};
+  if ( grep { $_->{'args'}[0] =~ m!^$id$! } @{$jobs{'jobs'}} ) {
+    $self->flash(msg_nok => "We already have a job running for this repository. Please wait for it to finish before starting a new analysis.");
+    $self->redirect_to('/new');
+    return;
+  }
+  
   # Email check.
   if ($email !~ m!^.*\@.*$!) {
     $self->flash(msg_nok => "We need a valid email address to notify you when results are available.");
@@ -80,7 +90,6 @@ sub create_post {
     return;
   }
 
-  my $id = "${repo}_${org}";  
   print "# Start tasks for project $id.\n";  
   my $job_git = $self->minion->enqueue(
       run_git => [$id, $url, $hash] => {delay => 0});
@@ -177,22 +186,5 @@ sub job {
   $self->render();
 }
 
-
-# # Download specific files from wdir.
-# sub dl {
-#   my $self = shift;
-
-#   my $lfile = $self->stash('file');
-
-#   my $wdir = $self->app->config('work_dir');
-#   my $file = File::Spec->catdir( ($wdir, $lfile) );
-#   print "  Serving static file [$file].\n";
-#   if ( -f $file ) {
-#       # Render static file from work_dir.
-#       $self->reply->file($file);
-#   } else {
-#       $self->reply->not_found;
-#   }
-# }
 
 1;
