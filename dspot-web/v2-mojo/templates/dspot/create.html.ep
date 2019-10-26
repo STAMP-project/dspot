@@ -89,7 +89,7 @@
     <div class="col-xs-10">
       <div class="form-check">
         <label class="form-check-label">
-          <input class="form-check-input" name="optionsRadios" id="exec1" value="exec1" checked="" type="radio">
+          <input class="form-check-input" name="optionsRadios" id="default" value="default" checked="" type="radio">
           &nbsp; DConfig: default setting for DSpot.
         </label>
       </div>
