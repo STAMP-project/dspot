@@ -16,7 +16,10 @@
 
 <dl class="row">
   <dt class="col-sm-3"><b>Repository ID</b></dt>
-  <dd class="col-sm-9"><mark><%= $myjob->{'args'}[0] %></mark></dd>
+  <dd class="col-sm-9">
+    <mark><%= $myjob->{'args'}[0] %></mark>
+    <a href="<%= $myjob->{'args'}[0] %>"><i class="fa fa-lg fa-external-link"></i></a> 
+  </dd>
   <dt class="col-sm-3"><b>Git URL</b></dt>
   <dd class="col-sm-9"><mark><%= $myjob->{'args'}[1] %></mark>
     <a href="<%= $myjob->{'args'}[1] %>"><i class="fa fa-lg fa-external-link"></i></a> 

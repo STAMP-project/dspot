@@ -282,7 +282,7 @@ sub startup {
     # Add a directory
     my $dir_member = $zip->addTree( $pdir_out_dspot, 'output' );
     # Save the Zip file
-    my $zip_file = File::Spec->catdir( ($pdir, 'results.zip') );
+    my $zip_file = File::Spec->catfile( $pdir, 'results.zip' );
     unless ( $zip->writeToFileNamed( $zip_file ) == AZ_OK ) {
       die "ERROR zip write [$zip_file].";
     }

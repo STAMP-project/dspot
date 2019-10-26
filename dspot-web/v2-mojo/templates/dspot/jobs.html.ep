@@ -84,7 +84,7 @@
 	Git URL: <a href="<%== $a[1] || '' %>"><%== $a[1] || '' %></a><br />
 	Hash: <%== $a[2] || '' %><br />
 % if ($job->{'task'} =~ m!run_dspot!) {
-	Extended: <%== $a[4] || '' %><br />
+	Amplifiers: <%== $a[4] || '' %><br />
 % }
       </td>
       <td>

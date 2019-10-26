@@ -84,7 +84,7 @@
   </div>
 
   <div class="form-group">
-    <label for="extended" class="control-label col-xs-2" >Extend generation?</label>
+    <label for="extended" class="control-label col-xs-2" >Amplifiers</label>
     <p class="text-muted">When this option is set, dspot-maven will be invoked with a more complete set of amplifiers for the generation. Be warned that it may take longer to compute.</p>
     <div class="col-xs-10">
       <div class="form-check">
