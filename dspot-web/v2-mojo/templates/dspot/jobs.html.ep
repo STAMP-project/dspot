@@ -1,6 +1,9 @@
 % layout 'default';
-% title 'List of repositories';
+% title 'List of Jobs';
 % my $all = $self->param('all');
+% my $repo = $self->param('repo');
+% my $repo_text = '';
+% if ( defined($repo) ) { $repo_text = " for repository $repo" }
 
 <br />
 
@@ -23,7 +26,7 @@
 
 <br />
 
-<h1>Jobs</h1>
+<h1>Jobs<%= $repo_text %></h1>
 
 <br />
 
@@ -44,6 +47,7 @@
   </thead>
   <tbody>
 % my @jobs = @{app->minion->backend->list_jobs->{'jobs'}};
+% if ( defined($repo) ) { @jobs = grep { $_->{'args'}[0] =~ m!^$repo$! } @jobs }
 % if ( not defined($all) ) { @jobs = grep { $_->{'task'} =~ m!^run_dspot$! } @jobs };
 % foreach my $job (@jobs) {
 %   my $icon = "fa-question"; my $results = ""; 

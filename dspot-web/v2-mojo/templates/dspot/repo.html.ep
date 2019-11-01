@@ -29,6 +29,8 @@
   </dd>
   <dt class="col-sm-3"><b>Git Hash</b></dt>
   <dd class="col-sm-9"><mark><%= $hash %></mark></dd>
+  <dt class="col-sm-3"><b>Jobs</b></dt>
+  <dd class="col-sm-9"><a href="/jobs?repo=<%= $repo %>">See list of jobs for this repository</a></dd>
 </dl>
 
 <br />
