@@ -8,6 +8,7 @@
     <meta name="author" content="">
     <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
     <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/prism.css">
 
     <title>DSpot</title>
     
@@ -65,6 +66,7 @@
     <script>window.jQuery || document.write('<script src="/js/jquery-slim.min.js"><\/script>')</script>
     <script src="/js/popper.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/prism.js"></script>
   </body>
 
 </html>
