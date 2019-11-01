@@ -101,7 +101,7 @@ sub startup {
 
   my $dspot_cmd = $config->{'dspot_cmd'} or die "ERROR Cannot find dspot_cmd.\n";
   $dspot_cmd = "MAVEN_HOME=${mvn_home} " . File::Spec->catdir( ($mvn_bin, $dspot_cmd) );
-  print "  - Using dspot cmd [$dspot_cmd].\n";
+  print "  - Using dspot cmd [$dspot_cmd].\n\n";
 
   # Just check we have what we need..
   my $mvn_test = File::Spec->catfile( $mvn_bin, 'mvn' );
