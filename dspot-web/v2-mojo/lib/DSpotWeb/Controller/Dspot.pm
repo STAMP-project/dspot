@@ -55,7 +55,7 @@ sub create_post {
   my $self = shift;
   
   my $url = $self->param('gurl');
-  my $hash = $self->param('hash');
+  my $hash = $self->param('hash') || "HEAD";
   my $email = $self->param('email');
   my $extended = $self->param('optionsRadios');
 
