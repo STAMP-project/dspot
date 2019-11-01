@@ -5,6 +5,10 @@
 % my $hash = $conf->{'hash'} || '';
 % my $cmd = $conf->{'cmd'} || '';
 
+% my @jobs = @{app->minion->backend->list_jobs->{'jobs'}};
+% my @job = grep { $_->{'args'}[1] =~ m!$url! && $_->{'task'} =~ m!run_dspot! && $_->{'state'} =~ m!^finished$!} @jobs;
+% my $job_id = $job[0]->{'id'};
+
 <br />
 
 <a href="/">&lt; Back Home</a>
@@ -56,15 +60,22 @@
   <tbody>
 % foreach my $f (@{$results}) {
 %   next if (not exists($f->{'name'}));
+%   my ($success1, $success2) = ('', '');
+%   my @parts = split('\.', $f->{'name'}); print "DBG " . $f->{'name'} . " " . @parts . ".\n";
+%   my $anchor = $parts[-1];
+%   if ($f->{'nbNewMutantKilled'} > 0) {
+%     $success1 = '<a href="/job/' . $job_id . '#tests_' . $anchor . '" style="display:block">';
+%     $success2 = '</a>';
+%   }
     <tr>
-      <td><%= $f->{'name'} %></td>
-      <td><%= $f->{'nbOriginalTestCases'} %></td>
+      <td><%== $success1 . $f->{'name'} . $success2 %></td>
+      <td><%== $success1 . $f->{'nbOriginalTestCases'} . $success2 %></td>
       <td>
-	<%= $f->{'nbMutantKilledOriginally'} %>
+	<%== $success1 . $f->{'nbMutantKilledOriginally'} . $success2 %>
       </td>
       <td>
-	<%= $f->{'nbNewMutantKilled'} %> &nbsp; 
-	<%== $f->{'nbNewMutantKilled'} > 0 ? '&nbsp; &nbsp; <i class="fa fa-lg fa-thumbs-up" style="color:forestgreen"></i>' : ''  %>
+	<%== $success1 . $f->{'nbNewMutantKilled'} %> &nbsp; 
+	<%== ( $f->{'nbNewMutantKilled'} > 0 ? '&nbsp; &nbsp; <i class="fa fa-lg fa-thumbs-up" style="color:forestgreen"></i>' : '' ) . $success2 %>
       </td>
     </tr>
 % }

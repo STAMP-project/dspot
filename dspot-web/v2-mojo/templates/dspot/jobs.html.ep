@@ -63,7 +63,7 @@
 %   my $duration = defined($job->{'finished'}) ? $stop_time->subtract_datetime($start_time) : $now_time->subtract_datetime($start_time);
     <tr>
       <!-- td><%= $job->{'id'} %></td -->
-      <td><a href="/repo/<%== $a[0] || '' %>"><%= $job->{'args'}[0] %></a></td>
+      <td><a href="/repo/<%== $a[0] || '' %>"><%= $a[0] %></a></td>
       <td>
 % if (defined($job->{'started'})) {
         <span style="color:forestgreen">

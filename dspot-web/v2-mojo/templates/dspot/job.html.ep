@@ -18,7 +18,7 @@
   <dt class="col-sm-3"><b>Repository ID</b></dt>
   <dd class="col-sm-9">
     <mark><%= $myjob->{'args'}[0] %></mark>
-    <a href="<%= $myjob->{'args'}[0] %>"><i class="fa fa-lg fa-external-link"></i></a> 
+    <a href="/repo/<%= $myjob->{'args'}[0] %>"><i class="fa fa-lg fa-external-link"></i></a> 
   </dd>
   <dt class="col-sm-3"><b>Git URL</b></dt>
   <dd class="col-sm-9"><mark><%= $myjob->{'args'}[1] %></mark>
@@ -75,7 +75,7 @@
 
 <br />
 
-<h2>Tests</h2>
+<h2 id="tests">Tests</h2>
 
 % foreach my $f (@$tests) {
 %   my $content;
@@ -86,9 +86,10 @@
 %     $content =~ s/\\n\s*/ \\ /g;
 %     close $fh;
 %   }
-%#   $content =~ s/\n+\s*/\n/g; 
+%   use File::Basename;
+%   my ($anchor, $path, $suffix) = fileparse($f, qr/\.[^.]*/);
 
-<p>File <code><%= $f %></code></p>
+<p id="tests_<%= $anchor %>">File <code><%= $f %></code></p>
 
 <pre class="pre-scrollable" style="max-height: 25vh">
 <%= $content %>

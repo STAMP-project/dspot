@@ -27,7 +27,7 @@
   <tbody>
 % foreach my $repo ( @$repos ) {
 %   my ($o, $p) = split('_', $repo);
-    <tr><td><a href="/repo/<%= $o %>_<%= $p %>"><%= $o %></a></td><td><a href="/repo/<%= $o %>_<%= $p %>"><%= $p %></a></td></tr>
+    <tr><td><a href="/repo/<%= $repo %>"><%= $o %></a></td><td><a href="/repo/<%= $repo %>"><%= $p %></a></td></tr>
 % }
   </tbody>
 </table> 
