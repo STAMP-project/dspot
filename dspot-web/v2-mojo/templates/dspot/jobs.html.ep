@@ -94,7 +94,7 @@
       <td>
 % if (defined($job->{'finished'})) {
         <br />
-        <a href="/job/<%= $job->{'id'} %>"><i class="fa fa-lg fa-external-link-square"></i></a>
+        <a href="/job/<%= $job->{'id'} %>"><i class="fa fa-lg fa-thumbs-up" style="color:forestgreen"></i> &nbsp; <i class="fa fa-external-link-square"></i></a>
 % }
       </td>
     </tr>
