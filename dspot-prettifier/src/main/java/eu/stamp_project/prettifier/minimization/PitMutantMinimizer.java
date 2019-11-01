@@ -1,5 +1,6 @@
 package eu.stamp_project.prettifier.minimization;
 
+import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.prettifier.Main;
 import eu.stamp_project.prettifier.output.report.ReportJSON;
 import eu.stamp_project.test_framework.TestFramework;
@@ -10,7 +11,6 @@ import eu.stamp_project.utils.pit.AbstractParser;
 import eu.stamp_project.utils.pit.AbstractPitResult;
 import eu.stamp_project.utils.pit.PitXMLResultParser;
 import eu.stamp_project.utils.program.InputConfiguration;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtInvocation;
@@ -52,10 +52,26 @@ public class PitMutantMinimizer implements Minimizer {
 
     private List<Long> timesMinimizationOnStatementAfterLastAssertionInMillis = new ArrayList<>();
 
-    public PitMutantMinimizer(CtType<?> testClass) {
+    private AutomaticBuilder builder;
+
+    private String classpathClassesProject;
+
+    private String absolutePathToProjectRoot;
+
+    private String absolutePathToTestClasses;
+
+    public PitMutantMinimizer(CtType<?> testClass,
+                              AutomaticBuilder automaticBuilder,
+                              String pathToProjectRoot,
+                              String classpathProject,
+                              String absolutePathToTestClasses) {
         this.testClass = testClass;
         this.parser = new PitXMLResultParser();
         this.allTest = TestFramework.getAllTest(testClass);
+        this.builder = automaticBuilder;
+        this.classpathClassesProject = classpathProject;
+        this.absolutePathToProjectRoot = pathToProjectRoot;
+        this.absolutePathToTestClasses = absolutePathToTestClasses;
     }
 
     @Override
@@ -114,7 +130,6 @@ public class PitMutantMinimizer implements Minimizer {
         return best.method;
     }
 
-    @NotNull
     private CtType<?> cloneAndRemoveAllTestsButTheGivenOne(CtMethod<?> amplifiedTestToBeMinimized) {
         final CtType<?> testClone = testClass.clone();
         this.testClass.getPackage().addType(testClone);
@@ -143,28 +158,33 @@ public class PitMutantMinimizer implements Minimizer {
             this.method = method;
             this.assertions = assertions;
         }
+
         public CtInvocation<?> getLastAssertion() {
             return this.assertions.get(this.assertions.size() - 1);
         }
+
         public int getIndexOfLastAssertionInWholeBody() {
             return this.method.getBody().getStatements().indexOf(this.getLastAssertion());
         }
+
         public int getNumberOfAssertion() {
             return this.assertions.size();
         }
+
         public int getNumberOfNonAssertions() {
             final List<CtStatement> statements = new ArrayList<>(this.method.getBody().getStatements());
             statements.removeAll(this.assertions);
             return statements.size();
         }
+
         public int getNumberOfStatement() {
             return this.method.getBody().getStatements().size();
         }
     }
 
     private MethodAndListOfAssertions explore(CtMethod<?> amplifiedTestToBeMinimized,
-                                                    List<AbstractPitResult> pitResultBeforeMinimization,
-                                                    List<CtInvocation<?>> assertions) {
+                                              List<AbstractPitResult> pitResultBeforeMinimization,
+                                              List<CtInvocation<?>> assertions) {
         for (int i = assertions.size() - 1; i >= 0; i--) {
             final CtMethod<?> testMethodWithOneLessAssertion =
                     this.removeCloneAndInsert(assertions, amplifiedTestToBeMinimized, i);
@@ -183,20 +203,19 @@ public class PitMutantMinimizer implements Minimizer {
     @SuppressWarnings("unchecked")
     List<AbstractPitResult> printCompileAndRunPit(CtType<?> testClass) {
         DSpotUtils.printCtTypeToGivenDirectory(testClass, new File(DSpotCompiler.getPathToAmplifiedTestSrc()));
-        final String classpath = InputConfiguration.get().getBuilder()
+        final String classpath = this.builder
                 .buildClasspath()
                 + AmplificationHelper.PATH_SEPARATOR +
-                InputConfiguration.get().getClasspathClassesProject()
+                this.classpathClassesProject
                 + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies();
-        DSpotCompiler.compile(InputConfiguration.get(),
+        DSpotCompiler.compile(
                 DSpotCompiler.getPathToAmplifiedTestSrc(),
                 classpath,
-                new File(InputConfiguration.get().getAbsolutePathToTestClasses())
+                new File(this.absolutePathToTestClasses)
         );
-        InputConfiguration.get().getBuilder().runPit(testClass);
+        this.builder.runPit(testClass);
         return parser.parseAndDelete(
-                InputConfiguration.get().getAbsolutePathToProjectRoot() +
-                        InputConfiguration.get().getBuilder().getOutputDirectoryPit()
+                this.absolutePathToProjectRoot + this.builder.getOutputDirectoryPit()
         );
     }
 

@@ -20,11 +20,15 @@ public class PrettifiedTestMethods {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PrettifiedTestMethods.class);
 
-    public static void output(
+    private String outputDirectory;
+
+    public PrettifiedTestMethods(String outputDirectory) {
+        this.outputDirectory = outputDirectory;
+    }
+
+    public void output(
             CtType<?> testClass,
-            List<CtMethod<?>> prettifiedAmplifiedTestMethods
-    ) {
-        final String outputDirectory = InputConfiguration.get().getOutputDirectory();
+            List<CtMethod<?>> prettifiedAmplifiedTestMethods) {
         testClass.getMethods().stream()
                 .filter(TestFramework.get()::isTest)
                 .forEach(testClass::removeMethod);

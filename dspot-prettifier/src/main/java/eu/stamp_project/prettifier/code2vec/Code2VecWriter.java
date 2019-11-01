@@ -20,13 +20,19 @@ public class Code2VecWriter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Code2VecWriter.class);
 
+    private String pathToRootOfCode2Vec;
+
+    public Code2VecWriter(String pathToRootOfCove2Vec) {
+        this.pathToRootOfCode2Vec = DSpotUtils.shouldAddSeparator.apply(pathToRootOfCove2Vec);
+    }
+
     /**
      * write the given test method in the Input.java file.
      * @param testMethod method to output in the file
      */
     public void writeCtMethodToInputFile(CtMethod<?> testMethod) {
         try {
-            final String fileName = InputConfiguration.get().getPathToRootOfCode2Vec() + FILENAME;
+            final String fileName =  this.pathToRootOfCode2Vec + FILENAME;
             LOGGER.info("Writing content of {} into {}.", testMethod.getSimpleName(), fileName);
             FileWriter writer = new FileWriter(fileName, false);
             writer.write(testMethod.toString());
