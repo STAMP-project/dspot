@@ -50,7 +50,7 @@
 %   if ( defined($job[0]->{'result'}) ) {
 %     if ( ref($job[0]->{'result'}) =~ m!HASH! ) { Dumper($job[0]->{'result'});
 %       $mutants = $job[0]->{'result'}{'totalNewMutantsKilled'};
-%     } else { "DBG " . Dumper($job[0]->{'result'})  }
+%     } else { Dumper($job[0]->{'result'})  }
 %   } else {
 %       $mutants = 'No results.';
 %   }
