@@ -1,36 +1,27 @@
 package eu.stamp_project.prettifier.options;
 
+import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.options.check.InputErrorException;
+import picocli.CommandLine;
 
 /**
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
  * on 11/02/19
  */
-public class InputConfiguration {
+@CommandLine.Command(name = "eu.stamp_project.Main", mixinStandardHelpOptions = true)
+public class InputConfiguration extends eu.stamp_project.utils.program.InputConfiguration {
 
-    private static InputConfiguration instance;
-
-    private InputConfiguration() {
+    public InputConfiguration() {
 
     }
 
-    /**
-     * Getter on the singleton instance
-     * @return the singleton instance of InputConfiguration
-     */
-    public static InputConfiguration get() {
-        if (InputConfiguration.instance == null) {
-            InputConfiguration.instance = new InputConfiguration();
-        }
-        return InputConfiguration.instance;
-    }
-
-    /*
-        PROPERTY
-     */
-
+    @CommandLine.Option(
+            names = "--path-to-amplified-test-class",
+            description = "[mandatory] Specify the path to the java test class that has been amplified " +
+                    "and that contains some amplified test methods to be \"prettified\"."
+    )
     private String pathToAmplifiedTestClass;
 
     public String getPathToAmplifiedTestClass() {
@@ -46,19 +37,14 @@ public class InputConfiguration {
         return this;
     }
 
-    @Override
-    public String toString() {
-        return "InputConfiguration{" +
-                "pathToAmplifiedTestClass='" + pathToAmplifiedTestClass + '\'' +
-                ", pathToRootOfContext2Name='" + pathToRootOfContext2Name + '\'' +
-                ", relativePathToModelForContext2Name='" + relativePathToModelForContext2Name + '\'' +
-                ", pathToRootOfCode2Vec='" + pathToRootOfCode2Vec + '\'' +
-                ", relativePathToModelForCode2Vec='" + relativePathToModelForCode2Vec + '\'' +
-                '}';
-    }
-
     // Code2Vec
 
+    @CommandLine.Option(
+            names = "--path-to-code2vec",
+            description = "[mandatory] Specify the path to the folder root of Code2Vec. " +
+                    "This folder should be a fresh clone of https://github.com/tech-srl/code2vec.git" +
+                    "We advise you to use absolute path."
+    )
     private String pathToRootOfCode2Vec;
 
     public String getPathToRootOfCode2Vec() {
@@ -70,6 +56,11 @@ public class InputConfiguration {
         return this;
     }
 
+    @CommandLine.Option(
+            names = "--path-to-code2vec-model",
+            description = "[mandatory] Specify the relative path to the model trained with Code2Vec. " +
+                    "This path will be use relatively from --path-to-code2vec value."
+    )
     private String relativePathToModelForCode2Vec;
 
     public String getRelativePathToModelForCode2Vec() {

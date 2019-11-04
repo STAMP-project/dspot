@@ -19,6 +19,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
+import static eu.stamp_project.Main.completeDependencies;
+
 
 /**
  * User: Simon
@@ -29,59 +31,22 @@ public class Utils {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
 
-	private static AutomaticBuilder builder;
+	private static InputConfiguration configuration;
 
-	private static InputConfiguration inputConfiguration;
-
-	private static DSpotCompiler compiler;
-
-	private static String currentInputConfigurationLoaded = null;
-
-	public static DSpotCompiler getCompiler() {
-		return compiler;
-	}
-
-	public static InputConfiguration getInputConfiguration() {
-		return inputConfiguration;
-	}
-
-	public static AutomaticBuilder getBuilder() {
-		return builder;
-	}
-
-	public static void reset() {
-		currentInputConfigurationLoaded = null;
-	}
-
-	public static void init(String pathToConfFile) {
-		try {
-			FileUtils.forceDelete(new File(inputConfiguration.getOutputDirectory()));
-		} catch (Exception ignored) {
-
-		}
-		try {
-			FileUtils.forceDelete(new File("target/dspot/tmp_test_sources/"));
-		} catch (Exception ignored) {
-
-		}
-		if (pathToConfFile.equals(currentInputConfigurationLoaded)) {
-			return;
-		}
-		try {
-			inputConfiguration = InputConfiguration.initialize(pathToConfFile);
-			Utils.getInputConfiguration().setMinimize(false);
-			Utils.getInputConfiguration().setVerbose(true);
-			builder = inputConfiguration.getBuilder();
-			compiler = DSpotCompiler.createDSpotCompiler(inputConfiguration, inputConfiguration.getDependencies());
-			inputConfiguration.setFactory(compiler.getLauncher().getFactory());
-			currentInputConfigurationLoaded = pathToConfFile;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+	public static void init(InputConfiguration configuration) {
+		final AutomaticBuilder automaticBuilder = configuration.getBuilderEnum().getAutomaticBuilder(configuration);
+		final String dependencies = completeDependencies(configuration, automaticBuilder);
+		final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(
+				configuration,
+				dependencies
+		);
+		configuration.setFactory(compiler.getLauncher().getFactory());
+		eu.stamp_project.Main.initHelpers(configuration);
+		Utils.configuration = configuration;
 	}
 
 	public static CtClass<?> findClass(String fullQualifiedName) {
-		return getInputConfiguration().getFactory().Class().get(fullQualifiedName);
+		return Utils.configuration.getFactory().Class().get(fullQualifiedName);
 	}
 
 	public static CtMethod<?> findMethod(CtClass<?> ctClass, String methodName) {
@@ -120,7 +85,7 @@ public class Utils {
 	}
 
 	public static Factory getFactory() {
-		return getInputConfiguration().getFactory();
+		return Utils.configuration.getFactory();
 	}
 
 	public static final class FILTER_LITERAL_OF_GIVEN_TYPE extends TypeFilter<CtLiteral> {

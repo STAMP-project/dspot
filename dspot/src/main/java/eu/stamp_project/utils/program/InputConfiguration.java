@@ -56,7 +56,7 @@ public class InputConfiguration {
                     "that points to the folder that contains sources (.java)." +
                     " Default value: ${DEFAULT-VALUE}"
     )
-    private String pathToSourceCode;
+    private String pathToSourceCode = "src/main/java/";
 
     @CommandLine.Option(
             names = "--relative-path-to-test-code",
@@ -65,7 +65,7 @@ public class InputConfiguration {
                     "that points to the folder that contains test sources (.java)." +
                     " Default value: ${DEFAULT-VALUE}"
     )
-    private String pathToTestSourceCode;
+    private String pathToTestSourceCode = "src/test/java/";
 
     @CommandLine.Option(
             names = "--relative-path-to-classes",
@@ -176,7 +176,7 @@ public class InputConfiguration {
                     "Valid values: ${COMPLETION-CANDIDATES}" +
                     " Default value: ${DEFAULT-VALUE}"
     )
-    private AutomaticBuilderEnum automaticBuilder;
+    private AutomaticBuilderEnum automaticBuilder = AutomaticBuilderEnum.Maven;
 
     @CommandLine.Option(
             names = {"--system-properties"},
@@ -186,7 +186,7 @@ public class InputConfiguration {
                     "For example, systemProperties=admin=toto,passwd=tata. " +
                     "This defines two system properties."
     )
-    private String systemProperties;
+    private String systemProperties = "";
 
     @CommandLine.Option(
             names = "--absolute-path-to-second-version",
@@ -306,7 +306,7 @@ public class InputConfiguration {
             description = "Specify the size of the memory cache in terms of the number of store entries" +
                     " Default value: ${DEFAULT-VALUE}"
     )
-    private Long cacheSize;
+    private Long cacheSize = 10000L;
 
     @CommandLine.Option(
             names = "--use-working-directory",
