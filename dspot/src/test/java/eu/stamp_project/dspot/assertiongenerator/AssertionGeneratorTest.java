@@ -11,6 +11,7 @@ import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.RandomHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
+import eu.stamp_project.utils.configuration.DSpotConfiguration;
 import eu.stamp_project.utils.execution.TestRunner;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -57,13 +58,16 @@ public class AssertionGeneratorTest extends AbstractTestOnSample {
 
     private static String dependencies;
 
+    private static DSpotConfiguration dspotConfiguration;
+
     @BeforeClass
     public static void setUpClass() {
         configuration = new InputConfiguration();
         configuration.setAbsolutePathToProjectRoot(new File("src/test/resources/sample/").getAbsolutePath());
 
         AutomaticBuilder builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
-        dependencies = Main.completeDependencies(configuration, builder);
+        dspotConfiguration = new DSpotConfiguration();
+        dependencies = dspotConfiguration.completeDependencies(configuration, builder);
         DSpotUtils.init(false, "target/dspot/",
                 configuration.getFullClassPathWithExtraDependencies(),
                 "src/test/resources/sample/"
