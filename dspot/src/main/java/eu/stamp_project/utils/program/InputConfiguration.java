@@ -910,6 +910,11 @@ public class InputConfiguration {
         return generateAmplifiedTestClass;
     }
 
+    public InputConfiguration setGenerateAmplifiedTestClass(boolean generateAmplifiedTestClass) {
+        this.generateAmplifiedTestClass = generateAmplifiedTestClass;
+        return this;
+    }
+
     public boolean shouldUseMavenToExecuteTest() {
         return useMavenToExecuteTest;
     }

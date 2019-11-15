@@ -17,6 +17,7 @@ import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.RandomHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
+import eu.stamp_project.utils.configuration.DSpotConfiguration;
 import eu.stamp_project.utils.execution.TestRunner;
 import eu.stamp_project.utils.json.ProjectTimeJSON;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
@@ -59,6 +60,8 @@ public class ProjectJSONTest extends AbstractTestOnSample {
 
     private TestCompiler testCompiler;
 
+    private DSpotConfiguration dspotConfiguration;
+
     @Before
     public void setUp() {
         super.setUp();
@@ -66,7 +69,8 @@ public class ProjectJSONTest extends AbstractTestOnSample {
         this.configuration.setAbsolutePathToProjectRoot(getPathToProjectRoot());
         this.configuration.setOutputDirectory(outputDirectory);
         this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
-        String dependencies = Main.completeDependencies(configuration, this.builder);
+        this.dspotConfiguration = new DSpotConfiguration();
+        String dependencies = dspotConfiguration.completeDependencies(configuration, this.builder);
         DSpotUtils.init(false, outputDirectory,
                 this.configuration.getFullClassPathWithExtraDependencies(),
                 this.getPathToProjectRoot()

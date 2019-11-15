@@ -3,6 +3,7 @@ package eu.stamp_project.dspot.selector;
 import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
+import eu.stamp_project.utils.configuration.DSpotConfiguration;
 import eu.stamp_project.utils.execution.TestRunner;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.pit.AbstractPitResult;
@@ -33,15 +34,18 @@ public class OneTestClassPitScoreMutantSelectorTest {
 
     private TestRunner testRunner;
 
+    private DSpotConfiguration dspotConfiguration;
+
     @Before
     public void setUp() {
         Main.verbose = true;
         this.configuration = new InputConfiguration();
         this.configuration.setAbsolutePathToProjectRoot("src/test/resources/test-projects/");
         this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
+        this.dspotConfiguration = new DSpotConfiguration();
         DSpotCompiler.createDSpotCompiler(
                 configuration,
-                Main.completeDependencies(configuration, this.builder)
+                dspotConfiguration.completeDependencies(configuration, this.builder)
         );
         Launcher launcher = new Launcher();
         launcher.getEnvironment().setNoClasspath(true);
