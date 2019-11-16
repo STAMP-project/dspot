@@ -178,7 +178,7 @@ public class Main {
         collector.sendInfo();
     }
 
-    private static void initHelpers(InputConfiguration configuration){
+    public static void initHelpers(InputConfiguration configuration){
         TestFramework.init(configuration.getFactory());
         AmplificationHelper.init(
                 configuration.getTimeOutInMs(),

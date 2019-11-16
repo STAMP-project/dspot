@@ -41,16 +41,38 @@ After having downloaded DSpot (see the previous section), you can run the provid
 java -jar target/dspot-LATEST-jar-with-dependencies.jar --example
 ```
 
-replacing `LATEST` by the latest version of DSpot, _e.g._ `2.2.1` would give :
- `dspot-2.2.1-jar-with-dependencies.jar`
+replacing `LATEST` by the latest version of DSpot, _e.g._ `2.2.1` would give `dspot-2.2.1-jar-with-dependencies.jar`
 
-This example is an implementation of the function `chartAt(s, i)` (in `src/test/resources/test-projects/`), which
-returns the char at the index _i_ in the String _s_.
+Given a test case as input, with `--amplifiers=None`, DSpot only adds assertions in the test, for example:
 
-In this example, DSpot amplifies the tests of `chartAt(s, i)` with the `FastLiteralAmplifier,`, which modifies literals inside the test and the generation of assertions.
+```diff
+@Test
+void test() {
+  Tacos tacos = new Tacos();
+  Benjamin benjamin = new Benjamin();
+  benjamin.eat(tacos);
+  assertFalse(benjamin.isHungry());
++  assertTrue(benjamin.isHappy());  // new assertion
+}
+```
 
-The result of the amplification of charAt consists of 6 new tests, as shown in the output below. These new tests are
-written to the output folder specified by configuration property `outputDirectory` (`./target/dspot/output/`).
+With some amplifiers, eg `--amplifiers=AllAmplifiers`, DSpot modifies the setup of the input test and adds assertions in your code, for example:
+
+
+```diff
+@Test
+void test() {
+  Tacos tacos = new Tacos();
+  Benjamin benjamin = new Benjamin();
+-  benjamin.eat(tacos); // removed method call
+-  assertFalse(benjamin.isHungry());
++  assertTrue(benjamin.isHungry());
++  assertFalse(benjamin.isHappy()); // new assertion
+}
+```
+
+When an amplification is successful, DSpot outputs the improvement on the console and the result of the amplification (the new tests) are written to the output folder specified by configuration property `outputDirectory` (default to `./target/dspot/output/`).
+
 
 ```
 Initial instruction coverage: 30 / 34

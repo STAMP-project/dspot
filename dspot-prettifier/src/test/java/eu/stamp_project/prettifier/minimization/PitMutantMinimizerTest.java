@@ -2,7 +2,6 @@ package eu.stamp_project.prettifier.minimization;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import eu.stamp_project.prettifier.options.InputConfiguration;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.pit.AbstractPitResult;
 import org.junit.Before;
@@ -30,10 +29,15 @@ public class PitMutantMinimizerTest extends AbstractTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        eu.stamp_project.utils.program.InputConfiguration.get().setDescartesMode(false);
         this.testClass = Utils.findClass("eu.stamp_project.AppTest");
         this.testMethod = Utils.findMethod(testClass, "test1");
-        this.minimizer = new PitMutantMinimizer(testClass);
+        this.minimizer = new PitMutantMinimizer(
+                testClass,
+                this.configuration.getBuilderEnum().getAutomaticBuilder(this.configuration),
+                this.configuration.getAbsolutePathToProjectRoot(),
+                this.configuration.getClasspathClassesProject(),
+                this.configuration.getAbsolutePathToTestClasses()
+        );
     }
 
     @Test
@@ -54,7 +58,7 @@ public class PitMutantMinimizerTest extends AbstractTest {
     @Test
     public void testPrintCompileAndRunPit() {
         /*
-            Test that the Minimizer is able to print, compie and run PIT
+            Test that the Minimizer is able to print, compile and run PIT
          */
 
         final List<AbstractPitResult> abstractPitResults = minimizer.printCompileAndRunPit(testClass);

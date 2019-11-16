@@ -2,6 +2,7 @@ package eu.stamp_project.prettifier;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.prettifier.code2vec.Code2VecExecutor;
 import eu.stamp_project.prettifier.code2vec.Code2VecParser;
 import eu.stamp_project.prettifier.code2vec.Code2VecWriter;
@@ -10,12 +11,15 @@ import eu.stamp_project.prettifier.minimization.GeneralMinimizer;
 import eu.stamp_project.prettifier.minimization.Minimizer;
 import eu.stamp_project.prettifier.minimization.PitMutantMinimizer;
 import eu.stamp_project.prettifier.options.InputConfiguration;
-import eu.stamp_project.prettifier.options.JSAPOptions;
 import eu.stamp_project.prettifier.output.PrettifiedTestMethods;
 import eu.stamp_project.prettifier.output.report.ReportJSON;
 import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.utils.compilation.DSpotCompiler;
+import eu.stamp_project.utils.options.check.Checker;
+import eu.stamp_project.utils.options.check.InputErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import picocli.CommandLine;
 import spoon.Launcher;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtClass;
@@ -29,6 +33,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static eu.stamp_project.Main.completeDependencies;
+
 /**
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -41,36 +47,86 @@ public class Main {
     public static ReportJSON report = new ReportJSON();
 
     public static void main(String[] args) {
-        JSAPOptions.parse(args);
-        final CtType<?> amplifiedTestClass = loadAmplifiedTestClass();
-        final List<CtMethod<?>> prettifiedAmplifiedTestMethods = run(amplifiedTestClass);
-        // output now
-        output(amplifiedTestClass, prettifiedAmplifiedTestMethods);
+        InputConfiguration inputConfiguration = new InputConfiguration();
+        final CommandLine commandLine = new CommandLine(inputConfiguration);
+        commandLine.setUsageHelpWidth(120);
+        try {
+            commandLine.parseArgs(args);
+        } catch (Exception e) {
+            e.printStackTrace();
+            commandLine.usage(System.err);
+            return;
+        }
+        if (commandLine.isUsageHelpRequested()) {
+            commandLine.usage(System.out);
+            return;
+        }
+        if (commandLine.isVersionHelpRequested()) {
+            commandLine.printVersionHelp(System.out);
+            return;
+        }
+        if (inputConfiguration.shouldRunExample()) {
+            inputConfiguration.configureExample();
+        }
+        try {
+            Checker.preChecking(inputConfiguration);
+        } catch (InputErrorException e) {
+            e.printStackTrace();
+            commandLine.usage(System.err);
+            return;
+        }
+        eu.stamp_project.Main.verbose = inputConfiguration.isVerbose();
+        run(inputConfiguration);
     }
 
-    public static CtType<?> loadAmplifiedTestClass() {
+    public static void run(InputConfiguration configuration) {
+        final CtType<?> amplifiedTestClass = loadAmplifiedTestClass(configuration);
+        final List<CtMethod<?>> prettifiedAmplifiedTestMethods =
+                run(
+                        amplifiedTestClass,
+                        configuration
+                );
+        // output now
+        output(amplifiedTestClass, prettifiedAmplifiedTestMethods, configuration);
+    }
+
+    public static CtType<?> loadAmplifiedTestClass(InputConfiguration configuration) {
         Launcher launcher = new Launcher();
         launcher.getEnvironment().setNoClasspath(true);
-        launcher.addInputResource(InputConfiguration.get().getPathToAmplifiedTestClass());
+        launcher.addInputResource(configuration.getPathToAmplifiedTestClass());
         launcher.buildModel();
         return launcher.getFactory().Class().getAll().get(0);
     }
 
-    public static List<CtMethod<?>> run(CtType<?> amplifiedTestClass) {
+    public static List<CtMethod<?>> run(CtType<?> amplifiedTestClass,
+                                        InputConfiguration configuration) {
+
+        final AutomaticBuilder automaticBuilder = configuration.getBuilderEnum().getAutomaticBuilder(configuration);
+        final String dependencies = completeDependencies(configuration, automaticBuilder);
+        final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(
+                configuration,
+                dependencies
+        );
+        configuration.setFactory(compiler.getLauncher().getFactory());
+        eu.stamp_project.Main.initHelpers(configuration);
+
         final List<CtMethod<?>> testMethods = TestFramework.getAllTest(amplifiedTestClass);
         Main.report.nbTestMethods = testMethods.size();
         // 1 minimize amplified test methods
         final List<CtMethod<?>> minimizedAmplifiedTestMethods = applyMinimization(
                 testMethods,
-                amplifiedTestClass
+                amplifiedTestClass,
+                configuration
         );
         // 2 rename test methods
-        applyCode2Vec(minimizedAmplifiedTestMethods);
+        applyCode2Vec(minimizedAmplifiedTestMethods, configuration);
         // 3 Rename local variables TODO train one better model
         return applyContext2Name(minimizedAmplifiedTestMethods);
     }
 
-    public static List<CtMethod<?>> applyMinimization(List<CtMethod<?>> amplifiedTestMethodsToBeMinimized, CtType<?> amplifiedTestClass) {
+    public static List<CtMethod<?>> applyMinimization(List<CtMethod<?>> amplifiedTestMethodsToBeMinimized,
+                                                      CtType<?> amplifiedTestClass,
+                                                      InputConfiguration configuration) {
 
         Main.report.medianNbStatementBefore = Main.getMedian(amplifiedTestMethodsToBeMinimized.stream()
                 .map(ctMethod -> ctMethod.getElements(new TypeFilter<>(CtStatement.class)))
@@ -86,8 +142,18 @@ public class Main {
                 .forEach(amplifiedTestClass::removeMethod);
         amplifiedTestMethodsToBeMinimized.forEach(amplifiedTestClass::addMethod);
 
+        final AutomaticBuilder automaticBuilder = configuration.getBuilderEnum().getAutomaticBuilder(configuration);
         // 2nd apply a specific minimization
-        amplifiedTestMethodsToBeMinimized = Main.applyGivenMinimizer(new PitMutantMinimizer(amplifiedTestClass), amplifiedTestMethodsToBeMinimized);
+        amplifiedTestMethodsToBeMinimized = Main.applyGivenMinimizer(
+                new PitMutantMinimizer(
+                        amplifiedTestClass,
+                        automaticBuilder,
+                        configuration.getAbsolutePathToProjectRoot(),
+                        configuration.getClasspathClassesProject(),
+                        configuration.getAbsolutePathToTestClasses()
+                ),
+                amplifiedTestMethodsToBeMinimized
+        );
 
         Main.report.medianNbStatementAfter = Main.getMedian(amplifiedTestMethodsToBeMinimized.stream()
                 .map(ctMethod -> ctMethod.getElements(new TypeFilter<>(CtStatement.class)))
@@ -105,12 +171,17 @@ public class Main {
         return minimizedAmplifiedTestMethods;
     }
 
-    public static void applyCode2Vec(List<CtMethod<?>> amplifiedTestMethodsToBeRenamed) {
-        Code2VecWriter writer = new Code2VecWriter();
+    public static void applyCode2Vec(List<CtMethod<?>> amplifiedTestMethodsToBeRenamed,
+                                     InputConfiguration configuration) {
+        Code2VecWriter writer = new Code2VecWriter(configuration.getPathToRootOfCode2Vec());
         Code2VecParser parser = new Code2VecParser();
         Code2VecExecutor code2VecExecutor = null;
         try {
-            code2VecExecutor = new Code2VecExecutor();
+            code2VecExecutor = new Code2VecExecutor(
+                    configuration.getPathToRootOfCode2Vec(),
+                    configuration.getRelativePathToModelForCode2Vec(),
+                    configuration.getTimeToWaitForCode2vecInMillis()
+            );
             for (CtMethod<?> amplifiedTestMethodToBeRenamed : amplifiedTestMethodsToBeRenamed) {
                 writer.writeCtMethodToInputFile(amplifiedTestMethodToBeRenamed);
                 code2VecExecutor.run();
@@ -154,10 +225,13 @@ public class Main {
                 new Double(list.stream().skip(list.size() / 2).findFirst().get().toString());
     }
 
-    public static void output(CtType<?> amplifiedTestClass, List<CtMethod<?>> prettifiedAmplifiedTestMethods) {
-        PrettifiedTestMethods.output(amplifiedTestClass, prettifiedAmplifiedTestMethods);
+    public static void output(CtType<?> amplifiedTestClass,
+                              List<CtMethod<?>> prettifiedAmplifiedTestMethods,
+                              InputConfiguration configuration) {
+        new PrettifiedTestMethods(configuration.getOutputDirectory())
+                .output(amplifiedTestClass, prettifiedAmplifiedTestMethods);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        final String pathname = eu.stamp_project.utils.program.InputConfiguration.get().getOutputDirectory() +
+        final String pathname = configuration.getOutputDirectory() +
                 "/" + amplifiedTestClass.getSimpleName() + "report.json";
         LOGGER.info("Output a report in {}", pathname);
         final File file = new File(pathname);
