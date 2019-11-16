@@ -43,6 +43,15 @@ sub startup {
   } else {
       print "* Using default workspace [$workspace].\n";
   }
+
+  # Get hostname from config file
+  my $hostname;
+  if ( exists($config->{'hostname'}) ) {
+      print "* Using hostname from conf [" . $config->{'hostname'} . "].\n";
+      $hostname = $config->{'hostname'};
+  } else {
+      die "ERROR: Cannot find hostname for instance.\n";
+  }
   
   # Verification du répertoire de travail
   my $wdir = File::Spec->catdir( ($workspace, $ldir) );
@@ -207,6 +216,34 @@ sub startup {
     print "# Executing dspot for repo [$id].\n";
     print "  Command is [$dspot_cmd].\n";
 
+    my $maildata = "
+<p>Hi,</p>
+
+<p>Thank you for submitting your project to dspot-web. The job has just been started, we will email you again when results are available at [1].</p>
+
+<p>[1] $hostname/job/$jobid</p>
+
+<p>Have a wonderful day!</p>
+
+--
+the dspot-web bot
+
+";
+    eval {
+      my $t = $self->mail(
+	mail => {
+          To => $email, 
+          Format => 'mail',
+          Subject => 'Your DSpot job has been started',
+          Data => $maildata
+        }
+      );
+    };
+    if ($@) {
+      print "WARNING: Could not send email to $email.";
+      print $@;
+    }
+
     my $pdir = File::Spec->catdir( ($wdir, $id) );
     my $pdir_src = File::Spec->catdir( ($pdir, 'src') );
     my $pdir_out_dspot = File::Spec->catdir( ($pdir, 'output', 'dspot') );
@@ -316,13 +353,12 @@ sub startup {
 #    }
 
     # Sending email.
-    my $dspot_url = "ci4.castalia.camp:3000";
-    my $maildata = "
+    $maildata = "
 <p>Hi,</p>
 
 <p>Thank you for submitting your project to dspot-web. The job has been processed and the results can be found at [1].</p>
 
-<p>[1] http://$dspot_url/job/$jobid</p>
+<p>[1] $hostname/job/$jobid</p>
 
 <p>Have a wonderful day!</p>
 
