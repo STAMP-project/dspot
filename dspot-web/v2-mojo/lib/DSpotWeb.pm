@@ -210,7 +210,9 @@ sub startup {
 
   # Task to run dspot on project.
   $self->minion->add_task( run_dspot => sub {
-    my ($job, $id, $url, $hash, $email, $extended) = @_;
+    my ($job, $id, $url, $hash, $email, $extended) = ('', '', '', '', '', '');
+    ($job, $id, $url, $hash, $email, $extended) = @_;
+    my $jobid = $job->{'id'};
     my $ret = {};
 
     print "# Executing dspot for repo [$id].\n";
@@ -309,7 +311,6 @@ the dspot-web bot
     $ret->{'totalNewMutantsKilled'} = $nm;
 
     # Copy files to workspace/jobs
-    my $jobid = $job->{'id'};
     my $d_out_jobs = File::Spec->catdir( ($jobsdir, $jobid) );
     dircopy($d_out_dspot, $d_out_jobs);
     
