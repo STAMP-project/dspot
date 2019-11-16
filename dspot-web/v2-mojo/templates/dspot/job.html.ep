@@ -97,7 +97,7 @@
 
 <p id="tests_<%= $anchor %>">File <code><%= $f %></code></p>
 
-<pre class="pre-scrollable" style="max-height: 25vh">
+<pre class="pre-scrollable" style="max-height: 70vh">
   <code class="language-java">
 <%= $content %>
   </code>
