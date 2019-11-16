@@ -63,7 +63,7 @@
 % foreach my $f (@{$results}) {
 %   next if (not exists($f->{'name'}));
 %   my ($success1, $success2) = ('', '');
-%   my @parts = split('\.', $f->{'name'}); print "DBG " . $f->{'name'} . " " . @parts . ".\n";
+%   my @parts = split('\.', $f->{'name'}); 
 %   my $anchor = $parts[-1];
 %   if ($f->{'nbNewMutantKilled'} > 0) {
 %     $success1 = '<a href="/job/' . $job_id . '#tests_' . $anchor . '" style="display:block">';

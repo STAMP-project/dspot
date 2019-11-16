@@ -337,7 +337,7 @@ the dspot-web bot
     my $conf = decode_json( $data );
 
     # Add project if it doesn't exist already.
-#    if ( (not exists($conf->{$id})) or (not exists($conf->{$id}{'cmd'})) ) {
+    if ( (not exists($conf->{$id})) or (not exists($conf->{$id}{'cmd'})) ) {
 	$conf->{$id}{'git'} = $url;
 	$conf->{$id}{'hash'} = $hash;
 	$conf->{$id}{'cmd'} = $dspot_cmd;
@@ -349,9 +349,9 @@ the dspot-web bot
 	close $fh;
 
 	print "  Project added/updated in conf.\n";
-#    } else {
-#	print "  Project already in conf, not modifying anything.\n";
-#    }
+    } else {
+	print "  Project already in conf, not modifying anything.\n";
+    }
 
     # Sending email.
     $maildata = "
