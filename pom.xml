@@ -10,7 +10,7 @@
 
     <groupId>eu.stamp-project</groupId>
     <artifactId>dspot-parent</artifactId>
-    <version>2.2.2-SNAPSHOT</version>
+    <version>3.0.0</version>
     <packaging>pom</packaging>
 
     <name>DSpot - Parent</name>
