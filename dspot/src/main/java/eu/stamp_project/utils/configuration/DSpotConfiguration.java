@@ -59,7 +59,7 @@ public class DSpotConfiguration {
     private long startTime;
     private AssertionGenerator assertionGenerator;
     private TestCompiler testCompiler;
-    private final GlobalReport GLOBAL_REPORT =
+    public static final GlobalReport GLOBAL_REPORT =
             new GlobalReport(new OutputReportImpl(), new ErrorReportImpl(), new TestSelectorReportImpl());
     private final Logger LOGGER = LoggerFactory.getLogger(DSpot.class);
 
@@ -129,6 +129,7 @@ public class DSpotConfiguration {
 
     public DSpotConfiguration() {
         inputConfiguration = new InputConfiguration();
+        assertionGenerator = new AssertionGenerator(getInputConfiguration().getDelta(), compiler, testCompiler);
     }
 
     public void initHelpers(InputConfiguration configuration){
@@ -307,5 +308,9 @@ public class DSpotConfiguration {
 
     public void setTestFinder(TestFinder testFinder) {
         this.testFinder = testFinder;
+    }
+
+    public void setAssertionGenerator(AssertionGenerator assertionGenerator) {
+        this.assertionGenerator = assertionGenerator;
     }
 }

@@ -1,20 +1,17 @@
 package eu.stamp_project.dspot;
 
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.utils.configuration.AmplificationSetup;
-import eu.stamp_project.utils.configuration.DSpotConfiguration;
 import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
 import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.utils.configuration.TestTuple;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
+import eu.stamp_project.utils.configuration.AmplificationSetup;
+import eu.stamp_project.utils.configuration.DSpotConfiguration;
+import eu.stamp_project.utils.configuration.TestTuple;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.GlobalReport;
 import eu.stamp_project.utils.report.error.Error;
-import eu.stamp_project.utils.report.error.ErrorReportImpl;
 import eu.stamp_project.utils.report.output.Output;
-import eu.stamp_project.utils.report.output.OutputReportImpl;
-import eu.stamp_project.utils.report.output.selector.TestSelectorReportImpl;
 import eu.stamp_project.utils.test_finder.TestFinder;
 import org.slf4j.Logger;
 import spoon.reflect.declaration.CtMethod;
@@ -22,8 +19,8 @@ import spoon.reflect.declaration.CtType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import static eu.stamp_project.utils.report.error.ErrorEnum.*;
 import static eu.stamp_project.utils.report.error.ErrorEnum.ERROR_ASSERT_AMPLIFICATION;
+import static eu.stamp_project.utils.report.error.ErrorEnum.ERROR_INPUT_AMPLIFICATION;
 import static eu.stamp_project.utils.report.error.ErrorEnum.ERROR_SELECTION;
 
 /**
@@ -33,8 +30,8 @@ import static eu.stamp_project.utils.report.error.ErrorEnum.ERROR_SELECTION;
  */
 public class DSpot {
 
-    DSpotConfiguration configuration;
-    AmplificationSetup setup;
+    private DSpotConfiguration configuration;
+    private AmplificationSetup setup;
     private int globalNumberOfSelectedAmplification;
     private final Logger LOGGER;
     private final GlobalReport GLOBAL_REPORT;
@@ -44,8 +41,7 @@ public class DSpot {
         setup = new AmplificationSetup(configuration);
         LOGGER = configuration.getLogger();
         globalNumberOfSelectedAmplification = 0;
-        GLOBAL_REPORT =
-                new GlobalReport(new OutputReportImpl(), new ErrorReportImpl(), new TestSelectorReportImpl());
+        GLOBAL_REPORT = configuration.getGlobalReport();
     }
 
     public DSpot(double delta,
@@ -72,8 +68,15 @@ public class DSpot {
         setup = new AmplificationSetup(configuration);
         LOGGER = configuration.getLogger();
         globalNumberOfSelectedAmplification = 0;
-        GLOBAL_REPORT =
-                new GlobalReport(new OutputReportImpl(), new ErrorReportImpl(), new TestSelectorReportImpl());
+        GLOBAL_REPORT = configuration.getGlobalReport();
+    }
+
+    public DSpot(DSpotConfiguration configuration) {
+        this.configuration = configuration;
+        setup = new AmplificationSetup(configuration);
+        LOGGER = configuration.getLogger();
+        globalNumberOfSelectedAmplification = 0;
+        GLOBAL_REPORT = configuration.getGlobalReport();
     }
 
     // todo merge run, amplify and amplify
