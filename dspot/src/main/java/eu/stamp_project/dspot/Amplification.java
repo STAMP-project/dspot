@@ -1,11 +1,11 @@
 package eu.stamp_project.dspot;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.dspot.assertiongenerator.AssertionGenerator;
 import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
+import eu.stamp_project.utils.configuration.DSpotConfiguration;
 import eu.stamp_project.utils.report.error.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +79,7 @@ public class Amplification {
                             this.compiler
                     );
         } catch (Exception | java.lang.Error e) {
-            Main.GLOBAL_REPORT.addError(new Error(ERROR_EXEC_TEST_BEFORE_AMPLIFICATION, e));
+            DSpotConfiguration.GLOBAL_REPORT.addError(new Error(ERROR_EXEC_TEST_BEFORE_AMPLIFICATION, e));
             return Collections.emptyList();
         }
         final List<CtMethod<?>> selectedToBeAmplified;
@@ -87,7 +87,7 @@ public class Amplification {
             // set up the selector with tests to amplify
             selectedToBeAmplified = this.testSelector.selectToAmplify(testClassToBeAmplified, passingTests);
         } catch (Exception | java.lang.Error e) {
-            Main.GLOBAL_REPORT.addError(new Error(ERROR_PRE_SELECTION, e));
+            DSpotConfiguration.GLOBAL_REPORT.addError(new Error(ERROR_PRE_SELECTION, e));
             return Collections.emptyList();
         }
 
@@ -98,7 +98,7 @@ public class Amplification {
             // keep tests that improve the test suite
             amplifiedTestMethodsToKeep = this.testSelector.selectToKeep(assertionAmplifiedTestMethods);
         } catch (Exception | java.lang.Error e) {
-            Main.GLOBAL_REPORT.addError(new Error(ERROR_SELECTION, e));
+            DSpotConfiguration.GLOBAL_REPORT.addError(new Error(ERROR_SELECTION, e));
             return Collections.emptyList();
         }
         this.globalNumberOfSelectedAmplification += amplifiedTestMethodsToKeep.size();
@@ -155,7 +155,7 @@ public class Amplification {
             // set up the selector with tests to amplify
             selectedToBeAmplified = this.testSelector.selectToAmplify(testClassToBeAmplified, currentTestListToBeAmplified);
         } catch (Exception | java.lang.Error e) {
-            Main.GLOBAL_REPORT.addError(new Error(ERROR_PRE_SELECTION, e));
+            DSpotConfiguration.GLOBAL_REPORT.addError(new Error(ERROR_PRE_SELECTION, e));
             return Collections.emptyList();
         }
         if (selectedToBeAmplified.isEmpty()) {
@@ -171,7 +171,7 @@ public class Amplification {
             // amplify tests and shrink amplified set with inputAmplDistributor
             inputAmplifiedTests = this.inputAmplDistributor.inputAmplify(selectedToBeAmplified, currentIteration);
         } catch (Exception | java.lang.Error e) {
-            Main.GLOBAL_REPORT.addError(new Error(ERROR_INPUT_AMPLIFICATION, e));
+            DSpotConfiguration.GLOBAL_REPORT.addError(new Error(ERROR_INPUT_AMPLIFICATION, e));
             return Collections.emptyList();
         }
         // add assertions to input modified tests and return them
@@ -183,7 +183,7 @@ public class Amplification {
             // keep tests that improve the test suite
             amplifiedTestMethodsToKeep = this.testSelector.selectToKeep(currentTestList);
         } catch (Exception | java.lang.Error e) {
-            Main.GLOBAL_REPORT.addError(new Error(ERROR_SELECTION, e));
+            DSpotConfiguration.GLOBAL_REPORT.addError(new Error(ERROR_SELECTION, e));
             return Collections.emptyList();
         }
         LOGGER.info("{} amplified test methods has been selected to be kept.", amplifiedTestMethodsToKeep.size());
@@ -196,7 +196,7 @@ public class Amplification {
         try {
             testsWithAssertions = this.assertionGenerator.assertionAmplification(classTest, testMethods);
         } catch (Exception | java.lang.Error e) {
-            Main.GLOBAL_REPORT.addError(new Error(ERROR_ASSERT_AMPLIFICATION, e));
+            DSpotConfiguration.GLOBAL_REPORT.addError(new Error(ERROR_ASSERT_AMPLIFICATION, e));
             return Collections.emptyList();
         }
         if (testsWithAssertions.isEmpty()) {
