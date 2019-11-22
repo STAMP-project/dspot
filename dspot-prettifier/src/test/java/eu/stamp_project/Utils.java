@@ -3,6 +3,7 @@ package eu.stamp_project;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
+import eu.stamp_project.utils.configuration.DSpotConfiguration;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -15,11 +16,8 @@ import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.chain.CtQueryable;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.io.File;
 import java.util.List;
 import java.util.Set;
-
-import static eu.stamp_project.Main.completeDependencies;
 
 
 /**
@@ -34,14 +32,15 @@ public class Utils {
 	private static InputConfiguration configuration;
 
 	public static void init(InputConfiguration configuration) {
+		DSpotConfiguration dSpotConfiguration = new DSpotConfiguration();
 		final AutomaticBuilder automaticBuilder = configuration.getBuilderEnum().getAutomaticBuilder(configuration);
-		final String dependencies = completeDependencies(configuration, automaticBuilder);
+		final String dependencies = dSpotConfiguration.completeDependencies(configuration, automaticBuilder);
 		final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(
 				configuration,
 				dependencies
 		);
 		configuration.setFactory(compiler.getLauncher().getFactory());
-		eu.stamp_project.Main.initHelpers(configuration);
+		dSpotConfiguration.initHelpers(configuration);
 		Utils.configuration = configuration;
 	}
 
