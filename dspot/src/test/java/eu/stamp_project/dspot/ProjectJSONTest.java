@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
+import eu.stamp_project.dspot.amplifier.StringLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGeneratorUtils;
 import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
@@ -114,19 +115,20 @@ public class ProjectJSONTest extends AbstractTestOnSample {
             file.delete();
         }
 
-        final InputAmplDistributor inputAmplDistributor = InputAmplDistributorEnum.RandomInputAmplDistributor.getInputAmplDistributor(200, Collections.emptyList());
-        DSpot dspot = new DSpot(
-                0.1f,
-                TestFinder.get(),
-                compiler,
-                testSelector,
-                inputAmplDistributor,
-                Output.get(configuration),
-                1,
-                false,
-                builder,
-                testCompiler
-        );
+        final InputAmplDistributor inputAmplDistributor =
+                InputAmplDistributorEnum.RandomInputAmplDistributor.getInputAmplDistributor(200, Collections.emptyList());
+        DSpotConfiguration dspotConfiguration = new DSpotConfiguration();
+        dspotConfiguration.getInputConfiguration().setDelta(0.1f);
+        dspotConfiguration.setTestFinder(TestFinder.get());
+        dspotConfiguration.setCompiler(compiler);
+        dspotConfiguration.setTestSelector(testSelector);
+        dspotConfiguration.setInputAmplDistributor(inputAmplDistributor);
+        dspotConfiguration.setOutput(Output.get(configuration));
+        dspotConfiguration.getInputConfiguration().setNbIteration(1);
+        dspotConfiguration.getInputConfiguration().setGenerateAmplifiedTestClass(false);
+        dspotConfiguration.setAutomaticBuilder(builder);
+        dspotConfiguration.setTestCompiler(testCompiler);
+        DSpot dspot = new DSpot(dspotConfiguration);
         final CtClass<?> clone = findClass("fr.inria.amp.TestJavaPoet").clone();
 
         dspot.amplify(findClass("fr.inria.amp.TestJavaPoet"), Collections.emptyList());
