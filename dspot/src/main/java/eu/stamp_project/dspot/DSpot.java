@@ -1,18 +1,11 @@
 package eu.stamp_project.dspot;
 
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
-import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.compilation.TestCompiler;
 import eu.stamp_project.utils.configuration.AmplificationSetup;
 import eu.stamp_project.utils.configuration.DSpotConfiguration;
 import eu.stamp_project.utils.configuration.TestTuple;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.GlobalReport;
 import eu.stamp_project.utils.report.error.Error;
-import eu.stamp_project.utils.report.output.Output;
-import eu.stamp_project.utils.test_finder.TestFinder;
 import org.slf4j.Logger;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
@@ -33,45 +26,19 @@ public class DSpot {
     private DSpotConfiguration configuration;
     private AmplificationSetup setup;
     private int globalNumberOfSelectedAmplification;
-    private final Logger LOGGER;
-    private final GlobalReport GLOBAL_REPORT;
+    private Logger LOGGER;
+    private GlobalReport GLOBAL_REPORT;
 
     public DSpot(InputConfiguration inputConfiguration){
         configuration = new DSpotConfiguration(inputConfiguration);
-        setup = new AmplificationSetup(configuration);
-        LOGGER = configuration.getLogger();
-        globalNumberOfSelectedAmplification = 0;
-        GLOBAL_REPORT = configuration.getGlobalReport();
-    }
-
-    public DSpot(double delta,
-                 TestFinder testFinder,
-                 DSpotCompiler compiler,
-                 TestSelector testSelector,
-                 InputAmplDistributor inputAmplDistributor,
-                 Output output,
-                 int numberOfIterations,
-                 boolean shouldGenerateAmplifiedTestClass,
-                 AutomaticBuilder automaticBuilder,
-                 TestCompiler testCompiler) {
-        configuration = new DSpotConfiguration();
-        configuration.getInputConfiguration().setDelta(delta);
-        configuration.setTestSelector(testSelector);
-        configuration.setInputAmplDistributor(inputAmplDistributor);
-        configuration.getInputConfiguration().setNbIteration(numberOfIterations);
-        configuration.setTestFinder(testFinder);
-        configuration.setCompiler(compiler);
-        configuration.setOutput(output);
-        configuration.getInputConfiguration().setGenerateAmplifiedTestClass(shouldGenerateAmplifiedTestClass);
-        configuration.setAutomaticBuilder(automaticBuilder);
-        configuration.setTestCompiler(testCompiler);
-        setup = new AmplificationSetup(configuration);
-        LOGGER = configuration.getLogger();
-        globalNumberOfSelectedAmplification = 0;
-        GLOBAL_REPORT = configuration.getGlobalReport();
+        setup(configuration);
     }
 
     public DSpot(DSpotConfiguration configuration) {
+        setup(configuration);
+    }
+
+    private void setup(DSpotConfiguration configuration){
         this.configuration = configuration;
         setup = new AmplificationSetup(configuration);
         LOGGER = configuration.getLogger();
