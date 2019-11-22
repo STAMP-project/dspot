@@ -27,6 +27,7 @@ public class CloneHelper {
     private static boolean shouldExecuteTestsInParallel;
 
     public static void init(boolean shouldExecuteTestsInParallel) {
+        reset();
         CloneHelper.shouldExecuteTestsInParallel = shouldExecuteTestsInParallel;
     }
 

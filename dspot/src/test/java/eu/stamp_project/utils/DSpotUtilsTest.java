@@ -61,13 +61,10 @@ public class DSpotUtilsTest extends AbstractTestOnSample {
                     "package fr.inria.lombok;" + AmplificationHelper.LINE_SEPARATOR +
                             "" + AmplificationHelper.LINE_SEPARATOR +
                             "" + AmplificationHelper.LINE_SEPARATOR +
-                            "import org.junit.Test;" + AmplificationHelper.LINE_SEPARATOR +
-                            "" + AmplificationHelper.LINE_SEPARATOR +
-                            "" + AmplificationHelper.LINE_SEPARATOR +
                             "public class LombokClassThatUseBuilderTest {" + AmplificationHelper.LINE_SEPARATOR +
-                            "    @Test" + AmplificationHelper.LINE_SEPARATOR +
+                            "    @org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
                             "    public void test() {" + AmplificationHelper.LINE_SEPARATOR +
-                            "        builder().build();" + AmplificationHelper.LINE_SEPARATOR +
+                            "        fr.inria.lombok.LombokClassThatUseBuilder.builder().build();" + AmplificationHelper.LINE_SEPARATOR +
                             "    }" + AmplificationHelper.LINE_SEPARATOR +
                             "}" + AmplificationHelper.LINE_SEPARATOR,
                     reader.lines()
