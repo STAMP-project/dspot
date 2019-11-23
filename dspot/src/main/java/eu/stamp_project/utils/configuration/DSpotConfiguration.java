@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -53,6 +54,7 @@ public class DSpotConfiguration {
     private InputAmplDistributor inputAmplDistributor;
     private Output output;
     private Collector collector;
+    private boolean collectData;
     private DSpotCompiler compiler;
     private AutomaticBuilder automaticBuilder;
     private TestFinder testFinder;
@@ -125,11 +127,14 @@ public class DSpotConfiguration {
         );
         assertionGenerator = new AssertionGenerator(getInputConfiguration().getDelta(), compiler, testCompiler);
         Checker.postChecking(inputConfiguration);
+        collectData = true;
     }
 
     public DSpotConfiguration() {
         inputConfiguration = new InputConfiguration();
         assertionGenerator = new AssertionGenerator(getInputConfiguration().getDelta(), compiler, testCompiler);
+        testMethodsToBeAmplifiedNames = Collections.emptyList();
+        collectData = false;
     }
 
     public void initHelpers(InputConfiguration configuration){
@@ -214,7 +219,9 @@ public class DSpotConfiguration {
         GLOBAL_REPORT.reset();
         AmplificationHelper.reset();
         DSpotPOMCreator.delete();
-        collector.sendInfo();
+        if(collectData) {
+            collector.sendInfo();
+        }
     }
 
     /**
@@ -240,6 +247,10 @@ public class DSpotConfiguration {
 
     public List<CtType<?>> getTestClassesToBeAmplified() {
         return testClassesToBeAmplified;
+    }
+
+    public void setTestClassesToBeAmplified(List<CtType<?>> testClassesToBeAmplified) {
+        this.testClassesToBeAmplified = testClassesToBeAmplified;
     }
 
     public List<String> getTestMethodsToBeAmplifiedNames() {
@@ -312,5 +323,9 @@ public class DSpotConfiguration {
 
     public void setAssertionGenerator(AssertionGenerator assertionGenerator) {
         this.assertionGenerator = assertionGenerator;
+    }
+
+    public void setCollectData(boolean collectData){
+        this.collectData = collectData;
     }
 }

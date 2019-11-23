@@ -128,10 +128,10 @@ public class ProjectJSONTest extends AbstractTestOnSample {
         dspotConfiguration.getInputConfiguration().setGenerateAmplifiedTestClass(false);
         dspotConfiguration.setAutomaticBuilder(builder);
         dspotConfiguration.setTestCompiler(testCompiler);
+        dspotConfiguration.setTestClassesToBeAmplified(Collections.singletonList(findClass("fr.inria.amp.TestJavaPoet")));
         DSpot dspot = new DSpot(dspotConfiguration);
         final CtClass<?> clone = findClass("fr.inria.amp.TestJavaPoet").clone();
-
-        dspot.amplify(findClass("fr.inria.amp.TestJavaPoet"), Collections.emptyList());
+        dspot.run();
         ProjectTimeJSON projectJson = getProjectJson(file);
         assertTrue(projectJson.classTimes.
                 stream()
@@ -142,7 +142,8 @@ public class ProjectJSONTest extends AbstractTestOnSample {
         assertEquals(1, projectJson.classTimes.size());
         assertEquals("sample", projectJson.projectName);
 
-        dspot.amplify(findClass("fr.inria.mutation.ClassUnderTestTest"), Collections.emptyList());
+        dspotConfiguration.setTestClassesToBeAmplified(Collections.singletonList(findClass("fr.inria.mutation.ClassUnderTestTest")));
+        dspot.run();
         projectJson = getProjectJson(file);
         assertTrue(projectJson.classTimes.stream().anyMatch(classTimeJSON -> classTimeJSON.fullQualifiedName.equals("fr.inria.amp.TestJavaPoet")));
         assertTrue(projectJson.classTimes.stream().anyMatch(classTimeJSON -> classTimeJSON.fullQualifiedName.equals("fr.inria.mutation.ClassUnderTestTest")));
@@ -156,7 +157,8 @@ public class ProjectJSONTest extends AbstractTestOnSample {
         aPackage.removeType(amplifiedClassToBeRemoved);
         aPackage.addType(clone);
 
-        dspot.amplify(findClass("fr.inria.amp.TestJavaPoet"), Collections.emptyList());
+        dspotConfiguration.setTestClassesToBeAmplified(Collections.singletonList(findClass("fr.inria.amp.TestJavaPoet")));
+        dspot.run();
         projectJson = getProjectJson(file);
         assertTrue(projectJson.classTimes.stream().anyMatch(classTimeJSON -> classTimeJSON.fullQualifiedName.equals("fr.inria.amp.TestJavaPoet")));
         assertTrue(projectJson.classTimes.stream().anyMatch(classTimeJSON -> classTimeJSON.fullQualifiedName.equals("fr.inria.mutation.ClassUnderTestTest")));
