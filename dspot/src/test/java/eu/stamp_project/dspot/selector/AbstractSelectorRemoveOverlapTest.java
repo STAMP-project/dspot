@@ -24,10 +24,12 @@ import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -124,8 +126,9 @@ public abstract class AbstractSelectorRemoveOverlapTest {
         dspotConfiguration.getInputConfiguration().setGenerateAmplifiedTestClass(false);
         dspotConfiguration.setAutomaticBuilder(builder);
         dspotConfiguration.setTestCompiler(testCompiler);
+        dspotConfiguration.setTestClassesToBeAmplified(Collections.singletonList(getTestClass()));
         DSpot dspot = new DSpot(dspotConfiguration);
-        dspot.amplify(getTestClass(), Collections.emptyList());
+        dspot.run();
         final File directory = new File(DSpotUtils.shouldAddSeparator.apply(this.configuration.getOutputDirectory()));
         if (!directory.exists()) {
             directory.mkdir();

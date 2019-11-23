@@ -46,28 +46,17 @@ public class DSpot {
         GLOBAL_REPORT = configuration.getGlobalReport();
     }
 
-    // todo merge run, amplify and amplify
     public void run() {
-        final List<CtType<?>> amplifiedTestClasses = amplify(configuration.getTestClassesToBeAmplified(),
-                configuration.getTestMethodsToBeAmplifiedNames());
-        configuration.report(amplifiedTestClasses);
-    }
-
-    public CtType<?> amplify(CtType<?> testClassToBeAmplified, List<String> testMethodsToBeAmplifiedAsString) {
-        return this.amplify(Collections.singletonList(testClassToBeAmplified), testMethodsToBeAmplifiedAsString).get(0);
-    }
-
-    public List<CtType<?>> amplify(List<CtType<?>> testClassesToBeAmplified, List<String> testMethodsToBeAmplifiedAsString) {
-        for (CtType<?> testClassToBeAmplified : testClassesToBeAmplified) {
-            TestTuple tuple = setup.preAmplification(testClassToBeAmplified,testMethodsToBeAmplifiedAsString);
+        for (CtType<?> testClassToBeAmplified : configuration.getTestClassesToBeAmplified()) {
+            TestTuple tuple = setup.preAmplification(testClassToBeAmplified,configuration.getTestMethodsToBeAmplifiedNames());
             final List<CtMethod<?>> amplifiedTestMethods = amplification(tuple.testClassToBeAmplified,tuple.testMethodsToBeAmplified);
             setup.postAmplification(testClassToBeAmplified,amplifiedTestMethods);
             globalNumberOfSelectedAmplification = 0;
         }
-        return setup.getAmplifiedTestClasses();
+        configuration.report(setup.getAmplifiedTestClasses());
     }
 
-    public List<CtMethod<?>>  amplification(CtType<?> testClassToBeAmplified, List<CtMethod<?>> testMethodsToBeAmplified) {
+    private List<CtMethod<?>>  amplification(CtType<?> testClassToBeAmplified, List<CtMethod<?>> testMethodsToBeAmplified) {
         final List<CtMethod<?>> amplifiedTestMethodsToKeep = onlyAssertionGeneration(testClassToBeAmplified,testMethodsToBeAmplified);
         if (configuration.getInputAmplDistributor().shouldBeRun()) {
             fullyAmplifyAllMethods(testClassToBeAmplified,testMethodsToBeAmplified,amplifiedTestMethodsToKeep);
@@ -75,7 +64,7 @@ public class DSpot {
         return amplifiedTestMethodsToKeep;
     }
 
-    public List<CtMethod<?>> onlyAssertionGeneration(CtType<?> testClassToBeAmplified, List<CtMethod<?>> testMethodsToBeAmplified){
+    private List<CtMethod<?>> onlyAssertionGeneration(CtType<?> testClassToBeAmplified, List<CtMethod<?>> testMethodsToBeAmplified){
         final List<CtMethod<?>> selectedToBeAmplified;
         final List<CtMethod<?>> amplifiedTestMethodsToKeep;
         try {
@@ -155,7 +144,7 @@ public class DSpot {
         return currentTestList;
     }
 
-    public List<CtMethod<?>> assertionAmplification(CtType<?> classTest, List<CtMethod<?>> testMethods) {
+    private List<CtMethod<?>> assertionAmplification(CtType<?> classTest, List<CtMethod<?>> testMethods) {
         final List<CtMethod<?>> testsWithAssertions;
         try {
             testsWithAssertions = configuration.getAssertionGenerator().assertionAmplification(classTest, testMethods);
