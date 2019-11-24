@@ -14,7 +14,7 @@ import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.RandomHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.configuration.DSpotConfiguration;
+import eu.stamp_project.utils.configuration.DSpotState;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.options.InputAmplDistributorEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -25,12 +25,10 @@ import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 
 import java.io.File;
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -71,7 +69,7 @@ public abstract class AbstractSelectorRemoveOverlapTest {
 
     protected TestCompiler testCompiler;
 
-    protected DSpotConfiguration dspotConfiguration;
+    protected DSpotState dspotState;
 
     @Before
     public void setUp() {
@@ -80,8 +78,8 @@ public abstract class AbstractSelectorRemoveOverlapTest {
         this.configuration.setAbsolutePathToProjectRoot(getPathToAbsoluteProjectRoot());
         this.configuration.setOutputDirectory(outputDirectory);
         this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
-        this.dspotConfiguration = new DSpotConfiguration();
-        String dependencies = dspotConfiguration.completeDependencies(configuration, this.builder);
+        this.dspotState = new DSpotState();
+        String dependencies = dspotState.completeDependencies(configuration, this.builder);
         DSpotUtils.init(false, outputDirectory,
                 this.configuration.getFullClassPathWithExtraDependencies(),
                 this.getPathToAbsoluteProjectRoot()
@@ -115,20 +113,20 @@ public abstract class AbstractSelectorRemoveOverlapTest {
     @Test
     public void testRemoveOverlappingTests() {
         this.testSelectorUnderTest.init();
-        DSpotConfiguration dspotConfiguration = new DSpotConfiguration();
-        dspotConfiguration.setDelta(0.1f);
-        dspotConfiguration.setTestFinder(new TestFinder(Collections.emptyList(), Collections.emptyList()));
-        dspotConfiguration.setCompiler(compiler);
-        dspotConfiguration.setTestSelector(this.testSelectorUnderTest);
-        dspotConfiguration.setInputAmplDistributor(InputAmplDistributorEnum.RandomInputAmplDistributor.getInputAmplDistributor(
+        DSpotState dspotState = new DSpotState();
+        dspotState.setDelta(0.1f);
+        dspotState.setTestFinder(new TestFinder(Collections.emptyList(), Collections.emptyList()));
+        dspotState.setCompiler(compiler);
+        dspotState.setTestSelector(this.testSelectorUnderTest);
+        dspotState.setInputAmplDistributor(InputAmplDistributorEnum.RandomInputAmplDistributor.getInputAmplDistributor(
                 200, Collections.singletonList(new StringLiteralAmplifier())));
-        dspotConfiguration.setOutput(new Output(getPathToAbsoluteProjectRoot(), configuration.getOutputDirectory(), null));
-        dspotConfiguration.setNbIteration(1);
-        dspotConfiguration.setAutomaticBuilder(builder);
-        dspotConfiguration.setTestCompiler(testCompiler);
-        dspotConfiguration.setTestClassesToBeAmplified(Collections.singletonList(getTestClass()));
-        dspotConfiguration.setAssertionGenerator(new AssertionGenerator(0.1f, compiler, testCompiler));
-        DSpot dspot = new DSpot(dspotConfiguration);
+        dspotState.setOutput(new Output(getPathToAbsoluteProjectRoot(), configuration.getOutputDirectory(), null));
+        dspotState.setNbIteration(1);
+        dspotState.setAutomaticBuilder(builder);
+        dspotState.setTestCompiler(testCompiler);
+        dspotState.setTestClassesToBeAmplified(Collections.singletonList(getTestClass()));
+        dspotState.setAssertionGenerator(new AssertionGenerator(0.1f, compiler, testCompiler));
+        DSpot dspot = new DSpot(dspotState);
         dspot.run();
         final File directory = new File(DSpotUtils.shouldAddSeparator.apply(this.configuration.getOutputDirectory()));
         if (!directory.exists()) {

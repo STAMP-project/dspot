@@ -7,7 +7,7 @@ import eu.stamp_project.dspot.input_ampl_distributor.TextualDistanceInputAmplDis
 import eu.stamp_project.dspot.selector.TakeAllSelector;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.configuration.DSpotConfiguration;
+import eu.stamp_project.utils.configuration.DSpotState;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.error.ErrorEnum;
@@ -43,7 +43,7 @@ public class RecoveryDSpotTest extends AbstractTestOnSample {
     @Before
     public void setUp() {
         super.setUp();
-        DSpotConfiguration.GLOBAL_REPORT.reset();
+        DSpotState.GLOBAL_REPORT.reset();
         configuration = new InputConfiguration();
         configuration.setAbsolutePathToProjectRoot(this.getPathToProjectRoot());
         this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
@@ -60,7 +60,7 @@ public class RecoveryDSpotTest extends AbstractTestOnSample {
 
     @After
     public void tearDown() throws Exception {
-        DSpotConfiguration.GLOBAL_REPORT.reset();
+        DSpotState.GLOBAL_REPORT.reset();
     }
 
     public class SelectorThatThrowsError extends TakeAllSelector {
@@ -134,49 +134,49 @@ public class RecoveryDSpotTest extends AbstractTestOnSample {
         final TestFinder testFinder = new TestFinder(Collections.emptyList(), Collections.emptyList());
         final CtClass<?> testClassToBeAmplified = findClass("fr.inria.amp.OneLiteralTest");
         final List<CtMethod<?>> testListToBeAmplified = testFinder.findTestMethods(testClassToBeAmplified, Collections.emptyList());
-        DSpotConfiguration dspotConfiguration = new DSpotConfiguration();
-        dspotConfiguration.setDelta(0.1f);
-        dspotConfiguration.setCompiler(compiler);
-        dspotConfiguration.setTestSelector(selector);
-        dspotConfiguration.setInputAmplDistributor(new TextualDistanceInputAmplDistributor(200, Collections.emptyList()));
-        dspotConfiguration.setNbIteration(1);
-        dspotConfiguration.setTestCompiler(testCompiler);
-        dspotConfiguration.setAssertionGenerator(new AssertionGenerator(0.1f, compiler, testCompiler));
-        DSpot dspot = new DSpot(dspotConfiguration);
+        DSpotState dspotState = new DSpotState();
+        dspotState.setDelta(0.1f);
+        dspotState.setCompiler(compiler);
+        dspotState.setTestSelector(selector);
+        dspotState.setInputAmplDistributor(new TextualDistanceInputAmplDistributor(200, Collections.emptyList()));
+        dspotState.setNbIteration(1);
+        dspotState.setTestCompiler(testCompiler);
+        dspotState.setAssertionGenerator(new AssertionGenerator(0.1f, compiler, testCompiler));
+        DSpot dspot = new DSpot(dspotState);
         dspot.fullAmplification(testClassToBeAmplified, testListToBeAmplified, Collections.emptyList(), 1);
-        assertEquals(1, DSpotConfiguration.GLOBAL_REPORT.getErrors().size());
-        assertSame(ErrorEnum.ERROR_PRE_SELECTION, DSpotConfiguration.GLOBAL_REPORT.getErrors().get(0).type);
-        DSpotConfiguration.GLOBAL_REPORT.reset();
+        assertEquals(1, DSpotState.GLOBAL_REPORT.getErrors().size());
+        assertSame(ErrorEnum.ERROR_PRE_SELECTION, DSpotState.GLOBAL_REPORT.getErrors().get(0).type);
+        DSpotState.GLOBAL_REPORT.reset();
 
         selector.setThrowsToAmplify(false);
         selector.setThrowsToKeep(true);
         dspot.fullAmplification(testClassToBeAmplified, testListToBeAmplified, Collections.emptyList(), 1);
-        assertEquals(1, DSpotConfiguration.GLOBAL_REPORT.getErrors().size());
-        assertSame(ErrorEnum.ERROR_SELECTION, DSpotConfiguration.GLOBAL_REPORT.getErrors().get(0).type);
-        DSpotConfiguration.GLOBAL_REPORT.reset();
+        assertEquals(1, DSpotState.GLOBAL_REPORT.getErrors().size());
+        assertSame(ErrorEnum.ERROR_SELECTION, DSpotState.GLOBAL_REPORT.getErrors().get(0).type);
+        DSpotState.GLOBAL_REPORT.reset();
 
         final List<Amplifier> amplifiers = Collections.singletonList(new AmplifierThatThrowsError());
-        dspotConfiguration.setTestSelector(new TakeAllSelector(this.builder, this.configuration));
-        dspotConfiguration.setInputAmplDistributor(new TextualDistanceInputAmplDistributor(200, amplifiers));
+        dspotState.setTestSelector(new TakeAllSelector(this.builder, this.configuration));
+        dspotState.setInputAmplDistributor(new TextualDistanceInputAmplDistributor(200, amplifiers));
         dspot.fullAmplification(testClassToBeAmplified, testListToBeAmplified, Collections.emptyList(), 1);
-        assertEquals(1, DSpotConfiguration.GLOBAL_REPORT.getErrors().size());
-        assertSame(ErrorEnum.ERROR_INPUT_AMPLIFICATION, DSpotConfiguration.GLOBAL_REPORT.getErrors().get(0).type);
-        DSpotConfiguration.GLOBAL_REPORT.reset();
+        assertEquals(1, DSpotState.GLOBAL_REPORT.getErrors().size());
+        assertSame(ErrorEnum.ERROR_INPUT_AMPLIFICATION, DSpotState.GLOBAL_REPORT.getErrors().get(0).type);
+        DSpotState.GLOBAL_REPORT.reset();
 
-        dspotConfiguration.setInputAmplDistributor(new TextualDistanceInputAmplDistributor(200, Collections.emptyList()));
-        dspotConfiguration.setAssertionGenerator(new AssertionGeneratorThatThrowsError(compiler));
+        dspotState.setInputAmplDistributor(new TextualDistanceInputAmplDistributor(200, Collections.emptyList()));
+        dspotState.setAssertionGenerator(new AssertionGeneratorThatThrowsError(compiler));
         dspot.fullAmplification(testClassToBeAmplified, testListToBeAmplified, Collections.emptyList(), 1);
-        assertEquals(1, DSpotConfiguration.GLOBAL_REPORT.getErrors().size());
-        assertSame(ErrorEnum.ERROR_ASSERT_AMPLIFICATION, DSpotConfiguration.GLOBAL_REPORT.getErrors().get(0).type);
-        DSpotConfiguration.GLOBAL_REPORT.reset();
+        assertEquals(1, DSpotState.GLOBAL_REPORT.getErrors().size());
+        assertSame(ErrorEnum.ERROR_ASSERT_AMPLIFICATION, DSpotState.GLOBAL_REPORT.getErrors().get(0).type);
+        DSpotState.GLOBAL_REPORT.reset();
     }
 
     @Test
     public void testNoMatchingTestClasses() {
         final TestFinder testFinder = new TestFinder(Collections.emptyList(), Collections.emptyList());
         testFinder.findTestClasses(Collections.singletonList("this.is.not.a.correct.package"));
-        assertEquals(2, DSpotConfiguration.GLOBAL_REPORT.getErrors().size());
-        assertSame(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND_MATCHING_REGEX, DSpotConfiguration.GLOBAL_REPORT.getErrors().get(0).type);
-        assertSame(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND, DSpotConfiguration.GLOBAL_REPORT.getErrors().get(1).type);
+        assertEquals(2, DSpotState.GLOBAL_REPORT.getErrors().size());
+        assertSame(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND_MATCHING_REGEX, DSpotState.GLOBAL_REPORT.getErrors().get(0).type);
+        assertSame(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND, DSpotState.GLOBAL_REPORT.getErrors().get(1).type);
     }
 }

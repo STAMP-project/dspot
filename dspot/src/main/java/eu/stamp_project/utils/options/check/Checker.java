@@ -1,9 +1,8 @@
 package eu.stamp_project.utils.options.check;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.configuration.DSpotConfiguration;
+import eu.stamp_project.utils.configuration.DSpotState;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.error.Error;
 import eu.stamp_project.utils.report.error.ErrorEnum;
@@ -134,7 +133,7 @@ public class Checker {
 
     public static void checkIsACorrectVersion(final String proposedVersion) {
         if (!Pattern.compile("(\\p{Digit})+(\\.(\\p{Digit})+)*(-SNAPSHOT)?").matcher(proposedVersion).matches()) {
-            DSpotConfiguration.GLOBAL_REPORT.addInputError(new Error(
+            DSpotState.GLOBAL_REPORT.addInputError(new Error(
                             ErrorEnum.ERROR_INVALID_VERSION, "Version " + proposedVersion + " is not a valid version"
                     )
             );
@@ -164,7 +163,7 @@ public class Checker {
                                                          String additionalMessageWhenIsNull,
                                                          String additionalMessageWhenDoesNotExist) {
         if (pathname == null) {
-            DSpotConfiguration.GLOBAL_REPORT.addInputError(new Error(errorEnumInCaseOfError, additionalMessageWhenIsNull));
+            DSpotState.GLOBAL_REPORT.addInputError(new Error(errorEnumInCaseOfError, additionalMessageWhenIsNull));
             throw new InputErrorException();
         } else {
             checkFileExists(pathname, errorEnumInCaseOfError, additionalMessageWhenDoesNotExist);
@@ -173,7 +172,7 @@ public class Checker {
 
     private static void checkFileExists(final String pathname, ErrorEnum errorEnumInCaseOfError, String additionalMessage) {
         if (!new File(pathname).exists()) {
-            DSpotConfiguration.GLOBAL_REPORT.addInputError(new Error(errorEnumInCaseOfError, additionalMessage + "(" + pathname + ")"));
+            DSpotState.GLOBAL_REPORT.addInputError(new Error(errorEnumInCaseOfError, additionalMessage + "(" + pathname + ")"));
             throw new InputErrorException();
         }
     }

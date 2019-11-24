@@ -15,7 +15,7 @@ import eu.stamp_project.prettifier.output.PrettifiedTestMethods;
 import eu.stamp_project.prettifier.output.report.ReportJSON;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.configuration.DSpotConfiguration;
+import eu.stamp_project.utils.configuration.DSpotState;
 import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.options.check.InputErrorException;
 import org.slf4j.Logger;
@@ -100,15 +100,15 @@ public class Main {
 
     public static List<CtMethod<?>> run(CtType<?> amplifiedTestClass,
                                         InputConfiguration configuration) {
-        DSpotConfiguration dSpotConfiguration = new DSpotConfiguration();
+        DSpotState dSpotState = new DSpotState();
         final AutomaticBuilder automaticBuilder = configuration.getBuilderEnum().getAutomaticBuilder(configuration);
-        final String dependencies = dSpotConfiguration.completeDependencies(configuration, automaticBuilder);
+        final String dependencies = dSpotState.completeDependencies(configuration, automaticBuilder);
         final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(
                 configuration,
                 dependencies
         );
         configuration.setFactory(compiler.getLauncher().getFactory());
-        dSpotConfiguration.initHelpers(configuration);
+        dSpotState.initHelpers(configuration);
 
         final List<CtMethod<?>> testMethods = TestFramework.getAllTest(amplifiedTestClass);
         Main.report.nbTestMethods = testMethods.size();

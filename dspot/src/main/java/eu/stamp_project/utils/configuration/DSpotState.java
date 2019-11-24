@@ -44,7 +44,7 @@ import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
  * abwogi@kth.se
  * on 31/10/19
  */
-public class DSpotConfiguration {
+public class DSpotState {
 
     private int nbIteration;
     private InputConfiguration inputConfiguration;
@@ -67,7 +67,7 @@ public class DSpotConfiguration {
     private final Logger LOGGER = LoggerFactory.getLogger(DSpot.class);
     private double delta;
 
-    public DSpotConfiguration(InputConfiguration inputConfiguration) {
+    public DSpotState(InputConfiguration inputConfiguration) {
         this.inputConfiguration = inputConfiguration;
         verbose = inputConfiguration.isVerbose();
         startTime = System.currentTimeMillis();
@@ -134,7 +134,7 @@ public class DSpotConfiguration {
         nbIteration = inputConfiguration.getNbIteration();
     }
 
-    public DSpotConfiguration() {
+    public DSpotState() {
         inputConfiguration = new InputConfiguration();
         testMethodsToBeAmplifiedNames = Collections.emptyList();
         collectData = false;

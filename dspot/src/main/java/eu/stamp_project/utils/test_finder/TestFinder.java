@@ -1,9 +1,8 @@
 package eu.stamp_project.utils.test_finder;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.configuration.DSpotConfiguration;
+import eu.stamp_project.utils.configuration.DSpotState;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.error.Error;
 import eu.stamp_project.utils.report.error.ErrorEnum;
@@ -100,7 +99,7 @@ public class TestFinder {
                 .stream()
                 .filter(testClassName -> {
                     if (collect.get(testClassName).isEmpty()) {
-                        DSpotConfiguration.GLOBAL_REPORT.addError(
+                        DSpotState.GLOBAL_REPORT.addError(
                                 new Error(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND_MATCHING_REGEX,
                                         String.format("Your input:%n\t%s", testClassName)
                                 )
@@ -121,7 +120,7 @@ public class TestFinder {
             LOGGER.error("\t Please, refer to the Java documentation of java.util.regex.Pattern.");
             LOGGER.error("\t (-c | --cases) should be followed by correct method name,");
             LOGGER.error("\t that are contained in the test classes that match the previous option, i.e. (-t | --test).");
-            DSpotConfiguration.GLOBAL_REPORT.addError(
+            DSpotState.GLOBAL_REPORT.addError(
                     new Error(ErrorEnum.ERROR_NO_TEST_COULD_BE_FOUND,
                             String.format("Your input:%n\t%s", testClassToBeAmplifiedJoined)
                     )
