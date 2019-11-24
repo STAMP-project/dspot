@@ -6,6 +6,7 @@ import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.dspot.amplifier.StringLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
+import eu.stamp_project.dspot.assertiongenerator.AssertionGenerator;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGeneratorUtils;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.DSpotCache;
@@ -115,18 +116,18 @@ public abstract class AbstractSelectorRemoveOverlapTest {
     public void testRemoveOverlappingTests() {
         this.testSelectorUnderTest.init();
         DSpotConfiguration dspotConfiguration = new DSpotConfiguration();
-        dspotConfiguration.getInputConfiguration().setDelta(0.1f);
+        dspotConfiguration.setDelta(0.1f);
         dspotConfiguration.setTestFinder(new TestFinder(Collections.emptyList(), Collections.emptyList()));
         dspotConfiguration.setCompiler(compiler);
         dspotConfiguration.setTestSelector(this.testSelectorUnderTest);
         dspotConfiguration.setInputAmplDistributor(InputAmplDistributorEnum.RandomInputAmplDistributor.getInputAmplDistributor(
                 200, Collections.singletonList(new StringLiteralAmplifier())));
         dspotConfiguration.setOutput(new Output(getPathToAbsoluteProjectRoot(), configuration.getOutputDirectory(), null));
-        dspotConfiguration.getInputConfiguration().setNbIteration(1);
-        dspotConfiguration.getInputConfiguration().setGenerateAmplifiedTestClass(false);
+        dspotConfiguration.setNbIteration(1);
         dspotConfiguration.setAutomaticBuilder(builder);
         dspotConfiguration.setTestCompiler(testCompiler);
         dspotConfiguration.setTestClassesToBeAmplified(Collections.singletonList(getTestClass()));
+        dspotConfiguration.setAssertionGenerator(new AssertionGenerator(0.1f, compiler, testCompiler));
         DSpot dspot = new DSpot(dspotConfiguration);
         dspot.run();
         final File directory = new File(DSpotUtils.shouldAddSeparator.apply(this.configuration.getOutputDirectory()));

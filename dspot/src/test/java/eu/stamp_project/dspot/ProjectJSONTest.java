@@ -7,6 +7,7 @@ import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.amplifier.StringLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
+import eu.stamp_project.dspot.assertiongenerator.AssertionGenerator;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGeneratorUtils;
 import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
@@ -118,17 +119,17 @@ public class ProjectJSONTest extends AbstractTestOnSample {
         final InputAmplDistributor inputAmplDistributor =
                 InputAmplDistributorEnum.RandomInputAmplDistributor.getInputAmplDistributor(200, Collections.emptyList());
         DSpotConfiguration dspotConfiguration = new DSpotConfiguration();
-        dspotConfiguration.getInputConfiguration().setDelta(0.1f);
+        dspotConfiguration.setDelta(0.1f);
         dspotConfiguration.setTestFinder(TestFinder.get());
         dspotConfiguration.setCompiler(compiler);
         dspotConfiguration.setTestSelector(testSelector);
         dspotConfiguration.setInputAmplDistributor(inputAmplDistributor);
         dspotConfiguration.setOutput(Output.get(configuration));
-        dspotConfiguration.getInputConfiguration().setNbIteration(1);
-        dspotConfiguration.getInputConfiguration().setGenerateAmplifiedTestClass(false);
+        dspotConfiguration.setNbIteration(1);
         dspotConfiguration.setAutomaticBuilder(builder);
         dspotConfiguration.setTestCompiler(testCompiler);
         dspotConfiguration.setTestClassesToBeAmplified(Collections.singletonList(findClass("fr.inria.amp.TestJavaPoet")));
+        dspotConfiguration.setAssertionGenerator(new AssertionGenerator(0.1f, compiler, testCompiler));
         DSpot dspot = new DSpot(dspotConfiguration);
         final CtClass<?> clone = findClass("fr.inria.amp.TestJavaPoet").clone();
         dspot.run();
