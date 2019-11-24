@@ -34,14 +34,14 @@ public class AmplificationSetup {
     public  final GlobalReport GLOBAL_REPORT;
     private final Logger LOGGER;
     final List<CtType<?>> amplifiedTestClasses = new ArrayList<>();
-    private DSpotConfiguration configuration;
+    private DSpotState configuration;
     private DSpotCompiler compiler;
     private TestCompiler testCompiler;
     private TestSelector testSelector;
     private Output output;
     private long time;
 
-    public AmplificationSetup(DSpotConfiguration configuration){
+    public AmplificationSetup(DSpotState configuration){
         this.configuration = configuration;
         compiler = configuration.getCompiler();
         testCompiler = configuration.getTestCompiler();

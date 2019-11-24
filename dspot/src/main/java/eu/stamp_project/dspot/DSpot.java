@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot;
 
 import eu.stamp_project.utils.configuration.AmplificationSetup;
-import eu.stamp_project.utils.configuration.DSpotConfiguration;
+import eu.stamp_project.utils.configuration.DSpotState;
 import eu.stamp_project.utils.configuration.TestTuple;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.GlobalReport;
@@ -23,22 +23,22 @@ import static eu.stamp_project.utils.report.error.ErrorEnum.ERROR_SELECTION;
  */
 public class DSpot {
 
-    private DSpotConfiguration configuration;
+    private DSpotState configuration;
     private AmplificationSetup setup;
     private int globalNumberOfSelectedAmplification;
     private Logger LOGGER;
     private GlobalReport GLOBAL_REPORT;
 
     public DSpot(InputConfiguration inputConfiguration){
-        configuration = new DSpotConfiguration(inputConfiguration);
+        configuration = new DSpotState(inputConfiguration);
         setup(configuration);
     }
 
-    public DSpot(DSpotConfiguration configuration) {
+    public DSpot(DSpotState configuration) {
         setup(configuration);
     }
 
-    private void setup(DSpotConfiguration configuration){
+    private void setup(DSpotState configuration){
         this.configuration = configuration;
         setup = new AmplificationSetup(configuration);
         LOGGER = configuration.getLogger();

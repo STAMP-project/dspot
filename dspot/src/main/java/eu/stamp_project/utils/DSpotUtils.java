@@ -1,9 +1,8 @@
 package eu.stamp_project.utils;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.utils.collector.Collector;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.configuration.DSpotConfiguration;
+import eu.stamp_project.utils.configuration.DSpotState;
 import eu.stamp_project.utils.report.error.Error;
 import eu.stamp_project.utils.report.error.ErrorEnum;
 import org.apache.commons.io.FileUtils;
@@ -106,14 +105,14 @@ public class DSpotUtils {
         try {
             FileUtils.forceMkdir(new File(directoryPathname));
         } catch (IOException e) {
-            DSpotConfiguration.GLOBAL_REPORT.addError(new Error(ErrorEnum.ERROR_PRINT_USING_TO_STRING, e));
+            DSpotState.GLOBAL_REPORT.addError(new Error(ErrorEnum.ERROR_PRINT_USING_TO_STRING, e));
         }
         try (FileWriter fileWriter = new FileWriter(
                 DSpotUtils.shouldAddSeparator.apply(directoryPathname) + type.getSimpleName() + JAVA_EXTENSION)
         ) {
             fileWriter.write(type.toString());
         } catch (Exception e) {
-            DSpotConfiguration.GLOBAL_REPORT.addError(new Error(ErrorEnum.ERROR_PRINT_USING_TO_STRING, e));
+            DSpotState.GLOBAL_REPORT.addError(new Error(ErrorEnum.ERROR_PRINT_USING_TO_STRING, e));
         }
     }
 

@@ -2,13 +2,12 @@ package eu.stamp_project.utils.report.output;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.Main;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.collector.Collector;
 import eu.stamp_project.utils.collector.NullCollector;
-import eu.stamp_project.utils.configuration.DSpotConfiguration;
+import eu.stamp_project.utils.configuration.DSpotState;
 import eu.stamp_project.utils.json.ClassTimeJSON;
 import eu.stamp_project.utils.json.ProjectTimeJSON;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -59,8 +58,8 @@ public class Output {
         final CtType<?> amplification = AmplificationHelper.createAmplifiedTest(amplifiedTestMethods, clone);
         final File outputDirectory = new File(this.outputPathDirectory);
         if (!amplifiedTestMethods.isEmpty()) {
-            DSpotConfiguration.GLOBAL_REPORT.addNumberAmplifiedTestMethodsToTotal(amplifiedTestMethods.size());
-            DSpotConfiguration.GLOBAL_REPORT.addPrintedTestClasses(
+            DSpotState.GLOBAL_REPORT.addNumberAmplifiedTestMethodsToTotal(amplifiedTestMethods.size());
+            DSpotState.GLOBAL_REPORT.addPrintedTestClasses(
                     String.format("Print %s with %d amplified test cases in %s",
                             amplification.getQualifiedName() + ".java",
                             amplifiedTestMethods.size(),
@@ -92,8 +91,8 @@ public class Output {
                 .distinct()
                 .forEach(clone::addMethod);
         final File outputDirectory = new File(this.outputPathDirectory + "/original/");
-        DSpotConfiguration.GLOBAL_REPORT.addNumberAmplifiedTestMethodsToTotal(amplifiedTestMethods.size());
-        DSpotConfiguration.GLOBAL_REPORT.addPrintedTestClasses(
+        DSpotState.GLOBAL_REPORT.addNumberAmplifiedTestMethodsToTotal(amplifiedTestMethods.size());
+        DSpotState.GLOBAL_REPORT.addPrintedTestClasses(
                 String.format("Print %s with %d amplified test cases in %s",
                         clone.getQualifiedName() + ".java",
                         amplifiedTestMethods.size(),

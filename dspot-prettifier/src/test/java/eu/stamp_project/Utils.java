@@ -3,9 +3,8 @@ package eu.stamp_project;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.configuration.DSpotConfiguration;
+import eu.stamp_project.utils.configuration.DSpotState;
 import eu.stamp_project.utils.program.InputConfiguration;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtLiteral;
@@ -32,15 +31,15 @@ public class Utils {
 	private static InputConfiguration configuration;
 
 	public static void init(InputConfiguration configuration) {
-		DSpotConfiguration dSpotConfiguration = new DSpotConfiguration();
+		DSpotState dSpotState = new DSpotState();
 		final AutomaticBuilder automaticBuilder = configuration.getBuilderEnum().getAutomaticBuilder(configuration);
-		final String dependencies = dSpotConfiguration.completeDependencies(configuration, automaticBuilder);
+		final String dependencies = dSpotState.completeDependencies(configuration, automaticBuilder);
 		final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(
 				configuration,
 				dependencies
 		);
 		configuration.setFactory(compiler.getLauncher().getFactory());
-		dSpotConfiguration.initHelpers(configuration);
+		dSpotState.initHelpers(configuration);
 		Utils.configuration = configuration;
 	}
 

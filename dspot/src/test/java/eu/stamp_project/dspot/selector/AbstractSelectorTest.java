@@ -11,7 +11,7 @@ import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.RandomHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.configuration.DSpotConfiguration;
+import eu.stamp_project.utils.configuration.DSpotState;
 import eu.stamp_project.utils.execution.TestRunner;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -70,7 +70,7 @@ public abstract class AbstractSelectorTest {
 
     protected TestCompiler testCompiler;
 
-    protected DSpotConfiguration dspotConfiguration;
+    protected DSpotState dspotState;
 
     @Before
     public void setUp() throws Exception {
@@ -80,8 +80,8 @@ public abstract class AbstractSelectorTest {
         this.configuration.setOutputDirectory(outputDirectory);
         this.configuration.setGregorMode(true);
         this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
-        this.dspotConfiguration = new DSpotConfiguration();
-        String dependencies = dspotConfiguration.completeDependencies(configuration, this.builder);
+        this.dspotState = new DSpotState();
+        String dependencies = dspotState.completeDependencies(configuration, this.builder);
         DSpotUtils.init(false, outputDirectory,
                 this.configuration.getFullClassPathWithExtraDependencies(),
                 this.getPathToAbsoluteProjectRoot()
