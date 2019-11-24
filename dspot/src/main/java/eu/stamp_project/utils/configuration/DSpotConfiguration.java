@@ -46,6 +46,7 @@ import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
  */
 public class DSpotConfiguration {
 
+    private int nbIteration;
     private InputConfiguration inputConfiguration;
     private boolean verbose;
     private List<CtType<?>> testClassesToBeAmplified;
@@ -64,6 +65,7 @@ public class DSpotConfiguration {
     public static final GlobalReport GLOBAL_REPORT =
             new GlobalReport(new OutputReportImpl(), new ErrorReportImpl(), new TestSelectorReportImpl());
     private final Logger LOGGER = LoggerFactory.getLogger(DSpot.class);
+    private double delta;
 
     public DSpotConfiguration(InputConfiguration inputConfiguration) {
         this.inputConfiguration = inputConfiguration;
@@ -125,14 +127,15 @@ public class DSpotConfiguration {
                 collector
 
         );
-        assertionGenerator = new AssertionGenerator(getInputConfiguration().getDelta(), compiler, testCompiler);
+        assertionGenerator = new AssertionGenerator(inputConfiguration.getDelta(), compiler, testCompiler);
         Checker.postChecking(inputConfiguration);
         collectData = true;
+        delta = inputConfiguration.getDelta();
+        nbIteration = inputConfiguration.getNbIteration();
     }
 
     public DSpotConfiguration() {
         inputConfiguration = new InputConfiguration();
-        assertionGenerator = new AssertionGenerator(getInputConfiguration().getDelta(), compiler, testCompiler);
         testMethodsToBeAmplifiedNames = Collections.emptyList();
         collectData = false;
     }
@@ -214,7 +217,7 @@ public class DSpotConfiguration {
         LOGGER.info("Amplification {}.", amplifiedTestClasses.isEmpty() ? "failed" : "succeed");
         final long elapsedTime = System.currentTimeMillis() - startTime;
         LOGGER.info("Elapsed time {} ms", elapsedTime);
-        GLOBAL_REPORT.output(getInputConfiguration().getOutputDirectory());
+        GLOBAL_REPORT.output(inputConfiguration.getOutputDirectory());
         DSpotCache.reset();
         GLOBAL_REPORT.reset();
         AmplificationHelper.reset();
@@ -230,7 +233,7 @@ public class DSpotConfiguration {
      * it is cleared before iterating again for next test class.
      */
     public void clearData(){
-        this.assertionGenerator = new AssertionGenerator(inputConfiguration.getDelta(), this.compiler, this.testCompiler);
+        this.assertionGenerator = new AssertionGenerator(delta, this.compiler, this.testCompiler);
     }
 
     public AssertionGenerator getAssertionGenerator() {
@@ -267,10 +270,6 @@ public class DSpotConfiguration {
 
     public Output getOutput() {
         return output;
-    }
-
-    public InputConfiguration getInputConfiguration() {
-        return inputConfiguration;
     }
 
     public DSpotCompiler getCompiler() {
@@ -327,5 +326,21 @@ public class DSpotConfiguration {
 
     public void setCollectData(boolean collectData){
         this.collectData = collectData;
+    }
+
+    public void setDelta(double delta) {
+        this.delta = delta;
+    }
+
+    public int getNbIteration() {
+        return nbIteration;
+    }
+
+    public void setNbIteration(int nbIteration) {
+        this.nbIteration = nbIteration;
+    }
+
+    public boolean shouldGenerateAmplifiedTestClass() {
+        return inputConfiguration.shouldGenerateAmplifiedTestClass();
     }
 }

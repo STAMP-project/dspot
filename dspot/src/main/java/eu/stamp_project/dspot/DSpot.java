@@ -95,8 +95,8 @@ public class DSpot {
             List<CtMethod<?>> currentTestList = new ArrayList<>();
             currentTestList.add(test);
             final List<CtMethod<?>> amplifiedTests = new ArrayList<>();
-            for (int j = 0; j < configuration.getInputConfiguration().getNbIteration() ; j++) {
-                LOGGER.info("iteration {} / {}", j, configuration.getInputConfiguration().getNbIteration());
+            for (int j = 0; j < configuration.getNbIteration() ; j++) {
+                LOGGER.info("iteration {} / {}", j, configuration.getNbIteration());
                 currentTestList = this.fullAmplification(testClassToBeAmplified, currentTestList, amplifiedTests, j);
             }
             amplifiedTestMethodsToKeep.addAll(amplifiedTests);

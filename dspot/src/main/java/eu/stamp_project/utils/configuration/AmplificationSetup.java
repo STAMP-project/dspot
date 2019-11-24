@@ -64,7 +64,7 @@ public class AmplificationSetup {
         EntryPoint.jUnit5Mode = jUnit5;
         DSpotPOMCreator.isCurrentlyJUnit5 = jUnit5;
         Counter.reset();
-        if (configuration.getInputConfiguration().shouldGenerateAmplifiedTestClass()) {
+        if (configuration.shouldGenerateAmplifiedTestClass()) {
             testClassToBeAmplified = AmplificationHelper.renameTestClassUnderAmplification(testClassToBeAmplified);
         }
         time = System.currentTimeMillis();

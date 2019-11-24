@@ -135,12 +135,13 @@ public class RecoveryDSpotTest extends AbstractTestOnSample {
         final CtClass<?> testClassToBeAmplified = findClass("fr.inria.amp.OneLiteralTest");
         final List<CtMethod<?>> testListToBeAmplified = testFinder.findTestMethods(testClassToBeAmplified, Collections.emptyList());
         DSpotConfiguration dspotConfiguration = new DSpotConfiguration();
-        dspotConfiguration.getInputConfiguration().setDelta(0.1f);
+        dspotConfiguration.setDelta(0.1f);
         dspotConfiguration.setCompiler(compiler);
         dspotConfiguration.setTestSelector(selector);
         dspotConfiguration.setInputAmplDistributor(new TextualDistanceInputAmplDistributor(200, Collections.emptyList()));
-        dspotConfiguration.getInputConfiguration().setNbIteration(1);
+        dspotConfiguration.setNbIteration(1);
         dspotConfiguration.setTestCompiler(testCompiler);
+        dspotConfiguration.setAssertionGenerator(new AssertionGenerator(0.1f, compiler, testCompiler));
         DSpot dspot = new DSpot(dspotConfiguration);
         dspot.fullAmplification(testClassToBeAmplified, testListToBeAmplified, Collections.emptyList(), 1);
         assertEquals(1, DSpotConfiguration.GLOBAL_REPORT.getErrors().size());
