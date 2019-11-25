@@ -1,6 +1,5 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.configuration.DSpotState;
@@ -38,7 +37,7 @@ public class OneTestClassPitScoreMutantSelectorTest {
 
     @Before
     public void setUp() {
-        Main.verbose = true;
+        DSpotState.verbose = true;
         this.configuration = new InputConfiguration();
         this.configuration.setAbsolutePathToProjectRoot("src/test/resources/test-projects/");
         this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);

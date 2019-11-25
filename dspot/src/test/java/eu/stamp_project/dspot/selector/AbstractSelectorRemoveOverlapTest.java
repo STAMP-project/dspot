@@ -1,6 +1,5 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.DSpot;
@@ -73,7 +72,7 @@ public abstract class AbstractSelectorRemoveOverlapTest {
 
     @Before
     public void setUp() {
-        Main.verbose = true;
+        DSpotState.verbose = true;
         this.configuration = new InputConfiguration();
         this.configuration.setAbsolutePathToProjectRoot(getPathToAbsoluteProjectRoot());
         this.configuration.setOutputDirectory(outputDirectory);
