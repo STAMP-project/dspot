@@ -93,10 +93,6 @@ public class AmplificationSetup {
         cleanAfterAmplificationOfOneTestClass(configuration.getCompiler(), testClassToBeAmplified);
     }
 
-    public List<CtType<?>> getAmplifiedTestClasses(){
-        return amplifiedTestClasses;
-    }
-
     private void cleanAfterAmplificationOfOneTestClass(DSpotCompiler compiler, CtType<?> testClassToBeAmplified) {
         // Cleaning modified source directory by DSpot
         try {
@@ -167,5 +163,9 @@ public class AmplificationSetup {
                 currentTestListToBeAmplified.size()
         );
         return selectedToBeAmplified;
+    }
+
+    public List<CtType<?>> getAmplifiedTestClasses(){
+        return amplifiedTestClasses;
     }
 }

@@ -241,12 +241,16 @@ public class DSpotState {
         return assertionGenerator;
     }
 
-    public void setTestCompiler(TestCompiler testCompiler) {
-        this.testCompiler = testCompiler;
+    public void setAssertionGenerator(AssertionGenerator assertionGenerator) {
+        this.assertionGenerator = assertionGenerator;
     }
 
     public TestCompiler getTestCompiler() {
         return testCompiler;
+    }
+
+    public void setTestCompiler(TestCompiler testCompiler) {
+        this.testCompiler = testCompiler;
     }
 
     public List<CtType<?>> getTestClassesToBeAmplified() {
@@ -265,6 +269,10 @@ public class DSpotState {
         return testSelector;
     }
 
+    public void setTestSelector(TestSelector testSelector) {
+        this.testSelector = testSelector;
+    }
+
     public InputAmplDistributor getInputAmplDistributor() {
         return inputAmplDistributor;
     }
@@ -273,16 +281,32 @@ public class DSpotState {
         return output;
     }
 
+    public void setOutput(Output output) {
+        this.output = output;
+    }
+
     public DSpotCompiler getCompiler() {
         return compiler;
+    }
+
+    public void setCompiler(DSpotCompiler compiler) {
+        this.compiler = compiler;
     }
 
     public AutomaticBuilder getAutomaticBuilder() {
         return automaticBuilder;
     }
 
+    public void setAutomaticBuilder(AutomaticBuilder automaticBuilder) {
+        this.automaticBuilder = automaticBuilder;
+    }
+
     public TestFinder getTestFinder() {
         return testFinder;
+    }
+
+    public void setTestFinder(TestFinder testFinder) {
+        this.testFinder = testFinder;
     }
 
     public Logger getLogger() {
@@ -293,44 +317,8 @@ public class DSpotState {
         return GLOBAL_REPORT;
     }
 
-    public void setTestSelector(TestSelector testSelector) {
-        this.testSelector = testSelector;
-    }
-
     public void setInputAmplDistributor(InputAmplDistributor inputAmplDistributor) {
         this.inputAmplDistributor = inputAmplDistributor;
-    }
-
-    public void setOutput(Output output) {
-        this.output = output;
-    }
-
-    public void setCollector(Collector collector) {
-        this.collector = collector;
-    }
-
-    public void setCompiler(DSpotCompiler compiler) {
-        this.compiler = compiler;
-    }
-
-    public void setAutomaticBuilder(AutomaticBuilder automaticBuilder) {
-        this.automaticBuilder = automaticBuilder;
-    }
-
-    public void setTestFinder(TestFinder testFinder) {
-        this.testFinder = testFinder;
-    }
-
-    public void setAssertionGenerator(AssertionGenerator assertionGenerator) {
-        this.assertionGenerator = assertionGenerator;
-    }
-
-    public void setCollectData(boolean collectData){
-        this.collectData = collectData;
-    }
-
-    public void setDelta(double delta) {
-        this.delta = delta;
     }
 
     public int getNbIteration() {
@@ -339,6 +327,14 @@ public class DSpotState {
 
     public void setNbIteration(int nbIteration) {
         this.nbIteration = nbIteration;
+    }
+
+    public void setCollector(Collector collector) {
+        this.collector = collector;
+    }
+
+    public void setDelta(double delta) {
+        this.delta = delta;
     }
 
     public boolean shouldGenerateAmplifiedTestClass() {
