@@ -75,7 +75,7 @@ public class Main {
             commandLine.usage(System.err);
             return;
         }
-        eu.stamp_project.Main.verbose = inputConfiguration.isVerbose();
+        DSpotState.verbose = inputConfiguration.isVerbose();
         run(inputConfiguration);
     }
 
