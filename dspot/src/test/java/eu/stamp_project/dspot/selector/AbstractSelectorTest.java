@@ -1,6 +1,5 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
@@ -74,7 +73,7 @@ public abstract class AbstractSelectorTest {
 
     @Before
     public void setUp() throws Exception {
-        Main.verbose = true;
+        DSpotState.verbose = true;
         this.configuration = new InputConfiguration();
         this.configuration.setAbsolutePathToProjectRoot(getPathToAbsoluteProjectRoot());
         this.configuration.setOutputDirectory(outputDirectory);

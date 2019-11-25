@@ -11,8 +11,6 @@ import picocli.CommandLine;
  */
 public class Main {
 
-    public static boolean verbose = false;
-
     public static void main(String[] args) {
         InputConfiguration inputConfiguration = parse(args);
         if(inputConfiguration == null){
@@ -51,7 +49,6 @@ public class Main {
             commandLine.usage(System.err);
             return null;
         }
-        verbose = inputConfiguration.isVerbose();
         return inputConfiguration;
     }
 }

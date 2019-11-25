@@ -1,7 +1,7 @@
 package eu.stamp_project.automaticbuilder.gradle;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.utils.configuration.DSpotState;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnector;
@@ -123,7 +123,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
             if (skipTest) {
                 buildLauncher.withArguments(ARGUMENTS_SKIP_COMPILE_TEST);
             }
-            if (Main.verbose) {
+            if (DSpotState.verbose) {
                 buildLauncher.setStandardError(System.err);
                 buildLauncher.setStandardOutput(System.out);
             }

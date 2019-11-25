@@ -1,7 +1,7 @@
 package eu.stamp_project.automaticbuilder.maven;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.utils.configuration.DSpotState;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.DSpotUtils;
 import org.apache.commons.io.FileUtils;
@@ -192,7 +192,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         LOGGER.info("Using {} for maven home", mavenHome);
         invoker.setMavenHome(new File(mavenHome));
         LOGGER.info(String.format("run maven: %s/bin/mvn %s", mavenHome, String.join(" ", goals)));
-        if (Main.verbose) {
+        if (DSpotState.verbose) {
             invoker.setOutputHandler(System.out::println);
             invoker.setErrorHandler(System.err::println);
         } else {

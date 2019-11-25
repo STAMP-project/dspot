@@ -48,7 +48,6 @@ public class DSpotState {
 
     private int nbIteration;
     private InputConfiguration inputConfiguration;
-    private boolean verbose;
     private List<CtType<?>> testClassesToBeAmplified;
     private List<String> testMethodsToBeAmplifiedNames;
     private TestSelector testSelector;
@@ -64,6 +63,7 @@ public class DSpotState {
     private TestCompiler testCompiler;
     public static final GlobalReport GLOBAL_REPORT =
             new GlobalReport(new OutputReportImpl(), new ErrorReportImpl(), new TestSelectorReportImpl());
+    public static boolean verbose = false;
     private final Logger LOGGER = LoggerFactory.getLogger(DSpot.class);
     private double delta;
 
@@ -132,6 +132,7 @@ public class DSpotState {
         collectData = true;
         delta = inputConfiguration.getDelta();
         nbIteration = inputConfiguration.getNbIteration();
+        verbose = inputConfiguration.isVerbose();
     }
 
     public DSpotState() {

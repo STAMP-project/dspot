@@ -1,6 +1,5 @@
 package eu.stamp_project.utils.execution;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.testrunner.listener.TestResult;
@@ -8,6 +7,7 @@ import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
 
+import eu.stamp_project.utils.configuration.DSpotState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
@@ -40,7 +40,7 @@ public class TestRunner {
         this.absolutePathToProjectRoot = absolutePathToProjectRoot;
         this.preGoals = preGoals;
         this.shouldUseMavenToExecuteTest = shouldUseMavenToExecuteTest;
-        EntryPoint.verbose = Main.verbose;
+        EntryPoint.verbose = DSpotState.verbose;
     }
 
     public TestResult runSubClassesForAbstractTestClass(CtType<?> testClass, List<CtMethod<?>> testsToRun, String classPath) throws AmplificationException {
