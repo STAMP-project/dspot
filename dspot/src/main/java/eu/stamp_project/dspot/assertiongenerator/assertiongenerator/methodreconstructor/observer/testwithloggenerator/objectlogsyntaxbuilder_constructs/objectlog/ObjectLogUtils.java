@@ -21,7 +21,7 @@ public class ObjectLogUtils {
     }
 
     public static boolean isCollection(Object object) {
-        return Collection.class.isInstance(object);
+        return Collection.class.isInstance(object) && object.getClass().getName().startsWith("java.util");
     }
 
     public static boolean isNonEmptyPrimitiveCollection(Object object) {
