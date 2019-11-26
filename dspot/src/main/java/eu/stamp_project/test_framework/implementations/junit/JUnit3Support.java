@@ -22,7 +22,7 @@ import java.util.*;
 public class JUnit3Support extends JUnitSupport {
 
     public JUnit3Support() {
-        super("junit.framework.TestCase");
+        super("junit.framework.TestCase", "junit.framework.Assert");
     }
 
     @Override

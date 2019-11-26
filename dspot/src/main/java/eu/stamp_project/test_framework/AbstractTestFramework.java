@@ -8,6 +8,7 @@ import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -19,11 +20,14 @@ public abstract class AbstractTestFramework implements TestFrameworkSupport {
 
     private IsAssertInvocationFilter filter;
 
+    protected final List<String> qualifiedNameOfAssertClasses;
+
     protected final String qualifiedNameOfAssertClass;
 
-    public AbstractTestFramework(String qualifiedNameOfAssertClass) {
-        this.filter = new IsAssertInvocationFilter(qualifiedNameOfAssertClass);
-        this.qualifiedNameOfAssertClass = qualifiedNameOfAssertClass;
+    public AbstractTestFramework(String... qualifiedNameOfAssertClasses) {
+        this.qualifiedNameOfAssertClasses = Arrays.asList(qualifiedNameOfAssertClasses);
+        this.qualifiedNameOfAssertClass = this.qualifiedNameOfAssertClasses.get(0);
+        this.filter = new IsAssertInvocationFilter(this.qualifiedNameOfAssertClasses);
     }
 
     @Override

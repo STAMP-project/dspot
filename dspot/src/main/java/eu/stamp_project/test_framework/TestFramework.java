@@ -147,7 +147,7 @@ public class TestFramework implements TestFrameworkSupport {
     	//Retrieving associated test framework from cache
     	TestFrameworkSupport tfs = DSpotCache.getTestFrameworkCache().get(TypeUtils.getQualifiedName(originalMethod));
     	if (tfs == null){ //If not cached, test framework is computed and stored in cache.
-    		tfs = getTestFrameworkImpl (testMethod);
+    		tfs = getTestFrameworkImpl(testMethod);
     		DSpotCache.getTestFrameworkCache().put(TypeUtils.getQualifiedName(originalMethod), tfs);
     	}
     	return tfs;
