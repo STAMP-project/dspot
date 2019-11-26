@@ -158,7 +158,7 @@ Usage: eu.stamp_project.Main [-hvV] [--allow-path-in-assertions] [--clean] [--ex
       --automatic-builder=<automaticBuilder>
                              Specify the automatic builder to be used. Valid values: Maven, Gradle Default value: Maven
   -c, --cases, --test-cases, --test-methods=<testCases>[,<testCases>...]
-                             Specify the test cases to amplify.
+                             Specify the test cases to amplify.By default, DSpot selects all the tests methods.
       --cache-size=<cacheSize>
                              Specify the size of the memory cache in terms of the number of store entries Default
                                value: 10000
@@ -305,7 +305,7 @@ Usage: eu.stamp_project.Main [-hvV] [--allow-path-in-assertions] [--clean] [--ex
   -t, --test=<testClasses>[,<testClasses>...]
                              Fully qualified names of test classes to be amplified. If the value is all, DSpot will
                                amplify the whole test suite. You can also use regex to describe a set of test classes.
-                               By default, DSpot selects all the tests.
+                               By default, DSpot selects all the tests classes.
       --target-module=<targetModule>
                              Specify the module to be amplified. This value must be a relative path from value
                                specified by --absolute-path-to-project-root command-line option. If your project is
@@ -322,7 +322,7 @@ Usage: eu.stamp_project.Main [-hvV] [--allow-path-in-assertions] [--clean] [--ex
                                value: false
   -v, --verbose              Enable verbose mode of DSpot. Default value: false
   -V, --version              Print version information and exit.
-      --with-comment         Enable comment on amplified test: details steps of the Amplification. Default value: false
+      --with-comment         Enable comment on amplified test: details steps of the Amplification. Default value: falseg
 ```
     
 For options that take list, the used separator is a comma `,`, whatever the platform you use.
