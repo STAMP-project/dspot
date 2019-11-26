@@ -131,6 +131,10 @@ public class Main {
         );
         final List<CtType<?>> testClassesToBeAmplified = testFinder.findTestClasses(inputConfiguration.getTestClasses());
         final List<String> testMethodsToBeAmplifiedNames = inputConfiguration.getTestCases();
+        if (testMethodsToBeAmplifiedNames.size() == 1 &&
+                testMethodsToBeAmplifiedNames.get(0).isEmpty()) {
+            testMethodsToBeAmplifiedNames.clear();
+        }
         final TestSelector testSelector =
                 inputConfiguration.getSelector().buildSelector(automaticBuilder, inputConfiguration);
         final List<Amplifier> amplifiers = inputConfiguration
