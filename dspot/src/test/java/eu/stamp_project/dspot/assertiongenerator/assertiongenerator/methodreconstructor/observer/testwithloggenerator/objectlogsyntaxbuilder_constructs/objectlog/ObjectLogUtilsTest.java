@@ -14,8 +14,15 @@ import static org.junit.Assert.assertTrue;
  */
 public class ObjectLogUtilsTest {
 
+    public class MyList extends ArrayList {
+
+    }
+
     @Test//TODO empty collection / map are considered as primitive, we may need to found a semantic of the method.
     public void testIsPrimitiveCollectionOrMap() throws Exception {
+
+        assertFalse(ObjectLogUtils.isCollection(new MyList()));
+
         final ArrayList<Integer> list = new ArrayList<>();
         assertFalse(ObjectLogUtils.isNonEmptyPrimitiveCollectionOrMap(list));
         list.add(1);
@@ -32,6 +39,7 @@ public class ObjectLogUtilsTest {
         assertTrue(ObjectLogUtils.isNonEmptyPrimitiveCollectionOrMap(set));
 
         assertFalse(ObjectLogUtils.isNonEmptyPrimitiveCollectionOrMap(1));
+
     }
 
     @Test

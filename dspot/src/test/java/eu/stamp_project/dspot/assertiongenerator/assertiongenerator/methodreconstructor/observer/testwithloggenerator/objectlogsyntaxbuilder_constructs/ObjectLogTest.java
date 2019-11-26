@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -38,6 +39,9 @@ public class ObjectLogTest {
         public MyInternalClass(int a, int b) {
             this.a = a;
             this.b = b;
+            this.myList = new MyList();
+            this.myList.add("toto");
+            this.myList.add("tata");
         }
 
         public List<Integer> getObject() {
@@ -67,6 +71,13 @@ public class ObjectLogTest {
         public Collection<String> getCollection() {
             return Collections.singleton("");
         }
+        public static class MyList extends ArrayList implements Serializable {
+            public int aValue = 23;
+        }
+        public MyList myList;
+        public MyList getMyList() {
+            return this.myList;
+        }
     }
 
     public static Integer add(Integer a, Integer b) {
@@ -88,7 +99,7 @@ public class ObjectLogTest {
         assertNotNull(add__0);
 //        assertEquals(1, add__0.getNotDeterministValues().size());
         final Map<String, Object> observationValues = add__0.getObservationValues();
-        assertEquals(5, observationValues.size());
+        assertEquals(8, observationValues.size());
 //        assertEquals(25, observationValues.get("(myInternalClass ).compute()"));
         assertEquals(3, observationValues.get("(myInternalClass ).getA()"));
         assertEquals(20, observationValues.get("(myInternalClass ).getB()"));
