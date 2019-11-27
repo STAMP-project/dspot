@@ -21,11 +21,15 @@ public class ObjectLogUtils {
     }
 
     public static boolean isCollection(Object object) {
-        return Collection.class.isInstance(object) && object.getClass().getName().startsWith("java.util");
+        return Collection.class.isInstance(object);// && ;
     }
 
     public static boolean isNonEmptyPrimitiveCollection(Object object) {
         if (isCollection(object) && !((Collection) object).isEmpty()) {
+            if (!object.getClass().getName().startsWith("java.util")) {
+                //System.out.println(object.getClass().getName() + " is a custom implementation of collection, skipping...");
+                return false;
+            }
             Collection collection = (Collection) object;
             Iterator iterator = collection.iterator();
             while (iterator.hasNext()) {
