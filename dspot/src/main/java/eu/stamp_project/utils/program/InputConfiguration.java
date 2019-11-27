@@ -233,6 +233,7 @@ public class InputConfiguration {
 
     @CommandLine.Option(
             names = "--pit-filter-classes-to-keep",
+            defaultValue = "",
             description = "Specify the filter of classes to keep used by PIT. " +
                     "This allow you restrict the scope of the mutation done by PIT. " +
                     "If this is not specified, DSpot will try to build on the " +
