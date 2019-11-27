@@ -111,6 +111,10 @@ public class DSpotState {
         );
         testClassesToBeAmplified = testFinder.findTestClasses(inputConfiguration.getTestClasses());
         testMethodsToBeAmplifiedNames = inputConfiguration.getTestCases();
+        if (testMethodsToBeAmplifiedNames.size() == 1 &&
+                testMethodsToBeAmplifiedNames.get(0).isEmpty()) {
+            testMethodsToBeAmplifiedNames.clear();
+        }
         testSelector = inputConfiguration.getSelector().buildSelector(automaticBuilder, inputConfiguration);
         final List<Amplifier> amplifiers = inputConfiguration
                 .getAmplifiers()
