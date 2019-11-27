@@ -21,7 +21,9 @@ public class ObjectLogUtilsTest {
     @Test//TODO empty collection / map are considered as primitive, we may need to found a semantic of the method.
     public void testIsPrimitiveCollectionOrMap() throws Exception {
 
-        assertFalse(ObjectLogUtils.isCollection(new MyList()));
+        MyList mylist = new MyList();
+        mylist.add("");
+        assertFalse(ObjectLogUtils.isNonEmptyPrimitiveCollectionOrMap(mylist));
 
         final ArrayList<Integer> list = new ArrayList<>();
         assertFalse(ObjectLogUtils.isNonEmptyPrimitiveCollectionOrMap(list));
