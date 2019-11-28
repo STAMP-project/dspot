@@ -1,7 +1,7 @@
 package eu.stamp_project.automaticbuilder.gradle;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.utils.configuration.DSpotState;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.pit.AbstractPitResult;
 import eu.stamp_project.utils.pit.PitXMLResultParser;
@@ -40,7 +40,7 @@ public class GradleAutomaticBuilderWithDescartesTest {
 
     @Before
     public void setUp() throws Exception {
-        Main.verbose = true;
+        DSpotState.verbose = true;
         cleanTestEnv();
         LOGGER.debug("Test Set-up - Reading input parameters...");
         LOGGER.debug("Test Set-up - instantiating Automatic Builder (SUT)...");

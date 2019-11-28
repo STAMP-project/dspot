@@ -15,6 +15,8 @@ import eu.stamp_project.prettifier.output.PrettifiedTestMethods;
 import eu.stamp_project.prettifier.output.report.ReportJSON;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
+import eu.stamp_project.utils.configuration.DSpotState;
+import eu.stamp_project.utils.configuration.InitializeDSpot;
 import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.options.check.InputErrorException;
 import org.slf4j.Logger;
@@ -33,7 +35,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static eu.stamp_project.Main.completeDependencies;
 
 /**
  * created by Benjamin DANGLOT
@@ -75,7 +76,7 @@ public class Main {
             commandLine.usage(System.err);
             return;
         }
-        eu.stamp_project.Main.verbose = inputConfiguration.isVerbose();
+        DSpotState.verbose = inputConfiguration.isVerbose();
         run(inputConfiguration);
     }
 
@@ -100,15 +101,15 @@ public class Main {
 
     public static List<CtMethod<?>> run(CtType<?> amplifiedTestClass,
                                         InputConfiguration configuration) {
-
+        InitializeDSpot initializeDSpot = new InitializeDSpot();
         final AutomaticBuilder automaticBuilder = configuration.getBuilderEnum().getAutomaticBuilder(configuration);
-        final String dependencies = completeDependencies(configuration, automaticBuilder);
+        final String dependencies = initializeDSpot.completeDependencies(configuration, automaticBuilder);
         final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(
                 configuration,
                 dependencies
         );
         configuration.setFactory(compiler.getLauncher().getFactory());
-        eu.stamp_project.Main.initHelpers(configuration);
+        initializeDSpot.initHelpers(configuration);
 
         final List<CtMethod<?>> testMethods = TestFramework.getAllTest(amplifiedTestClass);
         Main.report.nbTestMethods = testMethods.size();

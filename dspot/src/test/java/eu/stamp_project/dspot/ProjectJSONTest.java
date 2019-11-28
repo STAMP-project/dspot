@@ -2,10 +2,10 @@ package eu.stamp_project.dspot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
+import eu.stamp_project.dspot.assertiongenerator.AssertionGenerator;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGeneratorUtils;
 import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
@@ -17,7 +17,8 @@ import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.RandomHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.execution.TestRunner;
+import eu.stamp_project.utils.configuration.DSpotState;
+import eu.stamp_project.utils.configuration.InitializeDSpot;
 import eu.stamp_project.utils.json.ProjectTimeJSON;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.options.InputAmplDistributorEnum;
@@ -59,6 +60,8 @@ public class ProjectJSONTest extends AbstractTestOnSample {
 
     private TestCompiler testCompiler;
 
+    private static InitializeDSpot initializeDSpot;
+
     @Before
     public void setUp() {
         super.setUp();
@@ -66,7 +69,8 @@ public class ProjectJSONTest extends AbstractTestOnSample {
         this.configuration.setAbsolutePathToProjectRoot(getPathToProjectRoot());
         this.configuration.setOutputDirectory(outputDirectory);
         this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
-        String dependencies = Main.completeDependencies(configuration, this.builder);
+        this.initializeDSpot = new InitializeDSpot();
+        String dependencies = initializeDSpot.completeDependencies(configuration, this.builder);
         DSpotUtils.init(false, outputDirectory,
                 this.configuration.getFullClassPathWithExtraDependencies(),
                 this.getPathToProjectRoot()
@@ -110,22 +114,23 @@ public class ProjectJSONTest extends AbstractTestOnSample {
             file.delete();
         }
 
-        final InputAmplDistributor inputAmplDistributor = InputAmplDistributorEnum.RandomInputAmplDistributor.getInputAmplDistributor(200, Collections.emptyList());
-        DSpot dspot = new DSpot(
-                0.1f,
-                TestFinder.get(),
-                compiler,
-                testSelector,
-                inputAmplDistributor,
-                Output.get(configuration),
-                1,
-                false,
-                builder,
-                testCompiler
-        );
+        final InputAmplDistributor inputAmplDistributor =
+                InputAmplDistributorEnum.RandomInputAmplDistributor.getInputAmplDistributor(200, Collections.emptyList());
+        DSpotState dspotState = new DSpotState();
+        dspotState.setDelta(0.1f);
+        dspotState.setTestFinder(TestFinder.get());
+        dspotState.setCompiler(compiler);
+        dspotState.setTestSelector(testSelector);
+        dspotState.setInputAmplDistributor(inputAmplDistributor);
+        dspotState.setOutput(Output.get(configuration));
+        dspotState.setNbIteration(1);
+        dspotState.setAutomaticBuilder(builder);
+        dspotState.setTestCompiler(testCompiler);
+        dspotState.setTestClassesToBeAmplified(Collections.singletonList(findClass("fr.inria.amp.TestJavaPoet")));
+        dspotState.setAssertionGenerator(new AssertionGenerator(0.1f, compiler, testCompiler));
+        DSpot dspot = new DSpot(dspotState);
         final CtClass<?> clone = findClass("fr.inria.amp.TestJavaPoet").clone();
-
-        dspot.amplify(findClass("fr.inria.amp.TestJavaPoet"), Collections.emptyList());
+        dspot.run();
         ProjectTimeJSON projectJson = getProjectJson(file);
         assertTrue(projectJson.classTimes.
                 stream()
@@ -136,7 +141,8 @@ public class ProjectJSONTest extends AbstractTestOnSample {
         assertEquals(1, projectJson.classTimes.size());
         assertEquals("sample", projectJson.projectName);
 
-        dspot.amplify(findClass("fr.inria.mutation.ClassUnderTestTest"), Collections.emptyList());
+        dspotState.setTestClassesToBeAmplified(Collections.singletonList(findClass("fr.inria.mutation.ClassUnderTestTest")));
+        dspot.run();
         projectJson = getProjectJson(file);
         assertTrue(projectJson.classTimes.stream().anyMatch(classTimeJSON -> classTimeJSON.fullQualifiedName.equals("fr.inria.amp.TestJavaPoet")));
         assertTrue(projectJson.classTimes.stream().anyMatch(classTimeJSON -> classTimeJSON.fullQualifiedName.equals("fr.inria.mutation.ClassUnderTestTest")));
@@ -150,7 +156,8 @@ public class ProjectJSONTest extends AbstractTestOnSample {
         aPackage.removeType(amplifiedClassToBeRemoved);
         aPackage.addType(clone);
 
-        dspot.amplify(findClass("fr.inria.amp.TestJavaPoet"), Collections.emptyList());
+        dspotState.setTestClassesToBeAmplified(Collections.singletonList(findClass("fr.inria.amp.TestJavaPoet")));
+        dspot.run();
         projectJson = getProjectJson(file);
         assertTrue(projectJson.classTimes.stream().anyMatch(classTimeJSON -> classTimeJSON.fullQualifiedName.equals("fr.inria.amp.TestJavaPoet")));
         assertTrue(projectJson.classTimes.stream().anyMatch(classTimeJSON -> classTimeJSON.fullQualifiedName.equals("fr.inria.mutation.ClassUnderTestTest")));

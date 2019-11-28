@@ -1,6 +1,5 @@
 package eu.stamp_project.dspot.assertiongenerator;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
@@ -11,7 +10,8 @@ import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.RandomHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.execution.TestRunner;
+import eu.stamp_project.utils.configuration.DSpotState;
+import eu.stamp_project.utils.configuration.InitializeDSpot;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -57,13 +57,16 @@ public class AssertionGeneratorTest extends AbstractTestOnSample {
 
     private static String dependencies;
 
+    private static InitializeDSpot initializeDSpot;
+
     @BeforeClass
     public static void setUpClass() {
         configuration = new InputConfiguration();
         configuration.setAbsolutePathToProjectRoot(new File("src/test/resources/sample/").getAbsolutePath());
 
         AutomaticBuilder builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
-        dependencies = Main.completeDependencies(configuration, builder);
+        initializeDSpot = new InitializeDSpot();
+        dependencies = initializeDSpot.completeDependencies(configuration, builder);
         DSpotUtils.init(false, "target/dspot/",
                 configuration.getFullClassPathWithExtraDependencies(),
                 "src/test/resources/sample/"
