@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.dspot.selector.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementReport;
 import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementReportImpl;

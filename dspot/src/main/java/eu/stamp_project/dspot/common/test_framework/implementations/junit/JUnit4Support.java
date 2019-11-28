@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.common.test_framework.implementations.junit;
 
-import eu.stamp_project.dspot.common.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtAnnotation;

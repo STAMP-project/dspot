@@ -2,13 +2,13 @@ package eu.stamp_project.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.dspot.selector.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
-import eu.stamp_project.dspot.selector.pit.*;
+import eu.stamp_project.dspot.selector.pitmutantscoreselector.*;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
-import eu.stamp_project.dspot.common.AmplificationHelper;
-import eu.stamp_project.dspot.common.CloneHelper;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.CloneHelper;
 import eu.stamp_project.dspot.common.report.error.Error;
 import eu.stamp_project.dspot.common.report.error.ErrorEnum;
 import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementReport;
@@ -16,8 +16,8 @@ import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementR
 import eu.stamp_project.dspot.common.report.output.selector.mutant.json.MutantJSON;
 import eu.stamp_project.dspot.common.report.output.selector.mutant.json.TestCaseJSON;
 import eu.stamp_project.dspot.common.report.output.selector.mutant.json.TestClassJSON;
-import eu.stamp_project.dspot.common.Counter;
-import eu.stamp_project.dspot.common.DSpotUtils;
+import eu.stamp_project.dspot.common.miscellaneous.Counter;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot;
 
-import eu.stamp_project.dspot.common.AmplificationException;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationException;
 import eu.stamp_project.dspot.common.configuration.AmplificationSetup;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
 import eu.stamp_project.dspot.common.configuration.InitializeDSpot;

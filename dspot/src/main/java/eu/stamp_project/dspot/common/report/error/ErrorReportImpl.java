@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.common.report.error;
 
-import eu.stamp_project.dspot.common.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

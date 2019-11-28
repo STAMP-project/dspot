@@ -1,6 +1,6 @@
 package eu.stamp_project;
 
-import eu.stamp_project.dspot.common.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;

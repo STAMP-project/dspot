@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.dspot.selector.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementReport;
 import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementReportImpl;
 import eu.stamp_project.dspot.common.report.output.selector.coverage.json.TestCaseJSON;
@@ -11,9 +11,9 @@ import eu.stamp_project.testrunner.listener.Coverage;
 import eu.stamp_project.testrunner.listener.CoveragePerTestMethod;
 import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import eu.stamp_project.testrunner.EntryPoint;
-import eu.stamp_project.dspot.common.AmplificationHelper;
-import eu.stamp_project.dspot.common.Counter;
-import eu.stamp_project.dspot.common.DSpotUtils;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.Counter;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
 
 import org.apache.commons.io.FileUtils;

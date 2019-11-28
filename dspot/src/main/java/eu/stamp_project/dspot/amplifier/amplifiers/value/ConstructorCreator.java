@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.amplifier.amplifiers.value;
 
-import eu.stamp_project.dspot.amplifier.AmplificationChecker;
-import eu.stamp_project.dspot.amplifier.RandomHelper;
+import eu.stamp_project.dspot.amplifier.amplifiers.utils.AmplificationChecker;
+import eu.stamp_project.dspot.amplifier.amplifiers.utils.RandomHelper;
 import spoon.SpoonException;
 import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtExpression;

@@ -1,10 +1,10 @@
 package eu.stamp_project.dspot.common.compilation;
 
-import eu.stamp_project.dspot.selector.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.AbstractTestOnSample;
-import eu.stamp_project.dspot.common.DSpotUtils;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
-import eu.stamp_project.utils.options.AutomaticBuilderEnum;
+import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
 import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;

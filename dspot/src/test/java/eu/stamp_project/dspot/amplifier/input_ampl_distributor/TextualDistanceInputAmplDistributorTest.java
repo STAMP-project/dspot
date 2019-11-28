@@ -1,6 +1,7 @@
 package eu.stamp_project.dspot.amplifier.input_ampl_distributor;
 
 import eu.stamp_project.dspot.AbstractTestOnSample;
+import eu.stamp_project.dspot.amplifier.TextualDistanceInputAmplDistributor;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtMethod;

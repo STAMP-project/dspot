@@ -3,7 +3,7 @@ package eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodrecon
 import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionRemover;
 import eu.stamp_project.dspot.amplifier.amplifiers.MethodAdderOnExistingObjectsAmplifier;
-import eu.stamp_project.dspot.common.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;

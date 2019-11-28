@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.dspot.selector.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.dspot.selector.automaticbuilder.maven.DSpotPOMCreator;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.dspot.amplifier.amplifiers.StringLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.amplifiers.value.ValueCreator;
@@ -9,14 +9,14 @@ import eu.stamp_project.dspot.assertiongenerator.AssertionGenerator;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGeneratorUtils;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.dspot.common.configuration.DSpotCache;
-import eu.stamp_project.dspot.common.DSpotUtils;
-import eu.stamp_project.dspot.amplifier.RandomHelper;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
+import eu.stamp_project.dspot.amplifier.amplifiers.utils.RandomHelper;
 import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
 import eu.stamp_project.dspot.common.compilation.TestCompiler;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
 import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
-import eu.stamp_project.utils.options.AutomaticBuilderEnum;
-import eu.stamp_project.utils.options.InputAmplDistributorEnum;
+import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
+import eu.stamp_project.dspot.common.configuration.options.InputAmplDistributorEnum;
 import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import eu.stamp_project.dspot.common.report.output.Output;
 import eu.stamp_project.dspot.common.configuration.test_finder.TestFinder;

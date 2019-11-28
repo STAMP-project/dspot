@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.common.configuration.check;
 
-import eu.stamp_project.dspot.common.AmplificationHelper;
-import eu.stamp_project.dspot.common.DSpotUtils;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
 import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import eu.stamp_project.dspot.common.report.error.Error;

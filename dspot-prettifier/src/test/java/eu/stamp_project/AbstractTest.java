@@ -1,9 +1,9 @@
 package eu.stamp_project;
 
 import eu.stamp_project.dspot.amplifier.amplifiers.value.ValueCreator;
-import eu.stamp_project.dspot.amplifier.RandomHelper;
+import eu.stamp_project.dspot.amplifier.amplifiers.utils.RandomHelper;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
-import eu.stamp_project.utils.options.AutomaticBuilderEnum;
+import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
 import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import org.junit.Before;
 

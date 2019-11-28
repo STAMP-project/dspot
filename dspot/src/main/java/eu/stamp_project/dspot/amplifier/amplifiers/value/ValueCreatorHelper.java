@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.amplifier.amplifiers.value;
 
-import eu.stamp_project.dspot.amplifier.AmplificationChecker;
+import eu.stamp_project.dspot.amplifier.amplifiers.utils.AmplificationChecker;
 import spoon.reflect.declaration.CtConstructor;
 import spoon.reflect.declaration.CtParameter;
 import spoon.reflect.declaration.CtType;

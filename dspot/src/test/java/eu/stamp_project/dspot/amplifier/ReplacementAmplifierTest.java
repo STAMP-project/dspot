@@ -2,7 +2,8 @@ package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.dspot.amplifier.amplifiers.ReplacementAmplifier;
-import eu.stamp_project.dspot.common.AmplificationHelper;
+import eu.stamp_project.dspot.amplifier.amplifiers.utils.RandomHelper;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;

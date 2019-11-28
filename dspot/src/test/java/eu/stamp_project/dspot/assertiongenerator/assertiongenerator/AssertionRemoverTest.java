@@ -1,12 +1,12 @@
 package eu.stamp_project.dspot.assertiongenerator.assertiongenerator;
 
-import eu.stamp_project.dspot.selector.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.TestWithLogGenerator;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
-import eu.stamp_project.dspot.common.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
-import eu.stamp_project.utils.options.AutomaticBuilderEnum;
+import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
 import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import org.junit.Test;
 import spoon.Launcher;

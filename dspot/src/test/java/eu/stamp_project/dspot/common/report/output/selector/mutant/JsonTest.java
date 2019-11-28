@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.common.report.output.selector.mutant;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.dspot.common.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import eu.stamp_project.dspot.common.report.output.selector.mutant.json.MutantJSON;
 import eu.stamp_project.dspot.common.report.output.selector.mutant.json.TestCaseJSON;
 import eu.stamp_project.dspot.common.report.output.selector.mutant.json.TestClassJSON;

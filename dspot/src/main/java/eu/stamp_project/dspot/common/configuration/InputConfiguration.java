@@ -2,9 +2,9 @@ package eu.stamp_project.dspot.common.configuration;
 
 import eu.stamp_project.dspot.selector.PitMutantScoreSelector;
 import eu.stamp_project.testrunner.EntryPoint;
-import eu.stamp_project.dspot.common.AmplificationHelper;
-import eu.stamp_project.dspot.common.DSpotUtils;
-import eu.stamp_project.utils.options.*;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
+import eu.stamp_project.dspot.common.configuration.options.*;
 import picocli.CommandLine;
 import spoon.reflect.factory.Factory;
 
@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static eu.stamp_project.dspot.common.AmplificationHelper.PATH_SEPARATOR;
+import static eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper.PATH_SEPARATOR;
 
 /**
  * The input configuration class encapsulates all the data and associated behavior we obtain from the input properties
@@ -650,7 +650,7 @@ public class InputConfiguration {
 
     /**
      * This method compute the path to all dependencies of the project, separated by the path separator of the System.
-     * The dependencies is compute by an implementation of a {@link eu.stamp_project.dspot.selector.automaticbuilder.AutomaticBuilder}
+     * The dependencies is compute by an implementation of a {@link eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder}
      *
      * @return the dependencies of the project
      */

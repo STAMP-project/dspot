@@ -3,12 +3,12 @@
 package eu.stamp_project.dspot.amplifier.amplifiers;
 
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
-import eu.stamp_project.dspot.amplifier.AmplificationChecker;
-import eu.stamp_project.dspot.common.AmplificationHelper;
-import eu.stamp_project.dspot.common.CloneHelper;
-import eu.stamp_project.dspot.common.Counter;
-import eu.stamp_project.dspot.common.DSpotUtils;
-import eu.stamp_project.dspot.amplifier.RandomHelper;
+import eu.stamp_project.dspot.amplifier.amplifiers.utils.AmplificationChecker;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.CloneHelper;
+import eu.stamp_project.dspot.common.miscellaneous.Counter;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
+import eu.stamp_project.dspot.amplifier.amplifiers.utils.RandomHelper;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
 import spoon.reflect.visitor.Query;

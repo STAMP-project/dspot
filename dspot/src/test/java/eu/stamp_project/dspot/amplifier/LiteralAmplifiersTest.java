@@ -5,6 +5,7 @@ import eu.stamp_project.dspot.amplifier.amplifiers.AbstractLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.amplifiers.Amplifier;
 import eu.stamp_project.dspot.amplifier.amplifiers.NumberLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.amplifiers.StringLiteralAmplifier;
+import eu.stamp_project.dspot.amplifier.amplifiers.utils.RandomHelper;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import org.junit.Ignore;
 import org.junit.Test;

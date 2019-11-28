@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.common.collector;
 
-import eu.stamp_project.utils.options.AmplifierEnum;
-import eu.stamp_project.utils.options.SelectorEnum;
+import eu.stamp_project.dspot.common.configuration.options.AmplifierEnum;
+import eu.stamp_project.dspot.common.configuration.options.SelectorEnum;
 
 import java.util.List;
 

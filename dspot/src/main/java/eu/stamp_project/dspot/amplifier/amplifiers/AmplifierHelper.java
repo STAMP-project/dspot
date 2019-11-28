@@ -2,8 +2,8 @@ package eu.stamp_project.dspot.amplifier.amplifiers;
 
 import eu.stamp_project.dspot.amplifier.amplifiers.value.ValueCreator;
 import eu.stamp_project.dspot.amplifier.amplifiers.value.ValueCreatorHelper;
-import eu.stamp_project.dspot.common.CloneHelper;
-import eu.stamp_project.dspot.amplifier.RandomHelper;
+import eu.stamp_project.dspot.common.miscellaneous.CloneHelper;
+import eu.stamp_project.dspot.amplifier.amplifiers.utils.RandomHelper;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtBodyHolder;
 import spoon.reflect.code.CtExpression;

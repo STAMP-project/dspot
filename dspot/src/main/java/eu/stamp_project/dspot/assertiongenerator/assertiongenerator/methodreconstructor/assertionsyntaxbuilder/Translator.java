@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.assertionsyntaxbuilder;
 
-import eu.stamp_project.dspot.common.TypeUtils;
+import eu.stamp_project.dspot.common.miscellaneous.TypeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtExpression;

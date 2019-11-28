@@ -1,9 +1,9 @@
 package eu.stamp_project.dspot.common.configuration;
 
-import eu.stamp_project.dspot.selector.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.dspot.assertiongenerator.AssertionGenerator;
-import eu.stamp_project.dspot.amplifier.input_ampl_distributor.InputAmplDistributor;
+import eu.stamp_project.dspot.amplifier.InputAmplDistributor;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.dspot.common.collector.Collector;
 import eu.stamp_project.dspot.common.compilation.DSpotCompiler;

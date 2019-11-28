@@ -1,6 +1,6 @@
 package eu.stamp_project.prettifier.options;
 
-import eu.stamp_project.dspot.common.DSpotUtils;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import eu.stamp_project.dspot.common.configuration.check.InputErrorException;
 import picocli.CommandLine;
 

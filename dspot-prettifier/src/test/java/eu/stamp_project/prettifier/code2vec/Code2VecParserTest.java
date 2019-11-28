@@ -1,6 +1,6 @@
 package eu.stamp_project.prettifier.code2vec;
 
-import eu.stamp_project.dspot.common.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;

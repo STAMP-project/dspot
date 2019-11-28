@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.common.compilation;
 
-import eu.stamp_project.dspot.common.DSpotUtils;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
 import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import org.apache.commons.io.FileUtils;
@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import static eu.stamp_project.dspot.common.AmplificationHelper.PATH_SEPARATOR;
+import static eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper.PATH_SEPARATOR;
 
 /**
  * Created by Benjamin DANGLOT

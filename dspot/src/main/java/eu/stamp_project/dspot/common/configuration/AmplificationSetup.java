@@ -1,12 +1,12 @@
 package eu.stamp_project.dspot.common.configuration;
 
-import eu.stamp_project.dspot.selector.automaticbuilder.maven.DSpotPOMCreator;
-import eu.stamp_project.dspot.common.AmplificationException;
+import eu.stamp_project.dspot.common.automaticbuilder.maven.DSpotPOMCreator;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationException;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.testrunner.EntryPoint;
-import eu.stamp_project.dspot.common.AmplificationHelper;
-import eu.stamp_project.dspot.common.Counter;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.Counter;
 import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
 import eu.stamp_project.dspot.common.compilation.TestCompiler;
 import eu.stamp_project.dspot.common.report.GlobalReport;

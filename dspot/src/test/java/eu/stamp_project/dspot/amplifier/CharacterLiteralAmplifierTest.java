@@ -3,6 +3,7 @@ package eu.stamp_project.dspot.amplifier;
 import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.dspot.amplifier.amplifiers.Amplifier;
 import eu.stamp_project.dspot.amplifier.amplifiers.CharLiteralAmplifier;
+import eu.stamp_project.dspot.amplifier.amplifiers.utils.RandomHelper;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;

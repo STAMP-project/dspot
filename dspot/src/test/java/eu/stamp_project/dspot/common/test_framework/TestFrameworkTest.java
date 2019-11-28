@@ -3,7 +3,7 @@ package eu.stamp_project.dspot.common.test_framework;
 import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.dspot.common.test_framework.assertions.AssertEnum;
 import eu.stamp_project.testrunner.runner.Failure;
-import eu.stamp_project.dspot.common.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;

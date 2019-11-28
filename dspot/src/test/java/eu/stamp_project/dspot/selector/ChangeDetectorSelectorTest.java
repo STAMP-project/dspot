@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.selector;
 
 import eu.stamp_project.UtilsModifier;
-import eu.stamp_project.dspot.common.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import spoon.reflect.declaration.CtMethod;
 
 import java.io.File;

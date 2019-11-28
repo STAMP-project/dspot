@@ -1,9 +1,9 @@
 package eu.stamp_project.dspot.amplifier.amplifiers;
 
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
-import eu.stamp_project.dspot.common.AmplificationHelper;
-import eu.stamp_project.dspot.common.CloneHelper;
-import eu.stamp_project.dspot.common.Counter;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.CloneHelper;
+import eu.stamp_project.dspot.common.miscellaneous.Counter;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;

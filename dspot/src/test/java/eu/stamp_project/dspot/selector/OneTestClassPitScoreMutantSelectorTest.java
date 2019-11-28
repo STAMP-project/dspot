@@ -1,12 +1,12 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.dspot.selector.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
 import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
 import eu.stamp_project.dspot.common.execution.TestRunner;
-import eu.stamp_project.utils.options.AutomaticBuilderEnum;
-import eu.stamp_project.dspot.selector.pit.AbstractPitResult;
+import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
+import eu.stamp_project.dspot.selector.pitmutantscoreselector.AbstractPitResult;
 import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import org.junit.Before;
 import org.junit.Test;

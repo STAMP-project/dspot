@@ -3,7 +3,7 @@ package eu.stamp_project.prettifier.minimization;
 import eu.stamp_project.prettifier.Main;
 import eu.stamp_project.prettifier.output.report.ReportJSON;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
-import eu.stamp_project.dspot.common.DSpotUtils;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.*;

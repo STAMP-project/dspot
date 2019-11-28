@@ -1,6 +1,7 @@
 package eu.stamp_project.dspot.amplifier.input_ampl_distributor;
 
 import eu.stamp_project.dspot.AbstractTestOnSample;
+import eu.stamp_project.dspot.amplifier.SimpleInputAmplDistributor;
 import eu.stamp_project.dspot.amplifier.amplifiers.IterationDecoratorAmplifier;
 import eu.stamp_project.dspot.amplifier.amplifiers.MethodAdderOnExistingObjectsAmplifier;
 import eu.stamp_project.dspot.amplifier.amplifiers.NumberLiteralAmplifier;

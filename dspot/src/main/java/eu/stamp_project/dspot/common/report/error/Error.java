@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.common.report.error;
 
-import eu.stamp_project.dspot.common.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

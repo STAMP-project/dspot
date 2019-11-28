@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.common.report.output.selector;
 
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.dspot.common.DSpotUtils;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 
 import spoon.reflect.declaration.CtType;
 

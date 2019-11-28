@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.amplifier.amplifiers;
 
 import eu.stamp_project.dspot.amplifier.amplifiers.value.ConstructorCreator;
-import eu.stamp_project.dspot.common.CloneHelper;
+import eu.stamp_project.dspot.common.miscellaneous.CloneHelper;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;

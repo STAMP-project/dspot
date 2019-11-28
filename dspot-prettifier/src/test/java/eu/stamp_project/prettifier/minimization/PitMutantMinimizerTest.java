@@ -3,7 +3,7 @@ package eu.stamp_project.prettifier.minimization;
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
-import eu.stamp_project.dspot.selector.pit.AbstractPitResult;
+import eu.stamp_project.dspot.selector.pitmutantscoreselector.AbstractPitResult;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;

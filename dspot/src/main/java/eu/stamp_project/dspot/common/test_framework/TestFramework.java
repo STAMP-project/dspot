@@ -7,9 +7,9 @@ import eu.stamp_project.dspot.common.test_framework.implementations.junit.JUnit3
 import eu.stamp_project.dspot.common.test_framework.implementations.junit.JUnit4Support;
 import eu.stamp_project.dspot.common.test_framework.implementations.junit.JUnit5Support;
 import eu.stamp_project.testrunner.runner.Failure;
-import eu.stamp_project.dspot.common.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import eu.stamp_project.dspot.common.configuration.DSpotCache;
-import eu.stamp_project.dspot.common.TypeUtils;
+import eu.stamp_project.dspot.common.miscellaneous.TypeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtExpression;

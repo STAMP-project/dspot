@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.amplifier.amplifiers.value;
 
-import eu.stamp_project.dspot.amplifier.RandomHelper;
+import eu.stamp_project.dspot.amplifier.amplifiers.utils.RandomHelper;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtTypeAccess;
 import spoon.reflect.declaration.CtMethod;

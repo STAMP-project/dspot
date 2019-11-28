@@ -5,7 +5,7 @@ import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodrecons
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.assertionsyntaxbuilder.Translator;
 import eu.stamp_project.dspot.common.test_framework.assertions.AssertEnum;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
-import eu.stamp_project.dspot.common.TypeUtils;
+import eu.stamp_project.dspot.common.miscellaneous.TypeUtils;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
