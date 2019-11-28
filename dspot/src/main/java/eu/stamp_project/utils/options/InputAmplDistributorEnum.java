@@ -1,9 +1,9 @@
 package eu.stamp_project.utils.options;
 
-import eu.stamp_project.dspot.amplifier.Amplifier;
-import eu.stamp_project.dspot.input_ampl_distributor.*;
-import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
-import eu.stamp_project.dspot.input_ampl_distributor.RandomInputAmplDistributor;
+import eu.stamp_project.dspot.amplifier.amplifiers.Amplifier;
+import eu.stamp_project.dspot.amplifier.input_ampl_distributor.*;
+import eu.stamp_project.dspot.amplifier.input_ampl_distributor.InputAmplDistributor;
+import eu.stamp_project.dspot.amplifier.input_ampl_distributor.RandomInputAmplDistributor;
 
 import java.util.List;
 

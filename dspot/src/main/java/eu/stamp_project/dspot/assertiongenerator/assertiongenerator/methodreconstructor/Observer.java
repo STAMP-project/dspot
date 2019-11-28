@@ -2,14 +2,14 @@ package eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodrecon
 
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.testwithloggenerator.objectlogsyntaxbuilder_constructs.ObjectLog;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.testwithloggenerator.objectlogsyntaxbuilder_constructs.objectlog.Observation;
-import eu.stamp_project.dspot.AmplificationException;
+import eu.stamp_project.dspot.common.AmplificationException;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.TestWithLogGenerator;
-import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.testrunner.listener.TestResult;
-import eu.stamp_project.utils.CloneHelper;
-import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.compilation.TestCompiler;
+import eu.stamp_project.dspot.common.CloneHelper;
+import eu.stamp_project.dspot.common.DSpotUtils;
+import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
+import eu.stamp_project.dspot.common.compilation.TestCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtLocalVariable;

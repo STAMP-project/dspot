@@ -1,10 +1,10 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.utils.execution.TestRunner;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.dspot.selector.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.execution.TestRunner;
+import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 
-import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
+import static eu.stamp_project.dspot.common.AmplificationHelper.PATH_SEPARATOR;
 
 /**
  * Created by Benjamin DANGLOT

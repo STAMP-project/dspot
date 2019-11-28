@@ -1,13 +1,13 @@
 package eu.stamp_project.dspot.assertiongenerator;
 
-import eu.stamp_project.dspot.AmplificationException;
+import eu.stamp_project.dspot.common.AmplificationException;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionRemover;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.MethodReconstructor;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.TryCatchFailGenerator;
 import eu.stamp_project.testrunner.listener.TestResult;
-import eu.stamp_project.utils.CloneHelper;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.compilation.TestCompiler;
+import eu.stamp_project.dspot.common.CloneHelper;
+import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
+import eu.stamp_project.dspot.common.compilation.TestCompiler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

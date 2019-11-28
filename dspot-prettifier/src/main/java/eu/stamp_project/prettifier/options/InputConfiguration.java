@@ -1,8 +1,7 @@
 package eu.stamp_project.prettifier.options;
 
-import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.options.check.InputErrorException;
+import eu.stamp_project.dspot.common.DSpotUtils;
+import eu.stamp_project.dspot.common.configuration.check.InputErrorException;
 import picocli.CommandLine;
 
 /**
@@ -11,7 +10,7 @@ import picocli.CommandLine;
  * on 11/02/19
  */
 @CommandLine.Command(name = "eu.stamp_project.Main", mixinStandardHelpOptions = true)
-public class InputConfiguration extends eu.stamp_project.utils.program.InputConfiguration {
+public class InputConfiguration extends eu.stamp_project.dspot.common.configuration.InputConfiguration {
 
     public InputConfiguration() {
 

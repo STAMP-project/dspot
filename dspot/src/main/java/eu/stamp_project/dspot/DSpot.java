@@ -1,21 +1,22 @@
 package eu.stamp_project.dspot;
 
-import eu.stamp_project.utils.configuration.AmplificationSetup;
-import eu.stamp_project.utils.configuration.DSpotState;
-import eu.stamp_project.utils.configuration.InitializeDSpot;
-import eu.stamp_project.utils.configuration.TestTuple;
-import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.utils.report.GlobalReport;
-import eu.stamp_project.utils.report.error.Error;
+import eu.stamp_project.dspot.common.AmplificationException;
+import eu.stamp_project.dspot.common.configuration.AmplificationSetup;
+import eu.stamp_project.dspot.common.configuration.DSpotState;
+import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
+import eu.stamp_project.dspot.common.configuration.TestTuple;
+import eu.stamp_project.dspot.common.configuration.InputConfiguration;
+import eu.stamp_project.dspot.common.report.GlobalReport;
+import eu.stamp_project.dspot.common.report.error.Error;
 import org.slf4j.Logger;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import static eu.stamp_project.utils.report.error.ErrorEnum.ERROR_ASSERT_AMPLIFICATION;
-import static eu.stamp_project.utils.report.error.ErrorEnum.ERROR_INPUT_AMPLIFICATION;
-import static eu.stamp_project.utils.report.error.ErrorEnum.ERROR_SELECTION;
+import static eu.stamp_project.dspot.common.report.error.ErrorEnum.ERROR_ASSERT_AMPLIFICATION;
+import static eu.stamp_project.dspot.common.report.error.ErrorEnum.ERROR_INPUT_AMPLIFICATION;
+import static eu.stamp_project.dspot.common.report.error.ErrorEnum.ERROR_SELECTION;
 
 /**
  * User: Simon

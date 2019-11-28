@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.selector;
 
 import eu.stamp_project.UtilsModifier;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.dspot.common.AmplificationHelper;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
 

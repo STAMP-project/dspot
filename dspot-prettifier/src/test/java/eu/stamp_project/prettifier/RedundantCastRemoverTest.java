@@ -1,6 +1,6 @@
 package eu.stamp_project.prettifier;
 
-import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtMethod;

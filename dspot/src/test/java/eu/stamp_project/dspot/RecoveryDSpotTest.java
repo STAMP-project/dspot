@@ -1,17 +1,17 @@
 package eu.stamp_project.dspot;
 
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.dspot.amplifier.Amplifier;
+import eu.stamp_project.dspot.selector.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.amplifier.amplifiers.Amplifier;
 import eu.stamp_project.dspot.assertiongenerator.AssertionGenerator;
-import eu.stamp_project.dspot.input_ampl_distributor.TextualDistanceInputAmplDistributor;
+import eu.stamp_project.dspot.amplifier.input_ampl_distributor.TextualDistanceInputAmplDistributor;
 import eu.stamp_project.dspot.selector.TakeAllSelector;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.configuration.DSpotState;
+import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
+import eu.stamp_project.dspot.common.compilation.TestCompiler;
+import eu.stamp_project.dspot.common.configuration.DSpotState;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
-import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.utils.report.error.ErrorEnum;
-import eu.stamp_project.utils.test_finder.TestFinder;
+import eu.stamp_project.dspot.common.configuration.InputConfiguration;
+import eu.stamp_project.dspot.common.report.error.ErrorEnum;
+import eu.stamp_project.dspot.common.configuration.test_finder.TestFinder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,9 +1,9 @@
 package eu.stamp_project.utils.options;
 
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.automaticbuilder.gradle.GradleAutomaticBuilder;
-import eu.stamp_project.automaticbuilder.maven.MavenAutomaticBuilder;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.dspot.selector.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.selector.automaticbuilder.gradle.GradleAutomaticBuilder;
+import eu.stamp_project.dspot.selector.automaticbuilder.maven.MavenAutomaticBuilder;
+import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 
 /**
  * Created by Benjamin DANGLOT

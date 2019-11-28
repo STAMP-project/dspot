@@ -1,8 +1,7 @@
 package eu.stamp_project.prettifier.context2name;
 
 import eu.stamp_project.prettifier.Main;
-import eu.stamp_project.utils.AmplificationHelper;
-import org.junit.Ignore;
+import eu.stamp_project.dspot.common.AmplificationHelper;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;

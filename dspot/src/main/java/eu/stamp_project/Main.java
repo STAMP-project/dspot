@@ -1,9 +1,9 @@
 package eu.stamp_project;
 
 import eu.stamp_project.dspot.DSpot;
-import eu.stamp_project.utils.options.check.Checker;
-import eu.stamp_project.utils.options.check.InputErrorException;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.dspot.common.configuration.check.Checker;
+import eu.stamp_project.dspot.common.configuration.check.InputErrorException;
+import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import picocli.CommandLine;
 
 /**

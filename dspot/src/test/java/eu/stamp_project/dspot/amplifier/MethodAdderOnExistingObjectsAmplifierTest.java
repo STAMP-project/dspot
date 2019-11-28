@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.dspot.AbstractTestOnSample;
-import eu.stamp_project.utils.RandomHelper;
+import eu.stamp_project.dspot.amplifier.amplifiers.MethodAdderOnExistingObjectsAmplifier;
 import org.junit.Test;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtForEach;

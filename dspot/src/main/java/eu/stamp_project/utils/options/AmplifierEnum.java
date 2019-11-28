@@ -1,6 +1,6 @@
 package eu.stamp_project.utils.options;
 
-import eu.stamp_project.dspot.amplifier.*;
+import eu.stamp_project.dspot.amplifier.amplifiers.*;
 
 public enum AmplifierEnum {
 

@@ -3,9 +3,9 @@ package eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodrecon
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.assertionsyntaxbuilder.AggregateTypeBuilder;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.assertionsyntaxbuilder.InvocationSetup;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.assertionsyntaxbuilder.Translator;
-import eu.stamp_project.test_framework.assertions.AssertEnum;
-import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.TypeUtils;
+import eu.stamp_project.dspot.common.test_framework.assertions.AssertEnum;
+import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.dspot.common.TypeUtils;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;

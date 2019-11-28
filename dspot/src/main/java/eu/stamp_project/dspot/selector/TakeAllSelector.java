@@ -1,9 +1,9 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
-import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
+import eu.stamp_project.dspot.selector.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.configuration.InputConfiguration;
+import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementReport;
+import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementReportImpl;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
