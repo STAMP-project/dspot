@@ -6,6 +6,7 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -15,7 +16,7 @@ import java.util.regex.Pattern;
  */
 public class IsAssertInvocationFilter {
 
-    private final String assertionClassName;
+    private final List<String> assertionClassesName;
 
     /**
      * This field represent the number of method call to explore to find any assertion.
@@ -25,19 +26,19 @@ public class IsAssertInvocationFilter {
     private final int depth;
 
     /**
-     * @param assertionClassName the name of the class of the assertions used, e.g. org.junit.Assert.
+     * @param assertionClassesName the name of the classes of the assertions used, e.g. org.junit.Assert.
      */
-    public IsAssertInvocationFilter(String assertionClassName) {
-        this.assertionClassName = assertionClassName;
+    public IsAssertInvocationFilter(List<String> assertionClassesName) {
+        this.assertionClassesName = assertionClassesName;
         this.depth = 3;
     }
 
     /**
-     * @param assertionClassName the name of the class of the assertions used, e.g. org.junit.Assert.
+     * @param assertionClassesName the name of the class of the assertions used, e.g. org.junit.Assert.
      * @param depth the number of method chained to find an assertion
      */
-    public IsAssertInvocationFilter(String assertionClassName, int depth) {
-        this.assertionClassName = assertionClassName;
+    public IsAssertInvocationFilter(List<String>  assertionClassesName, int depth) {
+        this.assertionClassesName = assertionClassesName;
         this.depth = depth;
     }
 
@@ -100,7 +101,9 @@ public class IsAssertInvocationFilter {
         } else {
             qualifiedNameOfDeclaringType = invocation.getExecutable().getDeclaringType().getQualifiedName();
         }
-        return Pattern.compile(this.assertionClassName).matcher(qualifiedNameOfDeclaringType).matches();
+        return this.assertionClassesName.stream().anyMatch(
+                assertionClassName -> Pattern.compile(assertionClassName).matcher(qualifiedNameOfDeclaringType).matches()
+        );
     }
 
     private boolean containsMethodCallToAssertion(CtInvocation<?> invocation, int deep) {

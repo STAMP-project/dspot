@@ -31,6 +31,24 @@ public class TestFrameworkTest extends AbstractTestOnSample {
     }
 
     @Test
+    public void testJUnit3TestFrameworkSupportsTwoAssertClasses() {
+        /*
+            The test framework for junit 3 should recognized both class as assert class:
+                - junit.framework.TestCase
+                - junit.framework.Assert
+         */
+
+        CtMethod testJUnit3 = this.findMethod("fr.inria.helper.SecondClassJUnit3", "testUsingDeprecatedAssertClass");
+        System.out.println(testJUnit3);
+        assertTrue(TestFramework.get().isTest(testJUnit3));
+        assertTrue(TestFramework.get().isAssert(testJUnit3.getBody().getStatement(0)));
+        testJUnit3 = this.findMethod("fr.inria.helper.SecondClassJUnit3", "test");
+        System.out.println(testJUnit3);
+        assertTrue(TestFramework.get().isTest(testJUnit3));
+        assertTrue(TestFramework.get().isAssert(testJUnit3.getBody().getStatement(0)));
+    }
+
+    @Test
     public void testGenerateAfterClassToSaveObservations() {
 
         /*
