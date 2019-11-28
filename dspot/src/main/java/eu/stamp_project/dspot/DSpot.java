@@ -2,6 +2,7 @@ package eu.stamp_project.dspot;
 
 import eu.stamp_project.utils.configuration.AmplificationSetup;
 import eu.stamp_project.utils.configuration.DSpotState;
+import eu.stamp_project.utils.configuration.InitializeDSpot;
 import eu.stamp_project.utils.configuration.TestTuple;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.GlobalReport;
@@ -23,23 +24,25 @@ import static eu.stamp_project.utils.report.error.ErrorEnum.ERROR_SELECTION;
  */
 public class DSpot {
 
-    private DSpotState configuration;
+    private DSpotState dSpotState;
     private AmplificationSetup setup;
     private int globalNumberOfSelectedAmplification;
     private Logger LOGGER;
     private GlobalReport GLOBAL_REPORT;
 
     public DSpot(InputConfiguration inputConfiguration){
-        configuration = new DSpotState(inputConfiguration);
-        setup(configuration);
+        InitializeDSpot initializeDSpot = new InitializeDSpot();
+        initializeDSpot.init(inputConfiguration);
+        dSpotState = initializeDSpot.getDSpotState();
+        setup(dSpotState);
     }
 
-    public DSpot(DSpotState configuration) {
-        setup(configuration);
+    public DSpot(DSpotState dSpotState) {
+        setup(dSpotState);
     }
 
     private void setup(DSpotState configuration){
-        this.configuration = configuration;
+        this.dSpotState = configuration;
         setup = new AmplificationSetup(configuration);
         LOGGER = configuration.getLogger();
         globalNumberOfSelectedAmplification = 0;
@@ -47,18 +50,18 @@ public class DSpot {
     }
 
     public void run() {
-        for (CtType<?> testClassToBeAmplified : configuration.getTestClassesToBeAmplified()) {
-            TestTuple tuple = setup.preAmplification(testClassToBeAmplified,configuration.getTestMethodsToBeAmplifiedNames());
+        for (CtType<?> testClassToBeAmplified : dSpotState.getTestClassesToBeAmplified()) {
+            TestTuple tuple = setup.preAmplification(testClassToBeAmplified, dSpotState.getTestMethodsToBeAmplifiedNames());
             final List<CtMethod<?>> amplifiedTestMethods = amplification(tuple.testClassToBeAmplified,tuple.testMethodsToBeAmplified);
             setup.postAmplification(testClassToBeAmplified,amplifiedTestMethods);
             globalNumberOfSelectedAmplification = 0;
         }
-        configuration.report(setup.getAmplifiedTestClasses());
+        setup.report(setup.getAmplifiedTestClasses());
     }
 
     private List<CtMethod<?>>  amplification(CtType<?> testClassToBeAmplified, List<CtMethod<?>> testMethodsToBeAmplified) {
         final List<CtMethod<?>> amplifiedTestMethodsToKeep = onlyAssertionGeneration(testClassToBeAmplified,testMethodsToBeAmplified);
-        if (configuration.getInputAmplDistributor().shouldBeRun()) {
+        if (dSpotState.getInputAmplDistributor().shouldBeRun()) {
             fullyAmplifyAllMethods(testClassToBeAmplified,testMethodsToBeAmplified,amplifiedTestMethodsToKeep);
         }
         return amplifiedTestMethodsToKeep;
@@ -95,8 +98,8 @@ public class DSpot {
             List<CtMethod<?>> currentTestList = new ArrayList<>();
             currentTestList.add(test);
             final List<CtMethod<?>> amplifiedTests = new ArrayList<>();
-            for (int j = 0; j < configuration.getNbIteration() ; j++) {
-                LOGGER.info("iteration {} / {}", j, configuration.getNbIteration());
+            for (int j = 0; j < dSpotState.getNbIteration() ; j++) {
+                LOGGER.info("iteration {} / {}", j, dSpotState.getNbIteration());
                 currentTestList = this.fullAmplification(testClassToBeAmplified, currentTestList, amplifiedTests, j);
             }
             amplifiedTestMethodsToKeep.addAll(amplifiedTests);
@@ -128,7 +131,7 @@ public class DSpot {
             selectedToBeAmplified = setup.fullSelectorSetup(testClassToBeAmplified,currentTestListToBeAmplified);
 
             // amplify tests and shrink amplified set with inputAmplDistributor
-            inputAmplifiedTests = configuration.getInputAmplDistributor().inputAmplify(selectedToBeAmplified, currentIteration);
+            inputAmplifiedTests = dSpotState.getInputAmplDistributor().inputAmplify(selectedToBeAmplified, currentIteration);
 
             // add assertions to input modified tests
             currentTestList = this.assertionAmplification(testClassToBeAmplified, inputAmplifiedTests);
@@ -147,7 +150,7 @@ public class DSpot {
     private List<CtMethod<?>> assertionAmplification(CtType<?> classTest, List<CtMethod<?>> testMethods) {
         final List<CtMethod<?>> testsWithAssertions;
         try {
-            testsWithAssertions = configuration.getAssertionGenerator().assertionAmplification(classTest, testMethods);
+            testsWithAssertions = dSpotState.getAssertionGenerator().assertionAmplification(classTest, testMethods);
         } catch (Exception | java.lang.Error e) {
             GLOBAL_REPORT.addError(new Error(ERROR_ASSERT_AMPLIFICATION, e));
             return Collections.emptyList();
@@ -158,10 +161,10 @@ public class DSpot {
 
         // final check on A-amplified test, see if they all pass. if they don't, we just discard them.
         final List<CtMethod<?>> amplifiedPassingTests =
-                configuration.getTestCompiler().compileRunAndDiscardUncompilableAndFailingTestMethods(
+                dSpotState.getTestCompiler().compileRunAndDiscardUncompilableAndFailingTestMethods(
                         classTest,
                         testsWithAssertions,
-                        configuration.getCompiler()
+                        dSpotState.getCompiler()
                 );
         LOGGER.info("Assertion amplification: {} test method(s) has been successfully amplified.",
                 amplifiedPassingTests.size());
@@ -172,7 +175,7 @@ public class DSpot {
             throws Exception {
         final List<CtMethod<?>> amplifiedTestMethodsToKeep;
         try {
-            amplifiedTestMethodsToKeep = configuration.getTestSelector().selectToKeep(assertionAmplifiedTestMethods);
+            amplifiedTestMethodsToKeep = dSpotState.getTestSelector().selectToKeep(assertionAmplifiedTestMethods);
         } catch (Exception | java.lang.Error e) {
             GLOBAL_REPORT.addError(new Error(ERROR_SELECTION, e));
             throw new Exception();
@@ -188,7 +191,7 @@ public class DSpot {
             throws AmplificationException {
         final List<CtMethod<?>> amplifiedTestMethodsToKeep;
         try {
-            amplifiedTestMethodsToKeep = configuration.getTestSelector().selectToKeep(currentTestList);
+            amplifiedTestMethodsToKeep = dSpotState.getTestSelector().selectToKeep(currentTestList);
         } catch (Exception | java.lang.Error e) {
             GLOBAL_REPORT.addError(new Error(ERROR_SELECTION, e));
             throw new AmplificationException("");

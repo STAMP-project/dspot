@@ -7,6 +7,7 @@ import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Counter;
+import eu.stamp_project.utils.DSpotCache;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
 import eu.stamp_project.utils.report.GlobalReport;
@@ -34,28 +35,28 @@ public class AmplificationSetup {
     public  final GlobalReport GLOBAL_REPORT;
     private final Logger LOGGER;
     final List<CtType<?>> amplifiedTestClasses = new ArrayList<>();
-    private DSpotState configuration;
+    private DSpotState dSpotState;
     private DSpotCompiler compiler;
     private TestCompiler testCompiler;
     private TestSelector testSelector;
     private Output output;
     private long time;
 
-    public AmplificationSetup(DSpotState configuration){
-        this.configuration = configuration;
-        compiler = configuration.getCompiler();
-        testCompiler = configuration.getTestCompiler();
-        testSelector = configuration.getTestSelector();
-        output = configuration.getOutput();
-        LOGGER = configuration.getLogger();
-        GLOBAL_REPORT = configuration.getGlobalReport();
+    public AmplificationSetup(DSpotState dSpotState){
+        this.dSpotState = dSpotState;
+        compiler = dSpotState.getCompiler();
+        testCompiler = dSpotState.getTestCompiler();
+        testSelector = dSpotState.getTestSelector();
+        output = dSpotState.getOutput();
+        LOGGER = dSpotState.getLogger();
+        GLOBAL_REPORT = dSpotState.getGlobalReport();
     }
 
     public TestTuple preAmplification(CtType<?> testClassToBeAmplified, List<String> testMethodsToBeAmplifiedAsString){
-        configuration.getInputAmplDistributor().resetAmplifiers(testClassToBeAmplified);
-        configuration.clearData();
+        dSpotState.getInputAmplDistributor().resetAmplifiers(testClassToBeAmplified);
+        dSpotState.clearData();
         final List<CtMethod<?>> testMethodsToBeAmplified =
-                configuration.getTestFinder().findTestMethods(testClassToBeAmplified, testMethodsToBeAmplifiedAsString);
+                dSpotState.getTestFinder().findTestMethods(testClassToBeAmplified, testMethodsToBeAmplifiedAsString);
 
         // here, we base the execution mode to the first test method given.
         // the user should provide whether JUnit3/4 OR JUnit5 but not both at the same time.
@@ -64,7 +65,7 @@ public class AmplificationSetup {
         EntryPoint.jUnit5Mode = jUnit5;
         DSpotPOMCreator.isCurrentlyJUnit5 = jUnit5;
         Counter.reset();
-        if (configuration.shouldGenerateAmplifiedTestClass()) {
+        if (dSpotState.shouldGenerateAmplifiedTestClass()) {
             testClassToBeAmplified = AmplificationHelper.renameTestClassUnderAmplification(testClassToBeAmplified);
         }
         time = System.currentTimeMillis();
@@ -78,9 +79,9 @@ public class AmplificationSetup {
         this.output.addClassTimeJSON(testClassToBeAmplified.getQualifiedName(), elapsedTime);
         LOGGER.debug("OPTIMIZATION: GC invoked");
         System.gc(); //Optimization: cleaning up heap before printing the amplified class
-        configuration.getAutomaticBuilder().reset();
+        dSpotState.getAutomaticBuilder().reset();
         try {
-            final TestSelectorElementReport report = configuration.getTestSelector().report();
+            final TestSelectorElementReport report = dSpotState.getTestSelector().report();
             this.output.reportSelectorInformation(report.getReportForCollector());
             GLOBAL_REPORT.addTestSelectorReportForTestClass(testClassToBeAmplified, report);
         } catch (Exception e) {
@@ -90,7 +91,7 @@ public class AmplificationSetup {
         }
         final CtType<?> amplifiedTestClass = this.output.output(testClassToBeAmplified, amplifiedTestMethods);
         amplifiedTestClasses.add(amplifiedTestClass);
-        cleanAfterAmplificationOfOneTestClass(configuration.getCompiler(), testClassToBeAmplified);
+        cleanAfterAmplificationOfOneTestClass(dSpotState.getCompiler(), testClassToBeAmplified);
     }
 
     private void cleanAfterAmplificationOfOneTestClass(DSpotCompiler compiler, CtType<?> testClassToBeAmplified) {
@@ -167,5 +168,19 @@ public class AmplificationSetup {
 
     public List<CtType<?>> getAmplifiedTestClasses(){
         return amplifiedTestClasses;
+    }
+
+    public void report(List<CtType<?>> amplifiedTestClasses) {
+        dSpotState.getLogger().info("Amplification {}.", amplifiedTestClasses.isEmpty() ? "failed" : "succeed");
+        final long elapsedTime = System.currentTimeMillis() - dSpotState.getStartTime();
+        dSpotState.getLogger().info("Elapsed time {} ms", elapsedTime);
+        eu.stamp_project.utils.configuration.DSpotState.GLOBAL_REPORT.output(dSpotState.getInputConfiguration().getOutputDirectory());
+        DSpotCache.reset();
+        eu.stamp_project.utils.configuration.DSpotState.GLOBAL_REPORT.reset();
+        AmplificationHelper.reset();
+        DSpotPOMCreator.delete();
+        if (dSpotState.isCollectData()) {
+            dSpotState.getCollector().sendInfo();
+        }
     }
 }

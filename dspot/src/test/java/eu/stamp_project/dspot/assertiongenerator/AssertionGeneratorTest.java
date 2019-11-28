@@ -11,6 +11,7 @@ import eu.stamp_project.utils.RandomHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
 import eu.stamp_project.utils.configuration.DSpotState;
+import eu.stamp_project.utils.configuration.InitializeDSpot;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -56,7 +57,7 @@ public class AssertionGeneratorTest extends AbstractTestOnSample {
 
     private static String dependencies;
 
-    private static DSpotState dspotState;
+    private static InitializeDSpot initializeDSpot;
 
     @BeforeClass
     public static void setUpClass() {
@@ -64,8 +65,8 @@ public class AssertionGeneratorTest extends AbstractTestOnSample {
         configuration.setAbsolutePathToProjectRoot(new File("src/test/resources/sample/").getAbsolutePath());
 
         AutomaticBuilder builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
-        dspotState = new DSpotState();
-        dependencies = dspotState.completeDependencies(configuration, builder);
+        initializeDSpot = new InitializeDSpot();
+        dependencies = initializeDSpot.completeDependencies(configuration, builder);
         DSpotUtils.init(false, "target/dspot/",
                 configuration.getFullClassPathWithExtraDependencies(),
                 "src/test/resources/sample/"

@@ -6,6 +6,7 @@ import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodrecons
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.configuration.DSpotState;
+import eu.stamp_project.utils.configuration.InitializeDSpot;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.junit.Test;
@@ -270,8 +271,8 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
 //
 //        );
         AutomaticBuilder builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
-        DSpotState dspotState = new DSpotState();
-        String dependencies = dspotState.completeDependencies(configuration, builder);
+        InitializeDSpot initializeDSpot = new InitializeDSpot();
+        String dependencies = initializeDSpot.completeDependencies(configuration, builder);
         launcher = new Launcher();
         launcher.addInputResource(getPathToProjectRoot());
         launcher.getEnvironment().setOutputType(OutputType.CLASSES);

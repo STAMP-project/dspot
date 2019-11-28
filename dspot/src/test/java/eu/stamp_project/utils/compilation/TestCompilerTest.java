@@ -4,6 +4,7 @@ import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.configuration.DSpotState;
+import eu.stamp_project.utils.configuration.InitializeDSpot;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.junit.Test;
@@ -27,8 +28,8 @@ public class TestCompilerTest extends AbstractTestOnSample {
         final InputConfiguration configuration = new InputConfiguration();
         configuration.setAbsolutePathToProjectRoot(getPathToProjectRoot());
         final AutomaticBuilder builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
-        DSpotState dspotState = new DSpotState();
-        String dependencies = dspotState.completeDependencies(configuration, builder);
+        InitializeDSpot initializeDSpot = new InitializeDSpot();
+        String dependencies = initializeDSpot.completeDependencies(configuration, builder);
         configuration.setDependencies(dependencies);
         DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(configuration, dependencies);
         CtClass<?> testClass = findClass("fr.inria.filter.failing.FailingTest");

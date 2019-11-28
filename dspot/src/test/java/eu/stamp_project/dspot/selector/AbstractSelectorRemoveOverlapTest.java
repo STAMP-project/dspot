@@ -14,6 +14,7 @@ import eu.stamp_project.utils.RandomHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
 import eu.stamp_project.utils.configuration.DSpotState;
+import eu.stamp_project.utils.configuration.InitializeDSpot;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.options.InputAmplDistributorEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -68,7 +69,7 @@ public abstract class AbstractSelectorRemoveOverlapTest {
 
     protected TestCompiler testCompiler;
 
-    protected DSpotState dspotState;
+    private static InitializeDSpot initializeDSpot;
 
     @Before
     public void setUp() {
@@ -77,8 +78,8 @@ public abstract class AbstractSelectorRemoveOverlapTest {
         this.configuration.setAbsolutePathToProjectRoot(getPathToAbsoluteProjectRoot());
         this.configuration.setOutputDirectory(outputDirectory);
         this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
-        this.dspotState = new DSpotState();
-        String dependencies = dspotState.completeDependencies(configuration, this.builder);
+        this.initializeDSpot = new InitializeDSpot();
+        String dependencies = initializeDSpot.completeDependencies(configuration, this.builder);
         DSpotUtils.init(false, outputDirectory,
                 this.configuration.getFullClassPathWithExtraDependencies(),
                 this.getPathToAbsoluteProjectRoot()
