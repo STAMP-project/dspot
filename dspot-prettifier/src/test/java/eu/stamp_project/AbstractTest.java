@@ -2,6 +2,7 @@ package eu.stamp_project;
 
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
 import eu.stamp_project.utils.RandomHelper;
+import eu.stamp_project.utils.configuration.DSpotState;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.junit.Before;
@@ -28,7 +29,7 @@ public abstract class AbstractTest {
         this.configuration.setVerbose(true);
         this.configuration.setBuilderEnum(AutomaticBuilderEnum.Maven);
         this.configuration.setGregorMode(true);
-        Main.verbose = true;
+        DSpotState.verbose = true;
         Utils.init(this.configuration);
     }
 }

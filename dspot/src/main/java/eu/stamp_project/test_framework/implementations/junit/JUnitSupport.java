@@ -39,7 +39,7 @@ public abstract class JUnitSupport extends AbstractTestFramework {
         return hasAnnotation(getFullQualifiedNameOfAnnotationTest(), candidate);
     }
 
-    public JUnitSupport(String qualifiedNameOfAssertClass) {
+    public JUnitSupport(String... qualifiedNameOfAssertClass) {
         super(qualifiedNameOfAssertClass);
     }
 

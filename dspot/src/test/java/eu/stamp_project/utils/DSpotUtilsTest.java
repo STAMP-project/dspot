@@ -58,18 +58,18 @@ public class DSpotUtilsTest extends AbstractTestOnSample {
         try (final BufferedReader reader =
                      new BufferedReader(new FileReader(outputDirectory + "/fr/inria/lombok/LombokClassThatUseBuilderTest.java"))) {
             assertEquals(
-                    "package fr.inria.lombok;" + AmplificationHelper.LINE_SEPARATOR +
-                            "" + AmplificationHelper.LINE_SEPARATOR +
-                            "" + AmplificationHelper.LINE_SEPARATOR +
-                            "import org.junit.Test;" + AmplificationHelper.LINE_SEPARATOR +
-                            "" + AmplificationHelper.LINE_SEPARATOR +
-                            "" + AmplificationHelper.LINE_SEPARATOR +
-                            "public class LombokClassThatUseBuilderTest {" + AmplificationHelper.LINE_SEPARATOR +
-                            "    @Test" + AmplificationHelper.LINE_SEPARATOR +
-                            "    public void test() {" + AmplificationHelper.LINE_SEPARATOR +
-                            "        builder().build();" + AmplificationHelper.LINE_SEPARATOR +
-                            "    }" + AmplificationHelper.LINE_SEPARATOR +
-                            "}" + AmplificationHelper.LINE_SEPARATOR,
+            "package fr.inria.lombok;" + AmplificationHelper.LINE_SEPARATOR +
+                    "" + AmplificationHelper.LINE_SEPARATOR +
+                    "" + AmplificationHelper.LINE_SEPARATOR +
+                    "import org.junit.Test;" + AmplificationHelper.LINE_SEPARATOR +
+                    "" + AmplificationHelper.LINE_SEPARATOR +
+                    "" + AmplificationHelper.LINE_SEPARATOR +
+                    "public class LombokClassThatUseBuilderTest {" + AmplificationHelper.LINE_SEPARATOR +
+                    "    @Test" + AmplificationHelper.LINE_SEPARATOR +
+                    "    public void test() {" + AmplificationHelper.LINE_SEPARATOR +
+                    "        builder().build();" + AmplificationHelper.LINE_SEPARATOR +
+                    "    }" + AmplificationHelper.LINE_SEPARATOR +
+                    "}" + AmplificationHelper.LINE_SEPARATOR,
                     reader.lines()
                             .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR))
             );

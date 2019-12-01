@@ -84,7 +84,7 @@ public class MongodbCollectorTest {
         MongoClient mongoClient = MongodbCollector.connectToMongo("mongodb://localhost:27017");
         MongoCollection<Document> coll = MongodbCollector.getCollection("AmpTestRecords", MongodbCollector.getDatabase("Dspot", mongoClient));
 
-        Document foundDoc = coll.find(eq("RepoSlug", "USER/Testing")).projection(fields(excludeId(), exclude("Date"), exclude("executeTestParallelWithNumberProcessors"))).first();
+         Document foundDoc = coll.find(eq("RepoSlug", "USER/Testing")).projection(fields(excludeId(), exclude("Date"), exclude("executeTestParallelWithNumberProcessors"))).first();
         coll.deleteOne(foundDoc);
         Document unwanted = foundDoc.get("AmpOptions", Document.class);
         unwanted.remove("executeTestParallelWithNumberProcessors");

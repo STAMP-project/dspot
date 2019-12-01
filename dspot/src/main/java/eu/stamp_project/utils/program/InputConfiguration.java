@@ -118,7 +118,7 @@ public class InputConfiguration {
             description = "Fully qualified names of test classes to be amplified. " +
                     "If the value is all, DSpot will amplify the whole test suite. " +
                     "You can also use regex to describe a set of test classes. " +
-                    "By default, DSpot selects all the tests."
+                    "By default, DSpot selects all the tests classes."
     )
     private List<String> testClasses;
 
@@ -134,7 +134,9 @@ public class InputConfiguration {
     @CommandLine.Option(
             names = {"-c", "--cases", "--test-methods", "--test-cases"},
             split = ",",
-            description = "Specify the test cases to amplify."
+            defaultValue = "",
+            description = "Specify the test cases to amplify." +
+                    "By default, DSpot selects all the tests methods."
     )
     private List<String> testCases = new ArrayList<>();
 
@@ -231,6 +233,7 @@ public class InputConfiguration {
 
     @CommandLine.Option(
             names = "--pit-filter-classes-to-keep",
+            defaultValue = "",
             description = "Specify the filter of classes to keep used by PIT. " +
                     "This allow you restrict the scope of the mutation done by PIT. " +
                     "If this is not specified, DSpot will try to build on the " +

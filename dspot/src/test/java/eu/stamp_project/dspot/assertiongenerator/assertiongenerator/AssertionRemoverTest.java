@@ -1,13 +1,12 @@
 package eu.stamp_project.dspot.assertiongenerator.assertiongenerator;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.TestWithLogGenerator;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.compilation.TestCompiler;
+import eu.stamp_project.utils.configuration.DSpotState;
+import eu.stamp_project.utils.configuration.InitializeDSpot;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.junit.Test;
@@ -22,7 +21,6 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.Assert.*;
@@ -273,7 +271,8 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
 //
 //        );
         AutomaticBuilder builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
-        String dependencies = Main.completeDependencies(configuration, builder);
+        InitializeDSpot initializeDSpot = new InitializeDSpot();
+        String dependencies = initializeDSpot.completeDependencies(configuration, builder);
         launcher = new Launcher();
         launcher.addInputResource(getPathToProjectRoot());
         launcher.getEnvironment().setOutputType(OutputType.CLASSES);

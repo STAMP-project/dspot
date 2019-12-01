@@ -1,7 +1,7 @@
 package eu.stamp_project.utils.compilation;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.utils.configuration.DSpotState;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -122,7 +122,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
 	public static boolean compile(String pathToSources, String dependencies, File binaryOutputDirectory) {
 		Launcher launcher = new Launcher();
-		if (Main.verbose) {
+		if (DSpotState.verbose) {
 			launcher.getEnvironment().setLevel("INFO");
 		}
 		launcher.getEnvironment().setNoClasspath(true);

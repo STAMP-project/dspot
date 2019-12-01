@@ -1,7 +1,7 @@
 package eu.stamp_project.automaticbuilder.maven;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.utils.configuration.DSpotState;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.pit.AbstractPitResult;
 import eu.stamp_project.utils.pit.PitXMLResultParser;
@@ -47,7 +47,7 @@ public class MavenAutomaticBuilderTest {
         this.launcher.addInputResource(path + "/src/");
         this.launcher.getEnvironment().setNoClasspath(true);
         this.launcher.buildModel();
-        Main.verbose = true;
+        DSpotState.verbose = true;
         try {
             FileUtils.deleteDirectory(new File(path + "/target/"));
         } catch (IOException ignored) {
