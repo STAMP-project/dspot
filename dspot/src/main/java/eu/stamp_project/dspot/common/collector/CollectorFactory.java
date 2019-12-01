@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.common.collector;
 
 import eu.stamp_project.dspot.common.collector.mongodb.MongodbCollector;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.collector.smtp.EmailSender;
 
 /**
@@ -11,7 +11,7 @@ import eu.stamp_project.dspot.common.collector.smtp.EmailSender;
  */
 public class CollectorFactory {
 
-    public static Collector build(InputConfiguration configuration, EmailSender emailSender) {
+    public static Collector build(UserInput configuration, EmailSender emailSender) {
         switch (configuration.getCollector()) {
             case MongodbCollector:
                 return buildMongodbCollector(configuration, emailSender);
@@ -21,7 +21,7 @@ public class CollectorFactory {
         }
     }
 
-    private static Collector buildMongodbCollector(InputConfiguration configuration, EmailSender emailSender) {
+    private static Collector buildMongodbCollector(UserInput configuration, EmailSender emailSender) {
         return new MongodbCollector(
                 configuration.getMongoUrl(),
                 configuration.getMongoDbName(),

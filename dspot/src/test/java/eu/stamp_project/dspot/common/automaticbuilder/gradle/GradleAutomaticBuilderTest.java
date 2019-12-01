@@ -5,7 +5,7 @@ import eu.stamp_project.dspot.common.configuration.DSpotState;
 import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
 import eu.stamp_project.dspot.selector.pitmutantscoreselector.AbstractPitResult;
 import eu.stamp_project.dspot.selector.pitmutantscoreselector.PitXMLResultParser;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -48,7 +48,7 @@ public class GradleAutomaticBuilderTest {
         cleanTestEnv();
         LOGGER.debug("Test Set-up - Reading input parameters...");
         LOGGER.debug("Test Set-up - instantiating Automatic Builder (SUT)...");
-        final InputConfiguration configuration = new InputConfiguration();
+        final UserInput configuration = new UserInput();
         configuration.setAbsolutePathToProjectRoot(this.pathToProjectRoot);
         configuration.setGregorMode(true);
         configuration.setFilter("example.*");
@@ -98,7 +98,7 @@ public class GradleAutomaticBuilderTest {
     @Test
     public void runPit_whenNoTestClassIsSpecified() throws Exception {
         LOGGER.info("Starting Gradle Automatic Builder runPit() test when no test class is specified...");
-        //InputConfiguration.get().setDescartesMode(false);
+        //UserInput.get().setDescartesMode(false);
         sut.runPit();
         List<? extends AbstractPitResult> pitResults = parser.parseAndDelete("src/test/resources/test-projects/" + sut.getOutputDirectoryPit());
         assertTrue("PIT results shouldn't be null", pitResults != null);

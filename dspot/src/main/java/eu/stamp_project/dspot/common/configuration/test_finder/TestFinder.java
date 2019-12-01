@@ -1,9 +1,9 @@
 package eu.stamp_project.dspot.common.configuration.test_finder;
 
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import eu.stamp_project.dspot.common.report.error.Error;
 import eu.stamp_project.dspot.common.report.error.ErrorEnum;
 import org.slf4j.Logger;
@@ -148,7 +148,7 @@ public class TestFinder {
         return new TestFinder(Collections.emptyList(), Collections.emptyList());
     }
 
-    public static TestFinder get(InputConfiguration configuration) {
+    public static TestFinder get(UserInput configuration) {
         return new TestFinder(
                 Arrays.stream(configuration.getExcludedClasses().split(",")).collect(Collectors.toList()),
                 Arrays.stream(configuration.getExcludedTestCases().split(",")).collect(Collectors.toList())

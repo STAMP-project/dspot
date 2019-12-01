@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import eu.stamp_project.dspot.amplifier.amplifiers.Amplifier;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import spoon.reflect.declaration.CtMethod;
 
 /**
@@ -60,7 +60,7 @@ public class RandomInputAmplDistributor extends AbstractInputAmplDistributor {
     }
 
     /**
-     * Reduces the number of amplified tests to a practical threshold (see {@link InputConfiguration#getMaxTestAmplified()}).
+     * Reduces the number of amplified tests to a practical threshold (see {@link UserInput#getMaxTestAmplified()}).
      * This method randomly selects the tests to keep
      * @param tests List of tests to be reduced
      * @return A subset of the input tests

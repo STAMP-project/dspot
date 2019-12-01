@@ -23,10 +23,10 @@ import static eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper.PA
  * The input configuration class encapsulates all the data and associated behavior we obtain from the input properties
  * given by the user.
  * Created by marcel on 8/06/14.
- * This version of the InputConfiguration has been largely modified, and customized to be use in DSpot.
+ * This version of the UserInput has been largely modified, and customized to be use in DSpot.
  */
 @CommandLine.Command(name = "eu.stamp_project.Main", mixinStandardHelpOptions = true)
-public class InputConfiguration {
+public class UserInput {
 
     /*
         Project descriptions paths
@@ -591,7 +591,7 @@ public class InputConfiguration {
                 "" : DSpotUtils.shouldAddSeparator.apply(getTargetModule()));
     }
 
-    public InputConfiguration setAbsolutePathToProjectRoot(String absolutePathToProjectRoot) {
+    public UserInput setAbsolutePathToProjectRoot(String absolutePathToProjectRoot) {
         this.absolutePathToProjectRoot = DSpotUtils.shouldAddSeparator.apply(
                 new File(absolutePathToProjectRoot).getAbsolutePath()
         );
@@ -602,7 +602,7 @@ public class InputConfiguration {
         return targetModule;
     }
 
-    public InputConfiguration setTargetModule(String targetModule) {
+    public UserInput setTargetModule(String targetModule) {
         this.targetModule = DSpotUtils.shouldAddSeparator.apply(targetModule);
         return this;
     }
@@ -685,12 +685,12 @@ public class InputConfiguration {
                 .collect(Collectors.joining(PATH_SEPARATOR));
     }
 
-    public InputConfiguration setAdditionalClasspathElements(String additionalClasspathElements) {
+    public UserInput setAdditionalClasspathElements(String additionalClasspathElements) {
         this.additionalClasspathElements = additionalClasspathElements;
         return this;
     }
 
-    public InputConfiguration setMavenHome(String mavenHome) {
+    public UserInput setMavenHome(String mavenHome) {
         this.mavenHome = mavenHome;
         return this;
     }
@@ -703,7 +703,7 @@ public class InputConfiguration {
         return this.automaticBuilder;
     }
 
-    public InputConfiguration setBuilderEnum(AutomaticBuilderEnum automaticBuilderEnum) {
+    public UserInput setBuilderEnum(AutomaticBuilderEnum automaticBuilderEnum) {
         this.automaticBuilder = automaticBuilderEnum;
         return this;
     }
@@ -714,12 +714,12 @@ public class InputConfiguration {
         return factory;
     }
 
-    public InputConfiguration setFactory(Factory factory) {
+    public UserInput setFactory(Factory factory) {
         this.factory = factory;
         return this;
     }
 
-    public InputConfiguration setOutputDirectory(String outputDirectory) {
+    public UserInput setOutputDirectory(String outputDirectory) {
         this.outputDirectory = outputDirectory;
         return this;
     }
@@ -732,7 +732,7 @@ public class InputConfiguration {
         return delta;
     }
 
-    public InputConfiguration setDelta(double delta) {
+    public UserInput setDelta(double delta) {
         this.delta = delta;
         return this;
     }
@@ -741,7 +741,7 @@ public class InputConfiguration {
         return absolutePathToSecondVersionProjectRoot;
     }
 
-    public InputConfiguration setAbsolutePathToSecondVersionProjectRoot(String absolutePathToSecondVersionProjectRoot) {
+    public UserInput setAbsolutePathToSecondVersionProjectRoot(String absolutePathToSecondVersionProjectRoot) {
         this.absolutePathToSecondVersionProjectRoot =
                 DSpotUtils.shouldAddSeparator.apply(absolutePathToSecondVersionProjectRoot);
         return this;
@@ -751,7 +751,7 @@ public class InputConfiguration {
         return excludedClasses;
     }
 
-    public InputConfiguration setExcludedClasses(String excludedClasses) {
+    public UserInput setExcludedClasses(String excludedClasses) {
         this.excludedClasses = excludedClasses;
         return this;
     }
@@ -760,7 +760,7 @@ public class InputConfiguration {
         return excludedTestCases;
     }
 
-    public InputConfiguration setExcludedTestCases(String excludedTestCases) {
+    public UserInput setExcludedTestCases(String excludedTestCases) {
         this.excludedTestCases = excludedTestCases;
         return this;
     }
@@ -769,7 +769,7 @@ public class InputConfiguration {
         return filter;
     }
 
-    public InputConfiguration setFilter(String filter) {
+    public UserInput setFilter(String filter) {
         this.filter = filter;
         return this;
     }
@@ -786,7 +786,7 @@ public class InputConfiguration {
         return JVMArgs;
     }
 
-    public InputConfiguration setJVMArgs(String JVMArgs) {
+    public UserInput setJVMArgs(String JVMArgs) {
         this.JVMArgs = JVMArgs;
         EntryPoint.JVMArgs = String.join(" ", JVMArgs.split(","));
         return this;
@@ -816,7 +816,7 @@ public class InputConfiguration {
         return verbose;
     }
 
-    public InputConfiguration setVerbose(boolean verbose) {
+    public UserInput setVerbose(boolean verbose) {
         this.verbose = verbose;
         EntryPoint.verbose = this.isVerbose();
         return this;
@@ -826,7 +826,7 @@ public class InputConfiguration {
         return this.amplifiers;
     }
 
-    public InputConfiguration setAmplifiers(List<AmplifierEnum> amplifiers) {
+    public UserInput setAmplifiers(List<AmplifierEnum> amplifiers) {
         this.amplifiers = amplifiers;
         return this;
     }
@@ -835,7 +835,7 @@ public class InputConfiguration {
         return nbIteration;
     }
 
-    public InputConfiguration setNbIteration(int nbIteration) {
+    public UserInput setNbIteration(int nbIteration) {
         this.nbIteration = nbIteration;
         return this;
     }
@@ -844,12 +844,12 @@ public class InputConfiguration {
         return testClasses;
     }
 
-    public InputConfiguration setTestClasses(List<String> testClasses) {
+    public UserInput setTestClasses(List<String> testClasses) {
         this.testClasses = testClasses;
         return this;
     }
 
-    public InputConfiguration setSelector(SelectorEnum selector) {
+    public UserInput setSelector(SelectorEnum selector) {
         this.selector = selector;
         return this;
     }
@@ -870,7 +870,7 @@ public class InputConfiguration {
         return testCases;
     }
 
-    public InputConfiguration setTestCases(List<String> testCases) {
+    public UserInput setTestCases(List<String> testCases) {
         this.testCases = testCases;
         return this;
     }
@@ -891,7 +891,7 @@ public class InputConfiguration {
         return clean;
     }
 
-    public InputConfiguration setClean(boolean clean) {
+    public UserInput setClean(boolean clean) {
         this.clean = clean;
         return this;
     }
@@ -904,7 +904,7 @@ public class InputConfiguration {
         return this.inputAmplDistributor;
     }
 
-    public InputConfiguration setInputAmplDistributor(InputAmplDistributorEnum inputAmplDistributor) {
+    public UserInput setInputAmplDistributor(InputAmplDistributorEnum inputAmplDistributor) {
         this.inputAmplDistributor = inputAmplDistributor;
         return this;
     }
@@ -929,7 +929,7 @@ public class InputConfiguration {
         return this.targetOneTestClass;
     }
 
-    public InputConfiguration setTargetOneTestClass(boolean targetOneTestClass) {
+    public UserInput setTargetOneTestClass(boolean targetOneTestClass) {
         this.targetOneTestClass = targetOneTestClass;
         return this;
     }

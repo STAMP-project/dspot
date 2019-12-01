@@ -14,7 +14,7 @@ import eu.stamp_project.dspot.common.configuration.DSpotState;
 import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
 import eu.stamp_project.dspot.common.execution.TestRunner;
 import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.Launcher;
@@ -58,7 +58,7 @@ public abstract class AbstractSelectorTest {
 
     protected Factory factory;
 
-    protected InputConfiguration configuration;
+    protected UserInput configuration;
 
     protected AutomaticBuilder builder;
 
@@ -75,7 +75,7 @@ public abstract class AbstractSelectorTest {
     @Before
     public void setUp() throws Exception {
         DSpotState.verbose = true;
-        this.configuration = new InputConfiguration();
+        this.configuration = new UserInput();
         this.configuration.setAbsolutePathToProjectRoot(getPathToAbsoluteProjectRoot());
         this.configuration.setOutputDirectory(outputDirectory);
         this.configuration.setGregorMode(true);

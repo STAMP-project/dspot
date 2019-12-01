@@ -1,11 +1,11 @@
 package eu.stamp_project.dspot;
 
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationException;
 import eu.stamp_project.dspot.common.configuration.AmplificationSetup;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
 import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
 import eu.stamp_project.dspot.common.configuration.TestTuple;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import eu.stamp_project.dspot.common.report.GlobalReport;
 import eu.stamp_project.dspot.common.report.error.Error;
 import org.slf4j.Logger;
@@ -31,9 +31,9 @@ public class DSpot {
     private Logger LOGGER;
     private GlobalReport GLOBAL_REPORT;
 
-    public DSpot(InputConfiguration inputConfiguration){
+    public DSpot(UserInput userInput){
         InitializeDSpot initializeDSpot = new InitializeDSpot();
-        initializeDSpot.init(inputConfiguration);
+        initializeDSpot.init(userInput);
         dSpotState = initializeDSpot.getDSpotState();
         setup(dSpotState);
     }

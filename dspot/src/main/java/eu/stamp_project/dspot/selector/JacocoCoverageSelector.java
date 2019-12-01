@@ -9,7 +9,7 @@ import eu.stamp_project.dspot.common.report.output.selector.coverage.json.TestCa
 import eu.stamp_project.dspot.common.report.output.selector.coverage.json.TestClassJSON;
 import eu.stamp_project.testrunner.listener.Coverage;
 import eu.stamp_project.testrunner.listener.CoveragePerTestMethod;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import eu.stamp_project.dspot.common.miscellaneous.Counter;
@@ -49,7 +49,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
     private TestSelectorElementReport lastReport;
 
     public JacocoCoverageSelector(AutomaticBuilder automaticBuilder,
-                                  InputConfiguration configuration) {
+                                  UserInput configuration) {
         super(automaticBuilder, configuration);
     }
 

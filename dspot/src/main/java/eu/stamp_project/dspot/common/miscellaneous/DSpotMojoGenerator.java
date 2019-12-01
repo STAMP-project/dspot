@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.common.miscellaneous;
 
 import eu.stamp_project.dspot.amplifier.amplifiers.StringLiteralAmplifier;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import spoon.Launcher;
 import spoon.processing.AbstractProcessor;
 import spoon.reflect.code.*;
@@ -71,7 +71,7 @@ public class DSpotMojoGenerator extends AbstractProcessor<CtClass<?>> {
             }).get(0);
             invokationToRemoveBlank.setArguments(EmptyClearableList.instance());
             final Launcher launcher = getLauncher();
-            final CtClass<?> configurationCtClass = launcher.getFactory().Class().get(InputConfiguration.class);
+            final CtClass<?> configurationCtClass = launcher.getFactory().Class().get(UserInput.class);
             final CtNewArray<String> newArray = getFactory().createNewArray();
             newArray.setType(getFactory().Type().createReference("java.lang.String[]"));
             for (CtField<?> field : configurationCtClass.getFields()) {

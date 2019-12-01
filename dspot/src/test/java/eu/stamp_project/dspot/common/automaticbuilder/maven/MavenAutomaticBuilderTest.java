@@ -2,10 +2,10 @@ package eu.stamp_project.dspot.common.automaticbuilder.maven;
 
 import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
 import eu.stamp_project.dspot.selector.pitmutantscoreselector.AbstractPitResult;
 import eu.stamp_project.dspot.selector.pitmutantscoreselector.PitXMLResultParser;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import spoon.Launcher;
@@ -26,7 +26,7 @@ public class MavenAutomaticBuilderTest {
 
     private Launcher launcher;
 
-    private InputConfiguration configuration;
+    private UserInput configuration;
 
     private AutomaticBuilder builder;
 
@@ -36,7 +36,7 @@ public class MavenAutomaticBuilderTest {
 
     public void setUp(String path, String filter, boolean isDescartesMode, String additionalClasspathElements) {
         this.parser = new PitXMLResultParser();
-        this.configuration = new InputConfiguration();
+        this.configuration = new UserInput();
         this.configuration.setAbsolutePathToProjectRoot(new File(path).getAbsolutePath());
         this.configuration.setGregorMode(!isDescartesMode);
         this.configuration.setFilter(filter);
@@ -58,7 +58,7 @@ public class MavenAutomaticBuilderTest {
 
     @Test
     public void testGetDependenciesOf() throws Exception {
-        InputConfiguration configuration = new InputConfiguration();
+        UserInput configuration = new UserInput();
         configuration.setAbsolutePathToProjectRoot(new File("src/test/resources/test-projects/").getAbsolutePath());
         AutomaticBuilder builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
         final String dependenciesOf = builder.buildClasspath();

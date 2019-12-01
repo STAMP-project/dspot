@@ -1,9 +1,9 @@
 package eu.stamp_project.dspot.common.configuration.check;
 
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import eu.stamp_project.dspot.common.report.error.Error;
 import eu.stamp_project.dspot.common.report.error.ErrorEnum;
 import org.slf4j.Logger;
@@ -25,7 +25,7 @@ public class Checker {
         Checking algo
      */
 
-    public static void preChecking(InputConfiguration configuration) {
+    public static void preChecking(UserInput configuration) {
         // project root is mandatory
 
         Checker.checkPathnameNotNullAndFileExist(
@@ -77,7 +77,7 @@ public class Checker {
         checkSystemProperties(configuration.getSystemProperties());
     }
 
-    public static void postChecking(InputConfiguration configuration) {
+    public static void postChecking(UserInput configuration) {
         // we check now the binaries folders after the compilation
         String currentPath = DSpotUtils.shouldAddSeparator.apply(configuration.getAbsolutePathToProjectRoot());
 

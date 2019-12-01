@@ -2,6 +2,7 @@ package eu.stamp_project.dspot.common.report.output;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
@@ -10,7 +11,6 @@ import eu.stamp_project.dspot.common.collector.NullCollector;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
 import eu.stamp_project.dspot.common.report.output.json.ClassTimeJSON;
 import eu.stamp_project.dspot.common.report.output.json.ProjectTimeJSON;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
@@ -124,11 +124,11 @@ public class Output {
         this.collector.reportSelectorInformation(report);
     }
 
-    public static Output get(InputConfiguration configuration, Collector collector) {
+    public static Output get(UserInput configuration, Collector collector) {
         return new Output(configuration.getAbsolutePathToProjectRoot(), configuration.getOutputDirectory(), collector);
     }
 
-    public static Output get(InputConfiguration configuration) {
+    public static Output get(UserInput configuration) {
         return new Output(configuration.getAbsolutePathToProjectRoot(), configuration.getOutputDirectory(), new NullCollector());
     }
 }

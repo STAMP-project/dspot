@@ -1,9 +1,9 @@
 package eu.stamp_project;
 
 import eu.stamp_project.dspot.DSpot;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.configuration.check.Checker;
 import eu.stamp_project.dspot.common.configuration.check.InputErrorException;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import picocli.CommandLine;
 
 /**
@@ -12,17 +12,17 @@ import picocli.CommandLine;
 public class Main {
 
     public static void main(String[] args) {
-        InputConfiguration inputConfiguration = parse(args);
-        if(inputConfiguration == null){
+        UserInput userInput = parse(args);
+        if(userInput == null){
             return;
         }
-        final DSpot dspot = new DSpot(inputConfiguration);
+        final DSpot dspot = new DSpot(userInput);
         dspot.run();
     }
 
-    public static InputConfiguration parse(String[] args) {
-        InputConfiguration inputConfiguration = new InputConfiguration();
-        final CommandLine commandLine = new CommandLine(inputConfiguration);
+    public static UserInput parse(String[] args) {
+        UserInput userInput = new UserInput();
+        final CommandLine commandLine = new CommandLine(userInput);
         commandLine.setUsageHelpWidth(120);
         try {
             commandLine.parseArgs(args);
@@ -39,16 +39,16 @@ public class Main {
             commandLine.printVersionHelp(System.out);
             return null;
         }
-        if (inputConfiguration.shouldRunExample()) {
-            inputConfiguration.configureExample();
+        if (userInput.shouldRunExample()) {
+            userInput.configureExample();
         }
         try {
-            Checker.preChecking(inputConfiguration);
+            Checker.preChecking(userInput);
         } catch (InputErrorException e) {
             e.printStackTrace();
             commandLine.usage(System.err);
             return null;
         }
-        return inputConfiguration;
+        return userInput;
     }
 }
