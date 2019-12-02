@@ -280,9 +280,9 @@ the dspot-web bot
 
     my @ret_dspot;
     if ( $extended =~ m!^bconfig$! ) {
-      $dspot_cmd = $dspot_cmd . ' -Diteration=1 -Damplifiers=FastLiteralAmplifier,MethodAdd,MethodRemove,MethodGeneratorAmplifier';
+      $dspot_cmd = $dspot_cmd . ' -Diteration=1 -Damplifiers=FastLiteralAmplifier,MethodDuplicationAmplifier,MethodRemove,MethodAdderOnExistingObjectsAmplifier';
     } elsif ( $extended =~ m!^zconfig$! ) {
-      $dspot_cmd = $dspot_cmd . ' -Diteration=1 -Damplifiers=MethodAdder,MethodRemove,FastAmpl,StringAmpl,ReturnValue,Nullifier';
+      $dspot_cmd = $dspot_cmd . ' -Diteration=1 -Damplifiers=MethodDuplicationAmplifier,MethodRemove,FastLiteralAmplifier,StringLiteralAmplifier,ReturnValueAmplifier,NullifierAmplifier';
     }
 
     print "  Executing [cd ${pdir_src}; $dspot_cmd | tee ../output/dspot.log]\n";
@@ -313,6 +313,10 @@ the dspot-web bot
     # Copy files to workspace/jobs
     my $d_out_jobs = File::Spec->catdir( ($jobsdir, $jobid) );
     dircopy($d_out_dspot, $d_out_jobs);
+
+    # Remove useless directories
+    rmtree( File::Spec->catdir( ($d_out_jobs, "original") ) );
+    rmtree( File::Spec->catdir( ($d_out_jobs, "binaries") ) );
     
     # Create a zip file including all results.
     print "  Zipping directory $pdir_out_dspot.\n";

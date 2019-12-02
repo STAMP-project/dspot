@@ -96,13 +96,13 @@
       <div class="form-check">
         <label class="form-check-label">
           <input class="form-check-input" name="optionsRadios" id="bconfig" value="bconfig" type="radio">
-          &nbsp; BConfig: <code>FastLiteralAmplifier</code>, <code>MethodAdd</code>, <code>MethodRemove</code>, <code>MethodGeneratorAmplifier</code>.
+          &nbsp; BConfig: <code>FastLiteralAmplifier</code>, <code>MethodDuplicationAmplifier</code>, <code>MethodRemove</code>, <code>MethodAdderOnExistingObjectsAmplifier</code>.
         </label>
       </div>
       <div class="form-check">
         <label class="form-check-label">
           <input class="form-check-input" name="optionsRadios" id="zconfig" value="zconfig" type="radio">
-          &nbsp; ZConfig: <code>MethodAdder</code>, <code>MethodRemove</code>, <code>FastAmpl</code>, <code>StringAmpl</code>, <code>ReturnValue</code>, <code>Nullifier</code>.
+          &nbsp; ZConfig: <code>MethodDuplicationAmplifier</code>, <code>MethodRemove</code>, <code>FastLiteralAmplifier</code>, <code>StringLiteralAmplifier</code>, <code>ReturnValueAmplifier</code>, <code>NullifierAmplifier</code>.
         </label>
       </div>
     </div>

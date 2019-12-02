@@ -36,6 +36,7 @@
 %   use Mojo::JSON qw(decode_json);
 %   my @files = <$jdir/*_report.json>;
 %   my $results = [];
+%   my $results_ok = [];  
 %   foreach my $f (@files) {
 %     my $data;
 %     {
@@ -46,6 +47,7 @@
 %     }
 %     my $conf = decode_json( $data );
 %     push( @$results, $conf );
+%     push( @$results_ok, $f ) if ( $conf->{'nbNewMutantKilled'} > 0 );			  
 %   }
 <h2>Results</h2>
 
@@ -82,7 +84,6 @@
 <br />
 
 <h2 id="tests">Tests</h2>
-
 % foreach my $f (@$tests) {
 %   my $content;
 %   {
