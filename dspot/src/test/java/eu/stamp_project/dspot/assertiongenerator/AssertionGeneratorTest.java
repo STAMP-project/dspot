@@ -4,6 +4,7 @@ import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.dspot.amplifier.amplifiers.value.ValueCreator;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionRemover;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
@@ -12,7 +13,6 @@ import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
 import eu.stamp_project.dspot.common.compilation.TestCompiler;
 import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
 import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -52,7 +52,7 @@ public class AssertionGeneratorTest extends AbstractTestOnSample {
 
     protected TestCompiler testCompiler;
 
-    private static InputConfiguration configuration;
+    private static UserInput configuration;
 
     private static String dependencies;
 
@@ -60,7 +60,7 @@ public class AssertionGeneratorTest extends AbstractTestOnSample {
 
     @BeforeClass
     public static void setUpClass() {
-        configuration = new InputConfiguration();
+        configuration = new UserInput();
         configuration.setAbsolutePathToProjectRoot(new File("src/test/resources/sample/").getAbsolutePath());
 
         AutomaticBuilder builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);

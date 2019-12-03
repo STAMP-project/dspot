@@ -35,80 +35,80 @@ public class InitializeDSpot {
     public InitializeDSpot() {
     }
 
-    public void init(InputConfiguration inputConfiguration) {
+    public void init(UserInput userInput) {
         this.DSpotState = new DSpotState();
-        DSpotState.setInputConfiguration(inputConfiguration);
-        DSpotState.verbose = inputConfiguration.isVerbose();
+        DSpotState.setUserInput(userInput);
+        DSpotState.verbose = userInput.isVerbose();
         DSpotState.setStartTime(System.currentTimeMillis());
         DSpotState.setTestFinder(new TestFinder(
-                Arrays.stream(inputConfiguration.getExcludedClasses().split(",")).collect(Collectors.toList()),
-                Arrays.stream(inputConfiguration.getExcludedTestCases().split(",")).collect(Collectors.toList())
+                Arrays.stream(userInput.getExcludedClasses().split(",")).collect(Collectors.toList()),
+                Arrays.stream(userInput.getExcludedTestCases().split(",")).collect(Collectors.toList())
         ));
-        DSpotState.setAutomaticBuilder(inputConfiguration.getBuilderEnum().getAutomaticBuilder(inputConfiguration));
-        final String dependencies = completeDependencies(inputConfiguration, DSpotState.getAutomaticBuilder());
+        DSpotState.setAutomaticBuilder(userInput.getBuilderEnum().getAutomaticBuilder(userInput));
+        final String dependencies = completeDependencies(userInput, DSpotState.getAutomaticBuilder());
         DSpotState.setCompiler(DSpotCompiler.createDSpotCompiler(
-                inputConfiguration,
+                userInput,
                 dependencies
         ));
-        inputConfiguration.setFactory(DSpotState.getCompiler().getLauncher().getFactory());
-        initHelpers(inputConfiguration);
+        userInput.setFactory(DSpotState.getCompiler().getLauncher().getFactory());
+        initHelpers(userInput);
         DSpotState.setTestCompiler(new TestCompiler(
-                inputConfiguration.getNumberParallelExecutionProcessors(),
-                inputConfiguration.shouldExecuteTestsInParallel(),
-                inputConfiguration.getAbsolutePathToProjectRoot(),
-                inputConfiguration.getClasspathClassesProject(),
-                inputConfiguration.getTimeOutInMs(),
-                inputConfiguration.getPreGoalsTestExecution(),
-                inputConfiguration.shouldUseMavenToExecuteTest()
+                userInput.getNumberParallelExecutionProcessors(),
+                userInput.shouldExecuteTestsInParallel(),
+                userInput.getAbsolutePathToProjectRoot(),
+                userInput.getClasspathClassesProject(),
+                userInput.getTimeOutInMs(),
+                userInput.getPreGoalsTestExecution(),
+                userInput.shouldUseMavenToExecuteTest()
         ));
         final EmailSender emailSender = new EmailSender(
-                inputConfiguration.getSmtpUsername(),
-                inputConfiguration.getSmtpPassword(),
-                inputConfiguration.getSmtpHost(),
-                inputConfiguration.getSmtpPort(),
-                inputConfiguration.isSmtpAuth(),
-                inputConfiguration.getSmtpTls()
+                userInput.getSmtpUsername(),
+                userInput.getSmtpPassword(),
+                userInput.getSmtpHost(),
+                userInput.getSmtpPort(),
+                userInput.isSmtpAuth(),
+                userInput.getSmtpTls()
         );
-        DSpotState.setCollector(CollectorFactory.build(inputConfiguration, emailSender));
+        DSpotState.setCollector(CollectorFactory.build(userInput, emailSender));
         DSpotState.getCollector().reportInitInformation(
-                inputConfiguration.getAmplifiers(),
-                inputConfiguration.getSelector(),
-                inputConfiguration.getNbIteration(),
-                inputConfiguration.isGregorMode(),
-                !inputConfiguration.isGregorMode(),
-                inputConfiguration.getNumberParallelExecutionProcessors()
+                userInput.getAmplifiers(),
+                userInput.getSelector(),
+                userInput.getNbIteration(),
+                userInput.isGregorMode(),
+                !userInput.isGregorMode(),
+                userInput.getNumberParallelExecutionProcessors()
         );
-        DSpotState.setTestClassesToBeAmplified(DSpotState.getTestFinder().findTestClasses(inputConfiguration.getTestClasses()));
-        DSpotState.setTestMethodsToBeAmplifiedNames(inputConfiguration.getTestCases());
+        DSpotState.setTestClassesToBeAmplified(DSpotState.getTestFinder().findTestClasses(userInput.getTestClasses()));
+        DSpotState.setTestMethodsToBeAmplifiedNames(userInput.getTestCases());
         if (DSpotState.getTestMethodsToBeAmplifiedNames().size() == 1 &&
                 DSpotState.getTestMethodsToBeAmplifiedNames().get(0).isEmpty()) {
             DSpotState.getTestMethodsToBeAmplifiedNames().clear();
         }
-        DSpotState.setTestSelector(inputConfiguration.getSelector().buildSelector(DSpotState.getAutomaticBuilder(), inputConfiguration));
-        final List<Amplifier> amplifiers = inputConfiguration
+        DSpotState.setTestSelector(userInput.getSelector().buildSelector(DSpotState.getAutomaticBuilder(), userInput));
+        final List<Amplifier> amplifiers = userInput
                 .getAmplifiers()
                 .stream()
                 .map(AmplifierEnum::getAmplifier)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-        DSpotState.setInputAmplDistributor(inputConfiguration
+        DSpotState.setInputAmplDistributor(userInput
                 .getInputAmplDistributor()
-                .getInputAmplDistributor(inputConfiguration.getMaxTestAmplified(), amplifiers));
+                .getInputAmplDistributor(userInput.getMaxTestAmplified(), amplifiers));
         DSpotState.setOutput(new Output(
-                inputConfiguration.getAbsolutePathToProjectRoot(),
-                inputConfiguration.getOutputDirectory(),
+                userInput.getAbsolutePathToProjectRoot(),
+                userInput.getOutputDirectory(),
                 DSpotState.getCollector()
 
         ));
-        DSpotState.setAssertionGenerator(new AssertionGenerator(inputConfiguration.getDelta(), DSpotState.getCompiler(), DSpotState.getTestCompiler()));
-        Checker.postChecking(inputConfiguration);
+        DSpotState.setAssertionGenerator(new AssertionGenerator(userInput.getDelta(), DSpotState.getCompiler(), DSpotState.getTestCompiler()));
+        Checker.postChecking(userInput);
         DSpotState.setCollectData(true);
-        DSpotState.setDelta(inputConfiguration.getDelta());
-        DSpotState.setNbIteration(inputConfiguration.getNbIteration());
-        DSpotState.verbose = inputConfiguration.isVerbose();
+        DSpotState.setDelta(userInput.getDelta());
+        DSpotState.setNbIteration(userInput.getNbIteration());
+        DSpotState.verbose = userInput.isVerbose();
     }
 
-    public void initHelpers(InputConfiguration configuration) {
+    public void initHelpers(UserInput configuration) {
         TestFramework.init(configuration.getFactory());
         AmplificationHelper.init(
                 configuration.getTimeOutInMs(),
@@ -139,7 +139,7 @@ public class InitializeDSpot {
         }
     }
 
-    public String completeDependencies(InputConfiguration configuration, AutomaticBuilder automaticBuilder) {
+    public String completeDependencies(UserInput configuration, AutomaticBuilder automaticBuilder) {
         String dependencies = configuration.getDependencies();
         final String additionalClasspathElements = configuration.getAdditionalClasspathElements();
         final String absolutePathToProjectRoot = configuration.getAbsolutePathToProjectRoot();
@@ -167,7 +167,7 @@ public class InitializeDSpot {
         return dependencies;
     }
 
-    public void createOutputDirectories(InputConfiguration configuration) {
+    public void createOutputDirectories(UserInput configuration) {
         final File outputDirectory = new File(configuration.getOutputDirectory());
         try {
             if (configuration.shouldClean() && outputDirectory.exists()) {

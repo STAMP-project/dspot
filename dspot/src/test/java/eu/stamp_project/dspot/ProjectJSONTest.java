@@ -22,7 +22,7 @@ import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
 import eu.stamp_project.dspot.common.report.output.json.ProjectTimeJSON;
 import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
 import eu.stamp_project.dspot.common.configuration.options.InputAmplDistributorEnum;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.report.output.Output;
 import eu.stamp_project.dspot.common.configuration.test_finder.TestFinder;
 import org.apache.commons.io.FileUtils;
@@ -46,7 +46,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class ProjectJSONTest extends AbstractTestOnSample {
 
-    private InputConfiguration configuration;
+    private UserInput configuration;
 
     private AutomaticBuilder builder;
 
@@ -65,7 +65,7 @@ public class ProjectJSONTest extends AbstractTestOnSample {
     @Before
     public void setUp() {
         super.setUp();
-        this.configuration = new InputConfiguration();
+        this.configuration = new UserInput();
         this.configuration.setAbsolutePathToProjectRoot(getPathToProjectRoot());
         this.configuration.setOutputDirectory(outputDirectory);
         this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);

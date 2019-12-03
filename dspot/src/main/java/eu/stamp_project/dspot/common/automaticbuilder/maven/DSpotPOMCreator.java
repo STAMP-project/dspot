@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.common.automaticbuilder.maven;
 
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -87,11 +87,11 @@ public class DSpotPOMCreator {
     public static boolean isCurrentlyJUnit5;
 
     /*
-      This boolean is redundant with InputConfiguration.isJUnit5(), but it allows to create two pom directly.
+      This boolean is redundant with UserInput.isJUnit5(), but it allows to create two pom directly.
       We build two DSpotPOMCreator with true and false, and generate two different pom.
       In this, way, we reuse the same code to generate.
       We do that because at the moment we generate the pom, we do not if we  amplify JUnit5 tests or JUnit4.
-      Then, we use InputConfiguration.isJUnit5() to know which pom must be used.
+      Then, we use UserInput.isJUnit5() to know which pom must be used.
    */
     private boolean isJUnit5;
 
@@ -119,7 +119,7 @@ public class DSpotPOMCreator {
 
     private int timeOutInMs;
 
-    private DSpotPOMCreator(InputConfiguration configuration, boolean isJUnit5) {
+    private DSpotPOMCreator(UserInput configuration, boolean isJUnit5) {
         this.isJUnit5 = isJUnit5;
         if (configuration != null) {
             this.absolutePathToProjectRoot = configuration.getAbsolutePathToProjectRoot();
@@ -137,13 +137,13 @@ public class DSpotPOMCreator {
         }
     }
 
-    public static void createNewPom(InputConfiguration configuration) {
+    public static void createNewPom(UserInput configuration) {
         new DSpotPOMCreator(configuration, true)._innerCreatePom();
         new DSpotPOMCreator(configuration, false)._innerCreatePom();
     }
 
     // TODO
-    public static String createNewPomForComputingClassPathWithParallelExecution(boolean isJUnit5, InputConfiguration configuration) {
+    public static String createNewPomForComputingClassPathWithParallelExecution(boolean isJUnit5, UserInput configuration) {
         return new DSpotPOMCreator(configuration, isJUnit5).
                     _createNewPomForComputingClassPathWithParallelExecution();
     }

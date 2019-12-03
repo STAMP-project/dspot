@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.common.automaticbuilder.gradle;
 
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -35,7 +35,7 @@ public class GradleInjectorTest {
             test the injection of what we need in the build.gradle
          */
 
-        InputConfiguration configuration = new InputConfiguration();
+        UserInput configuration = new UserInput();
         configuration.setAbsolutePathToProjectRoot("src/test/resources/");
         configuration.setExcludedClasses("fr.inria.filter.failing.*");
         configuration.setJVMArgs("-Xmx2048m,-Xms1024m");
@@ -72,7 +72,7 @@ public class GradleInjectorTest {
                     url "https://plugins.gradle.org/m2/"
                 }
          */
-        InputConfiguration configuration = new InputConfiguration();
+        UserInput configuration = new UserInput();
         configuration.setAbsolutePathToProjectRoot("src/test/");
         configuration.setExcludedClasses("fr.inria.filter.failing.*");
         configuration.setJVMArgs("-Xmx2048m,-Xms1024m");
@@ -101,7 +101,7 @@ public class GradleInjectorTest {
                     ...
                 }
          */
-        InputConfiguration configuration = new InputConfiguration();
+        UserInput configuration = new UserInput();
         configuration.setExcludedClasses("fr.inria.filter.failing.*");
         configuration.setJVMArgs("-Xmx2048m,-Xms1024m");
         configuration.setFilter("fr.inria.sample.*");
@@ -143,7 +143,7 @@ public class GradleInjectorTest {
                     ...
                 }
          */
-        InputConfiguration configuration = new InputConfiguration();
+        UserInput configuration = new UserInput();
         configuration.setExcludedClasses("fr.inria.filter.failing.*");
         configuration.setJVMArgs("-Xmx2048m,-Xms1024m");
         configuration.setFilter("fr.inria.sample.*");

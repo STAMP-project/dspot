@@ -11,7 +11,7 @@ import eu.stamp_project.dspot.common.report.output.selector.change.json.TestClas
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.testrunner.runner.Failure;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import eu.stamp_project.dspot.common.miscellaneous.Counter;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
@@ -44,7 +44,7 @@ public class ChangeDetectorSelector extends AbstractTestSelector {
     private String secondVersionTargetClasses;
 
     public ChangeDetectorSelector(AutomaticBuilder automaticBuilder,
-                                  InputConfiguration configuration) {
+                                  UserInput configuration) {
         super(automaticBuilder, configuration);
         this.failurePerAmplifiedTest = new HashMap<>();
         this.pathToFirstVersionOfProgram = DSpotUtils.shouldAddSeparator.apply(configuration.getAbsolutePathToProjectRoot());

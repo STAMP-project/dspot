@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.common.automaticbuilder.maven;
 
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import org.junit.Test;
 
@@ -24,7 +24,7 @@ public class DSpotPOMCreatorTest {
             Test the copy and injection of the profile to run different foals in the origial pom.xml
          */
 
-        InputConfiguration configuration = new InputConfiguration();
+        UserInput configuration = new UserInput();
         configuration.setFilter("example.*");
         configuration.setAbsolutePathToProjectRoot("src/test/resources/test-projects/");
         configuration.setJVMArgs("-Xmx2048m,-Xms1024m");
@@ -56,7 +56,7 @@ public class DSpotPOMCreatorTest {
 
         // TODO system properties are not used in DSpotPOMCreator
 
-        InputConfiguration configuration = new InputConfiguration();
+        UserInput configuration = new UserInput();
         configuration.setFilter("fr.inria.sample.*");
         configuration.setAbsolutePathToProjectRoot("src/test/resources/sample/");
         configuration.setJVMArgs("-Xmx2048m,-Xms1024m");

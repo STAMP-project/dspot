@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.selector.pitmutantscoreselector.*;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
@@ -18,7 +19,6 @@ import eu.stamp_project.dspot.common.report.output.selector.mutant.json.TestCase
 import eu.stamp_project.dspot.common.report.output.selector.mutant.json.TestClassJSON;
 import eu.stamp_project.dspot.common.miscellaneous.Counter;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtClass;
@@ -63,7 +63,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     private List<String> mutationsScoreResults;
 
     public PitMutantScoreSelector(AutomaticBuilder automaticBuilder,
-                                  InputConfiguration configuration) {
+                                  UserInput configuration) {
         super(automaticBuilder, configuration);
         this.mutationsScoreResults = new ArrayList<>();
         this.absolutePathToProjectRoot = configuration.getAbsolutePathToProjectRoot();

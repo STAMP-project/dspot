@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.common.compilation;
 
 import eu.stamp_project.dspot.amplifier.amplifiers.Amplifier;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class DSpotCompilerTest {
     @Test
     public void testDSpotCompiler() throws Exception {
 
-        final InputConfiguration configuration = new InputConfiguration();
+        final UserInput configuration = new UserInput();
         configuration.setAbsolutePathToProjectRoot("src/test/resources/test-projects/");
         final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(configuration, "");
         TestCompiler testCompiler = new TestCompiler(0,

@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.common.automaticbuilder.gradle;
 
 import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
@@ -39,7 +39,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
 
     private String absolutePathToProjectRoot;
 
-    public GradleAutomaticBuilder(InputConfiguration configuration) {
+    public GradleAutomaticBuilder(UserInput configuration) {
         this.absolutePathToProjectRoot = configuration.getAbsolutePathToProjectRoot();
         this.gradleInjector = new GradleInjector(
                 this.absolutePathToProjectRoot + File.separator + GradleInjector.GRADLE_BUILD_FILE,

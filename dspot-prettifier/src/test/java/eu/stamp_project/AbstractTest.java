@@ -3,8 +3,8 @@ package eu.stamp_project;
 import eu.stamp_project.dspot.amplifier.amplifiers.value.ValueCreator;
 import eu.stamp_project.dspot.amplifier.amplifiers.utils.RandomHelper;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import org.junit.Before;
 
 /**
@@ -18,13 +18,13 @@ public abstract class AbstractTest {
         return "src/test/resources/sample/";
     }
 
-    protected InputConfiguration configuration;
+    protected UserInput configuration;
 
     @Before
     public void setUp() throws Exception {
         RandomHelper.setSeedRandom(72L);
         ValueCreator.count = 0;
-        this.configuration = new InputConfiguration();
+        this.configuration = new UserInput();
         this.configuration.setAbsolutePathToProjectRoot(this.getPathToPropertiesFile());
         this.configuration.setVerbose(true);
         this.configuration.setBuilderEnum(AutomaticBuilderEnum.Maven);

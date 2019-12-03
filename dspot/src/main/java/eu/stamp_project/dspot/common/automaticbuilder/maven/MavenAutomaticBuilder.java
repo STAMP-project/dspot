@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.common.automaticbuilder.maven;
 
 import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
@@ -52,7 +52,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         this.absolutePathToProjectRoot = absolutePathToProjectRoot;
     }
 
-    public MavenAutomaticBuilder(InputConfiguration configuration) {
+    public MavenAutomaticBuilder(UserInput configuration) {
         this.shouldExecuteTestsInParallel = configuration.shouldExecuteTestsInParallel();
         DSpotPOMCreator.createNewPom(configuration);
         this.absolutePathToProjectRoot = configuration.getAbsolutePathToProjectRoot();
@@ -211,7 +211,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         return DSpotPOMCreator.REPORT_DIRECTORY_VALUE;
     }
 
-    private String buildMavenHome(InputConfiguration configuration) {
+    private String buildMavenHome(UserInput configuration) {
         String mavenHome = null;
         if (configuration != null ) {
             if (configuration.getMavenHome() != null && !configuration.getMavenHome().isEmpty()) {

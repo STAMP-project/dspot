@@ -29,7 +29,7 @@ import java.util.List;
 public class DSpotState {
 
     private int nbIteration;
-    private InputConfiguration inputConfiguration;
+    private UserInput userInput;
     private List<CtType<?>> testClassesToBeAmplified;
     private List<String> testMethodsToBeAmplifiedNames;
     private TestSelector testSelector;
@@ -50,7 +50,7 @@ public class DSpotState {
     private double delta;
 
     public DSpotState() {
-        inputConfiguration = new InputConfiguration();
+        userInput = new UserInput();
         testMethodsToBeAmplifiedNames = Collections.emptyList();
         collectData = false;
     }
@@ -72,12 +72,12 @@ public class DSpotState {
         this.nbIteration = nbIteration;
     }
 
-    public InputConfiguration getInputConfiguration() {
-        return inputConfiguration;
+    public UserInput getUserInput() {
+        return userInput;
     }
 
-    public void setInputConfiguration(InputConfiguration inputConfiguration) {
-        this.inputConfiguration = inputConfiguration;
+    public void setUserInput(UserInput userInput) {
+        this.userInput = userInput;
     }
 
     public List<CtType<?>> getTestClassesToBeAmplified() {
@@ -197,7 +197,7 @@ public class DSpotState {
     }
 
     public boolean shouldGenerateAmplifiedTestClass() {
-        return inputConfiguration.shouldGenerateAmplifiedTestClass();
+        return userInput.shouldGenerateAmplifiedTestClass();
     }
 
     public GlobalReport getGlobalReport() {

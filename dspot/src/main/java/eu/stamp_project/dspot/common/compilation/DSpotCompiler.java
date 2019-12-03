@@ -1,8 +1,8 @@
 package eu.stamp_project.dspot.common.compilation;
 
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.slf4j.Logger;
@@ -37,7 +37,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 
 	private static String absolutePathToProjectRoot;
 
-	public static DSpotCompiler createDSpotCompiler(InputConfiguration configuration, String pathToDependencies) {
+	public static DSpotCompiler createDSpotCompiler(UserInput configuration, String pathToDependencies) {
 		DSpotCompiler.absolutePathToProjectRoot = configuration.getAbsolutePathToProjectRoot();
 		String pathToSources = configuration.getAbsolutePathToSourceCode()
 				+ PATH_SEPARATOR +
@@ -46,7 +46,7 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 		return new DSpotCompiler(launcher, configuration, pathToDependencies);
 	}
 
-	private DSpotCompiler(Launcher launcher, InputConfiguration configuration, String pathToDependencies) {
+	private DSpotCompiler(Launcher launcher, UserInput configuration, String pathToDependencies) {
 		super(launcher.getFactory());
 		this.dependencies = pathToDependencies;
 		this.launcher = launcher;

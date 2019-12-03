@@ -84,7 +84,7 @@ public class DSpotUtilsTest extends AbstractTestOnSample {
         /*
             Test the method getAllTestClasses.
                 This method should return an array of all the test classes, i.e. class that contains at least one test method.
-                This array should not contain any test class that has been excluded, see InputConfiguration#excludedClasses
+                This array should not contain any test class that has been excluded, see UserInput#excludedClasses
          */
 
 //        final String[] allTestClasses = DSpotUtils.getAllTestClasses();

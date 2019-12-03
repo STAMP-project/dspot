@@ -2,10 +2,10 @@ package eu.stamp_project.dspot.common.compilation;
 
 import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.AbstractTestOnSample;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
 import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -24,7 +24,7 @@ public class TestCompilerTest extends AbstractTestOnSample {
 
     @Test
     public void test() {
-        final InputConfiguration configuration = new InputConfiguration();
+        final UserInput configuration = new UserInput();
         configuration.setAbsolutePathToProjectRoot(getPathToProjectRoot());
         final AutomaticBuilder builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
         InitializeDSpot initializeDSpot = new InitializeDSpot();

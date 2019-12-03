@@ -10,7 +10,7 @@ import eu.stamp_project.dspot.common.collector.NullCollector;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
 import eu.stamp_project.dspot.common.report.output.json.ClassTimeJSON;
 import eu.stamp_project.dspot.common.report.output.json.ProjectTimeJSON;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
@@ -124,11 +124,11 @@ public class Output {
         this.collector.reportSelectorInformation(report);
     }
 
-    public static Output get(InputConfiguration configuration, Collector collector) {
+    public static Output get(UserInput configuration, Collector collector) {
         return new Output(configuration.getAbsolutePathToProjectRoot(), configuration.getOutputDirectory(), collector);
     }
 
-    public static Output get(InputConfiguration configuration) {
+    public static Output get(UserInput configuration) {
         return new Output(configuration.getAbsolutePathToProjectRoot(), configuration.getOutputDirectory(), new NullCollector());
     }
 }

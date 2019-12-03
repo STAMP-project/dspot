@@ -10,7 +10,7 @@ import eu.stamp_project.prettifier.context2name.Context2Name;
 import eu.stamp_project.prettifier.minimization.GeneralMinimizer;
 import eu.stamp_project.prettifier.minimization.Minimizer;
 import eu.stamp_project.prettifier.minimization.PitMutantMinimizer;
-import eu.stamp_project.prettifier.options.InputConfiguration;
+import eu.stamp_project.prettifier.options.UserInput;
 import eu.stamp_project.prettifier.output.PrettifiedTestMethods;
 import eu.stamp_project.prettifier.output.report.ReportJSON;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
@@ -48,7 +48,7 @@ public class Main {
     public static ReportJSON report = new ReportJSON();
 
     public static void main(String[] args) {
-        InputConfiguration inputConfiguration = new InputConfiguration();
+        UserInput inputConfiguration = new UserInput();
         final CommandLine commandLine = new CommandLine(inputConfiguration);
         commandLine.setUsageHelpWidth(120);
         try {
@@ -80,7 +80,7 @@ public class Main {
         run(inputConfiguration);
     }
 
-    public static void run(InputConfiguration configuration) {
+    public static void run(UserInput configuration) {
         final CtType<?> amplifiedTestClass = loadAmplifiedTestClass(configuration);
         final List<CtMethod<?>> prettifiedAmplifiedTestMethods =
                 run(
@@ -91,7 +91,7 @@ public class Main {
         output(amplifiedTestClass, prettifiedAmplifiedTestMethods, configuration);
     }
 
-    public static CtType<?> loadAmplifiedTestClass(InputConfiguration configuration) {
+    public static CtType<?> loadAmplifiedTestClass(UserInput configuration) {
         Launcher launcher = new Launcher();
         launcher.getEnvironment().setNoClasspath(true);
         launcher.addInputResource(configuration.getPathToAmplifiedTestClass());
@@ -100,7 +100,7 @@ public class Main {
     }
 
     public static List<CtMethod<?>> run(CtType<?> amplifiedTestClass,
-                                        InputConfiguration configuration) {
+                                        UserInput configuration) {
         InitializeDSpot initializeDSpot = new InitializeDSpot();
         final AutomaticBuilder automaticBuilder = configuration.getBuilderEnum().getAutomaticBuilder(configuration);
         final String dependencies = initializeDSpot.completeDependencies(configuration, automaticBuilder);
@@ -127,7 +127,7 @@ public class Main {
 
     public static List<CtMethod<?>> applyMinimization(List<CtMethod<?>> amplifiedTestMethodsToBeMinimized,
                                                       CtType<?> amplifiedTestClass,
-                                                      InputConfiguration configuration) {
+                                                      UserInput configuration) {
 
         Main.report.medianNbStatementBefore = Main.getMedian(amplifiedTestMethodsToBeMinimized.stream()
                 .map(ctMethod -> ctMethod.getElements(new TypeFilter<>(CtStatement.class)))
@@ -173,7 +173,7 @@ public class Main {
     }
 
     public static void applyCode2Vec(List<CtMethod<?>> amplifiedTestMethodsToBeRenamed,
-                                     InputConfiguration configuration) {
+                                     UserInput configuration) {
         Code2VecWriter writer = new Code2VecWriter(configuration.getPathToRootOfCode2Vec());
         Code2VecParser parser = new Code2VecParser();
         Code2VecExecutor code2VecExecutor = null;
@@ -228,7 +228,7 @@ public class Main {
 
     public static void output(CtType<?> amplifiedTestClass,
                               List<CtMethod<?>> prettifiedAmplifiedTestMethods,
-                              InputConfiguration configuration) {
+                              UserInput configuration) {
         new PrettifiedTestMethods(configuration.getOutputDirectory())
                 .output(amplifiedTestClass, prettifiedAmplifiedTestMethods);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();

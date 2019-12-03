@@ -3,11 +3,11 @@ package eu.stamp_project.dspot.assertiongenerator.assertiongenerator;
 import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.TestWithLogGenerator;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
 import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.OutputType;
@@ -258,7 +258,7 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
             Test that the AssertionRemover remove all kind of assertions
 		 */
 
-        InputConfiguration configuration = new InputConfiguration();
+        UserInput configuration = new UserInput();
         configuration.setAbsolutePathToProjectRoot(new File(getPathToProjectRoot()).getAbsolutePath());
 //        new TestCompiler(0,
 //                false,

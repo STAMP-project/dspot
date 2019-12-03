@@ -10,9 +10,9 @@ import picocli.CommandLine;
  * on 11/02/19
  */
 @CommandLine.Command(name = "eu.stamp_project.Main", mixinStandardHelpOptions = true)
-public class InputConfiguration extends eu.stamp_project.dspot.common.configuration.InputConfiguration {
+public class UserInput extends eu.stamp_project.dspot.common.configuration.UserInput {
 
-    public InputConfiguration() {
+    public UserInput() {
 
     }
 
@@ -27,7 +27,7 @@ public class InputConfiguration extends eu.stamp_project.dspot.common.configurat
         return this.pathToAmplifiedTestClass;
     }
 
-    public InputConfiguration setPathToAmplifiedTestClass(String pathToAmplifiedTestClass) {
+    public UserInput setPathToAmplifiedTestClass(String pathToAmplifiedTestClass) {
         if (!pathToAmplifiedTestClass.endsWith(".java")) {
             // TODO must add this error to the global report
             throw new InputErrorException();
@@ -50,7 +50,7 @@ public class InputConfiguration extends eu.stamp_project.dspot.common.configurat
         return pathToRootOfCode2Vec;
     }
 
-    public InputConfiguration setPathToRootOfCode2Vec(String pathToRootOfCode2Vec) {
+    public UserInput setPathToRootOfCode2Vec(String pathToRootOfCode2Vec) {
         this.pathToRootOfCode2Vec = DSpotUtils.shouldAddSeparator.apply(pathToRootOfCode2Vec);
         return this;
     }
@@ -66,7 +66,7 @@ public class InputConfiguration extends eu.stamp_project.dspot.common.configurat
         return relativePathToModelForCode2Vec;
     }
 
-    public InputConfiguration setRelativePathToModelForCode2Vec(String relativePathToModelForCode2Vec) {
+    public UserInput setRelativePathToModelForCode2Vec(String relativePathToModelForCode2Vec) {
         this.relativePathToModelForCode2Vec = relativePathToModelForCode2Vec;
         return this;
     }
@@ -77,7 +77,7 @@ public class InputConfiguration extends eu.stamp_project.dspot.common.configurat
         return this.timeToWaitForCode2vecInMillis;
     }
 
-    public InputConfiguration setTimeToWaitForCode2vecInMillis(long timeToWaitForCode2vecInMillis) {
+    public UserInput setTimeToWaitForCode2vecInMillis(long timeToWaitForCode2vecInMillis) {
         this.timeToWaitForCode2vecInMillis = timeToWaitForCode2vecInMillis;
         return this;
     }
@@ -90,7 +90,7 @@ public class InputConfiguration extends eu.stamp_project.dspot.common.configurat
         return pathToRootOfContext2Name;
     }
 
-    public InputConfiguration setPathToRootOfContext2Name(String pathToRootOfContext2Name) {
+    public UserInput setPathToRootOfContext2Name(String pathToRootOfContext2Name) {
         this.pathToRootOfContext2Name = DSpotUtils.shouldAddSeparator.apply(pathToRootOfContext2Name);
         return this;
     }
@@ -101,7 +101,7 @@ public class InputConfiguration extends eu.stamp_project.dspot.common.configurat
         return relativePathToModelForContext2Name;
     }
 
-    public InputConfiguration setRelativePathToModelForContext2Name(String relativePathToModelForContext2Name) {
+    public UserInput setRelativePathToModelForContext2Name(String relativePathToModelForContext2Name) {
         this.relativePathToModelForContext2Name = relativePathToModelForContext2Name;
         return this;
     }
@@ -112,7 +112,7 @@ public class InputConfiguration extends eu.stamp_project.dspot.common.configurat
         return this.timeToWaitForContext2nameInMillis;
     }
 
-    public InputConfiguration setTimeToWaitForContext2nameInMillis(long timeToWaitForContext2nameInMillis) {
+    public UserInput setTimeToWaitForContext2nameInMillis(long timeToWaitForContext2nameInMillis) {
         this.timeToWaitForContext2nameInMillis = timeToWaitForContext2nameInMillis;
         return this;
     }
