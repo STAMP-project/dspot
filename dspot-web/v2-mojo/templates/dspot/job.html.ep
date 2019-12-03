@@ -49,7 +49,7 @@
 %     push( @$results, $conf );
 %     push( @$results_ok, $f ) if ( $conf->{'nbNewMutantKilled'} > 0 );			  
 %   }
-<h2>Results</h2>
+<h2>DSpot Results</h2>
 
 <table class="table table-striped table-hover ">
   <thead>
@@ -81,7 +81,25 @@
   </tbody>
 </table> 
 
+% my $f = "${jobs_dir}/$job_id/results.zip";
+% if ( -f $f ) {
+
+<p>You can download results <a href="/jobs/<%= $job_id %>/results.zip">as a ZIP file here</a>.</p>
+
+% }
+
 <br />
+
+% my $f = "${jobs_dir}/${job_id}/descartes.zip";
+% if ( -f $f ) {
+
+<h2 id="descartes">Descartes results</h2>
+
+<p>You can download Descartes results (i.e. all XML files) <a href="/jobs/<%= $job_id %>/descartes.zip">as a ZIP file here</a>.</p>
+
+<br />
+
+% }
 
 <h2 id="tests">Tests</h2>
 % foreach my $f (@$tests) {

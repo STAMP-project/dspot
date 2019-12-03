@@ -51,7 +51,7 @@
 %     my $conf = decode_json( $data );
 %     push( @$results, $conf );
 %   }
-<h2>Results</h2>
+<h2>DSpot Results</h2>
 
 <p>Here is the list of test classes that have been investigated, and the number of newly generated test cases.</p>
 
@@ -85,10 +85,22 @@
 </table> 
 % }
 
-% my $f = "$wdir/$repo/results.zip";
+% my $f = "${wdir}/${repo}/results.zip";
 % if ( -f $f ) {
 
-<p>You can download <a href="/projects/<%= $repo %>/results.zip">results as a ZIP file</a>.</p>
+<p>You can download dspot results <a href="/projects/<%= $repo %>/results.zip">as a ZIP file here</a>.</p>
+
+% }
+
+<br />
+
+% $f = "${wdir}/${repo}/descartes.zip";
+% if ( -f $f ) {
+<h2 id="descartes">Descartes results</h2>
+
+<p>You can download Descartes results (i.e. all XML files) <a href="/projects/<%= $repo %>/descartes.zip">as a ZIP file here</a>.</p>
+
+<br />
 
 % }
 
