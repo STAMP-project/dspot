@@ -7,6 +7,7 @@ use Data::Dumper;
 
 use File::Spec;
 use File::Path qw(make_path rmtree);
+use File::Copy;
 use File::Copy::Recursive qw(dircopy);
 
 use Archive::Zip qw( :ERROR_CODES :CONSTANTS );
@@ -319,6 +320,21 @@ the dspot-web bot
     rmtree( File::Spec->catdir( ($d_out_jobs, "binaries") ) );
     
     # Create a zip file including all results.
+    print "  Zipping Descartes results $pdir_out_dspot.\n";
+    my $zip_d = Archive::Zip->new();
+    # Add all xml files from dspot output directory
+    for my $f (<$d_out_jobs/*.xml>) {
+      $zip_d->addFile( $f );
+    }
+    # Save the Zip file
+    my $zip_file_d = File::Spec->catfile( $pdir, 'descartes.zip' );
+    unless ( $zip_d->writeToFileNamed( $zip_file_d ) == AZ_OK ) {
+      die "ERROR zip write [$zip_file_d].";
+    }
+    # Copy the zip file to job directory.
+    copy( $zip_file_d, $d_out_jobs );
+    
+    # Create a zip file including all results.
     print "  Zipping directory $pdir_out_dspot.\n";
     my $zip = Archive::Zip->new();
     # Add a directory
@@ -328,6 +344,8 @@ the dspot-web bot
     unless ( $zip->writeToFileNamed( $zip_file ) == AZ_OK ) {
       die "ERROR zip write [$zip_file].";
     }
+    # Copy the zip file to job directory.
+    copy( $zip_file, $d_out_jobs );
     
     # Read projects information.
     my $projects = File::Spec->catfile( $wdir, 'projects.json');
