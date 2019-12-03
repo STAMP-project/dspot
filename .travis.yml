@@ -8,6 +8,10 @@ sudo: required
 
 jdk: openjdk8
 
+os:
+  - linux
+  - osx
+
 env:
   - SCRIPT=travis-openjdk8.sh
   - SCRIPT=travis-oraclejdk8.sh
@@ -33,6 +37,7 @@ before_install:
 # Pull Mongodb image to test
 - docker pull mongo:latest
 - docker run -d --net=host mongo:latest
+- docker run -d -p "27017:27017" mongo
 
 install:
 - export DSPOT_VERSION=`grep '<version>' dspot/pom.xml | head -n 1 | sed -e 's/<version>//' -e 's/<\\/version>//' -e 's/ *//g'`
