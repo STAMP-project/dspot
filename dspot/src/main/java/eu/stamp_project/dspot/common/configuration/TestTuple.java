@@ -1,4 +1,4 @@
-package eu.stamp_project.utils.configuration;
+package eu.stamp_project.dspot.common.configuration;
 
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;

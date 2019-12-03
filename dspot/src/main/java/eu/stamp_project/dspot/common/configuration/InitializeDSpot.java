@@ -1,20 +1,22 @@
-package eu.stamp_project.utils.configuration;
+package eu.stamp_project.dspot.common.configuration;
 
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.dspot.amplifier.Amplifier;
+import eu.stamp_project.dspot.amplifier.amplifiers.utils.RandomHelper;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.CloneHelper;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.amplifier.amplifiers.Amplifier;
 import eu.stamp_project.dspot.assertiongenerator.AssertionGenerator;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGeneratorUtils;
-import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.*;
-import eu.stamp_project.utils.collector.CollectorFactory;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.options.AmplifierEnum;
-import eu.stamp_project.utils.options.check.Checker;
-import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.utils.report.output.Output;
-import eu.stamp_project.utils.smtp.EmailSender;
-import eu.stamp_project.utils.test_finder.TestFinder;
+import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.dspot.common.collector.CollectorFactory;
+import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
+import eu.stamp_project.dspot.common.compilation.TestCompiler;
+import eu.stamp_project.dspot.common.configuration.options.AmplifierEnum;
+import eu.stamp_project.dspot.common.configuration.check.Checker;
+import eu.stamp_project.dspot.common.report.output.Output;
+import eu.stamp_project.dspot.common.collector.smtp.EmailSender;
+import eu.stamp_project.dspot.common.configuration.test_finder.TestFinder;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
@@ -36,7 +38,7 @@ public class InitializeDSpot {
     public void init(InputConfiguration inputConfiguration) {
         this.DSpotState = new DSpotState();
         DSpotState.setInputConfiguration(inputConfiguration);
-        eu.stamp_project.utils.configuration.DSpotState.verbose = inputConfiguration.isVerbose();
+        DSpotState.verbose = inputConfiguration.isVerbose();
         DSpotState.setStartTime(System.currentTimeMillis());
         DSpotState.setTestFinder(new TestFinder(
                 Arrays.stream(inputConfiguration.getExcludedClasses().split(",")).collect(Collectors.toList()),
@@ -103,7 +105,7 @@ public class InitializeDSpot {
         DSpotState.setCollectData(true);
         DSpotState.setDelta(inputConfiguration.getDelta());
         DSpotState.setNbIteration(inputConfiguration.getNbIteration());
-        eu.stamp_project.utils.configuration.DSpotState.verbose = inputConfiguration.isVerbose();
+        DSpotState.verbose = inputConfiguration.isVerbose();
     }
 
     public void initHelpers(InputConfiguration configuration) {
