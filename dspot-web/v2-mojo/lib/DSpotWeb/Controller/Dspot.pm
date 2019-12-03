@@ -179,6 +179,7 @@ sub job {
   # Prepare data to be sent to template.
   $self->stash('conf' => $conf->{$myjob->{'args'}[0]});
   $self->stash('jdir' => $jdir);
+  $self->stash('jobs_dir' => $jobs_dir);
   $self->stash('myjob' => $myjob);
   $self->stash('tests' => \@tests);
   
