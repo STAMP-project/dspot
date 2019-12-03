@@ -344,9 +344,9 @@ By default, **DSpot** uses no amplifier because the simplest amplification that 
 
 However, **DSpot** provide different kind of `Amplifier`:
 
-   * `StringLiteralAmplifier`: modifies string literals: remove, add and replace one random char, generate random string and empty string
+   * `StringLiteralAmplifier`: modifies string literals: remove, add and replace one random char, generate random string and empty string. It also replaces the existing string by the system path separator (_e.g._ `:` on Linux) and the system line separator (_e.g._ `\n` on Linux).
    * `NumberLiteralAmplifier`: modifies number literals: replace by boundaries (_e.g._ Integer_MAX_VALUE for int), increment and decrement values
-   * `CharLiteralAmplifier`: modifies char literals: replace by special chars (_e.g._ '\0')
+   * `CharLiteralAmplifier`: modifies char literals: replace by random char and special chars: '\0' and ` `. It also replaces the existing char by the previous and next one, _i.e._ it computes `codechar + 1` and `codechar - 1`. For example, we have `b`, it resuls with `b + 1 = c` and `b - 1 = a`
    * `BooleanLiteralAmplifier`: modifies boolean literals: negate the value
    * `ArrayLiteralAmplifier`: modifies array literals: remove and add element in literal, replace literal with empty literal and null
    * `AllLiteralAmplifiers`: combines all literals amplifiers, _i.e._ StringLiteralAmplifier, NumberLiteralAmplifier, CharLiteralAmplifier, BooleanLiteralAmplifier and ArrayLiteralAmplifier
