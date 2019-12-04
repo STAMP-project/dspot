@@ -1,8 +1,7 @@
 package eu.stamp_project.prettifier.output;
 
-import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;

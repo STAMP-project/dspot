@@ -72,7 +72,7 @@
                 <configuration>
                     <processors>
                         <processor>
-                            eu.stamp_project.utils.DSpotMojoGenerator
+                            eu.stamp_project.dspot.common.miscellaneous.DSpotMojoGenerator
                         </processor>
                     </processors>
                     <withImports>true</withImports>

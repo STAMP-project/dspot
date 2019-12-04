@@ -1,12 +1,11 @@
 package eu.stamp_project.dspot;
 
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGeneratorUtils;
-import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.CloneHelper;
-import eu.stamp_project.utils.DSpotCache;
-import eu.stamp_project.utils.RandomHelper;
-import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.execution.TestRunner;
+import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.dspot.common.miscellaneous.CloneHelper;
+import eu.stamp_project.dspot.common.configuration.DSpotCache;
+import eu.stamp_project.dspot.amplifier.amplifiers.utils.RandomHelper;
+import eu.stamp_project.dspot.common.execution.TestRunner;
 import org.junit.Before;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;

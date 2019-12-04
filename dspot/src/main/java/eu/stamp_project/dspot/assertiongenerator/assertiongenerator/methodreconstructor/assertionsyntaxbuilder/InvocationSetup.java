@@ -1,8 +1,8 @@
 package eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.assertionsyntaxbuilder;
 
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGeneratorUtils;
-import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.test_framework.assertions.AssertEnum;
+import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.dspot.common.test_framework.assertions.AssertEnum;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtFieldRead;
 import spoon.reflect.code.CtStatement;

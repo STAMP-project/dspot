@@ -1,7 +1,5 @@
 package eu.stamp_project.prettifier.code2vec;
 
-import eu.stamp_project.prettifier.options.InputConfiguration;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 

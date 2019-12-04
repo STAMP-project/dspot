@@ -1,7 +1,6 @@
 package eu.stamp_project.prettifier.code2vec;
 
-import eu.stamp_project.prettifier.options.InputConfiguration;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,10 +1,10 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.utils.execution.TestRunner;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.execution.TestRunner;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 
-import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
+import static eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper.PATH_SEPARATOR;
 
 /**
  * Created by Benjamin DANGLOT
@@ -26,7 +26,7 @@ public abstract class AbstractTestSelector implements TestSelector {
     protected String outputDirectory;
 
     public AbstractTestSelector(AutomaticBuilder automaticBuilder,
-                                InputConfiguration configuration) {
+                                UserInput configuration) {
         this.outputDirectory = configuration.getOutputDirectory();
         this.testRunner = new TestRunner(configuration.getAbsolutePathToProjectRoot(), configuration.getPreGoalsTestExecution(), configuration.shouldUseMavenToExecuteTest());
         this.automaticBuilder = automaticBuilder;

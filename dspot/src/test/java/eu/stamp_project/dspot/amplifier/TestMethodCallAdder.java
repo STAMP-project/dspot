@@ -1,6 +1,7 @@
 package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.dspot.AbstractTestOnSample;
+import eu.stamp_project.dspot.amplifier.amplifiers.MethodDuplicationAmplifier;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
