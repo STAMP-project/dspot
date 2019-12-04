@@ -8,13 +8,12 @@ import eu.stamp_project.dspot.common.configuration.options.*;
 import picocli.CommandLine;
 import spoon.reflect.factory.Factory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 import static eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper.PATH_SEPARATOR;
@@ -1015,7 +1014,11 @@ public class UserInput {
 
     public void configureExample() {
         try {
-            this.setAbsolutePathToProjectRoot("src/test/resources/test-projects/");
+            if (new File("src/main/resources/test-projects/").exists()) {
+                this.setAbsolutePathToProjectRoot("src/main/resources/test-projects/");
+            } else {
+                this.setAbsolutePathToProjectRoot(extractTestProjectsToRunExampleForJar());
+            }
             this.setNbIteration(1);
             this.setAmplifiers(Collections.singletonList(AmplifierEnum.FastLiteralAmplifier));
             this.setSelector(SelectorEnum.JacocoCoverageSelector);
@@ -1028,8 +1031,46 @@ public class UserInput {
         }
     }
 
+    private String extractTestProjectsToRunExampleForJar() {
+        try {
+            Path destDirectory = Files.createTempDirectory("dspot-example");
+            String pathToExeJar = new File(UserInput.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+            unzipJar(destDirectory.toString(), pathToExeJar);
+            return destDirectory.toString() + "/test-projects/";
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void unzipJar(String destinationDir, String jarPath) throws IOException {
+        File file = new File(jarPath);
+        JarFile jar = new JarFile(file);
+        for (Enumeration<JarEntry> enums = jar.entries(); enums.hasMoreElements();) {
+            JarEntry entry = (JarEntry) enums.nextElement();
+            String fileName = destinationDir + File.separator + entry.getName();
+            File f = new File(fileName);
+                if (fileName.contains(destinationDir.toString() + "/test-projects/") && fileName.endsWith("/")) {
+                    f.mkdirs();
+                }
+        }
+        for (Enumeration<JarEntry> enums = jar.entries(); enums.hasMoreElements();) {
+            JarEntry entry = (JarEntry) enums.nextElement();
+            String fileName = destinationDir + File.separator + entry.getName();
+            File f = new File(fileName);
+                if (fileName.contains(destinationDir.toString() + "/test-projects/") && !fileName.endsWith("/")) {
+                    InputStream is = jar.getInputStream(entry);
+                    FileOutputStream fos = new FileOutputStream(f);
+                    while (is.available() > 0) {
+                        fos.write(is.read());
+                    }
+                    fos.close();
+                    is.close();
+            }
+        }
+    }
+
     public void setDependencies(String dependencies) {
-        this.dependencies =dependencies;
+        this.dependencies = dependencies;
     }
 
     public void initTestsToBeAmplified() {

@@ -199,6 +199,14 @@
                 <configuration>
                     <filesets>
                         <fileset>
+                            <directory>src/main/resources/</directory>
+                            <includes>
+                                <include>test-projects/target/</include>
+                                <include>test-projects/.dspot_pom.xml</include>
+                                <include>test-projects/.dspot_junit5_pom.xml</include>
+                            </includes>
+                        </fileset>
+                        <fileset>
                             <directory>src/test/resources/</directory>
                             <includes>
                                 <include>descartes/target/</include>
