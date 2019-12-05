@@ -279,7 +279,13 @@ public class AssertionGeneratorTest extends AbstractTestOnSample {
         CtClass testClass = findClass("fr.inria.sample.TestClassWithoutAssert");
         CtMethod test1 = findMethod("fr.inria.sample.TestClassWithoutAssert", "test3");
         List<CtMethod<?>> test1_buildNewAssert = assertionGenerator.assertionAmplification(testClass, Collections.singletonList(test1));
-        assertEquals(expectedBodyWithMap, test1_buildNewAssert.get(0).getBody().toString());
+        assertEquals(16, test1_buildNewAssert.get(0).getBody().getStatements().size());
+        assertEquals(14, test1_buildNewAssert.get(0).getBody().getStatements()
+                .stream()
+                .filter(statement -> statement.toString().startsWith("org.junit.Assert.assert"))
+                .count()
+        );
+        //assertEquals(expectedBodyWithMap, test1_buildNewAssert.get(0).getBody().toString());
     }
 
     private static final String expectedBodyWithMap = "{" + AmplificationHelper.LINE_SEPARATOR +
