@@ -1,14 +1,23 @@
 package eu.stamp_project.dspot.common.miscellaneous;
 
 import eu.stamp_project.dspot.AbstractTestOnSample;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
+import eu.stamp_project.dspot.common.compilation.TestCompiler;
+import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
+import eu.stamp_project.dspot.common.configuration.UserInput;
+import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import eu.stamp_project.dspot.common.collector.NullCollector;
+import eu.stamp_project.dspot.selector.TestSelector;
 import org.apache.commons.io.FileUtils;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.factory.Factory;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,6 +37,42 @@ import static org.junit.Assert.assertTrue;
 public class DSpotUtilsTest extends AbstractTestOnSample {
 
     private final static File outputDirectory = new File("target/trash/");
+
+    private UserInput configuration;
+
+    private AutomaticBuilder builder;
+
+    private DSpotCompiler compiler;
+
+    private Factory factory;
+
+    private TestSelector testSelector;
+
+    private TestCompiler testCompiler;
+
+    private static InitializeDSpot initializeDSpot;
+
+    @Override
+    @Before
+    public void setUp() {
+        super.setUp();
+        super.setUp();
+        this.configuration = new UserInput();
+        this.configuration.setAbsolutePathToProjectRoot(getPathToProjectRoot());
+        this.configuration.setOutputDirectory(outputDirectory.getAbsolutePath());
+        this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
+        this.initializeDSpot = new InitializeDSpot();
+        String dependencies = initializeDSpot.completeDependencies(configuration, this.builder);
+        DSpotUtils.init(false,
+                outputDirectory.getAbsolutePath(),
+                this.configuration.getFullClassPathWithExtraDependencies(),
+                this.getPathToProjectRoot()
+        );
+        this.compiler = DSpotCompiler.createDSpotCompiler(
+                configuration,
+                dependencies
+        );
+    }
 
     @Test
     public void testOutputUsingToString() throws Exception {
@@ -63,33 +108,16 @@ public class DSpotUtilsTest extends AbstractTestOnSample {
             "package fr.inria.lombok;" + AmplificationHelper.LINE_SEPARATOR +
                     "" + AmplificationHelper.LINE_SEPARATOR +
                     "" + AmplificationHelper.LINE_SEPARATOR +
-                    "import org.junit.Test;" + AmplificationHelper.LINE_SEPARATOR +
-                    "" + AmplificationHelper.LINE_SEPARATOR +
-                    "" + AmplificationHelper.LINE_SEPARATOR +
                     "public class LombokClassThatUseBuilderTest {" + AmplificationHelper.LINE_SEPARATOR +
-                    "    @Test" + AmplificationHelper.LINE_SEPARATOR +
+                    "    @org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
                     "    public void test() {" + AmplificationHelper.LINE_SEPARATOR +
-                    "        builder().build();" + AmplificationHelper.LINE_SEPARATOR +
+                    "        fr.inria.lombok.LombokClassThatUseBuilder.builder().build();" + AmplificationHelper.LINE_SEPARATOR +
                     "    }" + AmplificationHelper.LINE_SEPARATOR +
                     "}" + AmplificationHelper.LINE_SEPARATOR,
                     reader.lines()
                             .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR))
             );
         }
-    }
-
-    @Test
-    public void testGetAllTestClasses() {
-
-        /*
-            Test the method getAllTestClasses.
-                This method should return an array of all the test classes, i.e. class that contains at least one test method.
-                This array should not contain any test class that has been excluded, see UserInput#excludedClasses
-         */
-
-//        final String[] allTestClasses = DSpotUtils.getAllTestClasses();
-        //       assertEquals(33, allTestClasses.length); // we got all
-        //       assertTrue(Arrays.stream(allTestClasses).noneMatch(s -> s.startsWith("fr.inria.filter.failing."))); // but not excluded
     }
 
     @Test
