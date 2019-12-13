@@ -14,9 +14,9 @@ You will need to install Perl and Mojolicious, plus a few other plugins. It is g
 
 ```
 $ cpanm Mojolicious
-$ cpanm Mojolicious::Plugin::Minion Mojolicious::Plugin::Minion::Admin
-$ cpanm Archive::Zip
+$ cpanm Mojolicious::Plugin::Minion Mojolicious::Plugin::Minion::Admin Mojolicious::Plugin::Mail
 $ cpanm Mojo::Pg
+$ cpanm Archive::Zip File::Copy::Recursive DateTime
 ```
 
 ### Initialising the application
