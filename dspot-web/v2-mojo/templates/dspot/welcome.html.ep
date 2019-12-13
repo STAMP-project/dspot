@@ -42,25 +42,33 @@
 % my $c = 0;
 % use POSIX qw( strftime );
 % my @jobs = @{app->minion->backend->list_jobs->{'jobs'}};
+% my @defs = ();
 % foreach my $repo ( @$repos ) {
 %   # if ($c > 10) { last } else { $c++ }
 %   my @job = grep { $_->{'args'}[0] =~ m!$repo! && $_->{'task'} =~ m!run_dspot! } @jobs;
-%   my $start = defined($job[0]->{'created'}) ? strftime('%Y-%m-%d %H:%M:%S', gmtime($job[0]->{'created'})) : '';
-%   my $mutants = 'Unknown'; use Data::Dumper;
+%   my $def;
+%   $def->{'repo'} = $repo;
+%   $def->{'jobs'} = scalar( @jobs );
+%   $def->{'start'} = defined($job[0]->{'created'}) ? strftime('%Y-%m-%d %H:%M:%S', gmtime($job[0]->{'created'})) : '';
+%   $def->{'mutants'} = 'Unknown'; 
 %   if ( defined($job[0]->{'result'}) ) {
-%     if ( ref($job[0]->{'result'}) =~ m!HASH! ) { Dumper($job[0]->{'result'});
-%       $mutants = $job[0]->{'result'}{'totalNewMutantsKilled'};
-%     } else { Dumper($job[0]->{'result'})  }
+%     if ( ref($job[0]->{'result'}) =~ m!HASH! ) { 
+%       $def->{'mutants'} = $job[0]->{'result'}{'totalNewMutantsKilled'};
+%     } 
 %   } else {
-%       $mutants = 'No results.';
+%       next;
+%       $def->{'mutants'} = 'No results.';
 %   }
+%   push( @defs, $def );
+% }
+% foreach my $def ( sort { $a->{'start'} cmp $b->{'start'} } @defs ) {
   <tr>
-    <td><a href="/repo/<%= $repo %>" style="display: block"><%= $repo %></a></td>
-    <td><a href="/repo/<%= $repo %>" style="display: block"><%= scalar(@job) %></a></td>
+    <td><a href="/repo/<%= $def->{'repo'} %>" style="display: block"><%= $def->{'repo'} %></a></td>
+    <td><a href="/repo/<%= $def->{'repo'} %>" style="display: block"><%= $def->{'jobs'} %></a></td>
     <td>
-      <a href="/repo/<%= $repo %>" style="display: block"><%= $mutants %></a>
+      <a href="/repo/<%= $def->{'repo'} %>" style="display: block"><%= $def->{'mutants'} %></a>
     </td>
-    <td><%= $start %></td></tr>
+    <td><%= $def->{'start'} %></td></tr>
 % }
   </tbody>
 </table> 
