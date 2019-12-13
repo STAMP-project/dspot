@@ -90,7 +90,7 @@
 
 <br />
 
-% my $f = "${jobs_dir}/${job_id}/descartes.zip";
+% $f = "${jobs_dir}/${job_id}/descartes.zip";
 % if ( -f $f ) {
 
 <h2 id="descartes">Descartes results</h2>
