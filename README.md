@@ -71,9 +71,9 @@ void test() {
 }
 ```
 
-The modified test is lastly given to a selector, eg `--test-selector=PitMutantScoreSelector`, that determines if it improves the test suite.
+The modified test is lastly given to a selector, eg `--test-selector=PitMutantScoreSelector`, that determines if it improves the test suite and should be kept.
 
-The amplification process is illustrated in the figure below. Note that improving tests are further modified by subsequent iterations determined by for example `--iteration=10`.
+The amplification process is illustrated in the figure below. Note that amplified tests are further modified by subsequent iterations determined by for example `--iteration=10`.
 
 ![Application loop](docs/application_loop.png)
 
