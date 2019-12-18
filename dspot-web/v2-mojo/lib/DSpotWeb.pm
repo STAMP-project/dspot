@@ -139,7 +139,10 @@ sub startup {
 	  Pg => $config->{'conf_pg_minion'}
       }
       );
-  
+
+  # Automatically remove jobs from queue after one year. 31104000 is one year.
+  $self->minion->remove_after(31104000);
+
   # Load plugin for Minion admin UI
   $self->plugin(
       'Minion::Admin' => {
@@ -148,7 +151,9 @@ sub startup {
       }
       );
   
+  #
   # Add tasks
+  #
 
   # Task to clone or pull the git repository.
   $self->minion->add_task( run_git => sub {
