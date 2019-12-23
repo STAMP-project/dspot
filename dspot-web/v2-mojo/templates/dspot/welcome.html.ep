@@ -52,7 +52,7 @@
 %   } @tmp_job; 
 %   push( @sorted, $tmp_sorted[-1] );
 % }
-% @sorted = sort { $b->{'result'}{'totalNewMutantsKilled'} cmp $a->{'result'}{'totalNewMutantsKilled'} } @sorted;
+% @sorted = sort { $b->{'result'}{'totalNewMutantsKilled'} <=> $a->{'result'}{'totalNewMutantsKilled'} } @sorted;
 
 <h1>Best runs</h1>
 
