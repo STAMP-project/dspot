@@ -27,10 +27,10 @@
 % my @sorted = ();
 % foreach my $repo ( @$repos ) {
 %   # if ($c > 10) { last } else { $c++ }
-%   my @job = grep { $_->{'args'}[0] =~ m!$repo! && $_->{'task'} =~ m!run_dspot! } @jobs;
+%   my @job = grep { $_->{'args'}[0] =~ m!^$repo$! && $_->{'task'} =~ m!run_dspot! } @jobs;
 %   my $def;
 %   $def->{'repo'} = $repo;
-%   $def->{'jobs'} = scalar( @jobs );
+%   $def->{'jobs'} = scalar( @job );
 %   $def->{'start'} = defined($job[0]->{'created'}) ? strftime('%Y-%m-%d %H:%M:%S', gmtime($job[0]->{'created'})) : '';
 %   $def->{'mutants'} = 'Unknown'; 
 %   if ( defined($job[0]->{'result'}) ) {
@@ -53,6 +53,7 @@
 %   push( @sorted, $tmp_sorted[-1] );
 % }
 % @sorted = sort { $b->{'result'}{'totalNewMutantsKilled'} <=> $a->{'result'}{'totalNewMutantsKilled'} } @sorted;
+% 
 
 <h1>Best runs</h1>
 
