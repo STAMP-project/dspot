@@ -46,10 +46,10 @@
 %      }
 %   }
 %   push( @defs, $def ); 
-%   my @tmp_job = grep { ref($_->{'result'}) =~ m!HASH! } @job;
+%   @job = grep { ref($_->{'result'}) =~ m!HASH! } @job;
 %   my @tmp_sorted = sort {
 %     $a->{'result'}{'totalNewMutantsKilled'} > $b->{'result'}{'totalNewMutantsKilled'}
-%   } @tmp_job; 
+%   } @job; 
 %   push( @sorted, $tmp_sorted[-1] );
 % }
 % @sorted = sort { $b->{'result'}{'totalNewMutantsKilled'} <=> $a->{'result'}{'totalNewMutantsKilled'} } @sorted;
@@ -104,7 +104,7 @@
     </tr>
   </thead>
   <tbody>
-% foreach my $def ( sort { $a->{'start'} cmp $b->{'start'} } @defs ) {
+% foreach my $def ( sort { $b->{'start'} cmp $a->{'start'} } @defs ) {
   <tr>
     <td><a href="/repo/<%= $def->{'repo'} %>" style="display: block"><%= $def->{'repo'} %></a></td>
     <td><a href="/repo/<%= $def->{'repo'} %>" style="display: block"><%= $def->{'jobs'} %></a></td>
