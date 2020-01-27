@@ -82,6 +82,8 @@ Amplified instruction coverage: 34 / 34
 100.00%
 ``` 
 
+Want to know more? Read the [full article] published in Springer Empirical Software Engineering (https://hal.inria.fr/hal-01923575/document) ([doi:10.1007/s10664-019-09692-y](https://doi.org/10.1007/s10664-019-09692-y))
+
 ### Command Line Usage
 
 You can then execute DSpot by using:
