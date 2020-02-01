@@ -30,6 +30,8 @@ before_install:
 - sudo apt-get install python3
 - sudo apt-get install python3-pip
 - sudo apt-get install python3-setuptools
+- sudo pip3 install --upgrade setuptools
+- sudo pip3 install bottleneck
 # Pull Mongodb image to test
 - docker pull mongo:latest
 - docker run -d --net=host mongo:latest
