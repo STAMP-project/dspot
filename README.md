@@ -15,16 +15,17 @@ DSpot ecosystem:
 
 ## Getting started
 
+### Demo site
+
+Meet our demonstration website at <https://dspot-demo.stamp-project.eu/>.
+
 ### Prerequisites
 
-You need Java and Maven.
+You need Java and Maven. The environment variable JAVA_HOME must point to a valid JDK installation (and not a JRE). DSpot uses the environment variable MAVEN_HOME, ensure that this variable points to your maven installation. Example:
 
-DSpot uses the environment variable MAVEN_HOME, ensure that this variable points to your maven installation. Example:
 ```
 export MAVEN_HOME=path/to/maven/
 ```
-
-DSpot uses maven to compile, and build the classpath of your project. The environment variable JAVA_HOME must point to a valid JDK installation (and not a JRE).
 
 ### Releases
 
