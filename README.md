@@ -15,16 +15,17 @@ DSpot ecosystem:
 
 ## Getting started
 
+### Demo site
+
+Meet our demonstration website at <https://dspot-demo.stamp-project.eu/>.
+
 ### Prerequisites
 
-You need Java and Maven.
+You need Java and Maven. The environment variable JAVA_HOME must point to a valid JDK installation (and not a JRE). DSpot uses the environment variable MAVEN_HOME, ensure that this variable points to your maven installation. Example:
 
-DSpot uses the environment variable MAVEN_HOME, ensure that this variable points to your maven installation. Example:
 ```
 export MAVEN_HOME=path/to/maven/
 ```
-
-DSpot uses maven to compile, and build the classpath of your project. The environment variable JAVA_HOME must point to a valid JDK installation (and not a JRE).
 
 ### Releases
 
@@ -71,8 +72,13 @@ void test() {
 }
 ```
 
-When an amplification is successful, DSpot outputs the improvement on the console and the result of the amplification (the new tests) are written to the output folder specified by configuration property `outputDirectory` (default to `./target/dspot/output/`).
+The modified test is lastly given to a selector, eg `--test-selector=PitMutantScoreSelector`, that determines if it improves the test suite and should be kept.
 
+The amplification process is illustrated in the figure below. Note that amplified tests are further modified by subsequent iterations determined by for example `--iteration=10`.
+
+![Application loop](docs/application_loop.png)
+
+When an amplification is successful, DSpot outputs the improvement on the console and the result of the amplification (the new tests) are written to the output folder specified by configuration property `outputDirectory` (default to `./target/dspot/output/`).
 
 ```
 Initial instruction coverage: 30 / 34
@@ -81,6 +87,8 @@ Amplification results with 5 amplified tests.
 Amplified instruction coverage: 34 / 34
 100.00%
 ``` 
+
+Want to know more? Read the [full article] published in Springer Empirical Software Engineering (https://hal.inria.fr/hal-01923575/document) ([doi:10.1007/s10664-019-09692-y](https://doi.org/10.1007/s10664-019-09692-y))
 
 ### Command Line Usage
 
@@ -360,7 +368,7 @@ However, **DSpot** provide different kind of `Amplifier`:
    * `ReturnValueAmplifier`: creates objects based on the returned value by existing method call
    * `None`: do nothing
 
-#### Test Selectors (-s | --test-criterion)
+#### Test Selectors (-s | --test-selector | --test-criterion)
 
 In **DSpot**, test selectors can be seen as a fitness: it measures the quality of amplified, and keeps only amplified tests that are worthy according to this selector.
 

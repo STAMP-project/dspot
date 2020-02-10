@@ -1,0 +1,130 @@
+% layout 'default';
+% title 'Job';
+% use Data::Dumper; 
+% my $job_id = $myjob->{'id'} || '';
+
+<br />
+
+<a href="/jobs">&lt; Back to Jobs</a>
+
+<br />
+<br />
+
+<h1>Job <%= $job_id %></h1>
+ 
+<br />
+
+<dl class="row">
+  <dt class="col-sm-3"><b>Repository ID</b></dt>
+  <dd class="col-sm-9">
+    <mark><%= $myjob->{'args'}[0] %></mark>
+    <a href="/repo/<%= $myjob->{'args'}[0] %>"><i class="fa fa-lg fa-external-link"></i></a> 
+  </dd>
+  <dt class="col-sm-3"><b>Git URL</b></dt>
+  <dd class="col-sm-9"><mark><%= $myjob->{'args'}[1] %></mark>
+    <a href="<%= $myjob->{'args'}[1] %>"><i class="fa fa-lg fa-external-link"></i></a> 
+  </dd>
+  <dt class="col-sm-3"><b>Git Hash</b></dt>
+  <dd class="col-sm-9"><mark><%= $myjob->{'args'}[2] %></mark></dd>
+  <dt class="col-sm-3"><b>Command</b></dt>
+  <dd class="col-sm-9"><mark><%= $conf->{'cmd'} %></mark></dd>
+</dl>
+
+<br />
+
+% if ( -d $jdir ) {
+%   use Mojo::JSON qw(decode_json);
+%   my @files = <$jdir/*_report.json>;
+%   my $results = [];
+%   my $results_ok = [];  
+%   foreach my $f (@files) {
+%     my $data;
+%     {
+%       open my $fh, '<', $f or die "Cannot find file $f.";
+%       $/ = undef;
+%       $data = <$fh>;
+%       close $fh;
+%     }
+%     my $conf = decode_json( $data );
+%     push( @$results, $conf );
+%     push( @$results_ok, $f ) if ( $conf->{'nbNewMutantKilled'} > 0 );			  
+%   }
+<h2>DSpot Results</h2>
+
+<table class="table table-striped table-hover ">
+  <thead>
+    <tr><th>Name</th><th>OriginalTestCases</th><th>MutantKilledOriginally</th><th>NewMutantKilled</th></tr>
+  </thead>
+  <tbody>
+% foreach my $f (@{$results}) {
+%   next if (not exists($f->{'name'}));
+%   my ($success1, $success2, $success_row) = ('', '', '');
+%   my @parts = split('\.', $f->{'name'}); 
+%   my $anchor = $parts[-1];
+%   if ($f->{'nbNewMutantKilled'} > 0) {
+%     $success_row = ' class="table-success"';
+%     $success1 = '<a href="#tests_' . $anchor . '" style="display:block">';
+%     $success2 = '</a>';
+%   }
+    <tr<%== $success_row %>>
+      <td><%== $success1 . $f->{'name'} . $success2 %></td>
+      <td><%== $success1 . $f->{'nbOriginalTestCases'} . $success2 %></td>
+      <td>
+	<%== $success1 . $f->{'nbMutantKilledOriginally'} . $success2 %>
+      </td>
+      <td>
+	<%==  $success1 . $f->{'nbNewMutantKilled'} %> &nbsp; 
+	<%==  $f->{'nbNewMutantKilled'} > 0 ? '&nbsp; &nbsp; <i class="fa fa-lg fa-thumbs-up" style="color:forestgreen"></i>' : '' . $success2 %>
+      </td>
+    </tr>
+% }
+  </tbody>
+</table> 
+
+% my $f = "${jobs_dir}/$job_id/results.zip";
+% if ( -f $f ) {
+
+<p>You can download results <a href="/jobs/<%= $job_id %>/results.zip">as a ZIP file here</a>.</p>
+
+% }
+
+<br />
+
+% $f = "${jobs_dir}/${job_id}/descartes.zip";
+% if ( -f $f ) {
+
+<h2 id="descartes">Descartes results</h2>
+
+<p>You can download Descartes results (i.e. all XML files) <a href="/jobs/<%= $job_id %>/descartes.zip">as a ZIP file here</a>.</p>
+
+<br />
+
+% }
+
+<h2 id="tests">Tests</h2>
+% foreach my $f (@$tests) {
+%   my $content;
+%   {
+%     open my $fh, '<', $f or die "Cannot find file $f.";
+%     $/ = undef;
+%     $content = <$fh>;
+%     $content =~ s/\\n\s*/ \\ /g;
+%     close $fh;
+%   }
+%   use File::Basename;
+%   my ($anchor, $path, $suffix) = fileparse($f, qr/\.[^.]*/);
+
+<p id="tests_<%= $anchor %>">File <code><%= $f %></code></p>
+
+<pre class="pre-scrollable" style="max-height: 70vh">
+  <code class="language-java">
+<%= $content %>
+  </code>
+</pre>
+
+<br />
+
+%   }
+
+% }
+

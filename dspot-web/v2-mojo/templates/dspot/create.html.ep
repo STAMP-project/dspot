@@ -1,0 +1,126 @@
+% layout 'default';
+% title 'About';
+
+<br />
+
+<a href="/">&lt; Back Home</a>
+
+<br />
+
+% my $msg_nok = flash( 'msg_nok' );
+% if ( defined($msg_nok) ) {
+<br />
+<div class="row">
+  <div class="col-md-12">
+    <div class="alert alert-danger alert-dismissible" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <%== $msg_nok %>
+    </div>
+  </div>
+</div>
+% }
+
+<br />
+
+<h1>Add your repository</h1>
+
+<p>Please note that the following prerequisites apply:</p>
+<ul>
+  <li>The project uses Maven as a build system. The version of Maven used here is <code>3.6.0</code>.</li>
+  <li>The project can be built and tested against Open JDK 8 (<code>1.8.0_201</code>).</li>
+</ul>
+
+<br />
+
+% my $msg = flash( 'msg' );
+% if ( defined($msg) ) {
+<br />
+<div class="row">
+  <div class="col-md-12">
+    <div class="alert alert-danger alert-dismissible" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <%== $msg %>
+    </div>
+  </div>
+</div>
+% }
+
+<br />
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="alert alert-warning" role="alert">
+      All fields are required.
+    </div>
+  </div>
+</div>
+
+<br />
+
+<form action="/new" method="POST" class="form-horizontal" role="form">
+  
+  <div class="form-group">
+    <label for="url" class="control-label col-xs-2">Git URL:</label>
+    <p class="text-muted">The URL of the Git repository, e.g. <code>https://github.com/fangyidong/json-simple.git</code>.</p>
+    <div class="col-xs-10">
+      <input type="text" class="form-control" name="gurl" id="gurl" />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="hash_label" class="control-label col-xs-2">Commit hash:</label>
+    <p class="text-muted">A commit hash or git tag to checkout the project to before the analysis.</p>
+    <div class="col-xs-10">
+      <input type="text" class="form-control" name="hash" id="hash" value="HEAD" />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="email_label" class="control-label col-xs-2">Email address to send results to:</label>
+    <p class="text-muted">Please fill in your email address so we can notify you when the analysis has been completed. Your address won't be used for anything else beyond the notification.</p>
+    <div class="col-xs-10">
+      <input type="text" class="form-control" name="email" id="email"/>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="extended" class="control-label col-xs-2" >Amplifiers</label>
+    <p class="text-muted">When this option is set, dspot-maven will be invoked with a more complete set of amplifiers for the generation. Be warned that it may take longer to compute.</p>
+    <div class="col-xs-10">
+      <div class="form-check">
+        <label class="form-check-label">
+          <input class="form-check-input" name="optionsRadios" id="default" value="default" checked="" type="radio">
+          &nbsp; DConfig: default setting for DSpot.
+        </label>
+      </div>
+      <div class="form-check">
+        <label class="form-check-label">
+          <input class="form-check-input" name="optionsRadios" id="bconfig" value="bconfig" type="radio">
+          &nbsp; BConfig: <code>FastLiteralAmplifier</code>, <code>MethodDuplicationAmplifier</code>, <code>MethodRemove</code>, <code>MethodAdderOnExistingObjectsAmplifier</code>.
+        </label>
+      </div>
+      <div class="form-check">
+        <label class="form-check-label">
+          <input class="form-check-input" name="optionsRadios" id="zconfig" value="zconfig" type="radio">
+          &nbsp; ZConfig: <code>MethodDuplicationAmplifier</code>, <code>MethodRemove</code>, <code>FastLiteralAmplifier</code>, <code>StringLiteralAmplifier</code>, <code>ReturnValueAmplifier</code>, <code>NullifierAmplifier</code>.
+        </label>
+      </div>
+    </div>
+  </div>
+  
+  <br />
+
+  <div class="form-group">
+    <div class="col-xs-offset-2 col-xs-10">
+      <input class="btn btn-primary" type="submit" value="Submit" />
+    </div>
+  </div>
+  
+</form>
+
+
+<br />
+<br />
+
+
+<p></p>
