@@ -53,7 +53,7 @@ We accept contribution in form of pull requests. Pull requests must include at l
 
 For each pull request opened, travis is triggered. Our CI contains different jobs that must all pass.
 
-There are jobs that execute the test for the different module of DSpot: `DSpot Core`, `DSpot Maven plugin`, `DSpot diff test selection`, and `DSpot prettifier`. 
+There are jobs that execute the test for the different module of DSpot: `DSpot Core`, `DSpot Maven plugin`, `DSpot diff test selection`, and `DSpot prettifier`.
 
 There are also jobs for different kind of execution: from command line, using the maven plugin from command line and from a configuration in the pom, on large and complex code base.
 
@@ -102,6 +102,27 @@ dspot.amplifyTest(String regex); // will amplify all test classes that match the
 dspot.amplifyTest(String fulQualifiedName, List<String> testCasesName); // will amplify test cases that have their name in testCasesName in the test class fulQualifiedName
 dspot.amplifyAllTests(); // will amplify all test in the test suite.
 ```
+
+## Using DSpot-web
+
+## Directories
+
+Projects being analysed by the DSpot Web UI are cloned and analysed in a dedicated directory, which can be configured in section `work_dir` of the main configuration file of the application: `d_spot_web.conf`.
+
+In this directory each directory is a project, with all required files and information for the project stored inside. A typical architecture looks as follows:
+
+* `work_dir`
+  - `project_a`
+    - `src` is the git extract (clone) of the repository.
+    - `output` is the hierarchy generated during the dspot execution.
+    - `results.zip` is the compressed file of the results.
+    - `logs` contains the logs of all major actions:
+      - `dspot.log` is the log of the dspot execution.
+      - `git_clone.log` is the log of the `git clone` command.
+      - `git_pull.log` is the log of the last `git pull` command, if relevant.
+
+Please refer to [the dedicated README](dspot-web/v2/README.md) for information about how to install, configure, start and stop the application.
+
 
 ## Contributing
 
