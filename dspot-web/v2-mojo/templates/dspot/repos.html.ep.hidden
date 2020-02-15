@@ -1,0 +1,39 @@
+% layout 'default';
+% title 'List of repositories';
+
+<br />
+
+<a href="/">&lt; Back Home</a>
+
+<br />
+<br />
+
+<h1>Repositories</h1>
+
+<br />
+
+<p>This is the list of all repositories analysed by our services. </p>
+<p>Simply click on a line to get more information about the selected repository.</p>
+
+<br />
+
+<table class="table table-striped table-hover ">
+  <thead>
+    <tr>
+      <th>Organisation</th>
+      <th>Project</th>
+    </tr>
+  </thead>
+  <tbody>
+% foreach my $repo ( @$repos ) {
+%   my ($o, $p) = split('_', $repo);
+    <tr><td><a href="/repo/<%= $repo %>"><%= $o %></a></td><td><a href="/repo/<%= $repo %>"><%= $p %></a></td></tr>
+% }
+  </tbody>
+</table> 
+
+<p></p>
+<p></p>
+<p></p>
+
+

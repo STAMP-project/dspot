@@ -1,12 +1,13 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.Main;
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.execution.TestRunner;
-import eu.stamp_project.utils.options.AutomaticBuilderEnum;
-import eu.stamp_project.utils.pit.AbstractPitResult;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
+import eu.stamp_project.dspot.common.configuration.DSpotState;
+import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
+import eu.stamp_project.dspot.common.execution.TestRunner;
+import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
+import eu.stamp_project.dspot.selector.pitmutantscoreselector.AbstractPitResult;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.Launcher;
@@ -29,19 +30,22 @@ public class OneTestClassPitScoreMutantSelectorTest {
 
     private AutomaticBuilder builder;
 
-    private InputConfiguration configuration;
+    private UserInput configuration;
 
     private TestRunner testRunner;
 
+    private static InitializeDSpot initializeDSpot;
+
     @Before
     public void setUp() {
-        Main.verbose = true;
-        this.configuration = new InputConfiguration();
+        DSpotState.verbose = true;
+        this.configuration = new UserInput();
         this.configuration.setAbsolutePathToProjectRoot("src/test/resources/test-projects/");
         this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
+        this.initializeDSpot = new InitializeDSpot();
         DSpotCompiler.createDSpotCompiler(
                 configuration,
-                Main.completeDependencies(configuration, this.builder)
+                initializeDSpot.completeDependencies(configuration, this.builder)
         );
         Launcher launcher = new Launcher();
         launcher.getEnvironment().setNoClasspath(true);

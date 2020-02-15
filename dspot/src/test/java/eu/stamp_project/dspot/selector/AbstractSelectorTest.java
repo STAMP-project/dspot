@@ -1,19 +1,20 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.Main;
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
-import eu.stamp_project.dspot.amplifier.value.ValueCreator;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.automaticbuilder.maven.DSpotPOMCreator;
+import eu.stamp_project.dspot.amplifier.amplifiers.value.ValueCreator;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGeneratorUtils;
-import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.DSpotCache;
-import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.RandomHelper;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.execution.TestRunner;
-import eu.stamp_project.utils.options.AutomaticBuilderEnum;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.dspot.common.configuration.UserInput;
+import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.dspot.common.configuration.DSpotCache;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
+import eu.stamp_project.dspot.amplifier.amplifiers.utils.RandomHelper;
+import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
+import eu.stamp_project.dspot.common.compilation.TestCompiler;
+import eu.stamp_project.dspot.common.configuration.DSpotState;
+import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
+import eu.stamp_project.dspot.common.execution.TestRunner;
+import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.Launcher;
@@ -57,7 +58,7 @@ public abstract class AbstractSelectorTest {
 
     protected Factory factory;
 
-    protected InputConfiguration configuration;
+    protected UserInput configuration;
 
     protected AutomaticBuilder builder;
 
@@ -69,15 +70,18 @@ public abstract class AbstractSelectorTest {
 
     protected TestCompiler testCompiler;
 
+    protected InitializeDSpot initializeDSpot;
+
     @Before
     public void setUp() throws Exception {
-        Main.verbose = true;
-        this.configuration = new InputConfiguration();
+        DSpotState.verbose = true;
+        this.configuration = new UserInput();
         this.configuration.setAbsolutePathToProjectRoot(getPathToAbsoluteProjectRoot());
         this.configuration.setOutputDirectory(outputDirectory);
         this.configuration.setGregorMode(true);
         this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
-        String dependencies = Main.completeDependencies(configuration, this.builder);
+        this.initializeDSpot = new InitializeDSpot();
+        String dependencies = initializeDSpot.completeDependencies(configuration, this.builder);
         DSpotUtils.init(false, outputDirectory,
                 this.configuration.getFullClassPathWithExtraDependencies(),
                 this.getPathToAbsoluteProjectRoot()

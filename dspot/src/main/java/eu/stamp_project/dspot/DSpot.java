@@ -1,27 +1,19 @@
 package eu.stamp_project.dspot;
 
-import eu.stamp_project.Main;
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
-import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
-import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.testrunner.EntryPoint;
-import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.report.output.Output;
-import eu.stamp_project.utils.Counter;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
-import eu.stamp_project.utils.test_finder.TestFinder;
-import org.apache.commons.io.FileUtils;
+import eu.stamp_project.dspot.common.configuration.*;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationException;
+import eu.stamp_project.dspot.common.configuration.UserInput;
+import eu.stamp_project.dspot.common.report.GlobalReport;
+import eu.stamp_project.dspot.common.report.error.Error;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-
-import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import static eu.stamp_project.dspot.common.report.error.ErrorEnum.ERROR_ASSERT_AMPLIFICATION;
+import static eu.stamp_project.dspot.common.report.error.ErrorEnum.ERROR_INPUT_AMPLIFICATION;
+import static eu.stamp_project.dspot.common.report.error.ErrorEnum.ERROR_SELECTION;
 
 /**
  * User: Simon
@@ -30,153 +22,179 @@ import java.util.*;
  */
 public class DSpot {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DSpot.class);
+    private DSpotState dSpotState;
+    private AmplificationSetup setup;
+    private int globalNumberOfSelectedAmplification;
+    private Logger LOGGER;
+    private GlobalReport GLOBAL_REPORT;
 
-    private TestFinder testFinder;
-
-    private DSpotCompiler compiler;
-
-    private TestSelector testSelector;
-
-    private InputAmplDistributor inputAmplDistributor;
-
-    private Output output;
-
-    private int numberOfIterations;
-
-    private boolean shouldGenerateAmplifiedTestClass;
-
-    private AutomaticBuilder automaticBuilder;
-
-    private double delta;
-
-    private TestCompiler testCompiler;
-
-    public DSpot(double delta,
-                 TestFinder testFinder,
-                 DSpotCompiler compiler,
-                 TestSelector testSelector,
-                 InputAmplDistributor inputAmplDistributor,
-                 Output output,
-                 int numberOfIterations,
-                 boolean shouldGenerateAmplifiedTestClass,
-                 AutomaticBuilder automaticBuilder,
-                 TestCompiler testCompiler) {
-        this.delta = delta;
-        this.testSelector = testSelector;
-        this.inputAmplDistributor = inputAmplDistributor;
-        this.numberOfIterations = numberOfIterations;
-        this.testFinder = testFinder;
-        this.compiler = compiler;
-        this.output = output;
-        this.shouldGenerateAmplifiedTestClass = shouldGenerateAmplifiedTestClass;
-        this.automaticBuilder = automaticBuilder;
-        this.testCompiler = testCompiler;
+    public DSpot(UserInput userInput){
+        InitializeDSpot initializeDSpot = new InitializeDSpot();
+        initializeDSpot.init(userInput);
+        dSpotState = initializeDSpot.getDSpotState();
+        setup(dSpotState);
     }
 
-    public CtType<?> amplify(CtType<?> testClassToBeAmplified) {
-        return this.amplify(Collections.singletonList(testClassToBeAmplified), Collections.emptyList()).get(0);
+    public DSpot(DSpotState dSpotState) {
+        setup(dSpotState);
     }
 
-    public CtType<?> amplify(CtType<?> testClassToBeAmplified, String testMethodToBeAmplifiedAsString) {
-        return this.amplify(Collections.singletonList(testClassToBeAmplified), Collections.singletonList(testMethodToBeAmplifiedAsString)).get(0);
+    private void setup(DSpotState configuration){
+        this.dSpotState = configuration;
+        setup = new AmplificationSetup(configuration);
+        LOGGER = configuration.getLogger();
+        globalNumberOfSelectedAmplification = 0;
+        GLOBAL_REPORT = configuration.getGlobalReport();
     }
 
-    public CtType<?> amplify(CtType<?> testClassToBeAmplified, List<String> testMethodsToBeAmplifiedAsString) {
-        return this.amplify(Collections.singletonList(testClassToBeAmplified), testMethodsToBeAmplifiedAsString).get(0);
-    }
-
-    public List<CtType<?>> amplify(List<CtType<?>> testClassesToBeAmplified, String testMethodToBeAmplifiedAsString) {
-        return this.amplify(testClassesToBeAmplified, Collections.singletonList(testMethodToBeAmplifiedAsString));
-    }
-
-    public List<CtType<?>> amplify(List<CtType<?>> testClassesToBeAmplified) {
-        return this.amplify(testClassesToBeAmplified, Collections.emptyList());
-    }
-
-    public List<CtType<?>> amplify(List<CtType<?>> testClassesToBeAmplified, List<String> testMethodsToBeAmplifiedAsString) {
-        final List<CtType<?>> amplifiedTestClasses = new ArrayList<>();
-        for (CtType<?> testClassToBeAmplified : testClassesToBeAmplified) {
-            inputAmplDistributor.resetAmplifiers(testClassToBeAmplified);
-            Amplification testAmplification = new Amplification(
-                    this.delta,
-                    this.compiler,
-                    this.testSelector,
-                    this.inputAmplDistributor,
-                    this.numberOfIterations,
-                    this.testCompiler
-            );
-            final List<CtMethod<?>> testMethodsToBeAmplified =
-                    testFinder.findTestMethods(testClassToBeAmplified, testMethodsToBeAmplifiedAsString);
-
-            // here, we base the execution mode to the first test method given.
-            // the user should provide whether JUnit3/4 OR JUnit5 but not both at the same time.
-            // TODO DSpot could be able to switch from one to another version of JUnit, but I believe that the ROI is not worth it.
-            final boolean jUnit5 = TestFramework.isJUnit5(testMethodsToBeAmplified.get(0));
-            EntryPoint.jUnit5Mode = jUnit5;
-            DSpotPOMCreator.isCurrentlyJUnit5 = jUnit5;
-
-            final CtType<?> amplifiedTestClass = this.amplify(testAmplification, testClassToBeAmplified, testMethodsToBeAmplified);
-            amplifiedTestClasses.add(amplifiedTestClass);
-            cleanAfterAmplificationOfOneTestClass(compiler, testClassToBeAmplified);
+    public void run() {
+        for (CtType<?> testClassToBeAmplified : dSpotState.getTestClassesToBeAmplified()) {
+            TestTuple tuple = setup.preAmplification(testClassToBeAmplified, dSpotState.getTestMethodsToBeAmplifiedNames());
+            final List<CtMethod<?>> amplifiedTestMethods = amplification(tuple.testClassToBeAmplified,tuple.testMethodsToBeAmplified);
+            setup.postAmplification(testClassToBeAmplified,amplifiedTestMethods);
+            globalNumberOfSelectedAmplification = 0;
         }
-        return amplifiedTestClasses;
+        setup.report(setup.getAmplifiedTestClasses());
     }
 
-
-    private CtType<?> amplify(Amplification testAmplification,
-                              CtType<?> testClassToBeAmplified,
-                              List<CtMethod<?>> testMethodsToBeAmplified) {
-        Counter.reset();
-        if (this.shouldGenerateAmplifiedTestClass) {
-            testClassToBeAmplified = AmplificationHelper.renameTestClassUnderAmplification(testClassToBeAmplified);
+    private List<CtMethod<?>>  amplification(CtType<?> testClassToBeAmplified, List<CtMethod<?>> testMethodsToBeAmplified) {
+        final List<CtMethod<?>> amplifiedTestMethodsToKeep = onlyAssertionGeneration(testClassToBeAmplified,testMethodsToBeAmplified);
+        if (dSpotState.getInputAmplDistributor().shouldBeRun()) {
+            fullyAmplifyAllMethods(testClassToBeAmplified,testMethodsToBeAmplified,amplifiedTestMethodsToKeep);
         }
-        long time = System.currentTimeMillis();
+        return amplifiedTestMethodsToKeep;
+    }
 
-        // Amplification of the given test methods of the given test class
-        final List<CtMethod<?>> amplifiedTestMethods =
-                testAmplification.amplification(testClassToBeAmplified, testMethodsToBeAmplified);
-
-        final long elapsedTime = System.currentTimeMillis() - time;
-        LOGGER.info("elapsedTime {}", elapsedTime);
-        this.output.addClassTimeJSON(testClassToBeAmplified.getQualifiedName(), elapsedTime);
-
-        //Optimization: this object is not required anymore
-        //and holds a dictionary with large number of cloned CtMethods.
-        testAmplification = null;
-        //but it is clear before iterating again for next test class
-        LOGGER.debug("OPTIMIZATION: GC invoked");
-        System.gc(); //Optimization: cleaning up heap before printing the amplified class
-
-        this.automaticBuilder.reset();
+    private List<CtMethod<?>> onlyAssertionGeneration(CtType<?> testClassToBeAmplified, List<CtMethod<?>> testMethodsToBeAmplified){
+        final List<CtMethod<?>> selectedToBeAmplified;
+        final List<CtMethod<?>> amplifiedTestMethodsToKeep;
         try {
-            final TestSelectorElementReport report = this.testSelector.report();
-            this.output.reportSelectorInformation(report.getReportForCollector());
-            Main.GLOBAL_REPORT.addTestSelectorReportForTestClass(testClassToBeAmplified, report);
+            selectedToBeAmplified = setup.firstSelectorSetup(testClassToBeAmplified,testMethodsToBeAmplified);
+
+            // generate tests with additional assertions
+            final List<CtMethod<?>> assertionAmplifiedTestMethods = this.assertionAmplification(testClassToBeAmplified,
+                    selectedToBeAmplified);
+
+            // keep tests that improve the test suite
+            amplifiedTestMethodsToKeep = selectOnlyAssertionGeneration(assertionAmplifiedTestMethods);
         } catch (Exception e) {
-            e.printStackTrace();
-            LOGGER.error("Something bad happened during the report fot test-criterion.");
-            LOGGER.error("Dspot might not have output correctly!");
+            return Collections.emptyList();
         }
-
-        return this.output.output(testClassToBeAmplified, amplifiedTestMethods);
+        return amplifiedTestMethodsToKeep;
     }
 
-    private static void cleanAfterAmplificationOfOneTestClass(DSpotCompiler compiler, CtType<?> testClassToBeAmplified) {
-        /* Cleaning modified source directory by DSpot */
-        try {
-            FileUtils.cleanDirectory(compiler.getSourceOutputDirectory());
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            LOGGER.warn("Something went wrong when trying to cleaning temporary sources directory: {}", compiler.getSourceOutputDirectory());
+    // iteratively generate tests with input modification and associated new assertions for all methods
+    private void fullyAmplifyAllMethods(CtType<?> testClassToBeAmplified,List<CtMethod<?>> testMethodsToBeAmplified,
+                                        List<CtMethod<?>> amplifiedTestMethodsToKeep){
+        LOGGER.info("Applying Input-amplification and Assertion-amplification test by test.");
+        for (int i = 0; i < testMethodsToBeAmplified.size(); i++) {
+            CtMethod test = testMethodsToBeAmplified.get(i);
+            LOGGER.info("Amplification of {}, ({}/{})", test.getSimpleName(), i + 1, testMethodsToBeAmplified.size());
+
+            // tmp list for current test methods to be amplified
+            // this list must be a implementation that support remove / clear methods
+            List<CtMethod<?>> currentTestList = new ArrayList<>();
+            currentTestList.add(test);
+            final List<CtMethod<?>> amplifiedTests = new ArrayList<>();
+            for (int j = 0; j < dSpotState.getNbIteration() ; j++) {
+                LOGGER.info("iteration {} / {}", j, dSpotState.getNbIteration());
+                currentTestList = this.fullAmplification(testClassToBeAmplified, currentTestList, amplifiedTests, j);
+            }
+            amplifiedTestMethodsToKeep.addAll(amplifiedTests);
+            this.globalNumberOfSelectedAmplification += amplifiedTestMethodsToKeep.size();
+            LOGGER.info("{} amplified test methods has been selected to be kept. (global: {})", amplifiedTests.size(),
+                    this.globalNumberOfSelectedAmplification);
         }
-        /* Cleaning binary generated by Dspot */
+    }
+
+    /**
+     * Amplification of test methods
+     *
+     * DSpot combines the different kinds of I-Amplification iteratively: at each iteration all kinds of
+     * I-Amplification are applied, resulting in new tests. From one iteration to another, DSpot reuses the
+     * previously amplified tests, and further applies I-Amplification.
+     *
+     * @param testClassToBeAmplified        Test class
+     * @param currentTestListToBeAmplified  Methods to amplify
+     * @return Valid amplified tests
+     */
+    public List<CtMethod<?>> fullAmplification(CtType<?> testClassToBeAmplified,
+                                               List<CtMethod<?>> currentTestListToBeAmplified,
+                                               List<CtMethod<?>> amplifiedTests,
+                                               int currentIteration) {
+        final List<CtMethod<?>> selectedToBeAmplified;
+        final List<CtMethod<?>> inputAmplifiedTests;
+        final List<CtMethod<?>> currentTestList;
         try {
-            String pathToDotClass = compiler.getBinaryOutputDirectory().getAbsolutePath() + "/" +
-                    testClassToBeAmplified.getQualifiedName().replaceAll("\\.", "/") + ".class";
-            FileUtils.forceDelete(new File(pathToDotClass));
-        } catch (IOException ignored) {
-            //ignored
+            selectedToBeAmplified = setup.fullSelectorSetup(testClassToBeAmplified,currentTestListToBeAmplified);
+
+            // amplify tests and shrink amplified set with inputAmplDistributor
+            inputAmplifiedTests = dSpotState.getInputAmplDistributor().inputAmplify(selectedToBeAmplified, currentIteration);
+
+            // add assertions to input modified tests
+            currentTestList = this.assertionAmplification(testClassToBeAmplified, inputAmplifiedTests);
+
+            // keep tests that improve the test suite
+            selectFullAmplification(currentTestList,amplifiedTests);
+        } catch (AmplificationException e) {
+            return Collections.emptyList();
+        } catch (Exception | java.lang.Error e) {
+            GLOBAL_REPORT.addError(new Error(ERROR_INPUT_AMPLIFICATION, e));
+            return Collections.emptyList();
         }
+        return currentTestList;
+    }
+
+    private List<CtMethod<?>> assertionAmplification(CtType<?> classTest, List<CtMethod<?>> testMethods) {
+        final List<CtMethod<?>> testsWithAssertions;
+        try {
+            testsWithAssertions = dSpotState.getAssertionGenerator().assertionAmplification(classTest, testMethods);
+        } catch (Exception | java.lang.Error e) {
+            GLOBAL_REPORT.addError(new Error(ERROR_ASSERT_AMPLIFICATION, e));
+            return Collections.emptyList();
+        }
+        if (testsWithAssertions.isEmpty()) {
+            return testsWithAssertions;
+        }
+
+        // final check on A-amplified test, see if they all pass. if they don't, we just discard them.
+        final List<CtMethod<?>> amplifiedPassingTests =
+                dSpotState.getTestCompiler().compileRunAndDiscardUncompilableAndFailingTestMethods(
+                        classTest,
+                        testsWithAssertions,
+                        dSpotState.getCompiler()
+                );
+        LOGGER.info("Assertion amplification: {} test method(s) has been successfully amplified.",
+                amplifiedPassingTests.size());
+        return amplifiedPassingTests;
+    }
+
+    private List<CtMethod<?>>  selectOnlyAssertionGeneration(List<CtMethod<?>> assertionAmplifiedTestMethods)
+            throws Exception {
+        final List<CtMethod<?>> amplifiedTestMethodsToKeep;
+        try {
+            amplifiedTestMethodsToKeep = dSpotState.getTestSelector().selectToKeep(assertionAmplifiedTestMethods);
+        } catch (Exception | java.lang.Error e) {
+            GLOBAL_REPORT.addError(new Error(ERROR_SELECTION, e));
+            throw new Exception();
+        }
+        this.globalNumberOfSelectedAmplification += amplifiedTestMethodsToKeep.size();
+        LOGGER.info("{} amplified test methods has been selected to be kept. (global: {})",
+                amplifiedTestMethodsToKeep.size(), this.globalNumberOfSelectedAmplification);
+
+        return amplifiedTestMethodsToKeep;
+    }
+
+    private void selectFullAmplification(List<CtMethod<?>> currentTestList,List<CtMethod<?>> amplifiedTests)
+            throws AmplificationException {
+        final List<CtMethod<?>> amplifiedTestMethodsToKeep;
+        try {
+            amplifiedTestMethodsToKeep = dSpotState.getTestSelector().selectToKeep(currentTestList);
+        } catch (Exception | java.lang.Error e) {
+            GLOBAL_REPORT.addError(new Error(ERROR_SELECTION, e));
+            throw new AmplificationException("");
+        }
+        LOGGER.info("{} amplified test methods has been selected to be kept.", amplifiedTestMethodsToKeep.size());
+        amplifiedTests.addAll(amplifiedTestMethodsToKeep);
     }
 }

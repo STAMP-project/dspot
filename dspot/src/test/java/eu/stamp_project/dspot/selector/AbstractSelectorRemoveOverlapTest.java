@@ -1,24 +1,25 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.Main;
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.DSpot;
-import eu.stamp_project.dspot.amplifier.StringLiteralAmplifier;
-import eu.stamp_project.dspot.amplifier.value.ValueCreator;
+import eu.stamp_project.dspot.amplifier.amplifiers.StringLiteralAmplifier;
+import eu.stamp_project.dspot.amplifier.amplifiers.value.ValueCreator;
+import eu.stamp_project.dspot.assertiongenerator.AssertionGenerator;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGeneratorUtils;
-import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.DSpotCache;
-import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.RandomHelper;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.execution.TestRunner;
-import eu.stamp_project.utils.options.AutomaticBuilderEnum;
-import eu.stamp_project.utils.options.InputAmplDistributorEnum;
-import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.utils.report.output.Output;
-import eu.stamp_project.utils.test_finder.TestFinder;
+import eu.stamp_project.dspot.common.configuration.UserInput;
+import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.dspot.common.configuration.DSpotCache;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
+import eu.stamp_project.dspot.amplifier.amplifiers.utils.RandomHelper;
+import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
+import eu.stamp_project.dspot.common.compilation.TestCompiler;
+import eu.stamp_project.dspot.common.configuration.DSpotState;
+import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
+import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
+import eu.stamp_project.dspot.common.configuration.options.InputAmplDistributorEnum;
+import eu.stamp_project.dspot.common.report.output.Output;
+import eu.stamp_project.dspot.common.configuration.test_finder.TestFinder;
 import org.junit.Before;
 import org.junit.Test;
 import spoon.Launcher;
@@ -58,7 +59,7 @@ public abstract class AbstractSelectorRemoveOverlapTest {
 
     protected Factory factory;
 
-    protected InputConfiguration configuration;
+    protected UserInput configuration;
 
     protected AutomaticBuilder builder;
 
@@ -66,18 +67,19 @@ public abstract class AbstractSelectorRemoveOverlapTest {
 
     protected DSpotCompiler compiler;
 
-    protected TestRunner testRunner;
-
     protected TestCompiler testCompiler;
+
+    private static InitializeDSpot initializeDSpot;
 
     @Before
     public void setUp() {
-        Main.verbose = true;
-        this.configuration = new InputConfiguration();
+        DSpotState.verbose = true;
+        this.configuration = new UserInput();
         this.configuration.setAbsolutePathToProjectRoot(getPathToAbsoluteProjectRoot());
         this.configuration.setOutputDirectory(outputDirectory);
         this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
-        String dependencies = Main.completeDependencies(configuration, this.builder);
+        this.initializeDSpot = new InitializeDSpot();
+        String dependencies = initializeDSpot.completeDependencies(configuration, this.builder);
         DSpotUtils.init(false, outputDirectory,
                 this.configuration.getFullClassPathWithExtraDependencies(),
                 this.getPathToAbsoluteProjectRoot()
@@ -111,19 +113,21 @@ public abstract class AbstractSelectorRemoveOverlapTest {
     @Test
     public void testRemoveOverlappingTests() {
         this.testSelectorUnderTest.init();
-        DSpot dspot = new DSpot(
-                0.1d,
-                new TestFinder(Collections.emptyList(), Collections.emptyList()),
-                this.compiler,
-                this.testSelectorUnderTest,
-                InputAmplDistributorEnum.RandomInputAmplDistributor.getInputAmplDistributor(200, Collections.singletonList(new StringLiteralAmplifier())),
-                new Output(getPathToAbsoluteProjectRoot(), configuration.getOutputDirectory(), null),
-                1,
-                false,
-                this.builder,
-                this.testCompiler
-        );
-        dspot.amplify(getTestClass(), Collections.emptyList());
+        DSpotState dspotState = new DSpotState();
+        dspotState.setDelta(0.1f);
+        dspotState.setTestFinder(new TestFinder(Collections.emptyList(), Collections.emptyList()));
+        dspotState.setCompiler(compiler);
+        dspotState.setTestSelector(this.testSelectorUnderTest);
+        dspotState.setInputAmplDistributor(InputAmplDistributorEnum.RandomInputAmplDistributor.getInputAmplDistributor(
+                200, Collections.singletonList(new StringLiteralAmplifier())));
+        dspotState.setOutput(new Output(getPathToAbsoluteProjectRoot(), configuration.getOutputDirectory(), null));
+        dspotState.setNbIteration(1);
+        dspotState.setAutomaticBuilder(builder);
+        dspotState.setTestCompiler(testCompiler);
+        dspotState.setTestClassesToBeAmplified(Collections.singletonList(getTestClass()));
+        dspotState.setAssertionGenerator(new AssertionGenerator(0.1f, compiler, testCompiler));
+        DSpot dspot = new DSpot(dspotState);
+        dspot.run();
         final File directory = new File(DSpotUtils.shouldAddSeparator.apply(this.configuration.getOutputDirectory()));
         if (!directory.exists()) {
             directory.mkdir();

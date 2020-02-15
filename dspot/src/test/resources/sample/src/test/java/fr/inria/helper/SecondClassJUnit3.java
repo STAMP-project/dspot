@@ -1,6 +1,7 @@
 package fr.inria.helper;
 
 import junit.framework.TestCase;
+import junit.framework.Assert;
 
 public class SecondClassJUnit3 extends TestCase {
 
@@ -25,6 +26,10 @@ public class SecondClassJUnit3 extends TestCase {
     public void testExpectingAnException() {
         assertTrue(true);
         throw new RuntimeException();
+    }
+
+    public void testUsingDeprecatedAssertClass() {
+        Assert.assertEquals(3, 3);
     }
 
 }

@@ -1,9 +1,9 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
-import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.configuration.UserInput;
+import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementReport;
+import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementReportImpl;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -22,7 +22,7 @@ public class TakeAllSelector extends AbstractTestSelector {
 
 	protected CtType<?> currentClassTestToBeAmplified;
 
-	public TakeAllSelector(AutomaticBuilder automaticBuilder, InputConfiguration configuration) {
+	public TakeAllSelector(AutomaticBuilder automaticBuilder, UserInput configuration) {
 		super(automaticBuilder, configuration);
 		this.selectedAmplifiedTest = new ArrayList<>();
 	}

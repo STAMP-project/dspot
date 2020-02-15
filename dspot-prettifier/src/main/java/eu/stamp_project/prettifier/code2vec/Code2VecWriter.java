@@ -1,8 +1,6 @@
 package eu.stamp_project.prettifier.code2vec;
 
-import eu.stamp_project.prettifier.Main;
-import eu.stamp_project.prettifier.options.InputConfiguration;
-import eu.stamp_project.utils.DSpotUtils;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
@@ -20,13 +18,19 @@ public class Code2VecWriter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Code2VecWriter.class);
 
+    private String pathToRootOfCode2Vec;
+
+    public Code2VecWriter(String pathToRootOfCove2Vec) {
+        this.pathToRootOfCode2Vec = DSpotUtils.shouldAddSeparator.apply(pathToRootOfCove2Vec);
+    }
+
     /**
      * write the given test method in the Input.java file.
      * @param testMethod method to output in the file
      */
     public void writeCtMethodToInputFile(CtMethod<?> testMethod) {
         try {
-            final String fileName = InputConfiguration.get().getPathToRootOfCode2Vec() + FILENAME;
+            final String fileName =  this.pathToRootOfCode2Vec + FILENAME;
             LOGGER.info("Writing content of {} into {}.", testMethod.getSimpleName(), fileName);
             FileWriter writer = new FileWriter(fileName, false);
             writer.write(testMethod.toString());

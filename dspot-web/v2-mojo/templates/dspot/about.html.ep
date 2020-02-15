@@ -1,0 +1,31 @@
+% layout 'default';
+% title 'About';
+
+<br />
+
+<a href="/repos">&lt; Back Home</a>
+
+<br />
+<br />
+
+<h1>About us</h1>
+
+<br />
+
+<h2>About DSpot</h2>
+
+<p>DSpot is a tool that generates missing assertions in JUnit tests. </p>
+<p>DSpot takes as input a Java Maven project with an existing test suite and generates new test cases that improve the efficiency of the test suite.</p>
+
+
+<h2>About STAMP</h2>
+
+<p>For more information on development, see the dedicated <a href="https://github.com/STAMP-project/dspot/blob/master/README-developers.md">README-developers.md</a></p>
+
+<h2>About this web site</h2>
+
+<p>This site has been developed as a general demonstrator for the technology behind DSpot. If you like the results, we encourage you to run your own mutations or even to add it to your CI pipeline.</p>
+<p>Everything you need to know is provided on the DSpot project page: <a href="https://github.com/STAMP-project/dspot/blob/master/README.md">DSpot README.md</a></p>
+
+
+<p></p>

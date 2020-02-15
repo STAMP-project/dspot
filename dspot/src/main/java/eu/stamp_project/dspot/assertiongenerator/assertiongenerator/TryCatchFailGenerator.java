@@ -1,9 +1,9 @@
 package eu.stamp_project.dspot.assertiongenerator.assertiongenerator;
 
-import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.testrunner.runner.Failure;
-import eu.stamp_project.utils.CloneHelper;
-import eu.stamp_project.utils.Counter;
+import eu.stamp_project.dspot.common.miscellaneous.CloneHelper;
+import eu.stamp_project.dspot.common.miscellaneous.Counter;
 import spoon.reflect.declaration.CtMethod;
 
 import java.util.Arrays;

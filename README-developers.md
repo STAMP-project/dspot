@@ -69,14 +69,14 @@ First of all, you have to create an `InputConfiguration`. Only the path to your 
 ```java
 // 1. Instantiate `InputConfiguration` and `InputProgram`
 String propertiesFilePath = <pathToYourPropertiesFile>;
-InputConfiguration inputConfiguration = new InputConfiguration(propertiesFilePath);
+InputConfiguration userInput = new InputConfiguration(propertiesFilePath);
 ```
 
 Then you have to build the `InputProgram`, this is done by attaching the `InputProgram` to your `InputConfiguration`:
 
 ```java
 InputProgram program = new InputProgram();
-inputConfiguration.setInputProgram(program);
+userInput.setInputProgram(program);
 ```
 Then, you are ready to construct the `DSpot` object that will allow you to amplify your test.
 There are a lot of constructor available, all of them allow you to custom your `DSpot` object, and so your amplification.
@@ -86,7 +86,7 @@ Following the shortest constructor with all default values of `DSpot`, and the l
 // 2. Instantiate `DSpot` object
 DSpot dspot = new DSpot(InputConfiguration);
 DSpot dspot = new DSpot(
-    InputConfiguration inputConfiguration, // input configuration built at step 1
+    InputConfiguration userInput, // input configuration built at step 1
     int numberOfIterations, // number of time that the main loop will be applied (-i | --iteration option of the CLI)
     List<Amplifier> amplifiers, // list of the amplifiers to be used (-a | --amplifiers option of the CLI)
     TestSelector testSelector // test selector criterion (-s | --test-selector option of the CLI)

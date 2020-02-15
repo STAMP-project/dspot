@@ -2,23 +2,23 @@ package eu.stamp_project.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.Main;
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.utils.pit.*;
-import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.CloneHelper;
-import eu.stamp_project.utils.report.error.Error;
-import eu.stamp_project.utils.report.error.ErrorEnum;
-import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
-import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
-import eu.stamp_project.utils.report.output.selector.mutant.json.MutantJSON;
-import eu.stamp_project.utils.report.output.selector.mutant.json.TestCaseJSON;
-import eu.stamp_project.utils.report.output.selector.mutant.json.TestClassJSON;
-import eu.stamp_project.utils.Counter;
-import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.configuration.DSpotState;
+import eu.stamp_project.dspot.common.configuration.UserInput;
+import eu.stamp_project.dspot.selector.pitmutantscoreselector.*;
+import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.CloneHelper;
+import eu.stamp_project.dspot.common.report.error.Error;
+import eu.stamp_project.dspot.common.report.error.ErrorEnum;
+import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementReport;
+import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementReportImpl;
+import eu.stamp_project.dspot.common.report.output.selector.mutant.json.MutantJSON;
+import eu.stamp_project.dspot.common.report.output.selector.mutant.json.TestCaseJSON;
+import eu.stamp_project.dspot.common.report.output.selector.mutant.json.TestClassJSON;
+import eu.stamp_project.dspot.common.miscellaneous.Counter;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtClass;
@@ -63,7 +63,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
     private List<String> mutationsScoreResults;
 
     public PitMutantScoreSelector(AutomaticBuilder automaticBuilder,
-                                  InputConfiguration configuration) {
+                                  UserInput configuration) {
         super(automaticBuilder, configuration);
         this.mutationsScoreResults = new ArrayList<>();
         this.absolutePathToProjectRoot = configuration.getAbsolutePathToProjectRoot();
@@ -109,7 +109,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
                     this.automaticBuilder.runPit();
                 } catch (Throwable e) {
                     LOGGER.error(ErrorEnum.ERROR_ORIGINAL_MUTATION_SCORE.getMessage());
-                    Main.GLOBAL_REPORT.addError(new Error(ErrorEnum.ERROR_ORIGINAL_MUTATION_SCORE, e));
+                    DSpotState.GLOBAL_REPORT.addError(new Error(ErrorEnum.ERROR_ORIGINAL_MUTATION_SCORE, e));
                     return false;
                 }
             }

@@ -15,16 +15,17 @@ DSpot ecosystem:
 
 ## Getting started
 
+### Demo site
+
+Meet our demonstration website at <https://dspot-demo.stamp-project.eu/>.
+
 ### Prerequisites
 
-You need Java and Maven.
+You need Java and Maven. The environment variable JAVA_HOME must point to a valid JDK installation (and not a JRE). DSpot uses the environment variable MAVEN_HOME, ensure that this variable points to your maven installation. Example:
 
-DSpot uses the environment variable MAVEN_HOME, ensure that this variable points to your maven installation. Example:
 ```
 export MAVEN_HOME=path/to/maven/
 ```
-
-DSpot uses maven to compile, and build the classpath of your project. The environment variable JAVA_HOME must point to a valid JDK installation (and not a JRE).
 
 ### Releases
 
@@ -41,16 +42,43 @@ After having downloaded DSpot (see the previous section), you can run the provid
 java -jar target/dspot-LATEST-jar-with-dependencies.jar --example
 ```
 
-replacing `LATEST` by the latest version of DSpot, _e.g._ `2.2.1` would give :
- `dspot-2.2.1-jar-with-dependencies.jar`
+replacing `LATEST` by the latest version of DSpot, _e.g._ `2.2.1` would give `dspot-2.2.1-jar-with-dependencies.jar`
 
-This example is an implementation of the function `chartAt(s, i)` (in `src/test/resources/test-projects/`), which
-returns the char at the index _i_ in the String _s_.
+Given a test case as input, with `--amplifiers=None`, DSpot only adds assertions in the test, for example:
 
-In this example, DSpot amplifies the tests of `chartAt(s, i)` with the `FastLiteralAmplifier,`, which modifies literals inside the test and the generation of assertions.
+```diff
+@Test
+void test() {
+  Tacos tacos = new Tacos();
+  Benjamin benjamin = new Benjamin();
+  benjamin.eat(tacos);
+  assertFalse(benjamin.isHungry());
++  assertTrue(benjamin.isHappy());  // new assertion
+}
+```
 
-The result of the amplification of charAt consists of 6 new tests, as shown in the output below. These new tests are
-written to the output folder specified by configuration property `outputDirectory` (`./target/dspot/output/`).
+With some amplifiers, eg `--amplifiers=AllAmplifiers`, DSpot modifies the setup of the input test and adds assertions in your code, for example:
+
+
+```diff
+@Test
+void test() {
+  Tacos tacos = new Tacos();
+  Benjamin benjamin = new Benjamin();
+-  benjamin.eat(tacos); // removed method call
+-  assertFalse(benjamin.isHungry());
++  assertTrue(benjamin.isHungry());
++  assertFalse(benjamin.isHappy()); // new assertion
+}
+```
+
+The modified test is lastly given to a selector, eg `--test-selector=PitMutantScoreSelector`, that determines if it improves the test suite and should be kept.
+
+The amplification process is illustrated in the figure below. Note that amplified tests are further modified by subsequent iterations determined by for example `--iteration=10`.
+
+![Application loop](docs/application_loop.png)
+
+When an amplification is successful, DSpot outputs the improvement on the console and the result of the amplification (the new tests) are written to the output folder specified by configuration property `outputDirectory` (default to `./target/dspot/output/`).
 
 ```
 Initial instruction coverage: 30 / 34
@@ -59,6 +87,8 @@ Amplification results with 5 amplified tests.
 Amplified instruction coverage: 34 / 34
 100.00%
 ``` 
+
+Want to know more? Read the [full article] published in Springer Empirical Software Engineering (https://hal.inria.fr/hal-01923575/document) ([doi:10.1007/s10664-019-09692-y](https://doi.org/10.1007/s10664-019-09692-y))
 
 ### Command Line Usage
 
@@ -136,7 +166,7 @@ Usage: eu.stamp_project.Main [-hvV] [--allow-path-in-assertions] [--clean] [--ex
       --automatic-builder=<automaticBuilder>
                              Specify the automatic builder to be used. Valid values: Maven, Gradle Default value: Maven
   -c, --cases, --test-cases, --test-methods=<testCases>[,<testCases>...]
-                             Specify the test cases to amplify.
+                             Specify the test cases to amplify.By default, DSpot selects all the tests methods.
       --cache-size=<cacheSize>
                              Specify the size of the memory cache in terms of the number of store entries Default
                                value: 10000
@@ -283,7 +313,7 @@ Usage: eu.stamp_project.Main [-hvV] [--allow-path-in-assertions] [--clean] [--ex
   -t, --test=<testClasses>[,<testClasses>...]
                              Fully qualified names of test classes to be amplified. If the value is all, DSpot will
                                amplify the whole test suite. You can also use regex to describe a set of test classes.
-                               By default, DSpot selects all the tests.
+                               By default, DSpot selects all the tests classes.
       --target-module=<targetModule>
                              Specify the module to be amplified. This value must be a relative path from value
                                specified by --absolute-path-to-project-root command-line option. If your project is
@@ -300,7 +330,7 @@ Usage: eu.stamp_project.Main [-hvV] [--allow-path-in-assertions] [--clean] [--ex
                                value: false
   -v, --verbose              Enable verbose mode of DSpot. Default value: false
   -V, --version              Print version information and exit.
-      --with-comment         Enable comment on amplified test: details steps of the Amplification. Default value: false
+      --with-comment         Enable comment on amplified test: details steps of the Amplification. Default value: falseg
 ```
     
 For options that take list, the used separator is a comma `,`, whatever the platform you use.
@@ -322,9 +352,9 @@ By default, **DSpot** uses no amplifier because the simplest amplification that 
 
 However, **DSpot** provide different kind of `Amplifier`:
 
-   * `StringLiteralAmplifier`: modifies string literals: remove, add and replace one random char, generate random string and empty string
+   * `StringLiteralAmplifier`: modifies string literals: remove, add and replace one random char, generate random string and empty string. It also replaces the existing string by the system path separator (_e.g._ `:` on Linux) and the system line separator (_e.g._ `\n` on Linux).
    * `NumberLiteralAmplifier`: modifies number literals: replace by boundaries (_e.g._ Integer_MAX_VALUE for int), increment and decrement values
-   * `CharLiteralAmplifier`: modifies char literals: replace by special chars (_e.g._ '\0')
+   * `CharLiteralAmplifier`: modifies char literals: replace by random char and special chars: '\0' and ` `. It also replaces the existing char by the previous and next one, _i.e._ it computes `codechar + 1` and `codechar - 1`. For example, we have `b`, it resuls with `b + 1 = c` and `b - 1 = a`
    * `BooleanLiteralAmplifier`: modifies boolean literals: negate the value
    * `ArrayLiteralAmplifier`: modifies array literals: remove and add element in literal, replace literal with empty literal and null
    * `AllLiteralAmplifiers`: combines all literals amplifiers, _i.e._ StringLiteralAmplifier, NumberLiteralAmplifier, CharLiteralAmplifier, BooleanLiteralAmplifier and ArrayLiteralAmplifier
@@ -338,7 +368,7 @@ However, **DSpot** provide different kind of `Amplifier`:
    * `ReturnValueAmplifier`: creates objects based on the returned value by existing method call
    * `None`: do nothing
 
-#### Test Selectors (-s | --test-criterion)
+#### Test Selectors (-s | --test-selector | --test-criterion)
 
 In **DSpot**, test selectors can be seen as a fitness: it measures the quality of amplified, and keeps only amplified tests that are worthy according to this selector.
 

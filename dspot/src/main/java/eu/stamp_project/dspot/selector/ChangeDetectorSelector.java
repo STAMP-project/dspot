@@ -2,20 +2,20 @@ package eu.stamp_project.dspot.selector;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
-import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
-import eu.stamp_project.utils.report.output.selector.TestSelectorElementReportImpl;
-import eu.stamp_project.utils.report.output.selector.change.json.TestCaseJSON;
-import eu.stamp_project.utils.report.output.selector.change.json.TestClassJSON;
-import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.automaticbuilder.maven.DSpotPOMCreator;
+import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementReport;
+import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementReportImpl;
+import eu.stamp_project.dspot.common.report.output.selector.change.json.TestCaseJSON;
+import eu.stamp_project.dspot.common.report.output.selector.change.json.TestClassJSON;
+import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.testrunner.runner.Failure;
-import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.Counter;
-import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
+import eu.stamp_project.dspot.common.configuration.UserInput;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.Counter;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
+import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
@@ -44,7 +44,7 @@ public class ChangeDetectorSelector extends AbstractTestSelector {
     private String secondVersionTargetClasses;
 
     public ChangeDetectorSelector(AutomaticBuilder automaticBuilder,
-                                  InputConfiguration configuration) {
+                                  UserInput configuration) {
         super(automaticBuilder, configuration);
         this.failurePerAmplifiedTest = new HashMap<>();
         this.pathToFirstVersionOfProgram = DSpotUtils.shouldAddSeparator.apply(configuration.getAbsolutePathToProjectRoot());

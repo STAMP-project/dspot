@@ -1,5 +1,6 @@
 package eu.stamp_project.prettifier;
 
+import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtMethod;
@@ -26,6 +27,8 @@ public class RedundantCastRemoverTest {
         Launcher launcher = new Launcher();
         launcher.addInputResource("src/test/java/eu/stamp_project/resources/AmplifiedTest.java");
         launcher.buildModel();
+
+        TestFramework.init(launcher.getFactory());
 
         final Factory factory = launcher.getFactory();
         final CtMethod<?> redundantCast = factory.Class().get("eu.stamp_project.resources.AmplifiedTest")

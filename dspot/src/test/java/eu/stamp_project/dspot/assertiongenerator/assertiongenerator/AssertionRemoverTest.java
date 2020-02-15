@@ -1,15 +1,13 @@
 package eu.stamp_project.dspot.assertiongenerator.assertiongenerator;
 
-import eu.stamp_project.Main;
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.TestWithLogGenerator;
-import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.options.AutomaticBuilderEnum;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.dspot.common.configuration.UserInput;
+import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
+import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
+import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.OutputType;
@@ -22,7 +20,6 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.Assert.*;
@@ -261,7 +258,7 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
             Test that the AssertionRemover remove all kind of assertions
 		 */
 
-        InputConfiguration configuration = new InputConfiguration();
+        UserInput configuration = new UserInput();
         configuration.setAbsolutePathToProjectRoot(new File(getPathToProjectRoot()).getAbsolutePath());
 //        new TestCompiler(0,
 //                false,
@@ -273,7 +270,8 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
 //
 //        );
         AutomaticBuilder builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
-        String dependencies = Main.completeDependencies(configuration, builder);
+        InitializeDSpot initializeDSpot = new InitializeDSpot();
+        String dependencies = initializeDSpot.completeDependencies(configuration, builder);
         launcher = new Launcher();
         launcher.addInputResource(getPathToProjectRoot());
         launcher.getEnvironment().setOutputType(OutputType.CLASSES);

@@ -1,7 +1,6 @@
 package eu.stamp_project.prettifier.code2vec;
 
-import eu.stamp_project.prettifier.options.InputConfiguration;
-import eu.stamp_project.utils.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,19 +34,24 @@ public class Code2VecExecutor {
 
     private ByteArrayOutputStream outStream;
 
+    private String pathToRootOfCode2Vec;
+
+    private String relativePathToModelForCode2Vec;
+
     /**
      * Construct the Code2VecExecutor.
      * This class will initialize the model of Code2Vec, then provide an API to predict a name for a test method.
      */
-    public Code2VecExecutor() {
-        final String root = InputConfiguration.get().getPathToRootOfCode2Vec();
-        final String pathToModel = InputConfiguration.get().getRelativePathToModelForCode2Vec();
-
+    public Code2VecExecutor(String pathToRootOfCode2Vec,
+                            String relativePathToModelForCode2Vec,
+                            long timeoutForCode2VecInMillis) {
+        this.pathToRootOfCode2Vec = pathToRootOfCode2Vec;
+        this.relativePathToModelForCode2Vec = relativePathToModelForCode2Vec;
         this.service = Executors.newSingleThreadExecutor();
         try {
-            final String command = COMMAND_LINE + pathToModel + PREDICT_ARGUMENT;
-            this.code2vecProcess = Runtime.getRuntime().exec(command, (String[]) null, new File(root));
-            LOGGER.info("Executing: {} in {}", command, root);
+            final String command = COMMAND_LINE + this.relativePathToModelForCode2Vec + PREDICT_ARGUMENT;
+            this.code2vecProcess = Runtime.getRuntime().exec(command, (String[]) null, new File(this.pathToRootOfCode2Vec));
+            LOGGER.info("Executing: {} in {}", command, this.pathToRootOfCode2Vec);
         } catch (IOException var12) {
             throw new RuntimeException(var12);
         }
@@ -58,8 +62,8 @@ public class Code2VecExecutor {
         this.future = this.service.submit(this.task);
         this.writer = new BufferedWriter(new OutputStreamWriter(this.code2vecProcess.getOutputStream()));
         try {
-            LOGGER.info("Waiting {} seconds that code2vec is well initialized...", InputConfiguration.get().getTimeToWaitForCode2vecInMillis() / 1000);
-            Thread.sleep(InputConfiguration.get().getTimeToWaitForCode2vecInMillis());
+            LOGGER.info("Waiting {} seconds that code2vec is well initialized...", timeoutForCode2VecInMillis / 1000);
+            Thread.sleep(timeoutForCode2VecInMillis);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
