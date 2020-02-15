@@ -2,29 +2,29 @@ package eu.stamp_project.dspot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
-import eu.stamp_project.dspot.amplifier.value.ValueCreator;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.automaticbuilder.maven.DSpotPOMCreator;
+import eu.stamp_project.dspot.amplifier.amplifiers.value.ValueCreator;
 import eu.stamp_project.dspot.assertiongenerator.AssertionGenerator;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGeneratorUtils;
-import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
+import eu.stamp_project.dspot.amplifier.InputAmplDistributor;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.DSpotCache;
-import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.RandomHelper;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.configuration.DSpotState;
-import eu.stamp_project.utils.configuration.InitializeDSpot;
-import eu.stamp_project.utils.json.ProjectTimeJSON;
-import eu.stamp_project.utils.options.AutomaticBuilderEnum;
-import eu.stamp_project.utils.options.InputAmplDistributorEnum;
-import eu.stamp_project.utils.program.InputConfiguration;
-import eu.stamp_project.utils.report.output.Output;
-import eu.stamp_project.utils.test_finder.TestFinder;
+import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
+import eu.stamp_project.dspot.common.configuration.DSpotCache;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
+import eu.stamp_project.dspot.amplifier.amplifiers.utils.RandomHelper;
+import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
+import eu.stamp_project.dspot.common.compilation.TestCompiler;
+import eu.stamp_project.dspot.common.configuration.DSpotState;
+import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
+import eu.stamp_project.dspot.common.report.output.json.ProjectTimeJSON;
+import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
+import eu.stamp_project.dspot.common.configuration.options.InputAmplDistributorEnum;
+import eu.stamp_project.dspot.common.configuration.UserInput;
+import eu.stamp_project.dspot.common.report.output.Output;
+import eu.stamp_project.dspot.common.configuration.test_finder.TestFinder;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +46,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class ProjectJSONTest extends AbstractTestOnSample {
 
-    private InputConfiguration configuration;
+    private UserInput configuration;
 
     private AutomaticBuilder builder;
 
@@ -65,7 +65,7 @@ public class ProjectJSONTest extends AbstractTestOnSample {
     @Before
     public void setUp() {
         super.setUp();
-        this.configuration = new InputConfiguration();
+        this.configuration = new UserInput();
         this.configuration.setAbsolutePathToProjectRoot(getPathToProjectRoot());
         this.configuration.setOutputDirectory(outputDirectory);
         this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);

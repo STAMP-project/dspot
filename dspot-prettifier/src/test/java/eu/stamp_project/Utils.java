@@ -1,11 +1,10 @@
 package eu.stamp_project;
 
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.configuration.DSpotState;
-import eu.stamp_project.utils.configuration.InitializeDSpot;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.configuration.UserInput;
+import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
+import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtLiteral;
@@ -29,9 +28,9 @@ public class Utils {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
 
-	private static InputConfiguration configuration;
+	private static UserInput configuration;
 
-	public static void init(InputConfiguration configuration) {
+	public static void init(UserInput configuration) {
 		InitializeDSpot initializeDSpot = new InitializeDSpot();
 		final AutomaticBuilder automaticBuilder = configuration.getBuilderEnum().getAutomaticBuilder(configuration);
 		final String dependencies = initializeDSpot.completeDependencies(configuration, automaticBuilder);

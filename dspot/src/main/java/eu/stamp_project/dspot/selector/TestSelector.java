@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.selector;
 
-import eu.stamp_project.utils.report.output.selector.TestSelectorElementReport;
+import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementReport;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 

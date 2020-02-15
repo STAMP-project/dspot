@@ -1,16 +1,15 @@
 package eu.stamp_project.prettifier.minimization;
 
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.prettifier.Main;
 import eu.stamp_project.prettifier.output.report.ReportJSON;
-import eu.stamp_project.test_framework.TestFramework;
-import eu.stamp_project.utils.AmplificationHelper;
-import eu.stamp_project.utils.DSpotUtils;
-import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.pit.AbstractParser;
-import eu.stamp_project.utils.pit.AbstractPitResult;
-import eu.stamp_project.utils.pit.PitXMLResultParser;
-import eu.stamp_project.utils.program.InputConfiguration;
+import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
+import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
+import eu.stamp_project.dspot.selector.pitmutantscoreselector.AbstractParser;
+import eu.stamp_project.dspot.selector.pitmutantscoreselector.AbstractPitResult;
+import eu.stamp_project.dspot.selector.pitmutantscoreselector.PitXMLResultParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtInvocation;

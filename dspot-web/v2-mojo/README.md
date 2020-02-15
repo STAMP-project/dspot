@@ -30,7 +30,6 @@ postgres=# CREATE DATABASE dspot_minion OWNER dspot_minion;
 CREATE DATABASE
 ```
 
-
 ## Configuration
 
 Configuration is done in file `d_spot_web.conf`:
@@ -72,10 +71,11 @@ Parameters that can be adjusted are:
 
 ## Run the application
 
-Mojolicious runs [hypnotoad](https://mojolicious.org/perldoc/Mojo/Server/Hypnotoad) to serve the application. It can be safely used for production-grade setups.
+There are two processes to start: the UI and the job management framework. Regarding the UI Mojolicious runs [hypnotoad](https://mojolicious.org/perldoc/Mojo/Server/Hypnotoad) to serve the application. It can be safely used for production-grade setups.
 
 ```
 $ hypnotoad script/dspot_web
+$ script/dspot-web minion worker
 ```
 
 The application is served on http://localhost:8080.
