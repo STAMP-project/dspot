@@ -71,14 +71,11 @@ Parameters that can be adjusted are:
 
 ## Run the application
 
-There are two processes to start: the UI and the job management framework. Regarding the UI Mojolicious runs [hypnotoad](https://mojolicious.org/perldoc/Mojo/Server/Hypnotoad) to serve the application. It can be safely used for production-grade setups.
+There are two processes to start: the UI and the job management framework. 
 
-```
-$ hypnotoad script/dspot_web
-$ script/dspot-web minion worker
-```
+### UI
 
-The application is served on http://localhost:8080.
+Regarding the UI Mojolicious runs [hypnotoad](https://mojolicious.org/perldoc/Mojo/Server/Hypnotoad) to serve the application. It can be safely used for production-grade setups.
 
 You can run the same command again for automatic hot deployment.
 
@@ -113,3 +110,13 @@ $ hypnotoad -s script/dspot_web
 
 Stopping Hypnotoad server 16571 gracefully.
 ```
+
+### Job management framework
+
+```
+$ cd ~/dspot/dspot-web/v2-mojo/
+$ script/dspot-web minion worker
+```
+
+
+
