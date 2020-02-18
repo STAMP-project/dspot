@@ -118,5 +118,9 @@ $ cd ~/dspot/dspot-web/v2-mojo/
 $ script/dspot-web minion worker
 ```
 
+To check if the worker is running is to go to the admin UI <https://dspot-demo.stamp-project.eu/admin/minion>
+
+The worker is running inside a screen on the dspot server. To see it just run screen -r to re-attach the screen (it's a foreground process so there should be lines printed on stdout).
+
 
 
