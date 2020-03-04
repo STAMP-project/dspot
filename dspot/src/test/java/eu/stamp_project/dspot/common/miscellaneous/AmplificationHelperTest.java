@@ -64,26 +64,28 @@ public class AmplificationHelperTest extends AbstractTestOnSample {
                 .map(CtMethod::clone)
                 .peek(ctMethod -> ctMethod.setSimpleName("ampl" + ctMethod.getSimpleName()))
                 .collect(Collectors.toList());
-        CtType<?> amplifiedTest = AmplificationHelper.renameTestClassUnderAmplification(AmplificationHelper.createAmplifiedTest(fakeAmplifiedMethod, classTest));
+        CtType<?> amplifiedTest = AmplificationHelper.createAmplifiedTest(fakeAmplifiedMethod, classTest);
+        CtType<?> renamedAmplifiedTest = AmplificationHelper.renameTestClassUnderAmplification(amplifiedTest);
 
-        assertTrue(amplifiedTest.getSimpleName().contains("Ampl")); // (1)
+        assertTrue(renamedAmplifiedTest.getSimpleName().contains("Ampl")); // (1)
 
-        assertEquals(11, amplifiedTest.getMethods().size()); // (2)
+        assertEquals(11, renamedAmplifiedTest.getMethods().size()); // (2)
         assertEquals(11, classTest.getMethods().size());// (2)
 
         // (3)
-        assertFalse(classTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
+        assertTrue(classTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
             @Override
             public boolean matches(CtTypeReference element) {
-                return classTest.equals(element.getDeclaration()) &&
+                return element.getDeclaration() != null &&
+                        renamedAmplifiedTest.toString().equals(element.getDeclaration().toString()) &&
                         super.matches(element);
             }
         }).isEmpty());
         // (3)
-        assertTrue(amplifiedTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
+        assertFalse(renamedAmplifiedTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
             @Override
             public boolean matches(CtTypeReference element) {
-                return classTest.equals(element.getDeclaration()) &&
+                return renamedAmplifiedTest.equals(element.getDeclaration()) &&
                         super.matches(element);
             }
         }).isEmpty());
@@ -117,7 +119,8 @@ public class AmplificationHelperTest extends AbstractTestOnSample {
         assertFalse(classTest.getElements(new TypeFilter<CtTypeReference>(CtTypeReference.class) {
             @Override
             public boolean matches(CtTypeReference element) {
-                return classTest.equals(element.getDeclaration()) &&
+                return element.getDeclaration() != null &&
+                        classTest.getQualifiedName().equals(element.getDeclaration().getQualifiedName()) &&
                         super.matches(element);
             }
         }).isEmpty());
