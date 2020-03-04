@@ -1,6 +1,5 @@
 package eu.stamp_project.dspot.common.test_framework.implementations.junit;
 
-import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import spoon.reflect.code.CtConstructorCall;

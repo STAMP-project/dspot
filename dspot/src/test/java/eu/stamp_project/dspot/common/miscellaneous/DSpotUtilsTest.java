@@ -116,7 +116,7 @@ public class DSpotUtilsTest extends AbstractTestOnSample {
                     "    public void test() {" + AmplificationHelper.LINE_SEPARATOR +
                     "        LombokClassThatUseBuilder.builder().build();" + AmplificationHelper.LINE_SEPARATOR +
                     "    }" + AmplificationHelper.LINE_SEPARATOR +
-                    "}" + AmplificationHelper.LINE_SEPARATOR,
+                    "}",
                     reader.lines()
                             .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR))
             );
@@ -184,7 +184,7 @@ public class DSpotUtilsTest extends AbstractTestOnSample {
 
         // build original class
         Launcher launcher = new Launcher();
-        launcher.addInputResource("/Users/stephaniechallita/workspace/dspot/dspot/src/test/java/eu/stamp_project/dspot/common/miscellaneous/DSpotUtilsTest.java");
+        launcher.addInputResource("src/test/java/eu/stamp_project/dspot/common/miscellaneous/DSpotUtilsTest.java");
         launcher.getEnvironment().setNoClasspath(true);
         launcher.buildModel();
         final Factory factory = launcher.getFactory();
