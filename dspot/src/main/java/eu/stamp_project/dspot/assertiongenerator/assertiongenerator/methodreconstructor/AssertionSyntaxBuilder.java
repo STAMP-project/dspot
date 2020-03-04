@@ -165,10 +165,8 @@ public class AssertionSyntaxBuilder {
     // TODO we need maybe limit assertion on a limited number of elements
     @SuppressWarnings("unchecked")
     private static List<CtInvocation<?>> buildSnippetAssertCollection(Factory factory, CtMethod<?> testMethod, String expression, Collection value) {
-        final CtVariableAccess variableRead = factory.createVariableRead(
-                factory.createLocalVariableReference().setSimpleName(expression),
-                false
-        );
+        final CtExpression variableRead =  new Translator(factory).translate(expression);
+
         final CtExecutableReference contains = factory.Type().get(Collection.class).getMethodsByName("contains").get(0).getReference();
         return (List<CtInvocation<?>>) value.stream()
                 .limit(Math.min(value.size(), MAX_NUMBER_OF_CHECKED_ELEMENT_IN_LIST))
@@ -176,8 +174,11 @@ public class AssertionSyntaxBuilder {
                 .map(o ->
                         TestFramework.get().buildInvocationToAssertion(
                                 testMethod, AssertEnum.ASSERT_TRUE,
-                                Collections.singletonList(factory.createInvocation(variableRead,
-                                        contains, (CtLiteral) o
+                                Collections.singletonList(
+                                        factory.createInvocation(
+                                                variableRead,
+                                                contains,
+                                                (CtLiteral) o
                                         )
                                 )
                         )
@@ -188,10 +189,7 @@ public class AssertionSyntaxBuilder {
     // TODO we need maybe limit assertion on a limited number of elements
     @SuppressWarnings("unchecked")
     private static List<CtInvocation<?>> buildSnippetAssertMap(Factory factory, CtMethod<?> testMethod, String expression, Map value) {
-        final CtVariableAccess variableRead = factory.createVariableRead(
-                factory.createLocalVariableReference().setSimpleName(expression),
-                false
-        );
+        final CtExpression variableRead =  new Translator(factory).translate(expression);
         final CtExecutableReference containsKey = factory.Type().get(Map.class).getMethodsByName("containsKey").get(0).getReference();
         final CtExecutableReference get = factory.Type().get(Map.class).getMethodsByName("get").get(0).getReference();
         return (List<CtInvocation<?>>) value.keySet().stream()

@@ -138,7 +138,7 @@ public class TestCompiler {
                     throw new AmplificationException(e);
                 }
             }
-        }else {
+        } else {
             //Delete junit-platform.properties if exits
             if (TestFramework.isJUnit5(testsToRun.get(0))) {
                 String rootPath = classPath.split(":")[0];
@@ -173,8 +173,8 @@ public class TestCompiler {
      *                                This Exception is not thrown when the compilation fails but rather when the arguments are wrong.
      */
     public List<CtMethod<?>> compileAndDiscardUncompilableMethods(DSpotCompiler compiler,
-                                                                         CtType<?> testClassToBeCompiled,
-                                                                         List<CtMethod<?>> testsToRun) throws AmplificationException {
+                                                                  CtType<?> testClassToBeCompiled,
+                                                                  List<CtMethod<?>> testsToRun) throws AmplificationException {
         final List<CtMethod<?>> uncompilableMethod = compileAndDiscardUncompilableMethods(compiler, testClassToBeCompiled, 0);
         testsToRun.removeAll(uncompilableMethod);
         uncompilableMethod.forEach(testClassToBeCompiled::removeMethod);
@@ -260,13 +260,17 @@ public class TestCompiler {
 
     // output the .java of the test class to be compiled
     // this method delete also the old .class, i.e. the old compiled file of the same test class, if exists
-    private static void printJavaFileAndDeleteClassFile(DSpotCompiler compiler, CtType classTest) {
+    private static void printJavaFileAndDeleteClassFile(DSpotCompiler compiler, CtType<?> classTest) {
         try {
+//            final String pathToJavaFile =
+//                    compiler.getSourceOutputDirectory().getAbsolutePath() + "/"
+//                            + classTest.getQualifiedName().replaceAll("\\.", "/") + ".java";
+//            forceDelete(pathToJavaFile);
             DSpotUtils.printCtTypeToGivenDirectory(classTest, compiler.getSourceOutputDirectory());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        String pathToDotClass =
+        final String pathToDotClass =
                 compiler.getBinaryOutputDirectory().getAbsolutePath() + "/"
                         + classTest.getQualifiedName().replaceAll("\\.", "/") + ".class";
         try {
