@@ -162,6 +162,7 @@ public class PitMutantScoreSelector extends TakeAllSelector {
 
         // prepare clone of the test class
         CtType clone = this.currentClassTestToBeAmplified.clone();
+        this.currentClassTestToBeAmplified.getPackage().addType(clone);
         clone.setParent(this.currentClassTestToBeAmplified.getParent());
 
         // remove test methods from clone that are in original test class and add all amplified methods

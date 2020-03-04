@@ -63,8 +63,8 @@ public class AssertionGenerator {
             return tests;
         }
         CtType cloneClass = testClass.clone();
-        cloneClass.setParent(testClass.getParent());
-        List<CtMethod<?>> testsWithoutAssertions = removeAssertions(tests,cloneClass);
+        testClass.getPackage().addType(cloneClass);
+        List<CtMethod<?>> testsWithoutAssertions = removeAssertions(tests, cloneClass);
 
         // set up methodReconstructor for use in assertPassingAndFailingTests
         this.methodReconstructor = new MethodReconstructor(
@@ -81,7 +81,7 @@ public class AssertionGenerator {
     }
 
     // remove existing assertions from cloned test methods
-    private List<CtMethod<?>> removeAssertions(List<CtMethod<?>> tests,CtType cloneClass){
+    private List<CtMethod<?>> removeAssertions(List<CtMethod<?>> tests, CtType cloneClass){
         List<CtMethod<?>> testsWithoutAssertions = tests.stream()
                 .map(this.assertionRemover::removeAssertion)
                 .collect(Collectors.toList());
@@ -120,7 +120,8 @@ public class AssertionGenerator {
 
             //Add parallel test execution support (JUnit4, JUnit5) for execution method (CMD, Maven)
             CloneHelper.addParallelExecutionAnnotation(testClass, tests);
-            testResult = this.testCompiler.compileAndRun(testClass,
+            testResult = this.testCompiler.compileAndRun(
+                    testClass,
                     this.compiler,
                     tests
             );
@@ -135,7 +136,7 @@ public class AssertionGenerator {
         return generatedTestWithAssertion;
     }
 
-    private List<CtMethod<?>> addAssertionsOnPassingTests(TestResult testResult,List<CtMethod<?>> tests,CtType testClass){
+    private List<CtMethod<?>> addAssertionsOnPassingTests(TestResult testResult,List<CtMethod<?>> tests, CtType testClass){
         final List<CtMethod<?>> generatedTestWithAssertion = new ArrayList<>();
         final List<String> passingTestsName = testResult.getPassingTests();
         if (!passingTestsName.isEmpty()) {
@@ -145,8 +146,7 @@ public class AssertionGenerator {
                             passingTestsName.stream()
                                     .anyMatch(passingTestName -> checkMethodName(ctMethod.getSimpleName(), passingTestName))
                     ).collect(Collectors.toList());
-            List<CtMethod<?>> passingTests = this.methodReconstructor.addAssertions(testClass,
-                    passingTestMethods)
+            List<CtMethod<?>> passingTests = this.methodReconstructor.addAssertions(testClass, passingTestMethods)
                     .stream()
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());

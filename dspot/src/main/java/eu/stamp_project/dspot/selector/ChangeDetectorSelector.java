@@ -85,7 +85,7 @@ public class ChangeDetectorSelector extends AbstractTestSelector {
             return amplifiedTestToBeKept;
         }
         CtType clone = this.currentClassTestToBeAmplified.clone();
-        clone.setParent(this.currentClassTestToBeAmplified.getParent());
+        this.currentClassTestToBeAmplified.getPackage().addType(clone);
         this.currentClassTestToBeAmplified.getMethods().stream()
                  .filter(TestFramework.get()::isTest)
                 .forEach(clone::removeMethod);

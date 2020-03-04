@@ -11,14 +11,8 @@ import org.slf4j.LoggerFactory;
 import spoon.Launcher;
 import spoon.compiler.Environment;
 import spoon.reflect.code.CtComment;
-import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtElement;
-import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.declaration.CtType;
-import spoon.reflect.declaration.ModifierKind;
-import spoon.reflect.factory.Factory;
+import spoon.reflect.declaration.*;
 import spoon.reflect.reference.CtTypeReference;
-import spoon.reflect.visitor.DefaultJavaPrettyPrinter;
 import spoon.support.JavaOutputProcessor;
 
 import java.io.*;
@@ -80,14 +74,13 @@ public class DSpotUtils {
     }
 
     public static void printCtTypeToGivenDirectory(CtType<?> type, File directory, boolean autoImports) {
+        Environment env = type.getFactory().getEnvironment();
         try {
-            Factory factory = type.getFactory();
-            Environment env = factory.getEnvironment();
             env.setAutoImports(autoImports);
             env.setNoClasspath(true);
             env.setCommentEnabled(DSpotUtils.withComment);
-            JavaOutputProcessor processor = new JavaOutputProcessor(new DefaultJavaPrettyPrinter(env));
-            processor.setFactory(factory);
+            JavaOutputProcessor processor = new JavaOutputProcessor(env.createPrettyPrinterAutoImport());
+            processor.setFactory(type.getFactory());
             processor.getEnvironment().setSourceOutputDirectory(directory);
             processor.createJavaFile(type);
             env.setAutoImports(false);
