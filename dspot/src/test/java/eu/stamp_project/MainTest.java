@@ -226,7 +226,9 @@ public class MainTest {
         try (BufferedReader reader = new BufferedReader(new FileReader(amplifiedTestClass))) {
             String content = reader.lines().collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR));
             System.out.println(content);
-            assertTrue(content.startsWith(expectedAmplifiedTestClass));
+            assertTrue(
+                    content.startsWith(expectedAmplifiedTestClass)
+            );
             assertTrue(new File("target/dspot/output/original/example/TestSuiteExample.java").exists());
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -235,19 +237,15 @@ public class MainTest {
 
     //we  don't test the whole file, but only the begin of it. It is sufficient to detect the auto import.
     private static final String expectedAmplifiedTestClass = "package example;" + AmplificationHelper.LINE_SEPARATOR +
-            AmplificationHelper.LINE_SEPARATOR +
-            AmplificationHelper.LINE_SEPARATOR +
             "import org.junit.Assert;" + AmplificationHelper.LINE_SEPARATOR +
             "import org.junit.Test;" + AmplificationHelper.LINE_SEPARATOR +
-            AmplificationHelper.LINE_SEPARATOR +
-            AmplificationHelper.LINE_SEPARATOR +
             "public class TestSuiteExample {" + AmplificationHelper.LINE_SEPARATOR +
             "    @Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
             "    public void test3_literalMutationString50_failAssert0() throws Exception {" + AmplificationHelper.LINE_SEPARATOR +
             "        try {" + AmplificationHelper.LINE_SEPARATOR +
             "            Example ex = new Example();" + AmplificationHelper.LINE_SEPARATOR +
             "            String s = \"\";" + AmplificationHelper.LINE_SEPARATOR +
-            "            ex.charAt(s, ((s.length()) - 1));" + AmplificationHelper.LINE_SEPARATOR +
+            "            ex.charAt(s, s.length() - 1);" + AmplificationHelper.LINE_SEPARATOR +
             "            Assert.fail(\"test3_literalMutationString50 should have thrown StringIndexOutOfBoundsException\");" + AmplificationHelper.LINE_SEPARATOR +
             "        } catch (StringIndexOutOfBoundsException expected) {" + AmplificationHelper.LINE_SEPARATOR +
             "            Assert.assertEquals(\"String index out of range: 0\", expected.getMessage());" + AmplificationHelper.LINE_SEPARATOR +

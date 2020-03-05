@@ -59,7 +59,8 @@ public class TestFrameworkTest extends AbstractTestOnSample {
         final CtType type = this.launcher.getFactory().Type().get("fr.inria.helper.SecondClassJUnit3");
         TestFramework.get().generateAfterClassToSaveObservations(type, Collections.singletonList(testJUnit3));
         final String expectedToString = "public static junit.framework.Test suite() {" + AmplificationHelper.LINE_SEPARATOR +
-                "    return new junit.extensions.TestSetup(new junit.framework.TestSuite(fr.inria.helper.SecondClassJUnit3.class)) {" + AmplificationHelper.LINE_SEPARATOR +
+//                "    return new junit.extensions.TestSetup(new junit.framework.TestSuite(fr.inria.helper.SecondClassJUnit3.class)) {" + AmplificationHelper.LINE_SEPARATOR +
+                "    return new junit.extensions.TestSetup(fr.inria.helper.SecondClassJUnit3.class) {" + AmplificationHelper.LINE_SEPARATOR +
                 "        protected void tearDown() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
                 "            eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.testwithloggenerator.objectlogsyntaxbuilder_constructs.ObjectLog.save();" + AmplificationHelper.LINE_SEPARATOR +
                 "        }" + AmplificationHelper.LINE_SEPARATOR +

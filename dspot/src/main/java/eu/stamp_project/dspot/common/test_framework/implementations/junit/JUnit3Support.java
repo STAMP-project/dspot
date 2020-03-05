@@ -1,14 +1,12 @@
 package eu.stamp_project.dspot.common.test_framework.implementations.junit;
 
-import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import spoon.reflect.code.CtConstructorCall;
+import spoon.reflect.code.CtExpression;
+import spoon.reflect.code.CtNewClass;
 import spoon.reflect.code.CtReturn;
-import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtElement;
-import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.declaration.CtType;
-import spoon.reflect.declaration.ModifierKind;
+import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtTypeReference;
 
@@ -83,20 +81,37 @@ public class JUnit3Support extends JUnitSupport {
         suiteMethod.setType(
                 factory.createCtTypeReference(Test.class)
         );
+
+        // init TestSetup class
         final CtClass<?> testSetupClass = factory.Class().create("junit.extensions.TestSetup");
-        final CtReturn<?> returnStatement = factory.createReturn();
-        returnStatement.setReturnedExpression(
-                factory.Code().createNewClass(
-                        factory.createCtTypeReference(TestSetup.class),
+
+        CtParameter parameter = factory.createParameter();
+        parameter.setType(factory.Type().createReference(Class.class));
+        parameter.setSimpleName("test");
+
+        testSetupClass.addConstructor(
+                factory.createConstructor(
                         testSetupClass,
-                        factory.Code().
-                                createConstructorCall(
-                                        factory.createCtTypeReference(TestSuite.class),
-                                        factory.createCodeSnippetExpression(testClass.getQualifiedName() + ".class")
-                                )
+                        Collections.emptySet(),
+                        Collections.singletonList(parameter),
+                        Collections.emptySet()
                 )
         );
+        final CtExpression parameterValue = factory.createCodeSnippetExpression(testClass.getQualifiedName() + ".class");
+        parameterValue.setType(factory.Type().createReference(Class.class));
+
+        final CtConstructorCall constructorCall = factory.createConstructorCall(
+                factory.createCtTypeReference(TestSuite.class), parameterValue
+        );
+
+        final CtNewClass testSetupNewClass = factory.Code().createNewClass(testSetupClass, parameterValue);
+        //testSetupNewClass.addArgument(constructorCall);
+
+        final CtReturn returnStatement = factory.createReturn();
+        returnStatement.setReturnedExpression(testSetupNewClass);
         suiteMethod.setBody(returnStatement);
+
+        // create tearDown method
         final CtMethod tearDown = factory.createMethod();
         tearDown.setModifiers(
                 new HashSet<>(Collections.singletonList(ModifierKind.PROTECTED))
@@ -105,7 +120,9 @@ public class JUnit3Support extends JUnitSupport {
         tearDown.addThrownType(factory.createCtTypeReference(Exception.class));
         tearDown.setType(factory.Type().VOID_PRIMITIVE);
         createCallToSaveAndInsertAtTheEnd(factory, tearDown);
-        testSetupClass.addMethod(tearDown);
+        // add tearDown method to the anonymous TestSetup Class
+        testSetupNewClass.getAnonymousClass().addMethod(tearDown);
+
         testClass.addMethod(suiteMethod);
     }
 }

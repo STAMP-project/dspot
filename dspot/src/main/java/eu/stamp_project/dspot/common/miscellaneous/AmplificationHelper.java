@@ -8,13 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtComment;
 import spoon.reflect.code.CtLiteral;
-import spoon.reflect.declaration.CtImport;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtPackage;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.reference.CtTypeReference;
-import spoon.reflect.visitor.ImportScanner;
-import spoon.reflect.visitor.ImportScannerImpl;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
@@ -89,7 +86,6 @@ public class AmplificationHelper {
         if (!shouldKeepOriginalTestMethods) {
             classTest.getMethods().stream()
                     .filter(TestFramework.get()::isTest)
-                    //.filter(AmplificationChecker::isTest)
                     .forEach(currentTestClass::removeMethod);
         }
         return currentTestClass;
@@ -138,10 +134,6 @@ public class AmplificationHelper {
         return ampTestToParent.remove(amplifiedTest);
     }
 
-    public static int getAmpTestParentSize() {
-        return ampTestToParent.size();
-    }
-
     public static void addTestBindingToOriginal(CtMethod clonedTest, CtMethod fromTest) {
         CtMethod originalTest = fromTest;
         if (originalTestBindings.containsKey(fromTest)) {
@@ -150,20 +142,8 @@ public class AmplificationHelper {
         originalTestBindings.put(clonedTest, originalTest);
     }
 
-    public static void removeTestBindingToOriginal(CtMethod clonedTest) {
-        originalTestBindings.remove(clonedTest);
-    }
-
     public static CtMethod getOriginalTestMethod(CtMethod clonedTest) {
         return originalTestBindings.get(clonedTest);
-    }
-
-    public static int getTestBindingToOriginalSize() {
-        return originalTestBindings.size();
-    }
-
-    public static void resetTestBindingToOriginal() {
-          originalTestBindings.clear();
     }
 
     @Deprecated
@@ -179,33 +159,7 @@ public class AmplificationHelper {
             types.add(testClass.getParent(CtType.class));
         }
 
-        types.addAll(types.stream()
-                .flatMap(type -> getImport(type).stream())
-                .collect(Collectors.toSet()));
-
-
         return new HashSet<>(types);
-    }
-
-    @Deprecated
-    public static Set<CtType> getImport(CtType type) {
-        if (!AmplificationHelper.importByClass.containsKey(type)) {
-            ImportScanner importScanner = new ImportScannerImpl();
-            try {
-                importScanner.computeImports(type);
-                Set<CtType> set = importScanner.getAllImports()
-                        .stream()
-                        .map(CtImport::getReference)
-                        .filter(Objects::nonNull)
-                        .filter(ctElement -> ctElement instanceof CtType)
-                        .map(ctElement -> (CtType) ctElement)
-                        .collect(Collectors.toSet());
-                AmplificationHelper.importByClass.put(type, set);
-            } catch (Exception e) {
-                AmplificationHelper.importByClass.put(type, new HashSet<>(0));
-            }
-        }
-        return AmplificationHelper.importByClass.get(type);
     }
 
     @Deprecated
@@ -228,13 +182,4 @@ public class AmplificationHelper {
         return amplifiedTest;
     }
 
-    @Deprecated
-    public static CtMethod getTopParent(CtMethod test) {
-        CtMethod topParent;
-        CtMethod currentTest = test;
-        while ((topParent = getAmpTestParent(currentTest)) != null) {
-            currentTest = topParent;
-        }
-        return currentTest;
-    }
 }

@@ -44,6 +44,10 @@ public class TestSelectorElementReportImpl implements TestSelectorElementReport 
 
     @Override
     public String output(CtType<?> testClass, String outputDirectory) {
+        final File outputDirectoryFile = new File(DSpotUtils.shouldAddSeparator.apply(outputDirectory));
+        if (!outputDirectoryFile.exists()) {
+            outputDirectoryFile.mkdirs();
+        }
         // 1 output the specific JSON file for the test class
         final File outputJsonFile = new File(
                 DSpotUtils.shouldAddSeparator.apply(outputDirectory) +
