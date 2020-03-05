@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
-source /opt/jdk_switcher/jdk_switcher.sh
+set -e
 
-jdk_switcher use openjdk8 & mvn -Djava.src.version=1.8 test -f dspot/pom.xml
+# see doIntegrationTests=true -> see https://stackoverflow.com/a/15881238
+mvn -Djava.src.version=1.8 -DdoIntegrationTests=true test -f dspot/pom.xml
