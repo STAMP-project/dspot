@@ -80,13 +80,13 @@ public class Context2NameTest {
             "    String mess = \"mess-print\";" + AmplificationHelper.LINE_SEPARATOR +
             "    System.out.print(mess);" + AmplificationHelper.LINE_SEPARATOR +
             "    String local = \"local\" + id;" + AmplificationHelper.LINE_SEPARATOR +
-            "    System.out.print(((this.global) + local));" + AmplificationHelper.LINE_SEPARATOR +
+            "    System.out.print(global + local);" + AmplificationHelper.LINE_SEPARATOR +
             "}", methodListBeforeC2N.get(0).toString());
         assertEquals("private void mess(int name) {" + AmplificationHelper.LINE_SEPARATOR +
             "    String mess = \"mess-print\";" + AmplificationHelper.LINE_SEPARATOR +
             "    System.out.print(mess);" + AmplificationHelper.LINE_SEPARATOR +
             "    String ex = \"local\" + name;" + AmplificationHelper.LINE_SEPARATOR +
-            "    System.out.print(((this.global) + ex));" + AmplificationHelper.LINE_SEPARATOR +
+            "    System.out.print(global + ex);" + AmplificationHelper.LINE_SEPARATOR +
             "}", methodListAfterC2N.get(0).toString());
 
         // the second method AKA "test"
@@ -96,10 +96,10 @@ public class Context2NameTest {
             "    outer : for (int i = 0; i < 10; i++) {" + AmplificationHelper.LINE_SEPARATOR +
             "        inner : for (int j = 10; j > 0; j--) {" + AmplificationHelper.LINE_SEPARATOR +
             "            if (i != j) {" + AmplificationHelper.LINE_SEPARATOR +
-            "                System.out.print((((\"break as i\" + i) + \"j\") + j));" + AmplificationHelper.LINE_SEPARATOR +
+            "                System.out.print(((\"break as i\" + i) + \"j\") + j);" + AmplificationHelper.LINE_SEPARATOR +
             "                break outer;" + AmplificationHelper.LINE_SEPARATOR +
             "            } else {" + AmplificationHelper.LINE_SEPARATOR +
-            "                System.out.print((((\"continue as i\" + i) + \"j\") + j));" + AmplificationHelper.LINE_SEPARATOR +
+            "                System.out.print(((\"continue as i\" + i) + \"j\") + j);" + AmplificationHelper.LINE_SEPARATOR +
             "                continue inner;" + AmplificationHelper.LINE_SEPARATOR +
             "            }" + AmplificationHelper.LINE_SEPARATOR +
             "        }" + AmplificationHelper.LINE_SEPARATOR +
@@ -111,10 +111,10 @@ public class Context2NameTest {
             "    tc : for (int c = 0; c < 10; c++) {" + AmplificationHelper.LINE_SEPARATOR +
             "        result : for (int gridBagConstraints = 10; gridBagConstraints > 0; gridBagConstraints--) {" + AmplificationHelper.LINE_SEPARATOR +
             "            if (c != gridBagConstraints) {" + AmplificationHelper.LINE_SEPARATOR +
-            "                System.out.print((((\"break as i\" + c) + \"j\") + gridBagConstraints));" + AmplificationHelper.LINE_SEPARATOR +
+            "                System.out.print(((\"break as i\" + c) + \"j\") + gridBagConstraints);" + AmplificationHelper.LINE_SEPARATOR +
             "                break tc;" + AmplificationHelper.LINE_SEPARATOR +
             "            } else {" + AmplificationHelper.LINE_SEPARATOR +
-            "                System.out.print((((\"continue as i\" + c) + \"j\") + gridBagConstraints));" + AmplificationHelper.LINE_SEPARATOR +
+            "                System.out.print(((\"continue as i\" + c) + \"j\") + gridBagConstraints);" + AmplificationHelper.LINE_SEPARATOR +
             "                continue result;" + AmplificationHelper.LINE_SEPARATOR +
             "            }" + AmplificationHelper.LINE_SEPARATOR +
             "        }" + AmplificationHelper.LINE_SEPARATOR +
