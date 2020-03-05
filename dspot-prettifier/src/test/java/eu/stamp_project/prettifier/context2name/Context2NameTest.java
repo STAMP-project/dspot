@@ -13,11 +13,13 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 public class Context2NameTest {
 
     @Test
     public void testContext2Name() {
+        assumeTrue("true".equals(System.getProperty("doIntegrationTests")));
         String codeStr = "import spoon.Launcher;" + AmplificationHelper.LINE_SEPARATOR +
             AmplificationHelper.LINE_SEPARATOR +
             "public class Demo {" + AmplificationHelper.LINE_SEPARATOR +
