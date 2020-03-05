@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Created by Daniele Gagliardi
@@ -44,6 +45,7 @@ public class GradleAutomaticBuilderTest {
 
     @Before
     public void setUp() throws Exception {
+        assumeTrue("true".equals(System.getProperty("doIntegrationTests")));
         DSpotState.verbose = true;
         cleanTestEnv();
         LOGGER.debug("Test Set-up - Reading input parameters...");

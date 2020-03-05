@@ -3,7 +3,7 @@ package eu.stamp_project.dspot.common.collector.mongodb;
 import org.junit.Test;
 import org.junit.Before;
 import org.junit.After;
-
+import static org.junit.Assume.assumeTrue;
 import static org.junit.Assert.assertEquals;
 
 import eu.stamp_project.Main;
@@ -38,6 +38,8 @@ public class MongodbCollectorTest {
 
     @Test
     public void testInfoSubmissionToMongodbPitMutantScoreSelector() {
+        // don't run this test if mongodb is not installed locally
+        assumeTrue("true".equals(System.getProperty("doIntegrationTests")));
         Main.main(new String[]{
                 "--absolute-path-to-project-root", "src/test/resources/sample/",
                 "--test-criterion", "PitMutantScoreSelector",
@@ -70,6 +72,8 @@ public class MongodbCollectorTest {
 
     @Test
     public void testInfoSubmissionToMongodbJacocoCoverageSelector() {
+        // don't run this test if mongodb is not installed locally
+        assumeTrue("true".equals(System.getProperty("doIntegrationTests")));
         Main.main(new String[]{
                 "--absolute-path-to-project-root", "src/test/resources/project-with-resources/",
                 "--test-criterion", "JacocoCoverageSelector",
@@ -98,6 +102,8 @@ public class MongodbCollectorTest {
     @Test
     /* Should update an existing document then have tried sending an email at the end*/
     public void testRestful() {
+        // don't run this test if mongodb is not installed locally
+        assumeTrue("true".equals(System.getProperty("doIntegrationTests")));
         Document initDoc = new Document("RepoSlug", "USER/Testing")
                 .append("RepoBranch", "master")
                 .append("State", "pending")
