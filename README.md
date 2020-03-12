@@ -88,7 +88,10 @@ Amplified instruction coverage: 34 / 34
 100.00%
 ``` 
 
-Want to know more? Read the [full article] published in Springer Empirical Software Engineering (https://hal.inria.fr/hal-01923575/document) ([doi:10.1007/s10664-019-09692-y](https://doi.org/10.1007/s10664-019-09692-y))
+Want to know more? Read the full articles:
+
+* [Automatic Test Improvement with DSpot: a Study with Ten Mature Open-Source Projects](https://hal.inria.fr/hal-01923575/document) ([doi:10.1007/s10664-019-09692-y](https://doi.org/10.1007/s10664-019-09692-y))
+* [An Approach and Benchmark to Detect Behavioral Changes of Commits in Continuous Integration](https://arxiv.org/pdf/1902.08482) ([doi:10.1007/s10664-019-09794-7](https://doi.org/10.1007/s10664-019-09794-7))
 
 ### Command Line Usage
 
