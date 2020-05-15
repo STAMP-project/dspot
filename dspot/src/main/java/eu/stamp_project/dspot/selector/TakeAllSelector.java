@@ -4,6 +4,7 @@ import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementReport;
 import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementReportImpl;
+import eu.stamp_project.dspot.common.report.output.selector.takeall.json.TestClassJSON;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -51,7 +52,7 @@ public class TakeAllSelector extends AbstractTestSelector {
 	public TestSelectorElementReport report() {
 		final String report = "Amplification results with " + this.selectedAmplifiedTest.size() + " new tests.";
 		reset();
-		return new TestSelectorElementReportImpl(report, null, Collections.emptyList(), "");
+		return new TestSelectorElementReportImpl(report, new TestClassJSON(), Collections.emptyList(), "");
 	}
 
 	@Override
