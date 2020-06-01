@@ -204,6 +204,19 @@ public class MainTest {
     }
 
     @Test
+    public void testOnlyInputAmplification() throws Exception {
+        Main.main(new String[]{
+                "--verbose",
+                "--absolute-path-to-project-root", new File("src/test/resources/test-projects/").getAbsolutePath() + "/",
+                "--amplifiers", "FastLiteralAmplifier",
+                "--test-criterion", "JacocoCoverageSelector",
+                "--test", "example.TestSuiteExample2",
+                "--only-input-amplification",
+        });
+        assertTrue(new File("target/dspot/output/example/TestSuiteExample2.java").exists());
+    }
+
+    @Test
     public void testExample() throws Exception {
 
         /*

@@ -120,9 +120,9 @@ java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --absolute-path-to-pro
 
 ```
 Usage: eu.stamp_project.Main [-hvV] [--allow-path-in-assertions] [--clean] [--example] [--execute-test-parallel]
-                             [--generate-new-test-class] [--gregor-mode] [--keep-original-test-methods] [--restful]
-                             [--smtp-auth] [--target-one-test-class] [--use-maven-to-exe-test]
-                             [--use-working-directory] [--with-comment]
+                             [--generate-new-test-class] [--gregor-mode] [--keep-original-test-methods]
+                             [--only-input-amplification] [--restful] [--smtp-auth] [--target-one-test-class]
+                             [--use-maven-to-exe-test] [--use-working-directory] [--with-comment]
                              [--absolute-path-to-project-root=<absolutePathToProjectRoot>]
                              [--absolute-path-to-second-version=<absolutePathToSecondVersionProjectRoot>]
                              [--automatic-builder=<automaticBuilder>] [--cache-size=<cacheSize>]
@@ -250,6 +250,8 @@ Usage: eu.stamp_project.Main [-hvV] [--allow-path-in-assertions] [--clean] [--ex
       --nb-parallel-exe-processors=<numberParallelExecutionProcessors>
                              Specify the number of processor to use for the parallel execution.0 will make DSpot use
                                all processors available. Default value: 0
+      --only-input-amplification
+                             Only apply input amplification. Default value: false
       --output-path, --output-directory=<outputDirectory>
                              specify a path folder for the output. Default value: target/dspot/output/
       --path-pit-result=<pathPitResult>
@@ -370,6 +372,8 @@ However, **DSpot** provide different kind of `Amplifier`:
    * `ArrayAmplifier`: replaces value of arrays 
    * `ReturnValueAmplifier`: creates objects based on the returned value by existing method call
    * `None`: do nothing
+
+If you only want to use these amplifiers and not generate assertions, use `--only-input-amplification`.
 
 #### Test Selectors (-s | --test-selector | --test-criterion)
 

@@ -58,11 +58,28 @@ public class DSpot {
     }
 
     private List<CtMethod<?>>  amplification(CtType<?> testClassToBeAmplified, List<CtMethod<?>> testMethodsToBeAmplified) {
-        final List<CtMethod<?>> amplifiedTestMethodsToKeep = onlyAssertionGeneration(testClassToBeAmplified,testMethodsToBeAmplified);
+        final List<CtMethod<?>> amplifiedTestMethodsToKeep;
+        if (dSpotState.isOnlyInputAmplification()) {
+            amplifiedTestMethodsToKeep = selectMethodsForAmplification(testClassToBeAmplified, testMethodsToBeAmplified);
+        } else {
+            amplifiedTestMethodsToKeep = onlyAssertionGeneration(testClassToBeAmplified, testMethodsToBeAmplified);
+        }
+
         if (dSpotState.getInputAmplDistributor().shouldBeRun()) {
             fullyAmplifyAllMethods(testClassToBeAmplified,testMethodsToBeAmplified,amplifiedTestMethodsToKeep);
         }
         return amplifiedTestMethodsToKeep;
+    }
+
+    private List<CtMethod<?>> selectMethodsForAmplification(CtType<?> testClassToBeAmplified, List<CtMethod<?>> testMethodsToBeAmplified) {
+        final List<CtMethod<?>> selectedToBeAmplified;
+        try {
+            selectedToBeAmplified = setup.firstSelectorSetup(testClassToBeAmplified,testMethodsToBeAmplified);
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+        return selectedToBeAmplified;
+
     }
 
     private List<CtMethod<?>> onlyAssertionGeneration(CtType<?> testClassToBeAmplified, List<CtMethod<?>> testMethodsToBeAmplified){
@@ -86,7 +103,11 @@ public class DSpot {
     // iteratively generate tests with input modification and associated new assertions for all methods
     private void fullyAmplifyAllMethods(CtType<?> testClassToBeAmplified,List<CtMethod<?>> testMethodsToBeAmplified,
                                         List<CtMethod<?>> amplifiedTestMethodsToKeep){
-        LOGGER.info("Applying Input-amplification and Assertion-amplification test by test.");
+        if (dSpotState.isOnlyInputAmplification()) {
+            LOGGER.info("Applying only Input-amplification test by test.");
+        } else {
+            LOGGER.info("Applying Input-amplification and Assertion-amplification test by test.");
+        }
         for (int i = 0; i < testMethodsToBeAmplified.size(); i++) {
             CtMethod test = testMethodsToBeAmplified.get(i);
             LOGGER.info("Amplification of {}, ({}/{})", test.getSimpleName(), i + 1, testMethodsToBeAmplified.size());
@@ -132,7 +153,17 @@ public class DSpot {
             inputAmplifiedTests = dSpotState.getInputAmplDistributor().inputAmplify(selectedToBeAmplified, currentIteration);
 
             // add assertions to input modified tests
-            currentTestList = this.assertionAmplification(testClassToBeAmplified, inputAmplifiedTests);
+            if (dSpotState.isOnlyInputAmplification()) {
+                currentTestList = dSpotState.getTestCompiler().compileRunAndDiscardUncompilableAndFailingTestMethods(
+                        testClassToBeAmplified,
+                        inputAmplifiedTests,
+                        dSpotState.getCompiler()
+                );
+                LOGGER.info("Assertion amplification: {} test method(s) has been successfully amplified.",
+                        currentTestList.size());
+            } else {
+                currentTestList = this.assertionAmplification(testClassToBeAmplified, inputAmplifiedTests);
+            }
 
             // keep tests that improve the test suite
             selectFullAmplification(currentTestList,amplifiedTests);

@@ -147,6 +147,14 @@ public class UserInput {
     )
     private String outputDirectory = "target/dspot/output/";
 
+    @CommandLine.Option(
+            names = "--only-input-amplification",
+            defaultValue = "false",
+            description = "Only apply input amplification."+
+                    " Default value: ${DEFAULT-VALUE}"
+    )
+    private boolean onlyInputAmplification;
+
     /*
         advanced amplification process configuration
      */
@@ -580,6 +588,15 @@ public class UserInput {
                     " Default value: ${DEFAULT-VALUE}"
     )
     private String smtpTls;
+
+    public boolean isOnlyInputAmplification() {
+        return onlyInputAmplification;
+    }
+
+    public UserInput setOnlyInputAmplification(boolean onlyInputAmplification) {
+        this.onlyInputAmplification = onlyInputAmplification;
+        return this;
+    }
 
     public String getAbsolutePathToTopProjectRoot() {
         return absolutePathToProjectRoot;
