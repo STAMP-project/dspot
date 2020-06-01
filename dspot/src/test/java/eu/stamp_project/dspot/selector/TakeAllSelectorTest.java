@@ -5,6 +5,7 @@ import spoon.reflect.declaration.CtMethod;
 
 import java.util.Collections;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 /**
@@ -46,5 +47,10 @@ public class TakeAllSelectorTest extends AbstractSelectorTest {
 		);
 		assertFalse(this.testSelectorUnderTest.getAmplifiedTestCases().isEmpty());
 		this.testSelectorUnderTest.report();
+	}
+
+	@Test
+	public void testReportForCollector() {
+		assertEquals("", this.testSelectorUnderTest.report().getReportForCollector());
 	}
 }
