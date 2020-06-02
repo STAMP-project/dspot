@@ -38,6 +38,7 @@ public class InitializeDSpot {
     public void init(UserInput userInput) {
         this.DSpotState = new DSpotState();
         DSpotState.setUserInput(userInput);
+        DSpotState.setOnlyInputAmplification(userInput.isOnlyInputAmplification());
         DSpotState.verbose = userInput.isVerbose();
         DSpotState.setStartTime(System.currentTimeMillis());
         DSpotState.setTestFinder(new TestFinder(

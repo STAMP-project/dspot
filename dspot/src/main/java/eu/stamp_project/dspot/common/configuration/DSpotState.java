@@ -34,6 +34,7 @@ public class DSpotState {
     private List<String> testMethodsToBeAmplifiedNames;
     private TestSelector testSelector;
     private InputAmplDistributor inputAmplDistributor;
+    private boolean onlyInputAmplification;
     private Output output;
     private Collector collector;
     private boolean collectData;
@@ -53,6 +54,7 @@ public class DSpotState {
         userInput = new UserInput();
         testMethodsToBeAmplifiedNames = Collections.emptyList();
         collectData = false;
+        onlyInputAmplification = false;
     }
 
     /**
@@ -62,6 +64,14 @@ public class DSpotState {
      */
     public void clearData(){
         this.assertionGenerator = new AssertionGenerator(delta, this.compiler, this.testCompiler);
+    }
+
+    public boolean isOnlyInputAmplification() {
+        return onlyInputAmplification;
+    }
+
+    public void setOnlyInputAmplification(boolean onlyInputAmplification) {
+        this.onlyInputAmplification = onlyInputAmplification;
     }
 
     public int getNbIteration() {
