@@ -418,6 +418,9 @@ Please, do not amplify test classes that mix test frameworks (test methods in JU
 
 If you have such test class, please amplify the different test framework separately.
 
+## Minimizing and Prettifying DSpot Amplified Test Cases
+With the [DSpot Prettifier](dspot-prettifier) you can remove redundant assertions from your amplified test cases & give them more expressive names with the help of code2vec and context2vec.
+
 ## Contributing
 
 DSpot is licensed under LGPLv3. Contributors and pull requests are welcome :-).

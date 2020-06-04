@@ -113,16 +113,30 @@ public class Main {
 
         final List<CtMethod<?>> testMethods = TestFramework.getAllTest(amplifiedTestClass);
         Main.report.nbTestMethods = testMethods.size();
+        final List<CtMethod<?>> minimizedAmplifiedTestMethods;
+
         // 1 minimize amplified test methods
-        final List<CtMethod<?>> minimizedAmplifiedTestMethods = applyMinimization(
-                testMethods,
-                amplifiedTestClass,
-                configuration
-        );
+        if (configuration.isApplyAllPrettifiers() ||  configuration.isApplyGeneralMinimizer() || configuration.isApplyPitMinimizer()) {
+            minimizedAmplifiedTestMethods = applyMinimization(
+                    testMethods,
+                    amplifiedTestClass,
+                    configuration
+            );
+        } else {
+            minimizedAmplifiedTestMethods = testMethods;
+        }
         // 2 rename test methods
-        applyCode2Vec(minimizedAmplifiedTestMethods, configuration);
-        // 3 Rename local variables TODO train one better model
-        return applyContext2Name(minimizedAmplifiedTestMethods);
+        if (configuration.isApplyAllPrettifiers() || configuration.isRenameTestMethods()) {
+            applyCode2Vec(minimizedAmplifiedTestMethods, configuration);
+        }
+        // 3 rename local variables TODO train one better model
+        final List<CtMethod<?>> prettifiedTestMethods;
+        if (configuration.isApplyAllPrettifiers() || configuration.isRenameLocalVariables()) {
+            prettifiedTestMethods = applyContext2Name(minimizedAmplifiedTestMethods);
+        } else {
+            prettifiedTestMethods = minimizedAmplifiedTestMethods;
+        }
+        return prettifiedTestMethods;
     }
 
     public static List<CtMethod<?>> applyMinimization(List<CtMethod<?>> amplifiedTestMethodsToBeMinimized,
@@ -134,27 +148,31 @@ public class Main {
                 .map(List::size)
                 .collect(Collectors.toList()));
 
-        // 1rst apply a general minimization
-        amplifiedTestMethodsToBeMinimized = Main.applyGivenMinimizer(new GeneralMinimizer(), amplifiedTestMethodsToBeMinimized);
-        // update the test class with minimized test methods
-        final ArrayList<CtMethod<?>> allMethods = new ArrayList<>(amplifiedTestClass.getMethods());
-        allMethods.stream()
-                .filter(TestFramework.get()::isTest)
-                .forEach(amplifiedTestClass::removeMethod);
-        amplifiedTestMethodsToBeMinimized.forEach(amplifiedTestClass::addMethod);
+        // 1 apply general minimization
+        if (configuration.isApplyAllPrettifiers() || configuration.isApplyGeneralMinimizer()) {
+            amplifiedTestMethodsToBeMinimized = Main.applyGivenMinimizer(new GeneralMinimizer(), amplifiedTestMethodsToBeMinimized);
+            // update the test class with minimized test methods
+            final ArrayList<CtMethod<?>> allMethods = new ArrayList<>(amplifiedTestClass.getMethods());
+            allMethods.stream()
+                    .filter(TestFramework.get()::isTest)
+                    .forEach(amplifiedTestClass::removeMethod);
+            amplifiedTestMethodsToBeMinimized.forEach(amplifiedTestClass::addMethod);
+        }
 
-        final AutomaticBuilder automaticBuilder = configuration.getBuilderEnum().getAutomaticBuilder(configuration);
-        // 2nd apply a specific minimization
-        amplifiedTestMethodsToBeMinimized = Main.applyGivenMinimizer(
-                new PitMutantMinimizer(
-                        amplifiedTestClass,
-                        automaticBuilder,
-                        configuration.getAbsolutePathToProjectRoot(),
-                        configuration.getClasspathClassesProject(),
-                        configuration.getAbsolutePathToTestClasses()
-                ),
-                amplifiedTestMethodsToBeMinimized
-        );
+        // 2 apply pit minimization
+        if (configuration.isApplyAllPrettifiers() || configuration.isApplyPitMinimizer()) {
+            final AutomaticBuilder automaticBuilder = configuration.getBuilderEnum().getAutomaticBuilder(configuration);
+            amplifiedTestMethodsToBeMinimized = Main.applyGivenMinimizer(
+                    new PitMutantMinimizer(
+                            amplifiedTestClass,
+                            automaticBuilder,
+                            configuration.getAbsolutePathToProjectRoot(),
+                            configuration.getClasspathClassesProject(),
+                            configuration.getAbsolutePathToTestClasses()
+                    ),
+                    amplifiedTestMethodsToBeMinimized
+            );
+        }
 
         Main.report.medianNbStatementAfter = Main.getMedian(amplifiedTestMethodsToBeMinimized.stream()
                 .map(ctMethod -> ctMethod.getElements(new TypeFilter<>(CtStatement.class)))

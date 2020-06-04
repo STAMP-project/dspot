@@ -14,7 +14,7 @@ import org.junit.Before;
  */
 public abstract class AbstractTest {
 
-    public String getPathToPropertiesFile() {
+    public String getAbsolutePathToProjectRoot() {
         return "src/test/resources/sample/";
     }
 
@@ -25,7 +25,7 @@ public abstract class AbstractTest {
         RandomHelper.setSeedRandom(72L);
         ValueCreator.count = 0;
         this.configuration = new UserInput();
-        this.configuration.setAbsolutePathToProjectRoot(this.getPathToPropertiesFile());
+        this.configuration.setAbsolutePathToProjectRoot(this.getAbsolutePathToProjectRoot());
         this.configuration.setVerbose(true);
         this.configuration.setBuilderEnum(AutomaticBuilderEnum.Maven);
         this.configuration.setGregorMode(true);

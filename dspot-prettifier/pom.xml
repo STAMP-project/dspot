@@ -49,7 +49,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>eu.stamp_project.prettifier.code2vec.builder.Main</mainClass>
+                            <mainClass>eu.stamp_project.prettifier.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

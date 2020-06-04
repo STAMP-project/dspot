@@ -36,6 +36,93 @@ public class UserInput extends eu.stamp_project.dspot.common.configuration.UserI
         return this;
     }
 
+    // which Prettifiers to apply
+
+    @CommandLine.Option(
+            names = "--apply-all-prettifiers",
+            description = "Apply all available prettifiers. This overrides options that turn off specific prettifiers." +
+                    " Default value: ${DEFAULT-VALUE}",
+            defaultValue = "false"
+    )
+    private boolean applyAllPrettifiers;
+
+    public boolean isApplyAllPrettifiers() {
+        return applyAllPrettifiers;
+    }
+
+    public UserInput setApplyAllPrettifiers(boolean applyAllPrettifiers) {
+        this.applyAllPrettifiers = applyAllPrettifiers;
+        return this;
+    }
+
+    @CommandLine.Option(
+            names = "--apply-general-minimizer",
+            description = "Apply the general minimizer to remove redundant assertions and inline local variables." +
+                    " Default value: ${DEFAULT-VALUE}",
+            defaultValue = "false"
+    )
+    private boolean applyGeneralMinimizer;
+
+    public boolean isApplyGeneralMinimizer() {
+        return applyGeneralMinimizer;
+    }
+
+    public UserInput setApplyGeneralMinimizer(boolean applyGeneralMinimizer) {
+        this.applyGeneralMinimizer = applyGeneralMinimizer;
+        return this;
+    }
+
+    @CommandLine.Option(
+            names = "--apply-pit-minimizer",
+            description = "Apply the pit minimizer to remove assertions that do not improve the mutation score." +
+                    " Default value: ${DEFAULT-VALUE}",
+            defaultValue = "false"
+    )
+    private boolean applyPitMinimizer;
+
+    public boolean isApplyPitMinimizer() {
+        return applyPitMinimizer;
+    }
+
+    public UserInput setApplyPitMinimizer(boolean applyPitMinimizer) {
+        this.applyPitMinimizer = applyPitMinimizer;
+        return this;
+    }
+
+    @CommandLine.Option(
+            names = "--rename-test-methods",
+            description = "Apply Code2Vec to give the test methods more expressive names." +
+                    " Default value: ${DEFAULT-VALUE}",
+            defaultValue = "false"
+    )
+    private boolean renameTestMethods;
+
+    public boolean isRenameTestMethods() {
+        return renameTestMethods;
+    }
+
+    public UserInput setRenameTestMethods(boolean renameTestMethods) {
+        this.renameTestMethods = renameTestMethods;
+        return this;
+    }
+
+    @CommandLine.Option(
+            names = "--rename-local-variables",
+            description = "Apply Context2Vec to give the local variables more expressive names." +
+                    " Default value: ${DEFAULT-VALUE}",
+            defaultValue = "false"
+    )
+    private boolean renameLocalVariables;
+
+    public boolean isRenameLocalVariables() {
+        return renameLocalVariables;
+    }
+
+    public UserInput setRenameLocalVariables(boolean renameLocalVariables) {
+        this.renameLocalVariables = renameLocalVariables;
+        return this;
+    }
+
     // Code2Vec
 
     @CommandLine.Option(
