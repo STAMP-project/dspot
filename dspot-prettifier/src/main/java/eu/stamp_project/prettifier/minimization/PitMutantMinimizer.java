@@ -244,6 +244,11 @@ public class PitMutantMinimizer implements Minimizer {
 
     CtMethod<?> removeCloneAndInsert(final List<CtInvocation<?>> assertions, CtMethod<?> amplifiedTestToBeMinimized, int indexOfAssertion) {
         final int index = amplifiedTestToBeMinimized.getBody().getStatements().indexOf(assertions.get(indexOfAssertion));
+        if (index == -1) {
+            // targeted assertion is not on first level of test to be minimized
+            // e.g. assertion generator wrapped everything in a try catch block
+            return amplifiedTestToBeMinimized;
+        }
         amplifiedTestToBeMinimized.getBody().removeStatement(assertions.get(indexOfAssertion));
         final CtMethod<?> clone = amplifiedTestToBeMinimized.clone();
         amplifiedTestToBeMinimized.getBody().addStatement(index, assertions.get(indexOfAssertion).clone());
