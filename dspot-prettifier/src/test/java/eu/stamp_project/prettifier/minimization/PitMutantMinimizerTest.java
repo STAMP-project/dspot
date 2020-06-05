@@ -68,7 +68,7 @@ public class PitMutantMinimizerTest extends AbstractTest {
          */
 
         final List<AbstractPitResult> abstractPitResults = minimizer.printCompileAndRunPit(testClass);
-        assertEquals(12, abstractPitResults.size());
+        assertEquals(13, abstractPitResults.size());
         System.out.println(abstractPitResults);
     }
 
