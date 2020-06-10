@@ -56,13 +56,19 @@ public class PitMutantMinimizerTest extends AbstractTest {
     }
 
     @Test
+    public void testOnTryCatchAssertion() {
+        this.testMethod = Utils.findMethod(testClass, "test2_failAssert0");
+        final CtMethod<?> minimize = minimizer.minimize(testMethod);
+    }
+
+    @Test
     public void testPrintCompileAndRunPit() {
         /*
             Test that the Minimizer is able to print, compile and run PIT
          */
 
         final List<AbstractPitResult> abstractPitResults = minimizer.printCompileAndRunPit(testClass);
-        assertEquals(12, abstractPitResults.size());
+        assertEquals(13, abstractPitResults.size());
         System.out.println(abstractPitResults);
     }
 

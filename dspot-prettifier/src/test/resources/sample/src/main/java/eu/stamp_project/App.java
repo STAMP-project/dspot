@@ -24,4 +24,7 @@ public class App {
         i = i * j / 2;
     }
 
+    public void throwException() throws IllegalArgumentException {
+        throw new IllegalArgumentException("Illegal Arg");
+    }
 }
