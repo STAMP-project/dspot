@@ -231,7 +231,7 @@ public class GradleInjector {
     }
 
     private String getDependenciesToPITAndOrDescartes() {
-        return "       classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.3.0'" + AmplificationHelper.LINE_SEPARATOR +
+        return "       classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.4.0'" + AmplificationHelper.LINE_SEPARATOR +
                 (this.isDescartesMode ? "       pitest 'eu.stamp-project:descartes:1.2.4'" : "") + AmplificationHelper.LINE_SEPARATOR;
     }
 
