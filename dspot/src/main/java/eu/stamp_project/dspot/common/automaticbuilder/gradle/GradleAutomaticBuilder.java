@@ -6,14 +6,18 @@ import eu.stamp_project.dspot.common.configuration.UserInput;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
+import org.gradle.tooling.model.build.GradleEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtType;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import static eu.stamp_project.dspot.common.automaticbuilder.gradle.GradlePitTaskAndOptions.ARGUMENTS_SKIP_COMPILE_TEST;
@@ -106,7 +110,7 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
             LOGGER.info("Injecting  Gradle task to run Pit...");
             this.gradleInjector.injectPitTask(this.absolutePathToProjectRoot, testClasses);
             LOGGER.info("Running Pit...");
-            runTasks(true, CMD_PIT_MUTATION_COVERAGE);
+            runTasks(true, "clean", CMD_PIT_MUTATION_COVERAGE);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -115,24 +119,50 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
     }
 
     protected void runTasks(boolean skipTest, String... tasks) {
-        ProjectConnection connection = GradleConnector.newConnector().forProjectDirectory(new File(this.absolutePathToProjectRoot)).connect();
+        Process p;
+        final String[] finalCommand = new String[tasks.length + 1];
+        finalCommand[0] = "gradle";
+        System.arraycopy(tasks, 0, finalCommand, 1, tasks.length);
         LOGGER.info("Run gradle tasks: {}", String.join(" ", tasks));
         try {
-            final BuildLauncher buildLauncher = connection.newBuild()
-                    .forTasks(tasks);
-            if (skipTest) {
-                buildLauncher.withArguments(ARGUMENTS_SKIP_COMPILE_TEST);
-            }
-            if (DSpotState.verbose) {
-                buildLauncher.setStandardError(System.err);
-                buildLauncher.setStandardOutput(System.out);
-            }
-            buildLauncher.run();
+            p = Runtime.getRuntime().exec(String.join(" ", finalCommand), null, new File(this.absolutePathToProjectRoot));
+            new Thread(() -> {
+                Scanner sc = new Scanner(p.getInputStream());
+                while (sc.hasNextLine()) {
+                    System.out.println(sc.nextLine());
+                }
+                sc.close();
+            }).start();
+            new Thread(() -> {
+                Scanner sc = new Scanner(p.getErrorStream());
+                while (sc.hasNextLine()) {
+                    System.err.println(sc.nextLine());
+                }
+                sc.close();
+            }).start();
+            p.waitFor();
         } catch (Exception e) {
             throw new RuntimeException(e);
-        } finally {
-            connection.close();
         }
+        System.out.println("");
+//        ProjectConnection connection = GradleConnector.newConnector().forProjectDirectory(new File(this.absolutePathToProjectRoot)).connect();
+//        LOGGER.info("Run gradle tasks: {}", String.join(" ", tasks));
+//        try {
+//            final BuildLauncher buildLauncher = connection.newBuild()
+//                    .forTasks(tasks);
+//            if (skipTest) {
+//                buildLauncher.withArguments(ARGUMENTS_SKIP_COMPILE_TEST);
+//            }
+//            if (DSpotState.verbose) {
+//                buildLauncher.setStandardError(System.err);
+//                buildLauncher.setStandardOutput(System.out);
+//            }
+//            buildLauncher.run();
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        } finally {
+//            connection.close();
+//        }
     }
 
     @Override

@@ -153,31 +153,12 @@ public class GradleInjector {
 
 
     public String getPitTask(CtType<?>... testClasses) {
-        String pitTaskConfiguration = "";
-        final String contentOfOriginalGradle = readContentOfOrigianlGradleFile();
-        if (!contentOfOriginalGradle.contains("buildscript")) { // this means that there is no buildscript section in the original gradle build
-            pitTaskConfiguration = contentOfOriginalGradle + getPitTaskConfiguration();
-        } else {
-            final String originalBuildscriptContent = getContentOfGivenSectionFromGivenString("buildscript", contentOfOriginalGradle);
-            String buildscriptContentWithInjection =
-                    AmplificationHelper.LINE_SEPARATOR + this.getMaybeCreateConfiguration() +
-                            AmplificationHelper.LINE_SEPARATOR + getDependenciesForBuildscript() +
-                            originalBuildscriptContent;
-            //repositories management
-            if (!originalBuildscriptContent.contains("repositories")) {
-                buildscriptContentWithInjection += AmplificationHelper.LINE_SEPARATOR + this.getRepositoriesConfiguration();
-            } else {
-                final String originalRepositoriesContent = getContentOfGivenSectionFromGivenString("repositories", contentOfOriginalGradle);
-                if (!originalRepositoriesContent.contains("url \"https://plugins.gradle.org/m2/\"")) {
-                    String repositoriesContentWithInjection = originalRepositoriesContent;
-                    repositoriesContentWithInjection += AmplificationHelper.LINE_SEPARATOR + this.getRepositoriesContent();
-                    buildscriptContentWithInjection = buildscriptContentWithInjection.replace(originalRepositoriesContent, repositoriesContentWithInjection);
-                } // else nothing, the needed repository is already there.
-            }
-            // adding the configuration.maybeCreate in anycase
-            pitTaskConfiguration = contentOfOriginalGradle.replace(originalBuildscriptContent, buildscriptContentWithInjection);
-        }
-        return pitTaskConfiguration +
+        final String contentOfOriginalGradle =
+                "plugins {" + AmplificationHelper.LINE_SEPARATOR +
+                        "    id 'info.solidsoft.pitest' version '1.5.1'" + AmplificationHelper.LINE_SEPARATOR +
+                        "}" + AmplificationHelper.LINE_SEPARATOR +
+                readContentOfOrigianlGradleFile();
+        return contentOfOriginalGradle +
                 AmplificationHelper.LINE_SEPARATOR + AmplificationHelper.LINE_SEPARATOR +
                 getApplyPluginPit() +
                 getPitTaskOptions(testClasses);
@@ -205,50 +186,8 @@ public class GradleInjector {
         return currentIndex;
     }
 
-    private String getPitTaskConfiguration() {
-        return AmplificationHelper.LINE_SEPARATOR +
-                "buildscript {" + AmplificationHelper.LINE_SEPARATOR +
-                getBuildScriptContent() +
-                "}" + AmplificationHelper.LINE_SEPARATOR;
-    }
-
     private String getApplyPluginPit() {
         return "apply plugin: 'info.solidsoft.pitest'" + AmplificationHelper.LINE_SEPARATOR;
-    }
-
-    private String getBuildScriptContent() {
-        return getRepositoriesConfiguration() + AmplificationHelper.LINE_SEPARATOR +
-                AmplificationHelper.LINE_SEPARATOR +
-                getMaybeCreateConfiguration() +
-                AmplificationHelper.LINE_SEPARATOR +
-                getDependenciesForBuildscript();
-    }
-
-    private String getDependenciesForBuildscript() {
-        return "    dependencies {" + AmplificationHelper.LINE_SEPARATOR +
-                getDependenciesToPITAndOrDescartes() +
-                "    }" + AmplificationHelper.LINE_SEPARATOR;
-    }
-
-    private String getDependenciesToPITAndOrDescartes() {
-        return "       classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.4.0'" + AmplificationHelper.LINE_SEPARATOR +
-                (this.isDescartesMode ? "       pitest 'eu.stamp-project:descartes:1.2.4'" : "") + AmplificationHelper.LINE_SEPARATOR;
-    }
-
-    private String getMaybeCreateConfiguration() {
-        return "    configurations.maybeCreate('pitest')" + AmplificationHelper.LINE_SEPARATOR;
-    }
-
-    private String getRepositoriesConfiguration() {
-        return "    repositories {" + AmplificationHelper.LINE_SEPARATOR +
-                getRepositoriesContent() + AmplificationHelper.LINE_SEPARATOR +
-                "    }";
-    }
-
-    private String getRepositoriesContent() {
-        return "        maven {" + AmplificationHelper.LINE_SEPARATOR + " " +
-                "            url \"https://plugins.gradle.org/m2/\"" + AmplificationHelper.LINE_SEPARATOR +
-                "        }";
     }
 
     private String wrapWithSingleQuote(String option) {

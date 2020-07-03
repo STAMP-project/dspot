@@ -10,7 +10,7 @@ public class GradlePitTaskAndOptions {
 
     public static final String OPT_WITH_HISTORY = "enableDefaultIncrementalAnalysis = ";
 
-    public static final String OPT_VALUE_REPORT_DIR = "reportDir = 'build/pit-reports'";
+    public static final String OPT_VALUE_REPORT_DIR = "reportDir = new File('build/pit-reports')";
 
     public static final String OPT_TARGET_CLASSES = "targetClasses = ";
 
