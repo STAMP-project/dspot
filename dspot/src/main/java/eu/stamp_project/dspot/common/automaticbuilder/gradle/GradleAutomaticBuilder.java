@@ -144,25 +144,6 @@ public class GradleAutomaticBuilder implements AutomaticBuilder {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        System.out.println("");
-//        ProjectConnection connection = GradleConnector.newConnector().forProjectDirectory(new File(this.absolutePathToProjectRoot)).connect();
-//        LOGGER.info("Run gradle tasks: {}", String.join(" ", tasks));
-//        try {
-//            final BuildLauncher buildLauncher = connection.newBuild()
-//                    .forTasks(tasks);
-//            if (skipTest) {
-//                buildLauncher.withArguments(ARGUMENTS_SKIP_COMPILE_TEST);
-//            }
-//            if (DSpotState.verbose) {
-//                buildLauncher.setStandardError(System.err);
-//                buildLauncher.setStandardOutput(System.out);
-//            }
-//            buildLauncher.run();
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        } finally {
-//            connection.close();
-//        }
     }
 
     @Override
