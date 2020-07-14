@@ -18,7 +18,7 @@ public class GradleInjectorTest {
             "pitest {" + AmplificationHelper.LINE_SEPARATOR +
             "    targetClasses = ['fr.inria.sample.*']" + AmplificationHelper.LINE_SEPARATOR +
             "    enableDefaultIncrementalAnalysis = true" + AmplificationHelper.LINE_SEPARATOR +
-            "    reportDir = 'build/pit-reports'" + AmplificationHelper.LINE_SEPARATOR +
+            "    reportDir = new File('build/pit-reports')" + AmplificationHelper.LINE_SEPARATOR +
             "    outputFormats = ['CSV','HTML','XML']" + AmplificationHelper.LINE_SEPARATOR +
             "    pitestVersion = '1.4.0'" + AmplificationHelper.LINE_SEPARATOR +
             "    timeoutConstInMillis = 10000" + AmplificationHelper.LINE_SEPARATOR +
@@ -56,13 +56,9 @@ public class GradleInjectorTest {
         assertTrue(pitTask, pitTask.endsWith(expectedEnd));
     }
 
-    private static final String expectedStarts = "buildscript {" + AmplificationHelper.LINE_SEPARATOR +
-            "    configurations.maybeCreate('pitest')" + AmplificationHelper.LINE_SEPARATOR +
-            "" + AmplificationHelper.LINE_SEPARATOR +
-            "    dependencies {" + AmplificationHelper.LINE_SEPARATOR +
-            "       classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.3.0'" + AmplificationHelper.LINE_SEPARATOR +
-            "       pitest 'eu.stamp-project:descartes:1.2.4'" + AmplificationHelper.LINE_SEPARATOR +
-            "    }" + AmplificationHelper.LINE_SEPARATOR;
+    private static final String expectedStarts = "plugins {\n" +
+            "    id 'info.solidsoft.pitest' version '1.5.1'\n" +
+            "}" + AmplificationHelper.LINE_SEPARATOR;
 
     @Test
     public void testOnGradleFromActiveonWithoutMavenRepositoryPluginsGradle() {
