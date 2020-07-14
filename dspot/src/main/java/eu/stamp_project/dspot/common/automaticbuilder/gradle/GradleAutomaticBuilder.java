@@ -1,26 +1,18 @@
 package eu.stamp_project.dspot.common.automaticbuilder.gradle;
 
 import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.dspot.common.configuration.DSpotState;
 import eu.stamp_project.dspot.common.configuration.UserInput;
-import org.gradle.tooling.BuildLauncher;
-import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.ProjectConnection;
-import org.gradle.tooling.model.build.GradleEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtType;
 
-import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
-import static eu.stamp_project.dspot.common.automaticbuilder.gradle.GradlePitTaskAndOptions.ARGUMENTS_SKIP_COMPILE_TEST;
 import static eu.stamp_project.dspot.common.automaticbuilder.gradle.GradlePitTaskAndOptions.CMD_PIT_MUTATION_COVERAGE;
 
 /**
