@@ -9,6 +9,7 @@ import eu.stamp_project.dspot.selector.pitmutantscoreselector.PitXMLResultParser
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,7 @@ public class GradleAutomaticBuilderWithDescartesTest {
         LOGGER.debug("Test Tear-down complete.");
     }
 
-
+    @Ignore
     @Test
     public void runPit_whenAllDescartesMutatorsAreSpecified() throws Exception {
         LOGGER.info("Starting Gradle Automatic Builder runPit() test when a test class is specified...");
