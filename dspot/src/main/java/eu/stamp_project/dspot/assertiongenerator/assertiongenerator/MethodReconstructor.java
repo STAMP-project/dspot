@@ -120,7 +120,7 @@ public class MethodReconstructor {
             an assertion identical to the last assertion put into the test method */
             if (assertStatements.stream()
                     .map(Object::toString)
-                    .map("// AssertionGenerator add assertion\n"::concat)
+                    .map("// AssertionGenerator: add assertion\n"::concat)
                     .anyMatch(testWithAssert.getBody().getLastStatement().toString()::equals)) {
                 continue;
             }
@@ -136,7 +136,7 @@ public class MethodReconstructor {
         CtStatement lastStmt = null;
         for (CtStatement assertStatement : assertStatements) {
             DSpotUtils.addComment(assertStatement,
-                    "AssertionGenerator add assertion",
+                    "AssertionGenerator: add assertion",
                     CtComment.CommentType.INLINE);
             try {
                 CtStatement statementToBeAsserted = statements.get(line);
@@ -186,7 +186,7 @@ public class MethodReconstructor {
         // put the new local variable into the assertion and the assertion into the test method
         statementToBeAsserted.replace(localVariable);
         DSpotUtils.addComment(localVariable,
-                "AssertionGenerator create local variable with return value of invocation",
+                "AssertionGenerator: create local variable with return value of invocation",
                 CtComment.CommentType.INLINE);
         localVariable.setParent(statementToBeAsserted.getParent());
         addAtCorrectPlace(id, localVariable, assertStatement, statementToBeAsserted);

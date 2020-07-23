@@ -12,6 +12,7 @@ import eu.stamp_project.dspot.amplifier.amplifiers.utils.RandomHelper;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
 import spoon.reflect.visitor.Query;
+import spoon.reflect.visitor.filter.LineFilter;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.*;
@@ -110,7 +111,7 @@ public class FastLiteralAmplifier implements Amplifier {
 		}
 		toReplace.replace(newLiteral);
 		Counter.updateInputOf(cloned_method, 1);
-		DSpotUtils.addComment(toReplace, "FastLiteralAmplifier on numbers", CtComment.CommentType.INLINE);
+		DSpotUtils.addComment(toReplace, "FastLiteralAmplifier: change number to '" + newValue + "'", CtComment.CommentType.INLINE);
 		return cloned_method;
 	}
 
@@ -133,7 +134,7 @@ public class FastLiteralAmplifier implements Amplifier {
 		CtLiteral toReplace = Query.getElements(cloned_method.getBody(), new LiteralToBeMutedFilter())
 				.get(original_lit_index);
 		toReplace.replace(cloned_method.getFactory().Code().createLiteral(newValue));
-		DSpotUtils.addComment(toReplace, "FastLiteralAmplifier on strings", CtComment.CommentType.INLINE);
+		DSpotUtils.addComment(toReplace, "FastLiteralAmplifier: change string to '" + newValue + "'", CtComment.CommentType.INLINE);
 		return cloned_method;
 	}
 
@@ -149,7 +150,7 @@ public class FastLiteralAmplifier implements Amplifier {
 		CtLiteral toReplace = Query.getElements(cloned_method.getBody(), new LiteralToBeMutedFilter())
 				.get(original_lit_index);
 		toReplace.replace(cloned_method.getFactory().Code().createLiteral(newValue));
-		DSpotUtils.addComment(toReplace, "FastLiteralAmplifier on strings", CtComment.CommentType.INLINE);
+		DSpotUtils.addComment(toReplace, "FastLiteralAmplifier: change char to '" + newValue + "'", CtComment.CommentType.INLINE);
 		return cloned_method;
 	}
 
