@@ -91,11 +91,10 @@ public class Output {
                 .distinct()
                 .forEach(clone::addMethod);
         final File outputDirectory = new File(this.outputPathDirectory + "/original/");
-        DSpotState.GLOBAL_REPORT.addNumberAmplifiedTestMethodsToTotal(amplifiedTestMethods.size());
         DSpotState.GLOBAL_REPORT.addPrintedTestClasses(
-                String.format("Print %s with %d amplified test cases in %s",
+                String.format("Print %s with %d original test cases in %s",
                         clone.getQualifiedName() + ".java",
-                        amplifiedTestMethods.size(),
+                        clone.getMethods().size(),
                         this.outputPathDirectory + "/original/"
                 )
         );

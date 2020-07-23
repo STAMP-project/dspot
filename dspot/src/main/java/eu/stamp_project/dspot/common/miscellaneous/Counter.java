@@ -64,8 +64,10 @@ public class Counter {
         CtMethod<?> parent;
         int countAssertion = getAssertionOf(currentMethod);
         while ((parent = AmplificationHelper.getAmpTestParent(currentMethod)) != null) {
+            if (!parent.getSimpleName().equals(currentMethod.getSimpleName())) {
+                countAssertion += getAssertionOf(parent);
+            }
             currentMethod = parent;
-            countAssertion += getAssertionOf(currentMethod);
         }
         return countAssertion;
     }
@@ -73,12 +75,13 @@ public class Counter {
     public static Integer getInputOfSinceOrigin(CtMethod method) {
         CtMethod currentMethod = method;
         CtMethod parent;
-        int countAssertion = 0;
+        int countAssertion = getInputOf(currentMethod);
         while ((parent = AmplificationHelper.getAmpTestParent(currentMethod)) != null) {
-            countAssertion += getInputOf(currentMethod);
+            if (!parent.getSimpleName().equals(currentMethod.getSimpleName())) {
+                countAssertion += getInputOf(parent);
+            }
             currentMethod = parent;
         }
-        countAssertion += getInputOf(currentMethod);
         return countAssertion;
     }
 

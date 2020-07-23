@@ -124,14 +124,14 @@ public class MethodReconstructor {
                     .anyMatch(testWithAssert.getBody().getLastStatement().toString()::equals)) {
                 continue;
             }
-            goThroughAssertionStatements(assertStatements,id,statements,numberOfAddedAssertion);
+            numberOfAddedAssertion = goThroughAssertionStatements(assertStatements,id,statements,numberOfAddedAssertion);
         }
         Counter.updateAssertionOf(testWithAssert, numberOfAddedAssertion);
         return decideReturn(testWithAssert,test);
     }
 
-    private void goThroughAssertionStatements(List<CtStatement> assertStatements,String id,
-                                               List<CtStatement> statements,Integer numberOfAddedAssertion){
+    private int goThroughAssertionStatements(List<CtStatement> assertStatements,String id,
+                                               List<CtStatement> statements, int numberOfAddedAssertion){
         int line = Integer.parseInt(id.split("__")[1]);
         CtStatement lastStmt = null;
         for (CtStatement assertStatement : assertStatements) {
@@ -153,6 +153,7 @@ public class MethodReconstructor {
                 throw new RuntimeException(e);
             }
         }
+        return numberOfAddedAssertion;
     }
 
     private void decideInvocationReplacement(CtStatement statementToBeAsserted,String id,CtStatement assertStatement,

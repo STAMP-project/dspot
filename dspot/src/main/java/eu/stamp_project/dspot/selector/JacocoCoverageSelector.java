@@ -242,12 +242,12 @@ public class JacocoCoverageSelector extends TakeAllSelector {
             );
         }
         this.selectedAmplifiedTest.forEach(ctMethod ->
-                new TestCaseJSON(ctMethod.getSimpleName(),
-                        Counter.getInputOfSinceOrigin(ctMethod),
+                testClassJSON.addTestCase(new TestCaseJSON(ctMethod.getSimpleName(),
                         Counter.getAssertionOfSinceOrigin(ctMethod),
+                        Counter.getInputOfSinceOrigin(ctMethod),
                         this.selectedToBeAmplifiedCoverageResultsMap.get(ctMethod.getSimpleName()).getInstructionsCovered(),
                         this.selectedToBeAmplifiedCoverageResultsMap.get(ctMethod.getSimpleName()).getInstructionsTotal()
-                )
+                ))
         );
 //      TODO
 //        CollectorConfig.getInstance().getInformationCollector().reportSelectorInformation(testClassJSON.toString());
