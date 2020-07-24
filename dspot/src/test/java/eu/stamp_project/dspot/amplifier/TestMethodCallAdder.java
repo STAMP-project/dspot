@@ -59,8 +59,8 @@ public class TestMethodCallAdder extends AbstractTestOnSample {
         for (int i = 0; i < amplifiedMethods.size(); i++) {
             CtMethod amplifiedMethod = amplifiedMethods.get(i);
             assertEquals(originalMethod.getBody().getStatements().size() + 1, amplifiedMethod.getBody().getStatements().size());
-            CtStatement expectedStatement = originalMethod.getBody().getStatements().get(i + 1);//+1 to skip the construction statement.
-            assertEquals(expectedStatement.toString(),
+            CtStatement expectedStatement =originalMethod.getBody().getStatements().get(i + 1);//+1 to skip the construction statement.
+            assertEquals( "// MethodDuplicationAmplifier: duplicated method call\n" + expectedStatement.toString(),
                     amplifiedMethod.getBody().getStatements().get(i + 1).toString());
             assertEquals(expectedStatement.toString(),
                     amplifiedMethod.getBody().getStatements().get(i + 2).toString());
