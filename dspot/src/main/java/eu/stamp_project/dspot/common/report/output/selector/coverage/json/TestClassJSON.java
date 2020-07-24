@@ -50,4 +50,40 @@ public class TestClassJSON implements eu.stamp_project.dspot.common.report.outpu
         String jsonString = new JSONObject().put(this.name,subJson).toString();
         return jsonString;
 	}
+
+	public String getName() {
+		return name;
+	}
+
+	public long getNbOriginalTestCases() {
+		return nbOriginalTestCases;
+	}
+
+	public long getInitialInstructionCovered() {
+		return initialInstructionCovered;
+	}
+
+	public long getInitialInstructionTotal() {
+		return initialInstructionTotal;
+	}
+
+	public double getPercentageinitialInstructionCovered() {
+		return percentageinitialInstructionCovered;
+	}
+
+	public long getAmplifiedInstructionCovered() {
+		return amplifiedInstructionCovered;
+	}
+
+	public long getAmplifiedInstructionTotal() {
+		return amplifiedInstructionTotal;
+	}
+
+	public double getPercentageamplifiedInstructionCovered() {
+		return percentageamplifiedInstructionCovered;
+	}
+
+	public List<TestCaseJSON> getTestCases() {
+		return testCases;
+	}
 }
