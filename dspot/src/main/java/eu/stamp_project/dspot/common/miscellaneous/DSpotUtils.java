@@ -11,9 +11,11 @@ import org.slf4j.LoggerFactory;
 import spoon.Launcher;
 import spoon.compiler.Environment;
 import spoon.reflect.code.CtComment;
+import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.*;
 import spoon.reflect.reference.CtTypeReference;
+import spoon.reflect.visitor.Parent;
 import spoon.reflect.visitor.filter.LineFilter;
 import spoon.support.JavaOutputProcessor;
 
@@ -178,7 +180,14 @@ public class DSpotUtils {
 
     public static void addComment(CtElement element, String content, CtComment.CommentType type) {
         if (element instanceof CtLiteral) {
-            element = element.getParent(new LineFilter());
+            try {
+                CtElement parentLine = element.getParent(new LineFilter());
+                if (parentLine != null) {
+                    element = parentLine;
+                }
+            } catch (ParentNotInitializedException ignored) {
+
+            }
         }
 
         CtComment comment = element.getFactory().createComment(content, type);

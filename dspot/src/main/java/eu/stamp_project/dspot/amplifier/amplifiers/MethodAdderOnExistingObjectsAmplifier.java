@@ -40,7 +40,8 @@ public class MethodAdderOnExistingObjectsAmplifier implements Amplifier {
                                         methodToBeAdd,
                                         AmplifierHelper.createLocalVarRef(existingObject),
                                         existingObject,
-                                        "_mg")
+                                        "_mg",
+                                        "MethodAdderOnExistingObjectsAmplifier: added method on existing object")
                         ).map(amplifiedTestMethod -> {
                                     Counter.updateInputOf(amplifiedTestMethod, 1);
                                     return amplifiedTestMethod;

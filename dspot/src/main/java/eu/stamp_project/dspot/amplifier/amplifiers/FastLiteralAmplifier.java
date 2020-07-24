@@ -87,6 +87,7 @@ public class FastLiteralAmplifier implements Amplifier {
 		//get the lit_indexth literal of the cloned method
 		CtLiteral newLiteral = Query.getElements(cloned_method.getBody(), new LiteralToBeMutedFilter())
 				.get(original_lit_index);
+		Object oldValue = newLiteral.getValue();
 
 		CtElement toReplace = newLiteral;
 
@@ -111,7 +112,7 @@ public class FastLiteralAmplifier implements Amplifier {
 		}
 		toReplace.replace(newLiteral);
 		Counter.updateInputOf(cloned_method, 1);
-		DSpotUtils.addComment(toReplace, "FastLiteralAmplifier: change number to '" + newValue + "'", CtComment.CommentType.INLINE);
+		addComment(toReplace, "number", oldValue, newValue);
 		return cloned_method;
 	}
 
@@ -133,8 +134,9 @@ public class FastLiteralAmplifier implements Amplifier {
 		Counter.updateInputOf(cloned_method, 1);
 		CtLiteral toReplace = Query.getElements(cloned_method.getBody(), new LiteralToBeMutedFilter())
 				.get(original_lit_index);
+		Object oldValue = toReplace.getValue();
 		toReplace.replace(cloned_method.getFactory().Code().createLiteral(newValue));
-		DSpotUtils.addComment(toReplace, "FastLiteralAmplifier: change string to '" + newValue + "'", CtComment.CommentType.INLINE);
+		addComment(toReplace, "string", oldValue, newValue);
 		return cloned_method;
 	}
 
@@ -149,8 +151,9 @@ public class FastLiteralAmplifier implements Amplifier {
 		Counter.updateInputOf(cloned_method, 1);
 		CtLiteral toReplace = Query.getElements(cloned_method.getBody(), new LiteralToBeMutedFilter())
 				.get(original_lit_index);
+		Object oldValue = toReplace.getValue();
 		toReplace.replace(cloned_method.getFactory().Code().createLiteral(newValue));
-		DSpotUtils.addComment(toReplace, "FastLiteralAmplifier: change char to '" + newValue + "'", CtComment.CommentType.INLINE);
+		addComment(toReplace, "char", oldValue, newValue);
 		return cloned_method;
 	}
 
@@ -224,7 +227,7 @@ public class FastLiteralAmplifier implements Amplifier {
 		newValue.setValue(!value);
 		newValue.setTypeCasts(booleanLiteral.getTypeCasts());
 		Counter.updateInputOf(cloned_method, 1);
-		DSpotUtils.addComment(newValue, "FastLiteralAmplifier on boolean", CtComment.CommentType.INLINE);
+		addComment(newValue, "boolean", value, !value);
 		return cloned_method;
 	}
 
@@ -243,5 +246,9 @@ public class FastLiteralAmplifier implements Amplifier {
 			literalByClass.put(type, set);
 		}
 		return literalByClass.get(type);
+	}
+
+	private void addComment(CtElement element, String kind, Object oldValue, Object newValue) {
+		DSpotUtils.addComment(element, "FastLiteralAmplifier: change " + kind + " from '" + oldValue + "' to '" + newValue + "'", CtComment.CommentType.INLINE);
 	}
 }

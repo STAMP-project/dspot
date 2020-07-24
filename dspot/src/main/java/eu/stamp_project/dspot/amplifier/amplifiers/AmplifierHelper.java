@@ -4,13 +4,8 @@ import eu.stamp_project.dspot.amplifier.amplifiers.value.ValueCreator;
 import eu.stamp_project.dspot.amplifier.amplifiers.value.ValueCreatorHelper;
 import eu.stamp_project.dspot.common.miscellaneous.CloneHelper;
 import eu.stamp_project.dspot.amplifier.amplifiers.utils.RandomHelper;
-import spoon.reflect.code.CtBlock;
-import spoon.reflect.code.CtBodyHolder;
-import spoon.reflect.code.CtExpression;
-import spoon.reflect.code.CtInvocation;
-import spoon.reflect.code.CtLocalVariable;
-import spoon.reflect.code.CtStatement;
-import spoon.reflect.code.CtStatementList;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
+import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtParameter;
@@ -69,7 +64,8 @@ public class AmplifierHelper {
                                             CtMethod<?> methodToInvokeToAdd,
                                             CtExpression<?> target,
                                             CtStatement position,
-                                            String suffix) {
+                                            String suffix,
+                                            String comment) {
         final Factory factory = testMethod.getFactory();
         CtMethod methodClone = CloneHelper.cloneTestMethodForAmp(testMethod, suffix);
 
@@ -99,6 +95,7 @@ public class AmplifierHelper {
                     localVariable = ValueCreator.createRandomLocalVar(parameter.getType(), parameter.getSimpleName());
                 }
                 body.insertBegin(localVariable);
+                DSpotUtils.addComment(localVariable, comment, CtComment.CommentType.INLINE);
                 arguments.add(factory.createVariableRead(localVariable.getReference(), false));
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -106,7 +103,7 @@ public class AmplifierHelper {
         });
         CtExpression targetClone = target.clone();
         CtInvocation newInvocation = factory.Code().createInvocation(targetClone, methodToInvokeToAdd.getReference(), arguments);
-        //DSpotUtils.addComment(newInvocation, "MethodGenerator", CtComment.CommentType.INLINE);
+        DSpotUtils.addComment(newInvocation, comment, CtComment.CommentType.INLINE);
         body.insertEnd(newInvocation);
         return methodClone;
     }

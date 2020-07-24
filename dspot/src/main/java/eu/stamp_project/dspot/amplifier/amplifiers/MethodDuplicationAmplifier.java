@@ -1,14 +1,12 @@
 package eu.stamp_project.dspot.amplifier.amplifiers;
 
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.dspot.amplifier.amplifiers.utils.AmplificationChecker;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import eu.stamp_project.dspot.common.miscellaneous.CloneHelper;
 import eu.stamp_project.dspot.common.miscellaneous.Counter;
-import spoon.reflect.code.CtBlock;
-import spoon.reflect.code.CtExpression;
-import spoon.reflect.code.CtInvocation;
-import spoon.reflect.code.CtStatement;
+import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.visitor.filter.TypeFilter;
@@ -53,6 +51,7 @@ public class MethodDuplicationAmplifier implements Amplifier {
         removeAllTypeCast(invocationToBeInserted);
         final CtStatement insertionPoint = this.getRightInsertionPoint(invocation);
         insertionPoint.insertBefore(invocationToBeInserted);
+        DSpotUtils.addComment(invocationToBeInserted, "MethodDuplicationAmplifier: duplicated method call", CtComment.CommentType.INLINE);
         final CtMethod<?> clone = CloneHelper.cloneTestMethodForAmp(method, "_add");
         AmplifierHelper.getParent(invocationToBeInserted).getStatements().remove(invocationToBeInserted);
         Counter.updateInputOf(clone, 1);

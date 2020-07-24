@@ -23,10 +23,8 @@ import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -185,6 +183,13 @@ public class MethodReconstructor {
 
         // put the new local variable into the assertion and the assertion into the test method
         statementToBeAsserted.replace(localVariable);
+        // move comments from invocation to new variable statement
+        List<CtComment> invocationComments = new ArrayList<>(statementToBeAsserted.getComments());
+        invocationComments.forEach(comment -> {
+            invocationToBeReplaced.removeComment(comment);
+            localVariable.addComment(comment);
+        });
+
         DSpotUtils.addComment(localVariable,
                 "AssertionGenerator: create local variable with return value of invocation",
                 CtComment.CommentType.INLINE);

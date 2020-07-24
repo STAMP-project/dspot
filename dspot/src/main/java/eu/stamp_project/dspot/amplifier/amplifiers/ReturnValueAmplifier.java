@@ -55,7 +55,7 @@ public class ReturnValueAmplifier implements Amplifier {
                 );
                 DSpotUtils.addComment(localVar, "StatementAdd: generate variable from return value", CtComment.CommentType.INLINE);
                 ampMethods.addAll(methodsWithTargetType.stream()
-                        .map(addMth -> AmplifierHelper.addInvocation(methodClone, addMth, target, localVar, "_rv"))
+                        .map(addMth -> AmplifierHelper.addInvocation(methodClone, addMth, target, localVar, "_rv", "ReturnValueAmplifier: add method call"))
                         .collect(Collectors.toList()));
                 Counter.updateInputOf(methodClone, 1);
             }
