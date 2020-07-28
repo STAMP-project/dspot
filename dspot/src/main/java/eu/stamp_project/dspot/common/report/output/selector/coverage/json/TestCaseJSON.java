@@ -20,4 +20,24 @@ public class TestCaseJSON {
 		this.instructionCovered = instructionCovered;
 		this.instructionTotal = instructionTotal;
 	}
+
+	public String getName() {
+		return name;
+	}
+
+	public int getNbAssertionAdded() {
+		return nbAssertionAdded;
+	}
+
+	public int getNbInputAdded() {
+		return nbInputAdded;
+	}
+
+	public int getInstructionCovered() {
+		return instructionCovered;
+	}
+
+	public int getInstructionTotal() {
+		return instructionTotal;
+	}
 }

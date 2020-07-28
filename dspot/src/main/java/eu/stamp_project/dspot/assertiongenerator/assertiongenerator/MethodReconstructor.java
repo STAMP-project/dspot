@@ -23,10 +23,8 @@ import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -120,23 +118,23 @@ public class MethodReconstructor {
             an assertion identical to the last assertion put into the test method */
             if (assertStatements.stream()
                     .map(Object::toString)
-                    .map("// AssertionGenerator add assertion\n"::concat)
+                    .map("// AssertionGenerator: add assertion\n"::concat)
                     .anyMatch(testWithAssert.getBody().getLastStatement().toString()::equals)) {
                 continue;
             }
-            goThroughAssertionStatements(assertStatements,id,statements,numberOfAddedAssertion);
+            numberOfAddedAssertion = goThroughAssertionStatements(assertStatements,id,statements,numberOfAddedAssertion);
         }
         Counter.updateAssertionOf(testWithAssert, numberOfAddedAssertion);
         return decideReturn(testWithAssert,test);
     }
 
-    private void goThroughAssertionStatements(List<CtStatement> assertStatements,String id,
-                                               List<CtStatement> statements,Integer numberOfAddedAssertion){
+    private int goThroughAssertionStatements(List<CtStatement> assertStatements,String id,
+                                               List<CtStatement> statements, int numberOfAddedAssertion){
         int line = Integer.parseInt(id.split("__")[1]);
         CtStatement lastStmt = null;
         for (CtStatement assertStatement : assertStatements) {
             DSpotUtils.addComment(assertStatement,
-                    "AssertionGenerator add assertion",
+                    "AssertionGenerator: add assertion",
                     CtComment.CommentType.INLINE);
             try {
                 CtStatement statementToBeAsserted = statements.get(line);
@@ -153,6 +151,7 @@ public class MethodReconstructor {
                 throw new RuntimeException(e);
             }
         }
+        return numberOfAddedAssertion;
     }
 
     private void decideInvocationReplacement(CtStatement statementToBeAsserted,String id,CtStatement assertStatement,
@@ -184,8 +183,15 @@ public class MethodReconstructor {
 
         // put the new local variable into the assertion and the assertion into the test method
         statementToBeAsserted.replace(localVariable);
+        // move comments from invocation to new variable statement
+        List<CtComment> invocationComments = new ArrayList<>(statementToBeAsserted.getComments());
+        invocationComments.forEach(comment -> {
+            invocationToBeReplaced.removeComment(comment);
+            localVariable.addComment(comment);
+        });
+
         DSpotUtils.addComment(localVariable,
-                "AssertionGenerator create local variable with return value of invocation",
+                "AssertionGenerator: create local variable with return value of invocation",
                 CtComment.CommentType.INLINE);
         localVariable.setParent(statementToBeAsserted.getParent());
         addAtCorrectPlace(id, localVariable, assertStatement, statementToBeAsserted);
