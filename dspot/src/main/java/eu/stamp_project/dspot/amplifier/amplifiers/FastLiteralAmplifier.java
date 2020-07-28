@@ -12,7 +12,6 @@ import eu.stamp_project.dspot.amplifier.amplifiers.utils.RandomHelper;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
 import spoon.reflect.visitor.Query;
-import spoon.reflect.visitor.filter.LineFilter;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.*;
