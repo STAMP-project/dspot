@@ -31,13 +31,13 @@ public class ChangeDetectorSelectorTest extends AbstractSelectorTest {
     protected String getContentReportFile() {
         return "1 amplified test fails on the new versions." + AmplificationHelper.LINE_SEPARATOR +
                 "test2(example.TestSuiteExample): String index out of range: -1java.lang.StringIndexOutOfBoundsException: String index out of range: -1" + AmplificationHelper.LINE_SEPARATOR +
-                "\tat java.lang.String.charAt(String.java:658)" + AmplificationHelper.LINE_SEPARATOR +
+                "\tat java.lang.String.charAt(String.java:646)" + AmplificationHelper.LINE_SEPARATOR +
                 "\tat example.Example.charAt(Example.java:16)" + AmplificationHelper.LINE_SEPARATOR +
                 "\tat example.TestSuiteExample.test2(TestSuiteExample.java:8)" + AmplificationHelper.LINE_SEPARATOR +
                 "\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)" + AmplificationHelper.LINE_SEPARATOR +
                 "\tat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)" + AmplificationHelper.LINE_SEPARATOR +
                 "\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)" + AmplificationHelper.LINE_SEPARATOR +
-                "\tat java.lang.reflect.Method.invoke(Method.java:498)" + AmplificationHelper.LINE_SEPARATOR +
+                "\tat java.lang.reflect.Method.invoke(Method.java:497)" + AmplificationHelper.LINE_SEPARATOR +
                 "\tat org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)" + AmplificationHelper.LINE_SEPARATOR +
                 "\tat org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)" + AmplificationHelper.LINE_SEPARATOR +
                 "\tat org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)" + AmplificationHelper.LINE_SEPARATOR +
