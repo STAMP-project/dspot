@@ -4,7 +4,7 @@
 
 Install and set-up these programs:
 
-1. [Java 8](https://www.java.com/en/download/help/download_options.xml)
+1. [Java](https://www.java.com/en/download/help/download_options.xml)
 2. [GIT](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 3. [Maven](https://maven.apache.org/install.html)
 4. [Gradle](https://docs.gradle.org/current/userguide/installation.html)
