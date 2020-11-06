@@ -5,11 +5,13 @@ import eu.stamp_project.dspot.common.configuration.DSpotState;
 import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.input.NullInputStream;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
+import org.jacoco.core.internal.InputStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtType;
@@ -17,6 +19,7 @@ import spoon.reflect.declaration.CtType;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -187,6 +190,8 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         properties.setProperty("findbugs.skip", "true");
         properties.setProperty("gpg.skip", "true");
         request.setProperties(properties);
+
+        request.setInputStream(new NullInputStream(1000));
 
         Invoker invoker = new DefaultInvoker();
         LOGGER.info("Using {} for maven home", mavenHome);

@@ -133,7 +133,8 @@ public abstract class AbstractSelectorTest {
         if (!directory.exists()) {
             directory.mkdir();
         }
-        assertTrue(stripLineNumbers(this.testSelectorUnderTest.report().output(this.getTestClass(), outputDirectory )).startsWith(stripLineNumbers(getContentReportFile())));
+        String output = this.testSelectorUnderTest.report().output(this.getTestClass(), outputDirectory);
+        assertTrue(output, stripLineNumbers(output).startsWith(stripLineNumbers(getContentReportFile())));
     }
 
     private String stripLineNumbers(String output) {
