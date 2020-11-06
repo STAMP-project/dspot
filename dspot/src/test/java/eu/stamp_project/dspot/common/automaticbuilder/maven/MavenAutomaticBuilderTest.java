@@ -95,20 +95,11 @@ public class MavenAutomaticBuilderTest {
     @Test
     public void testFailingPit() throws Exception {
 
-        setUp("src/test/resources/mockito/", "", false);
-
         try {
-            builder.runPit();
-            fail("Should have thrown a RuntimeException");
+            setUp("src/test/resources/mockito/", "", false);
+            fail();
         } catch (RuntimeException e) {
-            //success
-        }
-
-        try {
-            builder.runPit(launcher.getFactory().Class().get("info.sanaulla.dal.BookDALTest"));
-            fail("Should have thrown a RuntimeException");
-        } catch (RuntimeException e) {
-            //success
+            assertTrue(e.getMessage().startsWith("Maven build failed"));
         }
     }
 
