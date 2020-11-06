@@ -7,6 +7,8 @@ git clone https://github.com/STAMP-project/dhell.git
 
 java -jar target/dspot-${DSPOT_VERSION}-jar-with-dependencies.jar --absolute-path-to-project-root dhell/ --iteration 1 --amplifiers MethodDuplicationAmplifier --test eu.stamp_project.examples.dhell.HelloAppTest
 
+cat /tmp/dspot.log
+
 if [ -f target/dspot/output/eu/stamp_project/examples/dhell/HelloAppTest.java ]; then
     exit 0
 else

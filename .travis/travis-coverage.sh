@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-set -e
 cd dspot 
 
 mvn test -D test=eu.stamp_project.dspot.selector.ChangeDetectorSelectorTest
