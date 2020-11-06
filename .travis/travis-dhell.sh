@@ -5,7 +5,7 @@ DPSOT_VERSION=${1}
 cd dspot
 git clone https://github.com/STAMP-project/dhell.git
 
-java -jar target/dspot-${DSPOT_VERSION}-jar-with-dependencies.jar --absolute-path-to-project-root dhell/ --iteration 1 --amplifiers MethodDuplicationAmplifier --test eu.stamp_project.examples.dhell.HelloAppTest
+java -jar target/dspot-${DSPOT_VERSION}-jar-with-dependencies.jar -Dspoon.log.path=/tmp/spoon.log --absolute-path-to-project-root dhell/ --iteration 1 --amplifiers MethodDuplicationAmplifier --test eu.stamp_project.examples.dhell.HelloAppTest
 
 cat /tmp/dspot.log
 
