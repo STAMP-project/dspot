@@ -93,17 +93,6 @@ public class MavenAutomaticBuilderTest {
     }
 
     @Test
-    public void testFailingPit() throws Exception {
-
-        try {
-            setUp("src/test/resources/mockito/", "", false);
-            fail();
-        } catch (RuntimeException e) {
-            assertTrue(e.getMessage().startsWith("Maven build failed"));
-        }
-    }
-
-    @Test
     public void testSpecificClass() throws Exception {
 
         setUp("src/test/resources/test-projects/", "", false);
