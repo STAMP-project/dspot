@@ -139,6 +139,7 @@ public abstract class AbstractSelectorTest {
 
     private String stripLineNumbers(String output) {
         String result = output.replaceAll("[0-9]+", "");
+        result = result.replace("java.base/", "");
         return result;
     }
 }
