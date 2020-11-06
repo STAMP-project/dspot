@@ -258,6 +258,9 @@
                         <manifest>
                             <mainClass>eu.stamp_project.Main</mainClass>
                         </manifest>
+                        <manifestEntries>
+                          <Multi-Release>true</Multi-Release>
+                        </manifestEntries>
                     </archive>
                 </configuration>
                 <executions>
