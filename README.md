@@ -12,7 +12,6 @@ DSpot ecosystem:
 * [Jenkins plugin](https://github.com/STAMP-project/dspot-jenkins-plugin)
 * [Eclipse plugin](https://github.com/STAMP-project/stamp-ide)
 * [IntelliJ plugin](https://github.com/TestShiftProject/test-cube)
-* Travis integration: TBD
 
 ## Getting started
 
