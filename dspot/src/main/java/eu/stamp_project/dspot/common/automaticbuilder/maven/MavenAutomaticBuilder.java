@@ -11,7 +11,6 @@ import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
-import org.jacoco.core.internal.InputStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtType;
@@ -19,7 +18,6 @@ import spoon.reflect.declaration.CtType;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -73,7 +71,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
                     "dependency:build-classpath",
                     "-Dmdep.outputFile=" + "target/dspot/classpath"
             );
-            final File classpathFile = new File(this.absolutePathToTopProjectRoot + "/target/dspot/classpath");
+            final File classpathFile = new File(this.absolutePathToProjectRoot + "/target/dspot/classpath");
             try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
                 this.classpath = buffer.lines().collect(Collectors.joining());
             } catch (Exception e) {
