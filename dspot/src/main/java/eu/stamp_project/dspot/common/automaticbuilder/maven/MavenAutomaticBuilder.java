@@ -5,6 +5,7 @@ import eu.stamp_project.dspot.common.configuration.DSpotState;
 import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.input.NullInputStream;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
@@ -187,6 +188,8 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
         properties.setProperty("findbugs.skip", "true");
         properties.setProperty("gpg.skip", "true");
         request.setProperties(properties);
+
+        request.setInputStream(new NullInputStream(1000));
 
         Invoker invoker = new DefaultInvoker();
         LOGGER.info("Using {} for maven home", mavenHome);

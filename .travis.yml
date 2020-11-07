@@ -6,11 +6,9 @@ language: java
 
 sudo: required
 
-jdk: openjdk8
+jdk: openjdk11
 
 env:
-  - SCRIPT=travis-openjdk8.sh
-  - SCRIPT=travis-oraclejdk8.sh
   - SCRIPT=travis-coverage.sh
   - SCRIPT=travis-jar.sh
 #  - SCRIPT=travis-dspot-maven.sh

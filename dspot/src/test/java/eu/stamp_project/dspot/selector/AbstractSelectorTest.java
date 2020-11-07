@@ -133,6 +133,13 @@ public abstract class AbstractSelectorTest {
         if (!directory.exists()) {
             directory.mkdir();
         }
-        assertEquals(getContentReportFile(), this.testSelectorUnderTest.report().output(this.getTestClass(), outputDirectory ));
+        String output = this.testSelectorUnderTest.report().output(this.getTestClass(), outputDirectory);
+        assertTrue(output, stripLineNumbers(output).startsWith(stripLineNumbers(getContentReportFile())));
+    }
+
+    private String stripLineNumbers(String output) {
+        String result = output.replaceAll("[0-9]+", "");
+        result = result.replace("java.base/", "");
+        return result;
     }
 }
