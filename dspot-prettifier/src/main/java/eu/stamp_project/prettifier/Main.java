@@ -13,7 +13,7 @@ import eu.stamp_project.prettifier.minimization.PitMutantMinimizer;
 import eu.stamp_project.prettifier.options.UserInput;
 import eu.stamp_project.prettifier.output.PrettifiedTestMethods;
 import eu.stamp_project.prettifier.output.report.ReportJSON;
-import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.testrunner.test_framework.TestFramework;
 import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
 import eu.stamp_project.dspot.common.configuration.InitializeDSpot;

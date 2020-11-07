@@ -2,7 +2,7 @@ package eu.stamp_project;
 
 import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.common.configuration.UserInput;
-import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.testrunner.test_framework.TestFramework;
 import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
 import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
 import org.slf4j.Logger;
