@@ -5,7 +5,7 @@ import eu.stamp_project.dspot.common.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.amplifier.amplifiers.value.ValueCreator;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGeneratorUtils;
 import eu.stamp_project.dspot.common.configuration.UserInput;
-import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.testrunner.test_framework.TestFramework;
 import eu.stamp_project.dspot.common.configuration.DSpotCache;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import eu.stamp_project.dspot.amplifier.amplifiers.utils.RandomHelper;

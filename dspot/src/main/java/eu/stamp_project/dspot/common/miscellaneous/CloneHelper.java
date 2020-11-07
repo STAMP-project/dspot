@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.common.miscellaneous;
 
-import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.testrunner.test_framework.TestFramework;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;

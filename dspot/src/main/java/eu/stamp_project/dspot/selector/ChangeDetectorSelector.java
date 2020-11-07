@@ -8,7 +8,7 @@ import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementR
 import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementReportImpl;
 import eu.stamp_project.dspot.common.report.output.selector.change.json.TestCaseJSON;
 import eu.stamp_project.dspot.common.report.output.selector.change.json.TestClassJSON;
-import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.testrunner.test_framework.TestFramework;
 import eu.stamp_project.testrunner.listener.TestResult;
 import eu.stamp_project.testrunner.runner.Failure;
 import eu.stamp_project.dspot.common.configuration.UserInput;

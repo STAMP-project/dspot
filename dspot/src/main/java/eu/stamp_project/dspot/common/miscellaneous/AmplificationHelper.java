@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.common.miscellaneous;
 
-import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.testrunner.test_framework.TestFramework;
 import eu.stamp_project.testrunner.listener.TestResult;
 
 import org.apache.cxf.common.util.WeakIdentityHashMap;

@@ -6,7 +6,7 @@ import eu.stamp_project.dspot.amplifier.amplifiers.IterationDecoratorAmplifier;
 import eu.stamp_project.dspot.amplifier.amplifiers.MethodAdderOnExistingObjectsAmplifier;
 import eu.stamp_project.dspot.amplifier.amplifiers.NumberLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.amplifiers.ReturnValueAmplifier;
-import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.testrunner.test_framework.TestFramework;
 import org.junit.Test;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;

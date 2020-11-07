@@ -10,7 +10,7 @@ import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGen
 import eu.stamp_project.dspot.amplifier.InputAmplDistributor;
 import eu.stamp_project.dspot.selector.JacocoCoverageSelector;
 import eu.stamp_project.dspot.selector.TestSelector;
-import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.testrunner.test_framework.TestFramework;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import eu.stamp_project.dspot.common.configuration.DSpotCache;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;

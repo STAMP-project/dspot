@@ -6,7 +6,7 @@ import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.CacheManagerBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 
-import eu.stamp_project.dspot.common.test_framework.TestFrameworkSupport;
+import eu.stamp_project.testrunner.test_framework.TestFrameworkSupport;
 
 public class DSpotCache {
 

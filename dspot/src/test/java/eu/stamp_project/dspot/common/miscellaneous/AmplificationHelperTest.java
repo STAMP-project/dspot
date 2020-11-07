@@ -2,7 +2,7 @@ package eu.stamp_project.dspot.common.miscellaneous;
 
 import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
-import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.testrunner.test_framework.TestFramework;
 import org.junit.Test;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtTypeAccess;

@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.amplifier.amplifiers;
 
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
-import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.testrunner.test_framework.TestFramework;
 import eu.stamp_project.dspot.amplifier.amplifiers.utils.AmplificationChecker;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import eu.stamp_project.dspot.common.miscellaneous.CloneHelper;

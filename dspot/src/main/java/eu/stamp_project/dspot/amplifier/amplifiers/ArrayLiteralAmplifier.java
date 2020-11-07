@@ -1,6 +1,6 @@
 package eu.stamp_project.dspot.amplifier.amplifiers;
 
-import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.testrunner.test_framework.TestFramework;
 
 import org.apache.commons.lang3.SerializationUtils;
 import spoon.reflect.code.*;

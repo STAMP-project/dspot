@@ -1,7 +1,7 @@
 package eu.stamp_project.dspot.common.configuration.test_finder;
 
 import eu.stamp_project.dspot.common.configuration.UserInput;
-import eu.stamp_project.dspot.common.test_framework.TestFramework;
+import eu.stamp_project.testrunner.test_framework.TestFramework;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
 import eu.stamp_project.dspot.common.report.error.Error;

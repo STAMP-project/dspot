@@ -1,7 +1,7 @@
-package eu.stamp_project.dspot.common.test_framework;
+package eu.stamp_project.testrunner.test_framework;
 
 import eu.stamp_project.dspot.AbstractTestOnSample;
-import eu.stamp_project.dspot.common.test_framework.assertions.AssertEnum;
+import eu.stamp_project.testrunner.test_framework.assertions.AssertEnum;
 import org.junit.Ignore;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
