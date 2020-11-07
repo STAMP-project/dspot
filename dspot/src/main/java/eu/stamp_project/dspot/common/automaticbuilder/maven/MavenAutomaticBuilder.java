@@ -73,7 +73,7 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
                     "dependency:build-classpath",
                     "-Dmdep.outputFile=" + "target/dspot/classpath"
             );
-            final File classpathFile = new File(this.absolutePathToProjectRoot + "/target/dspot/classpath");
+            final File classpathFile = new File(this.absolutePathToTopProjectRoot + "/target/dspot/classpath");
             try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
                 this.classpath = buffer.lines().collect(Collectors.joining());
             } catch (Exception e) {

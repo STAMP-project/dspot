@@ -26,7 +26,7 @@
         <!-- version of common dependencies -->
         <spoon.version>8.1.0-SNAPSHOT</spoon.version>
         <junit4.version>4.12</junit4.version>
-        <slf4j.version>1.8.0-beta4</slf4j.version>
+        <slf4j.version>1.7.25</slf4j.version>
         <maven.invoker.version>3.0.0</maven.invoker.version>
         <gumtree.spoon.ast.diff.version>1.5</gumtree.spoon.ast.diff.version>
         <maven.plugin.version>3.5.4</maven.plugin.version>
