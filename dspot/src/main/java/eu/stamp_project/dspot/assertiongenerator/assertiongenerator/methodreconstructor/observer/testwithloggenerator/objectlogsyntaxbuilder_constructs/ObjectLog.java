@@ -321,7 +321,7 @@ public class ObjectLog {
 
     public synchronized static void save() {
         final File file = new File(OBSERVATIONS_PATH_FILE_NAME);
-        file.getParentFile().mkdirs();
+        file.mkdirs();
         getSingleton().observations.values().forEach(Observation::purify);
         try (FileOutputStream fout = new FileOutputStream(OBSERVATIONS_PATH_FILE_NAME)) {
             try (ObjectOutputStream oos = new ObjectOutputStream(fout)) {
