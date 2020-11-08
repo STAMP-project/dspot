@@ -320,7 +320,7 @@ public class ObjectLog {
     private static final String OBSERVATIONS_PATH_FILE_NAME = "target/dspot/observations.ser";
 
     public synchronized static void save() {
-        final File file = new File(OBSERVATIONS_PATH_FILE_NAME);
+        final File file = getObservationFile();
         file.mkdirs();
         getSingleton().observations.values().forEach(Observation::purify);
         try (FileOutputStream fout = new FileOutputStream(OBSERVATIONS_PATH_FILE_NAME)) {
@@ -341,10 +341,7 @@ public class ObjectLog {
     }
 
     public synchronized static Map<String, Observation> load() {
-        try (FileInputStream fi = new FileInputStream(new File(
-                (EntryPoint.workingDirectory != null ? // in case we modified the working directory
-                        EntryPoint.workingDirectory.getAbsolutePath() + "/" : "") +
-                        OBSERVATIONS_PATH_FILE_NAME))) {
+        try (FileInputStream fi = new FileInputStream(getObservationFile())) {
             try (ObjectInputStream oi = new ObjectInputStream(fi)) {
                 return (Map) oi.readObject();
             } catch (Exception e) {
@@ -353,6 +350,13 @@ public class ObjectLog {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static File getObservationFile() {
+        return new File(
+                (EntryPoint.workingDirectory != null ? // in case we modified the working directory
+                        EntryPoint.workingDirectory.getAbsolutePath() + "/" : "") +
+                        OBSERVATIONS_PATH_FILE_NAME);
     }
 
 }
