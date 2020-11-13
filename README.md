@@ -421,14 +421,9 @@ If you have such test class, please amplify the different test framework separat
 ## Minimizing and Prettifying DSpot Amplified Test Cases
 With the [DSpot Prettifier](dspot-prettifier) you can remove redundant assertions from your amplified test cases & give them more expressive names with the help of code2vec and context2vec.
 
-## Contributing
+## License and Contributions
 
 DSpot is licensed under LGPLv3. Contributors and pull requests are welcome :-).
-Tell us what you think and what you expect in the next release using the [STAMP feedback form](https://www.stamp-project.eu/view/main/betatestingsurvey/).
-As a recognition for your useful feedback, you might receive a limited edition “STAMP Software Test Pilot” gift and be added as a STAMP contributor.
-This offer is limited to the beta testers interacting with the STAMP project team, by 31 September 2019. 
-You will be contacted individually for a customized gift and for contribution opportunities.
-
 For more information on development, see the dedicated [README-developers.md](https://github.com/STAMP-project/dspot/blob/master/README-developers.md)
 
 ### Acknowledgement
