@@ -13,6 +13,8 @@ This application uses the [Mojolicious web framework](https://mojolicious.org/) 
 You will need to install Perl and Mojolicious, plus a few other plugins. It is good practice to use [perlbrew](https://perlbrew.pl/) to manage one's perl installation, although it is not required. Then requirements can be installed with:
 
 ```
+$ sudo apt-get install cpanminus
+$ cpanm --local-lib=~/perl5 local::lib && eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
 $ cpanm Mojolicious
 $ cpanm Mojolicious::Plugin::Minion Mojolicious::Plugin::Minion::Admin Mojolicious::Plugin::Mail
 $ cpanm Mojo::Pg
@@ -98,29 +100,17 @@ The server can be stopped using the `-s` flag:
 
 ```
 $ hypnotoad -s script/dspot_web
-* Using workspace from conf [/data/dspot_workspace/].
-* Using hostname from conf [http://ci4.castalia.camp:3000].
-* Work dir [/data/dspot_workspace/projects] exists.
-* Jobs dir [/data/dspot_workspace/jobs] exists.
-* JSON projects file [/data/dspot_workspace/projects/projects.json] exists.
-* Checking config..
-  - Using mvn home [~/Applis/apache-maven-3.6.3/].
-  - Using mvn command [MAVEN_HOME=~/Applis/apache-maven-3.6.3/ ~/Applis/apache-maven-3.6.3/bin/mvn clean install -DskipTests].
-  - Using dspot cmd [MAVEN_HOME=~/Applis/apache-maven-3.6.3/ ~/Applis/apache-maven-3.6.3/bin/mvn eu.stamp-project:dspot-maven:3.1.0:amplify-unit-tests -Doutput-path=../output/dspot].
-
-Stopping Hypnotoad server 16571 gracefully.
 ```
 
 ### Job management framework
 
 ```
 $ cd ~/dspot/dspot-web/v2-mojo/
-$ script/dspot-web minion worker
+$ script/dspot_web minion worker
 ```
 
 To check if the worker is running is to go to the admin UI <https://dspot-demo.stamp-project.eu/admin/minion>
 
-The worker is running inside a screen on the dspot server. To see it just run screen -r to re-attach the screen (it's a foreground process so there should be lines printed on stdout).
 
 
 
