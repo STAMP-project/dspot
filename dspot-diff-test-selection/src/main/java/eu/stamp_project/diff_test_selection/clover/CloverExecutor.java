@@ -35,9 +35,9 @@ public class CloverExecutor {
         runGoals(
                 pathToRootOfProject,
                 "clean",
-                "org.openclover:clover-maven-plugin:4.2.0:setup",
+                "org.openclover:clover-maven-plugin:4.4.1:setup",
                 "test",
-                ""
+                "-Djacoco.skip=true"
         );
     }
 
