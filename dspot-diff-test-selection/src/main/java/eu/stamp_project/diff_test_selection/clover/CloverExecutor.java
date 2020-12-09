@@ -37,7 +37,9 @@ public class CloverExecutor {
                 "clean",
                 "org.openclover:clover-maven-plugin:4.4.1:setup",
                 "test",
-                "-Djacoco.skip=true"
+                "-Drat.skip=true",
+                "-Djacoco.skip=true",
+                "-Danimal.sniffer.skip=true"
         );
     }
 
