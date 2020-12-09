@@ -1,7 +1,5 @@
 package eu.stamp_project.diff_test_selection.coverage;
 
-import eu.stamp_project.diff_test_selection.configuration.Options;
-import org.apache.maven.plugin.logging.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

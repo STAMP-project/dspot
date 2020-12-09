@@ -90,6 +90,9 @@ public class DiffTestSelection {
         Map<String, Set<String>> testClassNamePerTestMethodNamesThatCoverChanges = new LinkedHashMap<>();
         for (String testClassKey : coverage.keySet()) {
             for (String testMethodKey : coverage.get(testClassKey).keySet()) {
+                if (this.isParametrized(testMethodKey)) {
+                    continue;
+                }
                 for (String targetClassName : coverage.get(testClassKey).get(testMethodKey).keySet()) {
                     if (modifiedLinesPerQualifiedName.containsKey(targetClassName)) {
                         for (Integer line : modifiedLinesPerQualifiedName.get(targetClassName)) {
@@ -107,6 +110,10 @@ public class DiffTestSelection {
             }
         }
         return testClassNamePerTestMethodNamesThatCoverChanges;
+    }
+
+    private boolean isParametrized(String testMethodKey) {
+        return testMethodKey.contains("[") && testMethodKey.contains("] ");
     }
 
     private Map<String, List<Integer>> getModifiedLinesPerQualifiedName(String currentLine,
