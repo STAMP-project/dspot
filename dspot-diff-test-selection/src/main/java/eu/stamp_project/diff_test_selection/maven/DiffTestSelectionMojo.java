@@ -52,6 +52,12 @@ public class DiffTestSelectionMojo extends AbstractMojo {
     @Parameter(defaultValue = "", property = "path-to-diff")
     private String pathToDiff;
 
+    /**
+     *	[Optional]
+     */
+    @Parameter(defaultValue = "false", property = "use-second-version")
+    private boolean useSecondVersionAsBasis;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         Main.run(new Configuration(
@@ -60,7 +66,8 @@ public class DiffTestSelectionMojo extends AbstractMojo {
                 this.outputPath,
                 this.outputFormat,
                 this.module,
-                this.pathToDiff
+                this.pathToDiff,
+                this.useSecondVersionAsBasis
         ));
     }
 }

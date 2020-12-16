@@ -34,7 +34,14 @@ public class Configuration {
 
     public final String diff;
 
+    public final boolean useSecondVersionAsBasis;
+
     public Configuration(String pathToFirstVersion, String pathToSecondVersion, String outputPath, String reportFormat, String module, String pathToDiff) {
+        this(pathToFirstVersion, pathToSecondVersion, outputPath, reportFormat, module, pathToDiff, false);
+    }
+
+    public Configuration(String pathToFirstVersion, String pathToSecondVersion, String outputPath, String reportFormat, String module, String pathToDiff, boolean useSecondVersionAsBasis) {
+        this.useSecondVersionAsBasis = useSecondVersionAsBasis;
         this.pathToFirstVersion = pathToFirstVersion;
         this.pathToSecondVersion = pathToSecondVersion;
         this.reportFormat = ReportEnum.valueOf(reportFormat);

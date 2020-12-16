@@ -23,7 +23,8 @@ public class Main {
     }
 
     public static void run(Configuration configuration) {
-        final Map<String, Map<String, Map<String, List<Integer>>>> coverage = getCoverage(configuration.pathToFirstVersion);
+        final Map<String, Map<String, Map<String, List<Integer>>>> coverage =
+                getCoverage(configuration.useSecondVersionAsBasis ? configuration.pathToSecondVersion : configuration.pathToFirstVersion);
         final DiffTestSelection diffTestSelection = new DiffTestSelection(configuration, coverage);
         final Map<String, Set<String>> testThatExecuteChanges = diffTestSelection.getTestThatExecuteChanges();
         LOGGER.info("Saving result in " + configuration.outputPath + " ...");
@@ -35,10 +36,8 @@ public class Main {
     }
 
     private static Map<String, Map<String, Map<String, List<Integer>>>> getCoverage(final String pathToFirstVersion) {
-        //if (!skipCoverage) {
-            LOGGER.info("Computing coverage for " + pathToFirstVersion);
-            new CloverExecutor().instrumentAndRunTest(pathToFirstVersion);
-        //}
+        LOGGER.info("Computing coverage for " + pathToFirstVersion);
+        new CloverExecutor().instrumentAndRunTest(pathToFirstVersion);
         return new CloverReader().read(pathToFirstVersion);
     }
 }
