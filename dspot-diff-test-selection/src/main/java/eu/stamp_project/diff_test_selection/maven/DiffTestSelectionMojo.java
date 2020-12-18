@@ -52,6 +52,13 @@ public class DiffTestSelectionMojo extends AbstractMojo {
     @Parameter(defaultValue = "", property = "path-to-diff")
     private String pathToDiff;
 
+    /**
+     *  Use the enhanced diff-test-selection. Select the test of the first version that hit the deletions, and the
+     *  tests of the second version that hit the additions.
+     */
+    @Parameter(defaultValue = "true", property = "enhanced")
+    private boolean enhanced;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         Main.run(new Configuration(
@@ -60,7 +67,8 @@ public class DiffTestSelectionMojo extends AbstractMojo {
                 this.outputPath,
                 this.outputFormat,
                 this.module,
-                this.pathToDiff
+                this.pathToDiff,
+                this.enhanced
         ));
     }
 }

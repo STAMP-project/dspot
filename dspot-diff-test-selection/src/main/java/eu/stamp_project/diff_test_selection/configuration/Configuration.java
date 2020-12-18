@@ -34,7 +34,9 @@ public class Configuration {
 
     public final String diff;
 
-    public Configuration(String pathToFirstVersion, String pathToSecondVersion, String outputPath, String reportFormat, String module, String pathToDiff) {
+    public final boolean enhanced;
+
+    public Configuration(String pathToFirstVersion, String pathToSecondVersion, String outputPath, String reportFormat, String module, String pathToDiff, boolean enhanced) {
         this.pathToFirstVersion = pathToFirstVersion;
         this.pathToSecondVersion = pathToSecondVersion;
         this.reportFormat = ReportEnum.valueOf(reportFormat);
@@ -57,6 +59,7 @@ public class Configuration {
         } else {
             this.outputPath = outputPath;
         }
+        this.enhanced = enhanced;
     }
 
     private String readFile(String pathToFileToRead) {

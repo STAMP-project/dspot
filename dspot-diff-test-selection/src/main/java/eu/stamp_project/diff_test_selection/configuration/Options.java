@@ -57,12 +57,14 @@ public class Options {
         final String outputPath = arguments.getString("output-path");
         final String outputFormat = arguments.getString("output-format");
         final String module = arguments.getString("module");
+        final boolean enhanced = arguments.getBoolean("enhanced");
         return new Configuration(pathDirFirstVersion,
                 pathDirSecondVersion,
                 outputPath,
                 outputFormat,
                 module,
-                pathToDiff
+                pathToDiff,
+                enhanced
         );
     }
 
@@ -115,6 +117,13 @@ public class Options {
         pathToDiff.setHelp("[Optional] Specify the path of a diff file. If it is not specified, it will be computed using diff command line.");
         pathToDiff.setStringParser(JSAP.STRING_PARSER);
 
+        Switch enhanced = new Switch("enhanced");
+        enhanced.setDefault("true");
+        enhanced.setLongFlag("--enhanced");
+        enhanced.setShortFlag('c');
+        enhanced.setHelp("Use the enhanced diff-test-selection. Select the test of the first version that hit the deletions, and the " +
+                "tests of the second version that hit the additions.");
+
         try {
             jsap.registerParameter(pathDirectoryFirstVersion);
             jsap.registerParameter(pathDirectorySecondVersion);
@@ -122,6 +131,7 @@ public class Options {
             jsap.registerParameter(outputFormat);
             jsap.registerParameter(module);
             jsap.registerParameter(pathToDiff);
+            jsap.registerParameter(enhanced);
         } catch (JSAPException e) {
             e.printStackTrace();
             usage();
