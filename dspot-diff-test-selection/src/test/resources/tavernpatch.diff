@@ -1,0 +1,37 @@
+diff -ru /home/benjamin/workspace/dspot/dspot-diff-test-selection/src/test/resources/tavern/src/main/java/fr/inria/stamp/tavern/Seller.java /home/benjamin/workspace/dspot/dspot-diff-test-selection/src/test/resources/tavern/../tavern-refactor/src/main/java/fr/inria/stamp/tavern/Seller.java
+--- /home/benjamin/workspace/dspot/dspot-diff-test-selection/src/test/resources/tavern/src/main/java/fr/inria/stamp/tavern/Seller.java	2020-12-08 10:31:00.309833516 +0100
++++ /home/benjamin/workspace/dspot/dspot-diff-test-selection/src/test/resources/tavern/../tavern-refactor/src/main/java/fr/inria/stamp/tavern/Seller.java	2020-12-08 10:31:00.309833516 +0100
+@@ -18,22 +18,16 @@
+ 		this.items = itemsToSell;
+ 	}
+ 
+-	public Item sellItem(String s, Player p) {
+-		Item i = null;
+-		for (int i2 = 0; i2 < this.items.size(); i2++) {
+-			final Item i3 = this.items.get(i2);
+-			if (i3.name.equals(s)) {
+-				i = i3;
+-			}
+-		}
+-		if (i != null) {
+-			final Integer g_p = p.getGold();
+-			final int value = g_p.compareTo(i.price);
+-			if (value >= 0) {
+-				this.gold = this.gold + i.price;
+-				p.giveGold(i.price);
+-				return i;
+-			}
++	public Item sellItem(String name, Player player) {
++		final Item itemToSell = this.items.stream()
++				.filter(item -> item.name.equals(name))
++				.findFirst()
++				.orElse(null);
++		if (itemToSell != null &&
++				player.getGold() > itemToSell.price) {
++			this.gold = this.gold + itemToSell.price;
++			player.giveGold(itemToSell.price);
++			return itemToSell;
+ 		}
+ 		return null;
+ 	}
+Only in /home/benjamin/workspace/dspot/dspot-diff-test-selection/src/test/resources/tavern/src/main: resources
