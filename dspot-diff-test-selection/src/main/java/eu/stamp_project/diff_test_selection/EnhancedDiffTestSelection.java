@@ -32,18 +32,20 @@ public class EnhancedDiffTestSelection {
             if (DiffTestSelectionChecker.checkIfDiffLineIsAJavaFileModification(currentLine)) {
                 final ModifiedLinesTool modifiedLinesTool = new ModifiedLinesTool(this.pathToFirstVersion, this.pathToSecondVersion);
                 modifiedLinesTool.compute(currentLine, lines[++i]);
-                // t1 that hits the deletions
-                this.addTestsThatHitGivenChanges(
-                        selectTestsPerTestClasses,
-                        modifiedLinesTool.getDeletionPerQualifiedName(),
-                        this.coverageV1
-                );
-                // t2 that hits the additions
-                this.addTestsThatHitGivenChanges(
-                        selectTestsPerTestClasses,
-                        modifiedLinesTool.getAdditionPerQualifiedName(),
-                        this.coverageV2
-                );
+                if (modifiedLinesTool.hasResult()) {
+                    // t1 that hits the deletions
+                    this.addTestsThatHitGivenChanges(
+                            selectTestsPerTestClasses,
+                            modifiedLinesTool.getDeletionPerQualifiedName(),
+                            this.coverageV1
+                    );
+                    // t2 that hits the additions
+                    this.addTestsThatHitGivenChanges(
+                            selectTestsPerTestClasses,
+                            modifiedLinesTool.getAdditionPerQualifiedName(),
+                            this.coverageV2
+                    );
+                }
             }
         }
         return selectTestsPerTestClasses;

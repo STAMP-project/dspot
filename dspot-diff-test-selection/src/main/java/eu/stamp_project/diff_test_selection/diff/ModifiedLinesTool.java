@@ -46,6 +46,10 @@ public class ModifiedLinesTool {
         return additionPerQualifiedName;
     }
 
+    public boolean hasResult() {
+        return this.deletionPerQualifiedName != null && this.additionPerQualifiedName != null;
+    }
+
     public void compute(String currentLine, String secondLine) {
         final File baseDir = new File(this.pathToFirstVersion);
         final String file1 = ModifiedLinesUtils.getCorrectPathFile(currentLine);
