@@ -5,6 +5,9 @@ import eu.stamp_project.diff_test_selection.clover.CloverReader;
 import eu.stamp_project.diff_test_selection.configuration.Configuration;
 import eu.stamp_project.diff_test_selection.configuration.Options;
 import eu.stamp_project.diff_test_selection.coverage.Coverage;
+import eu.stamp_project.diff_test_selection.selector.DiffTestSelection;
+import eu.stamp_project.diff_test_selection.selector.DiffTestSelectionImpl;
+import eu.stamp_project.diff_test_selection.selector.EnhancedDiffTestSelection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,33 +28,41 @@ public class Main {
 
     public static void run(Configuration configuration) {
         final Map<String, Set<String>> selectedTests;
+        final Coverage coverage = new Coverage();
         if (configuration.enhanced) {
             LOGGER.info("Running in enhanced mode...");
-            selectedTests = enhancedRun(configuration);
+            selectedTests = enhancedRun(configuration, coverage);
         } else {
             LOGGER.info("Running...");
-            selectedTests = _run(configuration);
+            selectedTests = _run(configuration, coverage);
         }
-        output(configuration, new Coverage(), selectedTests); // TODO
+        output(configuration, coverage, selectedTests);
     }
 
-    public static Map<String, Set<String>> _run(Configuration configuration) {
-        final Map<String, Map<String, Map<String, List<Integer>>>> coverage = getCoverage(configuration.pathToFirstVersion);
-        final DiffTestSelection diffTestSelection = new DiffTestSelection(configuration, coverage);
-        return diffTestSelection.getTestThatExecuteChanges();
+    public static Map<String, Set<String>> _run(Configuration configuration, Coverage coverage) {
+        final Map<String, Map<String, Map<String, List<Integer>>>> cloverCoverage = getCoverage(configuration.pathToFirstVersion);
+        final DiffTestSelection diffTestSelectionImpl = new DiffTestSelectionImpl(
+                configuration.pathToFirstVersion,
+                configuration.pathToSecondVersion,
+                cloverCoverage,
+                configuration.diff,
+                coverage
+        );
+        return diffTestSelectionImpl.selectTests();
     }
 
-    private static Map<String, Set<String>> enhancedRun(Configuration configuration) {
-        final Map<String, Map<String, Map<String, List<Integer>>>> coverageV1 =
+    private static Map<String, Set<String>> enhancedRun(Configuration configuration, Coverage coverage) {
+        final Map<String, Map<String, Map<String, List<Integer>>>> cloverCoverageV1 =
                 getCoverage(configuration.pathToFirstVersion);
-        final Map<String, Map<String, Map<String, List<Integer>>>> coverageV2 =
+        final Map<String, Map<String, Map<String, List<Integer>>>> cloverCoverageV2 =
                 getCoverage(configuration.pathToSecondVersion);
         return new EnhancedDiffTestSelection(
                 configuration.pathToFirstVersion,
                 configuration.pathToSecondVersion,
-                coverageV1,
-                coverageV2,
-                configuration.diff
+                cloverCoverageV1,
+                configuration.diff,
+                coverage,
+                cloverCoverageV2
         ).selectTests();
     }
 
@@ -66,7 +77,7 @@ public class Main {
 
     private static Map<String, Map<String, Map<String, List<Integer>>>> getCoverage(final String pathToFirstVersion) {
         LOGGER.info("Computing coverage for " + pathToFirstVersion);
-//        new CloverExecutor().instrumentAndRunTest(pathToFirstVersion);
+        new CloverExecutor().instrumentAndRunTest(pathToFirstVersion);
         return new CloverReader().read(pathToFirstVersion);
     }
 }
