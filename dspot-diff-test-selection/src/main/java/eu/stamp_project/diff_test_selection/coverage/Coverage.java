@@ -36,6 +36,14 @@ public class Coverage {
         }
     }
 
+    public void addModifiedLines(String fullQualifiedName, List<Integer> lines) {
+        if (!this.modifiedLinePerQualifiedName.containsKey(fullQualifiedName)) {
+            this.modifiedLinePerQualifiedName.put(fullQualifiedName, new HashSet<>());
+        }
+        lines.forEach(this.modifiedLinePerQualifiedName.get(fullQualifiedName)::add);
+        LOGGER.info(fullQualifiedName + ":" + lines.toString() + " are modified.");
+    }
+
     public void addModifiedLine(String fullQualifiedName, Integer line) {
         if (!this.modifiedLinePerQualifiedName.containsKey(fullQualifiedName)) {
             this.modifiedLinePerQualifiedName.put(fullQualifiedName, new HashSet<>());
