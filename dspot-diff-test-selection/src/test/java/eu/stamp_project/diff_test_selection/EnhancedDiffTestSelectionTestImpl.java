@@ -1,6 +1,8 @@
 package eu.stamp_project.diff_test_selection;
 
+import eu.stamp_project.diff_test_selection.coverage.Coverage;
 import eu.stamp_project.diff_test_selection.diff.DiffComputer;
+import eu.stamp_project.diff_test_selection.selector.EnhancedDiffTestSelection;
 import org.junit.Test;
 
 import java.io.File;
@@ -8,7 +10,7 @@ import java.util.*;
 
 import static org.junit.Assert.assertTrue;
 
-public class EnhancedDiffTestSelectionTest {
+public class EnhancedDiffTestSelectionTestImpl {
 
     @Test
     public void testOnlyAddition() {
@@ -49,8 +51,9 @@ public class EnhancedDiffTestSelectionTest {
                 p1Directory.getAbsolutePath(),
                 p2Directory.getAbsolutePath(),
                 coverageV1,
-                coverageV2,
-                diff
+                diff,
+                new Coverage(),
+                coverageV2
         );
         Map<String, Set<String>> selectedTests = diffTestSelection.selectTests();
         assertTrue(selectedTests.containsKey("fr.inria.stamp.only_modification.FibonacciTest"));
@@ -96,8 +99,9 @@ public class EnhancedDiffTestSelectionTest {
                 p1Directory.getAbsolutePath(),
                 p2Directory.getAbsolutePath(),
                 coverageV1,
-                coverageV2,
-                diff
+                diff,
+                new Coverage(),
+                coverageV2
         );
         Map<String, Set<String>> selectedTests = diffTestSelection.selectTests();
         assertTrue(selectedTests.containsKey("fr.inria.stamp.only_modification.FibonacciTest"));
@@ -148,8 +152,9 @@ public class EnhancedDiffTestSelectionTest {
                 p1Directory.getAbsolutePath(),
                 p2Directory.getAbsolutePath(),
                 coverageV1,
-                Collections.emptyMap(),
-                diff
+                diff,
+                new Coverage(),
+                Collections.emptyMap()
         );
         Map<String, Set<String>> selectedTests = diffTestSelection.selectTests();
         assertTrue(selectedTests.containsKey("fr.inria.stamp.only_modification.FibonacciTest"));
@@ -159,8 +164,9 @@ public class EnhancedDiffTestSelectionTest {
                 p1Directory.getAbsolutePath(),
                 p2Directory.getAbsolutePath(),
                 Collections.emptyMap(),
-                coverageV2,
-                diff
+                diff,
+                new Coverage(),
+                coverageV2
         );
         selectedTests = diffTestSelection.selectTests();
         assertTrue(selectedTests.containsKey("fr.inria.stamp.only_modification.FibonacciTest"));
@@ -170,8 +176,9 @@ public class EnhancedDiffTestSelectionTest {
                 p1Directory.getAbsolutePath(),
                 p2Directory.getAbsolutePath(),
                 coverageV1,
-                coverageV2,
-                diff
+                diff,
+                new Coverage(),
+                coverageV2
         );
         selectedTests = diffTestSelection.selectTests();
         assertTrue(selectedTests.containsKey("fr.inria.stamp.only_modification.FibonacciTest"));
