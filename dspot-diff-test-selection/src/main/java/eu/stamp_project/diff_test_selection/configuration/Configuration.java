@@ -20,6 +20,8 @@ public class Configuration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
 
+    private static final String SRC_FOLDER = "src";
+
     public static final String DEFAULT_OUTPUT_PATH_NAME = "testsThatExecuteTheChange.csv";
 
     public final String pathToFirstVersion;
@@ -48,7 +50,7 @@ public class Configuration {
             LOGGER.warn("If so, please specify a path to a correct diff file");
             LOGGER.warn("or implement a new way to compute a diff file.");
             this.diff = new DiffComputer()
-                    .computeDiffWithDiffCommand(new File(pathToFirstVersion), new File(pathToSecondVersion));
+                    .computeDiffWithDiffCommand(new File(pathToFirstVersion + "/" + SRC_FOLDER), new File(pathToSecondVersion + "/" + SRC_FOLDER));
         } else {
             this.diff = this.readFile(pathToDiff);
         }
