@@ -36,10 +36,7 @@ public class CloverExecutor {
                 pathToRootOfProject,
                 "clean",
                 "org.openclover:clover-maven-plugin:4.4.1:setup",
-                "test",
-                "-Drat.skip=true",
-                "-Djacoco.skip=true",
-                "-Danimal.sniffer.skip=true"
+                "test"
         );
     }
 
@@ -60,6 +57,7 @@ public class CloverExecutor {
         properties.setProperty("findbugs.skip", "true");
         properties.setProperty("gpg.skip", "true");
         properties.setProperty("jacoco.skip", "true");
+        properties.setProperty("animal.sniffer.skip", "true");
         request.setProperties(properties);
 
         Invoker invoker = new DefaultInvoker();
