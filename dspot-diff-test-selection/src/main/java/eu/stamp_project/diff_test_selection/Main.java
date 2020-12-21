@@ -24,17 +24,29 @@ public class Main {
     }
 
     public static void run(Configuration configuration) {
-        final Map<String, Map<String, Map<String, List<Integer>>>> coverage = getCoverage(configuration.pathToFirstVersion);
-        final DiffTestSelection diffTestSelection = new DiffTestSelection(configuration, coverage);
-        final Map<String, Set<String>> selectedTests = diffTestSelection.getTestThatExecuteChanges();
+        final Map<String, Set<String>> selectedTests;
+        if (configuration.enhanced) {
+            LOGGER.info("Running in enhanced mode...");
+            selectedTests = enhancedRun(configuration);
+        } else {
+            LOGGER.info("Running...");
+            selectedTests = _run(configuration);
+        }
+        output(configuration, new Coverage(), selectedTests); // TODO
     }
 
-    private static void enhancedRun(Configuration configuration) {
+    public static Map<String, Set<String>> _run(Configuration configuration) {
+        final Map<String, Map<String, Map<String, List<Integer>>>> coverage = getCoverage(configuration.pathToFirstVersion);
+        final DiffTestSelection diffTestSelection = new DiffTestSelection(configuration, coverage);
+        return diffTestSelection.getTestThatExecuteChanges();
+    }
+
+    private static Map<String, Set<String>> enhancedRun(Configuration configuration) {
         final Map<String, Map<String, Map<String, List<Integer>>>> coverageV1 =
                 getCoverage(configuration.pathToFirstVersion);
         final Map<String, Map<String, Map<String, List<Integer>>>> coverageV2 =
                 getCoverage(configuration.pathToSecondVersion);
-        new EnhancedDiffTestSelection(
+        return new EnhancedDiffTestSelection(
                 configuration.pathToFirstVersion,
                 configuration.pathToSecondVersion,
                 coverageV1,
@@ -54,7 +66,7 @@ public class Main {
 
     private static Map<String, Map<String, Map<String, List<Integer>>>> getCoverage(final String pathToFirstVersion) {
         LOGGER.info("Computing coverage for " + pathToFirstVersion);
-        new CloverExecutor().instrumentAndRunTest(pathToFirstVersion);
+//        new CloverExecutor().instrumentAndRunTest(pathToFirstVersion);
         return new CloverReader().read(pathToFirstVersion);
     }
 }
