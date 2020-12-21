@@ -32,17 +32,14 @@ public class Configuration {
 
     public final ReportEnum reportFormat;
 
-    public final String module;
-
     public final String diff;
 
     public final boolean enhanced;
 
-    public Configuration(String pathToFirstVersion, String pathToSecondVersion, String outputPath, String reportFormat, String module, String pathToDiff, boolean enhanced) {
+    public Configuration(String pathToFirstVersion, String pathToSecondVersion, String outputPath, String reportFormat, String pathToDiff, boolean enhanced) {
         this.pathToFirstVersion = pathToFirstVersion;
         this.pathToSecondVersion = pathToSecondVersion;
         this.reportFormat = ReportEnum.valueOf(reportFormat);
-        this.module = module == null ? "" : module;
         if (pathToDiff == null || pathToDiff.isEmpty()) {
             LOGGER.warn("No path to diff file has been specified.");
             LOGGER.warn("I'll compute a diff file using the UNIX diff command");

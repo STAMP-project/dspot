@@ -56,13 +56,11 @@ public class Options {
         String pathToDiff = arguments.getString("path-to-diff");
         final String outputPath = arguments.getString("output-path");
         final String outputFormat = arguments.getString("output-format");
-        final String module = arguments.getString("module");
         final boolean enhanced = arguments.getBoolean("enhanced");
         return new Configuration(pathDirFirstVersion,
                 pathDirSecondVersion,
                 outputPath,
                 outputFormat,
-                module,
                 pathToDiff,
                 enhanced
         );
@@ -101,14 +99,6 @@ public class Options {
         outputFormat.setHelp("[Optional] Specify the format of the output. (For now, only the CSV format is available)");
         outputFormat.setStringParser(JSAP.STRING_PARSER);
 
-        FlaggedOption module = new FlaggedOption("module");
-        module.setRequired(false);
-        module.setLongFlag("module");
-        module.setShortFlag('m');
-        module.setDefault("");
-        module.setHelp("[Optional] In case of multi-module project, specify which module (a path from the project's root).");
-        module.setStringParser(JSAP.STRING_PARSER);
-
         FlaggedOption pathToDiff = new FlaggedOption("path-to-diff");
         pathToDiff.setRequired(false);
         pathToDiff.setLongFlag("path-to-diff");
@@ -129,7 +119,6 @@ public class Options {
             jsap.registerParameter(pathDirectorySecondVersion);
             jsap.registerParameter(outputPath);
             jsap.registerParameter(outputFormat);
-            jsap.registerParameter(module);
             jsap.registerParameter(pathToDiff);
             jsap.registerParameter(enhanced);
         } catch (JSAPException e) {
