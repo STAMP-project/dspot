@@ -3,17 +3,13 @@ package eu.stamp_project.diff_test_selection.diff;
 import com.github.gumtreediff.actions.model.Action;
 import com.github.gumtreediff.actions.model.Delete;
 import com.github.gumtreediff.actions.model.Insert;
-import eu.stamp_project.diff_test_selection.DiffTestSelection;
+import eu.stamp_project.diff_test_selection.selector.DiffTestSelectionImpl;
 
-import eu.stamp_project.diff_test_selection.utils.DiffTestSelectionUtils;
 import gumtree.spoon.AstComparator;
 import gumtree.spoon.diff.Diff;
-import gumtree.spoon.diff.operations.InsertOperation;
 import gumtree.spoon.diff.operations.Operation;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtElement;
 
@@ -25,7 +21,7 @@ import java.util.Map;
 
 public class ModifiedLinesTool {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DiffTestSelection.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ModifiedLinesTool.class);
 
     private final String pathToFirstVersion;
     private final String pathToSecondVersion;
