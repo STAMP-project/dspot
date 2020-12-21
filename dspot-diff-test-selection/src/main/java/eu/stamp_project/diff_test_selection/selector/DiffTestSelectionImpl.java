@@ -1,22 +1,17 @@
-package eu.stamp_project.diff_test_selection;
+package eu.stamp_project.diff_test_selection.selector;
 
-import eu.stamp_project.diff_test_selection.configuration.Configuration;
 import eu.stamp_project.diff_test_selection.coverage.Coverage;
-import eu.stamp_project.diff_test_selection.report.CSVReport;
 import gumtree.spoon.AstComparator;
 import gumtree.spoon.diff.Diff;
 import gumtree.spoon.diff.operations.Operation;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtElement;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.util.*;
 
 /**
@@ -24,30 +19,21 @@ import java.util.*;
  * benjamin.danglot@inria.fr
  * on 01/02/19
  */
-public class DiffTestSelection {
+public class DiffTestSelectionImpl extends DiffTestSelection {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DiffTestSelection.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DiffTestSelectionImpl.class);
 
-    private Map<String, Map<String, Map<String, List<Integer>>>> mapCoverage;
-
-    private Coverage coverage;
-
-    private Configuration configuration;
-
-    public DiffTestSelection(Configuration configuration,
-                             Map<String, Map<String, Map<String, List<Integer>>>> mapCoverage) {
-        this.configuration = configuration;
-        this.mapCoverage = mapCoverage;
-        this.coverage = new Coverage();
+    public DiffTestSelectionImpl(String pathToFirstVersion, String pathToSecondVersion, Map<String, Map<String, Map<String, List<Integer>>>> coverageV1, String diff, Coverage coverage) {
+        super(pathToFirstVersion, pathToSecondVersion, coverageV1, diff, coverage);
     }
 
     public Coverage getCoverage() {
         return this.coverage;
     }
 
-    Map<String, Set<String>> getTestThatExecuteChanges() {
+    public Map<String, Set<String>> selectTests() {
         final Map<String, Set<String>> testMethodPerTestClasses = new LinkedHashMap<>();
-        String[] lines = configuration.diff.split(System.getProperty("line.separator"));
+        String[] lines = this.diff.split(System.getProperty("line.separator"));
         for (int i = 0; i < lines.length; i++) {
             String currentLine = lines[i];
             if ((currentLine.startsWith("+++") || currentLine.startsWith("---")) &&
@@ -58,7 +44,7 @@ public class DiffTestSelection {
                     continue;
                 }
                 //this.coverage.addModifiedLines(modifiedLinesPerQualifiedName);
-                Map<String, Set<String>> matchedChangedWithCoverage = matchChangedWithCoverage(this.mapCoverage, modifiedLinesPerQualifiedName);
+                Map<String, Set<String>> matchedChangedWithCoverage = matchChangedWithCoverage(this.coverageV1, modifiedLinesPerQualifiedName);
                 matchedChangedWithCoverage.keySet().forEach(key -> {
                     if (!testMethodPerTestClasses.containsKey(key)) {
                         testMethodPerTestClasses.put(key, matchedChangedWithCoverage.get(key));
@@ -118,7 +104,7 @@ public class DiffTestSelection {
 
     private Map<String, List<Integer>> getModifiedLinesPerQualifiedName(String currentLine,
                                                                         String secondLine) {
-        final File baseDir = new File(this.configuration.pathToFirstVersion);
+        final File baseDir = new File(this.pathToFirstVersion);
         final String file1 = getCorrectPathFile(currentLine);
         final String file2 = getCorrectPathFile(secondLine);
         if (shouldSkip(file1, file2)) {
@@ -126,7 +112,7 @@ public class DiffTestSelection {
             return null;
         }
         final File f1 = getCorrectFile(baseDir.getAbsolutePath(), file1);
-        final File f2 = getCorrectFile(this.configuration.pathToSecondVersion, file2);
+        final File f2 = getCorrectFile(this.pathToSecondVersion, file2);
         try {
             LOGGER.info(f1.getAbsolutePath());
             LOGGER.info(f2.getAbsolutePath());
@@ -143,7 +129,7 @@ public class DiffTestSelection {
             return false;
         }
         if (new File(file1).isAbsolute() && new File(file2).isAbsolute() &&
-                file2.endsWith(file1.substring(this.configuration.pathToFirstVersion.length()))) {
+                file2.endsWith(file1.substring(this.pathToFirstVersion.length()))) {
             return false;
         }
         LOGGER.warn("Could not match " + file1 + " and " + file2);
@@ -203,9 +189,10 @@ public class DiffTestSelection {
         if (file.isAbsolute() && file.exists()) {
             return file;
         }
-        if (fileName.substring(1).startsWith(this.configuration.module)) {
-            fileName = fileName.substring(this.configuration.module.length() + 1);
-        }
+        // TODO
+//        if (fileName.substring(1).startsWith(this.module)) {
+//            fileName = fileName.substring(this.module.length() + 1);
+//        }
         file = new File(baseDir + "/" + fileName);
         return file.exists() ? file : new File(baseDir + "/../" + fileName);
     }

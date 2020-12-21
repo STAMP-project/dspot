@@ -1,27 +1,25 @@
-package eu.stamp_project.diff_test_selection;
+package eu.stamp_project.diff_test_selection.selector;
 
+import eu.stamp_project.diff_test_selection.coverage.Coverage;
 import eu.stamp_project.diff_test_selection.diff.ModifiedLinesTool;
 import eu.stamp_project.diff_test_selection.utils.DiffTestSelectionChecker;
 
 import java.util.*;
 
-public class EnhancedDiffTestSelection {
+public class EnhancedDiffTestSelection extends DiffTestSelection {
 
-    private final String pathToFirstVersion;
-    private final String pathToSecondVersion;
-    private final Map<String, Map<String, Map<String, List<Integer>>>> coverageV1;
     private final Map<String, Map<String, Map<String, List<Integer>>>> coverageV2;
-    private final String diff;
 
-    public EnhancedDiffTestSelection(String pathToFirstVersion, String pathToSecondVersion,
-                                     Map<String, Map<String, Map<String, List<Integer>>>> coverageV1,
-                                     Map<String, Map<String, Map<String, List<Integer>>>> coverageV2,
-                                     String diff) {
-        this.pathToFirstVersion = pathToFirstVersion;
-        this.pathToSecondVersion = pathToSecondVersion;
-        this.coverageV1 = coverageV1;
+    public EnhancedDiffTestSelection(
+            String pathToFirstVersion,
+            String pathToSecondVersion,
+            Map<String, Map<String, Map<String, List<Integer>>>> coverageV1,
+            String diff,
+            Coverage coverage,
+            Map<String, Map<String, Map<String, List<Integer>>>> coverageV2
+    ) {
+        super(pathToFirstVersion, pathToSecondVersion, coverageV1, diff, coverage);
         this.coverageV2 = coverageV2;
-        this.diff = diff;
     }
 
     public Map<String, Set<String>> selectTests() {
@@ -57,6 +55,7 @@ public class EnhancedDiffTestSelection {
             Map<String, Map<String, Map<String, List<Integer>>>> coverage) {
         for (String modifiedClassFullQualifiedName : modificationPerQualifiedName.keySet()) {
             final List<Integer> modifiedLines = modificationPerQualifiedName.get(modifiedClassFullQualifiedName);
+            this.coverage.addModifiedLines(modifiedClassFullQualifiedName, modifiedLines);
             for (String fullQualifiedNameOfTestClass : coverage.keySet()) {
                 for (String testMethodName : coverage.get(fullQualifiedNameOfTestClass).keySet()) {
                     final Map<String, List<Integer>> coverageOfTestMethod = coverage.get(fullQualifiedNameOfTestClass).get(testMethodName);
@@ -65,10 +64,13 @@ public class EnhancedDiffTestSelection {
                             if (!selectTestsPerTestClasses.containsKey(fullQualifiedNameOfTestClass)) {
                                 selectTestsPerTestClasses.put(fullQualifiedNameOfTestClass, new HashSet<>());
                             }
+                            modifiedLines.stream()
+                                    .filter(line ->
+                                            coverageOfTestMethod.get(modifiedClassFullQualifiedName).contains(line))
+                                    .forEach(line -> this.coverage.covered(modifiedClassFullQualifiedName, line));
                             selectTestsPerTestClasses.get(fullQualifiedNameOfTestClass).add(testMethodName);
                         }
                     }
-
                 }
             }
         }
