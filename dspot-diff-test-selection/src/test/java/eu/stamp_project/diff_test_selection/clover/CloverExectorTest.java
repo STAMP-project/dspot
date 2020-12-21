@@ -16,8 +16,8 @@ public class CloverExectorTest {
         * Test the CloverExecutor : it runs openclover on the test suite
         * The oracle is that the folder /target/clover exists
         */
-        final String pathToRootOfProject = "./src/test/resources/tavern";
+        final String pathToRootOfProject = "src/test/resources/tavern";
         new CloverExecutor().instrumentAndRunTest(pathToRootOfProject);
-        assertTrue(new File(pathToRootOfProject + "/clover_report/clover").exists());
+        assertTrue(new File(pathToRootOfProject + "/target/clover").exists());
     }
 }
