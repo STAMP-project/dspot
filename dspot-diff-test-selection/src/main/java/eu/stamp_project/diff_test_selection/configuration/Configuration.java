@@ -20,6 +20,8 @@ public class Configuration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
 
+    private static final String SRC_FOLDER = "src";
+
     public static final String DEFAULT_OUTPUT_PATH_NAME = "testsThatExecuteTheChange.csv";
 
     public final String pathToFirstVersion;
@@ -30,15 +32,14 @@ public class Configuration {
 
     public final ReportEnum reportFormat;
 
-    public final String module;
-
     public final String diff;
 
-    public Configuration(String pathToFirstVersion, String pathToSecondVersion, String outputPath, String reportFormat, String module, String pathToDiff) {
+    public final boolean enhanced;
+
+    public Configuration(String pathToFirstVersion, String pathToSecondVersion, String outputPath, String reportFormat, String pathToDiff, boolean enhanced) {
         this.pathToFirstVersion = pathToFirstVersion;
         this.pathToSecondVersion = pathToSecondVersion;
         this.reportFormat = ReportEnum.valueOf(reportFormat);
-        this.module = module == null ? "" : module;
         if (pathToDiff == null || pathToDiff.isEmpty()) {
             LOGGER.warn("No path to diff file has been specified.");
             LOGGER.warn("I'll compute a diff file using the UNIX diff command");
@@ -46,7 +47,7 @@ public class Configuration {
             LOGGER.warn("If so, please specify a path to a correct diff file");
             LOGGER.warn("or implement a new way to compute a diff file.");
             this.diff = new DiffComputer()
-                    .computeDiffWithDiffCommand(new File(pathToFirstVersion), new File(pathToSecondVersion));
+                    .computeDiffWithDiffCommand(new File(pathToFirstVersion + "/" + SRC_FOLDER), new File(pathToSecondVersion + "/" + SRC_FOLDER));
         } else {
             this.diff = this.readFile(pathToDiff);
         }
@@ -57,6 +58,7 @@ public class Configuration {
         } else {
             this.outputPath = outputPath;
         }
+        this.enhanced = enhanced;
     }
 
     private String readFile(String pathToFileToRead) {

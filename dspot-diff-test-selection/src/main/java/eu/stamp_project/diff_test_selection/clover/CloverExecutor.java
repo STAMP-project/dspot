@@ -85,9 +85,9 @@ public class CloverExecutor {
         }
     }
 
-    private  String getMavenHome(Predicate<String> conditional,
-                                 Function<String, String> getFunction,
-                                 String... possibleValues) {
+    private String getMavenHome(Predicate<String> conditional,
+                                Function<String, String> getFunction,
+                                String... possibleValues) {
         String mavenHome = null;
         final Optional<String> potentialMavenHome = Arrays.stream(possibleValues).filter(conditional).findFirst();
         if (potentialMavenHome.isPresent()) {
