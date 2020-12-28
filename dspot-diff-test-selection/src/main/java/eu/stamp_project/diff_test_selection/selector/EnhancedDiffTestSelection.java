@@ -24,6 +24,7 @@ public class EnhancedDiffTestSelection extends DiffTestSelection {
 
     public Map<String, Set<String>> selectTests() {
         final Map<String, Set<String>> selectTestsPerTestClasses = new LinkedHashMap<>();
+        final Map<String, Set<String>> modifiedTestsPerTestClass = new LinkedHashMap<>();
         final String[] lines = this.diff.split(System.getProperty("line.separator"));
         for (int i = 0; i < lines.length; i++) {
             final String currentLine = lines[i];
@@ -43,7 +44,23 @@ public class EnhancedDiffTestSelection extends DiffTestSelection {
                             modifiedLinesTool.getAdditionPerQualifiedName(),
                             this.coverageV2
                     );
+                } else if (modifiedLinesTool.isTest()) {
+                    final Map<String, Set<String>> currentModifiedTestsPerTestClass = modifiedLinesTool.getModifiedTestsPerTestClass();
+                    for (String testClassName : currentModifiedTestsPerTestClass.keySet()) {
+                        if (!modifiedTestsPerTestClass.containsKey(testClassName)) {
+                            modifiedTestsPerTestClass.put(testClassName, new HashSet<>());
+                        }
+                        modifiedTestsPerTestClass.get(testClassName).addAll(currentModifiedTestsPerTestClass.get(testClassName));
+                    }
                 }
+            }
+        }
+        for (String testClassName : modifiedTestsPerTestClass.keySet()) {
+            if (selectTestsPerTestClasses.containsKey(testClassName)) {
+                selectTestsPerTestClasses.get(testClassName).removeAll(modifiedTestsPerTestClass.get(testClassName));
+            }
+            if (selectTestsPerTestClasses.get(testClassName).isEmpty()) {
+                selectTestsPerTestClasses.remove(testClassName);
             }
         }
         return selectTestsPerTestClasses;
