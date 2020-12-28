@@ -26,9 +26,6 @@ public class ModifiedLinesUtils {
     }
 
     public static boolean shouldSkip(String pathToFirstVersion, String file1, String file2) {
-        if (file1.contains("src/test/java")) {
-            return true;
-        }
         if (file2.endsWith(file1)) {
             return false;
         }
