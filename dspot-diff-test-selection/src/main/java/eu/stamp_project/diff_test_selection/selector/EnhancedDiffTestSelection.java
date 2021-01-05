@@ -58,9 +58,9 @@ public class EnhancedDiffTestSelection extends DiffTestSelection {
         for (String testClassName : modifiedTestsPerTestClass.keySet()) {
             if (selectTestsPerTestClasses.containsKey(testClassName)) {
                 selectTestsPerTestClasses.get(testClassName).removeAll(modifiedTestsPerTestClass.get(testClassName));
-            }
-            if (selectTestsPerTestClasses.get(testClassName).isEmpty()) {
-                selectTestsPerTestClasses.remove(testClassName);
+                if (selectTestsPerTestClasses.get(testClassName).isEmpty()) {
+                    selectTestsPerTestClasses.remove(testClassName);
+                }
             }
         }
         return selectTestsPerTestClasses;
