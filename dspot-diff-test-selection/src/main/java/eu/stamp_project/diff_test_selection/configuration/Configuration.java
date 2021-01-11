@@ -83,4 +83,15 @@ public class Configuration {
         }
     }
 
+    @Override
+    public String toString() {
+        return "Configuration{" +
+                "pathToFirstVersion='" + pathToFirstVersion + '\'' +
+                ", pathToSecondVersion='" + pathToSecondVersion + '\'' +
+                ", outputPath='" + outputPath + '\'' +
+                ", reportFormat=" + reportFormat +
+                ", diff='" + diff + '\'' +
+                ", enhanced=" + enhanced +
+                '}';
+    }
 }

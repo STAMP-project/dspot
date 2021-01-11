@@ -5,6 +5,7 @@ import gumtree.spoon.diff.operations.Operation;
 import spoon.reflect.declaration.CtElement;
 
 import java.io.File;
+import java.util.concurrent.ExecutionException;
 
 public class ModifiedLinesUtils {
 
@@ -20,9 +21,13 @@ public class ModifiedLinesUtils {
     }
 
     public static boolean filterOperationFromNode(CtElement element) {
-        return element.getPosition() != null &&
-                element.getPosition().getCompilationUnit() != null &&
-                element.getPosition().getCompilationUnit().getMainType() != null;
+        try {
+            return element.getPosition() != null &&
+                    element.getPosition().getCompilationUnit() != null &&
+                    element.getPosition().getCompilationUnit().getMainType() != null;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public static boolean shouldSkip(String pathToFirstVersion, String file1, String file2) {

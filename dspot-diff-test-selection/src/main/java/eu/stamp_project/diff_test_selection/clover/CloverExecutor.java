@@ -7,11 +7,10 @@ import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Created by Benjamin DANGLOT
@@ -28,6 +27,7 @@ public class CloverExecutor {
 
     /**
      * This class will execute, though maven goals, the instrumentation of Clover and the test of the project
+     *
      * @param pathToRootOfProject the path to the root folder of the project
      */
     public void instrumentAndRunTest(String pathToRootOfProject) {
@@ -37,6 +37,23 @@ public class CloverExecutor {
                 "clean",
                 "org.openclover:clover-maven-plugin:4.4.1:setup",
                 "test"
+        );
+    }
+
+    public void instrumentAndRunGivenTest(String pathToRootOfProject, Map<String, List<String>> tests) {
+        final String testsOptionsValue = tests.keySet()
+                .stream()
+                .map(key ->
+                        key + "#" + String.join("+", tests.get(key))
+                ).collect(Collectors.joining(","));
+        System.out.println(testsOptionsValue);
+        setMavenHome();
+        runGoals(
+                pathToRootOfProject,
+                "clean",
+                "org.openclover:clover-maven-plugin:4.4.1:setup",
+                "test",
+                "-Dtest=" + testsOptionsValue
         );
     }
 
