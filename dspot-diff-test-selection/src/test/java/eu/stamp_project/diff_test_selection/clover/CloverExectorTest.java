@@ -3,6 +3,8 @@ package eu.stamp_project.diff_test_selection.clover;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 
