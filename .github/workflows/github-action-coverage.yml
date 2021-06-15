@@ -11,5 +11,9 @@ jobs:
         with:
           java-version: '8'
           distribution: 'adopt'
+      - name: Setup DSpot Version
+        run: export DSPOT_VERSION=`grep '<version>' dspot/pom.xml | head -n 1 | sed -e 's/<version>//' -e 's/<\\/version>//' -e 's/ *//g'` && echo "🎉 ${DSPOT_VERSION}"
+      - name: Setup Maven Home
+        run: export MAVEN_HOME=`mvn --version | grep 'Maven home' | sed -e 's/Maven h.* //'` && echo "🎉 ${MAVEN_HOME}"
       - name: Build with Maven
         run: cd dspot && mvn -DdoIntegrationTests=true -Dorg.slf4j.simpleLogger.defaultLogLevel=error clean test
