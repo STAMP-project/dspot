@@ -1,11 +1,9 @@
 package eu.stamp_project.diff_test_selection.clover;
 
 import com.atlassian.clover.reporters.html.HtmlReporter;
+import eu.stamp_project.diff_test_selection.coverage.Coverage;
 
 import java.io.File;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Benjamin DANGLOT
@@ -20,7 +18,7 @@ public class CloverReader {
 
     private static final String REPORT_DIRECTORY = "/report/";
 
-    public volatile static Map<String, Map<String, Map<String, List<Integer>>>> coveragePerTestMethods = new LinkedHashMap<>();
+    public volatile static Coverage coverage = new Coverage();
 
     /**
      * read the database initialize by {@link CloverExecutor}.
@@ -28,7 +26,7 @@ public class CloverReader {
      * @param directory path to the directory of Clover's result
      * @return a map, that associate test method names and the map of executed line in each classes
      */
-    public Map<String, Map<String, Map<String, List<Integer>>>> read(String directory) {
+    public Coverage read(String directory) {
         final File rootDirectoryOfCloverFiles = new File(directory + ROOT_DIRECTORY);
         HtmlReporter.runReport(new String[]{
                 "-i", rootDirectoryOfCloverFiles.getAbsolutePath() + DATABASE_FILE,
@@ -37,7 +35,7 @@ public class CloverReader {
                 "--showinner",
                 "--showlambda",
         });
-        return coveragePerTestMethods;
+        return coverage;
     }
 
 }

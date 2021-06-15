@@ -1,15 +1,12 @@
 package eu.stamp_project.diff_test_selection.report;
 
-import eu.stamp_project.diff_test_selection.Main;
-import eu.stamp_project.diff_test_selection.coverage.Coverage;
-import org.apache.maven.plugin.logging.Log;
+import eu.stamp_project.diff_test_selection.coverage.DiffCoverage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,7 +27,7 @@ public class CSVReport implements Report {
     @Override
     public void report(final String outputPath,
                        final Map<String, Set<String>> testThatExecuteChanges,
-                       final Coverage coverage) {
+                       final DiffCoverage coverage) {
         final File file = new File(outputPath);
         StringBuilder builder = new StringBuilder();
         String report = testThatExecuteChanges.keySet()
@@ -54,7 +51,7 @@ public class CSVReport implements Report {
     }
 
     private void reportCoverageOfDiff(final String outputPath,
-                                      final Coverage coverage) {
+                                      final DiffCoverage coverage) {
         final String output = outputPath.substring(0, outputPath.length() - ".csv".length()) + "_coverage.csv";
         LOGGER.info("Writing Coverage in " + output);
         final Map<String, Set<Integer>> executedLinePerQualifiedName = coverage.getExecutedLinePerQualifiedName();

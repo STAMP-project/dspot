@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -294,11 +293,10 @@ public class RenderFileAction implements Callable {
              TODO Implement our own reporter, that compute this information, and do not build the whole HTML report
              TODO which is unused in DSpot
          */
+
         final JSONObject jsonTestTargets = JSONObjectFactory.getJSONTestTargets(targetMethods, targetElements);
         final String targetClassName = this.fileInfo.getContainingPackage().getName() + "." + this.fileInfo.getName().split("\\.")[0];
-        if (!CloverReader.coveragePerTestMethods.containsKey(targetClassName)) {
-            this.buildCoverage(sublist, jsonTestTargets, targetClassName);
-        }
+        this.buildCoverage(sublist, jsonTestTargets, targetClassName);
         velocity.put("jsonTestTargets", jsonTestTargets);
         velocity.put("jsonPageData", JSONObjectFactory.getJSONPageData(fileInfo));
 
@@ -318,22 +316,21 @@ public class RenderFileAction implements Callable {
             final TestCaseInfo testCaseInfo = getTestCaseInfo(sublist, key.split("_")[1]);
             final String testClassName = testCaseInfo.getRuntimeTypeName();
             final String testName = testCaseInfo.getTestName();
-            if (!CloverReader.coveragePerTestMethods.containsKey(testClassName)) {
-                CloverReader.coveragePerTestMethods.put(testClassName, new HashMap<>());
-            }
-            if (!CloverReader.coveragePerTestMethods.get(testClassName).containsKey(testName)) {
-                CloverReader.coveragePerTestMethods.get(testClassName).put(testName, new HashMap<>());
-            }
-            if (!CloverReader.coveragePerTestMethods.get(testClassName).get(testName).containsKey(targetClassName)) {
-                CloverReader.coveragePerTestMethods.get(testClassName).get(testName).put(targetClassName, new ArrayList<>());
-            }
             JSONObject currentValues = jsonTestTargets.getJSONObject((String) key);
             ((List) currentValues.get("statements")).stream()
                     .map(list -> ((Map) list).get("sl"))
                     .forEach(line ->
-                            CloverReader.coveragePerTestMethods.get(testClassName).get(testName).get(targetClassName).add((Integer) line)
+                            CloverReader.coverage.addCoverage(testClassName, testName, targetClassName, (Integer) line,
+                                  this.fileInfo.getNamedClass(this.fileInfo.getName().split("\\.")[0])
+                                    .getAllMethods()
+                                    .stream()
+                                    .flatMap(methodInfo -> methodInfo.getStatements().stream())
+                                    .filter(statementInfo -> statementInfo.getStartLine() == (Integer)line)
+                                    .findFirst()
+                                    .get()
+                                    .getHitCount()
+                            )
                     );
-
         }
     }
 

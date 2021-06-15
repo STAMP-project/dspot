@@ -1,8 +1,6 @@
 package eu.stamp_project.diff_test_selection.report;
 
-import eu.stamp_project.diff_test_selection.coverage.Coverage;
-import org.apache.maven.plugin.Mojo;
-import org.apache.maven.plugin.logging.Log;
+import eu.stamp_project.diff_test_selection.coverage.DiffCoverage;
 
 import java.util.Map;
 import java.util.Set;
@@ -23,6 +21,6 @@ public interface Report {
     void report(
             final String outputPath,
             final Map<String, Set<String>> testThatExecuteChanges,
-            final Coverage coverage);
+            final DiffCoverage coverage);
 
 }
