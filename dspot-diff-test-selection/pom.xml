@@ -66,11 +66,23 @@
             <version>${maven.plugin.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>fr.inria.gforge.spoon</groupId>
+            <artifactId>spoon-core</artifactId>
+            <version>${spoon.version}</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/fr.inria.gforge.spoon.labs/gumtree-spoon-ast-diff -->
         <dependency>
             <groupId>fr.inria.gforge.spoon.labs</groupId>
             <artifactId>gumtree-spoon-ast-diff</artifactId>
             <version>${gumtree.spoon.ast.diff.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>fr.inria.gforge.spoon</groupId>
+                    <artifactId>spoon-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
