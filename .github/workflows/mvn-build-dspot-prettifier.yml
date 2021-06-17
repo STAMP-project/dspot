@@ -1,4 +1,4 @@
-name: DSpot - Maven CI
+name: DSpot - Prettifier CI
 
 on: [push, pull_request]
 
