@@ -95,7 +95,7 @@ public class CloverExecutor {
         if (mavenHome == null) {
             mavenHome = getMavenHome(path -> new File(path).exists(),
                     Function.identity(),
-                    "/usr/share/maven/", "/usr/local/maven-3.3.9/", "/usr/share/maven3/");
+                    "/usr/share/maven/", "/usr/local/maven-3.3.9/", "/usr/share/maven3/", "/usr/share/apache-maven-3.8.1/");
             if (mavenHome == null) {
                 throw new RuntimeException("Maven home not found, please set properly MAVEN_HOME or M2_HOME.");
             }

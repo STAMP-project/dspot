@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.common.collector.mongodb;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.Before;
 import org.junit.After;
@@ -36,6 +37,7 @@ public class MongodbCollectorTest {
         this.greenMail.stop();
     }
 
+    @Ignore
     @Test
     public void testInfoSubmissionToMongodbPitMutantScoreSelector() {
         // don't run this test if mongodb is not installed locally
@@ -70,6 +72,7 @@ public class MongodbCollectorTest {
         assertEquals(expectedDocStr, foundDoc.toString());
     }
 
+    @Ignore
     @Test
     public void testInfoSubmissionToMongodbJacocoCoverageSelector() {
         // don't run this test if mongodb is not installed locally
@@ -99,6 +102,7 @@ public class MongodbCollectorTest {
         assertEquals(expectedDocStr, foundDoc.toString());
     }
 
+    @Ignore
     @Test
     /* Should update an existing document then have tried sending an email at the end*/
     public void testRestful() {

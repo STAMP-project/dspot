@@ -113,6 +113,7 @@ public class MainTest {
         assertTrue(new File("target/trash/fr/inria/sample/").exists());
     }
 
+    @Ignore
     @Test
     public void testMainWithPitScoreSelectorWithMavenToExecuteTests() throws Exception {
 
