@@ -13,5 +13,7 @@ jobs:
         with:
           java-version: '8'
           distribution: 'adopt'
-      - name: Build and Test with Maven
+      - name: Build with Maven
+        run: mvn install -DskipTests
+      - name: Clean and Test with Maven
         run: cd dspot-maven && mvn clean test
