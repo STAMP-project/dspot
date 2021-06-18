@@ -13,7 +13,5 @@ jobs:
         with:
           java-version: '8'
           distribution: 'adopt'
-      - name: Build with Maven
-        run: mvn install -DskipTests
-      - name: Test with Maven
-        run: cd dspot-maven && mvn test -DdoIntegrationTests=true -Dorg.slf4j.simpleLogger.defaultLogLevel=error
+      - name: Build and Test with Maven
+        run: cd dspot-maven && mvn clean test
