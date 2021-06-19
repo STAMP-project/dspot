@@ -18,4 +18,5 @@ jobs:
       - name: Test with Maven
         run: cd dspot && mvn -Pcoveralls -DdoIntegrationTests=true clean test jacoco:report coveralls:report -DrepoToken=REPO_TOKEN
         env:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
