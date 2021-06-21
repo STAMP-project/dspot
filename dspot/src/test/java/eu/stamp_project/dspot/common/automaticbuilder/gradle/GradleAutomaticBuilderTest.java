@@ -46,7 +46,7 @@ public class GradleAutomaticBuilderTest {
 
     @Before
     public void setUp() throws Exception {
-        assumeTrue("true".equals(System.getProperty("doIntegrationTests")));
+        //assumeTrue("true".equals(System.getProperty("doIntegrationTests")));
         DSpotState.verbose = true;
         cleanTestEnv();
         LOGGER.debug("Test Set-up - Reading input parameters...");
@@ -112,7 +112,7 @@ public class GradleAutomaticBuilderTest {
         LOGGER.info("Gradle Automatic Builder runPit() test complete when no test class is specified.");
     }
 
-    @Ignore
+
     @Test
     public void runPit_whenTestClassIsSpecified() throws Exception {
         LOGGER.info("Starting Gradle Automatic Builder runPit() test when a test class is specified...");

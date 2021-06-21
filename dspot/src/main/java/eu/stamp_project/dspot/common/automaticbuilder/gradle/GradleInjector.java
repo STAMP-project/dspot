@@ -137,9 +137,11 @@ public class GradleInjector {
     private String getPrintClasspathTask() {
 
         return AmplificationHelper.LINE_SEPARATOR + AmplificationHelper.LINE_SEPARATOR +
-                "task " + WRITE_CLASSPATH_TASK + " << { " + AmplificationHelper.LINE_SEPARATOR +
-                "    buildDir.mkdirs() " + AmplificationHelper.LINE_SEPARATOR +
-                "    new File(buildDir, \"classpath.txt\").text = configurations.testCompile.asPath " + AmplificationHelper.LINE_SEPARATOR +
+                "task " + WRITE_CLASSPATH_TASK + " {" + AmplificationHelper.LINE_SEPARATOR +
+                "    doLast { " + AmplificationHelper.LINE_SEPARATOR +
+                "        buildDir.mkdirs() " + AmplificationHelper.LINE_SEPARATOR +
+                "        new File(buildDir, \"classpath.txt\").text = configurations.testCompileClasspath.asPath " + AmplificationHelper.LINE_SEPARATOR +
+                "    }" + AmplificationHelper.LINE_SEPARATOR +
                 "}" + AmplificationHelper.LINE_SEPARATOR;
     }
 
