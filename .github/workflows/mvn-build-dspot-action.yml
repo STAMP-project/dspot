@@ -15,7 +15,16 @@ jobs:
           distribution: 'adopt'
       - name: Build with Maven
         run: mvn install -DskipTests
-      - name: Test with Maven
-        run: cd dspot && mvn -Pcoveralls -DdoIntegrationTests=true clean test jacoco:report coveralls:report
+      - name: Test and Coverage with Maven
+        run: cd dspot && mvn test jacoco:report
+      - name: "Report: Coverage via coveralls.io"
+        run: |
+          export CI_BRANCH=${BRANCH_NAME_OR_REF#refs/heads/}
+          export CI_PULL_REQUEST=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          cd dspot && mvn coveralls:report --no-transfer-progress -DrepoToken=$COVERALLS_SECRET
         env:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          CI_NAME: github
+          BRANCH_NAME_OR_REF: ${{ github.head_ref || github.ref }}
+          CI_BUILD_NUMBER: ${{ github.run_id }}
+          CI_BUILD_URL: https://github.com/${{ github.repository }}/commit/${{ github.event.after }}/checks
+          COVERALLS_SECRET: ${{ secrets.GITHUB_TOKEN }}
