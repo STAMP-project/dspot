@@ -27,7 +27,9 @@ public class CloverReader {
      * @return a map, that associate test method names and the map of executed line in each classes
      */
     public Coverage read(String directory) {
+        coverage = new Coverage();
         final File rootDirectoryOfCloverFiles = new File(directory + ROOT_DIRECTORY);
+        System.out.println("Reading Clover data " + rootDirectoryOfCloverFiles.getAbsolutePath());
         HtmlReporter.runReport(new String[]{
                 "-i", rootDirectoryOfCloverFiles.getAbsolutePath() + DATABASE_FILE,
                 "-o", rootDirectoryOfCloverFiles.getAbsolutePath() + REPORT_DIRECTORY,

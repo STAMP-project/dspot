@@ -33,4 +33,15 @@ public class TestMethodCoverage {
         return this.classCoverageList.get(className).getCoverages();
     }
 
+    public int getHitCountFromClassNameForLine(String className, int line) {
+        return this.classCoverageList.get(className).getHitCountForLine(line);
+    }
+
+    @Override
+    public String toString() {
+        return "TestMethodCoverage{" +
+                "testMethodName='" + testMethodName + '\'' +
+                ", classCoverageList=" + classCoverageList +
+                '}';
+    }
 }

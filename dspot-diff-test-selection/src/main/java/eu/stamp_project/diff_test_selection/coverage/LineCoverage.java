@@ -15,4 +15,12 @@ public class LineCoverage {
         this.line = line;
         this.hitCount = hitCount;
     }
+
+    @Override
+    public String toString() {
+        return "LineCoverage{" +
+                "line=" + line +
+                ", hitCount=" + hitCount +
+                '}';
+    }
 }

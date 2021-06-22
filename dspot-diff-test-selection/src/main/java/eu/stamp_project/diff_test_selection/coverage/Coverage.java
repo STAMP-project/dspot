@@ -1,9 +1,7 @@
 package eu.stamp_project.diff_test_selection.coverage;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Benjamin DANGLOT
@@ -43,5 +41,20 @@ public class Coverage {
 
     public Map<String, ClassCoverage> getTestMethodCoverageForClassName(String testClassName, String testMethodName) {
         return this.testClassCoverage.get(testClassName).getTestMethodCoverage(testMethodName);
+    }
+
+    public Map<String, Integer> getHitCountFromClassNameForLineForAll(String className, int line) {
+        final Map<String, Integer> allHitCountFromClassNameForLine = new HashMap<>();
+        for (TestClassCoverage value : this.testClassCoverage.values()) {
+            allHitCountFromClassNameForLine.putAll(value.getHitCountFromClassNameForLineForAll(className, line));
+        }
+        return allHitCountFromClassNameForLine;
+    }
+
+    @Override
+    public String toString() {
+        return "Coverage{" +
+                "testClassCoverage=" + testClassCoverage.toString() +
+                '}';
     }
 }

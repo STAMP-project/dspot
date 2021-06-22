@@ -41,4 +41,20 @@ public class TestClassCoverage {
         return this.testMethodsCoverage.get(testMethodName).classCoverageList;
     }
 
+    public Map<String, Integer> getHitCountFromClassNameForLineForAll(String className, int line) {
+        final Map<String, Integer> hitCountForLinePerTestMethodName = new HashMap<>();
+        for (TestMethodCoverage testMethodCoverage : testMethodsCoverage.values()) {
+            final int hitCountFromClassNameForLine = testMethodCoverage.getHitCountFromClassNameForLine(className, line);
+            hitCountForLinePerTestMethodName.put(this.testClassName + "#" + testMethodCoverage.testMethodName, hitCountFromClassNameForLine);
+        }
+        return hitCountForLinePerTestMethodName;
+    }
+
+    @Override
+    public String toString() {
+        return "TestClassCoverage{" +
+                "testClassName='" + testClassName + '\'' +
+                ", testMethodsCoverage=" + testMethodsCoverage +
+                '}';
+    }
 }

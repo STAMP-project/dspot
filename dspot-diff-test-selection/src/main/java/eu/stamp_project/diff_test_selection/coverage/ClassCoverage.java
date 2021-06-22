@@ -30,4 +30,20 @@ public class ClassCoverage {
     public boolean contains(int line) {
         return this.coverages.stream().anyMatch(lineCoverage -> lineCoverage.line == line);
     }
+
+    public int getHitCountForLine(int line) {
+        return this.coverages.stream()
+                .filter(coverage -> coverage.line == line)
+                .findFirst()
+                .orElse(new LineCoverage(0, 0))
+                .hitCount;
+    }
+
+    @Override
+    public String toString() {
+        return "ClassCoverage{" +
+                "className='" + className + '\'' +
+                ", coverages=" + coverages +
+                '}';
+    }
 }

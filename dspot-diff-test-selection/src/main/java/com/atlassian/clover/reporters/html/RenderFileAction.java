@@ -319,18 +319,30 @@ public class RenderFileAction implements Callable {
             JSONObject currentValues = jsonTestTargets.getJSONObject((String) key);
             ((List) currentValues.get("statements")).stream()
                     .map(list -> ((Map) list).get("sl"))
-                    .forEach(line ->
-                            CloverReader.coverage.addCoverage(testClassName, testName, targetClassName, (Integer) line,
-                                  this.fileInfo.getNamedClass(this.fileInfo.getName().split("\\.")[0])
+                    .forEach(line -> {
+                        try {
+                            final int hitCount = this.fileInfo.getNamedClass(this.fileInfo.getName().split("\\.")[0])
                                     .getAllMethods()
                                     .stream()
                                     .flatMap(methodInfo -> methodInfo.getStatements().stream())
-                                    .filter(statementInfo -> statementInfo.getStartLine() == (Integer)line)
+                                    .filter(statementInfo -> statementInfo.getStartLine() == (Integer) line)
                                     .findFirst()
                                     .get()
-                                    .getHitCount()
-                            )
-                    );
+                                    .getHitCount();
+                            CloverReader.coverage.addCoverage(testClassName, testName, targetClassName, (Integer) line, hitCount);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            final int hitCount = this.fileInfo.getNamedClass(this.fileInfo.getName().split("\\.")[0])
+                                    .getAllMethods()
+                                    .stream()
+                                    .flatMap(methodInfo -> methodInfo.getStatements().stream())
+                                    .filter(statementInfo -> statementInfo.getStartLine() == (Integer) line)
+                                    .findFirst()
+                                    .get()
+                                    .getHitCount();
+                            CloverReader.coverage.addCoverage(testClassName, testName, targetClassName, (Integer) line, hitCount);
+                        }
+                    });
         }
     }
 
