@@ -19,11 +19,6 @@
             <name>Gradle Tooling API repository</name>
             <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
         </repository>
-        <repository>
-            <id>maven.inria.fr-snapshot</id>
-            <name>Maven Repository for Spoon Snapshots</name>
-            <url>http://maven.inria.fr/artifactory/spoon-public-snapshot</url>
-        </repository>
     </repositories>
 
     <dependencies>
@@ -299,6 +294,16 @@
             </plugin>
 
         </plugins>
+        
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.eluder.coveralls</groupId>
+                    <artifactId>coveralls-maven-plugin</artifactId>
+                    <version>4.3.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
 
     </build>
 
@@ -311,9 +316,9 @@
                         <groupId>org.eluder.coveralls</groupId>
                         <artifactId>coveralls-maven-plugin</artifactId>
                         <version>4.3.0</version>
-                        <configuration>
-                            <repoToken>${secrets.COVERALLS_TOKEN}</repoToken>
-                        </configuration>
+                        <!-- <configuration>
+                            <repoToken>${{ secrets.COVERALLS_TOKEN }}</repoToken>
+                        </configuration> -->
                     </plugin>
 
                     <plugin>
