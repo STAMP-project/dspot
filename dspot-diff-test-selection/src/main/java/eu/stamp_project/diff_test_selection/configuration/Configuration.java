@@ -6,7 +6,6 @@ import eu.stamp_project.diff_test_selection.report.Report;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.transform.sax.SAXSource;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;

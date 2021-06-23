@@ -1,6 +1,8 @@
 package eu.stamp_project.diff_test_selection.selector;
 
+import eu.stamp_project.diff_test_selection.coverage.ClassCoverage;
 import eu.stamp_project.diff_test_selection.coverage.Coverage;
+import eu.stamp_project.diff_test_selection.coverage.DiffCoverage;
 import gumtree.spoon.AstComparator;
 import gumtree.spoon.diff.Diff;
 import gumtree.spoon.diff.operations.Operation;
@@ -23,11 +25,11 @@ public class DiffTestSelectionImpl extends DiffTestSelection {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiffTestSelectionImpl.class);
 
-    public DiffTestSelectionImpl(String pathToFirstVersion, String pathToSecondVersion, Map<String, Map<String, Map<String, List<Integer>>>> coverageV1, String diff, Coverage coverage) {
+    public DiffTestSelectionImpl(String pathToFirstVersion, String pathToSecondVersion, Coverage coverageV1, String diff, DiffCoverage coverage) {
         super(pathToFirstVersion, pathToSecondVersion, coverageV1, diff, coverage);
     }
 
-    public Coverage getCoverage() {
+    public DiffCoverage getCoverage() {
         return this.coverage;
     }
 
@@ -71,18 +73,19 @@ public class DiffTestSelectionImpl extends DiffTestSelection {
         return "";
     }
 
-    private Map<String, Set<String>> matchChangedWithCoverage(Map<String, Map<String, Map<String, List<Integer>>>> coverage,
+    private Map<String, Set<String>> matchChangedWithCoverage(Coverage coverage,
                                                               Map<String, List<Integer>> modifiedLinesPerQualifiedName) {
         Map<String, Set<String>> testClassNamePerTestMethodNamesThatCoverChanges = new LinkedHashMap<>();
-        for (String testClassKey : coverage.keySet()) {
-            for (String testMethodKey : coverage.get(testClassKey).keySet()) {
+        for (String testClassKey : coverage.getTestClasses()) {
+            for (String testMethodKey : coverage.getTestMethodsForTestClassName(testClassKey)) {
                 if (this.isParametrized(testMethodKey)) {
                     continue;
                 }
-                for (String targetClassName : coverage.get(testClassKey).get(testMethodKey).keySet()) {
+                for (String targetClassName : coverage.getClassesForTestClassAndMethodName(testClassKey, testMethodKey)) {
                     if (modifiedLinesPerQualifiedName.containsKey(targetClassName)) {
                         for (Integer line : modifiedLinesPerQualifiedName.get(targetClassName)) {
-                            if (coverage.get(testClassKey).get(testMethodKey).get(targetClassName).contains(line)) {
+                            final Map<String, ClassCoverage> testMethodCoverageForClassName = coverage.getTestMethodCoverageForClassName(testClassKey, testMethodKey);
+                            if (testMethodCoverageForClassName.get(targetClassName).contains(line)) {
                                 // testClassKey#testMethodKey hits targetClassName#line
                                 this.coverage.covered(targetClassName, line);
                                 if (!testClassNamePerTestMethodNamesThatCoverChanges.containsKey(testClassKey)) {

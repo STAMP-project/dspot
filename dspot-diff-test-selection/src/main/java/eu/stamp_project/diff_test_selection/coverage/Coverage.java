@@ -1,80 +1,60 @@
 package eu.stamp_project.diff_test_selection.coverage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- * created by Benjamin DANGLOT
- * benjamin.danglot@inria.fr
- * on 21/09/18
- * <p>
- * This class is responsible to compute the Coverage of the provided diff.
+ * @author Benjamin DANGLOT
+ * benjamin.danglot@davidson.fr
+ * on 14/06/2021
  */
 public class Coverage {
 
-    private Map<String, Set<Integer>> executedLinePerQualifiedName;
-
-    private Map<String, Set<Integer>> modifiedLinePerQualifiedName;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Coverage.class);
+    public final Map<String, TestClassCoverage> testClassCoverage;
 
     public Coverage() {
-        this.modifiedLinePerQualifiedName = new LinkedHashMap<>();
-        this.executedLinePerQualifiedName = new LinkedHashMap<>();
+        this.testClassCoverage = new LinkedHashMap<>();
     }
 
-    public void covered(String fullQualifiedName, Integer line) {
-        if (!this.executedLinePerQualifiedName.containsKey(fullQualifiedName)) {
-            this.executedLinePerQualifiedName.put(fullQualifiedName, new HashSet<>());
+    public void addCoverage(String testClassName, String testMethodName, String className, int line, int hitCounts) {
+        if (!this.testClassCoverage.containsKey(testClassName)) {
+            this.testClassCoverage.put(testClassName, new TestClassCoverage(testClassName));
         }
-        if (this.modifiedLinePerQualifiedName.containsKey(fullQualifiedName) &&
-                this.modifiedLinePerQualifiedName.get(fullQualifiedName).contains(line)
-                && this.executedLinePerQualifiedName.get(fullQualifiedName).add(line)) {
-            LOGGER.info(fullQualifiedName + ":" + line + " covered.");
+        this.testClassCoverage.get(testClassName).addCoverage(testMethodName, className, line, hitCounts);
+    }
+
+    public Set<String> getTestClasses() {
+        return this.testClassCoverage.keySet();
+    }
+
+    public Set<String> getClassesForTestClassAndMethodName(String testClassName, String testMethodName) {
+        return this.testClassCoverage.get(testClassName).getClassesForTestMethodName(testMethodName);
+    }
+
+    public Set<String> getTestMethodsForTestClassName(String testClassName) {
+        return this.testClassCoverage.get(testClassName).getTestMethods();
+    }
+
+    public List<LineCoverage> getCoverageForTestClassTestMethodAndClassNames(String testClassName, String testMethodName, String className) {
+        return this.testClassCoverage.get(testClassName).getCoverageForTestMethodAndClassNames(testMethodName, className);
+    }
+
+    public Map<String, ClassCoverage> getTestMethodCoverageForClassName(String testClassName, String testMethodName) {
+        return this.testClassCoverage.get(testClassName).getTestMethodCoverage(testMethodName);
+    }
+
+    public Map<String, Integer> getHitCountFromClassNameForLineForAll(String className, int line) {
+        final Map<String, Integer> allHitCountFromClassNameForLine = new HashMap<>();
+        for (TestClassCoverage value : this.testClassCoverage.values()) {
+            allHitCountFromClassNameForLine.putAll(value.getHitCountFromClassNameForLineForAll(className, line));
         }
+        return allHitCountFromClassNameForLine;
     }
 
-    public void addModifiedLines(String fullQualifiedName, List<Integer> lines) {
-        if (!this.modifiedLinePerQualifiedName.containsKey(fullQualifiedName)) {
-            this.modifiedLinePerQualifiedName.put(fullQualifiedName, new HashSet<>());
-        }
-        lines.forEach(this.modifiedLinePerQualifiedName.get(fullQualifiedName)::add);
-        LOGGER.info(fullQualifiedName + ":" + lines.toString() + " are modified.");
-    }
-
-    public void addModifiedLine(String fullQualifiedName, Integer line) {
-        if (!this.modifiedLinePerQualifiedName.containsKey(fullQualifiedName)) {
-            this.modifiedLinePerQualifiedName.put(fullQualifiedName, new HashSet<>());
-        }
-        this.modifiedLinePerQualifiedName.get(fullQualifiedName).add(line);
-        LOGGER.info(fullQualifiedName + ":" + line + " is modified.");
-    }
-
-    @Deprecated
-    public void addModifiedLines(final Map<String, List<Integer>> newModifiedLinesPerQualifiedName) {
-        newModifiedLinesPerQualifiedName.keySet()
-                .forEach(key -> {
-                            if (!this.modifiedLinePerQualifiedName.containsKey(key)) {
-                                this.modifiedLinePerQualifiedName.put(key, new HashSet<>());
-                            }
-                            newModifiedLinesPerQualifiedName.get(key)
-                                    .forEach(line -> {
-                                                if (this.modifiedLinePerQualifiedName.get(key).add(line)) {
-                                                    LOGGER.info(key + ":" + line + " is modified.");
-                                                }
-                                            }
-                                    );
-                        }
-                );
-    }
-
-    public Map<String, Set<Integer>> getExecutedLinePerQualifiedName() {
-        return executedLinePerQualifiedName;
-    }
-
-    public Map<String, Set<Integer>> getModifiedLinePerQualifiedName() {
-        return modifiedLinePerQualifiedName;
+    @Override
+    public String toString() {
+        return "Coverage{" +
+                "testClassCoverage=" + testClassCoverage.toString() +
+                '}';
     }
 }
