@@ -54,14 +54,14 @@ public class DiffTestSelectionMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (new File(this.project.getBasedir().getAbsolutePath() + "/src").exists()) {
-            final String module = this.project.getBasedir().getAbsolutePath().substring(this.pathDirSecondVersion.length());
+            //final String module = this.project.getBasedir().getAbsolutePath().substring(this.pathDirSecondVersion.length());
             getLog().info("Running on:");
             getLog().info(this.project.getBasedir().getAbsolutePath());
-            getLog().info(this.pathDirSecondVersion + "/" + module);
+            //getLog().info(this.pathDirSecondVersion + "/" + module);
             Main.run(
                     new Configuration(
                             this.project.getBasedir().getAbsolutePath(),
-                            this.pathDirSecondVersion + "/" + module,
+                            this.pathDirSecondVersion,// + "/" + module,
                             this.outputPath,
                             this.outputFormat,
                             this.pathToDiff,

@@ -1,6 +1,7 @@
 package eu.stamp_project.diff_test_selection.coverage;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -13,10 +14,10 @@ public class Coverage {
     public final Map<String, TestClassCoverage> testClassCoverage;
 
     public Coverage() {
-        this.testClassCoverage = new LinkedHashMap<>();
+        this.testClassCoverage = new ConcurrentHashMap<>();
     }
 
-    public void addCoverage(String testClassName, String testMethodName, String className, int line, int hitCounts) {
+    public synchronized void addCoverage(String testClassName, String testMethodName, String className, int line, int hitCounts) {
         if (!this.testClassCoverage.containsKey(testClassName)) {
             this.testClassCoverage.put(testClassName, new TestClassCoverage(testClassName));
         }

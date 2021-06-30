@@ -1,6 +1,7 @@
 package eu.stamp_project.diff_test_selection.coverage;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Benjamin DANGLOT
@@ -15,13 +16,14 @@ public class TestMethodCoverage {
 
     public TestMethodCoverage(String testMethodName) {
         this.testMethodName = testMethodName;
-        this.classCoverageList = new LinkedHashMap<>();
+        this.classCoverageList = new ConcurrentHashMap<>();
     }
 
-    public void addCoverage(String className, int line, int hitCounts) {
+    public synchronized void addCoverage(String className, int line, int hitCounts) {
         if (!this.classCoverageList.containsKey(className)) {
             this.classCoverageList.put(className, new ClassCoverage(className));
         }
+        System.out.println(this.classCoverageList.get(className));
         this.classCoverageList.get(className).addCoverage(line, hitCounts);
     }
 
