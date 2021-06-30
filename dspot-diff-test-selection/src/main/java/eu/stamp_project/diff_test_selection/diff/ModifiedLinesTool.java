@@ -1,9 +1,6 @@
 package eu.stamp_project.diff_test_selection.diff;
 
-import com.github.gumtreediff.actions.model.Action;
-import com.github.gumtreediff.actions.model.Delete;
-import com.github.gumtreediff.actions.model.Insert;
-import eu.stamp_project.diff_test_selection.selector.DiffTestSelectionImpl;
+import com.github.gumtreediff.actions.model.*;
 
 import gumtree.spoon.AstComparator;
 import gumtree.spoon.diff.Diff;
@@ -16,6 +13,8 @@ import spoon.reflect.declaration.CtMethod;
 
 import java.io.File;
 import java.util.*;
+
+import static eu.stamp_project.diff_test_selection.diff.ModifiedLinesUtils.filterOperationFromNode;
 
 public class ModifiedLinesTool {
 
@@ -105,31 +104,48 @@ public class ModifiedLinesTool {
         final List<Operation> allOperations = compare.getAllOperations();
         final List<CtStatement> statements = new ArrayList<>();
         for (Operation operation : allOperations) {
-            if (!isDeletionOrAddition(operation.getAction())) {
-                continue;
+            CtElement node = null;
+            Class<? extends Action> actionClass = null;
+            if (isDeletionOrAddition(operation.getAction())) {
+                node = ModifiedLinesUtils.filterOperation(operation);
+                actionClass = operation.getAction().getClass();
+            } else if (operation.getAction() instanceof Move || operation.getAction() instanceof Update) {
+                if (filterOperationFromNode(operation.getSrcNode())) {
+                    node = operation.getSrcNode();
+                    actionClass = Addition.class;
+                    computeLineAndAddToMap(statements, node, actionClass, operation);
+                    node = null;
+                }
+                if (filterOperationFromNode(operation.getDstNode())) {
+                    node = operation.getDstNode();
+                    actionClass = Delete.class;
+                }
             }
-            final CtElement node = ModifiedLinesUtils.filterOperation(operation);
-            if (node != null && !statements.contains(node.getParent(CtStatement.class))) {
-                final int line = node.getPosition().getLine();
-                final String qualifiedName = node
-                        .getPosition()
-                        .getCompilationUnit()
-                        .getMainType()
-                        .getQualifiedName();
-                this.addToCorrespondingMap(operation.getAction(), qualifiedName, line);
-                // TODO
-//                if (!(node.getParent(CtStatement.class) instanceof CtBlock<?>)) {
-//                    this.coverage.addModifiedLine(qualifiedName, line);
-//                }
-                statements.add(node.getParent(CtStatement.class));
-            }
+            computeLineAndAddToMap(statements, node, actionClass, operation);
         }
     }
 
-    private void addToCorrespondingMap(Action action, String qualifiedName, int line) {
-        if (action instanceof Insert) {
+    private void computeLineAndAddToMap(List<CtStatement> statements,
+                                        CtElement node,
+                                        Class<? extends Action> actionClass,
+                                        Operation operation) {
+        if (node != null && !statements.contains(node.getParent(CtStatement.class))) {
+            final int line = node.getPosition().getLine();
+            final String qualifiedName = node
+                    .getPosition()
+                    .getCompilationUnit()
+                    .getMainType()
+                    .getQualifiedName();
+            this.addToCorrespondingMap(actionClass, qualifiedName, line +
+                    ((operation.getAction() instanceof Move || operation.getAction() instanceof Update) ? 1 : 0));
+            statements.add(node.getParent(CtStatement.class));
+        }
+    }
+
+    private void addToCorrespondingMap(Class<? extends Action> actionClass, String qualifiedName, int line) {
+        if (Addition.class.isAssignableFrom(actionClass)) {
             this.addToGivenMap(this.additionPerQualifiedName, qualifiedName, line);
-        } else {
+        } else if (Delete.class.isAssignableFrom(actionClass)) {
             this.addToGivenMap(this.deletionPerQualifiedName, qualifiedName, line);
         }
     }
