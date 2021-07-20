@@ -218,6 +218,20 @@ public class MainTest {
     }
 
     @Test
+    public void testDevFriendlyAmplification() throws Exception {
+        Main.main(new String[]{
+                "--verbose",
+                "--absolute-path-to-project-root", new File("src/test/resources/test-projects/").getAbsolutePath() + "/",
+                "--amplifiers", "FastLiteralAmplifier",
+                "--test-criterion", "ExtendedCoverageSelector",
+                "--test", "example.TestSuiteExample2",
+                "--dev-friendly",
+        });
+        assertTrue(new File("target/dspot/output/example/TestSuiteExample2.java").exists());
+    }
+
+
+    @Test
     public void testExample() throws Exception {
 
         /*

@@ -1,21 +1,24 @@
 package eu.stamp_project.dspot.common.test_framework;
 
 import eu.stamp_project.dspot.AbstractTestOnSample;
+import eu.stamp_project.dspot.common.configuration.UserInput;
+import eu.stamp_project.dspot.common.configuration.options.CommentEnum;
+import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import eu.stamp_project.dspot.common.test_framework.assertions.AssertEnum;
 import eu.stamp_project.testrunner.runner.Failure;
-import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * created by Benjamin DANGLOT
@@ -23,6 +26,16 @@ import static org.junit.Assert.assertTrue;
  * on 09/11/18
  */
 public class TestFrameworkTest extends AbstractTestOnSample {
+
+    @Before
+    @Override
+    public void setUp() {
+        UserInput configuration = new UserInput();
+        configuration.setAbsolutePathToProjectRoot(new File("src/test/resources/sample/").getAbsolutePath());
+        DSpotUtils.init(CommentEnum.Amplifier, "target/dspot/", configuration
+                .getFullClassPathWithExtraDependencies(), "src/test/resources/sample/");
+        super.setUp();
+    }
 
     private CtMethod findAndRegister(String ctClass, String methodName) {
         final CtMethod testExpectingAnException = findMethod(ctClass, methodName);

@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +68,14 @@ public class Observer {
         final List<CtMethod<?>> testCasesWithLogs;
         testCasesWithLogs = addLogs(testCases);
         final List<CtMethod<?>> testsToRun = setupTests(testCasesWithLogs,clone);
+
+        File observationOutputPath = new File("target/dspot");
+        if (!observationOutputPath.exists()) {
+            if (!observationOutputPath.mkdirs()) {
+                LOGGER.error("Could not create observation.ser output directory!");
+            }
+        }
+
         return compileRunTests(clone,testsToRun);
     }
 

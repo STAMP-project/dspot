@@ -13,6 +13,7 @@ import eu.stamp_project.dspot.common.report.GlobalReport;
 import eu.stamp_project.dspot.common.report.error.Error;
 import eu.stamp_project.dspot.common.report.output.Output;
 import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementReport;
+import eu.stamp_project.testrunner.runner.ParserOptions;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import spoon.reflect.declaration.CtMethod;
@@ -63,6 +64,9 @@ public class AmplificationSetup {
         final boolean jUnit5 = TestFramework.isJUnit5(testMethodsToBeAmplified.get(0));
         EntryPoint.jUnit5Mode = jUnit5;
         DSpotPOMCreator.isCurrentlyJUnit5 = jUnit5;
+        if (dSpotState.isDevFriendlyAmplification()) {
+            EntryPoint.coverageDetail = ParserOptions.CoverageTransformerDetail.METHOD_DETAIL;
+        }
         Counter.reset();
         if (dSpotState.shouldGenerateAmplifiedTestClass()) {
             testClassToBeAmplified = AmplificationHelper.renameTestClassUnderAmplification(testClassToBeAmplified);
@@ -113,7 +117,8 @@ public class AmplificationSetup {
         }
     }
 
-    public List<CtMethod<?>> firstSelectorSetup(CtType<?> testClassToBeAmplified, List<CtMethod<?>> testMethodsToBeAmplified)
+    public List<CtMethod<?>> firstSelectorSetup(CtType<?> testClassToBeAmplified,
+                                                 List<CtMethod<?>> testMethodsToBeAmplified)
             throws Exception {
         if(testMethodsToBeAmplified.isEmpty()) {
             LOGGER.warn("No test provided for amplification in class {}", testClassToBeAmplified.getQualifiedName());

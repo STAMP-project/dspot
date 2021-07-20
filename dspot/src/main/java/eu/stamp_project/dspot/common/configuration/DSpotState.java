@@ -35,6 +35,7 @@ public class DSpotState {
     private TestSelector testSelector;
     private InputAmplDistributor inputAmplDistributor;
     private boolean onlyInputAmplification;
+    private boolean devFriendlyAmplification;
     private Output output;
     private Collector collector;
     private boolean collectData;
@@ -63,7 +64,7 @@ public class DSpotState {
      * it is cleared before iterating again for next test class.
      */
     public void clearData(){
-        this.assertionGenerator = new AssertionGenerator(delta, this.compiler, this.testCompiler);
+        this.assertionGenerator = new AssertionGenerator(delta, this.compiler, this.testCompiler, this.devFriendlyAmplification);
     }
 
     public boolean isOnlyInputAmplification() {
@@ -72,6 +73,14 @@ public class DSpotState {
 
     public void setOnlyInputAmplification(boolean onlyInputAmplification) {
         this.onlyInputAmplification = onlyInputAmplification;
+    }
+
+    public boolean isDevFriendlyAmplification() {
+        return devFriendlyAmplification;
+    }
+
+    public void setDevFriendlyAmplification(boolean devFriendlyAmplification) {
+        this.devFriendlyAmplification = devFriendlyAmplification;
     }
 
     public int getNbIteration() {

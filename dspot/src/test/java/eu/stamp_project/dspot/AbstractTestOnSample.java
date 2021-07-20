@@ -47,7 +47,6 @@ public class AbstractTestOnSample {
         DSpotCache.init(10000);
         RandomHelper.setSeedRandom(72L);
         this.testRunner = new TestRunner(getPathToProjectRoot(), "", false);
-
     }
 
     public String getPathToProjectRoot() {

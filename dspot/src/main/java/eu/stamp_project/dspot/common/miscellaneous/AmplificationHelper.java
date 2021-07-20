@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.common.miscellaneous;
 
+import eu.stamp_project.dspot.common.configuration.options.CommentEnum;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.testrunner.listener.TestResult;
 
@@ -15,14 +16,9 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import javax.swing.event.ListDataEvent;
 import java.text.DecimalFormat;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -162,15 +158,20 @@ public class AmplificationHelper {
         return new HashSet<>(types);
     }
 
-    @Deprecated
-    public static List<CtMethod<?>> getPassingTests(List<CtMethod<?>> newTests, TestResult result) {
-        final List<String> passingTests = result.getPassingTests();
-        return newTests.stream()
-                .filter(test -> {
-                    final Pattern pattern = Pattern.compile(test.getSimpleName() + "\\[\\d+\\]");
-                    return passingTests.contains(test.getSimpleName()) ||
-                            passingTests.stream().anyMatch(passingTest -> pattern.matcher(passingTest).matches());
-                }).collect(Collectors.toList());
+    public static List<CtMethod<?>> getPassingTests(List<CtMethod<?>> tests, TestResult result) {
+        final List<String> passingTestNames = result.getPassingTests();
+        if (!passingTestNames.isEmpty()) {
+            return tests.stream()
+                    .filter(ctMethod -> passingTestNames.stream()
+                            .anyMatch(passingTestName -> checkMethodName(ctMethod.getSimpleName(), passingTestName))
+                    ).collect(Collectors.toList());
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    public static boolean checkMethodName(String patternMethodName, String methodNameToBeChecked) {
+        return Pattern.compile(patternMethodName + "(\\[\\d+\\])?").matcher(methodNameToBeChecked).matches();
     }
 
     public static CtMethod<?> addOriginInComment(CtMethod<?> amplifiedTest, CtMethod<?> topParent) {
@@ -178,8 +179,25 @@ public class AmplificationHelper {
                 "amplification of " +
                         (topParent.getDeclaringType() != null ?
                                 topParent.getDeclaringType().getQualifiedName() + "#" : "") + topParent.getSimpleName(),
-                CtComment.CommentType.BLOCK);
+                CtComment.CommentType.BLOCK,
+                CommentEnum.Amplifier);
         return amplifiedTest;
     }
 
+    /**
+     * For each method in `methods` that has a parent, this (direct) parent will be in the returned list.
+     * @param methods list of methods of which to determine the parents
+     * @return list containing all available first parents
+     */
+    public static List<CtMethod<?>> getFirstParentsIfExist(List<CtMethod<?>> methods) {
+        List<CtMethod<?>> parents = new ArrayList<>();
+
+        for (CtMethod<?> method : methods) {
+            CtMethod<?> parent = getAmpTestParent(method);
+            if (parent != null) {
+                parents.add(parent);
+            }
+        }
+        return parents;
+    }
 }

@@ -7,6 +7,7 @@ import eu.stamp_project.dspot.common.compilation.TestCompiler;
 import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
 import eu.stamp_project.dspot.common.configuration.UserInput;
 import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
+import eu.stamp_project.dspot.common.configuration.options.CommentEnum;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import eu.stamp_project.dspot.common.collector.NullCollector;
@@ -67,7 +68,7 @@ public class DSpotUtilsTest extends AbstractTestOnSample {
         this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
         this.initializeDSpot = new InitializeDSpot();
         String dependencies = initializeDSpot.completeDependencies(configuration, this.builder);
-        DSpotUtils.init(false,
+        DSpotUtils.init(CommentEnum.None,
                 outputDirectory.getAbsolutePath(),
                 this.configuration.getFullClassPathWithExtraDependencies(),
                 this.getPathToProjectRoot()

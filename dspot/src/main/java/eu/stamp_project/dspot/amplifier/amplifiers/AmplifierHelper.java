@@ -2,6 +2,7 @@ package eu.stamp_project.dspot.amplifier.amplifiers;
 
 import eu.stamp_project.dspot.amplifier.amplifiers.value.ValueCreator;
 import eu.stamp_project.dspot.amplifier.amplifiers.value.ValueCreatorHelper;
+import eu.stamp_project.dspot.common.configuration.options.CommentEnum;
 import eu.stamp_project.dspot.common.miscellaneous.CloneHelper;
 import eu.stamp_project.dspot.amplifier.amplifiers.utils.RandomHelper;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
@@ -95,7 +96,7 @@ public class AmplifierHelper {
                     localVariable = ValueCreator.createRandomLocalVar(parameter.getType(), parameter.getSimpleName());
                 }
                 body.insertBegin(localVariable);
-                DSpotUtils.addComment(localVariable, comment, CtComment.CommentType.INLINE);
+                DSpotUtils.addComment(localVariable, comment, CtComment.CommentType.INLINE, CommentEnum.Amplifier);
                 arguments.add(factory.createVariableRead(localVariable.getReference(), false));
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -103,7 +104,7 @@ public class AmplifierHelper {
         });
         CtExpression targetClone = target.clone();
         CtInvocation newInvocation = factory.Code().createInvocation(targetClone, methodToInvokeToAdd.getReference(), arguments);
-        DSpotUtils.addComment(newInvocation, comment, CtComment.CommentType.INLINE);
+        DSpotUtils.addComment(newInvocation, comment, CtComment.CommentType.INLINE, CommentEnum.Amplifier);
         body.insertEnd(newInvocation);
         return methodClone;
     }

@@ -38,6 +38,7 @@ public class TestWithLogGenerator {
         allStatement.stream()
                 .filter(statement ->
                         (TestWithLogGenerator.isStmtToLog(filter, statement) ||
+                                ctVariableReads != null &&
                                 ctVariableReads.contains(statement)) &&
                                 isNotFromPreviousAmplification(allStatement, statement, test)
                 ).forEach(statement ->
