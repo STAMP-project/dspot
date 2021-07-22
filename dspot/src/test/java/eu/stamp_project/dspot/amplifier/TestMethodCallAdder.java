@@ -2,6 +2,10 @@ package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.dspot.amplifier.amplifiers.MethodDuplicationAmplifier;
+import eu.stamp_project.dspot.common.configuration.UserInput;
+import eu.stamp_project.dspot.common.configuration.options.CommentEnum;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
+import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
@@ -9,6 +13,7 @@ import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -21,6 +26,19 @@ import static org.junit.Assert.assertEquals;
  * on 12/7/16
  */
 public class TestMethodCallAdder extends AbstractTestOnSample {
+
+    @Before
+    @Override
+    public void setUp() {
+        UserInput configuration = new UserInput();
+        configuration.setAbsolutePathToProjectRoot(new File("src/test/resources/sample/").getAbsolutePath());
+
+        DSpotUtils.init(CommentEnum.Amplifier, "target/dspot/",
+                configuration.getFullClassPathWithExtraDependencies(),
+                "src/test/resources/sample/"
+        );
+        super.setUp();
+    }
 
     @Test
     public void testMethodCallAddOnInvocationWithCast() {

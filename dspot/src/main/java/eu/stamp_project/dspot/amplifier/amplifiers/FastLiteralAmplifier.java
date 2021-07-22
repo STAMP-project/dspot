@@ -2,6 +2,7 @@
 
 package eu.stamp_project.dspot.amplifier.amplifiers;
 
+import eu.stamp_project.dspot.common.configuration.options.CommentEnum;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.dspot.amplifier.amplifiers.utils.AmplificationChecker;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
@@ -248,6 +249,6 @@ public class FastLiteralAmplifier implements Amplifier {
 	}
 
 	private void addComment(CtElement element, String kind, Object oldValue, Object newValue) {
-		DSpotUtils.addComment(element, "FastLiteralAmplifier: change " + kind + " from '" + oldValue + "' to '" + newValue + "'", CtComment.CommentType.INLINE);
+		DSpotUtils.addComment(element, "FastLiteralAmplifier: change " + kind + " from '" + oldValue + "' to '" + newValue + "'", CtComment.CommentType.INLINE, CommentEnum.Amplifier);
 	}
 }

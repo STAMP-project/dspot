@@ -144,14 +144,14 @@ public class RecoveryDSpotTest extends AbstractTestOnSample {
         dspotState.setAssertionGenerator(new AssertionGenerator(0.1f, compiler, testCompiler));
         DSpot dspot = new DSpot(dspotState);
         dspot.fullAmplification(testClassToBeAmplified, testListToBeAmplified, Collections.emptyList(), 1);
-        assertEquals(1, DSpotState.GLOBAL_REPORT.getErrors().size());
+        assertEquals(2, DSpotState.GLOBAL_REPORT.getErrors().size());
         assertSame(ErrorEnum.ERROR_PRE_SELECTION, DSpotState.GLOBAL_REPORT.getErrors().get(0).type);
         DSpotState.GLOBAL_REPORT.reset();
 
         selector.setThrowsToAmplify(false);
         selector.setThrowsToKeep(true);
         dspot.fullAmplification(testClassToBeAmplified, testListToBeAmplified, Collections.emptyList(), 1);
-        assertEquals(1, DSpotState.GLOBAL_REPORT.getErrors().size());
+        assertEquals(2, DSpotState.GLOBAL_REPORT.getErrors().size());
         assertSame(ErrorEnum.ERROR_SELECTION, DSpotState.GLOBAL_REPORT.getErrors().get(0).type);
         DSpotState.GLOBAL_REPORT.reset();
 

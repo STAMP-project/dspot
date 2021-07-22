@@ -80,10 +80,10 @@ public class TestCompiler {
      * @param currentTestList test methods to be run
      * @return Results of tests' run
      */
-    public List<CtMethod<?>> compileRunAndDiscardUncompilableAndFailingTestMethods(CtType classTest,
+    public List<CtMethod<?>> compileRunAndDiscardUncompilableAndFailingTestMethods(CtType<?> classTest,
                                                                                     List<CtMethod<?>> currentTestList,
                                                                                     DSpotCompiler compiler) {
-        CtType amplifiedTestClass = CloneHelper.cloneTestClassAndAddGivenTest(classTest, currentTestList);
+        CtType<?> amplifiedTestClass = CloneHelper.cloneTestClassAndAddGivenTest(classTest, currentTestList);
         try {
             final TestResult result = this.compileAndRun(
                     amplifiedTestClass,

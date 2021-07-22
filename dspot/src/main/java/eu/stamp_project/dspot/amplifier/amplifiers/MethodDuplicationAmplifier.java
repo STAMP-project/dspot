@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.amplifier.amplifiers;
 
+import eu.stamp_project.dspot.common.configuration.options.CommentEnum;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.dspot.amplifier.amplifiers.utils.AmplificationChecker;
@@ -51,7 +52,10 @@ public class MethodDuplicationAmplifier implements Amplifier {
         removeAllTypeCast(invocationToBeInserted);
         final CtStatement insertionPoint = this.getRightInsertionPoint(invocation);
         insertionPoint.insertBefore(invocationToBeInserted);
-        DSpotUtils.addComment(invocationToBeInserted, "MethodDuplicationAmplifier: duplicated method call", CtComment.CommentType.INLINE);
+        DSpotUtils.addComment(invocationToBeInserted,
+                "MethodDuplicationAmplifier: duplicated method call",
+                CtComment.CommentType.INLINE,
+                CommentEnum.Amplifier);
         final CtMethod<?> clone = CloneHelper.cloneTestMethodForAmp(method, "_add");
         AmplifierHelper.getParent(invocationToBeInserted).getStatements().remove(invocationToBeInserted);
         Counter.updateInputOf(clone, 1);

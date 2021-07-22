@@ -1,6 +1,7 @@
 package eu.stamp_project.dspot.assertiongenerator.assertiongenerator;
 
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.testwithloggenerator.objectlogsyntaxbuilder_constructs.objectlog.Observation;
+import eu.stamp_project.dspot.common.configuration.options.CommentEnum;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationException;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.AssertionSyntaxBuilder;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.Observer;
@@ -42,11 +43,14 @@ public class MethodReconstructor {
 
     private double delta;
 
+    private final boolean devFriendlyAmplification;
+
     public MethodReconstructor(double delta,
                                CtType originalClass,
                                DSpotCompiler compiler,
                                Map<CtMethod<?>, List<CtLocalVariable<?>>> variableReadsAsserted,
-                               TestCompiler testCompiler) {
+                               TestCompiler testCompiler,
+                               boolean devFriendlyAmplification) {
         this.delta = delta;
         this.factory = compiler.getFactory();
         this.observer = new Observer(
@@ -55,6 +59,7 @@ public class MethodReconstructor {
                 variableReadsAsserted,
                 testCompiler
         );
+        this.devFriendlyAmplification = devFriendlyAmplification;
     }
 
     /**
@@ -71,21 +76,32 @@ public class MethodReconstructor {
      */
     public List<CtMethod<?>> addAssertions(CtType<?> testClass, List<CtMethod<?>> testCases) {
         Map<String, Observation> observations;
+        if (devFriendlyAmplification) {
+            testCases.addAll(AmplificationHelper.getFirstParentsIfExist(testCases));
+        }
+
         try {
             observations = observer.getObservations(testClass, testCases);
         } catch (AmplificationException e) {
             e.printStackTrace();
             return Collections.emptyList();
         }
-        return buildEachTest(testCases,observations);
+        return buildEachTest(testCases, observations);
     }
 
     // add assertions to each test with values retrieved from logs
-    private List<CtMethod<?>> buildEachTest(List<CtMethod<?>> testCases,Map<String, Observation> observations) {
+    private List<CtMethod<?>> buildEachTest(List<CtMethod<?>> testCases, Map<String, Observation> observations) {
         LOGGER.info("Generating assertions...");
-        return testCases.stream()
-                .map(ctMethod -> this.buildTestWithAssert(ctMethod, observations))
-                .collect(Collectors.toList());
+        if (devFriendlyAmplification) {
+            return testCases.stream()
+                    .map(ctMethod -> this.buildTestsWithSeparateAsserts(ctMethod, observations))
+                    .flatMap(List::stream)
+                    .collect(Collectors.toList());
+        } else {
+            return testCases.stream()
+                    .map(ctMethod -> this.buildTestWithAssert(ctMethod, observations))
+                    .collect(Collectors.toList());
+        }
     }
 
     /**
@@ -98,17 +114,17 @@ public class MethodReconstructor {
      */
     @SuppressWarnings("unchecked")
     private CtMethod<?> buildTestWithAssert(CtMethod test, Map<String, Observation> observations) {
-        CtMethod testWithAssert = CloneHelper.cloneTestMethodForAmp(test, "");
+        CtMethod testWithAssert = CloneHelper.cloneTestMethodForAmp(test, "_ass");
         Integer numberOfAddedAssertion = 0;
         List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter(CtStatement.class));
 
         // for every observation, create an assertion
         for (String id : observations.keySet()) {
-            if (!id.split("__")[0].equals(testWithAssert.getSimpleName())) {
+            if (!id.split("__")[0].equals(test.getSimpleName())) {
                 continue;
             }
             final List<CtStatement> assertStatements = AssertionSyntaxBuilder.buildAssert(
-                    test,
+                    testWithAssert,
                     observations.get(id).getNotDeterministValues(),
                     observations.get(id).getObservationValues(),
                     this.delta
@@ -128,6 +144,64 @@ public class MethodReconstructor {
         return decideReturn(testWithAssert,test);
     }
 
+    /**
+     * Adds new assertions one by one to generate several new test cases.
+     *
+     * @param test Original test method
+     * @param observations Observation points of the test suite
+     * @return A list of tests, each with a different new assertion of an observation point
+     */
+    private List<CtMethod<?>> buildTestsWithSeparateAsserts(CtMethod<?> test, Map<String, Observation> observations) {
+        List<CtMethod<?>> testsToReturn = new ArrayList<>();
+        CtMethod<?> clonedNoAmpTest = CloneHelper.cloneTestMethodNoAmp(test);
+
+        // for every observation, create a new test with a matching assertion
+        for (String id : observations.keySet()) {
+            if (!id.split("__")[0].equals(test.getSimpleName())) {
+                continue;
+            }
+            // if there is a '__end' observation for the same method, skip this one and use that one
+            // (assertions should be at the end of the test case where possible)
+            if (observations.containsKey(id + "___end")) {
+                continue;
+            }
+
+            // check whether the observation exists in parent test case
+            CtMethod<?> parent = AmplificationHelper.getAmpTestParent(test);
+            List<CtStatement> parentAssertStatements = Collections.emptyList();
+            if (parent != null) {
+                String parentKey = parent.getSimpleName() + "__" + id.split("__", 2)[1];
+                if (observations.containsKey(parentKey)) {
+                    parentAssertStatements = AssertionSyntaxBuilder.buildAssert(parent,
+                            observations.get(parentKey).getNotDeterministValues(),
+                            observations.get(parentKey).getObservationValues(),this.delta);
+                }
+            }
+
+            final List<CtStatement> assertStatements = AssertionSyntaxBuilder.buildAssert(
+                    test,
+                    observations.get(id).getNotDeterministValues(),
+                    observations.get(id).getObservationValues(),
+                    this.delta
+            );
+
+            for (CtStatement statement : assertStatements) {
+                // skip if same statement could also appear in parent test
+                if (!parentAssertStatements.isEmpty() && parentAssertStatements.contains(statement)) {
+                    continue;
+                }
+
+                CtMethod<?> testWithAssert = CloneHelper.cloneTestMethodForAmp(clonedNoAmpTest, "_assSep");
+                List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter<CtStatement>(CtStatement.class));
+
+                int numberOfAddedAssertion = goThroughAssertionStatements(Collections.singletonList(statement), id, statements, 0);
+                Counter.updateAssertionOf(testWithAssert, numberOfAddedAssertion);
+                testsToReturn.add(decideReturn(testWithAssert,test));
+            }
+        }
+        return testsToReturn;
+    }
+
     private int goThroughAssertionStatements(List<CtStatement> assertStatements,String id,
                                                List<CtStatement> statements, int numberOfAddedAssertion){
         int line = Integer.parseInt(id.split("__")[1]);
@@ -135,7 +209,8 @@ public class MethodReconstructor {
         for (CtStatement assertStatement : assertStatements) {
             DSpotUtils.addComment(assertStatement,
                     "AssertionGenerator: add assertion",
-                    CtComment.CommentType.INLINE);
+                    CtComment.CommentType.INLINE,
+                    CommentEnum.Amplifier);
             try {
                 CtStatement statementToBeAsserted = statements.get(line);
                 if (lastStmt == null) {
@@ -192,7 +267,8 @@ public class MethodReconstructor {
 
         DSpotUtils.addComment(localVariable,
                 "AssertionGenerator: create local variable with return value of invocation",
-                CtComment.CommentType.INLINE);
+                CtComment.CommentType.INLINE,
+                CommentEnum.Amplifier);
         localVariable.setParent(statementToBeAsserted.getParent());
         addAtCorrectPlace(id, localVariable, assertStatement, statementToBeAsserted);
         statements.remove(line);

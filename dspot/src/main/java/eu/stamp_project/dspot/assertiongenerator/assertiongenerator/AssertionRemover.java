@@ -64,6 +64,28 @@ public class AssertionRemover {
     }
 
     /**
+     * Can be called after {@link AssertionRemover#removeAssertion(CtMethod)} to remove the statements that
+     * previously were arguments of assertions all the way at
+     * @param testMethod
+     * @return
+     */
+    public CtMethod<?> removeArgumentsOfTrailingAssertions(CtMethod<?> testMethod) {
+        List<CtStatement> testStatements = testMethod.getElements(new TypeFilter<>(CtStatement.class));
+
+        for (int i = testStatements.size() - 1; i >= 0; i--) {
+            CtStatement statement = testStatements.get(i);
+            Object metadata = statement.getMetadata(AssertionGeneratorUtils.METADATA_WAS_IN_ASSERTION);
+            if (metadata != null && (Boolean) metadata) {
+                testMethod.getBody().removeStatement(statement);
+            } else {
+                break;
+            }
+        }
+
+        return testMethod;
+    }
+
+    /**
      * Replaces an invocation with its arguments.
      *
      * @param invocation Invocation

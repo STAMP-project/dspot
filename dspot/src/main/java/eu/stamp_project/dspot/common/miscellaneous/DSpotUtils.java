@@ -3,6 +3,7 @@ package eu.stamp_project.dspot.common.miscellaneous;
 import eu.stamp_project.dspot.common.collector.Collector;
 import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
 import eu.stamp_project.dspot.common.configuration.DSpotState;
+import eu.stamp_project.dspot.common.configuration.options.CommentEnum;
 import eu.stamp_project.dspot.common.report.error.Error;
 import eu.stamp_project.dspot.common.report.error.ErrorEnum;
 import org.apache.commons.io.FileUtils;
@@ -36,7 +37,7 @@ public class DSpotUtils {
 
     private static StringBuilder progress = new StringBuilder(60);
 
-    private static boolean withComment;
+    private static CommentEnum withComment;
 
     private static String outputDirectory;
 
@@ -44,7 +45,7 @@ public class DSpotUtils {
 
     private static String absolutePathToProjectRoot;
 
-    public static void init(boolean withComment,
+    public static void init(CommentEnum withComment,
                             String outputDirectory,
                             String fullClassPathWithExtraDependencies,
                             String absolutePathToProjectRoot) {
@@ -80,7 +81,7 @@ public class DSpotUtils {
         try {
             env.setAutoImports(autoImports);
             env.setNoClasspath(true);
-            env.setCommentEnabled(DSpotUtils.withComment);
+            env.setCommentEnabled(DSpotUtils.withComment != CommentEnum.None);
             JavaOutputProcessor processor = new JavaOutputProcessor(env.createPrettyPrinterAutoImport());
             processor.setFactory(type.getFactory());
             processor.getEnvironment().setSourceOutputDirectory(directory);
@@ -176,21 +177,24 @@ public class DSpotUtils {
 
     }
 
-    public static void addComment(CtElement element, String content, CtComment.CommentType type) {
-        if (element instanceof CtLiteral) {
-            try {
-                CtElement parentLine = element.getParent(new LineFilter());
-                if (parentLine != null) {
-                    element = parentLine;
+    public static void addComment(CtElement element, String content, CtComment.CommentType type,
+                                  CommentEnum commentConcern) {
+        if (commentConcern.equals(withComment) || withComment.equals(CommentEnum.All)) {
+            if (element instanceof CtLiteral) {
+                try {
+                    CtElement parentLine = element.getParent(new LineFilter());
+                    if (parentLine != null) {
+                        element = parentLine;
+                    }
+                } catch (ParentNotInitializedException ignored) {
+
                 }
-            } catch (ParentNotInitializedException ignored) {
-
             }
-        }
 
-        CtComment comment = element.getFactory().createComment(content, type);
-        if (!element.getComments().contains(comment)) {
-            element.addComment(comment);
+            CtComment comment = element.getFactory().createComment(content, type);
+            if (!element.getComments().contains(comment)) {
+                element.addComment(comment);
+            }
         }
     }
 

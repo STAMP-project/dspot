@@ -7,7 +7,10 @@ import eu.stamp_project.dspot.amplifier.amplifiers.StringLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.amplifiers.value.ValueCreator;
 import eu.stamp_project.dspot.assertiongenerator.AssertionGenerator;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGeneratorUtils;
+import eu.stamp_project.dspot.common.collector.CollectorFactory;
+import eu.stamp_project.dspot.common.collector.NullCollector;
 import eu.stamp_project.dspot.common.configuration.UserInput;
+import eu.stamp_project.dspot.common.configuration.options.CommentEnum;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.dspot.common.configuration.DSpotCache;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
@@ -80,7 +83,7 @@ public abstract class AbstractSelectorRemoveOverlapTest {
         this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
         this.initializeDSpot = new InitializeDSpot();
         String dependencies = initializeDSpot.completeDependencies(configuration, this.builder);
-        DSpotUtils.init(false, outputDirectory,
+        DSpotUtils.init(CommentEnum.None, outputDirectory,
                 this.configuration.getFullClassPathWithExtraDependencies(),
                 this.getPathToAbsoluteProjectRoot()
         );
@@ -120,7 +123,7 @@ public abstract class AbstractSelectorRemoveOverlapTest {
         dspotState.setTestSelector(this.testSelectorUnderTest);
         dspotState.setInputAmplDistributor(InputAmplDistributorEnum.RandomInputAmplDistributor.getInputAmplDistributor(
                 200, Collections.singletonList(new StringLiteralAmplifier())));
-        dspotState.setOutput(new Output(getPathToAbsoluteProjectRoot(), configuration.getOutputDirectory(), null));
+        dspotState.setOutput(new Output(getPathToAbsoluteProjectRoot(), configuration.getOutputDirectory(), new NullCollector()));
         dspotState.setNbIteration(1);
         dspotState.setAutomaticBuilder(builder);
         dspotState.setTestCompiler(testCompiler);

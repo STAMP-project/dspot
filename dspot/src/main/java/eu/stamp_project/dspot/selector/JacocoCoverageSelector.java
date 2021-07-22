@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.dspot.common.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.common.configuration.UserInput;
+import eu.stamp_project.dspot.common.configuration.options.CommentEnum;
 import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementReport;
 import eu.stamp_project.dspot.common.report.output.selector.TestSelectorElementReportImpl;
 import eu.stamp_project.dspot.common.report.output.selector.coverage.json.TestCaseJSON;
@@ -17,6 +18,7 @@ import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
 
 import org.apache.commons.io.FileUtils;
+import spoon.reflect.code.CtComment;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
 import spoon.reflect.declaration.CtType;
@@ -138,7 +140,22 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                         pathExecuted.add(pathByExecInstructions);
                         return true;
                     }
-                }).collect(Collectors.toList());
+                })
+                .peek(ctMethod -> {
+                    Coverage oldCoverage = this.selectedToBeAmplifiedCoverageResultsMap.get(getFirstParentThatHasBeenRun(ctMethod).getSimpleName());
+                    Coverage newCoverage = coveragePerTestMethod.getCoverageOf(ctMethod.getSimpleName());
+                    if (oldCoverage != null) {
+                        DSpotUtils.addComment(ctMethod, "JacocoCoverageSelector: Improves instruction coverage from "
+                                        + oldCoverage.getInstructionsCovered() + "/" + oldCoverage.getInstructionsTotal(),
+                                CtComment.CommentType.INLINE, CommentEnum.Coverage);
+                    }
+                    if (newCoverage != null) {
+                        DSpotUtils.addComment(ctMethod, "JacocoCoverageSelector: Improves instruction coverage to "
+                                        + newCoverage.getInstructionsCovered() + "/" + newCoverage.getInstructionsTotal(),
+                                CtComment.CommentType.INLINE, CommentEnum.Coverage);
+                    }
+                })
+                .collect(Collectors.toList());
 
         this.selectedToBeAmplifiedCoverageResultsMap.putAll(methodsKept.stream()
                 .map(CtNamedElement::getSimpleName)
@@ -165,7 +182,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
 
     @Override
     public TestSelectorElementReport report() {
-        if(currentClassTestToBeAmplified == null) {
+        if (currentClassTestToBeAmplified == null) {
             return lastReport;
         }
         // 1 textual report

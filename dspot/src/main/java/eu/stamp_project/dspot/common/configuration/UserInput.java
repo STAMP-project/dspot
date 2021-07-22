@@ -23,6 +23,13 @@ import static eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper.PA
  * given by the user.
  * Created by marcel on 8/06/14.
  * This version of the UserInput has been largely modified, and customized to be use in DSpot.
+ *
+ *
+ * To add a new option to DSpot, you likely need to add it at the following places:
+ *  - below here as a `@CommandLine.Option` private attribute
+ *  - further down here as a getter & setter
+ *  - as a private attribute in {@link DSpotState}, including getter & setter
+ *  - set it's value in {@link InitializeDSpot#init(UserInput)}.
  */
 @CommandLine.Command(name = "eu.stamp_project.Main", mixinStandardHelpOptions = true)
 public class UserInput {
@@ -154,6 +161,14 @@ public class UserInput {
                     " Default value: ${DEFAULT-VALUE}"
     )
     private boolean onlyInputAmplification;
+
+    @CommandLine.Option(
+            names = "--dev-friendly",
+            defaultValue = "false",
+            description = "Amplifies the test cases in a way that is easy for developers to read and understand."+
+                    " Default value: ${DEFAULT-VALUE}"
+    )
+    private boolean devFriendlyAmplification;
 
     /*
         advanced amplification process configuration
@@ -413,11 +428,12 @@ public class UserInput {
 
     @CommandLine.Option(
             names = {"--with-comment"},
-            defaultValue = "false",
-            description = "Enable comment on amplified test: details steps of the Amplification." +
+            defaultValue = "None",
+            description = "Enable comment on amplified test: details steps of the amplification." +
+                    " Valid values: ${COMPLETION-CANDIDATES}." +
                     " Default value: ${DEFAULT-VALUE}"
     )
-    private boolean withComment;
+    private CommentEnum withComment;
 
     @CommandLine.Option(
             names = {"--allow-path-in-assertions"},
@@ -595,6 +611,15 @@ public class UserInput {
 
     public UserInput setOnlyInputAmplification(boolean onlyInputAmplification) {
         this.onlyInputAmplification = onlyInputAmplification;
+        return this;
+    }
+
+    public boolean isDevFriendlyAmplification() {
+        return devFriendlyAmplification;
+    }
+
+    public UserInput setDevFriendlyAmplification(boolean devFriendlyAmplification) {
+        this.devFriendlyAmplification = devFriendlyAmplification;
         return this;
     }
 
@@ -912,7 +937,7 @@ public class UserInput {
         return this;
     }
 
-    public boolean withComment() {
+    public CommentEnum withComment() {
         return withComment;
     }
 

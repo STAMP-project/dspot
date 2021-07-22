@@ -5,6 +5,7 @@ import eu.stamp_project.dspot.common.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.amplifier.amplifiers.value.ValueCreator;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGeneratorUtils;
 import eu.stamp_project.dspot.common.configuration.UserInput;
+import eu.stamp_project.dspot.common.configuration.options.CommentEnum;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.dspot.common.configuration.DSpotCache;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
@@ -82,7 +83,7 @@ public abstract class AbstractSelectorTest {
         this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
         this.initializeDSpot = new InitializeDSpot();
         String dependencies = initializeDSpot.completeDependencies(configuration, this.builder);
-        DSpotUtils.init(false, outputDirectory,
+        DSpotUtils.init(CommentEnum.None, outputDirectory,
                 this.configuration.getFullClassPathWithExtraDependencies(),
                 this.getPathToAbsoluteProjectRoot()
         );

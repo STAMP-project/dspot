@@ -1,5 +1,6 @@
 package eu.stamp_project.dspot.amplifier.amplifiers;
 
+import eu.stamp_project.dspot.common.configuration.options.CommentEnum;
 import eu.stamp_project.dspot.common.miscellaneous.CloneHelper;
 import eu.stamp_project.dspot.common.miscellaneous.Counter;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
@@ -53,7 +54,10 @@ public class ReturnValueAmplifier implements Amplifier {
                         methodClone.getElements(new TypeFilter<>(CtStatement.class)).get(indexOfInvocation),
                         localVar
                 );
-                DSpotUtils.addComment(localVar, "StatementAdd: generate variable from return value", CtComment.CommentType.INLINE);
+                DSpotUtils.addComment(localVar,
+                        "StatementAdd: generate variable from return value",
+                        CtComment.CommentType.INLINE,
+                        CommentEnum.Amplifier);
                 ampMethods.addAll(methodsWithTargetType.stream()
                         .map(addMth -> AmplifierHelper.addInvocation(methodClone, addMth, target, localVar, "_rv", "ReturnValueAmplifier: add method call"))
                         .collect(Collectors.toList()));

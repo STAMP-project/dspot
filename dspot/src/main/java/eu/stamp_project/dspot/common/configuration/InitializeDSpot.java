@@ -39,6 +39,7 @@ public class InitializeDSpot {
         this.DSpotState = new DSpotState();
         DSpotState.setUserInput(userInput);
         DSpotState.setOnlyInputAmplification(userInput.isOnlyInputAmplification());
+        DSpotState.setDevFriendlyAmplification(userInput.isDevFriendlyAmplification());
         DSpotState.verbose = userInput.isVerbose();
         DSpotState.setStartTime(System.currentTimeMillis());
         DSpotState.setTestFinder(new TestFinder(
@@ -101,7 +102,7 @@ public class InitializeDSpot {
                 DSpotState.getCollector()
 
         ));
-        DSpotState.setAssertionGenerator(new AssertionGenerator(userInput.getDelta(), DSpotState.getCompiler(), DSpotState.getTestCompiler()));
+        DSpotState.setAssertionGenerator(new AssertionGenerator(userInput.getDelta(), DSpotState.getCompiler(), DSpotState.getTestCompiler(), DSpotState.isDevFriendlyAmplification()));
         Checker.postChecking(userInput);
         DSpotState.setCollectData(true);
         DSpotState.setDelta(userInput.getDelta());
