@@ -119,10 +119,10 @@ java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --absolute-path-to-pro
 ### Command line options
 
 ```
-Usage: eu.stamp_project.Main [-hvV] [--allow-path-in-assertions] [--clean] [--example] [--execute-test-parallel]
-                             [--generate-new-test-class] [--gregor-mode] [--keep-original-test-methods]
-                             [--only-input-amplification] [--restful] [--smtp-auth] [--target-one-test-class]
-                             [--use-maven-to-exe-test] [--use-working-directory] [--with-comment]
+Usage: eu.stamp_project.Main [-hvV] [--allow-path-in-assertions] [--clean] [--dev-friendly] [--example]
+                             [--execute-test-parallel] [--generate-new-test-class] [--gregor-mode]
+                             [--keep-original-test-methods] [--only-input-amplification] [--restful] [--smtp-auth]
+                             [--target-one-test-class] [--use-maven-to-exe-test] [--use-working-directory]
                              [--absolute-path-to-project-root=<absolutePathToProjectRoot>]
                              [--absolute-path-to-second-version=<absolutePathToSecondVersionProjectRoot>]
                              [--automatic-builder=<automaticBuilder>] [--cache-size=<cacheSize>]
@@ -146,9 +146,9 @@ Usage: eu.stamp_project.Main [-hvV] [--allow-path-in-assertions] [--clean] [--ex
                              [--repo-slug=<repoSlug>] [-s=<selector>] [--smtp-host=<smtpHost>]
                              [--smtp-password=<smtpPassword>] [--smtp-port=<smtpPort>] [--smtp-tls=<smtpTls>]
                              [--smtp-username=<smtpUsername>] [--system-properties=<systemProperties>]
-                             [--target-module=<targetModule>] [--time-out=<timeOutInMs>] [-a=<amplifiers>[,
-                             <amplifiers>...]]... [-c=<testCases>[,<testCases>...]]... [-t=<testClasses>[,
-                             <testClasses>...]]...
+                             [--target-module=<targetModule>] [--time-out=<timeOutInMs>] [--with-comment=<withComment>]
+                             [-a=<amplifiers>[,<amplifiers>...]]... [-c=<testCases>[,<testCases>...]]...
+                             [-t=<testClasses>[,<testClasses>...]]...
   -a, --amplifiers=<amplifiers>[,<amplifiers>...]
                              Specify the list of amplifiers to use. By default, DSpot does not use any amplifiers
                                (None) and applies only assertion amplification. Valid values:
@@ -188,6 +188,8 @@ Usage: eu.stamp_project.Main [-hvV] [--allow-path-in-assertions] [--clean] [--ex
                                com/STAMP-project/pitest-descartes
       --descartes-version=<descartesVersion>
                              Specify the version of pit-descartes to use. Default value: 1.2.4
+      --dev-friendly         Amplifies the test cases in a way that is easy for developers to read and understand.
+                               Default value: false
       --example              Run the example of DSpot and leave.
       --excluded-classes=<excludedClasses>
                              Specify the full qualified name of excluded test classes. Each qualified name must be
@@ -301,8 +303,8 @@ Usage: eu.stamp_project.Main [-hvV] [--allow-path-in-assertions] [--clean] [--ex
                                a completely new one. Default value: false
   -s, --test-selector, --test-criterion=<selector>
                              Specify the test adequacy criterion to be maximized with amplification. Valid values:
-                               PitMutantScoreSelector, JacocoCoverageSelector, TakeAllSelector, ChangeDetectorSelector
-                               Default value: PitMutantScoreSelector
+                               PitMutantScoreSelector, JacocoCoverageSelector, TakeAllSelector, ChangeDetectorSelector,
+                               ExtendedCoverageSelector Default value: PitMutantScoreSelector
       --smtp-auth            Enable this if the smtp host server require auth. Default value: false
       --smtp-host=<smtpHost> Host server name. Default value: smtp.gmail.com
       --smtp-password=<smtpPassword>
@@ -335,7 +337,9 @@ Usage: eu.stamp_project.Main [-hvV] [--allow-path-in-assertions] [--clean] [--ex
                                value: false
   -v, --verbose              Enable verbose mode of DSpot. Default value: false
   -V, --version              Print version information and exit.
-      --with-comment         Enable comment on amplified test: details steps of the Amplification. Default value: falseg
+      --with-comment=<withComment>
+                             Enable comment on amplified test: details steps of the amplification. Valid values: All,
+                               Amplifier, Coverage, None. Default value: None
 ```
     
 For options that take list, the used separator is a comma `,`, whatever the platform you use.
@@ -382,10 +386,11 @@ In **DSpot**, test selectors can be seen as a fitness: it measures the quality o
 The
 The default selector is `PitMutantScoreSelector`. This selector is based on [**PIT**](http://pitest.org/), which is a tool to computation mutation analysis. **DSpot** will keep only tests that increase the mutation score.
 
-Following the list of avalaible test selector:
+Following the list of available test selectors:
 
    * `PitMutantScoreSelector`: uses [**PIT**](http://pitest.org/) to computes the mutation score, and selects amplified tests that kill mutants that was not kill by the original test suite.
    * `JacocoCoverageSelector`: uses [**JaCoCo**](http://www.eclemma.org/jacoco/) to compute instruction coverage and executed paths (the order matters). Selects test that increase the coverage and has unique executed path.
+   * `ExtendedCoverageSelector`: uses [**JaCoCo**](http://www.eclemma.org/jacoco/) to compute instruction coverage. Selects tests that cover more instructions than the original test suite on any line of the code under test.
    * `TakeAllSelector`: keeps all amplified tests not matter the quality.
    * `ChangeDetectorSelector`: runs against a second version of the same program, and selects amplified tests that fail. This selector selects only amplified test that are able to show a difference of a behavior betweeen two versions of the same program.
 
@@ -393,7 +398,7 @@ Following the list of avalaible test selector:
 
 In **DSpot**, the Input Ampl Distributor is a way to select the amplified test methods after the input amplification. It allows to keep interesting and discard unwanted amplified test method.
 
-For now, there is two implementation of the Input Ampl Distributor:
+For now, there are three implementations of the Input Ampl Distributor:
 
    * `RandomInputAmplDistributor`: This distributor selects randonly amplified test methods.
    * `TextualDistanceInputAmplDistributor`: This distributor selects by maximize their distance of string representation among all the input amplified test methods. The number of amplified selected test methods is specified by the command line option `--max-test-amplified`.
