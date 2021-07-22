@@ -2,9 +2,10 @@ package eu.stamp_project.dspot.selector.extendedcoverageselector;
 
 import eu.stamp_project.testrunner.listener.Coverage;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class ExtendedCoverage {
 
@@ -21,7 +22,7 @@ public class ExtendedCoverage {
                 instructionsProjectCoverageMap.addClassCoverage(className, createClassCoverageMap(split[1]));
             }
         }
-        
+
         this.instructionsProjectCoverageMap = cleanAllZeroValuesFromMap(this.instructionsProjectCoverageMap);
     }
 
@@ -87,8 +88,12 @@ public class ExtendedCoverage {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ExtendedCoverage that = (ExtendedCoverage) o;
         return Objects.equals(instructionsProjectCoverageMap, that.instructionsProjectCoverageMap);
     }

@@ -1,7 +1,5 @@
 package eu.stamp_project.dspot.selector.extendedcoverageselector;
 
-import eu.stamp_project.dspot.common.configuration.TestTuple;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,8 +55,12 @@ public class MethodCoverage {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         MethodCoverage that = (MethodCoverage) o;
         return Objects.equals(lineCoverage, that.lineCoverage) && Objects
                 .equals(methodDescriptor, that.methodDescriptor);

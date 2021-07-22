@@ -3,7 +3,6 @@ package eu.stamp_project.dspot.common.miscellaneous;
 import eu.stamp_project.dspot.common.configuration.options.CommentEnum;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.testrunner.listener.TestResult;
-
 import org.apache.cxf.common.util.WeakIdentityHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +15,6 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import javax.swing.event.ListDataEvent;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.regex.Pattern;

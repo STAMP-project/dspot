@@ -1,11 +1,5 @@
 package eu.stamp_project.dspot.selector.extendedcoverageselector;
 
-import org.jacoco.core.analysis.IMethodCoverage;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class CoverageImprovement {
 
     public CoverageImprovement(ProjectCoverageMap instructionDiff) {

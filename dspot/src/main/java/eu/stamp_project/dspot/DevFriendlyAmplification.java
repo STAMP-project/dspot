@@ -6,7 +6,6 @@ import eu.stamp_project.dspot.common.configuration.TestTuple;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationException;
 import eu.stamp_project.dspot.common.report.GlobalReport;
 import eu.stamp_project.dspot.common.report.error.Error;
-import eu.stamp_project.testrunner.EntryPoint;
 import org.slf4j.Logger;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
