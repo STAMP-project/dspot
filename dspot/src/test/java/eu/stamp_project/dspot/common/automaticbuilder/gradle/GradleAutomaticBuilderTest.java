@@ -72,7 +72,6 @@ public class GradleAutomaticBuilderTest {
         LOGGER.debug("Test Tear-down complete.");
     }
 
-    @Ignore
     @Test
     public void compile_whenCleanCompileTestTasksAreAppliedToDSpotTestExampleProject() throws Exception {
         LOGGER.info("Starting Gradle Automatic Builder compile() test...");
@@ -82,7 +81,6 @@ public class GradleAutomaticBuilderTest {
         LOGGER.info("Gradle Automatic Builder compile() test complete.");
     }
 
-    @Ignore
     @Test
     public void buildClasspath_whenAppliedToDSpotTestExampleProject() throws Exception {
         LOGGER.info("Starting Gradle Automatic Builder buildClasspath() test...");
@@ -100,7 +98,6 @@ public class GradleAutomaticBuilderTest {
         LOGGER.info("Gradle Automatic Builder buildClasspath() test complete.");
     }
 
-    @Ignore
     @Test
     public void runPit_whenNoTestClassIsSpecified() throws Exception {
         LOGGER.info("Starting Gradle Automatic Builder runPit() test when no test class is specified...");

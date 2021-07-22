@@ -67,7 +67,6 @@ public class GradleAutomaticBuilderWithDescartesTest {
         LOGGER.debug("Test Tear-down complete.");
     }
 
-    @Ignore
     @Test
     public void runPit_whenAllDescartesMutatorsAreSpecified() throws Exception {
         LOGGER.info("Starting Gradle Automatic Builder runPit() test when a test class is specified...");
