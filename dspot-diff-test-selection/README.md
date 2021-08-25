@@ -94,12 +94,12 @@ This is done with one single command line as follow:
 
 ```bash
 mvn clean eu.stamp-project:dspot-diff-test-selection:list \
-    -Dpath-dir-second-version="../tavern-refactor" \
-    eu.stamp-project:dspot-maven:amplify-unit-tests \
-    -Dpath-to-test-list-csv=testsThatExecuteTheChange.csv \
-    -Dverbose -Dtest-criterion=ChangeDetectorSelector \
-    -Dpath-to-properties=src/main/resources/tavern.properties \
-    -Damplifiers=NumberLiteralAmplifier -Diteration=2
+-Dpath-dir-second-version="../tavern-refactor" \
+eu.stamp-project:dspot-maven:amplify-unit-tests \
+-Dpath-to-test-list-csv=testsThatExecuteTheChange.csv \
+-Dverbose -Dtest-criterion=ChangeDetectorSelector \
+-Dabsolute-path-to-second-version=`pwd`/../tavern-refactor \
+-Damplifiers=NumberLiteralAmplifier -Diteration=2
 ```
 
 This results in on the standard output:
@@ -107,11 +107,11 @@ This results in on the standard output:
 ```text
 ======= REPORT =======
 5 amplified test fails on the new versions.
-testlitNum10litNum158(fr.inria.stamp.MainTest): expected:<Seller{gold=[-2147483548], items=[Potion]}> but was:<Seller{gold=[100], items=[Potion]}>
-testlitNum11litNum117(fr.inria.stamp.MainTest): expected:<...ayer{gold=0, items=[[Potion]]}> but was:<...ayer{gold=0, items=[[]]}>
-testlitNum16litNum107(fr.inria.stamp.MainTest): expected:<Seller{gold=[-2147483548], items=[Potion]}> but was:<Seller{gold=[100], items=[Potion]}>
-testlitNum15litNum155(fr.inria.stamp.MainTest): expected:<Seller{gold=[-2147483549], items=[Potion]}> but was:<Seller{gold=[100], items=[Potion]}>
-testlitNum9litNum210(fr.inria.stamp.MainTest): expected:<Seller{gold=[-2147483549], items=[Potion]}> but was:<Seller{gold=[100], items=[Potion]}>
+testlitNum18litNum149(fr.inria.stamp.MainTest): expected:<Player{gold=[0, items=[Potion]]}> but was:<Player{gold=[2147483647, items=[]]}>
+testlitNum14litNum132(fr.inria.stamp.MainTest): expected:<...ayer{gold=0, items=[[Potion]]}> but was:<...ayer{gold=0, items=[[]]}>
+testlitNum19litNum169(fr.inria.stamp.MainTest): expected:<Player{gold=[0, items=[Potion]]}> but was:<Player{gold=[-2147483648, items=[]]}>
+testlitNum12litNum179(fr.inria.stamp.MainTest): expected:<Player{gold=[0, items=[Potion]]}> but was:<Player{gold=[2147483647, items=[]]}>
+testlitNum13litNum197(fr.inria.stamp.MainTest): expected:<Player{gold=[0, items=[Potion]]}> but was:<Player{gold=[-2147483648, items=[]]}>
 ```
 
 This means that DSpot obtained 5 amplified test methods that detect the regression.  
