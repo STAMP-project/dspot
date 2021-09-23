@@ -23,7 +23,6 @@ public class TestMethodCoverage {
         if (!this.classCoverageList.containsKey(className)) {
             this.classCoverageList.put(className, new ClassCoverage(className));
         }
-        System.out.println(this.classCoverageList.get(className));
         this.classCoverageList.get(className).addCoverage(line, hitCounts);
     }
 
@@ -36,7 +35,11 @@ public class TestMethodCoverage {
     }
 
     public int getHitCountFromClassNameForLine(String className, int line) {
-        return this.classCoverageList.get(className).getHitCountForLine(line);
+        if (this.classCoverageList.containsKey(className)) {
+            return this.classCoverageList.get(className).getHitCountForLine(line);
+        } else {
+            return 0;
+        }
     }
 
     @Override

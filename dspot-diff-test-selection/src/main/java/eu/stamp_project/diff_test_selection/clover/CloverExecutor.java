@@ -25,6 +25,33 @@ public class CloverExecutor {
 
     private static final String POM_FILE = "pom.xml";
 
+    public void instrument(String pathToRootOfProject) {
+        setMavenHome();
+        runGoals(
+                pathToRootOfProject,
+                "clean",
+                "org.openclover:clover-maven-plugin:4.4.1:setup",
+                "test",
+                "-DskipTests"
+        );
+    }
+
+    public void runInstrumentedTest(String pathToRootOfProject, Map<String, List<String>> tests) {
+        final String testsOptionsValue = tests.keySet()
+                .stream()
+                .map(key ->
+                        key + "#" + String.join("+", tests.get(key))
+                ).collect(Collectors.joining(","));
+        System.out.println(testsOptionsValue);
+        setMavenHome();
+        runGoals(
+                pathToRootOfProject,
+                "org.openclover:clover-maven-plugin:4.4.1:clean",
+                "test",
+                "-Dtest=" + testsOptionsValue
+        );
+    }
+
     /**
      * This class will execute, though maven goals, the instrumentation of Clover and the test of the project
      *
@@ -75,6 +102,7 @@ public class CloverExecutor {
         properties.setProperty("gpg.skip", "true");
         properties.setProperty("jacoco.skip", "true");
         properties.setProperty("animal.sniffer.skip", "true");
+        properties.setProperty("proguard.skip", "true");
         request.setProperties(properties);
 
         Invoker invoker = new DefaultInvoker();

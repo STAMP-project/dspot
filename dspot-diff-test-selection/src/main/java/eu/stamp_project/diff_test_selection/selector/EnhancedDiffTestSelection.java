@@ -38,13 +38,15 @@ public class EnhancedDiffTestSelection extends DiffTestSelection {
                     this.addTestsThatHitGivenChanges(
                             selectTestsPerTestClasses,
                             modifiedLinesTool.getDeletionPerQualifiedName(),
-                            this.coverageV1
+                            this.coverageV1,
+                            this.coverageV2
                     );
                     // t2 that hits the additions
                     this.addTestsThatHitGivenChanges(
                             selectTestsPerTestClasses,
                             modifiedLinesTool.getAdditionPerQualifiedName(),
-                            this.coverageV2
+                            this.coverageV2,
+                            this.coverageV1
                     );
                 } else if (modifiedLinesTool.isTest()) {
                     final Map<String, Set<String>> currentModifiedTestsPerTestClass = modifiedLinesTool.getModifiedTestsPerTestClass();
@@ -71,7 +73,9 @@ public class EnhancedDiffTestSelection extends DiffTestSelection {
     private void addTestsThatHitGivenChanges(
             final Map<String, Set<String>> selectTestsPerTestClasses,
             Map<String, List<Integer>> modificationPerQualifiedName,
-            Coverage coverage) {
+            Coverage coverage,
+            Coverage otherCoverage
+    ) {
         for (String modifiedClassFullQualifiedName : modificationPerQualifiedName.keySet()) {
             final List<Integer> modifiedLines = modificationPerQualifiedName.get(modifiedClassFullQualifiedName);
             this.coverage.addModifiedLines(modifiedClassFullQualifiedName, modifiedLines);
@@ -80,14 +84,19 @@ public class EnhancedDiffTestSelection extends DiffTestSelection {
                     final Map<String, ClassCoverage> testMethodCoverageForClassName = coverage.getTestMethodCoverageForClassName(fullQualifiedNameOfTestClass, testMethodName);
                     if (testMethodCoverageForClassName.containsKey(modifiedClassFullQualifiedName)) {
                         if (modifiedLines.stream().anyMatch(line -> testMethodCoverageForClassName.get(modifiedClassFullQualifiedName).contains(line))) {
-                            if (!selectTestsPerTestClasses.containsKey(fullQualifiedNameOfTestClass)) {
-                                selectTestsPerTestClasses.put(fullQualifiedNameOfTestClass, new HashSet<>());
+                            if (otherCoverage.getTestClasses().contains(fullQualifiedNameOfTestClass) &&
+                                    otherCoverage.getTestMethodsForTestClassName(fullQualifiedNameOfTestClass)
+                                            .contains(testMethodName)
+                            ) {
+                                if (!selectTestsPerTestClasses.containsKey(fullQualifiedNameOfTestClass)) {
+                                    selectTestsPerTestClasses.put(fullQualifiedNameOfTestClass, new HashSet<>());
+                                }
+                                modifiedLines.stream()
+                                        .filter(line ->
+                                                testMethodCoverageForClassName.get(modifiedClassFullQualifiedName).contains(line))
+                                        .forEach(line -> this.coverage.covered(modifiedClassFullQualifiedName, line));
+                                selectTestsPerTestClasses.get(fullQualifiedNameOfTestClass).add(testMethodName);
                             }
-                            modifiedLines.stream()
-                                    .filter(line ->
-                                            testMethodCoverageForClassName.get(modifiedClassFullQualifiedName).contains(line))
-                                    .forEach(line -> this.coverage.covered(modifiedClassFullQualifiedName, line));
-                            selectTestsPerTestClasses.get(fullQualifiedNameOfTestClass).add(testMethodName);
                         }
                     }
                 }

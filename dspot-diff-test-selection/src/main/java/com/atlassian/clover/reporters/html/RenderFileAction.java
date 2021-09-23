@@ -48,6 +48,7 @@ import static clover.com.google.common.collect.Lists.newArrayList;
 import static clover.com.google.common.collect.Maps.newHashMap;
 
 /**
+ *
  */
 public class RenderFileAction implements Callable {
     protected static ThreadLocal<List<Column>> columnsTL;
@@ -331,7 +332,7 @@ public class RenderFileAction implements Callable {
                                     .getHitCount();
                             CloverReader.coverage.addCoverage(testClassName, testName, targetClassName, (Integer) line, hitCount);
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            /*e.printStackTrace();*/
                             final int hitCount = this.fileInfo.getNamedClass(this.fileInfo.getName().split("\\.")[0])
                                     .getAllMethods()
                                     .stream()
