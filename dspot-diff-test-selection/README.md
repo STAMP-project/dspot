@@ -1,5 +1,4 @@
-[![Build Status](https://travis-ci.org/STAMP-project/diff-test-selection.svg?branch=master)](https://travis-ci.org/STAMP-project/diff-test-selection) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/eu.stamp-project/diff-test-selection/badge.svg)](https://mavenbadges.herokuapp.com/maven-central/eu.stamp-project/diff-test-selection)
-# diff-test-selection
+# diff-test-selection · [![Build Status](https://travis-ci.org/STAMP-project/diff-test-selection.svg?branch=master)](https://travis-ci.org/STAMP-project/diff-test-selection) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/eu.stamp-project/diff-test-selection/badge.svg)](https://mavenbadges.herokuapp.com/maven-central/eu.stamp-project/diff-test-selection)
 
 Diff-Test-Selection aims at selecting the subset of test classes and methods that execute the changed code between two versions of the same program. It relies on Clover and Maven to compute the coverage and returns this subset of tests.
 
