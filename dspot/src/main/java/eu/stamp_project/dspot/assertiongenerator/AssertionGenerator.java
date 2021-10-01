@@ -15,10 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -191,7 +189,7 @@ public class AssertionGenerator {
 
     private List<CtMethod<?>> addAssertionsOnPassingTests(TestResult testResult, List<CtMethod<?>> tests, CtType testClass){
         final List<CtMethod<?>> generatedTestWithAssertion = new ArrayList<>();
-        final List<String> passingTestsName = testResult.getPassingTests();
+        final Set<String> passingTestsName = testResult.getPassingTests();
         if (!passingTestsName.isEmpty()) {
             LOGGER.info("{} test pass, generating assertion...", passingTestsName.size());
             final List<CtMethod<?>> passingTestMethods = tests.stream()

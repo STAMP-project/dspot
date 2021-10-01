@@ -157,7 +157,7 @@ public class AmplificationHelper {
     }
 
     public static List<CtMethod<?>> getPassingTests(List<CtMethod<?>> tests, TestResult result) {
-        final List<String> passingTestNames = result.getPassingTests();
+        final Set<String> passingTestNames = result.getPassingTests();
         if (!passingTestNames.isEmpty()) {
             return tests.stream()
                     .filter(ctMethod -> passingTestNames.stream()
