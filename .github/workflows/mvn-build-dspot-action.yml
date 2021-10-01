@@ -19,15 +19,5 @@ jobs:
         run: |
           export MAVEN_HOME=$(mvn --version | grep "Maven home" | cut -f 3 -d " ")
           cd dspot && mvn test jacoco:report
-      - name: "Report: Coverage via coveralls.io"
-        run: |
-          export MAVEN_HOME=$(mvn --version | grep "Maven home" | cut -f 3 -d " ")
-          export CI_BRANCH=${BRANCH_NAME_OR_REF#refs/heads/}
-          export CI_PULL_REQUEST=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-          cd dspot && mvn coveralls:report --no-transfer-progress -DrepoToken=$COVERALLS_SECRET
-        env:
-          CI_NAME: github
-          BRANCH_NAME_OR_REF: ${{ github.head_ref || github.ref }}
-          CI_BUILD_NUMBER: ${{ github.run_id }}
-          CI_BUILD_URL: https://github.com/${{ github.repository }}/commit/${{ github.event.after }}/checks
-          COVERALLS_SECRET: ${{ secrets.GITHUB_TOKEN }}
+      - name: Codecov
+        uses: codecov/codecov-action@v1.5.2
