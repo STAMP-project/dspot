@@ -15,5 +15,7 @@ jobs:
           distribution: 'adopt'
       - name: Build with Maven
         run: mvn install -DskipTests
-      - name: Test with Maven
-        run: cd dspot-diff-test-selection && mvn test -DdoIntegrationTests=true -Dorg.slf4j.simpleLogger.defaultLogLevel=error
+      - name: Test with Maven.
+        run:  |
+          export MAVEN_HOME=$(mvn --version | grep "Maven home" | cut -f 3 -d " ")
+          cd dspot-diff-test-selection && mvn test -DdoIntegrationTests=true -Dorg.slf4j.simpleLogger.defaultLogLevel=error

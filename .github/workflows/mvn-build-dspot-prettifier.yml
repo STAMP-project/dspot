@@ -26,4 +26,6 @@ jobs:
       - name: Build with Maven
         run: mvn install -DskipTests
       - name: Test with Maven
-        run: cd dspot-prettifier && mvn test -DdoIntegrationTests=true -Dorg.slf4j.simpleLogger.defaultLogLevel=error
+        run:  |
+          export MAVEN_HOME=$(mvn --version | grep "Maven home" | cut -f 3 -d " ")
+          cd dspot-prettifier && mvn test -DdoIntegrationTests=true -Dorg.slf4j.simpleLogger.defaultLogLevel=error
