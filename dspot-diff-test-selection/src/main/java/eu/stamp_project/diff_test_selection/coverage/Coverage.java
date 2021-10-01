@@ -11,6 +11,14 @@ import java.util.stream.Collectors;
  */
 public class Coverage {
 
+    public void clear() {
+        this.testClassCoverage.clear();
+    }
+
+    public int size() {
+        return this.testClassCoverage.size();
+    }
+
     public final Map<String, TestClassCoverage> testClassCoverage;
 
     public Coverage() {
