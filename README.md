@@ -1,6 +1,4 @@
-# DSpot
-
-[![Build Status](https://travis-ci.org/STAMP-project/dspot.svg?branch=master)](https://travis-ci.org/STAMP-project/dspot) [![Coverage Status](https://coveralls.io/repos/github/STAMP-project/dspot/badge.svg?branch=master)](https://coveralls.io/github/STAMP-project/dspot?branch=master) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/eu.stamp-project/dspot/badge.svg)](https://mavenbadges.herokuapp.com/maven-central/eu.stamp-project/dspot)
+# DSpot [![DSpot CI](https://github.com/STAMP-project/dspot/actions/workflows/mvn-build-dspot-action.yml/badge.svg)](https://github.com/STAMP-project/dspot/actions/workflows/mvn-build-dspot-action.yml) [![codecov](https://codecov.io/gh/STAMP-project/dspot/branch/master/graph/badge.svg?token=BcXX5t0TN0)](https://codecov.io/gh/STAMP-project/dspot) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/eu.stamp-project/dspot/badge.svg)](https://mavenbadges.herokuapp.com/maven-central/eu.stamp-project/dspot)
 
 DSpot is a tool that generates missing assertions in JUnit tests.
 DSpot takes as input a Java project with an existing test suite.
