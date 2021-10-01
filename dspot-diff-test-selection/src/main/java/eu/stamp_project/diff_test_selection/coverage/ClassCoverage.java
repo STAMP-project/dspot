@@ -36,7 +36,17 @@ public class ClassCoverage {
                 .filter(coverage -> coverage.line == line)
                 .findFirst()
                 .orElse(new LineCoverage(0, 0))
-                .hitCount;
+                .getHitCount();
+    }
+
+    public void merge(ClassCoverage that) {
+        for (LineCoverage coverage : that.coverages) {
+            this.coverages.stream()
+                    .filter(lineCoverage -> lineCoverage.line == coverage.line)
+                    .findFirst()
+                    .orElse(coverage)
+                    .merge(coverage);
+        }
     }
 
     @Override

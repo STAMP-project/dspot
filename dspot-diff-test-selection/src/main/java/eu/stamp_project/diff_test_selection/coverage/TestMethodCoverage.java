@@ -39,6 +39,16 @@ public class TestMethodCoverage {
         return this.classCoverageList.get(className).getHitCountForLine(line);
     }
 
+    public void merge(TestMethodCoverage that) {
+        for (String className : that.classCoverageList.keySet()) {
+            if (!this.classCoverageList.containsKey(className)) {
+                this.classCoverageList.put(className, that.classCoverageList.get(className));
+            } else {
+                this.classCoverageList.get(className).merge(that.classCoverageList.get(className));
+            }
+        }
+    }
+
     @Override
     public String toString() {
         return "TestMethodCoverage{" +
