@@ -62,7 +62,7 @@ public class UserInput {
                     "that points to the folder that contains sources (.java)." +
                     " Default value: ${DEFAULT-VALUE}"
     )
-    private String pathToSourceCode = "src/main/java/";
+    private String pathToSourceCode = "src" + File.separator + "main" + File.separator + "java" + File.separator;
 
     @CommandLine.Option(
             names = "--relative-path-to-test-code",
@@ -71,7 +71,7 @@ public class UserInput {
                     "that points to the folder that contains test sources (.java)." +
                     " Default value: ${DEFAULT-VALUE}"
     )
-    private String pathToTestSourceCode = "src/test/java/";
+    private String pathToTestSourceCode = "src" + File.separator + "test" + File.separator + "java" + File.separator;
 
     @CommandLine.Option(
             names = "--relative-path-to-classes",
@@ -80,7 +80,7 @@ public class UserInput {
                     "that points to the folder that contains binaries of the source (.class)." +
                     " Default value: ${DEFAULT-VALUE}"
     )
-    private String pathToClasses = "target/classes/";
+    private String pathToClasses = "target" + File.separator + "classes" + File.separator;
 
     @CommandLine.Option(
             names = "--relative-path-to-test-classes",
@@ -89,7 +89,7 @@ public class UserInput {
                     "that points to the folder that contains binaries of the test source (.class)." +
                     " Default value: ${DEFAULT-VALUE}"
     )
-    private String pathToTestClasses = "target/test-classes/";
+    private String pathToTestClasses = "target" + File.separator + "test-classes" + File.separator;
 
     /*
         Amplification process configuration
