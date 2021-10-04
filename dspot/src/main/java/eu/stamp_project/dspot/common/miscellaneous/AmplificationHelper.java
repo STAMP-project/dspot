@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtComment;
 import spoon.reflect.code.CtLiteral;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtPackage;
 import spoon.reflect.declaration.CtType;
@@ -161,7 +162,7 @@ public class AmplificationHelper {
         if (!passingTestNames.isEmpty()) {
             return tests.stream()
                     .filter(ctMethod -> passingTestNames.stream()
-                            .anyMatch(passingTestName -> checkMethodName(ctMethod.getSimpleName(), passingTestName))
+                            .anyMatch(passingTestName -> checkMethodName(ctMethod.getParent(CtClass.class).getQualifiedName() + "#" +ctMethod.getSimpleName(), passingTestName))
                     ).collect(Collectors.toList());
         } else {
             return Collections.emptyList();

@@ -13,6 +13,7 @@ import eu.stamp_project.dspot.common.compilation.TestCompiler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -195,7 +196,7 @@ public class AssertionGenerator {
             final List<CtMethod<?>> passingTestMethods = tests.stream()
                     .filter(ctMethod ->
                             passingTestsName.stream()
-                                    .anyMatch(passingTestName -> AmplificationHelper.checkMethodName(ctMethod.getSimpleName(), passingTestName))
+                                    .anyMatch(passingTestName -> AmplificationHelper.checkMethodName(testClass.getQualifiedName() + "#" + ctMethod.getSimpleName(), passingTestName))
                     ).collect(Collectors.toList());
             List<CtMethod<?>> passingTests = this.methodReconstructor.addAssertions(testClass, passingTestMethods)
                     .stream()
@@ -217,10 +218,10 @@ public class AssertionGenerator {
             LOGGER.info("{} test fail, generating try/catch/fail blocks...", failuresMethodName.size());
             final List<CtMethod<?>> failingTests = tests.stream()
                     .filter(ctMethod ->
-                            failuresMethodName.contains(ctMethod.getSimpleName()))
+                            failuresMethodName.contains(ctMethod.getParent(CtClass.class).getQualifiedName() + "#" + ctMethod.getSimpleName()))
                     .map(ctMethod ->
                             this.tryCatchFailGenerator
-                                    .surroundWithTryCatchFail(ctMethod, testResult.getFailureOf(ctMethod.getSimpleName()))
+                                    .surroundWithTryCatchFail(ctMethod, testResult.getFailureOf(ctMethod.getParent(CtClass.class).getQualifiedName() + "#" + ctMethod.getSimpleName()))
                     )
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
