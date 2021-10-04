@@ -19,6 +19,7 @@ import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
 
 import org.apache.commons.io.FileUtils;
 import spoon.reflect.code.CtComment;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
 import spoon.reflect.declaration.CtType;
@@ -82,9 +83,9 @@ public class JacocoCoverageSelector extends TakeAllSelector {
         final List<String> pathExecuted = new ArrayList<>();
         final List<CtMethod<?>> filteredTests = testsToBeAmplified.stream()
                 .filter(ctMethod -> ctMethod != null &&
-                        coveragePerTestMethod.getCoverageOf(ctMethod.getSimpleName()) != null)
+                        coveragePerTestMethod.getCoverageOf(classTest.getQualifiedName() + "#" + ctMethod.getSimpleName()) != null)
                 .filter(ctMethod -> {
-                    final String pathByExecInstructions = coveragePerTestMethod.getCoverageOf(ctMethod.getSimpleName()).getExecutionPath();
+                    final String pathByExecInstructions = coveragePerTestMethod.getCoverageOf(classTest.getQualifiedName() + "#" + ctMethod.getSimpleName()).getExecutionPath();
                     if (pathExecuted.contains(pathByExecInstructions)) {
                         return false;
                     } else {
@@ -129,11 +130,11 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                 .filter(ctMethod -> {
                     final String simpleNameOfFirstParent = getFirstParentThatHasBeenRun(ctMethod).getSimpleName();
                     return this.selectedToBeAmplifiedCoverageResultsMap.get(simpleNameOfFirstParent) == null ||
-                            coveragePerTestMethod.getCoverageOf(ctMethod.getSimpleName()).isBetterThan(
+                            coveragePerTestMethod.getCoverageOf(this.currentClassTestToBeAmplified.getQualifiedName() + "#" + ctMethod.getSimpleName()).isBetterThan(
                                     this.selectedToBeAmplifiedCoverageResultsMap.get(simpleNameOfFirstParent));
                 })
                 .filter(ctMethod -> {
-                    final String pathByExecInstructions = coveragePerTestMethod.getCoverageOf(ctMethod.getSimpleName()).getExecutionPath();
+                    final String pathByExecInstructions = coveragePerTestMethod.getCoverageOf(this.currentClassTestToBeAmplified.getQualifiedName() + "#" + ctMethod.getSimpleName()).getExecutionPath();
                     if (pathExecuted.contains(pathByExecInstructions)) {
                         return false;
                     } else {
@@ -143,7 +144,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                 })
                 .peek(ctMethod -> {
                     Coverage oldCoverage = this.selectedToBeAmplifiedCoverageResultsMap.get(getFirstParentThatHasBeenRun(ctMethod).getSimpleName());
-                    Coverage newCoverage = coveragePerTestMethod.getCoverageOf(ctMethod.getSimpleName());
+                    Coverage newCoverage = coveragePerTestMethod.getCoverageOf(this.currentClassTestToBeAmplified.getQualifiedName() + "#" + ctMethod.getSimpleName());
                     if (oldCoverage != null) {
                         DSpotUtils.addComment(ctMethod, "JacocoCoverageSelector: Improves instruction coverage from "
                                         + oldCoverage.getInstructionsCovered() + "/" + oldCoverage.getInstructionsTotal(),
@@ -158,7 +159,7 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                 .collect(Collectors.toList());
 
         this.selectedToBeAmplifiedCoverageResultsMap.putAll(methodsKept.stream()
-                .map(CtNamedElement::getSimpleName)
+                .map(ctMethod -> ctMethod.getParent(CtClass.class).getQualifiedName() + "#" + ctMethod.getSimpleName())
                 .collect(
                         Collectors.toMap(Function.identity(), coveragePerTestMethod.getCoverageResultsMap()::get)
                 )
@@ -262,8 +263,8 @@ public class JacocoCoverageSelector extends TakeAllSelector {
                 testClassJSON.addTestCase(new TestCaseJSON(ctMethod.getSimpleName(),
                         Counter.getAssertionOfSinceOrigin(ctMethod),
                         Counter.getInputOfSinceOrigin(ctMethod),
-                        this.selectedToBeAmplifiedCoverageResultsMap.get(ctMethod.getSimpleName()).getInstructionsCovered(),
-                        this.selectedToBeAmplifiedCoverageResultsMap.get(ctMethod.getSimpleName()).getInstructionsTotal()
+                        this.selectedToBeAmplifiedCoverageResultsMap.get(this.currentClassTestToBeAmplified.getQualifiedName() + "#" + ctMethod.getSimpleName()).getInstructionsCovered(),
+                        this.selectedToBeAmplifiedCoverageResultsMap.get(this.currentClassTestToBeAmplified.getQualifiedName() + "#" + ctMethod.getSimpleName()).getInstructionsTotal()
                 ))
         );
 //      TODO

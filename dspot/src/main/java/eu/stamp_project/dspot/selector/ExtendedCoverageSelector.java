@@ -15,6 +15,7 @@ import eu.stamp_project.dspot.selector.extendedcoverageselector.ExtendedCoverage
 import eu.stamp_project.testrunner.EntryPoint;
 import eu.stamp_project.testrunner.listener.CoveragePerTestMethod;
 import spoon.reflect.code.CtComment;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
 import spoon.reflect.declaration.CtType;
@@ -61,7 +62,7 @@ public class ExtendedCoverageSelector extends TakeAllSelector {
         final List<CtMethod<?>> methodsKept = new ArrayList<>();
         for (CtMethod<?> ctMethod : amplifiedTestToBeKept) {
             ExtendedCoverage newCoverage = new ExtendedCoverage(coveragePerTestMethod
-                    .getCoverageOf(ctMethod.getSimpleName()));
+                    .getCoverageOf(ctMethod.getParent(CtClass.class).getQualifiedName() + "#" + ctMethod.getSimpleName()));
 
             if (newCoverage.isBetterThan(this.cumulativeAmplifiedCoverage)) {
                 //note: we still explain the improvement to the coverage before amplification. Maybe we should change?

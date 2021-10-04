@@ -30,5 +30,5 @@ public class ChangeDetectorSelectorTest extends AbstractSelectorTest {
     @Override
     protected String getContentReportFile() {
         return "1 amplified test fails on the new versions." + AmplificationHelper.LINE_SEPARATOR +
-                "test2(example.TestSuiteExample): String index out of range: -1java.lang.StringIndexOutOfBoundsException: String index out of range: -1" + AmplificationHelper.LINE_SEPARATOR;}
+                "example.TestSuiteExample#test2(example.TestSuiteExample): String index out of range: -1java.lang.StringIndexOutOfBoundsException: String index out of range: -1" + AmplificationHelper.LINE_SEPARATOR;}
 }

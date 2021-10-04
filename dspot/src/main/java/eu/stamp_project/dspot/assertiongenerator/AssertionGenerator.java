@@ -13,12 +13,11 @@ import eu.stamp_project.dspot.common.compilation.TestCompiler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -191,13 +190,13 @@ public class AssertionGenerator {
 
     private List<CtMethod<?>> addAssertionsOnPassingTests(TestResult testResult, List<CtMethod<?>> tests, CtType testClass){
         final List<CtMethod<?>> generatedTestWithAssertion = new ArrayList<>();
-        final List<String> passingTestsName = testResult.getPassingTests();
+        final Set<String> passingTestsName = testResult.getPassingTests();
         if (!passingTestsName.isEmpty()) {
             LOGGER.info("{} test pass, generating assertion...", passingTestsName.size());
             final List<CtMethod<?>> passingTestMethods = tests.stream()
                     .filter(ctMethod ->
                             passingTestsName.stream()
-                                    .anyMatch(passingTestName -> AmplificationHelper.checkMethodName(ctMethod.getSimpleName(), passingTestName))
+                                    .anyMatch(passingTestName -> AmplificationHelper.checkMethodName(testClass.getQualifiedName() + "#" + ctMethod.getSimpleName(), passingTestName))
                     ).collect(Collectors.toList());
             List<CtMethod<?>> passingTests = this.methodReconstructor.addAssertions(testClass, passingTestMethods)
                     .stream()
@@ -219,10 +218,10 @@ public class AssertionGenerator {
             LOGGER.info("{} test fail, generating try/catch/fail blocks...", failuresMethodName.size());
             final List<CtMethod<?>> failingTests = tests.stream()
                     .filter(ctMethod ->
-                            failuresMethodName.contains(ctMethod.getSimpleName()))
+                            failuresMethodName.contains(ctMethod.getParent(CtClass.class).getQualifiedName() + "#" + ctMethod.getSimpleName()))
                     .map(ctMethod ->
                             this.tryCatchFailGenerator
-                                    .surroundWithTryCatchFail(ctMethod, testResult.getFailureOf(ctMethod.getSimpleName()))
+                                    .surroundWithTryCatchFail(ctMethod, testResult.getFailureOf(ctMethod.getParent(CtClass.class).getQualifiedName() + "#" + ctMethod.getSimpleName()))
                     )
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());

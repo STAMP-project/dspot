@@ -134,7 +134,8 @@ public class AmplificationSetup {
             passingTests = testCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
                     testClassToBeAmplified,
                     testMethodsToBeAmplified,
-                    compiler);
+                    compiler
+            );
         } catch (Exception | java.lang.Error e) {
             GLOBAL_REPORT.addError(new Error(ERROR_EXEC_TEST_BEFORE_AMPLIFICATION, e));
             throw new Exception();

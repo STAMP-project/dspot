@@ -18,6 +18,7 @@ import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
@@ -122,7 +123,7 @@ public class ChangeDetectorSelector extends AbstractTestSelector {
             results.getFailingTests()
                     .forEach(failure -> {
                                 final CtMethod<?> key = amplifiedTestToBeKept.stream()
-                                        .filter(ctMethod -> ctMethod.getSimpleName().equals(failure.testCaseName))
+                                        .filter(ctMethod -> (ctMethod.getParent(CtClass.class).getQualifiedName() + "#" + ctMethod.getSimpleName()).equals(failure.testCaseName))
                                         .findFirst()
                                         .get();
                                 amplifiedThatWillBeKept.add(key);
