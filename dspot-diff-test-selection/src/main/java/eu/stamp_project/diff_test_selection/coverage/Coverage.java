@@ -60,6 +60,16 @@ public class Coverage {
         return allHitCountFromClassNameForLine;
     }
 
+    public void merge(Coverage that) {
+        for (String testClass : that.testClassCoverage.keySet()) {
+            if (!this.testClassCoverage.containsKey(testClass)) {
+                this.testClassCoverage.put(testClass, that.testClassCoverage.get(testClass));
+            } else {
+                this.testClassCoverage.get(testClass).merge(that.testClassCoverage.get(testClass));
+            }
+        }
+    }
+
     @Override
     public String toString() {
         return "Coverage{" +

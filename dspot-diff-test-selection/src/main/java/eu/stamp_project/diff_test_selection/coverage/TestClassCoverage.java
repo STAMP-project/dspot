@@ -51,6 +51,16 @@ public class TestClassCoverage {
         return hitCountForLinePerTestMethodName;
     }
 
+    public void merge(TestClassCoverage that) {
+        for (String testMethodName : that.testMethodsCoverage.keySet()) {
+            if (!this.testMethodsCoverage.containsKey(testMethodName)) {
+                this.testMethodsCoverage.put(testMethodName, that.testMethodsCoverage.get(testMethodName));
+            } else {
+                this.testMethodsCoverage.get(testMethodName).merge(that.testMethodsCoverage.get(testMethodName));
+            }
+        }
+    }
+
     @Override
     public String toString() {
         return "TestClassCoverage{" +

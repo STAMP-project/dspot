@@ -9,11 +9,19 @@ public class LineCoverage {
 
     public final int line;
 
-    public final int hitCount;
+    private int hitCount;
 
     public LineCoverage(int line, int hitCount) {
         this.line = line;
         this.hitCount = hitCount;
+    }
+
+    public int getHitCount() {
+        return this.hitCount;
+    }
+
+    public void merge(LineCoverage that) {
+        this.hitCount += that.hitCount;
     }
 
     @Override
