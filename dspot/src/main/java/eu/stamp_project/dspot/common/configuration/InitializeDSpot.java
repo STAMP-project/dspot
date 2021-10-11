@@ -18,7 +18,6 @@ import eu.stamp_project.dspot.common.report.output.Output;
 import eu.stamp_project.dspot.common.collector.smtp.EmailSender;
 import eu.stamp_project.dspot.common.configuration.test_finder.TestFinder;
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
