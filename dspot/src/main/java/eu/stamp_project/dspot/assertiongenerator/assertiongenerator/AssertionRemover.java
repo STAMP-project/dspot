@@ -34,14 +34,15 @@ public class AssertionRemover {
      * @param testMethod Test method
      * @return Test's clone without any assertion
      */
-    public CtMethod<?> removeAssertion(CtMethod<?> testMethod) {
+    public CtMethod<?> removeAssertions(CtMethod<?> testMethod, boolean leaveArguments) {
         CtMethod<?> testWithoutAssertion = CloneHelper.cloneTestMethodNoAmp(testMethod);
         variableAssertedPerTestMethod.put(testWithoutAssertion,
                 testWithoutAssertion
                         .getElements(TestFramework.ASSERTIONS_FILTER)
                         .stream()
                         .filter(invocation -> !(invocation.getParent() instanceof CtRHSReceiver)) // it means that the return type is used in the test.
-                        .flatMap(invocation -> this.removeAssertion(invocation).stream())
+                        .flatMap(invocation -> leaveArguments ? this.removeAssertion(invocation).stream() :
+                                this.removeAssertionFully(invocation).stream())
                         .collect(Collectors.toList())
         );
 
@@ -61,28 +62,6 @@ public class AssertionRemover {
         ).forEach(testWithoutAssertion.getBody()::removeStatement);
 
         return testWithoutAssertion;
-    }
-
-    /**
-     * Can be called after {@link AssertionRemover#removeAssertion(CtMethod)} to remove the statements that
-     * previously were arguments of assertions all the way at
-     * @param testMethod
-     * @return
-     */
-    public CtMethod<?> removeArgumentsOfTrailingAssertions(CtMethod<?> testMethod) {
-        List<CtStatement> testStatements = testMethod.getElements(new TypeFilter<>(CtStatement.class));
-
-        for (int i = testStatements.size() - 1; i >= 0; i--) {
-            CtStatement statement = testStatements.get(i);
-            Object metadata = statement.getMetadata(AssertionGeneratorUtils.METADATA_WAS_IN_ASSERTION);
-            if (metadata != null && (Boolean) metadata) {
-                testMethod.getBody().removeStatement(statement);
-            } else {
-                break;
-            }
-        }
-
-        return testMethod;
     }
 
     /**
@@ -167,6 +146,20 @@ public class AssertionRemover {
         CtStatement topStatement = AssertionGeneratorUtils.getTopStatement(invocation);
         ((CtStatementList) topStatement.getParent()).removeStatement(topStatement);
         return variableReadsAsserted;
+    }
+
+    /**
+     * Removes an invocation
+     *
+     * @param invocation Invocation
+     * @return the list of local variables extracted from assertions
+     */
+    public List<CtLocalVariable<?>> removeAssertionFully(CtInvocation<?> invocation) {
+        // must find the first statement list to remove the invocation from it, e.g. the block that contains the assertions
+        // the assertion can be inside other stuff, than directly in the block
+        CtStatement topStatement = AssertionGeneratorUtils.getTopStatement(invocation);
+        ((CtStatementList) topStatement.getParent()).removeStatement(topStatement);
+        return Collections.emptyList();
     }
 
     private static String toCorrectJavaIdentifier(String name) {
