@@ -1,15 +1,12 @@
 package eu.stamp_project.dspot.amplifier.amplifiers;
 
+import eu.stamp_project.dspot.common.configuration.options.CommentEnum;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.dspot.common.miscellaneous.AmplificationHelper;
 import eu.stamp_project.dspot.common.miscellaneous.CloneHelper;
 import eu.stamp_project.dspot.common.miscellaneous.Counter;
-import spoon.reflect.code.CtBlock;
-import spoon.reflect.code.CtInvocation;
-import spoon.reflect.code.CtStatement;
-import spoon.reflect.code.CtStatementList;
-import spoon.reflect.code.CtTry;
-import spoon.reflect.code.CtWhile;
+import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.visitor.filter.TypeFilter;
@@ -54,6 +51,8 @@ public class TestMethodCallRemover implements Amplifier {
             ctStatementList.getStatements().get(indexOfInvocation).insertAfter(invocation);
         }
         Counter.updateInputOf(cloned, 1);
+        DSpotUtils.addComment(ctStatementList,"MethodCallRemover: removed call '" + invocation + "'",
+                CtComment.CommentType.INLINE, CommentEnum.Amplifier);
         return cloned;
     }
 
